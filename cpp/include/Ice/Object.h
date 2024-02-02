@@ -168,8 +168,7 @@ public:
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      */
-    virtual bool ice_invoke(ICE_IN(std::vector<Byte>) inEncaps, std::vector<Byte>& outEncaps,
-                            const Current& current) = 0;
+    virtual bool ice_invoke(std::vector<Byte> inEncaps, std::vector<Byte>& outEncaps, const Current& current) = 0;
 
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -197,7 +196,7 @@ public:
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      */
-    virtual bool ice_invoke(ICE_IN(std::pair<const Byte*, const Byte*>) inEncaps, std::vector<Byte>& outEncaps,
+    virtual bool ice_invoke(std::pair<const Byte*, const Byte*> inEncaps, std::vector<Byte>& outEncaps,
                             const Current& current) = 0;
 
     /// \cond INTERNAL

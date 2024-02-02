@@ -34,7 +34,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     def_s2.il.push_back(3);
     def_s2.sd["abc"] = "def";
     def_s2.s = {"name"};
-    def_s2.cls = ICE_MAKE_SHARED(C, 5);
+    def_s2.cls = make_shared<C>(5);
     def_s2.prx = communicator->stringToProxy("test");
     cout << "ok" << endl;
 }

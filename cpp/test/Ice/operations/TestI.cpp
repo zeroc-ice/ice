@@ -20,28 +20,28 @@ MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
 bool
 MyDerivedClassI::ice_isA(string id, const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_isA(std::move(id), current);
 }
 
 void
 MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     Test::MyDerivedClass::ice_ping(current);
 }
 
 std::vector<std::string>
 MyDerivedClassI::ice_ids(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_ids(current);
 }
 
 std::string
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_id(current);
 }
 
@@ -64,7 +64,7 @@ MyDerivedClassI::supportsCompress(const Ice::Current&)
 void
 MyDerivedClassI::opVoid(const Ice::Current& current)
 {
-    test(current.mode == ICE_ENUM(OperationMode, Normal));
+    test(current.mode == OperationMode::Normal);
 }
 
 Ice::Byte
@@ -115,8 +115,8 @@ MyDerivedClassI::opFloatDouble(Ice::Float p1,
 }
 
 std::string
-MyDerivedClassI::opString(ICE_IN(string) p1,
-                          ICE_IN(string) p2,
+MyDerivedClassI::opString(string p1,
+                          string p2,
                           string& p3,
                           const Ice::Current&)
 {
@@ -130,11 +130,11 @@ MyDerivedClassI::opMyEnum(Test::MyEnum p1,
                           const Ice::Current&)
 {
     p2 = p1;
-    return ICE_ENUM(MyEnum, enum3);
+    return MyEnum::enum3;
 }
 
 Test::MyClassPrxPtr
-MyDerivedClassI::opMyClass(ICE_IN(Test::MyClassPrxPtr) p1,
+MyDerivedClassI::opMyClass(Test::MyClassPrxPtr p1,
                            Test::MyClassPrxPtr& p2,
                            Test::MyClassPrxPtr& p3,
                            const Ice::Current& current)
@@ -147,8 +147,8 @@ MyDerivedClassI::opMyClass(ICE_IN(Test::MyClassPrxPtr) p1,
 }
 
 Test::Structure
-MyDerivedClassI::opStruct(ICE_IN(Test::Structure) p1,
-                          ICE_IN(Test::Structure) p2,
+MyDerivedClassI::opStruct(Test::Structure p1,
+                          Test::Structure p2,
                           ::Test::Structure& p3,
                           const Ice::Current&)
 {
@@ -158,8 +158,8 @@ MyDerivedClassI::opStruct(ICE_IN(Test::Structure) p1,
 }
 
 Test::ByteS
-MyDerivedClassI::opByteS(ICE_IN(Test::ByteS) p1,
-                         ICE_IN(Test::ByteS) p2,
+MyDerivedClassI::opByteS(Test::ByteS p1,
+                         Test::ByteS p2,
                          Test::ByteS& p3,
                          const Ice::Current&)
 {
@@ -171,8 +171,8 @@ MyDerivedClassI::opByteS(ICE_IN(Test::ByteS) p1,
 }
 
 Test::BoolS
-MyDerivedClassI::opBoolS(ICE_IN(Test::BoolS) p1,
-                         ICE_IN(Test::BoolS) p2,
+MyDerivedClassI::opBoolS(Test::BoolS p1,
+                         Test::BoolS p2,
                          Test::BoolS& p3,
                          const Ice::Current&)
 {
@@ -185,9 +185,9 @@ MyDerivedClassI::opBoolS(ICE_IN(Test::BoolS) p1,
 }
 
 Test::LongS
-MyDerivedClassI::opShortIntLongS(ICE_IN(Test::ShortS) p1,
-                                 ICE_IN(Test::IntS) p2,
-                                 ICE_IN(Test::LongS) p3,
+MyDerivedClassI::opShortIntLongS(Test::ShortS p1,
+                                 Test::IntS p2,
+                                 Test::LongS p3,
                                  Test::ShortS& p4,
                                  Test::IntS& p5,
                                  Test::LongS& p6,
@@ -202,8 +202,8 @@ MyDerivedClassI::opShortIntLongS(ICE_IN(Test::ShortS) p1,
 }
 
 Test::DoubleS
-MyDerivedClassI::opFloatDoubleS(ICE_IN(Test::FloatS) p1,
-                                ICE_IN(Test::DoubleS) p2,
+MyDerivedClassI::opFloatDoubleS(Test::FloatS p1,
+                                Test::DoubleS p2,
                                 Test::FloatS& p3,
                                 Test::DoubleS& p4,
                                 const Ice::Current&)
@@ -217,8 +217,8 @@ MyDerivedClassI::opFloatDoubleS(ICE_IN(Test::FloatS) p1,
 }
 
 Test::StringS
-MyDerivedClassI::opStringS(ICE_IN(Test::StringS) p1,
-                           ICE_IN(Test::StringS) p2,
+MyDerivedClassI::opStringS(Test::StringS p1,
+                           Test::StringS p2,
                            Test::StringS& p3,
                            const Ice::Current&)
 {
@@ -231,8 +231,8 @@ MyDerivedClassI::opStringS(ICE_IN(Test::StringS) p1,
 }
 
 Test::ByteSS
-MyDerivedClassI::opByteSS(ICE_IN(Test::ByteSS) p1,
-                          ICE_IN(Test::ByteSS) p2,
+MyDerivedClassI::opByteSS(Test::ByteSS p1,
+                          Test::ByteSS p2,
                           Test::ByteSS& p3,
                           const Ice::Current&)
 {
@@ -244,8 +244,8 @@ MyDerivedClassI::opByteSS(ICE_IN(Test::ByteSS) p1,
 }
 
 Test::BoolSS
-MyDerivedClassI::opBoolSS(ICE_IN(Test::BoolSS) p1,
-                          ICE_IN(Test::BoolSS) p2,
+MyDerivedClassI::opBoolSS(Test::BoolSS p1,
+                          Test::BoolSS p2,
                           Test::BoolSS& p3,
                           const Ice::Current&)
 {
@@ -258,9 +258,9 @@ MyDerivedClassI::opBoolSS(ICE_IN(Test::BoolSS) p1,
 }
 
 Test::LongSS
-MyDerivedClassI::opShortIntLongSS(ICE_IN(Test::ShortSS) p1,
-                                  ICE_IN(Test::IntSS) p2,
-                                  ICE_IN(Test::LongSS) p3,
+MyDerivedClassI::opShortIntLongSS(Test::ShortSS p1,
+                                  Test::IntSS p2,
+                                  Test::LongSS p3,
                                   Test::ShortSS& p4,
                                   Test::IntSS& p5,
                                   Test::LongSS& p6,
@@ -275,8 +275,8 @@ MyDerivedClassI::opShortIntLongSS(ICE_IN(Test::ShortSS) p1,
 }
 
 Test::DoubleSS
-MyDerivedClassI::opFloatDoubleSS(ICE_IN(Test::FloatSS) p1,
-                                 ICE_IN(Test::DoubleSS) p2,
+MyDerivedClassI::opFloatDoubleSS(Test::FloatSS p1,
+                                 Test::DoubleSS p2,
                                  Test::FloatSS& p3,
                                  Test::DoubleSS& p4,
                                  const Ice::Current&)
@@ -290,8 +290,8 @@ MyDerivedClassI::opFloatDoubleSS(ICE_IN(Test::FloatSS) p1,
 }
 
 Test::StringSS
-MyDerivedClassI::opStringSS(ICE_IN(Test::StringSS) p1,
-                            ICE_IN(Test::StringSS) p2,
+MyDerivedClassI::opStringSS(Test::StringSS p1,
+                            Test::StringSS p2,
                             Test::StringSS& p3,
                             const Ice::Current&)
 {
@@ -304,8 +304,8 @@ MyDerivedClassI::opStringSS(ICE_IN(Test::StringSS) p1,
 }
 
 Test::StringSSS
-MyDerivedClassI::opStringSSS(ICE_IN(Test::StringSSS) p1,
-                             ICE_IN(Test::StringSSS) p2,
+MyDerivedClassI::opStringSSS(Test::StringSSS p1,
+                             Test::StringSSS p2,
                              Test::StringSSS& p3,
                              const ::Ice::Current&)
 {
@@ -318,8 +318,8 @@ MyDerivedClassI::opStringSSS(ICE_IN(Test::StringSSS) p1,
 }
 
 Test::ByteBoolD
-MyDerivedClassI::opByteBoolD(ICE_IN(Test::ByteBoolD) p1,
-                             ICE_IN(Test::ByteBoolD) p2,
+MyDerivedClassI::opByteBoolD(Test::ByteBoolD p1,
+                             Test::ByteBoolD p2,
                              Test::ByteBoolD& p3,
                              const Ice::Current&)
 {
@@ -330,8 +330,8 @@ MyDerivedClassI::opByteBoolD(ICE_IN(Test::ByteBoolD) p1,
 }
 
 Test::ShortIntD
-MyDerivedClassI::opShortIntD(ICE_IN(Test::ShortIntD) p1,
-                             ICE_IN(Test::ShortIntD) p2,
+MyDerivedClassI::opShortIntD(Test::ShortIntD p1,
+                             Test::ShortIntD p2,
                              Test::ShortIntD& p3,
                              const Ice::Current&)
 {
@@ -342,8 +342,8 @@ MyDerivedClassI::opShortIntD(ICE_IN(Test::ShortIntD) p1,
 }
 
 Test::LongFloatD
-MyDerivedClassI::opLongFloatD(ICE_IN(Test::LongFloatD) p1,
-                              ICE_IN(Test::LongFloatD) p2,
+MyDerivedClassI::opLongFloatD(Test::LongFloatD p1,
+                              Test::LongFloatD p2,
                               Test::LongFloatD& p3,
                               const Ice::Current&)
 {
@@ -354,8 +354,8 @@ MyDerivedClassI::opLongFloatD(ICE_IN(Test::LongFloatD) p1,
 }
 
 Test::StringStringD
-MyDerivedClassI::opStringStringD(ICE_IN(Test::StringStringD) p1,
-                                 ICE_IN(Test::StringStringD) p2,
+MyDerivedClassI::opStringStringD(Test::StringStringD p1,
+                                 Test::StringStringD p2,
                                  Test::StringStringD& p3,
                                  const Ice::Current&)
 {
@@ -366,8 +366,8 @@ MyDerivedClassI::opStringStringD(ICE_IN(Test::StringStringD) p1,
 }
 
 Test::StringMyEnumD
-MyDerivedClassI::opStringMyEnumD(ICE_IN(Test::StringMyEnumD) p1,
-                                 ICE_IN(Test::StringMyEnumD) p2,
+MyDerivedClassI::opStringMyEnumD(Test::StringMyEnumD p1,
+                                 Test::StringMyEnumD p2,
                                  Test::StringMyEnumD& p3,
                                  const Ice::Current&)
 {
@@ -378,8 +378,8 @@ MyDerivedClassI::opStringMyEnumD(ICE_IN(Test::StringMyEnumD) p1,
 }
 
 Test::MyEnumStringD
-MyDerivedClassI::opMyEnumStringD(ICE_IN(Test::MyEnumStringD) p1,
-                                 ICE_IN(Test::MyEnumStringD) p2,
+MyDerivedClassI::opMyEnumStringD(Test::MyEnumStringD p1,
+                                 Test::MyEnumStringD p2,
                                  Test::MyEnumStringD& p3,
                                  const Ice::Current&)
 {
@@ -390,8 +390,8 @@ MyDerivedClassI::opMyEnumStringD(ICE_IN(Test::MyEnumStringD) p1,
 }
 
 Test::MyStructMyEnumD
-MyDerivedClassI::opMyStructMyEnumD(ICE_IN(Test::MyStructMyEnumD) p1,
-                                   ICE_IN(Test::MyStructMyEnumD) p2,
+MyDerivedClassI::opMyStructMyEnumD(Test::MyStructMyEnumD p1,
+                                   Test::MyStructMyEnumD p2,
                                    Test::MyStructMyEnumD& p3,
                                    const Ice::Current&)
 {
@@ -402,8 +402,8 @@ MyDerivedClassI::opMyStructMyEnumD(ICE_IN(Test::MyStructMyEnumD) p1,
 }
 
 Test::ByteBoolDS
-MyDerivedClassI::opByteBoolDS(ICE_IN(Test::ByteBoolDS) p1,
-                              ICE_IN(Test::ByteBoolDS) p2,
+MyDerivedClassI::opByteBoolDS(Test::ByteBoolDS p1,
+                              Test::ByteBoolDS p2,
                               Test::ByteBoolDS& p3,
                               const Ice::Current&)
 {
@@ -416,8 +416,8 @@ MyDerivedClassI::opByteBoolDS(ICE_IN(Test::ByteBoolDS) p1,
 }
 
 Test::ShortIntDS
-MyDerivedClassI::opShortIntDS(ICE_IN(Test::ShortIntDS) p1,
-                              ICE_IN(Test::ShortIntDS) p2,
+MyDerivedClassI::opShortIntDS(Test::ShortIntDS p1,
+                              Test::ShortIntDS p2,
                               Test::ShortIntDS& p3,
                               const Ice::Current&)
 {
@@ -430,8 +430,8 @@ MyDerivedClassI::opShortIntDS(ICE_IN(Test::ShortIntDS) p1,
 }
 
 Test::LongFloatDS
-MyDerivedClassI::opLongFloatDS(ICE_IN(Test::LongFloatDS) p1,
-                               ICE_IN(Test::LongFloatDS) p2,
+MyDerivedClassI::opLongFloatDS(Test::LongFloatDS p1,
+                               Test::LongFloatDS p2,
                                Test::LongFloatDS& p3,
                                const Ice::Current&)
 {
@@ -444,8 +444,8 @@ MyDerivedClassI::opLongFloatDS(ICE_IN(Test::LongFloatDS) p1,
 }
 
 Test::StringStringDS
-MyDerivedClassI::opStringStringDS(ICE_IN(Test::StringStringDS) p1,
-                                  ICE_IN(Test::StringStringDS) p2,
+MyDerivedClassI::opStringStringDS(Test::StringStringDS p1,
+                                  Test::StringStringDS p2,
                                   Test::StringStringDS& p3,
                                   const Ice::Current&)
 {
@@ -458,8 +458,8 @@ MyDerivedClassI::opStringStringDS(ICE_IN(Test::StringStringDS) p1,
 }
 
 Test::StringMyEnumDS
-MyDerivedClassI::opStringMyEnumDS(ICE_IN(Test::StringMyEnumDS) p1,
-                                  ICE_IN(Test::StringMyEnumDS) p2,
+MyDerivedClassI::opStringMyEnumDS(Test::StringMyEnumDS p1,
+                                  Test::StringMyEnumDS p2,
                                   Test::StringMyEnumDS& p3,
                                   const Ice::Current&)
 {
@@ -472,8 +472,8 @@ MyDerivedClassI::opStringMyEnumDS(ICE_IN(Test::StringMyEnumDS) p1,
 }
 
 Test::MyEnumStringDS
-MyDerivedClassI::opMyEnumStringDS(ICE_IN(Test::MyEnumStringDS) p1,
-                                  ICE_IN(Test::MyEnumStringDS) p2,
+MyDerivedClassI::opMyEnumStringDS(Test::MyEnumStringDS p1,
+                                  Test::MyEnumStringDS p2,
                                   Test::MyEnumStringDS& p3,
                                   const Ice::Current&)
 {
@@ -486,8 +486,8 @@ MyDerivedClassI::opMyEnumStringDS(ICE_IN(Test::MyEnumStringDS) p1,
 }
 
 Test::MyStructMyEnumDS
-MyDerivedClassI::opMyStructMyEnumDS(ICE_IN(Test::MyStructMyEnumDS) p1,
-                                    ICE_IN(Test::MyStructMyEnumDS) p2,
+MyDerivedClassI::opMyStructMyEnumDS(Test::MyStructMyEnumDS p1,
+                                    Test::MyStructMyEnumDS p2,
                                     Test::MyStructMyEnumDS& p3,
                                     const Ice::Current&)
 {
@@ -500,8 +500,8 @@ MyDerivedClassI::opMyStructMyEnumDS(ICE_IN(Test::MyStructMyEnumDS) p1,
 }
 
 Test::ByteByteSD
-MyDerivedClassI::opByteByteSD(ICE_IN(Test::ByteByteSD) p1,
-                              ICE_IN(Test::ByteByteSD) p2,
+MyDerivedClassI::opByteByteSD(Test::ByteByteSD p1,
+                              Test::ByteByteSD p2,
                               Test::ByteByteSD& p3,
                               const Ice::Current&)
 {
@@ -512,8 +512,8 @@ MyDerivedClassI::opByteByteSD(ICE_IN(Test::ByteByteSD) p1,
 }
 
 Test::BoolBoolSD
-MyDerivedClassI::opBoolBoolSD(ICE_IN(Test::BoolBoolSD) p1,
-                              ICE_IN(Test::BoolBoolSD) p2,
+MyDerivedClassI::opBoolBoolSD(Test::BoolBoolSD p1,
+                              Test::BoolBoolSD p2,
                               Test::BoolBoolSD& p3,
                               const Ice::Current&)
 {
@@ -524,8 +524,8 @@ MyDerivedClassI::opBoolBoolSD(ICE_IN(Test::BoolBoolSD) p1,
 }
 
 Test::ShortShortSD
-MyDerivedClassI::opShortShortSD(ICE_IN(Test::ShortShortSD) p1,
-                                ICE_IN(Test::ShortShortSD) p2,
+MyDerivedClassI::opShortShortSD(Test::ShortShortSD p1,
+                                Test::ShortShortSD p2,
                                 Test::ShortShortSD& p3,
                                 const Ice::Current&)
 {
@@ -536,8 +536,8 @@ MyDerivedClassI::opShortShortSD(ICE_IN(Test::ShortShortSD) p1,
 }
 
 Test::IntIntSD
-MyDerivedClassI::opIntIntSD(ICE_IN(Test::IntIntSD) p1,
-                            ICE_IN(Test::IntIntSD) p2,
+MyDerivedClassI::opIntIntSD(Test::IntIntSD p1,
+                            Test::IntIntSD p2,
                             Test::IntIntSD& p3,
                             const Ice::Current&)
 {
@@ -548,8 +548,8 @@ MyDerivedClassI::opIntIntSD(ICE_IN(Test::IntIntSD) p1,
 }
 
 Test::LongLongSD
-MyDerivedClassI::opLongLongSD(ICE_IN(Test::LongLongSD) p1,
-                              ICE_IN(Test::LongLongSD) p2,
+MyDerivedClassI::opLongLongSD(Test::LongLongSD p1,
+                              Test::LongLongSD p2,
                               Test::LongLongSD& p3,
                               const Ice::Current&)
 {
@@ -560,8 +560,8 @@ MyDerivedClassI::opLongLongSD(ICE_IN(Test::LongLongSD) p1,
 }
 
 Test::StringFloatSD
-MyDerivedClassI::opStringFloatSD(ICE_IN(Test::StringFloatSD) p1,
-                                 ICE_IN(Test::StringFloatSD) p2,
+MyDerivedClassI::opStringFloatSD(Test::StringFloatSD p1,
+                                 Test::StringFloatSD p2,
                                  Test::StringFloatSD& p3,
                                  const Ice::Current&)
 {
@@ -572,8 +572,8 @@ MyDerivedClassI::opStringFloatSD(ICE_IN(Test::StringFloatSD) p1,
 }
 
 Test::StringDoubleSD
-MyDerivedClassI::opStringDoubleSD(ICE_IN(Test::StringDoubleSD) p1,
-                                  ICE_IN(Test::StringDoubleSD) p2,
+MyDerivedClassI::opStringDoubleSD(Test::StringDoubleSD p1,
+                                  Test::StringDoubleSD p2,
                                   Test::StringDoubleSD& p3,
                                   const Ice::Current&)
 {
@@ -584,8 +584,8 @@ MyDerivedClassI::opStringDoubleSD(ICE_IN(Test::StringDoubleSD) p1,
 }
 
 Test::StringStringSD
-MyDerivedClassI::opStringStringSD(ICE_IN(Test::StringStringSD) p1,
-                                  ICE_IN(Test::StringStringSD) p2,
+MyDerivedClassI::opStringStringSD(Test::StringStringSD p1,
+                                  Test::StringStringSD p2,
                                   Test::StringStringSD& p3,
                                   const Ice::Current&)
 {
@@ -596,8 +596,8 @@ MyDerivedClassI::opStringStringSD(ICE_IN(Test::StringStringSD) p1,
 }
 
 Test::MyEnumMyEnumSD
-MyDerivedClassI::opMyEnumMyEnumSD(ICE_IN(Test::MyEnumMyEnumSD) p1,
-                                  ICE_IN(Test::MyEnumMyEnumSD) p2,
+MyDerivedClassI::opMyEnumMyEnumSD(Test::MyEnumMyEnumSD p1,
+                                  Test::MyEnumMyEnumSD p2,
                                   Test::MyEnumMyEnumSD& p3,
                                   const Ice::Current&)
 {
@@ -608,7 +608,7 @@ MyDerivedClassI::opMyEnumMyEnumSD(ICE_IN(Test::MyEnumMyEnumSD) p1,
 }
 
 Test::IntS
-MyDerivedClassI::opIntS(ICE_IN(Test::IntS) s, const Ice::Current&)
+MyDerivedClassI::opIntS(Test::IntS s, const Ice::Current&)
 {
     Test::IntS r;
     std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<int>());
@@ -616,7 +616,7 @@ MyDerivedClassI::opIntS(ICE_IN(Test::IntS) s, const Ice::Current&)
 }
 
 void
-MyDerivedClassI::opByteSOneway(ICE_IN(Test::ByteS), const Ice::Current&)
+MyDerivedClassI::opByteSOneway(Test::ByteS, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(_mutex);
     ++_opByteSOnewayCallCount;
@@ -638,7 +638,7 @@ MyDerivedClassI::opContext(const Ice::Current& c)
 }
 
 void
-MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, ICE_IN(Test::DoubleS) p2, const Ice::Current&)
+MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, Test::DoubleS p2, const Ice::Current&)
 {
     Ice::Double d = 1278312346.0 / 13.0;
     test(p1 == d);
@@ -651,13 +651,13 @@ MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, ICE_IN(Test::DoubleS) p2, co
 void
 MyDerivedClassI::opIdempotent(const Ice::Current& current)
 {
-    test(current.mode == ICE_ENUM(OperationMode, Idempotent));
+    test(current.mode == OperationMode::Idempotent);
 }
 
 void
 MyDerivedClassI::opNonmutating(const Ice::Current& current)
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
 }
 
 void
@@ -702,43 +702,43 @@ MyDerivedClassI::opDouble1(Ice::Double d, const Ice::Current&)
 }
 
 std::string
-MyDerivedClassI::opString1(ICE_IN(string) s, const Ice::Current&)
+MyDerivedClassI::opString1(string s, const Ice::Current&)
 {
     return s;
 }
 
 Test::StringS
-MyDerivedClassI::opStringS1(ICE_IN(Test::StringS) seq, const Ice::Current&)
+MyDerivedClassI::opStringS1(Test::StringS seq, const Ice::Current&)
 {
     return seq;
 }
 
 Test::ByteBoolD
-MyDerivedClassI::opByteBoolD1(ICE_IN(Test::ByteBoolD) dict, const Ice::Current&)
+MyDerivedClassI::opByteBoolD1(Test::ByteBoolD dict, const Ice::Current&)
 {
     return dict;
 }
 
 Test::StringS
-MyDerivedClassI::opStringS2(ICE_IN(Test::StringS) seq, const Ice::Current&)
+MyDerivedClassI::opStringS2(Test::StringS seq, const Ice::Current&)
 {
     return seq;
 }
 
 Test::ByteBoolD
-MyDerivedClassI::opByteBoolD2(ICE_IN(Test::ByteBoolD) dict, const Ice::Current&)
+MyDerivedClassI::opByteBoolD2(Test::ByteBoolD dict, const Ice::Current&)
 {
     return dict;
 }
 
 Test::MyStruct1
-MyDerivedClassI::opMyStruct1(ICE_IN(Test::MyStruct1) s, const Ice::Current&)
+MyDerivedClassI::opMyStruct1(Test::MyStruct1 s, const Ice::Current&)
 {
     return s;
 }
 
 Test::MyClass1Ptr
-MyDerivedClassI::opMyClass1(ICE_IN(Test::MyClass1Ptr) c, const Ice::Current&)
+MyDerivedClassI::opMyClass1(Test::MyClass1Ptr c, const Ice::Current&)
 {
     return c;
 }
@@ -831,12 +831,12 @@ MyDerivedClassI::OpMStruct1MarshaledResult
 MyDerivedClassI::opMStruct1(const Ice::Current& current)
 {
     Test::Structure s;
-    s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
+    s.e = MyEnum::enum1; // enum must be initialized
     return OpMStruct1MarshaledResult(s, current);
 }
 
 MyDerivedClassI::OpMStruct2MarshaledResult
-MyDerivedClassI::opMStruct2(ICE_IN(Test::Structure) p1, const Ice::Current& current)
+MyDerivedClassI::opMStruct2(Test::Structure p1, const Ice::Current& current)
 {
     return OpMStruct2MarshaledResult(p1, p1, current);
 }
@@ -848,7 +848,7 @@ MyDerivedClassI::opMSeq1(const Ice::Current& current)
 }
 
 MyDerivedClassI::OpMSeq2MarshaledResult
-MyDerivedClassI::opMSeq2(ICE_IN(Test::StringS) p1, const Ice::Current& current)
+MyDerivedClassI::opMSeq2(Test::StringS p1, const Ice::Current& current)
 {
     return OpMSeq2MarshaledResult(p1, p1, current);
 }
@@ -860,7 +860,7 @@ MyDerivedClassI::opMDict1(const Ice::Current& current)
 }
 
 MyDerivedClassI::OpMDict2MarshaledResult
-MyDerivedClassI::opMDict2(ICE_IN(Test::StringStringD) p1, const Ice::Current& current)
+MyDerivedClassI::opMDict2(Test::StringStringD p1, const Ice::Current& current)
 {
     return OpMDict2MarshaledResult(p1, p1, current);
 }

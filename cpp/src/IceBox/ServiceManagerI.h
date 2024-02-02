@@ -15,7 +15,7 @@ namespace IceBox
 {
 
 class ServiceManagerI;
-ICE_DEFINE_SHARED_PTR(ServiceManagerIPtr, ServiceManagerI);
+using ServiceManagerIPtr = std::shared_ptr<ServiceManagerI>;
 
 class ServiceManagerI : public ServiceManager,
                         public IceUtil::Monitor<IceUtil::Mutex>,
@@ -28,10 +28,10 @@ public:
 
     virtual ~ServiceManagerI();
 
-    virtual void startService(ICE_IN(std::string), const ::Ice::Current&);
-    virtual void stopService(ICE_IN(std::string), const ::Ice::Current&);
+    virtual void startService(std::string, const ::Ice::Current&);
+    virtual void stopService(std::string, const ::Ice::Current&);
 
-    virtual void addObserver(ICE_IN(ServiceObserverPrxPtr), const Ice::Current&);
+    virtual void addObserver(ServiceObserverPrxPtr, const Ice::Current&);
 
     virtual void shutdown(const ::Ice::Current&);
 

@@ -67,7 +67,7 @@ ICE_API bool match(const std::string&, const std::string&, bool = false);
 //
 ICE_API std::string lastErrorToString();
 #ifdef _WIN32
-ICE_API std::string errorToString(int, LPCVOID = ICE_NULLPTR);
+ICE_API std::string errorToString(int, LPCVOID = nullptr);
 #else
 ICE_API std::string errorToString(int);
 #endif

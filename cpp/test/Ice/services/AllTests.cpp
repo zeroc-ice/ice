@@ -58,7 +58,7 @@ public:
 
     int run(int, char*[])
     {
-        _factory = ICE_MAKE_SHARED(Glacier2::SessionFactoryHelper, ICE_MAKE_SHARED(SessionCallbackI));
+        _factory = make_shared<Glacier2::SessionFactoryHelper>(make_shared<SessionCallbackI>());
         return EXIT_SUCCESS;
     }
 
@@ -107,7 +107,7 @@ allTests(Test::TestHelper* helper)
         }
 
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("subscriber" ,"tcp");
-        Ice::ObjectPrxPtr subscriber = adapter->addWithUUID(ICE_MAKE_SHARED(ClockI));
+        Ice::ObjectPrxPtr subscriber = adapter->addWithUUID(std::make_shared<ClockI>());
         adapter->activate();
         assert(!topic);
         cout << "ok" << endl;

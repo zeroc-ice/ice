@@ -535,7 +535,7 @@ IcePHP::connectionInit(void)
     zend_declare_property_null(connectionInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
 
     // Register the IPConnectionInfo class.
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", ICE_NULLPTR);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(
@@ -554,14 +554,14 @@ IcePHP::connectionInit(void)
     zend_declare_property_long(ipConnectionInfoClassEntry, "remotePort", sizeof("remotePort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the TCPConnectionInfo class.
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPConnectionInfo", ICE_NULLPTR);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     tcpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
     zend_declare_property_long(tcpConnectionInfoClassEntry, "rcvSize", sizeof("rcvSize") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_long(tcpConnectionInfoClassEntry, "sndSize", sizeof("sndSize") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the UDPConnectionInfo class.
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", ICE_NULLPTR);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
     zend_declare_property_string(
@@ -573,13 +573,13 @@ IcePHP::connectionInit(void)
     zend_declare_property_long(udpConnectionInfoClassEntry, "mcastPort", sizeof("mcastPort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the WSConnectionInfo class.
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", ICE_NULLPTR);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(wsConnectionInfoClassEntry, "headers", sizeof("headers") - 1, "", ZEND_ACC_PUBLIC);
 
     // Register the SSLConnectionInfo class.
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", ICE_NULLPTR);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
     zend_declare_property_string(sslConnectionInfoClassEntry, "cipher", sizeof("cipher") - 1, "", ZEND_ACC_PUBLIC);

@@ -112,7 +112,7 @@ IceBox::ServiceManagerI::~ServiceManagerI()
 }
 
 void
-IceBox::ServiceManagerI::startService(ICE_IN(string) name, const Current&)
+IceBox::ServiceManagerI::startService(string name, const Current&)
 {
     ServiceInfo info;
     {
@@ -188,7 +188,7 @@ IceBox::ServiceManagerI::startService(ICE_IN(string) name, const Current&)
 }
 
 void
-IceBox::ServiceManagerI::stopService(ICE_IN(string) name, const Current&)
+IceBox::ServiceManagerI::stopService(string name, const Current&)
 {
     ServiceInfo info;
     {
@@ -264,7 +264,7 @@ IceBox::ServiceManagerI::stopService(ICE_IN(string) name, const Current&)
 }
 
 void
-IceBox::ServiceManagerI::addObserver(ICE_IN(ServiceObserverPrxPtr) observer, const Current&)
+IceBox::ServiceManagerI::addObserver(ServiceObserverPrxPtr observer, const Current&)
 {
     //
     // Null observers and duplicate registrations are ignored

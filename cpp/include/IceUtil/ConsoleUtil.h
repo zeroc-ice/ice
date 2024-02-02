@@ -15,7 +15,7 @@ namespace IceUtilInternal
 #if defined(_WIN32)
 
 class ConsoleUtil;
-ICE_DEFINE_PTR(ConsoleUtilPtr, ConsoleUtil);
+using ConsoleUtilPtr = std::shared_ptr<ConsoleUtil>;
 
 class ICE_API ConsoleUtil
 {

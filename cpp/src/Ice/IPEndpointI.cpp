@@ -47,7 +47,7 @@ IceInternal::IPEndpointInfoI::secure() const noexcept
 Ice::EndpointInfoPtr
 IceInternal::IPEndpointI::getInfo() const noexcept
 {
-    Ice::IPEndpointInfoPtr info = ICE_MAKE_SHARED(IPEndpointInfoI, ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+    Ice::IPEndpointInfoPtr info = make_shared<IPEndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
     fillEndpointInfo(info.get());
     return info;
 }
@@ -148,7 +148,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     vector<Address> addrs = getAddresses(_host,
                                          _port,
                                          _instance->protocolSupport(),
-                                         Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+                                         Ice::EndpointSelectionType::Ordered,
                                          _instance->preferIPv6(),
                                          true);
 

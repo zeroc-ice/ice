@@ -13,7 +13,7 @@ MetricsI::op(const Ice::Current&)
 void
 MetricsI::fail(const Ice::Current& current)
 {
-    current.con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
+    current.con->close(Ice::ConnectionClose::Forcefully);
 }
 
 void
@@ -41,7 +41,7 @@ MetricsI::opWithUnknownException(const Ice::Current&)
 }
 
 void
-MetricsI::opByteS(ICE_IN(Test::ByteSeq), const Ice::Current&)
+MetricsI::opByteS(Test::ByteSeq, const Ice::Current&)
 {
 }
 

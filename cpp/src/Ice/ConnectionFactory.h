@@ -125,7 +125,7 @@ private:
         std::vector<ConnectorInfo> _connectors;
         std::vector<ConnectorInfo>::const_iterator _iter;
     };
-    ICE_DEFINE_PTR(ConnectCallbackPtr, ConnectCallback);
+    using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
     friend class ConnectCallback;
 
     std::vector<EndpointIPtr> applyOverrides(const std::vector<EndpointIPtr>&);

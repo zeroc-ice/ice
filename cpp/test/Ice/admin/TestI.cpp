@@ -41,7 +41,7 @@ public:
 
     virtual Ice::LoggerPtr cloneWithPrefix(const string&)
     {
-        return ICE_SHARED_FROM_THIS;
+        return shared_from_this();
     }
 };
 
@@ -109,23 +109,23 @@ RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
 }
 
 void
-RemoteCommunicatorI::print(ICE_IN(std::string) message, const Ice::Current&)
+RemoteCommunicatorI::print(std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->print(message);
 }
 void
-RemoteCommunicatorI::trace(ICE_IN(std::string) category,
-                           ICE_IN(std::string) message, const Ice::Current&)
+RemoteCommunicatorI::trace(std::string category,
+                           std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->trace(category, message);
 }
 void
-RemoteCommunicatorI::warning(ICE_IN(std::string) message, const Ice::Current&)
+RemoteCommunicatorI::warning(std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->warning(message);
 }
 void
-RemoteCommunicatorI::error(ICE_IN(std::string) message, const Ice::Current&)
+RemoteCommunicatorI::error(std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->error(message);
 }
@@ -160,7 +160,7 @@ RemoteCommunicatorI::updated(const Ice::PropertyDict& changes)
 }
 
 Test::RemoteCommunicatorPrxPtr
-RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, const Ice::Current& current)
+RemoteCommunicatorFactoryI::createCommunicator(Ice::PropertyDict props, const Ice::Current& current)
 {
     //
     // Prepare the property set using the given properties.
@@ -174,7 +174,7 @@ RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, 
 
     if(init.properties->getPropertyAsInt("NullLogger") > 0)
     {
-        init.logger = ICE_MAKE_SHARED(NullLogger);
+        init.logger = make_shared<NullLogger>();
     }
 
     //
@@ -185,12 +185,12 @@ RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, 
     //
     // Install a custom admin facet.
     //
-    communicator->addAdminFacet(ICE_MAKE_SHARED(TestFacetI), "TestFacet");
+    communicator->addAdminFacet(make_shared<TestFacetI>(), "TestFacet");
 
     //
     // Set the callback on the admin facet.
     //
-    RemoteCommunicatorIPtr servant = ICE_MAKE_SHARED(RemoteCommunicatorI, communicator);
+    RemoteCommunicatorIPtr servant = make_shared<RemoteCommunicatorI>(communicator);
     servant->addUpdateCallback(Ice::emptyCurrent);
 
     Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);

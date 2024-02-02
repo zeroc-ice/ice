@@ -57,7 +57,7 @@ namespace OpenSSL
 {
 
 class Certificate;
-ICE_DEFINE_PTR(CertificatePtr, Certificate);
+using CertificatePtr = std::shared_ptr<Certificate>;
 
 /**
  * Encapsulates an OpenSSL X.509 certificate.
@@ -138,7 +138,7 @@ public:
      */
     virtual SSL_CTX* getContext() = 0;
 };
-ICE_DEFINE_PTR(PluginPtr, Plugin);
+using PluginPtr = std::shared_ptr<Plugin>;
 
 } // OpenSSL namespace end
 

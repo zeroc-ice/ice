@@ -102,7 +102,7 @@ allTests(Test::TestHelper* helper)
 
     adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          IceUtil::None,
-                                         Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+                                         Ice::ACMHeartbeat::HeartbeatAlways);
 
     shared_ptr<IceGrid::AdminPrx> admin = adminSession->getAdmin();
     test(admin);

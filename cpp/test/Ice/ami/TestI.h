@@ -9,7 +9,7 @@
 #include <TestHelper.h>
 
 class TestIntfControllerI;
-ICE_DEFINE_SHARED_PTR(TestIntfControllerIPtr, TestIntfControllerI);
+using TestIntfControllerIPtr = std::shared_ptr<TestIntfControllerI>;
 
 class TestIntfI : public virtual Test::TestIntf, public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -21,7 +21,7 @@ public:
     virtual int opWithResult(const Ice::Current&);
     virtual void opWithUE(const Ice::Current&);
     virtual int opWithResultAndUE(const Ice::Current&);
-    virtual void opWithPayload(ICE_IN(Ice::ByteSeq), const Ice::Current&);
+    virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
     virtual void opBatch(const Ice::Current&);
     virtual Ice::Int opBatchCount(const Ice::Current&);
     virtual void opWithArgs(Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&,
@@ -37,7 +37,7 @@ public:
     virtual bool supportsAMD(const Ice::Current&);
     virtual bool supportsFunctionalTests(const Ice::Current&);
 
-    virtual void pingBiDir(ICE_IN(Test::PingReplyPrxPtr), const Ice::Current&);
+    virtual void pingBiDir(Test::PingReplyPrxPtr, const Ice::Current&);
 
 private:
 

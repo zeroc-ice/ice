@@ -335,7 +335,7 @@ namespace Ice
  * @throws IconvInitializationException If the code is not supported.
  */
 template<typename charT>
-ICE_HANDLE<IceUtil::BasicStringConverter<charT> >
+std::shared_ptr<IceUtil::BasicStringConverter<charT> >
 createIconvStringConverter(const std::string& internalCodeWithDefault = "")
 {
     std::string internalCode = internalCodeWithDefault;
@@ -345,7 +345,7 @@ createIconvStringConverter(const std::string& internalCodeWithDefault = "")
         internalCode = nl_langinfo(CODESET);
     }
 
-    return ICE_MAKE_SHARED(IceInternal::IconvStringConverter<charT>, internalCode);
+    return std::make_shared<IceInternal::IconvStringConverter<charT>>(internalCode);
 }
 
 }

@@ -156,7 +156,7 @@ private:
     IceUtil::ThreadPtr _sendLogThread;
     std::deque<JobPtr> _jobQueue;
 };
-ICE_DEFINE_PTR(LoggerAdminLoggerIPtr, LoggerAdminLoggerI);
+using LoggerAdminLoggerIPtr = std::shared_ptr<LoggerAdminLoggerI>;
 
 class SendLogThread : public IceUtil::Thread
 {
@@ -197,7 +197,7 @@ filterLogMessages(LogMessageSeq& logMessages, const set<LogMessageType>& message
             bool keepIt = false;
             if(messageTypes.empty() || messageTypes.count(p->type) != 0)
             {
-                if(p->type != ICE_ENUM(LogMessageType, TraceMessage) || traceCategories.empty() ||
+                if(p->type != LogMessageType::TraceMessage || traceCategories.empty() ||
                    traceCategories.count(p->traceCategory) != 0)
                 {
                     keepIt = true;
@@ -494,12 +494,12 @@ LoggerAdminI::log(const LogMessage& logMessage)
     //
     // Put message in _queue
     //
-    if((logMessage.type != ICE_ENUM(LogMessageType, TraceMessage) && _maxLogCount > 0) ||
-       (logMessage.type == ICE_ENUM(LogMessageType, TraceMessage) && _maxTraceCount > 0))
+    if((logMessage.type != LogMessageType::TraceMessage && _maxLogCount > 0) ||
+       (logMessage.type == LogMessageType::TraceMessage && _maxTraceCount > 0))
     {
         list<LogMessage>::iterator p = _queue.insert(_queue.end(), logMessage);
 
-        if(logMessage.type != ICE_ENUM(LogMessageType, TraceMessage))
+        if(logMessage.type != LogMessageType::TraceMessage)
         {
             assert(_maxLogCount > 0);
             if(_logCount == _maxLogCount)
@@ -509,7 +509,7 @@ LoggerAdminI::log(const LogMessage& logMessage)
                 //
                 assert(_oldestLog != _queue.end());
                 _oldestLog = _queue.erase(_oldestLog);
-                while(_oldestLog != _queue.end() && _oldestLog->type == ICE_ENUM(LogMessageType, TraceMessage))
+                while(_oldestLog != _queue.end() && _oldestLog->type == LogMessageType::TraceMessage)
                 {
                     _oldestLog++;
                 }
@@ -535,7 +535,7 @@ LoggerAdminI::log(const LogMessage& logMessage)
                 //
                 assert(_oldestTrace != _queue.end());
                 _oldestTrace = _queue.erase(_oldestTrace);
-                while(_oldestTrace != _queue.end() && _oldestTrace->type != ICE_ENUM(LogMessageType, TraceMessage))
+                while(_oldestTrace != _queue.end() && _oldestTrace->type != LogMessageType::TraceMessage)
                 {
                     _oldestTrace++;
                 }
@@ -561,7 +561,7 @@ LoggerAdminI::log(const LogMessage& logMessage)
 
             if(filters.messageTypes.empty() || filters.messageTypes.count(logMessage.type) != 0)
             {
-                if(logMessage.type != ICE_ENUM(LogMessageType, TraceMessage) || filters.traceCategories.empty() ||
+                if(logMessage.type != LogMessageType::TraceMessage || filters.traceCategories.empty() ||
                    filters.traceCategories.count(logMessage.traceCategory) != 0)
                 {
                     remoteLoggers.push_back(q->first);
@@ -627,7 +627,7 @@ LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props,
 void
 LoggerAdminLoggerI::print(const string& message)
 {
-   LogMessage logMessage = { ICE_ENUM(LogMessageType, PrintMessage), IceUtil::Time::now().toMicroSeconds(), "", message };
+   LogMessage logMessage = { LogMessageType::PrintMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
 
     _localLogger->print(message);
     log(logMessage);
@@ -636,7 +636,7 @@ LoggerAdminLoggerI::print(const string& message)
 void
 LoggerAdminLoggerI::trace(const string& category, const string& message)
 {
-    LogMessage logMessage = { ICE_ENUM(LogMessageType, TraceMessage), IceUtil::Time::now().toMicroSeconds(), category, message };
+    LogMessage logMessage = { LogMessageType::TraceMessage, IceUtil::Time::now().toMicroSeconds(), category, message };
 
     _localLogger->trace(category, message);
     log(logMessage);
@@ -645,7 +645,7 @@ LoggerAdminLoggerI::trace(const string& category, const string& message)
 void
 LoggerAdminLoggerI::warning(const string& message)
 {
-    LogMessage logMessage = { ICE_ENUM(LogMessageType, WarningMessage), IceUtil::Time::now().toMicroSeconds(), "", message };
+    LogMessage logMessage = { LogMessageType::WarningMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
 
     _localLogger->warning(message);
     log(logMessage);
@@ -654,7 +654,7 @@ LoggerAdminLoggerI::warning(const string& message)
 void
 LoggerAdminLoggerI::error(const string& message)
 {
-    LogMessage logMessage = { ICE_ENUM(LogMessageType, ErrorMessage), IceUtil::Time::now().toMicroSeconds(), "", message };
+    LogMessage logMessage = { LogMessageType::ErrorMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
 
     _localLogger->error(message);
     log(logMessage);
@@ -689,7 +689,7 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 
         if(!_sendLogThread)
         {
-            _sendLogThread = new SendLogThread(ICE_SHARED_FROM_THIS);
+            _sendLogThread = new SendLogThread(shared_from_this());
             _sendLogThread->start();
         }
 
@@ -830,7 +830,7 @@ LoggerAdminLoggerPtr
 createLoggerAdminLogger(const PropertiesPtr& props,
                         const LoggerPtr& localLogger)
 {
-    return ICE_MAKE_SHARED(LoggerAdminLoggerI, props, localLogger);
+    return make_shared<LoggerAdminLoggerI>(props, localLogger);
 }
 
 }

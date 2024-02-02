@@ -489,7 +489,7 @@ OpenSSLCertificateI::loadX509Extensions() const
             len = OBJ_obj2txt(&oid[0], len, obj, 1);
             oid.resize(len);
             _extensions.push_back(ICE_DYNAMIC_CAST(IceSSL::X509Extension,
-                ICE_MAKE_SHARED(OpenSSLX509ExtensionI, ext, oid, _cert)));
+                make_shared<OpenSSLX509ExtensionI>(ext, oid, _cert)));
         }
     }
 }
@@ -585,7 +585,7 @@ OpenSSLCertificateI::getExtendedKeyUsage() const
 IceSSL::OpenSSL::CertificatePtr
 IceSSL::OpenSSL::Certificate::create(x509_st* cert)
 {
-    return ICE_MAKE_SHARED(OpenSSLCertificateI, cert);
+    return make_shared<OpenSSLCertificateI>(cert);
 }
 
 IceSSL::OpenSSL::CertificatePtr
@@ -598,9 +598,9 @@ IceSSL::OpenSSL::Certificate::load(const std::string& file)
         throw CertificateReadException(__FILE__, __LINE__, "error opening file");
     }
 
-    x509_st* x = PEM_read_bio_X509(cert, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR);
+    x509_st* x = PEM_read_bio_X509(cert, nullptr, nullptr, nullptr);
     BIO_free(cert);
-    if(x == ICE_NULLPTR)
+    if(x == nullptr)
     {
         throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
     }
@@ -609,16 +609,16 @@ IceSSL::OpenSSL::Certificate::load(const std::string& file)
     {
         throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getSslErrors(false));
     }
-    return ICE_MAKE_SHARED(OpenSSLCertificateI, x);
+    return make_shared<OpenSSLCertificateI>(x);
 }
 
 IceSSL::OpenSSL::CertificatePtr
 IceSSL::OpenSSL::Certificate::decode(const std::string& encoding)
 {
     BIO *cert = BIO_new_mem_buf(static_cast<void*>(const_cast<char*>(&encoding[0])), static_cast<int>(encoding.size()));
-    x509_st* x = PEM_read_bio_X509(cert, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR);
+    x509_st* x = PEM_read_bio_X509(cert, nullptr, nullptr, nullptr);
     BIO_free(cert);
-    if(x == ICE_NULLPTR)
+    if(x == nullptr)
     {
         throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));
     }
@@ -627,5 +627,5 @@ IceSSL::OpenSSL::Certificate::decode(const std::string& encoding)
     {
         throw CertificateReadException(__FILE__, __LINE__, "error loading certificate:\n" + getSslErrors(false));
     }
-    return ICE_MAKE_SHARED(OpenSSLCertificateI, x);
+    return make_shared<OpenSSLCertificateI>(x);
 }

@@ -39,7 +39,7 @@ private:
 
     std::list<std::function<void(const Ice::PropertyDict&)>> _updateCallbacks;
 };
-ICE_DEFINE_SHARED_PTR(PropertiesAdminIPtr, PropertiesAdminI);
+using PropertiesAdminIPtr = std::shared_ptr<PropertiesAdminI>;
 
 }
 

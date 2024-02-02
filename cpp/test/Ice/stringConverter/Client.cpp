@@ -137,19 +137,19 @@ Client::run(int argc, char** argv)
         Ice::Identity ident = Ice::stringToIdentity(identStr);
         test(ident.name == msg);
         test(ident.category == "cat");
-        test(identityToString(ident, Ice::ICE_ENUM(ToStringMode, Unicode)) == identStr);
+        test(identityToString(ident, Ice::ToStringMode::Unicode) == identStr);
 
-        identStr = identityToString(ident, Ice::ICE_ENUM(ToStringMode, ASCII));
+        identStr = identityToString(ident, Ice::ToStringMode::ASCII);
         test(identStr == "cat/tu me fends le c\\u0153ur!");
         test(Ice::stringToIdentity(identStr) == ident);
-        identStr = identityToString(ident, Ice::ICE_ENUM(ToStringMode, Compat));
+        identStr = identityToString(ident, Ice::ToStringMode::Compat);
         test(identStr == "cat/tu me fends le c\\305\\223ur!");
         test(Ice::stringToIdentity(identStr) == ident);
 
         cout << "ok" << endl;
     }
 
-    Ice::setProcessStringConverter(ICE_NULLPTR);
+    Ice::setProcessStringConverter(nullptr);
     Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
 
     string propValue = "Ice:createStringConverter";

@@ -158,7 +158,7 @@ protected:
 
     virtual void newConnection(int) = 0;
 };
-ICE_DEFINE_PTR(ProfilePtr, Profile);
+using ProfilePtr = std::shared_ptr<Profile>;
 
 //
 // ClientProfile represents an outgoing connection profile.
@@ -194,7 +194,7 @@ private:
     ConnectionPtr _connection;
     ConnectCallbackPtr _callback;
 };
-ICE_DEFINE_PTR(ClientProfilePtr, ClientProfile);
+using ClientProfilePtr = std::shared_ptr<ClientProfile>;
 
 //
 // ServerProfile represents an incoming connection profile.
@@ -219,7 +219,7 @@ private:
 
     ProfileCallbackPtr _callback;
 };
-ICE_DEFINE_PTR(ServerProfilePtr, ServerProfile);
+using ServerProfilePtr = std::shared_ptr<ServerProfile>;
 
 //
 // Engine delegates to BluetoothService. It encapsulates a snapshot of the "objects" managed by the
@@ -314,7 +314,7 @@ public:
             // from the Bluetooth service.
             //
             _dbusConnection = DBus::Connection::getSystemBus();
-            _dbusConnection->addFilter(ICE_SHARED_FROM_THIS);
+            _dbusConnection->addFilter(shared_from_this());
             getManagedObjects();
         }
         catch(const DBus::Exception& ex)
@@ -519,7 +519,7 @@ public:
         // As a subclass of DBus::Service, the ServerProfile object will receive DBus method
         // invocations for a given object path.
         //
-        ProfilePtr profile = ICE_MAKE_SHARED(ServerProfile, cb);
+        ProfilePtr profile = make_shared<ServerProfile>(cb);
 
         string path = generatePath();
 
@@ -569,7 +569,7 @@ public:
         //
         // Start a thread to establish the connection.
         //
-        IceUtil::ThreadPtr t = new ConnectThread(ICE_SHARED_FROM_THIS, addr, uuid, cb);
+        IceUtil::ThreadPtr t = new ConnectThread(shared_from_this(), addr, uuid, cb);
         _connectThreads.push_back(t);
         t->start();
     }
@@ -1152,7 +1152,7 @@ public:
             DBus::ConnectionPtr dbusConn = DBus::Connection::getSystemBus();
             conn = new ConnectionI(dbusConn, devicePath, uuid);
 
-            ProfilePtr profile = ICE_MAKE_SHARED(ClientProfile, conn, cb);
+            ProfilePtr profile = make_shared<ClientProfile>(conn, cb);
             string path = generatePath();
 
             //
@@ -1285,7 +1285,7 @@ IceBT::Engine::communicator() const
 void
 IceBT::Engine::initialize()
 {
-    _service = ICE_MAKE_SHARED(BluetoothService);
+    _service = make_shared<BluetoothService>();
     _service->init();
     _initialized = true;
 }

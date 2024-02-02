@@ -21,9 +21,9 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
         test(com->findAdminFacet("Metrics"));
     }
 
-    TestFacetPtr f1 = ICE_MAKE_SHARED(TestFacetI);
-    TestFacetPtr f2 = ICE_MAKE_SHARED(TestFacetI);
-    TestFacetPtr f3 = ICE_MAKE_SHARED(TestFacetI);
+    TestFacetPtr f1 = std::make_shared<TestFacetI>();
+    TestFacetPtr f2 = std::make_shared<TestFacetI>();
+    TestFacetPtr f3 = std::make_shared<TestFacetI>();
 
     com->addAdminFacet(f1, "Facet1");
     com->addAdminFacet(f2, "Facet2");
@@ -93,8 +93,8 @@ public:
 
     RemoteLoggerI();
 
-    virtual void init(ICE_IN(string), ICE_IN(Ice::LogMessageSeq), const Ice::Current&);
-    virtual void log(ICE_IN(Ice::LogMessage), const Ice::Current&);
+    virtual void init(string, Ice::LogMessageSeq, const Ice::Current&);
+    virtual void log(Ice::LogMessage, const Ice::Current&);
 
     void checkNextInit(const string&, Ice::LogMessageType, const string&, const string& = "");
     void checkNextLog(Ice::LogMessageType, const string&, const string& = "");
@@ -110,14 +110,14 @@ private:
     Ice::LogMessageSeq _logMessages;
 };
 
-ICE_DEFINE_SHARED_PTR(RemoteLoggerIPtr, RemoteLoggerI);
+using RemoteLoggerIPtr = std::shared_ptr<RemoteLoggerI>;
 
 RemoteLoggerI::RemoteLoggerI() : _receivedCalls(0)
 {
 }
 
 void
-RemoteLoggerI::init(ICE_IN(string) prefix, ICE_IN(Ice::LogMessageSeq) logMessages, const Ice::Current&)
+RemoteLoggerI::init(string prefix, Ice::LogMessageSeq logMessages, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
     _prefix = prefix;
@@ -127,7 +127,7 @@ RemoteLoggerI::init(ICE_IN(string) prefix, ICE_IN(Ice::LogMessageSeq) logMessage
 }
 
 void
-RemoteLoggerI::log(ICE_IN(Ice::LogMessage) logMessage, const Ice::Current&)
+RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
     _logMessages.push_back(logMessage);
@@ -426,8 +426,8 @@ allTests(Test::TestHelper* helper)
         com->warning("warning2");
 
         Ice::LogMessageTypeSeq messageTypes;
-        messageTypes.push_back(ICE_ENUM(LogMessageType, ErrorMessage));
-        messageTypes.push_back(ICE_ENUM(LogMessageType, WarningMessage));
+        messageTypes.push_back(LogMessageType::ErrorMessage);
+        messageTypes.push_back(LogMessageType::WarningMessage);
 
         logMessages =
             logger->getLog(messageTypes, Ice::StringSeq(), -1, prefix);
@@ -437,7 +437,7 @@ allTests(Test::TestHelper* helper)
         p = logMessages.begin();
         while(p != logMessages.end())
         {
-            test(p->type == ICE_ENUM(LogMessageType, ErrorMessage) || p->type == ICE_ENUM(LogMessageType, WarningMessage));
+            test(p->type == LogMessageType::ErrorMessage || p->type == LogMessageType::WarningMessage);
             ++p;
         }
 
@@ -449,8 +449,8 @@ allTests(Test::TestHelper* helper)
         com->trace("testCat2", "B");
 
         messageTypes.clear();
-        messageTypes.push_back(ICE_ENUM(LogMessageType, ErrorMessage));
-        messageTypes.push_back(ICE_ENUM(LogMessageType, TraceMessage));
+        messageTypes.push_back(LogMessageType::ErrorMessage);
+        messageTypes.push_back(LogMessageType::TraceMessage);
 
         Ice::StringSeq categories;
         categories.push_back("testCat");
@@ -463,8 +463,8 @@ allTests(Test::TestHelper* helper)
         p = logMessages.begin();
         while(p != logMessages.end())
         {
-            test(p->type == ICE_ENUM(LogMessageType, ErrorMessage) ||
-                (p->type == ICE_ENUM(LogMessageType, TraceMessage) && p->traceCategory == "testCat"));
+            test(p->type == LogMessageType::ErrorMessage ||
+                (p->type == LogMessageType::TraceMessage && p->traceCategory == "testCat"));
             ++p;
         }
 
@@ -489,7 +489,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectAdapterPtr adapter =
             communicator->createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
 
-        RemoteLoggerIPtr remoteLogger = ICE_MAKE_SHARED(RemoteLoggerI);
+        RemoteLoggerIPtr remoteLogger = std::make_shared<RemoteLoggerI>();
 
         Ice::RemoteLoggerPrxPtr myProxy =
             ICE_UNCHECKED_CAST(Ice::RemoteLoggerPrx, adapter->addWithUUID(remoteLogger));
@@ -514,10 +514,10 @@ allTests(Test::TestHelper* helper)
         com->print("rprint");
         test(remoteLogger->wait(4));
 
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace", "testCat");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, WarningMessage), "rwarning");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, PrintMessage), "rprint");
+        remoteLogger->checkNextLog(LogMessageType::TraceMessage, "rtrace", "testCat");
+        remoteLogger->checkNextLog(LogMessageType::WarningMessage, "rwarning");
+        remoteLogger->checkNextLog(LogMessageType::ErrorMessage, "rerror");
+        remoteLogger->checkNextLog(LogMessageType::PrintMessage, "rprint");
 
         test(logger->detachRemoteLogger(myProxy));
         test(!logger->detachRemoteLogger(myProxy));
@@ -542,8 +542,8 @@ allTests(Test::TestHelper* helper)
         com->print("rprint2");
         test(remoteLogger->wait(2));
 
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace2", "testCat");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror2");
+        remoteLogger->checkNextLog(LogMessageType::TraceMessage, "rtrace2", "testCat");
+        remoteLogger->checkNextLog(LogMessageType::ErrorMessage, "rerror2");
 
         //
         // Attempt reconnection with slightly different proxy

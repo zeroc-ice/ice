@@ -77,7 +77,7 @@ private:
     std::map<OutgoingAsyncBasePtr, Ice::Int> _sendAsyncRequests;
     std::map<Ice::Int, OutgoingAsyncBasePtr> _asyncRequests;
 };
-ICE_DEFINE_PTR(CollocatedRequestHandlerPtr, CollocatedRequestHandler);
+using CollocatedRequestHandlerPtr = std::shared_ptr<CollocatedRequestHandler>;
 
 }
 

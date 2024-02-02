@@ -337,7 +337,7 @@ MetricsViewI::getMap(const string& mapName) const
     {
         return p->second;
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& logger) :
@@ -568,7 +568,7 @@ MetricsAdminI::getMetricsView(const std::string& name)
         {
             throw UnknownMetricsView();
         }
-        return ICE_NULLPTR;
+        return nullptr;
     }
     return p->second;
 }

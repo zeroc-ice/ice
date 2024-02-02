@@ -305,7 +305,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
 
     IceGrid::AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ACMHeartbeat::HeartbeatAlways);
 
     IceGrid::AdminPrxPtr admin = session->getAdmin();
     test(admin);

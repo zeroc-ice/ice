@@ -31,7 +31,7 @@ public:
     //
     virtual void destroy() = 0;
 };
-ICE_DEFINE_PTR(LoggerAdminLoggerPtr, LoggerAdminLogger);
+using LoggerAdminLoggerPtr = std::shared_ptr<LoggerAdminLogger>;
 
 LoggerAdminLoggerPtr
 createLoggerAdminLogger(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);

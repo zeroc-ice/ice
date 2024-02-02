@@ -21,7 +21,7 @@ class MetricsI : public Test::Metrics
 
     virtual void opWithUnknownException(const Ice::Current&);
 
-    virtual void opByteS(ICE_IN(Test::ByteSeq), const Ice::Current&);
+    virtual void opByteS(Test::ByteSeq, const Ice::Current&);
 
     virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
 

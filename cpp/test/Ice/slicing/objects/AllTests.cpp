@@ -15,7 +15,7 @@ namespace
 void breakCycles(Ice::ValuePtr);
 
 template<typename T>
-void breakCycles(const vector<ICE_SHARED_PTR<T>>& s)
+void breakCycles(const vector<shared_ptr<T>>& s)
 {
     for(auto e : s)
     {
@@ -24,7 +24,7 @@ void breakCycles(const vector<ICE_SHARED_PTR<T>>& s)
 }
 
 template<typename K, typename V>
-void breakCycles(const map<K, ICE_SHARED_PTR<V>>& d)
+void breakCycles(const map<K, shared_ptr<V>>& d)
 {
     for(auto e : d)
     {
@@ -32,7 +32,7 @@ void breakCycles(const map<K, ICE_SHARED_PTR<V>>& d)
     }
 }
 
-void breakCycles(ICE_SHARED_PTR<Ice::Value> o)
+void breakCycles(shared_ptr<Ice::Value> o)
 {
     if(ICE_DYNAMIC_CAST(D1, o))
     {
@@ -623,7 +623,7 @@ public:
     BDict rbdict;
     BDict obdict;
 };
-ICE_DEFINE_PTR(CallbackPtr, Callback);
+using CallbackPtr = std::shared_ptr<Callback>;
 
 class PNodeI : public virtual PNode
 {
@@ -1426,10 +1426,10 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            D1Ptr d1 = ICE_MAKE_SHARED(D1);
+            D1Ptr d1 = std::make_shared<D1>();
             d1->sb = "D1.sb";
             d1->sd1 = "D1.sd1";
-            D3Ptr d3 = ICE_MAKE_SHARED(D3);
+            D3Ptr d3 = std::make_shared<D3>();
             d3->pb = d1;
             d3->sb = "D3.sb";
             d3->sd3 = "D3.sd3";
@@ -1475,10 +1475,10 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            D1Ptr d1 = ICE_MAKE_SHARED(D1);
+            D1Ptr d1 = std::make_shared<D1>();
             d1->sb = "D1.sb";
             d1->sd1 = "D1.sd1";
-            D3Ptr d3 = ICE_MAKE_SHARED(D3);
+            D3Ptr d3 = std::make_shared<D3>();
             d3->pb = d1;
             d3->sb = "D3.sb";
             d3->sd3 = "D3.sd3";
@@ -1525,10 +1525,10 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            D1Ptr d1 = ICE_MAKE_SHARED(D1);
+            D1Ptr d1 = std::make_shared<D1>();
             d1->sb = "D1.sb";
             d1->sd1 = "D1.sd1";
-            D3Ptr d3 = ICE_MAKE_SHARED(D3);
+            D3Ptr d3 = std::make_shared<D3>();
             d3->pb = d1;
             d3->sb = "D3.sb";
             d3->sd3 = "D3.sd3";
@@ -1576,10 +1576,10 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            D1Ptr d1 = ICE_MAKE_SHARED(D1);
+            D1Ptr d1 = std::make_shared<D1>();
             d1->sb = "D1.sb";
             d1->sd1 = "D1.sd1";
-            D3Ptr d3 = ICE_MAKE_SHARED(D3);
+            D3Ptr d3 = std::make_shared<D3>();
             d3->pb = d1;
             d3->sb = "D3.sb";
             d3->sd3 = "D3.sd3";
@@ -1752,17 +1752,17 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            BPtr b1 = ICE_MAKE_SHARED(B);
+            BPtr b1 = std::make_shared<B>();
             b1->sb = "B.sb(1)";
             b1->pb = b1;
 
-            D3Ptr d3 = ICE_MAKE_SHARED(D3);
+            D3Ptr d3 = std::make_shared<D3>();
             d3->sb = "D3.sb";
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = b1;
 
-            BPtr b2 = ICE_MAKE_SHARED(B);
+            BPtr b2 = std::make_shared<B>();
             b2->sb = "B.sb(2)";
             b2->pb = b1;
 
@@ -1788,17 +1788,17 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            BPtr b1 = ICE_MAKE_SHARED(B);
+            BPtr b1 = std::make_shared<B>();
             b1->sb = "B.sb(1)";
             b1->pb = b1;
 
-            D3Ptr d3 = ICE_MAKE_SHARED(D3);
+            D3Ptr d3 = std::make_shared<D3>();
             d3->sb = "D3.sb";
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = b1;
 
-            BPtr b2 = ICE_MAKE_SHARED(B);
+            BPtr b2 = std::make_shared<B>();
             b2->sb = "B.sb(2)";
             b2->pb = b1;
 
@@ -1824,18 +1824,18 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            D1Ptr d11 = ICE_MAKE_SHARED(D1);
+            D1Ptr d11 = std::make_shared<D1>();
             d11->sb = "D1.sb(1)";
             d11->pb = d11;
             d11->sd1 = "D1.sd1(1)";
 
-            D3Ptr d3 = ICE_MAKE_SHARED(D3);
+            D3Ptr d3 = std::make_shared<D3>();
             d3->sb = "D3.sb";
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = d11;
 
-            D1Ptr d12 = ICE_MAKE_SHARED(D1);
+            D1Ptr d12 = std::make_shared<D1>();
             d12->sb = "D1.sb(2)";
             d12->pb = d12;
             d12->sd1 = "D1.sd1(2)";
@@ -1864,18 +1864,18 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            D1Ptr d11 = ICE_MAKE_SHARED(D1);
+            D1Ptr d11 = std::make_shared<D1>();
             d11->sb = "D1.sb(1)";
             d11->pb = d11;
             d11->sd1 = "D1.sd1(1)";
 
-            D3Ptr d3 = ICE_MAKE_SHARED(D3);
+            D3Ptr d3 = std::make_shared<D3>();
             d3->sb = "D3.sb";
             d3->pb = d3;
             d3->sd3 = "D3.sd3";
             d3->pd3 = d11;
 
-            D1Ptr d12 = ICE_MAKE_SHARED(D1);
+            D1Ptr d12 = std::make_shared<D1>();
             d12->sb = "D1.sb(2)";
             d12->pb = d12;
             d12->sd1 = "D1.sd1(2)";
@@ -1905,30 +1905,30 @@ allTests(Test::TestHelper* helper)
         {
             SS3 ss;
             {
-                BPtr ss1b = ICE_MAKE_SHARED(B);
+                BPtr ss1b = std::make_shared<B>();
                 ss1b->sb = "B.sb";
                 ss1b->pb = ss1b;
 
-                D1Ptr ss1d1 = ICE_MAKE_SHARED(D1);
+                D1Ptr ss1d1 = std::make_shared<D1>();
                 ss1d1->sb = "D1.sb";
                 ss1d1->sd1 = "D1.sd1";
                 ss1d1->pb = ss1b;
 
-                D3Ptr ss1d3 = ICE_MAKE_SHARED(D3);
+                D3Ptr ss1d3 = std::make_shared<D3>();
                 ss1d3->sb = "D3.sb";
                 ss1d3->sd3 = "D3.sd3";
                 ss1d3->pb = ss1b;
 
-                BPtr ss2b = ICE_MAKE_SHARED(B);
+                BPtr ss2b = std::make_shared<B>();
                 ss2b->sb = "B.sb";
                 ss2b->pb = ss1b;
 
-                D1Ptr ss2d1 = ICE_MAKE_SHARED(D1);
+                D1Ptr ss2d1 = std::make_shared<D1>();
                 ss2d1->sb = "D1.sb";
                 ss2d1->sd1 = "D1.sd1";
                 ss2d1->pb = ss2b;
 
-                D3Ptr ss2d3 = ICE_MAKE_SHARED(D3);
+                D3Ptr ss2d3 = std::make_shared<D3>();
                 ss2d3->sb = "D3.sb";
                 ss2d3->sd3 = "D3.sd3";
                 ss2d3->pb = ss2b;
@@ -1939,12 +1939,12 @@ allTests(Test::TestHelper* helper)
                 ss2d1->pd1 = ss1d3;
                 ss2d3->pd3 = ss1d1;
 
-                SS1Ptr ss1 = ICE_MAKE_SHARED(SS1);
+                SS1Ptr ss1 = std::make_shared<SS1>();
                 ss1->s.push_back(ss1b);
                 ss1->s.push_back(ss1d1);
                 ss1->s.push_back(ss1d3);
 
-                SS2Ptr ss2 = ICE_MAKE_SHARED(SS2);
+                SS2Ptr ss2 = std::make_shared<SS2>();
                 ss2->s.push_back(ss2b);
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
@@ -1998,30 +1998,30 @@ allTests(Test::TestHelper* helper)
         {
             SS3 ss;
             {
-                BPtr ss1b = ICE_MAKE_SHARED(B);
+                BPtr ss1b = std::make_shared<B>();
                 ss1b->sb = "B.sb";
                 ss1b->pb = ss1b;
 
-                D1Ptr ss1d1 = ICE_MAKE_SHARED(D1);
+                D1Ptr ss1d1 = std::make_shared<D1>();
                 ss1d1->sb = "D1.sb";
                 ss1d1->sd1 = "D1.sd1";
                 ss1d1->pb = ss1b;
 
-                D3Ptr ss1d3 = ICE_MAKE_SHARED(D3);
+                D3Ptr ss1d3 = std::make_shared<D3>();
                 ss1d3->sb = "D3.sb";
                 ss1d3->sd3 = "D3.sd3";
                 ss1d3->pb = ss1b;
 
-                BPtr ss2b = ICE_MAKE_SHARED(B);
+                BPtr ss2b = std::make_shared<B>();
                 ss2b->sb = "B.sb";
                 ss2b->pb = ss1b;
 
-                D1Ptr ss2d1 = ICE_MAKE_SHARED(D1);
+                D1Ptr ss2d1 = std::make_shared<D1>();
                 ss2d1->sb = "D1.sb";
                 ss2d1->sd1 = "D1.sd1";
                 ss2d1->pb = ss2b;
 
-                D3Ptr ss2d3 = ICE_MAKE_SHARED(D3);
+                D3Ptr ss2d3 = std::make_shared<D3>();
                 ss2d3->sb = "D3.sb";
                 ss2d3->sd3 = "D3.sd3";
                 ss2d3->pb = ss2b;
@@ -2032,12 +2032,12 @@ allTests(Test::TestHelper* helper)
                 ss2d1->pd1 = ss1d3;
                 ss2d3->pd3 = ss1d1;
 
-                SS1Ptr ss1 = ICE_MAKE_SHARED(SS1);
+                SS1Ptr ss1 = std::make_shared<SS1>();
                 ss1->s.push_back(ss1b);
                 ss1->s.push_back(ss1d1);
                 ss1->s.push_back(ss1d3);
 
-                SS2Ptr ss2 = ICE_MAKE_SHARED(SS2);
+                SS2Ptr ss2 = std::make_shared<SS2>();
                 ss2->s.push_back(ss2b);
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
@@ -2096,7 +2096,7 @@ allTests(Test::TestHelper* helper)
             {
                 ostringstream s;
                 s << "D1." << i;
-                D1Ptr d1 = ICE_MAKE_SHARED(D1);
+                D1Ptr d1 = std::make_shared<D1>();
                 d1->sb = s.str();
                 d1->pb = d1;
                 d1->sd1 = s.str();
@@ -2157,7 +2157,7 @@ allTests(Test::TestHelper* helper)
             {
                 ostringstream s;
                 s << "D1." << i;
-                D1Ptr d1 = ICE_MAKE_SHARED(D1);
+                D1Ptr d1 = std::make_shared<D1>();
                 d1->sb = s.str();
                 d1->pb = d1;
                 d1->sd1 = s.str();
@@ -2426,7 +2426,7 @@ allTests(Test::TestHelper* helper)
         //
         // Server knows the most-derived class PDerived.
         //
-        PDerivedPtr pd = ICE_MAKE_SHARED(PDerived);
+        PDerivedPtr pd = std::make_shared<PDerived>();
         pd->pi = 3;
         pd->ps = "preserved";
         pd->pb = pd;
@@ -2449,7 +2449,7 @@ allTests(Test::TestHelper* helper)
         //
         // Server only knows the base (non-preserved) type, so the object is sliced.
         //
-        PCUnknownPtr pu = ICE_MAKE_SHARED(PCUnknown);
+        PCUnknownPtr pu = std::make_shared<PCUnknown>();
         pu->pi = 3;
         pu->pu = "preserved";
         PBasePtr r = test->exchangePBase(pu);
@@ -2469,7 +2469,7 @@ allTests(Test::TestHelper* helper)
         // Server only knows the intermediate type Preserved. The object will be sliced to
         // Preserved for the 1.0 encoding; otherwise it should be returned intact.
         //
-        PCDerivedPtr pcd = ICE_MAKE_SHARED(PCDerived);
+        PCDerivedPtr pcd = std::make_shared<PCDerived>();
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
         PBasePtr r = test->exchangePBase(pcd);
@@ -2499,7 +2499,7 @@ allTests(Test::TestHelper* helper)
         // Server only knows the intermediate type CompactPDerived. The object will be sliced to
         // CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
         //
-        CompactPCDerivedPtr pcd = ICE_MAKE_SHARED(CompactPCDerived);
+        CompactPCDerivedPtr pcd = std::make_shared<CompactPCDerived>();
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
         PBasePtr r = test->exchangePBase(pcd);
@@ -2529,7 +2529,7 @@ allTests(Test::TestHelper* helper)
         // Send an object that will have multiple preserved slices in the server.
         // The object will be sliced to Preserved for the 1.0 encoding.
         //
-        PCDerived3Ptr pcd = ICE_MAKE_SHARED(PCDerived3);
+        PCDerived3Ptr pcd = std::make_shared<PCDerived3>();
         pcd->pi = 3;
         //
         // Sending more than 254 objects exercises the encoding for object ids.
@@ -2537,7 +2537,7 @@ allTests(Test::TestHelper* helper)
         int i;
         for(i = 0; i < 300; ++i)
         {
-            PCDerived2Ptr p2 = ICE_MAKE_SHARED(PCDerived2);
+            PCDerived2Ptr p2 = std::make_shared<PCDerived2>();
             p2->pi = i;
             p2->pbs.push_back(0); // Nil reference. This slice should not have an indirection table.
             p2->pcd2 = i;
@@ -2612,7 +2612,7 @@ allTests(Test::TestHelper* helper)
         //
         // Server knows the most-derived class PDerived.
         //
-        PDerivedPtr pd = ICE_MAKE_SHARED(PDerived);
+        PDerivedPtr pd = std::make_shared<PDerived>();
         pd->pi = 3;
         pd->ps = "preserved";
         pd->ps = "preserved";
@@ -2638,7 +2638,7 @@ allTests(Test::TestHelper* helper)
         //
         // Server only knows the base (non-preserved) type, so the object is sliced.
         //
-        PCUnknownPtr pu = ICE_MAKE_SHARED(PCUnknown);
+        PCUnknownPtr pu = std::make_shared<PCUnknown>();
         pu->pi = 3;
         pu->pu = "preserved";
         try
@@ -2661,7 +2661,7 @@ allTests(Test::TestHelper* helper)
         // Server only knows the intermediate type Preserved. The object will be sliced to
         // Preserved for the 1.0 encoding; otherwise it should be returned intact.
         //
-        PCDerivedPtr pcd = ICE_MAKE_SHARED(PCDerived);
+        PCDerivedPtr pcd = std::make_shared<PCDerived>();
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
@@ -2691,7 +2691,7 @@ allTests(Test::TestHelper* helper)
         // Server only knows the intermediate type CompactPDerived. The object will be sliced to
         // CompactPDerived for the 1.0 encoding; otherwise it should be returned intact.
         //
-        CompactPCDerivedPtr pcd = ICE_MAKE_SHARED(CompactPCDerived);
+        CompactPCDerivedPtr pcd = std::make_shared<CompactPCDerived>();
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
 
@@ -2722,14 +2722,14 @@ allTests(Test::TestHelper* helper)
         // Send an object that will have multiple preserved slices in the server.
         // The object will be sliced to Preserved for the 1.0 encoding.
         //
-        PCDerived3Ptr pcd = ICE_MAKE_SHARED(PCDerived3);
+        PCDerived3Ptr pcd = std::make_shared<PCDerived3>();
         pcd->pi = 3;
         //
         // Sending more than 254 objects exercises the encoding for object ids.
         //
         for(int i = 0; i < 300; ++i)
         {
-            PCDerived2Ptr p2 = ICE_MAKE_SHARED(PCDerived2);
+            PCDerived2Ptr p2 = std::make_shared<PCDerived2>();
             p2->pi = i;
             p2->pbs.push_back(0); // Nil reference. This slice should not have an indirection table.
             p2->pcd2 = i;

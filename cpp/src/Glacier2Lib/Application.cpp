@@ -147,7 +147,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
             //
             // The default is to destroy when a signal is received.
             //
-            if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+            if(_signalPolicy == SignalPolicy::HandleSignals)
             {
                 destroyOnInterrupt();
             }
@@ -184,7 +184,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                 {
                     Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                     assert(connection);
-                    connection->setACM(acmTimeout, IceUtil::None, ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+                    connection->setACM(acmTimeout, IceUtil::None, ACMHeartbeat::HeartbeatAlways);
                     connection->setCloseCallback(
                         [this](Ice::ConnectionPtr)
                         {
@@ -272,7 +272,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     // it would not make sense to release a held signal to run
     // shutdown or destroy.
     //
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         ignoreInterrupt();
     }

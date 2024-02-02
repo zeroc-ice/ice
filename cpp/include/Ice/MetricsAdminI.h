@@ -114,7 +114,7 @@ template<class MetricsType> class MetricsMapT : public MetricsMapI, private IceU
 public:
 
     using T = MetricsType;
-    using TPtr = ICE_SHARED_PTR<MetricsType>;
+    using TPtr = std::shared_ptr<MetricsType>;
     using MetricsMapTPtr = std::shared_ptr<MetricsMapT>;
 
     typedef IceMX::MetricsMap MetricsType::* SubMapMember;

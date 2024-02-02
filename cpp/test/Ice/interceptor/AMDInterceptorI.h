@@ -27,6 +27,6 @@ private:
 
     IceUtil::Mutex _mutex;
 };
-ICE_DEFINE_SHARED_PTR(AMDInterceptorIPtr, AMDInterceptorI);
+using AMDInterceptorIPtr = std::shared_ptr<AMDInterceptorI>;
 
 #endif

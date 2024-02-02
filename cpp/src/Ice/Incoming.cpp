@@ -45,7 +45,7 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
                                         bool response, Byte compress, Int requestId) :
     _response(response),
     _compress(compress),
-    _format(Ice::ICE_ENUM(FormatType, DefaultFormat)),
+    _format(Ice::FormatType::DefaultFormat),
     _os(instance, Ice::currentProtocolEncoding),
     _responseHandler(responseHandler)
 {

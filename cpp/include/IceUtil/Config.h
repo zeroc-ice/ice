@@ -277,24 +277,10 @@ typedef long long Int64;
 // TODO remove the helper macros
 #   include <memory>
 #   include <future>
-#   define ICE_HANDLE ::std::shared_ptr
-#   define ICE_INTERNAL_HANDLE ::std::shared_ptr
-#   define ICE_SHARED_PTR ::std::shared_ptr
-#   define ICE_PROXY_HANDLE ::std::shared_ptr
-#   define ICE_MAKE_SHARED(T, ...) ::std::make_shared<T>(__VA_ARGS__)
-#   define ICE_DEFINE_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
-#   define ICE_DEFINE_SHARED_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
-#   define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
-#   define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
-#   define ICE_NULLPTR nullptr
 #   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
-#   define ICE_SHARED_FROM_THIS shared_from_this()
 #   define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()
 #   define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()
 #   define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
 #   define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
-#   define ICE_DELEGATE(T) T
-#   define ICE_IN(...) __VA_ARGS__
-#   define ICE_SET_EXCEPTION_FROM_CLONE(T, V)  T = V
 
 #endif

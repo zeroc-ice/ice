@@ -35,9 +35,9 @@ Collocated::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
-    TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
+    TestIntfControllerIPtr testController = make_shared<TestIntfControllerI>(adapter);
 
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+    adapter->add(make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     adapter2->add(testController, Ice::stringToIdentity("testController"));

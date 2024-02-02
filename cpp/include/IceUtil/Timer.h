@@ -32,7 +32,7 @@ public:
 
     virtual void runTimerTask() = 0;
 };
-ICE_DEFINE_PTR(TimerTaskPtr, TimerTask);
+using TimerTaskPtr = std::shared_ptr<TimerTask>;
 
 //
 // The timer class is used to schedule tasks for one-time execution or

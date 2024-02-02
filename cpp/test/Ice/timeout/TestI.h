@@ -12,7 +12,7 @@ class TimeoutI : public virtual Test::Timeout
 public:
 
     virtual void op(const Ice::Current&);
-    virtual void sendData(ICE_IN(Test::ByteSeq), const Ice::Current&);
+    virtual void sendData(Test::ByteSeq, const Ice::Current&);
     virtual void sleep(Ice::Int, const Ice::Current&);
 };
 

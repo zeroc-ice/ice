@@ -32,7 +32,7 @@ getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
             return ipInfo;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 }
@@ -51,7 +51,7 @@ IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    EndpointInfoPtr info = make_shared<IceInternal::InfoI<EndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(EndpointI));
     info->underlying = _delegate->getInfo();
     info->compress = info->underlying->compress;
     info->timeout = info->underlying->timeout;
@@ -85,7 +85,7 @@ IceSSL::EndpointI::timeout(Int timeout) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->timeout(timeout));
+        return make_shared<EndpointI>(_instance, _delegate->timeout(timeout));
     }
 }
 
@@ -104,7 +104,7 @@ IceSSL::EndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->connectionId(connectionId));
+        return make_shared<EndpointI>(_instance, _delegate->connectionId(connectionId));
     }
 }
 
@@ -123,7 +123,7 @@ IceSSL::EndpointI::compress(bool compress) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->compress(compress));
+        return make_shared<EndpointI>(_instance, _delegate->compress(compress));
     }
 }
 
@@ -182,7 +182,7 @@ IceSSL::EndpointI::connectors_async(Ice::EndpointSelectionType selType,
     };
 
     IPEndpointInfoPtr info = getIPEndpointInfo(_delegate->getInfo());
-    _delegate->connectors_async(selType, ICE_MAKE_SHARED(CallbackI, callback, _instance, info ? info->host : string()));
+    _delegate->connectors_async(selType, make_shared<CallbackI>(callback, _instance, info ? info->host : string()));
 }
 
 IceInternal::AcceptorPtr
@@ -200,7 +200,7 @@ IceSSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, delEndp);
+        return make_shared<EndpointI>(_instance, delEndp);
     }
 }
 
@@ -216,7 +216,7 @@ IceSSL::EndpointI::expandIfWildcard() const
         }
         else
         {
-            *p = ICE_MAKE_SHARED(EndpointI, _instance, *p);
+            *p = make_shared<EndpointI>(_instance, *p);
         }
     }
     return endps;
@@ -232,7 +232,7 @@ IceSSL::EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
     }
     else if(publish.get())
     {
-        publish = ICE_MAKE_SHARED(EndpointI, _instance, publish);
+        publish = make_shared<EndpointI>(_instance, publish);
     }
     for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
@@ -242,7 +242,7 @@ IceSSL::EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
         }
         else
         {
-            *p = ICE_MAKE_SHARED(EndpointI, _instance, *p);
+            *p = make_shared<EndpointI>(_instance, *p);
         }
     }
     return endps;
@@ -350,11 +350,11 @@ IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstanc
 IceInternal::EndpointIPtr
 IceSSL::EndpointFactoryI::createWithUnderlying(const IceInternal::EndpointIPtr& underlying, vector<string>&, bool) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _sslInstance, underlying);
+    return make_shared<EndpointI>(_sslInstance, underlying);
 }
 
 IceInternal::EndpointIPtr
 IceSSL::EndpointFactoryI::readWithUnderlying(const IceInternal::EndpointIPtr& underlying, Ice::InputStream*) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _sslInstance, underlying);
+    return make_shared<EndpointI>(_sslInstance, underlying);
 }

@@ -109,7 +109,7 @@ allTests(Test::TestHelper* helper)
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(test1->getAdapterName());
-            test1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
 
         //
@@ -132,7 +132,7 @@ allTests(Test::TestHelper* helper)
             for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
             {
                 (*q)->getTestIntf()->ice_getConnection()->close(
-                    Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                    Ice::ConnectionClose::GracefullyWithWait);
             }
         }
 
@@ -157,7 +157,7 @@ allTests(Test::TestHelper* helper)
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(test1->getAdapterName());
-            test1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
 
         //
@@ -245,7 +245,7 @@ allTests(Test::TestHelper* helper)
                 try
                 {
                     (*q)->getTestIntf()->ice_getConnection()->close(
-                        Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                        Ice::ConnectionClose::GracefullyWithWait);
                 }
                 catch(const Ice::LocalException&)
                 {
@@ -285,7 +285,7 @@ allTests(Test::TestHelper* helper)
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(getAdapterNameWithAMI(test1));
-            test1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
 
         //
@@ -308,7 +308,7 @@ allTests(Test::TestHelper* helper)
             for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
             {
                 (*q)->getTestIntf()->ice_getConnection()->close(
-                    Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                    Ice::ConnectionClose::GracefullyWithWait);
             }
         }
 
@@ -333,7 +333,7 @@ allTests(Test::TestHelper* helper)
             test(test2->ice_getConnection() == test3->ice_getConnection());
 
             names.erase(test1->getAdapterName());
-            test1->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
 
         //
@@ -356,7 +356,7 @@ allTests(Test::TestHelper* helper)
         adapters.push_back(com->createObjectAdapter("Adapter23", "default"));
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Random));
+        test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Random);
 
         set<string> names;
         names.insert("Adapter21");
@@ -365,11 +365,11 @@ allTests(Test::TestHelper* helper)
         while(!names.empty())
         {
             names.erase(test->getAdapterName());
-            test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
 
-        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)));
-        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Random));
+        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::EndpointSelectionType::Random));
+        test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Random);
 
         names.insert("Adapter21");
         names.insert("Adapter22");
@@ -377,7 +377,7 @@ allTests(Test::TestHelper* helper)
         while(!names.empty())
         {
             names.erase(test->getAdapterName());
-            test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
 
         deactivate(com, adapters);
@@ -392,8 +392,8 @@ allTests(Test::TestHelper* helper)
         adapters.push_back(com->createObjectAdapter("Adapter33", "default"));
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)));
-        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Ordered));
+        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+        test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
         const int nRetry = 5;
         int i;
 
@@ -405,7 +405,7 @@ allTests(Test::TestHelper* helper)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter31"; i++);
         }
 #endif
@@ -415,7 +415,7 @@ allTests(Test::TestHelper* helper)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter32"; i++);
         }
 #endif
@@ -425,7 +425,7 @@ allTests(Test::TestHelper* helper)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter33"; i++);
         }
 #endif
@@ -455,29 +455,29 @@ allTests(Test::TestHelper* helper)
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++);
         }
 #endif
         test(i == nRetry);
-        test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         adapters.push_back(com->createObjectAdapter("Adapter35", endpoints[1]->toString()));
         for(i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++);
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++);
         }
 #endif
         test(i == nRetry);
-        test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         adapters.push_back(com->createObjectAdapter("Adapter34", endpoints[0]->toString()));
         for(i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++);
 #if TARGET_OS_IPHONE > 0
         if(i != nRetry)
         {
-            test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+            test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             for(i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++);
         }
 #endif
@@ -597,8 +597,8 @@ allTests(Test::TestHelper* helper)
         adapters.push_back(com->createObjectAdapter("Adapter63", "default"));
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)));
-        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Ordered));
+        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+        test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
         test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_connectionCached(false));
         test(!test->ice_isConnectionCached());
         const int nRetry = 5;
@@ -682,8 +682,8 @@ allTests(Test::TestHelper* helper)
         adapters.push_back(com->createObjectAdapter("AdapterAMI63", "default"));
 
         TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)));
-        test(test->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Ordered));
+        test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+        test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
         test = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_connectionCached(false));
         test(!test->ice_isConnectionCached());
         const int nRetry = 5;
@@ -787,7 +787,7 @@ allTests(Test::TestHelper* helper)
             for(i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter82");
-                test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
 
             TestIntfPrxPtr testSecure = ICE_UNCHECKED_CAST(TestIntfPrx, test->ice_secure(true));
@@ -803,7 +803,7 @@ allTests(Test::TestHelper* helper)
             for(i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter81");
-                test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
 
             com->createObjectAdapter("Adapter83", (test->ice_getEndpoints()[1])->toString()); // Reactive tcp OA.
@@ -811,7 +811,7 @@ allTests(Test::TestHelper* helper)
             for(i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter83");
-                test->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
 
             com->deactivateObjectAdapter(adapters[0]);

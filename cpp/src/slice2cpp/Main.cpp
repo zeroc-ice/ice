@@ -270,7 +270,7 @@ compile(const vector<string>& argv)
             if(preprocess)
             {
                 char buf[4096];
-                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != ICE_NULLPTR)
+                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
                 {
                     if(fputs(buf, stdout) == EOF)
                     {

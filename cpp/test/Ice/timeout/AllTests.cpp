@@ -307,7 +307,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
         Ice::ConnectionPtr connection = connect(to);
         controller->holdAdapter(-1);
-        connection->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        connection->close(Ice::ConnectionClose::GracefullyWithWait);
         try
         {
             connection->getInfo(); // getInfo() doesn't throw in the closing state.
@@ -461,7 +461,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TimeoutCollocated");
         adapter->activate();
 
-        timeout = ICE_UNCHECKED_CAST(TimeoutPrx, adapter->addWithUUID(ICE_MAKE_SHARED(TimeoutI)));
+        timeout = ICE_UNCHECKED_CAST(TimeoutPrx, adapter->addWithUUID(std::make_shared<TimeoutI>()));
         timeout = timeout->ice_invocationTimeout(100);
         try
         {

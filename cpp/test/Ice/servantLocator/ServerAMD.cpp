@@ -77,8 +77,8 @@ ServerAMD::run(int argc, char** argv)
 
     adapter->addServantLocator(make_shared<ServantLocatorAMDI>(""), "");
     adapter->addServantLocator(make_shared<ServantLocatorAMDI>("category"), "category");
-    adapter->add(ICE_MAKE_SHARED(TestAMDI), Ice::stringToIdentity("asm"));
-    adapter->add(ICE_MAKE_SHARED(TestActivationI), Ice::stringToIdentity("test/activation"));
+    adapter->add(std::make_shared<TestAMDI>(), Ice::stringToIdentity("asm"));
+    adapter->add(std::make_shared<TestActivationI>(), Ice::stringToIdentity("test/activation"));
     adapter->activate();
     serverReady();
     adapter->waitForDeactivate();

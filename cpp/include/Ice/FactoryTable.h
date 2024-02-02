@@ -39,8 +39,8 @@ class ICE_API FactoryTable : private IceUtil::noncopyable
 {
 public:
 
-    void addExceptionFactory(const ::std::string&, ICE_IN(ICE_DELEGATE(::Ice::UserExceptionFactory)));
-    ICE_DELEGATE(::Ice::UserExceptionFactory) getExceptionFactory(const ::std::string&) const;
+    void addExceptionFactory(const ::std::string&, ::Ice::UserExceptionFactory);
+    ::Ice::UserExceptionFactory getExceptionFactory(const ::std::string&) const;
     void removeExceptionFactory(const ::std::string&);
 
     void addValueFactory(const ::std::string&, ::Ice::ValueFactoryFunc);
@@ -55,15 +55,15 @@ private:
 
     IceUtil::Mutex _m;
 
-    typedef ::std::pair< ICE_DELEGATE(::Ice::UserExceptionFactory), int> EFPair;
-    typedef ::std::map< ::std::string, EFPair> EFTable;
+    typedef ::std::pair<::Ice::UserExceptionFactory, int> EFPair;
+    typedef ::std::map<::std::string, EFPair> EFTable;
     EFTable _eft;
 
     typedef ::std::pair<::Ice::ValueFactoryFunc, int> VFPair;
-    typedef ::std::map< ::std::string, VFPair> VFTable;
+    typedef ::std::map<::std::string, VFPair> VFTable;
     VFTable _vft;
 
-    typedef ::std::pair< ::std::string, int> TypeIdPair;
+    typedef ::std::pair<::std::string, int> TypeIdPair;
     typedef ::std::map<int, TypeIdPair> TypeIdTable;
     TypeIdTable _typeIdTable;
 };

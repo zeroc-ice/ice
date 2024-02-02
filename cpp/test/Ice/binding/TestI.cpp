@@ -36,7 +36,7 @@ RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::
             com->getProperties()->setProperty(name + ".ThreadPool.Size", "1");
             ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, endpoints);
             return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx,
-                                      current.adapter->addWithUUID(ICE_MAKE_SHARED(RemoteObjectAdapterI, adapter)));
+                                      current.adapter->addWithUUID(make_shared<RemoteObjectAdapterI>(adapter)));
         }
         catch(const Ice::SocketException&)
         {
@@ -63,7 +63,7 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
 RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter),
     _testIntf(ICE_UNCHECKED_CAST(TestIntfPrx,
-                    _adapter->add(ICE_MAKE_SHARED(TestI),
+                    _adapter->add(make_shared<TestI>(),
                                   stringToIdentity("test"))))
 {
     _adapter->activate();

@@ -346,18 +346,18 @@ allTests(Test::TestHelper* helper)
     id.name = "test";
     id.category = "\x7F\xE2\x82\xAC";
 
-    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, Unicode));
+    idStr = identityToString(id, Ice::ToStringMode::Unicode);
     test(idStr == "\\u007f\xE2\x82\xAC/test");
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
     test(Ice::identityToString(id) == idStr);
 
-    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, ASCII));
+    idStr = identityToString(id, Ice::ToStringMode::ASCII);
     test(idStr == "\\u007f\\u20ac/test");
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
 
-    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, Compat));
+    idStr = identityToString(id, Ice::ToStringMode::Compat);
     test(idStr == "\\177\\342\\202\\254/test");
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
@@ -370,17 +370,17 @@ allTests(Test::TestHelper* helper)
     id.name = "banana \016-\U0001F34C\U000020AC\u00a2\u0024";
     id.category = "greek \U0001016A";
 
-    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, Unicode));
+    idStr = identityToString(id, Ice::ToStringMode::Unicode);
     test(idStr == "greek \U0001016A/banana \\u000e-\U0001F34C\U000020AC\u00a2$");
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
 
-    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, ASCII));
+    idStr = identityToString(id, Ice::ToStringMode::ASCII);
     test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$");
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
 
-    idStr = identityToString(id, Ice::ICE_ENUM(ToStringMode, Compat));
+    idStr = identityToString(id, Ice::ToStringMode::Compat);
     test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$");
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
@@ -484,13 +484,13 @@ allTests(Test::TestHelper* helper)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".EndpointSelection";
-    test(b1->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Random));
+    test(b1->ice_getEndpointSelection() == Ice::EndpointSelectionType::Random);
     prop->setProperty(property, "Random");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Random));
+    test(b1->ice_getEndpointSelection() == Ice::EndpointSelectionType::Random);
     prop->setProperty(property, "Ordered");
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getEndpointSelection() == Ice::ICE_ENUM(EndpointSelectionType, Ordered));
+    test(b1->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".CollocationOptimized";
@@ -523,7 +523,7 @@ allTests(Test::TestHelper* helper)
     b1 = b1->ice_collocationOptimized(true);
     b1 = b1->ice_connectionCached(true);
     b1 = b1->ice_preferSecure(false);
-    b1 = b1->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered));
+    b1 = b1->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
     b1 = b1->ice_locatorCacheTimeout(100);
     b1 = b1->ice_invocationTimeout(1234);
     Ice::EncodingVersion v = { 1, 0 };
@@ -532,7 +532,7 @@ allTests(Test::TestHelper* helper)
     router = router->ice_collocationOptimized(false);
     router = router->ice_connectionCached(true);
     router = router->ice_preferSecure(true);
-    router = router->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random));
+    router = router->ice_endpointSelection(Ice::EndpointSelectionType::Random);
     router = router->ice_locatorCacheTimeout(200);
     router = router->ice_invocationTimeout(1500);
 
@@ -540,7 +540,7 @@ allTests(Test::TestHelper* helper)
     locator = locator->ice_collocationOptimized(true);
     locator = locator->ice_connectionCached(false);
     locator = locator->ice_preferSecure(true);
-    locator = locator->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random));
+    locator = locator->ice_endpointSelection(Ice::EndpointSelectionType::Random);
     locator = locator->ice_locatorCacheTimeout(300);
     locator = locator->ice_invocationTimeout(1500);
 
@@ -720,10 +720,10 @@ allTests(Test::TestHelper* helper)
     test(Ice::targetLess(compObj->ice_connectionCached(false), compObj->ice_connectionCached(true)));
     test(Ice::targetGreaterEqual(compObj->ice_connectionCached(true), compObj->ice_connectionCached(false)));
 
-    test(Ice::targetEqualTo(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)), compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random))));
-    test(Ice::targetNotEqualTo(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)), compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered))));
-    test(Ice::targetLess(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random)), compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered))));
-    test(Ice::targetGreaterEqual(compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Ordered)), compObj->ice_endpointSelection(Ice::ICE_ENUM(EndpointSelectionType, Random))));
+    test(Ice::targetEqualTo(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random), compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random)));
+    test(Ice::targetNotEqualTo(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random), compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered)));
+    test(Ice::targetLess(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random), compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered)));
+    test(Ice::targetGreaterEqual(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered), compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random)));
 
     test(Ice::targetEqualTo(compObj->ice_connectionId("id2"), compObj->ice_connectionId("id2")));
     test(Ice::targetNotEqualTo(compObj->ice_connectionId("id1"), compObj->ice_connectionId("id2")));
@@ -992,7 +992,7 @@ allTests(Test::TestHelper* helper)
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
         vector<Ice::Byte> outEncaps;
-        cl->ice_invoke("ice_ping", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        cl->ice_invoke("ice_ping", Ice::OperationMode::Normal, inEncaps, outEncaps);
         test(false);
     }
     catch(const Ice::UnknownLocalException& ex)
@@ -1013,7 +1013,7 @@ allTests(Test::TestHelper* helper)
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
         vector<Ice::Byte> outEncaps;
-        cl->ice_invoke("ice_ping", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps);
+        cl->ice_invoke("ice_ping", Ice::OperationMode::Normal, inEncaps, outEncaps);
         test(false);
     }
     catch(const Ice::UnknownLocalException& ex)

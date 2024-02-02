@@ -22,6 +22,6 @@ private:
 
     Ice::PropertyDict _changes;
 };
-ICE_DEFINE_SHARED_PTR(TestFacetIPtr, TestFacetI);
+using TestFacetIPtr = std::shared_ptr<TestFacetI>;
 
 #endif

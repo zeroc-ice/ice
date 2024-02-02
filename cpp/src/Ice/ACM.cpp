@@ -15,8 +15,8 @@ using namespace IceInternal;
 
 IceInternal::ACMConfig::ACMConfig(bool server) :
     timeout(IceUtil::Time::seconds(60)),
-    heartbeat(ICE_ENUM(ACMHeartbeat, HeartbeatOnDispatch)),
-    close(server ? ICE_ENUM(ACMClose, CloseOnInvocation) : ICE_ENUM(ACMClose, CloseOnInvocationAndIdle))
+    heartbeat(ACMHeartbeat::HeartbeatOnDispatch),
+    close(server ? ACMClose::CloseOnInvocation : ACMClose::CloseOnInvocationAndIdle)
 {
 }
 
@@ -47,8 +47,8 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     }
 
     int hb = p->getPropertyAsIntWithDefault(prefix + ".Heartbeat", static_cast<int>(dflt.heartbeat));
-    if(hb >= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatOff)) &&
-       hb <= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatAlways)))
+    if(hb >= static_cast<int>(ACMHeartbeat::HeartbeatOff) &&
+       hb <= static_cast<int>(ACMHeartbeat::HeartbeatAlways))
     {
         heartbeat = static_cast<Ice::ACMHeartbeat>(hb);
     }
@@ -59,8 +59,8 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     }
 
     int cl = p->getPropertyAsIntWithDefault(prefix + ".Close", static_cast<int>(dflt.close));
-    if(cl >= static_cast<int>(ICE_ENUM(ACMClose, CloseOff)) &&
-       cl <= static_cast<int>(ICE_ENUM(ACMClose, CloseOnIdleForceful)))
+    if(cl >= static_cast<int>(ACMClose::CloseOff) &&
+       cl <= static_cast<int>(ACMClose::CloseOnIdleForceful))
     {
         close = static_cast<Ice::ACMClose>(cl);
     }
@@ -107,8 +107,8 @@ IceInternal::FactoryACMMonitor::destroy()
     //
     if(!_connections.empty())
     {
-        _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
-        _instance->timer()->schedule(ICE_SHARED_FROM_THIS, IceUtil::Time());
+        _instance->timer()->cancel(shared_from_this());
+        _instance->timer()->schedule(shared_from_this(), IceUtil::Time());
     }
 
     _instance = 0;
@@ -135,7 +135,7 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
     if(_connections.empty())
     {
         _connections.insert(connection);
-        _instance->timer()->scheduleRepeated(ICE_SHARED_FROM_THIS, _config.timeout / 2);
+        _instance->timer()->scheduleRepeated(shared_from_this(), _config.timeout / 2);
     }
     else
     {
@@ -184,7 +184,7 @@ IceInternal::FactoryACMMonitor::acm(const IceUtil::Optional<int>& timeout,
     {
         config.heartbeat = *heartbeat;
     }
-    return ICE_MAKE_SHARED(ConnectionACMMonitor, ICE_SHARED_FROM_THIS, _instance->timer(), config);
+    return make_shared<ConnectionACMMonitor>(shared_from_this(), _instance->timer(), config);
 }
 
 Ice::ACM
@@ -231,7 +231,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
 
         if(_connections.empty())
         {
-            _instance->timer()->cancel(ICE_SHARED_FROM_THIS);
+            _instance->timer()->cancel(shared_from_this());
             return;
         }
     }
@@ -304,7 +304,7 @@ IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
     _connection = connection;
     if(_config.timeout != IceUtil::Time())
     {
-        _timer->scheduleRepeated(ICE_SHARED_FROM_THIS, _config.timeout / 2);
+        _timer->scheduleRepeated(shared_from_this(), _config.timeout / 2);
     }
 }
 
@@ -318,7 +318,7 @@ IceInternal::ConnectionACMMonitor::remove(ICE_MAYBE_UNUSED const ConnectionIPtr&
     assert(_connection == connection);
     if(_config.timeout != IceUtil::Time())
     {
-        _timer->cancel(ICE_SHARED_FROM_THIS);
+        _timer->cancel(shared_from_this());
     }
     _connection = 0;
 }

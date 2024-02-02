@@ -65,7 +65,7 @@ public:
         virtual void addedProxy() = 0;
         virtual void setException(const Ice::LocalException&) = 0;
     };
-    ICE_DEFINE_PTR(AddProxyCallbackPtr, AddProxyCallback);
+    using AddProxyCallbackPtr = std::shared_ptr<AddProxyCallback>;
 
     RouterInfo(const Ice::RouterPrxPtr&);
 

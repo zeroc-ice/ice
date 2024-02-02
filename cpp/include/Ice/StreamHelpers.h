@@ -614,7 +614,7 @@ struct GetOptionalFormat;
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, true>
 {
-    static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, F1);
+    static const OptionalFormat value = OptionalFormat::F1;
 };
 
 /**
@@ -624,7 +624,7 @@ struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, true>
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 2, true>
 {
-    static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, F2);
+    static const OptionalFormat value = OptionalFormat::F2;
 };
 
 /**
@@ -634,7 +634,7 @@ struct GetOptionalFormat<StreamHelperCategoryBuiltin, 2, true>
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 4, true>
 {
-    static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, F4);
+    static const OptionalFormat value = OptionalFormat::F4;
 };
 
 /**
@@ -644,7 +644,7 @@ struct GetOptionalFormat<StreamHelperCategoryBuiltin, 4, true>
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 8, true>
 {
-    static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, F8);
+    static const OptionalFormat value = OptionalFormat::F8;
 };
 
 /**
@@ -654,7 +654,7 @@ struct GetOptionalFormat<StreamHelperCategoryBuiltin, 8, true>
 template<>
 struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, false>
 {
-    static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, VSize);
+    static const OptionalFormat value = OptionalFormat::VSize;
 };
 
 /**
@@ -664,7 +664,7 @@ struct GetOptionalFormat<StreamHelperCategoryBuiltin, 1, false>
 template<>
 struct GetOptionalFormat<StreamHelperCategoryClass, 1, false>
 {
-    static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, Class);
+    static const OptionalFormat value = OptionalFormat::Class;
 };
 
 /**
@@ -674,7 +674,7 @@ struct GetOptionalFormat<StreamHelperCategoryClass, 1, false>
 template<int minWireSize>
 struct GetOptionalFormat<StreamHelperCategoryEnum, minWireSize, false>
 {
-    static const OptionalFormat value = ICE_SCOPED_ENUM(OptionalFormat, Size);
+    static const OptionalFormat value = OptionalFormat::Size;
 };
 
 /**
@@ -713,7 +713,7 @@ struct StreamOptionalHelper
 template<typename T>
 struct StreamOptionalHelper<T, StreamHelperCategoryStruct, true>
 {
-    static const OptionalFormat optionalFormat = ICE_SCOPED_ENUM(OptionalFormat, VSize);
+    static const OptionalFormat optionalFormat = OptionalFormat::VSize;
 
     template<class S> static inline void
     write(S* stream, const T& v)
@@ -737,7 +737,7 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, true>
 template<typename T>
 struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
 {
-    static const OptionalFormat optionalFormat = ICE_SCOPED_ENUM(OptionalFormat, FSize);
+    static const OptionalFormat optionalFormat = OptionalFormat::FSize;
 
     template<class S> static inline void
     write(S* stream, const T& v)
@@ -790,7 +790,7 @@ struct StreamOptionalContainerHelper;
 template<typename T, int sz>
 struct StreamOptionalContainerHelper<T, false, sz>
 {
-    static const OptionalFormat optionalFormat = ICE_SCOPED_ENUM(OptionalFormat, FSize);
+    static const OptionalFormat optionalFormat = OptionalFormat::FSize;
 
     template<class S> static inline void
     write(S* stream, const T& v, Int)
@@ -814,7 +814,7 @@ struct StreamOptionalContainerHelper<T, false, sz>
 template<typename T, int sz>
 struct StreamOptionalContainerHelper<T, true, sz>
 {
-    static const OptionalFormat optionalFormat = ICE_SCOPED_ENUM(OptionalFormat, VSize);
+    static const OptionalFormat optionalFormat = OptionalFormat::VSize;
 
     template<class S> static inline void
     write(S* stream, const T& v, Int n)
@@ -846,7 +846,7 @@ struct StreamOptionalContainerHelper<T, true, sz>
 template<typename T>
 struct StreamOptionalContainerHelper<T, true, 1>
 {
-    static const OptionalFormat optionalFormat = ICE_SCOPED_ENUM(OptionalFormat, VSize);
+    static const OptionalFormat optionalFormat = OptionalFormat::VSize;
 
     template<class S> static inline void
     write(S* stream, const T& v, Int)

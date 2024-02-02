@@ -42,7 +42,7 @@ public:
 
     virtual Ice::LoggerPtr cloneWithPrefix(const string&)
     {
-        return ICE_SHARED_FROM_THIS;
+        return shared_from_this();
     }
 };
 
@@ -61,12 +61,12 @@ Server::run(int argc, char** argv)
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-    initData.logger = ICE_MAKE_SHARED(NullLogger);
+    initData.logger = std::make_shared<NullLogger>();
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = Ice::stringToIdentity("communicator");
-    adapter->add(ICE_MAKE_SHARED(RemoteCommunicatorI), id);
+    adapter->add(std::make_shared<RemoteCommunicatorI>(), id);
     adapter->activate();
 
     serverReady();

@@ -31,7 +31,7 @@ std::string fromCFString(CFStringRef);
 inline CFStringRef
 toCFString(const std::string& s)
 {
-    return CFStringCreateWithCString(ICE_NULLPTR, s.c_str(), kCFStringEncodingUTF8);
+    return CFStringCreateWithCString(nullptr, s.c_str(), kCFStringEncodingUTF8);
 }
 #endif
 

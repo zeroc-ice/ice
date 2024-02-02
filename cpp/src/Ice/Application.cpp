@@ -31,7 +31,7 @@ bool Ice::Application::_interrupted = false;
 
 string Ice::Application::_appName;
 Ice::CommunicatorPtr Ice::Application::_communicator;
-Ice::SignalPolicy Ice::Application::_signalPolicy = ICE_ENUM(SignalPolicy, HandleSignals);
+Ice::SignalPolicy Ice::Application::_signalPolicy = SignalPolicy::HandleSignals;
 Ice::Application* Ice::Application::_application = 0;
 
 namespace
@@ -41,7 +41,7 @@ namespace
 // Variables than can change while run() and communicator->destroy() are running!
 //
 bool _released = true;
-CtrlCHandlerCallback _previousCallback = ICE_NULLPTR;
+CtrlCHandlerCallback _previousCallback = nullptr;
 
 //
 // Variables that are immutable during run() and until communicator->destroy() has returned;
@@ -73,7 +73,7 @@ Ice::Application::main(int argc, const char* const argv[], ICE_CONFIG_FILE_STRIN
 
     if(argc > 0 && argv[0] && ICE_DYNAMIC_CAST(LoggerI, getProcessLogger()))
     {
-        setProcessLogger(ICE_MAKE_SHARED(LoggerI, argv[0], "", true));
+        setProcessLogger(make_shared<LoggerI>(argv[0], "", true));
     }
 
     InitializationData initData;
@@ -129,7 +129,7 @@ Ice::Application::main(int argc, const char* const argv[], const InitializationD
         const bool convert = initializationData.properties ?
             initializationData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
             initializationData.properties->getProperty("Ice.StdErr").empty() : true;
-        setProcessLogger(ICE_MAKE_SHARED(LoggerI, argv[0], "", convert));
+        setProcessLogger(make_shared<LoggerI>(argv[0], "", convert));
     }
 
     if(_communicator != 0)
@@ -177,7 +177,7 @@ Ice::Application::main(int argc, const char* const argv[], const InitializationD
 
     _application = this;
 
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         try
         {
@@ -244,7 +244,7 @@ Ice::Application::communicator()
 void
 Ice::Application::destroyOnInterrupt()
 {
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -267,7 +267,7 @@ Ice::Application::destroyOnInterrupt()
 void
 Ice::Application::shutdownOnInterrupt()
 {
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -290,7 +290,7 @@ Ice::Application::shutdownOnInterrupt()
 void
 Ice::Application::ignoreInterrupt()
 {
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -313,7 +313,7 @@ Ice::Application::ignoreInterrupt()
 void
 Ice::Application::callbackOnInterrupt()
 {
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -336,7 +336,7 @@ Ice::Application::callbackOnInterrupt()
 void
 Ice::Application::holdInterrupt()
 {
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -359,7 +359,7 @@ Ice::Application::holdInterrupt()
 void
 Ice::Application::releaseInterrupt()
 {
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -413,7 +413,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
                 initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
                 initData.properties->getProperty("Ice.StdErr").empty();
 
-            setProcessLogger(ICE_MAKE_SHARED(LoggerI, initData.properties->getProperty("Ice.ProgramName"), "", convert));
+            setProcessLogger(make_shared<LoggerI>(initData.properties->getProperty("Ice.ProgramName"), "", convert));
         }
 
         _communicator = initialize(argc, argv, initData, version);
@@ -422,7 +422,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
         //
         // The default is to destroy when a signal is received.
         //
-        if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+        if(_signalPolicy == SignalPolicy::HandleSignals)
         {
             destroyOnInterrupt();
         }
@@ -465,7 +465,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
     // it would not make sense to release a held signal to run
     // shutdown or destroy.
     //
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         ignoreInterrupt();
     }
@@ -508,7 +508,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
 void
 Ice::Application::holdInterruptCallback(int signal)
 {
-    CtrlCHandlerCallback callback = ICE_NULLPTR;
+    CtrlCHandlerCallback callback = nullptr;
     {
         Mutex::Lock lock(_mutex);
         while(!_released)

@@ -49,10 +49,10 @@ private:
     std::map<std::string, Ice::ObjectPrxPtr> _adapters;
     std::map<std::string, std::set<std::string> > _replicaGroups;
 };
-ICE_DEFINE_SHARED_PTR(LocatorRegistryIPtr, LocatorRegistryI);
+using LocatorRegistryIPtr = std::shared_ptr<LocatorRegistryI>;
 
 class LookupI;
-ICE_DEFINE_SHARED_PTR(LookupIPtr, LookupI);
+using LookupIPtr = std::shared_ptr<LookupI>;
 
 class LocatorI : public Ice::Locator
 {

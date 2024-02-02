@@ -23,7 +23,7 @@ public:
 
     virtual void newConnection(int) = 0;
 };
-ICE_DEFINE_PTR(ProfileCallbackPtr, ProfileCallback);
+using ProfileCallbackPtr = std::shared_ptr<ProfileCallback>;
 
 //
 // Represents an outgoing (client) connection. The transport must keep a reference to this object
@@ -48,7 +48,7 @@ public:
     virtual void completed(int, const ConnectionPtr&) = 0;
     virtual void failed(const Ice::LocalException&) = 0;
 };
-ICE_DEFINE_PTR(ConnectCallbackPtr, ConnectCallback);
+using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
 
 //
 // Engine encapsulates all Bluetooth activities.

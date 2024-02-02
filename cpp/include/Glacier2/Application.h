@@ -60,7 +60,7 @@ public:
      * Initializes an instance that calls Ice::Communicator::shutdown if
      * a signal is received.
      **/
-    Application(Ice::SignalPolicy = Ice::ICE_ENUM(SignalPolicy,HandleSignals));
+    Application(Ice::SignalPolicy = Ice::SignalPolicy::HandleSignals);
 
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;

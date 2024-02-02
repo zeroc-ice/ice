@@ -40,7 +40,7 @@ allTests(Test::TestHelper* helper)
         test(smap2 == smap1);
         test(smap3 == smap1);
 
-        Test::CPtr c1 = ICE_MAKE_SHARED(Test::C, s1);
+        Test::CPtr c1 = make_shared<Test::C>(s1);
         Test::CPtr c2;
         Test::CPtr c3 = i->opC(c1, c2);
         test(c2->s == c1->s);
@@ -60,15 +60,15 @@ allTests(Test::TestHelper* helper)
         test(cmap2["a"]->s == c1->s);
         test(cmap3["a"]->s == c1->s);
 
-        Test::E1 e = i->opE1(Test::ICE_ENUM(E1, v1));
-        test(e == Test::ICE_ENUM(E1, v1));
+        Test::E1 e = i->opE1(Test::E1::v1);
+        test(e == Test::E1::v1);
 
         Test::S1 s;
         s.s = "S1";
         s = i->opS1(s);
         test(s.s == "S1");
 
-        Test::C1Ptr c = i->opC1(ICE_MAKE_SHARED(Test::C1, "C1"));
+        Test::C1Ptr c = i->opC1(make_shared<Test::C1>("C1"));
         test(c->s == "C1");
     }
 
@@ -139,7 +139,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            auto result = i->opC1Async(ICE_MAKE_SHARED(Test::C1, "C1")).get();
+            auto result = i->opC1Async(make_shared<Test::C1>("C1")).get();
             test(result->s == "C1");
         }
     }
@@ -373,7 +373,7 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opC1Async(ICE_MAKE_SHARED(Test::C1, "C1"),
+            auto result = i->opC1Async(make_shared<Test::C1>("C1"),
                                        [&p](Test::C1Ptr v)
                                        {
                                            test(v->s == "C1");
@@ -422,7 +422,7 @@ allTests(Test::TestHelper* helper)
         test(smap2 == smap1);
         test(smap3 == smap1);
 
-        Test::Inner::Inner2::CPtr c1 = ICE_MAKE_SHARED(Test::Inner::Inner2::C, s1);
+        Test::Inner::Inner2::CPtr c1 = make_shared<Test::Inner::Inner2::C>(s1);
         Test::Inner::Inner2::CPtr c2;
         Test::Inner::Inner2::CPtr c3 = i->opC(c1, c2);
         test(c2->s == c1->s);
@@ -701,7 +701,7 @@ allTests(Test::TestHelper* helper)
         test(smap2 == smap1);
         test(smap3 == smap1);
 
-        Test::Inner::Inner2::CPtr c1 = ICE_MAKE_SHARED(Test::Inner::Inner2::C, s1);
+        Test::Inner::Inner2::CPtr c1 = make_shared<Test::Inner::Inner2::C>(s1);
         Test::Inner::Inner2::CPtr c2;
         Test::Inner::Inner2::CPtr c3 = i->opC(c1, c2);
         test(c2->s == c1->s);
@@ -978,7 +978,7 @@ allTests(Test::TestHelper* helper)
         test(smap2 == smap1);
         test(smap3 == smap1);
 
-        Test::CPtr c1 = ICE_MAKE_SHARED(Test::C, s1);
+        Test::CPtr c1 = make_shared<Test::C>(s1);
         Test::CPtr c2;
         Test::CPtr c3 = i->opC(c1, c2);
         test(c2->s == c1->s);

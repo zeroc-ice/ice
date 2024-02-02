@@ -91,7 +91,7 @@ allTests()
     }
 
     {
-        BasePtr v = ICE_MAKE_SHARED(Base);
+        BasePtr v = std::make_shared<Base>();
         test(!v->boolFalse);
         test(v->boolTrue);
         test(v->b == 1);
@@ -111,7 +111,7 @@ allTests()
     }
 
     {
-        DerivedPtr v = ICE_MAKE_SHARED(Derived);
+        DerivedPtr v = std::make_shared<Derived>();
         test(!v->boolFalse);
         test(v->boolTrue);
         test(v->b == 1);

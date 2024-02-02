@@ -88,7 +88,7 @@ public:
      */
     virtual Ice::ObjectAdapterPtr objectAdapter() = 0;
 };
-ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
+using SessionHelperPtr = std::shared_ptr<SessionHelper>;
 
 /**
  * Allows an application to receive notification about events in the lifecycle of a Glacier2 session.
@@ -124,7 +124,7 @@ public:
      */
     virtual void connectFailed(const SessionHelperPtr& session, const Ice::Exception& ex) = 0;
 };
-ICE_DEFINE_PTR(SessionCallbackPtr, SessionCallback);
+using SessionCallbackPtr = std::shared_ptr<SessionCallback>;
 
 /// \cond INTERNAL
 class SessionThreadCallback;
@@ -295,7 +295,7 @@ private:
     bool _useCallbacks;
     std::map<const SessionHelper*, IceUtil::ThreadPtr> _threads;
 };
-ICE_DEFINE_PTR(SessionFactoryHelperPtr, SessionFactoryHelper);
+using SessionFactoryHelperPtr = std::shared_ptr<SessionFactoryHelper>;
 
 }
 
