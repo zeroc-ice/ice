@@ -99,6 +99,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iceboxadmin", "..\src\IceBox\msbuild\iceboxadmin\iceboxadmin.vcxproj", "{1B745EA3-C97A-41BB-8E6F-64AAE992BE55}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iceserviceinstall", "..\src\iceserviceinstall\msbuild\iceserviceinstall.vcxproj", "{0E22B627-F1A6-4771-89DE-9E45FD51F124}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3AB9772C-6113-4F1C-90FB-5368E7486C11} = {3AB9772C-6113-4F1C-90FB-5368E7486C11}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "icestormdb", "..\src\IceStorm\msbuild\icestormdb\icestormdb.vcxproj", "{F0B74B00-F252-4D38-A352-ED379CB196E9}"
 	ProjectSection(ProjectDependencies) = postProject
