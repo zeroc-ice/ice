@@ -574,7 +574,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
         size_t firstIndex = b.size();
         StreamUTF8BufferI buffer(*this);
 
-        Byte* lastByte = ICE_NULLPTR;
+        Byte* lastByte = nullptr;
         bool converted = false;
         if(_instance)
         {
@@ -686,7 +686,7 @@ Ice::OutputStream::write(const wstring& v)
         size_t firstIndex = b.size();
         StreamUTF8BufferI buffer(*this);
 
-        Byte* lastByte = ICE_NULLPTR;
+        Byte* lastByte = nullptr;
 
         // Note: wstringConverter is never null; when set to null, get returns the default unicode wstring converter
         if(_instance)

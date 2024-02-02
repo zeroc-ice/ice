@@ -20,7 +20,7 @@ public:
     TrustError errorCode;
     std::string host;
 };
-ICE_DEFINE_PTR(ExtendedConnectionInfoPtr, ExtendedConnectionInfo);
+using ExtendedConnectionInfoPtr = std::shared_ptr<ExtendedConnectionInfo>;
 
 // TODO: This class provides new certificate virtual methods that canot be added directly to the certificate class
 // without breaking binary compatibility. The class can be removed once the relevant methods can be marked as virtual in

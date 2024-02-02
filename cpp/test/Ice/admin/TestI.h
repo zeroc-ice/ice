@@ -22,10 +22,10 @@ public:
     virtual void addUpdateCallback(const Ice::Current&);
     virtual void removeUpdateCallback(const Ice::Current&);
 
-    virtual void print(ICE_IN(std::string), const Ice::Current&);
-    virtual void trace(ICE_IN(std::string), ICE_IN(std::string), const Ice::Current&);
-    virtual void warning(ICE_IN(std::string), const Ice::Current&);
-    virtual void error(ICE_IN(std::string), const Ice::Current&);
+    virtual void print(std::string, const Ice::Current&);
+    virtual void trace(std::string, std::string, const Ice::Current&);
+    virtual void warning(std::string, const Ice::Current&);
+    virtual void error(std::string, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
     virtual void waitForShutdown(const Ice::Current&);
@@ -40,13 +40,13 @@ private:
 
     std::function<void()> _removeCallback;
 };
-ICE_DEFINE_SHARED_PTR(RemoteCommunicatorIPtr, RemoteCommunicatorI);
+using RemoteCommunicatorIPtr = std::shared_ptr<RemoteCommunicatorI>;
 
 class RemoteCommunicatorFactoryI : public Test::RemoteCommunicatorFactory
 {
 public:
 
-    virtual Test::RemoteCommunicatorPrxPtr createCommunicator(ICE_IN(Ice::PropertyDict), const Ice::Current&);
+    virtual Test::RemoteCommunicatorPrxPtr createCommunicator(Ice::PropertyDict, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
 

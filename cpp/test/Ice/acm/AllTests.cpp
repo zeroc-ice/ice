@@ -90,7 +90,7 @@ public:
     virtual Ice::LoggerPtr
     cloneWithPrefix(const std::string&)
     {
-        return ICE_SHARED_FROM_THIS;
+        return shared_from_this();
     }
 
 private:
@@ -108,7 +108,7 @@ private:
     bool _started;
     vector<string> _messages;
 };
-ICE_DEFINE_PTR(LoggerIPtr, LoggerI);
+using LoggerIPtr = std::shared_ptr<LoggerI>;
 
 class TestCase : public enable_shared_from_this<TestCase>,
                  protected IceUtil::Monitor<IceUtil::Mutex>
@@ -270,7 +270,7 @@ protected:
     int _heartbeat;
     bool _closed;
 };
-ICE_DEFINE_PTR(TestCasePtr, TestCase);
+using TestCasePtr = std::shared_ptr<TestCase>;
 
 class InvocationHeartbeatTest final : public TestCase
 {
@@ -615,20 +615,20 @@ allTests(Test::TestHelper* helper)
 
     vector<TestCasePtr> tests;
 
-    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatTest, com));
-    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatOnHoldTest, com));
-    tests.push_back(ICE_MAKE_SHARED(InvocationNoHeartbeatTest, com));
-    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatCloseOnIdleTest, com));
+    tests.push_back(make_shared<InvocationHeartbeatTest>(com));
+    tests.push_back(make_shared<InvocationHeartbeatOnHoldTest>(com));
+    tests.push_back(make_shared<InvocationNoHeartbeatTest>(com));
+    tests.push_back(make_shared<InvocationHeartbeatCloseOnIdleTest>(com));
 
-    tests.push_back(ICE_MAKE_SHARED(CloseOnIdleTest, com));
-    tests.push_back(ICE_MAKE_SHARED(CloseOnInvocationTest, com));
-    tests.push_back(ICE_MAKE_SHARED(CloseOnIdleAndInvocationTest, com));
-    tests.push_back(ICE_MAKE_SHARED(ForcefulCloseOnIdleAndInvocationTest, com));
+    tests.push_back(make_shared<CloseOnIdleTest>(com));
+    tests.push_back(make_shared<CloseOnInvocationTest>(com));
+    tests.push_back(make_shared<CloseOnIdleAndInvocationTest>(com));
+    tests.push_back(make_shared<ForcefulCloseOnIdleAndInvocationTest>(com));
 
-    tests.push_back(ICE_MAKE_SHARED(HeartbeatOnIdleTest, com));
-    tests.push_back(ICE_MAKE_SHARED(HeartbeatAlwaysTest, com));
-    tests.push_back(ICE_MAKE_SHARED(HeartbeatManualTest, com));
-    tests.push_back(ICE_MAKE_SHARED(SetACMTest, com));
+    tests.push_back(make_shared<HeartbeatOnIdleTest>(com));
+    tests.push_back(make_shared<HeartbeatAlwaysTest>(com));
+    tests.push_back(make_shared<HeartbeatManualTest>(com));
+    tests.push_back(make_shared<SetACMTest>(com));
 
     for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)
     {

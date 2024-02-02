@@ -83,7 +83,7 @@ private:
 //
 OpaqueEndpointInfoI::OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncodingP,
                                          const Ice::ByteSeq& rawBytesP) :
-    Ice::OpaqueEndpointInfo(ICE_NULLPTR, -1, false, rawEncodingP, rawBytesP),
+    Ice::OpaqueEndpointInfo(nullptr, -1, false, rawEncodingP, rawBytesP),
     _type(type)
 {
 }
@@ -99,7 +99,7 @@ IceInternal::OpaqueEndpointI::streamWrite(OutputStream* s) const
 Ice::EndpointInfoPtr
 IceInternal::OpaqueEndpointI::getInfo() const noexcept
 {
-    return ICE_MAKE_SHARED(OpaqueEndpointInfoI, _type, _rawEncoding, _rawBytes);
+    return make_shared<OpaqueEndpointInfoI>(_type, _rawEncoding, _rawBytes);
 }
 
 Short
@@ -165,7 +165,7 @@ IceInternal::OpaqueEndpointI::secure() const
 TransceiverPtr
 IceInternal::OpaqueEndpointI::transceiver() const
 {
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 void
@@ -177,7 +177,7 @@ IceInternal::OpaqueEndpointI::connectors_async(Ice::EndpointSelectionType, const
 AcceptorPtr
 IceInternal::OpaqueEndpointI::acceptor(const string&) const
 {
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 vector<EndpointIPtr>

@@ -64,7 +64,7 @@ class StreamAcceptor;
 typedef IceUtil::Handle<StreamAcceptor> StreamAcceptorPtr;
 
 class StreamEndpointI;
-ICE_DEFINE_PTR(StreamEndpointIPtr, StreamEndpointI);
+using StreamEndpointIPtr = std::shared_ptr<StreamEndpointI>;
 
 class StreamEndpointI : public IceInternal::IPEndpointI
 {

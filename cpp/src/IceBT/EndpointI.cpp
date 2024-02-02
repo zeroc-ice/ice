@@ -101,7 +101,7 @@ IceBT::EndpointI::timeout(Int timeout) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, _addr, _uuid, _name, _channel, timeout, _connectionId, _compress);
+        return make_shared<EndpointI>(_instance, _addr, _uuid, _name, _channel, timeout, _connectionId, _compress);
     }
 }
 
@@ -120,7 +120,7 @@ IceBT::EndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, _addr, _uuid, _name, _channel, _timeout, connectionId, _compress);
+        return make_shared<EndpointI>(_instance, _addr, _uuid, _name, _channel, _timeout, connectionId, _compress);
     }
 }
 
@@ -139,7 +139,7 @@ IceBT::EndpointI::compress(bool compress) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, _instance, _addr, _uuid, _name, _channel, _timeout, _connectionId, compress);
+        return make_shared<EndpointI>(_instance, _addr, _uuid, _name, _channel, _timeout, _connectionId, compress);
     }
 }
 
@@ -186,8 +186,8 @@ IceBT::EndpointI::expandIfWildcard() const
         // getDefaultAdapterAddress will raise BluetoothException if no adapter is present.
         //
         string addr = _instance->engine()->getDefaultAdapterAddress();
-        endps.push_back(ICE_MAKE_SHARED(EndpointI, _instance, addr, _uuid, _name, _channel, _timeout, _connectionId,
-                                        _compress));
+        endps.push_back(make_shared<EndpointI>(_instance, addr, _uuid, _name, _channel, _timeout, _connectionId,
+                                               _compress));
     }
     else
     {
@@ -424,7 +424,7 @@ IceBT::EndpointI::options() const
 Ice::EndpointInfoPtr
 IceBT::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info = ICE_MAKE_SHARED(EndpointInfoI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    EndpointInfoPtr info = make_shared<EndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(EndpointI));
     info->addr = _addr;
     info->uuid = _uuid;
     return info;
@@ -488,7 +488,7 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 IceBT::EndpointIPtr
 IceBT::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout,
+    return make_shared<EndpointI>(_instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout,
                            _connectionId, _compress);
 }
 
@@ -642,7 +642,7 @@ IceBT::EndpointFactoryI::protocol() const
 IceInternal::EndpointIPtr
 IceBT::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 {
-    EndpointIPtr endpt = ICE_MAKE_SHARED(EndpointI, _instance);
+    EndpointIPtr endpt = make_shared<EndpointI>(_instance);
     endpt->initWithOptions(args, oaEndpoint);
     return endpt;
 }
@@ -650,7 +650,7 @@ IceBT::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
 IceInternal::EndpointIPtr
 IceBT::EndpointFactoryI::read(InputStream* s) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _instance, s);
+    return make_shared<EndpointI>(_instance, s);
 }
 
 void

@@ -400,7 +400,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         const_cast<int&>(_priority) = properties->getPropertyAsInt("Ice.ThreadPriority");
     }
 
-    _workQueue = ICE_MAKE_SHARED(ThreadPoolWorkQueue, *this);
+    _workQueue = make_shared<ThreadPoolWorkQueue>(*this);
     _selector.initialize(_workQueue.get());
 
     if(_instance->traceLevels()->threadPool >= 1)

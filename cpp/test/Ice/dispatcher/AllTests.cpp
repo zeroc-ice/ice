@@ -100,7 +100,7 @@ private:
     bool _called;
     bool _sentSynchronously;
 };
-ICE_DEFINE_PTR(CallbackPtr, Callback);
+using CallbackPtr = std::shared_ptr<Callback>;
 
 }
 
@@ -124,7 +124,7 @@ allTests(Test::TestHelper* helper)
     {
         p->op();
 
-        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
+        CallbackPtr cb = std::make_shared<Callback>();
         p->opAsync(
             [cb]()
             {

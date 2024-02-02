@@ -174,7 +174,7 @@ private:
 const WstringConverterPtr&
 getUnicodeWstringConverter()
 {
-    static const WstringConverterPtr unicodeWstringConverter = ICE_MAKE_SHARED(UnicodeWstringConverter);
+    static const WstringConverterPtr unicodeWstringConverter = make_shared<UnicodeWstringConverter>();
     return unicodeWstringConverter;
 }
 
@@ -561,6 +561,6 @@ WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
 StringConverterPtr
 IceUtil::createWindowsStringConverter(unsigned int cp)
 {
-    return ICE_MAKE_SHARED(WindowsStringConverter, cp);
+    return make_shared<WindowsStringConverter>(cp);
 }
 #endif

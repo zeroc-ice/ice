@@ -31,6 +31,6 @@ private:
     Ice::ConnectionPtr _connection;
 };
 
-ICE_DEFINE_SHARED_PTR(BlobjectIPtr, BlobjectI);
+using BlobjectIPtr = std::shared_ptr<BlobjectI>;
 
 #endif

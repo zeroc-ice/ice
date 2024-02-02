@@ -24,7 +24,7 @@ getTCPEndpointInfo(const Ice::EndpointInfoPtr& info)
             return tcpInfo;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 Ice::TCPConnectionInfoPtr
@@ -38,7 +38,7 @@ getTCPConnectionInfo(const Ice::ConnectionInfoPtr& info)
             return tcpInfo;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 }

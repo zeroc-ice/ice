@@ -111,19 +111,19 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
         ICE_UNCHECKED_CAST(_cpp_and::breakPrx, communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
     int d2;
     d->_cpp_case(0, d2);
-    _cpp_and::breakPtr d1 = ICE_MAKE_SHARED(breakI);
+    _cpp_and::breakPtr d1 = std::make_shared<breakI>();
 
     _cpp_and::charPrxPtr e =
         ICE_UNCHECKED_CAST(_cpp_and::charPrx, communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
     e->_cpp_explicit();
-    _cpp_and::charPtr e1 = ICE_MAKE_SHARED(charI);
+    _cpp_and::charPtr e1 = std::make_shared<charI>();
 
-    _cpp_and::switchPtr f1 = ICE_MAKE_SHARED(switchI);
+    _cpp_and::switchPtr f1 = std::make_shared<switchI>();
 
     _cpp_and::doPrxPtr g;
     g->_cpp_case(0, d2);
     g->_cpp_explicit();
-    _cpp_and::doPtr g1 = ICE_MAKE_SHARED(doI);
+    _cpp_and::doPtr g1 = std::make_shared<doI>();
 
     _cpp_and::_cpp_extern h;
     _cpp_and::_cpp_for i;
@@ -135,7 +135,7 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     k._cpp_signed = 2;
 
     // TODO: reenable once bug #1617 is fixed.
-    // _cpp_and::friendPtr l = ICE_MAKE_SHARED(friendI);
+    // _cpp_and::friendPtr l = std::make_shared<friendI>();
 
     const int m  = _cpp_and::_cpp_template;
     test(m == _cpp_and::_cpp_template);
@@ -156,7 +156,7 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(charI), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<charI>(), Ice::stringToIdentity("test"));
     adapter->activate();
 
     cout << "Testing operation name... " << flush;

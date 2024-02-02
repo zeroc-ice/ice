@@ -38,7 +38,7 @@ private:
     const RetryQueuePtr _queue;
     const ProxyOutgoingAsyncBasePtr _outAsync;
 };
-ICE_DEFINE_PTR(RetryTaskPtr, RetryTask);
+using RetryTaskPtr = std::shared_ptr<RetryTask>;
 
 class RetryQueue : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {

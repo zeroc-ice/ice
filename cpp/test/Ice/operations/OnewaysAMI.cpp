@@ -68,7 +68,7 @@ public:
         test(false);
     }
 };
-ICE_DEFINE_PTR(CallbackPtr, Callback);
+using CallbackPtr = std::shared_ptr<Callback>;
 
 }
 
@@ -78,7 +78,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     Test::MyClassPrxPtr p = ICE_UNCHECKED_CAST(Test::MyClassPrx, proxy->ice_oneway());
 
     {
-        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
+        CallbackPtr cb = std::make_shared<Callback>();
         p->ice_pingAsync(
             nullptr,
             [](exception_ptr)
@@ -137,7 +137,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
+        CallbackPtr cb = std::make_shared<Callback>();
         p->opVoidAsync(
             nullptr,
             [](exception_ptr)
@@ -152,7 +152,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
+        CallbackPtr cb = std::make_shared<Callback>();
         p->opIdempotentAsync(
             nullptr,
             [](exception_ptr)
@@ -167,7 +167,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
+        CallbackPtr cb = std::make_shared<Callback>();
         p->opNonmutatingAsync(
             nullptr,
             [](exception_ptr)
@@ -197,7 +197,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        CallbackPtr cb = ICE_MAKE_SHARED(Callback);
+        CallbackPtr cb = std::make_shared<Callback>();
         p->ice_pingAsync(nullptr,
                         [=](exception_ptr e)
                         {

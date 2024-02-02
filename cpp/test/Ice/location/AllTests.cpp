@@ -79,7 +79,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     Ice::LocatorPrxPtr anotherLocator = ICE_UNCHECKED_CAST(Ice::LocatorPrx, communicator->stringToProxy("anotherLocator"));
     base = base->ice_locator(anotherLocator);
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
-    communicator->setDefaultLocator(ICE_NULLPTR);
+    communicator->setDefaultLocator(nullptr);
     base = communicator->stringToProxy("test @ TestAdapter");
     test(!base->ice_getLocator());
     base = base->ice_locator(anotherLocator);
@@ -654,7 +654,7 @@ allTests(Test::TestHelper* helper, const string& ref)
 
         Ice::Identity id;
         id.name = Ice::generateUUID();
-        adapter->add(ICE_MAKE_SHARED(HelloI), id);
+        adapter->add(std::make_shared<HelloI>(), id);
 
         // Ensure that calls on the well-known proxy is collocated.
         HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(communicator->identityToString(id)));

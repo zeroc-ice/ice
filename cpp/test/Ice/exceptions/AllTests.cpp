@@ -532,7 +532,7 @@ allTests(Test::TestHelper* helper)
         {
             communicator->getProperties()->setProperty("TestAdapter1.Endpoints", localOAEndpoint);
             Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
-            Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
+            Ice::ObjectPtr obj = std::make_shared<EmptyI>();
             adapter->add(obj, Ice::stringToIdentity("x"));
             try
             {

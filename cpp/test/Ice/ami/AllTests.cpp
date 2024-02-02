@@ -36,7 +36,7 @@ private:
     bool _received;
 };
 
-ICE_DEFINE_SHARED_PTR(PingReplyIPtr, PingReplyI);
+using PingReplyIPtr = std::shared_ptr<PingReplyI>;
 
 enum ThrowType { LocalException, UserException, StandardException, OtherException };
 

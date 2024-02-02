@@ -35,7 +35,7 @@ class RelayI : public Relay
         ex.b = "base";
         ex.kp = "preserved";
         ex.kpd = "derived";
-        ex.p1 = ICE_MAKE_SHARED(PreservedClass, "bc", "pc");
+        ex.p1 = make_shared<PreservedClass>("bc", "pc");
         ex.p2 = ex.p1;
         throw ex;
     }
@@ -46,7 +46,7 @@ class RelayI : public Relay
         ex.b = "base";
         ex.kp = "preserved";
         ex.kpd = "derived";
-        ex.p1 = ICE_MAKE_SHARED(PreservedClass, "bc", "pc");
+        ex.p1 = make_shared<PreservedClass>("bc", "pc");
         ex.p2 = ex.p1;
         throw ex;
     }
@@ -684,7 +684,7 @@ allTests(Test::TestHelper* helper)
     }
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
-    RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(ICE_MAKE_SHARED(RelayI)));
+    RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(make_shared<RelayI>()));
     adapter->activate();
     test->ice_getConnection()->setAdapter(adapter);
     try

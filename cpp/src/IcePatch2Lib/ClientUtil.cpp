@@ -1126,7 +1126,7 @@ PatcherI::updateFlags(const LargeFileInfoSeq& files)
 PatcherPtr
 PatcherFactory::create(const Ice::CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback)
 {
-    return ICE_MAKE_SHARED(PatcherI, communicator, feedback);
+    return make_shared<PatcherI>(communicator, feedback);
 }
 
 //
@@ -1141,5 +1141,5 @@ PatcherFactory::create(const FileServerPrxPtr& server,
                        Ice::Int chunkSize,
                        Ice::Int remove)
 {
-    return ICE_MAKE_SHARED(PatcherI, server, feedback, dataDir, thorough, chunkSize, remove);
+    return make_shared<PatcherI>(server, feedback, dataDir, thorough, chunkSize, remove);
 }

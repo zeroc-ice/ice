@@ -340,7 +340,7 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     // test on arm64 devices with a debug Ice libraries which require lots of stack space.
     //
     helper->start(768 * 1024);
-    return ICE_UNCHECKED_CAST(ProcessPrx, c.adapter->addWithUUID(ICE_MAKE_SHARED(ProcessI, _controller, helper.get())));
+    return ICE_UNCHECKED_CAST(ProcessPrx, c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper.get())));
 }
 
 string
@@ -372,7 +372,7 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
     ident.category = "iPhoneOS";
 #endif
     ident.name = [[[NSBundle mainBundle] bundleIdentifier] UTF8String];
-    adapter->add(ICE_MAKE_SHARED(ProcessControllerI, controller, ipv4, ipv6), ident);
+    adapter->add(make_shared<ProcessControllerI>(controller, ipv4, ipv6), ident);
     adapter->activate();
 }
 

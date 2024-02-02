@@ -108,7 +108,7 @@ private:
     IceUtil::Time _scheduledTime;
     int _count;
 };
-ICE_DEFINE_PTR(TestTaskPtr, TestTask);
+using TestTaskPtr = std::shared_ptr<TestTask>;
 
 class DestroyTask : public IceUtil::TimerTask, IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -145,7 +145,7 @@ private:
     IceUtil::TimerPtr _timer;
     bool _run;
 };
-ICE_DEFINE_PTR(DestroyTaskPtr, DestroyTask);
+using DestroyTaskPtr = std::shared_ptr<DestroyTask>;
 
 class Client : public Test::TestHelper
 {
@@ -163,7 +163,7 @@ Client::run(int, char*[])
         IceUtil::TimerPtr timer = new IceUtil::Timer();
 
         {
-            TestTaskPtr task = ICE_MAKE_SHARED(TestTask);
+            TestTaskPtr task = make_shared<TestTask>();
             timer->schedule(task, IceUtil::Time());
             task->waitForRun();
             task->clear();
@@ -185,7 +185,7 @@ Client::run(int, char*[])
         }
 
         {
-            TestTaskPtr task = ICE_MAKE_SHARED(TestTask);
+            TestTaskPtr task = make_shared<TestTask>();
             test(!timer->cancel(task));
             timer->schedule(task, IceUtil::Time::seconds(1));
             test(!task->hasRun() && timer->cancel(task) && !task->hasRun());
@@ -199,7 +199,7 @@ Client::run(int, char*[])
             IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(500);
             for(int i = 0; i < 20; ++i)
             {
-                tasks.push_back(ICE_MAKE_SHARED(TestTask, IceUtil::Time::milliSeconds(500 + i * 50)));
+                tasks.push_back(make_shared<TestTask>(IceUtil::Time::milliSeconds(500 + i * 50)));
             }
 
             IceUtilInternal::shuffle(tasks.begin(), tasks.end());
@@ -227,7 +227,7 @@ Client::run(int, char*[])
         }
 
         {
-            TestTaskPtr task = ICE_MAKE_SHARED(TestTask);
+            TestTaskPtr task = make_shared<TestTask>();
             timer->scheduleRepeated(task, IceUtil::Time::milliSeconds(20));
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
             test(task->hasRun());
@@ -247,7 +247,7 @@ Client::run(int, char*[])
     {
         {
             IceUtil::TimerPtr timer = new IceUtil::Timer();
-            DestroyTaskPtr destroyTask = ICE_MAKE_SHARED(DestroyTask, timer);
+            DestroyTaskPtr destroyTask = make_shared<DestroyTask>(timer);
             timer->schedule(destroyTask, IceUtil::Time());
             destroyTask->waitForRun();
             try
@@ -261,7 +261,7 @@ Client::run(int, char*[])
         }
         {
             IceUtil::TimerPtr timer = new IceUtil::Timer();
-            TestTaskPtr testTask = ICE_MAKE_SHARED(TestTask);
+            TestTaskPtr testTask = make_shared<TestTask>();
             timer->schedule(testTask, IceUtil::Time());
             timer->destroy();
             try

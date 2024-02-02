@@ -29,14 +29,14 @@ Server::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ControlAdapter");
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("control"));
+    adapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("control"));
     adapter->activate();
 
     if(num == 0)
     {
         communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
         Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter");
-        adapter2->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+        adapter2->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
         adapter2->activate();
     }
 
@@ -60,7 +60,7 @@ Server::run(int argc, char** argv)
     try
     {
         Ice::ObjectAdapterPtr mcastAdapter = communicator->createObjectAdapter("McastTestAdapter");
-        mcastAdapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+        mcastAdapter->add(std::make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
         mcastAdapter->activate();
     }
     catch(const Ice::SocketException&)

@@ -345,10 +345,10 @@ public:
      */
     virtual std::vector<Ice::Byte> getData() const = 0;
 };
-ICE_DEFINE_PTR(X509ExtensionPtr, X509Extension);
+using X509ExtensionPtr = std::shared_ptr<X509Extension>;
 
 class Certificate;
-ICE_DEFINE_PTR(CertificatePtr, Certificate);
+using CertificatePtr = std::shared_ptr<Certificate>;
 
 /**
  * This convenience class is a wrapper around a native certificate.
@@ -577,7 +577,7 @@ public:
      */
     virtual CertificatePtr decode(const std::string& str) const = 0;
 };
-ICE_DEFINE_PTR(PluginPtr, Plugin);
+using PluginPtr = std::shared_ptr<Plugin>;
 
 }
 

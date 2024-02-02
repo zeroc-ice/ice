@@ -118,7 +118,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
 
     try
     {
-        OutgoingAsyncBasePtr flushBatch = ICE_MAKE_SHARED(FlushBatch, ICE_SHARED_FROM_THIS, _instance, _observer);
+        OutgoingAsyncBasePtr flushBatch = make_shared<FlushBatch>(shared_from_this(), _instance, _observer);
         bool compress;
         int batchRequestNum = con->getBatchRequestQueue()->swap(flushBatch->getOs(), compress);
         if(batchRequestNum == 0)
@@ -149,8 +149,8 @@ void
 CommunicatorFlushBatchAsync::invoke(const string& operation, CompressBatch compressBatch)
 {
     _observer.attach(_instance.get(), operation);
-    _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(ICE_SHARED_FROM_THIS, compressBatch);
-    _instance->objectAdapterFactory()->flushAsyncBatchRequests(ICE_SHARED_FROM_THIS, compressBatch);
+    _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(shared_from_this(), compressBatch);
+    _instance->objectAdapterFactory()->flushAsyncBatchRequests(shared_from_this(), compressBatch);
     check(true);
 }
 
@@ -261,7 +261,7 @@ Ice::CommunicatorI::identityToString(const Identity& ident) const
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, ICE_NULLPTR);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullptr);
 }
 
 ObjectAdapterPtr
@@ -274,7 +274,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     }
 
     getProperties()->setProperty(oaName + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, ICE_NULLPTR);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullptr);
 }
 
 ObjectAdapterPtr
@@ -443,7 +443,7 @@ Ice::CommunicatorI::findAllAdminFacets()
 CommunicatorIPtr
 Ice::CommunicatorI::create(const InitializationData& initData)
 {
-    Ice::CommunicatorIPtr communicator = ICE_MAKE_SHARED(CommunicatorI);
+    Ice::CommunicatorIPtr communicator = make_shared<CommunicatorI>();
     try
     {
         const_cast<InstancePtr&>(communicator->_instance) = new Instance(communicator, initData);
@@ -477,7 +477,7 @@ Ice::CommunicatorI::finishSetup(int& argc, const char* argv[])
 {
     try
     {
-        _instance->finishSetup(argc, argv, ICE_SHARED_FROM_THIS);
+        _instance->finishSetup(argc, argv, shared_from_this());
     }
     catch(...)
     {

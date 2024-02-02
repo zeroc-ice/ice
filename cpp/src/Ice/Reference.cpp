@@ -773,7 +773,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     }
 
     ReferencePtr ref = const_cast<FixedReference*>(this);
-    return proxy->_setRequestHandler(ICE_MAKE_SHARED(ConnectionRequestHandler, ref, _fixedConnection, compress));
+    return proxy->_setRequestHandler(make_shared<ConnectionRequestHandler>(ref, _fixedConnection, compress));
 }
 
 BatchRequestQueuePtr
@@ -1614,7 +1614,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
 
             vector<EndpointIPtr> endpts = endpoints;
             _reference->applyOverrides(endpts);
-            _reference->createConnection(endpts, ICE_MAKE_SHARED(Callback2, _reference, _callback, cached));
+            _reference->createConnection(endpts, make_shared<Callback2>(_reference, _callback, cached));
         }
 
         virtual void

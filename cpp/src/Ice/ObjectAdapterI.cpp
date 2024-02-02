@@ -1032,11 +1032,8 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
                 vector<EndpointIPtr> expanded = (*p)->expandHost(publishedEndpoint);
                 for(vector<EndpointIPtr>::iterator q = expanded.begin(); q != expanded.end(); ++q)
                 {
-                    IncomingConnectionFactoryPtr factory = ICE_MAKE_SHARED(IncomingConnectionFactory,
-                                                                           _instance,
-                                                                           *q,
-                                                                           publishedEndpoint,
-                                                                           shared_from_this());
+                    auto factory =
+                        make_shared<IncomingConnectionFactory>(_instance, *q, publishedEndpoint, shared_from_this());
                     factory->initialize();
                     _incomingConnectionFactories.push_back(factory);
                 }

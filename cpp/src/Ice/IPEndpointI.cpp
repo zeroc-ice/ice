@@ -47,7 +47,7 @@ IceInternal::IPEndpointInfoI::secure() const noexcept
 Ice::EndpointInfoPtr
 IceInternal::IPEndpointI::getInfo() const noexcept
 {
-    Ice::IPEndpointInfoPtr info = ICE_MAKE_SHARED(IPEndpointInfoI, ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+    Ice::IPEndpointInfoPtr info = make_shared<IPEndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
     fillEndpointInfo(info.get());
     return info;
 }

@@ -96,7 +96,7 @@ allTests(Test::TestHelper* helper)
         cout << "testing object adapter with bi-dir connection... " << flush;
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
         obj->ice_getConnection()->setAdapter(adapter);
-        obj->ice_getConnection()->setAdapter(ICE_NULLPTR);
+        obj->ice_getConnection()->setAdapter(nullptr);
         adapter->deactivate();
         try
         {

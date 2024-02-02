@@ -382,7 +382,7 @@ IceObjC::iAPTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceObjC::iAPTransceiver::getInfo() const
 {
-    IceIAP::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceIAP::ConnectionInfo);
+    IceIAP::ConnectionInfoPtr info = make_shared<IceIAP::ConnectionInfo>();
     info->manufacturer = [_session.accessory.manufacturer UTF8String];
     info->name = [_session.accessory.name UTF8String];
     info->modelNumber = [_session.accessory.modelNumber UTF8String];

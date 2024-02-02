@@ -40,7 +40,7 @@ getIPEndpointInfo(const EndpointInfoPtr& info)
             return ipInfo;
         }
     }
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 }
@@ -111,7 +111,7 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
 EndpointInfoPtr
 IceInternal::WSEndpoint::getInfo() const noexcept
 {
-    WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<WSEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
+    WSEndpointInfoPtr info = make_shared<InfoI<WSEndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
     info->underlying = _delegate->getInfo();
     info->compress = info->underlying->compress;
     info->timeout = info->underlying->timeout;
@@ -153,7 +153,7 @@ IceInternal::WSEndpoint::timeout(Int timeout) const
     }
     else
     {
-        return ICE_MAKE_SHARED(WSEndpoint, _instance, _delegate->timeout(timeout), _resource);
+        return make_shared<WSEndpoint>(_instance, _delegate->timeout(timeout), _resource);
     }
 }
 
@@ -172,7 +172,7 @@ IceInternal::WSEndpoint::connectionId(const string& connectionId) const
     }
     else
     {
-        return ICE_MAKE_SHARED(WSEndpoint, _instance, _delegate->connectionId(connectionId), _resource);
+        return make_shared<WSEndpoint>(_instance, _delegate->connectionId(connectionId), _resource);
     }
 }
 
@@ -191,7 +191,7 @@ IceInternal::WSEndpoint::compress(bool compress) const
     }
     else
     {
-        return ICE_MAKE_SHARED(WSEndpoint, _instance, _delegate->compress(compress), _resource);
+        return make_shared<WSEndpoint>(_instance, _delegate->compress(compress), _resource);
     }
 }
 
@@ -256,7 +256,7 @@ IceInternal::WSEndpoint::connectors_async(EndpointSelectionType selType,
     {
         host << info->host << ":" << info->port;
     }
-    _delegate->connectors_async(selType, ICE_MAKE_SHARED(CallbackI, callback, _instance, host.str(), _resource));
+    _delegate->connectors_async(selType, make_shared<CallbackI>(callback, _instance, host.str(), _resource));
 }
 
 AcceptorPtr
@@ -275,7 +275,7 @@ IceInternal::WSEndpoint::endpoint(const EndpointIPtr& delEndp) const
     }
     else
     {
-        return ICE_MAKE_SHARED(WSEndpoint, _instance, delEndp, _resource);
+        return make_shared<WSEndpoint>(_instance, delEndp, _resource);
     }
 }
 
@@ -291,7 +291,7 @@ IceInternal::WSEndpoint::expandIfWildcard() const
         }
         else
         {
-            *p = ICE_MAKE_SHARED(WSEndpoint, _instance, *p, _resource);
+            *p = make_shared<WSEndpoint>(_instance, *p, _resource);
         }
     }
     return endps;
@@ -307,7 +307,7 @@ IceInternal::WSEndpoint::expandHost(EndpointIPtr& publish) const
     }
     else if(publish.get())
     {
-        publish = ICE_MAKE_SHARED(WSEndpoint, _instance, publish, _resource);
+        publish = make_shared<WSEndpoint>(_instance, publish, _resource);
     }
     for(vector<EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
@@ -317,7 +317,7 @@ IceInternal::WSEndpoint::expandHost(EndpointIPtr& publish) const
         }
         else
         {
-            *p = ICE_MAKE_SHARED(WSEndpoint, _instance, *p, _resource);
+            *p = make_shared<WSEndpoint>(_instance, *p, _resource);
         }
     }
     return endps;
@@ -477,11 +477,11 @@ IceInternal::WSEndpointFactory::cloneWithUnderlying(const ProtocolInstancePtr& i
 EndpointIPtr
 IceInternal::WSEndpointFactory::createWithUnderlying(const EndpointIPtr& underlying, vector<string>& args, bool) const
 {
-    return ICE_MAKE_SHARED(WSEndpoint, _instance, underlying, args);
+    return make_shared<WSEndpoint>(_instance, underlying, args);
 }
 
 EndpointIPtr
 IceInternal::WSEndpointFactory::readWithUnderlying(const EndpointIPtr& underlying, InputStream* s) const
 {
-    return ICE_MAKE_SHARED(WSEndpoint, _instance, underlying, s);
+    return make_shared<WSEndpoint>(_instance, underlying, s);
 }

@@ -1823,7 +1823,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     test(s.myClass == 0);
     test(s.myStruct1 == "Test::MyStruct1::myStruct1");
 
-    Test::MyClass1Ptr c = ICE_MAKE_SHARED(Test::MyClass1);
+    Test::MyClass1Ptr c = make_shared<Test::MyClass1>();
     c->tesT = "Test::MyClass1::testT";
     c->myClass = 0;
     c->myClass1 = "Test::MyClass1::myClass1";

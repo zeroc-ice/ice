@@ -1113,7 +1113,7 @@ SChannel::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 SChannel::TransceiverI::getInfo() const
 {
-    ExtendedConnectionInfoPtr info = ICE_MAKE_SHARED(ExtendedConnectionInfo);
+    ExtendedConnectionInfoPtr info = std::make_shared<ExtendedConnectionInfo>();
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;

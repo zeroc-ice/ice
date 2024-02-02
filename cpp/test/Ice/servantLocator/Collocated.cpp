@@ -47,8 +47,8 @@ public:
     {
         if(activate)
         {
-            current.adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, ""), "");
-            current.adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, "category"), "category");
+            current.adapter->addServantLocator(make_shared<ServantLocatorI>(""), "");
+            current.adapter->addServantLocator(make_shared<ServantLocatorI>("category"), "category");
         }
         else
         {
@@ -75,10 +75,10 @@ Collocated::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, ""), "");
-    adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, "category"), "category");
-    adapter->add(ICE_MAKE_SHARED(TestI), Ice::stringToIdentity("asm"));
-    adapter->add(ICE_MAKE_SHARED(TestActivationI), Ice::stringToIdentity("test/activation"));
+    adapter->addServantLocator(make_shared<ServantLocatorI>(""), "");
+    adapter->addServantLocator(make_shared<ServantLocatorI>("category"), "category");
+    adapter->add(make_shared<TestI>(), Ice::stringToIdentity("asm"));
+    adapter->add(make_shared<TestActivationI>(), Ice::stringToIdentity("test/activation"));
 
     Test::TestIntfPrxPtr allTests(Test::TestHelper*);
     allTests(this);

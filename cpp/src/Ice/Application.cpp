@@ -41,7 +41,7 @@ namespace
 // Variables than can change while run() and communicator->destroy() are running!
 //
 bool _released = true;
-CtrlCHandlerCallback _previousCallback = ICE_NULLPTR;
+CtrlCHandlerCallback _previousCallback = nullptr;
 
 //
 // Variables that are immutable during run() and until communicator->destroy() has returned;
@@ -73,7 +73,7 @@ Ice::Application::main(int argc, const char* const argv[], ICE_CONFIG_FILE_STRIN
 
     if(argc > 0 && argv[0] && ICE_DYNAMIC_CAST(LoggerI, getProcessLogger()))
     {
-        setProcessLogger(ICE_MAKE_SHARED(LoggerI, argv[0], "", true));
+        setProcessLogger(make_shared<LoggerI>(argv[0], "", true));
     }
 
     InitializationData initData;
@@ -129,7 +129,7 @@ Ice::Application::main(int argc, const char* const argv[], const InitializationD
         const bool convert = initializationData.properties ?
             initializationData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
             initializationData.properties->getProperty("Ice.StdErr").empty() : true;
-        setProcessLogger(ICE_MAKE_SHARED(LoggerI, argv[0], "", convert));
+        setProcessLogger(make_shared<LoggerI>(argv[0], "", convert));
     }
 
     if(_communicator != 0)
@@ -413,7 +413,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
                 initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
                 initData.properties->getProperty("Ice.StdErr").empty();
 
-            setProcessLogger(ICE_MAKE_SHARED(LoggerI, initData.properties->getProperty("Ice.ProgramName"), "", convert));
+            setProcessLogger(make_shared<LoggerI>(initData.properties->getProperty("Ice.ProgramName"), "", convert));
         }
 
         _communicator = initialize(argc, argv, initData, version);
@@ -508,7 +508,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
 void
 Ice::Application::holdInterruptCallback(int signal)
 {
-    CtrlCHandlerCallback callback = ICE_NULLPTR;
+    CtrlCHandlerCallback callback = nullptr;
     {
         Mutex::Lock lock(_mutex);
         while(!_released)

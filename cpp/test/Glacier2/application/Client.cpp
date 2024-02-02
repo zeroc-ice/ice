@@ -48,13 +48,13 @@ public:
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
     bool _received;
 };
-ICE_DEFINE_PTR(CallbackReceiverIPtr, CallbackReceiverI);
+using CallbackReceiverIPtr = std::shared_ptr<CallbackReceiverI>;
 
 class Application : public Glacier2::Application
 {
 public:
 
-    Application() : _restart(0), _destroyed(false), _receiver(ICE_MAKE_SHARED(CallbackReceiverI))
+    Application() : _restart(0), _destroyed(false), _receiver(std::make_shared<CallbackReceiverI>())
     {
     }
 

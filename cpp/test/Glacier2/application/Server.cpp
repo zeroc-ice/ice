@@ -19,7 +19,7 @@ class CallbackI : public Callback
 public:
 
     virtual void
-    initiateCallback(ICE_IN(CallbackReceiverPrxPtr) proxy, const Ice::Current& current)
+    initiateCallback(CallbackReceiverPrxPtr proxy, const Ice::Current& current)
     {
         proxy->callback(current.ctx);
     }
@@ -49,7 +49,7 @@ Server::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("CallbackAdapter");
-    adapter->add(ICE_MAKE_SHARED(CallbackI), Ice::stringToIdentity("callback"));
+    adapter->add(std::make_shared<CallbackI>(), Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator->waitForShutdown();
 }

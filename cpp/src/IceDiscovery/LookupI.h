@@ -42,7 +42,7 @@ protected:
     size_t _lookupCount;
     size_t _failureCount;
 };
-ICE_DEFINE_PTR(RequestPtr, Request);
+using RequestPtr = std::shared_ptr<Request>;
 
 template<class T, class CB> class RequestT : public Request
 {
@@ -96,7 +96,7 @@ private:
     virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&);
     virtual void runTimerTask();
 };
-ICE_DEFINE_PTR(ObjectRequestPtr, ObjectRequest);
+using ObjectRequestPtr = std::shared_ptr<ObjectRequest>;
 
 class AdapterRequest : public RequestT<std::string, AdapterCB>, public std::enable_shared_from_this<AdapterRequest>
 {
@@ -123,7 +123,7 @@ private:
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };
-ICE_DEFINE_PTR(AdapterRequestPtr, AdapterRequest);
+using AdapterRequestPtr = std::shared_ptr<AdapterRequest>;
 
 class LookupI : public Lookup,
                 public std::enable_shared_from_this<LookupI>,
@@ -138,9 +138,9 @@ public:
 
     void setLookupReply(const LookupReplyPrxPtr&);
 
-    virtual void findObjectById(ICE_IN(std::string), ICE_IN(Ice::Identity), ICE_IN(IceDiscovery::LookupReplyPrxPtr),
+    virtual void findObjectById(std::string, Ice::Identity, IceDiscovery::LookupReplyPrxPtr,
                                 const Ice::Current&);
-    virtual void findAdapterById(ICE_IN(std::string), ICE_IN(std::string), ICE_IN(IceDiscovery::LookupReplyPrxPtr),
+    virtual void findAdapterById(std::string, std::string, IceDiscovery::LookupReplyPrxPtr,
                                  const Ice::Current&);
     void findObject(const ObjectCB&, const Ice::Identity&);
     void findAdapter(const AdapterCB&, const std::string&);

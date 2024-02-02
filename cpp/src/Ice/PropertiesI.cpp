@@ -310,8 +310,8 @@ Ice::PropertiesI::load(const std::string& file)
         DWORD numValues;
         try
         {
-            err = RegQueryInfoKey(iceKey, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR,
-                                  &numValues, &maxNameSize, &maxDataSize, ICE_NULLPTR, ICE_NULLPTR);
+            err = RegQueryInfoKey(iceKey, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                                  &numValues, &maxNameSize, &maxDataSize, nullptr, nullptr);
             if(err != ERROR_SUCCESS)
             {
                 throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file +
@@ -325,7 +325,7 @@ Ice::PropertiesI::load(const std::string& file)
                 DWORD keyType;
                 DWORD nameBufSize = static_cast<DWORD>(nameBuf.size());
                 DWORD dataBufSize = static_cast<DWORD>(dataBuf.size());
-                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, ICE_NULLPTR, &keyType, &dataBuf[0], &dataBufSize);
+                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, nullptr, &keyType, &dataBuf[0], &dataBufSize);
                 if(err != ERROR_SUCCESS || nameBufSize == 0)
                 {
                     ostringstream os;
@@ -424,7 +424,7 @@ PropertiesPtr
 Ice::PropertiesI::clone() noexcept
 {
     IceUtil::Mutex::Lock sync(*this);
-    return ICE_MAKE_SHARED(PropertiesI, this);
+    return make_shared<PropertiesI>(this);
 }
 
 set<string>

@@ -80,7 +80,7 @@ CollocatedRequestHandler::~CollocatedRequestHandler()
 RequestHandlerPtr
 CollocatedRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
 {
-    return previousHandler.get() == this ? newHandler : ICE_SHARED_FROM_THIS;
+    return previousHandler.get() == this ? newHandler : shared_from_this();
 }
 
 AsyncStatus
@@ -145,7 +145,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         //
         // This will throw if the request is canceled
         //
-        outAsync->cancelable(ICE_SHARED_FROM_THIS);
+        outAsync->cancelable(shared_from_this());
 
         if(_response)
         {
@@ -168,7 +168,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         // Don't invoke from the user thread if async or invocation timeout is set
         _adapter->getThreadPool()->dispatch(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
                                                                outAsync->getOs(),
-                                                               ICE_SHARED_FROM_THIS,
+                                                               shared_from_this(),
                                                                requestId,
                                                                batchRequestNum));
     }
@@ -176,7 +176,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     {
         _adapter->getThreadPool()->dispatchFromThisThread(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
                                                                              outAsync->getOs(),
-                                                                             ICE_SHARED_FROM_THIS,
+                                                                             shared_from_this(),
                                                                              requestId,
                                                                              batchRequestNum));
     }
@@ -188,7 +188,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         // if a retry occurs.
         //
 
-        CollocatedRequestHandlerPtr self(ICE_SHARED_FROM_THIS);
+        CollocatedRequestHandlerPtr self(shared_from_this());
         if(sentAsync(outAsync))
         {
             invokeAll(outAsync->getOs(), requestId, batchRequestNum);

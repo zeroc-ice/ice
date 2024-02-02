@@ -39,7 +39,7 @@ create(const shared_ptr<Communicator>& communicator)
 
 ServiceI::ServiceI(const CommunicatorPtr& serviceManagerCommunicator)
 {
-    TestFacetIPtr facet = ICE_MAKE_SHARED(TestFacetI);
+    TestFacetIPtr facet = std::make_shared<TestFacetI>();
 
     //
     // Install a custom admin facet.

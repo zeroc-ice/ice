@@ -110,11 +110,11 @@ ImplicitContextI::create(const std::string& kind)
     }
     else if(kind == "Shared")
     {
-        return ICE_MAKE_SHARED(SharedImplicitContext);
+        return std::make_shared<SharedImplicitContext>();
     }
     else if(kind == "PerThread")
     {
-        return ICE_MAKE_SHARED(PerThreadImplicitContext);
+        return std::make_shared<PerThreadImplicitContext>();
     }
     else
     {

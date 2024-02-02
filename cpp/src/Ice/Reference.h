@@ -45,7 +45,7 @@ public:
         virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
         virtual void setException(const Ice::LocalException&) = 0;
     };
-    ICE_DEFINE_PTR(GetConnectionCallbackPtr, GetConnectionCallback);
+    using GetConnectionCallbackPtr = std::shared_ptr<GetConnectionCallback>;
 
     enum Mode
     {

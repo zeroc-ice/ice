@@ -47,7 +47,7 @@ public:
     virtual void serverReady() = 0;
     virtual void communicatorInitialized(const Ice::CommunicatorPtr&) = 0;
 };
-ICE_DEFINE_PTR(ControllerHelperPtr, ControllerHelper);
+using ControllerHelperPtr = std::shared_ptr<ControllerHelper>;
 
 #if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
 
@@ -107,7 +107,7 @@ public:
     createTestProperties(int&, char*[]);
 
     Ice::CommunicatorPtr
-    initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = ICE_NULLPTR);
+    initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = nullptr);
 
     Ice::CommunicatorPtr initialize(int&, char*[], const Ice::InitializationData&);
 

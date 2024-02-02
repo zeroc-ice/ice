@@ -287,7 +287,7 @@ private:
     string _password;
     int _count;
 };
-ICE_DEFINE_PTR(PasswordPromptIPtr, PasswordPromptI);
+using PasswordPromptIPtr = std::shared_ptr<PasswordPromptI>;
 
 class CertificateVerifierI final
 {
@@ -386,7 +386,7 @@ private:
     bool _invoked;
     bool _hadCert;
 };
-ICE_DEFINE_PTR(CertificateVerifierIPtr, CertificateVerifierI);
+using CertificateVerifierIPtr = std::shared_ptr<CertificateVerifierI>;
 
 int keychainN = 0;
 
@@ -530,7 +530,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #ifdef __APPLE__
     vector<char> s(256);
     size_t size = s.size();
-    int ret = sysctlbyname("kern.osrelease", &s[0], &size, ICE_NULLPTR, 0);
+    int ret = sysctlbyname("kern.osrelease", &s[0], &size, nullptr, 0);
     if(ret == 0)
     {
         // version format is x.y.z
@@ -1772,7 +1772,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         CommunicatorPtr comm = initialize(initData);
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
-        CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
+        CertificateVerifierIPtr verifier = make_shared<CertificateVerifierI>();
 
         plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& infoP)
                                        { return verifier->verify(infoP); });
@@ -1844,7 +1844,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         CommunicatorPtr comm = initialize(initData);
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, comm->getPluginManager()->getPlugin("IceSSL"));
         test(plugin);
-        CertificateVerifierIPtr verifier = ICE_MAKE_SHARED(CertificateVerifierI);
+        CertificateVerifierIPtr verifier = make_shared<CertificateVerifierI>();
 
         plugin->setCertificateVerifier([verifier](const shared_ptr<IceSSL::ConnectionInfo>& infoP)
                                        { return verifier->verify(infoP); });
@@ -2352,7 +2352,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         PluginManagerPtr pm = comm->getPluginManager();
         IceSSL::PluginPtr plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, pm->getPlugin("IceSSL"));
         test(plugin);
-        PasswordPromptIPtr prompt = ICE_MAKE_SHARED(PasswordPromptI, "client");
+        PasswordPromptIPtr prompt = make_shared<PasswordPromptI>("client");
 
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
         pm->initializePlugins();
@@ -2384,7 +2384,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         pm = comm->getPluginManager();
         plugin = ICE_DYNAMIC_CAST(IceSSL::Plugin, pm->getPlugin("IceSSL"));
         test(plugin);
-        prompt = ICE_MAKE_SHARED(PasswordPromptI, "invalid");
+        prompt = make_shared<PasswordPromptI>("invalid");
 
         plugin->setPasswordPrompt([prompt]{ return prompt->getPassword(); });
         try

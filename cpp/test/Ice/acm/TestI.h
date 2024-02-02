@@ -77,7 +77,7 @@ private:
 
         int _count;
     };
-    ICE_DEFINE_PTR(HeartbeatCallbackIPtr, HeartbeatCallbackI);
+    using HeartbeatCallbackIPtr = std::shared_ptr<HeartbeatCallbackI>;
 
     HeartbeatCallbackIPtr _callback;
 };

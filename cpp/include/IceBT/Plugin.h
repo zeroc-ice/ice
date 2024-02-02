@@ -59,7 +59,7 @@ public:
      */
     virtual DeviceMap getDevices() const = 0;
 };
-ICE_DEFINE_PTR(PluginPtr, Plugin);
+using PluginPtr = std::shared_ptr<Plugin>;
 
 }
 

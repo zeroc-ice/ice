@@ -448,7 +448,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
 
                 string es = s.substr(beg, end - beg);
                 EndpointIPtr endp = _instance->endpointFactoryManager()->create(es, false);
-                if(endp != ICE_NULLPTR)
+                if(endp != nullptr)
                 {
                     endpoints.push_back(endp);
                 }

@@ -818,13 +818,13 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS |
-            (source != ICE_NULLPTR ? FORMAT_MESSAGE_FROM_HMODULE : 0),
+            (source != nullptr ? FORMAT_MESSAGE_FROM_HMODULE : 0),
             source,
             error,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
             reinterpret_cast<LPWSTR>(&msg),
             0,
-            ICE_NULLPTR);
+            nullptr);
 
         if(stored > 0)
         {

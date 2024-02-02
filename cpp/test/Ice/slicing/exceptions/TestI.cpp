@@ -6,6 +6,7 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
+using namespace std;
 using namespace Test;
 
 TestI::TestI()
@@ -166,7 +167,7 @@ TestI::knownPreservedAsKnownPreserved(const ::Ice::Current&)
 }
 
 void
-TestI::relayKnownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
+TestI::relayKnownPreservedAsBase(RelayPrxPtr r, const ::Ice::Current& c)
 {
     RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
     p->knownPreservedAsBase();
@@ -174,7 +175,7 @@ TestI::relayKnownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
 }
 
 void
-TestI::relayKnownPreservedAsKnownPreserved(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
+TestI::relayKnownPreservedAsKnownPreserved(RelayPrxPtr r, const ::Ice::Current& c)
 {
     RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
     p->knownPreservedAsKnownPreserved();
@@ -188,7 +189,7 @@ TestI::unknownPreservedAsBase(const ::Ice::Current&)
     ex.b = "base";
     ex.kp = "preserved";
     ex.kpd = "derived";
-    ex.p1 = ICE_MAKE_SHARED(SPreservedClass, "bc", "spc");
+    ex.p1 = make_shared<SPreservedClass>("bc", "spc");
     ex.p2 = ex.p1;
     throw ex;
 }
@@ -200,13 +201,13 @@ TestI::unknownPreservedAsKnownPreserved(const ::Ice::Current&)
     ex.b = "base";
     ex.kp = "preserved";
     ex.kpd = "derived";
-    ex.p1 = ICE_MAKE_SHARED(SPreservedClass, "bc", "spc");
+    ex.p1 = make_shared<SPreservedClass>("bc", "spc");
     ex.p2 = ex.p1;
     throw ex;
 }
 
 void
-TestI::relayUnknownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
+TestI::relayUnknownPreservedAsBase(RelayPrxPtr r, const ::Ice::Current& c)
 {
     RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
     p->unknownPreservedAsBase();
@@ -214,7 +215,7 @@ TestI::relayUnknownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& 
 }
 
 void
-TestI::relayUnknownPreservedAsKnownPreserved(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
+TestI::relayUnknownPreservedAsKnownPreserved(RelayPrxPtr r, const ::Ice::Current& c)
 {
     RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
     p->unknownPreservedAsKnownPreserved();

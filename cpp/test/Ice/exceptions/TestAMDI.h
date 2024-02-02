@@ -95,7 +95,7 @@ public:
                                            std::function<void(std::exception_ptr)>,
                                            const Ice::Current&);
 
-    virtual void throwMemoryLimitExceptionAsync(ICE_IN(Ice::ByteSeq),
+    virtual void throwMemoryLimitExceptionAsync(Ice::ByteSeq,
                                                 std::function<void(const Ice::ByteSeq&)>,
                                                 std::function<void(std::exception_ptr)>,
                                                 const Ice::Current&);

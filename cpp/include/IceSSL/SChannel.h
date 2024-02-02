@@ -18,7 +18,7 @@ namespace SChannel
 {
 
 class Certificate;
-ICE_DEFINE_PTR(CertificatePtr, Certificate);
+using CertificatePtr = std::shared_ptr<Certificate>;
 
 /**
  * This convenience class is a wrapper around a native certificate.

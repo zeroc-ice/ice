@@ -43,7 +43,7 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
         // We need to initiate a connection attempt.
         //
         _needConnect = false;
-        _instance->engine()->connect(_addr, _uuid, ICE_MAKE_SHARED(ConnectCallbackI, this));
+        _instance->engine()->connect(_addr, _uuid, make_shared<ConnectCallbackI>(this));
         return IceInternal::SocketOperationConnect;
     }
 
@@ -119,7 +119,7 @@ IceBT::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceBT::TransceiverI::getInfo() const
 {
-    IceBT::ConnectionInfoPtr info = ICE_MAKE_SHARED(IceBT::ConnectionInfo);
+    auto info = make_shared<IceBT::ConnectionInfo>();
     fdToAddressAndChannel(_stream->fd(), info->localAddress, info->localChannel, info->remoteAddress,
                           info->remoteChannel);
     if(_stream->fd() != INVALID_SOCKET)

@@ -134,7 +134,7 @@ public:
         o->push_back("test3");
         o->push_back("test4");
         out->write(1, o);
-        APtr a = ICE_MAKE_SHARED(A);
+        APtr a = make_shared<A>();
         a->mc = 18;
         out->write(1000, IceUtil::Optional<APtr>(a));
         out->endSlice();
@@ -217,7 +217,7 @@ public:
 
     virtual void _iceRead(Ice::InputStream* in)
     {
-        _f = ICE_MAKE_SHARED(F);
+        _f = make_shared<F>();
         in->startValue();
         in->startSlice();
         // Don't read af on purpose
@@ -330,24 +330,24 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
 
-    OneOptionalPtr oo1 = ICE_MAKE_SHARED(OneOptional);
+    OneOptionalPtr oo1 = make_shared<OneOptional>();
     test(!oo1->a);
     oo1->a = 15;
     test(oo1->a && *oo1->a == 15);
 
-    OneOptionalPtr oo2 = ICE_MAKE_SHARED(OneOptional, 16);
+    OneOptionalPtr oo2 = make_shared<OneOptional>(16);
     test(oo2->a && *oo2->a == 16);
 
-    OneOptionalPtr oo3 = ICE_MAKE_SHARED(OneOptional, *oo2);
+    OneOptionalPtr oo3 = make_shared<OneOptional>(*oo2);
     test(oo3->a && *oo3->a == 16);
 
     *oo3 = *oo1;
     test(oo3->a && *oo3->a == 15);
 
-    OneOptionalPtr oon = ICE_MAKE_SHARED(OneOptional, IceUtil::None);
+    OneOptionalPtr oon = make_shared<OneOptional>(IceUtil::None);
     test(!oon->a);
 
-    MultiOptionalPtr mo1 = ICE_MAKE_SHARED(MultiOptional);
+    MultiOptionalPtr mo1 = make_shared<MultiOptional>();
     mo1->a = static_cast<Ice::Byte>(15);
     mo1->b = true;
     mo1->c = static_cast<Ice::Short>(19);
@@ -396,7 +396,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->ivsd = IntVarStructDict();
     mo1->ivsd.value()[5] = vs;
     mo1->iood = IntOneOptionalDict();
-    mo1->iood.value()[5] = ICE_MAKE_SHARED(OneOptional);
+    mo1->iood.value()[5] = make_shared<OneOptional>();
     mo1->iood.value()[5]->a = 15;
     mo1->imipd = IntMyInterfacePrxDict();
     mo1->imipd.value()[5] = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test"));
@@ -406,9 +406,9 @@ allTests(Test::TestHelper* helper, bool)
     mo1->bos->push_back(true);
     mo1->bos->push_back(false);
 
-    MultiOptionalPtr mo2 = ICE_MAKE_SHARED(MultiOptional, *mo1);
+    MultiOptionalPtr mo2 = make_shared<MultiOptional>(*mo1);
 
-    MultiOptionalPtr mo3 = ICE_MAKE_SHARED(MultiOptional);
+    MultiOptionalPtr mo3 = make_shared<MultiOptional>();
     *mo3 = *mo2;
 
     test(mo3->a == static_cast<Ice::Byte>(15));
@@ -465,13 +465,13 @@ allTests(Test::TestHelper* helper, bool)
     cout << "ok" << endl;
 
     cout << "testing marshalling... " << flush;
-    OneOptionalPtr oo4 = ICE_DYNAMIC_CAST(OneOptional, initial->pingPong(ICE_MAKE_SHARED(OneOptional)));
+    OneOptionalPtr oo4 = ICE_DYNAMIC_CAST(OneOptional, initial->pingPong(make_shared<OneOptional>()));
     test(!oo4->a);
 
     OneOptionalPtr oo5 = ICE_DYNAMIC_CAST(OneOptional, initial->pingPong(oo1));
     test(oo1->a == oo5->a);
 
-    MultiOptionalPtr mo4 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(ICE_MAKE_SHARED(MultiOptional)));
+    MultiOptionalPtr mo4 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(make_shared<MultiOptional>()));
     test(!mo4->a);
     test(!mo4->b);
     test(!mo4->c);
@@ -552,7 +552,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->bos == mo1->bos);
 
     // Clear the first half of the optional parameters
-    MultiOptionalPtr mo6 = ICE_MAKE_SHARED(MultiOptional, *mo5);
+    MultiOptionalPtr mo6 = make_shared<MultiOptional>(*mo5);
     mo6->a = IceUtil::None;
     mo6->c = IceUtil::None;
     mo6->e = IceUtil::None;
@@ -604,7 +604,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->imipd);
 
     // Clear the second half of the optional parameters
-    MultiOptionalPtr mo8 = ICE_MAKE_SHARED(MultiOptional, *mo5);
+    MultiOptionalPtr mo8 = make_shared<MultiOptional>(*mo5);
     mo8->b = IceUtil::None;
     mo8->d = IceUtil::None;
     mo8->f = IceUtil::None;
@@ -711,7 +711,7 @@ allTests(Test::TestHelper* helper, bool)
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.
     //
-    IceUtil::Optional<OneOptionalPtr> oo(ICE_MAKE_SHARED(OneOptional, 53));
+    IceUtil::Optional<OneOptionalPtr> oo(make_shared<OneOptional>(53));
     initial->sendOptionalClass(true, oo);
     initial->ice_encodingVersion(Ice::Encoding_1_0)->sendOptionalClass(true, oo);
 
@@ -721,19 +721,19 @@ allTests(Test::TestHelper* helper, bool)
     test(!oo);
 
     RecursiveSeq recursive1;
-    recursive1.push_back(ICE_MAKE_SHARED(Recursive));
+    recursive1.push_back(make_shared<Recursive>());
     RecursiveSeq recursive2;
-    recursive2.push_back(ICE_MAKE_SHARED(Recursive));
+    recursive2.push_back(make_shared<Recursive>());
     recursive1[0]->value = recursive2;
-    RecursivePtr outer = ICE_MAKE_SHARED(Recursive);
+    RecursivePtr outer = make_shared<Recursive>();
     outer->value = recursive1;
     initial->pingPong(outer);
 
-    GPtr g = ICE_MAKE_SHARED(G);
-    g->gg1Opt = ICE_MAKE_SHARED(G1, "gg1Opt");
-    g->gg2 = ICE_MAKE_SHARED(G2, 10);
-    g->gg2Opt = ICE_MAKE_SHARED(G2, 20);
-    g->gg1 = ICE_MAKE_SHARED(G1, "gg1");
+    GPtr g = make_shared<G>();
+    g->gg1Opt = make_shared<G1>("gg1Opt");
+    g->gg2 = make_shared<G2>(10);
+    g->gg2Opt = make_shared<G2>(20);
+    g->gg1 = make_shared<G1>("gg1");
     GPtr r = initial->opG(g);
     test("gg1Opt" == r->gg1Opt.value()->a);
     test(10 == r->gg2->a);
@@ -755,7 +755,7 @@ allTests(Test::TestHelper* helper, bool)
     cout << "ok" << endl;
 
     cout << "testing marshalling of large containers with fixed size elements..." << flush;
-    MultiOptionalPtr mc = ICE_MAKE_SHARED(MultiOptional);
+    MultiOptionalPtr mc = make_shared<MultiOptional>();
 
     ByteSeq byteSeq;
     byteSeq.resize(1000);
@@ -803,7 +803,7 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing tag marshalling... " << flush;
     {
-        BPtr b = ICE_MAKE_SHARED(B);
+        BPtr b = make_shared<B>();
         BPtr b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
         test(!b2->ma);
         test(!b2->mb);
@@ -840,9 +840,9 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing marshalling of objects with optional objects..." << flush;
     {
-        FPtr f = ICE_MAKE_SHARED(F);
+        FPtr f = make_shared<F>();
 
-        f->af = ICE_MAKE_SHARED(A);
+        f->af = make_shared<A>();
         f->ae = *f->af;
 
         FPtr rf = ICE_DYNAMIC_CAST(F, initial->pingPong(f));
@@ -867,7 +867,7 @@ allTests(Test::TestHelper* helper, bool)
     cout << "ok" << endl;
 
     cout << "testing optional with default values... " << flush;
-    WDPtr wd = ICE_DYNAMIC_CAST(WD, initial->pingPong(ICE_MAKE_SHARED(WD)));
+    WDPtr wd = ICE_DYNAMIC_CAST(WD, initial->pingPong(make_shared<WD>()));
     test(*wd->a == 5);
     test(*wd->s == "test");
     wd->a = IceUtil::None;
@@ -881,7 +881,7 @@ allTests(Test::TestHelper* helper, bool)
     {
         cout << "testing marshalling with unknown class slices... " << flush;
         {
-            CPtr c = ICE_MAKE_SHARED(C);
+            CPtr c = make_shared<C>();
             c->ss = "test";
             c->ms = string("testms");
 
@@ -906,7 +906,7 @@ allTests(Test::TestHelper* helper, bool)
                 factory->setEnabled(true);
                 Ice::OutputStream out(communicator);
                 out.startEncapsulation();
-                Ice::ValuePtr d = ICE_MAKE_SHARED(DObjectWriter);
+                Ice::ValuePtr d = make_shared<DObjectWriter>();
                 out.write(d);
                 out.endEncapsulation();
                 out.finished(inEncaps);
@@ -925,7 +925,7 @@ allTests(Test::TestHelper* helper, bool)
 
         cout << "testing optionals with unknown classes..." << flush;
         {
-            APtr a = ICE_MAKE_SHARED(A);
+            APtr a = make_shared<A>();
 
             Ice::OutputStream out(communicator);
             out.startEncapsulation();
@@ -1342,10 +1342,10 @@ allTests(Test::TestHelper* helper, bool)
         if(initial->supportsNullOptional())
         {
             p2 = initial->opOneOptional(OneOptionalPtr(), p3);
-            test(*p2 == ICE_NULLPTR && *p3 == ICE_NULLPTR);
+            test(*p2 == nullptr && *p3 == nullptr);
         }
 
-        p1 = ICE_MAKE_SHARED(OneOptional, 58);
+        p1 = make_shared<OneOptional>(58);
         p2 = initial->opOneOptional(p1, p3);
         test((*p2)->a == 58 && (*p3)->a == 58);
 
@@ -1398,8 +1398,8 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        FPtr f = ICE_MAKE_SHARED(F);
-        f->af = ICE_MAKE_SHARED(A);
+        FPtr f = make_shared<F>();
+        f->af = make_shared<A>();
         (*f->af)->requiredA = 56;
         f->ae = *f->af;
 
@@ -1755,7 +1755,7 @@ allTests(Test::TestHelper* helper, bool)
         test(!p2 && !p3);
 
         IntOneOptionalDict ss;
-        ss.insert(make_pair<int, OneOptionalPtr>(1, ICE_MAKE_SHARED(OneOptional, 58)));
+        ss.insert(make_pair<int, OneOptionalPtr>(1, make_shared<OneOptional>(58)));
         p1 = ss;
         p2 = initial->opIntOneOptionalDict(p1, p3);
         test(p2 && p3);
@@ -1836,7 +1836,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            initial->opOptionalException(30, string("test"), ICE_MAKE_SHARED(OneOptional, 53));
+            initial->opOptionalException(30, string("test"), make_shared<OneOptional>(53));
             test(false);
         }
         catch(const OptionalException& ex)
@@ -1852,7 +1852,7 @@ allTests(Test::TestHelper* helper, bool)
             // Use the 1.0 encoding with an exception whose only class members are optional.
             //
             initial->ice_encodingVersion(Ice::Encoding_1_0)->
-                opOptionalException(30, string("test"), ICE_MAKE_SHARED(OneOptional, 53));
+                opOptionalException(30, string("test"), make_shared<OneOptional>(53));
             test(false);
         }
         catch(const OptionalException& ex)
@@ -1889,7 +1889,7 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a = 30;
             IceUtil::Optional<string> b = string("test2");
-            IceUtil::Optional<OneOptionalPtr> o = ICE_MAKE_SHARED(OneOptional, 53);
+            IceUtil::Optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
             initial->opDerivedException(a, b, o);
             test(false);
         }
@@ -1933,7 +1933,7 @@ allTests(Test::TestHelper* helper, bool)
         {
             IceUtil::Optional<Ice::Int> a = 30;
             IceUtil::Optional<string> b = string("test2");
-            IceUtil::Optional<OneOptionalPtr> o = ICE_MAKE_SHARED(OneOptional, 53);
+            IceUtil::Optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
             initial->opRequiredException(a, b, o);
             test(false);
         }
@@ -1995,7 +1995,7 @@ allTests(Test::TestHelper* helper, bool)
             p3 = initial->opMG2(IceUtil::None, p2);
             test(!p2 && !p3);
 
-            p1 = ICE_MAKE_SHARED(Test::G);
+            p1 = make_shared<Test::G>();
             p3 = initial->opMG2(p1, p2);
             test(p2 && p3 && *p3 == *p2);
         }

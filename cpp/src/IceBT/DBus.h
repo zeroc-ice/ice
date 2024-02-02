@@ -512,7 +512,7 @@ public:
 
     virtual void completed(const AsyncResultPtr&) = 0;
 };
-ICE_DEFINE_PTR(AsyncCallbackPtr, AsyncCallback);
+using AsyncCallbackPtr = std::shared_ptr<AsyncCallback>;
 
 //
 // The result of an asynchronous DBus operation.
@@ -546,7 +546,7 @@ public:
     //
     virtual bool handleMessage(const ConnectionPtr&, const MessagePtr&) = 0;
 };
-ICE_DEFINE_PTR(FilterPtr, Filter);
+using FilterPtr = std::shared_ptr<Filter>;
 
 //
 // Allows a subclass to receive DBus method invocations.
@@ -557,7 +557,7 @@ public:
 
     virtual void handleMethodCall(const ConnectionPtr&, const MessagePtr&) = 0;
 };
-ICE_DEFINE_PTR(ServicePtr, Service);
+using ServicePtr = std::shared_ptr<Service>;
 
 //
 // Encapsulates a DBus connection.

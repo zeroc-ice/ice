@@ -22,5 +22,5 @@ private:
 
     bool _failed;
 };
-ICE_DEFINE_PTR(TestIPtr, TestI);
+using TestIPtr = std::shared_ptr<TestI>;
 #endif

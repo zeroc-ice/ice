@@ -6,7 +6,7 @@
 #include <TestI.h>
 
 Test::DoubleSeq
-TestIntfI::opDoubleArray(ICE_IN(std::pair<const Ice::Double*, const Ice::Double*>) inSeq,
+TestIntfI::opDoubleArray(std::pair<const Ice::Double*, const Ice::Double*> inSeq,
                          Test::DoubleSeq& outSeq,
                          const Ice::Current&)
 {
@@ -15,7 +15,7 @@ TestIntfI::opDoubleArray(ICE_IN(std::pair<const Ice::Double*, const Ice::Double*
 }
 
 Test::BoolSeq
-TestIntfI::opBoolArray(ICE_IN(std::pair<const bool*, const bool*>) inSeq,
+TestIntfI::opBoolArray(std::pair<const bool*, const bool*> inSeq,
                        Test::BoolSeq& outSeq,
                        const Ice::Current&)
 {
@@ -24,7 +24,7 @@ TestIntfI::opBoolArray(ICE_IN(std::pair<const bool*, const bool*>) inSeq,
 }
 
 Test::ByteList
-TestIntfI::opByteArray(ICE_IN(std::pair<const Ice::Byte*, const Ice::Byte*>) inSeq,
+TestIntfI::opByteArray(std::pair<const Ice::Byte*, const Ice::Byte*> inSeq,
                        Test::ByteList& outSeq,
                        const Ice::Current&)
 {
@@ -33,7 +33,7 @@ TestIntfI::opByteArray(ICE_IN(std::pair<const Ice::Byte*, const Ice::Byte*>) inS
 }
 
 Test::VariableList
-TestIntfI::opVariableArray(ICE_IN(std::pair<const Test::Variable*, const Test::Variable*>) inSeq,
+TestIntfI::opVariableArray(std::pair<const Test::Variable*, const Test::Variable*> inSeq,
                            Test::VariableList& outSeq,
                            const Ice::Current&)
 {
@@ -77,7 +77,7 @@ TestIntfI::opVariableRangeType(Test::VariableList inSeq, Test::VariableList& out
 }
 
 std::deque<bool>
-TestIntfI::opBoolSeq(ICE_IN(std::deque<bool>) inSeq,
+TestIntfI::opBoolSeq(std::deque<bool> inSeq,
                      std::deque<bool>& outSeq,
                      const Ice::Current&)
 {
@@ -86,7 +86,7 @@ TestIntfI::opBoolSeq(ICE_IN(std::deque<bool>) inSeq,
 }
 
 std::list<bool>
-TestIntfI::opBoolList(ICE_IN(std::list<bool>) inSeq,
+TestIntfI::opBoolList(std::list<bool> inSeq,
                       std::list<bool>& outSeq,
                       const Ice::Current&)
 {
@@ -95,14 +95,14 @@ TestIntfI::opBoolList(ICE_IN(std::list<bool>) inSeq,
 }
 
 ::Test::BoolDequeList
-TestIntfI::opBoolDequeList(ICE_IN(::Test::BoolDequeList) inSeq, ::Test::BoolDequeList& outSeq, const Ice::Current&)
+TestIntfI::opBoolDequeList(::Test::BoolDequeList inSeq, ::Test::BoolDequeList& outSeq, const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
 ::Test::BoolDequeList
-TestIntfI::opBoolDequeListArray(ICE_IN(::std::pair<const std::deque<bool>*, const std::deque<bool>*>) inSeq,
+TestIntfI::opBoolDequeListArray(::std::pair<const std::deque<bool>*, const std::deque<bool>*> inSeq,
                                 ::Test::BoolDequeList& outSeq,
                                 const ::Ice::Current&)
 {
@@ -121,7 +121,7 @@ TestIntfI::opBoolDequeListRange(Test::BoolDequeList inSeq, Test::BoolDequeList& 
 }
 
 std::deque< ::Ice::Byte>
-TestIntfI::opByteSeq(ICE_IN(std::deque< ::Ice::Byte>) inSeq,
+TestIntfI::opByteSeq(std::deque< ::Ice::Byte> inSeq,
                      std::deque< ::Ice::Byte>& outSeq,
                      const Ice::Current&)
 {
@@ -130,7 +130,7 @@ TestIntfI::opByteSeq(ICE_IN(std::deque< ::Ice::Byte>) inSeq,
 }
 
 std::list< ::Ice::Byte>
-TestIntfI::opByteList(ICE_IN(std::list< ::Ice::Byte>) inSeq,
+TestIntfI::opByteList(std::list< ::Ice::Byte> inSeq,
                       std::list< ::Ice::Byte>& outSeq,
                       const Ice::Current&)
 {
@@ -139,7 +139,7 @@ TestIntfI::opByteList(ICE_IN(std::list< ::Ice::Byte>) inSeq,
 }
 
 MyByteSeq
-TestIntfI::opMyByteSeq(ICE_IN(MyByteSeq) inSeq,
+TestIntfI::opMyByteSeq(MyByteSeq inSeq,
                        MyByteSeq& outSeq,
                        const Ice::Current&)
 {
@@ -148,7 +148,7 @@ TestIntfI::opMyByteSeq(ICE_IN(MyByteSeq) inSeq,
 }
 
 std::string
-TestIntfI::opString(ICE_IN(Util::string_view) inString,
+TestIntfI::opString(Util::string_view inString,
                     std::string& outString,
                     const Ice::Current&)
 {
@@ -157,7 +157,7 @@ TestIntfI::opString(ICE_IN(Util::string_view) inString,
 }
 
 std::deque< ::std::string>
-TestIntfI::opStringSeq(ICE_IN(std::deque< ::std::string>) inSeq,
+TestIntfI::opStringSeq(std::deque< ::std::string> inSeq,
                        std::deque< ::std::string>& outSeq,
                        const Ice::Current&)
 {
@@ -166,7 +166,7 @@ TestIntfI::opStringSeq(ICE_IN(std::deque< ::std::string>) inSeq,
 }
 
 std::list< ::std::string>
-TestIntfI::opStringList(ICE_IN(std::list< ::std::string>) inSeq,
+TestIntfI::opStringList(std::list< ::std::string> inSeq,
                         std::list< ::std::string>& outSeq,
                         const Ice::Current&)
 {
@@ -175,7 +175,7 @@ TestIntfI::opStringList(ICE_IN(std::list< ::std::string>) inSeq,
 }
 
 std::deque< ::Test::Fixed>
-TestIntfI::opFixedSeq(ICE_IN(std::deque< ::Test::Fixed>) inSeq,
+TestIntfI::opFixedSeq(std::deque< ::Test::Fixed> inSeq,
                       std::deque< ::Test::Fixed>& outSeq,
                       const Ice::Current&)
 {
@@ -184,7 +184,7 @@ TestIntfI::opFixedSeq(ICE_IN(std::deque< ::Test::Fixed>) inSeq,
 }
 
 std::list< ::Test::Fixed>
-TestIntfI::opFixedList(ICE_IN(std::list< ::Test::Fixed>) inSeq,
+TestIntfI::opFixedList(std::list< ::Test::Fixed> inSeq,
                        std::list< ::Test::Fixed>& outSeq,
                        const Ice::Current&)
 {
@@ -193,7 +193,7 @@ TestIntfI::opFixedList(ICE_IN(std::list< ::Test::Fixed>) inSeq,
 }
 
 std::deque< ::Test::Variable>
-TestIntfI::opVariableSeq(ICE_IN(std::deque< ::Test::Variable>) inSeq,
+TestIntfI::opVariableSeq(std::deque< ::Test::Variable> inSeq,
                          std::deque< ::Test::Variable>& outSeq,
                          const Ice::Current&)
 {
@@ -202,7 +202,7 @@ TestIntfI::opVariableSeq(ICE_IN(std::deque< ::Test::Variable>) inSeq,
 }
 
 std::list< ::Test::Variable>
-TestIntfI::opVariableList(ICE_IN(std::list< ::Test::Variable>) inSeq,
+TestIntfI::opVariableList(std::list< ::Test::Variable> inSeq,
                           std::list< ::Test::Variable>& outSeq,
                           const Ice::Current&)
 {
@@ -211,7 +211,7 @@ TestIntfI::opVariableList(ICE_IN(std::list< ::Test::Variable>) inSeq,
 }
 
 std::deque< ::Test::StringStringDict>
-TestIntfI::opStringStringDictSeq(ICE_IN(std::deque< ::Test::StringStringDict>) inSeq,
+TestIntfI::opStringStringDictSeq(std::deque< ::Test::StringStringDict> inSeq,
                                        std::deque< ::Test::StringStringDict>& outSeq,
                                        const Ice::Current&)
 {
@@ -220,7 +220,7 @@ TestIntfI::opStringStringDictSeq(ICE_IN(std::deque< ::Test::StringStringDict>) i
 }
 
 std::list< ::Test::StringStringDict>
-TestIntfI::opStringStringDictList(ICE_IN(std::list< ::Test::StringStringDict>) inSeq,
+TestIntfI::opStringStringDictList(std::list< ::Test::StringStringDict> inSeq,
                                         std::list< ::Test::StringStringDict>& outSeq,
                                         const Ice::Current&)
 {
@@ -229,7 +229,7 @@ TestIntfI::opStringStringDictList(ICE_IN(std::list< ::Test::StringStringDict>) i
 }
 
 std::deque< ::Test::E>
-TestIntfI::opESeq(ICE_IN(std::deque< ::Test::E>) inSeq,
+TestIntfI::opESeq(std::deque< ::Test::E> inSeq,
                         std::deque< ::Test::E>& outSeq,
                         const Ice::Current&)
 {
@@ -238,7 +238,7 @@ TestIntfI::opESeq(ICE_IN(std::deque< ::Test::E>) inSeq,
 }
 
 std::list< ::Test::E>
-TestIntfI::opEList(ICE_IN(std::list< ::Test::E>) inSeq,
+TestIntfI::opEList(std::list< ::Test::E> inSeq,
                          std::list< ::Test::E>& outSeq,
                          const Ice::Current&)
 {
@@ -247,7 +247,7 @@ TestIntfI::opEList(ICE_IN(std::list< ::Test::E>) inSeq,
 }
 
 std::deque< ::Test::DPrxPtr>
-TestIntfI::opDPrxSeq(ICE_IN(std::deque< ::Test::DPrxPtr>) inSeq,
+TestIntfI::opDPrxSeq(std::deque< ::Test::DPrxPtr> inSeq,
                            std::deque< ::Test::DPrxPtr>& outSeq,
                            const Ice::Current&)
 {
@@ -256,7 +256,7 @@ TestIntfI::opDPrxSeq(ICE_IN(std::deque< ::Test::DPrxPtr>) inSeq,
 }
 
 std::list< ::Test::DPrxPtr>
-TestIntfI::opDPrxList(ICE_IN(std::list< ::Test::DPrxPtr>) inSeq,
+TestIntfI::opDPrxList(std::list< ::Test::DPrxPtr> inSeq,
                             std::list< ::Test::DPrxPtr>& outSeq,
                             const Ice::Current&)
 {
@@ -265,7 +265,7 @@ TestIntfI::opDPrxList(ICE_IN(std::list< ::Test::DPrxPtr>) inSeq,
 }
 
 std::deque< ::Test::CPtr>
-TestIntfI::opCSeq(ICE_IN(std::deque< ::Test::CPtr>) inSeq,
+TestIntfI::opCSeq(std::deque< ::Test::CPtr> inSeq,
                   std::deque< ::Test::CPtr>& outSeq,
                   const Ice::Current&)
 {
@@ -274,7 +274,7 @@ TestIntfI::opCSeq(ICE_IN(std::deque< ::Test::CPtr>) inSeq,
 }
 
 std::list< ::Test::CPtr>
-TestIntfI::opCList(ICE_IN(std::list< ::Test::CPtr>) inSeq,
+TestIntfI::opCList(std::list< ::Test::CPtr> inSeq,
                    std::list< ::Test::CPtr>& outSeq,
                    const Ice::Current&)
 {
@@ -295,26 +295,26 @@ TestIntfI::opClassStruct(Test::ClassStruct inS,
 }
 
 void
-TestIntfI::opOutArrayByteSeq(ICE_IN(Test::ByteSeq) data, Test::ByteSeq& copy, const Ice::Current&)
+TestIntfI::opOutArrayByteSeq(Test::ByteSeq data, Test::ByteSeq& copy, const Ice::Current&)
 {
     copy = data;
 }
 
 void
-TestIntfI::opOutRangeByteSeq(ICE_IN(Test::ByteSeq) data, Test::ByteSeq& copy, const Ice::Current&)
+TestIntfI::opOutRangeByteSeq(Test::ByteSeq data, Test::ByteSeq& copy, const Ice::Current&)
 {
     copy = data;
 }
 
 Test::IntStringDict
-TestIntfI::opIntStringDict(ICE_IN(Test::IntStringDict) data, Test::IntStringDict& copy, const Ice::Current&)
+TestIntfI::opIntStringDict(Test::IntStringDict data, Test::IntStringDict& copy, const Ice::Current&)
 {
     copy = data;
     return data;
 }
 
 Test::CustomMap<Ice::Long, Ice::Long>
-TestIntfI::opVarDict(ICE_IN(Test::CustomMap<std::string, Ice::Int>) data,
+TestIntfI::opVarDict(Test::CustomMap<std::string, Ice::Int> data,
                      Test::CustomMap<std::string, Ice::Int>& copy, const Ice::Current&)
 {
     copy = data;
@@ -329,7 +329,7 @@ TestIntfI::opVarDict(ICE_IN(Test::CustomMap<std::string, Ice::Int>) data,
 
 Test::CustomMap<Ice::Int, std::string>
 TestIntfI::opCustomIntStringDict(
-    ICE_IN(std::map<Ice::Int, Util::string_view>) data,
+    std::map<Ice::Int, Util::string_view> data,
     Test::CustomMap<Ice::Int, std::string>& copy,
     const Ice::Current&)
 {
@@ -345,21 +345,21 @@ TestIntfI::opCustomIntStringDict(
 }
 
 Test::ShortBuffer
-TestIntfI::opShortBuffer(ICE_IN(Test::ShortBuffer) inS, Test::ShortBuffer& outS, const Ice::Current&)
+TestIntfI::opShortBuffer(Test::ShortBuffer inS, Test::ShortBuffer& outS, const Ice::Current&)
 {
     outS = inS;
     return outS;
 }
 
 Test::CustomBuffer<bool>
-TestIntfI::opBoolBuffer(ICE_IN(Test::CustomBuffer<bool>) inS, Test::CustomBuffer<bool>& outS, const Ice::Current&)
+TestIntfI::opBoolBuffer(Test::CustomBuffer<bool> inS, Test::CustomBuffer<bool>& outS, const Ice::Current&)
 {
     outS = inS;
     return outS;
 }
 
 Test::BufferStruct
-TestIntfI::opBufferStruct(ICE_IN(Test::BufferStruct) bs, const Ice::Current&)
+TestIntfI::opBufferStruct(Test::BufferStruct bs, const Ice::Current&)
 {
     return bs;
 }

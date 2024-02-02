@@ -7,6 +7,7 @@
 #include <TestI.h>
 #include <TestHelper.h>
 
+using namespace std;
 using namespace Test;
 
 ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
@@ -67,7 +68,7 @@ ServerManagerI::startServer(const Ice::Current&)
             adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
             adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
 
-            Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI, adapter, adapter2, _registry);
+            Ice::ObjectPtr object = make_shared<TestI>(adapter, adapter2, _registry);
             _registry->addObject(adapter->add(object, Ice::stringToIdentity("test")));
             _registry->addObject(adapter->add(object, Ice::stringToIdentity("test2")));
             adapter->add(object, Ice::stringToIdentity("test3"));
@@ -112,7 +113,7 @@ TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
              const ServerLocatorRegistryPtr& registry) :
     _adapter1(adapter), _adapter2(adapter2), _registry(registry)
 {
-    _registry->addObject(_adapter1->add(ICE_MAKE_SHARED(HelloI), Ice::stringToIdentity("hello")));
+    _registry->addObject(_adapter1->add(make_shared<HelloI>(), Ice::stringToIdentity("hello")));
 }
 
 void

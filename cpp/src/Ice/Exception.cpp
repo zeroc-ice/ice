@@ -100,7 +100,7 @@ Ice::UserException::ice_clone() const
 Ice::SlicedDataPtr
 Ice::UserException::ice_getSlicedData() const
 {
-    return ICE_NULLPTR;
+    return nullptr;
 }
 
 void

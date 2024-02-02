@@ -79,14 +79,14 @@ invokeInternal(Ice::InputStream& in, vector<Ice::Byte>& outEncaps, const Ice::Cu
 }
 
 bool
-BlobjectI::ice_invoke(ICE_IN(vector<Ice::Byte>) inEncaps, vector<Ice::Byte>& outEncaps, const Ice::Current& current)
+BlobjectI::ice_invoke(vector<Ice::Byte> inEncaps, vector<Ice::Byte>& outEncaps, const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     return invokeInternal(in, outEncaps, current);
 }
 
 bool
-BlobjectArrayI::ice_invoke(ICE_IN(pair<const Ice::Byte*, const Ice::Byte*>) inEncaps, vector<Ice::Byte>& outEncaps,
+BlobjectArrayI::ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inEncaps, vector<Ice::Byte>& outEncaps,
                            const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);

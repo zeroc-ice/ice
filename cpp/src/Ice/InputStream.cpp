@@ -1207,7 +1207,7 @@ Ice::InputStream::readEnum(Int maxValue)
 }
 
 void
-Ice::InputStream::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::throwException(UserExceptionFactory factory)
 {
     initEncaps();
     _currentEncaps->decoder->throwException(factory);
@@ -1586,7 +1586,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
     IndexToPtrMap::iterator p = _unmarshaledMap.find(index);
     if(p != _unmarshaledMap.end())
     {
-        if (p->second == ICE_NULLPTR)
+        if (p->second == nullptr)
         {
             assert(!_stream->_instance->acceptClassCycles());
             throw MarshalException(__FILE__, __LINE__, "cycle detected during Value unmarshaling");
@@ -1724,7 +1724,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory factory)
 {
     assert(_sliceType == NoSlice);
 
@@ -1746,7 +1746,7 @@ Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_DELEGATE(UserExcept
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    ICE_DELEGATE(UserExceptionFactory) exceptionFactory = factory;
+    UserExceptionFactory exceptionFactory = factory;
     while(true)
     {
         //
@@ -2049,7 +2049,7 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
 {
     assert(!_current);
 
@@ -2060,7 +2060,7 @@ Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_DELEGATE(UserExcept
     //
     startSlice();
     const string mostDerivedId = _current->typeId;
-    ICE_DELEGATE(UserExceptionFactory) exceptionFactory = factory;
+    UserExceptionFactory exceptionFactory = factory;
     while(true)
     {
         //

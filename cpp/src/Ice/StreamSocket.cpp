@@ -354,7 +354,7 @@ StreamSocket::startWrite(Buffer& buf)
     _write.buf.len = static_cast<DWORD>(packetSize);
     _write.buf.buf = reinterpret_cast<char*>(&*buf.i);
     _write.error = ERROR_SUCCESS;
-    int err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, ICE_NULLPTR);
+    int err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, nullptr);
     if(err == SOCKET_ERROR)
     {
         if(!wouldBlock())
@@ -410,7 +410,7 @@ StreamSocket::startRead(Buffer& buf)
     _read.buf.len = static_cast<DWORD>(packetSize);
     _read.buf.buf = reinterpret_cast<char*>(&*buf.i);
     _read.error = ERROR_SUCCESS;
-    int err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, ICE_NULLPTR);
+    int err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, nullptr);
     if(err == SOCKET_ERROR)
     {
         if(!wouldBlock())

@@ -755,7 +755,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
 
-        bool afterLastRequiredParameter = lastRequiredParameter == ICE_NULLPTR;
+        bool afterLastRequiredParameter = lastRequiredParameter == nullptr;
         for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
             if(!(*q)->isOutParam())

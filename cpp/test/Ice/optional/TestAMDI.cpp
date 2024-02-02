@@ -431,7 +431,7 @@ InitialI::opMG1Async(function<void(const OpMG1MarshaledResult&)> response,
                      function<void(exception_ptr)>,
                      const Ice::Current& current)
 {
-    response(OpMG1MarshaledResult(ICE_MAKE_SHARED(G), current));
+    response(OpMG1MarshaledResult(std::make_shared<G>(), current));
 }
 
 void

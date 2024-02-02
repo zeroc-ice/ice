@@ -49,7 +49,7 @@ namespace Ice
 {
 
 class CommunicatorI;
-ICE_DEFINE_PTR(CommunicatorIPtr, CommunicatorI);
+using CommunicatorIPtr = std::shared_ptr<CommunicatorI>;
 
 class CommunicatorI : public Communicator, public std::enable_shared_from_this<CommunicatorI>
 {

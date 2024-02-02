@@ -314,7 +314,7 @@ private:
     bool _updated;
     Ice::PropertiesAdminPrxPtr _serverProps;
 };
-ICE_DEFINE_SHARED_PTR(UpdateCallbackIPtr, UpdateCallbackI);
+using UpdateCallbackIPtr = std::shared_ptr<UpdateCallbackI>;
 
 void
 waitForCurrent(const IceMX::MetricsAdminPrxPtr& metrics, const string& viewName, const string& map, int value)
@@ -590,7 +590,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     IceMX::MetricsAdminPrxPtr serverMetrics = ICE_CHECKED_CAST(IceMX::MetricsAdminPrx, admin, "Metrics");
     test(serverProps && serverMetrics);
 
-    UpdateCallbackIPtr update = ICE_MAKE_SHARED(UpdateCallbackI, serverProps);
+    UpdateCallbackIPtr update = make_shared<UpdateCallbackI>(serverProps);
 
     dynamic_pointer_cast<Ice::NativePropertiesAdmin>(communicator->findAdminFacet("Properties"))->addUpdateCallback(
         [update](const Ice::PropertyDict& changes) { update->updated(changes); });

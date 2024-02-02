@@ -20,7 +20,7 @@ using namespace IceUtil;
 namespace
 {
 
-CtrlCHandlerCallback _callback = ICE_NULLPTR;
+CtrlCHandlerCallback _callback = nullptr;
 
 const CtrlCHandler* _handler = 0;
 
@@ -100,7 +100,7 @@ CtrlCHandler::~CtrlCHandler()
     {
         lock_guard lock(globalMutex);
         _handler = 0;
-        _callback = ICE_NULLPTR;
+        _callback = nullptr;
     }
 }
 
@@ -212,7 +212,7 @@ CtrlCHandler::~CtrlCHandler()
     {
         lock_guard lock(globalMutex);
         _handler = 0;
-        _callback = ICE_NULLPTR;
+        _callback = nullptr;
     }
 
     //

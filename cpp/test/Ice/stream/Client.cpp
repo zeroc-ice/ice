@@ -56,7 +56,7 @@ public:
 
     virtual void _iceRead(Ice::InputStream* in)
     {
-        obj = ICE_MAKE_SHARED(MyClass);
+        obj = std::make_shared<MyClass>();
         obj->_iceRead(in);
         called = true;
     }
@@ -298,7 +298,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        OptionalClassPtr o = ICE_MAKE_SHARED(OptionalClass);
+        OptionalClassPtr o = std::make_shared<OptionalClass>();
         o->bo = false;
         o->by = 5;
         o->sh = static_cast<Ice::Short>(4);
@@ -326,7 +326,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator, Ice::Encoding_1_0);
-        OptionalClassPtr o = ICE_MAKE_SHARED(OptionalClass);
+        OptionalClassPtr o = std::make_shared<OptionalClass>();
         o->bo = false;
         o->by = 5;
         o->sh = static_cast<Ice::Short>(4);
@@ -661,7 +661,7 @@ allTests(Test::TestHelper* helper)
         MyClassS arr;
         for(int i = 0; i < 4; ++i)
         {
-            MyClassPtr c = ICE_MAKE_SHARED(MyClass);
+            MyClassPtr c = std::make_shared<MyClass>();
             c->c = c;
             c->o = c;
             c->s.e = ICE_ENUM(MyEnum, enum2);
@@ -804,7 +804,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        MyClassPtr obj = ICE_MAKE_SHARED(MyClass);
+        MyClassPtr obj = std::make_shared<MyClass>();
         obj->s.e = ICE_ENUM(MyEnum, enum2);
         shared_ptr<TestObjectWriter> writer = make_shared<TestObjectWriter>(obj);
         out.write(writer);
@@ -815,7 +815,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        MyClassPtr obj = ICE_MAKE_SHARED(MyClass);
+        MyClassPtr obj = std::make_shared<MyClass>();
         obj->s.e = ICE_ENUM(MyEnum, enum2);
         shared_ptr<TestObjectWriter> writer = make_shared<TestObjectWriter>(obj);
         out.write(writer);
@@ -839,7 +839,7 @@ allTests(Test::TestHelper* helper)
     {
         Ice::OutputStream out(communicator);
         MyException ex;
-        MyClassPtr c = ICE_MAKE_SHARED(MyClass);
+        MyClassPtr c = std::make_shared<MyClass>();
         c->c = c;
         c->o = c;
         c->s.e = ICE_ENUM(MyEnum, enum2);
@@ -974,9 +974,9 @@ allTests(Test::TestHelper* helper)
 
     {
         StringMyClassD dict;
-        dict["key1"] = ICE_MAKE_SHARED(MyClass);
+        dict["key1"] = std::make_shared<MyClass>();
         dict["key1"]->s.e = ICE_ENUM(MyEnum, enum2);
-        dict["key2"] = ICE_MAKE_SHARED(MyClass);
+        dict["key2"] = std::make_shared<MyClass>();
         dict["key2"]->s.e = ICE_ENUM(MyEnum, enum3);
         Ice::OutputStream out(communicator);
         out.write(dict);

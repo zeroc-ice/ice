@@ -507,7 +507,7 @@ allTests(Test::TestHelper* helper)
 
     {
         deque<Test::CPtr> in(5);
-        in[0] = ICE_MAKE_SHARED(Test::C);
+        in[0] = make_shared<Test::C>();
         in[1] = in[0];
         in[2] = in[0];
         in[3] = in[0];
@@ -526,11 +526,11 @@ allTests(Test::TestHelper* helper)
 
     {
         list<Test::CPtr> in;
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(make_shared<Test::C>());
+        in.push_back(make_shared<Test::C>());
+        in.push_back(make_shared<Test::C>());
+        in.push_back(make_shared<Test::C>());
+        in.push_back(make_shared<Test::C>());
 
         list<Test::CPtr> out;
         list<Test::CPtr> ret = t->opCList(in, out);
@@ -1076,7 +1076,7 @@ allTests(Test::TestHelper* helper)
 
         {
             deque<Test::CPtr> in(5);
-            in[0] = ICE_MAKE_SHARED(Test::C);
+            in[0] = make_shared<Test::C>();
             in[1] = in[0];
             in[2] = in[0];
             in[3] = in[0];
@@ -1096,11 +1096,11 @@ allTests(Test::TestHelper* helper)
 
         {
             list<Test::CPtr> in;
-            in.push_back(ICE_MAKE_SHARED(Test::C));
-            in.push_back(ICE_MAKE_SHARED(Test::C));
-            in.push_back(ICE_MAKE_SHARED(Test::C));
-            in.push_back(ICE_MAKE_SHARED(Test::C));
-            in.push_back(ICE_MAKE_SHARED(Test::C));
+            in.push_back(make_shared<Test::C>());
+            in.push_back(make_shared<Test::C>());
+            in.push_back(make_shared<Test::C>());
+            in.push_back(make_shared<Test::C>());
+            in.push_back(make_shared<Test::C>());
 
             auto r = t->opCListAsync(in).get();
             test(r.outSeq.size() == in.size());
@@ -1875,7 +1875,7 @@ allTests(Test::TestHelper* helper)
 
     {
         deque<Test::CPtr> in(5);
-        in[0] = ICE_MAKE_SHARED(Test::C);
+        in[0] = make_shared<Test::C>();
         in[1] = in[0];
         in[2] = in[0];
         in[3] = in[0];
@@ -1900,11 +1900,11 @@ allTests(Test::TestHelper* helper)
 
     {
         list<Test::CPtr> in;
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
-        in.push_back(ICE_MAKE_SHARED(Test::C));
+        in.push_back(make_shared<Test::C>());
+        in.push_back(make_shared<Test::C>());
+        in.push_back(make_shared<Test::C>());
+        in.push_back(make_shared<Test::C>());
+        in.push_back(make_shared<Test::C>());
 
         promise<bool> done;
 

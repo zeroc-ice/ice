@@ -9,7 +9,7 @@
 #include <Test.h>
 
 class TestIntfControllerI;
-ICE_DEFINE_SHARED_PTR(TestIntfControllerIPtr, TestIntfControllerI);
+using TestIntfControllerIPtr = std::shared_ptr<TestIntfControllerI>;
 
 class TestIntfI : public virtual Test::TestIntf
 {

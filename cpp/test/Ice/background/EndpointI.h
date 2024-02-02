@@ -10,7 +10,7 @@
 #include <Configuration.h>
 
 class EndpointI;
-ICE_DEFINE_PTR(EndpointIPtr, EndpointI);
+using EndpointIPtr = std::shared_ptr<EndpointI>;
 
 class EndpointI : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
 {

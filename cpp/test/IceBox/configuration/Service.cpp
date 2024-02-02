@@ -49,7 +49,7 @@ void
 ServiceI::start(const string& name, const CommunicatorPtr& communicator, const StringSeq& args)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name + "OA");
-    adapter->add(ICE_MAKE_SHARED(TestI, args), stringToIdentity("test"));
+    adapter->add(make_shared<TestI>(args), stringToIdentity("test"));
     adapter->activate();
 }
 

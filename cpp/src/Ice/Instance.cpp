@@ -1071,9 +1071,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     throw InitializationException(__FILE__, __LINE__, "Both syslog and file logger cannot be enabled.");
                 }
 
-                _initData.logger = ICE_MAKE_SHARED(SysLoggerI,
-                                                   _initData.properties->getProperty("Ice.ProgramName"),
-                                                   _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
+                _initData.logger = make_shared<SysLoggerI>(
+                    _initData.properties->getProperty("Ice.ProgramName"),
+                    _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
             }
             else
 #endif
@@ -1081,8 +1081,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #ifdef ICE_SWIFT
             if(!_initData.logger && _initData.properties->getPropertyAsInt("Ice.UseOSLog") > 0)
             {
-                _initData.logger = ICE_MAKE_SHARED(OSLogLoggerI,
-                                                   _initData.properties->getProperty("Ice.ProgramName"));
+                _initData.logger = make_shared<OSLogLoggerI>(_initData.properties->getProperty("Ice.ProgramName"));
             }
             else
 #endif
@@ -1090,8 +1089,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #ifdef ICE_USE_SYSTEMD
             if(_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
             {
-                _initData.logger = ICE_MAKE_SHARED(SystemdJournalI,
-                                                   _initData.properties->getProperty("Ice.ProgramName"));
+                _initData.logger = make_shared<SystemdJournalI>(_initData.properties->getProperty("Ice.ProgramName"));
             }
             else
 #endif
@@ -1102,7 +1100,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 {
                     sz = 0;
                 }
-                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"),
+                _initData.logger = make_shared<LoggerI>(_initData.properties->getProperty("Ice.ProgramName"),
                                                    logfile, true, static_cast<size_t>(sz));
             }
             else
@@ -1110,7 +1108,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 _initData.logger = getProcessLogger();
                 if(ICE_DYNAMIC_CAST(LoggerI, _initData.logger))
                 {
-                    _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
+                    _initData.logger = make_shared<LoggerI>(_initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
                 }
             }
         }
@@ -1242,7 +1240,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _dynamicLibraryList = new DynamicLibraryList;
 
-        _pluginManager = ICE_MAKE_SHARED(PluginManagerI, communicator, _dynamicLibraryList);
+        _pluginManager = make_shared<PluginManagerI>(communicator, _dynamicLibraryList);
 
         if(!_initData.valueFactoryManager)
         {
@@ -1251,7 +1249,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
-        _objectAdapterFactory = ICE_MAKE_SHARED(ObjectAdapterFactory, this, communicator);
+        _objectAdapterFactory = make_shared<ObjectAdapterFactory>(this, communicator);
 
         _retryQueue = new RetryQueue(this);
 
@@ -1385,7 +1383,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         PropertiesAdminIPtr propsAdmin;
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            propsAdmin = ICE_MAKE_SHARED(PropertiesAdminI, this);
+            propsAdmin = make_shared<PropertiesAdminI>(this);
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
         }
 

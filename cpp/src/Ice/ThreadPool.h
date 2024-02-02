@@ -30,7 +30,7 @@ namespace IceInternal
 class ThreadPoolCurrent;
 
 class ThreadPoolWorkQueue;
-ICE_DEFINE_PTR(ThreadPoolWorkQueuePtr, ThreadPoolWorkQueue);
+using ThreadPoolWorkQueuePtr = std::shared_ptr<ThreadPoolWorkQueue>;
 
 class ThreadPoolWorkItem : public virtual IceUtil::Shared
 {
