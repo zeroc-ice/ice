@@ -739,7 +739,7 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
             {
                 Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                 assert(connection);
-                connection->setACM(acmTimeout, IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+                connection->setACM(acmTimeout, IceUtil::None, Ice::ACMHeartbeat::HeartbeatAlways);
                 auto self = shared_from_this();
                 connection->setCloseCallback([self](Ice::ConnectionPtr)
                 {
@@ -1122,7 +1122,7 @@ string
 Glacier2::SessionFactoryHelper::createProxyStr(const Ice::Identity& ident)
 {
     ostringstream os;
-    os << "\"" << identityToString(ident, Ice::ICE_ENUM(ToStringMode, Unicode)) << "\":" << _protocol
+    os << "\"" << identityToString(ident, Ice::ToStringMode::Unicode) << "\":" << _protocol
        << " -p " << getPortInternal() << " -h \"" << _routerHost << "\"";
 
     if(_timeout > 0)

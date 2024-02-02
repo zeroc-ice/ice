@@ -112,7 +112,7 @@ allTests(Test::TestHelper* helper)
         {
             test(seq.size() > 16384);
         }
-        obj->ice_getConnection()->close(ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        obj->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
         communicator->getProperties()->setProperty("Ice.UDP.SndSize", "64000");
         seq.resize(50000);
         try

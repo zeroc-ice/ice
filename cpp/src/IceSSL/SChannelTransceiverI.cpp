@@ -57,7 +57,7 @@ trustStatusToTrustError(DWORD status)
 {
     if (status & CERT_TRUST_NO_ERROR)
     {
-        return IceSSL::ICE_ENUM(TrustError, NoError);
+        return IceSSL::TrustError::NoError;
     }
     if ((status & CERT_TRUST_IS_UNTRUSTED_ROOT) ||
         (status & CERT_TRUST_IS_CYCLIC) ||
@@ -65,78 +65,78 @@ trustStatusToTrustError(DWORD status)
         (status & CERT_TRUST_CTL_IS_NOT_SIGNATURE_VALID) ||
         (status & CERT_TRUST_CTL_IS_NOT_VALID_FOR_USAGE))
     {
-        return IceSSL::ICE_ENUM(TrustError, UntrustedRoot);
+        return IceSSL::TrustError::UntrustedRoot;
     }
     if (status & CERT_TRUST_IS_EXPLICIT_DISTRUST)
     {
-        return IceSSL::ICE_ENUM(TrustError, NotTrusted);
+        return IceSSL::TrustError::NotTrusted;
     }
     if (status & CERT_TRUST_IS_PARTIAL_CHAIN)
     {
-        return IceSSL::ICE_ENUM(TrustError, PartialChain);
+        return IceSSL::TrustError::PartialChain;
     }
     if (status & CERT_TRUST_INVALID_BASIC_CONSTRAINTS)
     {
-        return IceSSL::ICE_ENUM(TrustError, InvalidBasicConstraints);
+        return IceSSL::TrustError::InvalidBasicConstraints;
     }
     if (status & CERT_TRUST_IS_NOT_SIGNATURE_VALID)
     {
-        return IceSSL::ICE_ENUM(TrustError, InvalidSignature);
+        return IceSSL::TrustError::InvalidSignature;
     }
     if (status & CERT_TRUST_IS_NOT_VALID_FOR_USAGE)
     {
-        return IceSSL::ICE_ENUM(TrustError, InvalidPurpose);
+        return IceSSL::TrustError::InvalidPurpose;
     }
     if (status & CERT_TRUST_IS_REVOKED)
     {
-        return IceSSL::ICE_ENUM(TrustError, Revoked);
+        return IceSSL::TrustError::Revoked;
     }
     if (status & CERT_TRUST_INVALID_EXTENSION)
     {
-        return IceSSL::ICE_ENUM(TrustError, InvalidExtension);
+        return IceSSL::TrustError::InvalidExtension;
     }
     if (status & CERT_TRUST_INVALID_POLICY_CONSTRAINTS)
     {
-        return IceSSL::ICE_ENUM(TrustError, InvalidPolicyConstraints);
+        return IceSSL::TrustError::InvalidPolicyConstraints;
     }
     if (status & CERT_TRUST_INVALID_NAME_CONSTRAINTS)
     {
-        return IceSSL::ICE_ENUM(TrustError, InvalidNameConstraints);
+        return IceSSL::TrustError::InvalidNameConstraints;
     }
     if (status & CERT_TRUST_HAS_NOT_SUPPORTED_NAME_CONSTRAINT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasNonSupportedNameConstraint);
+        return IceSSL::TrustError::HasNonSupportedNameConstraint;
     }
     if (status & CERT_TRUST_HAS_NOT_DEFINED_NAME_CONSTRAINT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasNonDefinedNameConstraint);
+        return IceSSL::TrustError::HasNonDefinedNameConstraint;
     }
     if (status & CERT_TRUST_HAS_NOT_PERMITTED_NAME_CONSTRAINT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasNonPermittedNameConstraint);
+        return IceSSL::TrustError::HasNonPermittedNameConstraint;
     }
     if (status & CERT_TRUST_HAS_EXCLUDED_NAME_CONSTRAINT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasExcludedNameConstraint);
+        return IceSSL::TrustError::HasExcludedNameConstraint;
     }
     if (status & CERT_TRUST_NO_ISSUANCE_CHAIN_POLICY)
     {
-        return IceSSL::ICE_ENUM(TrustError, InvalidPolicyConstraints);
+        return IceSSL::TrustError::InvalidPolicyConstraints;
     }
     if (status & CERT_TRUST_HAS_NOT_SUPPORTED_CRITICAL_EXT)
     {
-        return IceSSL::ICE_ENUM(TrustError, HasNonSupportedCriticalExtension);
+        return IceSSL::TrustError::HasNonSupportedCriticalExtension;
     }
     if (status & CERT_TRUST_IS_OFFLINE_REVOCATION ||
         status & CERT_TRUST_REVOCATION_STATUS_UNKNOWN)
     {
-        return IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown);
+        return IceSSL::TrustError::RevocationStatusUnknown;
     }
     if (status & CERT_TRUST_IS_NOT_TIME_VALID)
     {
-        return IceSSL::ICE_ENUM(TrustError, InvalidTime);
+        return IceSSL::TrustError::InvalidTime;
     }
-    return IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
+    return IceSSL::TrustError::UnknownTrustFailure;
 }
 
 string
@@ -785,7 +785,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         {
             CertFreeCertificateContext(cert);
             trustError = IceUtilInternal::lastErrorToString();
-            _trustError = IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
+            _trustError = IceSSL::TrustError::UnknownTrustFailure;
         }
         else
         {
@@ -797,7 +797,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
             else
             {
                 _verified = true;
-                _trustError = IceSSL::ICE_ENUM(TrustError, NoError);
+                _trustError = IceSSL::TrustError::NoError;
             }
 
             CERT_SIMPLE_CHAIN* simpleChain = certChain->rgpChain[0];
@@ -862,9 +862,9 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     }
     catch(const Ice::SecurityException&)
     {
-        _trustError = IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
+        _trustError = IceSSL::TrustError::HostNameMismatch;
         _verified = false;
-        ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info)->errorCode = IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
+        ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info)->errorCode = IceSSL::TrustError::HostNameMismatch;
         info->verified = false;
         if(_engine->getVerifyPeer() > 0)
         {

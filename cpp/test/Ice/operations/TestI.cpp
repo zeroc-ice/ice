@@ -20,28 +20,28 @@ MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
 bool
 MyDerivedClassI::ice_isA(string id, const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_isA(std::move(id), current);
 }
 
 void
 MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     Test::MyDerivedClass::ice_ping(current);
 }
 
 std::vector<std::string>
 MyDerivedClassI::ice_ids(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_ids(current);
 }
 
 std::string
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_id(current);
 }
 
@@ -64,7 +64,7 @@ MyDerivedClassI::supportsCompress(const Ice::Current&)
 void
 MyDerivedClassI::opVoid(const Ice::Current& current)
 {
-    test(current.mode == ICE_ENUM(OperationMode, Normal));
+    test(current.mode == OperationMode::Normal);
 }
 
 Ice::Byte
@@ -130,7 +130,7 @@ MyDerivedClassI::opMyEnum(Test::MyEnum p1,
                           const Ice::Current&)
 {
     p2 = p1;
-    return ICE_ENUM(MyEnum, enum3);
+    return MyEnum::enum3;
 }
 
 Test::MyClassPrxPtr
@@ -651,13 +651,13 @@ MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, Test::DoubleS p2, const Ice:
 void
 MyDerivedClassI::opIdempotent(const Ice::Current& current)
 {
-    test(current.mode == ICE_ENUM(OperationMode, Idempotent));
+    test(current.mode == OperationMode::Idempotent);
 }
 
 void
 MyDerivedClassI::opNonmutating(const Ice::Current& current)
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
 }
 
 void
@@ -831,7 +831,7 @@ MyDerivedClassI::OpMStruct1MarshaledResult
 MyDerivedClassI::opMStruct1(const Ice::Current& current)
 {
     Test::Structure s;
-    s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
+    s.e = MyEnum::enum1; // enum must be initialized
     return OpMStruct1MarshaledResult(s, current);
 }
 

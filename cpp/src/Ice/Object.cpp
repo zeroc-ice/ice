@@ -193,13 +193,13 @@ operationModeToString(OperationMode mode)
 {
     switch(mode)
     {
-    case ICE_ENUM(OperationMode, Normal):
+    case OperationMode::Normal:
         return "::Ice::Normal";
 
-    case ICE_ENUM(OperationMode, Nonmutating):
+    case OperationMode::Nonmutating:
         return "::Ice::Nonmutating";
 
-    case ICE_ENUM(OperationMode, Idempotent):
+    case OperationMode::Idempotent:
         return "::Ice::Idempotent";
     }
     //
@@ -216,8 +216,8 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
     if(expected != received)
     {
-        assert(expected != ICE_ENUM(OperationMode, Nonmutating)); // We never expect Nonmutating
-        if(expected == ICE_ENUM(OperationMode, Idempotent) && received == ICE_ENUM(OperationMode, Nonmutating))
+        assert(expected != OperationMode::Nonmutating); // We never expect Nonmutating
+        if(expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
         {
             //
             // Fine: typically an old client still using the deprecated nonmutating keyword

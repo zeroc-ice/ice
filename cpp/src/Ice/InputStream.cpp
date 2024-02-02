@@ -1271,37 +1271,37 @@ Ice::InputStream::skipOptional(OptionalFormat type)
 {
     switch(type)
     {
-        case ICE_SCOPED_ENUM(OptionalFormat, F1):
+        case OptionalFormat::F1:
         {
             skip(1);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F2):
+        case OptionalFormat::F2:
         {
             skip(2);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F4):
+        case OptionalFormat::F4:
         {
             skip(4);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F8):
+        case OptionalFormat::F8:
         {
             skip(8);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, Size):
+        case OptionalFormat::Size:
         {
             skipSize();
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, VSize):
+        case OptionalFormat::VSize:
         {
             skip(static_cast<size_t>(readSize()));
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, FSize):
+        case OptionalFormat::FSize:
         {
             Int sz;
             read(sz);
@@ -1312,7 +1312,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
             skip(static_cast<size_t>(sz));
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, Class):
+        case OptionalFormat::Class:
         {
             read(0, 0);
             break;

@@ -28,15 +28,15 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::ByteSeq inEncaps, outEncaps;
-        if(!oneway->ice_invoke("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps))
+        if(!oneway->ice_invoke("opOneway", Ice::OperationMode::Normal, inEncaps, outEncaps))
         {
             test(false);
         }
 
-        test(batchOneway->ice_invoke("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
-        test(batchOneway->ice_invoke("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
-        test(batchOneway->ice_invoke("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
-        test(batchOneway->ice_invoke("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", Ice::OperationMode::Normal, inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", Ice::OperationMode::Normal, inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", Ice::OperationMode::Normal, inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", Ice::OperationMode::Normal, inEncaps, outEncaps));
         batchOneway->ice_flushBatchRequests();
 
         Ice::OutputStream out(communicator);
@@ -46,7 +46,7 @@ allTests(Test::TestHelper* helper)
         out.finished(inEncaps);
 
         // ice_invoke
-        if(cl->ice_invoke("opString", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps))
+        if(cl->ice_invoke("opString", Ice::OperationMode::Normal, inEncaps, outEncaps))
         {
             Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
             in.startEncapsulation();
@@ -64,7 +64,7 @@ allTests(Test::TestHelper* helper)
 
         // ice_invoke with array mapping
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
-        if(cl->ice_invoke("opString", Ice::ICE_ENUM(OperationMode, Normal), inPair, outEncaps))
+        if(cl->ice_invoke("opString", Ice::OperationMode::Normal, inPair, outEncaps))
         {
             Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
             in.startEncapsulation();
@@ -89,7 +89,7 @@ allTests(Test::TestHelper* helper)
         {
             ctx["raise"] = "";
         }
-        if(cl->ice_invoke("opException", Ice::ICE_ENUM(OperationMode, Normal), inEncaps, outEncaps, ctx))
+        if(cl->ice_invoke("opException", Ice::OperationMode::Normal, inEncaps, outEncaps, ctx))
         {
             test(false);
         }
@@ -117,7 +117,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing asynchronous ice_invoke... " << flush;
     {
         Ice::ByteSeq inEncaps;
-        batchOneway->ice_invokeAsync("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps,
+        batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps,
             [](bool, const vector<Ice::Byte>)
             {
                 test(false);
@@ -137,10 +137,10 @@ allTests(Test::TestHelper* helper)
     //
     {
         Ice::ByteSeq inEncaps;
-        test(batchOneway->ice_invokeAsync("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps).get().returnValue);
-        test(batchOneway->ice_invokeAsync("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps).get().returnValue);
-        test(batchOneway->ice_invokeAsync("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps).get().returnValue);
-        test(batchOneway->ice_invokeAsync("opOneway", Ice::ICE_ENUM(OperationMode, Normal), inEncaps).get().returnValue);
+        test(batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get().returnValue);
+        test(batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get().returnValue);
+        test(batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get().returnValue);
+        test(batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get().returnValue);
         batchOneway->ice_flushBatchRequests();
     }
 

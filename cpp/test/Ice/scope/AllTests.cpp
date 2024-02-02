@@ -60,8 +60,8 @@ allTests(Test::TestHelper* helper)
         test(cmap2["a"]->s == c1->s);
         test(cmap3["a"]->s == c1->s);
 
-        Test::E1 e = i->opE1(Test::ICE_ENUM(E1, v1));
-        test(e == Test::ICE_ENUM(E1, v1));
+        Test::E1 e = i->opE1(Test::E1::v1);
+        test(e == Test::E1::v1);
 
         Test::S1 s;
         s.s = "S1";

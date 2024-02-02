@@ -86,7 +86,7 @@ public:
 void
 sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
 {
-    if(selType == Ice::ICE_ENUM(EndpointSelectionType, Random))
+    if(selType == Ice::EndpointSelectionType::Random)
     {
         IceUtilInternal::shuffle(addrs.begin(), addrs.end());
     }
@@ -954,7 +954,7 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
         }
         return addr;
     }
-    vector<Address> addrs = getAddresses(host, port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+    vector<Address> addrs = getAddresses(host, port, protocol, Ice::EndpointSelectionType::Ordered,
                                          preferIPv6, canBlock);
     return addrs.empty() ? Address() : addrs[0];
 }
@@ -1654,7 +1654,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
 Address
 IceInternal::getNumericAddress(const std::string& address)
 {
-    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::ICE_ENUM(EndpointSelectionType, Ordered), false,
+    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::EndpointSelectionType::Ordered, false,
                                          false);
     if(addrs.empty())
     {

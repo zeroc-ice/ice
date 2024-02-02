@@ -675,7 +675,7 @@ ICE_API Identity stringToIdentity(const std::string& str);
  * @param mode Affects the handling of non-ASCII characters and non-printable ASCII characters.
  * @return The stringified identity.
  */
-ICE_API std::string identityToString(const Identity& id, ToStringMode mode = ICE_ENUM(ToStringMode, Unicode));
+ICE_API std::string identityToString(const Identity& id, ToStringMode mode = ToStringMode::Unicode);
 
 }
 

@@ -154,8 +154,8 @@ public:
 
     void opMyEnum(Test::MyEnum r, Test::MyEnum e)
     {
-        test(e == Test::ICE_ENUM(MyEnum, enum2));
-        test(r == Test::ICE_ENUM(MyEnum, enum3));
+        test(e == Test::MyEnum::enum2);
+        test(r == Test::MyEnum::enum3);
         called();
     }
 
@@ -187,9 +187,9 @@ public:
     void opStruct(const Test::Structure& rso, const Test::Structure& so)
     {
         test(rso.p == 0);
-        test(rso.e == Test::ICE_ENUM(MyEnum, enum2));
+        test(rso.e == Test::MyEnum::enum2);
         test(rso.s.s == "def");
-        test(so.e == Test::ICE_ENUM(MyEnum, enum3));
+        test(so.e == Test::MyEnum::enum3);
         test(so.s.s == "a new string");
 
         //
@@ -494,18 +494,18 @@ public:
     void opStringMyEnumD(const Test::StringMyEnumD& ro, const Test::StringMyEnumD& _do)
     {
         Test::StringMyEnumD di1;
-        di1["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[""] = Test::ICE_ENUM(MyEnum, enum2);
+        di1["abc"] = Test::MyEnum::enum1;
+        di1[""] = Test::MyEnum::enum2;
         test(_do == di1);
         test(ro.size() == 4);
         test(ro.find("abc") != ro.end());
-        test(ro.find("abc")->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(ro.find("abc")->second == Test::MyEnum::enum1);
         test(ro.find("qwerty") != ro.end());
-        test(ro.find("qwerty")->second == Test::ICE_ENUM(MyEnum, enum3));
+        test(ro.find("qwerty")->second == Test::MyEnum::enum3);
         test(ro.find("") != ro.end());
-        test(ro.find("")->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(ro.find("")->second == Test::MyEnum::enum2);
         test(ro.find("Hello!!") != ro.end());
-        test(ro.find("Hello!!")->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(ro.find("Hello!!")->second == Test::MyEnum::enum2);
         called();
     }
 
@@ -514,20 +514,20 @@ public:
         Test::MyStruct ms11 = { 1, 1 };
         Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[ms12] = Test::ICE_ENUM(MyEnum, enum2);
+        di1[ms11] = Test::MyEnum::enum1;
+        di1[ms12] = Test::MyEnum::enum2;
         test(_do == di1);
         Test::MyStruct ms22 = { 2, 2 };
         Test::MyStruct ms23 = { 2, 3 };
         test(ro.size() == 4);
         test(ro.find(ms11) != ro.end());
-        test(ro.find(ms11)->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(ro.find(ms11)->second == Test::MyEnum::enum1);
         test(ro.find(ms12) != ro.end());
-        test(ro.find(ms12)->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(ro.find(ms12)->second == Test::MyEnum::enum2);
         test(ro.find(ms22) != ro.end());
-        test(ro.find(ms22)->second == Test::ICE_ENUM(MyEnum, enum3));
+        test(ro.find(ms22)->second == Test::MyEnum::enum3);
         test(ro.find(ms23) != ro.end());
-        test(ro.find(ms23)->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(ro.find(ms23)->second == Test::MyEnum::enum2);
         called();
     }
 
@@ -672,32 +672,32 @@ public:
         test(ro.size() == 2);
         test(ro[0].size() == 3);
         test(ro[0].find("abc") != ro[0].end());
-        test(ro[0].find("abc")->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(ro[0].find("abc")->second == Test::MyEnum::enum1);
         test(ro[0].find("qwerty") != ro[0].end());
-        test(ro[0].find("qwerty")->second == Test::ICE_ENUM(MyEnum, enum3));
+        test(ro[0].find("qwerty")->second == Test::MyEnum::enum3);
         test(ro[0].find("Hello!!") != ro[0].end());
-        test(ro[0].find("Hello!!")->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(ro[0].find("Hello!!")->second == Test::MyEnum::enum2);
         test(ro[1].size() == 2);
         test(ro[1].find("abc") != ro[1].end());
-        test(ro[1].find("abc")->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(ro[1].find("abc")->second == Test::MyEnum::enum1);
         test(ro[1].find("") != ro[1].end());
-        test(ro[1].find("")->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(ro[1].find("")->second == Test::MyEnum::enum2);
         test(_do.size() == 3);
         test(_do[0].size() == 1);
         test(_do[0].find("Goodbye") != _do[0].end());
-        test(_do[0].find("Goodbye")->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(_do[0].find("Goodbye")->second == Test::MyEnum::enum1);
         test(_do[1].size() == 2);
         test(_do[1].find("abc") != _do[1].end());
-        test(_do[1].find("abc")->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(_do[1].find("abc")->second == Test::MyEnum::enum1);
         test(_do[1].find("") != _do[1].end());
-        test(_do[1].find("")->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(_do[1].find("")->second == Test::MyEnum::enum2);
         test(_do[2].size() == 3);
         test(_do[2].find("abc") != _do[2].end());
-        test(_do[2].find("abc")->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(_do[2].find("abc")->second == Test::MyEnum::enum1);
         test(_do[2].find("qwerty") != _do[2].end());
-        test(_do[2].find("qwerty")->second == Test::ICE_ENUM(MyEnum, enum3));
+        test(_do[2].find("qwerty")->second == Test::MyEnum::enum3);
         test(_do[2].find("Hello!!") != _do[2].end());
-        test(_do[2].find("Hello!!")->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(_do[2].find("Hello!!")->second == Test::MyEnum::enum2);
         called();
     }
 
@@ -705,25 +705,25 @@ public:
     {
         test(ro.size() == 2);
         test(ro[0].size() == 2);
-        test(ro[0].find(Test::ICE_ENUM(MyEnum, enum2)) != ro[0].end());
-        test(ro[0].find(Test::ICE_ENUM(MyEnum, enum2))->second == "Hello!!");
-        test(ro[0].find(Test::ICE_ENUM(MyEnum, enum3)) != ro[0].end());
-        test(ro[0].find(Test::ICE_ENUM(MyEnum, enum3))->second == "qwerty");
+        test(ro[0].find(Test::MyEnum::enum2) != ro[0].end());
+        test(ro[0].find(Test::MyEnum::enum2)->second == "Hello!!");
+        test(ro[0].find(Test::MyEnum::enum3) != ro[0].end());
+        test(ro[0].find(Test::MyEnum::enum3)->second == "qwerty");
         test(ro[1].size() == 1);
-        test(ro[1].find(Test::ICE_ENUM(MyEnum, enum1)) != ro[1].end());
-        test(ro[1].find(Test::ICE_ENUM(MyEnum, enum1))->second == "abc");
+        test(ro[1].find(Test::MyEnum::enum1) != ro[1].end());
+        test(ro[1].find(Test::MyEnum::enum1)->second == "abc");
         test(_do.size() == 3);
         test(_do[0].size() == 1);
-        test(_do[0].find(Test::ICE_ENUM(MyEnum, enum1)) != _do[0].end());
-        test(_do[0].find(Test::ICE_ENUM(MyEnum, enum1))->second == "Goodbye");
+        test(_do[0].find(Test::MyEnum::enum1) != _do[0].end());
+        test(_do[0].find(Test::MyEnum::enum1)->second == "Goodbye");
         test(_do[1].size() == 1);
-        test(_do[1].find(Test::ICE_ENUM(MyEnum, enum1)) != _do[1].end());
-        test(_do[1].find(Test::ICE_ENUM(MyEnum, enum1))->second == "abc");
+        test(_do[1].find(Test::MyEnum::enum1) != _do[1].end());
+        test(_do[1].find(Test::MyEnum::enum1)->second == "abc");
         test(_do[2].size() == 2);
-        test(_do[2].find(Test::ICE_ENUM(MyEnum, enum2)) != _do[2].end());
-        test(_do[2].find(Test::ICE_ENUM(MyEnum, enum2))->second == "Hello!!");
-        test(_do[2].find(Test::ICE_ENUM(MyEnum, enum3)) != _do[2].end());
-        test(_do[2].find(Test::ICE_ENUM(MyEnum, enum3))->second == "qwerty");
+        test(_do[2].find(Test::MyEnum::enum2) != _do[2].end());
+        test(_do[2].find(Test::MyEnum::enum2)->second == "Hello!!");
+        test(_do[2].find(Test::MyEnum::enum3) != _do[2].end());
+        test(_do[2].find(Test::MyEnum::enum3)->second == "qwerty");
         called();
     }
 
@@ -737,32 +737,32 @@ public:
         test(ro.size() == 2);
         test(ro[0].size() == 3);
         test(ro[0].find(ms11) != ro[0].end());
-        test(ro[0].find(ms11)->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(ro[0].find(ms11)->second == Test::MyEnum::enum1);
         test(ro[0].find(ms22) != ro[0].end());
-        test(ro[0].find(ms22)->second == Test::ICE_ENUM(MyEnum, enum3));
+        test(ro[0].find(ms22)->second == Test::MyEnum::enum3);
         test(ro[0].find(ms23) != ro[0].end());
-        test(ro[0].find(ms23)->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(ro[0].find(ms23)->second == Test::MyEnum::enum2);
         test(ro[1].size() == 2);
         test(ro[1].find(ms11) != ro[1].end());
-        test(ro[1].find(ms11)->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(ro[1].find(ms11)->second == Test::MyEnum::enum1);
         test(ro[1].find(ms12) != ro[1].end());
-        test(ro[1].find(ms12)->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(ro[1].find(ms12)->second == Test::MyEnum::enum2);
         test(_do.size() == 3);
         test(_do[0].size() == 1);
         test(_do[0].find(ms23) != _do[0].end());
-        test(_do[0].find(ms23)->second == Test::ICE_ENUM(MyEnum, enum3));
+        test(_do[0].find(ms23)->second == Test::MyEnum::enum3);
         test(_do[1].size() == 2);
         test(_do[1].find(ms11) != _do[1].end());
-        test(_do[1].find(ms11)->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(_do[1].find(ms11)->second == Test::MyEnum::enum1);
         test(_do[1].find(ms12) != _do[1].end());
-        test(_do[1].find(ms12)->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(_do[1].find(ms12)->second == Test::MyEnum::enum2);
         test(_do[2].size() == 3);
         test(_do[2].find(ms11) != _do[2].end());
-        test(_do[2].find(ms11)->second == Test::ICE_ENUM(MyEnum, enum1));
+        test(_do[2].find(ms11)->second == Test::MyEnum::enum1);
         test(_do[2].find(ms22) != _do[2].end());
-        test(_do[2].find(ms22)->second == Test::ICE_ENUM(MyEnum, enum3));
+        test(_do[2].find(ms22)->second == Test::MyEnum::enum3);
         test(_do[2].find(ms23) != _do[2].end());
-        test(_do[2].find(ms23)->second == Test::ICE_ENUM(MyEnum, enum2));
+        test(_do[2].find(ms23)->second == Test::MyEnum::enum2);
         called();
     }
 
@@ -955,24 +955,24 @@ public:
     void opMyEnumMyEnumSD(const Test::MyEnumMyEnumSD& ro, const Test::MyEnumMyEnumSD& _do)
     {
         test(_do.size() == 1);
-        test(_do.find(Test::ICE_ENUM(MyEnum, enum1)) != _do.end());
-        test(_do.find(Test::ICE_ENUM(MyEnum, enum1))->second.size() == 2);
-        test(_do.find(Test::ICE_ENUM(MyEnum, enum1))->second[0] == Test::ICE_ENUM(MyEnum, enum3));
-        test(_do.find(Test::ICE_ENUM(MyEnum, enum1))->second[1] == Test::ICE_ENUM(MyEnum, enum3));
+        test(_do.find(Test::MyEnum::enum1) != _do.end());
+        test(_do.find(Test::MyEnum::enum1)->second.size() == 2);
+        test(_do.find(Test::MyEnum::enum1)->second[0] == Test::MyEnum::enum3);
+        test(_do.find(Test::MyEnum::enum1)->second[1] == Test::MyEnum::enum3);
         test(ro.size() == 3);
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum3)) != ro.end());
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum3))->second.size() == 3);
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum3))->second[0] == Test::ICE_ENUM(MyEnum, enum1));
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum3))->second[1] == Test::ICE_ENUM(MyEnum, enum1));
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum3))->second[2] == Test::ICE_ENUM(MyEnum, enum2));
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum2)) != ro.end());
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum2))->second.size() == 2);
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum2))->second[0] == Test::ICE_ENUM(MyEnum, enum1));
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum2))->second[1] == Test::ICE_ENUM(MyEnum, enum2));
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum1)) != ro.end());
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum1))->second.size() == 2);
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum1))->second[0] == Test::ICE_ENUM(MyEnum, enum3));
-        test(ro.find(Test::ICE_ENUM(MyEnum, enum1))->second[1] == Test::ICE_ENUM(MyEnum, enum3));
+        test(ro.find(Test::MyEnum::enum3) != ro.end());
+        test(ro.find(Test::MyEnum::enum3)->second.size() == 3);
+        test(ro.find(Test::MyEnum::enum3)->second[0] == Test::MyEnum::enum1);
+        test(ro.find(Test::MyEnum::enum3)->second[1] == Test::MyEnum::enum1);
+        test(ro.find(Test::MyEnum::enum3)->second[2] == Test::MyEnum::enum2);
+        test(ro.find(Test::MyEnum::enum2) != ro.end());
+        test(ro.find(Test::MyEnum::enum2)->second.size() == 2);
+        test(ro.find(Test::MyEnum::enum2)->second[0] == Test::MyEnum::enum1);
+        test(ro.find(Test::MyEnum::enum2)->second[1] == Test::MyEnum::enum2);
+        test(ro.find(Test::MyEnum::enum1) != ro.end());
+        test(ro.find(Test::MyEnum::enum1)->second.size() == 2);
+        test(ro.find(Test::MyEnum::enum1)->second[0] == Test::MyEnum::enum3);
+        test(ro.find(Test::MyEnum::enum1)->second[1] == Test::MyEnum::enum3);
         called();
     }
 
@@ -1184,11 +1184,11 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         Test::Structure si1;
         si1.p = p;
-        si1.e = Test::ICE_ENUM(MyEnum, enum3);
+        si1.e = Test::MyEnum::enum3;
         si1.s.s = "abc";
         Test::Structure si2;
         si2.p = 0;
-        si2.e = Test::ICE_ENUM(MyEnum, enum2);
+        si2.e = Test::MyEnum::enum2;
         si2.s.s = "def";
 
         CallbackPtr cb = make_shared<Callback>(communicator);
@@ -1514,12 +1514,12 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         Test::StringMyEnumD di1;
-        di1["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[""] = Test::ICE_ENUM(MyEnum, enum2);
+        di1["abc"] = Test::MyEnum::enum1;
+        di1[""] = Test::MyEnum::enum2;
         Test::StringMyEnumD di2;
-        di2["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di2["qwerty"] = Test::ICE_ENUM(MyEnum, enum3);
-        di2["Hello!!"] = Test::ICE_ENUM(MyEnum, enum2);
+        di2["abc"] = Test::MyEnum::enum1;
+        di2["qwerty"] = Test::MyEnum::enum3;
+        di2["Hello!!"] = Test::MyEnum::enum2;
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringMyEnumDAsync(di1, di2,
@@ -1535,15 +1535,15 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyStruct ms11 = { 1, 1 };
         Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[ms12] = Test::ICE_ENUM(MyEnum, enum2);
+        di1[ms11] = Test::MyEnum::enum1;
+        di1[ms12] = Test::MyEnum::enum2;
 
         Test::MyStruct ms22 = { 2, 2 };
         Test::MyStruct ms23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di2[ms22] = Test::ICE_ENUM(MyEnum, enum3);
-        di2[ms23] = Test::ICE_ENUM(MyEnum, enum2);
+        di2[ms11] = Test::MyEnum::enum1;
+        di2[ms22] = Test::MyEnum::enum3;
+        di2[ms23] = Test::MyEnum::enum2;
 
         CallbackPtr cb = make_shared<Callback>();
         p->opMyStructMyEnumDAsync(di1, di2,
@@ -1683,14 +1683,14 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2.resize(1);
 
         Test::StringMyEnumD di1;
-        di1["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[""] = Test::ICE_ENUM(MyEnum, enum2);
+        di1["abc"] = Test::MyEnum::enum1;
+        di1[""] = Test::MyEnum::enum2;
         Test::StringMyEnumD di2;
-        di2["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di2["qwerty"] = Test::ICE_ENUM(MyEnum, enum3);
-        di2["Hello!!"] = Test::ICE_ENUM(MyEnum, enum2);
+        di2["abc"] = Test::MyEnum::enum1;
+        di2["qwerty"] = Test::MyEnum::enum3;
+        di2["Hello!!"] = Test::MyEnum::enum2;
         Test::StringMyEnumD di3;
-        di3["Goodbye"] = Test::ICE_ENUM(MyEnum, enum1);
+        di3["Goodbye"] = Test::MyEnum::enum1;
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -1713,12 +1713,12 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2.resize(1);
 
         Test::MyEnumStringD di1;
-        di1[Test::ICE_ENUM(MyEnum, enum1)] = "abc";
+        di1[Test::MyEnum::enum1] = "abc";
         Test::MyEnumStringD di2;
-        di2[Test::ICE_ENUM(MyEnum, enum2)] = "Hello!!";
-        di2[Test::ICE_ENUM(MyEnum, enum3)] = "qwerty";
+        di2[Test::MyEnum::enum2] = "Hello!!";
+        di2[Test::MyEnum::enum3] = "qwerty";
         Test::MyEnumStringD di3;
-        di3[Test::ICE_ENUM(MyEnum, enum1)] = "Goodbye";
+        di3[Test::MyEnum::enum1] = "Goodbye";
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -1743,18 +1743,18 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyStruct ms11 = { 1, 1 };
         Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[ms12] = Test::ICE_ENUM(MyEnum, enum2);
+        di1[ms11] = Test::MyEnum::enum1;
+        di1[ms12] = Test::MyEnum::enum2;
 
         Test::MyStruct ms22 = { 2, 2 };
         Test::MyStruct ms23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di2[ms22] = Test::ICE_ENUM(MyEnum, enum3);
-        di2[ms23] = Test::ICE_ENUM(MyEnum, enum2);
+        di2[ms11] = Test::MyEnum::enum1;
+        di2[ms22] = Test::MyEnum::enum3;
+        di2[ms23] = Test::MyEnum::enum2;
 
         Test::MyStructMyEnumD di3;
-        di3[ms23] = Test::ICE_ENUM(MyEnum, enum3);
+        di3[ms23] = Test::MyEnum::enum3;
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -2015,17 +2015,17 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyEnumS si2;
         Test::MyEnumS si3;
 
-        si1.push_back(Test::ICE_ENUM(MyEnum, enum1));
-        si1.push_back(Test::ICE_ENUM(MyEnum, enum1));
-        si1.push_back(Test::ICE_ENUM(MyEnum, enum2));
-        si2.push_back(Test::ICE_ENUM(MyEnum, enum1));
-        si2.push_back(Test::ICE_ENUM(MyEnum, enum2));
-        si3.push_back(Test::ICE_ENUM(MyEnum, enum3));
-        si3.push_back(Test::ICE_ENUM(MyEnum, enum3));
+        si1.push_back(Test::MyEnum::enum1);
+        si1.push_back(Test::MyEnum::enum1);
+        si1.push_back(Test::MyEnum::enum2);
+        si2.push_back(Test::MyEnum::enum1);
+        si2.push_back(Test::MyEnum::enum2);
+        si3.push_back(Test::MyEnum::enum3);
+        si3.push_back(Test::MyEnum::enum3);
 
-        sdi1[Test::ICE_ENUM(MyEnum, enum3)] = si1;
-        sdi1[Test::ICE_ENUM(MyEnum, enum2)] = si2;
-        sdi2[Test::ICE_ENUM(MyEnum, enum1)] = si3;
+        sdi1[Test::MyEnum::enum3] = si1;
+        sdi1[Test::MyEnum::enum2] = si2;
+        sdi2[Test::MyEnum::enum1] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
         p->opMyEnumMyEnumSDAsync(sdi1, sdi2,
@@ -2519,11 +2519,11 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         Test::Structure si1;
         si1.p = p;
-        si1.e = Test::ICE_ENUM(MyEnum, enum3);
+        si1.e = Test::MyEnum::enum3;
         si1.s.s = "abc";
         Test::Structure si2;
         si2.p = 0;
-        si2.e = Test::ICE_ENUM(MyEnum, enum2);
+        si2.e = Test::MyEnum::enum2;
         si2.s.s = "def";
 
         CallbackPtr cb = make_shared<Callback>(communicator);
@@ -2901,12 +2901,12 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         Test::StringMyEnumD di1;
-        di1["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[""] = Test::ICE_ENUM(MyEnum, enum2);
+        di1["abc"] = Test::MyEnum::enum1;
+        di1[""] = Test::MyEnum::enum2;
         Test::StringMyEnumD di2;
-        di2["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di2["qwerty"] = Test::ICE_ENUM(MyEnum, enum3);
-        di2["Hello!!"] = Test::ICE_ENUM(MyEnum, enum2);
+        di2["abc"] = Test::MyEnum::enum1;
+        di2["qwerty"] = Test::MyEnum::enum3;
+        di2["Hello!!"] = Test::MyEnum::enum2;
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opStringMyEnumDAsync(di1, di2);
@@ -2930,15 +2930,15 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyStruct ms11 = { 1, 1 };
         Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[ms12] = Test::ICE_ENUM(MyEnum, enum2);
+        di1[ms11] = Test::MyEnum::enum1;
+        di1[ms12] = Test::MyEnum::enum2;
 
         Test::MyStruct ms22 = { 2, 2 };
         Test::MyStruct ms23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di2[ms22] = Test::ICE_ENUM(MyEnum, enum3);
-        di2[ms23] = Test::ICE_ENUM(MyEnum, enum2);
+        di2[ms11] = Test::MyEnum::enum1;
+        di2[ms22] = Test::MyEnum::enum3;
+        di2[ms23] = Test::MyEnum::enum2;
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opMyStructMyEnumDAsync(di1, di2);
@@ -3118,14 +3118,14 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2.resize(1);
 
         Test::StringMyEnumD di1;
-        di1["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[""] = Test::ICE_ENUM(MyEnum, enum2);
+        di1["abc"] = Test::MyEnum::enum1;
+        di1[""] = Test::MyEnum::enum2;
         Test::StringMyEnumD di2;
-        di2["abc"] = Test::ICE_ENUM(MyEnum, enum1);
-        di2["qwerty"] = Test::ICE_ENUM(MyEnum, enum3);
-        di2["Hello!!"] = Test::ICE_ENUM(MyEnum, enum2);
+        di2["abc"] = Test::MyEnum::enum1;
+        di2["qwerty"] = Test::MyEnum::enum3;
+        di2["Hello!!"] = Test::MyEnum::enum2;
         Test::StringMyEnumD di3;
-        di3["Goodbye"] = Test::ICE_ENUM(MyEnum, enum1);
+        di3["Goodbye"] = Test::MyEnum::enum1;
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -3156,12 +3156,12 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2.resize(1);
 
         Test::MyEnumStringD di1;
-        di1[Test::ICE_ENUM(MyEnum, enum1)] = "abc";
+        di1[Test::MyEnum::enum1] = "abc";
         Test::MyEnumStringD di2;
-        di2[Test::ICE_ENUM(MyEnum, enum2)] = "Hello!!";
-        di2[Test::ICE_ENUM(MyEnum, enum3)] = "qwerty";
+        di2[Test::MyEnum::enum2] = "Hello!!";
+        di2[Test::MyEnum::enum3] = "qwerty";
         Test::MyEnumStringD di3;
-        di3[Test::ICE_ENUM(MyEnum, enum1)] = "Goodbye";
+        di3[Test::MyEnum::enum1] = "Goodbye";
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -3194,18 +3194,18 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyStruct ms11 = { 1, 1 };
         Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di1[ms12] = Test::ICE_ENUM(MyEnum, enum2);
+        di1[ms11] = Test::MyEnum::enum1;
+        di1[ms12] = Test::MyEnum::enum2;
 
         Test::MyStruct ms22 = { 2, 2 };
         Test::MyStruct ms23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[ms11] = Test::ICE_ENUM(MyEnum, enum1);
-        di2[ms22] = Test::ICE_ENUM(MyEnum, enum3);
-        di2[ms23] = Test::ICE_ENUM(MyEnum, enum2);
+        di2[ms11] = Test::MyEnum::enum1;
+        di2[ms22] = Test::MyEnum::enum3;
+        di2[ms23] = Test::MyEnum::enum2;
 
         Test::MyStructMyEnumD di3;
-        di3[ms23] = Test::ICE_ENUM(MyEnum, enum3);
+        di3[ms23] = Test::MyEnum::enum3;
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -3539,17 +3539,17 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyEnumS si2;
         Test::MyEnumS si3;
 
-        si1.push_back(Test::ICE_ENUM(MyEnum, enum1));
-        si1.push_back(Test::ICE_ENUM(MyEnum, enum1));
-        si1.push_back(Test::ICE_ENUM(MyEnum, enum2));
-        si2.push_back(Test::ICE_ENUM(MyEnum, enum1));
-        si2.push_back(Test::ICE_ENUM(MyEnum, enum2));
-        si3.push_back(Test::ICE_ENUM(MyEnum, enum3));
-        si3.push_back(Test::ICE_ENUM(MyEnum, enum3));
+        si1.push_back(Test::MyEnum::enum1);
+        si1.push_back(Test::MyEnum::enum1);
+        si1.push_back(Test::MyEnum::enum2);
+        si2.push_back(Test::MyEnum::enum1);
+        si2.push_back(Test::MyEnum::enum2);
+        si3.push_back(Test::MyEnum::enum3);
+        si3.push_back(Test::MyEnum::enum3);
 
-        sdi1[Test::ICE_ENUM(MyEnum, enum3)] = si1;
-        sdi1[Test::ICE_ENUM(MyEnum, enum2)] = si2;
-        sdi2[Test::ICE_ENUM(MyEnum, enum1)] = si3;
+        sdi1[Test::MyEnum::enum3] = si1;
+        sdi1[Test::MyEnum::enum2] = si2;
+        sdi2[Test::MyEnum::enum1] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opMyEnumMyEnumSDAsync(sdi1, sdi2);

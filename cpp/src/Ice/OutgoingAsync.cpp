@@ -471,7 +471,7 @@ ProxyOutgoingAsyncBase::abort(const Ice::Exception& ex)
 ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(const ObjectPrxPtr& prx) :
     OutgoingAsyncBase(prx->_getReference()->getInstance()),
     _proxy(prx),
-    _mode(ICE_ENUM(OperationMode, Normal)),
+    _mode(OperationMode::Normal),
     _cnt(0),
     _sent(false)
 {

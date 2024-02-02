@@ -232,7 +232,7 @@ allTests(Test::TestHelper* helper)
             {
                 completed->get_future().get();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                holdSerialized->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
         }
         completed->get_future().get();

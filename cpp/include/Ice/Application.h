@@ -41,7 +41,7 @@ public:
      * @param policy Specifies whether to handle signals. If not specified, the default behavior
      * is to handle signals.
      */
-    Application(SignalPolicy policy = ICE_ENUM(SignalPolicy, HandleSignals));
+    Application(SignalPolicy policy = SignalPolicy::HandleSignals);
 
     /// \cond IGNORE
     Application(const Application&) = delete;

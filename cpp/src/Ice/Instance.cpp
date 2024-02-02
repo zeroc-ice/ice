@@ -923,7 +923,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _messageSizeMax(0),
     _batchAutoFlushSize(0),
     _classGraphDepthMax(0),
-    _toStringMode(ICE_ENUM(ToStringMode, Unicode)),
+    _toStringMode(ToStringMode::Unicode),
     _acceptClassCycles(false),
     _implicitContext(0),
     _stringConverter(Ice::getProcessStringConverter()),
@@ -1187,11 +1187,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         string toStringModeStr = _initData.properties->getPropertyWithDefault("Ice.ToStringMode", "Unicode");
         if(toStringModeStr == "ASCII")
         {
-            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, ASCII);
+            const_cast<ToStringMode&>(_toStringMode) = ToStringMode::ASCII;
         }
         else if(toStringModeStr == "Compat")
         {
-            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, Compat);
+            const_cast<ToStringMode&>(_toStringMode) = ToStringMode::Compat;
         }
         else if(toStringModeStr != "Unicode")
         {

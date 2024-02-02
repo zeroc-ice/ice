@@ -277,8 +277,6 @@ typedef long long Int64;
 // TODO remove the helper macros
 #   include <memory>
 #   include <future>
-#   define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
-#   define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
 #   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
 #   define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()
 #   define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()

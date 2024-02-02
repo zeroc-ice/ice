@@ -24,7 +24,7 @@ using namespace IceInternal;
 static void
 printIdentityFacetOperation(ostream& s, InputStream& stream)
 {
-    ToStringMode toStringMode = ICE_ENUM(ToStringMode, Unicode);
+    ToStringMode toStringMode = ToStringMode::Unicode;
     if(stream.instance())
     {
         toStringMode = stream.instance()->toStringMode();
@@ -77,19 +77,19 @@ printRequestHeader(ostream& s, InputStream& stream)
     s << "\nmode = " << static_cast<int>(mode) << ' ';
     switch(static_cast<OperationMode>(mode))
     {
-        case ICE_ENUM(OperationMode, Normal):
+        case OperationMode::Normal:
         {
             s << "(normal)";
             break;
         }
 
-        case ICE_ENUM(OperationMode, Nonmutating):
+        case OperationMode::Nonmutating:
         {
             s << "(nonmutating)";
             break;
         }
 
-        case ICE_ENUM(OperationMode, Idempotent):
+        case OperationMode::Idempotent:
         {
             s << "(idempotent)";
             break;

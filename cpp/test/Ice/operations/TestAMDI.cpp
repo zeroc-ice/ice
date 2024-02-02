@@ -20,14 +20,14 @@ MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
 bool
 MyDerivedClassI::ice_isA(string id, const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_isA(std::move(id), current);
 }
 
 void
 MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     Test::MyDerivedClass::ice_ping(current);
 
 }
@@ -35,14 +35,14 @@ MyDerivedClassI::ice_ping(const Ice::Current& current) const
 std::vector<std::string>
 MyDerivedClassI::ice_ids(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_ids(current);
 }
 
 std::string
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
-    test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
+    test(current.mode == OperationMode::Nonmutating);
     return Test::MyDerivedClass::ice_id(current);
 }
 
@@ -983,7 +983,7 @@ MyDerivedClassI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)
                                  const Ice::Current& current)
 {
     Test::Structure s;
-    s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
+    s.e = MyEnum::enum1; // enum must be initialized
     response(OpMStruct1MarshaledResult(s, current));
 }
 
