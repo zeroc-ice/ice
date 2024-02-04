@@ -5800,12 +5800,12 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
-    string scoped = fixKwd(p->scoped());
+    string scoped = fixKwd(p->scoped() + "Prx");
     InterfaceList bases = p->bases();
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << p->name() << "Prx : public virtual "
+    H << nl << "class " << _dllClassExport << p->name() << "Prx : public "
       << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
     if(bases.empty())
     {
@@ -5847,8 +5847,6 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " */";
     H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
     H << sp;
-    H << nl << prx << "() = default;";
-    H << sp;
     H << nl << "explicit " << prx << "(const ::Ice::ObjectPrx& other) : ::Ice::ObjectPrx(other)";
     H << nl << "{";
     H << nl << "}";
@@ -5858,7 +5856,13 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "{";
     H << nl << "}";
     H << nl << "/// \\endcond";
-
+    H.dec();
+    H << sp << nl << "protected:";
+    H.inc();
+    H << sp;
+    H << nl << "/// \\cond INTERNAL";
+    H << nl << prx << "() = default;";
+    H << nl << "/// \\endcond";
     H << eb << ';';
 
     C << sp;

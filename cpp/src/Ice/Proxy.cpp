@@ -137,13 +137,13 @@ namespace Ice
 bool
 operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return lhs._reference < rhs._reference;
+    return lhs._getReference() < rhs._getReference();
 }
 
 bool
 operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return lhs._reference == rhs._reference;
+    return lhs._getReference() == rhs._getReference();
 }
 
 }

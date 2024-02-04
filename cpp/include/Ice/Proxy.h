@@ -272,7 +272,6 @@ class ICE_API ObjectPrx : public ::std::enable_shared_from_this<ObjectPrx>
 {
 public:
 
-    ObjectPrx() = default;
     ObjectPrx(const ObjectPrx& other) noexcept;
     virtual ~ObjectPrx() = default;
 
@@ -281,9 +280,6 @@ public:
     {
     }
     /// \endcond
-
-    friend ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
-    friend ICE_API bool operator==(const ObjectPrx&, const ObjectPrx&);
 
     /**
      * Obtains the communicator that created this proxy.
@@ -1089,6 +1085,9 @@ public:
 protected:
 
     /// \cond INTERNAL
+    // This constructor is never called; it allows Proxy's default constructor to compile.
+    ObjectPrx() = default;
+
     template<typename R, template<typename> class P = ::std::promise, typename Obj, typename Fn, typename... Args>
     auto _makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args)
         -> decltype(std::declval<P<R>>().get_future())
@@ -1116,6 +1115,9 @@ private:
     ::IceInternal::BatchRequestQueuePtr _batchRequestQueue;
     mutable std::mutex _mutex;
 };
+
+ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool operator==(const ObjectPrx&, const ObjectPrx&);
 
 inline bool
 operator>(const ObjectPrx& lhs, const ObjectPrx& rhs)
@@ -1372,6 +1374,12 @@ public:
     {
         return ::std::make_shared<Prx>(*ObjectPrx::ice_encodingVersion(version));
     }
+
+protected:
+
+    // This constructor never initializes the base classes since they are all virtual and Proxy is never the most
+    // derived class.
+    Proxy() = default;
 };
 
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ::Ice::ObjectPrx&);
