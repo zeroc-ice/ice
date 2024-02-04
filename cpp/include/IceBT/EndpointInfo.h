@@ -12,7 +12,7 @@
 #include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/Endpoint.h>
 #include <IceUtil/UndefSysMacros.h>
 

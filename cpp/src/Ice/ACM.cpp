@@ -164,9 +164,9 @@ IceInternal::FactoryACMMonitor::reap(const ConnectionIPtr& connection)
 }
 
 ACMMonitorPtr
-IceInternal::FactoryACMMonitor::acm(const IceUtil::Optional<int>& timeout,
-                                    const IceUtil::Optional<Ice::ACMClose>& close,
-                                    const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
+IceInternal::FactoryACMMonitor::acm(const optional<int>& timeout,
+                                    const optional<Ice::ACMClose>& close,
+                                    const optional<Ice::ACMHeartbeat>& heartbeat)
 {
     Lock sync(*this);
     assert(_instance);
@@ -330,9 +330,9 @@ IceInternal::ConnectionACMMonitor::reap(const ConnectionIPtr& connection)
 }
 
 ACMMonitorPtr
-IceInternal::ConnectionACMMonitor::acm(const IceUtil::Optional<int>& timeout,
-                                       const IceUtil::Optional<Ice::ACMClose>& close,
-                                       const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
+IceInternal::ConnectionACMMonitor::acm(const optional<int>& timeout,
+                                       const optional<Ice::ACMClose>& close,
+                                       const optional<Ice::ACMHeartbeat>& heartbeat)
 {
     return _parent->acm(timeout, close, heartbeat);
 }

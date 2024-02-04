@@ -547,7 +547,7 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
                                             const ConnectionIPtr& fixedConnection,
                                             int invocationTimeout,
                                             const Ice::Context& context,
-                                            const IceUtil::Optional<bool>& compress) :
+                                            const optional<bool>& compress) :
     Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
     _fixedConnection(fixedConnection)
 {
@@ -606,10 +606,10 @@ IceInternal::FixedReference::getConnectionId() const
     return string();
 }
 
-IceUtil::Optional<int>
+optional<int>
 IceInternal::FixedReference::getTimeout() const
 {
-    return IceUtil::Optional<int>();
+    return optional<int>();
 }
 
 ReferencePtr
@@ -931,10 +931,10 @@ IceInternal::RoutableReference::getConnectionId() const
     return _connectionId;
 }
 
-IceUtil::Optional<int>
+optional<int>
 IceInternal::RoutableReference::getTimeout() const
 {
-    return _overrideTimeout ? IceUtil::Optional<int>(_timeout) : IceUtil::None;
+    return _overrideTimeout ? optional<int>(_timeout) : nullopt;
 }
 
 ReferencePtr
