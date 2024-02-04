@@ -148,7 +148,9 @@ operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 
 }
 
-Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept : _reference(other._reference)
+Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
+    enable_shared_from_this<ObjectPrx>(), // the copy is independent of other
+    _reference(other._reference)
 {
     lock_guard lock(other._mutex);
     _requestHandler = other._requestHandler;
