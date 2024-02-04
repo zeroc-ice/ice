@@ -5798,9 +5798,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    string name = fixKwd(p->name());
-    string scope = fixKwd(p->scope());
-    string scoped = fixKwd(p->scoped() + "Prx");
+    const string scope = fixKwd(p->scope());
     InterfaceList bases = p->bases();
 
     H << sp;
@@ -5836,9 +5834,8 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 void
 Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
-    string prx = fixKwd(p->name() + "Prx");
+    const string prx = fixKwd(p->name() + "Prx");
     const string scoped = fixKwd(p->scoped() + "Prx");
-    const string scope = fixKwd(p->scope());
 
     H << sp;
     H << nl << "/**";
