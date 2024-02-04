@@ -947,8 +947,7 @@ public:
         }
         else
         {
-            v = ::IceInternal::createProxy<T>();
-            v->_copyFrom(proxy);
+            v = std::make_shared<T>(*proxy);
         }
     }
 

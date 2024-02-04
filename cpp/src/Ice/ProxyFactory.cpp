@@ -80,9 +80,7 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 {
     if(ref)
     {
-        auto proxy = createProxy<ObjectPrx>();
-        proxy->setup(ref);
-        return proxy;
+        return make_shared<ObjectPrx>(ref);
     }
     else
     {
