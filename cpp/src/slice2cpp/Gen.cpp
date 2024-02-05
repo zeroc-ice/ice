@@ -5798,14 +5798,12 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    string name = fixKwd(p->name());
-    string scope = fixKwd(p->scope());
-    string scoped = fixKwd(p->scoped());
+    const string scope = fixKwd(p->scope());
     InterfaceList bases = p->bases();
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << p->name() << "Prx : public virtual "
+    H << nl << "class " << _dllClassExport << p->name() << "Prx : public "
       << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
     if(bases.empty())
     {
@@ -5829,15 +5827,15 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H.dec();
     H << nl << "public:";
     H.inc();
+
     return true;
 }
 
 void
 Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
-    string prx = fixKwd(p->name() + "Prx");
+    const string prx = fixKwd(p->name() + "Prx");
     const string scoped = fixKwd(p->scoped() + "Prx");
-    const string scope = fixKwd(p->scope());
 
     H << sp;
     H << nl << "/**";
@@ -5845,29 +5843,25 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
     H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
-
+    H << sp;
+    H << nl << "explicit " << prx << "(const ::Ice::ObjectPrx& other) : ::Ice::ObjectPrx(other)";
+    H << nl << "{";
+    H << nl << "}";
+    H << sp;
+    H << nl << "/// \\cond INTERNAL";
+    H << nl << prx << "(const ::IceInternal::ReferencePtr& ref) : ::Ice::ObjectPrx(ref)";
+    H << nl << "{";
+    H << nl << "}";
+    H << nl << "/// \\endcond";
     H.dec();
     H << sp << nl << "protected:";
     H.inc();
     H << sp;
     H << nl << "/// \\cond INTERNAL";
-    H << nl << getUnqualified(prx, scope) << "() = default;";
-    H << nl << "friend ::std::shared_ptr<" << getUnqualified(prx, scope) << "> IceInternal::createProxy<"
-      << getUnqualified(prx, scope) << ">();";
-    H << sp;
-    H << nl << _dllMemberExport << "virtual ::std::shared_ptr<" << getUnqualified("::Ice::ObjectPrx", scope)
-      << "> _newInstance() const override;";
+    H << nl << prx << "() = default;";
     H << nl << "/// \\endcond";
     H << eb << ';';
 
-    C << sp;
-    C << nl << "/// \\cond INTERNAL";
-    C << nl << "::std::shared_ptr<::Ice::ObjectPrx>";
-    C << nl << scoped.substr(2) << "::_newInstance() const";
-    C << sb;
-    C << nl << "return ::IceInternal::createProxy<" << getUnqualified(prx, scope) << ">();";
-    C << eb;
-    C << nl << "/// \\endcond";
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
