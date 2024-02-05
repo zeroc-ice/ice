@@ -907,22 +907,22 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         normalizeMetaData(p, true);
 
-        Cpp11DeclVisitor declVisitor(H, C, _dllExport);
+        DeclVisitor declVisitor(H, C, _dllExport);
         p->visit(&declVisitor, false);
 
-        Cpp11TypesVisitor typesVisitor(H, C, _dllExport);
+        TypesVisitor typesVisitor(H, C, _dllExport);
         p->visit(&typesVisitor, false);
 
-        Cpp11InterfaceVisitor interfaceVisitor(H, C, _dllExport);
+        InterfaceVisitor interfaceVisitor(H, C, _dllExport);
         p->visit(&interfaceVisitor, false);
 
-        Cpp11ValueVisitor valueVisitor(H, C, _dllExport);
+        ValueVisitor valueVisitor(H, C, _dllExport);
         p->visit(&valueVisitor, false);
 
-        Cpp11ProxyVisitor proxyVisitor(H, C, _dllExport);
+        ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
 
-        Cpp11StreamVisitor streamVisitor(H, C, _dllExport);
+        StreamVisitor streamVisitor(H, C, _dllExport);
         p->visit(&streamVisitor, false);
 
         if(_implCpp11)
@@ -942,11 +942,11 @@ Slice::Gen::generate(const UnitPtr& p)
             }
             implC << _base << "I." << _implHeaderExtension << ">";
 
-            Cpp11ImplVisitor implVisitor(implH, implC, _dllExport);
+            ImplVisitor implVisitor(implH, implC, _dllExport);
             p->visit(&implVisitor, false);
         }
 
-        Cpp11CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
+        CompatibilityVisitor compatibilityVisitor(H, C, _dllExport);
         p->visit(&compatibilityVisitor, false);
     }
 }
@@ -1646,39 +1646,39 @@ Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
 }
 
 // C++11 visitors
-Slice::Gen::Cpp11DeclVisitor::Cpp11DeclVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::DeclVisitor::DeclVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllExport(dllExport)
 {
 }
 
 bool
-Slice::Gen::Cpp11DeclVisitor::visitUnitStart(const UnitPtr&)
+Slice::Gen::DeclVisitor::visitUnitStart(const UnitPtr&)
 {
     C << sp << nl << "namespace" << nl << "{";
     return true;
 }
 
 void
-Slice::Gen::Cpp11DeclVisitor::visitUnitEnd(const UnitPtr&)
+Slice::Gen::DeclVisitor::visitUnitEnd(const UnitPtr&)
 {
     C << sp << nl << "}";
 }
 
 bool
-Slice::Gen::Cpp11DeclVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::DeclVisitor::visitModuleStart(const ModulePtr& p)
 {
     H << sp << nl << "namespace " << fixKwd(p->name()) << nl << '{' << sp;
     return true;
 }
 
 void
-Slice::Gen::Cpp11DeclVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::DeclVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 }
 
 void
-Slice::Gen::Cpp11DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
+Slice::Gen::DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     ClassDefPtr def = p->definition();
 
@@ -1686,7 +1686,7 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 bool
-Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     C << sp;
 
@@ -1705,14 +1705,14 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::Cpp11DeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
+Slice::Gen::DeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     H << nl << "class " << fixKwd(p->name()) << ';';
     H << nl << "class " << p->name() << "Prx;";
 }
 
 bool
-Slice::Gen::Cpp11DeclVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::DeclVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     OperationList allOps = p->allOperations();
 
@@ -1756,7 +1756,7 @@ Slice::Gen::Cpp11DeclVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 bool
-Slice::Gen::Cpp11DeclVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::Gen::DeclVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     C << sp;
     C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
@@ -1765,20 +1765,20 @@ Slice::Gen::Cpp11DeclVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 void
-Slice::Gen::Cpp11DeclVisitor::visitOperation(const OperationPtr& p)
+Slice::Gen::DeclVisitor::visitOperation(const OperationPtr& p)
 {
     string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
     C << nl << "const ::std::string " << flatName << " = \"" << p->name() << "\";";
 }
 
-Slice::Gen::Cpp11TypesVisitor::Cpp11TypesVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllExport(dllExport), _dllClassExport(toDllClassExport(dllExport)),
     _dllMemberExport(toDllMemberExport(dllExport)), _doneStaticSymbol(false), _useWstring(false)
 {
 }
 
 bool
-Slice::Gen::Cpp11TypesVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(!p->hasOtherConstructedOrExceptions())
     {
@@ -1791,7 +1791,7 @@ Slice::Gen::Cpp11TypesVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 {
     // TODO: this is not a good check, as it includes local structs and probably structs defined in included files.
     if(p->hasStructs())
@@ -1808,7 +1808,7 @@ Slice::Gen::Cpp11TypesVisitor::visitModuleEnd(const ModulePtr& p)
 }
 
 bool
-Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
+Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
@@ -2015,7 +2015,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
+Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
@@ -2092,7 +2092,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 }
 
 bool
-Slice::Gen::Cpp11TypesVisitor::visitStructStart(const StructPtr& p)
+Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
@@ -2105,7 +2105,7 @@ Slice::Gen::Cpp11TypesVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitStructEnd(const StructPtr& p)
+Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 {
     H << sp;
     H << nl << "/**";
@@ -2118,7 +2118,7 @@ Slice::Gen::Cpp11TypesVisitor::visitStructEnd(const StructPtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     //
     // Use an empty scope to get full qualified names from calls to typeToString.
@@ -2155,7 +2155,7 @@ Slice::Gen::Cpp11TypesVisitor::visitDataMember(const DataMemberPtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitSequence(const SequencePtr& p)
+Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
@@ -2179,7 +2179,7 @@ Slice::Gen::Cpp11TypesVisitor::visitSequence(const SequencePtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
@@ -2210,7 +2210,7 @@ Slice::Gen::Cpp11TypesVisitor::visitDictionary(const DictionaryPtr& p)
     }
 }
 
-Slice::Gen::Cpp11ProxyVisitor::Cpp11ProxyVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllClassExport(toDllClassExport(dllExport)),
     _dllMemberExport(toDllMemberExport(dllExport)),
     _useWstring(false)
@@ -2218,7 +2218,7 @@ Slice::Gen::Cpp11ProxyVisitor::Cpp11ProxyVisitor(Output& h, Output& c, const str
 }
 
 bool
-Slice::Gen::Cpp11ProxyVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(!p->hasInterfaceDefs())
     {
@@ -2232,7 +2232,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::Cpp11ProxyVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << '}';
 
@@ -2240,7 +2240,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
@@ -2279,7 +2279,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     string prx = fixKwd(p->name() + "Prx");
     const string scoped = fixKwd(p->scoped() + "Prx");
@@ -2324,7 +2324,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
+Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
     string name = p->name();
     string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
@@ -2773,7 +2773,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitEnum(const EnumPtr& p)
+Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     bool unscoped = findMetaData(p->getMetaData(), TypeContextCpp11) == "%unscoped";
     H << sp;
@@ -2816,7 +2816,7 @@ Slice::Gen::Cpp11TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::visitConst(const ConstPtr& p)
+Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const string scope = fixKwd(p->scope());
     H << sp;
@@ -2830,7 +2830,7 @@ Slice::Gen::Cpp11TypesVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-Slice::Gen::Cpp11TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& call, const string& scope)
+Slice::Gen::TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& call, const string& scope)
 {
     C << nl;
     if(base)
@@ -2844,9 +2844,9 @@ Slice::Gen::Cpp11TypesVisitor::emitUpcall(const ExceptionPtr& base, const string
     C << call;
 }
 
-Slice::Gen::Cpp11ObjectVisitor::Cpp11ObjectVisitor(::IceUtilInternal::Output& h,
-                                                   ::IceUtilInternal::Output& c,
-                                                   const std::string& dllExport) :
+Slice::Gen::ObjectVisitor::ObjectVisitor(::IceUtilInternal::Output& h,
+                                         ::IceUtilInternal::Output& c,
+                                         const std::string& dllExport) :
     H(h),
     C(c),
     _dllExport(dllExport),
@@ -2857,7 +2857,7 @@ Slice::Gen::Cpp11ObjectVisitor::Cpp11ObjectVisitor(::IceUtilInternal::Output& h,
 }
 
 void
-Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
+Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
     int typeContext = _useWstring | TypeContextCpp11;
@@ -2896,7 +2896,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitDataMember(const DataMemberPtr& p)
 }
 
 void
-Slice::Gen::Cpp11InterfaceVisitor::emitUpcall(const ClassDefPtr& base, const string& call, const string& scope)
+Slice::Gen::InterfaceVisitor::emitUpcall(const ClassDefPtr& base, const string& call, const string& scope)
 {
     C << nl;
     if(base)
@@ -2911,7 +2911,7 @@ Slice::Gen::Cpp11InterfaceVisitor::emitUpcall(const ClassDefPtr& base, const str
 }
 
 void
-Slice::Gen::Cpp11ValueVisitor::emitUpcall(const ClassDefPtr& base, const string& call, const string& scope)
+Slice::Gen::ValueVisitor::emitUpcall(const ClassDefPtr& base, const string& call, const string& scope)
 {
     C << nl;
     if(base)
@@ -2925,7 +2925,7 @@ Slice::Gen::Cpp11ValueVisitor::emitUpcall(const ClassDefPtr& base, const string&
     C << call;
 }
 
-Slice::Gen::Cpp11InterfaceVisitor::Cpp11InterfaceVisitor(::IceUtilInternal::Output& h,
+Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceUtilInternal::Output& h,
                                                          ::IceUtilInternal::Output& c,
                                                          const std::string& dllExport) :
     H(h),
@@ -2937,7 +2937,7 @@ Slice::Gen::Cpp11InterfaceVisitor::Cpp11InterfaceVisitor(::IceUtilInternal::Outp
 }
 
 bool
-Slice::Gen::Cpp11InterfaceVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::InterfaceVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(!p->hasInterfaceDefs())
     {
@@ -2951,7 +2951,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::Cpp11InterfaceVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::InterfaceVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp;
     H << nl << '}';
@@ -2960,7 +2960,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Slice::Gen::Cpp11InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     string name = fixKwd(p->name());
@@ -3081,7 +3081,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr&
 }
 
 void
-Slice::Gen::Cpp11InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     string scoped = fixKwd(p->scope() + p->name());
 
@@ -3156,7 +3156,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p
 }
 
 void
-Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
+Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 {
     string name = p->name();
 
@@ -3449,15 +3449,15 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     C << nl << "/// \\endcond";
 }
 
-Slice::Gen::Cpp11ValueVisitor::Cpp11ValueVisitor(::IceUtilInternal::Output& h,
+Slice::Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& h,
                                                  ::IceUtilInternal::Output& c,
                                                  const std::string& dllExport) :
-    Cpp11ObjectVisitor(h, c, dllExport)
+    ObjectVisitor(h, c, dllExport)
 {
 }
 
 bool
-Slice::Gen::Cpp11ValueVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::ValueVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(!p->hasValueDefs())
     {
@@ -3471,7 +3471,7 @@ Slice::Gen::Cpp11ValueVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::Cpp11ValueVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::ValueVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp;
     H << nl << '}';
@@ -3480,7 +3480,7 @@ Slice::Gen::Cpp11ValueVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
@@ -3550,7 +3550,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
@@ -3710,7 +3710,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::Cpp11ObjectVisitor::emitBaseInitializers(const ClassDefPtr& p)
+Slice::Gen::ObjectVisitor::emitBaseInitializers(const ClassDefPtr& p)
 {
     ClassDefPtr base = p->base();
     if (!base)
@@ -3744,7 +3744,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitBaseInitializers(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
+Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
     //
@@ -3822,7 +3822,7 @@ Slice::Gen::Cpp11ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     }
 }
 
-Slice::Gen::Cpp11StreamVisitor::Cpp11StreamVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dllExport) :
     H(h),
     C(c),
     _dllExport(dllExport)
@@ -3830,7 +3830,7 @@ Slice::Gen::Cpp11StreamVisitor::Cpp11StreamVisitor(Output& h, Output& c, const s
 }
 
 bool
-Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
+Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
     if(!m->hasContained(Contained::ContainedTypeStruct) &&
        !m->hasContained(Contained::ContainedTypeEnum) &&
@@ -3859,7 +3859,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleStart(const ModulePtr& m)
 }
 
 void
-Slice::Gen::Cpp11StreamVisitor::visitModuleEnd(const ModulePtr& m)
+Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
     if(dynamic_pointer_cast<Unit>(m->container()))
     {
@@ -3876,7 +3876,7 @@ Slice::Gen::Cpp11StreamVisitor::visitModuleEnd(const ModulePtr& m)
 }
 
 bool
-Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
+Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 {
     string scoped = fixKwd(p->scoped());
 
@@ -3894,26 +3894,26 @@ Slice::Gen::Cpp11StreamVisitor::visitStructStart(const StructPtr& p)
 }
 
 bool
-Slice::Gen::Cpp11StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
+Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
     writeStreamHelpers(H,c, c->dataMembers(), c->hasBaseDataMembers(), true, true);
     return false;
 }
 
 bool
-Slice::Gen::Cpp11StreamVisitor::visitExceptionStart(const ExceptionPtr&)
+Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr&)
 {
     return true;
 }
 
 void
-Slice::Gen::Cpp11StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
+Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     writeStreamHelpers(H,p, p->dataMembers(), p->hasBaseDataMembers(), true, true);
 }
 
 void
-Slice::Gen::Cpp11StreamVisitor::visitEnum(const EnumPtr& p)
+Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 {
     string scoped = fixKwd(p->scoped());
     H << nl << "template<>";
@@ -3927,14 +3927,14 @@ Slice::Gen::Cpp11StreamVisitor::visitEnum(const EnumPtr& p)
     H << eb << ";" << nl;
 }
 
-Slice::Gen::Cpp11CompatibilityVisitor::Cpp11CompatibilityVisitor(Output& h, Output&, const string& dllExport) :
+Slice::Gen::CompatibilityVisitor::CompatibilityVisitor(Output& h, Output&, const string& dllExport) :
     H(h),
     _dllExport(dllExport)
 {
 }
 
 bool
-Slice::Gen::Cpp11CompatibilityVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::CompatibilityVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(!p->hasClassDecls() && !p->hasInterfaceDecls())
     {
@@ -3950,7 +3950,7 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::Cpp11CompatibilityVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::CompatibilityVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp;
     H << nl << '}';
@@ -3958,7 +3958,7 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 void
-Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
+Slice::Gen::CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
@@ -3967,7 +3967,7 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 void
-Slice::Gen::Cpp11CompatibilityVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
+Slice::Gen::CompatibilityVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     string name = fixKwd(p->name());
     string scoped = fixKwd(p->scoped());
@@ -3976,13 +3976,13 @@ Slice::Gen::Cpp11CompatibilityVisitor::visitInterfaceDecl(const InterfaceDeclPtr
     H << nl << "using " << p->name() << "PrxPtr = ::std::shared_ptr<" << p->name() << "Prx>;";
 }
 
-Slice::Gen::Cpp11ImplVisitor::Cpp11ImplVisitor(Output& h, Output& c, const string& dllExport) :
+Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
 string
-Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& scope, const StringList& metaData) const
+Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, const StringList& metaData) const
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if(builtin)
@@ -4055,7 +4055,7 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
 }
 
 bool
-Slice::Gen::Cpp11ImplVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::ImplVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(!p->hasClassDefs())
     {
@@ -4072,7 +4072,7 @@ Slice::Gen::Cpp11ImplVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::Cpp11ImplVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::ImplVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp;
     H << nl << '}';
@@ -4081,7 +4081,7 @@ Slice::Gen::Cpp11ImplVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Slice::Gen::Cpp11ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 

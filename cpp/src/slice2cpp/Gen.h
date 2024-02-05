@@ -67,11 +67,11 @@ private:
 
     // Visitors
 
-    class Cpp11DeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class DeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11DeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        DeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitUnitStart(const UnitPtr&);
         virtual void visitUnitEnd(const UnitPtr&);
@@ -92,11 +92,11 @@ private:
         std::string _dllExport;
     };
 
-    class Cpp11TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -126,11 +126,11 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class Cpp11ProxyVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class ProxyVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -149,11 +149,11 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class Cpp11ObjectVisitor : public ParserVisitor
+    class ObjectVisitor : public ParserVisitor
     {
     public:
 
-        Cpp11ObjectVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ObjectVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
     protected:
 
@@ -172,11 +172,11 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class Cpp11InterfaceVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class InterfaceVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11InterfaceVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        InterfaceVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -197,11 +197,11 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class Cpp11ValueVisitor : private ::IceUtil::noncopyable, public Cpp11ObjectVisitor
+    class ValueVisitor : private ::IceUtil::noncopyable, public ObjectVisitor
     {
     public:
 
-        Cpp11ValueVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ValueVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -210,11 +210,11 @@ private:
         void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
     };
 
-    class Cpp11StreamVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class StreamVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11StreamVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        StreamVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -231,11 +231,11 @@ private:
         std::string _dllExport;
     };
 
-    class Cpp11CompatibilityVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class CompatibilityVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11CompatibilityVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        CompatibilityVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -248,11 +248,11 @@ private:
         std::string _dllExport;
     };
 
-    class Cpp11ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    class ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-        Cpp11ImplVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ImplVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
