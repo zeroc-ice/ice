@@ -866,7 +866,7 @@ Ice::ObjectPrx::_secure(bool b) const
 ReferencePtr
 Ice::ObjectPrx::_timeout(int t) const
 {
-    if(t < 1 && t != -1)
+    if (t < 1 && t != -1)
     {
         ostringstream s;
         s << "invalid value passed to ice_timeout: " << t;
