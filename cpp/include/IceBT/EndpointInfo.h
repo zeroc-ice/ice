@@ -5,6 +5,7 @@
 #ifndef __IceBT_EndpointInfo_h__
 #define __IceBT_EndpointInfo_h__
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
@@ -89,4 +90,5 @@ using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
 }
 /// \endcond
 
+#include <IceUtil/PopDisableWarnings.h>
 #endif

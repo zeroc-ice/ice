@@ -5,6 +5,7 @@
 #ifndef __IceIAP_ConnectionInfo_h__
 #define __IceIAP_ConnectionInfo_h__
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
@@ -115,4 +116,5 @@ using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
 }
 /// \endcond
 
+#include <IceUtil/PopDisableWarnings.h>
 #endif
