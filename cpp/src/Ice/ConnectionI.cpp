@@ -397,7 +397,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
             //
             // Wait for the connection to be validated.
             //
-            _conditionVariable.wait(lock, [this]{ return _state >= StateNotValidated; });
+            _conditionVariable.wait(lock, [this]{ return _state > StateNotValidated; });
 
             if(_state >= StateClosing)
             {

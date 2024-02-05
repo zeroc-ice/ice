@@ -1256,7 +1256,7 @@ public:
         ConnectCallbackPtr _cb;
     };
 
-    std::mutex _lock;
+    std::mutex _mutex;
     DBus::ConnectionPtr _dbusConnection;
 
     AdapterMap _adapters;

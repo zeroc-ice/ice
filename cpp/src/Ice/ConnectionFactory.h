@@ -38,6 +38,8 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
+template<typename T> class ThreadPoolMessage;
+
 class OutgoingConnectionFactory : public virtual IceUtil::Shared
 {
 public:
@@ -250,6 +252,9 @@ private:
 #endif
     mutable std::mutex _mutex;
     mutable std::condition_variable _conditionVariable;
+
+    // For locking the _mutex
+    template<typename T> friend class IceInternal::ThreadPoolMessage;
 };
 
 }

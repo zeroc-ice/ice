@@ -40,6 +40,13 @@
 #   define ICE_HAS_BZIP2
 #endif
 
+namespace IceInternal
+{
+
+template<typename T> class ThreadPoolMessage;
+
+}
+
 namespace Ice
 {
 
@@ -343,6 +350,9 @@ private:
 
     mutable std::mutex _mutex;
     mutable std::condition_variable _conditionVariable;
+
+    // For locking the _mutex
+    template<typename T> friend class IceInternal::ThreadPoolMessage;
 };
 
 }
