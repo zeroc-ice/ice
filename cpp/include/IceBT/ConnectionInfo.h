@@ -14,7 +14,7 @@
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
 #include <Ice/OutgoingAsync.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/Connection.h>
 #include <IceUtil/UndefSysMacros.h>
 

@@ -18,7 +18,7 @@
 #include <Ice/Value.h>
 #include <Ice/Incoming.h>
 #include <Ice/FactoryTableInit.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/ExceptionHelpers.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/CommunicatorF.h>

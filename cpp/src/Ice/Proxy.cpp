@@ -694,7 +694,7 @@ ICE_OBJECT_PRX::ice_compress(bool b) const
     }
 }
 
-IceUtil::Optional<bool>
+optional<bool>
 ICE_OBJECT_PRX::ice_getCompress() const
 {
     return _reference->getCompress();
@@ -722,7 +722,7 @@ ICE_OBJECT_PRX::ice_timeout(int t) const
     }
 }
 
-IceUtil::Optional<int>
+optional<int>
 ICE_OBJECT_PRX::ice_getTimeout() const
 {
     return _reference->getTimeout();

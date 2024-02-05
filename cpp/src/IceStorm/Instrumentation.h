@@ -17,7 +17,7 @@
 #include <Ice/Value.h>
 #include <Ice/Incoming.h>
 #include <Ice/FactoryTableInit.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/ExceptionHelpers.h>
 #include <Ice/Instrumentation.h>
 #include <IceStorm/IceStorm.h>

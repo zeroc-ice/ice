@@ -13,7 +13,7 @@
 #include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/Context.h>

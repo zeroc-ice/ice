@@ -1487,7 +1487,7 @@ proxyIceGetCompress(ProxyObject* self, PyObject* /*args*/)
     PyObject* b;
     try
     {
-        IceUtil::Optional<bool> compress = (*self->proxy)->ice_getCompress();
+        optional<bool> compress = (*self->proxy)->ice_getCompress();
         if(compress)
         {
             b = *compress ? getTrue() : getFalse();
@@ -1549,7 +1549,7 @@ proxyIceGetTimeout(ProxyObject* self, PyObject* /*args*/)
 
     try
     {
-        IceUtil::Optional<int> timeout = (*self->proxy)->ice_getTimeout();
+        optional<int> timeout = (*self->proxy)->ice_getTimeout();
         if(timeout)
         {
             return PyLong_FromLong(*timeout);

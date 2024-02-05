@@ -27,7 +27,7 @@ public:
 
     void keepAlive(const Ice::Current&) override;
     int getTimeout(const Ice::Current&) const override;
-    void setDatabaseObserver(std::shared_ptr<DatabaseObserverPrx>, IceUtil::Optional<StringLongDict>,
+    void setDatabaseObserver(std::shared_ptr<DatabaseObserverPrx>, std::optional<StringLongDict>,
                              const Ice::Current&) override;
     void setEndpoints(StringObjectProxyDict, const Ice::Current&) override;
     void registerWellKnownObjects(ObjectInfoSeq, const Ice::Current&) override;

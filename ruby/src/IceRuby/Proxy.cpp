@@ -822,7 +822,7 @@ IceRuby_ObjectPrx_ice_getCompress(VALUE self)
     ICE_RUBY_TRY
     {
         shared_ptr<Ice::ObjectPrx> p = getProxy(self);
-        IceUtil::Optional<bool> c = p->ice_getCompress();
+        optional<bool> c = p->ice_getCompress();
         if(c)
         {
             return *c ? Qtrue : Qfalse;
@@ -864,7 +864,7 @@ IceRuby_ObjectPrx_ice_getTimeout(VALUE self)
     ICE_RUBY_TRY
     {
         shared_ptr<Ice::ObjectPrx> p = getProxy(self);
-        IceUtil::Optional<int> t = p->ice_getTimeout();
+        optional<int> t = p->ice_getTimeout();
         if(t)
         {
             return INT2FIX(*t);

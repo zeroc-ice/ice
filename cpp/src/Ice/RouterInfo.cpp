@@ -141,14 +141,14 @@ IceInternal::RouterInfo::getClientEndpoints()
         }
     }
 
-    IceUtil::Optional<bool> hasRoutingTable;
+    optional<bool> hasRoutingTable;
     Ice::ObjectPrxPtr proxy = _router->getClientProxy(hasRoutingTable);
     return setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true);
 }
 
 void
 IceInternal::RouterInfo::getClientProxyResponse(const Ice::ObjectPrxPtr& proxy,
-                                                const IceUtil::Optional<bool>& hasRoutingTable,
+                                                const optional<bool>& hasRoutingTable,
                                                 const GetClientEndpointsCallbackPtr& callback)
 {
     callback->setEndpoints(setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true));
@@ -178,7 +178,7 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
 
     RouterInfoPtr self = this;
     _router->getClientProxyAsync(
-        [self, callback](const Ice::ObjectPrxPtr& proxy, Ice::optional<bool> hasRoutingTable)
+        [self, callback](const Ice::ObjectPrxPtr& proxy, optional<bool> hasRoutingTable)
         {
             self->getClientProxyResponse(proxy, hasRoutingTable, callback);
         },

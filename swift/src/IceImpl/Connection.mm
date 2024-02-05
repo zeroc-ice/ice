@@ -201,9 +201,9 @@
 
 -(void) setACM:(NSNumber* _Nullable)timeout close:(NSNumber* _Nullable)close heartbeat:(NSNumber* _Nullable)heartbeat
 {
-    Ice::optional<int> opTimeout;
-    Ice::optional<Ice::ACMClose> opClose;
-    Ice::optional<Ice::ACMHeartbeat> opHeartbeat;
+    std::optional<int> opTimeout;
+    std::optional<Ice::ACMClose> opClose;
+    std::optional<Ice::ACMHeartbeat> opHeartbeat;
 
     if(timeout != nil)
     {

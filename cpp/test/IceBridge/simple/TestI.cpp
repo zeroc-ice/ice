@@ -142,7 +142,7 @@ void
 MyClassI::enableHeartbeats(const Ice::Current& current)
 {
     checkConnection(current.con);
-    current.con->setACM(1, Ice::nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
+    current.con->setACM(1, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 }
 
 void

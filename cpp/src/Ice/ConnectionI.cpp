@@ -974,9 +974,9 @@ Ice::ConnectionI::closeCallback(const CloseCallback& callback)
 }
 
 void
-Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
-                         const IceUtil::Optional<Ice::ACMClose>& close,
-                         const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
+Ice::ConnectionI::setACM(const optional<int>& timeout,
+                         const optional<Ice::ACMClose>& close,
+                         const optional<Ice::ACMHeartbeat>& heartbeat)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(timeout && *timeout < 0)
