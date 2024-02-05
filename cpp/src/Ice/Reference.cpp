@@ -50,10 +50,6 @@ IceInternal::Reference::changeContext(const Context& newContext) const
 ReferencePtr
 IceInternal::Reference::changeMode(Mode newMode) const
 {
-    if(newMode == _mode)
-    {
-        return const_cast<Reference*>(this)->shared_from_this();
-    }
     ReferencePtr r = clone();
     r->_mode = newMode;
     return r;
@@ -62,10 +58,6 @@ IceInternal::Reference::changeMode(Mode newMode) const
 ReferencePtr
 IceInternal::Reference::changeSecure(bool newSecure) const
 {
-    if(newSecure == _secure)
-    {
-        return const_cast<Reference*>(this)->shared_from_this();
-    }
     ReferencePtr r = clone();
     r->_secure = newSecure;
     return r;
@@ -74,10 +66,6 @@ IceInternal::Reference::changeSecure(bool newSecure) const
 ReferencePtr
 IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 {
-    if(newIdentity == _identity)
-    {
-        return const_cast<Reference*>(this)->shared_from_this();
-    }
     ReferencePtr r = clone();
     r->_identity = newIdentity;
     return r;
@@ -86,10 +74,6 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 ReferencePtr
 IceInternal::Reference::changeFacet(const string& newFacet) const
 {
-    if(newFacet == _facet)
-    {
-        return const_cast<Reference*>(this)->shared_from_this();
-    }
     ReferencePtr r = clone();
     r->_facet = newFacet;
     return r;
@@ -98,10 +82,6 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
 ReferencePtr
 IceInternal::Reference::changeInvocationTimeout(int invocationTimeout) const
 {
-    if(_invocationTimeout == invocationTimeout)
-    {
-        return const_cast<Reference*>(this)->shared_from_this();
-    }
     ReferencePtr r = clone();
     r->_invocationTimeout = invocationTimeout;
     return r;
@@ -110,10 +90,6 @@ IceInternal::Reference::changeInvocationTimeout(int invocationTimeout) const
 ReferencePtr
 IceInternal::Reference::changeEncoding(const Ice::EncodingVersion& encoding) const
 {
-    if(_encoding == encoding)
-    {
-        return const_cast<Reference*>(this)->shared_from_this();
-    }
     ReferencePtr r = clone();
     r->_encoding = encoding;
     return r;
@@ -122,10 +98,6 @@ IceInternal::Reference::changeEncoding(const Ice::EncodingVersion& encoding) con
 ReferencePtr
 IceInternal::Reference::changeCompress(bool newCompress) const
 {
-    if(_overrideCompress && newCompress == _compress)
-    {
-        return const_cast<Reference*>(this)->shared_from_this();
-    }
     ReferencePtr r = clone();
     r->_compress = newCompress;
     r->_overrideCompress = true;
@@ -677,10 +649,6 @@ IceInternal::FixedReference::changeConnectionId(const string&) const
 ReferencePtr
 IceInternal::FixedReference::changeConnection(const Ice::ConnectionIPtr& newConnection) const
 {
-    if(newConnection == _fixedConnection)
-    {
-        return const_cast<FixedReference*>(this)->shared_from_this();
-    }
     FixedReferencePtr r = dynamic_pointer_cast<FixedReference>(clone());
     r->_fixedConnection = newConnection;
     return r;
@@ -966,10 +934,6 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
 ReferencePtr
 IceInternal::RoutableReference::changeEndpoints(const vector<EndpointIPtr>& newEndpoints) const
 {
-    if(newEndpoints == _endpoints)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_endpoints = newEndpoints;
     r->applyOverrides(r->_endpoints);
@@ -990,10 +954,6 @@ ReferencePtr
 IceInternal::RoutableReference::changeLocator(const LocatorPrxPtr& newLocator) const
 {
     LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-    if(newLocatorInfo == _locatorInfo)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_locatorInfo = newLocatorInfo;
     return r;
@@ -1003,10 +963,6 @@ ReferencePtr
 IceInternal::RoutableReference::changeRouter(const RouterPrxPtr& newRouter) const
 {
     RouterInfoPtr newRouterInfo = getInstance()->routerManager()->get(newRouter);
-    if(newRouterInfo == _routerInfo)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_routerInfo = newRouterInfo;
     return r;
@@ -1015,10 +971,6 @@ IceInternal::RoutableReference::changeRouter(const RouterPrxPtr& newRouter) cons
 ReferencePtr
 IceInternal::RoutableReference::changeCollocationOptimized(bool newCollocationOptimized) const
 {
-    if(newCollocationOptimized == _collocationOptimized)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_collocationOptimized = newCollocationOptimized;
     return r;
@@ -1027,10 +979,6 @@ IceInternal::RoutableReference::changeCollocationOptimized(bool newCollocationOp
 ReferencePtr
 IceInternal::RoutableReference::changeCacheConnection(bool newCache) const
 {
-    if(newCache == _cacheConnection)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_cacheConnection = newCache;
     return r;
@@ -1039,10 +987,6 @@ IceInternal::RoutableReference::changeCacheConnection(bool newCache) const
 ReferencePtr
 IceInternal::RoutableReference::changePreferSecure(bool newPreferSecure) const
 {
-    if(newPreferSecure == _preferSecure)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_preferSecure = newPreferSecure;
     return r;
@@ -1051,10 +995,6 @@ IceInternal::RoutableReference::changePreferSecure(bool newPreferSecure) const
 ReferencePtr
 IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType newType) const
 {
-    if(newType == _endpointSelection)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_endpointSelection = newType;
     return r;
@@ -1063,10 +1003,6 @@ IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType ne
 ReferencePtr
 IceInternal::RoutableReference::changeLocatorCacheTimeout(int timeout) const
 {
-    if(timeout == _locatorCacheTimeout)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_locatorCacheTimeout = timeout;
     return r;
@@ -1075,10 +1011,6 @@ IceInternal::RoutableReference::changeLocatorCacheTimeout(int timeout) const
 ReferencePtr
 IceInternal::RoutableReference::changeTimeout(int newTimeout) const
 {
-    if(_overrideTimeout && newTimeout == _timeout)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_timeout = newTimeout;
     r->_overrideTimeout = true;
@@ -1097,10 +1029,6 @@ IceInternal::RoutableReference::changeTimeout(int newTimeout) const
 ReferencePtr
 IceInternal::RoutableReference::changeConnectionId(const string& id) const
 {
-    if(id == _connectionId)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_connectionId = id;
     if(!_endpoints.empty()) // Also override the connection id on the endpoints.
