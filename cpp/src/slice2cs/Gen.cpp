@@ -386,11 +386,6 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
 
     StringList ids = p->ids();
 
-     StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
-
     _out << sp << nl << "#region Slice type-related members";
 
     _out << sp;
@@ -425,14 +420,14 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     _out << sp;
     _out << nl << "public override string ice_id(" << getUnqualified("Ice.Current", ns) << " current = null)";
     _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
+    _out << nl << "return ice_staticId();";
     _out << eb;
 
     _out << sp;
 
     _out << nl << "public static new string ice_staticId()";
     _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
+    _out << nl << "return \"" << scoped << "\";";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Slice type-related members
@@ -717,23 +712,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     string name = fixId(p->name());
     string scoped = p->scoped();
     string ns = getNamespace(p);
-    ClassList allBases = p->allBases();
-    StringList ids;
     ClassDefPtr base = p->base();
-
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              [](const ContainedPtr& it)
-              {
-                  return it->scoped();
-              });
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Value");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    assert(find(ids.begin(), ids.end(), scoped) != ids.end());
 
     //
     // Marshaling support
@@ -788,12 +767,12 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         if(!(*d)->optional())
         {
-            writeMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+            writeMarshalDataMember(*d, fixId((*d)->name(), DotNet::ICloneable, true), ns);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+        writeMarshalDataMember(*d, fixId((*d)->name(), DotNet::ICloneable, true), ns);
     }
     _out << nl << "ostr_.endSlice();";
     if(base)
@@ -812,12 +791,12 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     {
         if(!(*d)->optional())
         {
-            writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+            writeUnmarshalDataMember(*d, fixId((*d)->name(), DotNet::ICloneable, true), ns);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+        writeUnmarshalDataMember(*d, fixId((*d)->name(), DotNet::ICloneable, true), ns);
     }
     _out << nl << "istr_.endSlice();";
     if(base)
@@ -1151,23 +1130,13 @@ Slice::CsVisitor::requiresDataMemberInitializers(const DataMemberList& members)
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes,
-                                              bool propertyMapping)
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, const string& ns, unsigned int baseTypes)
 {
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
         if((*p)->defaultValueType())
         {
-            _out << nl << "this.";
-            if(propertyMapping)
-            {
-                _out << "_" + (*p)->name();
-            }
-            else
-            {
-                _out << fixId((*p)->name(), baseTypes);
-            }
-            _out << " = ";
+            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = ";
             writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _out << ';';
         }
@@ -2310,8 +2279,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
     else
     {
-        const bool propertyMapping = p->hasMetaData("cs:property");
-
         _out << sp << nl << "#region Constructors";
 
         _out << sp;
@@ -2322,7 +2289,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             _out << " : base()";
         }
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable, propertyMapping);
+        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable);
         _out << nl << "ice_initialize();";
         _out << eb;
 
@@ -2351,17 +2318,8 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sb;
         for(DataMemberList::const_iterator d = dataMembers.begin(); d != dataMembers.end(); ++d)
         {
-            _out << nl << "this.";
             const string paramName = fixId((*d)->name(), DotNet::ICloneable);
-            if(propertyMapping)
-            {
-                _out << "_" + (*d)->name();
-            }
-            else
-            {
-                _out << paramName;
-            }
-            _out << " = " << paramName << ';';
+            _out << nl << "this." << paramName << " = " << paramName << ';';
         }
         _out << nl << "ice_initialize();";
         _out << eb;
@@ -2800,9 +2758,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string ns = getNamespace(p);
     DataMemberList classMembers = p->classDataMembers();
     DataMemberList dataMembers = p->dataMembers();
-
-    const bool propertyMapping = p->hasMetaData("cs:property");
-
     _out << sp << nl << "#endregion"; // Slice data members
 
     const bool isClass = !isValueType(p);
@@ -2821,7 +2776,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public " << name << "()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable, propertyMapping);
+        writeDataMemberInitializers(dataMembers, ns, DotNet::ICloneable);
         _out << nl << "ice_initialize();";
         _out << eb;
     }
@@ -2841,16 +2796,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string paramName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-        _out << nl << "this.";
-        if(propertyMapping)
-        {
-            _out << "_" + (*q)->name();
-        }
-        else
-        {
-            _out << paramName;
-        }
-        _out << " = " << paramName << ';';
+        _out << nl << "this." << paramName << " = " << paramName << ';';
     }
     _out << nl << "ice_initialize();";
     _out << eb;
@@ -2945,7 +2891,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeMarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0), ns, true);
+        writeMarshalDataMember(*q, fixId((*q)->name(), isClass ? DotNet::ICloneable : 0), ns, true);
     }
     _out << eb;
 
@@ -2955,7 +2901,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        writeUnmarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0), ns, true);
+        writeUnmarshalDataMember(*q, fixId((*q)->name(), isClass ? DotNet::ICloneable : 0), ns, true);
     }
     _out << eb;
 
@@ -3138,81 +3084,38 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     emitDeprecate(p, cont, _out, "member");
 
     string type = typeToString(p->type(), ns, isOptional);
-    string propertyName = fixId(p->name(), baseTypes, isClass);
-    string dataMemberName;
+    string dataMemberName = fixId(p->name(), baseTypes, isClass);
 
-    if(isProperty)
-    {
-        dataMemberName = "_" + p->name();
-    }
-    else
-    {
-        dataMemberName = propertyName;
-    }
-
-    if(isProperty)
+    emitAttributes(p);
+    emitGeneratedCodeAttribute();
+    if(isPrivate)
     {
         _out << nl << "private";
     }
-    else
+    else if(isProtected)
     {
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        if(isPrivate)
-        {
-            _out << nl << "private";
-        }
-        else if(isProtected)
-        {
-            _out << nl << "protected";
-        }
-        else
-        {
-            _out << nl << "public";
-        }
-    }
-
-    if(isOptional && isValue)
-    {
-        _out << ' ' << type << ' ' << dataMemberName << " = new " << type << "();";
+        _out << nl << "protected";
     }
     else
     {
-        _out << ' ' << type << ' ' << dataMemberName << ';';
+        _out << nl << "public";
     }
 
-    if(isProperty)
+    if (isProperty && !isValue)
     {
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        if(isPrivate)
-        {
-            _out << nl << "private";
-        }
-        else if(isProtected)
-        {
-            _out << nl << "protected";
-        }
-        else
-        {
-            _out << nl << "public";
-        }
+        // TODO: consider dropping this virtual
+        _out << " virtual";
+    }
 
-        if(!isValue)
-        {
-            _out << " virtual";
-        }
-        _out << ' ' << type << ' ' << propertyName;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "return " << dataMemberName << ';';
-        _out << eb;
-        _out << nl << "set";
-        _out << sb;
-        _out << nl << dataMemberName << " = value;";
-        _out << eb;
-        _out << eb;
+    _out << ' ' << type << ' ' << dataMemberName;
+
+    if (isProperty)
+    {
+        _out << " { get; set; }";
+    }
+    else
+    {
+        _out << ';';
     }
 }
 
@@ -3613,71 +3516,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
              << ("global::System.Threading.CancellationToken " + cancel + " = new global::System.Threading.CancellationToken()")
              << epar << ";";
     }
-
-    {
-        //
-        // Write the async versions of the operation (using IAsyncResult API)
-        //
-        string delType = "Callback_" + interface->name() + "_" + p->name();
-
-        string context = getEscapedParamName(p, "context");
-        string callback = getEscapedParamName(p, "callback");
-        string cookie = getEscapedParamName(p, "cookie");
-        string asyncResult = getEscapedParamName(p, "asyncResult");
-
-        _out << sp;
-        writeDocCommentAMI(p, InParam, deprecateReason,
-                           "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
-        if(!deprecateReason.empty())
-        {
-            _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
-        }
-        _out << nl << getUnqualified("Ice.AsyncResult", ns) << "<" << delType << "> begin_" << p->name() << spar
-             << inParams
-             << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                 getUnqualified("Ice.OptionalContext", ns) + "()") << epar << ';';
-
-        //
-        // Type-unsafe begin_ methods.
-        //
-        _out << sp;
-        writeDocCommentAMI(p, InParam, deprecateReason,
-           "<param name=\"" + callback + "\">Asynchronous callback invoked when the operation completes.</param>",
-           "<param name=\"" + cookie + "\">Application data to store in the asynchronous result object.</param>");
-        if(!deprecateReason.empty())
-        {
-            _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
-        }
-        _out << nl << getUnqualified("Ice.AsyncResult", ns) << " begin_" << p->name() << spar << inParams
-             << getUnqualified("Ice.AsyncCallback", ns) + " " + callback << "object " + cookie << epar << ';';
-
-        _out << sp;
-        writeDocCommentAMI(p, InParam, deprecateReason,
-           "<param name=\"" + context + "\">The Context map to send with the invocation.</param>",
-           "<param name=\"" + callback + "\">Asynchronous callback invoked when the operation completes.</param>",
-           "<param name=\"" + cookie + "\">Application data to store in the asynchronous result object.</param>");
-        if(!deprecateReason.empty())
-        {
-            _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
-        }
-        _out << nl << getUnqualified("Ice.AsyncResult", ns) << " begin_" << p->name() << spar << inParams
-             << getUnqualified("Ice.OptionalContext", ns) + " " + context
-             << getUnqualified("Ice.AsyncCallback", ns) + " " + callback
-             << "object " + cookie << epar << ';';
-
-        //
-        // end_ method.
-        //
-        _out << sp;
-        writeDocCommentAMI(p, OutParam, deprecateReason,
-           "<param name=\"" + asyncResult + "\">The asynchronous result object for the invocation.</param>");
-        if(!deprecateReason.empty())
-        {
-            _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
-        }
-        _out << nl << retS << " end_" << p->name() << spar << getOutParams(p, ns, false, true)
-             << getUnqualified("Ice.AsyncResult", ns) + " " + asyncResult << epar << ';';
-    }
 }
 
 Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& out)
@@ -3734,6 +3572,7 @@ Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
     }
     _out << paramDeclAMI << epar << ';';
 }
+
 Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out)
     : CsVisitor(out)
 {
@@ -4212,165 +4051,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sp << nl << "#endregion"; // Asynchronous Task operations
 
-    //
-    // IAsyncResult AMI mapping.
-    //
-    _out << sp << nl << "#region Asynchronous operations";
-    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
-    {
-        OperationPtr op = *r;
-
-        InterfaceDefPtr interface = op->interface();
-        vector<string> paramsAMI = getInParams(op, ns);
-        vector<string> argsAMI = getInArgs(op);
-        string opName = op->name();
-        ParamDeclList inParams = op->inParameters();
-        ParamDeclList outParams = op->outParameters();
-
-        TypePtr ret = op->returnType();
-        string retS = typeToString(ret, ns, op->returnIsOptional());
-
-        string returnTypeS = resultType(op, ns);
-
-        //
-        // Write the begin_ methods.
-        //
-        string clScope = getNamespace(interface);
-        string delType = getUnqualified(clScope + ".Callback_" + interface->name() + "_" + op->name(), ns);
-
-        string context = getEscapedParamName(op, "context");
-        string callback = getEscapedParamName(op, "callback");
-        string cookie = getEscapedParamName(op, "cookie");
-
-        _out << sp;
-        _out << nl << "public " << getUnqualified("Ice.AsyncResult", ns) << "<" << delType << "> begin_" << opName
-             << spar << paramsAMI << (getUnqualified("Ice.OptionalContext", ns) + " " + context + " = new " +
-                                      getUnqualified("Ice.OptionalContext", ns) + "()") << epar;
-        _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI << context << "null" << "null" << "false"
-            << epar << ';';
-        _out << eb;
-
-        _out << sp;
-        _out << nl << "public " << getUnqualified("Ice.AsyncResult", ns) << " begin_" << opName << spar << paramsAMI
-             << getUnqualified("Ice.AsyncCallback", ns) + " " + callback << "object " + cookie << epar;
-        _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI
-             << "new " + getUnqualified("Ice.OptionalContext", ns) + "()" << callback << cookie << "false" << epar << ';';
-        _out << eb;
-
-        _out << sp;
-        _out << nl << "public " << getUnqualified("Ice.AsyncResult", ns) + " begin_" << opName << spar << paramsAMI
-             << getUnqualified("Ice.OptionalContext", ns) + " " + context
-             << getUnqualified("Ice.AsyncCallback", ns) + " " + callback
-             << "object " + cookie << epar;
-        _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI << context << callback
-            << cookie << "false" << epar << ';';
-        _out << eb;
-
-        //
-        // Write the end_ method.
-        //
-        string flatName = "_" + opName + "_name";
-        string asyncResult = getEscapedParamName(op, "asyncResult");
-
-        _out << sp << nl << "public " << retS << " end_" << opName << spar << getOutParams(op, ns, false, true)
-             << getUnqualified("Ice.AsyncResult", ns) + " " + asyncResult << epar;
-        _out << sb;
-
-        _out << nl << "var resultI_ = global::IceInternal.AsyncResultI.check(" + asyncResult + ", this, " << flatName << ");";
-
-        if(returnTypeS.empty())
-        {
-            _out << nl << "((global::IceInternal.OutgoingAsyncT<object>)resultI_.OutgoingAsync).getResult(resultI_.wait());";
-        }
-        else
-        {
-            _out << nl << "var outgoing_ = (global::IceInternal.OutgoingAsyncT<" << returnTypeS << ">)resultI_.OutgoingAsync;";
-            if(outParams.empty())
-            {
-                _out << nl << "return outgoing_.getResult(resultI_.wait());";
-            }
-            else if(!ret && outParams.size() == 1)
-            {
-                _out << nl << fixId(outParams.front()->name()) << " = outgoing_.getResult(resultI_.wait());";
-            }
-            else
-            {
-                _out << nl << "var result_ = outgoing_.getResult(resultI_.wait());";
-                for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
-                {
-                    _out << nl << fixId((*i)->name()) << " = result_." << fixId((*i)->name()) << ";";
-                }
-
-                if(ret)
-                {
-                    _out << nl << "return result_." << resultStructReturnValueName(outParams) << ";";
-                }
-            }
-        }
-        _out << eb;
-
-        //
-        // Write the common begin_ implementation.
-        //
-        _out << sp;
-        _out << nl << "private " << getUnqualified("Ice.AsyncResult", ns) << "<" << delType << "> begin_" << opName << spar
-             << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string> context"
-             << getUnqualified("Ice.AsyncCallback", ns) + " completedCallback" << "object cookie" << "bool synchronous"
-             << epar;
-        _out << sb;
-
-        if(op->returnsData())
-        {
-            _out << nl << "iceCheckAsyncTwowayOnly(" << flatName << ");";
-        }
-        _out << nl << "var completed = new global::IceInternal.OperationAsyncResultCompletionCallback<" << delType;
-        _out << ", " << (returnTypeS.empty() ? "object" : returnTypeS);
-        _out << ">(";
-
-        //
-        // Write the completed callback
-        //
-        _out.inc();
-        _out << nl << "(" << delType << " cb, " << (returnTypeS.empty() ? "object" : returnTypeS) << " ret) =>";
-        _out << sb;
-        _out << nl << "if(cb != null)";
-        _out << sb;
-        _out << nl << "cb.Invoke" << spar;
-        if(ret && outParams.empty())
-        {
-            _out << "ret";
-        }
-        else if(ret || outParams.size() > 1)
-        {
-            if(ret)
-            {
-                _out << "ret." + resultStructReturnValueName(outParams);
-            }
-            for(ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
-            {
-                _out << "ret." + fixId((*pli)->name());
-            }
-        }
-        else if(!outParams.empty())
-        {
-            _out << "ret";
-        }
-        _out << epar << ';';
-        _out << eb;
-        _out << eb << ",";
-        _out << nl << "this, " << flatName << ", cookie, completedCallback);";
-
-        _out.dec();
-        _out << nl << "_iceI_" << op->name() << spar << getInArgs(op, true) << "context" << "synchronous" << "completed"
-             << epar << ";";
-        _out << nl << "return completed;";
-        _out << eb;
-    }
-    _out << sp << nl << "#endregion"; // Asynchronous operations
     _out << sp << nl << "#region Checked and unchecked cast operations";
 
     _out << sp << nl << "public static " << name << "Prx checkedCast(" << getUnqualified("Ice.ObjectPrx", ns) << " b)";
@@ -4484,24 +4164,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     string scoped = p->scoped();
-    InterfaceList allBases = p->allBases();
-    StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids),
-              [](const ContainedPtr& it)
-              {
-                  return it->scoped();
-              });
-    StringList other;
-    other.push_back(p->scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
-
-    StringList::const_iterator firstIter = ids.begin();
-    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
-    assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = std::distance(firstIter, scopedIter);
+    StringList ids = p->ids();
 
     //
     // Need static-readonly for arrays in C# (not const)
@@ -4522,10 +4185,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << eb << ";";
 
-    _out << sp << nl << "public static string ice_staticId()";
-    _out << sb;
-    _out << nl << "return _ids[" << scopedPos << "];";
-    _out << eb;
+    _out << sp << nl << "public static string ice_staticId() => \"" << scoped << "\";";
 
     _out << sp << nl << "#endregion"; // Checked and unchecked cast operations
 

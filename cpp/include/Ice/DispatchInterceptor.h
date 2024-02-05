@@ -34,7 +34,7 @@ public:
     /// \endcond
 };
 
-ICE_DEFINE_PTR(DispatchInterceptorPtr, DispatchInterceptor);
+using DispatchInterceptorPtr = std::shared_ptr<DispatchInterceptor>;
 
 }
 

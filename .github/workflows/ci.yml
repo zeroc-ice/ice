@@ -19,15 +19,15 @@ jobs:
     strategy:
       matrix:
         language: [cpp]
-        os: [macos-latest, macos-13, ubuntu-latest, windows-latest]
+        os: [macos-14, ubuntu-latest, windows-latest]
         include:
-          - os: macos-latest
+          - os: macos-14
             language: swift
-          - os: macos-latest
+          - os: macos-14
             language: python
-          - os: macos-latest
+          - os: macos-14
             language: php
-          - os: macos-latest
+          - os: macos-14
             language: ruby
 
           - os: ubuntu-latest

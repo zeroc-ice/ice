@@ -45,7 +45,7 @@ private:
     //
     IceUtil::Time _nextRetry;
 };
-ICE_DEFINE_PTR(LoggerIPtr, LoggerI);
+using LoggerIPtr = std::shared_ptr<LoggerI>;
 
 }
 

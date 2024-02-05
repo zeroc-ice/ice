@@ -13,7 +13,6 @@
 #include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <IceUtil/ScopedArray.h>
 #include <Ice/Optional.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ConnectionF.h>
@@ -32,8 +31,6 @@
 #       define ICE_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
-
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 namespace Ice
 {
@@ -102,61 +99,6 @@ using Ice::operator==;
 using Ice::operator!=;
 
 }
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-/**
- * Information about the current method invocation for servers. Each operation on the server has a
- * <code>Current</code> as its implicit final parameter. <code>Current</code> is mostly used for Ice services. Most
- * applications ignore this parameter.
- * \headerfile Ice/Ice.h
- */
-struct Current
-{
-    /**
-     * The object adapter.
-     */
-    ::Ice::ObjectAdapterPtr adapter;
-    /**
-     * Information about the connection over which the current method invocation was received. If the invocation is
-     * direct due to collocation optimization, this value is set to null.
-     */
-    ::Ice::ConnectionPtr con;
-    /**
-     * The Ice object identity.
-     */
-    ::Ice::Identity id;
-    /**
-     * The facet.
-     */
-    ::std::string facet;
-    /**
-     * The operation name.
-     */
-    ::std::string operation;
-    /**
-     * The mode of the operation.
-     */
-    ::Ice::OperationMode mode;
-    /**
-     * The request context, as received from the client.
-     */
-    ::Ice::Context ctx;
-    /**
-     * The request id unless oneway (0).
-     */
-    ::Ice::Int requestId;
-    /**
-     * The encoding version used to encode the input and output parameters.
-     */
-    ::Ice::EncodingVersion encoding;
-};
-
-}
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

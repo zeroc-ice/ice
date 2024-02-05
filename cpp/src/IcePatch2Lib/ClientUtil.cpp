@@ -245,7 +245,6 @@ PatcherI::~PatcherI()
     }
 }
 
-#ifdef  ICE_CPP11_MAPPING
 class GetFileInfoSeqAsyncCB
 {
 public:
@@ -303,7 +302,6 @@ private:
     std::future<FileInfoSeq> _fileInfoSeqFuture;
     bool _useSmallFileAPI;
 };
-#endif
 
 class PatcherGetFileInfoSeqCB : public GetFileInfoSeqCB
 {
@@ -397,13 +395,8 @@ PatcherI::prepare()
 
         while(true)
         {
-#ifdef ICE_CPP11_MAPPING
             std::shared_ptr<GetFileInfoSeqAsyncCB> curCB;
             std::shared_ptr<GetFileInfoSeqAsyncCB> nxtCB;
-#else
-            AsyncResultPtr curCB;
-            AsyncResultPtr nxtCB;
-#endif
             try
             {
                 for(size_t node0 = 0; node0 < 256; ++node0)
@@ -412,7 +405,6 @@ PatcherI::prepare()
                     {
                         if (!curCB)
                         {
-#ifdef  ICE_CPP11_MAPPING
                             curCB = std::make_shared<GetFileInfoSeqAsyncCB>(_useSmallFileAPI);
                             if (_useSmallFileAPI)
                             {
@@ -428,12 +420,6 @@ PatcherI::prepare()
                                     [curCB](LargeFileInfoSeq fileInfoSeq) { curCB->complete(fileInfoSeq); },
                                     [curCB](exception_ptr exception) { curCB->exception(exception); });
                             }
-#else
-                            assert(!nxtCB);
-                            curCB = _useSmallFileAPI ?
-                                _serverCompress->begin_getFileInfoSeq(static_cast<Int>(node0)) :
-                                _serverCompress->begin_getLargeFileInfoSeq(static_cast<Int>(node0));
-#endif //  ICE_CPP11_MAPPING
                         }
                         else
                         {
@@ -450,7 +436,6 @@ PatcherI::prepare()
 
                         if(node0Nxt < 256)
                         {
-#ifdef ICE_CPP11_MAPPING
                             nxtCB = std::make_shared<GetFileInfoSeqAsyncCB>(_useSmallFileAPI);
                             if (_useSmallFileAPI)
                             {
@@ -466,15 +451,9 @@ PatcherI::prepare()
                                     [nxtCB](LargeFileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
                                     [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
                             }
-#else
-                            nxtCB = _useSmallFileAPI ?
-                                _serverCompress->begin_getFileInfoSeq(static_cast<Int>(node0Nxt)) :
-                                _serverCompress->begin_getLargeFileInfoSeq(static_cast<Int>(node0Nxt));
-#endif
                         }
 
                         LargeFileInfoSeq files;
-#ifdef ICE_CPP11_MAPPING
                         if (_useSmallFileAPI)
                         {
                             FileInfoSeq smallFiles = curCB->getFileInfoSeq();
@@ -485,18 +464,7 @@ PatcherI::prepare()
                         {
                             files = curCB->getLargeFileInfoSeq();
                         }
-#else
-                        if(_useSmallFileAPI)
-                        {
-                            FileInfoSeq smallFiles = _serverCompress->end_getFileInfoSeq(curCB);
-                            files.resize(smallFiles.size());
-                            transform(smallFiles.begin(), smallFiles.end(), files.begin(), toLargeFileInfo);
-                        }
-                        else
-                        {
-                            files = _serverCompress->end_getLargeFileInfoSeq(curCB);
-                        }
-#endif
+
                         sort(files.begin(), files.end(), FileInfoLess());
                         files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
 
@@ -840,7 +808,6 @@ PatcherI::updateFiles(const LargeFileInfoSeq& files)
     return result;
 }
 
-#ifdef  ICE_CPP11_MAPPING
 class GetFileCompressedCB
 {
 public:
@@ -898,7 +865,6 @@ void getFileCompressed(
             [cb](exception_ptr exception) { cb->exception(exception); });
     }
 }
-#endif
 
 bool
 PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorPtr& decompressor)
@@ -914,13 +880,8 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
         }
     }
 
-#ifdef ICE_CPP11_MAPPING
     shared_ptr<GetFileCompressedCB> curCB;
     shared_ptr<GetFileCompressedCB> nxtCB;
-#else
-    AsyncResultPtr curCB;
-    AsyncResultPtr nxtCB;
-#endif // ICE_CPP11_MAPPING
 
     for(LargeFileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
@@ -982,7 +943,6 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                         if(!curCB)
                         {
                             assert(!nxtCB);
-#ifdef  ICE_CPP11_MAPPING
                             curCB = std::make_shared<GetFileCompressedCB>();
                             getFileCompressed(
                                 _serverNoCompress,
@@ -991,12 +951,6 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                                 _chunkSize,
                                 curCB,
                                 _useSmallFileAPI);
-#else
-
-                            curCB = _useSmallFileAPI ?
-                                _serverNoCompress->begin_getFileCompressed(p->path, static_cast<Ice::Int>(pos), _chunkSize) :
-                                _serverNoCompress->begin_getLargeFileCompressed(p->path, pos, _chunkSize);
-#endif //  ICE_CPP11_MAPPING
                         }
                         else
                         {
@@ -1006,7 +960,6 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
 
                         if(pos + _chunkSize < p->size)
                         {
-#ifdef ICE_CPP11_MAPPING
                             nxtCB = std::make_shared<GetFileCompressedCB>();
                             getFileCompressed(
                                 _serverNoCompress,
@@ -1015,11 +968,6 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                                 _chunkSize,
                                 nxtCB,
                                 _useSmallFileAPI);
-#else
-                            nxtCB = _useSmallFileAPI ?
-                                _serverNoCompress->begin_getFileCompressed(p->path, static_cast<Ice::Int>(pos + _chunkSize), _chunkSize) :
-                                _serverNoCompress->begin_getLargeFileCompressed(p->path, pos + _chunkSize, _chunkSize);
-#endif
                         }
                         else
                         {
@@ -1032,7 +980,6 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
 
                             if(q != files.end())
                             {
-#ifdef ICE_CPP11_MAPPING
                                 nxtCB = std::make_shared<GetFileCompressedCB>();
                                 getFileCompressed(
                                     _serverNoCompress,
@@ -1041,23 +988,13 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                                     _chunkSize,
                                     nxtCB,
                                     _useSmallFileAPI);
-#else
-                                nxtCB = _useSmallFileAPI ?
-                                    _serverNoCompress->begin_getFileCompressed(q->path, 0, _chunkSize) :
-                                    _serverNoCompress->begin_getLargeFileCompressed(q->path, 0, _chunkSize);
-#endif
                             }
                         }
 
                         ByteSeq bytes;
                         try
                         {
-#ifdef  ICE_CPP11_MAPPING
                             bytes = curCB->getFileCompressed();
-#else
-                            bytes = _useSmallFileAPI ? _serverNoCompress->end_getFileCompressed(curCB) :
-                                _serverNoCompress->end_getLargeFileCompressed(curCB);
-#endif //  ICE_CPP11_MAPPING
                         }
                         catch(const FileAccessException& ex)
                         {
@@ -1189,7 +1126,7 @@ PatcherI::updateFlags(const LargeFileInfoSeq& files)
 PatcherPtr
 PatcherFactory::create(const Ice::CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback)
 {
-    return ICE_MAKE_SHARED(PatcherI, communicator, feedback);
+    return make_shared<PatcherI>(communicator, feedback);
 }
 
 //
@@ -1204,5 +1141,5 @@ PatcherFactory::create(const FileServerPrxPtr& server,
                        Ice::Int chunkSize,
                        Ice::Int remove)
 {
-    return ICE_MAKE_SHARED(PatcherI, server, feedback, dataDir, thorough, chunkSize, remove);
+    return make_shared<PatcherI>(server, feedback, dataDir, thorough, chunkSize, remove);
 }

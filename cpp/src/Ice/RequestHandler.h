@@ -6,7 +6,6 @@
 #define ICE_REQUEST_HANDLER_H
 
 #include <IceUtil/Shared.h>
-#include <Ice/UniquePtr.h>
 
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ReferenceF.h>
@@ -39,13 +38,10 @@ public:
 
 private:
 
-    IceInternal::UniquePtr<Ice::LocalException> _ex;
+    std::unique_ptr<Ice::LocalException> _ex;
 };
 
 class CancellationHandler
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 

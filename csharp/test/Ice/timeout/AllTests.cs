@@ -4,6 +4,7 @@
 
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -62,7 +63,7 @@ namespace Ice
                 return prx.ice_getConnection();
             }
 
-            public static void allTests(global::Test.TestHelper helper)
+            public static async Task allTests(global::Test.TestHelper helper)
             {
                 Test.ControllerPrx controller =
                     Test.ControllerPrxHelper.checkedCast(
@@ -71,7 +72,7 @@ namespace Ice
 
                 try
                 {
-                    allTestsWithController(helper, controller);
+                    await allTestsWithController(helper, controller);
                 }
                 catch(Exception)
                 {
@@ -83,7 +84,7 @@ namespace Ice
 
             }
 
-            public static void allTestsWithController(global::Test.TestHelper helper, Test.ControllerPrx controller)
+            public static async Task allTestsWithController(global::Test.TestHelper helper, Test.ControllerPrx controller)
             {
                 var communicator = helper.communicator();
                 string sref = "timeout:" + helper.getTestEndpoint(0);
@@ -193,7 +194,7 @@ namespace Ice
                     {
                         to.sleep(100);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch(InvocationTimeoutException)
                     {
                         test(false);
                     }
@@ -204,18 +205,15 @@ namespace Ice
                     // Expect InvocationTimeoutException.
                     //
                     Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(100));
-                    Callback cb = new Callback();
-                    to.begin_sleep(1000).whenCompleted(
-                       () =>
-                        {
-                            test(false);
-                        },
-                       (Ice.Exception ex) =>
-                        {
-                            test(ex is Ice.InvocationTimeoutException);
-                            cb.called();
-                        });
-                    cb.check();
+                    try
+                    {
+                        await to.sleepAsync(1000);
+                        test(false);
+                    }
+                    catch (InvocationTimeoutException)
+                    {
+
+                    }
                     obj.ice_ping();
                 }
                 {
@@ -223,18 +221,7 @@ namespace Ice
                     // Expect success.
                     //
                     Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(1000));
-                    Callback cb = new Callback();
-                    to.begin_sleep(100).whenCompleted(
-                       () =>
-                        {
-                            cb.called();
-
-                        },
-                       (Ice.Exception ex) =>
-                        {
-                            test(false);
-                        });
-                    cb.check();
+                    await to.sleepAsync(100);
                 }
                 {
                     //
@@ -264,17 +251,17 @@ namespace Ice
                     try
                     {
                         con = connect(to);
-                        to.end_sleep(to.begin_sleep(750));
+                        await to.sleepAsync(750);
                         test(false);
                     }
-                    catch(Ice.TimeoutException)
+                    catch(TimeoutException)
                     {
                         try
                         {
                             con.getInfo();
                             test(false);
                         }
-                        catch(Ice.TimeoutException)
+                        catch(TimeoutException)
                         {
                             // Connection got closed as well.
                         }
@@ -289,12 +276,12 @@ namespace Ice
                     Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(250));
                     var connection = connect(to);
                     controller.holdAdapter(-1);
-                    connection.close(Ice.ConnectionClose.GracefullyWithWait);
+                    connection.close(ConnectionClose.GracefullyWithWait);
                     try
                     {
                         connection.getInfo(); // getInfo() doesn't throw in the closing state.
                     }
-                    catch(Ice.LocalException)
+                    catch(LocalException)
                     {
                         test(false);
                     }
@@ -447,29 +434,29 @@ namespace Ice
                     adapter.activate();
 
                     Test.TimeoutPrx proxy = Test.TimeoutPrxHelper.uncheckedCast(adapter.addWithUUID(new TimeoutI()));
-                    proxy =(Test.TimeoutPrx)proxy.ice_invocationTimeout(100);
+                    proxy = (Test.TimeoutPrx)proxy.ice_invocationTimeout(100);
                     try
                     {
                         proxy.sleep(500);
                         test(false);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch(InvocationTimeoutException)
                     {
                     }
 
                     try
                     {
-                        proxy.end_sleep(proxy.begin_sleep(500));
+                        await proxy.sleepAsync(500);
                         test(false);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch(InvocationTimeoutException)
                     {
                     }
 
                     try
                     {
                        ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_ping();
-                       ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).begin_ice_ping().waitForCompleted();
+                       await ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-2)).ice_pingAsync();
                     }
                     catch(Ice.Exception)
                     {
@@ -481,13 +468,13 @@ namespace Ice
                     batchTimeout.ice_ping();
                     batchTimeout.ice_ping();
 
-                    ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).begin_sleep(500); // Keep the server thread pool busy.
+                    _ = ((Test.TimeoutPrx)proxy.ice_invocationTimeout(-1)).sleepAsync(500); // Keep the server thread pool busy.
                     try
                     {
-                        batchTimeout.end_ice_flushBatchRequests(batchTimeout.begin_ice_flushBatchRequests());
+                        await batchTimeout.ice_flushBatchRequestsAsync();
                         test(false);
                     }
-                    catch(Ice.InvocationTimeoutException)
+                    catch(InvocationTimeoutException)
                     {
                     }
 

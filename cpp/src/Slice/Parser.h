@@ -28,11 +28,7 @@ public:
     CompilerException(const char*, int, const std::string&);
     virtual std::string ice_id() const;
     virtual void ice_print(std::ostream&) const;
-#ifdef ICE_CPP11_MAPPING
     virtual CompilerException* ice_cloneImpl() const;
-#else
-    virtual CompilerException* ice_clone() const;
-#endif
     virtual void ice_throw() const;
 
     std::string reason() const;
@@ -655,7 +651,6 @@ public:
     virtual ContainedType containedType() const;
     virtual void visit(ParserVisitor*, bool);
     int compactId() const;
-    StringList ids() const;
     virtual std::string kindOf() const;
 
 protected:
@@ -793,6 +788,8 @@ public:
     virtual ContainedType containedType() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
+
+    // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
     StringList ids() const;
 
 protected:

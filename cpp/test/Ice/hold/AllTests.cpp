@@ -88,19 +88,11 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     HoldPrxPtr hold = ICE_CHECKED_CAST(HoldPrx, base);
     test(hold);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(hold, base));
-#else
-    test(hold == base);
-#endif
     HoldPrxPtr holdSerialized = ICE_CHECKED_CAST(HoldPrx, baseSerialized);
     test(holdSerialized);
 
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(holdSerialized, baseSerialized));
-#else
-    test(holdSerialized == baseSerialized);
-#endif
     cout << "ok" << endl;
 
     cout << "changing state between active and hold rapidly... " << flush;
@@ -126,7 +118,6 @@ allTests(Test::TestHelper* helper)
     {
         ConditionPtr cond = new Condition(true);
         int value = 0;
-#ifdef ICE_CPP11_MAPPING
         shared_ptr<promise<void>> completed;
         while(cond->value())
         {
@@ -167,31 +158,6 @@ allTests(Test::TestHelper* helper)
         }
         test(value > 100000 || !cond->value());
         completed->get_future().get();
-#else
-
-        Ice::AsyncResultPtr result;
-        while(cond->value())
-        {
-            result = hold->begin_set(value + 1,
-                                     static_cast<Ice::Int>(IceUtilInternal::random(5)),
-                                     newCallback_Hold_set(new SetCB(cond, value), &SetCB::response, &SetCB::exception));
-            ++value;
-            if(value % 100 == 0)
-            {
-                result->waitForSent();
-            }
-
-            if(value > 1000000)
-            {
-                // Don't continue, it's possible that out-of-order dispatch doesn't occur
-                // after 100000 iterations and we don't want the test to last for too long
-                // when this occurs.
-                break;
-            }
-        }
-        test(value > 100000 || !cond->value());
-        result->waitForCompleted();
-#endif
     }
     cout << "ok" << endl;
 
@@ -199,7 +165,6 @@ allTests(Test::TestHelper* helper)
     {
         ConditionPtr cond = new Condition(true);
         int value = 0;
-#ifdef ICE_CPP11_MAPPING
         shared_ptr<promise<void>> completed;
         while(value < 3000 && cond->value())
         {
@@ -231,23 +196,6 @@ allTests(Test::TestHelper* helper)
                 sent->get_future().get();
             }
         }
-#else
-        Ice::AsyncResultPtr result;
-        while(value < 3000 && cond->value())
-        {
-            result = holdSerialized->begin_set(value + 1,
-                                               static_cast<Ice::Int>(IceUtilInternal::random(1)),
-                                               newCallback_Hold_set(new SetCB(cond, value),
-                                                                    &SetCB::response,
-                                                                    &SetCB::exception));
-            ++value;
-            if(value % 100 == 0)
-            {
-                result->waitForSent();
-            }
-        }
-        result->waitForCompleted();
-#endif
         test(cond->value());
         for(int i = 0; i < 10000; ++i)
         {
@@ -265,7 +213,6 @@ allTests(Test::TestHelper* helper)
     {
         int value = 0;
         holdSerialized->set(value, 0);
-#ifdef ICE_CPP11_MAPPING
         shared_ptr<promise<void>> completed;
         for(int i = 0; i < 10000; ++i)
         {
@@ -285,26 +232,10 @@ allTests(Test::TestHelper* helper)
             {
                 completed->get_future().get();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+                holdSerialized->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
         }
         completed->get_future().get();
-#else
-        Ice::AsyncResultPtr result;
-        for(int i = 0; i < 10000; ++i)
-        {
-            // Create a new proxy for each request
-            result = holdSerialized->ice_oneway()->begin_setOneway(value + 1, value);
-            ++value;
-            if((i % 100) == 0)
-            {
-                result->waitForSent();
-                holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
-            }
-        }
-        result->waitForCompleted();
-#endif
     }
     cout << "ok" << endl;
 

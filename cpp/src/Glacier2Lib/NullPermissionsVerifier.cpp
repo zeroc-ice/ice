@@ -16,11 +16,7 @@ class NullPermissionsVerifier : public Glacier2::PermissionsVerifier
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     bool checkPermissions(string, string, string&, const Current&) const
-#else
-    bool checkPermissions(const string&, const string&, string&, const Current&) const
-#endif
     {
         return true;
     }
@@ -30,13 +26,8 @@ class NullSSLPermissionsVerifier : public Glacier2::SSLPermissionsVerifier
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     virtual bool
     authorize(Glacier2::SSLInfo, string&, const Ice::Current&) const
-#else
-    virtual bool
-    authorize(const Glacier2::SSLInfo&, string&, const Ice::Current&) const
-#endif
     {
         return true;
     }
@@ -128,8 +119,8 @@ Init::createObjects()
     if(!_adapter)
     {
         _adapter = _communicator->createObjectAdapter(""); // colloc-only adapter
-        _adapter->add(ICE_MAKE_SHARED(NullPermissionsVerifier), _nullPVId);
-        _adapter->add(ICE_MAKE_SHARED(NullSSLPermissionsVerifier), _nullSSLPVId);
+        _adapter->add(std::make_shared<NullPermissionsVerifier>(), _nullPVId);
+        _adapter->add(std::make_shared<NullSSLPermissionsVerifier>(), _nullSSLPVId);
         _adapter->activate();
     }
 }

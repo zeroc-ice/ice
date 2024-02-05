@@ -5,7 +5,7 @@
 #include <WstringI.h>
 
 ::std::wstring
-Test1::WstringClassI::opString(ICE_IN(::std::wstring) s1,
+Test1::WstringClassI::opString(::std::wstring s1,
                                ::std::wstring& s2,
                                const Ice::Current&)
 {
@@ -14,7 +14,7 @@ Test1::WstringClassI::opString(ICE_IN(::std::wstring) s1,
 }
 
 ::Test1::WstringStruct
-Test1::WstringClassI::opStruct(ICE_IN(::Test1::WstringStruct) s1,
+Test1::WstringClassI::opStruct(::Test1::WstringStruct s1,
                                ::Test1::WstringStruct& s2,
                                const Ice::Current&)
 {
@@ -23,7 +23,7 @@ Test1::WstringClassI::opStruct(ICE_IN(::Test1::WstringStruct) s1,
 }
 
 void
-Test1::WstringClassI::throwExcept(ICE_IN(::std::wstring) reason,
+Test1::WstringClassI::throwExcept(::std::wstring reason,
                                   const Ice::Current&)
 {
     Test1::WstringException ex;
@@ -32,7 +32,7 @@ Test1::WstringClassI::throwExcept(ICE_IN(::std::wstring) reason,
 }
 
 ::std::wstring
-Test2::WstringClassI::opString(ICE_IN(::std::wstring) s1,
+Test2::WstringClassI::opString(::std::wstring s1,
                                ::std::wstring& s2,
                                const Ice::Current&)
 {
@@ -41,7 +41,7 @@ Test2::WstringClassI::opString(ICE_IN(::std::wstring) s1,
 }
 
 ::Test2::WstringStruct
-Test2::WstringClassI::opStruct(ICE_IN(::Test2::WstringStruct) s1,
+Test2::WstringClassI::opStruct(::Test2::WstringStruct s1,
                                ::Test2::WstringStruct& s2,
                                const Ice::Current&)
 {
@@ -50,7 +50,7 @@ Test2::WstringClassI::opStruct(ICE_IN(::Test2::WstringStruct) s1,
 }
 
 void
-Test2::WstringClassI::throwExcept(ICE_IN(::std::wstring) reason,
+Test2::WstringClassI::throwExcept(::std::wstring reason,
                                   const Ice::Current&)
 {
     Test2::WstringException ex;

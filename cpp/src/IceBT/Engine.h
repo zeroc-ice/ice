@@ -18,15 +18,12 @@ namespace IceBT
 // Notifies the transport about a new incoming connection.
 //
 class ProfileCallback
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 
     virtual void newConnection(int) = 0;
 };
-ICE_DEFINE_PTR(ProfileCallbackPtr, ProfileCallback);
+using ProfileCallbackPtr = std::shared_ptr<ProfileCallback>;
 
 //
 // Represents an outgoing (client) connection. The transport must keep a reference to this object
@@ -45,16 +42,13 @@ typedef IceUtil::Handle<Connection> ConnectionPtr;
 // Callback API for an outgoing connection attempt.
 //
 class ConnectCallback
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 
     virtual void completed(int, const ConnectionPtr&) = 0;
     virtual void failed(const Ice::LocalException&) = 0;
 };
-ICE_DEFINE_PTR(ConnectCallbackPtr, ConnectCallback);
+using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
 
 //
 // Engine encapsulates all Bluetooth activities.
@@ -80,11 +74,7 @@ public:
 
     void connect(const std::string&, const std::string&, const ConnectCallbackPtr&);
 
-#ifdef ICE_CPP11_MAPPING
     void startDiscovery(const std::string&, std::function<void(const std::string&, const PropertyMap&)>);
-#else
-    void startDiscovery(const std::string&, const DiscoveryCallbackPtr&);
-#endif
     void stopDiscovery(const std::string&);
 
     DeviceMap getDevices() const;

@@ -71,7 +71,7 @@ EndpointI::timeout(int timeout) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, endpoint);
+        return make_shared<EndpointI>(endpoint);
     }
 }
 
@@ -85,7 +85,7 @@ EndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, endpoint);
+        return make_shared<EndpointI>(endpoint);
     }
 }
 
@@ -105,7 +105,7 @@ EndpointI::compress(bool compress) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, endpoint);
+        return make_shared<EndpointI>(endpoint);
     }
 }
 
@@ -171,7 +171,7 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
     try
     {
         _configuration->checkConnectorsException();
-        _endpoint->connectors_async(selType, ICE_MAKE_SHARED(Callback, cb));
+        _endpoint->connectors_async(selType, make_shared<Callback>(cb));
     }
     catch(const Ice::LocalException& ex)
     {
@@ -209,7 +209,7 @@ EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
     }
     else
     {
-        return ICE_MAKE_SHARED(EndpointI, delEndp);
+        return make_shared<EndpointI>(delEndp);
     }
 }
 
@@ -219,7 +219,7 @@ EndpointI::expandIfWildcard() const
     vector<IceInternal::EndpointIPtr> e = _endpoint->expandIfWildcard();
     for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
     {
-        *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, *p);
+        *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : make_shared<EndpointI>(*p);
     }
     return e;
 }
@@ -230,11 +230,11 @@ EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
     vector<IceInternal::EndpointIPtr> e = _endpoint->expandHost(publish);
     if(publish)
     {
-        publish = publish == _endpoint ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, publish);
+        publish = publish == _endpoint ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : make_shared<EndpointI>(publish);
     }
     for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
     {
-        *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, *p);
+        *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : make_shared<EndpointI>(*p);
     }
     return e;
 }
@@ -263,11 +263,7 @@ EndpointI::getInfo() const noexcept
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 EndpointI::operator==(const Ice::Endpoint& r) const
-#else
-EndpointI::operator==(const Ice::LocalObject& r) const
-#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)
@@ -284,11 +280,7 @@ EndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 EndpointI::operator<(const Ice::Endpoint& r) const
-#else
-EndpointI::operator<(const Ice::LocalObject& r) const
-#endif
 {
     const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
     if(!p)

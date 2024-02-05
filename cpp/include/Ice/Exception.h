@@ -41,11 +41,7 @@ public:
      * Polymorphically clones this exception.
      * @return A shallow copy of this exception.
      */
-#ifdef ICE_CPP11_MAPPING
     std::unique_ptr<LocalException> ice_clone() const;
-#else
-    virtual LocalException* ice_clone() const = 0;
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -66,11 +62,7 @@ public:
      * Polymorphically clones this exception.
      * @return A shallow copy of this exception.
      */
-#ifdef ICE_CPP11_MAPPING
     std::unique_ptr<UserException> ice_clone() const;
-#else
-    virtual UserException* ice_clone() const = 0;
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.
@@ -117,11 +109,7 @@ public:
      * Polymorphically clones this exception.
      * @return A shallow copy of this exception.
      */
-#ifdef ICE_CPP11_MAPPING
     std::unique_ptr<SystemException> ice_clone() const;
-#else
-    virtual SystemException* ice_clone() const = 0;
-#endif
 
     /**
      * Obtains the Slice type ID of this exception.

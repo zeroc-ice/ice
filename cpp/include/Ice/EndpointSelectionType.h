@@ -5,7 +5,6 @@
 #ifndef __Ice_EndpointSelectionType_h__
 #define __Ice_EndpointSelectionType_h__
 
-#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
@@ -13,7 +12,6 @@
 #include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <IceUtil/ScopedArray.h>
 #include <Ice/Optional.h>
 #include <IceUtil/UndefSysMacros.h>
 
@@ -26,8 +24,6 @@
 #       define ICE_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
-
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 namespace Ice
 {
@@ -49,43 +45,4 @@ enum class EndpointSelectionType : unsigned char
 
 }
 
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-/**
- * Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
- */
-enum EndpointSelectionType
-{
-    /**
-     * <code>Random</code> causes the endpoints to be arranged in a random order.
-     */
-    Random,
-    /**
-     * <code>Ordered</code> forces the Ice run time to use the endpoints in the order they appeared in the proxy.
-     */
-    Ordered
-};
-
-}
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-#endif
-
-#include <IceUtil/PopDisableWarnings.h>
 #endif

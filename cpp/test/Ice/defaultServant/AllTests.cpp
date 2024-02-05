@@ -16,7 +16,7 @@ allTests(Test::TestHelper* helper)
     Ice::ObjectAdapterPtr oa = communicator->createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
     oa->activate();
 
-    Ice::ObjectPtr servant = ICE_MAKE_SHARED(MyObjectI);
+    Ice::ObjectPtr servant = std::make_shared<MyObjectI>();
 
     //
     // Register default servant with category "foo"

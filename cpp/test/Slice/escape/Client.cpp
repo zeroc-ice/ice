@@ -13,7 +13,6 @@ class breakI : public _cpp_and::_cpp_break
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     virtual void caseAsync(::Ice::Int,
                            function<void(int)> response,
                            function<void(exception_ptr)>,
@@ -21,12 +20,6 @@ public:
     {
         response(0);
     }
-#else
-    virtual void case_async(const ::_cpp_and::AMD_break_casePtr& cb, ::Ice::Int, const ::Ice::Current&)
-    {
-        cb->ice_response(0);
-    }
-#endif
 };
 
 class charI: public _cpp_and::_cpp_char
@@ -46,11 +39,8 @@ public:
 class switchI: public _cpp_and::_cpp_switch
 {
 public:
-#ifdef ICE_CPP11_MAPPING
+
     virtual void foo(shared_ptr<_cpp_and::charPrx>, Ice::Int&, const ::Ice::Current&)
-#else
-    virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
-#endif
     {
     }
 };
@@ -58,21 +48,18 @@ public:
 class doI : public _cpp_and::_cpp_do
 {
 public:
-#ifdef ICE_CPP11_MAPPING
+
     virtual void caseAsync(int,
                            ::std::function<void(int)>,
                            ::std::function<void(::std::exception_ptr)>,
                            const ::Ice::Current&)
     {
     }
-#else
-    virtual void case_async(const ::_cpp_and::AMD_break_casePtr&, ::Ice::Int, const ::Ice::Current&)
-    {
-    }
-#endif
+
     virtual void _cpp_explicit(const ::Ice::Current&)
     {
     }
+
     virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
     {
     }
@@ -87,24 +74,12 @@ public:
     virtual _cpp_and::_cpp_auto
     _cpp_goto(_cpp_and::_cpp_continue,
               const _cpp_and::_cpp_auto&,
-#ifdef ICE_CPP11_MAPPING
               const _cpp_and::_cpp_delete&,
-#else
-              const _cpp_and::deletePtr&,
-#endif
               const _cpp_and::switchPtr&,
-#ifdef ICE_CPP11_MAPPING
               const ::std::shared_ptr<::Ice::Value>&,
-#else
-              const _cpp_and::doPtr&,
-#endif
               const _cpp_and::breakPrxPtr&,
               const _cpp_and::charPrxPtr&,
-#ifdef ICE_CPP11_MAPPING
               const ::std::shared_ptr<::Ice::ObjectPrx>&,
-#else
-              const _cpp_and::switchPrxPtr&,
-#endif
               const _cpp_and::doPrxPtr&,
               ::Ice::Int, ::Ice::Int,
               ::Ice::Int, ::Ice::Int,
@@ -121,44 +96,34 @@ public:
 //
 void testtypes(const Ice::CommunicatorPtr& communicator)
 {
-#ifdef ICE_CPP11_MAPPING
     _cpp_and::_cpp_continue a = _cpp_and::_cpp_continue::_cpp_asm;
     test(a == _cpp_and::_cpp_continue::_cpp_asm);
-#else
-    _cpp_and::_cpp_continue a = _cpp_and::_cpp_asm;
-    test(a);
-#endif
 
     _cpp_and::_cpp_auto b, b2;
     b._cpp_default = 0;
     b2._cpp_default = b._cpp_default;
     b._cpp_default = b2._cpp_default;
 
-#ifdef ICE_CPP11_MAPPING
     _cpp_and::_cpp_delete c;
     c._cpp_else = "";
-#else
-    _cpp_and::deletePtr c = new _cpp_and::_cpp_delete();
-    c->_cpp_else = "";
-#endif
 
     _cpp_and::breakPrxPtr d =
         ICE_UNCHECKED_CAST(_cpp_and::breakPrx, communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
     int d2;
     d->_cpp_case(0, d2);
-    _cpp_and::breakPtr d1 = ICE_MAKE_SHARED(breakI);
+    _cpp_and::breakPtr d1 = std::make_shared<breakI>();
 
     _cpp_and::charPrxPtr e =
         ICE_UNCHECKED_CAST(_cpp_and::charPrx, communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
     e->_cpp_explicit();
-    _cpp_and::charPtr e1 = ICE_MAKE_SHARED(charI);
+    _cpp_and::charPtr e1 = std::make_shared<charI>();
 
-    _cpp_and::switchPtr f1 = ICE_MAKE_SHARED(switchI);
+    _cpp_and::switchPtr f1 = std::make_shared<switchI>();
 
     _cpp_and::doPrxPtr g;
     g->_cpp_case(0, d2);
     g->_cpp_explicit();
-    _cpp_and::doPtr g1 = ICE_MAKE_SHARED(doI);
+    _cpp_and::doPtr g1 = std::make_shared<doI>();
 
     _cpp_and::_cpp_extern h;
     _cpp_and::_cpp_for i;
@@ -170,7 +135,7 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     k._cpp_signed = 2;
 
     // TODO: reenable once bug #1617 is fixed.
-    // _cpp_and::friendPtr l = ICE_MAKE_SHARED(friendI);
+    // _cpp_and::friendPtr l = std::make_shared<friendI>();
 
     const int m  = _cpp_and::_cpp_template;
     test(m == _cpp_and::_cpp_template);
@@ -191,7 +156,7 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(charI), Ice::stringToIdentity("test"));
+    adapter->add(std::make_shared<charI>(), Ice::stringToIdentity("test"));
     adapter->activate();
 
     cout << "Testing operation name... " << flush;

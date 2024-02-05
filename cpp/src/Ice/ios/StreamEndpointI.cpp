@@ -49,7 +49,7 @@ namespace
 inline CFStringRef
 toCFString(const string& s)
 {
-    return CFStringCreateWithCString(ICE_NULLPTR, s.c_str(), kCFStringEncodingUTF8);
+    return CFStringCreateWithCString(nullptr, s.c_str(), kCFStringEncodingUTF8);
 }
 
 }
@@ -143,7 +143,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Inpu
 EndpointInfoPtr
 IceObjC::StreamEndpointI::getInfo() const noexcept
 {
-    TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
+    auto info = make_shared<InfoI<Ice::TCPEndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
     IPEndpointI::fillEndpointInfo(info.get());
     info->timeout = _timeout;
     info->compress = _compress;
@@ -165,7 +165,7 @@ IceObjC::StreamEndpointI::timeout(Int t) const
     }
     else
     {
-        return ICE_MAKE_SHARED(StreamEndpointI, _streamInstance, _host, _port, _sourceAddr, t, _connectionId, _compress);
+        return make_shared<StreamEndpointI>(_streamInstance, _host, _port, _sourceAddr, t, _connectionId, _compress);
     }
 }
 
@@ -184,7 +184,7 @@ IceObjC::StreamEndpointI::compress(bool c) const
     }
     else
     {
-        return ICE_MAKE_SHARED(StreamEndpointI, _streamInstance, _host, _port, _sourceAddr, _timeout, _connectionId, c);
+        return make_shared<StreamEndpointI>(_streamInstance, _host, _port, _sourceAddr, _timeout, _connectionId, c);
     }
 }
 
@@ -231,8 +231,8 @@ IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
     }
     else
     {
-        return ICE_MAKE_SHARED(StreamEndpointI, _streamInstance, _host, port, _sourceAddr, _timeout, _connectionId,
-                               _compress);
+        return make_shared<StreamEndpointI>(_streamInstance, _host, port, _sourceAddr, _timeout, _connectionId,
+                                            _compress);
     }
 }
 
@@ -268,11 +268,7 @@ IceObjC::StreamEndpointI::options() const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceObjC::StreamEndpointI::operator==(const Endpoint& r) const
-#else
-IceObjC::StreamEndpointI::operator==(const LocalObject& r) const
-#endif
 {
     if(!IPEndpointI::operator==(r))
     {
@@ -304,11 +300,7 @@ IceObjC::StreamEndpointI::operator==(const LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceObjC::StreamEndpointI::operator<(const Endpoint& r) const
-#else
-IceObjC::StreamEndpointI::operator<(const LocalObject& r) const
-#endif
 {
     const StreamEndpointI* p = dynamic_cast<const StreamEndpointI*>(&r);
     if(!p)
@@ -425,8 +417,8 @@ IceObjC::StreamEndpointI::createConnector(const Address& /*address*/, const Netw
 IPEndpointIPtr
 IceObjC::StreamEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return ICE_MAKE_SHARED(StreamEndpointI, _streamInstance, host, port, _sourceAddr, _timeout, connectionId,
-                           _compress);
+    return make_shared<StreamEndpointI>(_streamInstance, host, port, _sourceAddr, _timeout, connectionId,
+                                        _compress);
 }
 
 IceObjC::StreamEndpointFactory::StreamEndpointFactory(const InstancePtr& instance) : _instance(instance)
@@ -452,7 +444,7 @@ IceObjC::StreamEndpointFactory::protocol() const
 EndpointIPtr
 IceObjC::StreamEndpointFactory::create(vector<string>& args, bool oaEndpoint) const
 {
-    IPEndpointIPtr endpt = ICE_MAKE_SHARED(StreamEndpointI, _instance);
+    IPEndpointIPtr endpt = make_shared<StreamEndpointI>(_instance);
     endpt->initWithOptions(args, oaEndpoint);
     return endpt;
 }
@@ -460,7 +452,7 @@ IceObjC::StreamEndpointFactory::create(vector<string>& args, bool oaEndpoint) co
 EndpointIPtr
 IceObjC::StreamEndpointFactory::read(Ice::InputStream* s) const
 {
-    return ICE_MAKE_SHARED(StreamEndpointI, _instance, s);
+    return make_shared<StreamEndpointI>(_instance, s);
 }
 
 void

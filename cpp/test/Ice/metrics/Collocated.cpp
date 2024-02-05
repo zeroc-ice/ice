@@ -33,12 +33,12 @@ Collocated::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(MetricsI), Ice::stringToIdentity("metrics"));
+    adapter->add(make_shared<MetricsI>(), Ice::stringToIdentity("metrics"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
     Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
-    controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), Ice::stringToIdentity("controller"));
+    controllerAdapter->add(make_shared<ControllerI>(adapter), Ice::stringToIdentity("controller"));
     //controllerAdapter->activate(); // Don't activate OA to ensure collocation is used.
 
     MetricsPrxPtr allTests(Test::TestHelper*, const CommunicatorObserverIPtr&);

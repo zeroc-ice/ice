@@ -19,34 +19,6 @@
 #   pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
-
-namespace
-{
-
-}
-
 IceSSL::ConnectionInfo::~ConnectionInfo()
 {
 }
-
-#else // C++98 mapping
-
-namespace
-{
-
-}
-
-IceSSL::ConnectionInfo::~ConnectionInfo()
-{
-}
-
-/// \cond INTERNAL
-ICESSL_API ::Ice::LocalObject* IceSSL::upCast(ConnectionInfo* p) { return p; }
-/// \endcond
-
-namespace Ice
-{
-}
-
-#endif

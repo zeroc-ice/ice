@@ -7,7 +7,6 @@
 
 #include <InterceptorI.h>
 #include <IceUtil/IceUtil.h>
-#include <Ice/UniquePtr.h>
 
 class AMDInterceptorI : public InterceptorI
 {
@@ -24,29 +23,10 @@ public:
 
 private:
 
-#ifndef ICE_CPP11_MAPPING
-    Ice::DispatchInterceptorAsyncCallbackPtr _defaultCb;
-#endif
-    IceInternal::UniquePtr<IceUtil::Exception> _exception;
+    std::unique_ptr<IceUtil::Exception> _exception;
 
     IceUtil::Mutex _mutex;
 };
-ICE_DEFINE_SHARED_PTR(AMDInterceptorIPtr, AMDInterceptorI);
-
-#ifndef ICE_CPP11_MAPPING
-class DispatchInterceptorAsyncCallbackI : public Ice::DispatchInterceptorAsyncCallback
-{
-public:
-
-    DispatchInterceptorAsyncCallbackI(AMDInterceptorI&);
-
-    virtual bool response();
-    virtual bool exception(const std::exception&);
-    virtual bool exception();
-
-private:
-    AMDInterceptorI& _interceptor;
-};
-#endif
+using AMDInterceptorIPtr = std::shared_ptr<AMDInterceptorI>;
 
 #endif

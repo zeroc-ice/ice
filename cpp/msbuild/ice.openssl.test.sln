@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34321.82
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{2D52604F-E2AD-4586-BBD7-BD13536C702C}"
 EndProject
@@ -23,24 +23,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "serveropenssl", "..\test\Ic
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Cpp11-Debug|Win32 = Cpp11-Debug|Win32
-		Cpp11-Debug|x64 = Cpp11-Debug|x64
-		Cpp11-Release|Win32 = Cpp11-Release|Win32
-		Cpp11-Release|x64 = Cpp11-Release|x64
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Cpp11-Debug|Win32.ActiveCfg = Cpp11-Debug|Win32
-		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Cpp11-Debug|Win32.Build.0 = Cpp11-Debug|Win32
-		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Cpp11-Debug|x64.ActiveCfg = Cpp11-Debug|x64
-		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Cpp11-Debug|x64.Build.0 = Cpp11-Debug|x64
-		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Cpp11-Release|Win32.ActiveCfg = Cpp11-Release|Win32
-		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Cpp11-Release|Win32.Build.0 = Cpp11-Release|Win32
-		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Cpp11-Release|x64.ActiveCfg = Cpp11-Release|x64
-		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Cpp11-Release|x64.Build.0 = Cpp11-Release|x64
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Debug|Win32.ActiveCfg = Debug|Win32
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Debug|Win32.Build.0 = Debug|Win32
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Debug|x64.ActiveCfg = Debug|x64
@@ -49,14 +37,6 @@ Global
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Release|Win32.Build.0 = Release|Win32
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Release|x64.ActiveCfg = Release|x64
 		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C}.Release|x64.Build.0 = Release|x64
-		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Cpp11-Debug|Win32.ActiveCfg = Cpp11-Debug|Win32
-		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Cpp11-Debug|Win32.Build.0 = Cpp11-Debug|Win32
-		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Cpp11-Debug|x64.ActiveCfg = Cpp11-Debug|x64
-		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Cpp11-Debug|x64.Build.0 = Cpp11-Debug|x64
-		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Cpp11-Release|Win32.ActiveCfg = Cpp11-Release|Win32
-		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Cpp11-Release|Win32.Build.0 = Cpp11-Release|Win32
-		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Cpp11-Release|x64.ActiveCfg = Cpp11-Release|x64
-		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Cpp11-Release|x64.Build.0 = Cpp11-Release|x64
 		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Debug|Win32.Build.0 = Debug|Win32
 		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Debug|x64.ActiveCfg = Debug|x64
@@ -65,14 +45,6 @@ Global
 		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Release|Win32.Build.0 = Release|Win32
 		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Release|x64.ActiveCfg = Release|x64
 		{34135D29-7ABF-416E-80A9-4077BD6A126F}.Release|x64.Build.0 = Release|x64
-		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Cpp11-Debug|Win32.ActiveCfg = Cpp11-Debug|Win32
-		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Cpp11-Debug|Win32.Build.0 = Cpp11-Debug|Win32
-		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Cpp11-Debug|x64.ActiveCfg = Cpp11-Debug|x64
-		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Cpp11-Debug|x64.Build.0 = Cpp11-Debug|x64
-		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Cpp11-Release|Win32.ActiveCfg = Cpp11-Release|Win32
-		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Cpp11-Release|Win32.Build.0 = Cpp11-Release|Win32
-		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Cpp11-Release|x64.ActiveCfg = Cpp11-Release|x64
-		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Cpp11-Release|x64.Build.0 = Cpp11-Release|x64
 		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Debug|Win32.ActiveCfg = Debug|Win32
 		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Debug|Win32.Build.0 = Debug|Win32
 		{1A83DE5F-3401-4D5D-B9FE-A930D5B15F39}.Debug|x64.ActiveCfg = Debug|x64

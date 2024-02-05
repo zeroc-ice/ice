@@ -93,11 +93,7 @@ public:
      */
     inline UnknownSlicedValuePtr ice_clone() const
     {
-#ifdef ICE_CPP11_MAPPING
         return std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());
-#else
-        return UnknownSlicedValuePtr(std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl()));
-#endif
     }
 
 protected:

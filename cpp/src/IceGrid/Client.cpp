@@ -630,7 +630,7 @@ run(const Ice::StringSeq& args)
 
         if(acmTimeout > 0)
         {
-            session->ice_getConnection()->setACM(acmTimeout, IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+            session->ice_getConnection()->setACM(acmTimeout, IceUtil::None, Ice::ACMHeartbeat::HeartbeatAlways);
         }
 
         {

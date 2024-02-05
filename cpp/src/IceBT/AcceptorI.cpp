@@ -79,7 +79,7 @@ IceBT::AcceptorI::listen()
 
     try
     {
-        ProfileCallbackPtr cb = ICE_MAKE_SHARED(ProfileCallbackI, this);
+        ProfileCallbackPtr cb = make_shared<ProfileCallbackI>(this);
         _path = _instance->engine()->registerProfile(_uuid, _name, _channel, cb);
     }
     catch(const BluetoothException& ex)

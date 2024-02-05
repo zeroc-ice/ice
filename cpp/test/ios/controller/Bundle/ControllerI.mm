@@ -80,13 +80,8 @@ namespace
 
         ProcessControllerI(id<ControllerView>, NSString*, NSString*);
 
-#ifdef ICE_CPP11_MAPPING
         virtual shared_ptr<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
         virtual string getHost(string, bool, const Ice::Current&);
-#else
-        virtual ProcessPrx start(const string&, const string&, const StringSeq&, const Ice::Current&);
-        virtual string getHost(const string&, bool, const Ice::Current&);
-#endif
 
     private:
 
@@ -330,13 +325,8 @@ ProcessControllerI::ProcessControllerI(id<ControllerView> controller, NSString* 
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 shared_ptr<ProcessPrx>
 ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ice::Current& c)
-#else
-ProcessPrx
-ProcessControllerI::start(const string& testSuite, const string& exe, const StringSeq& args, const Ice::Current& c)
-#endif
 {
     StringSeq newArgs = args;
     std::string prefix = std::string("test/") + testSuite;
@@ -350,15 +340,11 @@ ProcessControllerI::start(const string& testSuite, const string& exe, const Stri
     // test on arm64 devices with a debug Ice libraries which require lots of stack space.
     //
     helper->start(768 * 1024);
-    return ICE_UNCHECKED_CAST(ProcessPrx, c.adapter->addWithUUID(ICE_MAKE_SHARED(ProcessI, _controller, helper.get())));
+    return ICE_UNCHECKED_CAST(ProcessPrx, c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper.get())));
 }
 
 string
-#ifdef ICE_CPP11_MAPPING
 ProcessControllerI::getHost(string protocol, bool ipv6, const Ice::Current& c)
-#else
-ProcessControllerI::getHost(const string& protocol, bool ipv6, const Ice::Current& c)
-#endif
 {
     return ipv6 ? _ipv6 : _ipv4;
 }
@@ -386,7 +372,7 @@ ControllerI::ControllerI(id<ControllerView> controller, NSString* ipv4, NSString
     ident.category = "iPhoneOS";
 #endif
     ident.name = [[[NSBundle mainBundle] bundleIdentifier] UTF8String];
-    adapter->add(ICE_MAKE_SHARED(ProcessControllerI, controller, ipv4, ipv6), ident);
+    adapter->add(make_shared<ProcessControllerI>(controller, ipv4, ipv6), ident);
     adapter->activate();
 }
 

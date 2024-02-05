@@ -17,17 +17,10 @@ public:
     void flushBatch();
     void setConnection(const Ice::ConnectionPtr&);
 
-#ifdef ICE_CPP11_MAPPING
-
     virtual void ice_invokeAsync(std::vector<Ice::Byte>,
                                  std::function<void(bool, const std::vector<Ice::Byte>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) override;
-
-#else
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
-                                  const Ice::Current&);
-#endif
 
 private:
 
@@ -38,6 +31,6 @@ private:
     Ice::ConnectionPtr _connection;
 };
 
-ICE_DEFINE_SHARED_PTR(BlobjectIPtr, BlobjectI);
+using BlobjectIPtr = std::shared_ptr<BlobjectI>;
 
 #endif

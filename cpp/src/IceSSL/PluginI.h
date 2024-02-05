@@ -20,7 +20,7 @@ public:
     TrustError errorCode;
     std::string host;
 };
-ICE_DEFINE_PTR(ExtendedConnectionInfoPtr, ExtendedConnectionInfo);
+using ExtendedConnectionInfoPtr = std::shared_ptr<ExtendedConnectionInfo>;
 
 // TODO: This class provides new certificate virtual methods that canot be added directly to the certificate class
 // without breaking binary compatibility. The class can be removed once the relevant methods can be marked as virtual in
@@ -47,13 +47,8 @@ public:
     //
     // From IceSSL::Plugin.
     //
-#ifdef ICE_CPP11_MAPPING
     virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)>);
     virtual void setPasswordPrompt(std::function<std::string()>);
-#else
-    virtual void setCertificateVerifier(const CertificateVerifierPtr&);
-    virtual void setPasswordPrompt(const PasswordPromptPtr&);
-#endif
 
     virtual CertificatePtr load(const std::string&) const = 0;
     virtual CertificatePtr decode(const std::string&) const = 0;

@@ -14,7 +14,7 @@ namespace Ice
 // The base class for all ImplicitContext implementations
 //
 class ImplicitContextI;
-ICE_DEFINE_PTR(ImplicitContextIPtr,ImplicitContextI);
+using ImplicitContextIPtr = std::shared_ptr<ImplicitContextI>;
 
 class ImplicitContextI : public ImplicitContext
 {
@@ -42,7 +42,7 @@ public:
 
 };
 
-ICE_DEFINE_PTR(ImplicitContextIPtr, ImplicitContextI);
+using ImplicitContextIPtr = std::shared_ptr<ImplicitContextI>;
 
 }
 #endif

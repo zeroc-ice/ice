@@ -8,35 +8,35 @@
 using namespace Test;
 
 MA::IAPrxPtr
-IAI::iaop(ICE_IN(MA::IAPrxPtr) p, const Ice::Current&)
+IAI::iaop(MA::IAPrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MB::IB1PrxPtr
-IB1I::ib1op(ICE_IN(MB::IB1PrxPtr) p, const Ice::Current&)
+IB1I::ib1op(MB::IB1PrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MB::IB2PrxPtr
-IB2I::ib2op(ICE_IN(MB::IB2PrxPtr) p, const Ice::Current&)
+IB2I::ib2op(MB::IB2PrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 MA::ICPrxPtr
-ICI::icop(ICE_IN(MA::ICPrxPtr) p, const Ice::Current&)
+ICI::icop(MA::ICPrxPtr p, const Ice::Current&)
 {
     return p;
 }
 
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter)
 {
-    _ia = ICE_UNCHECKED_CAST(MA::IAPrx, adapter->addWithUUID(ICE_MAKE_SHARED(IAI)));
-    _ib1 = ICE_UNCHECKED_CAST(MB::IB1Prx, adapter->addWithUUID(ICE_MAKE_SHARED(IB1I)));
-    _ib2 = ICE_UNCHECKED_CAST(MB::IB2Prx, adapter->addWithUUID(ICE_MAKE_SHARED(IB2I)));
-    _ic = ICE_UNCHECKED_CAST(MA::ICPrx, adapter->addWithUUID(ICE_MAKE_SHARED(ICI)));
+    _ia = ICE_UNCHECKED_CAST(MA::IAPrx, adapter->addWithUUID(std::make_shared<IAI>()));
+    _ib1 = ICE_UNCHECKED_CAST(MB::IB1Prx, adapter->addWithUUID(std::make_shared<IB1I>()));
+    _ib2 = ICE_UNCHECKED_CAST(MB::IB2Prx, adapter->addWithUUID(std::make_shared<IB2I>()));
+    _ic = ICE_UNCHECKED_CAST(MA::ICPrx, adapter->addWithUUID(std::make_shared<ICI>()));
 }
 
 void

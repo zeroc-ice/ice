@@ -31,19 +31,11 @@ public:
     virtual void shutdown(const Ice::Current&);
 };
 
-#ifdef ICE_CPP11_MAPPING
 class Cookie
-#else
-class Cookie : public Ice::LocalObject
-#endif
 {
 public:
 
     std::string message() const;
 };
-
-#ifndef ICE_CPP11_MAPPING
-typedef IceUtil::Handle<Cookie> CookiePtr;
-#endif
 
 #endif

@@ -5,6 +5,7 @@
 using System;
 using System.Reflection;
 using System.Linq;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -18,7 +19,7 @@ public class Client : Test.TestHelper
     {
         using(var communicator = initialize(ref args))
         {
-            if(args.Any(v => v.Equals("--with-deploy")))
+            if(args.Any(v => v == "--with-deploy"))
             {
                 AllTests.allTestsWithDeploy(this);
             }
@@ -29,8 +30,6 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        Test.TestDriver.runTestAsync<Client>(args);
 }

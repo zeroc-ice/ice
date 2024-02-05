@@ -7,6 +7,8 @@
 #include <TestI.h>
 #include <TestHelper.h>
 
+using namespace std;
+
 HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter) :
     _last(0), _timer(timer), _adapter(adapter)
 {
@@ -59,7 +61,7 @@ HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
     {
         try
         {
-            _timer->schedule(ICE_MAKE_SHARED(PutOnHold, _adapter), IceUtil::Time::milliSeconds(milliSeconds));
+            _timer->schedule(make_shared<PutOnHold>(_adapter), IceUtil::Time::milliSeconds(milliSeconds));
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
@@ -103,7 +105,7 @@ HoldI::waitForHold(const Ice::Current& current)
 
     try
     {
-        _timer->schedule(ICE_MAKE_SHARED(WaitForHold, current.adapter), IceUtil::Time());
+        _timer->schedule(make_shared<WaitForHold>(current.adapter), IceUtil::Time());
     }
     catch(const IceUtil::IllegalArgumentException&)
     {

@@ -3,6 +3,7 @@
 //
 
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -13,11 +14,11 @@ namespace Ice
         {
             public static Ice.Value MyValueFactory(string type)
             {
-                if(type.Equals("::Test::I"))
+                if(type == "::Test::I")
                 {
                     return new II();
                 }
-                else if(type.Equals("::Test::J"))
+                else if(type == "::Test::J")
                 {
                     return new JI();
                 }
@@ -50,10 +51,8 @@ namespace Ice
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Server>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Server>(args);
         }
     }
 }

@@ -28,34 +28,6 @@ namespace Ice
 /** A default-initialized Current instance. */
 ICE_API extern const Current emptyCurrent;
 
-#ifndef ICE_CPP11_MAPPING
-/**
- * Abstract callback class for an asynchronous dispatch interceptor.
- * \headerfile Ice/Ice.h
- */
-class ICE_API DispatchInterceptorAsyncCallback : public virtual IceUtil::Shared
-{
-public:
-
-    virtual ~DispatchInterceptorAsyncCallback();
-
-    /** Called when the dispatch completes successfully. */
-    virtual bool response() = 0;
-
-    /**
-     * Called when the dispatch fails with an exception.
-     * @param ex The exception that caused the failure.
-     */
-    virtual bool exception(const std::exception& ex) = 0;
-
-    /**
-     * Called when the dispatch fails with an unknown exception.
-     */
-    virtual bool exception() = 0;
-};
-ICE_DEFINE_PTR(DispatchInterceptorAsyncCallbackPtr, DispatchInterceptorAsyncCallback);
-#endif
-
 /**
  * Encapsulates details about a dispatch request.
  * \headerfile Ice/Ice.h
@@ -108,8 +80,7 @@ public:
     /**
      * Returns the Slice type IDs of the interfaces supported by this object.
      * @param current The Current object for the invocation.
-     * @return The Slice type IDs of the interfaces supported by this object, in base-to-derived
-     * order. The first element of the returned array is always "::Ice::Object".
+     * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
      */
     virtual std::vector< std::string> ice_ids(const Current& current) const;
     /// \cond INTERNAL
@@ -133,7 +104,6 @@ public:
     static const std::string& ice_staticId();
 
 // TODO: temporary. To remove it, we need to refactor IncomingAsync that is the base class for generated AMD callbacks.
-#ifdef ICE_CPP11_MAPPING
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
      * to a servant (or to another interceptor).
@@ -148,17 +118,6 @@ public:
     virtual bool ice_dispatch(Ice::Request& request,
                               std::function<bool()> response = nullptr,
                               std::function<bool(std::exception_ptr)> error = nullptr);
-#else
-    /**
-     * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
-     * to a servant (or to another interceptor).
-     * @param request The details of the invocation.
-     * @param cb The asynchronous callback object.
-     * @return True if the request completed synchronously, false if the request will be completed asynchronously.
-     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
-     */
-    virtual bool ice_dispatch(Ice::Request& request, const DispatchInterceptorAsyncCallbackPtr& cb = 0);
-#endif
 
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -209,8 +168,7 @@ public:
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      */
-    virtual bool ice_invoke(ICE_IN(std::vector<Byte>) inEncaps, std::vector<Byte>& outEncaps,
-                            const Current& current) = 0;
+    virtual bool ice_invoke(std::vector<Byte> inEncaps, std::vector<Byte>& outEncaps, const Current& current) = 0;
 
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -238,7 +196,7 @@ public:
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      */
-    virtual bool ice_invoke(ICE_IN(std::pair<const Byte*, const Byte*>) inEncaps, std::vector<Byte>& outEncaps,
+    virtual bool ice_invoke(std::pair<const Byte*, const Byte*> inEncaps, std::vector<Byte>& outEncaps,
                             const Current& current) = 0;
 
     /// \cond INTERNAL
@@ -255,7 +213,6 @@ class ICE_API BlobjectAsync : public virtual Object
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Dispatch an incoming request asynchronously.
      *
@@ -273,19 +230,6 @@ public:
                                  std::function<void(bool, const std::vector<Byte>&)> response,
                                  std::function<void(std::exception_ptr)> error,
                                  const Current& current) = 0;
-#else
-    /**
-     * Dispatch an incoming request asynchronously.
-     *
-     * @param cb The callback to invoke when the invocation completes.
-     * @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-     * @param current The Current object for the invocation.
-     * @throws UserException A user exception can be raised directly and the
-     * run time will marshal it.
-     */
-    virtual void ice_invoke_async(const AMD_Object_ice_invokePtr& cb, const std::vector<Byte>& inEncaps,
-                                  const Current& current) = 0;
-#endif
 
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -301,7 +245,6 @@ class ICE_API BlobjectArrayAsync : public virtual Object
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Dispatch an incoming request asynchronously.
      *
@@ -319,21 +262,6 @@ public:
                                  std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
                                  std::function<void(std::exception_ptr)> error,
                                  const Current& current) = 0;
-#else
-    /**
-     * Dispatch an incoming request asynchronously.
-     *
-     * @param cb The callback to invoke when the invocation completes.
-     * @param inEncaps An encapsulation containing the encoded in-parameters for the operation.
-     * @param current The Current object for the invocation.
-     * @throws UserException A user exception can be raised directly and the
-     * run time will marshal it.
-     */
-    virtual void ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
-                                  const std::pair<const Byte*, const Byte*>& inEncaps,
-                                  const Current& current) = 0;
-#endif
-
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
     /// \endcond

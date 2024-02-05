@@ -123,7 +123,7 @@ IceObjC::iAPEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceObjC::iAPEndpointI::getInfo() const noexcept
 {
-    IceIAP::EndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<IceIAP::EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
+    IceIAP::EndpointInfoPtr info = make_shared<InfoI<IceIAP::EndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
     info->timeout = _timeout;
     info->compress = _compress;
     info->manufacturer = _manufacturer;
@@ -172,8 +172,7 @@ IceObjC::iAPEndpointI::timeout(Int t) const
     }
     else
     {
-        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, t, _connectionId,
-                               _compress);
+        return make_shared<iAPEndpointI>(_instance, _manufacturer, _modelNumber, _name, _protocol, t, _connectionId, _compress);
     }
 }
 
@@ -192,8 +191,7 @@ IceObjC::iAPEndpointI::connectionId(const string& cId) const
     }
     else
     {
-        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, cId,
-                               _compress);
+        return make_shared<iAPEndpointI>(_instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, cId, _compress);
     }
 }
 
@@ -212,8 +210,7 @@ IceObjC::iAPEndpointI::compress(bool c) const
     }
     else
     {
-        return ICE_MAKE_SHARED(iAPEndpointI, _instance, _manufacturer, _modelNumber, _name, _protocol, _timeout,
-                               _connectionId, c);
+        return make_shared<iAPEndpointI>(_instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, _connectionId, c);
     }
 }
 
@@ -318,11 +315,7 @@ IceObjC::iAPEndpointI::equivalent(const EndpointIPtr& endpoint) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceObjC::iAPEndpointI::operator==(const Ice::Endpoint& r) const
-#else
-IceObjC::iAPEndpointI::operator==(const Ice::LocalObject& r) const
-#endif
 {
     const iAPEndpointI* p = dynamic_cast<const iAPEndpointI*>(&r);
     if(!p)
@@ -374,11 +367,7 @@ IceObjC::iAPEndpointI::operator==(const Ice::LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceObjC::iAPEndpointI::operator<(const Ice::Endpoint& r) const
-#else
-IceObjC::iAPEndpointI::operator<(const Ice::LocalObject& r) const
-#endif
 {
     const iAPEndpointI* p = dynamic_cast<const iAPEndpointI*>(&r);
     if(!p)
@@ -678,7 +667,8 @@ IceObjC::iAPEndpointFactory::create(vector<string>& args, bool oaEndpoint) const
     {
         return 0;
     }
-    EndpointIPtr endpt = ICE_MAKE_SHARED(iAPEndpointI, _instance);
+
+    auto endpt = make_shared<iAPEndpointI>(_instance);
     endpt->initWithOptions(args);
     return endpt;
 }
@@ -686,7 +676,7 @@ IceObjC::iAPEndpointFactory::create(vector<string>& args, bool oaEndpoint) const
 EndpointIPtr
 IceObjC::iAPEndpointFactory::read(InputStream* s) const
 {
-    return ICE_MAKE_SHARED(iAPEndpointI, _instance, s);
+    return make_shared<iAPEndpointI>(_instance, s);
 }
 
 void

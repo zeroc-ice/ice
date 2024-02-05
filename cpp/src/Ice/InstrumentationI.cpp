@@ -17,11 +17,7 @@ using namespace IceInternal;
 using namespace Ice::Instrumentation;
 using namespace IceMX;
 
-#ifdef ICE_CPP11_MAPPING
-#  define ICE_OBJECT_PRX Ice::ObjectPrx
-#else
-#  define ICE_OBJECT_PRX IceProxy::Ice::Object
-#endif
+#define ICE_OBJECT_PRX Ice::ObjectPrx
 
 namespace
 {

@@ -663,11 +663,7 @@ Ice::ObjectAdapterI::setPublishedEndpoints(const EndpointSeq& newEndpoints)
         if(_routerInfo)
         {
             const string s("can't set published endpoints on object adapter associated with a router");
-    #ifdef ICE_CPP11_MAPPING
             throw invalid_argument(s);
-    #else
-            throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, s);
-    #endif
         }
 
         oldPublishedEndpoints = _publishedEndpoints;
@@ -1036,11 +1032,8 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
                 vector<EndpointIPtr> expanded = (*p)->expandHost(publishedEndpoint);
                 for(vector<EndpointIPtr>::iterator q = expanded.begin(); q != expanded.end(); ++q)
                 {
-                    IncomingConnectionFactoryPtr factory = ICE_MAKE_SHARED(IncomingConnectionFactory,
-                                                                           _instance,
-                                                                           *q,
-                                                                           publishedEndpoint,
-                                                                           shared_from_this());
+                    auto factory =
+                        make_shared<IncomingConnectionFactory>(_instance, *q, publishedEndpoint, shared_from_this());
                     factory->initialize();
                     _incomingConnectionFactories.push_back(factory);
                 }

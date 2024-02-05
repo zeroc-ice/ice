@@ -3,6 +3,7 @@
 //
 
 using System.Linq;
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -47,7 +48,7 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                bool async = args.Any(v => v.Equals("--async"));
+                bool async = args.Any(v => v == "--async");
                 using(var communicator = initialize(ref args))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
@@ -59,10 +60,8 @@ namespace Ice
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Server>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Server>(args);
         }
     }
 }

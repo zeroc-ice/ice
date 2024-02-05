@@ -36,9 +36,6 @@ const int GLACIER2_TCP_PORT = 4063;
  * \headerfile Glacier2/Glacier2.h
  */
 class GLACIER2_API SessionHelper
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
     virtual ~SessionHelper();
@@ -90,23 +87,14 @@ public:
      * @throws SessionNotExistException if no session is currently active.
      */
     virtual Ice::ObjectAdapterPtr objectAdapter() = 0;
-
-#ifndef ICE_CPP11_MAPPING
-    bool operator==(const SessionHelper&) const;
-    bool operator!=(const SessionHelper&) const;
-#endif
-
 };
-ICE_DEFINE_PTR(SessionHelperPtr, SessionHelper);
+using SessionHelperPtr = std::shared_ptr<SessionHelper>;
 
 /**
  * Allows an application to receive notification about events in the lifecycle of a Glacier2 session.
  * \headerfile Glacier2/Glacier2.h
  */
 class GLACIER2_API SessionCallback
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
     virtual ~SessionCallback();
@@ -136,7 +124,7 @@ public:
      */
     virtual void connectFailed(const SessionHelperPtr& session, const Ice::Exception& ex) = 0;
 };
-ICE_DEFINE_PTR(SessionCallbackPtr, SessionCallback);
+using SessionCallbackPtr = std::shared_ptr<SessionCallback>;
 
 /// \cond INTERNAL
 class SessionThreadCallback;
@@ -146,12 +134,7 @@ class SessionThreadCallback;
  * Facilitates the creation of new Glacier2 sessions.
  * \headerfile Glacier2/Glacier2.h
  */
-class GLACIER2_API SessionFactoryHelper
-#ifdef ICE_CPP11_MAPPING
-    : public std::enable_shared_from_this<SessionFactoryHelper>
-#else
-    : public virtual IceUtil::Shared
-#endif
+class GLACIER2_API SessionFactoryHelper : public std::enable_shared_from_this<SessionFactoryHelper>
 {
     /// \cond INTERNAL
     friend class SessionThreadCallback; // To access thread functions
@@ -312,7 +295,7 @@ private:
     bool _useCallbacks;
     std::map<const SessionHelper*, IceUtil::ThreadPtr> _threads;
 };
-ICE_DEFINE_PTR(SessionFactoryHelperPtr, SessionFactoryHelper);
+using SessionFactoryHelperPtr = std::shared_ptr<SessionFactoryHelper>;
 
 }
 

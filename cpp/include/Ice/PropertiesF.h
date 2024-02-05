@@ -14,7 +14,6 @@
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
 #include <Ice/Proxy.h>
-#include <IceUtil/ScopedArray.h>
 #include <Ice/Optional.h>
 #include <IceUtil/UndefSysMacros.h>
 
@@ -27,8 +26,6 @@
 #       define ICE_API ICE_DECLSPEC_IMPORT
 #   endif
 #endif
-
-#ifdef ICE_CPP11_MAPPING // C++11 mapping
 
 namespace Ice
 {
@@ -54,21 +51,6 @@ using PropertiesPtr = ::std::shared_ptr<Properties>;
 
 }
 /// \endcond
-
-#else // C++98 mapping
-
-namespace Ice
-{
-
-class Properties;
-/// \cond INTERNAL
-ICE_API LocalObject* upCast(Properties*);
-/// \endcond
-typedef ::IceInternal::Handle< Properties> PropertiesPtr;
-
-}
-
-#endif
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

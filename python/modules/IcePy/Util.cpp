@@ -109,13 +109,13 @@ versionToString(PyObject* args, const char* type)
     PyObject* p;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), versionType, &p))
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     T v;
     if(!getVersion<T>(p, v))
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     string s;
@@ -126,7 +126,7 @@ versionToString(PyObject* args, const char* type)
     catch(const Ice::Exception& ex)
     {
         IcePy::setPythonException(ex);
-        return ICE_NULLPTR;
+        return nullptr;
     }
     return createString(s);
 }
@@ -137,7 +137,7 @@ stringToVersion(PyObject* args, const char* type)
     char* str;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
     {
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     T v;
@@ -148,7 +148,7 @@ stringToVersion(PyObject* args, const char* type)
     catch(const Ice::Exception& ex)
     {
         IcePy::setPythonException(ex);
-        return ICE_NULLPTR;
+        return nullptr;
     }
 
     return createVersion<T>(v, type);

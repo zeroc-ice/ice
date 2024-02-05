@@ -95,42 +95,34 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     InitialPrxPtr initial = ICE_CHECKED_CAST(InitialPrx, base);
     test(initial);
-#ifdef ICE_CPP11_MAPPING
     test(Ice::targetEqualTo(initial, base));
-#else
-    test(initial == base);
-#endif
     cout << "ok" << endl;
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
 
-    BasePtr ba1 = ICE_MAKE_SHARED(Base);
+    BasePtr ba1 = make_shared<Base>();
     test(ba1->theS.str == "");
     test(ba1->str == "");
 
     S s;
     s.str = "hello";
-    BasePtr ba2 = ICE_MAKE_SHARED(Base, s, "hi");
+    BasePtr ba2 = make_shared<Base>(s, "hi");
     test(ba2->theS.str == "hello");
     test(ba2->str == "hi");
 
-#ifdef ICE_CPP11_MAPPING
     test(*ba1 < *ba2);
     test(*ba2 > *ba1);
     test(*ba1 != *ba2);
-#endif
 
     *ba1 = *ba2;
     test(ba1->theS.str == "hello");
     test(ba1->str == "hi");
 
-#ifdef ICE_CPP11_MAPPING
     test(*ba1 == *ba2);
     test(*ba1 >= *ba2);
     test(*ba1 <= *ba2);
-#endif
 
-    BasePtr bp1 = ICE_MAKE_SHARED(Base);
+    BasePtr bp1 = make_shared<Base>();
     *bp1 = *ba2;
     test(bp1->theS.str == "hello");
     test(bp1->str == "hi");
@@ -167,21 +159,14 @@ allTests(Test::TestHelper* helper)
 
     cout << "checking consistency... " << flush;
     test(b1 != b2);
-#ifdef ICE_CPP11_MAPPING
     test(b1 != dynamic_pointer_cast<B>(c));
     test(b1 != dynamic_pointer_cast<B>(d));
     test(b2 != dynamic_pointer_cast<B>(c));
     test(b2 != dynamic_pointer_cast<B>(d));
     test(c != dynamic_pointer_cast<C>(d));
-#else
-    test(b1 != BPtr::dynamicCast(c));
-    test(b1 != BPtr::dynamicCast(d));
-    test(b2 != BPtr::dynamicCast(c));
-    test(b2 != BPtr::dynamicCast(d));
-    test(c != CPtr::dynamicCast(d));
-#endif
+
     test(b1->theB == b1);
-    test(b1->theC == ICE_NULLPTR);
+    test(b1->theC == nullptr);
     test(ICE_DYNAMIC_CAST(B, b1->theA));
     test(ICE_DYNAMIC_CAST(B, b1->theA)->theA == b1->theA);
     test(ICE_DYNAMIC_CAST(B, b1->theA)->theB == b1);
@@ -192,16 +177,12 @@ allTests(Test::TestHelper* helper)
     test(b1->postUnmarshalInvoked);
     test(b1->theA->preMarshalInvoked);
     test(b1->theA->postUnmarshalInvoked);
-#ifdef ICE_CPP11_MAPPING
     test(dynamic_pointer_cast<B>(b1->theA)->theC->preMarshalInvoked);
     test(dynamic_pointer_cast<B>(b1->theA)->theC->postUnmarshalInvoked);
-#else
-    test(BPtr::dynamicCast(b1->theA)->theC->preMarshalInvoked);
-    test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked);
-#endif
+
     // More tests possible for b2 and d, but I think this is already sufficient.
     test(b2->theA == b2);
-    test(d->theC == ICE_NULLPTR);
+    test(d->theC == nullptr);
 
     clear(b1);
     clear(b2);
@@ -218,7 +199,6 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "checking consistency... " << flush;
-#ifdef ICE_CPP11_MAPPING
     test(b1 != b2);
     test(b1 != dynamic_pointer_cast<B>(c));
     test(b1 != dynamic_pointer_cast<B>(d));
@@ -235,24 +215,7 @@ allTests(Test::TestHelper* helper)
     test(d->theA == dynamic_pointer_cast<A>(b1));
     test(d->theB == dynamic_pointer_cast<B>(b2));
     test(d->theC == nullptr);
-#else
-    test(b1 != b2);
-    test(b1 != BPtr::dynamicCast(c));
-    test(b1 != BPtr::dynamicCast(d));
-    test(b2 != BPtr::dynamicCast(c));
-    test(b2 != BPtr::dynamicCast(d));
-    test(c != CPtr::dynamicCast(d));
-    test(b1->theA == b2);
-    test(b1->theB == b1);
-    test(b1->theC == ICE_NULLPTR);
-    test(b2->theA == b2);
-    test(b2->theB == b1);
-    test(b2->theC == c);
-    test(c->theB == b2);
-    test(d->theA == b1);
-    test(d->theB == b2);
-    test(d->theC == ICE_NULLPTR);
-#endif
+
     test(d->preMarshalInvoked);
     test(d->postUnmarshalInvoked);
     test(d->theA->preMarshalInvoked);
@@ -271,11 +234,6 @@ allTests(Test::TestHelper* helper)
 
     EIPtr e = ICE_DYNAMIC_CAST(EI, initial->getE());
     FIPtr f = ICE_DYNAMIC_CAST(FI, initial->getF());
-#ifndef ICE_CPP11_MAPPING
-    test(e->checkValues());
-    test(f->checkValues());
-    test(ICE_DYNAMIC_CAST(EI, f->e2)->checkValues());
-#endif
     cout << "ok" << endl;
 
     cout << "getting K... " << flush;
@@ -289,7 +247,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing Value as parameter..." << flush;
     {
-        LPtr v1 = ICE_MAKE_SHARED(L, "l");
+        LPtr v1 = make_shared<L>("l");
         Ice::ValuePtr v2;
         Ice::ValuePtr v3 = initial->opValue(v1, v2);
         test(ICE_DYNAMIC_CAST(L, v2)->data == "l");
@@ -297,7 +255,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        LPtr l = ICE_MAKE_SHARED(L, "l");
+        LPtr l = make_shared<L>("l");
         Test::ValueSeq v1;
         v1.push_back(l);
         Test::ValueSeq v2;
@@ -307,7 +265,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        LPtr l = ICE_MAKE_SHARED(L, "l");
+        LPtr l = make_shared<L>("l");
         Test::ValueMap v1;
         v1["l"] = l;
         Test::ValueMap v2;
@@ -318,11 +276,10 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "getting D1... " << flush;
-    D1Ptr d1 = ICE_MAKE_SHARED(D1,
-                               ICE_MAKE_SHARED(A1, "a1"),
-                               ICE_MAKE_SHARED(A1, "a2"),
-                               ICE_MAKE_SHARED(A1, "a3"),
-                               ICE_MAKE_SHARED(A1, "a4"));
+    D1Ptr d1 = make_shared<D1>(make_shared<A1>("a1"),
+                               make_shared<A1>("a2"),
+                               make_shared<A1>("a3"),
+                               make_shared<A1>("a4"));
     d1 = initial->getD1(d1);
     test(d1->a1->name == "a1");
     test(d1->a2->name == "a2");
@@ -346,7 +303,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "setting G... " << flush;
-    GPtr g = ICE_MAKE_SHARED(G, s, "g");
+    GPtr g = make_shared<G>(s, "g");
     try
     {
         initial->setG(g);
@@ -361,13 +318,13 @@ allTests(Test::TestHelper* helper)
     retS = initial->opBaseSeq(inS, outS);
 
     inS.resize(1);
-    inS[0] = ICE_MAKE_SHARED(Base);
+    inS[0] = make_shared<Base>();
     retS = initial->opBaseSeq(inS, outS);
     test(retS.size() == 1 && outS.size() == 1);
     cout << "ok" << endl;
 
     cout << "testing recursive type... " << flush;
-    RecursivePtr top = ICE_MAKE_SHARED(Recursive);
+    RecursivePtr top = make_shared<Recursive>();
     int depth = 0;
     try
     {
@@ -380,7 +337,7 @@ allTests(Test::TestHelper* helper)
 #endif
         for(; depth <= maxDepth; ++depth)
         {
-            p->v = ICE_MAKE_SHARED(Recursive);
+            p->v = make_shared<Recursive>();
             p = p->v;
             if((depth < 10 && (depth % 10) == 0) ||
                (depth < 1000 && (depth % 100) == 0) ||
@@ -401,7 +358,7 @@ allTests(Test::TestHelper* helper)
     {
         // Expected stack overflow from the server (Java only)
     }
-    initial->setRecursive(ICE_MAKE_SHARED(Recursive));
+    initial->setRecursive(make_shared<Recursive>());
     cout << "ok" << endl;
 
     cout << "testing compact ID..." << flush;
@@ -418,11 +375,7 @@ allTests(Test::TestHelper* helper)
     b1 = initial->getMB();
     test(b1 && b1->theB == b1);
     clear(b1);
-#ifdef ICE_CPP11_MAPPING
     b1 = initial->getAMDMBAsync().get();
-#else
-    b1 = initial->end_getAMDMB(initial->begin_getAMDMB());
-#endif
     test(b1 && b1->theB == b1);
     clear(b1);
     cout << "ok" << endl;
@@ -465,17 +418,17 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing class containing complex dictionary... " << flush;
     {
-        Test::MPtr m = ICE_MAKE_SHARED(Test::M);
+        Test::MPtr m = make_shared<Test::M>();
 
         Test::StructKey k1;
         k1.i = 1;
         k1.s = "1";
-        m->v[k1] = ICE_MAKE_SHARED(L, "one");
+        m->v[k1] = make_shared<L>("one");
 
         Test::StructKey k2;
         k2.i = 2;
         k2.s = "2";
-        m->v[k2] = ICE_MAKE_SHARED(L, "two");
+        m->v[k2] = make_shared<L>("two");
 
         Test::MPtr m1;
         Test::MPtr m2 = initial->opM(m, m1);
@@ -495,7 +448,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing forward declarations... " << flush;
     {
         F1Ptr f12;
-        F1Ptr f11 = initial->opF1(ICE_MAKE_SHARED(F1, "F11"), f12);
+        F1Ptr f11 = initial->opF1(make_shared<F1>("F11"), f12);
         test(f11->name == "F11");
         test(f12->name == "F12");
 
@@ -509,7 +462,7 @@ allTests(Test::TestHelper* helper)
         if(initial->hasF3())
         {
             F3Ptr f32;
-            F3Ptr f31 = initial->opF3(ICE_MAKE_SHARED(F3, f11, f21), f32);
+            F3Ptr f31 = initial->opF3(make_shared<F3>(f11, f21), f32);
             test(f31->f1->name == "F11");
             test(f31->f2->ice_getIdentity().name == "F21");
 
@@ -521,7 +474,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing sending class cycle... " << flush;
     {
-        RecursivePtr rec = ICE_MAKE_SHARED(Recursive);
+        RecursivePtr rec = make_shared<Recursive>();
         rec->v = rec;
         bool acceptsCycles = initial->acceptsClassCycles();
         try
@@ -535,7 +488,7 @@ allTests(Test::TestHelper* helper)
             // and throws a MarshalException
             test(!acceptsCycles);
         }
-        rec->v = ICE_NULLPTR;
+        rec->v = nullptr;
     }
     cout << "ok" << endl;
 

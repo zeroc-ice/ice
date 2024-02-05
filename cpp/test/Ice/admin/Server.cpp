@@ -22,7 +22,7 @@ Server::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint() + " -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = Ice::stringToIdentity("factory");
-    adapter->add(ICE_MAKE_SHARED(RemoteCommunicatorFactoryI), id);
+    adapter->add(std::make_shared<RemoteCommunicatorFactoryI>(), id);
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

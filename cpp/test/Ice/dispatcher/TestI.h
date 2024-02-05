@@ -9,7 +9,7 @@
 #include <Test.h>
 
 class TestIntfControllerI;
-ICE_DEFINE_SHARED_PTR(TestIntfControllerIPtr, TestIntfControllerI);
+using TestIntfControllerIPtr = std::shared_ptr<TestIntfControllerI>;
 
 class TestIntfI : public virtual Test::TestIntf
 {
@@ -17,11 +17,7 @@ public:
 
     virtual void op(const Ice::Current&);
     virtual void sleep(Ice::Int, const Ice::Current&);
-#ifdef ICE_CPP11_MAPPING
     virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
-#else
-    virtual void opWithPayload(const Ice::ByteSeq&, const Ice::Current&);
-#endif
     virtual void shutdown(const Ice::Current&);
 };
 

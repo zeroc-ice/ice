@@ -25,7 +25,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
         Ice::ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->findObjectAdapter(proxy);
         if(adapter)
         {
-            return proxy->_setRequestHandler(ICE_MAKE_SHARED(CollocatedRequestHandler, ref, adapter));
+            return proxy->_setRequestHandler(make_shared<CollocatedRequestHandler>(ref, adapter));
         }
     }
 
@@ -37,7 +37,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
         map<ReferencePtr, ConnectRequestHandlerPtr>::iterator p = _handlers.find(ref);
         if(p == _handlers.end())
         {
-            handler = ICE_MAKE_SHARED(ConnectRequestHandler, ref, proxy);
+            handler = make_shared<ConnectRequestHandler>(ref, proxy);
             _handlers.insert(make_pair(ref, handler));
             connect = true;
         }
@@ -48,16 +48,12 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
     }
     else
     {
-        handler = ICE_MAKE_SHARED(ConnectRequestHandler, ref, proxy);
+        handler = make_shared<ConnectRequestHandler>(ref, proxy);
         connect = true;
     }
     if(connect)
     {
-#ifdef ICE_CPP11_MAPPING
         ref->getConnection(handler);
-#else
-        ref->getConnection(handler.get());
-#endif
     }
     return proxy->_setRequestHandler(handler->connect(proxy));
 }

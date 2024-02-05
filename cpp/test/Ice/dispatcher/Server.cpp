@@ -27,15 +27,11 @@ Server::run(int argc, char** argv)
     //
     initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
 
-#ifdef ICE_CPP11_MAPPING
     IceUtil::Handle<Dispatcher> dispatcher = new Dispatcher;
     initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
         {
             dispatcher->dispatch(make_shared<DispatcherCall>(call), conn);
         };
-#else
-    initData.dispatcher = new Dispatcher();
-#endif
     // The communicator must be destroyed before the dispatcher is terminated.
     {
         Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
@@ -47,9 +43,9 @@ Server::run(int argc, char** argv)
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
         Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
-        TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
+        TestIntfControllerIPtr testController = make_shared<TestIntfControllerI>(adapter);
 
-        adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+        adapter->add(make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
         adapter->activate();
 
         adapter2->add(testController, Ice::stringToIdentity("testController"));

@@ -22,7 +22,7 @@ Server::run(int argc, char** argv)
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     string id = communicator->getProperties()->getPropertyWithDefault("Identity", "test");
-    adapter->add(ICE_MAKE_SHARED(TestI), Ice::stringToIdentity(id));
+    adapter->add(std::make_shared<TestI>(), Ice::stringToIdentity(id));
 
     try
     {

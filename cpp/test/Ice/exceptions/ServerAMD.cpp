@@ -32,7 +32,7 @@ ServerAMD::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
     Ice::ObjectAdapterPtr adapter3 = communicator->createObjectAdapter("TestAdapter3");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(ThrowerI);
+    Ice::ObjectPtr object = std::make_shared<ThrowerI>();
     adapter->add(object, Ice::stringToIdentity("thrower"));
     adapter2->add(object, Ice::stringToIdentity("thrower"));
     adapter3->add(object, Ice::stringToIdentity("thrower"));

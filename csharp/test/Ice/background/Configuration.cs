@@ -160,7 +160,7 @@ internal class Configuration
     private Ice.LocalException _connectException;
     private Ice.LocalException _initializeException;
     private int _readReadyCount;
-    private Ice.LocalException _readException;
+    public Ice.LocalException _readException;
     private int _writeReadyCount;
     private Ice.LocalException _writeException;
     private bool _buffered;

@@ -25,10 +25,10 @@ matlab_cflags = -fexceptions \
     -DMATLAB_MEX_FILE \
     -I$(MATLAB_HOME)/extern/include
 
-matlab_cppflags := $(matlab_cflags) -DICE_CPP11_MAPPING
+matlab_cppflags := $(matlab_cflags)
 
 ifneq ($(shell $(CC) -E config/cplusplus_check.cpp 1> /dev/null 2>&1; echo $$?),0)
-matlab_cppflags := $(matlab_cppflags) -std=c++11
+matlab_cppflags := $(matlab_cppflags) -std=c++17
 endif
 matlab_ldflags  := -L$(MATLAB_HOME)/bin/glnxa64 -lmx -lmex -lmat -lm -lstdc++
 

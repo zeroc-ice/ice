@@ -780,7 +780,7 @@ IceInternal::WSTransceiver::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceInternal::WSTransceiver::getInfo() const
 {
-    WSConnectionInfoPtr info = ICE_MAKE_SHARED(WSConnectionInfo);
+    WSConnectionInfoPtr info = std::make_shared<WSConnectionInfo>();
     info->underlying = _delegate->getInfo();
     info->headers = _parser->getHeaders();
     return info;

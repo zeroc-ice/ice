@@ -77,8 +77,8 @@ Server::run(int argc, char** argv)
 
     adapter->addServantLocator(make_shared<ServantLocatorI>(""), "");
     adapter->addServantLocator(make_shared<ServantLocatorI>("category"), "category");
-    adapter->add(ICE_MAKE_SHARED(TestI), Ice::stringToIdentity("asm"));
-    adapter->add(ICE_MAKE_SHARED(TestActivationI), Ice::stringToIdentity("test/activation"));
+    adapter->add(std::make_shared<TestI>(), Ice::stringToIdentity("asm"));
+    adapter->add(std::make_shared<TestActivationI>(), Ice::stringToIdentity("test/activation"));
     adapter->activate();
     serverReady();
     adapter->waitForDeactivate();

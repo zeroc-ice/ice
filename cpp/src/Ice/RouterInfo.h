@@ -37,13 +37,9 @@ public:
 
 private:
 
-#ifdef ICE_CPP11_MAPPING
     using RouterInfoTable = std::map<std::shared_ptr<Ice::RouterPrx>,
                                      RouterInfoPtr,
                                      Ice::TargetCompare<std::shared_ptr<Ice::RouterPrx>, std::less>>;
-#else
-    typedef std::map<Ice::RouterPrx, RouterInfoPtr> RouterInfoTable;
-#endif
 
     RouterInfoTable _table;
     RouterInfoTable::iterator _tableHint;
@@ -63,16 +59,13 @@ public:
     typedef IceUtil::Handle<GetClientEndpointsCallback> GetClientEndpointsCallbackPtr;
 
     class AddProxyCallback
-#ifndef ICE_CPP11_MAPPING
-        : public virtual IceUtil::Shared
-#endif
     {
     public:
 
         virtual void addedProxy() = 0;
         virtual void setException(const Ice::LocalException&) = 0;
     };
-    ICE_DEFINE_PTR(AddProxyCallbackPtr, AddProxyCallback);
+    using AddProxyCallbackPtr = std::shared_ptr<AddProxyCallback>;
 
     RouterInfo(const Ice::RouterPrxPtr&);
 

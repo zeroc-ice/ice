@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Test;
 
 public class Client : TestHelper
@@ -262,8 +263,6 @@ public class Client : TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Client>(args);
 }

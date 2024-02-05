@@ -3646,13 +3646,9 @@ class CppMapping(Mapping):
 
             if self.buildConfig == platform.getDefaultBuildConfig():
                 if isinstance(platform, Windows):
-                    self.buildConfig = "Cpp11-Release"
+                    self.buildConfig = "Release"
                 else:
-                    self.buildConfig = "cpp11-shared"
-
-            # Derive from the build config the cpp11 option. This is used by canRun to allow filtering
-            # tests on the cpp11 value in the testcase options specification
-            self.cpp11 = self.buildConfig.lower().find("cpp11") >= 0
+                    self.buildConfig = "shared"
 
             parseOptions(
                 self,
@@ -3769,14 +3765,11 @@ class CppMapping(Mapping):
             if current.config.buildPlatform == "iphonesimulator"
             else "iPhoneOS"
         )
-        mapping = "Cpp11" if current.config.cpp11 else "Cpp98"
-        return "{0}/com.zeroc.{1}-Test-Controller".format(category, mapping)
+        return "{0}/com.zeroc.Cpp11-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
         appName = (
             "C++11 Test Controller.app"
-            if current.config.cpp11
-            else "C++98 Test Controller.app"
         )
         path = os.path.join(self.component.getTestDir(self), "ios", "controller")
         path = os.path.join(

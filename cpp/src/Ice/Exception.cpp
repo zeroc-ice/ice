@@ -91,13 +91,11 @@ Ice::UserException::ice_staticId()
     return userException_ids[0];
 }
 
-#ifdef ICE_CPP11_MAPPING
 unique_ptr<Ice::UserException>
 Ice::UserException::ice_clone() const
 {
     return unique_ptr<UserException>(static_cast<UserException*>(ice_cloneImpl()));
 }
-#endif
 
 void
 Ice::UserException::_write(::Ice::OutputStream* os) const
@@ -131,13 +129,11 @@ Ice::LocalException::~LocalException()
    // Out of line to avoid weak vtable
 }
 
-#ifdef ICE_CPP11_MAPPING
 unique_ptr<Ice::LocalException>
 Ice::LocalException::ice_clone() const
 {
     return unique_ptr<LocalException>(static_cast<LocalException*>(ice_cloneImpl()));
 }
-#endif
 
 namespace
 {
@@ -164,13 +160,11 @@ Ice::SystemException::~SystemException()
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 unique_ptr<Ice::SystemException>
 Ice::SystemException::ice_clone() const
 {
     return unique_ptr<SystemException>(static_cast<SystemException*>(ice_cloneImpl()));
 }
-#endif
 
 namespace
 {
@@ -306,7 +300,7 @@ void
 Ice::IllegalIdentityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nillegal identity: `" << identityToString(id, ICE_ENUM(ToStringMode, Unicode)) << "'";
+    out << ":\nillegal identity: `" << identityToString(id, ToStringMode::Unicode) << "'";
 }
 
 void
@@ -319,7 +313,7 @@ Ice::IllegalServantException::ice_print(ostream& out) const
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
-    out << ":\nidentity: `" << identityToString(ex.id, ICE_ENUM(ToStringMode, Unicode)) << "'";
+    out << ":\nidentity: `" << identityToString(ex.id, ToStringMode::Unicode) << "'";
     out << "\nfacet: " << ex.facet;
     out << "\noperation: " << ex.operation;
 }

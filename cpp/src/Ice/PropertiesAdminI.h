@@ -11,10 +11,7 @@
 #include <Ice/NativePropertiesAdmin.h>
 #include <Ice/LoggerF.h>
 
-#ifdef ICE_CPP11_MAPPING
 #include <list>
-#endif
-
 namespace IceInternal
 {
 
@@ -27,15 +24,9 @@ public:
 
     PropertiesAdminI(const InstancePtr&);
 
-#ifdef ICE_CPP11_MAPPING
     std::string getProperty(std::string, const Ice::Current&) final;
     Ice::PropertyDict getPropertiesForPrefix(std::string, const Ice::Current&) final;
     void setProperties(::Ice::PropertyDict, const Ice::Current&) final;
-#else
-    std::string getProperty(const std::string&, const Ice::Current&) final;
-    Ice::PropertyDict getPropertiesForPrefix(const std::string&, const Ice::Current&) final;
-    void setProperties(const Ice::PropertyDict&, const Ice::Current&) final;
-#endif
 
     std::function<void()> addUpdateCallback(std::function<void(const Ice::PropertyDict&)>) final;
 
@@ -48,7 +39,7 @@ private:
 
     std::list<std::function<void(const Ice::PropertyDict&)>> _updateCallbacks;
 };
-ICE_DEFINE_SHARED_PTR(PropertiesAdminIPtr, PropertiesAdminI);
+using PropertiesAdminIPtr = std::shared_ptr<PropertiesAdminI>;
 
 }
 

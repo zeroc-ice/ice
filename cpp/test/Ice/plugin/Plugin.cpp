@@ -85,7 +85,7 @@ private:
 };
 
 class BasePlugin;
-ICE_DEFINE_PTR(BasePluginPtr, BasePlugin);
+using BasePluginPtr = std::shared_ptr<BasePlugin>;
 
 class BasePlugin : public Ice::Plugin
 {
@@ -201,7 +201,7 @@ public:
 };
 
 class BasePluginFail;
-ICE_DEFINE_PTR(BasePluginFailPtr, BasePluginFail);
+using BasePluginFailPtr = std::shared_ptr<BasePluginFail>;
 
 class BasePluginFail : public Ice::Plugin
 {

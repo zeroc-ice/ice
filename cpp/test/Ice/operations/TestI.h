@@ -51,8 +51,8 @@ public:
                                       Ice::Double&,
                                       const Ice::Current&);
 
-    virtual std::string opString(ICE_IN(std::string),
-                                 ICE_IN(std::string),
+    virtual std::string opString(std::string,
+                                 std::string,
                                  std::string&,
                                  const Ice::Current&);
 
@@ -60,201 +60,201 @@ public:
                                   Test::MyEnum&,
                                   const Ice::Current&);
 
-    virtual Test::MyClassPrxPtr opMyClass(ICE_IN(Test::MyClassPrxPtr),
+    virtual Test::MyClassPrxPtr opMyClass(Test::MyClassPrxPtr,
                                           Test::MyClassPrxPtr&, Test::MyClassPrxPtr&,
                                           const Ice::Current&);
 
-    virtual Test::Structure opStruct(ICE_IN(Test::Structure),
-                                     ICE_IN(Test::Structure),
+    virtual Test::Structure opStruct(Test::Structure,
+                                     Test::Structure,
                                      Test::Structure&,
                                      const Ice::Current&);
 
-    virtual Test::ByteS opByteS(ICE_IN(Test::ByteS),
-                                ICE_IN(Test::ByteS),
+    virtual Test::ByteS opByteS(Test::ByteS,
+                                Test::ByteS,
                                 Test::ByteS&,
                                 const Ice::Current&);
 
-    virtual Test::BoolS opBoolS(ICE_IN(Test::BoolS),
-                                ICE_IN(Test::BoolS),
+    virtual Test::BoolS opBoolS(Test::BoolS,
+                                Test::BoolS,
                                 Test::BoolS&,
                                 const Ice::Current&);
 
-    virtual Test::LongS opShortIntLongS(ICE_IN(Test::ShortS),
-                                        ICE_IN(Test::IntS),
-                                        ICE_IN(Test::LongS),
+    virtual Test::LongS opShortIntLongS(Test::ShortS,
+                                        Test::IntS,
+                                        Test::LongS,
                                         Test::ShortS&,
                                         Test::IntS&,
                                         Test::LongS&,
                                         const Ice::Current&);
 
-    virtual Test::DoubleS opFloatDoubleS(ICE_IN(Test::FloatS),
-                                         ICE_IN(Test::DoubleS),
+    virtual Test::DoubleS opFloatDoubleS(Test::FloatS,
+                                         Test::DoubleS,
                                          Test::FloatS&,
                                          Test::DoubleS&,
                                          const Ice::Current&);
 
-    virtual Test::StringS opStringS(ICE_IN(Test::StringS),
-                                    ICE_IN(Test::StringS),
+    virtual Test::StringS opStringS(Test::StringS,
+                                    Test::StringS,
                                     Test::StringS&,
                                     const Ice::Current&);
 
-    virtual Test::ByteSS opByteSS(ICE_IN(Test::ByteSS),
-                                  ICE_IN(Test::ByteSS),
+    virtual Test::ByteSS opByteSS(Test::ByteSS,
+                                  Test::ByteSS,
                                   Test::ByteSS&,
                                   const Ice::Current&);
 
-    virtual Test::BoolSS opBoolSS(ICE_IN(Test::BoolSS),
-                                  ICE_IN(Test::BoolSS),
+    virtual Test::BoolSS opBoolSS(Test::BoolSS,
+                                  Test::BoolSS,
                                   Test::BoolSS&,
                                   const Ice::Current&);
 
-    virtual Test::LongSS opShortIntLongSS(ICE_IN(Test::ShortSS),
-                                          ICE_IN(Test::IntSS),
-                                          ICE_IN(Test::LongSS),
+    virtual Test::LongSS opShortIntLongSS(Test::ShortSS,
+                                          Test::IntSS,
+                                          Test::LongSS,
                                           Test::ShortSS&,
                                           Test::IntSS&,
                                           Test::LongSS&,
                                           const Ice::Current&);
 
-    virtual Test::DoubleSS opFloatDoubleSS(ICE_IN(Test::FloatSS),
-                                           ICE_IN(Test::DoubleSS),
+    virtual Test::DoubleSS opFloatDoubleSS(Test::FloatSS,
+                                           Test::DoubleSS,
                                            Test::FloatSS&,
                                            Test::DoubleSS&,
                                            const Ice::Current&);
 
-    virtual Test::StringSS opStringSS(ICE_IN(Test::StringSS),
-                                      ICE_IN(Test::StringSS),
+    virtual Test::StringSS opStringSS(Test::StringSS,
+                                      Test::StringSS,
                                       Test::StringSS&,
                                       const Ice::Current&);
 
-    virtual Test::StringSSS opStringSSS(ICE_IN(Test::StringSSS),
-                                        ICE_IN(Test::StringSSS),
+    virtual Test::StringSSS opStringSSS(Test::StringSSS,
+                                        Test::StringSSS,
                                         Test::StringSSS&,
                                         const ::Ice::Current&);
 
-    virtual Test::ByteBoolD opByteBoolD(ICE_IN(Test::ByteBoolD),
-                                        ICE_IN(Test::ByteBoolD),
+    virtual Test::ByteBoolD opByteBoolD(Test::ByteBoolD,
+                                        Test::ByteBoolD,
                                         Test::ByteBoolD&,
                                         const Ice::Current&);
 
-    virtual Test::ShortIntD opShortIntD(ICE_IN(Test::ShortIntD),
-                                        ICE_IN(Test::ShortIntD),
+    virtual Test::ShortIntD opShortIntD(Test::ShortIntD,
+                                        Test::ShortIntD,
                                         Test::ShortIntD&,
                                         const Ice::Current&);
 
-    virtual Test::LongFloatD opLongFloatD(ICE_IN(Test::LongFloatD),
-                                          ICE_IN(Test::LongFloatD),
+    virtual Test::LongFloatD opLongFloatD(Test::LongFloatD,
+                                          Test::LongFloatD,
                                           Test::LongFloatD&,
                                           const Ice::Current&);
 
-    virtual Test::StringStringD opStringStringD(ICE_IN(Test::StringStringD),
-                                                ICE_IN(Test::StringStringD),
+    virtual Test::StringStringD opStringStringD(Test::StringStringD,
+                                                Test::StringStringD,
                                                 Test::StringStringD&,
                                                 const Ice::Current&);
 
-    virtual Test::StringMyEnumD opStringMyEnumD(ICE_IN(Test::StringMyEnumD),
-                                                ICE_IN(Test::StringMyEnumD),
+    virtual Test::StringMyEnumD opStringMyEnumD(Test::StringMyEnumD,
+                                                Test::StringMyEnumD,
                                                 Test::StringMyEnumD&,
                                                 const Ice::Current&);
 
-    virtual Test::MyEnumStringD opMyEnumStringD(ICE_IN(Test::MyEnumStringD),
-                                                ICE_IN(Test::MyEnumStringD),
+    virtual Test::MyEnumStringD opMyEnumStringD(Test::MyEnumStringD,
+                                                Test::MyEnumStringD,
                                                 Test::MyEnumStringD&,
                                                 const Ice::Current&);
 
-    virtual Test::MyStructMyEnumD opMyStructMyEnumD(ICE_IN(Test::MyStructMyEnumD),
-                                                    ICE_IN(Test::MyStructMyEnumD),
+    virtual Test::MyStructMyEnumD opMyStructMyEnumD(Test::MyStructMyEnumD,
+                                                    Test::MyStructMyEnumD,
                                                     Test::MyStructMyEnumD&,
                                                     const Ice::Current&);
 
-    virtual Test::ByteBoolDS opByteBoolDS(ICE_IN(Test::ByteBoolDS),
-                                          ICE_IN(Test::ByteBoolDS),
+    virtual Test::ByteBoolDS opByteBoolDS(Test::ByteBoolDS,
+                                          Test::ByteBoolDS,
                                           Test::ByteBoolDS&,
                                           const Ice::Current&);
 
-    virtual Test::ShortIntDS opShortIntDS(ICE_IN(Test::ShortIntDS),
-                                          ICE_IN(Test::ShortIntDS),
+    virtual Test::ShortIntDS opShortIntDS(Test::ShortIntDS,
+                                          Test::ShortIntDS,
                                           Test::ShortIntDS&,
                                           const Ice::Current&);
 
-    virtual Test::LongFloatDS opLongFloatDS(ICE_IN(Test::LongFloatDS),
-                                            ICE_IN(Test::LongFloatDS),
+    virtual Test::LongFloatDS opLongFloatDS(Test::LongFloatDS,
+                                            Test::LongFloatDS,
                                             Test::LongFloatDS&,
                                             const Ice::Current&);
 
-    virtual Test::StringStringDS opStringStringDS(ICE_IN(Test::StringStringDS),
-                                                  ICE_IN(Test::StringStringDS),
+    virtual Test::StringStringDS opStringStringDS(Test::StringStringDS,
+                                                  Test::StringStringDS,
                                                   Test::StringStringDS&,
                                                   const Ice::Current&);
 
-    virtual Test::StringMyEnumDS opStringMyEnumDS(ICE_IN(Test::StringMyEnumDS),
-                                                  ICE_IN(Test::StringMyEnumDS),
+    virtual Test::StringMyEnumDS opStringMyEnumDS(Test::StringMyEnumDS,
+                                                  Test::StringMyEnumDS,
                                                   Test::StringMyEnumDS&,
                                                   const Ice::Current&);
 
-    virtual Test::MyStructMyEnumDS opMyStructMyEnumDS(ICE_IN(Test::MyStructMyEnumDS),
-                                                      ICE_IN(Test::MyStructMyEnumDS),
+    virtual Test::MyStructMyEnumDS opMyStructMyEnumDS(Test::MyStructMyEnumDS,
+                                                      Test::MyStructMyEnumDS,
                                                       Test::MyStructMyEnumDS&,
                                                       const Ice::Current&);
 
-    virtual Test::MyEnumStringDS opMyEnumStringDS(ICE_IN(Test::MyEnumStringDS),
-                                                  ICE_IN(Test::MyEnumStringDS),
+    virtual Test::MyEnumStringDS opMyEnumStringDS(Test::MyEnumStringDS,
+                                                  Test::MyEnumStringDS,
                                                   Test::MyEnumStringDS&,
                                                   const Ice::Current&);
 
-    virtual Test::ByteByteSD opByteByteSD(ICE_IN(Test::ByteByteSD),
-                                          ICE_IN(Test::ByteByteSD),
+    virtual Test::ByteByteSD opByteByteSD(Test::ByteByteSD,
+                                          Test::ByteByteSD,
                                           Test::ByteByteSD&,
                                           const Ice::Current&);
 
-    virtual Test::BoolBoolSD opBoolBoolSD(ICE_IN(Test::BoolBoolSD),
-                                          ICE_IN(Test::BoolBoolSD),
+    virtual Test::BoolBoolSD opBoolBoolSD(Test::BoolBoolSD,
+                                          Test::BoolBoolSD,
                                           Test::BoolBoolSD&,
                                           const Ice::Current&);
 
-    virtual Test::ShortShortSD opShortShortSD(ICE_IN(Test::ShortShortSD),
-                                              ICE_IN(Test::ShortShortSD),
+    virtual Test::ShortShortSD opShortShortSD(Test::ShortShortSD,
+                                              Test::ShortShortSD,
                                               Test::ShortShortSD&,
                                               const Ice::Current&);
 
-    virtual Test::IntIntSD opIntIntSD(ICE_IN(Test::IntIntSD),
-                                      ICE_IN(Test::IntIntSD),
+    virtual Test::IntIntSD opIntIntSD(Test::IntIntSD,
+                                      Test::IntIntSD,
                                       Test::IntIntSD&,
                                       const Ice::Current&);
 
-    virtual Test::LongLongSD opLongLongSD(ICE_IN(Test::LongLongSD),
-                                          ICE_IN(Test::LongLongSD),
+    virtual Test::LongLongSD opLongLongSD(Test::LongLongSD,
+                                          Test::LongLongSD,
                                           Test::LongLongSD&,
                                           const Ice::Current&);
 
-    virtual Test::StringFloatSD opStringFloatSD(ICE_IN(Test::StringFloatSD),
-                                                ICE_IN(Test::StringFloatSD),
+    virtual Test::StringFloatSD opStringFloatSD(Test::StringFloatSD,
+                                                Test::StringFloatSD,
                                                 Test::StringFloatSD&,
                                                 const Ice::Current&);
 
-    virtual Test::StringDoubleSD opStringDoubleSD(ICE_IN(Test::StringDoubleSD),
-                                                  ICE_IN(Test::StringDoubleSD),
+    virtual Test::StringDoubleSD opStringDoubleSD(Test::StringDoubleSD,
+                                                  Test::StringDoubleSD,
                                                   Test::StringDoubleSD&,
                                                   const Ice::Current&);
 
-    virtual Test::StringStringSD opStringStringSD(ICE_IN(Test::StringStringSD),
-                                                  ICE_IN(Test::StringStringSD),
+    virtual Test::StringStringSD opStringStringSD(Test::StringStringSD,
+                                                  Test::StringStringSD,
                                                   Test::StringStringSD&,
                                                   const Ice::Current&);
 
-    virtual Test::MyEnumMyEnumSD opMyEnumMyEnumSD(ICE_IN(Test::MyEnumMyEnumSD),
-                                                  ICE_IN(Test::MyEnumMyEnumSD),
+    virtual Test::MyEnumMyEnumSD opMyEnumMyEnumSD(Test::MyEnumMyEnumSD,
+                                                  Test::MyEnumMyEnumSD,
                                                   Test::MyEnumMyEnumSD&,
                                                   const Ice::Current&);
 
-    virtual Test::IntS opIntS(ICE_IN(Test::IntS), const Ice::Current&);
+    virtual Test::IntS opIntS(Test::IntS, const Ice::Current&);
 
-    virtual void opByteSOneway(ICE_IN(Test::ByteS), const Ice::Current&);
+    virtual void opByteSOneway(Test::ByteS, const Ice::Current&);
     virtual int opByteSOnewayCallCount(const Ice::Current&);
 
     virtual Ice::Context opContext(const Ice::Current&);
 
-    virtual void opDoubleMarshaling(Ice::Double, ICE_IN(Test::DoubleS), const Ice::Current&);
+    virtual void opDoubleMarshaling(Ice::Double, Test::DoubleS, const Ice::Current&);
 
     virtual void opIdempotent(const Ice::Current&);
 
@@ -274,49 +274,35 @@ public:
 
     virtual Ice::Double opDouble1(Ice::Double, const Ice::Current&);
 
-    virtual std::string opString1(ICE_IN(std::string), const Ice::Current&);
+    virtual std::string opString1(std::string, const Ice::Current&);
 
-    virtual Test::StringS opStringS1(ICE_IN(Test::StringS), const Ice::Current&);
+    virtual Test::StringS opStringS1(Test::StringS, const Ice::Current&);
 
-    virtual Test::ByteBoolD opByteBoolD1(ICE_IN(Test::ByteBoolD), const Ice::Current&);
+    virtual Test::ByteBoolD opByteBoolD1(Test::ByteBoolD, const Ice::Current&);
 
-    virtual Test::StringS opStringS2(ICE_IN(Test::StringS), const Ice::Current&);
+    virtual Test::StringS opStringS2(Test::StringS, const Ice::Current&);
 
-    virtual Test::ByteBoolD opByteBoolD2(ICE_IN(Test::ByteBoolD), const Ice::Current&);
+    virtual Test::ByteBoolD opByteBoolD2(Test::ByteBoolD, const Ice::Current&);
 
-    virtual Test::MyStruct1 opMyStruct1(ICE_IN(Test::MyStruct1), const Ice::Current&);
+    virtual Test::MyStruct1 opMyStruct1(Test::MyStruct1, const Ice::Current&);
 
-    virtual Test::MyClass1Ptr opMyClass1(ICE_IN(Test::MyClass1Ptr), const Ice::Current&);
+    virtual Test::MyClass1Ptr opMyClass1(Test::MyClass1Ptr, const Ice::Current&);
 
     virtual Test::StringS opStringLiterals(const Ice::Current&);
 
     virtual Test::WStringS opWStringLiterals(const Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual OpMStruct1MarshaledResult opMStruct1(const Ice::Current&);
 
-    virtual OpMStruct2MarshaledResult opMStruct2(ICE_IN(Test::Structure), const Ice::Current&);
+    virtual OpMStruct2MarshaledResult opMStruct2(Test::Structure, const Ice::Current&);
 
     virtual OpMSeq1MarshaledResult opMSeq1(const Ice::Current&);
 
-    virtual OpMSeq2MarshaledResult opMSeq2(ICE_IN(Test::StringS), const Ice::Current&);
+    virtual OpMSeq2MarshaledResult opMSeq2(Test::StringS, const Ice::Current&);
 
     virtual OpMDict1MarshaledResult opMDict1(const Ice::Current&);
 
-    virtual OpMDict2MarshaledResult opMDict2(ICE_IN(Test::StringStringD), const Ice::Current&);
-#else
-    virtual Test::Structure opMStruct1(const Ice::Current&);
-
-    virtual Test::Structure opMStruct2(ICE_IN(Test::Structure), Test::Structure&, const Ice::Current&);
-
-    virtual Test::StringS opMSeq1(const Ice::Current&);
-
-    virtual Test::StringS opMSeq2(ICE_IN(Test::StringS), Test::StringS&, const Ice::Current&);
-
-    virtual Test::StringStringD opMDict1(const Ice::Current&);
-
-    virtual Test::StringStringD opMDict2(ICE_IN(Test::StringStringD), Test::StringStringD&, const Ice::Current&);
-#endif
+    virtual OpMDict2MarshaledResult opMDict2(Test::StringStringD, const Ice::Current&);
 
 private:
 

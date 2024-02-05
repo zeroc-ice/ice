@@ -26,7 +26,7 @@ public:
      */
     virtual std::function<void()> addUpdateCallback(std::function<void(const PropertyDict&)> cb) = 0;
 };
-ICE_DEFINE_SHARED_PTR(NativePropertiesAdminPtr, NativePropertiesAdmin);
+using NativePropertiesAdminPtr = std::shared_ptr<NativePropertiesAdmin>;
 
 }
 

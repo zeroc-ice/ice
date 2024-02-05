@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 
 namespace Ice
 {
@@ -10,62 +11,7 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            private class Condition
-            {
-                public Condition(bool value)
-                {
-                    _value = value;
-                }
-
-                public void
-                set(bool value)
-                {
-                    lock(this)
-                    {
-                        _value = value;
-                    }
-                }
-
-                public bool
-                value()
-                {
-                    lock(this)
-                    {
-                        return _value;
-                    }
-                }
-
-                private bool _value;
-            }
-
-            private class SetCB
-            {
-                public
-                SetCB(Condition condition, int expected)
-                {
-                    _condition = condition;
-                    _expected = expected;
-                }
-
-                public void
-                response(int value)
-                {
-                    if(value != _expected)
-                    {
-                        _condition.set(false);
-                    }
-                }
-
-                public void
-                exception(Ice.Exception ex)
-                {
-                }
-
-                private Condition _condition;
-                private int _expected;
-            }
-
-            public static void allTests(global::Test.TestHelper helper)
+            public static async Task allTests(global::Test.TestHelper helper)
             {
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
@@ -113,19 +59,30 @@ namespace Ice
 
                 output.Write("testing without serialize mode... ");
                 output.Flush();
-                Random rand = new Random();
+                var rand = new Random();
                 {
-                    Condition cond = new Condition(true);
+                    var outOfOrderTcs = new TaskCompletionSource();
+                    TaskCompletionSource sentTcs = null;
                     int value = 0;
-                    Ice.AsyncResult result = null;
-                    while(cond.value())
+                    while(!outOfOrderTcs.Task.IsCompleted)
                     {
-                        SetCB cb = new SetCB(cond, value);
-                        result = hold.begin_set(++value, value < 500 ? rand.Next(5) : 0).whenCompleted(cb.response,
-                                                                                                       cb.exception);
+                        sentTcs = new TaskCompletionSource();
+                        int expected = value;
+                        var t = hold.setAsync(
+                            ++value, value < 500 ? rand.Next(5) : 0,
+                            progress: new Progress<bool>(value => sentTcs.TrySetResult()));
+                        _ = Task.Run(
+                            async () =>
+                            {
+                                var response = await t;
+                                if(response != expected)
+                                {
+                                    outOfOrderTcs.TrySetResult();
+                                }
+                            });
                         if(value % 100 == 0)
                         {
-                            result.waitForSent();
+                            await sentTcs.Task;
                         }
 
                         if(value > 100000)
@@ -136,28 +93,32 @@ namespace Ice
                             break;
                         }
                     }
-                    test(value > 100000 || !cond.value());
-                    result.waitForSent();
+                    test(value > 100000 || outOfOrderTcs.Task.IsCompleted);
+                    await sentTcs.Task;
                 }
                 output.WriteLine("ok");
 
                 output.Write("testing with serialize mode... ");
                 output.Flush();
                 {
-                    Condition cond = new Condition(true);
+                    var outOfOrderTcs = new TaskCompletionSource();
+                    TaskCompletionSource sentTcs = null;
                     int value = 0;
-                    Ice.AsyncResult result = null;
-                    while(value < 3000 && cond.value())
+                    while (value < 3000 && !outOfOrderTcs.Task.IsCompleted)
                     {
-                        SetCB cb = new SetCB(cond, value);
-                        result = holdSerialized.begin_set(++value, 0).whenCompleted(cb.response, cb.exception);
+                        sentTcs = new TaskCompletionSource();
+                        int expected = value;
+                        _ = holdSerialized.setAsync(
+                            ++value,
+                            0,
+                            progress: new Progress<bool>(value => sentTcs.TrySetResult()));
                         if(value % 100 == 0)
                         {
-                            result.waitForSent();
+                            await sentTcs.Task;
                         }
                     }
-                    result.waitForCompleted();
-                    test(cond.value());
+                    await sentTcs.Task;
+                    test(!outOfOrderTcs.Task.IsCompleted);
 
                     for(int i = 0; i < 10000; ++i)
                     {
@@ -176,20 +137,26 @@ namespace Ice
                 {
                     int value = 0;
                     holdSerialized.set(value, 0);
-                    Ice.AsyncResult result = null;
-                    for(int i = 0; i < 10000; ++i)
+                    var outOfOrderTcs = new TaskCompletionSource();
+                    TaskCompletionSource sentTcs = null;
+                    Task result = null;
+                    for (int i = 0; i < 10000; ++i)
                     {
+                        sentTcs = new TaskCompletionSource();
                         // Create a new proxy for each request
-                        result =((Test.HoldPrx)holdSerialized.ice_oneway()).begin_setOneway(value + 1, value);
+                        result = ((Test.HoldPrx)holdSerialized.ice_oneway()).setOnewayAsync(
+                            value + 1,
+                            value,
+                            progress: new Progress<bool>(value => sentTcs.TrySetResult()));
                         ++value;
                         if((i % 100) == 0)
                         {
-                            result.waitForSent();
+                            await sentTcs.Task;
                             holdSerialized.ice_ping(); // Ensure everything's dispatched.
-                            holdSerialized.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                            holdSerialized.ice_getConnection().close(ConnectionClose.GracefullyWithWait);
                         }
                     }
-                    result.waitForCompleted();
+                    await result;
                 }
                 output.WriteLine("ok");
 

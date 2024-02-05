@@ -16,9 +16,6 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-IceUtil::Shared* IceInternal::upCast(IPEndpointI* p) { return p; }
-#endif
 IceUtil::Shared* IceInternal::upCast(EndpointHostResolver* p) { return p; }
 
 IceInternal::IPEndpointInfoI::IPEndpointInfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
@@ -50,7 +47,7 @@ IceInternal::IPEndpointInfoI::secure() const noexcept
 Ice::EndpointInfoPtr
 IceInternal::IPEndpointI::getInfo() const noexcept
 {
-    Ice::IPEndpointInfoPtr info = ICE_MAKE_SHARED(IPEndpointInfoI, ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+    Ice::IPEndpointInfoPtr info = make_shared<IPEndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
     fillEndpointInfo(info.get());
     return info;
 }
@@ -151,7 +148,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     vector<Address> addrs = getAddresses(_host,
                                          _port,
                                          _instance->protocolSupport(),
-                                         Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+                                         Ice::EndpointSelectionType::Ordered,
                                          _instance->preferIPv6(),
                                          true);
 
@@ -247,11 +244,7 @@ IceInternal::IPEndpointI::options() const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceInternal::IPEndpointI::operator==(const Endpoint& r) const
-#else
-IceInternal::IPEndpointI::operator==(const LocalObject& r) const
-#endif
 {
     const IPEndpointI* p = dynamic_cast<const IPEndpointI*>(&r);
     if(!p)
@@ -287,11 +280,7 @@ IceInternal::IPEndpointI::operator==(const LocalObject& r) const
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 IceInternal::IPEndpointI::operator<(const Endpoint& r) const
-#else
-IceInternal::IPEndpointI::operator<(const LocalObject& r) const
-#endif
 {
     const IPEndpointI* p = dynamic_cast<const IPEndpointI*>(&r);
     if(!p)

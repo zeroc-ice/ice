@@ -68,7 +68,7 @@ allTests(Test::TestHelper* helper)
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          IceUtil::None,
-                                         Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+                                         Ice::ACMHeartbeat::HeartbeatAlways);
 
     shared_ptr<AdminPrx> admin = session->getAdmin();
     test(admin);

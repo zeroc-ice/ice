@@ -6,6 +6,7 @@ using Test;
 using System;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -79,7 +80,7 @@ public class Client : Test.TestHelper
         public override int runWithSession(string[] args)
         {
             test(router() != null);
-            test(categoryForClient() != "");
+            test(categoryForClient().Length > 0);
             test(objectAdapter() != null);
 
             if(_restart == 0)
@@ -161,8 +162,6 @@ public class Client : Test.TestHelper
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        TestDriver.runTestAsync<Client>(args);
 }

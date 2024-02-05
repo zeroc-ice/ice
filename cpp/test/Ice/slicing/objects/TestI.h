@@ -24,7 +24,7 @@ public:
     virtual ::Test::SBasePtr SBSUnknownDerivedAsSBaseCompact(const ::Ice::Current&);
 
     virtual ::Ice::ValuePtr SUnknownAsObject(const ::Ice::Current&);
-    virtual void checkSUnknown(ICE_IN(Ice::ValuePtr) object, const ::Ice::Current&);
+    virtual void checkSUnknown(Ice::ValuePtr object, const ::Ice::Current&);
 
     virtual ::Test::BPtr oneElementCycle(const ::Ice::Current&);
     virtual ::Test::BPtr twoElementCycle(const ::Ice::Current&);
@@ -40,38 +40,28 @@ public:
 
     virtual ::Test::BPtr returnTest1(::Test::BPtr&, ::Test::BPtr&, const ::Ice::Current&);
     virtual ::Test::BPtr returnTest2(::Test::BPtr&, ::Test::BPtr&, const ::Ice::Current&);
-    virtual ::Test::BPtr returnTest3(ICE_IN(::Test::BPtr), ICE_IN(::Test::BPtr), const ::Ice::Current&);
+    virtual ::Test::BPtr returnTest3(::Test::BPtr, ::Test::BPtr, const ::Ice::Current&);
 
-    virtual ::Test::SS3 sequenceTest(ICE_IN(::Test::SS1Ptr), ICE_IN(::Test::SS2Ptr), const ::Ice::Current&);
+    virtual ::Test::SS3 sequenceTest(::Test::SS1Ptr, ::Test::SS2Ptr, const ::Ice::Current&);
 
-    virtual ::Test::BDict dictionaryTest(ICE_IN(::Test::BDict), ::Test::BDict&, const ::Ice::Current&);
+    virtual ::Test::BDict dictionaryTest(::Test::BDict, ::Test::BDict&, const ::Ice::Current&);
 
-    virtual ::Test::PBasePtr exchangePBase(ICE_IN(::Test::PBasePtr), const ::Ice::Current&);
+    virtual ::Test::PBasePtr exchangePBase(::Test::PBasePtr, const ::Ice::Current&);
 
     virtual ::Test::PreservedPtr PBSUnknownAsPreserved(const ::Ice::Current&);
-    virtual void checkPBSUnknown(ICE_IN(::Test::PreservedPtr), const ::Ice::Current&);
+    virtual void checkPBSUnknown(::Test::PreservedPtr, const ::Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual void PBSUnknownAsPreservedWithGraphAsync(std::function<void(const std::shared_ptr<Test::Preserved>&)>,
                                                       std::function<void(std::exception_ptr)>,
                                                       const ::Ice::Current&);
-#else
-    virtual void PBSUnknownAsPreservedWithGraph_async(const ::Test::AMD_TestIntf_PBSUnknownAsPreservedWithGraphPtr&,
-                                                      const ::Ice::Current&);
-#endif
-    virtual void checkPBSUnknownWithGraph(ICE_IN(::Test::PreservedPtr), const ::Ice::Current&);
+    virtual void checkPBSUnknownWithGraph(::Test::PreservedPtr, const ::Ice::Current&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual void PBSUnknown2AsPreservedWithGraphAsync(std::function<void(const std::shared_ptr<Test::Preserved>&)>,
                                                        std::function<void(std::exception_ptr)>,
                                                        const ::Ice::Current&);
-#else
-    virtual void PBSUnknown2AsPreservedWithGraph_async(const ::Test::AMD_TestIntf_PBSUnknown2AsPreservedWithGraphPtr&,
-                                                       const ::Ice::Current&);
-#endif
-    virtual void checkPBSUnknown2WithGraph(ICE_IN(::Test::PreservedPtr), const ::Ice::Current&);
+    virtual void checkPBSUnknown2WithGraph(::Test::PreservedPtr, const ::Ice::Current&);
 
-    virtual ::Test::PNodePtr exchangePNode(ICE_IN(::Test::PNodePtr), const ::Ice::Current&);
+    virtual ::Test::PNodePtr exchangePNode(::Test::PNodePtr, const ::Ice::Current&);
 
     virtual void throwBaseAsBase(const ::Ice::Current&);
     virtual void throwDerivedAsBase(const ::Ice::Current&);

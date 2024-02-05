@@ -39,8 +39,6 @@ class IceBox(ProcessFromBinDir, Server):
                 name += "32"  # Multilib platform
             if isinstance(platform, AIX) and current.config.buildPlatform == "ppc":
                 name += "_32"
-            if current.config.cpp11:
-                name += "++11"
             return name
 
     def getEffectiveArgs(self, current, args):

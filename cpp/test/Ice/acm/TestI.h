@@ -45,11 +45,7 @@ public:
 private:
 
     class HeartbeatCallbackI final :
-#ifdef ICE_CPP11_MAPPING
                                 public std::enable_shared_from_this<HeartbeatCallbackI>,
-#else
-                                public Ice::HeartbeatCallback,
-#endif
                                 private IceUtil::Monitor<IceUtil::Mutex>
     {
     public:
@@ -81,7 +77,7 @@ private:
 
         int _count;
     };
-    ICE_DEFINE_PTR(HeartbeatCallbackIPtr, HeartbeatCallbackI);
+    using HeartbeatCallbackIPtr = std::shared_ptr<HeartbeatCallbackI>;
 
     HeartbeatCallbackIPtr _callback;
 };

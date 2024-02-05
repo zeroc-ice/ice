@@ -42,7 +42,7 @@ protected:
     size_t _lookupCount;
     size_t _failureCount;
 };
-ICE_DEFINE_PTR(RequestPtr, Request);
+using RequestPtr = std::shared_ptr<Request>;
 
 template<class T, class CB> class RequestT : public Request
 {
@@ -67,11 +67,7 @@ public:
     {
         for(typename std::vector<CB>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
-#ifdef ICE_CPP11_MAPPING
             p->first(proxy);
-#else
-            (*p)->ice_response(proxy);
-#endif
         }
         _callbacks.clear();
     }
@@ -82,20 +78,12 @@ protected:
     std::vector<CB> _callbacks;
 };
 
-#ifdef ICE_CPP11_MAPPING
 typedef std::pair<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>,
                   std::function<void(std::exception_ptr)>> ObjectCB;
 typedef std::pair<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>,
                   std::function<void(std::exception_ptr)>> AdapterCB;
-#else
-typedef Ice::AMD_Locator_findObjectByIdPtr ObjectCB;
-typedef Ice::AMD_Locator_findAdapterByIdPtr AdapterCB;
-#endif
 
-class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>
-#ifdef ICE_CPP11_MAPPING
-                      , public std::enable_shared_from_this<ObjectRequest>
-#endif
+class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>, public std::enable_shared_from_this<ObjectRequest>
 {
 public:
 
@@ -108,12 +96,9 @@ private:
     virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&);
     virtual void runTimerTask();
 };
-ICE_DEFINE_PTR(ObjectRequestPtr, ObjectRequest);
+using ObjectRequestPtr = std::shared_ptr<ObjectRequest>;
 
-class AdapterRequest : public RequestT<std::string, AdapterCB>
-#ifdef ICE_CPP11_MAPPING
-                      , public std::enable_shared_from_this<AdapterRequest>
-#endif
+class AdapterRequest : public RequestT<std::string, AdapterCB>, public std::enable_shared_from_this<AdapterRequest>
 {
 public:
 
@@ -134,15 +119,11 @@ private:
     // the same proxy if it's accessible through multiple network interfaces and if we
     // also sent the request to multiple interfaces.
     //
-#ifdef ICE_CPP11_MAPPING
     std::set<std::shared_ptr<Ice::ObjectPrx>, Ice::TargetCompare<std::shared_ptr<Ice::ObjectPrx>, std::less>> _proxies;
-#else
-    std::set<Ice::ObjectPrx> _proxies;
-#endif
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };
-ICE_DEFINE_PTR(AdapterRequestPtr, AdapterRequest);
+using AdapterRequestPtr = std::shared_ptr<AdapterRequest>;
 
 class LookupI : public Lookup,
                 public std::enable_shared_from_this<LookupI>,
@@ -157,9 +138,9 @@ public:
 
     void setLookupReply(const LookupReplyPrxPtr&);
 
-    virtual void findObjectById(ICE_IN(std::string), ICE_IN(Ice::Identity), ICE_IN(IceDiscovery::LookupReplyPrxPtr),
+    virtual void findObjectById(std::string, Ice::Identity, IceDiscovery::LookupReplyPrxPtr,
                                 const Ice::Current&);
-    virtual void findAdapterById(ICE_IN(std::string), ICE_IN(std::string), ICE_IN(IceDiscovery::LookupReplyPrxPtr),
+    virtual void findAdapterById(std::string, std::string, IceDiscovery::LookupReplyPrxPtr,
                                  const Ice::Current&);
     void findObject(const ObjectCB&, const Ice::Identity&);
     void findAdapter(const AdapterCB&, const std::string&);
@@ -208,13 +189,8 @@ public:
 
     LookupReplyI(const LookupIPtr&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual void foundObjectById(Ice::Identity, std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&);
     virtual void foundAdapterById(std::string, std::shared_ptr<Ice::ObjectPrx>, bool, const Ice::Current&);
-#else
-    virtual void foundObjectById(const Ice::Identity&, const Ice::ObjectPrx&, const Ice::Current&);
-    virtual void foundAdapterById(const std::string&, const Ice::ObjectPrx&, bool, const Ice::Current&);
-#endif
 
 private:
 

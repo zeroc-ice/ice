@@ -7,21 +7,12 @@
 
 using namespace std;
 
-#ifndef ICE_CPP11_MAPPING
-
-Ice::UserExceptionFactory::~UserExceptionFactory()
-{
-    // Out of line to avoid weak vtable
-}
-
-#endif
-
 //
 // Add a factory to the exception factory table.
 // If the factory is present already, increment its reference count.
 //
 void
-IceInternal::FactoryTable::addExceptionFactory(const string& t, ICE_IN(ICE_DELEGATE(::Ice::UserExceptionFactory)) f)
+IceInternal::FactoryTable::addExceptionFactory(const string& t, Ice::UserExceptionFactory f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -39,12 +30,12 @@ IceInternal::FactoryTable::addExceptionFactory(const string& t, ICE_IN(ICE_DELEG
 //
 // Return the exception factory for a given type ID
 //
-ICE_DELEGATE(::Ice::UserExceptionFactory)
+Ice::UserExceptionFactory
 IceInternal::FactoryTable::getExceptionFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
-    return i != _eft.end() ? i->second.first : ICE_DELEGATE(::Ice::UserExceptionFactory)();
+    return i != _eft.end() ? i->second.first : Ice::UserExceptionFactory();
 }
 
 //

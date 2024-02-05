@@ -3,6 +3,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -11,7 +12,7 @@ namespace Ice
     {
         public class Collocated : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
@@ -24,14 +25,12 @@ namespace Ice
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
                     //adapter.activate(); // Don't activate OA to ensure collocation is used.
-                    AllTests.allTests(this);
+                    await AllTests.allTests(this);
                 }
             }
 
-            public static int Main(String[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
+            public static Task<int> Main(String[] args) =>
+                TestDriver.runTestAsync<Collocated>(args);
         }
     }
 }

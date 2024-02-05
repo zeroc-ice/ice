@@ -21,15 +21,11 @@ Collocated::run(int argc, char** argv)
 {
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
-#ifdef ICE_CPP11_MAPPING
     IceUtil::Handle<Dispatcher> dispatcher = new Dispatcher;
     initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
         {
             dispatcher->dispatch(make_shared<DispatcherCall>(call), conn);
         };
-#else
-    initData.dispatcher = new Dispatcher();
-#endif
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
@@ -39,9 +35,9 @@ Collocated::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
-    TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
+    TestIntfControllerIPtr testController = make_shared<TestIntfControllerI>(adapter);
 
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+    adapter->add(make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     adapter2->add(testController, Ice::stringToIdentity("testController"));

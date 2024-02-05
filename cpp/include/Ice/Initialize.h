@@ -18,11 +18,7 @@
 #include <Ice/Plugin.h>
 #include <Ice/BatchRequestInterceptor.h>
 
-#ifdef ICE_CPP11_MAPPING
 #   define ICE_CONFIG_FILE_STRING const std::string&
-#else
-#   define ICE_CONFIG_FILE_STRING const char*
-#endif
 
 namespace Ice
 {
@@ -246,8 +242,6 @@ typedef IceUtil::Handle<ThreadNotification> ThreadNotificationPtr;
 class ICE_API ThreadHookPlugin : public Ice::Plugin
 {
 public:
-
-#ifdef ICE_CPP11_MAPPING
     /**
      * Installs the thread hooks.
      * @param communicator The communicator in which to install the thread hooks.
@@ -255,14 +249,6 @@ public:
      * @param stop The stop callback.
      */
     ThreadHookPlugin(const CommunicatorPtr& communicator, std::function<void()> start, std::function<void()> stop);
-#else
-    /**
-     * Installs the thread hooks.
-     * @param communicator The communicator in which to install the thread hooks.
-     * @param hook The thread notification callback object.
-     */
-    ThreadHookPlugin(const CommunicatorPtr& communicator, const ThreadNotificationPtr& hook);
-#endif
 
     /** Not used. */
     virtual void initialize();
@@ -291,8 +277,6 @@ struct InitializationData
      * The communicator observer used by the Ice run-time.
      */
     Instrumentation::CommunicatorObserverPtr observer;
-
-#ifdef ICE_CPP11_MAPPING
 
 #if defined(__clang__)
 #   pragma clang diagnostic push
@@ -347,41 +331,6 @@ struct InitializationData
 
 #if defined(__clang__)
 #   pragma clang diagnostic pop
-#endif
-
-#else
-    /**
-     * The thread hook for the communicator.
-     */
-    ThreadNotificationPtr threadHook;
-
-    /**
-      * You can control which thread receives operation invocations and AMI
-      * callbacks by supplying a dispatcher.
-      *
-      * For example, you can use this dispatching facility to ensure that
-      * all invocations and callbacks are dispatched in a GUI event loop
-      * thread so that it is safe to invoke directly on GUI objects.
-      *
-      * The dispatcher is responsible for running (dispatching) the
-      * invocation or AMI callback on its favorite thread. It must eventually
-      * execute the provided call.
-      */
-    DispatcherPtr dispatcher;
-
-    /**
-     * Applications that make use of compact type IDs to conserve space
-     * when marshaling class instances, and also use the streaming API to
-     * extract such classes, can intercept the translation between compact
-     * type IDs and their corresponding string type IDs by installing a
-     * compact ID resolver.
-     */
-    CompactIdResolverPtr compactIdResolver;
-
-    /**
-     * The batch request interceptor.
-     */
-    BatchRequestInterceptorPtr batchRequestInterceptor;
 #endif
 
     /**
@@ -648,8 +597,6 @@ public:
      */
     CommunicatorHolder();
 
-#ifdef ICE_CPP11_MAPPING
-
     /**
      * Calls initialize to create a communicator with the provided arguments.
      * This constructor accepts all of the same overloaded argument styles as
@@ -690,215 +637,6 @@ public:
      */
     explicit operator bool() const;
 
-#else // C++98 mapping
-
-    /**
-     * Initializes a new communicator.
-     * @param argc The number of arguments in argv. Upon return, this argument
-     * is updated to reflect the arguments still remaining in argv.
-     * @param argv Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this vector upon return.
-     * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(int& argc, const char* argv[], const InitializationData& initData = InitializationData(),
-                       int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param argc The number of arguments in argv. Upon return, this argument
-     * is updated to reflect the arguments still remaining in argv.
-     * @param argv Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this vector upon return.
-     * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(int& argc, char* argv[], const InitializationData& initData = InitializationData(),
-                       int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param argc The number of arguments in argv. Upon return, this argument
-     * is updated to reflect the arguments still remaining in argv.
-     * @param argv Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this vector upon return.
-     * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(int& argc, const char* argv[], const char* configFile, int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param argc The number of arguments in argv. Upon return, this argument
-     * is updated to reflect the arguments still remaining in argv.
-     * @param argv Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this vector upon return.
-     * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(int& argc, char* argv[], const char* configFile, int version = ICE_INT_VERSION);
-
-#   ifdef _WIN32
-    /**
-     * Initializes a new communicator.
-     * @param argc The number of arguments in argv. Upon return, this argument
-     * is updated to reflect the arguments still remaining in argv.
-     * @param argv Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this vector upon return.
-     * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(int& argc, const wchar_t* argv[], const InitializationData& initData = InitializationData(),
-                       int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param argc The number of arguments in argv. Upon return, this argument
-     * is updated to reflect the arguments still remaining in argv.
-     * @param argv Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this vector upon return.
-     * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(int& argc, wchar_t* argv[], const InitializationData& initData = InitializationData(),
-                       int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param argc The number of arguments in argv. Upon return, this argument
-     * is updated to reflect the arguments still remaining in argv.
-     * @param argv Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this vector upon return.
-     * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(int& argc, const wchar_t* argv[], const char* configFile, int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param argc The number of arguments in argv. Upon return, this argument
-     * is updated to reflect the arguments still remaining in argv.
-     * @param argv Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this vector upon return.
-     * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(int& argc, wchar_t* argv[], const char* configFile, int version = ICE_INT_VERSION);
-#   endif
-
-    /**
-     * Initializes a new communicator.
-     * @param seq Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this container upon return.
-     * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    explicit CommunicatorHolder(StringSeq& seq, const InitializationData& initData = InitializationData(),
-                                int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param seq Command-line arguments, possibly containing
-     * options to set properties. If the arguments include
-     * a <code>--Ice.Config</code> option, the corresponding configuration
-     * files are parsed. If the same property is set in a configuration
-     * file and in the arguments, the arguments take precedence.
-     * Recognized options are removed from this container upon return.
-     * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    CommunicatorHolder(StringSeq& seq, const char* configFile, int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param initData Configuration data for the new Communicator.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    explicit CommunicatorHolder(const InitializationData& initData, int version = ICE_INT_VERSION);
-
-    /**
-     * Initializes a new communicator.
-     * @param configFile The name of an Ice configuration file.
-     * @param version Indicates the Ice version with which the application is compatible. If not
-     * specified, the version of the Ice installation is used.
-     */
-    explicit CommunicatorHolder(const char* configFile, int version = ICE_INT_VERSION);
-
-    /**
-     * Adopts the given communicator.
-     * @param communicator The new communicator instance to hold.
-     */
-    CommunicatorHolder(const CommunicatorPtr& communicator);
-
-    /**
-     * Adopts the given communicator. If this holder currently holds a communicator,
-     * it will be destroyed.
-     * @param communicator The new communicator instance to hold.
-     */
-    CommunicatorHolder& operator=(const CommunicatorPtr& communicator);
-
-    /**
-     * Determines whether the holder contains an instance.
-     * @return True if the holder currently holds an instance, false otherwise.
-     */
-    operator bool() const;
-
-    /// \cond INTERNAL
-    //
-    // Required for successful copy-initialization, but not
-    // defined as it should always be elided by the compiler.
-    CommunicatorHolder(const CommunicatorHolder&);
-    /// \endcond
-
-#endif
-
     ~CommunicatorHolder();
 
     /**
@@ -937,7 +675,7 @@ ICE_API Identity stringToIdentity(const std::string& str);
  * @param mode Affects the handling of non-ASCII characters and non-printable ASCII characters.
  * @return The stringified identity.
  */
-ICE_API std::string identityToString(const Identity& id, ToStringMode mode = ICE_ENUM(ToStringMode, Unicode));
+ICE_API std::string identityToString(const Identity& id, ToStringMode mode = ToStringMode::Unicode);
 
 }
 

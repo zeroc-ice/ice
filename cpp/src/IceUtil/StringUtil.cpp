@@ -150,7 +150,7 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
             }
             case '\a':
             {
-                if(toStringMode == ICE_ENUM(ToStringMode, Compat))
+                if(toStringMode == ToStringMode::Compat)
                 {
                     // Octal escape for compatibility with 3.6 and earlier
                     result.append("\\007");
@@ -188,7 +188,7 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
             }
             case '\v':
             {
-                if(toStringMode == ICE_ENUM(ToStringMode, Compat))
+                if(toStringMode == ToStringMode::Compat)
                 {
                     // Octal escape for compatibility with 3.6 and earlier
                     result.append("\\013");
@@ -212,7 +212,7 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
 
                     if(i < 32 || i > 126)
                     {
-                        if(toStringMode == ICE_ENUM(ToStringMode, Compat))
+                        if(toStringMode == ToStringMode::Compat)
                         {
                             // append octal string
 
@@ -234,7 +234,7 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
                             result.push_back(toHexDigit(i >> 4));
                             result.push_back(toHexDigit(i & 0x0F));
                         }
-                        else if(toStringMode == ICE_ENUM(ToStringMode, ASCII))
+                        else if(toStringMode == ToStringMode::ASCII)
                         {
                             // append \unnnn or \Unnnnnnnn after reading more UTF-8 bytes
                             appendUniversalName(c, p, u8s.end(), result);
@@ -256,7 +256,7 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
         }
     }
 
-    if(toStringMode == ICE_ENUM(ToStringMode, Unicode))
+    if(toStringMode == ToStringMode::Unicode)
     {
         //
         // Convert back to Native
@@ -818,13 +818,13 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
             FORMAT_MESSAGE_ALLOCATE_BUFFER |
             FORMAT_MESSAGE_FROM_SYSTEM |
             FORMAT_MESSAGE_IGNORE_INSERTS |
-            (source != ICE_NULLPTR ? FORMAT_MESSAGE_FROM_HMODULE : 0),
+            (source != nullptr ? FORMAT_MESSAGE_FROM_HMODULE : 0),
             source,
             error,
             MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
             reinterpret_cast<LPWSTR>(&msg),
             0,
-            ICE_NULLPTR);
+            nullptr);
 
         if(stored > 0)
         {

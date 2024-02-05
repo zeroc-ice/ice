@@ -10,7 +10,6 @@
 namespace Test1
 {
 
-#ifdef ICE_CPP11_MAPPING
 class WstringClassI : public virtual WstringClass
 {
 public:
@@ -27,29 +26,12 @@ public:
                           std::function<void()>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
-#else
-class WstringClassI : public virtual WstringClass
-{
-public:
 
-    virtual void opString_async(const ::Test1::AMD_WstringClass_opStringPtr&,
-                                const std::wstring&,
-                                const Ice::Current&);
-
-    virtual void opStruct_async(const ::Test1::AMD_WstringClass_opStructPtr&,
-                                const ::Test1::WstringStruct&,
-                                const Ice::Current&);
-
-    virtual void throwExcept_async(const ::Test1::AMD_WstringClass_throwExceptPtr&,
-                                   const std::wstring&,
-                                   const Ice::Current&);
-};
-#endif
 }
 
 namespace Test2
 {
-#ifdef ICE_CPP11_MAPPING
+
 class WstringClassI : public virtual WstringClass
 {
 public:
@@ -66,25 +48,6 @@ public:
                           std::function<void()>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
-
-#else
-class WstringClassI : public virtual WstringClass
-{
-public:
-
-    virtual void opString_async(const ::Test2::AMD_WstringClass_opStringPtr&,
-                                const std::wstring&,
-                                const Ice::Current&);
-
-    virtual void opStruct_async(const ::Test2::AMD_WstringClass_opStructPtr&,
-                                const ::Test2::WstringStruct&,
-                                const Ice::Current&);
-
-    virtual void throwExcept_async(const ::Test2::AMD_WstringClass_throwExceptPtr&,
-                                   const std::wstring&,
-                                   const Ice::Current&);
-};
-#endif
 
 }
 

@@ -11,19 +11,11 @@ MyDerivedClassI::MyDerivedClassI()
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 shared_ptr<Ice::ObjectPrx>
 MyDerivedClassI::echo(shared_ptr<Ice::ObjectPrx> obj, const Ice::Current&)
 {
     return obj;
 }
-#else
-Ice::ObjectPrx
-MyDerivedClassI::echo(const Ice::ObjectPrx& obj, const Ice::Current&)
-{
-    return obj;
-}
-#endif
 
 void
 MyDerivedClassI::shutdown(const Ice::Current& c)

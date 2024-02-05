@@ -201,11 +201,7 @@ Ice::InputStream::setLogger(const LoggerPtr& logger)
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 Ice::InputStream::setCompactIdResolver(std::function<std::string(int)> r)
-#else
-Ice::InputStream::setCompactIdResolver(const CompactIdResolverPtr& r)
-#endif
 {
     _compactIdResolver = r;
 }
@@ -487,7 +483,6 @@ struct ReadBoolHelper<1>
 
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::InputStream::read(pair<const bool*, const bool*>& v)
 {
@@ -506,24 +501,6 @@ Ice::InputStream::read(pair<const bool*, const bool*>& v)
         v.first = v.second = reinterpret_cast<bool*>(i);
     }
 }
-
-#else
-void
-Ice::InputStream::read(pair<const bool*, const bool*>& v, IceUtil::ScopedArray<bool>& result)
-{
-    Int sz = readAndCheckSeqSize(1);
-    if(sz > 0)
-    {
-        result.reset(ReadBoolHelper<sizeof(bool)>::read(v, sz, i));
-        i += sz;
-    }
-    else
-    {
-        result.reset();
-        v.first = v.second = reinterpret_cast<bool*>(i);
-    }
-}
-#endif
 
 void
 Ice::InputStream::read(Short& v)
@@ -573,13 +550,8 @@ Ice::InputStream::read(vector<Short>& v)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::InputStream::read(pair<const short*, const short*>& v)
-#else
-void
-Ice::InputStream::read(pair<const Short*, const Short*>& v, IceUtil::ScopedArray<Short>& result)
-#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
     if(sz > 0)
@@ -589,16 +561,10 @@ Ice::InputStream::read(pair<const Short*, const Short*>& v, IceUtil::ScopedArray
         i += sz * static_cast<int>(sizeof(Short));
         v.second = reinterpret_cast<Short*>(i);
 #else
-#  ifdef ICE_CPP11_MAPPING
         auto result = new short[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
-#  else
-        result.reset(new Short[static_cast<size_t>(sz)]);
-        v.first = result.get();
-        v.second = result.get() + sz;
-#   endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Short));
@@ -618,9 +584,6 @@ Ice::InputStream::read(pair<const Short*, const Short*>& v, IceUtil::ScopedArray
     }
     else
     {
-#ifndef ICE_CPP11_MAPPING
-        result.reset();
-#endif
         v.first = v.second = 0;
     }
 }
@@ -655,13 +618,8 @@ Ice::InputStream::read(vector<Int>& v)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::InputStream::read(pair<const Int*, const Int*>& v)
-#else
-void
-Ice::InputStream::read(pair<const Int*, const Int*>& v, ::IceUtil::ScopedArray<Int>& result)
-#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Int)));
     if(sz > 0)
@@ -672,16 +630,10 @@ Ice::InputStream::read(pair<const Int*, const Int*>& v, ::IceUtil::ScopedArray<I
         v.second = reinterpret_cast<Int*>(i);
 #else
 
-#  ifdef ICE_CPP11_MAPPING
         auto result = new int[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
-#  else
-        result.reset(new Int[static_cast<size_t>(sz)]);
-        v.first = result.get();
-        v.second = result.get() + sz;
-#  endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Int));
@@ -703,9 +655,6 @@ Ice::InputStream::read(pair<const Int*, const Int*>& v, ::IceUtil::ScopedArray<I
     }
     else
     {
-#ifndef ICE_CPP11_MAPPING
-        result.reset();
-#endif
         v.first = v.second = 0;
     }
 }
@@ -776,13 +725,8 @@ Ice::InputStream::read(vector<Long>& v)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::InputStream::read(pair<const Long*, const Long*>& v)
-#else
-void
-Ice::InputStream::read(pair<const Long*, const Long*>& v, IceUtil::ScopedArray<Long>& result)
-#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
     if(sz > 0)
@@ -793,16 +737,10 @@ Ice::InputStream::read(pair<const Long*, const Long*>& v, IceUtil::ScopedArray<L
         v.second = reinterpret_cast<Long*>(i);
 #else
 
-#  ifdef ICE_CPP11_MAPPING
         auto result = new long long[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
-#  else
-        result.reset(new Long[static_cast<size_t>(sz)]);
-        v.first = result.get();
-        v.second = result.get() + sz;
-#  endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Long));
@@ -828,9 +766,6 @@ Ice::InputStream::read(pair<const Long*, const Long*>& v, IceUtil::ScopedArray<L
     }
     else
     {
-#ifndef ICE_CPP11_MAPPING
-        result.reset();
-#endif
         v.first = v.second = 0;
     }
 }
@@ -889,13 +824,8 @@ Ice::InputStream::read(vector<Float>& v)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::InputStream::read(pair<const Float*, const Float*>& v)
-#else
-void
-Ice::InputStream::read(pair<const Float*, const Float*>& v, IceUtil::ScopedArray<Float>& result)
-#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
     if(sz > 0)
@@ -906,16 +836,10 @@ Ice::InputStream::read(pair<const Float*, const Float*>& v, IceUtil::ScopedArray
         v.second = reinterpret_cast<Float*>(i);
 #else
 
-#  ifdef ICE_CPP11_MAPPING
         auto result = new float[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
-#  else
-        result.reset(new Float[static_cast<size_t>(sz)]);
-        v.first = result.get();
-        v.second = result.get() + sz;
-#  endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Float));
@@ -937,9 +861,6 @@ Ice::InputStream::read(pair<const Float*, const Float*>& v, IceUtil::ScopedArray
     }
     else
     {
-#ifndef ICE_CPP11_MAPPING
-        result.reset();
-#endif
         v.first = v.second = 0;
     }
 }
@@ -1010,13 +931,8 @@ Ice::InputStream::read(vector<Double>& v)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::InputStream::read(pair<const Double*, const Double*>& v)
-#else
-void
-Ice::InputStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArray<Double>& result)
-#endif
 {
     Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
     if(sz > 0)
@@ -1027,16 +943,10 @@ Ice::InputStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArr
         v.second = reinterpret_cast<Double*>(i);
 #else
 
-#  ifdef ICE_CPP11_MAPPING
         auto result = new double[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
-#  else
-        result.reset(new Double[static_cast<size_t>(sz)]);
-        v.first = result.get();
-        v.second = result.get() + sz;
-#  endif
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(Double));
@@ -1062,9 +972,6 @@ Ice::InputStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArr
     }
     else
     {
-#ifndef ICE_CPP11_MAPPING
-        result.reset();
-#endif
         v.first = v.second = 0;
     }
 }
@@ -1092,7 +999,6 @@ Ice::InputStream::read(std::string& v, bool convert)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::InputStream::read(const char*& vdata, size_t& vsize, bool convert)
 {
@@ -1146,62 +1052,6 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, bool convert)
         vsize = 0;
     }
 }
-
-#else
-
-void
-Ice::InputStream::read(const char*& vdata, size_t& vsize)
-{
-    Int sz = readSize();
-    if(sz > 0)
-    {
-        if(b.end() - i < sz)
-        {
-            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
-
-        vdata = reinterpret_cast<const char*>(&*i);
-        vsize = static_cast<size_t>(sz);
-        i += sz;
-    }
-    else
-    {
-        vdata = 0;
-        vsize = 0;
-    }
-}
-
-void
-Ice::InputStream::read(const char*& vdata, size_t& vsize, string& holder)
-{
-    Int sz = readSize();
-    if(sz > 0)
-    {
-        if(b.end() - i < sz)
-        {
-            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
-
-        if(readConverted(holder, sz))
-        {
-            vdata = holder.data();
-            vsize = holder.size();
-        }
-        else
-        {
-            vdata = reinterpret_cast<const char*>(&*i);
-            vsize = static_cast<size_t>(sz);
-        }
-        i += sz;
-    }
-    else
-    {
-        holder.clear();
-        vdata = 0;
-        vsize = 0;
-    }
-}
-#endif
 
 bool
 Ice::InputStream::readConverted(string& v, int sz)
@@ -1315,7 +1165,6 @@ Ice::InputStream::read(vector<wstring>& v)
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 shared_ptr<ObjectPrx>
 Ice::InputStream::readProxy()
 {
@@ -1326,18 +1175,6 @@ Ice::InputStream::readProxy()
 
     return _instance->proxyFactory()->streamToProxy(this);
 }
-#else
-void
-Ice::InputStream::read(ObjectPrx& v)
-{
-    if(!_instance)
-    {
-        throw MarshalException(__FILE__, __LINE__, "cannot unmarshal a proxy without a communicator");
-    }
-
-    v = _instance->proxyFactory()->streamToProxy(this);
-}
-#endif
 
 Int
 Ice::InputStream::readEnum(Int maxValue)
@@ -1370,7 +1207,7 @@ Ice::InputStream::readEnum(Int maxValue)
 }
 
 void
-Ice::InputStream::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::throwException(UserExceptionFactory factory)
 {
     initEncaps();
     _currentEncaps->decoder->throwException(factory);
@@ -1434,37 +1271,37 @@ Ice::InputStream::skipOptional(OptionalFormat type)
 {
     switch(type)
     {
-        case ICE_SCOPED_ENUM(OptionalFormat, F1):
+        case OptionalFormat::F1:
         {
             skip(1);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F2):
+        case OptionalFormat::F2:
         {
             skip(2);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F4):
+        case OptionalFormat::F4:
         {
             skip(4);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, F8):
+        case OptionalFormat::F8:
         {
             skip(8);
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, Size):
+        case OptionalFormat::Size:
         {
             skipSize();
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, VSize):
+        case OptionalFormat::VSize:
         {
             skip(static_cast<size_t>(readSize()));
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, FSize):
+        case OptionalFormat::FSize:
         {
             Int sz;
             read(sz);
@@ -1475,7 +1312,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
             skip(static_cast<size_t>(sz));
             break;
         }
-        case ICE_SCOPED_ENUM(OptionalFormat, Class):
+        case OptionalFormat::Class:
         {
             read(0, 0);
             break;
@@ -1529,21 +1366,12 @@ Ice::InputStream::resolveCompactId(int id) const
 {
     string type;
 
-#ifdef ICE_CPP11_MAPPING
     function<string(int)> resolver = compactIdResolver();
-#else
-    CompactIdResolverPtr resolver = compactIdResolver();
-#endif
-
     if(resolver)
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
             type = resolver(id);
-#else
-            type = resolver->resolve(id);
-#endif
         }
         catch(const LocalException&)
         {
@@ -1636,7 +1464,6 @@ Ice::InputStream::logger() const
     return 0;
 }
 
-#ifdef ICE_CPP11_MAPPING
 function<string(int)>
 Ice::InputStream::compactIdResolver() const
 {
@@ -1651,22 +1478,6 @@ Ice::InputStream::compactIdResolver() const
 
     return nullptr;
 }
-#else
-CompactIdResolverPtr
-Ice::InputStream::compactIdResolver() const
-{
-    if(_compactIdResolver)
-    {
-        return _compactIdResolver;
-    }
-    else if(_instance)
-    {
-        return _instance->initializationData().compactIdResolver;
-    }
-
-    return 0;
-}
-#endif
 
 void
 Ice::InputStream::initEncaps()
@@ -1775,7 +1586,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
     IndexToPtrMap::iterator p = _unmarshaledMap.find(index);
     if(p != _unmarshaledMap.end())
     {
-        if (p->second == ICE_NULLPTR)
+        if (p->second == nullptr)
         {
             assert(!_stream->_instance->acceptClassCycles());
             throw MarshalException(__FILE__, __LINE__, "cycle detected during Value unmarshaling");
@@ -1913,7 +1724,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory factory)
 {
     assert(_sliceType == NoSlice);
 
@@ -1935,7 +1746,7 @@ Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_DELEGATE(UserExcept
     //
     startSlice();
     const string mostDerivedId = _typeId;
-    ICE_DELEGATE(UserExceptionFactory) exceptionFactory = factory;
+    UserExceptionFactory exceptionFactory = factory;
     while(true)
     {
         //
@@ -1958,11 +1769,7 @@ Ice::InputStream::EncapsDecoder10::throwException(ICE_IN(ICE_DELEGATE(UserExcept
             //
             try
             {
-#ifdef ICE_CPP11_MAPPING
                 exceptionFactory(_typeId);
-#else
-                exceptionFactory->createAndThrow(_typeId);
-#endif
             }
             catch(UserException& ex)
             {
@@ -2242,7 +2049,7 @@ Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
 }
 
 void
-Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_DELEGATE(UserExceptionFactory)) factory)
+Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
 {
     assert(!_current);
 
@@ -2253,7 +2060,7 @@ Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_DELEGATE(UserExcept
     //
     startSlice();
     const string mostDerivedId = _current->typeId;
-    ICE_DELEGATE(UserExceptionFactory) exceptionFactory = factory;
+    UserExceptionFactory exceptionFactory = factory;
     while(true)
     {
         //
@@ -2276,11 +2083,7 @@ Ice::InputStream::EncapsDecoder11::throwException(ICE_IN(ICE_DELEGATE(UserExcept
             //
             try
             {
-#ifdef ICE_CPP11_MAPPING
                 exceptionFactory(_current->typeId);
-#else
-                exceptionFactory->createAndThrow(_current->typeId);
-#endif
             }
             catch(UserException& ex)
             {

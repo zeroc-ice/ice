@@ -754,7 +754,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
 
-        bool afterLastRequiredParameter = lastRequiredParameter == ICE_NULLPTR;
+        bool afterLastRequiredParameter = lastRequiredParameter == nullptr;
         for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
             if(!(*q)->isOutParam())
@@ -881,16 +881,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // ice_ids
     //
-    InterfaceList allBases = p->allBases();
-    StringList ids;
-    transform(
-        allBases.begin(), allBases.end(), back_inserter(ids), [](const ContainedPtr& it) { return it->scoped(); });
-    StringList other;
-    other.push_back(scoped);
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
-    ids.unique();
+    StringList ids = p->ids();
     _out << sp << nl << "def ice_ids(self, current=None):";
     _out.inc();
     _out << nl << "return (";

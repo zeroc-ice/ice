@@ -16,14 +16,10 @@ namespace Ice
 using IceUtil::CtrlCHandler;
 using IceUtil::CtrlCHandlerCallback;
 
-#ifdef ICE_CPP11_MAPPING
 /**
  * Determines how the Application class handles signals.
  */
 enum class SignalPolicy : unsigned char
-#else
-enum SignalPolicy
-#endif
 {
     /** Enables signal handling. */
     HandleSignals,
@@ -45,14 +41,12 @@ public:
      * @param policy Specifies whether to handle signals. If not specified, the default behavior
      * is to handle signals.
      */
-    Application(SignalPolicy policy = ICE_ENUM(SignalPolicy, HandleSignals));
+    Application(SignalPolicy policy = SignalPolicy::HandleSignals);
 
-#ifdef ICE_CPP11_MAPPING
     /// \cond IGNORE
     Application(const Application&) = delete;
     Application& operator=(const Application&) = delete;
     /// \endcond
-#endif
 
     virtual ~Application();
 
@@ -310,15 +304,6 @@ private:
     static void destroyOnInterruptCallback(int);
     static void shutdownOnInterruptCallback(int);
     static void callbackOnInterruptCallback(int);
-
-#ifndef ICE_CPP11_MAPPING
-    //
-    // Not defined, make Application non-copyable
-    //
-    Application(const Application&);
-    Application& operator=(const Application&);
-#endif
-
 };
 
 }

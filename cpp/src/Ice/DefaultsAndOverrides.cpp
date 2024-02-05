@@ -104,11 +104,11 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     value = properties->getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
     if(value == "Random")
     {
-        defaultEndpointSelection = ICE_ENUM(EndpointSelectionType, Random);
+        defaultEndpointSelection = EndpointSelectionType::Random;
     }
     else if(value == "Ordered")
     {
-        defaultEndpointSelection = ICE_ENUM(EndpointSelectionType, Ordered);
+        defaultEndpointSelection = EndpointSelectionType::Ordered;
     }
     else
     {
@@ -155,5 +155,5 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     bool slicedFormat = properties->getPropertyAsIntWithDefault("Ice.Default.SlicedFormat", 0) > 0;
     const_cast<FormatType&>(defaultFormat) = slicedFormat ?
-        ICE_ENUM(FormatType, SlicedFormat) : ICE_ENUM(FormatType, CompactFormat);
+        FormatType::SlicedFormat : FormatType::CompactFormat;
 }

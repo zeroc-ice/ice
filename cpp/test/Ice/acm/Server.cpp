@@ -26,7 +26,7 @@ Server::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.ACM.Timeout", "0");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::Identity id = Ice::stringToIdentity("communicator");
-    adapter->add(ICE_MAKE_SHARED(RemoteCommunicatorI), id);
+    adapter->add(std::make_shared<RemoteCommunicatorI>(), id);
     adapter->activate();
 
     serverReady();

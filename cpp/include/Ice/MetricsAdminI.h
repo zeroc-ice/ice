@@ -114,7 +114,7 @@ template<class MetricsType> class MetricsMapT : public MetricsMapI, private IceU
 public:
 
     using T = MetricsType;
-    using TPtr = ICE_SHARED_PTR<MetricsType>;
+    using TPtr = std::shared_ptr<MetricsType>;
     using MetricsMapTPtr = std::shared_ptr<MetricsMapT>;
 
     typedef IceMX::MetricsMap MetricsType::* SubMapMember;
@@ -614,21 +614,11 @@ public:
 
     void updated(const Ice::PropertyDict&);
 
-#ifdef ICE_CPP11_MAPPING
     virtual void enableMetricsView(std::string, const ::Ice::Current&);
     virtual void disableMetricsView(std::string, const ::Ice::Current&);
     virtual IceMX::MetricsView getMetricsView(std::string, Ice::Long&, const ::Ice::Current&);
     virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const ::Ice::Current&);
     virtual IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const ::Ice::Current&);
-#else
-    virtual void enableMetricsView(const std::string&, const ::Ice::Current&);
-    virtual void disableMetricsView(const std::string&, const ::Ice::Current&);
-    virtual IceMX::MetricsView getMetricsView(const std::string&, Ice::Long&, const ::Ice::Current&);
-    virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(const std::string&, const std::string&,
-                                                            const ::Ice::Current&);
-    virtual IceMX::MetricsFailures getMetricsFailures(const std::string&, const std::string&, const std::string&,
-                                                      const ::Ice::Current&);
-#endif
     std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
 
     const Ice::LoggerPtr& getLogger() const;

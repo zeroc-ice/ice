@@ -21,7 +21,7 @@ namespace IceInternal
             Debug.Assert(prefix != null);
 
             string timeoutProperty;
-            if((prefix.Equals("Ice.ACM.Client") || prefix.Equals("Ice.ACM.Server")) &&
+            if((prefix == "Ice.ACM.Client" || prefix == "Ice.ACM.Server") &&
                p.getProperty(prefix + ".Timeout").Length == 0)
             {
                 timeoutProperty = prefix; // Deprecated property.

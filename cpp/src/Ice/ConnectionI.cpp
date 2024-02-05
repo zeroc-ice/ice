@@ -32,10 +32,6 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-#ifndef ICE_CPP11_MAPPING
-Ice::LocalObject* Ice::upCast(ConnectionI* p) { return p; }
-#endif
-
 namespace
 {
 
@@ -67,7 +63,7 @@ public:
     DispatchCall(const ConnectionIPtr& connection, const ConnectionI::StartCallbackPtr& startCB,
                  const vector<ConnectionI::OutgoingMessage>& sentCBs, Byte compress, Int requestId,
                  Int invokeNum, const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter,
-                 const OutgoingAsyncBasePtr& outAsync, const ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback,
+                 const OutgoingAsyncBasePtr& outAsync, const HeartbeatCallback& heartbeatCallback,
                  InputStream& stream) :
         DispatchWorkItem(connection),
         _connection(connection),
@@ -103,7 +99,7 @@ private:
     const ServantManagerPtr _servantManager;
     const ObjectAdapterPtr _adapter;
     const OutgoingAsyncBasePtr _outAsync;
-    const ICE_DELEGATE(HeartbeatCallback) _heartbeatCallback;
+    const HeartbeatCallback _heartbeatCallback;
     InputStream _stream;
 };
 
@@ -190,15 +186,15 @@ ConnectionFlushBatchAsync::invoke(const string& operation, Ice::CompressBatch co
         }
         else
         {
-            if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, Yes))
+            if(compressBatch == CompressBatch::Yes)
             {
                 compress = true;
             }
-            else if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, No))
+            else if(compressBatch == CompressBatch::No)
             {
                 compress = false;
             }
-            status = _connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, compress, false, batchRequestNum);
+            status = _connection->sendAsyncRequest(shared_from_this(), compress, false, batchRequestNum);
         }
 
         if(status & AsyncStatusSent)
@@ -423,7 +419,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
         exception(ex);
         if(callback)
         {
-            callback->connectionStartFailed(ICE_SHARED_FROM_THIS, ex);
+            callback->connectionStartFailed(shared_from_this(), ex);
             return;
         }
         else
@@ -435,7 +431,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
 
     if(callback)
     {
-        callback->connectionStartCompleted(ICE_SHARED_FROM_THIS);
+        callback->connectionStartCompleted(shared_from_this());
     }
 }
 
@@ -492,17 +488,17 @@ Ice::ConnectionI::close(ConnectionClose mode) noexcept
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(mode == ICE_SCOPED_ENUM(ConnectionClose, Forcefully))
+    if(mode == ConnectionClose::Forcefully)
     {
         setState(StateClosed, ConnectionManuallyClosedException(__FILE__, __LINE__, false));
     }
-    else if(mode == ICE_SCOPED_ENUM(ConnectionClose, Gracefully))
+    else if(mode == ConnectionClose::Gracefully)
     {
         setState(StateClosing, ConnectionManuallyClosedException(__FILE__, __LINE__, true));
     }
     else
     {
-        assert(mode == ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+        assert(mode == ConnectionClose::GracefullyWithWait);
 
         //
         // Wait until all outstanding requests have been completed.
@@ -640,11 +636,11 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
     // per timeout period because the monitor() method is still only
     // called every (timeout / 2) period.
     //
-    if(acm.heartbeat == ICE_ENUM(ACMHeartbeat, HeartbeatAlways) ||
-       (acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOff) &&
+    if(acm.heartbeat == ACMHeartbeat::HeartbeatAlways ||
+       (acm.heartbeat != ACMHeartbeat::HeartbeatOff &&
         _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
     {
-        if(acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOnDispatch) || _dispatchCount > 0)
+        if(acm.heartbeat != ACMHeartbeat::HeartbeatOnDispatch || _dispatchCount > 0)
         {
             sendHeartbeatNow();
         }
@@ -661,10 +657,10 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
         return;
     }
 
-    if(acm.close != ICE_ENUM(ACMClose, CloseOff) && now >= (_acmLastActivity + acm.timeout))
+    if(acm.close != ACMClose::CloseOff && now >= (_acmLastActivity + acm.timeout))
     {
-        if(acm.close == ICE_ENUM(ACMClose, CloseOnIdleForceful) ||
-           (acm.close != ICE_ENUM(ACMClose, CloseOnIdle) && !_asyncRequests.empty()))
+        if(acm.close == ACMClose::CloseOnIdleForceful ||
+           (acm.close != ACMClose::CloseOnIdle && !_asyncRequests.empty()))
         {
             //
             // Close the connection if we didn't receive a heartbeat in
@@ -672,7 +668,7 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
             //
             setState(StateClosed, ConnectionTimeoutException(__FILE__, __LINE__));
         }
-        else if(acm.close != ICE_ENUM(ACMClose, CloseOnInvocation) &&
+        else if(acm.close != ACMClose::CloseOnInvocation &&
                 _dispatchCount == 0 && _batchRequestQueue->isEmpty() && _asyncRequests.empty())
         {
             //
@@ -711,7 +707,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     // Notify the request that it's cancelable with this connection.
     // This will throw if the request is canceled.
     //
-    out->cancelable(ICE_SHARED_FROM_THIS);
+    out->cancelable(shared_from_this());
     Int requestId = 0;
     if(response)
     {
@@ -777,7 +773,6 @@ Ice::ConnectionI::getBatchRequestQueue() const
     return _batchRequestQueue;
 }
 
-#ifdef ICE_CPP11_MAPPING
 std::function<void()>
 Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
                                           ::std::function<void(::std::exception_ptr)> ex,
@@ -795,99 +790,10 @@ Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
         {
         }
     };
-    auto outAsync = make_shared<ConnectionFlushBatchLambda>(ICE_SHARED_FROM_THIS, _instance, ex, sent);
+    auto outAsync = make_shared<ConnectionFlushBatchLambda>(shared_from_this(), _instance, ex, sent);
     outAsync->invoke(flushBatchRequests_name, compress);
     return [outAsync]() { outAsync->cancel(); };
 }
-#else
-void
-Ice::ConnectionI::flushBatchRequests(CompressBatch compress)
-{
-    end_flushBatchRequests(begin_flushBatchRequests(compress));
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress)
-{
-    return _iceI_begin_flushBatchRequests(compress, dummyCallback, 0);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress,
-                                           const CallbackPtr& cb,
-                                           const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_flushBatchRequests(compress, cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress,
-                                           const Callback_Connection_flushBatchRequestsPtr& cb,
-                                           const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_flushBatchRequests(compress, cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::_iceI_begin_flushBatchRequests(CompressBatch compress,
-                                                 const CallbackBasePtr& cb,
-                                                 const LocalObjectPtr& cookie)
-{
-    class ConnectionFlushBatchAsyncWithCallback : public ConnectionFlushBatchAsync, public CallbackCompletion
-    {
-    public:
-
-        ConnectionFlushBatchAsyncWithCallback(const Ice::ConnectionIPtr& connection,
-                                              const Ice::CommunicatorPtr& communicator,
-                                              const InstancePtr& instance,
-                                              const CallbackBasePtr& callback,
-                                              const Ice::LocalObjectPtr& cookie) :
-            ConnectionFlushBatchAsync(connection, instance),
-            CallbackCompletion(callback, cookie),
-            _communicator(communicator),
-            _connection(connection)
-        {
-            _cookie = cookie;
-        }
-
-        virtual Ice::CommunicatorPtr getCommunicator() const
-        {
-            return _communicator;
-        }
-
-        virtual Ice::ConnectionPtr getConnection() const
-        {
-            return _connection;
-        }
-
-        virtual const std::string&
-        getOperation() const
-        {
-            return flushBatchRequests_name;
-        }
-
-    private:
-
-        Ice::CommunicatorPtr _communicator;
-        Ice::ConnectionPtr _connection;
-    };
-
-    ConnectionFlushBatchAsyncPtr result = new ConnectionFlushBatchAsyncWithCallback(this,
-                                                                                    _communicator,
-                                                                                    _instance,
-                                                                                    cb,
-                                                                                    cookie);
-    result->invoke(flushBatchRequests_name, compress);
-    return result;
-}
-
-void
-Ice::ConnectionI::end_flushBatchRequests(const AsyncResultPtr& r)
-{
-    AsyncResult::_check(r, this, flushBatchRequests_name);
-    r->_waitForResponse();
-}
-#endif
 
 namespace
 {
@@ -938,7 +844,7 @@ public:
             _os.write(headerSize); // Message size.
             _os.i = _os.b.begin();
 
-            AsyncStatus status = _connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, false, false, 0);
+            AsyncStatus status = _connection->sendAsyncRequest(shared_from_this(), false, false, 0);
             if(status & AsyncStatusSent)
             {
                 _sentSynchronously = true;
@@ -973,7 +879,6 @@ typedef IceUtil::Handle<HeartbeatAsync> HeartbeatAsyncPtr;
 
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 Ice::ConnectionI::heartbeat()
 {
@@ -996,69 +901,13 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
         {
         }
     };
-    auto outAsync = make_shared<HeartbeatLambda>(ICE_SHARED_FROM_THIS, _communicator, _instance, ex, sent);
+    auto outAsync = make_shared<HeartbeatLambda>(shared_from_this(), _communicator, _instance, ex, sent);
     outAsync->invoke();
     return [outAsync]() { outAsync->cancel(); };
 }
-#else
-void
-Ice::ConnectionI::heartbeat()
-{
-    end_heartbeat(begin_heartbeat());
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_heartbeat()
-{
-    return _iceI_begin_heartbeat(dummyCallback, 0);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_heartbeat(const CallbackPtr& cb, const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_heartbeat(cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_heartbeat(const Callback_Connection_heartbeatPtr& cb, const LocalObjectPtr& cookie)
-{
-    return _iceI_begin_heartbeat(cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::_iceI_begin_heartbeat(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
-{
-    class HeartbeatCallback : public HeartbeatAsync, public CallbackCompletion
-    {
-    public:
-
-        HeartbeatCallback(const ConnectionIPtr& connection,
-                          const CommunicatorPtr& communicator,
-                          const InstancePtr& instance,
-                          const CallbackBasePtr& callback,
-                          const LocalObjectPtr& cookie) :
-            HeartbeatAsync(connection, communicator, instance),
-            CallbackCompletion(callback, cookie)
-        {
-            _cookie = cookie;
-        }
-    };
-
-    HeartbeatAsyncPtr result = new HeartbeatCallback(this, _communicator, _instance, cb, cookie);
-    result->invoke();
-    return result;
-}
 
 void
-Ice::ConnectionI::end_heartbeat(const AsyncResultPtr& r)
-{
-    AsyncResult::_check(r, this, heartbeat_name);
-    r->_waitForResponse();
-}
-#endif
-
-void
-Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) callback)
+Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
@@ -1069,7 +918,7 @@ Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) c
 }
 
 void
-Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
+Ice::ConnectionI::setCloseCallback(CloseCallback callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
@@ -1080,13 +929,9 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
             {
             public:
 
-                CallbackWorkItem(const ConnectionIPtr& connection, ICE_IN(ICE_DELEGATE(CloseCallback)) callback) :
+                CallbackWorkItem(const ConnectionIPtr& connection, CloseCallback callback) :
                     _connection(connection),
-#ifdef ICE_CPP11_MAPPING
                     _callback(std::move(callback))
-#else
-                    _callback(callback)
-#endif
                 {
                 }
 
@@ -1098,13 +943,9 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
             private:
 
                 const ConnectionIPtr _connection;
-                const ICE_DELEGATE(CloseCallback) _callback;
+                const CloseCallback _callback;
             };
-#ifdef ICE_CPP11_MAPPING
-            _threadPool->dispatch(new CallbackWorkItem(ICE_SHARED_FROM_THIS, std::move(callback)));
-#else
-            _threadPool->dispatch(new CallbackWorkItem(ICE_SHARED_FROM_THIS, callback));
-#endif
+            _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), std::move(callback)));
         }
     }
     else
@@ -1114,15 +955,11 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
 }
 
 void
-Ice::ConnectionI::closeCallback(const ICE_DELEGATE(CloseCallback)& callback)
+Ice::ConnectionI::closeCallback(const CloseCallback& callback)
 {
     try
     {
-#ifdef ICE_CPP11_MAPPING
-        callback(ICE_SHARED_FROM_THIS);
-#else
-        callback->closed(ICE_SHARED_FROM_THIS);
-#endif
+        callback(shared_from_this());
     }
     catch(const std::exception& ex)
     {
@@ -1144,11 +981,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(timeout && *timeout < 0)
     {
-#ifdef ICE_CPP11_MAPPING
         throw invalid_argument("invalid negative ACM timeout value");
-#else
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "invalid negative ACM timeout value");
-#endif
     }
     if(!_monitor || _state >= StateClosed)
     {
@@ -1157,7 +990,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
 
     if(_state == StateActive)
     {
-        _monitor->remove(ICE_SHARED_FROM_THIS);
+        _monitor->remove(shared_from_this());
     }
     _monitor = _monitor->acm(timeout, close, heartbeat);
 
@@ -1172,7 +1005,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
 
     if(_state == StateActive)
     {
-        _monitor->add(ICE_SHARED_FROM_THIS);
+        _monitor->add(shared_from_this());
     }
 }
 
@@ -1182,8 +1015,8 @@ Ice::ConnectionI::getACM() noexcept
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     ACM acm;
     acm.timeout = 0;
-    acm.close = ICE_ENUM(ACMClose, CloseOff);
-    acm.heartbeat = ICE_ENUM(ACMHeartbeat, HeartbeatOff);
+    acm.close = ACMClose::CloseOff;
+    acm.heartbeat = ACMHeartbeat::HeartbeatOff;
     return _monitor ? _monitor->getACM() : acm;
 }
 
@@ -1416,7 +1249,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
     {
         // Go through the adapter to set the adapter and servant manager on this connection
         // to ensure the object adapter is still active.
-        dynamic_cast<ObjectAdapterI*>(adapter.get())->setAdapterOnConnection(ICE_SHARED_FROM_THIS);
+        dynamic_cast<ObjectAdapterI*>(adapter.get())->setAdapterOnConnection(shared_from_this());
     }
     else
     {
@@ -1585,7 +1418,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     ServantManagerPtr servantManager;
     ObjectAdapterPtr adapter;
     OutgoingAsyncBasePtr outAsync;
-    ICE_DELEGATE(HeartbeatCallback) heartbeatCallback;
+    HeartbeatCallback heartbeatCallback;
     int dispatchCount = 0;
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
@@ -1728,7 +1561,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     // satisfied before continuing.
                     //
                     scheduleTimeout(newOp);
-                    _threadPool->update(ICE_SHARED_FROM_THIS, current.operation, newOp);
+                    _threadPool->update(shared_from_this(), current.operation, newOp);
                     return;
                 }
 
@@ -1742,7 +1575,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     return;
                 }
 
-                _threadPool->unregister(ICE_SHARED_FROM_THIS, current.operation);
+                _threadPool->unregister(shared_from_this(), current.operation);
 
                 //
                 // We start out in holding state.
@@ -1790,7 +1623,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 if(_state < StateClosed)
                 {
                     scheduleTimeout(newOp);
-                    _threadPool->update(ICE_SHARED_FROM_THIS, current.operation, newOp);
+                    _threadPool->update(shared_from_this(), current.operation, newOp);
                 }
             }
 
@@ -1847,7 +1680,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(new DispatchCall(ICE_SHARED_FROM_THIS, startCB, sentCBs, compress, requestId,
+    _threadPool->dispatchFromThisThread(new DispatchCall(shared_from_this(), startCB, sentCBs, compress, requestId,
                                                          invokeNum, servantManager, adapter, outAsync,
                                                          heartbeatCallback, current.stream));
 #else
@@ -1858,7 +1691,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        _threadPool->dispatchFromThisThread(new DispatchCall(ICE_SHARED_FROM_THIS, startCB, sentCBs, compress, requestId,
+        _threadPool->dispatchFromThisThread(new DispatchCall(shared_from_this(), startCB, sentCBs, compress, requestId,
                                                              invokeNum, servantManager, adapter, outAsync,
                                                              heartbeatCallback, current.stream));
 
@@ -1870,7 +1703,7 @@ void
 ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMessage>& sentCBs,
                       Byte compress, Int requestId, Int invokeNum, const ServantManagerPtr& servantManager,
                       const ObjectAdapterPtr& adapter, const OutgoingAsyncBasePtr& outAsync,
-                      const ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback, InputStream& stream)
+                      const HeartbeatCallback& heartbeatCallback, InputStream& stream)
 {
     int dispatchedCount = 0;
 
@@ -1880,7 +1713,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     //
     if(startCB)
     {
-        startCB->connectionStartCompleted(ICE_SHARED_FROM_THIS);
+        startCB->connectionStartCompleted(shared_from_this());
         ++dispatchedCount;
     }
 
@@ -1925,11 +1758,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     {
         try
         {
-#ifdef ICE_CPP11_MAPPING
-            heartbeatCallback(ICE_SHARED_FROM_THIS);
-#else
-            heartbeatCallback->heartbeat(ICE_SHARED_FROM_THIS);
-#endif
+            heartbeatCallback(shared_from_this());
         }
         catch(const std::exception& ex)
         {
@@ -2018,7 +1847,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(new FinishCall(ICE_SHARED_FROM_THIS, close));
+    _threadPool->dispatchFromThisThread(new FinishCall(shared_from_this(), close));
 #else
     if(!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.
     {
@@ -2026,7 +1855,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
     else
     {
-        _threadPool->dispatchFromThisThread(new FinishCall(ICE_SHARED_FROM_THIS, close));
+        _threadPool->dispatchFromThisThread(new FinishCall(shared_from_this(), close));
     }
 #endif
 }
@@ -2080,7 +1909,7 @@ Ice::ConnectionI::finish(bool close)
     {
         assert(_exception);
 
-        _startCallback->connectionStartFailed(ICE_SHARED_FROM_THIS, *_exception);
+        _startCallback->connectionStartFailed(shared_from_this(), *_exception);
         _startCallback = 0;
     }
 
@@ -2153,10 +1982,10 @@ Ice::ConnectionI::finish(bool close)
     if(_closeCallback)
     {
         closeCallback(_closeCallback);
-        _closeCallback = ICE_NULLPTR;
+        _closeCallback = nullptr;
     }
 
-    _heartbeatCallback = ICE_NULLPTR;
+    _heartbeatCallback = nullptr;
 
     //
     // This must be done last as this will cause waitUntilFinished() to return (and communicator
@@ -2363,7 +2192,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
         // If we are in closed state, an exception must be set.
         //
         assert(_state != StateClosed);
-        ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+        _exception = ex.ice_clone();
         //
         // We don't warn if we are not validated.
         //
@@ -2448,7 +2277,7 @@ Ice::ConnectionI::setState(State state)
                 {
                     return;
                 }
-                _threadPool->_register(ICE_SHARED_FROM_THIS, SocketOperationRead);
+                _threadPool->_register(shared_from_this(), SocketOperationRead);
                 break;
             }
 
@@ -2464,7 +2293,7 @@ Ice::ConnectionI::setState(State state)
                 }
                 if(_state == StateActive)
                 {
-                    _threadPool->unregister(ICE_SHARED_FROM_THIS, SocketOperationRead);
+                    _threadPool->unregister(shared_from_this(), SocketOperationRead);
                 }
                 break;
             }
@@ -2495,7 +2324,7 @@ Ice::ConnectionI::setState(State state)
                 // Don't need to close now for connections so only close the transceiver
                 // if the selector request it.
                 //
-                if(_threadPool->finish(ICE_SHARED_FROM_THIS, false))
+                if(_threadPool->finish(shared_from_this(), false))
                 {
                     _transceiver->close();
                 }
@@ -2530,11 +2359,11 @@ Ice::ConnectionI::setState(State state)
             {
                 _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
             }
-            _monitor->add(ICE_SHARED_FROM_THIS);
+            _monitor->add(shared_from_this());
         }
         else if(_state == StateActive)
         {
-            _monitor->remove(ICE_SHARED_FROM_THIS);
+            _monitor->remove(shared_from_this());
         }
     }
 
@@ -2618,7 +2447,7 @@ Ice::ConnectionI::initiateShutdown()
             if(op)
             {
                 scheduleTimeout(op);
-                _threadPool->_register(ICE_SHARED_FROM_THIS, op);
+                _threadPool->_register(shared_from_this(), op);
             }
         }
     }
@@ -2662,7 +2491,7 @@ Ice::ConnectionI::initialize(SocketOperation operation)
     if(s != SocketOperationNone)
     {
         scheduleTimeout(s);
-        _threadPool->update(ICE_SHARED_FROM_THIS, operation, s);
+        _threadPool->update(shared_from_this(), operation, s);
         return false;
     }
 
@@ -2708,7 +2537,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 if(op)
                 {
                     scheduleTimeout(op);
-                    _threadPool->update(ICE_SHARED_FROM_THIS, operation, op);
+                    _threadPool->update(shared_from_this(), operation, op);
                     return false;
                 }
             }
@@ -2737,7 +2566,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 if(op)
                 {
                     scheduleTimeout(op);
-                    _threadPool->update(ICE_SHARED_FROM_THIS, operation, op);
+                    _threadPool->update(shared_from_this(), operation, op);
                     return false;
                 }
             }
@@ -3086,7 +2915,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 
     _writeStream.swap(*_sendStreams.back().stream);
     scheduleTimeout(op);
-    _threadPool->_register(ICE_SHARED_FROM_THIS, op);
+    _threadPool->_register(shared_from_this(), op);
     return AsyncStatusQueued;
 }
 
@@ -3241,7 +3070,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 SocketOperation
 Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& requestId, Byte& compress,
                                ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter,
-                               OutgoingAsyncBasePtr& outAsync, ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback,
+                               OutgoingAsyncBasePtr& outAsync, HeartbeatCallback& heartbeatCallback,
                                int& dispatchCount)
 {
     assert(_state > StateNotValidated && _state < StateClosed);
@@ -3596,7 +3425,7 @@ Ice::ConnectionI::initConnectionInfo() const
     }
     catch(const Ice::LocalException&)
     {
-        _info = ICE_MAKE_SHARED(ConnectionInfo);
+        _info = std::make_shared<ConnectionInfo>();
     }
 
     Ice::ConnectionInfoPtr info = _info;
@@ -3661,7 +3490,7 @@ ConnectionI::reap()
 {
     if(_monitor)
     {
-        _monitor->reap(ICE_SHARED_FROM_THIS);
+        _monitor->reap(shared_from_this());
     }
     if(_observer)
     {

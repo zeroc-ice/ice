@@ -12,7 +12,6 @@ MyDerivedClassI::MyDerivedClassI()
 {
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 MyDerivedClassI::echoAsync(
     shared_ptr<Ice::ObjectPrx> obj,
@@ -41,26 +40,6 @@ MyDerivedClassI::getContextAsync(
 {
     response(_ctx);
 }
-#else
-void
-MyDerivedClassI::echo_async(const Test::AMD_MyDerivedClass_echoPtr& cb, const Ice::ObjectPrx& obj, const Ice::Current&)
-{
-    cb->ice_response(obj);
-}
-
-void
-MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current& c)
-{
-    c.adapter->getCommunicator()->shutdown();
-    cb->ice_response();
-}
-
-void
-MyDerivedClassI::getContext_async(const Test::AMD_MyClass_getContextPtr& cb, const Ice::Current&)
-{
-    cb->ice_response(_ctx);
-}
-#endif
 
 bool
 MyDerivedClassI::ice_isA(string s, const Ice::Current& current) const

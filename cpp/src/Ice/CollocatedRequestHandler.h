@@ -59,12 +59,10 @@ public:
 
     void invokeAll(Ice::OutputStream*, Ice::Int, Ice::Int);
 
-#ifdef ICE_CPP11_MAPPING
     std::shared_ptr<CollocatedRequestHandler> shared_from_this()
     {
         return std::static_pointer_cast<CollocatedRequestHandler>(ResponseHandler::shared_from_this());
     }
-#endif
 
 private:
 
@@ -79,7 +77,7 @@ private:
     std::map<OutgoingAsyncBasePtr, Ice::Int> _sendAsyncRequests;
     std::map<Ice::Int, OutgoingAsyncBasePtr> _asyncRequests;
 };
-ICE_DEFINE_PTR(CollocatedRequestHandlerPtr, CollocatedRequestHandler);
+using CollocatedRequestHandlerPtr = std::shared_ptr<CollocatedRequestHandler>;
 
 }
 

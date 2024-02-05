@@ -40,7 +40,7 @@ public:
 
     virtual std::vector<Ice::LocatorPrxPtr> getLocators(const std::string&, const IceUtil::Time&) const = 0;
 };
-ICE_DEFINE_PTR(PluginPtr, Plugin);
+using PluginPtr = std::shared_ptr<Plugin>;
 
 };
 

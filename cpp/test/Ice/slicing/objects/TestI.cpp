@@ -15,7 +15,7 @@ namespace
 void breakCycles(Ice::ValuePtr);
 
 template<typename T>
-void breakCycles(const vector<ICE_SHARED_PTR<T>>& s)
+void breakCycles(const vector<shared_ptr<T>>& s)
 {
     for(auto e : s)
     {
@@ -24,7 +24,7 @@ void breakCycles(const vector<ICE_SHARED_PTR<T>>& s)
 }
 
 template<typename K, typename V>
-void breakCycles(const map<K, ICE_SHARED_PTR<V>>& d)
+void breakCycles(const map<K, shared_ptr<V>>& d)
 {
     for(auto e : d)
     {
@@ -153,7 +153,7 @@ TestI::~TestI()
 Ice::ValuePtr
 TestI::SBaseAsObject(const ::Ice::Current&)
 {
-    SBasePtr sb = ICE_MAKE_SHARED(SBase);
+    SBasePtr sb = make_shared<SBase>();
     sb->sb = "SBase.sb";
     return sb;
 }
@@ -161,7 +161,7 @@ TestI::SBaseAsObject(const ::Ice::Current&)
 SBasePtr
 TestI::SBaseAsSBase(const ::Ice::Current&)
 {
-    SBasePtr sb = ICE_MAKE_SHARED(SBase);
+    SBasePtr sb = make_shared<SBase>();
     sb->sb = "SBase.sb";
     return sb;
 }
@@ -169,7 +169,7 @@ TestI::SBaseAsSBase(const ::Ice::Current&)
 SBasePtr
 TestI::SBSKnownDerivedAsSBase(const ::Ice::Current&)
 {
-    SBSKnownDerivedPtr sbskd = ICE_MAKE_SHARED(SBSKnownDerived);
+    SBSKnownDerivedPtr sbskd = make_shared<SBSKnownDerived>();
     sbskd->sb = "SBSKnownDerived.sb";
     sbskd->sbskd = "SBSKnownDerived.sbskd";
     return sbskd;
@@ -178,7 +178,7 @@ TestI::SBSKnownDerivedAsSBase(const ::Ice::Current&)
 SBSKnownDerivedPtr
 TestI::SBSKnownDerivedAsSBSKnownDerived(const ::Ice::Current&)
 {
-    SBSKnownDerivedPtr sbskd = ICE_MAKE_SHARED(SBSKnownDerived);
+    SBSKnownDerivedPtr sbskd = make_shared<SBSKnownDerived>();
     sbskd->sb = "SBSKnownDerived.sb";
     sbskd->sbskd = "SBSKnownDerived.sbskd";
     return sbskd;
@@ -187,7 +187,7 @@ TestI::SBSKnownDerivedAsSBSKnownDerived(const ::Ice::Current&)
 SBasePtr
 TestI::SBSUnknownDerivedAsSBase(const ::Ice::Current&)
 {
-    SBSUnknownDerivedPtr sbsud = ICE_MAKE_SHARED(SBSUnknownDerived);
+    SBSUnknownDerivedPtr sbsud = make_shared<SBSUnknownDerived>();
     sbsud->sb = "SBSUnknownDerived.sb";
     sbsud->sbsud = "SBSUnknownDerived.sbsud";
     return sbsud;
@@ -196,7 +196,7 @@ TestI::SBSUnknownDerivedAsSBase(const ::Ice::Current&)
 SBasePtr
 TestI::SBSUnknownDerivedAsSBaseCompact(const ::Ice::Current&)
 {
-    SBSUnknownDerivedPtr sbsud = ICE_MAKE_SHARED(SBSUnknownDerived);
+    SBSUnknownDerivedPtr sbsud = make_shared<SBSUnknownDerived>();
     sbsud->sb = "SBSUnknownDerived.sb";
     sbsud->sbsud = "SBSUnknownDerived.sbsud";
     return sbsud;
@@ -205,7 +205,7 @@ TestI::SBSUnknownDerivedAsSBaseCompact(const ::Ice::Current&)
 Ice::ValuePtr
 TestI::SUnknownAsObject(const ::Ice::Current&)
 {
-    SUnknownPtr su = ICE_MAKE_SHARED(SUnknown);
+    SUnknownPtr su = make_shared<SUnknown>();
     su->su = "SUnknown.su";
     su->cycle = su;
     _values.push_back(su);
@@ -213,7 +213,7 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
 }
 
 void
-TestI::checkSUnknown(ICE_IN(Ice::ValuePtr) obj, const ::Ice::Current& current)
+TestI::checkSUnknown(Ice::ValuePtr obj, const ::Ice::Current& current)
 {
     SUnknownPtr su = ICE_DYNAMIC_CAST(SUnknown, obj);
     if(current.encoding == Ice::Encoding_1_0)
@@ -231,7 +231,7 @@ TestI::checkSUnknown(ICE_IN(Ice::ValuePtr) obj, const ::Ice::Current& current)
 BPtr
 TestI::oneElementCycle(const ::Ice::Current&)
 {
-    BPtr b = ICE_MAKE_SHARED(B);
+    BPtr b = make_shared<B>();
     b->sb = "B1.sb";
     b->pb = b;
     _values.push_back(b);
@@ -241,9 +241,9 @@ TestI::oneElementCycle(const ::Ice::Current&)
 BPtr
 TestI::twoElementCycle(const ::Ice::Current&)
 {
-    BPtr b1 = ICE_MAKE_SHARED(B);
+    BPtr b1 = make_shared<B>();
     b1->sb = "B1.sb";
-    BPtr b2 = ICE_MAKE_SHARED(B);
+    BPtr b2 = make_shared<B>();
     b2->sb = "B2.sb";
     b2->pb = b1;
     b1->pb = b2;
@@ -254,10 +254,10 @@ TestI::twoElementCycle(const ::Ice::Current&)
 BPtr
 TestI::D1AsB(const ::Ice::Current&)
 {
-    D1Ptr d1 = ICE_MAKE_SHARED(D1);
+    D1Ptr d1 = make_shared<D1>();
     d1->sb = "D1.sb";
     d1->sd1 = "D1.sd1";
-    D2Ptr d2 = ICE_MAKE_SHARED(D2);
+    D2Ptr d2 = make_shared<D2>();
     d2->pb = d1;
     d2->sb = "D2.sb";
     d2->sd2 = "D2.sd2";
@@ -271,10 +271,10 @@ TestI::D1AsB(const ::Ice::Current&)
 D1Ptr
 TestI::D1AsD1(const ::Ice::Current&)
 {
-    D1Ptr d1 = ICE_MAKE_SHARED(D1);
+    D1Ptr d1 = make_shared<D1>();
     d1->sb = "D1.sb";
     d1->sd1 = "D1.sd1";
-    D2Ptr d2 = ICE_MAKE_SHARED(D2);
+    D2Ptr d2 = make_shared<D2>();
     d2->pb = d1;
     d2->sb = "D2.sb";
     d2->sd2 = "D2.sd2";
@@ -288,10 +288,10 @@ TestI::D1AsD1(const ::Ice::Current&)
 BPtr
 TestI::D2AsB(const ::Ice::Current&)
 {
-    D2Ptr d2 = ICE_MAKE_SHARED(D2);
+    D2Ptr d2 = make_shared<D2>();
     d2->sb = "D2.sb";
     d2->sd2 = "D2.sd2";
-    D1Ptr d1 = ICE_MAKE_SHARED(D1);
+    D1Ptr d1 = make_shared<D1>();
     d1->pb = d2;
     d1->sb = "D1.sb";
     d1->sd1 = "D1.sd1";
@@ -306,10 +306,10 @@ TestI::D2AsB(const ::Ice::Current&)
 void
 TestI::paramTest1(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 {
-    D1Ptr d1 = ICE_MAKE_SHARED(D1);
+    D1Ptr d1 = make_shared<D1>();
     d1->sb = "D1.sb";
     d1->sd1 = "D1.sd1";
-    D2Ptr d2 = ICE_MAKE_SHARED(D2);
+    D2Ptr d2 = make_shared<D2>();
     d2->pb = d1;
     d2->sb = "D2.sb";
     d2->sd2 = "D2.sd2";
@@ -331,26 +331,26 @@ TestI::paramTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 BPtr
 TestI::paramTest3(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 {
-    D2Ptr d2 = ICE_MAKE_SHARED(D2);
+    D2Ptr d2 = make_shared<D2>();
     d2->sb = "D2.sb (p1 1)";
     d2->pb = 0;
     d2->sd2 = "D2.sd2 (p1 1)";
     p1 = d2;
 
-    D1Ptr d1 = ICE_MAKE_SHARED(D1);
+    D1Ptr d1 = make_shared<D1>();
     d1->sb = "D1.sb (p1 2)";
     d1->pb = 0;
     d1->sd1 = "D1.sd2 (p1 2)";
     d1->pd1 = 0;
     d2->pd2 = d1;
 
-    D2Ptr d4 = ICE_MAKE_SHARED(D2);
+    D2Ptr d4 = make_shared<D2>();
     d4->sb = "D2.sb (p2 1)";
     d4->pb = 0;
     d4->sd2 = "D2.sd2 (p2 1)";
     p2 = d4;
 
-    D1Ptr d3 = ICE_MAKE_SHARED(D1);
+    D1Ptr d3 = make_shared<D1>();
     d3->sb = "D1.sb (p2 2)";
     d3->pb = 0;
     d3->sd1 = "D1.sd2 (p2 2)";
@@ -368,12 +368,12 @@ TestI::paramTest3(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 BPtr
 TestI::paramTest4(BPtr& p1, const ::Ice::Current&)
 {
-    D4Ptr d4 = ICE_MAKE_SHARED(D4);
+    D4Ptr d4 = make_shared<D4>();
     d4->sb = "D4.sb (1)";
     d4->pb = 0;
-    d4->p1 = ICE_MAKE_SHARED(B);
+    d4->p1 = make_shared<B>();
     d4->p1->sb = "B.sb (1)";
-    d4->p2 = ICE_MAKE_SHARED(B);
+    d4->p2 = make_shared<B>();
     d4->p2->sb = "B.sb (2)";
     p1 = d4;
     _values.push_back(d4);
@@ -397,7 +397,7 @@ TestI::returnTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 }
 
 BPtr
-TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr) p2, const ::Ice::Current&)
+TestI::returnTest3(BPtr p1, BPtr p2, const ::Ice::Current&)
 {
     _values.push_back(p1);
     _values.push_back(p2);
@@ -405,7 +405,7 @@ TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr) p2, const ::Ice::Current&)
 }
 
 SS3
-TestI::sequenceTest(ICE_IN(SS1Ptr) p1, ICE_IN(SS2Ptr) p2, const ::Ice::Current&)
+TestI::sequenceTest(SS1Ptr p1, SS2Ptr p2, const ::Ice::Current&)
 {
     SS3 ss;
     ss.c1 = p1;
@@ -416,13 +416,13 @@ TestI::sequenceTest(ICE_IN(SS1Ptr) p1, ICE_IN(SS2Ptr) p2, const ::Ice::Current&)
 }
 
 Test::BDict
-TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
+TestI::dictionaryTest(BDict bin, BDict& bout, const ::Ice::Current&)
 {
     int i;
     for(i = 0; i < 10; ++i)
     {
         BPtr b = bin.find(i)->second;
-        D2Ptr d2 = ICE_MAKE_SHARED(D2);
+        D2Ptr d2 = make_shared<D2>();
         d2->sb = b->sb;
         d2->pb = b->pb;
         d2->sd2 = "D2";
@@ -436,7 +436,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
     {
         std::ostringstream s;
         s << "D1." << i * 20;
-        D1Ptr d1 = ICE_MAKE_SHARED(D1);
+        D1Ptr d1 = make_shared<D1>();
         d1->sb = s.str();
         d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
         d1->sd1 = s.str();
@@ -448,7 +448,7 @@ TestI::dictionaryTest(ICE_IN(BDict) bin, BDict& bout, const ::Ice::Current&)
 }
 
 Test::PBasePtr
-TestI::exchangePBase(ICE_IN(Test::PBasePtr) pb, const Ice::Current&)
+TestI::exchangePBase(Test::PBasePtr pb, const Ice::Current&)
 {
     _values.push_back(pb);
     return pb;
@@ -457,7 +457,7 @@ TestI::exchangePBase(ICE_IN(Test::PBasePtr) pb, const Ice::Current&)
 Test::PreservedPtr
 TestI::PBSUnknownAsPreserved(const Ice::Current& current)
 {
-    PSUnknownPtr r = ICE_MAKE_SHARED(PSUnknown);
+    PSUnknownPtr r = make_shared<PSUnknown>();
     r->pi = 5;
     r->ps = "preserved";
     r->psu = "unknown";
@@ -468,13 +468,13 @@ TestI::PBSUnknownAsPreserved(const Ice::Current& current)
         // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
         // from unread slice.
         //
-        r->cl = ICE_MAKE_SHARED(MyClass, 15);
+        r->cl = make_shared<MyClass>(15);
     }
     return r;
 }
 
 void
-TestI::checkPBSUnknown(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
+TestI::checkPBSUnknown(Test::PreservedPtr p, const Ice::Current& current)
 {
     PSUnknownPtr pu =  ICE_DYNAMIC_CAST(PSUnknown, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -494,35 +494,25 @@ TestI::checkPBSUnknown(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestI::PBSUnknownAsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
                                             function<void(exception_ptr)>,
                                             const Ice::Current&)
-#else
-void
-TestI::PBSUnknownAsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknownAsPreservedWithGraphPtr& cb,
-                                            const Ice::Current&)
-#endif
 {
-    PSUnknownPtr r = ICE_MAKE_SHARED(PSUnknown);
+    PSUnknownPtr r = make_shared<PSUnknown>();
     r->pi = 5;
     r->ps = "preserved";
     r->psu = "unknown";
-    r->graph = ICE_MAKE_SHARED(PNode);
-    r->graph->next = ICE_MAKE_SHARED(PNode);
-    r->graph->next->next = ICE_MAKE_SHARED(PNode);
+    r->graph = make_shared<PNode>();
+    r->graph->next = make_shared<PNode>();
+    r->graph->next->next = make_shared<PNode>();
     r->graph->next->next->next = r->graph;
-#ifdef ICE_CPP11_MAPPING
     response(r);
-#else
-    cb->ice_response(r);
-#endif
     r->graph->next->next->next = 0; // Break the cycle.
 }
 
 void
-TestI::checkPBSUnknownWithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
+TestI::checkPBSUnknownWithGraph(Test::PreservedPtr p, const Ice::Current& current)
 {
     PSUnknownPtr pu = ICE_DYNAMIC_CAST(PSUnknown, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -544,31 +534,21 @@ TestI::checkPBSUnknownWithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current
     }
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 TestI::PBSUnknown2AsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
                                              function<void(exception_ptr)>,
                                              const Ice::Current&)
-#else
-void
-TestI::PBSUnknown2AsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknown2AsPreservedWithGraphPtr& cb,
-                                             const Ice::Current&)
-#endif
 {
-    PSUnknown2Ptr r = ICE_MAKE_SHARED(PSUnknown2);
+    PSUnknown2Ptr r = make_shared<PSUnknown2>();
     r->pi = 5;
     r->ps = "preserved";
     r->pb = r;
-#ifdef ICE_CPP11_MAPPING
     response(r);
-#else
-    cb->ice_response(r);
-#endif
     r->pb = 0; // Break the cycle.
 }
 
 void
-TestI::checkPBSUnknown2WithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Current& current)
+TestI::checkPBSUnknown2WithGraph(Test::PreservedPtr p, const Ice::Current& current)
 {
     PSUnknown2Ptr pu = ICE_DYNAMIC_CAST(PSUnknown2, p);
     if(current.encoding == Ice::Encoding_1_0)
@@ -588,7 +568,7 @@ TestI::checkPBSUnknown2WithGraph(ICE_IN(Test::PreservedPtr) p, const Ice::Curren
 }
 
 Test::PNodePtr
-TestI::exchangePNode(ICE_IN(Test::PNodePtr) pn, const Ice::Current&)
+TestI::exchangePNode(Test::PNodePtr pn, const Ice::Current&)
 {
     _values.push_back(pn);
     return pn;
@@ -599,7 +579,7 @@ TestI::throwBaseAsBase(const ::Ice::Current&)
 {
     BaseException be;
     be.sbe = "sbe";
-    be.pb = ICE_MAKE_SHARED(B);
+    be.pb = make_shared<B>();
     be.pb->sb = "sb";
     be.pb->pb = be.pb;
     _values.push_back(be.pb);
@@ -611,11 +591,11 @@ TestI::throwDerivedAsBase(const ::Ice::Current&)
 {
     DerivedException de;
     de.sbe = "sbe";
-    de.pb = ICE_MAKE_SHARED(B);
+    de.pb = make_shared<B>();
     de.pb->sb = "sb1";
     de.pb->pb = de.pb;
     de.sde = "sde1";
-    de.pd1 = ICE_MAKE_SHARED(D1);
+    de.pd1 = make_shared<D1>();
     de.pd1->sb = "sb2";
     de.pd1->pb = de.pd1;
     de.pd1->sd1 = "sd2";
@@ -630,11 +610,11 @@ TestI::throwDerivedAsDerived(const ::Ice::Current&)
 {
     DerivedException de;
     de.sbe = "sbe";
-    de.pb = ICE_MAKE_SHARED(B);
+    de.pb = make_shared<B>();
     de.pb->sb = "sb1";
     de.pb->pb = de.pb;
     de.sde = "sde1";
-    de.pd1 = ICE_MAKE_SHARED(D1);
+    de.pd1 = make_shared<D1>();
     de.pd1->sb = "sb2";
     de.pd1->pb = de.pd1;
     de.pd1->sd1 = "sd2";
@@ -647,7 +627,7 @@ TestI::throwDerivedAsDerived(const ::Ice::Current&)
 void
 TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
 {
-    D2Ptr d2 = ICE_MAKE_SHARED(D2);
+    D2Ptr d2 = make_shared<D2>();
     d2->sb = "sb d2";
     d2->pb = d2;
     d2->sd2 = "sd2 d2";
@@ -664,8 +644,8 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
 void
 TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
 {
-    f = ICE_MAKE_SHARED(Forward);
-    f->h = ICE_MAKE_SHARED(Hidden);
+    f = make_shared<Forward>();
+    f->h = make_shared<Hidden>();
     f->h->f = f;
     _values.push_back(f);
 }

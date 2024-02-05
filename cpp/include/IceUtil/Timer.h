@@ -25,9 +25,6 @@ typedef IceUtil::Handle<Timer> TimerPtr;
 // code at a specific time or repeatedly.
 //
 class ICE_API TimerTask
-#ifndef ICE_CPP11_MAPPING
-    : public virtual IceUtil::Shared
-#endif
 {
 public:
 
@@ -35,7 +32,7 @@ public:
 
     virtual void runTimerTask() = 0;
 };
-ICE_DEFINE_PTR(TimerTaskPtr, TimerTask);
+using TimerTaskPtr = std::shared_ptr<TimerTask>;
 
 //
 // The timer class is used to schedule tasks for one-time execution or

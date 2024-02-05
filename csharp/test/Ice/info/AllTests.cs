@@ -50,9 +50,9 @@ namespace Ice
 
                     Ice.EndpointInfo info = endps[0].getInfo();
                     Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(info);
-                    test(tcpEndpoint.host.Equals("tcphost"));
+                    test(tcpEndpoint.host == "tcphost");
                     test(tcpEndpoint.port == 10000);
-                    test(tcpEndpoint.sourceAddress.Equals("10.10.10.10"));
+                    test(tcpEndpoint.sourceAddress == "10.10.10.10");
                     test(tcpEndpoint.timeout == 1200);
                     test(tcpEndpoint.compress);
                     test(!tcpEndpoint.datagram());
@@ -67,11 +67,11 @@ namespace Ice
                          tcpEndpoint.type() == Ice.WSSEndpointType.value && info is Ice.WSEndpointInfo);
 
                     Ice.UDPEndpointInfo udpEndpoint =(Ice.UDPEndpointInfo)endps[1].getInfo();
-                    test(udpEndpoint.host.Equals("udphost"));
+                    test(udpEndpoint.host == "udphost");
                     test(udpEndpoint.port == 10001);
-                    test(udpEndpoint.mcastInterface.Equals("eth0"));
+                    test(udpEndpoint.mcastInterface == "eth0");
                     test(udpEndpoint.mcastTtl == 5);
-                    test(udpEndpoint.sourceAddress.Equals("10.10.10.10"));
+                    test(udpEndpoint.sourceAddress == "10.10.10.10");
                     test(udpEndpoint.timeout == -1);
                     test(!udpEndpoint.compress);
                     test(!udpEndpoint.secure());
@@ -138,7 +138,7 @@ namespace Ice
                     }
 
                     tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo());
-                    test(tcpEndpoint.host.Equals("127.0.0.1"));
+                    test(tcpEndpoint.host == "127.0.0.1");
                     test(tcpEndpoint.port == port);
 
                     adapter.destroy();
@@ -165,7 +165,7 @@ namespace Ice
 
                     Dictionary<string, string> ctx = testIntf.getEndpointInfoAsContext();
                     test(ctx["host"].Equals(tcpinfo.host));
-                    test(ctx["compress"].Equals("false"));
+                    test(ctx["compress"] == "false");
                     int port = System.Int32.Parse(ctx["port"]);
                     test(port > 0);
 
@@ -188,7 +188,7 @@ namespace Ice
                     test(info.adapterName.Length == 0);
                     test(ipInfo.remotePort == endpointPort);
                     test(ipInfo.localPort > 0);
-                    if(defaultHost.Equals("127.0.0.1"))
+                    if(defaultHost == "127.0.0.1")
                     {
                         test(ipInfo.localAddress.Equals(defaultHost));
                         test(ipInfo.remoteAddress.Equals(defaultHost));
@@ -197,25 +197,25 @@ namespace Ice
                     test(ipInfo.sndSize >= 2048);
 
                     Dictionary<string, string> ctx = testIntf.getConnectionInfoAsContext();
-                    test(ctx["incoming"].Equals("true"));
-                    test(ctx["adapterName"].Equals("TestAdapter"));
+                    test(ctx["incoming"] == "true");
+                    test(ctx["adapterName"] == "TestAdapter");
                     test(ctx["remoteAddress"].Equals(ipInfo.localAddress));
                     test(ctx["localAddress"].Equals(ipInfo.remoteAddress));
                     test(ctx["remotePort"].Equals(ipInfo.localPort.ToString()));
                     test(ctx["localPort"].Equals(ipInfo.remotePort.ToString()));
 
-                    if(@base.ice_getConnection().type().Equals("ws") || @base.ice_getConnection().type().Equals("wss"))
+                    if(@base.ice_getConnection().type() == "ws" || @base.ice_getConnection().type() == "wss")
                     {
                         Dictionary<string, string> headers =((Ice.WSConnectionInfo)info).headers;
-                        test(headers["Upgrade"].Equals("websocket"));
-                        test(headers["Connection"].Equals("Upgrade"));
-                        test(headers["Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
+                        test(headers["Upgrade"] == "websocket");
+                        test(headers["Connection"] == "Upgrade");
+                        test(headers["Sec-WebSocket-Protocol"] == "ice.zeroc.com");
                         test(headers["Sec-WebSocket-Accept"] != null);
 
-                        test(ctx["ws.Upgrade"].Equals("websocket"));
-                        test(ctx["ws.Connection"].Equals("Upgrade"));
-                        test(ctx["ws.Sec-WebSocket-Protocol"].Equals("ice.zeroc.com"));
-                        test(ctx["ws.Sec-WebSocket-Version"].Equals("13"));
+                        test(ctx["ws.Upgrade"] == "websocket");
+                        test(ctx["ws.Connection"] == "Upgrade");
+                        test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com");
+                        test(ctx["ws.Sec-WebSocket-Version"] == "13");
                         test(ctx["ws.Sec-WebSocket-Key"] != null);
                     }
 
@@ -228,7 +228,7 @@ namespace Ice
                     test(udpInfo.localPort > 0);
                     test(udpInfo.remotePort == endpointPort);
 
-                    if(defaultHost.Equals("127.0.0.1"))
+                    if(defaultHost == "127.0.0.1")
                     {
                         test(udpInfo.remoteAddress.Equals(defaultHost));
                         test(udpInfo.localAddress.Equals(defaultHost));

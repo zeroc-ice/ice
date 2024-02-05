@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+using System.Threading.Tasks;
 using Test;
 
 namespace Ice
@@ -10,7 +11,7 @@ namespace Ice
     {
         public class Collocated : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
                 using(var communicator = initialize(ref args))
                 {
@@ -25,16 +26,14 @@ namespace Ice
                     var locator = new ServantLocatorI();
                     adapter.addServantLocator(locator, "");
 
-                    AllTests.allTests(this);
+                    await AllTests.allTests(this);
 
                     adapter.waitForDeactivate();
                 }
             }
 
-            public static int Main(string[] args)
-            {
-                return TestDriver.runTest<Collocated>(args);
-            }
+            public static Task<int> Main(string[] args) =>
+                TestDriver.runTestAsync<Collocated>(args);
         }
     }
 }

@@ -15,43 +15,11 @@ Glacier2::RouterPrxPtr Glacier2::Application::_router;
 Glacier2::SessionPrxPtr Glacier2::Application::_session;
 string Glacier2::Application::_category;
 
-namespace
-{
-#ifndef ICE_CPP11_MAPPING // C++98
-class CloseCallbackI : public Ice::CloseCallback
-{
-public:
-
-    CloseCallbackI(Glacier2::Application* app) : _app(app)
-    {
-    }
-
-    virtual void
-    closed(const Ice::ConnectionPtr&)
-    {
-        _app->sessionDestroyed();
-    }
-
-private:
-
-    Glacier2::Application* _app;
-};
-#endif
-}
-
 string
 Glacier2::RestartSessionException::ice_id() const
 {
     return "::Glacier2::RestartSessionException";
 }
-
-#ifndef ICE_CPP11_MAPPING
-Glacier2::RestartSessionException*
-Glacier2::RestartSessionException::ice_clone() const
-{
-    return new RestartSessionException(*this);
-}
-#endif
 
 Glacier2::Application::Application(SignalPolicy signalPolicy) :
     Ice::Application(signalPolicy)
@@ -179,7 +147,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
             //
             // The default is to destroy when a signal is received.
             //
-            if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+            if(_signalPolicy == SignalPolicy::HandleSignals)
             {
                 destroyOnInterrupt();
             }
@@ -216,16 +184,12 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                 {
                     Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                     assert(connection);
-                    connection->setACM(acmTimeout, IceUtil::None, ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
-#ifdef ICE_CPP11_MAPPING
+                    connection->setACM(acmTimeout, IceUtil::None, ACMHeartbeat::HeartbeatAlways);
                     connection->setCloseCallback(
                         [this](Ice::ConnectionPtr)
                         {
                             sessionDestroyed();
                         });
-#else
-                    connection->setCloseCallback(ICE_MAKE_SHARED(CloseCallbackI, this));
-#endif
                 }
 
                 _category = _router->getCategoryForClient();
@@ -308,7 +272,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     // it would not make sense to release a held signal to run
     // shutdown or destroy.
     //
-    if(_signalPolicy == ICE_ENUM(SignalPolicy, HandleSignals))
+    if(_signalPolicy == SignalPolicy::HandleSignals)
     {
         ignoreInterrupt();
     }

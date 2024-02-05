@@ -58,13 +58,8 @@ Slice::CompilerException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-#ifdef ICE_CPP11_MAPPING
 Slice::CompilerException*
 Slice::CompilerException::ice_cloneImpl() const
-#else
-Slice::CompilerException*
-Slice::CompilerException::ice_clone() const
-#endif
 {
     return new CompilerException(*this);
 }
@@ -3742,11 +3737,9 @@ Slice::InterfaceDef::ids() const
     StringList ids;
     InterfaceList bases = allBases();
     std::transform(bases.begin(), bases.end(), back_inserter(ids), [](const auto& c) { return c->scoped(); });
-    StringList other;
-    other.push_back(scoped());
-    other.push_back("::Ice::Object");
-    other.sort();
-    ids.merge(other);
+    ids.push_back(scoped());
+    ids.push_back("::Ice::Object");
+    ids.sort();
     ids.unique();
     return ids;
 }

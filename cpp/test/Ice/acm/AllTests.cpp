@@ -20,11 +20,8 @@ toString(int value)
 }
 
 class LoggerI : public Ice::Logger,
-                private IceUtil::Mutex
-#ifdef ICE_CPP11_MAPPING
-              , public std::enable_shared_from_this<LoggerI>
-#endif
-
+                private IceUtil::Mutex,
+                public std::enable_shared_from_this<LoggerI>
 {
 public:
 
@@ -93,7 +90,7 @@ public:
     virtual Ice::LoggerPtr
     cloneWithPrefix(const std::string&)
     {
-        return ICE_SHARED_FROM_THIS;
+        return shared_from_this();
     }
 
 private:
@@ -111,15 +108,9 @@ private:
     bool _started;
     vector<string> _messages;
 };
-ICE_DEFINE_PTR(LoggerIPtr, LoggerI);
+using LoggerIPtr = std::shared_ptr<LoggerI>;
 
-class TestCase :
-#ifdef ICE_CPP11_MAPPING
-                 public enable_shared_from_this<TestCase>,
-#else
-                 public IceUtil::Thread,
-                 public Ice::CloseCallback, public Ice::HeartbeatCallback,
-#endif
+class TestCase : public enable_shared_from_this<TestCase>,
                  protected IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
@@ -165,19 +156,11 @@ public:
         _communicator->destroy();
     }
 
-#ifdef ICE_CPP11_MAPPING
     void join(std::thread& t)
-#else
-    void join()
-#endif
     {
         cout << "testing " << _testCaseName << "... " << flush;
         _logger->start();
-#ifdef ICE_CPP11_MAPPING
         t.join();
-#else
-        getThreadControl().join();
-#endif
         if(_msg.empty())
         {
             cout << "ok" << endl;
@@ -196,7 +179,6 @@ public:
                                                            _adapter->getTestIntf()->ice_toString()));
         try
         {
-#ifdef ICE_CPP11_MAPPING
             auto self = shared_from_this();
             proxy->ice_getConnection()->setCloseCallback(
                 [self](Ice::ConnectionPtr connection)
@@ -208,10 +190,6 @@ public:
                 {
                     self->heartbeat(std::move(connection));
                 });
-#else
-            proxy->ice_getConnection()->setCloseCallback(ICE_SHARED_FROM_THIS);
-            proxy->ice_getConnection()->setHeartbeatCallback(ICE_SHARED_FROM_THIS);
-#endif
             runTestCase(_adapter, proxy);
         }
         catch(const std::exception& ex)
@@ -292,7 +270,7 @@ protected:
     int _heartbeat;
     bool _closed;
 };
-ICE_DEFINE_PTR(TestCasePtr, TestCase);
+using TestCasePtr = std::shared_ptr<TestCase>;
 
 class InvocationHeartbeatTest final : public TestCase
 {
@@ -556,50 +534,6 @@ class SetACMTest final : public TestCase
 {
 public:
 
-#ifndef ICE_CPP11_MAPPING
-    class CloseCallback : public Ice::CloseCallback, private IceUtil::Monitor<IceUtil::Mutex>
-    {
-    public:
-
-        CloseCallback() : _called(false)
-        {
-        }
-
-        virtual void
-        closed(const Ice::ConnectionPtr&)
-        {
-            Lock sync(*this);
-            _called = true;
-            notify();
-        }
-
-        void
-        waitCallback()
-        {
-            Lock sync(*this);
-            while(!_called)
-            {
-                wait();
-            }
-        }
-
-    private:
-
-        bool _called;
-    };
-    typedef IceUtil::Handle<CloseCallback> CloseCallbackPtr;
-
-    class HeartbeatCallback : public Ice::HeartbeatCallback
-    {
-    public:
-
-        virtual void
-        heartbeat(const Ice::ConnectionPtr&)
-        {
-        }
-    };
-#endif
-
     SetACMTest(const RemoteCommunicatorPrxPtr& com) : TestCase("setACM/getACM", com)
     {
         setClientACM(15, 4, 0);
@@ -614,40 +548,33 @@ public:
             con->setACM(-19, IceUtil::None, IceUtil::None);
             test(false);
         }
-#ifndef ICE_CPP11_MAPPING
-        catch(const IceUtil::IllegalArgumentException&)
-        {
-        }
-#else
         catch(const invalid_argument&)
         {
         }
-#endif
 
         Ice::ACM acm;
         acm = con->getACM();
         test(acm.timeout == 15);
-        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnIdleForceful));
-        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatOff));
+        test(acm.close == Ice::ACMClose::CloseOnIdleForceful);
+        test(acm.heartbeat == Ice::ACMHeartbeat::HeartbeatOff);
 
         con->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
         acm = con->getACM();
         test(acm.timeout == 15);
-        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnIdleForceful));
-        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatOff));
+        test(acm.close == Ice::ACMClose::CloseOnIdleForceful);
+        test(acm.heartbeat == Ice::ACMHeartbeat::HeartbeatOff);
 
-        con->setACM(1, Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle),
-                                                 Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+        con->setACM(1, Ice::ACMClose::CloseOnInvocationAndIdle,
+                                                 Ice::ACMHeartbeat::HeartbeatAlways);
         acm = con->getACM();
         test(acm.timeout == 1);
-        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle));
-        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+        test(acm.close == Ice::ACMClose::CloseOnInvocationAndIdle);
+        test(acm.heartbeat == Ice::ACMHeartbeat::HeartbeatAlways);
 
         // Make sure the client sends a few heartbeats to the server.
         proxy->startHeartbeatCount();
         proxy->waitForHeartbeatCount(2);
 
-#ifdef ICE_CPP11_MAPPING
         auto p1 = promise<void>();
         con->setCloseCallback([&p1](shared_ptr<Ice::Connection>)
                               {
@@ -674,28 +601,6 @@ public:
         p2.get_future().wait();
 
         con->setHeartbeatCallback([](shared_ptr<Ice::Connection>) {});
-#else
-        CloseCallbackPtr callback = new CloseCallback();
-        con->setCloseCallback(callback);
-
-        con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
-        callback->waitCallback();
-
-        try
-        {
-            con->throwException();
-            test(false);
-        }
-        catch(const Ice::ConnectionManuallyClosedException&)
-        {
-        }
-
-        CloseCallbackPtr callback2 = new CloseCallback();
-        con->setCloseCallback(callback2);
-        callback2->waitCallback();
-
-        con->setHeartbeatCallback(new HeartbeatCallback());
-#endif
     }
 };
 
@@ -710,27 +615,25 @@ allTests(Test::TestHelper* helper)
 
     vector<TestCasePtr> tests;
 
-    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatTest, com));
-    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatOnHoldTest, com));
-    tests.push_back(ICE_MAKE_SHARED(InvocationNoHeartbeatTest, com));
-    tests.push_back(ICE_MAKE_SHARED(InvocationHeartbeatCloseOnIdleTest, com));
+    tests.push_back(make_shared<InvocationHeartbeatTest>(com));
+    tests.push_back(make_shared<InvocationHeartbeatOnHoldTest>(com));
+    tests.push_back(make_shared<InvocationNoHeartbeatTest>(com));
+    tests.push_back(make_shared<InvocationHeartbeatCloseOnIdleTest>(com));
 
-    tests.push_back(ICE_MAKE_SHARED(CloseOnIdleTest, com));
-    tests.push_back(ICE_MAKE_SHARED(CloseOnInvocationTest, com));
-    tests.push_back(ICE_MAKE_SHARED(CloseOnIdleAndInvocationTest, com));
-    tests.push_back(ICE_MAKE_SHARED(ForcefulCloseOnIdleAndInvocationTest, com));
+    tests.push_back(make_shared<CloseOnIdleTest>(com));
+    tests.push_back(make_shared<CloseOnInvocationTest>(com));
+    tests.push_back(make_shared<CloseOnIdleAndInvocationTest>(com));
+    tests.push_back(make_shared<ForcefulCloseOnIdleAndInvocationTest>(com));
 
-    tests.push_back(ICE_MAKE_SHARED(HeartbeatOnIdleTest, com));
-    tests.push_back(ICE_MAKE_SHARED(HeartbeatAlwaysTest, com));
-    tests.push_back(ICE_MAKE_SHARED(HeartbeatManualTest, com));
-    tests.push_back(ICE_MAKE_SHARED(SetACMTest, com));
+    tests.push_back(make_shared<HeartbeatOnIdleTest>(com));
+    tests.push_back(make_shared<HeartbeatAlwaysTest>(com));
+    tests.push_back(make_shared<HeartbeatManualTest>(com));
+    tests.push_back(make_shared<SetACMTest>(com));
 
     for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)
     {
         (*p)->init();
     }
-
-#ifdef ICE_CPP11_MAPPING
     vector<pair<std::thread, TestCasePtr>> threads;
     for(auto p = tests.begin(); p != tests.end(); ++p)
     {
@@ -745,16 +648,7 @@ allTests(Test::TestHelper* helper)
     {
         p->second->join(p->first);
     }
-#else
-    for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)
-    {
-        (*p)->start();
-    }
-    for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)
-    {
-        (*p)->join();
-    }
-#endif
+
     for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)
     {
         (*p)->destroy();

@@ -133,9 +133,6 @@
   <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h">
     <Filter>Header Files</Filter>
   </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\ScopedArray.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\Shared.h">
     <Filter>Header Files</Filter>
   </ClInclude>

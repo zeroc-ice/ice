@@ -26,11 +26,11 @@ Server::run(int argc, char** argv)
 
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(InitialI, adapter), Ice::stringToIdentity("initial"));
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
-    adapter->add(ICE_MAKE_SHARED(F2I), Ice::stringToIdentity("F21"));
+    adapter->add(make_shared<InitialI>(adapter), Ice::stringToIdentity("initial"));
+    adapter->add(make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
+    adapter->add(make_shared<F2I>(), Ice::stringToIdentity("F21"));
 
-    adapter->add(ICE_MAKE_SHARED(UnexpectedObjectExceptionTestI), Ice::stringToIdentity("uoet"));
+    adapter->add(make_shared<UnexpectedObjectExceptionTestI>(), Ice::stringToIdentity("uoet"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

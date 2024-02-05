@@ -6,6 +6,7 @@ using System;
 using System.Reflection;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 [assembly: CLSCompliant(true)]
 
@@ -15,7 +16,7 @@ using System.Collections.Generic;
 
 public class Client : Test.TestHelper
 {
-    public override void run(string[] args)
+    public override async Task runAsync(string[] args)
     {
         Ice.Properties properties = createTestProperties(ref args);
         properties.setProperty("Ice.Warn.Connections", "0");
@@ -26,12 +27,10 @@ public class Client : Test.TestHelper
             {
                 throw new ArgumentException("Client: no ports specified");
             }
-            AllTests.allTests(this, ports);
+            await AllTests.allTests(this, ports);
         }
     }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
-    }
+    public static Task<int> Main(string[] args) =>
+        Test.TestDriver.runTestAsync<Client>(args);
 }

@@ -165,7 +165,7 @@ public:
     void startException()
     {
         assert(_currentEncaps && _currentEncaps->encoder);
-        _currentEncaps->encoder->startInstance(ExceptionSlice, ICE_NULLPTR);
+        _currentEncaps->encoder->startInstance(ExceptionSlice, nullptr);
     }
 
     /**
@@ -445,8 +445,6 @@ public:
         }
     }
 
-#ifdef ICE_CPP11_MAPPING
-
     /**
      * Writes a list of mandatory data values.
      */
@@ -504,8 +502,6 @@ public:
         write(*(tags.begin() + index), v);
         writeAll(tags, ve...);
     }
-
-#endif
 
     /**
      * Writes the tag and format of an optional value.
@@ -742,7 +738,6 @@ public:
      */
     void write(const std::wstring* begin, const std::wstring* end);
 
-#ifdef ICE_CPP11_MAPPING
     /**
      * Writes a proxy to the stream.
      * @param v The proxy to be written.
@@ -758,22 +753,6 @@ public:
     {
         writeProxy(::std::static_pointer_cast<ObjectPrx>(v));
     }
-#else
-    /**
-     * Writes a proxy to the stream.
-     * @param v The proxy to be written.
-     */
-    void write(const ObjectPrx& v);
-
-    /**
-     * Writes a proxy to the stream.
-     * @param v The proxy to be written.
-     */
-    template<typename T> void write(const IceInternal::ProxyHandle<T>& v)
-    {
-        write(ObjectPrx(upCast(v.get())));
-    }
-#endif
 
     /**
      * Writes a value instance to the stream.
@@ -784,16 +763,6 @@ public:
     {
         initEncaps();
         _currentEncaps->encoder->write(v);
-    }
-
-    /**
-     * Writes a value instance to the stream.
-     * @param v The value to be written.
-     */
-    template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
-    void write(const Ice::SharedPtr<T>& v)
-    {
-        write(v.underlying());
     }
 
     /**
@@ -1029,7 +998,7 @@ private:
 
     public:
 
-        Encaps() : format(ICE_ENUM(FormatType, DefaultFormat)), encoder(0), previous(0)
+        Encaps() : format(FormatType::DefaultFormat), encoder(0), previous(0)
         {
             // Inlined for performance reasons.
         }

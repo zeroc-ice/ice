@@ -9,9 +9,7 @@ runs:
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
-    - name: Build C++ 11 Tests for Scripting Languages
-      env:
-        CONFIGS: "cpp11-shared"
+    - name: Build C++ Tests for Scripting Languages
       run: make -j3 V=1 -C cpp tests
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (matrix.language == 'php' || matrix.language == 'js' || matrix.language == 'ruby')

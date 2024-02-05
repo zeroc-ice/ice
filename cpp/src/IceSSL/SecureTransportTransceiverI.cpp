@@ -73,32 +73,32 @@ TrustError errorToTrustError(CFErrorRef err)
     {
         case errSecPathLengthConstraintExceeded:
         {
-            return IceSSL::ICE_ENUM(TrustError, ChainTooLong);
+            return IceSSL::TrustError::ChainTooLong;
         }
         case errSecUnknownCRLExtension:
         case errSecUnknownCriticalExtensionFlag:
         {
-            return IceSSL::ICE_ENUM(TrustError, HasNonSupportedCriticalExtension);
+            return IceSSL::TrustError::HasNonSupportedCriticalExtension;
         }
         case errSecHostNameMismatch:
         {
-            return IceSSL::ICE_ENUM(TrustError, HostNameMismatch);
+            return IceSSL::TrustError::HostNameMismatch;
         }
         case errSecCodeSigningNoBasicConstraints:
         case errSecNoBasicConstraints:
         case errSecNoBasicConstraintsCA:
         {
-            return IceSSL::ICE_ENUM(TrustError, InvalidBasicConstraints);
+            return IceSSL::TrustError::InvalidBasicConstraints;
         }
         case errSecMissingRequiredExtension:
         case errSecUnknownCertExtension:
         {
-            return IceSSL::ICE_ENUM(TrustError, InvalidExtension);
+            return IceSSL::TrustError::InvalidExtension;
         }
         case errSecCertificateNameNotAllowed:
         case errSecInvalidName:
         {
-            return IceSSL::ICE_ENUM(TrustError, InvalidNameConstraints);
+            return IceSSL::TrustError::InvalidNameConstraints;
         }
         case errSecCertificatePolicyNotAllowed:
         case errSecInvalidPolicyIdentifiers:
@@ -106,44 +106,44 @@ TrustError errorToTrustError(CFErrorRef err)
         case errSecInvalidDigestAlgorithm:
         case errSecUnsupportedKeySize:
         {
-            return IceSSL::ICE_ENUM(TrustError, InvalidPolicyConstraints);
+            return IceSSL::TrustError::InvalidPolicyConstraints;
         }
         case errSecInvalidExtendedKeyUsage:
         case errSecInvalidKeyUsageForPolicy:
         {
-            return IceSSL::ICE_ENUM(TrustError, InvalidPurpose);
+            return IceSSL::TrustError::InvalidPurpose;
         }
         case errSecInvalidSignature:
         {
-            return IceSSL::ICE_ENUM(TrustError, InvalidSignature);
+            return IceSSL::TrustError::InvalidSignature;
         }
         case errSecCertificateExpired:
         case errSecCertificateNotValidYet:
         case errSecCertificateValidityPeriodTooLong:
         {
-            return IceSSL::ICE_ENUM(TrustError, InvalidTime);
+            return IceSSL::TrustError::InvalidTime;
         }
         case errSecCreateChainFailed:
         {
-            return IceSSL::ICE_ENUM(TrustError, PartialChain);
+            return IceSSL::TrustError::PartialChain;
         }
         case errSecCertificateRevoked:
         {
-            return IceSSL::ICE_ENUM(TrustError, Revoked);
+            return IceSSL::TrustError::Revoked;
         }
         case errSecIncompleteCertRevocationCheck:
         case errSecOCSPNotTrustedToAnchor:
         {
-            return IceSSL::ICE_ENUM(TrustError, RevocationStatusUnknown);
+            return IceSSL::TrustError::RevocationStatusUnknown;
         }
         case errSecNotTrusted:
         case errSecVerifyActionFailed:
         {
-            return IceSSL::ICE_ENUM(TrustError, UntrustedRoot);
+            return IceSSL::TrustError::UntrustedRoot;
         }
         default:
         {
-            return IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
+            return IceSSL::TrustError::UnknownTrustFailure;
         }
     }
 }
@@ -217,7 +217,7 @@ checkTrustResult(SecTrustRef trust,
         //
         if(SecTrustEvaluateWithError(trust, &trustErr.get()))
         {
-            return IceSSL::ICE_ENUM(TrustError, NoError);
+            return IceSSL::TrustError::NoError;
         }
         else
         {
@@ -246,7 +246,7 @@ checkTrustResult(SecTrustRef trust,
             }
         }
     }
-    return IceSSL::ICE_ENUM(TrustError, UnknownTrustFailure);
+    return IceSSL::TrustError::UnknownTrustFailure;
 }
 }
 
@@ -351,7 +351,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
             if(err == noErr)
             {
                 _trustError = checkTrustResult(_trust.get(), _engine, _instance, _host);
-                _verified = _trustError == IceSSL::ICE_ENUM(TrustError, NoError);
+                _verified = _trustError == IceSSL::TrustError::NoError;
                 continue; // Call SSLHandshake to resume the handsake.
             }
             // Let it fall through, this will raise a SecurityException with the SSLCopyPeerTrust error.
@@ -609,7 +609,7 @@ IceSSL::SecureTransport::TransceiverI::toDetailedString() const
 Ice::ConnectionInfoPtr
 IceSSL::SecureTransport::TransceiverI::getInfo() const
 {
-    IceSSL::ExtendedConnectionInfoPtr info = ICE_MAKE_SHARED(IceSSL::ExtendedConnectionInfo);
+    auto info = make_shared<IceSSL::ExtendedConnectionInfo>();
     info->underlying = _delegate->getInfo();
     info->incoming = _incoming;
     info->adapterName = _adapterName;

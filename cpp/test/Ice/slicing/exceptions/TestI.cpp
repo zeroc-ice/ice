@@ -6,6 +6,7 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
+using namespace std;
 using namespace Test;
 
 TestI::TestI()

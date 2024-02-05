@@ -24,7 +24,7 @@ ServerAMD::run(int argc, char** argv)
     communicator->getProperties()->setProperty("Ice.Warn.Dispatch", "0");
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint() + " -t 2000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
+    Ice::ObjectPtr object = std::make_shared<TestI>();
     adapter->add(object, Ice::stringToIdentity("Test"));
     adapter->activate();
     serverReady();

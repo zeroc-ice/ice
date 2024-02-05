@@ -5,9 +5,9 @@
 #ifndef ICE_SHA1_H
 #define ICE_SHA1_H
 
-#include <Ice/Config.h>
-#include <Ice/UniquePtr.h>
+#include "Config.h"
 
+#include <memory>
 #include <vector>
 
 namespace IceInternal
@@ -33,7 +33,7 @@ private:
     SHA1 operator=(const SHA1&);
 
     class Hasher;
-    UniquePtr<Hasher> _hasher;
+    std::unique_ptr<Hasher> _hasher;
 };
 
 }

@@ -44,9 +44,6 @@ public:
  */
 template<typename charT>
 class BasicStringConverter
-#ifndef ICE_CPP11_MAPPING
-    : public IceUtil::Shared
-#endif
 {
 public:
 
@@ -77,11 +74,11 @@ template class ICE_API BasicStringConverter<wchar_t>;
 
 /** A narrow string converter. */
 typedef BasicStringConverter<char> StringConverter;
-ICE_DEFINE_PTR(StringConverterPtr, StringConverter);
+using StringConverterPtr = std::shared_ptr<StringConverter>;
 
 /** A wide string converter. */
 typedef BasicStringConverter<wchar_t> WstringConverter;
-ICE_DEFINE_PTR(WstringConverterPtr, WstringConverter);
+using WstringConverterPtr = std::shared_ptr<WstringConverter>;
 
 /**
  * Creates a WstringConverter that converts to and from UTF-16 or UTF-32 depending on sizeof(wchar_t).

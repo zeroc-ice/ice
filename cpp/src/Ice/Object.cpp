@@ -36,13 +36,6 @@ const string object_all[] =
 
 }
 
-#ifndef ICE_CPP11_MAPPING
-Ice::DispatchInterceptorAsyncCallback::~DispatchInterceptorAsyncCallback()
-{
-    // Out of line to avoid weak vtable
-}
-#endif
-
 Ice::Request::~Request()
 {
     // Out of line to avoid weak vtable
@@ -131,23 +124,13 @@ Ice::Object::_iceD_ice_id(Incoming& inS, const Current& current)
 }
 
 bool
-#ifdef ICE_CPP11_MAPPING
 Ice::Object::ice_dispatch(Request& request, std::function<bool()> r, std::function<bool(std::exception_ptr)> e)
-#else
-Ice::Object::ice_dispatch(Request& request, const DispatchInterceptorAsyncCallbackPtr& cb)
-#endif
 {
     IceInternal::Incoming& in = dynamic_cast<IceInternal::IncomingRequest&>(request)._in;
     in.startOver();
-#ifdef ICE_CPP11_MAPPING
     if(r || e)
     {
         in.push(r, e);
-#else
-    if(cb)
-    {
-        in.push(cb);
-#endif
         try
         {
             bool sync = _iceDispatch(in, in.getCurrent());
@@ -210,26 +193,20 @@ operationModeToString(OperationMode mode)
 {
     switch(mode)
     {
-    case ICE_ENUM(OperationMode, Normal):
+    case OperationMode::Normal:
         return "::Ice::Normal";
 
-    case ICE_ENUM(OperationMode, Nonmutating):
+    case OperationMode::Nonmutating:
         return "::Ice::Nonmutating";
 
-    case ICE_ENUM(OperationMode, Idempotent):
+    case OperationMode::Idempotent:
         return "::Ice::Idempotent";
     }
     //
     // This could not happen with C++11 strong type enums
     //
-#ifdef ICE_CPP11_MAPPING
     assert(false);
     return "";
-#else
-    ostringstream os;
-    os << "unknown value (" << mode << ")";
-    return os.str();
-#endif
 }
 
 }
@@ -239,8 +216,8 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
     if(expected != received)
     {
-        assert(expected != ICE_ENUM(OperationMode, Nonmutating)); // We never expect Nonmutating
-        if(expected == ICE_ENUM(OperationMode, Idempotent) && received == ICE_ENUM(OperationMode, Nonmutating))
+        assert(expected != OperationMode::Nonmutating); // We never expect Nonmutating
+        if(expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
         {
             //
             // Fine: typically an old client still using the deprecated nonmutating keyword
@@ -303,7 +280,6 @@ Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
     const Byte* inEncaps;
     Int sz;
     in.readParamEncaps(inEncaps, sz);
-#ifdef ICE_CPP11_MAPPING
     auto async = IncomingAsync::create(in);
     ice_invokeAsync(vector<Byte>(inEncaps, inEncaps + sz),
                     [async](bool ok, const vector<Byte>& outEncaps)
@@ -319,9 +295,6 @@ Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
                         async->completed();
                     },
                     async->exception(), current);
-#else
-    ice_invoke_async(new ::IceAsync::Ice::AMD_Object_ice_invoke(in), vector<Byte>(inEncaps, inEncaps + sz), current);
-#endif
     return false;
 }
 
@@ -332,7 +305,6 @@ Ice::BlobjectArrayAsync::_iceDispatch(Incoming& in, const Current& current)
     Int sz;
     in.readParamEncaps(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
-#ifdef ICE_CPP11_MAPPING
     auto async = IncomingAsync::create(in);
     ice_invokeAsync(inEncaps,
                     [async](bool ok, const pair<const Byte*, const Byte*>& outE)
@@ -341,8 +313,5 @@ Ice::BlobjectArrayAsync::_iceDispatch(Incoming& in, const Current& current)
                         async->completed();
                     },
                     async->exception(), current);
-#else
-    ice_invoke_async(new ::IceAsync::Ice::AMD_Object_ice_invoke(in), inEncaps, current);
-#endif
     return false;
 }

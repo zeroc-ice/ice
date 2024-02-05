@@ -904,24 +904,12 @@ IceInternal::Instance::setLogger(const Ice::LoggerPtr& logger)
     _initData.logger = logger;
 }
 
-#ifdef ICE_CPP11_MAPPING
 void
 IceInternal::Instance::setThreadHook(function<void()> threadStart, function<void()> threadStop)
 {
     _initData.threadStart = std::move(threadStart);
     _initData.threadStop = std::move(threadStop);
 }
-#else
-void
-IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHook)
-{
-    //
-    // No locking, as it can only be called during plug-in loading
-    //
-    _initData.threadHook = threadHook;
-}
-#endif
-
 namespace
 {
 
@@ -935,7 +923,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _messageSizeMax(0),
     _batchAutoFlushSize(0),
     _classGraphDepthMax(0),
-    _toStringMode(ICE_ENUM(ToStringMode, Unicode)),
+    _toStringMode(ToStringMode::Unicode),
     _acceptClassCycles(false),
     _implicitContext(0),
     _stringConverter(Ice::getProcessStringConverter()),
@@ -1083,9 +1071,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     throw InitializationException(__FILE__, __LINE__, "Both syslog and file logger cannot be enabled.");
                 }
 
-                _initData.logger = ICE_MAKE_SHARED(SysLoggerI,
-                                                   _initData.properties->getProperty("Ice.ProgramName"),
-                                                   _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
+                _initData.logger = make_shared<SysLoggerI>(
+                    _initData.properties->getProperty("Ice.ProgramName"),
+                    _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
             }
             else
 #endif
@@ -1093,8 +1081,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #ifdef ICE_SWIFT
             if(!_initData.logger && _initData.properties->getPropertyAsInt("Ice.UseOSLog") > 0)
             {
-                _initData.logger = ICE_MAKE_SHARED(OSLogLoggerI,
-                                                   _initData.properties->getProperty("Ice.ProgramName"));
+                _initData.logger = make_shared<OSLogLoggerI>(_initData.properties->getProperty("Ice.ProgramName"));
             }
             else
 #endif
@@ -1102,8 +1089,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #ifdef ICE_USE_SYSTEMD
             if(_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
             {
-                _initData.logger = ICE_MAKE_SHARED(SystemdJournalI,
-                                                   _initData.properties->getProperty("Ice.ProgramName"));
+                _initData.logger = make_shared<SystemdJournalI>(_initData.properties->getProperty("Ice.ProgramName"));
             }
             else
 #endif
@@ -1114,7 +1100,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 {
                     sz = 0;
                 }
-                _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"),
+                _initData.logger = make_shared<LoggerI>(_initData.properties->getProperty("Ice.ProgramName"),
                                                    logfile, true, static_cast<size_t>(sz));
             }
             else
@@ -1122,7 +1108,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 _initData.logger = getProcessLogger();
                 if(ICE_DYNAMIC_CAST(LoggerI, _initData.logger))
                 {
-                    _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
+                    _initData.logger = make_shared<LoggerI>(_initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
                 }
             }
         }
@@ -1201,11 +1187,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         string toStringModeStr = _initData.properties->getPropertyWithDefault("Ice.ToStringMode", "Unicode");
         if(toStringModeStr == "ASCII")
         {
-            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, ASCII);
+            const_cast<ToStringMode&>(_toStringMode) = ToStringMode::ASCII;
         }
         else if(toStringModeStr == "Compat")
         {
-            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, Compat);
+            const_cast<ToStringMode&>(_toStringMode) = ToStringMode::Compat;
         }
         else if(toStringModeStr != "Unicode")
         {
@@ -1254,7 +1240,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _dynamicLibraryList = new DynamicLibraryList;
 
-        _pluginManager = ICE_MAKE_SHARED(PluginManagerI, communicator, _dynamicLibraryList);
+        _pluginManager = make_shared<PluginManagerI>(communicator, _dynamicLibraryList);
 
         if(!_initData.valueFactoryManager)
         {
@@ -1263,7 +1249,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
-        _objectAdapterFactory = ICE_MAKE_SHARED(ObjectAdapterFactory, this, communicator);
+        _objectAdapterFactory = make_shared<ObjectAdapterFactory>(this, communicator);
 
         _retryQueue = new RetryQueue(this);
 
@@ -1397,12 +1383,8 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         PropertiesAdminIPtr propsAdmin;
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            propsAdmin = ICE_MAKE_SHARED(PropertiesAdminI, this);
-#ifdef ICE_CPP11_MAPPING
+            propsAdmin = make_shared<PropertiesAdminI>(this);
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
-#else
-            _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin.underlying()));
-#endif
         }
 
         //
@@ -1840,11 +1822,7 @@ IceInternal::ProcessI::shutdown(const Current&)
 }
 
 void
-#ifdef ICE_CPP11_MAPPING
 IceInternal::ProcessI::writeMessage(string message, Int fd, const Current&)
-#else
-IceInternal::ProcessI::writeMessage(const string& message, Int fd, const Current&)
-#endif
 {
     switch(fd)
     {

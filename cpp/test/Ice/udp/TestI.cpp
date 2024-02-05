@@ -10,7 +10,7 @@ using namespace std;
 using namespace Ice;
 
 void
-TestIntfI::ping(ICE_IN(Test::PingReplyPrxPtr) reply, const Current&)
+TestIntfI::ping(Test::PingReplyPrxPtr reply, const Current&)
 {
     try
     {
@@ -23,7 +23,7 @@ TestIntfI::ping(ICE_IN(Test::PingReplyPrxPtr) reply, const Current&)
 }
 
 void
-TestIntfI::sendByteSeq(ICE_IN(Test::ByteSeq), ICE_IN(Test::PingReplyPrxPtr) reply, const Current&)
+TestIntfI::sendByteSeq(Test::ByteSeq, Test::PingReplyPrxPtr reply, const Current&)
 {
     try
     {
@@ -36,7 +36,7 @@ TestIntfI::sendByteSeq(ICE_IN(Test::ByteSeq), ICE_IN(Test::PingReplyPrxPtr) repl
 }
 
 void
-TestIntfI::pingBiDir(ICE_IN(Ice::Identity) id, const Ice::Current& current)
+TestIntfI::pingBiDir(Ice::Identity id, const Ice::Current& current)
 {
     try
     {
@@ -58,11 +58,7 @@ TestIntfI::pingBiDir(ICE_IN(Ice::Identity) id, const Ice::Current& current)
         //
         // Send the reply through the incoming connection.
         //
-#ifdef ICE_CPP11_MAPPING
         Ice::uncheckedCast<Test::PingReplyPrx>(current.con->createProxy(id))->replyAsync();
-#else
-        Test::PingReplyPrx::uncheckedCast(current.con->createProxy(id))->begin_reply();
-#endif
     }
     catch(const Ice::Exception& ex)
     {

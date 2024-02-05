@@ -10,7 +10,7 @@ class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
     def __init__(self, *args, **kargs):
         Server.__init__(
             self,
-            "icebridge++11",
+            "icebridge",
             mapping=Mapping.getByName("cpp"),
             desc="IceBridge",
             *args,
