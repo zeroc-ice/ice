@@ -268,6 +268,12 @@ Ice::ObjectPrx::ice_context(const Context& newContext) const
     return make_shared<ObjectPrx>(_reference->changeContext(newContext));
 }
 
+ReferencePtr
+Ice::ObjectPrx::_context(const Context& newContext) const
+{
+    return _reference->changeContext(newContext);
+}
+
 const string&
 Ice::ObjectPrx::ice_getFacet() const
 {
@@ -306,6 +312,19 @@ Ice::ObjectPrx::ice_adapterId(const string& newAdapterId) const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_adapterId(const string& newAdapterId) const
+{
+    if (newAdapterId == _reference->getAdapterId())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeAdapterId(newAdapterId);
+    }
+}
+
 EndpointSeq
 Ice::ObjectPrx::ice_getEndpoints() const
 {
@@ -337,6 +356,25 @@ Ice::ObjectPrx::ice_endpoints(const EndpointSeq& newEndpoints) const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_endpoints(const EndpointSeq& newEndpoints) const
+{
+    vector<EndpointIPtr> endpoints;
+    for(EndpointSeq::const_iterator p = newEndpoints.begin(); p != newEndpoints.end(); ++p)
+    {
+        endpoints.push_back(dynamic_pointer_cast<EndpointI>(*p));
+    }
+
+    if(endpoints == _reference->getEndpoints())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeEndpoints(endpoints);
+    }
+}
+
 Int
 Ice::ObjectPrx::ice_getLocatorCacheTimeout() const
 {
@@ -362,6 +400,25 @@ Ice::ObjectPrx::ice_locatorCacheTimeout(Int newTimeout) const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_locatorCacheTimeout(Int newTimeout) const
+{
+    if (newTimeout < -1)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout;
+        throw invalid_argument(s.str());
+    }
+    if (newTimeout == _reference->getLocatorCacheTimeout())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeLocatorCacheTimeout(newTimeout);
+    }
+}
+
 bool
 Ice::ObjectPrx::ice_isConnectionCached() const
 {
@@ -378,6 +435,19 @@ Ice::ObjectPrx::ice_connectionCached(bool newCache) const
     else
     {
         return make_shared<ObjectPrx>(_reference->changeCacheConnection(newCache));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_connectionCached(bool newCache) const
+{
+    if (newCache == _reference->getCacheConnection())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeCacheConnection(newCache);
     }
 }
 
@@ -400,6 +470,19 @@ Ice::ObjectPrx::ice_endpointSelection(EndpointSelectionType newType) const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_endpointSelection(EndpointSelectionType newType) const
+{
+    if (newType == _reference->getEndpointSelection())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeEndpointSelection(newType);
+    }
+}
+
 bool
 Ice::ObjectPrx::ice_isSecure() const
 {
@@ -416,6 +499,19 @@ Ice::ObjectPrx::ice_secure(bool b) const
     else
     {
         return make_shared<ObjectPrx>(_reference->changeSecure(b));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_secure(bool b) const
+{
+    if (b == _reference->getSecure())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeSecure(b);
     }
 }
 
@@ -438,6 +534,19 @@ Ice::ObjectPrx::ice_encodingVersion(const ::Ice::EncodingVersion& encoding) cons
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_encodingVersion(const ::Ice::EncodingVersion& encoding) const
+{
+    if (encoding == _reference->getEncoding())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeEncoding(encoding);
+    }
+}
+
 bool
 Ice::ObjectPrx::ice_isPreferSecure() const
 {
@@ -454,6 +563,19 @@ Ice::ObjectPrx::ice_preferSecure(bool b) const
     else
     {
        return make_shared<ObjectPrx>(_reference->changePreferSecure(b));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_preferSecure(bool b) const
+{
+    if (b == _reference->getPreferSecure())
+    {
+        return _reference;
+    }
+    else
+    {
+       return _reference->changePreferSecure(b);
     }
 }
 
@@ -478,6 +600,20 @@ Ice::ObjectPrx::ice_router(const RouterPrxPtr& router) const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_router(const RouterPrxPtr& router) const
+{
+    ReferencePtr ref = _reference->changeRouter(router);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
 LocatorPrxPtr
 Ice::ObjectPrx::ice_getLocator() const
 {
@@ -499,6 +635,20 @@ Ice::ObjectPrx::ice_locator(const LocatorPrxPtr& locator) const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_locator(const LocatorPrxPtr& locator) const
+{
+    ReferencePtr ref = _reference->changeLocator(locator);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
 bool
 Ice::ObjectPrx::ice_isCollocationOptimized() const
 {
@@ -515,6 +665,19 @@ Ice::ObjectPrx::ice_collocationOptimized(bool b) const
     else
     {
         return make_shared<ObjectPrx>(_reference->changeCollocationOptimized(b));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_collocationOptimized(bool b) const
+{
+    if (b == _reference->getCollocationOptimized())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeCollocationOptimized(b);
     }
 }
 
@@ -543,6 +706,25 @@ Ice::ObjectPrx::ice_invocationTimeout(Int newTimeout) const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_invocationTimeout(Int newTimeout) const
+{
+    if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_invocationTimeout: " << newTimeout;
+        throw invalid_argument(s.str());
+    }
+    if (newTimeout == _reference->getInvocationTimeout())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeInvocationTimeout(newTimeout);
+    }
+}
+
 ObjectPrxPtr
 Ice::ObjectPrx::ice_twoway() const
 {
@@ -553,6 +735,19 @@ Ice::ObjectPrx::ice_twoway() const
     else
     {
         return make_shared<ObjectPrx>(_reference->changeMode(Reference::ModeTwoway));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_twoway() const
+{
+    if (_reference->getMode() == Reference::ModeTwoway)
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeMode(Reference::ModeTwoway);
     }
 }
 
@@ -575,6 +770,19 @@ Ice::ObjectPrx::ice_oneway() const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_oneway() const
+{
+    if (_reference->getMode() == Reference::ModeOneway)
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeMode(Reference::ModeOneway);
+    }
+}
+
 bool
 Ice::ObjectPrx::ice_isOneway() const
 {
@@ -591,6 +799,19 @@ Ice::ObjectPrx::ice_batchOneway() const
     else
     {
         return make_shared<ObjectPrx>(_reference->changeMode(Reference::ModeBatchOneway));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_batchOneway() const
+{
+    if (_reference->getMode() == Reference::ModeBatchOneway)
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeMode(Reference::ModeBatchOneway);
     }
 }
 
@@ -613,6 +834,19 @@ Ice::ObjectPrx::ice_datagram() const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_datagram() const
+{
+    if (_reference->getMode() == Reference::ModeDatagram)
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeMode(Reference::ModeDatagram);
+    }
+}
+
 bool
 Ice::ObjectPrx::ice_isDatagram() const
 {
@@ -629,6 +863,19 @@ Ice::ObjectPrx::ice_batchDatagram() const
     else
     {
        return make_shared<ObjectPrx>(_reference->changeMode(Reference::ModeBatchDatagram));
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_batchDatagram() const
+{
+    if (_reference->getMode() == Reference::ModeBatchDatagram)
+    {
+        return _reference;
+    }
+    else
+    {
+       return _reference->changeMode(Reference::ModeBatchDatagram);
     }
 }
 
@@ -649,6 +896,20 @@ Ice::ObjectPrx::ice_compress(bool b) const
     else
     {
        return make_shared<ObjectPrx>(ref);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_compress(bool b) const
+{
+    ReferencePtr ref = _reference->changeCompress(b);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+       return ref;
     }
 }
 
@@ -678,6 +939,26 @@ Ice::ObjectPrx::ice_timeout(int t) const
     }
 }
 
+ReferencePtr
+Ice::ObjectPrx::_timeout(int t) const
+{
+    if(t < 1 && t != -1)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_timeout: " << t;
+        throw invalid_argument(s.str());
+    }
+    ReferencePtr ref = _reference->changeTimeout(t);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
 optional<int>
 Ice::ObjectPrx::ice_getTimeout() const
 {
@@ -695,6 +976,20 @@ Ice::ObjectPrx::ice_connectionId(const string& id) const
     else
     {
         return make_shared<ObjectPrx>(ref);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_connectionId(const string& id) const
+{
+    ReferencePtr ref = _reference->changeConnectionId(id);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
     }
 }
 
@@ -724,6 +1019,29 @@ Ice::ObjectPrx::ice_fixed(const ::Ice::ConnectionPtr& connection) const
     else
     {
         return make_shared<ObjectPrx>(ref);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_fixed(const ::Ice::ConnectionPtr& connection) const
+{
+    if (!connection)
+    {
+        throw invalid_argument("invalid null connection passed to ice_fixed");
+    }
+    ::Ice::ConnectionIPtr impl = ICE_DYNAMIC_CAST(::Ice::ConnectionI, connection);
+    if (!impl)
+    {
+        throw invalid_argument("invalid connection passed to ice_fixed");
+    }
+    ReferencePtr ref = _reference->changeConnection(impl);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
     }
 }
 

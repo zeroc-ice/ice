@@ -980,10 +980,6 @@ IceInternal::RoutableReference::changeEndpoints(const vector<EndpointIPtr>& newE
 ReferencePtr
 IceInternal::RoutableReference::changeAdapterId(const string& newAdapterId) const
 {
-    if(newAdapterId == _adapterId)
-    {
-        return const_cast<RoutableReference*>(this)->shared_from_this();
-    }
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_adapterId = newAdapterId;
     r->_endpoints.clear();
