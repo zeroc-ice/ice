@@ -26,7 +26,9 @@ runs:
         sudo apt-get update && sudo apt-get install -y \
             python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev \
             libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk \
-            ruby ruby-dev php-cli php-dev libdbus-1-dev
+            ruby ruby-dev php-cli php-dev \
+            libbluetooth-dev libdbus-1-dev \
+            libsystemd-dev
 
       shell: bash
       if: runner.os == 'Linux'
