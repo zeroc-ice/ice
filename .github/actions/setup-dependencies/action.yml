@@ -22,7 +22,12 @@ runs:
       if: runner.os == 'macOS'
 
     - name: Install apt dependencies
-      run: sudo apt-get update && sudo apt-get install -y python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk ruby ruby-dev php-cli php-dev
+      run: |
+        sudo apt-get update && sudo apt-get install -y \
+            python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev \
+            libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev openjdk-17-jdk \
+            ruby ruby-dev php-cli php-dev libdbus-1-dev
+
       shell: bash
       if: runner.os == 'Linux'
 
@@ -45,12 +50,12 @@ runs:
       if: runner.os == 'Windows'
 
     - name: Install testing dependencies from pip
-      run: python3 -m pip install passlib cryptography
+      run: python3 -m pip install passlib cryptography numpy
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Install testing dependencies from pip
-      run: python3 -m pip install passlib cryptography
+      run: python3 -m pip install passlib cryptography numpy
       shell: powershell
       if: runner.os == 'Windows'
 
