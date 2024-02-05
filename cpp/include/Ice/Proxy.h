@@ -8,7 +8,6 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/ProxyF.h>
-#include <Ice/ProxyFactoryF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/RequestHandlerF.h>
 #include <Ice/EndpointF.h>
