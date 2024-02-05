@@ -49,7 +49,7 @@ public:
     }
 
     shared_ptr<Ice::ObjectPrx>
-    getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Ice::Current&) const override
+    getClientProxy(optional<bool>& hasRoutingTable, const Ice::Current&) const override
     {
         hasRoutingTable = false;
         return _clientProxy;
@@ -630,7 +630,7 @@ run(const Ice::StringSeq& args)
 
         if(acmTimeout > 0)
         {
-            session->ice_getConnection()->setACM(acmTimeout, IceUtil::None, Ice::ACMHeartbeat::HeartbeatAlways);
+            session->ice_getConnection()->setACM(acmTimeout, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
         }
 
         {

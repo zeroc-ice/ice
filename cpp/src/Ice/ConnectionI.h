@@ -163,9 +163,9 @@ public:
     virtual std::function<void()>
     heartbeatAsync(::std::function<void(::std::exception_ptr)>, ::std::function<void(bool)> = nullptr);
 
-    virtual void setACM(const IceUtil::Optional<int>&,
-                        const IceUtil::Optional<ACMClose>&,
-                        const IceUtil::Optional<ACMHeartbeat>&);
+    virtual void setACM(const std::optional<int>&,
+                        const std::optional<ACMClose>&,
+                        const std::optional<ACMHeartbeat>&);
     virtual ACM getACM() noexcept;
 
     virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);

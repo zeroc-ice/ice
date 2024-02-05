@@ -42,9 +42,13 @@ ifeq ($(MAXWARN),yes)
     cppflags	+=  -Wweak-vtables
 endif
 
-# -Wshadow issues false warnings with clang 3.x (Apple LLVM 9.0)
-ifeq ($(shell clang -v 2>&1 | sed -ne 's/.*version \([0-9]*\)\.\([0-9]*\).*/\1\2/p'),90)
-    cppflags    := $(filter-out -Wshadow -Wshadow-all,$(cppflags))
+clang_version = $(shell clang -dumpversion 2>&1 | cut -f1 -d\.)
+
+# We use -std=c++20 with clang 15.0 and later.
+ifeq ($(shell test $(clang_version) -ge 15 && echo yes),yes)
+    cppflags    += -std=c++20
+else
+    cppflags    += -std=c++17
 endif
 
 nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations

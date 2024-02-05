@@ -738,18 +738,18 @@ allTests(Test::TestHelper* helper)
     test(Ice::targetLess(compObj->ice_compress(false), compObj->ice_compress(true)));
     test(Ice::targetGreaterEqual(compObj->ice_compress(true), compObj->ice_compress(false)));
 
-    test(compObj->ice_getCompress() == Ice::nullopt);
-    test(compObj->ice_compress(true)->ice_getCompress() == Ice::optional<bool>(true));
-    test(compObj->ice_compress(false)->ice_getCompress() == Ice::optional<bool>(false));
+    test(compObj->ice_getCompress() == nullopt);
+    test(compObj->ice_compress(true)->ice_getCompress() == optional<bool>(true));
+    test(compObj->ice_compress(false)->ice_getCompress() == optional<bool>(false));
 
     test(Ice::targetEqualTo(compObj->ice_timeout(20), compObj->ice_timeout(20)));
     test(Ice::targetNotEqualTo(compObj->ice_timeout(10), compObj->ice_timeout(20)));
     test(Ice::targetLess(compObj->ice_timeout(10), compObj->ice_timeout(20)));
     test(Ice::targetGreaterEqual(compObj->ice_timeout(20), compObj->ice_timeout(10)));
 
-    test(compObj->ice_getTimeout() == Ice::nullopt);
-    test(compObj->ice_timeout(10)->ice_getTimeout() == Ice::optional<int>(10));
-    test(compObj->ice_timeout(20)->ice_getTimeout() == Ice::optional<int>(20));
+    test(compObj->ice_getTimeout() == nullopt);
+    test(compObj->ice_timeout(10)->ice_getTimeout() == optional<int>(10));
+    test(compObj->ice_timeout(20)->ice_getTimeout() == optional<int>(20));
 
     auto loc1 = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("loc1:default -p 10000"));
     auto loc2 = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("loc2:default -p 10000"));

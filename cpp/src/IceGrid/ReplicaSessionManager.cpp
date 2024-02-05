@@ -601,7 +601,7 @@ ReplicaSessionManager::createSessionImpl(const shared_ptr<InternalRegistryPrx>& 
         auto servant = make_shared<MasterDatabaseObserverI>(_thread, _database, session);
         _observer = Ice::uncheckedCast<DatabaseObserverPrx>(_database->getInternalAdapter()->addWithUUID(servant));
         StringLongDict serials = _database->getSerials();
-        IceUtil::Optional<StringLongDict> serialsOpt;
+        optional<StringLongDict> serialsOpt;
         if(!serials.empty())
         {
             serialsOpt = serials; // Don't provide serials parameter if serials aren't supported.

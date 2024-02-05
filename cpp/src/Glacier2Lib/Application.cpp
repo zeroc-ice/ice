@@ -184,7 +184,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                 {
                     Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                     assert(connection);
-                    connection->setACM(acmTimeout, IceUtil::None, ACMHeartbeat::HeartbeatAlways);
+                    connection->setACM(acmTimeout, nullopt, ACMHeartbeat::HeartbeatAlways);
                     connection->setCloseCallback(
                         [this](Ice::ConnectionPtr)
                         {

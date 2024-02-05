@@ -223,7 +223,7 @@ allTests(Test::TestHelper* helper)
         test(cl->getHeartbeatCount() == 0); // No heartbeats enabled by default
 
         auto p = cl->ice_connectionId("heartbeat");
-        p->ice_getConnection()->setACM(1, Ice::nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
+        p->ice_getConnection()->setACM(1, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
         auto p2 = cl->ice_connectionId("heartbeat2");
         atomic_int counter = 0;

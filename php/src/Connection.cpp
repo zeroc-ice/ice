@@ -200,9 +200,9 @@ ZEND_METHOD(Ice_Connection, setACM)
         RETURN_NULL();
     }
 
-    IceUtil::Optional<Ice::Int> timeout;
-    IceUtil::Optional<Ice::ACMClose> close;
-    IceUtil::Optional<Ice::ACMHeartbeat> heartbeat;
+    optional<Ice::Int> timeout;
+    optional<Ice::ACMClose> close;
+    optional<Ice::ACMHeartbeat> heartbeat;
 
     if(!isUnset(t))
     {

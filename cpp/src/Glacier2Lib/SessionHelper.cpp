@@ -739,7 +739,7 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
             {
                 Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                 assert(connection);
-                connection->setACM(acmTimeout, IceUtil::None, Ice::ACMHeartbeat::HeartbeatAlways);
+                connection->setACM(acmTimeout, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
                 auto self = shared_from_this();
                 connection->setCloseCallback([self](Ice::ConnectionPtr)
                 {

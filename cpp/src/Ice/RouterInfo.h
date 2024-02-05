@@ -82,7 +82,7 @@ public:
         //
         return _router;
     }
-    void getClientProxyResponse(const Ice::ObjectPrxPtr&, const IceUtil::Optional<bool>&,
+    void getClientProxyResponse(const Ice::ObjectPrxPtr&, const std::optional<bool>&,
                                 const GetClientEndpointsCallbackPtr&);
     void getClientProxyException(const Ice::Exception&, const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getClientEndpoints();

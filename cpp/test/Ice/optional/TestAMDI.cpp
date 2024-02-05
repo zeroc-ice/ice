@@ -36,7 +36,7 @@ InitialI::pingPongAsync(::std::shared_ptr<::Ice::Value> obj,
 }
 
 void
-InitialI::opOptionalExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::OneOptional>> o,
+InitialI::opOptionalExceptionAsync(optional<int> a, optional<::std::string> b, optional<::std::shared_ptr<::Test::OneOptional>> o,
                                    ::std::function<void()>,
                                    ::std::function<void(::std::exception_ptr)> ex, const Ice::Current&)
 {
@@ -44,7 +44,7 @@ InitialI::opOptionalExceptionAsync(Ice::optional<int> a, Ice::optional<::std::st
 }
 
 void
-InitialI::opDerivedExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::OneOptional>> o,
+InitialI::opDerivedExceptionAsync(optional<int> a, optional<::std::string> b, optional<::std::shared_ptr<::Test::OneOptional>> o,
                                   ::std::function<void()>,
                                   ::std::function<void(::std::exception_ptr)> ex, const Ice::Current&)
 {
@@ -52,7 +52,7 @@ InitialI::opDerivedExceptionAsync(Ice::optional<int> a, Ice::optional<::std::str
 }
 
 void
-InitialI::opRequiredExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::OneOptional>> o,
+InitialI::opRequiredExceptionAsync(optional<int> a, optional<::std::string> b, optional<::std::shared_ptr<::Test::OneOptional>> o,
                                    ::std::function<void()>,
                                    ::std::function<void(::std::exception_ptr)> ex, const Ice::Current&)
 {
@@ -73,264 +73,264 @@ InitialI::opRequiredExceptionAsync(Ice::optional<int> a, Ice::optional<::std::st
 }
 
 void
-InitialI::opByteAsync(Ice::optional<::Ice::Byte> p1,
-                      ::std::function<void(const Ice::optional<::Ice::Byte>&, const Ice::optional<::Ice::Byte>&)> response,
+InitialI::opByteAsync(optional<::Ice::Byte> p1,
+                      ::std::function<void(const optional<::Ice::Byte>&, const optional<::Ice::Byte>&)> response,
                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opBoolAsync(Ice::optional<bool> p1,
-                      ::std::function<void(const Ice::optional<bool>&, const Ice::optional<bool>&)> response,
+InitialI::opBoolAsync(optional<bool> p1,
+                      ::std::function<void(const optional<bool>&, const optional<bool>&)> response,
                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opShortAsync(Ice::optional<short> p1,
-                            ::std::function<void(const Ice::optional<short>&, const Ice::optional<short>&)> response,
+InitialI::opShortAsync(optional<short> p1,
+                            ::std::function<void(const optional<short>&, const optional<short>&)> response,
                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opIntAsync(Ice::optional<int> p1,
-                     ::std::function<void(const Ice::optional<int>&, const Ice::optional<int>&)> response,
+InitialI::opIntAsync(optional<int> p1,
+                     ::std::function<void(const optional<int>&, const optional<int>&)> response,
                      ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opLongAsync(Ice::optional<long long int> p1,
-                           ::std::function<void(const Ice::optional<long long int>&, const Ice::optional<long long int>&)> response,
+InitialI::opLongAsync(optional<long long int> p1,
+                           ::std::function<void(const optional<long long int>&, const optional<long long int>&)> response,
                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opFloatAsync(Ice::optional<float> p1,
-                            ::std::function<void(const Ice::optional<float>&, const Ice::optional<float>&)> response,
+InitialI::opFloatAsync(optional<float> p1,
+                            ::std::function<void(const optional<float>&, const optional<float>&)> response,
                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opDoubleAsync(Ice::optional<double> p1,
-                             ::std::function<void(const Ice::optional<double>&, const Ice::optional<double>&)> response,
+InitialI::opDoubleAsync(optional<double> p1,
+                             ::std::function<void(const optional<double>&, const optional<double>&)> response,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opStringAsync(Ice::optional<::std::string> p1,
-                             ::std::function<void(const Ice::optional<::std::string>&, const Ice::optional<::std::string>&)> response,
+InitialI::opStringAsync(optional<::std::string> p1,
+                             ::std::function<void(const optional<::std::string>&, const optional<::std::string>&)> response,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opCustomStringAsync(Ice::optional<Util::string_view> p1,
-                                   ::std::function<void(const Ice::optional<Util::string_view>&, const Ice::optional<Util::string_view>&)> response,
+InitialI::opCustomStringAsync(optional<Util::string_view> p1,
+                                   ::std::function<void(const optional<Util::string_view>&, const optional<Util::string_view>&)> response,
                                    ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opMyEnumAsync(Ice::optional<::Test::MyEnum> p1,
-                             ::std::function<void(const Ice::optional<::Test::MyEnum>&, const Ice::optional<::Test::MyEnum>&)> response,
+InitialI::opMyEnumAsync(optional<::Test::MyEnum> p1,
+                             ::std::function<void(const optional<::Test::MyEnum>&, const optional<::Test::MyEnum>&)> response,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opSmallStructAsync(Ice::optional<::Test::SmallStruct> p1,
-                                  ::std::function<void(const Ice::optional<::Test::SmallStruct>&, const Ice::optional<::Test::SmallStruct>&)> response,
+InitialI::opSmallStructAsync(optional<::Test::SmallStruct> p1,
+                                  ::std::function<void(const optional<::Test::SmallStruct>&, const optional<::Test::SmallStruct>&)> response,
                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opFixedStructAsync(Ice::optional<::Test::FixedStruct> p1,
-                                  ::std::function<void(const Ice::optional<::Test::FixedStruct>&, const Ice::optional<::Test::FixedStruct>&)> response,
+InitialI::opFixedStructAsync(optional<::Test::FixedStruct> p1,
+                                  ::std::function<void(const optional<::Test::FixedStruct>&, const optional<::Test::FixedStruct>&)> response,
                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opVarStructAsync(Ice::optional<::Test::VarStruct> p1,
-                                ::std::function<void(const Ice::optional<::Test::VarStruct>&, const Ice::optional<::Test::VarStruct>&)> response,
+InitialI::opVarStructAsync(optional<::Test::VarStruct> p1,
+                                ::std::function<void(const optional<::Test::VarStruct>&, const optional<::Test::VarStruct>&)> response,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opOneOptionalAsync(Ice::optional<::std::shared_ptr<::Test::OneOptional>> p1,
-                                  ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&, const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)> response,
+InitialI::opOneOptionalAsync(optional<::std::shared_ptr<::Test::OneOptional>> p1,
+                                  ::std::function<void(const optional<::std::shared_ptr<::Test::OneOptional>>&, const optional<::std::shared_ptr<::Test::OneOptional>>&)> response,
                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opMyInterfaceProxyAsync(Ice::optional<::std::shared_ptr<MyInterfacePrx>> p1,
-                                       ::std::function<void(const Ice::optional<::std::shared_ptr<MyInterfacePrx>>&, const Ice::optional<::std::shared_ptr<MyInterfacePrx>>&)> response,
+InitialI::opMyInterfaceProxyAsync(optional<::std::shared_ptr<MyInterfacePrx>> p1,
+                                       ::std::function<void(const optional<::std::shared_ptr<MyInterfacePrx>>&, const optional<::std::shared_ptr<MyInterfacePrx>>&)> response,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opByteSeqAsync(Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>> p1,
-                              ::std::function<void(const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)> response,
+InitialI::opByteSeqAsync(optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>> p1,
+                              ::std::function<void(const optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opBoolSeqAsync(Ice::optional<::std::pair<const bool*, const bool*>> p1,
-                              ::std::function<void(const Ice::optional<::std::pair<const bool*, const bool*>>&, const Ice::optional<::std::pair<const bool*, const bool*>>&)> response,
+InitialI::opBoolSeqAsync(optional<::std::pair<const bool*, const bool*>> p1,
+                              ::std::function<void(const optional<::std::pair<const bool*, const bool*>>&, const optional<::std::pair<const bool*, const bool*>>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opShortSeqAsync(Ice::optional<::std::pair<const short*, const short*>> p1,
-                               ::std::function<void(const Ice::optional<::std::pair<const short*, const short*>>&, const Ice::optional<::std::pair<const short*, const short*>>&)> response,
+InitialI::opShortSeqAsync(optional<::std::pair<const short*, const short*>> p1,
+                               ::std::function<void(const optional<::std::pair<const short*, const short*>>&, const optional<::std::pair<const short*, const short*>>&)> response,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opIntSeqAsync(Ice::optional<::std::pair<const int*, const int*>> p1,
-                             ::std::function<void(const Ice::optional<::std::pair<const int*, const int*>>&, const Ice::optional<::std::pair<const int*, const int*>>&)> response,
+InitialI::opIntSeqAsync(optional<::std::pair<const int*, const int*>> p1,
+                             ::std::function<void(const optional<::std::pair<const int*, const int*>>&, const optional<::std::pair<const int*, const int*>>&)> response,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opLongSeqAsync(Ice::optional<::std::pair<const long long int*, const long long int*>> p1,
-                              ::std::function<void(const Ice::optional<::std::pair<const long long int*, const long long int*>>&, const Ice::optional<::std::pair<const long long int*, const long long int*>>&)> response,
+InitialI::opLongSeqAsync(optional<::std::pair<const long long int*, const long long int*>> p1,
+                              ::std::function<void(const optional<::std::pair<const long long int*, const long long int*>>&, const optional<::std::pair<const long long int*, const long long int*>>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opFloatSeqAsync(Ice::optional<::std::pair<const float*, const float*>> p1,
-                               ::std::function<void(const Ice::optional<::std::pair<const float*, const float*>>&, const Ice::optional<::std::pair<const float*, const float*>>&)> response,
+InitialI::opFloatSeqAsync(optional<::std::pair<const float*, const float*>> p1,
+                               ::std::function<void(const optional<::std::pair<const float*, const float*>>&, const optional<::std::pair<const float*, const float*>>&)> response,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opDoubleSeqAsync(Ice::optional<::std::pair<const double*, const double*>> p1,
-                                ::std::function<void(const Ice::optional<::std::pair<const double*, const double*>>&, const Ice::optional<::std::pair<const double*, const double*>>&)> response,
+InitialI::opDoubleSeqAsync(optional<::std::pair<const double*, const double*>> p1,
+                                ::std::function<void(const optional<::std::pair<const double*, const double*>>&, const optional<::std::pair<const double*, const double*>>&)> response,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opStringSeqAsync(Ice::optional<::Test::StringSeq> p1,
-                                ::std::function<void(const Ice::optional<::Test::StringSeq>&, const Ice::optional<::Test::StringSeq>&)> response,
+InitialI::opStringSeqAsync(optional<::Test::StringSeq> p1,
+                                ::std::function<void(const optional<::Test::StringSeq>&, const optional<::Test::StringSeq>&)> response,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opSmallStructSeqAsync(Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>> p1,
-                                     ::std::function<void(const Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&, const Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&)> response,
+InitialI::opSmallStructSeqAsync(optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>> p1,
+                                     ::std::function<void(const optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&, const optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&)> response,
                                      ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opSmallStructListAsync(Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>> p1,
-                                      ::std::function<void(const Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&, const Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&)> response,
+InitialI::opSmallStructListAsync(optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>> p1,
+                                      ::std::function<void(const optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&, const optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&)> response,
                                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opFixedStructSeqAsync(Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>> p1,
-                                     ::std::function<void(const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)> response,
+InitialI::opFixedStructSeqAsync(optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>> p1,
+                                     ::std::function<void(const optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)> response,
                                      ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opFixedStructListAsync(Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>> p1,
-                                 ::std::function<void(const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)> response,
+InitialI::opFixedStructListAsync(optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>> p1,
+                                 ::std::function<void(const optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)> response,
                                  ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opVarStructSeqAsync(Ice::optional<::Test::VarStructSeq> p1,
-                              ::std::function<void(const Ice::optional<::Test::VarStructSeq>&, const Ice::optional<::Test::VarStructSeq>&)> response,
+InitialI::opVarStructSeqAsync(optional<::Test::VarStructSeq> p1,
+                              ::std::function<void(const optional<::Test::VarStructSeq>&, const optional<::Test::VarStructSeq>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opSerializableAsync(Ice::optional<::Test::Serializable> p1,
-                              ::std::function<void(const Ice::optional<::Test::Serializable>&, const Ice::optional<::Test::Serializable>&)> response,
+InitialI::opSerializableAsync(optional<::Test::Serializable> p1,
+                              ::std::function<void(const optional<::Test::Serializable>&, const optional<::Test::Serializable>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opIntIntDictAsync(Ice::optional<::Test::IntIntDict> p1,
-                            ::std::function<void(const Ice::optional<::Test::IntIntDict>&, const Ice::optional<::Test::IntIntDict>&)> response,
+InitialI::opIntIntDictAsync(optional<::Test::IntIntDict> p1,
+                            ::std::function<void(const optional<::Test::IntIntDict>&, const optional<::Test::IntIntDict>&)> response,
                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opStringIntDictAsync(Ice::optional<::Test::StringIntDict> p1,
-                               ::std::function<void(const Ice::optional<::Test::StringIntDict>&, const Ice::optional<::Test::StringIntDict>&)> response,
+InitialI::opStringIntDictAsync(optional<::Test::StringIntDict> p1,
+                               ::std::function<void(const optional<::Test::StringIntDict>&, const optional<::Test::StringIntDict>&)> response,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opIntOneOptionalDictAsync(Ice::optional<::Test::IntOneOptionalDict> p1,
-                                    ::std::function<void(const Ice::optional<::Test::IntOneOptionalDict>&, const Ice::optional<::Test::IntOneOptionalDict>&)> response,
+InitialI::opIntOneOptionalDictAsync(optional<::Test::IntOneOptionalDict> p1,
+                                    ::std::function<void(const optional<::Test::IntOneOptionalDict>&, const optional<::Test::IntOneOptionalDict>&)> response,
                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
 
 void
-InitialI::opCustomIntStringDictAsync(Ice::optional<::std::map< int, ::Util::string_view>> p1,
-                                     ::std::function<void(const Ice::optional<::std::map< int, ::Util::string_view>>&, const Ice::optional<::std::map< int, ::Util::string_view>>&)> response,
+InitialI::opCustomIntStringDictAsync(optional<::std::map< int, ::Util::string_view>> p1,
+                                     ::std::function<void(const optional<::std::map< int, ::Util::string_view>>&, const optional<::std::map< int, ::Util::string_view>>&)> response,
                                      ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
@@ -345,7 +345,7 @@ InitialI::opClassAndUnknownOptionalAsync(::std::shared_ptr<::Test::A>,
 }
 
 void
-InitialI::sendOptionalClassAsync(bool, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+InitialI::sendOptionalClassAsync(bool, optional<::std::shared_ptr<::Test::OneOptional>>,
                                  ::std::function<void()> response,
                                  ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
@@ -354,7 +354,7 @@ InitialI::sendOptionalClassAsync(bool, Ice::optional<::std::shared_ptr<::Test::O
 
 void
 InitialI::returnOptionalClassAsync(bool,
-                                   ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)> response,
+                                   ::std::function<void(const optional<::std::shared_ptr<::Test::OneOptional>>&)> response,
                                    ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(make_shared<OneOptional>(53));
@@ -384,7 +384,7 @@ InitialI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)> respo
 }
 
 void
-InitialI::opMStruct2Async(Ice::optional<SmallStruct> p1,
+InitialI::opMStruct2Async(optional<SmallStruct> p1,
                          function<void(const OpMStruct2MarshaledResult&)> response,
                          function<void(exception_ptr)>,
                          const Ice::Current& current)
@@ -401,7 +401,7 @@ InitialI::opMSeq1Async(function<void(const OpMSeq1MarshaledResult&)> response,
 }
 
 void
-InitialI::opMSeq2Async(Ice::optional<Test::StringSeq> p1,
+InitialI::opMSeq2Async(optional<Test::StringSeq> p1,
                        function<void(const OpMSeq2MarshaledResult&)> response,
                        function<void(exception_ptr)>,
                        const Ice::Current& current)
@@ -418,7 +418,7 @@ InitialI::opMDict1Async(function<void(const OpMDict1MarshaledResult&)> response,
 }
 
 void
-InitialI::opMDict2Async(Ice::optional<StringIntDict> p1,
+InitialI::opMDict2Async(optional<StringIntDict> p1,
                         function<void(const OpMDict2MarshaledResult&)> response,
                         function<void(exception_ptr)>,
                         const Ice::Current& current)
@@ -435,7 +435,7 @@ InitialI::opMG1Async(function<void(const OpMG1MarshaledResult&)> response,
 }
 
 void
-InitialI::opMG2Async(Ice::optional<GPtr> p1,
+InitialI::opMG2Async(optional<GPtr> p1,
                      function<void(const OpMG2MarshaledResult&)> response,
                      function<void(exception_ptr)>,
                      const Ice::Current& current)

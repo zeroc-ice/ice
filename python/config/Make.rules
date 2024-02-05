@@ -22,7 +22,7 @@ ifeq ($(os),Linux)
    cppflags   := $(filter-out -Wredundant-decls,$(cppflags))
 endif
 
-python_cppflags         := -std=c++17 $(or $(PYTHON_CPPFLAGS),$(shell $(python-config) --cflags))
+python_cppflags         := $(or $(PYTHON_CPPFLAGS),$(shell $(python-config) --cflags))
 python_ldflags          := $(or $(PYTHON_LDLFLAGS),$(shell $(python-config) --ldflags))
 
 # Use .so as default value --extension-suffix is not supported by python-config in all platforms
