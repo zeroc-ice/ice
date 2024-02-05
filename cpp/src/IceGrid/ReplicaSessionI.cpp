@@ -102,7 +102,7 @@ ReplicaSessionI::getTimeout(const Ice::Current&) const
 
 void
 ReplicaSessionI::setDatabaseObserver(shared_ptr<DatabaseObserverPrx> observer,
-                                     IceUtil::Optional<StringLongDict> slaveSerials,
+                                     optional<StringLongDict> slaveSerials,
                                      const Ice::Current&)
 {
     //

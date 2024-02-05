@@ -651,7 +651,7 @@ Ice::ObjectPrx::ice_compress(bool b) const
     }
 }
 
-IceUtil::Optional<bool>
+optional<bool>
 Ice::ObjectPrx::ice_getCompress() const
 {
     return _reference->getCompress();
@@ -677,7 +677,7 @@ Ice::ObjectPrx::ice_timeout(int t) const
     }
 }
 
-IceUtil::Optional<int>
+optional<int>
 Ice::ObjectPrx::ice_getTimeout() const
 {
     return _reference->getTimeout();

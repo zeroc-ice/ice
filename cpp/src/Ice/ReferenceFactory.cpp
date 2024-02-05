@@ -91,7 +91,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
                               connection,
                               -1,
                               Ice::Context(),
-                              IceUtil::Optional<bool>());
+                              optional<bool>());
 }
 
 ReferencePtr

@@ -313,9 +313,9 @@ Ice_Connection_heartbeatAsync(void* self, void** future)
 mxArray*
 Ice_Connection_setACM(void* self, mxArray* t, mxArray* c, mxArray* h)
 {
-    Ice::optional<int> timeout;
-    Ice::optional<Ice::ACMClose> close;
-    Ice::optional<Ice::ACMHeartbeat> heartbeat;
+    optional<int> timeout;
+    optional<Ice::ACMClose> close;
+    optional<Ice::ACMHeartbeat> heartbeat;
 
     try
     {

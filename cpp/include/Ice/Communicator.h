@@ -19,7 +19,7 @@
 #include <Ice/Incoming.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/FactoryTableInit.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/ExceptionHelpers.h>
 #include <Ice/LoggerF.h>
 #include <Ice/InstrumentationF.h>

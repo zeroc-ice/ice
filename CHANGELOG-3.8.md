@@ -24,47 +24,13 @@ Ice 3.7. You can still define proxies with the usual syntax, `Greeter*`, where `
 
 ## C++ Changes
 
-- The C++98 mapping is now called the Original mapping.
-
-- The C++11 mapping is now called the New mapping.
-
-- (Original mapping) The base class for mapped class instances is now Ice::Value, like in the new mapping. Previously,
-Ice::Object was the base class for both mapped class instances and servants.
-
-- (Original mapping) Ice::Value does not derive from IceUtil::Shared and the generated Ptr for mapped classed is now an
-Ice::SharedPtr that behaves mostly like the previous IceUtil (and IceInternal) Handle by wrapping a std::shared_ptr.
-The important differences are:
- - the comparison operators of Ice::SharedPtr compare pointers like std::shared_ptr but unlike IceUtil::Handle.
- - the pointed-to object no longer holds the reference count, and as result you must be careful and avoid creating
- multiple SharedPtr managing the same object. For example:
- ```
- MyClassPtr c1 = new MyClass(); // SharedPtr to class instance
- MyClassPtr c2 = c1; // c1 and c2 point to the same instance
- MyClassPtr c3 = c1.get(); // c3 points to the same instance. With Ice 3.7 and before, it's ok as it simply adds a
-                           // a reference count to the shared instance. As of Ice 3.8, it's incorrect since c3 is a new
-                           // independent SharedPtr with its own reference count.
- ```
-
-- (Original mapping) Removed all support for garbage collection (GC) of class instances. If you create or receive a
-graph of class instances with a cycle, you must break this cycle to avoid a leak.
-
-- (New mapping) Ice::optional is now an alias for std::optional.
-
-- (Original mapping) IceUtil::Optional is now an alias for std::optional. When upgrading from Ice 3.7 or earlier, you
-need to replace calls to `get()` on IceUtil::Optional by calls to `value()`.
+- There is now a single C++ mapping, based on the C++11 mapping provided by Ice 3.7. This new C++ mapping requires a
+C++ compiler with support for std=c++17 or higher.
 
 ## Objective-C Changes
 
-- The base class for class instances is now Ice::Value. Previously, Ice::Object was the base class for both mapped class
-instances and servants.
-
-- The slice compiler no longer generates an Objective-C protocol for Slice classes. It generates only an Objective-C
-class (interface).
+- The Objective-C mapping was removed.
 
 ## PHP Changes
 
 - Removed the flattened mapping deprecated in 3.7.
-
-## Ice Service Changes
-
-- The implementations of Glacier2, IceGrid, IceStorm and IcePatch2 were updated to use the new C++ mapping.

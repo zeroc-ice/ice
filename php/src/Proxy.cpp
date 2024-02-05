@@ -1263,7 +1263,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
 
     try
     {
-        IceUtil::Optional<int> timeout = _this->proxy->ice_getTimeout();
+        optional<int> timeout = _this->proxy->ice_getTimeout();
         if(timeout)
         {
             ZVAL_LONG(return_value, static_cast<long>(*timeout));

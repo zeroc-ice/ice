@@ -50,7 +50,7 @@ class RouterI final : public Router
 {
 public:
 
-    shared_ptr<ObjectPrx> getClientProxy(Ice::optional<bool>& hasRoutingTable, const Current&) const override
+    shared_ptr<ObjectPrx> getClientProxy(optional<bool>& hasRoutingTable, const Current&) const override
     {
         hasRoutingTable = false; // We don't maintain a routing table, no need to call addProxies on this impl.
         return nullptr;

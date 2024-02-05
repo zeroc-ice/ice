@@ -101,7 +101,7 @@ allTests(Test::TestHelper* helper)
     shared_ptr<IceGrid::AdminSessionPrx> adminSession = registry->createAdminSession("foo", "bar");
 
     adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         IceUtil::None,
+                                         nullopt,
                                          Ice::ACMHeartbeat::HeartbeatAlways);
 
     shared_ptr<IceGrid::AdminPrx> admin = adminSession->getAdmin();

@@ -924,7 +924,7 @@ public:
      * @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
      * if compression is enabled, false otherwise.
      */
-    ::Ice::optional<bool> ice_getCompress() const;
+    ::std::optional<bool> ice_getCompress() const;
 
     /**
      * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
@@ -939,7 +939,7 @@ public:
      * @return The timeout override. If nullopt is returned, no override is set. Otherwise, returns
      * the timeout override value.
      */
-    ::Ice::optional<int> ice_getTimeout() const;
+    ::std::optional<int> ice_getTimeout() const;
 
     /**
      * Obtains a proxy that is identical to this proxy, except for its connection ID.
