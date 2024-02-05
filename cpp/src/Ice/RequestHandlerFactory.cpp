@@ -6,7 +6,6 @@
 #include <Ice/CollocatedRequestHandler.h>
 #include <Ice/ConnectRequestHandler.h>
 #include <Ice/CollocatedRequestHandler.h>
-#include <Ice/Reference.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Instance.h>
 

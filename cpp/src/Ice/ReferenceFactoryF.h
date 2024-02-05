@@ -6,6 +6,7 @@
 #define ICE_REFERENCE_FACTORY_F_H
 
 #include <Ice/Handle.h>
+#include <IceUtil/Shared.h>
 
 namespace IceInternal
 {

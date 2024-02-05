@@ -11,8 +11,9 @@
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ConnectRequestHandlerF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/ReferenceF.h>
+#include <Ice/Reference.h>
 #include <Ice/InstanceF.h>
+#include <Ice/Comparable.h>
 
 namespace IceInternal
 {
@@ -29,7 +30,7 @@ public:
 private:
 
     const InstancePtr _instance;
-    std::map<ReferencePtr, ConnectRequestHandlerPtr> _handlers;
+    std::map<ReferencePtr, ConnectRequestHandlerPtr, Ice::TargetCompare<ReferencePtr, std::less>> _handlers;
 };
 
 }

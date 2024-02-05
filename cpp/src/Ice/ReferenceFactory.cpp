@@ -68,18 +68,19 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
     //
     // Create new reference
     //
-    return new FixedReference(_instance,
-                              _communicator,
-                              ident,
-                              "",  // Facet
-                              connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
-                              connection->endpoint()->secure(),
-                              Ice::Protocol_1_0,
-                              _instance->defaultsAndOverrides()->defaultEncoding,
-                              connection,
-                              -1,
-                              Ice::Context(),
-                              optional<bool>());
+    return make_shared<FixedReference>(
+        _instance,
+        _communicator,
+        ident,
+        "", // Facet
+        connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
+        connection->endpoint()->secure(),
+        Ice::Protocol_1_0,
+        _instance->defaultsAndOverrides()->defaultEncoding,
+        connection,
+        -1,
+        Ice::Context(),
+        optional<bool>());
 }
 
 ReferencePtr
@@ -854,23 +855,24 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new RoutableReference(_instance,
-                                 _communicator,
-                                 ident,
-                                 facet,
-                                 mode,
-                                 secure,
-                                 protocol,
-                                 encoding,
-                                 endpoints,
-                                 adapterId,
-                                 locatorInfo,
-                                 routerInfo,
-                                 collocationOptimized,
-                                 cacheConnection,
-                                 preferSecure,
-                                 endpointSelection,
-                                 locatorCacheTimeout,
-                                 invocationTimeout,
-                                 ctx);
+    return make_shared<RoutableReference>(
+        _instance,
+        _communicator,
+        ident,
+        facet,
+        mode,
+        secure,
+        protocol,
+        encoding,
+        endpoints,
+        adapterId,
+        locatorInfo,
+        routerInfo,
+        collocationOptimized,
+        cacheConnection,
+        preferSecure,
+        endpointSelection,
+        locatorCacheTimeout,
+        invocationTimeout,
+        ctx);
 }

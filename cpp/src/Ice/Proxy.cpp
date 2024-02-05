@@ -3,6 +3,7 @@
 //
 
 #include <Ice/Proxy.h>
+#include <Ice/Comparable.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/Object.h>
@@ -137,13 +138,13 @@ namespace Ice
 bool
 operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return lhs._getReference() < rhs._getReference();
+    return targetLess(lhs._getReference(), rhs._getReference());
 }
 
 bool
 operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return lhs._getReference() == rhs._getReference();
+    return targetEqualTo(lhs._getReference(), rhs._getReference());
 }
 
 }
@@ -467,7 +468,7 @@ ObjectPrxPtr
 Ice::ObjectPrx::ice_router(const RouterPrxPtr& router) const
 {
     ReferencePtr ref = _reference->changeRouter(router);
-    if(ref == _reference)
+    if(targetEqualTo(ref, _reference))
     {
         return const_pointer_cast<ObjectPrx>(shared_from_this());
     }
@@ -488,7 +489,7 @@ ObjectPrxPtr
 Ice::ObjectPrx::ice_locator(const LocatorPrxPtr& locator) const
 {
     ReferencePtr ref = _reference->changeLocator(locator);
-    if(ref == _reference)
+    if(targetEqualTo(ref, _reference))
     {
         return const_pointer_cast<ObjectPrx>(shared_from_this());
     }
@@ -641,7 +642,7 @@ ObjectPrxPtr
 Ice::ObjectPrx::ice_compress(bool b) const
 {
     ReferencePtr ref = _reference->changeCompress(b);
-    if(ref == _reference)
+    if(targetEqualTo(ref, _reference))
     {
         return const_pointer_cast<ObjectPrx>(shared_from_this());
     }
@@ -667,7 +668,7 @@ Ice::ObjectPrx::ice_timeout(int t) const
         throw invalid_argument(s.str());
     }
     ReferencePtr ref = _reference->changeTimeout(t);
-    if(ref == _reference)
+    if(targetEqualTo(ref, _reference))
     {
         return const_pointer_cast<ObjectPrx>(shared_from_this());
     }
@@ -687,7 +688,7 @@ ObjectPrxPtr
 Ice::ObjectPrx::ice_connectionId(const string& id) const
 {
     ReferencePtr ref = _reference->changeConnectionId(id);
-    if(ref == _reference)
+    if(targetEqualTo(ref, _reference))
     {
         return const_pointer_cast<ObjectPrx>(shared_from_this());
     }
@@ -716,7 +717,7 @@ Ice::ObjectPrx::ice_fixed(const ::Ice::ConnectionPtr& connection) const
         throw invalid_argument("invalid connection passed to ice_fixed");
     }
     ReferencePtr ref = _reference->changeConnection(impl);
-    if(ref == _reference)
+    if(targetEqualTo(ref, _reference))
     {
         return const_pointer_cast<ObjectPrx>(shared_from_this());
     }
@@ -729,7 +730,7 @@ Ice::ObjectPrx::ice_fixed(const ::Ice::ConnectionPtr& connection) const
 bool
 Ice::ObjectPrx::ice_isFixed() const
 {
-    return FixedReferencePtr::dynamicCast(_reference);
+    return dynamic_pointer_cast<FixedReference>(_reference) != nullptr;
 }
 
 ConnectionPtr
