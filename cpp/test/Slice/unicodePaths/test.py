@@ -42,7 +42,6 @@ class SliceUnicodePathsTestCase(ClientTestCase):
 
         tests = [
             ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl-c++11"),
-            ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl-c++98"),
             ("cs", ["Test.cs", "TestI.cs"], "--impl"),
             ("html", ["index.html"], ""),
             ("java", ["Test/Point.java", "Test/CanvasI.java"], "--impl"),
