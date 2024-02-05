@@ -812,7 +812,7 @@ IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& commun
 void
 IceSSL::SecureTransport::SSLEngine::initialize()
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     if(_initialized)
     {
         return;

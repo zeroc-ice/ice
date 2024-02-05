@@ -6,18 +6,19 @@
 #define ICE_BATCH_REQUEST_QUEUE_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 
 #include <Ice/BatchRequestInterceptor.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/OutputStream.h>
 
+#include <mutex>
+#include <condition_variable>
+
 namespace IceInternal
 {
 
-class BatchRequestQueue : public IceUtil::Shared, private IceUtil::Monitor<IceUtil::Mutex>
+class BatchRequestQueue : public IceUtil::Shared
 {
 public:
 
@@ -36,8 +37,6 @@ public:
 
 private:
 
-    void waitStreamInUse(bool);
-
     std::function<void(const Ice::BatchRequest&, int, int)> _interceptor;
     Ice::OutputStream _batchStream;
     bool _batchStreamInUse;
@@ -47,6 +46,9 @@ private:
     size_t _batchMarker;
     std::unique_ptr<Ice::LocalException> _exception;
     size_t _maxSize;
+
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 };

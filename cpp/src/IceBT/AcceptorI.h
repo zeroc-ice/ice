@@ -49,7 +49,7 @@ private:
     const int _channel;
     std::string _path;
 
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
+    std::mutex _mutex;
     std::stack<IceInternal::TransceiverPtr> _transceivers;
 };
 

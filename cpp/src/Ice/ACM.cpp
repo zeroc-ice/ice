@@ -87,17 +87,14 @@ IceInternal::FactoryACMMonitor::~FactoryACMMonitor()
 void
 IceInternal::FactoryACMMonitor::destroy()
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     if(!_instance)
     {
         //
         // Ensure all the connections have been cleared, it's important to wait here
         // to prevent the timer destruction in IceInternal::Instance::destroy.
         //
-        while(!_connections.empty())
-        {
-            wait();
-        }
+        _conditionVariable.wait(lock, [this] { return _connections.empty(); });
         return;
     }
 
@@ -117,10 +114,7 @@ IceInternal::FactoryACMMonitor::destroy()
     //
     // Wait for the connection set to be cleared by the timer thread.
     //
-    while(!_connections.empty())
-    {
-        wait();
-    }
+    _conditionVariable.wait(lock, [this] { return _connections.empty(); });
 }
 
 void
@@ -131,7 +125,7 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
         return;
     }
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_connections.empty())
     {
         _connections.insert(connection);
@@ -151,7 +145,7 @@ IceInternal::FactoryACMMonitor::remove(const ConnectionIPtr& connection)
         return;
     }
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     assert(_instance);
     _changes.push_back(make_pair(connection, false));
 }
@@ -159,7 +153,7 @@ IceInternal::FactoryACMMonitor::remove(const ConnectionIPtr& connection)
 void
 IceInternal::FactoryACMMonitor::reap(const ConnectionIPtr& connection)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _reapedConnections.push_back(connection);
 }
 
@@ -168,7 +162,7 @@ IceInternal::FactoryACMMonitor::acm(const IceUtil::Optional<int>& timeout,
                                     const IceUtil::Optional<Ice::ACMClose>& close,
                                     const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     assert(_instance);
 
     ACMConfig config(_config);
@@ -200,7 +194,7 @@ IceInternal::FactoryACMMonitor::getACM()
 void
 IceInternal::FactoryACMMonitor::swapReapedConnections(vector<ConnectionIPtr>& connections)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _reapedConnections.swap(connections);
 }
 
@@ -208,11 +202,11 @@ void
 IceInternal::FactoryACMMonitor::runTimerTask()
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(!_instance)
         {
             _connections.clear();
-            notifyAll();
+            _conditionVariable.notify_all();
             return;
         }
 
@@ -261,7 +255,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
 void
 FactoryACMMonitor::handleException(const exception& ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_instance)
     {
         return;
@@ -274,7 +268,7 @@ FactoryACMMonitor::handleException(const exception& ex)
 void
 FactoryACMMonitor::handleException()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_instance)
     {
         return;
@@ -299,7 +293,7 @@ IceInternal::ConnectionACMMonitor::~ConnectionACMMonitor()
 void
 IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     assert(!_connection && connection);
     _connection = connection;
     if(_config.timeout != IceUtil::Time())
@@ -314,7 +308,7 @@ IceInternal::ConnectionACMMonitor::remove(ICE_MAYBE_UNUSED const ConnectionIPtr&
 #ifdef _MSC_VER
     UNREFERENCED_PARAMETER(connection);
 #endif
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     assert(_connection == connection);
     if(_config.timeout != IceUtil::Time())
     {
@@ -352,7 +346,7 @@ IceInternal::ConnectionACMMonitor::runTimerTask()
 {
     Ice::ConnectionIPtr connection;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         if(!_connection)
         {
             return;

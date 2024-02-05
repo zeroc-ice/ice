@@ -79,7 +79,7 @@ private:
     bool _writeStreamRegistered;
     bool _opening;
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     bool _error;
 
     State _state;

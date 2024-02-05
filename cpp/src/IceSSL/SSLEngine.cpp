@@ -83,7 +83,7 @@ IceSSL::SSLEngine::password(bool /*encrypting*/)
 bool
 IceSSL::SSLEngine::initialized() const
 {
-    Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     return _initialized;
 }
 

@@ -73,7 +73,7 @@ public:
 protected:
 
     bool _initialized;
-    IceUtil::Mutex _mutex;
+    mutable std::mutex _mutex;
 
 private:
 

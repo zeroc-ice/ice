@@ -33,7 +33,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
     bool connect = false;
     if(ref->getCacheConnection())
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         map<ReferencePtr, ConnectRequestHandlerPtr>::iterator p = _handlers.find(ref);
         if(p == _handlers.end())
         {
@@ -63,7 +63,7 @@ IceInternal::RequestHandlerFactory::removeRequestHandler(const ReferencePtr& ref
 {
     if(ref->getCacheConnection())
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         map<ReferencePtr, ConnectRequestHandlerPtr>::iterator p = _handlers.find(ref);
         if(p != _handlers.end() && p->second.get() == handler.get())
         {

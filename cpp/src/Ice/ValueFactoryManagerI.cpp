@@ -12,7 +12,7 @@ using namespace IceInternal;
 void
 IceInternal::ValueFactoryManagerI::add(ValueFactoryFunc factoryFunc, const string& id)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if((_factoryFuncMapHint != _factoryFuncMap.end() && _factoryFuncMapHint->first == id)
        || _factoryFuncMap.find(id) != _factoryFuncMap.end())
@@ -26,7 +26,7 @@ IceInternal::ValueFactoryManagerI::add(ValueFactoryFunc factoryFunc, const strin
 void
 IceInternal::ValueFactoryManagerI::add(const ValueFactoryPtr& factory, const string& id)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if((_factoryFuncMapHint != _factoryFuncMap.end() && _factoryFuncMapHint->first == id)
        || _factoryFuncMap.find(id) != _factoryFuncMap.end())
@@ -45,7 +45,7 @@ IceInternal::ValueFactoryManagerI::add(const ValueFactoryPtr& factory, const str
 ValueFactoryFunc
 IceInternal::ValueFactoryManagerI::find(const string& id) const noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     FactoryFuncMap& factoryFuncMap = const_cast<FactoryFuncMap&>(_factoryFuncMap);
 

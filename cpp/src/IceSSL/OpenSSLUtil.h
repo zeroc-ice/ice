@@ -6,7 +6,6 @@
 #define ICESSL_OPENSSL_UTIL_I_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <IceUtil/Handle.h>
 
 #include <openssl/ssl.h>
@@ -21,7 +20,7 @@ namespace OpenSSL
 
 #ifndef OPENSSL_NO_DH
 
-class DHParams : public IceUtil::Shared, public IceUtil::Mutex
+class DHParams : public IceUtil::Shared
 {
 public:
 
@@ -36,6 +35,7 @@ private:
     typedef std::pair<int, DH*> KeyParamPair;
     typedef std::list<KeyParamPair> ParamList;
     ParamList _params;
+    std::mutex _mutex;
 
     DH* _dh512;
     DH* _dh1024;

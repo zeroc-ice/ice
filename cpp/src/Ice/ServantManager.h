@@ -6,11 +6,12 @@
 #define ICE_SERVANT_MANAGER_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Identity.h>
 #include <Ice/FacetMap.h>
+
+#include <mutex>
 
 namespace Ice
 {
@@ -23,7 +24,7 @@ class ServantLocator;
 namespace IceInternal
 {
 
-class ServantManager : public IceUtil::Shared, public IceUtil::Mutex
+class ServantManager : public IceUtil::Shared
 {
 public:
 
@@ -62,6 +63,7 @@ private:
 
     std::map<std::string, std::shared_ptr<Ice::ServantLocator>> _locatorMap;
     mutable std::map<std::string, std::shared_ptr<Ice::ServantLocator>>::iterator _locatorMapHint;
+    mutable std::mutex _mutex;
 };
 
 }

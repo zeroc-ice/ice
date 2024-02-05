@@ -5,16 +5,16 @@
 #ifndef ICE_PROPERTIES_I_H
 #define ICE_PROPERTIES_I_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/Properties.h>
 #include <Ice/StringConverter.h>
 
+#include <mutex>
 #include <set>
 
 namespace Ice
 {
 
-class PropertiesI : public Properties, public IceUtil::Mutex
+class PropertiesI : public Properties
 {
 public:
 
@@ -63,6 +63,7 @@ private:
         bool used;
     };
     std::map<std::string, PropertyValue> _properties;
+    std::mutex _mutex;
 };
 
 }

@@ -379,7 +379,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
 {
     try
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        std::unique_lock lock(_mutex);
         if(_state >= StateClosed) // The connection might already be closed if the communicator was destroyed.
         {
             assert(_exception);
@@ -397,10 +397,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
             //
             // Wait for the connection to be validated.
             //
-            while(_state <= StateNotValidated)
-            {
-                wait();
-            }
+            _conditionVariable.wait(lock, [this]{ return _state >= StateNotValidated; });
 
             if(_state >= StateClosing)
             {
@@ -438,7 +435,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
 void
 Ice::ConnectionI::activate()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state <= StateNotValidated)
     {
         return;
@@ -453,7 +450,7 @@ Ice::ConnectionI::activate()
 void
 Ice::ConnectionI::hold()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state <= StateNotValidated)
     {
         return;
@@ -465,7 +462,7 @@ Ice::ConnectionI::hold()
 void
 Ice::ConnectionI::destroy(DestructionReason reason)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
 
     switch(reason)
     {
@@ -486,7 +483,7 @@ Ice::ConnectionI::destroy(DestructionReason reason)
 void
 Ice::ConnectionI::close(ConnectionClose mode) noexcept
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::unique_lock lock(_mutex);
 
     if(mode == ConnectionClose::Forcefully)
     {
@@ -503,10 +500,7 @@ Ice::ConnectionI::close(ConnectionClose mode) noexcept
         //
         // Wait until all outstanding requests have been completed.
         //
-        while(!_asyncRequests.empty())
-        {
-            wait();
-        }
+        _conditionVariable.wait(lock, [this]{ return _asyncRequests.empty(); });
 
         setState(StateClosing, ConnectionManuallyClosedException(__FILE__, __LINE__, true));
     }
@@ -515,12 +509,11 @@ Ice::ConnectionI::close(ConnectionClose mode) noexcept
 bool
 Ice::ConnectionI::isActiveOrHolding() const
 {
-    //
     // We can not use trylock here, otherwise the outgoing connection
     // factory might return destroyed (closing or closed) connections,
     // resulting in connection retry exhaustion.
-    //
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    std::lock_guard lock(_mutex);
 
     return _state > StateNotValidated && _state < StateClosing;
 }
@@ -533,9 +526,9 @@ Ice::ConnectionI::isFinished() const
     // threads operating in this connection object, connection
     // destruction is considered as not yet finished.
     //
-    IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
+    std::unique_lock<std::mutex> lock(_mutex, std::try_to_lock);
 
-    if(!sync.acquired())
+    if(!lock.owns_lock())
     {
         return false;
     }
@@ -552,7 +545,7 @@ Ice::ConnectionI::isFinished() const
 void
 Ice::ConnectionI::throwException() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
 
     if(_exception)
     {
@@ -564,18 +557,14 @@ Ice::ConnectionI::throwException() const
 void
 Ice::ConnectionI::waitUntilHolding() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    while(_state < StateHolding || _dispatchCount > 0)
-    {
-        wait();
-    }
+    std::unique_lock lock(_mutex);
+    _conditionVariable.wait(lock, [this] { return _state >= StateHolding && _dispatchCount == 0; });
 }
 
 void
 Ice::ConnectionI::waitUntilFinished()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::unique_lock lock(_mutex);
 
     //
     // We wait indefinitely until the connection is finished and all
@@ -583,10 +572,7 @@ Ice::ConnectionI::waitUntilFinished()
     // guarantee that there are no outstanding calls when deactivate()
     // is called on the servant locators.
     //
-    while(_state < StateFinished || _dispatchCount > 0)
-    {
-        wait();
-    }
+    _conditionVariable.wait(lock, [this]{ return _state >= StateFinished && _dispatchCount == 0; });
 
     assert(_state == StateFinished);
 
@@ -599,7 +585,7 @@ Ice::ConnectionI::waitUntilFinished()
 void
 Ice::ConnectionI::updateObserver()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state < StateNotValidated || _state > StateClosed)
     {
         return;
@@ -617,7 +603,7 @@ Ice::ConnectionI::updateObserver()
 void
 Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state != StateActive)
     {
         return;
@@ -684,7 +670,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
 {
     OutputStream* os = out->getOs();
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     //
     // If the exception is closed before we even have a chance
     // to send our request, we always try to send the request
@@ -798,7 +784,7 @@ Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
 namespace
 {
 
-const ::std::string heartbeat_name = "heartbeat";
+const string heartbeat_name = "heartbeat";
 
 class HeartbeatAsync : public OutgoingAsyncBase
 {
@@ -909,7 +895,7 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
 void
 Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state >= StateClosed)
     {
         return;
@@ -920,7 +906,7 @@ Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
 void
 Ice::ConnectionI::setCloseCallback(CloseCallback callback)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state >= StateClosed)
     {
         if(callback)
@@ -978,7 +964,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
                          const IceUtil::Optional<Ice::ACMClose>& close,
                          const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(timeout && *timeout < 0)
     {
         throw invalid_argument("invalid negative ACM timeout value");
@@ -1012,7 +998,7 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
 ACM
 Ice::ConnectionI::getACM() noexcept
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     ACM acm;
     acm.timeout = 0;
     acm.close = ACMClose::CloseOff;
@@ -1027,7 +1013,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
     // NOTE: This isn't called from a thread pool thread.
     //
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state >= StateClosed)
     {
         return; // The request has already been or will be shortly notified of the failure.
@@ -1128,7 +1114,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
 void
 Ice::ConnectionI::sendResponse(Int, OutputStream* os, Byte compressFlag, bool /*amd*/)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::unique_lock lock(_mutex);
     assert(_state > StateNotValidated);
 
     try
@@ -1139,7 +1125,7 @@ Ice::ConnectionI::sendResponse(Int, OutputStream* os, Byte compressFlag, bool /*
             {
                 reap();
             }
-            notifyAll();
+            _conditionVariable.notify_all();
         }
 
         if(_state >= StateClosed)
@@ -1167,7 +1153,7 @@ Ice::ConnectionI::sendResponse(Int, OutputStream* os, Byte compressFlag, bool /*
 void
 Ice::ConnectionI::sendNoResponse()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     assert(_state > StateNotValidated);
 
     try
@@ -1178,7 +1164,7 @@ Ice::ConnectionI::sendNoResponse()
             {
                 reap();
             }
-            notifyAll();
+            _conditionVariable.notify_all();
         }
 
         if(_state >= StateClosed)
@@ -1212,7 +1198,7 @@ Ice::ConnectionI::invokeException(Ice::Int, const LocalException& ex, int invoke
     // called in case of a fatal exception we decrement _dispatchCount here.
     //
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     setState(StateClosed, ex);
 
     if(invokeNum > 0)
@@ -1225,7 +1211,7 @@ Ice::ConnectionI::invokeException(Ice::Int, const LocalException& ex, int invoke
             {
                 reap();
             }
-            notifyAll();
+            _conditionVariable.notify_all();
         }
     }
 }
@@ -1253,7 +1239,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
     }
     else
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(_state <= StateNotValidated || _state >= StateClosing)
         {
             return;
@@ -1272,7 +1258,7 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 ObjectAdapterPtr
 Ice::ConnectionI::getAdapter() const noexcept
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     return _adapter;
 }
 
@@ -1297,7 +1283,7 @@ void
 Ice::ConnectionI::setAdapterAndServantManager(const ObjectAdapterPtr& adapter,
                                               const IceInternal::ServantManagerPtr& servantManager)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state <= StateNotValidated || _state >= StateClosing)
     {
         return;
@@ -1423,7 +1409,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        std::lock_guard lock(_mutex);
 
         ThreadPoolMessage<ConnectionI>::IOScope io(msg);
         if(!io)
@@ -1793,7 +1779,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     //
     if(dispatchedCount > 0)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         _dispatchCount -= dispatchedCount;
         if(_dispatchCount == 0)
         {
@@ -1818,7 +1804,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
             {
                 reap();
             }
-            notifyAll();
+            _conditionVariable.notify_all();
         }
     }
 }
@@ -1827,7 +1813,7 @@ void
 Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 {
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         assert(_state == StateClosed);
         unscheduleTimeout(static_cast<SocketOperation>(SocketOperationRead | SocketOperationWrite));
     }
@@ -1992,7 +1978,7 @@ Ice::ConnectionI::finish(bool close)
     // objects such as the timer might be destroyed too).
     //
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         setState(StateFinished);
 
         if(_dispatchCount == 0)
@@ -2017,7 +2003,7 @@ Ice::ConnectionI::getNativeInfo()
 void
 Ice::ConnectionI::timedOut()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state <= StateNotValidated)
     {
         setState(StateClosed, ConnectTimeoutException(__FILE__, __LINE__));
@@ -2047,7 +2033,7 @@ Ice::ConnectionI::timeout() const noexcept
 ConnectionInfoPtr
 Ice::ConnectionI::getInfo() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state >= StateClosed)
     {
         _exception->ice_throw();
@@ -2058,7 +2044,7 @@ Ice::ConnectionI::getInfo() const
 void
 Ice::ConnectionI::setBufferSize(Ice::Int rcvSize, Ice::Int sndSize)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     if(_state >= StateClosed)
     {
         _exception->ice_throw();
@@ -2070,7 +2056,7 @@ Ice::ConnectionI::setBufferSize(Ice::Int rcvSize, Ice::Int sndSize)
 void
 Ice::ConnectionI::exception(const LocalException& ex)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    std::lock_guard lock(_mutex);
     setState(StateClosed, ex);
 }
 
@@ -2393,7 +2379,7 @@ Ice::ConnectionI::setState(State state)
     }
     _state = state;
 
-    notifyAll();
+    _conditionVariable.notify_all();
 
     if(_state == StateClosing && _dispatchCount == 0)
     {
@@ -3246,7 +3232,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
                         outAsync = 0;
                     }
 #endif
-                    notifyAll(); // Notify threads blocked in close(false)
+                    _conditionVariable.notify_all(); // Notify threads blocked in close(false)
                 }
 
                 break;

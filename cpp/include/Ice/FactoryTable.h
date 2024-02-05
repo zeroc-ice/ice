@@ -5,10 +5,10 @@
 #ifndef ICE_FACTORYTABLE_H
 #define ICE_FACTORYTABLE_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/ValueFactory.h>
 
+#include <mutex>
 namespace Ice
 {
 
@@ -53,7 +53,7 @@ public:
 
 private:
 
-    IceUtil::Mutex _m;
+    mutable std::mutex _mutex;
 
     typedef ::std::pair<::Ice::UserExceptionFactory, int> EFPair;
     typedef ::std::map<::std::string, EFPair> EFTable;

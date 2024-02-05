@@ -195,7 +195,7 @@ IceSSL::OpenSSL::DHParams::get(int keyLength)
     //
     // No match found. Use one of the predefined parameter sets instead.
     //
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(keyLength >= 4096)
     {
         if(!_dh4096)

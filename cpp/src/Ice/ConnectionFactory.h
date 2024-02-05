@@ -5,8 +5,6 @@
 #ifndef ICE_CONNECTION_FACTORY_H
 #define ICE_CONNECTION_FACTORY_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionI.h>
@@ -24,7 +22,9 @@
 #include <Ice/ACMF.h>
 #include <Ice/Comparable.h>
 
+#include <condition_variable>
 #include <list>
+#include <mutex>
 #include <set>
 
 namespace Ice
@@ -38,7 +38,7 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
-class OutgoingConnectionFactory : public virtual IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+class OutgoingConnectionFactory : public virtual IceUtil::Shared
 {
 public:
 
@@ -156,11 +156,12 @@ private:
 
     std::multimap<EndpointIPtr, Ice::ConnectionIPtr, Ice::TargetCompare<EndpointIPtr, std::less>> _connectionsByEndpoint;
     int _pendingConnectCount;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 class IncomingConnectionFactory : public EventHandler,
-                                  public Ice::ConnectionI::StartCallback,
-                                  public IceUtil::Monitor<IceUtil::Mutex>
+                                  public Ice::ConnectionI::StartCallback
 {
 public:
 
@@ -247,6 +248,8 @@ private:
 #if defined(ICE_USE_IOCP)
     std::unique_ptr<Ice::LocalException> _acceptorException;
 #endif
+    mutable std::mutex _mutex;
+    mutable std::condition_variable _conditionVariable;
 };
 
 }
