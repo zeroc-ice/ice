@@ -14,9 +14,11 @@
 namespace IceInternal
 {
 
-class ReferenceFactory : public ::IceUtil::Shared
+class ReferenceFactory : public std::enable_shared_from_this<ReferenceFactory>
 {
 public:
+
+    ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
 
     //
     // Create a direct reference.
@@ -51,9 +53,6 @@ public:
     ::Ice::LocatorPrxPtr getDefaultLocator() const;
 
 private:
-
-    ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
-    friend class Instance;
 
     void checkForUnknownProperties(const std::string&);
     RoutableReferencePtr create(const ::Ice::Identity&, const ::std::string&, Reference::Mode, bool,

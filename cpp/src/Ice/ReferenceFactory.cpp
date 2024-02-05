@@ -25,8 +25,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(::IceInternal::ReferenceFactory* p) { return p; }
-
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
                                       const string& facet,
@@ -606,10 +604,10 @@ IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrxPtr& defaultRoute
 {
     if(defaultRouter == _defaultRouter)
     {
-        return this;
+        return shared_from_this();
     }
 
-    ReferenceFactoryPtr factory = new ReferenceFactory(_instance, _communicator);
+    ReferenceFactoryPtr factory = make_shared<ReferenceFactory>(_instance, _communicator);
     factory->_defaultLocator = _defaultLocator;
     factory->_defaultRouter = defaultRouter;
     return factory;
@@ -626,10 +624,10 @@ IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrxPtr& defaultLoc
 {
     if(defaultLocator == _defaultLocator)
     {
-        return this;
+        return shared_from_this();
     }
 
-    ReferenceFactoryPtr factory = new ReferenceFactory(_instance, _communicator);
+    ReferenceFactoryPtr factory = make_shared<ReferenceFactory>(_instance, _communicator);
     factory->_defaultRouter = _defaultRouter;
     factory->_defaultLocator = defaultLocator;
     return factory;

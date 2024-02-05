@@ -1207,7 +1207,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _locatorManager = new LocatorManager(_initData.properties);
 
-        _referenceFactory = new ReferenceFactory(this, communicator);
+        _referenceFactory = make_shared<ReferenceFactory>(this, communicator);
 
         _requestHandlerFactory = new RequestHandlerFactory(this);
 
