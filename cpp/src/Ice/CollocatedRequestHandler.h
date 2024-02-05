@@ -5,15 +5,15 @@
 #ifndef ICE_COLLOCATED_REQUEST_HANDLER_H
 #define ICE_COLLOCATED_REQUEST_HANDLER_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
-
 #include <Ice/RequestHandler.h>
 #include <Ice/ResponseHandler.h>
 #include <Ice/OutputStream.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
+
+#include <condition_variable>
+#include <mutex>
 
 namespace Ice
 {
@@ -28,9 +28,7 @@ namespace IceInternal
 class OutgoingAsyncBase;
 class OutgoingAsync;
 
-class CollocatedRequestHandler : public RequestHandler,
-                                 public ResponseHandler,
-                                 private IceUtil::Monitor<IceUtil::Mutex>
+class CollocatedRequestHandler : public RequestHandler, public ResponseHandler
 {
 public:
 
@@ -76,6 +74,8 @@ private:
     int _requestId;
     std::map<OutgoingAsyncBasePtr, Ice::Int> _sendAsyncRequests;
     std::map<Ice::Int, OutgoingAsyncBasePtr> _asyncRequests;
+
+    std::mutex _mutex;
 };
 using CollocatedRequestHandlerPtr = std::shared_ptr<CollocatedRequestHandler>;
 

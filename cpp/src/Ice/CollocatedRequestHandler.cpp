@@ -92,7 +92,7 @@ CollocatedRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& outA
 void
 CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const LocalException& ex)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lock(_mutex);
 
     map<OutgoingAsyncBasePtr, Int>::iterator p = _sendAsyncRequests.find(outAsync);
     if(p != _sendAsyncRequests.end())
@@ -140,7 +140,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     int requestId = 0;
     try
     {
-        Lock sync(*this);
+        lock_guard<mutex> lock(_mutex);
 
         //
         // This will throw if the request is canceled
@@ -202,7 +202,7 @@ CollocatedRequestHandler::sendResponse(Int requestId, OutputStream* os, Byte, bo
 {
     OutgoingAsyncBasePtr outAsync;
     {
-        Lock sync(*this);
+        lock_guard<mutex> lock(_mutex);
         assert(_response);
 
         if(_traceLevels->protocol >= 1)
@@ -287,7 +287,7 @@ bool
 CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 {
     {
-        Lock sync(*this);
+        lock_guard<mutex> lock(_mutex);
         if(_sendAsyncRequests.erase(ICE_GET_SHARED_FROM_THIS(outAsync)) == 0)
         {
             return false; // The request timed-out.
@@ -375,7 +375,7 @@ CollocatedRequestHandler::handleException(int requestId, const Exception& ex, bo
 
     OutgoingAsyncBasePtr outAsync;
     {
-        Lock sync(*this);
+        lock_guard<mutex> lock(_mutex);
 
         map<int, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.find(requestId);
         if(q != _asyncRequests.end())

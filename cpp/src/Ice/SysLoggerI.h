@@ -5,13 +5,14 @@
 #ifndef ICE_SYS_LOGGER_I_H
 #define ICE_SYS_LOGGER_I_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/Logger.h>
+
+#include <mutex>
 
 namespace Ice
 {
 
-class SysLoggerI : public Logger, public ::IceUtil::Mutex
+class SysLoggerI : public Logger
 {
 public:
 
@@ -30,6 +31,7 @@ private:
 
     int _facility;
     const std::string _prefix;
+    std::mutex _mutex;
 };
 
 }

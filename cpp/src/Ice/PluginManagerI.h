@@ -10,15 +10,16 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/BuiltinSequences.h>
-#include <IceUtil/Mutex.h>
+
 #include <map>
+#include <mutex>
 
 namespace Ice
 {
 
 typedef Ice::Plugin* (*PluginFactory)(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&);
 
-class PluginManagerI : public PluginManager, public IceUtil::Mutex
+class PluginManagerI : public PluginManager
 {
 public:
 
@@ -52,6 +53,7 @@ private:
 
     PluginInfoList _plugins;
     bool _initialized;
+    std::mutex _mutex;
     static const char * const _kindOfObject;
 };
 typedef IceUtil::Handle<PluginManagerI> PluginManagerIPtr;

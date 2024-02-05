@@ -6,14 +6,14 @@
 #define ICE_VALUE_FACTORY_MANAGER_I_H
 
 #include <Ice/ValueFactory.h>
-#include <IceUtil/Mutex.h>
+
 #include <list>
+#include <mutex>
 
 namespace IceInternal
 {
 
-class ValueFactoryManagerI final : public Ice::ValueFactoryManager,
-                                   public IceUtil::Mutex
+class ValueFactoryManagerI final : public Ice::ValueFactoryManager
 {
 public:
 
@@ -29,9 +29,10 @@ private:
 
     FactoryFuncMap _factoryFuncMap;
     mutable FactoryFuncMap::iterator _factoryFuncMapHint;
+    mutable std::mutex _mutex;
 };
 
-using ValueFactoryManagerIPtr = ::std::shared_ptr<ValueFactoryManagerI>;
+using ValueFactoryManagerIPtr = std::shared_ptr<ValueFactoryManagerI>;
 
 }
 

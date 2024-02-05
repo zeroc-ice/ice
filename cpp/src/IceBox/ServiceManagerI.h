@@ -18,7 +18,6 @@ class ServiceManagerI;
 using ServiceManagerIPtr = std::shared_ptr<ServiceManagerI>;
 
 class ServiceManagerI : public ServiceManager,
-                        public IceUtil::Monitor<IceUtil::Mutex>,
                         public std::enable_shared_from_this<ServiceManagerI>
 {
 public:
@@ -90,6 +89,9 @@ private:
 
     std::set<ServiceObserverPrxPtr> _observers;
     int _traceServiceObserver;
+
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 }

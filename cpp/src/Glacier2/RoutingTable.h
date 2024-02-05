@@ -7,12 +7,12 @@
 
 #include <Ice/Ice.h>
 #include <Ice/ObserverHelper.h>
-#include <IceUtil/Mutex.h>
 
 #include <Glacier2/ProxyVerifier.h>
 #include <Glacier2/Instrumentation.h>
 
 #include <list>
+#include <mutex>
 
 namespace Glacier2
 {

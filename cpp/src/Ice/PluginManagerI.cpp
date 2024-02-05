@@ -128,7 +128,7 @@ Ice::PluginManagerI::initializePlugins()
 StringSeq
 Ice::PluginManagerI::getPlugins() noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     StringSeq names;
     for(PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
@@ -141,7 +141,7 @@ Ice::PluginManagerI::getPlugins() noexcept
 PluginPtr
 Ice::PluginManagerI::getPlugin(const string& name)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(!_communicator)
     {
@@ -160,7 +160,7 @@ Ice::PluginManagerI::getPlugin(const string& name)
 void
 Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(!_communicator)
     {
@@ -181,7 +181,7 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
 void
 Ice::PluginManagerI::destroy() noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_communicator)
     {

@@ -51,8 +51,7 @@ private:
     std::string _uuid;
     bool _needConnect;
     std::unique_ptr<Ice::Exception> _exception;
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
-
+    std::mutex _mutex;
     void connectCompleted(int, const ConnectionPtr&);
     void connectFailed(const Ice::LocalException&);
 
