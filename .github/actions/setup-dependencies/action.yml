@@ -34,7 +34,7 @@ runs:
       if: runner.os == 'Linux'
 
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
       with:
         msbuild-architecture: x64
       if: runner.os == 'Windows'
@@ -80,7 +80,7 @@ runs:
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Setup Windows Cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           **/bin/x64
