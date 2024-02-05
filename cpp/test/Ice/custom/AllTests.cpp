@@ -466,11 +466,11 @@ allTests(Test::TestHelper* helper)
 
     {
         deque<Test::DPrxPtr> in(5);
-        in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        in[0] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000"));
+        in[1] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001"));
+        in[2] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002"));
+        in[3] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003"));
+        in[4] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
         deque<Test::DPrxPtr> out;
         deque<Test::DPrxPtr> ret = t->opDPrxSeq(in, out);
@@ -487,11 +487,11 @@ allTests(Test::TestHelper* helper)
 
     {
         list<Test::DPrxPtr> in;
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
         list<Test::DPrxPtr> out;
         list<Test::DPrxPtr> ret = t->opDPrxList(in, out);
@@ -1030,11 +1030,11 @@ allTests(Test::TestHelper* helper)
 
         {
             deque<Test::DPrxPtr> in(5);
-            in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-            in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-            in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-            in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-            in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+            in[0] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000"));
+            in[1] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001"));
+            in[2] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002"));
+            in[3] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003"));
+            in[4] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
             auto r = t->opDPrxSeqAsync(in).get();
 
@@ -1053,11 +1053,11 @@ allTests(Test::TestHelper* helper)
 
         {
             list<Test::DPrxPtr> in;
-            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000")));
+            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001")));
+            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002")));
+            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003")));
+            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
             auto r = t->opDPrxListAsync(in).get();
 
@@ -1813,11 +1813,11 @@ allTests(Test::TestHelper* helper)
 
     {
         deque<Test::DPrxPtr> in(5);
-        in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        in[0] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000"));
+        in[1] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001"));
+        in[2] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002"));
+        in[3] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003"));
+        in[4] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
         promise<bool> done;
 
@@ -1844,11 +1844,11 @@ allTests(Test::TestHelper* helper)
 
     {
         list<Test::DPrxPtr> in;
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003")));
+        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
         promise<bool> done;
 

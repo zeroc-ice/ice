@@ -242,7 +242,7 @@ changeCommunicator(const RemoteLoggerPrxPtr& prx, const CommunicatorPtr& communi
         return 0;
     }
 
-    RemoteLoggerPrxPtr result = ICE_UNCHECKED_CAST(RemoteLoggerPrx, communicator->stringToProxy(prx->ice_toString()));
+    RemoteLoggerPrxPtr result = Ice::uncheckedCast<RemoteLoggerPrx>(communicator->stringToProxy(prx->ice_toString()));
 
     return result->ice_invocationTimeout(prx->ice_getInvocationTimeout());
 }

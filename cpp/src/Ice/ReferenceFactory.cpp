@@ -768,7 +768,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         string property;
 
         property = propertyPrefix + ".Locator";
-        LocatorPrxPtr locator = ICE_UNCHECKED_CAST(LocatorPrx, _communicator->propertyToProxy(property));
+        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_communicator->propertyToProxy(property));
         if(locator)
         {
             if(locator->ice_getEncodingVersion() != encoding)
@@ -782,7 +782,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         }
 
         property = propertyPrefix + ".Router";
-        RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, _communicator->propertyToProxy(property));
+        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_communicator->propertyToProxy(property));
         if(router)
         {
             if(propertyPrefix.size() > 7 && propertyPrefix.substr(propertyPrefix.size() - 7, 7) == ".Router")

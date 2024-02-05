@@ -58,10 +58,9 @@ public:
     {
     }
 
-    virtual Glacier2::SessionPrxPtr
-    createSession()
+    virtual Glacier2::SessionPrxPtr createSession()
     {
-        return ICE_UNCHECKED_CAST(Glacier2::SessionPrx, router()->createSession("userid", "abc123"));
+        return Ice::uncheckedCast<Glacier2::SessionPrx>(router()->createSession("userid", "abc123"));
     }
 
     virtual int
@@ -77,10 +76,10 @@ public:
         }
         Ice::ObjectPrxPtr base = communicator()->stringToProxy(
             "callback:" + TestHelper::getTestEndpoint(communicator()->getProperties()));
-        CallbackPrxPtr callback = ICE_UNCHECKED_CAST(CallbackPrx, base);
+        CallbackPrxPtr callback = Ice::uncheckedCast<CallbackPrx>(base);
         if(++_restart < 5)
         {
-            CallbackReceiverPrxPtr receiver = ICE_UNCHECKED_CAST(CallbackReceiverPrx, addWithUUID(_receiver));
+            CallbackReceiverPrxPtr receiver = Ice::uncheckedCast<CallbackReceiverPrx>(addWithUUID(_receiver));
             callback->initiateCallback(receiver);
             _receiver->waitForCallback();
             restart();

@@ -132,7 +132,7 @@ TestI::getHello(const Ice::Current&)
 HelloPrxPtr
 TestI::getReplicatedHello(const Ice::Current&)
 {
-    return ICE_UNCHECKED_CAST(HelloPrx, _adapter1->createProxy(Ice::stringToIdentity("hello")));
+    return Ice::uncheckedCast<HelloPrx>(_adapter1->createProxy(Ice::stringToIdentity("hello")));
 }
 
 void

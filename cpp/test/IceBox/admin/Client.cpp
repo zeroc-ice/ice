@@ -28,8 +28,8 @@ Client::run(int argc, char** argv)
     //
     // Shutdown the IceBox server.
     //
-    ICE_UNCHECKED_CAST(Ice::ProcessPrx,
-                       communicator->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
+    Ice::uncheckedCast<Ice::ProcessPrx>(
+        communicator->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
 }
 
 DEFINE_TEST(Client)

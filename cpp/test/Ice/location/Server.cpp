@@ -44,9 +44,8 @@ Server::run(int argc, char** argv)
     Ice::ObjectPtr object = make_shared<ServerManagerI>(registry, initData);
     adapter->add(object, Ice::stringToIdentity("ServerManager"));
 
-    Ice::LocatorRegistryPrxPtr registryPrx =
-        ICE_UNCHECKED_CAST(Ice::LocatorRegistryPrx,
-                           adapter->add(registry, Ice::stringToIdentity("registry")));
+    auto registryPrx =
+        Ice::uncheckedCast<Ice::LocatorRegistryPrx>(adapter->add(registry, Ice::stringToIdentity("registry")));
 
     Ice::LocatorPtr locator = make_shared<ServerLocator>(registry, registryPrx);
     adapter->add(locator, Ice::stringToIdentity("locator"));

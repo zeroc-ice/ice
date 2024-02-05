@@ -5,11 +5,8 @@
 #ifndef ICE_UTIL_CONFIG_H
 #define ICE_UTIL_CONFIG_H
 
-//
-// Use the system headers as preferred way to detect endianness
-// and fallback to architecture based checks.
-//
-//
+// Use the system headers as preferred way to detect endianness and fallback to architecture based checks.
+
 #include <stdlib.h>
 
 #if defined(__GLIBC__)
@@ -72,10 +69,7 @@
 
 #else
 
-    //
-    // Use system headers as preferred way to detect 32 or 64 bit mode and
-    // fallback to architecture based checks
-    //
+    // Use system headers as preferred way to detect 32 or 64 bit mode and fallback to architecture based checks.
 #   include <stdint.h>
 
 #   if defined(__WORDSIZE) && (__WORDSIZE == 64)
@@ -101,10 +95,7 @@
 #   define ICE_CPLUSPLUS __cplusplus
 #endif
 
-//
-// Compiler extensions to export and import symbols: see the documentation
-// for Visual Studio, Solaris Studio and GCC.
-//
+// Compiler extensions to export and import symbols: see the documentation for Visual Studio, Clang and GCC.
 #if defined(_MSC_VER)
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
@@ -127,9 +118,6 @@
 #   define ICE_MEMBER(API) /**/
 #endif
 
-//
-// Let's use these extensions with Ice:
-//
 #ifndef ICE_API
 #   if defined(ICE_STATIC_LIBS)
 #      define ICE_API /**/
@@ -149,12 +137,7 @@
 #       define ICE_DEPRECATED_API(msg) __attribute__((deprecated))
 #   endif
 #elif defined(__GNUC__)
-#   if (__GNUC__ > 4 || (__GNUC__ == 4 &&  __GNUC_MINOR__ >= 5))
-// The message option was introduced in GCC 4.5
-#      define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))
-#   else
-#      define ICE_DEPRECATED_API(msg) __attribute__((deprecated))
-#   endif
+#   define ICE_DEPRECATED_API(msg) __attribute__((deprecated(msg)))
 #else
 #   define ICE_DEPRECATED_API(msg) /**/
 #endif
@@ -167,25 +150,17 @@
 
 #ifdef _WIN32
 #   include <windows.h>
-
-#   if defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x600)
-//
-// Windows provides native condition variables on Vista and later
-//
-#      ifndef ICE_HAS_WIN32_CONDVAR
-#          define ICE_HAS_WIN32_CONDVAR
-#      endif
-#   endif
+#   define ICE_HAS_WIN32_CONDVAR
 #endif
 
-//
 // Some include files we need almost everywhere.
-//
 #include <cassert>
 #include <iostream>
 #include <sstream>
 #include <exception>
 #include <stdexcept>
+#include <memory>
+#include <future>
 
 #ifndef _WIN32
 #   include <pthread.h>
@@ -202,9 +177,7 @@
 #   include <fcntl.h>
 #endif
 
-//
 // The Ice version.
-//
 #define ICE_STRING_VERSION "3.8.0-alpha.0" // "A.B.C", with A=major, B=minor, C=patch
 #define ICE_INT_VERSION 30850      // AABBCC, with AA=major, BB=minor, CC=patch
 #define ICE_SO_VERSION "38a0"      // "ABC", with A=major, B=minor, C=patch
@@ -222,10 +195,7 @@
 #   else
 #       define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
 #   endif
-
-//
-//  Automatically link with Ice[D].lib
-//
+//  Automatically link with Ice[D].lib when using MSVC
 #   if !defined(ICE_BUILDING_ICE) && !defined(ICE_BUILDING_SLICE_COMPILERS)
 #      pragma comment(lib, ICE_LIBNAME("Ice"))
 #   endif
@@ -275,12 +245,10 @@ typedef long long Int64;
 }
 
 // TODO remove the helper macros
-#   include <memory>
-#   include <future>
 #   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
 #   define ICE_SHARED_FROM_CONST_THIS(T) const_cast<T*>(this)->shared_from_this()
 #   define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()
 #   define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
-#   define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
+#   define Ice::uncheckedCast<T>(...) Ice::uncheckedCast<T>(__VA_ARGS__)
 
 #endif

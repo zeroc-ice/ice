@@ -59,7 +59,7 @@ allTests(Test::TestHelper* helper, const string& ref)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     ServerManagerPrxPtr manager = ICE_CHECKED_CAST(ServerManagerPrx, communicator->stringToProxy(ref));
-    TestLocatorPrxPtr locator = ICE_UNCHECKED_CAST(TestLocatorPrx, communicator->getDefaultLocator());
+    TestLocatorPrxPtr locator = Ice::uncheckedCast<TestLocatorPrx>(communicator->getDefaultLocator());
     test(manager);
 
     TestLocatorRegistryPrxPtr registry = ICE_CHECKED_CAST(TestLocatorRegistryPrx, locator->getRegistry());
@@ -76,7 +76,7 @@ allTests(Test::TestHelper* helper, const string& ref)
 
     cout << "testing ice_locator and ice_getLocator... " << flush;
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
-    Ice::LocatorPrxPtr anotherLocator = ICE_UNCHECKED_CAST(Ice::LocatorPrx, communicator->stringToProxy("anotherLocator"));
+    auto anotherLocator = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("anotherLocator"));
     base = base->ice_locator(anotherLocator);
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
     communicator->setDefaultLocator(nullptr);

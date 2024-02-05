@@ -284,7 +284,7 @@ allTests(Test::TestHelper* helper)
         s.d = 6.0;
         s.str = "7";
         s.e = MyEnum::enum2;
-        s.p = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test:default"));
+        s.p = Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test:default"));
         out.write(s);
         out.finished(data);
         Ice::InputStream in(communicator, data);
@@ -623,7 +623,7 @@ allTests(Test::TestHelper* helper)
             s.d = 6.0;
             s.str = "7";
             s.e = MyEnum::enum2;
-            s.p = ICE_UNCHECKED_CAST(MyInterfacePrx, communicator->stringToProxy("test:default"));
+            s.p = Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test:default"));
             arr.push_back(s);
         }
         Ice::OutputStream out(communicator);

@@ -561,7 +561,7 @@ public:
                 Ice::RouterFinderPrxPtr finder;
                 try
                 {
-                    finder = ICE_UNCHECKED_CAST(Ice::RouterFinderPrx, communicator->stringToProxy(_finder));
+                    finder = Ice::uncheckedCast<Ice::RouterFinderPrx>(communicator->stringToProxy(_finder));
                     communicator->setDefaultRouter(finder->getRouter());
                 }
                 catch(const Ice::CommunicatorDestroyedException& ex)
@@ -578,11 +578,11 @@ public:
                     Ice::Identity ident;
                     ident.category = "Glacier2";
                     ident.name = "router";
-                    communicator->setDefaultRouter(ICE_UNCHECKED_CAST(Ice::RouterPrx, finder->ice_identity(ident)));
+                    communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(finder->ice_identity(ident)));
                 }
             }
             _session->dispatchCallbackAndWait(new CreatedCommunicator(_callback, _session), 0);
-            Glacier2::RouterPrxPtr routerPrx = ICE_UNCHECKED_CAST(Glacier2::RouterPrx, communicator->getDefaultRouter());
+            auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter());
             Glacier2::SessionPrxPtr session = _factory->connect(routerPrx);
             _session->connected(routerPrx, session);
         }

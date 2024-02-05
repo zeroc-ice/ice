@@ -21,7 +21,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing IceGrid.Locator is present... " << flush;
-    IceGrid::LocatorPrxPtr locator = ICE_UNCHECKED_CAST(IceGrid::LocatorPrx, base);
+    IceGrid::LocatorPrxPtr locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(base);
     test(locator);
     cout << "ok" << endl;
 
@@ -74,9 +74,9 @@ allTests(Test::TestHelper* helper)
             com->stringToProxy("test @ TestAdapter")->ice_ping();
             com->stringToProxy("test")->ice_ping();
             test(com->getDefaultLocator()->getRegistry());
-            test(ICE_CHECKED_CAST(IceGrid::LocatorPrx, com->getDefaultLocator()));
-            test(ICE_UNCHECKED_CAST(IceGrid::LocatorPrx, com->getDefaultLocator())->getLocalRegistry());
-            test(ICE_UNCHECKED_CAST(IceGrid::LocatorPrx, com->getDefaultLocator())->getLocalQuery());
+            test(Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
+            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalRegistry());
+            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
 
             Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
             adapter->activate();
@@ -115,10 +115,10 @@ allTests(Test::TestHelper* helper)
             {
             }
             test(!com->getDefaultLocator()->getRegistry());
-            test(!ICE_CHECKED_CAST(IceGrid::LocatorPrx, com->getDefaultLocator()));
+            test(!Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
             try
             {
-                test(ICE_UNCHECKED_CAST(IceGrid::LocatorPrx, com->getDefaultLocator())->getLocalQuery());
+                test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
             }
             catch(const Ice::OperationNotExistException&)
             {

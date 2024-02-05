@@ -134,7 +134,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     try
     {
         _communicator = Ice::initialize(args, initData, version);
-        _router = ICE_UNCHECKED_CAST(Glacier2::RouterPrx, communicator()->getDefaultRouter());
+        _router = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator()->getDefaultRouter());
 
         if(!_router)
         {

@@ -13,10 +13,10 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr com = helper->communicator();
-    TestIntfPrxPtr service1 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + helper->getTestEndpoint(0)));
-    TestIntfPrxPtr service2 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + helper->getTestEndpoint(1)));
-    TestIntfPrxPtr service3 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + helper->getTestEndpoint(2)));
-    TestIntfPrxPtr service4 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + helper->getTestEndpoint(3)));
+    TestIntfPrxPtr service1 = Ice::uncheckedCast<TestIntfPrx>(com->stringToProxy("test:" + helper->getTestEndpoint(0)));
+    TestIntfPrxPtr service2 = Ice::uncheckedCast<TestIntfPrx>(com->stringToProxy("test:" + helper->getTestEndpoint(1)));
+    TestIntfPrxPtr service3 = Ice::uncheckedCast<TestIntfPrx>(com->stringToProxy("test:" + helper->getTestEndpoint(2)));
+    TestIntfPrxPtr service4 = Ice::uncheckedCast<TestIntfPrx>(com->stringToProxy("test:" + helper->getTestEndpoint(3)));
 
     if(service1->getProperty("IceBox.InheritProperties") == "")
     {

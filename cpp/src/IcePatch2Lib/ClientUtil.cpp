@@ -715,9 +715,9 @@ PatcherI::init(const FileServerPrxPtr& server)
     }
 
     const_cast<FileServerPrxPtr&>(_serverCompress) =
-        ICE_UNCHECKED_CAST(FileServerPrx, server->ice_compress(true));
+        Ice::uncheckedCast<FileServerPrx>(server->ice_compress(true));
     const_cast<FileServerPrxPtr&>(_serverNoCompress) =
-        ICE_UNCHECKED_CAST(FileServerPrx, server->ice_compress(false));
+        Ice::uncheckedCast<FileServerPrx>(server->ice_compress(false));
 }
 
 bool

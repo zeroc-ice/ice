@@ -119,20 +119,20 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing unchecked cast... " << flush;
-    Ice::ObjectPrxPtr prx = ICE_UNCHECKED_CAST(Ice::ObjectPrx, db);
+    Ice::ObjectPrxPtr prx = Ice::uncheckedCast<Ice::ObjectPrx>(db);
     test(prx->ice_getFacet().empty());
     prx = Ice::uncheckedCast<Ice::ObjectPrx>(db, "facetABCD");
     test(prx->ice_getFacet() == "facetABCD");
-    Ice::ObjectPrxPtr prx2 = ICE_UNCHECKED_CAST(Ice::ObjectPrx, prx);
+    Ice::ObjectPrxPtr prx2 = Ice::uncheckedCast<Ice::ObjectPrx>(prx);
     test(prx2->ice_getFacet() == "facetABCD");
 
     shared_ptr<Ice::ObjectPrx> prx3 = Ice::uncheckedCast<Ice::ObjectPrx>(prx, "");
     test(prx3->ice_getFacet().empty());
-    DPrxPtr d = ICE_UNCHECKED_CAST(Test::DPrx, db);
+    DPrxPtr d = Ice::uncheckedCast<Test::DPrx>(db);
     test(d->ice_getFacet().empty());
     shared_ptr<DPrx> df = Ice::uncheckedCast<Test::DPrx>(db, "facetABCD");
     test(df->ice_getFacet() == "facetABCD");
-    DPrxPtr df2 = ICE_UNCHECKED_CAST(Test::DPrx, df);
+    DPrxPtr df2 = Ice::uncheckedCast<Test::DPrx>(df);
     test(df2->ice_getFacet() == "facetABCD");
     shared_ptr<DPrx> df3 = Ice::uncheckedCast<Test::DPrx>(df, "");
     test(df3->ice_getFacet().empty());

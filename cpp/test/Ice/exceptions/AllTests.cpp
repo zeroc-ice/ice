@@ -947,7 +947,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             ThrowerPrxPtr thrower2 =
-                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + helper->getTestEndpoint(1)));
+                Ice::uncheckedCast<ThrowerPrx>(communicator->stringToProxy("thrower:" + helper->getTestEndpoint(1)));
             try
             {
                 thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
@@ -956,7 +956,7 @@ allTests(Test::TestHelper* helper)
             {
             }
             ThrowerPrxPtr thrower3 =
-                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + helper->getTestEndpoint(2)));
+                Ice::uncheckedCast<ThrowerPrx>(communicator->stringToProxy("thrower:" + helper->getTestEndpoint(2)));
             try
             {
                 thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit
@@ -978,7 +978,7 @@ allTests(Test::TestHelper* helper)
     Ice::Identity id = Ice::stringToIdentity("does not exist");
     try
     {
-        ThrowerPrxPtr thrower2 = ICE_UNCHECKED_CAST(ThrowerPrx, thrower->ice_identity(id));
+        ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
         thrower2->throwAasA(1);
 //      thrower2->ice_ping();
         test(false);
@@ -1020,7 +1020,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        WrongOperationPrxPtr thrower2 = ICE_UNCHECKED_CAST(WrongOperationPrx, thrower);
+        WrongOperationPrxPtr thrower2 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
         thrower2->noSuchOperation();
         test(false);
     }
