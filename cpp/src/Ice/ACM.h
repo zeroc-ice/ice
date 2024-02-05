@@ -5,8 +5,6 @@
 #ifndef ICE_ACM_H
 #define ICE_ACM_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <IceUtil/Timer.h>
 #include <Ice/ACMF.h>
 #include <Ice/Connection.h>
@@ -14,6 +12,9 @@
 #include <Ice/InstanceF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
+
+#include <condition_variable>
+#include <mutex>
 #include <set>
 
 namespace IceInternal
@@ -46,7 +47,6 @@ public:
 };
 
 class FactoryACMMonitor : public ACMMonitor,
-                          public IceUtil::Monitor<IceUtil::Mutex>,
                           public std::enable_shared_from_this<FactoryACMMonitor>
 {
 public:
@@ -80,10 +80,11 @@ private:
     std::vector<std::pair<Ice::ConnectionIPtr, bool> > _changes;
     std::set<Ice::ConnectionIPtr> _connections;
     std::vector<Ice::ConnectionIPtr> _reapedConnections;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 class ConnectionACMMonitor : public ACMMonitor,
-                             public IceUtil::Mutex,
                              public std::enable_shared_from_this<ConnectionACMMonitor>
 {
 public:
@@ -109,6 +110,7 @@ private:
     const ACMConfig _config;
 
     Ice::ConnectionIPtr _connection;
+    std::mutex _mutex;
 };
 
 }

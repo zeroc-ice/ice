@@ -125,14 +125,14 @@ Ice::SysLoggerI::~SysLoggerI()
 void
 Ice::SysLoggerI::print(const string& message)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     syslog(LOG_INFO, "%s", message.c_str());
 }
 
 void
 Ice::SysLoggerI::trace(const string& category, const string& message)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     string s = category + ": " + message;
     syslog(LOG_INFO, "%s", s.c_str());
 }
@@ -140,14 +140,14 @@ Ice::SysLoggerI::trace(const string& category, const string& message)
 void
 Ice::SysLoggerI::warning(const string& message)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     syslog(LOG_WARNING, "%s", message.c_str());
 }
 
 void
 Ice::SysLoggerI::error(const string& message)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     syslog(LOG_ERR, "%s", message.c_str());
 }
 

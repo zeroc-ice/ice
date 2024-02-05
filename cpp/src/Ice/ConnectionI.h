@@ -5,8 +5,6 @@
 #ifndef ICE_CONNECTION_I_H
 #define ICE_CONNECTION_I_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/StopWatch.h>
 #include <IceUtil/Timer.h>
@@ -34,11 +32,20 @@
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
 
+#include <condition_variable>
 #include <deque>
+#include <mutex>
 
 #ifndef ICE_HAS_BZIP2
 #   define ICE_HAS_BZIP2
 #endif
+
+namespace IceInternal
+{
+
+template<typename T> class ThreadPoolMessage;
+
+}
 
 namespace Ice
 {
@@ -49,8 +56,7 @@ class ObjectAdapterI;
 class ConnectionI : public Connection,
                     public IceInternal::EventHandler,
                     public IceInternal::ResponseHandler,
-                    public IceInternal::CancellationHandler,
-                    public IceUtil::Monitor<IceUtil::Mutex>
+                    public IceInternal::CancellationHandler
 {
     class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
     {
@@ -341,6 +347,12 @@ private:
 
     CloseCallback _closeCallback;
     HeartbeatCallback _heartbeatCallback;
+
+    mutable std::mutex _mutex;
+    mutable std::condition_variable _conditionVariable;
+
+    // For locking the _mutex
+    template<typename T> friend class IceInternal::ThreadPoolMessage;
 };
 
 }

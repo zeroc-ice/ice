@@ -6,8 +6,6 @@
 #define ICE_LOCATOR_INFO_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/LocatorF.h>
@@ -17,10 +15,13 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/Version.h>
 
+#include <mutex>
+#include <condition_variable>
+
 namespace IceInternal
 {
 
-class LocatorManager : public IceUtil::Shared, public IceUtil::Mutex
+class LocatorManager : public IceUtil::Shared
 {
 public:
 
@@ -45,9 +46,10 @@ private:
     LocatorInfoTable::iterator _tableHint;
 
     std::map<std::pair<Ice::Identity, Ice::EncodingVersion>, LocatorTablePtr> _locatorTables;
+    std::mutex _mutex;
 };
 
-class LocatorTable : public IceUtil::Shared, public IceUtil::Mutex
+class LocatorTable : public IceUtil::Shared
 {
 public:
 
@@ -69,9 +71,10 @@ private:
 
     std::map<std::string, std::pair<IceUtil::Time, std::vector<EndpointIPtr> > > _adapterEndpointsMap;
     std::map<Ice::Identity, std::pair<IceUtil::Time, ReferencePtr> > _objectMap;
+    std::mutex _mutex;
 };
 
-class LocatorInfo : public IceUtil::Shared, public IceUtil::Mutex
+class LocatorInfo : public IceUtil::Shared
 {
 public:
 
@@ -121,7 +124,7 @@ public:
 
     private:
 
-        IceUtil::Monitor<IceUtil::Mutex> _monitor;
+        std::mutex _mutex;
         std::vector<RequestCallbackPtr> _callbacks;
         std::vector<ReferencePtr> _wellKnownRefs;
         bool _sent;
@@ -176,6 +179,7 @@ private:
 
     std::map<std::string, RequestPtr> _adapterRequests;
     std::map<Ice::Identity, RequestPtr> _objectRequests;
+    std::mutex _mutex;
 };
 
 }

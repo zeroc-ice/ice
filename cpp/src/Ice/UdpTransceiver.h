@@ -5,8 +5,6 @@
 #ifndef ICE_UDP_TRANSCEIVER_H
 #define ICE_UDP_TRANSCEIVER_H
 
-#include <IceUtil/Mutex.h>
-
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>

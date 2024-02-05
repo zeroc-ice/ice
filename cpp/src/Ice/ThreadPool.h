@@ -358,8 +358,10 @@ public:
     };
     friend class IOScope;
 
-    ThreadPoolMessage(ThreadPoolCurrent& current, const T& mutex) :
-        _current(current), _mutex(mutex), _finish(false)
+    ThreadPoolMessage(ThreadPoolCurrent& current, const T& eventHandler) :
+        _current(current),
+        _eventHandler(eventHandler),
+        _finish(false)
     {
     }
 
@@ -372,7 +374,7 @@ public:
             // of the event handler. We need to lock the event handler here to call
             // finishMessage.
             //
-            IceUtil::LockT<T> sync(_mutex);
+            lock_guard lock(_eventHandler._mutex);
             _current.finishMessage();
         }
     }
@@ -380,7 +382,7 @@ public:
 private:
 
     ThreadPoolCurrent& _current;
-    const T& _mutex;
+    const T& _eventHandler;
     bool _finish;
 };
 #endif

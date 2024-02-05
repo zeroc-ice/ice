@@ -6,11 +6,12 @@
 #define ICE_ENDPOINT_FACTORY_MANAGER_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
+
+#include <mutex>
 
 namespace Ice
 {
@@ -22,7 +23,7 @@ class InputStream;
 namespace IceInternal
 {
 
-class EndpointFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class EndpointFactoryManager : public ::IceUtil::Shared
 {
 public:
 
@@ -40,6 +41,7 @@ private:
 
     InstancePtr _instance;
     std::vector<EndpointFactoryPtr> _factories;
+    mutable std::mutex _mutex;
 };
 
 }

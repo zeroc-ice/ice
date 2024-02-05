@@ -5,10 +5,6 @@
 #ifndef ICE_GRID_REPLICA_SESSION_MANAGER_H
 #define ICE_GRID_REPLICA_SESSION_MANAGER_H
 
-#include <IceUtil/Handle.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
-
 #include <IceGrid/SessionManager.h>
 #include <IceGrid/Internal.h>
 

@@ -533,7 +533,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
         }
     }
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     assert(!_destroyed);
 
     ResolveEntry entry;
@@ -554,16 +554,16 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
     }
 
     _queue.push_back(entry);
-    notify();
+    _conditionVariable.notify_one();
 }
 
 void
 IceInternal::EndpointHostResolver::destroy()
 {
-    Lock sync(*this);
+   lock_guard lock(_mutex);
     assert(!_destroyed);
     _destroyed = true;
-    notify();
+    _conditionVariable.notify_one();
 }
 
 void
@@ -574,11 +574,8 @@ IceInternal::EndpointHostResolver::run()
         ResolveEntry r;
         ThreadObserverPtr threadObserver;
         {
-            Lock sync(*this);
-            while(!_destroyed && _queue.empty())
-            {
-                wait();
-            }
+            unique_lock lock(_mutex);
+            _conditionVariable.wait(lock, [this] { return _destroyed || !_queue.empty(); });
 
             if(_destroyed)
             {
@@ -661,7 +658,7 @@ IceInternal::EndpointHostResolver::run()
 void
 IceInternal::EndpointHostResolver::updateObserver()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
     if(obsv)
     {

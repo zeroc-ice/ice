@@ -20,7 +20,7 @@ using namespace IceInternal;
 string
 Ice::PropertiesI::getProperty(const string& key) noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -37,7 +37,7 @@ Ice::PropertiesI::getProperty(const string& key) noexcept
 string
 Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value) noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -60,7 +60,7 @@ Ice::PropertiesI::getPropertyAsInt(const string& key) noexcept
 Int
 Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value) noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -88,7 +88,7 @@ Ice::PropertiesI::getPropertyAsList(const string& key) noexcept
 Ice::StringSeq
 Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value) noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
@@ -116,7 +116,7 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
 PropertyDict
 Ice::PropertiesI::getPropertiesForPrefix(const string& prefix) noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     PropertyDict result;
     for(map<string, PropertyValue>::iterator p = _properties.begin(); p != _properties.end(); ++p)
@@ -208,7 +208,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
         }
     }
 
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     //
     // Set or clear the property.
@@ -232,7 +232,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 StringSeq
 Ice::PropertiesI::getCommandLineOptions() noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     StringSeq result;
     result.reserve(_properties.size());
@@ -423,14 +423,14 @@ Ice::PropertiesI::load(const std::string& file)
 PropertiesPtr
 Ice::PropertiesI::clone() noexcept
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     return make_shared<PropertiesI>(this);
 }
 
 set<string>
 Ice::PropertiesI::getUnusedProperties()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     set<string> unusedProperties;
     for(map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
     {

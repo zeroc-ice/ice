@@ -565,7 +565,7 @@ SChannel::SSLEngine::initialize()
     // We still have to acquire the instance mutex because it is used by the base
     // class to access _initialized data member.
     //
-    Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     if(_initialized)
     {
         return;

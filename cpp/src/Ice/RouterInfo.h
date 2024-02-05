@@ -5,7 +5,6 @@
 #ifndef ICE_ROUTER_INFO_H
 #define ICE_ROUTER_INFO_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/Router.h>
 #include <Ice/ProxyF.h>
@@ -15,12 +14,13 @@
 #include <Ice/Identity.h>
 #include <Ice/Comparable.h>
 
+#include <mutex>
 #include <set>
 
 namespace IceInternal
 {
 
-class RouterManager : public IceUtil::Shared, public IceUtil::Mutex
+class RouterManager : public IceUtil::Shared
 {
 public:
 
@@ -43,9 +43,10 @@ private:
 
     RouterInfoTable _table;
     RouterInfoTable::iterator _tableHint;
+    std::mutex _mutex;
 };
 
-class RouterInfo : public IceUtil::Shared, public IceUtil::Mutex
+class RouterInfo : public IceUtil::Shared
 {
 public:
 
@@ -138,6 +139,7 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     std::set<Ice::Identity> _identities;
     std::multiset<Ice::Identity> _evictedIdentities;
+    mutable std::mutex _mutex;
 };
 
 }

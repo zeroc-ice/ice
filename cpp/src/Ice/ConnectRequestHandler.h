@@ -5,16 +5,15 @@
 #ifndef ICE_CONNECT_REQUEST_HANDLER_H
 #define ICE_CONNECT_REQUEST_HANDLER_H
 
-#include <IceUtil/Monitor.h>
-#include <IceUtil/Mutex.h>
-
 #include <Ice/ConnectRequestHandlerF.h>
 #include <Ice/RequestHandler.h>
 #include <Ice/Reference.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/ProxyF.h>
 
+#include <condition_variable>
 #include <deque>
+#include <mutex>
 #include <set>
 
 namespace IceInternal
@@ -24,7 +23,6 @@ class ConnectRequestHandler final :
     public RequestHandler,
     public Reference::GetConnectionCallback,
     public RouterInfo::AddProxyCallback,
-    public IceUtil::Monitor<IceUtil::Mutex>,
     public std::enable_shared_from_this<ConnectRequestHandler>
 {
 public:
@@ -48,7 +46,7 @@ public:
 
 private:
 
-    bool initialized();
+    bool initialized(std::unique_lock<std::mutex>&);
     void flushRequests();
 
     Ice::ObjectPrxPtr _proxy;
@@ -63,6 +61,8 @@ private:
     std::deque<ProxyOutgoingAsyncBasePtr> _requests;
 
     RequestHandlerPtr _requestHandler;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 }
