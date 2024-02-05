@@ -52,7 +52,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing checked cast... " << flush;
 
-    Test::TestIntfPrxPtr t = ICE_CHECKED_CAST(Test::TestIntfPrx, base);
+    Test::TestIntfPrxPtr t = Ice::checkedCast<Test::TestIntfPrx>(base);
     test(t);
     test(Ice::targetEqualTo(t, base));
     cout << "ok" << endl;
@@ -2131,13 +2131,13 @@ allTests(Test::TestHelper* helper)
     ref = communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy1", "wstring1:" + endp);
     base = communicator->stringToProxy(ref);
     test(base);
-    Test1::WstringClassPrxPtr wsc1 = ICE_CHECKED_CAST(Test1::WstringClassPrx, base);
+    Test1::WstringClassPrxPtr wsc1 = Ice::checkedCast<Test1::WstringClassPrx>(base);
     test(t);
 
     ref = communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy2", "wstring2:" + endp);
     base = communicator->stringToProxy(ref);
     test(base);
-    Test2::WstringClassPrxPtr wsc2 = ICE_CHECKED_CAST(Test2::WstringClassPrx, base);
+    Test2::WstringClassPrxPtr wsc2 = Ice::checkedCast<Test2::WstringClassPrx>(base);
     test(t);
 
     wstring wstr = L"A WIDE STRING";

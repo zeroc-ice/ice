@@ -136,7 +136,7 @@ Client::run(int argc, char** argv)
     cout << "ok" << endl;
 
     cout << "testing checked cast for admin object... " << flush;
-    Ice::ProcessPrxPtr process = ICE_CHECKED_CAST(Ice::ProcessPrx, processBase);
+    Ice::ProcessPrxPtr process = Ice::checkedCast<Ice::ProcessPrx>(processBase);
     test(process != 0);
     cout << "ok" << endl;
 

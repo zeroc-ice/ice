@@ -93,7 +93,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    InitialPrxPtr initial = ICE_CHECKED_CAST(InitialPrx, base);
+    InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
     test(initial);
     test(Ice::targetEqualTo(initial, base));
     cout << "ok" << endl;
@@ -387,9 +387,8 @@ allTests(Test::TestHelper* helper)
     try
     {
         Ice::PropertiesPtr properties = communicator->getProperties();
-        TestIntfPrxPtr p =
-            ICE_CHECKED_CAST(TestIntfPrx,
-                             communicator->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
+        TestIntfPrxPtr p = Ice::checkedCast<TestIntfPrx>(
+            communicator->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
 
         cout << "testing Object factory registration... " << flush;
         {
@@ -454,7 +453,7 @@ allTests(Test::TestHelper* helper)
 
         F2PrxPtr f22;
         F2PrxPtr f21 = initial->opF2(Ice::uncheckedCast<F2Prx>(
-                                         communicator->stringToProxy("F21:" + helper->getTestEndpoint()),
+                                         communicator->stringToProxy("F21:" + helper->getTestEndpoint())),
                                      f22);
         test(f21->ice_getIdentity().name == "F21");
         f21->op();

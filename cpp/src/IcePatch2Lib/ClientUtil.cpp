@@ -211,7 +211,7 @@ PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr
         throw runtime_error("property `IcePatch2Client.Proxy' is not set");
     }
 
-    FileServerPrxPtr server = ICE_CHECKED_CAST(FileServerPrx, communicator->stringToProxy(clientProxy));
+    FileServerPrxPtr server = Ice::checkedCast<FileServerPrx>(communicator->stringToProxy(clientProxy));
     if(!server)
     {
         throw runtime_error("proxy `" + clientProxy + "' is not a file server.");

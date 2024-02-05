@@ -320,7 +320,7 @@ allTests(Test::TestHelper* helper, bool)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    InitialPrxPtr initial = ICE_CHECKED_CAST(InitialPrx, base);
+    InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
     test(initial);
 
     test(targetEqualTo(initial, base));

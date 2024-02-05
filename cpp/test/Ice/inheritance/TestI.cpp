@@ -33,10 +33,10 @@ ICI::icop(MA::ICPrxPtr p, const Ice::Current&)
 
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter)
 {
-    _ia = ICE_UNCHECKED_CAST(MA::IAPrx, adapter->addWithUUID(std::make_shared<IAI>()));
-    _ib1 = ICE_UNCHECKED_CAST(MB::IB1Prx, adapter->addWithUUID(std::make_shared<IB1I>()));
-    _ib2 = ICE_UNCHECKED_CAST(MB::IB2Prx, adapter->addWithUUID(std::make_shared<IB2I>()));
-    _ic = ICE_UNCHECKED_CAST(MA::ICPrx, adapter->addWithUUID(std::make_shared<ICI>()));
+    _ia = Ice::uncheckedCast<MA::IAPrx>(adapter->addWithUUID(std::make_shared<IAI>()));
+    _ib1 = Ice::uncheckedCast<MB::IB1Prx>(adapter->addWithUUID(std::make_shared<IB1I>()));
+    _ib2 = Ice::uncheckedCast<MB::IB2Prx>(adapter->addWithUUID(std::make_shared<IB2I>()));
+    _ic = Ice::uncheckedCast<MA::ICPrx>(adapter->addWithUUID(std::make_shared<ICI>()));
 }
 
 void

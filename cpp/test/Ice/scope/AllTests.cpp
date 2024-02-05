@@ -17,7 +17,7 @@ allTests(Test::TestHelper* helper)
     // Scoped types
     //
     {
-        Test::IPrxPtr i = ICE_CHECKED_CAST(Test::IPrx, communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
+        Test::IPrxPtr i = Ice::checkedCast<Test::IPrx>(communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
 
         Test::S s1;
         s1.v = 0;
@@ -76,8 +76,7 @@ allTests(Test::TestHelper* helper)
     // C++ 11 Future-Based Async Function
     //
     {
-        Test::IPrxPtr i =
-            ICE_CHECKED_CAST(Test::IPrx, communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
+        Test::IPrxPtr i = Ice::checkedCast<Test::IPrx>(communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
 
         Test::S s1;
         s1.v = 0;
@@ -148,8 +147,7 @@ allTests(Test::TestHelper* helper)
     // C++11 Callback-Based Async Function
     //
     {
-        Test::IPrxPtr i =
-            ICE_CHECKED_CAST(Test::IPrx, communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
+        Test::IPrxPtr i = Ice::checkedCast<Test::IPrx>(communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
 
         Test::S s1;
         s1.v = 0;
@@ -398,8 +396,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Test::Inner::Inner2::IPrxPtr i =
-            ICE_CHECKED_CAST(Test::Inner::Inner2::IPrx,
-                             communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Test::Inner::Inner2::IPrx>(communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -448,8 +445,7 @@ allTests(Test::TestHelper* helper)
     //
     {
         Test::Inner::Inner2::IPrxPtr i =
-            ICE_CHECKED_CAST(Test::Inner::Inner2::IPrx,
-                             communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Test::Inner::Inner2::IPrx>(communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -504,8 +500,7 @@ allTests(Test::TestHelper* helper)
     //
     {
         Test::Inner::Inner2::IPrxPtr i =
-            ICE_CHECKED_CAST(Test::Inner::Inner2::IPrx,
-                             communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Test::Inner::Inner2::IPrx>(communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -678,7 +673,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Test::Inner::IPrxPtr i =
-            ICE_CHECKED_CAST(Test::Inner::IPrx, communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Test::Inner::IPrx>(communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -727,7 +722,7 @@ allTests(Test::TestHelper* helper)
     //
     {
         Test::Inner::IPrxPtr i =
-            ICE_CHECKED_CAST(Test::Inner::IPrx, communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Test::Inner::IPrx>(communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -782,7 +777,7 @@ allTests(Test::TestHelper* helper)
     //
     {
         Test::Inner::IPrxPtr i =
-            ICE_CHECKED_CAST(Test::Inner::IPrx, communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Test::Inner::IPrx>(communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -955,7 +950,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Inner::Test::Inner2::IPrxPtr i =
-            ICE_CHECKED_CAST(Inner::Test::Inner2::IPrx, communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Inner::Test::Inner2::IPrx>(communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
 
         Test::S s1;
         s1.v = 0;
@@ -1004,7 +999,7 @@ allTests(Test::TestHelper* helper)
     //
     {
         Inner::Test::Inner2::IPrxPtr i =
-            ICE_CHECKED_CAST(Inner::Test::Inner2::IPrx, communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Inner::Test::Inner2::IPrx>(communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
 
         Test::S s1;
         s1.v = 0;
@@ -1059,7 +1054,7 @@ allTests(Test::TestHelper* helper)
     //
     {
         Inner::Test::Inner2::IPrxPtr i =
-            ICE_CHECKED_CAST(Inner::Test::Inner2::IPrx, communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
+            Ice::checkedCast<Inner::Test::Inner2::IPrx>(communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
 
         Test::S s1;
         s1.v = 0;
@@ -1230,6 +1225,6 @@ allTests(Test::TestHelper* helper)
         }
     }
 
-    Test::IPrxPtr i = ICE_CHECKED_CAST(Test::IPrx, communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
+    Test::IPrxPtr i = Ice::checkedCast<Test::IPrx>(communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
     i->shutdown();
 }

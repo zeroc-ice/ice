@@ -194,7 +194,7 @@ RemoteCommunicatorFactoryI::createCommunicator(Ice::PropertyDict props, const Ic
     servant->addUpdateCallback(Ice::emptyCurrent);
 
     Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);
-    return ICE_UNCHECKED_CAST(Test::RemoteCommunicatorPrx, proxy);
+    return Ice::uncheckedCast<Test::RemoteCommunicatorPrx>(proxy);
 }
 
 void

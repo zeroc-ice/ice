@@ -26,7 +26,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
     test(Ice::targetEqualTo(obj, base));
     cout << "ok" << endl;
@@ -48,8 +48,9 @@ allTests(Test::TestHelper* helper)
         cout << "testing discovery... " << flush;
         {
             // Add test well-known object
-            IceGrid::RegistryPrxPtr registry = ICE_CHECKED_CAST(IceGrid::RegistryPrx,
-                communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
+            IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
+                communicator->stringToProxy(
+                    communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
             test(registry);
 
             IceGrid::AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
@@ -233,10 +234,10 @@ allTestsWithDeploy(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
     test(Ice::targetEqualTo(obj, base));
-    TestIntfPrxPtr obj2 = ICE_CHECKED_CAST(TestIntfPrx, base2);
+    TestIntfPrxPtr obj2 = Ice::checkedCast<TestIntfPrx>(base2);
     test(obj2);
     test(Ice::targetEqualTo(obj2, base2));
     cout << "ok" << endl;
@@ -299,7 +300,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    IceGrid::RegistryPrxPtr registry = ICE_CHECKED_CAST(IceGrid::RegistryPrx,
+    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
 
@@ -316,7 +317,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     cout << "testing whether server is still reachable... " << flush;
     try
     {
-        obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+        obj = Ice::checkedCast<TestIntfPrx>(base);
         test(false);
     }
     catch(const Ice::NoEndpointException&)
@@ -324,7 +325,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     try
     {
-        obj2 = ICE_CHECKED_CAST(TestIntfPrx, base2);
+        obj2 = Ice::checkedCast<TestIntfPrx>(base2);
         test(false);
     }
     catch(const Ice::NoEndpointException&)
@@ -335,7 +336,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
 
     try
     {
-        obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+        obj = Ice::checkedCast<TestIntfPrx>(base);
     }
     catch(const Ice::NoEndpointException&)
     {
@@ -343,7 +344,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     try
     {
-        obj2 = ICE_CHECKED_CAST(TestIntfPrx, base2);
+        obj2 = Ice::checkedCast<TestIntfPrx>(base2);
     }
     catch(const Ice::NoEndpointException&)
     {

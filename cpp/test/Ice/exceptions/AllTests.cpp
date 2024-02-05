@@ -646,7 +646,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    ThrowerPrxPtr thrower = ICE_CHECKED_CAST(ThrowerPrx, base);
+    ThrowerPrxPtr thrower = Ice::checkedCast<ThrowerPrx>(base);
     test(thrower);
     test(Ice::targetEqualTo(thrower, base));
     cout << "ok" << endl;
