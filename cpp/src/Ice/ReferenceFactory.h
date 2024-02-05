@@ -19,11 +19,6 @@ class ReferenceFactory : public ::IceUtil::Shared
 public:
 
     //
-    // Make a polymorphic copy of a reference.
-    //
-    ReferencePtr copy(const Reference* r) const;
-
-    //
     // Create a direct reference.
     //
     ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&,

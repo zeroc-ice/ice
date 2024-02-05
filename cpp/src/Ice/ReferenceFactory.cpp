@@ -28,18 +28,6 @@ using namespace IceInternal;
 IceUtil::Shared* IceInternal::upCast(::IceInternal::ReferenceFactory* p) { return p; }
 
 ReferencePtr
-IceInternal::ReferenceFactory::copy(const Reference* r) const
-{
-    const Ice::Identity& ident = r->getIdentity();
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
-
-    return r->clone();
-}
-
-ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
                                       const string& facet,
                                       const ReferencePtr& tmpl,
