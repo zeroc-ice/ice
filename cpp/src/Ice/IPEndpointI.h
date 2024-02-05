@@ -96,7 +96,7 @@ private:
     mutable std::mutex _hashMutex;
 };
 
-class ICE_API EndpointHostResolver : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class ICE_API EndpointHostResolver : public IceUtil::Thread
 {
 public:
 
@@ -127,6 +127,8 @@ private:
     bool _destroyed;
     std::deque<ResolveEntry> _queue;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 }

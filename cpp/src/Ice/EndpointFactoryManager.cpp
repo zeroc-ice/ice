@@ -36,7 +36,7 @@ IceInternal::EndpointFactoryManager::initialize() const
 void
 IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
 {
-    IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
+    lock_guard lock(_mutex); // TODO: Necessary?
 
     //
     // TODO: Optimize with a map?
@@ -54,7 +54,7 @@ IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
 EndpointFactoryPtr
 IceInternal::EndpointFactoryManager::get(Short type) const
 {
-    IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
+    lock_guard lock(_mutex); // TODO: Necessary?
 
     //
     // TODO: Optimize with a map?
@@ -94,7 +94,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 
     EndpointFactoryPtr factory;
     {
-        IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
+        lock_guard lock(_mutex); // TODO: Necessary?
 
         //
         // TODO: Optimize with a map?
@@ -110,7 +110,6 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 
     if(factory)
     {
-#if 1
         EndpointIPtr e = factory->create(v, oaEndpoint);
         if(!v.empty())
         {
@@ -118,20 +117,6 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
                                          "' in endpoint `" + str + "'");
         }
         return e;
-#else
-        // Code below left in place for debugging.
-
-        EndpointIPtr e = factory->create(str.substr(end), oaEndpoint);
-        OutputStream bs(_instance.get(), Ice::currentProtocolEncoding);
-        e->streamWrite(&bs);
-        bs.i = bs.b.begin();
-        short type;
-        bs.read(type);
-        EndpointIPtr ue = new IceInternal::OpaqueEndpointI(type, &bs);
-        consoleErr << "Normal: " << e->toString() << endl;
-        consoleErr << "Opaque: " << ue->toString() << endl;
-        return e;
-#endif
     }
 
     //

@@ -81,7 +81,7 @@ IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(ins
 void
 IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lock(_mutex);
     if(!_instance)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -102,7 +102,7 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
 void
 IceInternal::RetryQueue::destroy()
 {
-    Lock sync(*this);
+    unique_lock<mutex> lock(_mutex);
     assert(_instance);
 
     set<RetryTaskPtr>::iterator p = _requests.begin();
@@ -119,29 +119,27 @@ IceInternal::RetryQueue::destroy()
         }
     }
 
-    _instance = 0;
-    while(!_requests.empty())
-    {
-        wait();
-    }
+    _instance = nullptr;
+    _conditionVariable.wait(lock, [this] { return _requests.empty(); });
 }
 
 void
 IceInternal::RetryQueue::remove(const RetryTaskPtr& task)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lock(_mutex);
     assert(_requests.find(task) != _requests.end());
     _requests.erase(task);
     if(!_instance && _requests.empty())
     {
-        notify(); // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+        // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+        _conditionVariable.notify_one();
     }
 }
 
 bool
 IceInternal::RetryQueue::cancel(const RetryTaskPtr& task)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lock(_mutex);
     if(_requests.erase(task) > 0)
     {
         if(_instance)
@@ -150,7 +148,8 @@ IceInternal::RetryQueue::cancel(const RetryTaskPtr& task)
         }
         else if(_requests.empty())
         {
-            notify(); // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+            // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+            _conditionVariable.notify_one();
         }
     }
     return false;

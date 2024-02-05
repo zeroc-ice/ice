@@ -87,12 +87,13 @@ BatchRequestQueue::BatchRequestQueue(const InstancePtr& instance, bool datagram)
 void
 BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     if(_exception)
     {
         _exception->ice_throw();
     }
-    waitStreamInUse(false);
+    _conditionVariable.wait(lock, [this] { return !_batchStreamInUse; });
+
     _batchStreamInUse = true;
     _batchStream.swap(*os);
 }
@@ -135,19 +136,19 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os,
             ++_batchRequestNum;
         }
 
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _batchStream.resize(_batchMarker);
         _batchStreamInUse = false;
         _batchStreamCanFlush = false;
-        notifyAll();
+        _conditionVariable.notify_all();
     }
     catch(const std::exception&)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _batchStream.resize(_batchMarker);
         _batchStreamInUse = false;
         _batchStreamCanFlush = false;
-        notifyAll();
+        _conditionVariable.notify_all();
         throw;
     }
 }
@@ -155,26 +156,26 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os,
 void
 BatchRequestQueue::abortBatchRequest(OutputStream* os)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_batchStreamInUse)
     {
         _batchStream.swap(*os);
         _batchStream.resize(_batchMarker);
         _batchStreamInUse = false;
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 }
 
 int
 BatchRequestQueue::swap(OutputStream* os, bool& compress)
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     if(_batchRequestNum == 0)
     {
         return 0;
     }
 
-    waitStreamInUse(true);
+    _conditionVariable.wait(lock, [this] { return !_batchStreamInUse || _batchStreamCanFlush; });
 
     vector<Ice::Byte> lastRequest;
     if(_batchMarker < _batchStream.b.size())
@@ -204,24 +205,15 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress)
 void
 BatchRequestQueue::destroy(const Ice::LocalException& ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _exception = ex.ice_clone();
 }
 
 bool
 BatchRequestQueue::isEmpty()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _batchStream.b.size() == sizeof(requestBatchHdr);
-}
-
-void
-BatchRequestQueue::waitStreamInUse(bool flush)
-{
-    while(_batchStreamInUse && !(flush && _batchStreamCanFlush))
-    {
-        wait();
-    }
 }
 
 void

@@ -6,7 +6,6 @@
 #define ICE_PROXY_FACTORY_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>

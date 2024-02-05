@@ -373,7 +373,7 @@ OpenSSL::SSLEngine::~SSLEngine()
 void
 OpenSSL::SSLEngine::initialize()
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     if(_initialized)
     {
         return;

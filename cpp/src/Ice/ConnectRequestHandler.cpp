@@ -28,8 +28,8 @@ ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice:
 RequestHandlerPtr
 ConnectRequestHandler::connect(const Ice::ObjectPrxPtr& proxy)
 {
-    Lock sync(*this);
-    if(!initialized())
+    unique_lock lock(_mutex);
+    if(!initialized(lock))
     {
         _proxies.insert(proxy);
     }
@@ -46,13 +46,13 @@ AsyncStatus
 ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 {
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         if(!_initialized)
         {
             out->cancelable(shared_from_this()); // This will throw if the request is canceled
         }
 
-        if(!initialized())
+        if(!initialized(lock))
         {
             _requests.push_back(out);
             return AsyncStatusQueued;
@@ -65,13 +65,13 @@ void
 ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const Ice::LocalException& ex)
 {
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         if(_exception)
         {
             return; // The request has been notified of a failure already.
         }
 
-        if(!initialized())
+        if(!initialized(lock))
         {
             for(deque<ProxyOutgoingAsyncBasePtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
             {
@@ -93,7 +93,7 @@ ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync
 Ice::ConnectionIPtr
 ConnectRequestHandler::getConnection()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     //
     // First check for the connection, it's important otherwise the user could first get a connection
     // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
@@ -113,7 +113,7 @@ ConnectRequestHandler::getConnection()
 Ice::ConnectionIPtr
 ConnectRequestHandler::waitForConnection()
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     if(_exception)
     {
         throw RetryException(*_exception);
@@ -121,10 +121,7 @@ ConnectRequestHandler::waitForConnection()
     //
     // Wait for the connection establishment to complete or fail.
     //
-    while(!_initialized && !_exception)
-    {
-        wait();
-    }
+    _conditionVariable.wait(lock, [this] { return _initialized || _exception; });
 
     if(_exception)
     {
@@ -141,7 +138,7 @@ void
 ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool compress)
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(!_flushing && !_exception && !_connection);
         _connection = connection;
         _compress = compress;
@@ -167,7 +164,7 @@ void
 ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(!_flushing && !_initialized && !_exception);
         _flushing = true; // Ensures request handler is removed before processing new requests.
         _exception = ex.ice_clone();
@@ -197,11 +194,11 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     _requests.clear();
 
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _flushing = false;
         _proxies.clear();
         _proxy = 0; // Break cyclic reference count.
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 }
 
@@ -216,7 +213,7 @@ ConnectRequestHandler::addedProxy()
 }
 
 bool
-ConnectRequestHandler::initialized()
+ConnectRequestHandler::initialized(unique_lock<mutex>& lock)
 {
     // Must be called with the mutex locked.
 
@@ -227,10 +224,7 @@ ConnectRequestHandler::initialized()
     }
     else
     {
-        while(_flushing)
-        {
-            wait();
-        }
+        _conditionVariable.wait(lock, [this] { return !_flushing; });
 
         if(_exception)
         {
@@ -258,7 +252,7 @@ void
 ConnectRequestHandler::flushRequests()
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(_connection && !_initialized);
 
         //
@@ -317,7 +311,7 @@ ConnectRequestHandler::flushRequests()
     }
 
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(!_initialized);
         swap(_exception, exception);
         _initialized = !_exception;
@@ -331,6 +325,6 @@ ConnectRequestHandler::flushRequests()
 
         _proxies.clear();
         _proxy = nullptr; // Break cyclic reference count.
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 }

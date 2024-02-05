@@ -111,7 +111,7 @@ IceBT::AcceptorI::accept()
     IceInternal::TransceiverPtr t;
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         //
         // The thread pool should only call accept() when we've notified it that we have a
@@ -173,7 +173,7 @@ IceBT::AcceptorI::effectiveChannel() const
 void
 IceBT::AcceptorI::newConnection(int fd)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+    lock_guard lock(_mutex);
 
     _transceivers.push(new TransceiverI(_instance, new StreamSocket(_instance, fd), 0, _uuid));
 

@@ -28,7 +28,7 @@ IceBT::TransceiverI::getNativeInfo()
 IceInternal::SocketOperation
 IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal::Buffer& /*writeBuffer*/)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+    lock_guard lock(_mutex);
 
     if(_exception)
     {
@@ -168,7 +168,7 @@ IceBT::TransceiverI::~TransceiverI()
 void
 IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+    lock_guard lock(_mutex);
     _connection = conn;
     _stream->setFd(fd);
     //
@@ -180,7 +180,7 @@ IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
 void
 IceBT::TransceiverI::connectFailed(const Ice::LocalException& ex)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+    lock_guard lock(_mutex);
     //
     // Save the exception - it will be raised in initialize().
     //

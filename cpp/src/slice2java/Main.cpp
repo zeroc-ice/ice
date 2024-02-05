@@ -51,7 +51,6 @@ usage(const string& n)
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--validate               Validate command line options.\n"
-        "--impl                   Generate sample implementations.\n"
         "--meta META              Define file metadata directive META.\n"
         "--list-generated         Emit list of generated files in XML format.\n"
         ;
@@ -69,7 +68,6 @@ compile(const vector<string>& argv)
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
-    opts.addOpt("", "impl");
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-xml");
     opts.addOpt("", "depend-file", IceUtilInternal::Options::NeedArg, "");
@@ -127,8 +125,6 @@ compile(const vector<string>& argv)
     bool preprocess = opts.isSet("E");
 
     string output = opts.optArg("output-dir");
-
-    bool impl = opts.isSet("impl");
 
     bool depend = opts.isSet("depend");
     bool dependxml = opts.isSet("depend-xml");
@@ -274,10 +270,6 @@ compile(const vector<string>& argv)
                     {
                         Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
                         gen.generate(p);
-                        if(impl)
-                        {
-                            gen.generateImpl(p);
-                        }
                     }
                     catch(const Slice::FileException& ex)
                     {

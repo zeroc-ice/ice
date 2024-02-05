@@ -459,7 +459,7 @@ public:
 
     string getDefaultAdapterAddress() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         //
         // Return the device address of the default local adapter.
@@ -476,7 +476,7 @@ public:
 
     bool adapterExists(const string& addr) const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         //
         // Check if a local adapter exists with the given device address.
@@ -494,7 +494,7 @@ public:
 
     bool deviceExists(const string& addr) const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         //
         // Check if a remote device exists with the given device address.
@@ -564,7 +564,7 @@ public:
 
     void connect(const string& addr, const string& uuid, const ConnectCallbackPtr& cb)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         //
         // Start a thread to establish the connection.
@@ -579,7 +579,7 @@ public:
         string path;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             for(AdapterMap::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
             {
@@ -620,7 +620,7 @@ public:
         string path;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             for(AdapterMap::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
             {
@@ -661,7 +661,7 @@ public:
         DeviceMap devices;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             for(RemoteDeviceMap::const_iterator p = _remoteDevices.begin(); p != _remoteDevices.end(); ++p)
             {
@@ -685,7 +685,7 @@ public:
         vector<IceUtil::ThreadPtr> v;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             v.swap(_connectThreads);
         }
 
@@ -726,7 +726,7 @@ public:
                 reply->throwException();
             }
 
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             _adapters.clear();
             _remoteDevices.clear();
@@ -875,7 +875,7 @@ public:
 
         vector<function<void(const string&, const PropertyMap&)>> callbacks;
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             AdapterMap::iterator p = _adapters.find(dev.getAdapter());
             if(p != _adapters.end())
@@ -914,7 +914,7 @@ public:
         VariantMap props;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             RemoteDeviceMap::iterator p = _remoteDevices.find(path);
             if(p == _remoteDevices.end())
@@ -978,7 +978,7 @@ public:
 
     void deviceRemoved(const string& path)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         RemoteDeviceMap::iterator p = _remoteDevices.find(path);
         if(p != _remoteDevices.end())
@@ -989,14 +989,14 @@ public:
 
     void adapterAdded(const string& path, const VariantMap& props)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         _adapters[path] = Adapter(props);
     }
 
     void adapterChanged(const string& path, const VariantMap& changed, const vector<string>& removedProps)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         AdapterMap::iterator p = _adapters.find(path);
         if(p == _adapters.end())
@@ -1011,7 +1011,7 @@ public:
 
     void adapterRemoved(const string& path)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         AdapterMap::iterator p = _adapters.find(path);
         if(p != _adapters.end())
@@ -1126,7 +1126,7 @@ public:
             // Search our list of known devices for one that matches the given address.
             //
             {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+                lock_guard lock(_mutex);
 
                 for(RemoteDeviceMap::iterator p = _remoteDevices.begin(); p != _remoteDevices.end(); ++p)
                 {
@@ -1220,7 +1220,7 @@ public:
         // Remove the thread from the list.
         //
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             vector<IceUtil::ThreadPtr>::iterator p = find(_connectThreads.begin(), _connectThreads.end(), thread);
             if(p != _connectThreads.end()) // May be missing if destroy() was called.
@@ -1256,7 +1256,7 @@ public:
         ConnectCallbackPtr _cb;
     };
 
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
+    std::mutex _mutex;
     DBus::ConnectionPtr _dbusConnection;
 
     AdapterMap _adapters;

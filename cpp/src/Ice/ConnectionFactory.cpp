@@ -135,7 +135,7 @@ IceInternal::OutgoingConnectionFactory::ConnectorInfo::operator==(const Connecto
 void
 IceInternal::OutgoingConnectionFactory::destroy()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_destroyed)
     {
@@ -149,13 +149,13 @@ IceInternal::OutgoingConnectionFactory::destroy()
     _destroyed = true;
     _communicator = 0;
 
-    notifyAll();
+    _conditionVariable.notify_all();
 }
 
 void
 IceInternal::OutgoingConnectionFactory::updateConnectionObservers()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     for(const auto& p : _connections)
     {
         p.second->updateObserver();
@@ -168,17 +168,14 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
     multimap<ConnectorPtr, ConnectionIPtr> connections;
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        unique_lock lock(_mutex);
 
         //
         // First we wait until the factory is destroyed. We also wait
         // until there are no pending connections anymore. Only then
         // we can be sure the _connections contains all connections.
         //
-        while(!_destroyed || !_pending.empty() || _pendingConnectCount > 0)
-        {
-            wait();
-        }
+        _conditionVariable.wait(lock, [this] { return _destroyed && _pending.empty() && _pendingConnectCount == 0; });
 
         //
         // We want to wait until all connections are finished outside the
@@ -193,7 +190,7 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
     }
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         // Ensure all the connections are finished and reapable at this point.
         vector<Ice::ConnectionIPtr> cons;
         _monitor->swapReapedConnections(cons);
@@ -253,7 +250,7 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
     ObjectAdapterPtr adapter = routerInfo->getAdapter();
     vector<EndpointIPtr> endpoints = routerInfo->getClientEndpoints(); // Must be called outside the synchronization
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_destroyed)
     {
@@ -303,7 +300,7 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
 void
 IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_destroyed)
     {
@@ -326,7 +323,7 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const Communicat
     list<ConnectionIPtr> c;
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         for(multimap<ConnectorPtr,  ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end();
             ++p)
         {
@@ -390,7 +387,7 @@ IceInternal::OutgoingConnectionFactory::applyOverrides(const vector<EndpointIPtr
 ConnectionIPtr
 IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr>& endpoints, bool& compress)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -467,7 +464,7 @@ IceInternal::OutgoingConnectionFactory::incPendingConnectCount()
     // the asynchronous requests waiting on a connection to be established.
     //
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -478,12 +475,12 @@ IceInternal::OutgoingConnectionFactory::incPendingConnectCount()
 void
 IceInternal::OutgoingConnectionFactory::decPendingConnectCount()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     --_pendingConnectCount;
     assert(_pendingConnectCount >= 0);
     if(_destroyed && _pendingConnectCount == 0)
     {
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 }
 
@@ -493,7 +490,7 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
                                                       bool& compress)
 {
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        unique_lock lock(_mutex);
         if(_destroyed)
         {
             throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -546,7 +543,7 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
                 //
                 if(!cb)
                 {
-                    wait();
+                    _conditionVariable.wait(lock);
                 }
                 else
                 {
@@ -582,7 +579,7 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
 ConnectionIPtr
 IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& transceiver, const ConnectorInfo& ci)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     assert(_pending.find(ci.connector) != _pending.end() && transceiver);
 
     //
@@ -635,7 +632,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
 
     set<ConnectCallbackPtr> callbacks;
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
         {
             map<ConnectorPtr, set<ConnectCallbackPtr> >::iterator q = _pending.find(p->connector);
@@ -665,7 +662,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
         {
             (*r)->removeFromPending();
         }
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 
     bool compress;
@@ -702,7 +699,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
 
     set<ConnectCallbackPtr> callbacks;
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
         {
             map<ConnectorPtr, set<ConnectCallbackPtr> >::iterator q = _pending.find(p->connector);
@@ -728,7 +725,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
             assert(failedCallbacks.find(*r) == failedCallbacks.end());
             (*r)->removeFromPending();
         }
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 
     for(set<ConnectCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
@@ -1143,28 +1140,28 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedIm
 void
 IceInternal::IncomingConnectionFactory::activate()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     setState(StateActive);
 }
 
 void
 IceInternal::IncomingConnectionFactory::hold()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     setState(StateHolding);
 }
 
 void
 IceInternal::IncomingConnectionFactory::destroy()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     setState(StateClosed);
 }
 
 void
 IceInternal::IncomingConnectionFactory::updateConnectionObservers()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     for(const auto& conn : _connections)
     {
         conn->updateObserver();
@@ -1177,16 +1174,13 @@ IceInternal::IncomingConnectionFactory::waitUntilHolding() const
     set<ConnectionIPtr> connections;
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        unique_lock lock(_mutex);
 
         //
         // First we wait until the connection factory itself is in holding
         // state.
         //
-        while(_state < StateHolding)
-        {
-            wait();
-        }
+        _conditionVariable.wait(lock, [this] { return _state >= StateHolding; });
 
         //
         // We want to wait until all connections are in holding state
@@ -1209,16 +1203,13 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
     set<ConnectionIPtr> connections;
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        unique_lock lock(_mutex);
 
         //
         // First we wait until the factory is destroyed. If we are using
         // an acceptor, we also wait for it to be closed.
         //
-        while(_state != StateFinished)
-        {
-            wait();
-        }
+        _conditionVariable.wait(lock, [this] { return _state == StateFinished; });
 
         //
         // Clear the OA. See bug 1673 for the details of why this is necessary.
@@ -1237,7 +1228,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
     }
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         if(_transceiver)
         {
             assert(_connections.size() <= 1); // The connection isn't monitored or reaped.
@@ -1267,7 +1258,7 @@ IceInternal::IncomingConnectionFactory::isLocal(const EndpointIPtr& endpoint) co
     {
         return true;
     }
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     return endpoint->equivalent(_endpoint);
 }
 
@@ -1278,14 +1269,14 @@ IceInternal::IncomingConnectionFactory::endpoint() const
     {
         return _publishedEndpoint;
     }
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     return _endpoint;
 }
 
 list<ConnectionIPtr>
 IceInternal::IncomingConnectionFactory::connections() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     list<ConnectionIPtr> result;
 
@@ -1380,7 +1371,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
     ThreadPoolMessage<IncomingConnectionFactory> msg(current, *this);
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
 
         ThreadPoolMessage<IncomingConnectionFactory>::IOScope io(msg);
         if(!io)
@@ -1493,7 +1484,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 void
 IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_state < StateClosed)
     {
         if(close)
@@ -1538,7 +1529,7 @@ IceInternal::IncomingConnectionFactory::finish()
 string
 IceInternal::IncomingConnectionFactory::toString() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_transceiver)
     {
         return _transceiver->toString();
@@ -1573,7 +1564,7 @@ IceInternal::IncomingConnectionFactory::getNativeInfo()
 void
 IceInternal::IncomingConnectionFactory::connectionStartCompleted(const Ice::ConnectionIPtr& connection)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     //
     // Initialy, connections are in the holding state. If the factory is active
@@ -1589,7 +1580,7 @@ void
 IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::ConnectionIPtr& /*connection*/,
                                                               const Ice::LocalException&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_state >= StateClosed)
     {
         return;
@@ -1624,7 +1615,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 void
 IceInternal::IncomingConnectionFactory::startAcceptor()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_state >= StateClosed || _acceptorStarted)
     {
         return;
@@ -1637,7 +1628,7 @@ IceInternal::IncomingConnectionFactory::startAcceptor()
 void
 IceInternal::IncomingConnectionFactory::stopAcceptor()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_state >= StateClosed || !_acceptorStarted)
     {
         return;
@@ -1814,7 +1805,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
     }
 
     _state = state;
-    notifyAll();
+    _conditionVariable.notify_all();
 }
 
 void

@@ -471,7 +471,7 @@ private:
 };
 
 template<typename ObserverImplType>
-class ObserverFactoryT : public Updater, private IceUtil::Mutex
+class ObserverFactoryT : public Updater
 {
 public:
 
@@ -496,7 +496,7 @@ public:
     ObserverImplPtrType
     getObserver(const MetricsHelperT<MetricsType>& helper)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(!_metrics)
         {
             return nullptr;
@@ -531,7 +531,8 @@ public:
         {
             return getObserver(helper);
         }
-        IceUtil::Mutex::Lock sync(*this);
+
+        std::lock_guard lock(_mutex);
         if(!_metrics)
         {
             return nullptr;
@@ -573,7 +574,7 @@ public:
     {
         UpdaterPtr updater;
         {
-            IceUtil::Mutex::Lock sync(*this);
+            std::lock_guard lock(_mutex);
             if(!_metrics)
             {
                 return;
@@ -598,13 +599,13 @@ public:
 
     void setUpdater(const UpdaterPtr& updater)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         _updater = updater;
     }
 
     void destroy()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         _metrics = 0;
         _maps.clear();
     }
@@ -616,6 +617,7 @@ private:
     MetricsMapSeqType _maps;
     std::atomic<bool> _enabled;
     UpdaterPtr _updater;
+    std::mutex _mutex;
 };
 
 typedef ObserverT<Metrics> ObserverI;

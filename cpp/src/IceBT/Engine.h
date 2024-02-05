@@ -85,7 +85,7 @@ private:
 
     const Ice::CommunicatorPtr _communicator;
     bool _initialized;
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
+    std::mutex _mutex;
     BluetoothServicePtr _service;
 };
 

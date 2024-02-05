@@ -111,7 +111,6 @@ public:
     ~Gen();
 
     void generate(const UnitPtr&);
-    void generateImpl(const UnitPtr&);
 
 private:
 
@@ -176,32 +175,6 @@ private:
         virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
-    };
-
-    class ImplVisitor : public JavaVisitor
-    {
-    public:
-
-        ImplVisitor(const std::string&);
-
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-
-    protected:
-
-        //
-        // Returns a default value for the type.
-        //
-        std::string getDefaultValue(const std::string&, const TypePtr&, bool);
-
-        //
-        // Generate code to initialize the operation result.
-        //
-        bool initResult(::IceUtilInternal::Output&, const std::string&, const OperationPtr&);
-
-        //
-        // Generate an operation.
-        //
-        void writeOperation(::IceUtilInternal::Output&, const std::string&, const OperationPtr&);
     };
 };
 

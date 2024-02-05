@@ -5,7 +5,6 @@
 #ifndef ICESSL_UTIL_H
 #define ICESSL_UTIL_H
 
-#include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <IceSSL/Plugin.h>
