@@ -538,9 +538,12 @@ LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& wa
     else
     {
         unique_lock lock(_mutex);
-        while(_locators.find(instanceName) == _locators.end() && _pending)
+        while (_locators.find(instanceName) == _locators.end() && _pending)
         {
-            _conditionVariable.wait_until(lock, chrono::steady_clock::now() + waitTime);
+            if (_conditionVariable.wait_until(lock, chrono::steady_clock::now() + waitTime) == cv_status::timeout)
+            {
+                break;
+            }
         }
     }
 
