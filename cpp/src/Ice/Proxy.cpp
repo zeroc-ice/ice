@@ -294,7 +294,7 @@ Ice::ObjectPrx::ice_getEndpoints() const
     EndpointSeq retSeq;
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-        retSeq.push_back(ICE_DYNAMIC_CAST(Endpoint, *p));
+        retSeq.push_back(dynamic_pointer_cast<Endpoint>(*p));
     }
     return retSeq;
 }
@@ -720,12 +720,19 @@ ReferencePtr
 Ice::ObjectPrx::_endpoints(const EndpointSeq& newEndpoints) const
 {
     vector<EndpointIPtr> endpoints;
-    for(EndpointSeq::const_iterator p = newEndpoints.begin(); p != newEndpoints.end(); ++p)
+    for (EndpointSeq::const_iterator p = newEndpoints.begin(); p != newEndpoints.end(); ++p)
     {
         endpoints.push_back(dynamic_pointer_cast<EndpointI>(*p));
     }
 
-    if(endpoints == _reference->getEndpoints())
+    auto currentEndpoints = _reference->getEndpoints();
+
+    if (equal(
+            endpoints.begin(),
+            endpoints.end(),
+            currentEndpoints.begin(),
+            currentEndpoints.end(),
+            targetEqualTo<EndpointIPtr, EndpointIPtr>))
     {
         return _reference;
     }
