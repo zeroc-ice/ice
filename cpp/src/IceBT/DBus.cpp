@@ -941,8 +941,8 @@ public:
 
 private:
 
-    std::mutex _mutex;
-    std::condition_variable _conditionVariable;
+    mutable std::mutex _mutex;
+    mutable std::condition_variable _conditionVariable;
     DBusPendingCall* _call;
     AsyncCallbackPtr _callback;
 
