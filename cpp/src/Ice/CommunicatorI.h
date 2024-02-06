@@ -5,8 +5,6 @@
 #ifndef ICE_COMMUNICATOR_I_H
 #define ICE_COMMUNICATOR_I_H
 
-#include <IceUtil/RecMutex.h>
-
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>

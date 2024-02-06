@@ -24,7 +24,6 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/MutexProtocol.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/RecMutex.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/Thread.h>
