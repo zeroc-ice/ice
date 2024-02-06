@@ -10,6 +10,8 @@
 #include <IceLocatorDiscovery/Plugin.h>
 #include <IceLocatorDiscovery/IceLocatorDiscovery.h>
 
+#include <thread>
+
 using namespace std;
 using namespace IceLocatorDiscovery;
 
