@@ -83,7 +83,8 @@ private:
 #ifdef ICE_USE_IOCP
     HANDLE _handle;
 #else
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
     std::deque<SelectEvent> _events;
 #endif
 };

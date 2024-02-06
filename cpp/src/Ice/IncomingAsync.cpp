@@ -12,6 +12,8 @@
 #include <Ice/Properties.h>
 #include <Ice/ReplyStatus.h>
 
+#include <mutex>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -19,25 +21,7 @@ using namespace IceInternal;
 namespace
 {
 
-IceUtil::Mutex* globalMutex = 0;
-
-class Init
-{
-public:
-
-    Init()
-    {
-        globalMutex = new IceUtil::Mutex;
-    }
-
-    ~Init()
-    {
-        delete globalMutex;
-        globalMutex = 0;
-    }
-};
-
-Init init;
+std::mutex globalMutex;
 
 }
 
@@ -119,7 +103,7 @@ IceInternal::IncomingAsync::completed(exception_ptr ex)
 void
 IceInternal::IncomingAsync::checkResponseSent()
 {
-    IceUtil::Mutex::Lock sync(*globalMutex);
+    lock_guard lock(globalMutex);
     if(_responseSent)
     {
         throw ResponseSentException(__FILE__, __LINE__);

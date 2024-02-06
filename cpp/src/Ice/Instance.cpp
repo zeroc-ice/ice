@@ -1763,7 +1763,7 @@ IceInternal::Instance::updateThreadObservers()
 BufSizeWarnInfo
 IceInternal::Instance::getBufSizeWarn(Short type)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     return getBufSizeWarnInternal(type);
 }
@@ -1791,7 +1791,7 @@ IceInternal::Instance::getBufSizeWarnInternal(Short type)
 void
 IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     BufSizeWarnInfo info = getBufSizeWarnInternal(type);
     info.sndWarn = true;
@@ -1802,7 +1802,7 @@ IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 void
 IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     BufSizeWarnInfo info = getBufSizeWarnInternal(type);
     info.rcvWarn = true;

@@ -4,11 +4,12 @@
 
 #include <IceBT/DBus.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 
 #include <dbus/dbus.h>
+
 #include <stack>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 using namespace IceBT::DBus;
@@ -838,7 +839,7 @@ public:
         //
         bool complete;
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             complete = (::dbus_pending_call_get_completed(_call) && _status == StatusPending);
         }
 
@@ -855,29 +856,26 @@ public:
 
     virtual bool isPending() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
         return _status == StatusPending;
     }
 
     virtual bool isComplete() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
         return _status == StatusComplete;
     }
 
     virtual MessagePtr waitUntilFinished() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-        while(_status == StatusPending)
-        {
-            _lock.wait();
-        }
+        unique_lock lock(_mutex);
+        _conditionVariable.wait(lock, [this] { return _status != StatusPending; });
         return _reply;
     }
 
     virtual MessagePtr getReply() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
         return _reply;
     }
 
@@ -886,7 +884,7 @@ public:
         bool call = false;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             _callback = cb;
             if(_status == StatusComplete)
             {
@@ -913,7 +911,7 @@ public:
         AsyncCallbackPtr cb;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             //
             // Make sure we haven't already handled the reply (see constructor).
@@ -925,7 +923,7 @@ public:
                 _reply = MessageI::adopt(m);
                 _status = StatusComplete;
                 cb = _callback;
-                _lock.notifyAll();
+                _conditionVariable.notify_all();
             }
         }
 
@@ -943,7 +941,8 @@ public:
 
 private:
 
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
     DBusPendingCall* _call;
     AsyncCallbackPtr _callback;
 
@@ -995,14 +994,14 @@ public:
 
     virtual void addFilter(const FilterPtr& f)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         _filters.push_back(f);
     }
 
     virtual void removeFilter(const FilterPtr& f)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         for(vector<FilterPtr>::iterator p = _filters.begin(); p != _filters.end(); ++p)
         {
@@ -1016,7 +1015,7 @@ public:
 
     virtual void addService(const string& path, const ServicePtr& s)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         map<string, ServicePtr>::iterator p = _services.find(path);
         if(p != _services.end())
@@ -1028,7 +1027,7 @@ public:
 
     virtual void removeService(const string& path)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         map<string, ServicePtr>::iterator p = _services.find(path);
         if(p != _services.end())
@@ -1080,7 +1079,7 @@ public:
             ;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             _closed = true;
             _services.clear();
         }
@@ -1128,7 +1127,7 @@ public:
         vector<FilterPtr> filters;
         map<string, ServicePtr> services;
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             filters = _filters;
             services = _services;
         }
@@ -1175,7 +1174,7 @@ private:
     {
         while(::dbus_connection_read_write_dispatch(_connection, 200))
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             if(_closed)
             {
                 break;
@@ -1206,7 +1205,7 @@ private:
 
     DBusConnection* _connection;
     IceUtil::ThreadPtr _thread;
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
+    std::mutex _mutex;
     bool _closed;
     vector<FilterPtr> _filters;
     map<string, ServicePtr> _services;
