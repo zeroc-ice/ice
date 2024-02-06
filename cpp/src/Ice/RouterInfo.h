@@ -120,6 +120,11 @@ public:
     void addProxyException(const Ice::Exception&, const AddProxyCookiePtr&);
     bool addProxy(const Ice::ObjectPrxPtr&, const AddProxyCallbackPtr&);
 
+    bool addProxyAsync(
+        const Ice::ObjectPrxPtr& proxy,
+        std::function<void()> response,
+        std::function<void(std::exception_ptr)> ex);
+
     void setAdapter(const Ice::ObjectAdapterPtr&);
     Ice::ObjectAdapterPtr getAdapter() const;
 

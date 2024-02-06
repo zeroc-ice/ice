@@ -103,9 +103,9 @@ ConnectRequestHandler::getConnection()
     {
         return _connection;
     }
-    else if(_exception)
+    else if (_exception)
     {
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
     return nullptr;
 }
@@ -114,18 +114,18 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::waitForConnection()
 {
     unique_lock lock(_mutex);
-    if(_exception)
+    if (_exception)
     {
         throw RetryException(*_exception);
     }
     //
     // Wait for the connection establishment to complete or fail.
     //
-    _conditionVariable.wait(lock, [this] { return _initialized || _exception; });
+    _conditionVariable.wait(lock, [this] { return _initialized || _exception != nullptr; });
 
-    if(_exception)
+    if (_exception)
     {
-        _exception->ice_throw();
+        rethrow_exception(_exception);
         return 0; // Keep the compiler happy.
     }
     else
@@ -149,9 +149,13 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     // add this proxy to the router info object.
     //
     RouterInfoPtr ri = _reference->getRouterInfo();
-    if(ri && !ri->addProxy(_proxy, shared_from_this()))
+    auto self = shared_from_this();
+    if (ri && !ri->addProxyAsync(
+        _proxy,
+        [self] { self->addedProxy(); },
+        [self](exception_ptr ex) { self->setException(ex); }))
     {
-        return; // The request handler will be initialized once addProxy returns.
+        return; // The request handler will be initialized once addProxyAsync returns.
     }
 
     //
@@ -161,13 +165,13 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 }
 
 void
-ConnectRequestHandler::setException(const Ice::LocalException& ex)
+ConnectRequestHandler::setException(exception_ptr ex)
 {
     {
         lock_guard lock(_mutex);
         assert(!_flushing && !_initialized && !_exception);
         _flushing = true; // Ensures request handler is removed before processing new requests.
-        _exception = ex.ice_clone();
+        _exception = ex;
     }
 
     //

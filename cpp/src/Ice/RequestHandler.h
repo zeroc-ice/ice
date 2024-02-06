@@ -31,14 +31,12 @@ class RetryException
 {
 public:
 
-    RetryException(const Ice::LocalException&);
-    RetryException(const RetryException&);
-
-    const Ice::LocalException* get() const;
+    RetryException(std::exception_ptr);
+    std::exception_ptr get() const;
 
 private:
 
-    std::unique_ptr<Ice::LocalException> _ex;
+    std::exception_ptr _ex;
 };
 
 class CancellationHandler

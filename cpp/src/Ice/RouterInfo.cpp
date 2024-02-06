@@ -263,6 +263,43 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
     return false;
 }
 
+bool
+IceInternal::RouterInfo::addProxyAsync(
+    const Ice::ObjectPrxPtr& proxy,
+    function<void()> response,
+    function<void(exception_ptr)> ex)
+{
+    assert(proxy);
+    {
+        lock_guard lock(_mutex);
+        if(!_hasRoutingTable)
+        {
+            return true; // The router implementation doesn't maintain a routing table.
+        }
+        else if(_identities.find(proxy->ice_getIdentity()) != _identities.end())
+        {
+            //
+            // Only add the proxy to the router if it's not already in our local map.
+            //
+            return true;
+        }
+    }
+
+    Ice::ObjectProxySeq proxies;
+    proxies.push_back(proxy);
+
+    RouterInfoPtr self = this;
+    _router->addProxiesAsync(
+        proxies,
+        [response, self, proxy](Ice::ObjectProxySeq evictedProxies)
+        {
+            self->addAndEvictProxies(proxy, evictedProxies);
+            response();
+        },
+        ex);
+    return false;
+}
+
 void
 IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
 {
