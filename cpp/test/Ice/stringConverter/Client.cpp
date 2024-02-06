@@ -112,8 +112,8 @@ Client::run(int argc, char** argv)
 #endif
 
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-        Test::MyObjectPrxPtr proxy =
-            ICE_UNCHECKED_CAST(Test::MyObjectPrx, communicator->stringToProxy("test:" + getTestEndpoint()));
+        auto proxy =
+            Ice::uncheckedCast<Test::MyObjectPrx>(communicator->stringToProxy("test:" + getTestEndpoint()));
 
         char oe = char(0xBD); // A single character in ISO Latin 9
         string msg = string("tu me fends le c") + oe + "ur!";
@@ -162,8 +162,8 @@ Client::run(int argc, char** argv)
     properties->setProperty("Ice.Plugin.IceStringConverter", propValue);
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    Test::MyObjectPrxPtr proxy =
-        ICE_UNCHECKED_CAST(Test::MyObjectPrx, communicator->stringToProxy("test:" + getTestEndpoint()));
+    auto proxy =
+        Ice::uncheckedCast<Test::MyObjectPrx>(communicator->stringToProxy("test:" + getTestEndpoint()));
 
     char oe = char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";

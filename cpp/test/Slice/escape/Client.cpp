@@ -108,13 +108,13 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     c._cpp_else = "";
 
     _cpp_and::breakPrxPtr d =
-        ICE_UNCHECKED_CAST(_cpp_and::breakPrx, communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
+        Ice::uncheckedCast<_cpp_and::breakPrx>(communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
     int d2;
     d->_cpp_case(0, d2);
     _cpp_and::breakPtr d1 = std::make_shared<breakI>();
 
     _cpp_and::charPrxPtr e =
-        ICE_UNCHECKED_CAST(_cpp_and::charPrx, communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
+        Ice::uncheckedCast<_cpp_and::charPrx>(communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
     e->_cpp_explicit();
     _cpp_and::charPtr e1 = std::make_shared<charI>();
 
@@ -160,8 +160,7 @@ Client::run(int argc, char** argv)
     adapter->activate();
 
     cout << "Testing operation name... " << flush;
-    _cpp_and::charPrxPtr p = ICE_UNCHECKED_CAST(_cpp_and::charPrx,
-                                                adapter->createProxy(Ice::stringToIdentity("test")));
+    _cpp_and::charPrxPtr p = Ice::uncheckedCast<_cpp_and::charPrx>(adapter->createProxy(Ice::stringToIdentity("test")));
     p->_cpp_explicit();
     cout << "ok" << endl;
 }

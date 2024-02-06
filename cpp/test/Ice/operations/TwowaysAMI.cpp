@@ -2095,7 +2095,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 prom.get_future().get();
             }
             {
-                Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
+                Test::MyClassPrxPtr p2 = Ice::checkedCast<Test::MyClassPrx>(p->ice_context(ctx));
                 test(p2->ice_getContext() == ctx);
                 promise<void> prom;
                 p2->opContextAsync(
@@ -2111,7 +2111,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 prom.get_future().get();
             }
             {
-                Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
+                Test::MyClassPrxPtr p2 = Ice::checkedCast<Test::MyClassPrx>(p->ice_context(ctx));
                 promise<void> prom;
                 p2->opContextAsync(
                     [&](Ice::Context c)
@@ -2148,9 +2148,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 ctx["three"] = "THREE";
 
                 Ice::PropertiesPtr properties = ic->getProperties();
-                Test::MyClassPrxPtr q =
-                    ICE_UNCHECKED_CAST(Test::MyClassPrx,
-                                       ic->stringToProxy("test:" + Test::TestHelper::getTestEndpoint(properties)));
+                auto q = Ice::uncheckedCast<Test::MyClassPrx>(
+                    ic->stringToProxy("test:" + Test::TestHelper::getTestEndpoint(properties)));
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 {
@@ -2202,7 +2201,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
 
-                q = ICE_UNCHECKED_CAST(Test::MyClassPrx, q->ice_context(prxContext));
+                q = Ice::uncheckedCast<Test::MyClassPrx>(q->ice_context(prxContext));
 
                 ic->getImplicitContext()->setContext(Ice::Context());
                 {
@@ -2278,7 +2277,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     }
 
     {
-        Test::MyDerivedClassPrxPtr derived = ICE_CHECKED_CAST(Test::MyDerivedClassPrx, p);
+        Test::MyDerivedClassPrxPtr derived = Ice::checkedCast<Test::MyDerivedClassPrx>(p);
         test(derived);
         CallbackPtr cb = make_shared<Callback>();
         derived->opDerivedAsync(
@@ -3657,7 +3656,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     }
 
     {
-        Test::MyDerivedClassPrxPtr derived = ICE_CHECKED_CAST(Test::MyDerivedClassPrx, p);
+        Test::MyDerivedClassPrxPtr derived = Ice::checkedCast<Test::MyDerivedClassPrx>(p);
         test(derived);
         CallbackPtr cb = make_shared<Callback>();
         auto f = derived->opDerivedAsync();

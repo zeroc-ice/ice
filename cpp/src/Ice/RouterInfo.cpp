@@ -78,7 +78,7 @@ IceInternal::RouterManager::erase(const RouterPrxPtr& rtr)
     RouterInfoPtr info;
     if(rtr)
     {
-        RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, rtr->ice_router(nullptr)); // The router cannot be routed.
+        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(rtr->ice_router(nullptr)); // The router cannot be routed.
         lock_guard lock(_mutex);
 
         RouterInfoTable::iterator p = _table.end();

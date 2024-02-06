@@ -169,7 +169,7 @@ TestI::knownPreservedAsKnownPreserved(const ::Ice::Current&)
 void
 TestI::relayKnownPreservedAsBase(RelayPrxPtr r, const ::Ice::Current& c)
 {
-    RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
+    RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
     p->knownPreservedAsBase();
     test(false);
 }
@@ -177,7 +177,7 @@ TestI::relayKnownPreservedAsBase(RelayPrxPtr r, const ::Ice::Current& c)
 void
 TestI::relayKnownPreservedAsKnownPreserved(RelayPrxPtr r, const ::Ice::Current& c)
 {
-    RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
+    RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
     p->knownPreservedAsKnownPreserved();
     test(false);
 }
@@ -209,7 +209,7 @@ TestI::unknownPreservedAsKnownPreserved(const ::Ice::Current&)
 void
 TestI::relayUnknownPreservedAsBase(RelayPrxPtr r, const ::Ice::Current& c)
 {
-    RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
+    RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
     p->unknownPreservedAsBase();
     test(false);
 }
@@ -217,7 +217,7 @@ TestI::relayUnknownPreservedAsBase(RelayPrxPtr r, const ::Ice::Current& c)
 void
 TestI::relayUnknownPreservedAsKnownPreserved(RelayPrxPtr r, const ::Ice::Current& c)
 {
-    RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
+    RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
     p->unknownPreservedAsKnownPreserved();
     test(false);
 }

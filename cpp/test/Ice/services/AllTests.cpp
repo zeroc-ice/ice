@@ -86,8 +86,8 @@ allTests(Test::TestHelper* helper)
 
     {
         cout << "Testing IceStorm stub... " << flush;
-        IceStorm::TopicManagerPrxPtr manager =
-                    ICE_UNCHECKED_CAST(IceStorm::TopicManagerPrx, communicator->stringToProxy("test:default -p 12010"));
+        auto manager =
+            Ice::uncheckedCast<IceStorm::TopicManagerPrx>(communicator->stringToProxy("test:default -p 12010"));
 
         IceStorm::QoS qos;
         IceStorm::TopicPrxPtr topic;
@@ -117,7 +117,7 @@ allTests(Test::TestHelper* helper)
         cout << "Testing IceGrid stub... " << flush;
 
         Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + helper->getTestEndpoint());
-        IceGrid::RegistryPrxPtr registry = ICE_UNCHECKED_CAST(IceGrid::RegistryPrx, base);
+        auto registry = Ice::uncheckedCast<IceGrid::RegistryPrx>(base);
         IceGrid::AdminSessionPrxPtr session;
         IceGrid::AdminPrxPtr admin;
         try

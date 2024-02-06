@@ -339,7 +339,7 @@ InitialI::opF1(Test::F1Ptr f11, Test::F1Ptr& f12, const Ice::Current&)
 Test::F2PrxPtr
 InitialI::opF2(Test::F2PrxPtr f21, Test::F2PrxPtr& f22, const Ice::Current& current)
 {
-    f22 = ICE_UNCHECKED_CAST(F2Prx, current.adapter->getCommunicator()->stringToProxy("F22"));
+    f22 = Ice::uncheckedCast<F2Prx>(current.adapter->getCommunicator()->stringToProxy("F22"));
     return f21;
 }
 
@@ -348,7 +348,7 @@ InitialI::opF3(Test::F3Ptr f31, Test::F3Ptr& f32, const Ice::Current& current)
 {
     f32 = make_shared<F3>();
     f32->f1 = make_shared<F1>("F12");
-    f32->f2 = ICE_UNCHECKED_CAST(F2Prx, current.adapter->getCommunicator()->stringToProxy("F22"));
+    f32->f2 = Ice::uncheckedCast<F2Prx>(current.adapter->getCommunicator()->stringToProxy("F22"));
     return f31;
 }
 

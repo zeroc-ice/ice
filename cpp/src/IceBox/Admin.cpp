@@ -141,7 +141,7 @@ run(const Ice::StringSeq& args)
         base = communicator->stringToProxy(managerProxy);
     }
 
-    IceBox::ServiceManagerPrxPtr manager = ICE_CHECKED_CAST(IceBox::ServiceManagerPrx, base);
+    IceBox::ServiceManagerPrxPtr manager = Ice::checkedCast<IceBox::ServiceManagerPrx>(base);
     if(!manager)
     {
         consoleErr << args[0] << ": `" << base << "' is not an IceBox::ServiceManager" << endl;

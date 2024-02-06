@@ -112,13 +112,13 @@ allTests(Test::TestHelper* helper)
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
-    Test::TestIntfPrxPtr p = ICE_UNCHECKED_CAST(Test::TestIntfPrx, obj);
+    auto p = Ice::uncheckedCast<Test::TestIntfPrx>(obj);
 
     sref = "testController:" + helper->getTestEndpoint(1, "tcp");
     obj = communicator->stringToProxy(sref);
     test(obj);
 
-    Test::TestIntfControllerPrxPtr testController = ICE_UNCHECKED_CAST(Test::TestIntfControllerPrx, obj);
+    Test::TestIntfControllerPrxPtr testController = Ice::uncheckedCast<Test::TestIntfControllerPrx>(obj);
 
     cout << "testing dispatcher... " << flush;
     {

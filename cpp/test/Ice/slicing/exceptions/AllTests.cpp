@@ -57,7 +57,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:" + helper->getTestEndpoint());
-    TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
+    TestIntfPrxPtr test = Ice::checkedCast<TestIntfPrx>(obj);
 
     cout << "base... " << flush;
     {
@@ -684,7 +684,7 @@ allTests(Test::TestHelper* helper)
     }
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
-    RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(make_shared<RelayI>()));
+    RelayPrxPtr relay = Ice::uncheckedCast<RelayPrx>(adapter->addWithUUID(make_shared<RelayI>()));
     adapter->activate();
     test->ice_getConnection()->setAdapter(adapter);
     try

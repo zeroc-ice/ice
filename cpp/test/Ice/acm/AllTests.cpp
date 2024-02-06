@@ -175,8 +175,8 @@ public:
     virtual void
     run()
     {
-        TestIntfPrxPtr proxy = ICE_UNCHECKED_CAST(TestIntfPrx, _communicator->stringToProxy(
-                                                           _adapter->getTestIntf()->ice_toString()));
+        auto proxy = Ice::uncheckedCast<TestIntfPrx>(
+            _communicator->stringToProxy(_adapter->getTestIntf()->ice_toString()));
         try
         {
             auto self = shared_from_this();
@@ -611,7 +611,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     string ref = "communicator:" + helper->getTestEndpoint();
-    RemoteCommunicatorPrxPtr com = ICE_UNCHECKED_CAST(RemoteCommunicatorPrx, communicator->stringToProxy(ref));
+    RemoteCommunicatorPrxPtr com = Ice::uncheckedCast<RemoteCommunicatorPrx>(communicator->stringToProxy(ref));
 
     vector<TestCasePtr> tests;
 

@@ -575,19 +575,19 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         endpoint = os.str();
     }
 
-    MetricsPrxPtr metrics = ICE_CHECKED_CAST(MetricsPrx, communicator->stringToProxy("metrics:" + endpoint));
+    MetricsPrxPtr metrics = Ice::checkedCast<MetricsPrx>(communicator->stringToProxy("metrics:" + endpoint));
     bool collocated = !metrics->ice_getConnection();
 
     cout << "testing metrics admin facet checkedCast... " << flush;
     Ice::ObjectPrxPtr admin = communicator->getAdmin();
 
-    Ice::PropertiesAdminPrxPtr clientProps =  ICE_CHECKED_CAST(Ice::PropertiesAdminPrx, admin, "Properties");
-    IceMX::MetricsAdminPrxPtr clientMetrics = ICE_CHECKED_CAST(IceMX::MetricsAdminPrx, admin, "Metrics");
+    Ice::PropertiesAdminPrxPtr clientProps =  Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
+    IceMX::MetricsAdminPrxPtr clientMetrics = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics");
     test(clientProps && clientMetrics);
 
     admin = metrics->getAdmin();
-    Ice::PropertiesAdminPrxPtr serverProps = ICE_CHECKED_CAST(Ice::PropertiesAdminPrx, admin, "Properties");
-    IceMX::MetricsAdminPrxPtr serverMetrics = ICE_CHECKED_CAST(IceMX::MetricsAdminPrx, admin, "Metrics");
+    Ice::PropertiesAdminPrxPtr serverProps = Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
+    IceMX::MetricsAdminPrxPtr serverMetrics = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics");
     test(serverProps && serverMetrics);
 
     UpdateCallbackIPtr update = make_shared<UpdateCallbackI>(serverProps);
@@ -776,7 +776,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         test(map["active"]->current == 1);
 
         Ice::ObjectPrxPtr cprx = communicator->stringToProxy("controller:" + helper->getTestEndpoint(1));
-        ControllerPrxPtr controller = ICE_CHECKED_CAST(ControllerPrx, cprx);
+        ControllerPrxPtr controller = Ice::checkedCast<ControllerPrx>(cprx);
         controller->hold();
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);

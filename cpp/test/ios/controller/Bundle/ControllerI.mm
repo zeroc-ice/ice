@@ -340,7 +340,7 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     // test on arm64 devices with a debug Ice libraries which require lots of stack space.
     //
     helper->start(768 * 1024);
-    return ICE_UNCHECKED_CAST(ProcessPrx, c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper.get())));
+    return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper.get())));
 }
 
 string

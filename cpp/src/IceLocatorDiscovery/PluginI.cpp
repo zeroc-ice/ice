@@ -269,21 +269,20 @@ PluginI::initialize()
     // No collocation optimization for the multicast proxy!
     lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullptr);
 
-    Ice::LocatorPrxPtr voidLocator = ICE_UNCHECKED_CAST(Ice::LocatorPrx,
-                                                        _locatorAdapter->addWithUUID(make_shared<VoidLocatorI>()));
+    auto voidLocator = Ice::uncheckedCast<Ice::LocatorPrx>(_locatorAdapter->addWithUUID(make_shared<VoidLocatorI>()));
 
     string instanceName = properties->getProperty(_name + ".InstanceName");
     Ice::Identity id;
     id.name = "Locator";
     id.category = !instanceName.empty() ? instanceName : Ice::generateUUID();
-    _locator = make_shared<LocatorI>(_name, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties, instanceName,
+    _locator = make_shared<LocatorI>(_name, Ice::uncheckedCast<LookupPrx>(lookupPrx), properties, instanceName,
                                voidLocator);
     _defaultLocator = _communicator->getDefaultLocator();
-    _locatorPrx = ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->add(_locator, id));
+    _locatorPrx = Ice::uncheckedCast<Ice::LocatorPrx>(_locatorAdapter->add(_locator, id));
     _communicator->setDefaultLocator(_locatorPrx);
 
     Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(make_shared<LookupReplyI>(_locator))->ice_datagram();
-    _locator->setLookupReply(ICE_UNCHECKED_CAST(LookupReplyPrx, lookupReply));
+    _locator->setLookupReply(Ice::uncheckedCast<LookupReplyPrx>(lookupReply));
 
     _replyAdapter->activate();
     _locatorAdapter->activate();

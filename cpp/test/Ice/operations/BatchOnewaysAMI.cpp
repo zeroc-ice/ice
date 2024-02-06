@@ -89,7 +89,7 @@ void
 batchOnewaysAMI(const Test::MyClassPrxPtr& p)
 {
     const Test::ByteS bs1(10 * 1024);
-    Test::MyClassPrxPtr batch = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
+    Test::MyClassPrxPtr batch = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
     promise<void> prom;
     batch->ice_flushBatchRequestsAsync(nullptr,
         [&](bool sentSynchronously)
