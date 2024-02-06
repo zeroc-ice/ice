@@ -7,7 +7,6 @@
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Timer.h>
 #include <Ice/StringConverter.h>

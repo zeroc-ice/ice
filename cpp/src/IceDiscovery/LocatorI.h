@@ -13,7 +13,7 @@
 namespace IceDiscovery
 {
 
-class LocatorRegistryI : public Ice::LocatorRegistry, private IceUtil::Mutex
+class LocatorRegistryI : public Ice::LocatorRegistry
 {
 public:
 
@@ -48,6 +48,7 @@ private:
     const Ice::ObjectPrxPtr _wellKnownProxy;
     std::map<std::string, Ice::ObjectPrxPtr> _adapters;
     std::map<std::string, std::set<std::string> > _replicaGroups;
+    mutable std::mutex _mutex;
 };
 using LocatorRegistryIPtr = std::shared_ptr<LocatorRegistryI>;
 

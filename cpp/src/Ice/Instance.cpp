@@ -203,7 +203,7 @@ private:
 
     virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     std::atomic<bool> _hasObserver;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 };
@@ -213,7 +213,7 @@ private:
 void
 Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     assert(obsv);
     _observer.attach(obsv->getThreadObserver("Communicator",
                                             "Ice.Timer",
@@ -229,7 +229,7 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
     {
         Ice::Instrumentation::ThreadObserverPtr threadObserver;
         {
-            IceUtil::Mutex::Lock sync(_mutex);
+            lock_guard lock(_mutex);
             threadObserver = _observer.get();
         }
         if(threadObserver)
