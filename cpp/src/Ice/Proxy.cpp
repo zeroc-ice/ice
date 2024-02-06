@@ -742,7 +742,7 @@ Ice::ObjectPrx::_fixed(const ::Ice::ConnectionPtr& connection) const
     {
         throw invalid_argument("invalid null connection passed to ice_fixed");
     }
-    ::Ice::ConnectionIPtr impl = ICE_DYNAMIC_CAST(::Ice::ConnectionI, connection);
+    auto impl = dynamic_pointer_cast<Ice::ConnectionI>(connection);
     if (!impl)
     {
         throw invalid_argument("invalid connection passed to ice_fixed");
