@@ -15,8 +15,8 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     string ref = "test:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    Test::MyClassPrxPtr cl = ICE_CHECKED_CAST(Test::MyClassPrx, base);
-    Test::MyDerivedClassPrxPtr derived = ICE_CHECKED_CAST(Test::MyDerivedClassPrx, cl);
+    Test::MyClassPrxPtr cl = Ice::checkedCast<Test::MyClassPrx>(base);
+    Test::MyDerivedClassPrxPtr derived = Ice::checkedCast<Test::MyDerivedClassPrx>(cl);
 
     cout << "testing twoway operations... " << flush;
     void twoways(const Ice::CommunicatorPtr&, Test::TestHelper*, const Test::MyClassPrxPtr&);

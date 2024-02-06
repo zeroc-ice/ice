@@ -86,10 +86,10 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    HoldPrxPtr hold = ICE_CHECKED_CAST(HoldPrx, base);
+    HoldPrxPtr hold = Ice::checkedCast<HoldPrx>(base);
     test(hold);
     test(Ice::targetEqualTo(hold, base));
-    HoldPrxPtr holdSerialized = ICE_CHECKED_CAST(HoldPrx, baseSerialized);
+    HoldPrxPtr holdSerialized = Ice::checkedCast<HoldPrx>(baseSerialized);
     test(holdSerialized);
 
     test(Ice::targetEqualTo(holdSerialized, baseSerialized));

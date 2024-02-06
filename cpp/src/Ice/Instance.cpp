@@ -716,7 +716,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
     const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
     if(locator && serverId != "")
     {
-        ProcessPrxPtr process = ICE_UNCHECKED_CAST(ProcessPrx, admin->ice_facet("Process"));
+        ProcessPrxPtr process = Ice::uncheckedCast<ProcessPrx>(admin->ice_facet("Process"));
         try
         {
             //
@@ -1469,7 +1469,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if(!_referenceFactory->getDefaultRouter())
     {
-        RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, _proxyFactory->propertyToProxy("Ice.Default.Router"));
+        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_proxyFactory->propertyToProxy("Ice.Default.Router"));
         if(router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1478,7 +1478,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if(!_referenceFactory->getDefaultLocator())
     {
-        LocatorPrxPtr locator = ICE_UNCHECKED_CAST(LocatorPrx, _proxyFactory->propertyToProxy("Ice.Default.Locator"));
+        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
         if(locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);

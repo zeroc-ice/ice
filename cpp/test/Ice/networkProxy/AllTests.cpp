@@ -42,7 +42,7 @@ allTests(Test::TestHelper* helper)
         proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.SOCKSProxyPort");
     }
 
-    TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
+    TestIntfPrxPtr test = Ice::checkedCast<TestIntfPrx>(obj);
     test(test);
 
     cout << "testing connection... " << flush;

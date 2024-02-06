@@ -680,7 +680,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:" + helper->getTestEndpoint());
-    TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
+    TestIntfPrxPtr test = Ice::checkedCast<TestIntfPrx>(obj);
 
     cout << "base as Object... " << flush;
     {

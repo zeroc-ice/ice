@@ -63,8 +63,8 @@ Client::run(int argc, char* argv[])
     InterceptorIPtr interceptor = make_shared<InterceptorI>(servant);
     AMDInterceptorIPtr amdInterceptor = make_shared<AMDInterceptorI>(servant);
 
-    Test::MyObjectPrxPtr prx = ICE_UNCHECKED_CAST(Test::MyObjectPrx, oa->addWithUUID(interceptor));
-    Test::MyObjectPrxPtr prxForAMD = ICE_UNCHECKED_CAST(Test::MyObjectPrx, oa->addWithUUID(amdInterceptor));
+    Test::MyObjectPrxPtr prx = Ice::uncheckedCast<Test::MyObjectPrx>(oa->addWithUUID(interceptor));
+    Test::MyObjectPrxPtr prxForAMD = Ice::uncheckedCast<Test::MyObjectPrx>(oa->addWithUUID(amdInterceptor));
 
     cout << "Collocation optimization on" << endl;
     runTest(prx, interceptor);
@@ -76,12 +76,12 @@ Client::run(int argc, char* argv[])
 
     cout << "Collocation optimization off" << endl;
     interceptor->clear();
-    prx = ICE_UNCHECKED_CAST(Test::MyObjectPrx, prx->ice_collocationOptimized(false));
+    prx = Ice::uncheckedCast<Test::MyObjectPrx>(prx->ice_collocationOptimized(false));
     runTest(prx, interceptor);
 
     cout << "Now with AMD" << endl;
     amdInterceptor->clear();
-    prxForAMD = ICE_UNCHECKED_CAST(Test::MyObjectPrx, prxForAMD->ice_collocationOptimized(false));
+    prxForAMD = Ice::uncheckedCast<Test::MyObjectPrx>(prxForAMD->ice_collocationOptimized(false));
     runAmdTest(prxForAMD, amdInterceptor);
 #ifndef _WIN32
     //

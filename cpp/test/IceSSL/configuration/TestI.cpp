@@ -91,7 +91,7 @@ ServerFactoryI::createServer(Test::Properties props, const Current&)
     _servers[obj->ice_getIdentity()] = server;
     adapter->activate();
 
-    return ICE_UNCHECKED_CAST(Test::ServerPrx, obj);
+    return Ice::uncheckedCast<Test::ServerPrx>(obj);
 }
 
 void

@@ -18,7 +18,7 @@ testUOE(const Ice::CommunicatorPtr& communicator)
     string ref = "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties());
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
-    UnexpectedObjectExceptionTestPrxPtr uoet = ICE_UNCHECKED_CAST(UnexpectedObjectExceptionTestPrx, base);
+    UnexpectedObjectExceptionTestPrxPtr uoet = Ice::uncheckedCast<UnexpectedObjectExceptionTestPrx>(base);
     test(uoet);
     try
     {
@@ -93,7 +93,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    InitialPrxPtr initial = ICE_CHECKED_CAST(InitialPrx, base);
+    InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
     test(initial);
     test(Ice::targetEqualTo(initial, base));
     cout << "ok" << endl;
@@ -387,9 +387,8 @@ allTests(Test::TestHelper* helper)
     try
     {
         Ice::PropertiesPtr properties = communicator->getProperties();
-        TestIntfPrxPtr p =
-            ICE_CHECKED_CAST(TestIntfPrx,
-                             communicator->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
+        TestIntfPrxPtr p = Ice::checkedCast<TestIntfPrx>(
+            communicator->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
 
         cout << "testing Object factory registration... " << flush;
         {
@@ -453,8 +452,9 @@ allTests(Test::TestHelper* helper)
         test(f12->name == "F12");
 
         F2PrxPtr f22;
-        F2PrxPtr f21 = initial->opF2(ICE_UNCHECKED_CAST(F2Prx,
-            communicator->stringToProxy("F21:" + helper->getTestEndpoint())), f22);
+        F2PrxPtr f21 = initial->opF2(Ice::uncheckedCast<F2Prx>(
+                                         communicator->stringToProxy("F21:" + helper->getTestEndpoint())),
+                                     f22);
         test(f21->ice_getIdentity().name == "F21");
         f21->op();
         test(f22->ice_getIdentity().name == "F22");

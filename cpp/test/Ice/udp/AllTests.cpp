@@ -61,12 +61,12 @@ allTests(Test::TestHelper* helper)
     communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ReplyAdapter");
     PingReplyIPtr replyI = std::make_shared<PingReplyI>();
-    PingReplyPrxPtr reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
+    PingReplyPrxPtr reply = Ice::uncheckedCast<PingReplyPrx>(adapter->addWithUUID(replyI))->ice_datagram();
     adapter->activate();
 
     cout << "testing udp... " << flush;
     ObjectPrxPtr base = communicator->stringToProxy("test -d:" + helper->getTestEndpoint("udp"));
-    TestIntfPrxPtr obj = ICE_UNCHECKED_CAST(TestIntfPrx, base);
+    TestIntfPrxPtr obj = Ice::uncheckedCast<TestIntfPrx>(base);
 
     int nRetry = 5;
     bool ret = false;
@@ -85,7 +85,7 @@ allTests(Test::TestHelper* helper)
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = std::make_shared<PingReplyI>();
-        reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
+        reply = Ice::uncheckedCast<PingReplyPrx>(adapter->addWithUUID(replyI))->ice_datagram();
     }
     test(ret);
 
@@ -146,7 +146,7 @@ allTests(Test::TestHelper* helper)
 #endif
     }
     base = communicator->stringToProxy("test -d:" + endpoint.str());
-    TestIntfPrxPtr objMcast = ICE_UNCHECKED_CAST(TestIntfPrx, base);
+    TestIntfPrxPtr objMcast = Ice::uncheckedCast<TestIntfPrx>(base);
 #if (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
     cout << "testing udp multicast... " << flush;
 
@@ -176,7 +176,7 @@ allTests(Test::TestHelper* helper)
             break; // Success
         }
         replyI = std::make_shared<PingReplyI>();
-        reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
+        reply = Ice::uncheckedCast<PingReplyPrx>(adapter->addWithUUID(replyI))->ice_datagram();
     }
     if(!ret)
     {
@@ -206,7 +206,7 @@ allTests(Test::TestHelper* helper)
         // If the 3 datagrams were not received within the 2 seconds, we try again to
         // receive 3 new datagrams using a new object. We give up after 5 retries.
         replyI = std::make_shared<PingReplyI>();
-        reply = ICE_UNCHECKED_CAST(PingReplyPrx, adapter->addWithUUID(replyI))->ice_datagram();
+        reply = Ice::uncheckedCast<PingReplyPrx>(adapter->addWithUUID(replyI))->ice_datagram();
     }
     test(ret);
     cout << "ok" << endl;

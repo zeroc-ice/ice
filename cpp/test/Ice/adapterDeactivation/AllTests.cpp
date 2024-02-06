@@ -20,7 +20,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
     test(Ice::targetEqualTo(obj, base));
     cout << "ok" << endl;
@@ -113,7 +113,7 @@ allTests(Test::TestHelper* helper)
     {
         Ice::Identity routerId;
         routerId.name = "router";
-        Ice::RouterPrxPtr router = ICE_UNCHECKED_CAST(Ice::RouterPrx, base->ice_identity(routerId)->ice_connectionId("rc"));
+        auto router = Ice::uncheckedCast<Ice::RouterPrx>(base->ice_identity(routerId)->ice_connectionId("rc"));
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("", router);
         test(adapter->getPublishedEndpoints().size() == 1);
         test(adapter->getPublishedEndpoints()[0]->toString() == "tcp -h localhost -p 23456 -t 30000");
@@ -134,7 +134,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             routerId.name = "test";
-            router = ICE_UNCHECKED_CAST(Ice::RouterPrx, base->ice_identity(routerId));
+            router = Ice::uncheckedCast<Ice::RouterPrx>(base->ice_identity(routerId));
             communicator->createObjectAdapterWithRouter("", router);
             test(false);
         }
@@ -145,8 +145,8 @@ allTests(Test::TestHelper* helper)
 
         try
         {
-            router = ICE_UNCHECKED_CAST(Ice::RouterPrx,
-                                        communicator->stringToProxy("test:" + helper->getTestEndpoint(1)));
+            router = Ice::uncheckedCast<Ice::RouterPrx>(
+                communicator->stringToProxy("test:" + helper->getTestEndpoint(1)));
             communicator->createObjectAdapterWithRouter("", router);
             test(false);
         }

@@ -74,7 +74,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
 {
     const Test::ByteS bs1(10  * 1024);
 
-    Test::MyClassPrxPtr batch = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
+    Test::MyClassPrxPtr batch = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
 
     batch->ice_flushBatchRequests(); // Empty flush
     if(batch->ice_getConnection())
@@ -108,8 +108,8 @@ batchOneways(const Test::MyClassPrxPtr& p)
     if(batch->ice_getConnection() &&
        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
     {
-        Test::MyClassPrxPtr batch1 = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
-        Test::MyClassPrxPtr batch2 = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_batchOneway());
+        Test::MyClassPrxPtr batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
+        Test::MyClassPrxPtr batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
 
         batch1->ice_ping();
         batch2->ice_ping();
@@ -154,7 +154,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
         Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
         Test::MyClassPrxPtr batch4 =
-            ICE_UNCHECKED_CAST(Test::MyClassPrx, ic->stringToProxy(p->ice_toString()))->ice_batchOneway();
+            Ice::uncheckedCast<Test::MyClassPrx>(ic->stringToProxy(p->ice_toString()))->ice_batchOneway();
 
         test(interceptor->count() == 0);
         batch4->ice_ping();
@@ -198,9 +198,9 @@ batchOneways(const Test::MyClassPrxPtr& p)
     {
         Ice::ObjectPrxPtr prx = batch->ice_getConnection()->createProxy(batch->ice_getIdentity())->ice_batchOneway();
 
-        Test::MyClassPrxPtr batch1 = ICE_UNCHECKED_CAST(Test::MyClassPrx, prx->ice_compress(false));
-        Test::MyClassPrxPtr batch2 = ICE_UNCHECKED_CAST(Test::MyClassPrx, prx->ice_compress(true));
-        Test::MyClassPrxPtr batch3 = ICE_UNCHECKED_CAST(Test::MyClassPrx, prx->ice_identity(identity));
+        Test::MyClassPrxPtr batch1 = Ice::uncheckedCast<Test::MyClassPrx>(prx->ice_compress(false));
+        Test::MyClassPrxPtr batch2 = Ice::uncheckedCast<Test::MyClassPrx>(prx->ice_compress(true));
+        Test::MyClassPrxPtr batch3 = Ice::uncheckedCast<Test::MyClassPrx>(prx->ice_identity(identity));
 
         batch1->opByteSOneway(bs1);
         batch1->opByteSOneway(bs1);

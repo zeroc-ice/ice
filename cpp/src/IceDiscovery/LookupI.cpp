@@ -37,7 +37,7 @@ IceDiscovery::Request::invoke(const string& domainId, const vector<pair<LookupPr
     id.name = _requestId;
     for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::const_iterator p = lookups.begin(); p != lookups.end(); ++p)
     {
-        invokeWithLookup(domainId, p->first, ICE_UNCHECKED_CAST(LookupReplyPrx, p->second->ice_identity(id)));
+        invokeWithLookup(domainId, p->first, Ice::uncheckedCast<LookupReplyPrx>(p->second->ice_identity(id)));
     }
 }
 

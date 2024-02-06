@@ -164,7 +164,7 @@ allTests(Test::TestHelper* helper)
     string endpoints = helper->getTestEndpoint() + ":" + helper->getTestEndpoint("udp") + " -c";
     int port = helper->getTestPort();
     Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + endpoints);
-    TestIntfPrxPtr testIntf = ICE_CHECKED_CAST(TestIntfPrx, base);
+    TestIntfPrxPtr testIntf = Ice::checkedCast<TestIntfPrx>(base);
 
     cout << "test connection endpoint information... " << flush;
     {

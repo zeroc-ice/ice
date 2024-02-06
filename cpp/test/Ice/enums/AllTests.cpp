@@ -16,7 +16,7 @@ allTests(Test::TestHelper* helper)
     string ref = "test:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(ref);
     test(obj);
-    TestIntfPrxPtr proxy = ICE_CHECKED_CAST(TestIntfPrx, obj);
+    TestIntfPrxPtr proxy = Ice::checkedCast<TestIntfPrx>(obj);
     test(proxy);
 
     cout << "testing enum values... " << flush;
