@@ -125,9 +125,7 @@ private:
 };
 using AdapterRequestPtr = std::shared_ptr<AdapterRequest>;
 
-class LookupI : public Lookup,
-                public std::enable_shared_from_this<LookupI>,
-                private IceUtil::Mutex
+class LookupI : public Lookup, public std::enable_shared_from_this<LookupI>
 {
 public:
 
@@ -181,6 +179,7 @@ private:
 
     std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
     std::map<std::string, AdapterRequestPtr> _adapterRequests;
+    std::mutex _mutex;
 };
 
 class LookupReplyI : public LookupReply
