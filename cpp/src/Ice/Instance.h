@@ -18,7 +18,6 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ReferenceFactoryF.h>
-#include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ACM.h>
@@ -54,6 +53,9 @@ using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
 
 class RequestHandlerFactory;
 typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;
+
+class ProxyFactory;
+using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
 
 //
 // Structure to track warnings for attempts to set socket buffer sizes

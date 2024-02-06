@@ -1207,11 +1207,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _locatorManager = new LocatorManager(_initData.properties);
 
-        _referenceFactory = new ReferenceFactory(this, communicator);
+        _referenceFactory = make_shared<ReferenceFactory>(this, communicator);
 
         _requestHandlerFactory = new RequestHandlerFactory(this);
 
-        _proxyFactory = new ProxyFactory(this);
+        _proxyFactory = make_shared<ProxyFactory>(this);
 
         const bool isIPv6Supported = IceInternal::isIPv6Supported();
         const bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
@@ -1699,9 +1699,9 @@ IceInternal::Instance::destroy()
         _endpointHostResolver = 0;
         _timer = 0;
 
-        _referenceFactory = 0;
+        _referenceFactory = nullptr;
         _requestHandlerFactory = 0;
-        _proxyFactory = 0;
+        _proxyFactory = nullptr;
         _routerManager = 0;
         _locatorManager = 0;
         _endpointFactoryManager = 0;
