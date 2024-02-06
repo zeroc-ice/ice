@@ -1516,7 +1516,7 @@ ServiceStatusManager::run()
     {
         _status.dwCheckPoint++;
         SetServiceStatus(_handle, &_status);
-        _conditionVariable.wait_until(lock, chrono::system_clock::now() + delay);
+        _conditionVariable.wait_for(lock, delay);
     }
 }
 

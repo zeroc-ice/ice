@@ -1156,8 +1156,7 @@ IceInternal::ThreadPool::followerWait(ThreadPoolCurrent& current, unique_lock<mu
     {
         if(_threadIdleTime)
         {
-            if(_conditionVariable.wait_until(lock, chrono::steady_clock::now() + chrono::seconds(_threadIdleTime)) !=
-               cv_status::no_timeout)
+            if(_conditionVariable.wait_for(lock, chrono::seconds(_threadIdleTime)) != cv_status::no_timeout)
             {
                 if(!_destroyed && (!_promote || _inUseIO == _sizeIO ||
                                    (_nextHandler == _handlers.end() && _inUseIO > 0)))

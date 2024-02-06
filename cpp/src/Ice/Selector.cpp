@@ -185,7 +185,7 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
     unique_lock lock(_mutex);
     if(timeout > 0)
     {
-        _monitor.wait_until(lock, chrono::steady_clock::now() + chrono::seconds(timeout));
+        _monitor.wait_for(lock, chrono::seconds(timeout));
         if(_events.empty())
         {
             throw SelectorTimeoutException();

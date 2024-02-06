@@ -738,10 +738,7 @@ LoggerAdminLoggerI::run()
     for(;;)
     {
         unique_lock lock(_mutex);
-        while (!_destroyed && _jobQueue.empty())
-        {
-            _conditionVariable.wait(lock);
-        }
+        _conditionVariable.wait(lock, [this] { return _destroyed || !_jobQueue.empty(); });
 
         if(_destroyed)
         {
