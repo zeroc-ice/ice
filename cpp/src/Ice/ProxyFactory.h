@@ -5,8 +5,6 @@
 #ifndef ICE_PROXY_FACTORY_H
 #define ICE_PROXY_FACTORY_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/ProxyFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ProxyF.h>
@@ -25,9 +23,11 @@ class InputStream;
 namespace IceInternal
 {
 
-class ProxyFactory : public IceUtil::Shared
+class ProxyFactory
 {
 public:
+
+    ProxyFactory(const InstancePtr&);
 
     Ice::ObjectPrxPtr stringToProxy(const std::string&) const;
     std::string proxyToString(const Ice::ObjectPrxPtr&) const;
@@ -43,13 +43,11 @@ public:
 
 private:
 
-    ProxyFactory(const InstancePtr&);
-    virtual ~ProxyFactory();
-    friend class Instance;
-
     InstancePtr _instance;
     std::vector<int> _retryIntervals;
 };
+
+using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
 
 }
 

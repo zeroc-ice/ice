@@ -6,7 +6,6 @@
 #include <Ice/CollocatedRequestHandler.h>
 #include <Ice/ConnectRequestHandler.h>
 #include <Ice/CollocatedRequestHandler.h>
-#include <Ice/Reference.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Instance.h>
 
@@ -34,7 +33,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
     if(ref->getCacheConnection())
     {
         lock_guard lock(_mutex);
-        map<ReferencePtr, ConnectRequestHandlerPtr>::iterator p = _handlers.find(ref);
+        auto p = _handlers.find(ref);
         if(p == _handlers.end())
         {
             handler = make_shared<ConnectRequestHandler>(ref, proxy);
@@ -64,7 +63,7 @@ IceInternal::RequestHandlerFactory::removeRequestHandler(const ReferencePtr& ref
     if(ref->getCacheConnection())
     {
         lock_guard lock(_mutex);
-        map<ReferencePtr, ConnectRequestHandlerPtr>::iterator p = _handlers.find(ref);
+        auto p = _handlers.find(ref);
         if(p != _handlers.end() && p->second.get() == handler.get())
         {
             _handlers.erase(p);

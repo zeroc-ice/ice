@@ -18,11 +18,4 @@ using ObjectPrxPtr = ::std::shared_ptr<ObjectPrx>;
 
 }
 
-namespace IceInternal
-{
-
-template<typename P>
-::std::shared_ptr<P> createProxy();
-
-}
 #endif

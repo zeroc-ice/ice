@@ -5,7 +5,6 @@
 #ifndef ICE_REFERENCE_H
 #define ICE_REFERENCE_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/EndpointIF.h>
@@ -34,9 +33,11 @@ class OutputStream;
 namespace IceInternal
 {
 
-class Reference : public IceUtil::Shared
+class Reference : public std::enable_shared_from_this<Reference>
 {
 public:
+
+    virtual ~Reference() = default;
 
     class GetConnectionCallback
     {
@@ -134,7 +135,7 @@ public:
     virtual std::string toString() const;
 
     //
-    // Convert the refernce to its property form.
+    // Convert the reference to its property form.
     //
     virtual Ice::PropertyDict toProperty(const std::string&) const = 0;
 
@@ -188,6 +189,8 @@ public:
                    bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const Ice::ConnectionIPtr&,
                    int, const Ice::Context&, const std::optional<bool>&);
 
+    FixedReference(const FixedReference&);
+
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;
     virtual bool getCollocationOptimized() const;
@@ -228,10 +231,10 @@ public:
 
 private:
 
-    FixedReference(const FixedReference&);
-
     Ice::ConnectionIPtr _fixedConnection;
 };
+
+using FixedReferencePtr = std::shared_ptr<FixedReference>;
 
 class RoutableReference : public Reference
 {
@@ -241,6 +244,8 @@ public:
                       bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::vector<EndpointIPtr>&,
                       const std::string&, const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool,
                       Ice::EndpointSelectionType, int, int, const Ice::Context&);
+
+    RoutableReference(const RoutableReference&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;
@@ -293,8 +298,6 @@ public:
 
 protected:
 
-    RoutableReference(const RoutableReference&);
-
     std::vector<EndpointIPtr> filterEndpoints(const std::vector<EndpointIPtr>&) const;
 
     virtual int hashInit() const;
@@ -316,6 +319,8 @@ private:
     int _timeout; // Only used if _overrideTimeout == true
     std::string _connectionId;
 };
+
+using RoutableReferencePtr = std::shared_ptr<RoutableReference>;
 
 }
 

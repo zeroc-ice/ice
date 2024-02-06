@@ -8,7 +8,6 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/ProxyF.h>
-#include <Ice/ProxyFactoryF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/RequestHandlerF.h>
 #include <Ice/EndpointF.h>
@@ -142,7 +141,7 @@ class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
 {
 public:
 
-    InvokeLambdaOutgoing(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
+    InvokeLambdaOutgoing(const std::shared_ptr<::Ice::ObjectPrx>& proxy,
                          ::std::function<void(R)> response,
                          ::std::function<void(::std::exception_ptr)> ex,
                          ::std::function<void(bool)> sent) :
@@ -203,8 +202,8 @@ class ProxyGetConnectionLambda : public ProxyGetConnection, public LambdaInvoke
 {
 public:
 
-    ProxyGetConnectionLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
-                             ::std::function<void(::std::shared_ptr<Ice::Connection>)> response,
+    ProxyGetConnectionLambda(const std::shared_ptr<::Ice::ObjectPrx>& proxy,
+                             ::std::function<void(std::shared_ptr<Ice::Connection>)> response,
                              ::std::function<void(::std::exception_ptr)> ex,
                              ::std::function<void(bool)> sent) :
         ProxyGetConnection(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
@@ -221,7 +220,7 @@ class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvok
 {
 public:
 
-    ProxyGetConnectionPromise(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy) : ProxyGetConnection(proxy)
+    ProxyGetConnectionPromise(const std::shared_ptr<::Ice::ObjectPrx>& proxy) : ProxyGetConnection(proxy)
     {
         this->_response = [&](bool)
         {
@@ -234,7 +233,7 @@ class ProxyFlushBatchLambda : public ProxyFlushBatchAsync, public LambdaInvoke
 {
 public:
 
-    ProxyFlushBatchLambda(const ::std::shared_ptr<::Ice::ObjectPrx>& proxy,
+    ProxyFlushBatchLambda(const std::shared_ptr<::Ice::ObjectPrx>& proxy,
                           ::std::function<void(::std::exception_ptr)> ex,
                           ::std::function<void(bool)> sent) :
         ProxyFlushBatchAsync(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
@@ -265,10 +264,257 @@ class LocalException;
 class OutputStream;
 
 /**
+ * Helper template that supplies typed proxy factory functions.
+ * \headerfile Ice/Ice.h
+ */
+template<typename Prx, typename... Bases>
+class Proxy : public virtual Bases...
+{
+public:
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the adapter ID.
+     * @param id The adapter ID for the new proxy.
+     * @return A proxy with the new adapter ID.
+     */
+    std::shared_ptr<Prx> ice_adapterId(const std::string& id) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_adapterId(id));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, but uses batch datagram invocations.
+     * @return A proxy that uses batch datagram invocations.
+     */
+    std::shared_ptr<Prx> ice_batchDatagram() const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_batchDatagram());
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, but uses batch oneway invocations.
+     * @return A proxy that uses batch oneway invocations.
+     */
+    std::shared_ptr<Prx> ice_batchOneway() const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_batchOneway());
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for collocation optimization.
+     * @param b True if the new proxy enables collocation optimization, false otherwise.
+     * @return A proxy with the specified collocation optimization.
+     */
+    std::shared_ptr<Prx> ice_collocationOptimized(bool b) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_collocationOptimized(b));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for its compression setting which
+     * overrides the compression setting from the proxy endpoints.
+     * @param b True enables compression for the new proxy, false disables compression.
+     * @return A proxy with the specified compression override setting.
+     */
+    std::shared_ptr<Prx> ice_compress(bool b) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_compress(b));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for connection caching.
+     * @param b True if the new proxy should cache connections, false otherwise.
+     * @return A proxy with the specified caching policy.
+     */
+    std::shared_ptr<Prx> ice_connectionCached(bool b) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_connectionCached(b));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for its connection ID.
+     * @param id The connection ID for the new proxy. An empty string removes the
+     * connection ID.
+     * @return A proxy with the specified connection ID.
+     */
+    std::shared_ptr<Prx> ice_connectionId(const ::std::string& id) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_connectionId(id));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the per-proxy context.
+     * @param context The context for the new proxy.
+     * @return A proxy with the new per-proxy context.
+     */
+    std::shared_ptr<Prx> ice_context(const ::Ice::Context& context) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_context(context));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, but uses datagram invocations.
+     * @return A proxy that uses datagram invocations.
+     */
+    std::shared_ptr<Prx> ice_datagram() const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_datagram());
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the encoding used to marshal
+     * parameters.
+     * @param version The encoding version to use to marshal request parameters.
+     * @return A proxy with the specified encoding version.
+     */
+    std::shared_ptr<Prx> ice_encodingVersion(const ::Ice::EncodingVersion& version) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_encodingVersion(version));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the endpoint selection policy.
+     * @param type The new endpoint selection policy.
+     * @return A proxy with the specified endpoint selection policy.
+     */
+    std::shared_ptr<Prx> ice_endpointSelection(::Ice::EndpointSelectionType type) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_endpointSelection(type));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the endpoints.
+     * @param endpoints The endpoints for the new proxy.
+     * @return A proxy with the new endpoints.
+     */
+    std::shared_ptr<Prx> ice_endpoints(const ::Ice::EndpointSeq& endpoints) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_endpoints(endpoints));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    std::shared_ptr<Prx> ice_fixed(const std::shared_ptr<::Ice::Connection>& connection) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_fixed(connection));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the invocation timeout.
+     * @param timeout The new invocation timeout (in milliseconds).
+     * @return A proxy with the new timeout.
+     */
+    std::shared_ptr<Prx> ice_invocationTimeout(int timeout) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_invocationTimeout(timeout));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the locator.
+     * @param locator The locator for the new proxy.
+     * @return A proxy with the specified locator.
+     */
+    std::shared_ptr<Prx> ice_locator(const std::shared_ptr<::Ice::LocatorPrx>& locator) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_locator(locator));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the locator cache timeout.
+     * @param timeout The new locator cache timeout (in seconds).
+     * @return A proxy with the new timeout.
+     */
+    std::shared_ptr<Prx> ice_locatorCacheTimeout(int timeout) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_locatorCacheTimeout(timeout));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, but uses oneway invocations.
+     * @return A proxy that uses oneway invocations.
+     */
+    std::shared_ptr<Prx> ice_oneway() const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_oneway());
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for its endpoint selection policy.
+     * @param b If true, the new proxy will use secure endpoints for invocations and only use
+     * insecure endpoints if an invocation cannot be made via secure endpoints. If false, the
+     * proxy prefers insecure endpoints to secure ones.
+     * @return A proxy with the specified selection policy.
+     */
+    std::shared_ptr<Prx> ice_preferSecure(bool b) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_preferSecure(b));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the router.
+     * @param router The router for the new proxy.
+     * @return A proxy with the specified router.
+     */
+    std::shared_ptr<Prx> ice_router(const std::shared_ptr<::Ice::RouterPrx>& router) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_router(router));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.
+     * @param b If true, only endpoints that use a secure transport are used by the new proxy.
+     * If false, the returned proxy uses both secure and insecure endpoints.
+     * @return A proxy with the specified security policy.
+     */
+    std::shared_ptr<Prx> ice_secure(bool b) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_secure(b));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
+     * which overrides the timeout setting from the proxy endpoints.
+     * @param timeout The connection timeout override for the proxy (in milliseconds).
+     * @return A proxy with the specified timeout override.
+     */
+    std::shared_ptr<Prx> ice_timeout(int timeout) const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_timeout(timeout));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, but uses twoway invocations.
+     * @return A proxy that uses twoway invocations.
+     */
+    std::shared_ptr<Prx> ice_twoway() const
+    {
+        return fromReference(static_cast<const Prx*>(this)->_twoway());
+    }
+
+protected:
+
+    // This constructor never initializes the base classes since they are all virtual and Proxy is never the most
+    // derived class.
+    Proxy() = default;
+
+private:
+
+    std::shared_ptr<Prx> fromReference(IceInternal::ReferencePtr&& ref) const
+    {
+        auto self = static_cast<const Prx*>(this);
+        return ref == self->_reference ? std::make_shared<Prx>(*self) : std::make_shared<Prx>(ref);
+    }
+};
+
+/**
  * Base class of all object proxies.
  * \headerfile Ice/Ice.h
  */
-class ICE_API ObjectPrx : public ::std::enable_shared_from_this<ObjectPrx>
+class ICE_API ObjectPrx : public Proxy<ObjectPrx>, public ::std::enable_shared_from_this<ObjectPrx>
 {
 public:
 
@@ -285,7 +531,7 @@ public:
      * Obtains the communicator that created this proxy.
      * @return The communicator that created this proxy.
      */
-    ::std::shared_ptr<::Ice::Communicator> ice_getCommunicator() const;
+    std::shared_ptr<::Ice::Communicator> ice_getCommunicator() const;
 
     /**
      * Obtains a stringified version of this proxy.
@@ -341,7 +587,7 @@ public:
 
     /// \cond INTERNAL
     void
-    _iceI_isA(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<bool>>&, const ::std::string&, const ::Ice::Context&);
+    _iceI_isA(const std::shared_ptr<::IceInternal::OutgoingAsyncT<bool>>&, const ::std::string&, const ::Ice::Context&);
     /// \endcond
 
     /**
@@ -386,7 +632,7 @@ public:
 
     /// \cond INTERNAL
     void
-    _iceI_ping(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::Ice::Context&);
+    _iceI_ping(const std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::Ice::Context&);
     /// \endcond
 
     /**
@@ -432,7 +678,7 @@ public:
 
     /// \cond INTERNAL
     void
-    _iceI_ids(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::vector<::std::string>>>&, const ::Ice::Context&);
+    _iceI_ids(const std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::vector<::std::string>>>&, const ::Ice::Context&);
     /// \endcond
 
     /**
@@ -478,7 +724,7 @@ public:
 
     /// \cond INTERNAL
     void
-    _iceI_id(const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::string>>&, const ::Ice::Context&);
+    _iceI_id(const std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::string>>&, const ::Ice::Context&);
     /// \endcond
 
     /**
@@ -661,20 +907,13 @@ public:
      * @param id The identity for the new proxy.
      * @return A proxy with the new identity.
      */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_identity(const ::Ice::Identity& id) const;
+    std::shared_ptr<::Ice::ObjectPrx> ice_identity(const ::Ice::Identity& id) const;
 
     /**
      * Obtains the per-proxy context for this proxy.
      * @return The per-proxy context.
      */
     ::Ice::Context ice_getContext() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the per-proxy context.
-     * @param context The context for the new proxy.
-     * @return A proxy with the new per-proxy context.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_context(const ::Ice::Context& context) const;
 
     /**
      * Obtains the facet for this proxy.
@@ -687,7 +926,7 @@ public:
      * @param facet The facet for the new proxy.
      * @return A proxy with the new facet.
      */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_facet(const ::std::string& facet) const;
+    std::shared_ptr<::Ice::ObjectPrx> ice_facet(const ::std::string& facet) const;
 
     /**
      * Obtains the adapter ID for this proxy.
@@ -696,24 +935,10 @@ public:
     ::std::string ice_getAdapterId() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for the adapter ID.
-     * @param id The adapter ID for the new proxy.
-     * @return A proxy with the new adapter ID.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_adapterId(const ::std::string& id) const;
-
-    /**
      * Obtains the endpoints used by this proxy.
      * @return The endpoints used by this proxy.
      */
     ::Ice::EndpointSeq ice_getEndpoints() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the endpoints.
-     * @param endpoints The endpoints for the new proxy.
-     * @return A proxy with the new endpoints.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_endpoints(const ::Ice::EndpointSeq& endpoints) const;
 
     /**
      * Obtains the locator cache timeout of this proxy.
@@ -722,24 +947,10 @@ public:
     ::Ice::Int ice_getLocatorCacheTimeout() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for the locator cache timeout.
-     * @param timeout The new locator cache timeout (in seconds).
-     * @return A proxy with the new timeout.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_locatorCacheTimeout(::Ice::Int timeout) const;
-
-    /**
      * Determines whether this proxy caches connections.
      * @return True if this proxy caches connections, false otherwise.
      */
     bool ice_isConnectionCached() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for connection caching.
-     * @param b True if the new proxy should cache connections, false otherwise.
-     * @return A proxy with the specified caching policy.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_connectionCached(bool b) const;
 
     /**
      * Obtains the endpoint selection policy for this proxy (randomly or ordered).
@@ -748,39 +959,16 @@ public:
     ::Ice::EndpointSelectionType ice_getEndpointSelection() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for the endpoint selection policy.
-     * @param type The new endpoint selection policy.
-     * @return A proxy with the specified endpoint selection policy.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_endpointSelection(::Ice::EndpointSelectionType type) const;
-
-    /**
      * Determines whether this proxy uses only secure endpoints.
      * @return True if this proxy communicates only via secure endpoints, false otherwise.
      */
     bool ice_isSecure() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.
-     * @param b If true, only endpoints that use a secure transport are used by the new proxy.
-     * If false, the returned proxy uses both secure and insecure endpoints.
-     * @return A proxy with the specified security policy.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_secure(bool b) const;
-
-    /**
      * Obtains the encoding version used to marshal request parameters.
      * @return The encoding version.
      */
     ::Ice::EncodingVersion ice_getEncodingVersion() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the encoding used to marshal
-     * parameters.
-     * @param version The encoding version to use to marshal request parameters.
-     * @return A proxy with the specified encoding version.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_encodingVersion(const ::Ice::EncodingVersion& version) const;
 
     /**
      * Determines whether this proxy prefers secure endpoints.
@@ -790,40 +978,17 @@ public:
     bool ice_isPreferSecure() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for its endpoint selection policy.
-     * @param b If true, the new proxy will use secure endpoints for invocations and only use
-     * insecure endpoints if an invocation cannot be made via secure endpoints. If false, the
-     * proxy prefers insecure endpoints to secure ones.
-     * @return A proxy with the specified selection policy.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_preferSecure(bool b) const;
-
-    /**
      * Obtains the router for this proxy.
      * @return The router for the proxy. If no router is configured for the proxy, the return value
      * is nil.
      */
-    ::std::shared_ptr<::Ice::RouterPrx> ice_getRouter() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the router.
-     * @param router The router for the new proxy.
-     * @return A proxy with the specified router.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_router(const ::std::shared_ptr<::Ice::RouterPrx>& router) const;
+    std::shared_ptr<::Ice::RouterPrx> ice_getRouter() const;
 
     /**
      * Obtains the locator for this proxy.
      * @return The locator for this proxy. If no locator is configured, the return value is nil.
      */
-    ::std::shared_ptr<::Ice::LocatorPrx> ice_getLocator() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the locator.
-     * @param locator The locator for the new proxy.
-     * @return A proxy with the specified locator.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_locator(const ::std::shared_ptr<::Ice::LocatorPrx>& locator) const;
+    std::shared_ptr<::Ice::LocatorPrx> ice_getLocator() const;
 
     /**
      * Determines whether this proxy uses collocation optimization.
@@ -832,30 +997,10 @@ public:
     bool ice_isCollocationOptimized() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for collocation optimization.
-     * @param b True if the new proxy enables collocation optimization, false otherwise.
-     * @return A proxy with the specified collocation optimization.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_collocationOptimized(bool b) const;
-
-    /**
      * Obtains the invocation timeout of this proxy.
      * @return The invocation timeout value (in milliseconds).
      */
     ::Ice::Int ice_getInvocationTimeout() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the invocation timeout.
-     * @param timeout The new invocation timeout (in milliseconds).
-     * @return A proxy with the new timeout.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_invocationTimeout(::Ice::Int timeout) const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, but uses twoway invocations.
-     * @return A proxy that uses twoway invocations.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_twoway() const;
 
     /**
      * Determines whether this proxy uses twoway invocations.
@@ -864,22 +1009,10 @@ public:
     bool ice_isTwoway() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, but uses oneway invocations.
-     * @return A proxy that uses oneway invocations.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_oneway() const;
-
-    /**
      * Determines whether this proxy uses oneway invocations.
      * @return True if this proxy uses oneway invocations, false otherwise.
      */
     bool ice_isOneway() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, but uses batch oneway invocations.
-     * @return A proxy that uses batch oneway invocations.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_batchOneway() const;
 
     /**
      * Determines whether this proxy uses batch oneway invocations.
@@ -888,36 +1021,16 @@ public:
     bool ice_isBatchOneway() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, but uses datagram invocations.
-     * @return A proxy that uses datagram invocations.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_datagram() const;
-
-    /**
      * Determines whether this proxy uses datagram invocations.
      * @return True if this proxy uses datagram invocations, false otherwise.
      */
     bool ice_isDatagram() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, but uses batch datagram invocations.
-     * @return A proxy that uses batch datagram invocations.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_batchDatagram() const;
-
-    /**
      * Determines whether this proxy uses batch datagram invocations.
      * @return True if this proxy uses batch datagram invocations, false otherwise.
      */
     bool ice_isBatchDatagram() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for its compression setting which
-     * overrides the compression setting from the proxy endpoints.
-     * @param b True enables compression for the new proxy, false disables compression.
-     * @return A proxy with the specified compression override setting.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_compress(bool b) const;
 
     /**
      * Obtains the compression override setting of this proxy.
@@ -927,14 +1040,6 @@ public:
     ::std::optional<bool> ice_getCompress() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
-     * which overrides the timeot setting from the proxy endpoints.
-     * @param timeout The connection timeout override for the proxy (in milliseconds).
-     * @return A proxy with the specified timeout override.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_timeout(int timeout) const;
-
-    /**
      * Obtains the timeout override of this proxy.
      * @return The timeout override. If nullopt is returned, no override is set. Otherwise, returns
      * the timeout override value.
@@ -942,26 +1047,10 @@ public:
     ::std::optional<int> ice_getTimeout() const;
 
     /**
-     * Obtains a proxy that is identical to this proxy, except for its connection ID.
-     * @param id The connection ID for the new proxy. An empty string removes the
-     * connection ID.
-     * @return A proxy with the specified connection ID.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_connectionId(const ::std::string& id) const;
-
-    /**
      * Obtains the connection ID of this proxy.
      * @return The connection ID.
      */
     ::std::string ice_getConnectionId() const;
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
-     * the given connection.
-     * @param connection The fixed proxy connection.
-     * @return A fixed proxy bound to the given connection.
-     */
-    ::std::shared_ptr<::Ice::ObjectPrx> ice_fixed(const ::std::shared_ptr<::Ice::Connection>& connection) const;
 
     /**
      * Determines whether this proxy is a fixed proxy.
@@ -974,7 +1063,7 @@ public:
      * it first attempts to create a connection.
      * @return The connection for this proxy.
      */
-    ::std::shared_ptr<::Ice::Connection>
+    std::shared_ptr<::Ice::Connection>
     ice_getConnection()
     {
         return ice_getConnectionAsync().get();
@@ -989,7 +1078,7 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     ::std::function<void()>
-    ice_getConnectionAsync(::std::function<void(::std::shared_ptr<::Ice::Connection>)> response,
+    ice_getConnectionAsync(::std::function<void(std::shared_ptr<::Ice::Connection>)> response,
                            ::std::function<void(::std::exception_ptr)> ex = nullptr,
                            ::std::function<void(bool)> sent = nullptr)
     {
@@ -1005,16 +1094,16 @@ public:
      * @return The future object for the invocation.
      */
     template<template<typename> class P = std::promise> auto
-    ice_getConnectionAsync() -> decltype(std::declval<P<::std::shared_ptr<::Ice::Connection>>>().get_future())
+    ice_getConnectionAsync() -> decltype(std::declval<P<std::shared_ptr<::Ice::Connection>>>().get_future())
     {
-        using PromiseOutgoing = ::IceInternal::ProxyGetConnectionPromise<P<::std::shared_ptr<::Ice::Connection>>>;
+        using PromiseOutgoing = ::IceInternal::ProxyGetConnectionPromise<P<std::shared_ptr<::Ice::Connection>>>;
         auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this());
         _iceI_getConnection(outAsync);
         return outAsync->getFuture();
     }
 
     /// \cond INTERNAL
-    void _iceI_getConnection(const ::std::shared_ptr<::IceInternal::ProxyGetConnection>&);
+    void _iceI_getConnection(const std::shared_ptr<::IceInternal::ProxyGetConnection>&);
     /// \endcond
 
     /**
@@ -1023,7 +1112,7 @@ public:
      * @return The cached connection for this proxy, or nil if the proxy does not have
      * an established connection.
      */
-    ::std::shared_ptr<::Ice::Connection> ice_getCachedConnection() const;
+    std::shared_ptr<::Ice::Connection> ice_getCachedConnection() const;
 
     /**
      * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
@@ -1063,7 +1152,7 @@ public:
     }
 
     /// \cond INTERNAL
-    void _iceI_flushBatchRequests(const ::std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&);
+    void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&);
 
     const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
 
@@ -1105,10 +1194,36 @@ protected:
         (obj->*fn)(outAsync, std::forward<Args>(args)...);
         return [outAsync]() { outAsync->cancel(); };
     }
-
     /// \endcond
 
 private:
+
+    template<typename Prx, typename... Bases>
+    friend class Proxy;
+
+    // Gets a reference with the specified setting; returns _reference if the setting is already set.
+    IceInternal::ReferencePtr _adapterId(const std::string&) const;
+    IceInternal::ReferencePtr _batchDatagram() const;
+    IceInternal::ReferencePtr _batchOneway() const;
+    IceInternal::ReferencePtr _collocationOptimized(bool) const;
+    IceInternal::ReferencePtr _compress(bool) const;
+    IceInternal::ReferencePtr _connectionCached(bool) const;
+    IceInternal::ReferencePtr _connectionId(const std::string&) const;
+    IceInternal::ReferencePtr _context(const Context&) const;
+    IceInternal::ReferencePtr _datagram() const;
+    IceInternal::ReferencePtr _encodingVersion(const EncodingVersion&) const;
+    IceInternal::ReferencePtr _endpointSelection(EndpointSelectionType) const;
+    IceInternal::ReferencePtr _endpoints(const EndpointSeq&) const;
+    IceInternal::ReferencePtr _fixed(const ConnectionPtr&) const;
+    IceInternal::ReferencePtr _invocationTimeout(int) const;
+    IceInternal::ReferencePtr _locator(const std::shared_ptr<LocatorPrx>&) const;
+    IceInternal::ReferencePtr _locatorCacheTimeout(int) const;
+    IceInternal::ReferencePtr _oneway() const;
+    IceInternal::ReferencePtr _preferSecure(bool) const;
+    IceInternal::ReferencePtr _router(const std::shared_ptr<Ice::RouterPrx>&) const;
+    IceInternal::ReferencePtr _secure(bool) const;
+    IceInternal::ReferencePtr _timeout(int) const;
+    IceInternal::ReferencePtr _twoway() const;
 
     const ::IceInternal::ReferencePtr _reference;
     ::IceInternal::RequestHandlerPtr _requestHandler;
@@ -1143,245 +1258,6 @@ operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs)
     return !(lhs == rhs);
 }
 
-/**
- * Helper template that supplies proxy factory functions.
- * \headerfile Ice/Ice.h
- */
-template<typename Prx, typename... Bases>
-class Proxy : public virtual Bases...
-{
-public:
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the per-proxy context.
-     * @param context The context for the new proxy.
-     * @return A proxy with the new per-proxy context.
-     */
-    ::std::shared_ptr<Prx> ice_context(const ::Ice::Context& context) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_context(context));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the adapter ID.
-     * @param id The adapter ID for the new proxy.
-     * @return A proxy with the new adapter ID.
-     */
-    ::std::shared_ptr<Prx> ice_adapterId(const ::std::string& id) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_adapterId(id));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the endpoints.
-     * @param endpoints The endpoints for the new proxy.
-     * @return A proxy with the new endpoints.
-     */
-    ::std::shared_ptr<Prx> ice_endpoints(const ::Ice::EndpointSeq& endpoints) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_endpoints(endpoints));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the locator cache timeout.
-     * @param timeout The new locator cache timeout (in seconds).
-     * @return A proxy with the new timeout.
-     */
-    ::std::shared_ptr<Prx> ice_locatorCacheTimeout(int timeout) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_locatorCacheTimeout(timeout));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for connection caching.
-     * @param b True if the new proxy should cache connections, false otherwise.
-     * @return A proxy with the specified caching policy.
-     */
-    ::std::shared_ptr<Prx> ice_connectionCached(bool b) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_connectionCached(b));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the endpoint selection policy.
-     * @param type The new endpoint selection policy.
-     * @return A proxy with the specified endpoint selection policy.
-     */
-    ::std::shared_ptr<Prx> ice_endpointSelection(::Ice::EndpointSelectionType type) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_endpointSelection(type));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.
-     * @param b If true, only endpoints that use a secure transport are used by the new proxy.
-     * If false, the returned proxy uses both secure and insecure endpoints.
-     * @return A proxy with the specified security policy.
-     */
-    ::std::shared_ptr<Prx> ice_secure(bool b) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_secure(b));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for its endpoint selection policy.
-     * @param b If true, the new proxy will use secure endpoints for invocations and only use
-     * insecure endpoints if an invocation cannot be made via secure endpoints. If false, the
-     * proxy prefers insecure endpoints to secure ones.
-     * @return A proxy with the specified selection policy.
-     */
-    ::std::shared_ptr<Prx> ice_preferSecure(bool b) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_preferSecure(b));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the router.
-     * @param router The router for the new proxy.
-     * @return A proxy with the specified router.
-     */
-    ::std::shared_ptr<Prx> ice_router(const ::std::shared_ptr<::Ice::RouterPrx>& router) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_router(router));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the locator.
-     * @param locator The locator for the new proxy.
-     * @return A proxy with the specified locator.
-     */
-    ::std::shared_ptr<Prx> ice_locator(const ::std::shared_ptr<::Ice::LocatorPrx>& locator) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_locator(locator));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for collocation optimization.
-     * @param b True if the new proxy enables collocation optimization, false otherwise.
-     * @return A proxy with the specified collocation optimization.
-     */
-    ::std::shared_ptr<Prx> ice_collocationOptimized(bool b) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_collocationOptimized(b));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the invocation timeout.
-     * @param timeout The new invocation timeout (in milliseconds).
-     * @return A proxy with the new timeout.
-     */
-    ::std::shared_ptr<Prx> ice_invocationTimeout(int timeout) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_invocationTimeout(timeout));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, but uses twoway invocations.
-     * @return A proxy that uses twoway invocations.
-     */
-    ::std::shared_ptr<Prx> ice_twoway() const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_twoway());
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, but uses oneway invocations.
-     * @return A proxy that uses oneway invocations.
-     */
-    ::std::shared_ptr<Prx> ice_oneway() const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_oneway());
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, but uses batch oneway invocations.
-     * @return A proxy that uses batch oneway invocations.
-     */
-    ::std::shared_ptr<Prx> ice_batchOneway() const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_batchOneway());
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, but uses datagram invocations.
-     * @return A proxy that uses datagram invocations.
-     */
-    ::std::shared_ptr<Prx> ice_datagram() const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_datagram());
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, but uses batch datagram invocations.
-     * @return A proxy that uses batch datagram invocations.
-     */
-    ::std::shared_ptr<Prx> ice_batchDatagram() const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_batchDatagram());
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for its compression setting which
-     * overrides the compression setting from the proxy endpoints.
-     * @param b True enables compression for the new proxy, false disables compression.
-     * @return A proxy with the specified compression override setting.
-     */
-    ::std::shared_ptr<Prx> ice_compress(bool b) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_compress(b));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for its connection timeout setting
-     * which overrides the timeot setting from the proxy endpoints.
-     * @param timeout The connection timeout override for the proxy (in milliseconds).
-     * @return A proxy with the specified timeout override.
-     */
-    ::std::shared_ptr<Prx> ice_timeout(int timeout) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_timeout(timeout));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for its connection ID.
-     * @param id The connection ID for the new proxy. An empty string removes the
-     * connection ID.
-     * @return A proxy with the specified connection ID.
-     */
-    ::std::shared_ptr<Prx> ice_connectionId(const ::std::string& id) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_connectionId(id));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except it's a fixed proxy bound
-     * the given connection.
-     * @param connection The fixed proxy connection.
-     * @return A fixed proxy bound to the given connection.
-     */
-    ::std::shared_ptr<Prx> ice_fixed(const ::std::shared_ptr<::Ice::Connection>& connection) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_fixed(connection));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the encoding used to marshal
-     * parameters.
-     * @param version The encoding version to use to marshal request parameters.
-     * @return A proxy with the specified encoding version.
-     */
-    ::std::shared_ptr<Prx> ice_encodingVersion(const ::Ice::EncodingVersion& version) const
-    {
-        return ::std::make_shared<Prx>(*ObjectPrx::ice_encodingVersion(version));
-    }
-
-protected:
-
-    // This constructor never initializes the base classes since they are all virtual and Proxy is never the most
-    // derived class.
-    Proxy() = default;
-};
-
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ::Ice::ObjectPrx&);
 
 /**
@@ -1390,7 +1266,7 @@ ICE_API ::std::ostream& operator<<(::std::ostream&, const ::Ice::ObjectPrx&);
  * @param rhs A proxy.
  * @return True if the identity in lhs compares less than the identity in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityLess(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs);
+ICE_API bool proxyIdentityLess(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs);
 
 /**
  * Compares the object identities of two proxies.
@@ -1398,7 +1274,7 @@ ICE_API bool proxyIdentityLess(const ::std::shared_ptr<ObjectPrx>& lhs, const ::
  * @param rhs A proxy.
  * @return True if the identity in lhs compares equal to the identity in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityEqual(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs);
+ICE_API bool proxyIdentityEqual(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs);
 
 /**
  * Compares the object identities and facets of two proxies.
@@ -1407,8 +1283,8 @@ ICE_API bool proxyIdentityEqual(const ::std::shared_ptr<ObjectPrx>& lhs, const :
  * @return True if the identity and facet in lhs compare less than the identity and facet
  * in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityAndFacetLess(const ::std::shared_ptr<ObjectPrx>& lhs,
-                                       const ::std::shared_ptr<ObjectPrx>& rhs);
+ICE_API bool proxyIdentityAndFacetLess(const std::shared_ptr<ObjectPrx>& lhs,
+                                       const std::shared_ptr<ObjectPrx>& rhs);
 
 /**
  * Compares the object identities and facets of two proxies.
@@ -1417,8 +1293,8 @@ ICE_API bool proxyIdentityAndFacetLess(const ::std::shared_ptr<ObjectPrx>& lhs,
  * @return True if the identity and facet in lhs compare equal to the identity and facet
  * in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityAndFacetEqual(const ::std::shared_ptr<ObjectPrx>& lhs,
-                                        const ::std::shared_ptr<ObjectPrx>& rhs);
+ICE_API bool proxyIdentityAndFacetEqual(const std::shared_ptr<ObjectPrx>& lhs,
+                                        const std::shared_ptr<ObjectPrx>& rhs);
 
 /**
  * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
@@ -1428,7 +1304,7 @@ ICE_API bool proxyIdentityAndFacetEqual(const ::std::shared_ptr<ObjectPrx>& lhs,
 
 struct ProxyIdentityLess
 {
-    bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
+    bool operator()(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs) const
     {
         return proxyIdentityLess(lhs, rhs);
     }
@@ -1441,7 +1317,7 @@ struct ProxyIdentityLess
  */
 struct ProxyIdentityEqual
 {
-    bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
+    bool operator()(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs) const
     {
         return proxyIdentityEqual(lhs, rhs);
     }
@@ -1454,7 +1330,7 @@ struct ProxyIdentityEqual
  */
 struct ProxyIdentityAndFacetLess
 {
-    bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
+    bool operator()(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs) const
     {
         return proxyIdentityAndFacetLess(lhs, rhs);
     }
@@ -1467,7 +1343,7 @@ struct ProxyIdentityAndFacetLess
  */
 struct ProxyIdentityAndFacetEqual
 {
-    bool operator()(const ::std::shared_ptr<ObjectPrx>& lhs, const ::std::shared_ptr<ObjectPrx>& rhs) const
+    bool operator()(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs) const
     {
         return proxyIdentityAndFacetEqual(lhs, rhs);
     }
@@ -1481,10 +1357,10 @@ struct ProxyIdentityAndFacetEqual
 template<typename P,
          typename T,
          typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> ::std::shared_ptr<P>
-uncheckedCast(const ::std::shared_ptr<T>& b)
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> std::shared_ptr<P>
+uncheckedCast(const std::shared_ptr<T>& b)
 {
-    ::std::shared_ptr<P> r;
+    std::shared_ptr<P> r;
     if(b)
     {
         r = ::std::dynamic_pointer_cast<P>(b);
@@ -1505,10 +1381,10 @@ uncheckedCast(const ::std::shared_ptr<T>& b)
 template<typename P,
          typename T,
          typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> ::std::shared_ptr<P>
-uncheckedCast(const ::std::shared_ptr<T>& b, const std::string& f)
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> std::shared_ptr<P>
+uncheckedCast(const std::shared_ptr<T>& b, const std::string& f)
 {
-    ::std::shared_ptr<P> r;
+    std::shared_ptr<P> r;
     if(b)
     {
         r = std::make_shared<P>(*(b->ice_facet(f)));
@@ -1526,10 +1402,10 @@ uncheckedCast(const ::std::shared_ptr<T>& b, const std::string& f)
 template<typename P,
          typename T,
          typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> ::std::shared_ptr<P>
-checkedCast(const ::std::shared_ptr<T>& b, const ::Ice::Context& context = Ice::noExplicitContext)
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> std::shared_ptr<P>
+checkedCast(const std::shared_ptr<T>& b, const ::Ice::Context& context = Ice::noExplicitContext)
 {
-    ::std::shared_ptr<P> r;
+    std::shared_ptr<P> r;
     if(b)
     {
         if(b->ice_isA(P::ice_staticId(), context))
@@ -1551,15 +1427,15 @@ checkedCast(const ::std::shared_ptr<T>& b, const ::Ice::Context& context = Ice::
 template<typename P,
          typename T,
          typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> ::std::shared_ptr<P>
-checkedCast(const ::std::shared_ptr<T>& b, const std::string& f, const ::Ice::Context& context = Ice::noExplicitContext)
+         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> std::shared_ptr<P>
+checkedCast(const std::shared_ptr<T>& b, const std::string& f, const ::Ice::Context& context = Ice::noExplicitContext)
 {
-    ::std::shared_ptr<P> r;
+    std::shared_ptr<P> r;
     if(b)
     {
         try
         {
-            ::std::shared_ptr<::Ice::ObjectPrx> bb = b->ice_facet(f);
+            std::shared_ptr<::Ice::ObjectPrx> bb = b->ice_facet(f);
             if(bb->ice_isA(P::ice_staticId(), context))
             {
                 r = std::make_shared<P>(*bb);

@@ -22,8 +22,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(ProxyFactory* p) { return p; }
-
 ObjectPrxPtr
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
@@ -287,8 +285,4 @@ IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
             _retryIntervals.push_back(v > 0 ? v : 0);
         }
     }
-}
-
-IceInternal::ProxyFactory::~ProxyFactory()
-{
 }
