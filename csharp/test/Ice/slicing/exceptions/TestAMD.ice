@@ -27,38 +27,13 @@ exception KnownMostDerived extends KnownIntermediate
     string kmd;
 }
 
-["preserve-slice"]
-exception KnownPreserved extends Base
-{
-    string kp;
-}
-
-exception KnownPreservedDerived extends KnownPreserved
-{
-    string kpd;
-}
-
-["preserve-slice"]
-class BaseClass
-{
-    string bc;
-}
-
-["format:sliced"]
-interface Relay
-{
-    void knownPreservedAsBase() throws Base;
-    void knownPreservedAsKnownPreserved() throws KnownPreserved;
-
-    void unknownPreservedAsBase() throws Base;
-    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
-}
-
 ["amd", "format:sliced"]
 interface TestIntf
 {
     void baseAsBase() throws Base;
-    void unknownDerivedAsBase() throws Base;
+
+    // Test that the compact metadata is ignored (exceptions are always encoded with the sliced format).
+    ["format:compact"] void unknownDerivedAsBase() throws Base;
     void knownDerivedAsBase() throws Base;
     void knownDerivedAsKnownDerived() throws KnownDerived;
 

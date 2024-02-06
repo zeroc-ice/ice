@@ -60,17 +60,6 @@ public abstract class UserException extends java.lang.Exception implements Clone
     public abstract String ice_id();
 
     /**
-     * Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
-     * un-marshaling, null is returned otherwise.
-     *
-     * @return The sliced data or null.
-     **/
-    public com.zeroc.Ice.SlicedData ice_getSlicedData()
-    {
-        return null;
-    }
-
-    /**
      * Returns a string representation of this exception.
      *
      * @return A string representation of this exception.
@@ -95,7 +84,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
      **/
     public void _write(OutputStream os)
     {
-        os.startException(null);
+        os.startException();
         _writeImpl(os);
         os.endException();
     }
@@ -108,7 +97,7 @@ public abstract class UserException extends java.lang.Exception implements Clone
     {
         is.startException();
         _readImpl(is);
-        is.endException(false);
+        is.endException();
     }
 
     /**

@@ -509,14 +509,12 @@ public class InputStream
     /**
      * Marks the end of a class instance.
      *
-     * @param preserve Pass true and the stream will preserve the unknown slices of the instance, or false
-     * to discard the unknown slices.
      * @return An object that encapsulates the unknown slice data.
      **/
-    public SlicedData endValue(boolean preserve)
+    public SlicedData endValue()
     {
         assert(_encapsStack != null && _encapsStack.decoder != null);
-        return _encapsStack.decoder.endInstance(preserve);
+        return _encapsStack.decoder.endInstance();
     }
 
     /**
@@ -531,14 +529,12 @@ public class InputStream
     /**
      * Marks the end of a user exception.
      *
-     * @param preserve Pass true and the stream will preserve the unknown slices of the exception, or false
-     * to discard the unknown slices.
      * @return An object that encapsulates the unknown slice data.
      **/
-    public SlicedData endException(boolean preserve)
+    public SlicedData endException()
     {
         assert(_encapsStack != null && _encapsStack.decoder != null);
-        return _encapsStack.decoder.endInstance(preserve);
+        return _encapsStack.decoder.endInstance();
     }
 
     /**
@@ -2268,7 +2264,7 @@ public class InputStream
             throws UserException;
 
         abstract void startInstance(SliceType type);
-        abstract SlicedData endInstance(boolean preserve);
+        abstract SlicedData endInstance();
         abstract String startSlice();
         abstract void endSlice();
         abstract void skipSlice();
@@ -2660,7 +2656,7 @@ public class InputStream
         }
 
         @Override
-        SlicedData endInstance(boolean preserve)
+        SlicedData endInstance()
         {
             //
             // Read the Ice::Object slice.
@@ -2958,13 +2954,9 @@ public class InputStream
         }
 
         @Override
-        SlicedData endInstance(boolean preserve)
+        SlicedData endInstance()
         {
-            SlicedData slicedData = null;
-            if(preserve)
-            {
-                slicedData = readSlicedData();
-            }
+            SlicedData slicedData = readSlicedData();
             if(_current.slices != null)
             {
                 _current.slices.clear();

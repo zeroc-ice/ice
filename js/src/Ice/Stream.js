@@ -3254,6 +3254,7 @@ class OutputStream
     writeException(e)
     {
         this.initEncaps();
+        // Exceptions are always encoded with the sliced format.
         this._encapsStack.format = FormatType.SlicedFormat;
         this._encapsStack.encoder.writeException(e);
     }

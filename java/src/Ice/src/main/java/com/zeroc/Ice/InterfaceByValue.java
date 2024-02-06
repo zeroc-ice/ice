@@ -31,7 +31,7 @@ public class InterfaceByValue extends Value
 
     /** @hidden */
     @Override
-    protected void _iceWriteImpl(OutputStream ostr)
+    protected void _iceWriteImpl(Ou§tputStream ostr)
     {
         ostr.startSlice(ice_id(), -1, true);
         ostr.endSlice();

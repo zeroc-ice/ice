@@ -58,7 +58,9 @@ interface Relay
 interface TestIntf
 {
     void baseAsBase() throws Base;
-    void unknownDerivedAsBase() throws Base;
+
+    // Test that the compact metadata is ignored (exceptions are always encoded with the sliced format).
+    ["format:compact"] void unknownDerivedAsBase() throws Base;
     void knownDerivedAsBase() throws Base;
     void knownDerivedAsKnownDerived() throws KnownDerived;
 

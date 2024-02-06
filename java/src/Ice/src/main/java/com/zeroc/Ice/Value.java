@@ -65,7 +65,7 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
      **/
     public SlicedData ice_getSlicedData()
     {
-        return null;
+        return _slicedData;
     }
 
     public static String ice_staticId()
@@ -79,7 +79,7 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
      **/
     public void _iceWrite(OutputStream ostr)
     {
-        ostr.startValue(null);
+        ostr.startValue(_slicedData);
         _iceWriteImpl(ostr);
         ostr.endValue();
     }
@@ -92,7 +92,7 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
     {
         istr.startValue();
         _iceReadImpl(istr);
-        istr.endValue(false);
+        _slicedData = istr.endValue();
     }
 
     /**
@@ -113,4 +113,6 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
 
     /** @hidden */
     public static final long serialVersionUID = 0L;
+
+    private SlicedData _slicedData;
 }

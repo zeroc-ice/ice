@@ -116,6 +116,7 @@ public interface Object
         return _iceIds[0];
     }
 
+
     /** @hidden */
     final static String[] _iceOps =
     {
@@ -210,7 +211,7 @@ public interface Object
     {
          istr.startValue();
          _iceReadImpl(istr);
-         istr.endValue(false);
+         istr.endValue();
     }
 
     /**
