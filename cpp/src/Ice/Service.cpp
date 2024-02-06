@@ -135,6 +135,7 @@ private:
     IceUtil::ThreadPtr _thread;
     bool _stopped;
     std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 static ServiceStatusManager* serviceStatusManager;
@@ -1471,7 +1472,7 @@ ServiceStatusManager::stopUpdate()
         if(_thread)
         {
             _stopped = true;
-            notify();
+            _conditionVariable.notify_one();
             thread = _thread;
             _thread = 0;
         }
@@ -1515,7 +1516,7 @@ ServiceStatusManager::run()
     {
         _status.dwCheckPoint++;
         SetServiceStatus(_handle, &_status);
-        _conditionVariable.wait_until(chrono::system_clock::now() + delay);
+        _conditionVariable.wait_until(lock, chrono::system_clock::now() + delay);
     }
 }
 

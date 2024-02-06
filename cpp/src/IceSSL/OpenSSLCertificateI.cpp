@@ -254,7 +254,7 @@ protected:
 private:
 
     x509_st* _cert;
-    std::mutex _mutex;
+    mutable std::mutex _mutex;
 };
 
 } // end anonymous namespace

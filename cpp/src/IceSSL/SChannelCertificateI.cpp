@@ -95,7 +95,7 @@ private:
     CERT_SIGNED_CONTENT_INFO* _cert;
     CERT_INFO* _certInfo;
     CertInfoHolderPtr _certInfoHolder;
-    std::mutex _mutex;
+    mutable std::mutex _mutex;
 };
 
 const Ice::Long TICKS_PER_MSECOND = 10000LL;
