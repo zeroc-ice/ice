@@ -19,14 +19,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(LocatorManager* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(LocatorInfo* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(LocatorTable* p) { return p; }
-
 namespace
 {
 
-class ObjectRequest : public LocatorInfo::Request
+class ObjectRequest final : public LocatorInfo::Request, public std::enable_shared_from_this<ObjectRequest>
 {
 public:
 
@@ -39,7 +35,7 @@ public:
     {
         try
         {
-            LocatorInfo::RequestPtr request = this;
+            LocatorInfo::RequestPtr request = shared_from_this();
             _locatorInfo->getLocator()->findObjectByIdAsync(
                 _reference->getIdentity(),
                 [request](const ObjectPrxPtr& object)
@@ -65,7 +61,7 @@ public:
     }
 };
 
-class AdapterRequest : public LocatorInfo::Request
+class AdapterRequest final : public LocatorInfo::Request, public std::enable_shared_from_this<AdapterRequest>
 {
 public:
 
@@ -78,7 +74,7 @@ public:
     {
         try
         {
-            LocatorInfo::RequestPtr request = this;
+            LocatorInfo::RequestPtr request = shared_from_this();
             _locatorInfo->getLocator()->findAdapterByIdAsync(_reference->getAdapterId(),
                 [request](const shared_ptr<Ice::ObjectPrx>& object)
                 {
@@ -393,7 +389,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
                                                int ttl,
                                                const GetEndpointsCallbackPtr& cb)
 {
-    RequestCallbackPtr callback = new RequestCallback(ref, ttl, cb);
+    RequestCallbackPtr callback = make_shared<RequestCallback>(ref, ttl, cb);
     {
         unique_lock lock(_mutex);
         if(!_response && !_exception)
@@ -783,7 +779,7 @@ IceInternal::LocatorInfo::getAdapterRequest(const ReferencePtr& ref)
         return p->second;
     }
 
-    RequestPtr request = new AdapterRequest(this, ref);
+    RequestPtr request = make_shared<AdapterRequest>(shared_from_this(), ref);
     _adapterRequests.insert(make_pair(ref->getAdapterId(), request));
     return request;
 }
@@ -803,7 +799,7 @@ IceInternal::LocatorInfo::getObjectRequest(const ReferencePtr& ref)
     {
         return p->second;
     }
-    RequestPtr request = new ObjectRequest(this, ref);
+    RequestPtr request = make_shared<ObjectRequest>(shared_from_this(), ref);
     _objectRequests.insert(make_pair(ref->getIdentity(), request));
     return request;
 }

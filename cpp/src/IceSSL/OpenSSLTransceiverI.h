@@ -29,6 +29,8 @@ class TransceiverI : public IceInternal::Transceiver
 {
 public:
 
+    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+    virtual ~TransceiverI();
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
@@ -52,9 +54,6 @@ public:
     int verifyCallback(int , X509_STORE_CTX*);
 
 private:
-
-    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
-    virtual ~TransceiverI();
 
     bool receive();
     bool send();
@@ -81,7 +80,7 @@ private:
     size_t _maxSendPacketSize;
     size_t _maxRecvPacketSize;
 };
-typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
+using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 
 } // OpenSSL namespace end
 

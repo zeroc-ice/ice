@@ -20,6 +20,8 @@ class TcpTransceiver : public Transceiver
 {
 public:
 
+    TcpTransceiver(const ProtocolInstancePtr&, const StreamSocketPtr&);
+    virtual ~TcpTransceiver();
     virtual NativeInfoPtr getNativeInfo();
 
     virtual SocketOperation initialize(Buffer&, Buffer&);
@@ -42,9 +44,6 @@ public:
     virtual void setBufferSize(int rcvSize, int sndSize);
 
 private:
-
-    TcpTransceiver(const ProtocolInstancePtr&, const StreamSocketPtr&);
-    virtual ~TcpTransceiver();
 
     friend class TcpConnector;
     friend class TcpAcceptor;

@@ -14,7 +14,7 @@ namespace IceInternal
 
 class UdpEndpoint;
 
-class UdpTransceiver : public Transceiver, public NativeInfo
+class UdpTransceiver : public Transceiver, public NativeInfo, public std::enable_shared_from_this<UdpTransceiver>
 {
     enum State
     {
@@ -25,6 +25,12 @@ class UdpTransceiver : public Transceiver, public NativeInfo
     };
 
 public:
+
+    UdpTransceiver(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int);
+    UdpTransceiver(const UdpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int, const std::string&,
+                   bool);
+
+    virtual ~UdpTransceiver();
 
     virtual NativeInfoPtr getNativeInfo();
 #if defined(ICE_USE_IOCP)
@@ -53,12 +59,6 @@ public:
     int effectivePort() const;
 
 private:
-
-    UdpTransceiver(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int);
-    UdpTransceiver(const UdpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int, const std::string&,
-                   bool);
-
-    virtual ~UdpTransceiver();
 
     void setBufSize(int, int);
 

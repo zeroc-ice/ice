@@ -40,18 +40,18 @@ namespace IceInternal
 
 template<typename T> class ThreadPoolMessage;
 
-class OutgoingConnectionFactory : public virtual IceUtil::Shared
+class OutgoingConnectionFactory : public std::enable_shared_from_this<OutgoingConnectionFactory>
 {
 public:
 
-    class CreateConnectionCallback : public virtual IceUtil::Shared
+    class CreateConnectionCallback
     {
     public:
 
         virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
         virtual void setException(const Ice::LocalException&) = 0;
     };
-    typedef IceUtil::Handle<CreateConnectionCallback> CreateConnectionCallbackPtr;
+    using CreateConnectionCallbackPtr = std::shared_ptr<CreateConnectionCallback>;
 
     void destroy();
 
@@ -153,8 +153,8 @@ private:
     const FactoryACMMonitorPtr _monitor;
     bool _destroyed;
 
-    std::multimap<ConnectorPtr, Ice::ConnectionIPtr> _connections;
-    std::map<ConnectorPtr, std::set<ConnectCallbackPtr> > _pending;
+    std::multimap<ConnectorPtr, Ice::ConnectionIPtr, Ice::TargetCompare<ConnectorPtr, std::less>> _connections;
+    std::map<ConnectorPtr, std::set<ConnectCallbackPtr>, Ice::TargetCompare<ConnectorPtr, std::less>> _pending;
 
     std::multimap<EndpointIPtr, Ice::ConnectionIPtr, Ice::TargetCompare<EndpointIPtr, std::less>> _connectionsByEndpoint;
     int _pendingConnectCount;
@@ -167,6 +167,8 @@ class IncomingConnectionFactory : public EventHandler,
 {
 public:
 
+    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const EndpointIPtr&,
+                              const std::shared_ptr<Ice::ObjectAdapterI>&);
     void activate();
     void hold();
     void destroy();
@@ -203,9 +205,6 @@ public:
 
     virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
     virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
-
-    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const EndpointIPtr&,
-                              const std::shared_ptr<Ice::ObjectAdapterI>&);
     void initialize();
     virtual ~IncomingConnectionFactory();
 

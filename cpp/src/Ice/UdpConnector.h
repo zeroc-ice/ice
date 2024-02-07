@@ -17,6 +17,10 @@ class UdpConnector : public Connector
 {
 public:
 
+    UdpConnector(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int,
+                 const std::string&);
+
+    virtual ~UdpConnector();
     virtual TransceiverPtr connect();
 
     virtual Ice::Short type() const;
@@ -26,12 +30,6 @@ public:
     virtual bool operator<(const Connector&) const;
 
 private:
-
-    UdpConnector(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int,
-                 const std::string&);
-
-    virtual ~UdpConnector();
-    friend class UdpEndpointI;
 
     const ProtocolInstancePtr _instance;
     const Address _addr;

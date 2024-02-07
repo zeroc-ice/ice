@@ -23,6 +23,10 @@ class WSTransceiver : public Transceiver
 {
 public:
 
+    WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, const std::string&);
+    WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&);
+    virtual ~WSTransceiver();
+
     virtual NativeInfoPtr getNativeInfo();
 #if defined(ICE_USE_IOCP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
@@ -47,10 +51,6 @@ public:
     virtual void setBufferSize(int rcvSize, int sndSize);
 
 private:
-
-    WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, const std::string&);
-    WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&);
-    virtual ~WSTransceiver();
 
     void handleRequest(Buffer&);
     void handleResponse();

@@ -30,6 +30,8 @@ class TransceiverI : public IceInternal::Transceiver
 {
 public:
 
+    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+    virtual ~TransceiverI();
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
@@ -49,11 +51,6 @@ public:
     OSStatus readRaw(char*, size_t*) const;
 
 private:
-
-    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
-    virtual ~TransceiverI();
-
-    friend class IceSSL::SecureTransport::SSLEngine;
 
     const InstancePtr _instance;
     const SSLEnginePtr _engine;
@@ -81,7 +78,7 @@ private:
     bool _verified;
     size_t _buffered;
 };
-typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
+using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 
 } // SecureTransport namespace end
 

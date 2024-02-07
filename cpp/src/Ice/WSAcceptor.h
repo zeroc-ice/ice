@@ -20,6 +20,8 @@ class WSAcceptor : public Acceptor, public NativeInfo
 {
 public:
 
+    WSAcceptor(const WSEndpointPtr&, const ProtocolInstancePtr&, const AcceptorPtr&);
+    virtual ~WSAcceptor();
     virtual NativeInfoPtr getNativeInfo();
 #if defined(ICE_USE_IOCP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
@@ -38,8 +40,6 @@ public:
 
 private:
 
-    WSAcceptor(const WSEndpointPtr&, const ProtocolInstancePtr&, const AcceptorPtr&);
-    virtual ~WSAcceptor();
     friend class WSEndpoint;
 
     WSEndpointPtr _endpoint;

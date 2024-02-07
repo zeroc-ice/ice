@@ -128,7 +128,7 @@ struct ICE_API AsyncInfo : WSAOVERLAPPED
 };
 #endif
 
-class ICE_API ReadyCallback : public virtual ::IceUtil::Shared
+class ICE_API ReadyCallback
 {
 public:
 
@@ -136,9 +136,9 @@ public:
 
     virtual void ready(SocketOperation, bool) = 0;
 };
-typedef IceUtil::Handle<ReadyCallback> ReadyCallbackPtr;
+using ReadyCallbackPtr = std::shared_ptr<ReadyCallback>;
 
-class ICE_API NativeInfo : public virtual IceUtil::Shared
+class ICE_API NativeInfo
 {
 public:
 
@@ -188,7 +188,7 @@ protected:
     SOCKET _newFd;
 #endif
 };
-typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;
+using NativeInfoPtr = std::shared_ptr<NativeInfo>;
 
 ICE_API bool noMoreFds(int);
 ICE_API std::string errorToStringDNS(int);

@@ -16,12 +16,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(UdpTransceiver* p) { return p; }
-
 NativeInfoPtr
 IceInternal::UdpTransceiver::getNativeInfo()
 {
-    return this;
+    return shared_from_this();
 }
 
 #if defined(ICE_USE_IOCP)
@@ -127,7 +125,7 @@ IceInternal::UdpTransceiver::bind()
 
     _bound = true;
 
-    _endpoint = _endpoint->endpoint(this);
+    _endpoint = _endpoint->endpoint(shared_from_this());
     return _endpoint;
 }
 

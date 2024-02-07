@@ -17,6 +17,9 @@ class TcpConnector : public Connector
 {
 public:
 
+    TcpConnector(const ProtocolInstancePtr&, const Address&, const NetworkProxyPtr&, const Address&, Ice::Int,
+                 const std::string&);
+    virtual ~TcpConnector();
     virtual TransceiverPtr connect();
 
     virtual Ice::Short type() const;
@@ -26,11 +29,6 @@ public:
     virtual bool operator<(const Connector&) const;
 
 private:
-
-    TcpConnector(const ProtocolInstancePtr&, const Address&, const NetworkProxyPtr&, const Address&, Ice::Int,
-                 const std::string&);
-    virtual ~TcpConnector();
-    friend class TcpEndpointI;
 
     const ProtocolInstancePtr _instance;
     const Address _addr;

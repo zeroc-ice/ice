@@ -14,7 +14,7 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::WSConnector::connect()
 {
-    return new WSTransceiver(_instance, _delegate->connect(), _host, _resource);
+    return make_shared<WSTransceiver>(_instance, _delegate->connect(), _host, _resource);
 }
 
 Short

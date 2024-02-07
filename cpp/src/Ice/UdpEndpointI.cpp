@@ -24,7 +24,7 @@ extern "C"
 Plugin*
 createIceUDP(const CommunicatorPtr& c, const string&, const StringSeq&)
 {
-    return new EndpointFactoryPlugin(c, new UdpEndpointFactory(new ProtocolInstance(c, UDPEndpointType, "udp", false)));
+    return new EndpointFactoryPlugin(c, make_shared<UdpEndpointFactory>(new ProtocolInstance(c, UDPEndpointType, "udp", false)));
 }
 
 }
@@ -142,8 +142,13 @@ IceInternal::UdpEndpointI::datagram() const
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {
-    return new UdpTransceiver(ICE_DYNAMIC_CAST(UdpEndpointI, ICE_SHARED_FROM_CONST_THIS(UdpEndpointI)), _instance,
-                              _host, _port, _mcastInterface, _connect);
+    return make_shared<UdpTransceiver>(
+        ICE_DYNAMIC_CAST(UdpEndpointI, ICE_SHARED_FROM_CONST_THIS(UdpEndpointI)),
+        _instance,
+        _host,
+        _port,
+        _mcastInterface,
+        _connect);
 }
 
 AcceptorPtr
@@ -437,7 +442,7 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
 ConnectorPtr
 IceInternal::UdpEndpointI::createConnector(const Address& address, const NetworkProxyPtr&) const
 {
-    return new UdpConnector(_instance, address, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
+    return make_shared<UdpConnector>(_instance, address, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId);
 }
 
 IPEndpointIPtr
@@ -490,5 +495,5 @@ IceInternal::UdpEndpointFactory::destroy()
 EndpointFactoryPtr
 IceInternal::UdpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
-    return new UdpEndpointFactory(instance);
+    return make_shared<UdpEndpointFactory>(instance);
 }

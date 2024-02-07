@@ -19,6 +19,8 @@ class WSConnector : public Connector
 {
 public:
 
+    WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, const std::string&);
+    virtual ~WSConnector();
     virtual TransceiverPtr connect();
 
     virtual Ice::Short type() const;
@@ -26,9 +28,6 @@ public:
 
     virtual bool operator==(const Connector&) const;
     virtual bool operator<(const Connector&) const;
-
-    WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, const std::string&);
-    virtual ~WSConnector();
 
 private:
 

@@ -38,8 +38,6 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(OutgoingConnectionFactory* p) { return p; }
-
 namespace
 {
 
@@ -129,7 +127,7 @@ private:
 bool
 IceInternal::OutgoingConnectionFactory::ConnectorInfo::operator==(const ConnectorInfo& other) const
 {
-    return connector == other.connector;
+    return targetEqualTo(connector, other.connector);
 }
 
 void
@@ -147,7 +145,7 @@ IceInternal::OutgoingConnectionFactory::destroy()
         p.second->destroy(ConnectionI::CommunicatorDestroyed);
     }
     _destroyed = true;
-    _communicator = 0;
+    _communicator = nullptr;
 
     _conditionVariable.notify_all();
 }
@@ -165,7 +163,7 @@ IceInternal::OutgoingConnectionFactory::updateConnectionObservers()
 void
 IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 {
-    multimap<ConnectorPtr, ConnectionIPtr> connections;
+    multimap<ConnectorPtr, ConnectionIPtr, Ice::TargetCompare<ConnectorPtr, std::less>> connections;
 
     {
         unique_lock lock(_mutex);
@@ -239,7 +237,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         return;
     }
 
-    auto cb = make_shared<ConnectCallback>(_instance, this, endpoints, hasMore, callback, selType);
+    auto cb = make_shared<ConnectCallback>(_instance, shared_from_this(), endpoints, hasMore, callback, selType);
     cb->getConnectors();
 }
 
@@ -1162,7 +1160,7 @@ void
 IceInternal::IncomingConnectionFactory::updateConnectionObservers()
 {
     lock_guard lock(_mutex);
-    for(const auto& conn : _connections)
+    for (const auto& conn : _connections)
     {
         conn->updateObserver();
     }
@@ -1214,7 +1212,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
         //
         // Clear the OA. See bug 1673 for the details of why this is necessary.
         //
-        _adapter = 0;
+        _adapter = nullptr;
 
         // We want to wait until all connections are finished outside the
         // thread synchronization.
@@ -1484,7 +1482,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 void
 IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
 {
-    lock_guard lock(_mutex);
+    unique_lock lock(_mutex);
     if(_state < StateClosed)
     {
         if(close)
@@ -1513,7 +1511,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
     }
 
 #if TARGET_OS_IPHONE != 0
-    sync.release();
+    lock.unlock();
     finish();
 #endif
 }

@@ -13,6 +13,7 @@ class Transceiver : public IceInternal::Transceiver
 {
 public:
 
+    Transceiver(const IceInternal::TransceiverPtr&);
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
@@ -37,7 +38,6 @@ public:
 
 private:
 
-    Transceiver(const IceInternal::TransceiverPtr&);
     friend class Connector;
     friend class Acceptor;
     friend class EndpointI;

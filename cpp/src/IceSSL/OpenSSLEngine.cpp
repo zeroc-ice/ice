@@ -845,7 +845,7 @@ OpenSSL::SSLEngine::createTransceiver(const InstancePtr& instance,
                                       const string& hostOrAdapterName,
                                       bool incoming)
 {
-    return new OpenSSL::TransceiverI(instance, delegate, hostOrAdapterName, incoming);
+    return make_shared<OpenSSL::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
 }
 
 #ifndef OPENSSL_NO_DH

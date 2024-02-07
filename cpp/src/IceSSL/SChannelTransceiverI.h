@@ -42,6 +42,8 @@ class TransceiverI : public IceInternal::Transceiver
 {
 public:
 
+    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+    virtual ~TransceiverI();
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
@@ -64,9 +66,6 @@ public:
 
 private:
 
-    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
-    virtual ~TransceiverI();
-
     IceInternal::SocketOperation sslHandshake();
 
     size_t decryptMessage(IceInternal::Buffer&);
@@ -74,8 +73,6 @@ private:
 
     bool writeRaw(IceInternal::Buffer&);
     bool readRaw(IceInternal::Buffer&);
-
-    friend class IceSSL::SChannel::SSLEngine;
 
     enum State
     {
@@ -122,7 +119,7 @@ private:
     bool _verified;
     TrustError _trustError;
 };
-typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
+using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 
 } // SChannel namespace end
 
