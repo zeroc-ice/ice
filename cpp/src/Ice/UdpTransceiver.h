@@ -32,7 +32,7 @@ public:
 #endif
 
     virtual SocketOperation initialize(Buffer&, Buffer&);
-    virtual SocketOperation closing(bool, const Ice::LocalException&);
+    virtual SocketOperation closing(bool, std::exception_ptr);
     virtual void close();
     virtual EndpointIPtr bind();
     virtual SocketOperation write(Buffer&);

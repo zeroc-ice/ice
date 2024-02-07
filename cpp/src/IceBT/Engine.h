@@ -46,7 +46,7 @@ class ConnectCallback
 public:
 
     virtual void completed(int, const ConnectionPtr&) = 0;
-    virtual void failed(const Ice::LocalException&) = 0;
+    virtual void failed(std::exception_ptr) = 0;
 };
 using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
 

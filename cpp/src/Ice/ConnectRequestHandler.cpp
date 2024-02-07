@@ -62,7 +62,7 @@ ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 }
 
 void
-ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const Ice::LocalException& ex)
+ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exception_ptr ex)
 {
     {
         unique_lock lock(_mutex);
@@ -105,7 +105,7 @@ ConnectRequestHandler::getConnection()
     }
     else if(_exception)
     {
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
     return nullptr;
 }
@@ -116,7 +116,7 @@ ConnectRequestHandler::waitForConnection()
     unique_lock lock(_mutex);
     if(_exception)
     {
-        throw RetryException(*_exception);
+        throw RetryException(_exception);
     }
     //
     // Wait for the connection establishment to complete or fail.
@@ -125,7 +125,7 @@ ConnectRequestHandler::waitForConnection()
 
     if(_exception)
     {
-        _exception->ice_throw();
+        rethrow_exception(_exception);
         return 0; // Keep the compiler happy.
     }
     else
@@ -161,13 +161,13 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 }
 
 void
-ConnectRequestHandler::setException(const Ice::LocalException& ex)
+ConnectRequestHandler::setException(exception_ptr ex)
 {
     {
         lock_guard lock(_mutex);
         assert(!_flushing && !_initialized && !_exception);
         _flushing = true; // Ensures request handler is removed before processing new requests.
-        _exception = ex.ice_clone();
+        _exception = ex;
     }
 
     //
@@ -184,13 +184,14 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
         // Ignore
     }
 
-    for(deque<ProxyOutgoingAsyncBasePtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+    for (deque<ProxyOutgoingAsyncBasePtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
-        if((*p)->exception(ex))
+        if ((*p)->exception(ex))
         {
             (*p)->invokeExceptionAsync();
         }
     }
+
     _requests.clear();
 
     {
@@ -238,7 +239,7 @@ ConnectRequestHandler::initialized(unique_lock<mutex>& lock)
                 //
                 return true;
             }
-            _exception->ice_throw();
+            rethrow_exception(_exception);
             return false; // Keep the compiler happy.
         }
         else
@@ -263,7 +264,7 @@ ConnectRequestHandler::flushRequests()
         _flushing = true;
     }
 
-    std::unique_ptr<Ice::LocalException> exception;
+    exception_ptr exception;
     while(!_requests.empty()) // _requests is immutable when _flushing = true
     {
         ProxyOutgoingAsyncBasePtr& req = _requests.front();
@@ -276,18 +277,18 @@ ConnectRequestHandler::flushRequests()
         }
         catch(const RetryException& ex)
         {
-            exception = ex.get()->ice_clone();
+            exception = ex.get();
 
             // Remove the request handler before retrying.
             _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
 
-            req->retryException(*exception);
+            req->retryException();
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
-            exception = ex.ice_clone();
+            exception = current_exception();
 
-            if(req->exception(ex))
+            if(req->exception(exception))
             {
                 req->invokeExceptionAsync();
             }

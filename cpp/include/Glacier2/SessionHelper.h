@@ -122,7 +122,7 @@ public:
      * @param session The corresponding session helper.
      * @param ex The exception that caused the failure.
      */
-    virtual void connectFailed(const SessionHelperPtr& session, const Ice::Exception& ex) = 0;
+    virtual void connectFailed(const SessionHelperPtr& session, std::exception_ptr ex) = 0;
 };
 using SessionCallbackPtr = std::shared_ptr<SessionCallback>;
 

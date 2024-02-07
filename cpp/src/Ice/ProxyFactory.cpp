@@ -87,7 +87,7 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 }
 
 int
-IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, const ReferencePtr& ref, int& cnt) const
+IceInternal::ProxyFactory::checkRetryAfterException(std::exception_ptr ex, const ReferencePtr& ref, int& cnt) const
 {
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     LoggerPtr logger = _instance->initializationData().logger;
@@ -99,7 +99,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     //
     if(ref->getMode() == Reference::ModeBatchOneway || ref->getMode() == Reference::ModeBatchDatagram)
     {
-        ex.ice_throw();
+        rethrow_exception(ex);
     }
 
     //
@@ -108,13 +108,18 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     //
     if(dynamic_cast<const FixedReference*>(ref.get()))
     {
-        ex.ice_throw();
+        rethrow_exception(ex);
     }
 
-    const ObjectNotExistException* one = dynamic_cast<const ObjectNotExistException*>(&ex);
-    if(one)
+    bool isCloseConnectionException = false;
+    string errorMessage;
+    try
     {
-        if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
+        rethrow_exception(ex);
+    }
+    catch (const ObjectNotExistException& one)
+    {
+        if(ref->getRouterInfo() && one.operation == "ice_add_proxy")
         {
             //
             // If we have a router, an ObjectNotExistException with an
@@ -130,7 +135,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
             if(traceLevels->retry >= 1)
             {
                 Trace out(logger, traceLevels->retryCat);
-                out << "retrying operation call to add proxy to router\n" << ex;
+                out << "retrying operation call to add proxy to router\n" << one;
             }
 
             return 0; // We must always retry, so we don't look at the retry count.
@@ -157,69 +162,80 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
             // For all other cases, we don't retry
             // ObjectNotExistException.
             //
-            ex.ice_throw();
+            throw;
         }
     }
-    else if(dynamic_cast<const RequestFailedException*>(&ex))
+    catch (const RequestFailedException&)
     {
         //
         // We don't retry other *NotExistException, which are all
         // derived from RequestFailedException.
         //
-        ex.ice_throw();
+        throw;
     }
-
-    //
-    // There is no point in retrying an operation that resulted in a
-    // MarshalException. This must have been raised locally (because
-    // if it happened in a server it would result in an
-    // UnknownLocalException instead), which means there was a problem
-    // in this process that will not change if we try again.
-    //
-    // The most likely cause for a MarshalException is exceeding the
-    // maximum message size, which is represented by the subclass
-    // MemoryLimitException. For example, a client can attempt to send
-    // a message that exceeds the maximum memory size, or accumulate
-    // enough batch requests without flushing that the maximum size is
-    // reached.
-    //
-    // This latter case is especially problematic, because if we were
-    // to retry a batch request after a MarshalException, we would in
-    // fact silently discard the accumulated requests and allow new
-    // batch requests to accumulate. If the subsequent batched
-    // requests do not exceed the maximum message size, it appears to
-    // the client that all of the batched requests were accepted, when
-    // in reality only the last few are actually sent.
-    //
-    if(dynamic_cast<const MarshalException*>(&ex))
+    catch (const MarshalException&)
     {
-        ex.ice_throw();
+        //
+        // There is no point in retrying an operation that resulted in a
+        // MarshalException. This must have been raised locally (because
+        // if it happened in a server it would result in an
+        // UnknownLocalException instead), which means there was a problem
+        // in this process that will not change if we try again.
+        //
+        // The most likely cause for a MarshalException is exceeding the
+        // maximum message size, which is represented by the subclass
+        // MemoryLimitException. For example, a client can attempt to send
+        // a message that exceeds the maximum memory size, or accumulate
+        // enough batch requests without flushing that the maximum size is
+        // reached.
+        //
+        // This latter case is especially problematic, because if we were
+        // to retry a batch request after a MarshalException, we would in
+        // fact silently discard the accumulated requests and allow new
+        // batch requests to accumulate. If the subsequent batched
+        // requests do not exceed the maximum message size, it appears to
+        // the client that all of the batched requests were accepted, when
+        // in reality only the last few are actually sent.
+        //
+        throw;
     }
-
-    //
-    // Don't retry if the communicator is destroyed, object adapter is deactivated,
-    // or connection is manually closed.
-    //
-    if(dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
-       dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
-       dynamic_cast<const ConnectionManuallyClosedException*>(&ex))
+    catch (const CommunicatorDestroyedException&)
     {
-        ex.ice_throw();
+        throw;
     }
-
-    //
-    // Don't retry invocation timeouts.
-    //
-    if(dynamic_cast<const InvocationTimeoutException*>(&ex) || dynamic_cast<const InvocationCanceledException*>(&ex))
+    catch (const ObjectAdapterDeactivatedException&)
     {
-        ex.ice_throw();
+        throw;
+    }
+    catch (const Ice::ConnectionManuallyClosedException&)
+    {
+        throw;
+    }
+    catch (const InvocationTimeoutException&)
+    {
+        throw;
+    }
+    catch (const InvocationCanceledException&)
+    {
+        throw;
+    }
+    catch (const CloseConnectionException& e)
+    {
+        isCloseConnectionException = true;
+        errorMessage = e.what();
+        // and retry
+    }
+    catch (const std::exception& e)
+    {
+        errorMessage = e.what();
+        // We retry on all other exceptions!
     }
 
     ++cnt;
     assert(cnt > 0);
 
     int interval = -1;
-    if(cnt == static_cast<int>(_retryIntervals.size() + 1) && dynamic_cast<const CloseConnectionException*>(&ex))
+    if(cnt == static_cast<int>(_retryIntervals.size() + 1) && isCloseConnectionException)
     {
         //
         // A close connection exception is always retried at least once, even if the retry
@@ -232,9 +248,9 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
         if(traceLevels->retry >= 1)
         {
             Trace out(logger, traceLevels->retryCat);
-            out << "cannot retry operation call because retry limit has been exceeded\n" << ex;
+            out << "cannot retry operation call because retry limit has been exceeded\n" << errorMessage;
         }
-        ex.ice_throw();
+        rethrow_exception(ex);
     }
     else
     {
@@ -249,7 +265,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
         {
             out << " in " << interval << "ms";
         }
-        out << " because of exception\n" << ex;
+        out << " because of exception\n" << errorMessage;
     }
     return interval;
 }

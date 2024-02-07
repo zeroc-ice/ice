@@ -106,7 +106,7 @@ public:
         void adopt(Ice::OutputStream*);
         void canceled(bool);
         bool sent();
-        void completed(const Ice::LocalException&);
+        void completed(std::exception_ptr);
 
         Ice::OutputStream* stream;
         IceInternal::OutgoingAsyncBasePtr outAsync;
@@ -125,7 +125,7 @@ public:
     public:
 
         virtual void connectionStartCompleted(const ConnectionIPtr&) = 0;
-        virtual void connectionStartFailed(const ConnectionIPtr&, const Ice::LocalException&) = 0;
+        virtual void connectionStartFailed(const ConnectionIPtr&, std::exception_ptr) = 0;
     };
     using StartCallbackPtr = ::std::shared_ptr<StartCallback>;
 
@@ -175,12 +175,12 @@ public:
                         const std::optional<ACMHeartbeat>&);
     virtual ACM getACM() noexcept;
 
-    virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);
+    virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
 
     virtual void sendResponse(Int, Ice::OutputStream*, Byte, bool);
     virtual void sendNoResponse();
-    virtual bool systemException(Int, const SystemException&, bool);
-    virtual void invokeException(Ice::Int, const LocalException&, int, bool);
+    virtual bool systemException(Int, std::exception_ptr, bool);
+    virtual void invokeException(Ice::Int, std::exception_ptr, int, bool);
 
     IceInternal::EndpointIPtr endpoint() const;
     IceInternal::ConnectorPtr connector() const;
@@ -213,7 +213,7 @@ public:
 
     virtual void setBufferSize(Ice::Int rcvSize, Ice::Int sndSize); // From Connection
 
-    void exception(const LocalException&);
+    void exception(std::exception_ptr);
 
     void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
@@ -252,7 +252,7 @@ private:
     friend class IceInternal::IncomingConnectionFactory;
     friend class IceInternal::OutgoingConnectionFactory;
 
-    void setState(State, const LocalException&);
+    void setState(State, std::exception_ptr);
     void setState(State);
 
     void initiateShutdown();
@@ -325,7 +325,7 @@ private:
     std::map<Int, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
     std::map<Int, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
 
-    std::unique_ptr<LocalException> _exception;
+    std::exception_ptr _exception;
 
     const size_t _messageSizeMax;
     IceInternal::BatchRequestQueuePtr _batchRequestQueue;

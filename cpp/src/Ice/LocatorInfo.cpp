@@ -48,19 +48,12 @@ public:
                 },
                 [request](exception_ptr e)
                 {
-                    try
-                    {
-                        rethrow_exception(e);
-                    }
-                    catch(const Exception& ex)
-                    {
-                        request->exception(ex);
-                    }
+                    request->exception(e);
                 });
         }
         catch(const Ice::Exception& ex)
         {
-            exception(ex);
+            exception(current_exception());
         }
     }
 };
@@ -86,19 +79,12 @@ public:
                 },
                 [request](exception_ptr e)
                 {
-                    try
-                    {
-                        rethrow_exception(e);
-                    }
-                    catch(const Exception& ex)
-                    {
-                        request->exception(ex);
-                    }
+                    request->exception(e);
                 });
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception&)
         {
-            exception(ex);
+            exception(current_exception());
         }
     }
 };
@@ -365,17 +351,17 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
 }
 
 void
-IceInternal::LocatorInfo::RequestCallback::exception(const LocatorInfoPtr& locatorInfo, const Ice::Exception& exc)
+IceInternal::LocatorInfo::RequestCallback::exception(const LocatorInfoPtr& locatorInfo, std::exception_ptr exc)
 {
     try
     {
         locatorInfo->getEndpointsException(_reference, exc); // This throws.
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
         if(_callback)
         {
-            _callback->setException(ex);
+            _callback->setException(current_exception());
         }
     }
 }
@@ -420,7 +406,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
     else
     {
         assert(_exception);
-        callback->exception(_locatorInfo, *_exception);
+        callback->exception(_locatorInfo, _exception);
     }
 }
 
@@ -445,12 +431,25 @@ IceInternal::LocatorInfo::Request::response(const Ice::ObjectPrxPtr& proxy)
 }
 
 void
-IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
+IceInternal::LocatorInfo::Request::exception(std::exception_ptr ex)
 {
+    bool isUserException = false;
+    try
+    {
+        rethrow_exception(ex);
+    }
+    catch (const Ice::UserException&)
+    {
+        isUserException = true;
+    }
+    catch (...)
+    {
+    }
+
     {
         lock_guard lock(_mutex);
-        _locatorInfo->finishRequest(_reference, _wellKnownRefs, 0, dynamic_cast<const Ice::UserException*>(&ex));
-        _exception = ex.ice_clone();
+        _locatorInfo->finishRequest(_reference, _wellKnownRefs, 0, isUserException);
+        _exception = ex;
     }
     for(vector<RequestCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
     {
@@ -625,13 +624,13 @@ IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
 }
 
 void
-IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, const Ice::Exception& exc)
+IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, std::exception_ptr exc)
 {
     assert(ref->isIndirect());
 
     try
     {
-        exc.ice_throw();
+        rethrow_exception(exc);
     }
     catch(const AdapterNotFoundException&)
     {

@@ -233,9 +233,9 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
             return;
         }
     }
-    catch(const Ice::LocalException& ex)
+    catch (const std::exception&)
     {
-        callback->setException(ex);
+        callback->setException(current_exception());
         return;
     }
 
@@ -688,7 +688,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
 
 void
 IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<ConnectorInfo>& connectors,
-                                                            const Ice::LocalException& ex,
+                                                            std::exception_ptr ex,
                                                             const ConnectCallbackPtr& cb)
 {
     set<ConnectCallbackPtr> failedCallbacks;
@@ -794,7 +794,7 @@ IceInternal::OutgoingConnectionFactory::removeFromPending(const ConnectCallbackP
 }
 
 void
-IceInternal::OutgoingConnectionFactory::handleException(const LocalException& ex, bool hasMore)
+IceInternal::OutgoingConnectionFactory::handleException(exception_ptr ex, bool hasMore)
 {
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->network >= 2)
@@ -802,11 +802,16 @@ IceInternal::OutgoingConnectionFactory::handleException(const LocalException& ex
         Trace out(_instance->initializationData().logger, traceLevels->networkCat);
 
         out << "couldn't resolve endpoint host";
-        if(dynamic_cast<const CommunicatorDestroyedException*>(&ex))
+
+        try
         {
-            out << "\n";
+            rethrow_exception(ex);
         }
-        else
+        catch (const CommunicatorDestroyedException& ex)
+        {
+            out << "\n" << ex;
+        }
+        catch (const std::exception& ex)
         {
             if(hasMore)
             {
@@ -816,13 +821,13 @@ IceInternal::OutgoingConnectionFactory::handleException(const LocalException& ex
             {
                 out << " and no more endpoints to try\n";
             }
+            out << ex;
         }
-        out << ex;
     }
 }
 
 void
-IceInternal::OutgoingConnectionFactory::handleConnectionException(const LocalException& ex, bool hasMore)
+IceInternal::OutgoingConnectionFactory::handleConnectionException(exception_ptr ex, bool hasMore)
 {
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->network >= 2)
@@ -830,11 +835,16 @@ IceInternal::OutgoingConnectionFactory::handleConnectionException(const LocalExc
         Trace out(_instance->initializationData().logger, traceLevels->networkCat);
 
         out << "connection to endpoint failed";
-        if(dynamic_cast<const CommunicatorDestroyedException*>(&ex))
+
+        try
         {
-            out << "\n";
+            rethrow_exception(ex);
         }
-        else
+        catch (const CommunicatorDestroyedException& ex)
+        {
+            out << "\n" << ex;
+        }
+        catch (const std::exception& ex)
         {
             if(hasMore)
             {
@@ -844,8 +854,8 @@ IceInternal::OutgoingConnectionFactory::handleConnectionException(const LocalExc
             {
                 out << " and no more endpoints to try\n";
             }
+            out << ex;
         }
-        out << ex;
     }
 }
 
@@ -882,7 +892,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartComplete
 
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(const ConnectionIPtr& /*connection*/,
-                                                                               const LocalException& ex)
+                                                                               exception_ptr ex)
 {
     assert(_iter != _connectors.end());
     if(connectionStartFailedImpl(ex))
@@ -920,7 +930,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectors(const vector
 }
 
 void
-IceInternal::OutgoingConnectionFactory::ConnectCallback::exception(const Ice::LocalException& ex)
+IceInternal::OutgoingConnectionFactory::ConnectCallback::exception(exception_ptr ex)
 {
     _factory->handleException(ex, _hasMore || _endpointsIter != _endpoints.end() - 1);
     if(++_endpointsIter != _endpoints.end())
@@ -955,9 +965,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnectors()
         //
         _factory->incPendingConnectCount();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const std::exception&)
     {
-        _callback->setException(ex);
+        _callback->setException(current_exception());
         return;
     }
 
@@ -973,9 +983,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextEndpoint()
         (*_endpointsIter)->connectors_async(_selType, shared_from_this());
 
     }
-    catch(const Ice::LocalException& ex)
+    catch (const std::exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1004,9 +1014,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnection()
         _callback->setConnection(connection, compress);
         _factory->decPendingConnectCount(); // Must be called last.
     }
-    catch(const Ice::LocalException& ex)
+    catch (const std::exception&)
     {
-        _callback->setException(ex);
+        _callback->setException(current_exception());
         _factory->decPendingConnectCount(); // Must be called last.
     }
 }
@@ -1048,7 +1058,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
                     << _iter->connector->toString() << "\n" << ex;
             }
 
-            if(connectionStartFailedImpl(ex))
+            if(connectionStartFailedImpl(current_exception()))
             {
                 continue; // More connectors to try, continue.
             }
@@ -1070,7 +1080,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::setConnection(const Ice
 }
 
 void
-IceInternal::OutgoingConnectionFactory::ConnectCallback::setException(const Ice::LocalException& ex)
+IceInternal::OutgoingConnectionFactory::ConnectCallback::setException(exception_ptr ex)
 {
     //
     // Callback from the factory: connection establishment failed.
@@ -1113,16 +1123,30 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::operator<(const Connect
 }
 
 bool
-IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedImpl(const Ice::LocalException& ex)
+IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedImpl(std::exception_ptr ex)
 {
+    bool communicatorDestroyed = false;
+    try
+    {
+        rethrow_exception(ex);
+    }
+    catch (const CommunicatorDestroyedException& ex)
+    {
+        communicatorDestroyed = true;
+    }
+    catch (...)
+    {
+    }
+
     if(_observer)
     {
-        _observer->failed(ex.ice_id());
+        _observer->failed(getExceptionId(ex));
         _observer->detach();
     }
 
     _factory->handleConnectionException(ex, _hasMore || _iter != _connectors.end() - 1);
-    if(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex)) // No need to continue.
+
+    if(communicatorDestroyed) // No need to continue.
     {
         _factory->finishGetConnection(_connectors, ex, shared_from_this());
     }
@@ -1324,9 +1348,9 @@ IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
     {
         _acceptor->startAccept();
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        _acceptorException = ex.ice_clone();
+        _acceptorException = current_exception();
         _acceptor->getNativeInfo()->completed(SocketOperationRead);
     }
     return true;
@@ -1340,13 +1364,13 @@ IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
     {
         if(_acceptorException)
         {
-            _acceptorException->ice_throw();
+            rethrow_exception(_acceptorException);
         }
         _acceptor->finishAccept();
     }
     catch(const LocalException& ex)
     {
-        _acceptorException.reset(nullptr);
+        _acceptorException = nullptr;
 
         Error out(_instance->initializationData().logger);
         out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
@@ -1578,7 +1602,7 @@ IceInternal::IncomingConnectionFactory::connectionStartCompleted(const Ice::Conn
 
 void
 IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::ConnectionIPtr& /*connection*/,
-                                                              const Ice::LocalException&)
+                                                              exception_ptr)
 {
     lock_guard lock(_mutex);
     if(_state >= StateClosed)

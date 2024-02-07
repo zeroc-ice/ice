@@ -208,14 +208,21 @@ ConnectionFlushBatchAsync::invoke(const string& operation, Ice::CompressBatch co
     }
     catch(const RetryException& ex)
     {
-        if(exception(*ex.get()))
+        try
         {
-            invokeExceptionAsync();
+            rethrow_exception(ex.get());
+        }
+        catch (const std::exception&)
+        {
+            if (exception(current_exception()))
+            {
+                invokeExceptionAsync();
+            }
         }
     }
-    catch(const Exception& ex)
+    catch(const Exception&)
     {
-        if(exception(ex))
+        if(exception(current_exception()))
         {
             invokeExceptionAsync();
         }
@@ -357,7 +364,7 @@ Ice::ConnectionI::OutgoingMessage::sent()
 }
 
 void
-Ice::ConnectionI::OutgoingMessage::completed(const Ice::LocalException& ex)
+Ice::ConnectionI::OutgoingMessage::completed(std::exception_ptr ex)
 {
     if(outAsync)
     {
@@ -383,7 +390,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
         if(_state >= StateClosed) // The connection might already be closed if the communicator was destroyed.
         {
             assert(_exception);
-            _exception->ice_throw();
+            rethrow_exception(_exception);
         }
 
         if(!initialize() || !validate())
@@ -402,7 +409,7 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
             if(_state >= StateClosing)
             {
                 assert(_exception);
-                _exception->ice_throw();
+                rethrow_exception(_exception);
             }
         }
 
@@ -411,12 +418,12 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
         //
         setState(StateHolding);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        exception(ex);
+        exception(current_exception());
         if(callback)
         {
-            callback->connectionStartFailed(shared_from_this(), ex);
+            callback->connectionStartFailed(shared_from_this(), current_exception());
             return;
         }
         else
@@ -468,13 +475,13 @@ Ice::ConnectionI::destroy(DestructionReason reason)
     {
         case ObjectAdapterDeactivated:
         {
-            setState(StateClosing, ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+            setState(StateClosing, make_exception_ptr(ObjectAdapterDeactivatedException(__FILE__, __LINE__)));
             break;
         }
 
         case CommunicatorDestroyed:
         {
-            setState(StateClosing, CommunicatorDestroyedException(__FILE__, __LINE__));
+            setState(StateClosing, make_exception_ptr(CommunicatorDestroyedException(__FILE__, __LINE__)));
             break;
         }
     }
@@ -487,11 +494,11 @@ Ice::ConnectionI::close(ConnectionClose mode) noexcept
 
     if(mode == ConnectionClose::Forcefully)
     {
-        setState(StateClosed, ConnectionManuallyClosedException(__FILE__, __LINE__, false));
+        setState(StateClosed, make_exception_ptr(ConnectionManuallyClosedException(__FILE__, __LINE__, false)));
     }
     else if(mode == ConnectionClose::Gracefully)
     {
-        setState(StateClosing, ConnectionManuallyClosedException(__FILE__, __LINE__, true));
+        setState(StateClosing, make_exception_ptr(ConnectionManuallyClosedException(__FILE__, __LINE__, true)));
     }
     else
     {
@@ -502,7 +509,7 @@ Ice::ConnectionI::close(ConnectionClose mode) noexcept
         //
         _conditionVariable.wait(lock, [this]{ return _asyncRequests.empty(); });
 
-        setState(StateClosing, ConnectionManuallyClosedException(__FILE__, __LINE__, true));
+        setState(StateClosing, make_exception_ptr(ConnectionManuallyClosedException(__FILE__, __LINE__, true)));
     }
 }
 
@@ -550,7 +557,7 @@ Ice::ConnectionI::throwException() const
     if(_exception)
     {
         assert(_state >= StateClosing);
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
 }
 
@@ -652,7 +659,7 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
             // Close the connection if we didn't receive a heartbeat in
             // the last period.
             //
-            setState(StateClosed, ConnectionTimeoutException(__FILE__, __LINE__));
+            setState(StateClosed, make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
         }
         else if(acm.close != ACMClose::CloseOnInvocation &&
                 _dispatchCount == 0 && _batchRequestQueue->isEmpty() && _asyncRequests.empty())
@@ -660,7 +667,7 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
             //
             // The connection is idle, close it.
             //
-            setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
+            setState(StateClosing, make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
         }
     }
 }
@@ -678,7 +685,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     //
     if(_exception)
     {
-        throw RetryException(*_exception);
+        throw RetryException(_exception);
     }
     assert(_state > StateNotValidated);
     assert(_state < StateClosing);
@@ -735,11 +742,11 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
         OutgoingMessage message(out, os, compress, requestId);
         status = sendMessage(message);
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
-        setState(StateClosed, ex);
+        setState(StateClosed, current_exception());
         assert(_exception);
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
 
     if(response)
@@ -842,14 +849,14 @@ public:
         }
         catch(const RetryException& ex)
         {
-            if(exception(*ex.get()))
+            if(exception(ex.get()))
             {
                 invokeExceptionAsync();
             }
         }
-        catch(const Exception& ex)
+        catch(const Exception&)
         {
-            if(exception(ex))
+            if(exception(current_exception()))
             {
                 invokeExceptionAsync();
             }
@@ -1007,7 +1014,7 @@ Ice::ConnectionI::getACM() noexcept
 }
 
 void
-Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const LocalException& ex)
+Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exception_ptr ex)
 {
     //
     // NOTE: This isn't called from a thread pool thread.
@@ -1037,11 +1044,15 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
                 }
             }
 
-            if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const Ice::ConnectionTimeoutException&)
             {
                 setState(StateClosed, ex);
             }
-            else
+            catch (const std::exception&)
             {
                 //
                 // If the request is being sent, don't remove it from the send streams,
@@ -1071,11 +1082,15 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
         {
             if(_asyncRequestsHint->second == outAsync)
             {
-                if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
+               try
+                {
+                    rethrow_exception(ex);
+                }
+                catch (const Ice::ConnectionTimeoutException&)
                 {
                     setState(StateClosed, ex);
                 }
-                else
+                catch (const std::exception&)
                 {
                     _asyncRequests.erase(_asyncRequestsHint);
                     _asyncRequestsHint = _asyncRequests.end();
@@ -1092,11 +1107,15 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, con
         {
             if(p->second.get() == outAsync.get())
             {
-                if(dynamic_cast<const Ice::ConnectionTimeoutException*>(&ex))
+                try
+                {
+                    rethrow_exception(ex);
+                }
+                catch (const Ice::ConnectionTimeoutException&)
                 {
                     setState(StateClosed, ex);
                 }
-                else
+                catch (const std::exception&)
                 {
                     assert(p != _asyncRequestsHint);
                     _asyncRequests.erase(p);
@@ -1131,7 +1150,7 @@ Ice::ConnectionI::sendResponse(Int, OutputStream* os, Byte compressFlag, bool /*
         if(_state >= StateClosed)
         {
             assert(_exception);
-            _exception->ice_throw();
+            rethrow_exception(_exception);
         }
 
         OutgoingMessage message(os, compressFlag > 0);
@@ -1144,9 +1163,9 @@ Ice::ConnectionI::sendResponse(Int, OutputStream* os, Byte compressFlag, bool /*
 
         return;
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
-        setState(StateClosed, ex);
+        setState(StateClosed, current_exception());
     }
 }
 
@@ -1170,7 +1189,7 @@ Ice::ConnectionI::sendNoResponse()
         if(_state >= StateClosed)
         {
             assert(_exception);
-            _exception->ice_throw();
+            rethrow_exception(_exception);
         }
 
         if(_state == StateClosing && _dispatchCount == 0)
@@ -1178,20 +1197,20 @@ Ice::ConnectionI::sendNoResponse()
             initiateShutdown();
         }
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
-        setState(StateClosed, ex);
+        setState(StateClosed, current_exception());
     }
 }
 
 bool
-Ice::ConnectionI::systemException(Int, const SystemException&, bool /*amd*/)
+Ice::ConnectionI::systemException(Int, std::exception_ptr, bool /*amd*/)
 {
     return false; // System exceptions aren't marshalled.
 }
 
 void
-Ice::ConnectionI::invokeException(Ice::Int, const LocalException& ex, int invokeNum, bool /*amd*/)
+Ice::ConnectionI::invokeException(Ice::Int, exception_ptr ex, int invokeNum, bool /*amd*/)
 {
     //
     // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
@@ -1327,9 +1346,9 @@ Ice::ConnectionI::startAsync(SocketOperation operation)
             _transceiver->startRead(_readStream);
         }
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        setState(StateClosed, ex);
+        setState(StateClosed, current_exception());
         return false;
     }
     return true;
@@ -1385,9 +1404,9 @@ Ice::ConnectionI::finishAsync(SocketOperation operation)
             }
         }
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        setState(StateClosed, ex);
+        setState(StateClosed, current_exception());
     }
     return _state < StateClosed;
 }
@@ -1638,9 +1657,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             _readHeader = true;
             return;
         }
-        catch(const SocketException& ex)
+        catch(const SocketException&)
         {
-            setState(StateClosed, ex);
+            setState(StateClosed, current_exception());
             return;
         }
         catch(const LocalException& ex)
@@ -1658,7 +1677,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             }
             else
             {
-                setState(StateClosed, ex);
+                setState(StateClosed, current_exception());
             }
             return;
         }
@@ -1795,9 +1814,9 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
                 {
                     initiateShutdown();
                 }
-                catch(const LocalException& ex)
+                catch(const LocalException&)
                 {
-                    setState(StateClosed, ex);
+                    setState(StateClosed, current_exception());
                 }
             }
             else if(_state == StateFinished)
@@ -1856,8 +1875,15 @@ Ice::ConnectionI::finish(bool close)
             string verb = _connector ? "establish" : "accept";
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
 
-            out << "failed to " << verb << " " << _endpoint->protocol() << " connection\n" << toString()
-                << "\n" << *_exception;
+            try
+            {
+                rethrow_exception(_exception);
+            }
+            catch (const std::exception& ex)
+            {
+                out << "failed to " << verb << " " << _endpoint->protocol() << " connection\n" << toString()
+                    << "\n" << ex;
+            }
         }
     }
     else
@@ -1867,13 +1893,28 @@ Ice::ConnectionI::finish(bool close)
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
             out << "closed " << _endpoint->protocol() << " connection\n" << toString();
 
-            if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
-                 dynamic_cast<const ConnectionManuallyClosedException*>(_exception.get()) ||
-                 dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
-                 dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
-                 dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get())))
+            try
             {
-                out << "\n" << *_exception;
+                rethrow_exception(_exception);
+            }
+            catch (const CloseConnectionException&)
+            {
+            }
+            catch (const ConnectionManuallyClosedException&)
+            {
+            }
+            catch (const ConnectionTimeoutException&)
+            {
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+            }
+            catch (const ObjectAdapterDeactivatedException&)
+            {
+            }
+            catch (const std::exception& ex)
+            {
+                out << "\n" << ex;
             }
         }
     }
@@ -1895,7 +1936,7 @@ Ice::ConnectionI::finish(bool close)
     {
         assert(_exception);
 
-        _startCallback->connectionStartFailed(shared_from_this(), *_exception);
+        _startCallback->connectionStartFailed(shared_from_this(), _exception);
         _startCallback = 0;
     }
 
@@ -1937,7 +1978,7 @@ Ice::ConnectionI::finish(bool close)
 
         for(deque<OutgoingMessage>::iterator o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
         {
-            o->completed(*_exception);
+            o->completed(_exception);
             if(o->requestId) // Make sure finished isn't called twice.
             {
                 _asyncRequests.erase(o->requestId);
@@ -1949,7 +1990,7 @@ Ice::ConnectionI::finish(bool close)
 
     for(map<Int, OutgoingAsyncBasePtr>::const_iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
     {
-        if(q->second->exception(*_exception))
+        if(q->second->exception(_exception))
         {
             q->second->invokeException();
         }
@@ -2006,15 +2047,15 @@ Ice::ConnectionI::timedOut()
     std::lock_guard lock(_mutex);
     if(_state <= StateNotValidated)
     {
-        setState(StateClosed, ConnectTimeoutException(__FILE__, __LINE__));
+        setState(StateClosed, make_exception_ptr(ConnectTimeoutException(__FILE__, __LINE__)));
     }
     else if(_state < StateClosing)
     {
-        setState(StateClosed, TimeoutException(__FILE__, __LINE__));
+        setState(StateClosed, make_exception_ptr(TimeoutException(__FILE__, __LINE__)));
     }
     else if(_state < StateClosed)
     {
-        setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
+        setState(StateClosed, make_exception_ptr(CloseTimeoutException(__FILE__, __LINE__)));
     }
 }
 
@@ -2036,7 +2077,7 @@ Ice::ConnectionI::getInfo() const
     std::lock_guard lock(_mutex);
     if(_state >= StateClosed)
     {
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
     return initConnectionInfo();
 }
@@ -2047,14 +2088,14 @@ Ice::ConnectionI::setBufferSize(Ice::Int rcvSize, Ice::Int sndSize)
     std::lock_guard lock(_mutex);
     if(_state >= StateClosed)
     {
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
     _transceiver->setBufferSize(rcvSize, sndSize);
     _info = 0; // Invalidate the cached connection info
 }
 
 void
-Ice::ConnectionI::exception(const LocalException& ex)
+Ice::ConnectionI::exception(std::exception_ptr ex)
 {
     std::lock_guard lock(_mutex);
     setState(StateClosed, ex);
@@ -2159,7 +2200,7 @@ Ice::ConnectionI::~ConnectionI()
 }
 
 void
-Ice::ConnectionI::setState(State state, const LocalException& ex)
+Ice::ConnectionI::setState(State state, exception_ptr ex)
 {
     //
     // If setState() is called with an exception, then only closed and
@@ -2178,7 +2219,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
         // If we are in closed state, an exception must be set.
         //
         assert(_state != StateClosed);
-        _exception = ex.ice_clone();
+        _exception = ex;
         //
         // We don't warn if we are not validated.
         //
@@ -2187,12 +2228,34 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
             //
             // Don't warn about certain expected exceptions.
             //
-            if(!(dynamic_cast<const CloseConnectionException*>(&ex) ||
-                 dynamic_cast<const ConnectionManuallyClosedException*>(&ex) ||
-                 dynamic_cast<const ConnectionTimeoutException*>(&ex) ||
-                 dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
-                 dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
-                 (dynamic_cast<const ConnectionLostException*>(&ex) && _state >= StateClosing)))
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const CloseConnectionException&)
+            {
+            }
+            catch (const ConnectionManuallyClosedException&)
+            {
+            }
+            catch (const ConnectionTimeoutException&)
+            {
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+            }
+            catch (const ObjectAdapterDeactivatedException&)
+            {
+            }
+            catch (const ConnectionLostException& ex)
+            {
+                if (_state < StateClosing)
+                {
+                    Warning out(_logger);
+                    out << "connection exception:\n" << ex << '\n' << _desc;
+                }
+            }
+            catch (const std::exception& ex)
             {
                 Warning out(_logger);
                 out << "connection exception:\n" << ex << '\n' << _desc;
@@ -2304,7 +2367,7 @@ Ice::ConnectionI::setState(State state)
                     return;
                 }
 
-                _batchRequestQueue->destroy(*_exception);
+                _batchRequestQueue->destroy(_exception);
 
                 //
                 // Don't need to close now for connections so only close the transceiver
@@ -2366,14 +2429,39 @@ Ice::ConnectionI::setState(State state)
         }
         if(_observer && state == StateClosed && _exception)
         {
-            if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
-                 dynamic_cast<const ConnectionManuallyClosedException*>(_exception.get()) ||
-                 dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
-                 dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
-                 dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
-                 (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state >= StateClosing)))
+            try
             {
-                _observer->failed(_exception->ice_id());
+                rethrow_exception(_exception);
+            }
+            catch (const CloseConnectionException&)
+            {
+            }
+            catch (const ConnectionManuallyClosedException&)
+            {
+            }
+            catch (const ConnectionTimeoutException&)
+            {
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+            }
+            catch (const ObjectAdapterDeactivatedException&)
+            {
+            }
+            catch (const ConnectionLostException& ex)
+            {
+                if (_state < StateClosing)
+                {
+                    _observer->failed(ex.ice_id());
+                }
+            }
+            catch (const Ice::Exception& ex)
+            {
+                 _observer->failed(ex.ice_id());
+            }
+            catch (const std::exception& ex)
+            {
+                _observer->failed(ex.what());
             }
         }
     }
@@ -2387,9 +2475,9 @@ Ice::ConnectionI::setState(State state)
         {
             initiateShutdown();
         }
-        catch(const LocalException& ex)
+        catch(const LocalException&)
         {
-            setState(StateClosed, ex);
+            setState(StateClosed, current_exception());
         }
     }
 }
@@ -2429,7 +2517,7 @@ Ice::ConnectionI::initiateShutdown()
             //
             // Notify the transceiver of the graceful connection closure.
             //
-            SocketOperation op = _transceiver->closing(true, *_exception);
+            SocketOperation op = _transceiver->closing(true, _exception);
             if(op)
             {
                 scheduleTimeout(op);
@@ -2462,9 +2550,9 @@ Ice::ConnectionI::sendHeartbeatNow()
             OutgoingMessage message(&os, false);
             sendMessage(message);
         }
-        catch(const LocalException& ex)
+        catch(const LocalException&)
         {
-            setState(StateClosed, ex);
+            setState(StateClosed, current_exception());
             assert(_exception);
         }
     }
@@ -2760,16 +2848,16 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
         if(_state == StateClosing && _shutdownInitiated)
         {
             setState(StateClosingPending);
-            SocketOperation op = _transceiver->closing(true, *_exception);
+            SocketOperation op = _transceiver->closing(true, _exception);
             if(op)
             {
                 return op;
             }
         }
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        setState(StateClosed, ex);
+        setState(StateClosed, current_exception());
     }
     return SocketOperationNone;
 }
@@ -3108,12 +3196,12 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
                 }
                 else
                 {
-                    setState(StateClosingPending, CloseConnectionException(__FILE__, __LINE__));
+                    setState(StateClosingPending, make_exception_ptr(CloseConnectionException(__FILE__, __LINE__)));
 
                     //
                     // Notify the transceiver of the graceful connection closure.
                     //
-                    SocketOperation op = _transceiver->closing(false, *_exception);
+                    SocketOperation op = _transceiver->closing(false, _exception);
                     if(op)
                     {
                         return op;
@@ -3268,7 +3356,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
         }
         else
         {
-            setState(StateClosed, ex);
+            setState(StateClosed, current_exception());
         }
     }
 
@@ -3306,9 +3394,9 @@ Ice::ConnectionI::invokeAll(InputStream& stream, Int invokeNum, Int requestId, B
 
         stream.clear();
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
-        invokeException(requestId, ex, invokeNum, false);  // Fatal invocation exception
+        invokeException(requestId, current_exception(), invokeNum, false);  // Fatal invocation exception
     }
 }
 

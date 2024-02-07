@@ -35,7 +35,7 @@ OutgoingAsyncBase::sent()
 }
 
 bool
-OutgoingAsyncBase::exception(const Exception& ex)
+OutgoingAsyncBase::exception(std::exception_ptr ex)
 {
     return exceptionImpl(ex);
 }
@@ -169,7 +169,7 @@ OutgoingAsyncBase::invokeException()
 {
     try
     {
-        handleInvokeException(*_ex, this);
+        handleInvokeException(_ex, this);
     }
     catch(const std::exception& ex)
     {
@@ -198,16 +198,12 @@ OutgoingAsyncBase::invokeResponse()
         {
             handleInvokeResponse(_state & OK, this);
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception&)
         {
-            if(handleException(ex))
+            if(handleException(current_exception()))
             {
-                handleInvokeException(ex, this);
+                handleInvokeException(current_exception(), this);
             }
-        }
-        catch(const exception_ptr& ex)
-        {
-            rethrow_exception(ex);
         }
     }
     catch(const std::exception& ex)
@@ -230,11 +226,11 @@ OutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
     {
         try
         {
-            _cancellationException->ice_throw();
+            rethrow_exception(_cancellationException);
         }
         catch(const Ice::LocalException&)
         {
-            _cancellationException.reset();
+            _cancellationException = nullptr;
             throw;
         }
     }
@@ -244,7 +240,7 @@ OutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 void
 OutgoingAsyncBase::cancel()
 {
-    cancel(Ice::InvocationCanceledException(__FILE__, __LINE__));
+    cancel(make_exception_ptr(Ice::InvocationCanceledException(__FILE__, __LINE__)));
 }
 
 OutgoingAsyncBase::OutgoingAsyncBase(const InstancePtr& instance) :
@@ -279,17 +275,17 @@ OutgoingAsyncBase::sentImpl(bool done)
 }
 
 bool
-OutgoingAsyncBase::exceptionImpl(const Exception& ex)
+OutgoingAsyncBase::exceptionImpl(std::exception_ptr ex)
 {
     Lock sync(_m);
-    _ex = ex.ice_clone();
+    _ex = ex;
     if(_childObserver)
     {
-        _childObserver.failed(ex.ice_id());
+        _childObserver.failed(getExceptionId(ex));
         _childObserver.detach();
     }
     _cancellationHandler = 0;
-    _observer.failed(ex.ice_id());
+    _observer.failed(getExceptionId(ex));
 
     bool invoke = handleException(ex);
     if(!invoke)
@@ -316,8 +312,8 @@ OutgoingAsyncBase::responseImpl(bool ok, bool invoke)
     }
     catch(const Ice::Exception& ex)
     {
-        _ex = ex.ice_clone();
-        invoke = handleException(ex);
+        _ex = current_exception();
+        invoke = handleException(_ex);
     }
     if(!invoke)
     {
@@ -327,14 +323,14 @@ OutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 }
 
 void
-OutgoingAsyncBase::cancel(const Ice::LocalException& ex)
+OutgoingAsyncBase::cancel(std::exception_ptr ex)
 {
     CancellationHandlerPtr handler;
     {
         Lock sync(_m);
         if(!_cancellationHandler)
         {
-            _cancellationException = ex.ice_clone();
+            _cancellationException = ex;
             return;
         }
         handler = _cancellationHandler;
@@ -371,11 +367,11 @@ OutgoingAsyncBase::warning() const
 }
 
 bool
-ProxyOutgoingAsyncBase::exception(const Exception& exc)
+ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
 {
     if(_childObserver)
     {
-        _childObserver.failed(exc.ice_id());
+        _childObserver.failed(getExceptionId(exc));
         _childObserver.detach();
     }
 
@@ -399,9 +395,9 @@ ProxyOutgoingAsyncBase::exception(const Exception& exc)
         _instance->retryQueue()->add(shared_from_this(), _proxy->_handleException(exc, _handler, _mode, _sent, _cnt));
         return false;
     }
-    catch(const Exception& ex)
+    catch(const Exception&)
     {
-        return exceptionImpl(ex); // No retries, we're done
+        return exceptionImpl(current_exception()); // No retries, we're done
     }
 }
 
@@ -420,7 +416,7 @@ ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 }
 
 void
-ProxyOutgoingAsyncBase::retryException(const Exception&)
+ProxyOutgoingAsyncBase::retryException()
 {
     try
     {
@@ -433,9 +429,9 @@ ProxyOutgoingAsyncBase::retryException(const Exception&)
         _proxy->_updateRequestHandler(_handler, 0); // Clear request handler and always retry.
         _instance->retryQueue()->add(shared_from_this(), 0);
     }
-    catch(const Ice::Exception& exc)
+    catch(const Ice::Exception&)
     {
-        if(exception(exc))
+        if(exception(current_exception()))
         {
             invokeExceptionAsync();
         }
@@ -449,7 +445,7 @@ ProxyOutgoingAsyncBase::retry()
 }
 
 void
-ProxyOutgoingAsyncBase::abort(const Ice::Exception& ex)
+ProxyOutgoingAsyncBase::abort(std::exception_ptr ex)
 {
     assert(!_childObserver);
 
@@ -457,14 +453,25 @@ ProxyOutgoingAsyncBase::abort(const Ice::Exception& ex)
     {
         invokeExceptionAsync();
     }
-    else if(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex))
+    else
     {
-        //
-        // If it's a communicator destroyed exception, don't swallow
-        // it but instead notify the user thread. Even if no callback
-        // was provided.
-        //
-        ex.ice_throw();
+        try
+        {
+            rethrow_exception(ex);
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            //
+            // If it's a communicator destroyed exception, don't swallow
+            // it but instead notify the user thread. Even if no callback
+            // was provided.
+            //
+            throw;
+        }
+        catch (...)
+        {
+            // ignored.
+        }
     }
 }
 
@@ -537,7 +544,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                 }
-                int interval = _proxy->_handleException(ex, _handler, _mode, _sent, _cnt);
+                int interval = _proxy->_handleException(current_exception(), _handler, _mode, _sent, _cnt);
                 if(interval > 0)
                 {
                     _instance->retryQueue()->add(shared_from_this(), interval);
@@ -560,7 +567,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
         {
             throw;
         }
-        else if(exceptionImpl(ex)) // No retries, we're done
+        else if(exceptionImpl(current_exception())) // No retries, we're done
         {
             invokeExceptionAsync();
         }
@@ -582,7 +589,7 @@ ProxyOutgoingAsyncBase::sentImpl(bool done)
 }
 
 bool
-ProxyOutgoingAsyncBase::exceptionImpl(const Exception& ex)
+ProxyOutgoingAsyncBase::exceptionImpl(std::exception_ptr ex)
 {
     if(_proxy->_getReference()->getInvocationTimeout() != -1)
     {
@@ -606,11 +613,11 @@ ProxyOutgoingAsyncBase::runTimerTask()
 {
     if(_proxy->_getReference()->getInvocationTimeout() == -2)
     {
-        cancel(ConnectionTimeoutException(__FILE__, __LINE__));
+        cancel(make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
     }
     else
     {
-        cancel(InvocationTimeoutException(__FILE__, __LINE__));
+        cancel(make_exception_ptr(InvocationTimeoutException(__FILE__, __LINE__)));
     }
 }
 
@@ -840,9 +847,9 @@ OutgoingAsync::response()
 
         return responseImpl(replyStatus == replyOK, true);
     }
-    catch(const Exception& ex)
+    catch(const Exception&)
     {
-        return exception(ex);
+        return exception(current_exception());
     }
 }
 
@@ -860,7 +867,7 @@ OutgoingAsync::invokeCollocated(CollocatedRequestHandler* handler)
 }
 
 void
-OutgoingAsync::abort(const Exception& ex)
+OutgoingAsync::abort(std::exception_ptr ex)
 {
     const Reference::Mode mode = _proxy->_getReference()->getMode();
     if(mode == Reference::ModeBatchOneway || mode == Reference::ModeBatchDatagram)
@@ -918,9 +925,9 @@ OutgoingAsync::invoke(const string& operation,
         }
         invoke(operation);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        abort(ex);
+        abort(current_exception());
     }
 }
 
@@ -950,7 +957,7 @@ LambdaInvoke::handleSent(bool, bool alreadySent)
 }
 
 bool
-LambdaInvoke::handleException(const Ice::Exception&)
+LambdaInvoke::handleException(std::exception_ptr)
 {
     return _exception != nullptr; // Invoke the callback
 }
@@ -968,16 +975,9 @@ LambdaInvoke::handleInvokeSent(bool sentSynchronously, OutgoingAsyncBase*) const
 }
 
 void
-LambdaInvoke::handleInvokeException(const Ice::Exception& ex, OutgoingAsyncBase*) const
+LambdaInvoke::handleInvokeException(std::exception_ptr ex, OutgoingAsyncBase*) const
 {
-    try
-    {
-        ex.ice_throw();
-    }
-    catch(const Ice::Exception&)
-    {
-        _exception(current_exception());
-    }
+    _exception(ex);
 }
 
 void

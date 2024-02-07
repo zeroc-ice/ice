@@ -1433,7 +1433,7 @@ IceInternal::RoutableReference::getConnection(const GetConnectionCallbackPtr& ca
         }
 
         virtual void
-        setException(const Ice::LocalException& ex)
+        setException(std::exception_ptr ex)
         {
             _callback->setException(ex);
         }
@@ -1483,15 +1483,15 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
             }
 
             virtual void
-            setException(const Ice::LocalException& exc)
+            setException(std::exception_ptr exc)
             {
                 try
                 {
-                    exc.ice_throw();
+                    rethrow_exception(exc);
                 }
-                catch(const Ice::NoEndpointException& ex)
+                catch(const Ice::NoEndpointException&)
                 {
-                    _callback->setException(ex); // No need to retry if there's no endpoints.
+                    _callback->setException(exc); // No need to retry if there's no endpoints.
                 }
                 catch(const Ice::LocalException& ex)
                 {
@@ -1510,7 +1510,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
                         _reference->getConnectionNoRouterInfo(_callback); // Retry.
                         return;
                     }
-                    _callback->setException(ex);
+                    _callback->setException(exc);
                 }
             }
 
@@ -1531,7 +1531,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
         {
             if(endpoints.empty())
             {
-                _callback->setException(Ice::NoEndpointException(__FILE__, __LINE__, _reference->toString()));
+                _callback->setException(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, _reference->toString())));
                 return;
             }
 
@@ -1541,7 +1541,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
         }
 
         virtual void
-        setException(const Ice::LocalException& ex)
+        setException(std::exception_ptr ex)
         {
             _callback->setException(ex);
         }
@@ -1571,7 +1571,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     }
     else
     {
-        callback->setException(Ice::NoEndpointException(__FILE__, __LINE__, toString()));
+        callback->setException(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, toString())));
     }
 }
 
@@ -1582,7 +1582,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
     vector<EndpointIPtr> endpoints = filterEndpoints(allEndpoints);
     if(endpoints.empty())
     {
-        callback->setException(Ice::NoEndpointException(__FILE__, __LINE__, toString()));
+        callback->setException(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, toString())));
         return;
     }
 
@@ -1612,7 +1612,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             }
 
             virtual void
-            setException(const Ice::LocalException& ex)
+            setException(std::exception_ptr ex)
             {
                 _callback->setException(ex);
             }
@@ -1657,16 +1657,16 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             }
 
             virtual void
-            setException(const Ice::LocalException& ex)
+            setException(std::exception_ptr ex)
             {
                 if(!_exception)
                 {
-                    _exception = ex.ice_clone();
+                    _exception = ex;
                 }
 
                 if(++_i == _endpoints.size())
                 {
-                    _callback->setException(*_exception);
+                    _callback->setException(_exception);
                     return;
                 }
 
@@ -1693,7 +1693,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             const vector<EndpointIPtr> _endpoints;
             const GetConnectionCallbackPtr _callback;
             size_t _i;
-            unique_ptr<Ice::LocalException> _exception;
+            exception_ptr _exception;
         };
 
         //

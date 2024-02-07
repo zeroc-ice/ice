@@ -907,7 +907,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
 }
 
 IceInternal::SocketOperation
-SChannel::TransceiverI::closing(bool initiator, const Ice::LocalException&)
+SChannel::TransceiverI::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

@@ -83,7 +83,7 @@ public:
     public:
 
         virtual void setEndpoints(const std::vector<EndpointIPtr>&, bool) = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
+        virtual void setException(std::exception_ptr) = 0;
     };
     typedef IceUtil::Handle<GetEndpointsCallback> GetEndpointsCallbackPtr;
 
@@ -94,7 +94,7 @@ public:
         RequestCallback(const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
 
         void response(const LocatorInfoPtr&, const Ice::ObjectPrxPtr&);
-        void exception(const LocatorInfoPtr&, const Ice::Exception&);
+        void exception(const LocatorInfoPtr&, std::exception_ptr);
 
     private:
 
@@ -111,7 +111,7 @@ public:
         void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
 
         void response(const Ice::ObjectPrxPtr&);
-        void exception(const Ice::Exception&);
+        void exception(std::exception_ptr);
 
     protected:
 
@@ -130,7 +130,7 @@ public:
         bool _sent;
         bool _response;
         Ice::ObjectPrxPtr _proxy;
-        std::unique_ptr<Ice::Exception> _exception;
+        std::exception_ptr _exception;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 
@@ -160,7 +160,7 @@ public:
 
 private:
 
-    void getEndpointsException(const ReferencePtr&, const Ice::Exception&);
+    void getEndpointsException(const ReferencePtr&, std::exception_ptr);
     void getEndpointsTrace(const ReferencePtr&, const std::vector<EndpointIPtr>&, bool);
     void trace(const std::string&, const ReferencePtr&, const std::vector<EndpointIPtr>&);
     void trace(const std::string&, const ReferencePtr&, const ReferencePtr&);

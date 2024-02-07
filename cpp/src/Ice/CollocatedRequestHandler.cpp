@@ -90,7 +90,7 @@ CollocatedRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& outA
 }
 
 void
-CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const LocalException& ex)
+CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exception_ptr ex)
 {
     lock_guard<mutex> lock(_mutex);
 
@@ -257,7 +257,7 @@ CollocatedRequestHandler::sendNoResponse()
 }
 
 bool
-CollocatedRequestHandler::systemException(Int requestId, const SystemException& ex, bool amd)
+CollocatedRequestHandler::systemException(Int requestId, exception_ptr ex, bool amd)
 {
     handleException(requestId, ex, amd);
     _adapter->decDirectCount();
@@ -265,7 +265,7 @@ CollocatedRequestHandler::systemException(Int requestId, const SystemException& 
 }
 
 void
-CollocatedRequestHandler::invokeException(Int requestId, const LocalException& ex, int /*invokeNum*/, bool amd)
+CollocatedRequestHandler::invokeException(Int requestId, exception_ptr ex, int /*invokeNum*/, bool amd)
 {
     handleException(requestId, ex, amd);
     _adapter->decDirectCount();
@@ -346,9 +346,9 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, Int requestId, Int batchRe
             {
                 _adapter->incDirectCount();
             }
-            catch(const ObjectAdapterDeactivatedException& ex)
+            catch(const ObjectAdapterDeactivatedException&)
             {
-                handleException(requestId, ex, false);
+                handleException(requestId, current_exception(), false);
                 break;
             }
 
@@ -357,16 +357,16 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, Int requestId, Int batchRe
             --invokeNum;
         }
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
-        invokeException(requestId, ex, invokeNum, false); // Fatal invocation exception
+        invokeException(requestId, current_exception(), invokeNum, false); // Fatal invocation exception
     }
 
     _adapter->decDirectCount();
 }
 
 void
-CollocatedRequestHandler::handleException(int requestId, const Exception& ex, bool amd)
+CollocatedRequestHandler::handleException(int requestId, std::exception_ptr ex, bool amd)
 {
     if(requestId == 0)
     {

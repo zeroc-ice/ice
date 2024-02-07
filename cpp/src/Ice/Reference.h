@@ -44,7 +44,7 @@ public:
     public:
 
         virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
+        virtual void setException(std::exception_ptr) = 0;
     };
     using GetConnectionCallbackPtr = std::shared_ptr<GetConnectionCallback>;
 

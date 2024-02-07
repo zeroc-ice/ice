@@ -149,9 +149,9 @@ public:
     void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrxPtr&, bool);
 
     void adapterRequestTimedOut(const AdapterRequestPtr&);
-    void adapterRequestException(const AdapterRequestPtr&, const Ice::LocalException&);
+    void adapterRequestException(const AdapterRequestPtr&, std::exception_ptr);
     void objectRequestTimedOut(const ObjectRequestPtr&);
-    void objectRequestException(const ObjectRequestPtr&, const Ice::LocalException&);
+    void objectRequestException(const ObjectRequestPtr&, std::exception_ptr);
 
     const IceUtil::TimerPtr&
     timer()

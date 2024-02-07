@@ -158,7 +158,7 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
         }
 
         void
-        exception(const Ice::LocalException& ex)
+        exception(std::exception_ptr ex)
         {
             _callback->exception(ex);
         }
@@ -173,9 +173,9 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
         _configuration->checkConnectorsException();
         _endpoint->connectors_async(selType, make_shared<Callback>(cb));
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        cb->exception(ex);
+        cb->exception(current_exception());
     }
 }
 
