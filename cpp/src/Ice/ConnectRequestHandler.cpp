@@ -126,7 +126,6 @@ ConnectRequestHandler::waitForConnection()
     if(_exception)
     {
         rethrow_exception(_exception);
-        return 0; // Keep the compiler happy.
     }
     else
     {
@@ -240,7 +239,6 @@ ConnectRequestHandler::initialized(unique_lock<mutex>& lock)
                 return true;
             }
             rethrow_exception(_exception);
-            return false; // Keep the compiler happy.
         }
         else
         {

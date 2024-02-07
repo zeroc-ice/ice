@@ -310,7 +310,7 @@ OutgoingAsyncBase::responseImpl(bool ok, bool invoke)
     {
         invoke &= handleResponse(ok);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
         _ex = current_exception();
         invoke = handleException(_ex);
@@ -557,7 +557,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             }
         }
     }
-    catch(const Exception& ex)
+    catch(const Exception&)
     {
         //
         // If called from the user thread we re-throw, the exception

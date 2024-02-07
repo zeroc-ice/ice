@@ -51,7 +51,7 @@ public:
                     request->exception(e);
                 });
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception&)
         {
             exception(current_exception());
         }

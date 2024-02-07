@@ -787,7 +787,7 @@ LoggerAdminLoggerI::run()
                         }
                     });
             }
-            catch(const LocalException& ex)
+            catch(const LocalException&)
             {
                 _loggerAdmin->deadRemoteLogger(*p, _localLogger, current_exception(), "log");
             }
