@@ -50,7 +50,7 @@ private:
     std::string _addr;
     std::string _uuid;
     bool _needConnect;
-    std::unique_ptr<Ice::Exception> _exception;
+    std::exception_ptr _exception;
     std::mutex _mutex;
     void connectCompleted(int, const ConnectionPtr&);
     void connectFailed(std::exception_ptr);
