@@ -58,12 +58,7 @@ IceSSL::ConnectorI::operator==(const IceInternal::Connector& r) const
         return true;
     }
 
-    if(_delegate != p->_delegate)
-    {
-        return false;
-    }
-
-    return true;
+    return Ice::targetEqualTo(_delegate, p->_delegate);
 }
 
 bool
@@ -80,16 +75,7 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
         return false;
     }
 
-    if(_delegate < p->_delegate)
-    {
-        return true;
-    }
-    else if(p->_delegate < _delegate)
-    {
-        return false;
-    }
-
-    return false;
+    return Ice::targetLess(_delegate, p->_delegate);
 }
 
 IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const IceInternal::ConnectorPtr& del, const string& h) :

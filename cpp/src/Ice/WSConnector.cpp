@@ -43,17 +43,12 @@ IceInternal::WSConnector::operator==(const Connector& r) const
         return true;
     }
 
-    if(_delegate != p->_delegate)
-    {
-        return false;
-    }
-
     if(_resource != p->_resource)
     {
         return false;
     }
 
-    return true;
+    return Ice::targetEqualTo(_delegate, p->_delegate);
 }
 
 bool
@@ -70,15 +65,6 @@ IceInternal::WSConnector::operator<(const Connector& r) const
         return false;
     }
 
-    if(_delegate < p->_delegate)
-    {
-        return true;
-    }
-    else if(p->_delegate < _delegate)
-    {
-        return false;
-    }
-
     if(_resource < p->_resource)
     {
         return true;
@@ -88,7 +74,7 @@ IceInternal::WSConnector::operator<(const Connector& r) const
         return false;
     }
 
-    return false;
+    return Ice::targetLess(_delegate, p->_delegate);
 }
 
 IceInternal::WSConnector::WSConnector(const ProtocolInstancePtr& instance, const ConnectorPtr& del, const string& host,
