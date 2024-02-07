@@ -1264,11 +1264,8 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
     _thread = new SelectorHelperThread(*this);
     _thread->start();
 
-    Lock sync(*this);
-    while(!_runLoop)
-    {
-        wait();
-    }
+    unique_lock<mutex> lock(_mutex);
+    _conditionVariable.wait(lock, [this] { return _runLoop != 0; });
 }
 
 Selector::~Selector()
@@ -1279,7 +1276,7 @@ void
 Selector::destroy()
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
 
         //
         // Make sure any pending changes are processed to ensure remaining
@@ -1301,7 +1298,7 @@ Selector::destroy()
     _thread->getThreadControl().join();
     _thread = 0;
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _source.reset(0);
 
     //assert(_wrappers.empty());
@@ -1312,26 +1309,26 @@ Selector::destroy()
 void
 Selector::initialize(EventHandler* handler)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _wrappers[handler] = new EventHandlerWrapper(handler, *this);
 }
 
 void
 Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation add)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     const EventHandlerWrapperPtr& wrapper = _wrappers[handler];
     if(wrapper->update(remove, add))
     {
         _changes.insert(wrapper);
-        notify();
+        _conditionVariable.notify_one();
     }
 }
 
 void
 Selector::enable(EventHandler* handler, SocketOperation op)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!(handler->_disabled & op))
     {
         return;
@@ -1347,7 +1344,7 @@ Selector::enable(EventHandler* handler, SocketOperation op)
 void
 Selector::disable(EventHandler* handler, SocketOperation op)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(handler->_disabled & op)
     {
         return;
@@ -1358,14 +1355,14 @@ Selector::disable(EventHandler* handler, SocketOperation op)
 bool
 Selector::finish(EventHandler* handler, bool closeNow)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     std::map<EventHandler*, EventHandlerWrapperPtr>::iterator p = _wrappers.find(handler);
     assert(p != _wrappers.end());
     EventHandlerWrapperPtr wrapper = p->second;
     if(wrapper->finish())
     {
         _changes.insert(wrapper);
-        notify();
+        _conditionVariable.notify_one();
     }
     _wrappers.erase(p);
     return closeNow;
@@ -1388,7 +1385,7 @@ Selector::ready(EventHandler* handler, SocketOperation status, bool value)
         handler->_ready = static_cast<SocketOperation>(handler->_ready & ~status);
     }
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     std::map<EventHandler*, EventHandlerWrapperPtr>::iterator p = _wrappers.find(handler);
     assert(p != _wrappers.end());
     p->second->checkReady();
@@ -1397,7 +1394,7 @@ Selector::ready(EventHandler* handler, SocketOperation status, bool value)
 void
 Selector::startSelect()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     //
     // Re-enable callbacks for previously selected handlers.
@@ -1416,7 +1413,7 @@ Selector::startSelect()
 void
 Selector::finishSelect(std::vector<std::pair<EventHandler*, SocketOperation> >& handlers)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     handlers.clear();
     for(set<EventHandlerWrapperPtr>::const_iterator p = _readyHandlers.begin(); p != _readyHandlers.end(); ++p)
     {
@@ -1436,7 +1433,7 @@ Selector::select(int timeout)
     //
     // Wait for handlers to be ready.
     //
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     while(!_destroyed)
     {
         while(!_changes.empty())
@@ -1444,22 +1441,19 @@ Selector::select(int timeout)
             CFRunLoopSourceSignal(_source.get());
             CFRunLoopWakeUp(_runLoop);
 
-            wait();
+            _conditionVariable.wait(lock);
         }
 
-        if(_readyHandlers.empty())
+        if(timeout > 0)
         {
-            if(timeout > 0)
+            if(_conditionVariable.wait_for(chrono::seconds(timeout) == cv_status::no_timeout))
             {
-                if(!timedWait(IceUtil::Time::seconds(timeout)))
-                {
-                    break;
-                }
+                break;
             }
-            else
-            {
-                wait();
-            }
+        }
+        else
+        {
+            _conditionVariable.wait(lock, [this] { return !_readyHandlers.empty(); });
         }
 
         if(_changes.empty())
@@ -1472,7 +1466,7 @@ Selector::select(int timeout)
 void
 Selector::processInterrupt()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_changes.empty())
     {
         for(set<EventHandlerWrapperPtr>::const_iterator p = _changes.begin(); p != _changes.end(); ++p)
@@ -1480,7 +1474,7 @@ Selector::processInterrupt()
             (*p)->updateRunLoop();
         }
         _changes.clear();
-        notify();
+        _conditionVariable.notify_one();
     }
     if(_destroyed)
     {
@@ -1492,9 +1486,9 @@ void
 Selector::run()
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _runLoop = CFRunLoopGetCurrent();
-        notify();
+        _conditionVariable.notify_one();
     }
 
     CFRunLoopAddSource(CFRunLoopGetCurrent(), _source.get(), kCFRunLoopDefaultMode);
@@ -1505,7 +1499,7 @@ Selector::run()
 void
 Selector::ready(EventHandlerWrapper* wrapper, SocketOperation op, int error)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     wrapper->ready(op, error);
 }
 
@@ -1516,7 +1510,7 @@ Selector::addReadyHandler(EventHandlerWrapper* wrapper)
     _readyHandlers.insert(wrapper);
     if(_readyHandlers.size() == 1)
     {
-        notify();
+        _conditionVariable.notify_one();
     }
 }
 

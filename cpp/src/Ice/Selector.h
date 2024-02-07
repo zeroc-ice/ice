@@ -6,8 +6,6 @@
 #define ICE_SELECTOR_H
 
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Monitor.h>
-#include <IceUtil/Mutex.h>
 
 #include <Ice/Network.h>
 #include <Ice/InstanceF.h>
@@ -25,7 +23,6 @@
 #endif
 
 #if defined(ICE_USE_CFSTREAM)
-#   include <IceUtil/RecMutex.h>
 #   include <IceUtil/Thread.h>
 #   include <set>
 
@@ -241,7 +238,7 @@ private:
 };
 typedef IceUtil::Handle<EventHandlerWrapper> EventHandlerWrapperPtr;
 
-class Selector : IceUtil::Monitor<IceUtil::RecMutex>
+class Selector
 {
 
 public:
@@ -284,6 +281,8 @@ private:
     std::set<EventHandlerWrapperPtr> _readyHandlers;
     std::vector<std::pair<EventHandlerWrapperPtr, SocketOperation> > _selectedHandlers;
     std::map<EventHandler*, EventHandlerWrapperPtr> _wrappers;
+    std::recursive_mutex _mutex;
+    std::condition_variable_any;
 };
 
 #endif

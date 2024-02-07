@@ -234,9 +234,6 @@
     <ClCompile Include="..\..\..\IceUtil\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\RecMutex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\Shared.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

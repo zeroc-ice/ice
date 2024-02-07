@@ -35,21 +35,21 @@ PropertiesAdminI::PropertiesAdminI(const InstancePtr& instance) :
 string
 PropertiesAdminI::getProperty(string name, const Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _properties->getProperty(name);
 }
 
 PropertyDict
 PropertiesAdminI::getPropertiesForPrefix(string prefix, const Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _properties->getPropertiesForPrefix(prefix);
 }
 
 void
 PropertiesAdminI::setProperties(PropertyDict props, const Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     PropertyDict old = _properties->getPropertiesForPrefix("");
     PropertyDict::const_iterator p;
@@ -199,7 +199,7 @@ PropertiesAdminI::setProperties(PropertyDict props, const Current&)
 std::function<void()>
 PropertiesAdminI::addUpdateCallback(std::function<void(const Ice::PropertyDict&)> cb)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     auto p = _updateCallbacks.insert(_updateCallbacks.end(), std::move(cb));
     auto propertiesAdmin = shared_from_this();
@@ -210,7 +210,7 @@ PropertiesAdminI::addUpdateCallback(std::function<void(const Ice::PropertyDict&)
 void
 PropertiesAdminI::removeUpdateCallback(std::list<std::function<void(const Ice::PropertyDict&)>>::iterator p)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _updateCallbacks.erase(p);
 }
 

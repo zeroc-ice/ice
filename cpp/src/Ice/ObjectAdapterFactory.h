@@ -6,16 +6,15 @@
 #define ICE_OBJECT_ADAPTER_FACTORY_H
 
 #include <Ice/ObjectAdapterI.h>
-#include <IceUtil/RecMutex.h>
-#include <IceUtil/Monitor.h>
 
 #include <set>
+#include <mutex>
+#include <condition_variable>
 
 namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ::IceUtil::Monitor< ::IceUtil::RecMutex>,
-                             public std::enable_shared_from_this<ObjectAdapterFactory>
+class ObjectAdapterFactory : public std::enable_shared_from_this<ObjectAdapterFactory>
 {
 public:
 
@@ -42,6 +41,8 @@ private:
     ::Ice::CommunicatorPtr _communicator;
     std::set<std::string> _adapterNamesInUse;
     std::list<std::shared_ptr<Ice::ObjectAdapterI>> _adapters;
+    mutable std::recursive_mutex _mutex;
+    std::condition_variable_any _conditionVariable;
 };
 
 }
