@@ -184,7 +184,7 @@ IceBT::TransceiverI::connectFailed(std::exception_ptr ex)
     //
     // Save the exception - it will be raised in initialize().
     //
-    _exception = ex.ice_clone();
+    _exception = ex;
     //
     // Triggers a call to write() from a different thread.
     //
