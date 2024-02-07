@@ -1236,11 +1236,11 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     {
         return false;
     }
-    if(_routerInfo != rhs->_routerInfo)
+    if(!Ice::targetEqualTo(_routerInfo, rhs->_routerInfo))
     {
         return false;
     }
-    if(_locatorInfo != rhs->_locatorInfo)
+    if(!Ice::targetEqualTo(_locatorInfo, rhs->_locatorInfo))
     {
         return false;
     }
@@ -1348,19 +1348,19 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
             return false;
         }
     }
-    if(_routerInfo < rhs->_routerInfo)
+    if(Ice::targetLess(_routerInfo, rhs->_routerInfo))
     {
         return true;
     }
-    else if(rhs->_routerInfo < _routerInfo)
+    else if(Ice::targetLess(rhs->_routerInfo, _routerInfo))
     {
         return false;
     }
-    if(_locatorInfo < rhs->_locatorInfo)
+    if(Ice::targetLess(_locatorInfo, rhs->_locatorInfo))
     {
         return true;
     }
-    else if(rhs->_locatorInfo < _locatorInfo)
+    else if(Ice::targetLess(rhs->_locatorInfo, _locatorInfo))
     {
         return false;
     }

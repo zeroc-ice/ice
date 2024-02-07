@@ -153,8 +153,10 @@ private:
     const FactoryACMMonitorPtr _monitor;
     bool _destroyed;
 
+    using ConnectCallbackSet = std::set<ConnectCallbackPtr, Ice::TargetCompare<ConnectCallbackPtr, std::less>>;
+
     std::multimap<ConnectorPtr, Ice::ConnectionIPtr, Ice::TargetCompare<ConnectorPtr, std::less>> _connections;
-    std::map<ConnectorPtr, std::set<ConnectCallbackPtr>, Ice::TargetCompare<ConnectorPtr, std::less>> _pending;
+    std::map<ConnectorPtr, ConnectCallbackSet, Ice::TargetCompare<ConnectorPtr, std::less>> _pending;
 
     std::multimap<EndpointIPtr, Ice::ConnectionIPtr, Ice::TargetCompare<EndpointIPtr, std::less>> _connectionsByEndpoint;
     int _pendingConnectCount;
