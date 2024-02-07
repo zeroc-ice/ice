@@ -79,7 +79,7 @@ Ice_Service_CtrlHandler(DWORD ctrl)
 namespace
 {
 
-class ServiceStatusManager : public IceUtil::Monitor<IceUtil::Mutex>
+class ServiceStatusManager
 {
 public:
 
@@ -134,6 +134,8 @@ private:
     SERVICE_STATUS _status;
     IceUtil::ThreadPtr _thread;
     bool _stopped;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 static ServiceStatusManager* serviceStatusManager;
@@ -1445,7 +1447,7 @@ ServiceStatusManager::ServiceStatusManager(SERVICE_STATUS_HANDLE handle) :
 void
 ServiceStatusManager::startUpdate(DWORD state)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(state == SERVICE_START_PENDING || state == SERVICE_STOP_PENDING);
     assert(!_thread);
@@ -1465,12 +1467,12 @@ ServiceStatusManager::stopUpdate()
     IceUtil::ThreadPtr thread;
 
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
 
         if(_thread)
         {
             _stopped = true;
-            notify();
+            _conditionVariable.notify_one();
             thread = _thread;
             _thread = 0;
         }
@@ -1485,7 +1487,7 @@ ServiceStatusManager::stopUpdate()
 void
 ServiceStatusManager::changeStatus(DWORD state, DWORD controlsAccepted)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     _status.dwCurrentState = state;
     _status.dwControlsAccepted = controlsAccepted;
@@ -1496,7 +1498,7 @@ ServiceStatusManager::changeStatus(DWORD state, DWORD controlsAccepted)
 void
 ServiceStatusManager::reportStatus()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     SetServiceStatus(_handle, &_status);
 }
@@ -1504,9 +1506,9 @@ ServiceStatusManager::reportStatus()
 void
 ServiceStatusManager::run()
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
 
-    IceUtil::Time delay = IceUtil::Time::milliSeconds(1000);
+    auto delay = chrono::milliseconds(1000);
     _status.dwWaitHint = 2000;
     _status.dwCheckPoint = 0;
 
@@ -1514,7 +1516,7 @@ ServiceStatusManager::run()
     {
         _status.dwCheckPoint++;
         SetServiceStatus(_handle, &_status);
-        timedWait(delay);
+        _conditionVariable.wait_for(lock, delay);
     }
 }
 

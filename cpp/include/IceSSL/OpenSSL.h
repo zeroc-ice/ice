@@ -11,7 +11,7 @@
 #include <openssl/pem.h>
 
 //
-// Automatically link IceSSLOpenSSL[D|++11|++11D].lib with Visual C++
+// Automatically link IceSSLOpenSSL[D].lib with Visual C++
 //
 #if defined(_MSC_VER)
 #  if !defined(ICE_BUILDING_ICESSL_OPENSSL) && defined(ICESSL_OPENSSL_API_EXPORTS)

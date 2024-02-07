@@ -193,7 +193,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
     //
     IceUtil::ThreadPtr keepMe = this;
 
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
 
     if(_started)
     {
@@ -246,7 +246,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
 IceUtil::ThreadControl
 IceUtil::Thread::getThreadControl() const
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     if(!_started)
     {
         throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -269,14 +269,14 @@ IceUtil::Thread::operator<(const Thread& rhs) const
 bool
 IceUtil::Thread::isAlive() const
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     return _running;
 }
 
 void
 IceUtil::Thread::_done()
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     _running = false;
 }
 
@@ -444,7 +444,7 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
     //
     IceUtil::ThreadPtr keepMe = this;
 
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
 
     if(_started)
     {
@@ -526,7 +526,7 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
 IceUtil::ThreadControl
 IceUtil::Thread::getThreadControl() const
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     if(!_started)
     {
         throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -549,14 +549,14 @@ IceUtil::Thread::operator<(const Thread& rhs) const
 bool
 IceUtil::Thread::isAlive() const
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     return _running;
 }
 
 void
 IceUtil::Thread::_done()
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     _running = false;
 }
 

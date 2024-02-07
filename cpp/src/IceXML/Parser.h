@@ -21,7 +21,7 @@
 #endif
 
 //
-// Automatically link IceXML[D|++11|++11D].lib with Visual C++
+// Automatically link IceXML[D].lib with Visual C++
 //
 
 #if !defined(ICE_BUILDING_ICE_XML) && defined(ICE_XML_API_EXPORTS)

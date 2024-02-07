@@ -6,7 +6,6 @@
 #define ICE_UTIL_OPTIONS_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/RecMutex.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <IceUtil/Exception.h>
@@ -107,8 +106,6 @@ private:
     Synonyms _synonyms;
 
     bool parseCalled;
-
-    IceUtil::RecMutex _m;
 
     Options(const Options&); // Not allowed.
     void operator=(const Options&); // Not allowed.

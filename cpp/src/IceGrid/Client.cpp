@@ -352,7 +352,7 @@ run(const Ice::StringSeq& args)
                 auto plugin = dynamic_pointer_cast<IceLocatorDiscovery::Plugin>(pluginObj);
                 plugin->initialize();
 
-                auto locators = plugin->getLocators(instanceName, IceUtil::Time::milliSeconds(300));
+                auto locators = plugin->getLocators(instanceName, chrono::milliseconds(300));
                 if(locators.size() > 1)
                 {
                     consoleOut << "found " << locators.size() << " Ice locators:" << endl;

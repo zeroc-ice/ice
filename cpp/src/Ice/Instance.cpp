@@ -203,7 +203,7 @@ private:
 
     virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     std::atomic<bool> _hasObserver;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 };
@@ -213,7 +213,7 @@ private:
 void
 Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     assert(obsv);
     _observer.attach(obsv->getThreadObserver("Communicator",
                                             "Ice.Timer",
@@ -229,7 +229,7 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
     {
         Ice::Instrumentation::ThreadObserverPtr threadObserver;
         {
-            IceUtil::Mutex::Lock sync(_mutex);
+            lock_guard lock(_mutex);
             threadObserver = _observer.get();
         }
         if(threadObserver)
@@ -282,7 +282,7 @@ IceInternal::ObserverUpdaterI::updateThreadObservers()
 bool
 IceInternal::Instance::destroyed() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _state == StateDestroyed;
 }
 
@@ -305,7 +305,7 @@ IceInternal::Instance::defaultsAndOverrides() const
 RouterManagerPtr
 IceInternal::Instance::routerManager() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -319,7 +319,7 @@ IceInternal::Instance::routerManager() const
 LocatorManagerPtr
 IceInternal::Instance::locatorManager() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -333,7 +333,7 @@ IceInternal::Instance::locatorManager() const
 ReferenceFactoryPtr
 IceInternal::Instance::referenceFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -347,7 +347,7 @@ IceInternal::Instance::referenceFactory() const
 RequestHandlerFactoryPtr
 IceInternal::Instance::requestHandlerFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -361,7 +361,7 @@ IceInternal::Instance::requestHandlerFactory() const
 ProxyFactoryPtr
 IceInternal::Instance::proxyFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -375,7 +375,7 @@ IceInternal::Instance::proxyFactory() const
 OutgoingConnectionFactoryPtr
 IceInternal::Instance::outgoingConnectionFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -389,7 +389,7 @@ IceInternal::Instance::outgoingConnectionFactory() const
 ObjectAdapterFactoryPtr
 IceInternal::Instance::objectAdapterFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -421,7 +421,7 @@ IceInternal::Instance::networkProxy() const
 ThreadPoolPtr
 IceInternal::Instance::clientThreadPool()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -435,7 +435,7 @@ IceInternal::Instance::clientThreadPool()
 ThreadPoolPtr
 IceInternal::Instance::serverThreadPool()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -458,7 +458,7 @@ IceInternal::Instance::serverThreadPool()
 EndpointHostResolverPtr
 IceInternal::Instance::endpointHostResolver()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -472,7 +472,7 @@ IceInternal::Instance::endpointHostResolver()
 RetryQueuePtr
 IceInternal::Instance::retryQueue()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -486,7 +486,7 @@ IceInternal::Instance::retryQueue()
 IceUtil::TimerPtr
 IceInternal::Instance::timer()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -499,7 +499,7 @@ IceInternal::Instance::timer()
 EndpointFactoryManagerPtr
 IceInternal::Instance::endpointFactoryManager() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -513,7 +513,7 @@ IceInternal::Instance::endpointFactoryManager() const
 DynamicLibraryListPtr
 IceInternal::Instance::dynamicLibraryList() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -527,7 +527,7 @@ IceInternal::Instance::dynamicLibraryList() const
 PluginManagerPtr
 IceInternal::Instance::pluginManager() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -558,7 +558,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     ObjectAdapterPtr adapter = adminAdapter;
     bool createAdapter = !adminAdapter;
 
-    Lock sync(*this);
+    unique_lock lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -595,7 +595,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     _adminIdentity = adminIdentity;
     _adminAdapter = adapter;
     addAllAdminFacets();
-    sync.release();
+    lock.unlock();
 
     if(createAdapter)
     {
@@ -611,7 +611,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
             // in the adapter are lost)
             //
             adapter->destroy();
-            sync.acquire();
+            lock.lock();
             _adminAdapter = 0;
             throw;
         }
@@ -623,7 +623,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
 Ice::ObjectPrxPtr
 IceInternal::Instance::getAdmin()
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -657,7 +657,7 @@ IceInternal::Instance::getAdmin()
         _adminIdentity = adminIdentity;
         _adminAdapter = adapter;
         addAllAdminFacets();
-        sync.release();
+        lock.unlock();
         try
         {
             adapter->activate();
@@ -670,7 +670,7 @@ IceInternal::Instance::getAdmin()
             // in the adapter are lost)
             //
             adapter->destroy();
-            sync.acquire();
+            lock.lock();
             _adminAdapter = 0;
             throw;
         }
@@ -758,7 +758,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
 void
 IceInternal::Instance::addAdminFacet(const shared_ptr<Object>& servant, const string& facet)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -781,7 +781,7 @@ IceInternal::Instance::addAdminFacet(const shared_ptr<Object>& servant, const st
 shared_ptr<Object>
 IceInternal::Instance::removeAdminFacet(const string& facet)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -814,7 +814,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
 shared_ptr<Object>
 IceInternal::Instance::findAdminFacet(const string& facet)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -846,7 +846,7 @@ IceInternal::Instance::findAdminFacet(const string& facet)
 FacetMap
 IceInternal::Instance::findAllAdminFacets()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -872,7 +872,7 @@ IceInternal::Instance::findAllAdminFacets()
 void
 IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocator)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -885,7 +885,7 @@ IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocato
 void
 IceInternal::Instance::setDefaultRouter(const Ice::RouterPrxPtr& defaultRouter)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -1545,17 +1545,14 @@ void
 IceInternal::Instance::destroy()
 {
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
 
         //
         // If destroy is in progress, wait for it to be done. This is
         // necessary in case destroy() is called concurrently by
         // multiple threads.
         //
-        while(_state == StateDestroyInProgress)
-        {
-            wait();
-        }
+        _conditionVariable.wait(lock, [this] { return _state != StateDestroyInProgress; });
 
         if(_state == StateDestroyed)
         {
@@ -1688,7 +1685,7 @@ IceInternal::Instance::destroy()
     }
 
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
 
         _objectAdapterFactory = 0;
         _outgoingConnectionFactory = 0;
@@ -1712,7 +1709,7 @@ IceInternal::Instance::destroy()
         _adminFacets.clear();
 
         _state = StateDestroyed;
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 }
 
@@ -1763,7 +1760,7 @@ IceInternal::Instance::updateThreadObservers()
 BufSizeWarnInfo
 IceInternal::Instance::getBufSizeWarn(Short type)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     return getBufSizeWarnInternal(type);
 }
@@ -1791,7 +1788,7 @@ IceInternal::Instance::getBufSizeWarnInternal(Short type)
 void
 IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     BufSizeWarnInfo info = getBufSizeWarnInternal(type);
     info.sndWarn = true;
@@ -1802,7 +1799,7 @@ IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 void
 IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     BufSizeWarnInfo info = getBufSizeWarnInternal(type);
     info.rcvWarn = true;

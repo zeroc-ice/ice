@@ -8,7 +8,8 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
-#include <IceUtil/Mutex.h>
+
+#include <mutex>
 
 namespace IceUtil
 {
@@ -131,7 +132,7 @@ public:
 
 protected:
     const std::string _name;
-    Mutex _stateMutex;
+    mutable std::mutex _stateMutex;
     bool _started;
     bool _running;
 

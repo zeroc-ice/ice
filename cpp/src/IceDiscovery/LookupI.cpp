@@ -193,7 +193,7 @@ LookupI::~LookupI()
 void
 LookupI::destroy()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     for(map<Identity, ObjectRequestPtr>::const_iterator p = _objectRequests.begin(); p != _objectRequests.end(); ++p)
     {
         p->second->finished(0);
@@ -295,7 +295,7 @@ LookupI::findAdapterById(string domainId, string adapterId, LookupReplyPrxPtr re
 void
 LookupI::findObject(const ObjectCB& cb, const Ice::Identity& id)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
     if(p == _objectRequests.end())
     {
@@ -322,7 +322,7 @@ LookupI::findObject(const ObjectCB& cb, const Ice::Identity& id)
 void
 LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);
     if(p == _adapterRequests.end())
     {
@@ -349,7 +349,7 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
 void
 LookupI::foundObject(const Ice::Identity& id, const string& requestId, const Ice::ObjectPrxPtr& proxy)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
     if(p != _objectRequests.end() && p->second->getRequestId() == requestId) // Ignore responses from old requests
     {
@@ -363,7 +363,7 @@ void
 LookupI::foundAdapter(const string& adapterId, const string& requestId, const Ice::ObjectPrxPtr& proxy,
                       bool isReplicaGroup)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);
     if(p != _adapterRequests.end() && p->second->getRequestId() == requestId) // Ignore responses from old requests
     {
@@ -378,7 +378,7 @@ LookupI::foundAdapter(const string& adapterId, const string& requestId, const Ic
 void
 LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(request->getId());
     if(p == _objectRequests.end() || p->second.get() != request.get())
     {
@@ -406,7 +406,7 @@ LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
 void
 LookupI::adapterRequestException(const AdapterRequestPtr& request, exception_ptr ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(request->getId());
     if(p == _adapterRequests.end() || p->second.get() != request.get())
     {
@@ -437,7 +437,7 @@ LookupI::adapterRequestException(const AdapterRequestPtr& request, exception_ptr
 void
 LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(request->getId());
     if(p == _adapterRequests.end() || p->second.get() != request.get())
     {
@@ -465,7 +465,7 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
 void
 LookupI::objectRequestException(const ObjectRequestPtr& request, exception_ptr ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(request->getId());
     if(p == _objectRequests.end() || p->second.get() != request.get())
     {

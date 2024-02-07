@@ -10,6 +10,8 @@
 #include <IceLocatorDiscovery/Plugin.h>
 #include <IceLocatorDiscovery/IceLocatorDiscovery.h>
 
+#include <thread>
+
 using namespace std;
 using namespace IceLocatorDiscovery;
 
@@ -59,7 +61,6 @@ using RequestPtr = std::shared_ptr<Request>;
 
 class LocatorI : public Ice::BlobjectArrayAsync,
                  public IceUtil::TimerTask,
-                 private IceUtil::Monitor<IceUtil::Mutex>,
                  public std::enable_shared_from_this<LocatorI>
 {
 public:
@@ -75,7 +76,7 @@ public:
     void foundLocator(const Ice::LocatorPrxPtr&);
     void invoke(const Ice::LocatorPrxPtr&, const RequestPtr&);
 
-    vector<Ice::LocatorPrxPtr> getLocators(const string&, const IceUtil::Time&);
+    vector<Ice::LocatorPrxPtr> getLocators(const string&, const chrono::milliseconds&);
 
     void exception(std::exception_ptr);
 
@@ -103,6 +104,8 @@ private:
     size_t _failureCount;
     bool _warnOnce;
     vector<RequestPtr> _pendingRequests;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 using LocatorIPtr = std::shared_ptr<LocatorI>;
 
@@ -161,7 +164,7 @@ public:
 
     virtual void initialize();
     virtual void destroy();
-    virtual vector<Ice::LocatorPrxPtr> getLocators(const string&, const IceUtil::Time&) const;
+    virtual vector<Ice::LocatorPrxPtr> getLocators(const string&, const chrono::milliseconds&) const;
 
 private:
 
@@ -289,7 +292,7 @@ PluginI::initialize()
 }
 
 vector<Ice::LocatorPrxPtr>
-PluginI::getLocators(const string& instanceName, const IceUtil::Time& waitTime) const
+PluginI::getLocators(const string& instanceName, const chrono::milliseconds& waitTime) const
 {
     return _locator->getLocators(instanceName, waitTime);
 }
@@ -485,13 +488,13 @@ LocatorI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
 }
 
 vector<Ice::LocatorPrxPtr>
-LocatorI::getLocators(const string& instanceName, const IceUtil::Time& waitTime)
+LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& waitTime)
 {
     //
     // Clear locators from previous search
     //
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _locators.clear();
     }
 
@@ -505,21 +508,24 @@ LocatorI::getLocators(const string& instanceName, const IceUtil::Time& waitTime)
     //
     if(instanceName.empty())
     {
-        IceUtil::ThreadControl::sleep(waitTime);
+        std::this_thread::sleep_for(waitTime);
     }
     else
     {
-        Lock sync(*this);
-        while(_locators.find(instanceName) == _locators.end() && _pending)
+        unique_lock lock(_mutex);
+        while (_locators.find(instanceName) == _locators.end() && _pending)
         {
-            timedWait(waitTime);
+            if (_conditionVariable.wait_for(lock, waitTime) == cv_status::timeout)
+            {
+                break;
+            }
         }
     }
 
     //
     // Return found locators
     //
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     vector<Ice::LocatorPrxPtr> locators;
     for(map<string, Ice::LocatorPrxPtr>::const_iterator p = _locators.begin(); p != _locators.end(); ++p)
     {
@@ -531,7 +537,7 @@ LocatorI::getLocators(const string& instanceName, const IceUtil::Time& waitTime)
 void
 LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(!locator)
     {
@@ -632,7 +638,7 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
     if(_pendingRequests.empty())
     {
         _locators[locator->ice_getIdentity().category] = l;
-        notify();
+        _conditionVariable.notify_one();
     }
     else
     {
@@ -656,7 +662,7 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
 void
 LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(request && _locator && _locator != locator)
     {
         request->invoke(_locator);
@@ -729,7 +735,7 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
 void
 LocatorI::exception(std::exception_ptr ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(++_failureCount == _lookups.size() && _pending)
     {
         //
@@ -774,7 +780,7 @@ LocatorI::exception(std::exception_ptr ex)
 
         if(_pendingRequests.empty())
         {
-            notify();
+            _conditionVariable.notify_one();
         }
         else
         {
@@ -790,7 +796,7 @@ LocatorI::exception(std::exception_ptr ex)
 void
 LocatorI::runTimerTask()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_pending)
     {
         assert(_pendingRequests.empty());
@@ -845,7 +851,7 @@ LocatorI::runTimerTask()
 
     if(_pendingRequests.empty())
     {
-        notify();
+        _conditionVariable.notify_one();
     }
     else
     {

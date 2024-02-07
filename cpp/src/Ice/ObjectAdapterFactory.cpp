@@ -18,7 +18,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
     list<shared_ptr<ObjectAdapterI>> adapters;
 
     {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
 
         //
         // Ignore shutdown requests if the object adapter factory has
@@ -34,7 +34,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
         _instance = nullptr;
         _communicator = nullptr;
 
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 
     // Deactivate outside the thread synchronization, to avoid deadlocks.
@@ -47,16 +47,12 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     list<shared_ptr<ObjectAdapterI>> adapters;
 
     {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        unique_lock lock(_mutex);
 
         //
         // First we wait for the shutdown of the factory itself.
         //
-        while(_instance)
-        {
-            wait();
-        }
-
+        _conditionVariable.wait(lock, [this] { return !_instance; });
         adapters = _adapters;
     }
 
@@ -67,7 +63,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
 bool
 IceInternal::ObjectAdapterFactory::isShutdown() const
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     return _instance == 0;
 }
@@ -83,14 +79,14 @@ IceInternal::ObjectAdapterFactory::destroy()
     list<shared_ptr<ObjectAdapterI>> adapters;
 
     {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         adapters = _adapters;
     }
 
     // Now we destroy each object adapter.
     for_each(adapters.begin(), adapters.end(), [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->destroy(); });
     {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         _adapters.clear();
     }
 }
@@ -101,7 +97,7 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
     list<shared_ptr<ObjectAdapterI>> adapters;
 
     {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         adapters = _adapters;
     }
 
@@ -117,7 +113,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 {
     shared_ptr<ObjectAdapterI> adapter;
     {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
 
         if(!_instance)
         {
@@ -150,7 +146,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
         adapter->initialize(router);
         initialized = true;
 
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         if(!_instance)
         {
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
@@ -169,7 +165,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
     {
         if(!name.empty())
         {
-            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+            lock_guard lock(_mutex);
             _adapterNamesInUse.erase(name);
         }
         throw;
@@ -183,7 +179,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrxPtr& proxy)
 {
     list<shared_ptr<ObjectAdapterI>> adapters;
     {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
 
         if(!_instance)
         {
@@ -214,7 +210,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrxPtr& proxy)
 void
 IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(!_instance)
     {
@@ -238,7 +234,7 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlu
 {
     list<shared_ptr<ObjectAdapterI>> adapters;
     {
-        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
 
         adapters = _adapters;
     }
