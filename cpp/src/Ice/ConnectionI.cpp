@@ -2247,18 +2247,18 @@ Ice::ConnectionI::setState(State state, exception_ptr ex)
             catch (const ObjectAdapterDeactivatedException&)
             {
             }
-            catch (const ConnectionLostException& ex)
+            catch (const ConnectionLostException& e)
             {
                 if (_state < StateClosing)
                 {
                     Warning out(_logger);
-                    out << "connection exception:\n" << ex << '\n' << _desc;
+                    out << "connection exception:\n" << e << '\n' << _desc;
                 }
             }
-            catch (const std::exception& ex)
+            catch (const std::exception& e)
             {
                 Warning out(_logger);
-                out << "connection exception:\n" << ex << '\n' << _desc;
+                out << "connection exception:\n" << e << '\n' << _desc;
             }
         }
     }

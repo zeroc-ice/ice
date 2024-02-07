@@ -807,11 +807,11 @@ IceInternal::OutgoingConnectionFactory::handleException(exception_ptr ex, bool h
         {
             rethrow_exception(ex);
         }
-        catch (const CommunicatorDestroyedException& ex)
+        catch (const CommunicatorDestroyedException& e)
         {
-            out << "\n" << ex;
+            out << "\n" << e;
         }
-        catch (const std::exception& ex)
+        catch (const std::exception& e)
         {
             if(hasMore)
             {
@@ -821,7 +821,7 @@ IceInternal::OutgoingConnectionFactory::handleException(exception_ptr ex, bool h
             {
                 out << " and no more endpoints to try\n";
             }
-            out << ex;
+            out << e;
         }
     }
 }
@@ -840,11 +840,11 @@ IceInternal::OutgoingConnectionFactory::handleConnectionException(exception_ptr 
         {
             rethrow_exception(ex);
         }
-        catch (const CommunicatorDestroyedException& ex)
+        catch (const CommunicatorDestroyedException& e)
         {
-            out << "\n" << ex;
+            out << "\n" << e;
         }
-        catch (const std::exception& ex)
+        catch (const std::exception& e)
         {
             if(hasMore)
             {
@@ -854,7 +854,7 @@ IceInternal::OutgoingConnectionFactory::handleConnectionException(exception_ptr 
             {
                 out << " and no more endpoints to try\n";
             }
-            out << ex;
+            out << e;
         }
     }
 }
@@ -1130,7 +1130,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedIm
     {
         rethrow_exception(ex);
     }
-    catch (const CommunicatorDestroyedException& ex)
+    catch (const CommunicatorDestroyedException&)
     {
         communicatorDestroyed = true;
     }

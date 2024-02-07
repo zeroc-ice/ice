@@ -403,13 +403,13 @@ IceInternal::WSTransceiver::closing(bool initiator, exception_ptr reason)
     {
         _closingReason = CLOSURE_SHUTDOWN;
     }
-    catch (const Ice::ProtocolException&)
-    {
-        _closingReason  = CLOSURE_PROTOCOL_ERROR;
-    }
     catch (const Ice::MemoryLimitException&)
     {
         _closingReason = CLOSURE_TOO_BIG;
+    }
+    catch (const Ice::ProtocolException&)
+    {
+        _closingReason  = CLOSURE_PROTOCOL_ERROR;
     }
     catch (...)
     {
