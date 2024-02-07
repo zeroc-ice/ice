@@ -260,7 +260,7 @@ IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*/,
             {
                 continue;
             }
-            c.push_back(new iAPConnector(_instance, _timeout, _connectionId, protocol, accessory));
+            c.push_back(make_shared<iAPConnector>(_instance, _timeout, _connectionId, protocol, accessory));
         }
 #if defined(__clang__) && !__has_feature(objc_arc)
         [protocol release];
@@ -281,7 +281,7 @@ AcceptorPtr
 IceObjC::iAPEndpointI::acceptor(const string&) const
 {
     assert(false);
-    return 0;
+    return nullptr;
 }
 
 vector<EndpointIPtr>
@@ -688,7 +688,7 @@ IceObjC::iAPEndpointFactory::destroy()
 EndpointFactoryPtr
 IceObjC::iAPEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
-    return new iAPEndpointFactory(instance);
+    return make_shared<iAPEndpointFactory>(instance);
 }
 
 #endif

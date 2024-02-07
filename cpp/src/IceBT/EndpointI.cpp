@@ -165,14 +165,14 @@ void
 IceBT::EndpointI::connectors_async(EndpointSelectionType /*selType*/, const IceInternal::EndpointI_connectorsPtr& cb) const
 {
     vector<IceInternal::ConnectorPtr> connectors;
-    connectors.push_back(new ConnectorI(_instance, _addr, _uuid, _timeout, _connectionId));
+    connectors.push_back(make_shared<ConnectorI>(_instance, _addr, _uuid, _timeout, _connectionId));
     cb->connectors(connectors);
 }
 
 IceInternal::AcceptorPtr
 IceBT::EndpointI::acceptor(const string& adapterName) const
 {
-    return new AcceptorI(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, adapterName, _addr, _uuid, _name, _channel);
+    return make_shared<AcceptorI>(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, adapterName, _addr, _uuid, _name, _channel);
 }
 
 vector<IceInternal::EndpointIPtr>
@@ -656,11 +656,11 @@ IceBT::EndpointFactoryI::read(InputStream* s) const
 void
 IceBT::EndpointFactoryI::destroy()
 {
-    _instance = 0;
+    _instance = nullptr;
 }
 
 IceInternal::EndpointFactoryPtr
 IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
 {
-    return new EndpointFactoryI(new Instance(_instance->engine(), instance->type(), instance->protocol()));
+    return make_shared<EndpointFactoryI>(new Instance(_instance->engine(), instance->type(), instance->protocol()));
 }

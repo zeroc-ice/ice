@@ -21,8 +21,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceUtil::Shared* IceBT::upCast(AcceptorI* p) { return p; }
-
 namespace
 {
 
@@ -175,7 +173,7 @@ IceBT::AcceptorI::newConnection(int fd)
 {
     lock_guard lock(_mutex);
 
-    _transceivers.push(new TransceiverI(_instance, new StreamSocket(_instance, fd), 0, _uuid));
+    _transceivers.push(make_shared<TransceiverI>(_instance, make_shared<StreamSocket>(_instance, fd), 0, _uuid));
 
     //
     // Notify the thread pool that we are ready to "read". The thread pool will invoke accept()
