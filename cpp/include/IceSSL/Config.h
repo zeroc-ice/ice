@@ -8,7 +8,7 @@
 #include <Ice/Config.h>
 
 //
-// Automatically link IceSSL[D|++11|++11D].lib with Visual C++
+// Automatically link IceSSL[D].lib with Visual C++
 //
 #if !defined(ICE_BUILDING_ICESSL) && defined(ICESSL_API_EXPORTS)
 #  define ICE_BUILDING_ICESSL

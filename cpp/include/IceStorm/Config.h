@@ -8,7 +8,7 @@
 #include <Ice/Config.h>
 
 //
-// Automatically link with IceStorm[D|++11|++11D].lib
+// Automatically link with IceStorm[D].lib
 //
 
 #if !defined(ICE_BUILDING_ICE_STORM_LIB) && defined(ICESTORM_API_EXPORTS)

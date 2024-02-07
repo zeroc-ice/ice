@@ -12,7 +12,7 @@
 #include <chrono>
 
 //
-// Automatically link IceLocatorDiscovery[D|++11|++11D].lib with Visual C++
+// Automatically link IceLocatorDiscovery[D].lib with Visual C++
 //
 #if !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY) && defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
 #   define ICE_BUILDING_ICE_LOCATOR_DISCOVERY

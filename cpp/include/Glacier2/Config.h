@@ -6,7 +6,7 @@
 #define GLACIER2_CONFIG_H
 
 //
-// Automatically link with Glacier2[D|++11|++11D].lib
+// Automatically link with Glacier2[D].lib
 //
 
 #if !defined(ICE_BUILDING_GLACIER2) && defined(GLACIER2_API_EXPORTS)
