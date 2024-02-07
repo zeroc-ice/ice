@@ -61,7 +61,7 @@ private:
 };
 typedef IceUtil::Handle<DispatchWorkItem> DispatchWorkItemPtr;
 
-class ThreadPool : public IceUtil::Shared, private IceUtil::Monitor<IceUtil::Mutex>
+class ThreadPool : public IceUtil::Shared
 {
     class EventHandlerThread : public IceUtil::Thread
     {
@@ -126,7 +126,7 @@ private:
     void finishMessage(ThreadPoolCurrent&);
 #else
     void promoteFollower(ThreadPoolCurrent&);
-    bool followerWait(ThreadPoolCurrent&);
+    bool followerWait(ThreadPoolCurrent&, std::unique_lock<std::mutex>&);
 #endif
 
     std::string nextThreadId();
@@ -167,6 +167,8 @@ private:
 #endif
 
     bool _promote;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 class ThreadPoolCurrent

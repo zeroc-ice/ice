@@ -8,7 +8,8 @@
 #include <Ice/Config.h>
 #include <Ice/Plugin.h>
 #include <Ice/Locator.h>
-#include <IceUtil/Time.h>
+
+#include <chrono>
 
 //
 // Automatically link IceLocatorDiscovery[D|++11|++11D].lib with Visual C++
@@ -38,7 +39,7 @@ class ICE_LOCATOR_DISCOVERY_API Plugin : public Ice::Plugin
 {
 public:
 
-    virtual std::vector<Ice::LocatorPrxPtr> getLocators(const std::string&, const IceUtil::Time&) const = 0;
+    virtual std::vector<Ice::LocatorPrxPtr> getLocators(const std::string&, const std::chrono::milliseconds&) const = 0;
 };
 using PluginPtr = std::shared_ptr<Plugin>;
 

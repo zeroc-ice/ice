@@ -51,7 +51,7 @@ private:
 
     bool removeRemoteLogger(const RemoteLoggerPrxPtr&);
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     list<LogMessage> _queue;
     int _logCount; // non-trace messages
     const int _maxLogCount;
@@ -150,7 +150,8 @@ private:
     LoggerPtr _localLogger;
     const LoggerAdminIPtr _loggerAdmin;
 
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 
     bool _destroyed;
     IceUtil::ThreadPtr _sendLogThread;
@@ -333,7 +334,7 @@ LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
     Filters filters(messageTypes, categories);
     LogMessageSeq initLogMessages;
     {
-        IceUtil::Mutex::Lock lock(_mutex);
+        lock_guard lock(_mutex);
 
         if(!_sendLogCommunicator)
         {
@@ -440,7 +441,7 @@ LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
 {
     LogMessageSeq logMessages;
     {
-        IceUtil::Mutex::Lock lock(_mutex);
+        lock_guard lock(_mutex);
 
         if(messageMax != 0)
         {
@@ -465,7 +466,7 @@ LoggerAdminI::destroy()
 {
     CommunicatorPtr sendLogCommunicator;
     {
-        IceUtil::Mutex::Lock lock(_mutex);
+        lock_guard lock(_mutex);
         if(!_destroyed)
         {
             _destroyed = true;
@@ -489,7 +490,7 @@ LoggerAdminI::log(const LogMessage& logMessage)
 {
     vector<RemoteLoggerPrxPtr> remoteLoggers;
 
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
 
     //
     // Put message in _queue
@@ -594,7 +595,7 @@ LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger,
 bool
 LoggerAdminI::removeRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger)
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     return _remoteLoggerMap.erase(remoteLogger) > 0;
 }
 
@@ -685,7 +686,7 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 
     if(!remoteLoggers.empty())
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+        lock_guard lock(_mutex);
 
         if(!_sendLogThread)
         {
@@ -694,7 +695,7 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
         }
 
         _jobQueue.push_back(new Job(remoteLoggers, logMessage));
-        _monitor.notifyAll();
+        _conditionVariable.notify_all();
     }
 }
 
@@ -704,7 +705,7 @@ LoggerAdminLoggerI::destroy()
     IceUtil::ThreadControl sendLogThreadControl;
     bool joinThread = false;
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+        lock_guard lock(_mutex);
 
         if(_sendLogThread)
         {
@@ -712,7 +713,7 @@ LoggerAdminLoggerI::destroy()
             sendLogThreadControl = _sendLogThread->getThreadControl();
             _sendLogThread = 0;
             _destroyed = true;
-            _monitor.notifyAll();
+            _conditionVariable.notify_all();
         }
     }
 
@@ -736,11 +737,9 @@ LoggerAdminLoggerI::run()
 
     for(;;)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        while(!_destroyed && _jobQueue.empty())
-        {
-            _monitor.wait();
-        }
+        unique_lock lock(_mutex);
+        _conditionVariable.wait(lock, [this] { return _destroyed || !_jobQueue.empty(); });
+
         if(_destroyed)
         {
             break; // for(;;)
@@ -749,7 +748,7 @@ LoggerAdminLoggerI::run()
         assert(!_jobQueue.empty());
         JobPtr job = _jobQueue.front();
         _jobQueue.pop_front();
-        lock.release();
+        lock.unlock();
 
         for(vector<RemoteLoggerPrxPtr>::const_iterator p = job->remoteLoggers.begin(); p != job->remoteLoggers.end(); ++p)
         {

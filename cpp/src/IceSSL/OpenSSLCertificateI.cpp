@@ -8,8 +8,6 @@
 #include <IceSSL/OpenSSLUtil.h>
 #include <IceSSL/RFC2253.h>
 
-#include <IceUtil/Mutex.h>
-
 #include <mutex>
 
 #include <openssl/x509v3.h>
@@ -223,8 +221,7 @@ private:
 
 class OpenSSLCertificateI : public IceSSL::OpenSSL::Certificate,
                             public CertificateI,
-                            public IceSSL::CertificateExtendedInfo,
-                            public IceUtil::Mutex
+                            public IceSSL::CertificateExtendedInfo
 {
 public:
 
@@ -257,6 +254,7 @@ protected:
 private:
 
     x509_st* _cert;
+    mutable std::mutex _mutex;
 };
 
 } // end anonymous namespace
@@ -471,7 +469,7 @@ OpenSSLCertificateI::getCert() const
 void
 OpenSSLCertificateI::loadX509Extensions() const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_extensions.empty())
     {
         int sz = X509_get_ext_count(_cert);

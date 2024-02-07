@@ -8,7 +8,6 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Mutex.h>
 
 #include <Ice/Initialize.h>
 #include <Ice/Properties.h>
@@ -21,6 +20,7 @@
 
 #include <map>
 #include <string>
+#include <mutex>
 
 namespace Glacier2
 {
@@ -283,7 +283,7 @@ private:
     std::string createProxyStr(const Ice::Identity& ident);
     void setDefaultProperties();
 
-    IceUtil::Mutex _mutex;
+    mutable std::mutex _mutex;
     std::string _routerHost;
     Ice::Identity _identity;
     std::string _protocol;

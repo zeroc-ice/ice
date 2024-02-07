@@ -182,22 +182,20 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
     }
     return reinterpret_cast<EventHandler*>(key);
 #else
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    while(_events.empty())
+    unique_lock lock(_mutex);
+    if(timeout > 0)
     {
-        if(timeout > 0)
+        _monitor.wait_for(lock, chrono::seconds(timeout));
+        if(_events.empty())
         {
-            _monitor.timedWait(IceUtil::Time::seconds(timeout));
-            if(_events.empty())
-            {
-                throw SelectorTimeoutException();
-            }
-        }
-        else
-        {
-            _monitor.wait();
+            throw SelectorTimeoutException();
         }
     }
+    else
+    {
+        _conditionVariable.wait(lock, [this] { return !_events.empty(); });
+    }
+
     assert(!_events.empty());
     IceInternal::EventHandlerPtr handler = _events.front().handler;
     const SelectEvent& event = _events.front();
@@ -222,9 +220,9 @@ Selector::completed(EventHandler* handler, SocketOperation op)
         throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
 #else
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    lock_guard lock(_mutex);
     _events.push_back(SelectEvent(handler->shared_from_this(), op));
-    _monitor.notify();
+    _conditionVariable.notify_one();
 #endif
 }
 

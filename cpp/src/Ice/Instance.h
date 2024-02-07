@@ -7,7 +7,6 @@
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Timer.h>
 #include <Ice/StringConverter.h>
@@ -197,7 +196,7 @@ private:
     std::set<std::string> _adminFacetFilter;
     IceInternal::MetricsAdminIPtr _metricsAdmin;
     std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
-    IceUtil::Mutex _setBufSizeWarnMutex;
+    std::mutex _setBufSizeWarnMutex;
 };
 
 class ProcessI : public Ice::Process

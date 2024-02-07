@@ -29,7 +29,7 @@ LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,
                                               function<void(exception_ptr)>,
                                               const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(proxy)
     {
         _adapters[adapterId] = proxy;
@@ -49,7 +49,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
                                                         function<void(exception_ptr)>,
                                                         const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(proxy)
     {
         _adapters[adapterId] = proxy;
@@ -89,7 +89,7 @@ LocatorRegistryI::setServerProcessProxyAsync(string,
 Ice::ObjectPrxPtr
 LocatorRegistryI::findObject(const Ice::Identity& id) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(id.name.empty())
     {
         return 0;
@@ -139,7 +139,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
 Ice::ObjectPrxPtr
 LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     map<string, Ice::ObjectPrxPtr>::const_iterator p = _adapters.find(adapterId);
     if(p != _adapters.end())
