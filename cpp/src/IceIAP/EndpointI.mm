@@ -49,7 +49,7 @@ public:
 
         // SSL based on iAP transport
         ProtocolInstancePtr iaps = new ProtocolInstance(com, iAPSEndpointType, "iaps", true);
-        f->addEndpointFactory(new UnderlyingEndpointFactory(iaps, SSLEndpointType, iAPEndpointType));
+        f->addEndpointFactory(make_shared<UnderlyingEndpointFactory>(iaps, SSLEndpointType, iAPEndpointType));
     }
 
     virtual void initialize() {}
