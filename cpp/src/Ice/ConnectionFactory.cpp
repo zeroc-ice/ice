@@ -393,9 +393,11 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
 
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
     assert(!endpoints.empty());
-    for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+
+    for(const auto& p : endpoints)
     {
-        auto connection = find(_connectionsByEndpoint, *p,
+        auto connection = find(_connectionsByEndpoint,
+                               p,
                                [](const ConnectionIPtr& conn)
                                {
                                    return conn->isActiveOrHolding();
@@ -408,7 +410,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
             }
             else
             {
-                compress = (*p)->compress();
+                compress = p->compress();
             }
             return connection;
         }
@@ -422,14 +424,15 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
     // This must be called with the mutex locked.
 
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-    for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+    for(const auto& p : connectors)
     {
-        if(_pending.find(p->connector) != _pending.end())
+        if(_pending.find(p.connector) != _pending.end())
         {
             continue;
         }
 
-        auto connection = find(_connections, p->connector,
+        auto connection = find(_connections,
+                               p.connector,
                                [](const ConnectionIPtr& conn)
                                {
                                    return conn->isActiveOrHolding();
@@ -442,7 +445,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             }
             else
             {
-                    compress = p->endpoint->compress();
+                    compress = p.endpoint->compress();
             }
             return connection;
         }
