@@ -402,7 +402,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
             {
                 return;
             }
-            // else, keep goind
+            // else, keep going
         }
 
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
