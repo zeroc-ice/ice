@@ -40,7 +40,7 @@ namespace IceInternal
 
 template<typename T> class ThreadPoolMessage;
 
-class OutgoingConnectionFactory : public std::enable_shared_from_this<OutgoingConnectionFactory>
+class OutgoingConnectionFactory final : public std::enable_shared_from_this<OutgoingConnectionFactory>
 {
 public:
 
@@ -65,7 +65,7 @@ public:
     void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
 
     OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
-    virtual ~OutgoingConnectionFactory();
+    ~OutgoingConnectionFactory();
     friend class Instance;
 
 private:
@@ -164,8 +164,7 @@ private:
     std::condition_variable _conditionVariable;
 };
 
-class IncomingConnectionFactory : public EventHandler,
-                                  public Ice::ConnectionI::StartCallback
+class IncomingConnectionFactory final : public EventHandler, public Ice::ConnectionI::StartCallback
 {
 public:
 
@@ -208,7 +207,7 @@ public:
     virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
     virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
     void initialize();
-    virtual ~IncomingConnectionFactory();
+    ~IncomingConnectionFactory();
 
     std::shared_ptr<IncomingConnectionFactory> shared_from_this()
     {

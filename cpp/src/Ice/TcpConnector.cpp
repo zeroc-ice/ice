@@ -23,6 +23,7 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::TcpConnector::connect()
 {
+    cerr << "IceInternal::TcpConnector::connect()" << toString() << endl;
     return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, _proxy, _addr, _sourceAddr));
 }
 

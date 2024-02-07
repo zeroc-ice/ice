@@ -19,36 +19,36 @@ namespace IceInternal
 class ConnectorI;
 class AcceptorI;
 
-class WSTransceiver : public Transceiver
+class WSTransceiver final : public Transceiver
 {
 public:
 
     WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, const std::string&);
     WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&);
-    virtual ~WSTransceiver();
+    ~WSTransceiver();
 
-    virtual NativeInfoPtr getNativeInfo();
+    NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
-    virtual AsyncInfo* getAsyncInfo(SocketOperation);
+    AsyncInfo* getAsyncInfo(SocketOperation) final;
 #endif
 
-    virtual SocketOperation initialize(Buffer&, Buffer&);
-    virtual SocketOperation closing(bool, const Ice::LocalException&);
-    virtual void close();
-    virtual SocketOperation write(Buffer&);
-    virtual SocketOperation read(Buffer&);
+    SocketOperation initialize(Buffer&, Buffer&) final;
+    SocketOperation closing(bool, const Ice::LocalException&) final;
+    void close() final;
+    SocketOperation write(Buffer&) final;
+    SocketOperation read(Buffer&) final;
 #if defined(ICE_USE_IOCP)
-    virtual bool startWrite(Buffer&);
-    virtual void finishWrite(Buffer&);
-    virtual void startRead(Buffer&);
-    virtual void finishRead(Buffer&);
+    bool startWrite(Buffer&) final;
+    void finishWrite(Buffer&) final;
+    void startRead(Buffer&) final;
+    void finishRead(Buffer&) final;
 #endif
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const Buffer&);
-    virtual void setBufferSize(int rcvSize, int sndSize);
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const Buffer&) final;
+    void setBufferSize(int rcvSize, int sndSize) final;
 
 private:
 

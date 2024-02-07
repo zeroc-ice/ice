@@ -14,7 +14,7 @@ namespace IceInternal
 
 class UdpEndpoint;
 
-class UdpTransceiver : public Transceiver, public NativeInfo, public std::enable_shared_from_this<UdpTransceiver>
+class UdpTransceiver final : public Transceiver, public NativeInfo, public std::enable_shared_from_this<UdpTransceiver>
 {
     enum State
     {
@@ -30,40 +30,37 @@ public:
     UdpTransceiver(const UdpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int, const std::string&,
                    bool);
 
-    virtual ~UdpTransceiver();
+    ~UdpTransceiver() final;
 
-    virtual NativeInfoPtr getNativeInfo();
+    NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
-    virtual AsyncInfo* getAsyncInfo(SocketOperation);
+    AsyncInfo* getAsyncInfo(SocketOperation) final;
 #endif
 
-    virtual SocketOperation initialize(Buffer&, Buffer&);
-    virtual SocketOperation closing(bool, const Ice::LocalException&);
-    virtual void close();
-    virtual EndpointIPtr bind();
-    virtual SocketOperation write(Buffer&);
-    virtual SocketOperation read(Buffer&);
+    SocketOperation initialize(Buffer&, Buffer&) final;
+    SocketOperation closing(bool, const Ice::LocalException&) final;
+    void close() final;
+    EndpointIPtr bind() final;
+    SocketOperation write(Buffer&) final;
+    SocketOperation read(Buffer&) final;
 #if defined(ICE_USE_IOCP)
-    virtual bool startWrite(Buffer&);
-    virtual void finishWrite(Buffer&);
-    virtual void startRead(Buffer&);
-    virtual void finishRead(Buffer&);
+    bool startWrite(Buffer&) final;
+    void finishWrite(Buffer&) final;
+    void startRead(Buffer&) final;
+    void finishRead(Buffer&) final;
 #endif
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const Buffer&);
-    virtual void setBufferSize(int rcvSize, int sndSize);
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const Buffer&) final;
+    void setBufferSize(int rcvSize, int sndSize) final;
 
     int effectivePort() const;
 
 private:
 
     void setBufSize(int, int);
-
-    friend class UdpEndpointI;
-    friend class UdpConnector;
 
     UdpEndpointIPtr _endpoint;
     const ProtocolInstancePtr _instance;
@@ -74,7 +71,10 @@ private:
     Address _mcastAddr;
     const std::string _mcastInterface;
     Address _peerAddr;
+
+#if defined(_WIN32)
     int _port;
+#endif
 
     State _state;
     int _rcvSize;

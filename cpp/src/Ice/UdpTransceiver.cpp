@@ -658,15 +658,22 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #endif
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, const ProtocolInstancePtr& instance,
-                                            const string& host, int port, const string& mcastInterface, bool connect) :
+IceInternal::UdpTransceiver::UdpTransceiver(
+    const UdpEndpointIPtr& endpoint,
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int port,
+    const string& mcastInterface,
+    bool connect) :
     _endpoint(endpoint),
     _instance(instance),
     _incoming(true),
     _bound(false),
     _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true)),
     _mcastInterface(mcastInterface),
+#ifdef _WIN32
     _port(port),
+#endif
     _state(connect ? StateNeedConnect : StateNotConnected)
 #if defined(ICE_USE_IOCP)
     , _read(SocketOperationRead),

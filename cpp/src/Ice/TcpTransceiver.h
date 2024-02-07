@@ -16,32 +16,32 @@ namespace IceInternal
 class TcpConnector;
 class TcpAcceptor;
 
-class TcpTransceiver : public Transceiver
+class TcpTransceiver final : public Transceiver
 {
 public:
 
     TcpTransceiver(const ProtocolInstancePtr&, const StreamSocketPtr&);
-    virtual ~TcpTransceiver();
-    virtual NativeInfoPtr getNativeInfo();
+    ~TcpTransceiver();
+    NativeInfoPtr getNativeInfo() final;
 
-    virtual SocketOperation initialize(Buffer&, Buffer&);
-    virtual SocketOperation closing(bool, const Ice::LocalException&);
+    SocketOperation initialize(Buffer&, Buffer&) final;
+    SocketOperation closing(bool, const Ice::LocalException&) final;
 
-    virtual void close();
-    virtual SocketOperation write(Buffer&);
-    virtual SocketOperation read(Buffer&);
+    void close() final;
+    SocketOperation write(Buffer&) final;
+    SocketOperation read(Buffer&) final;
 #if defined(ICE_USE_IOCP)
-    virtual bool startWrite(Buffer&);
-    virtual void finishWrite(Buffer&);
-    virtual void startRead(Buffer&);
-    virtual void finishRead(Buffer&);
+    bool startWrite(Buffer&) final;
+    void finishWrite(Buffer&) final;
+    void startRead(Buffer&) final;
+    void finishRead(Buffer&) final;
 #endif
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const Buffer&);
-    virtual void setBufferSize(int rcvSize, int sndSize);
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const Buffer&) final;
+    void setBufferSize(int rcvSize, int sndSize) final;
 
 private:
 

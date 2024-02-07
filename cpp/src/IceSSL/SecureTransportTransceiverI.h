@@ -26,26 +26,26 @@ namespace IceSSL
 namespace SecureTransport
 {
 
-class TransceiverI : public IceInternal::Transceiver
+class TransceiverI final : public IceInternal::Transceiver
 {
 public:
 
     TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
-    virtual ~TransceiverI();
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
+    ~TransceiverI();
+    IceInternal::NativeInfoPtr getNativeInfo() final;
 
-    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
-    virtual void close();
-    virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation read(IceInternal::Buffer&);
+    IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
+    IceInternal::SocketOperation closing(bool, const Ice::LocalException&) final;
+    void close() final;
+    IceInternal::SocketOperation write(IceInternal::Buffer&) final;
+    IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const IceInternal::Buffer&);
-    virtual void setBufferSize(int rcvSize, int sndSize);
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const IceInternal::Buffer&) final;
+    void setBufferSize(int rcvSize, int sndSize) final;
 
     OSStatus writeRaw(const char*, size_t*) const;
     OSStatus readRaw(char*, size_t*) const;
