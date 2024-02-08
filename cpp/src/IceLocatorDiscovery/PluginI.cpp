@@ -381,7 +381,6 @@ Request::exception(std::exception_ptr ex)
     }
     catch(const Ice::NoEndpointException&)
     {
-
         _amdCB.second(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
     }
     catch(const Ice::CommunicatorDestroyedException&)

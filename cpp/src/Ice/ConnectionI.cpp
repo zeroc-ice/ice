@@ -1082,7 +1082,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
         {
             if(_asyncRequestsHint->second == outAsync)
             {
-               try
+                try
                 {
                     rethrow_exception(ex);
                 }
