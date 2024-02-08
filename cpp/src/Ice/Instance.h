@@ -45,7 +45,7 @@ namespace IceInternal
 {
 
 class Timer;
-typedef IceUtil::Handle<Timer> TimerPtr;
+using TimerPtr = std::shared_ptr<Timer>;
 
 class MetricsAdminI;
 using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
@@ -64,13 +64,13 @@ struct BufSizeWarnInfo
     // Whether send size warning has been emitted
     bool sndWarn;
 
-    // The send size for which the warning wwas emitted
+    // The send size for which the warning was emitted
     int sndSize;
 
     // Whether receive size warning has been emitted
     bool rcvWarn;
 
-    // The receive size for which the warning wwas emitted
+    // The receive size for which the warning was emitted
     int rcvSize;
 };
 

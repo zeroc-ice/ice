@@ -929,7 +929,7 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
                 const ConnectionIPtr _connection;
                 const CloseCallback _callback;
             };
-            _threadPool->dispatch(new CallbackWorkItem(shared_from_this(), std::move(callback)));
+            _threadPool->dispatch(make_shared<CallbackWorkItem>(shared_from_this(), std::move(callback)));
         }
     }
     else
@@ -1664,7 +1664,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(new DispatchCall(shared_from_this(), startCB, sentCBs, compress, requestId,
+    _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(shared_from_this(), startCB, sentCBs, compress, requestId,
                                                          invokeNum, servantManager, adapter, outAsync,
                                                          heartbeatCallback, current.stream));
 #else
@@ -1675,7 +1675,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        _threadPool->dispatchFromThisThread(new DispatchCall(shared_from_this(), startCB, sentCBs, compress, requestId,
+        _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(shared_from_this(), startCB, sentCBs, compress, requestId,
                                                              invokeNum, servantManager, adapter, outAsync,
                                                              heartbeatCallback, current.stream));
 
@@ -1715,7 +1715,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
             }
             if(p->receivedReply)
             {
-                OutgoingAsyncPtr o = ICE_DYNAMIC_CAST(OutgoingAsync, p->outAsync);
+                auto o = dynamic_pointer_cast<OutgoingAsync>(p->outAsync);
                 if(o->response())
                 {
                     o->invokeResponse();
@@ -1831,7 +1831,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(new FinishCall(shared_from_this(), close));
+    _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
 #else
     if(!_dispatcher) // Optimization, call finish() directly if there's no dispatcher.
     {
@@ -1839,7 +1839,7 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     }
     else
     {
-        _threadPool->dispatchFromThisThread(new FinishCall(shared_from_this(), close));
+        _threadPool->dispatchFromThisThread(make_shared<FinishCall>(shared_from_this(), close));
     }
 #endif
 }

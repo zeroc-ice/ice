@@ -5,7 +5,6 @@
 #ifndef ICE_THREAD_POOL_H
 #define ICE_THREAD_POOL_H
 
-#include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
@@ -32,15 +31,18 @@ class ThreadPoolCurrent;
 class ThreadPoolWorkQueue;
 using ThreadPoolWorkQueuePtr = std::shared_ptr<ThreadPoolWorkQueue>;
 
-class ThreadPoolWorkItem : public virtual IceUtil::Shared
+class ThreadPoolWorkItem
 {
 public:
 
     virtual void execute(ThreadPoolCurrent&) = 0;
 };
-typedef IceUtil::Handle<ThreadPoolWorkItem> ThreadPoolWorkItemPtr;
+using ThreadPoolWorkItemPtr = std::shared_ptr<ThreadPoolWorkItem>;
 
-class DispatchWorkItem : public ThreadPoolWorkItem, public Ice::DispatcherCall
+class DispatchWorkItem :
+    public ThreadPoolWorkItem,
+    public Ice::DispatcherCall,
+    public std::enable_shared_from_this<DispatchWorkItem>
 {
 public:
 
@@ -59,11 +61,11 @@ private:
 
     const Ice::ConnectionPtr _connection;
 };
-typedef IceUtil::Handle<DispatchWorkItem> DispatchWorkItemPtr;
+using DispatchWorkItemPtr = std::shared_ptr<DispatchWorkItem>;
 
-class ThreadPool : public IceUtil::Shared
+class ThreadPool : public std::enable_shared_from_this<ThreadPool>
 {
-    class EventHandlerThread : public IceUtil::Thread
+    class EventHandlerThread : public IceUtil::Thread, public std::enable_shared_from_this<EventHandlerThread>
     {
     public:
 
@@ -79,11 +81,12 @@ class ThreadPool : public IceUtil::Shared
         ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
         Ice::Instrumentation::ThreadState _state;
     };
-    typedef IceUtil::Handle<EventHandlerThread> EventHandlerThreadPtr;
+    using EventHandlerThreadPtr = std::shared_ptr<EventHandlerThread>;
 
 public:
 
-    ThreadPool(const InstancePtr&, const std::string&, int);
+    static ThreadPoolPtr create(const InstancePtr&, const std::string&, int);
+
     virtual ~ThreadPool();
 
     void destroy();
@@ -116,6 +119,9 @@ public:
 #endif
 
 private:
+
+    ThreadPool(const InstancePtr&, const std::string&, int);
+    void initialize();
 
     void run(const EventHandlerThreadPtr&);
 

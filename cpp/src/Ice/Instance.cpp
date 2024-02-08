@@ -449,7 +449,7 @@ IceInternal::Instance::serverThreadPool()
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
         int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
-        _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
+        _serverThreadPool = ThreadPool::create(this, "Ice.ThreadPool.Server", timeout);
     }
 
     return _serverThreadPool;
@@ -612,7 +612,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
             //
             adapter->destroy();
             lock.lock();
-            _adminAdapter = 0;
+            _adminAdapter = nullptr;
             throw;
         }
     }
@@ -671,7 +671,7 @@ IceInternal::Instance::getAdmin()
             //
             adapter->destroy();
             lock.lock();
-            _adminAdapter = 0;
+            _adminAdapter = nullptr;
             throw;
         }
 
@@ -1322,7 +1322,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     //
     // Initialize the endpoint factories once all the plugins are loaded. This gives
-    // the opportunity for the endpoint factories to find underyling factories.
+    // the opportunity for the endpoint factories to find underlying factories.
     //
     _endpointFactoryManager->initialize();
 
@@ -1426,11 +1426,11 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
         if(hasPriority)
         {
-            _timer = new Timer(priority);
+            _timer = Timer::create(priority);
         }
         else
         {
-            _timer = new Timer;
+            _timer = Timer::create();
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -1442,7 +1442,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     try
     {
-        _endpointHostResolver = new EndpointHostResolver(this);
+        _endpointHostResolver = make_shared<EndpointHostResolver>(this);
         bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
         int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
         if(hasPriority)
@@ -1461,7 +1461,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         throw;
     }
 
-    _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
+    _clientThreadPool = ThreadPool::create(this, "Ice.ThreadPool.Client", 0);
 
     //
     // The default router/locator may have been set during the loading of plugins.
@@ -1532,7 +1532,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     // remote clients to invoke Admin facets as soon as it's registered).
     //
     // Note: getAdmin here can return 0 and do nothing in the event the
-    // application set Ice.Admin.Enabled but did not set Ice.Admin.Enpoints
+    // application set Ice.Admin.Enabled but did not set Ice.Admin.Endpoints
     // and one or more of the properties required to create the Admin object.
     //
     if(_adminEnabled && _initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
@@ -1687,25 +1687,25 @@ IceInternal::Instance::destroy()
     {
         lock_guard lock(_mutex);
 
-        _objectAdapterFactory = 0;
-        _outgoingConnectionFactory = 0;
-        _retryQueue = 0;
+        _objectAdapterFactory = nullptr;
+        _outgoingConnectionFactory = nullptr;
+        _retryQueue = nullptr;
 
-        _serverThreadPool = 0;
-        _clientThreadPool = 0;
-        _endpointHostResolver = 0;
-        _timer = 0;
+        _serverThreadPool = nullptr;
+        _clientThreadPool = nullptr;
+        _endpointHostResolver = nullptr;
+        _timer = nullptr;
 
         _referenceFactory = nullptr;
-        _requestHandlerFactory = 0;
+        _requestHandlerFactory = nullptr;
         _proxyFactory = nullptr;
-        _routerManager = 0;
-        _locatorManager = 0;
-        _endpointFactoryManager = 0;
-        _pluginManager = 0;
-        _dynamicLibraryList = 0;
+        _routerManager = nullptr;
+        _locatorManager = nullptr;
+        _endpointFactoryManager = nullptr;
+        _pluginManager = nullptr;
+        _dynamicLibraryList = nullptr;
 
-        _adminAdapter = 0;
+        _adminAdapter = nullptr;
         _adminFacets.clear();
 
         _state = StateDestroyed;

@@ -104,7 +104,7 @@ private:
 };
 using LoggerAdminIPtr = std::shared_ptr<LoggerAdminI>;
 
-class Job : public IceUtil::Shared
+class Job
 {
 public:
 
@@ -117,7 +117,7 @@ public:
     const vector<RemoteLoggerPrxPtr> remoteLoggers;
     const LogMessage logMessage;
 };
-typedef IceUtil::Handle<Job> JobPtr;
+using JobPtr = std::shared_ptr<Job>;
 
 class LoggerAdminLoggerI : public IceInternal::LoggerAdminLogger, public std::enable_shared_from_this<LoggerAdminLoggerI>
 {
@@ -159,13 +159,13 @@ private:
 };
 using LoggerAdminLoggerIPtr = std::shared_ptr<LoggerAdminLoggerI>;
 
-class SendLogThread : public IceUtil::Thread
+class SendLogThread final : public IceUtil::Thread
 {
 public:
 
     SendLogThread(const LoggerAdminLoggerIPtr&);
 
-    virtual void run();
+    void run() final;
 
 private:
 
@@ -690,11 +690,11 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 
         if(!_sendLogThread)
         {
-            _sendLogThread = new SendLogThread(shared_from_this());
+            _sendLogThread = make_shared<SendLogThread>(shared_from_this());
             _sendLogThread->start();
         }
 
-        _jobQueue.push_back(new Job(remoteLoggers, logMessage));
+        _jobQueue.push_back(make_shared<Job>(remoteLoggers, logMessage));
         _conditionVariable.notify_all();
     }
 }

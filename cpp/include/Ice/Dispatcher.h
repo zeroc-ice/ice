@@ -24,7 +24,7 @@ namespace Ice
  * The application must eventually invoke run to dispatch the call.
  * \headerfile Ice/Ice.h
  */
-class ICE_API DispatcherCall : public virtual IceUtil::Shared
+class ICE_API DispatcherCall
 {
 public:
 
@@ -36,14 +36,14 @@ public:
     virtual void run() = 0;
 };
 
-typedef IceUtil::Handle<DispatcherCall> DispatcherCallPtr;
+using DispatcherCallPtr = std::shared_ptr<DispatcherCall>;
 
 /**
  * Base class for a dispatcher. A subclass must define the dispatch method.
  * The dispatcher can be installed via InitializationData.
  * \headerfile Ice/Ice.h
  */
-class ICE_API Dispatcher : public virtual IceUtil::Shared
+class ICE_API Dispatcher
 {
 public:
 
@@ -59,9 +59,10 @@ public:
     virtual void dispatch(const DispatcherCallPtr& call, const ConnectionPtr& connection) = 0;
 };
 
-typedef IceUtil::Handle<Dispatcher> DispatcherPtr;
+using DispatcherPtr = std::shared_ptr<Dispatcher>;
 
 }
 
 #endif
+
 #endif
