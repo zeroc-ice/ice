@@ -149,9 +149,13 @@ operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 
 }
 
-Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
-    enable_shared_from_this<ObjectPrx>(), // the copy is independent of other
-    _reference(other._reference)
+Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
+    _reference(ref),
+    _batchRequestQueue(ref->isBatch() ? _reference->getBatchRequestQueue() : nullptr)
+{
+}
+
+Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept : ObjectPrx(other._reference)
 {
     lock_guard lock(other._mutex);
     _requestHandler = other._requestHandler;
@@ -499,17 +503,6 @@ Ice::ObjectPrx::_getRequestHandler()
         }
     }
     return _reference->getRequestHandler(shared_from_this());
-}
-
-IceInternal::BatchRequestQueuePtr
-Ice::ObjectPrx::_getBatchRequestQueue()
-{
-    lock_guard lock(_mutex);
-    if(!_batchRequestQueue)
-    {
-        _batchRequestQueue = _reference->getBatchRequestQueue();
-    }
-    return _batchRequestQueue;
 }
 
 ::IceInternal::RequestHandlerPtr
