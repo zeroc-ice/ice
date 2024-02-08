@@ -13,39 +13,12 @@ using namespace std;
 using namespace IceInternal;
 
 ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference,
-                                                   const Ice::ConnectionIPtr& connection,
-                                                   bool compress) :
+                                         const Ice::ConnectionIPtr& connection,
+                                         bool compress) :
     RequestHandler(reference),
     _connection(connection),
     _compress(compress)
 {
-}
-
-RequestHandlerPtr
-ConnectionRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
-{
-    assert(previousHandler);
-    try
-    {
-        if(previousHandler.get() == this)
-        {
-            return newHandler;
-        }
-        else if(previousHandler->getConnection() == _connection)
-        {
-            //
-            // If both request handlers point to the same connection, we also
-            // update the request handler. See bug ICE-5489 for reasons why
-            // this can be useful.
-            //
-            return newHandler;
-        }
-    }
-    catch(const Ice::Exception&)
-    {
-        // Ignore.
-    }
-    return shared_from_this();
 }
 
 AsyncStatus
@@ -55,7 +28,7 @@ ConnectionRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 }
 
 void
-ConnectionRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exception_ptr ex)
+ConnectionRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, std::exception_ptr ex)
 {
     _connection->asyncRequestCanceled(outAsync, ex);
 }

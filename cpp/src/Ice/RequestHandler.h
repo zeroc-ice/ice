@@ -54,8 +54,6 @@ public:
 
     RequestHandler(const ReferencePtr&);
 
-    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
-
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
