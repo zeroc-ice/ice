@@ -817,7 +817,12 @@ public:
         _callback(cb),
         _status(StatusPending)
     {
-        if(!::dbus_pending_call_set_notify(_call, pendingCallCompletedCallback, this, pendingCallFree))
+    }
+
+    void init()
+    {
+        auto self = new shared_ptr<AsyncResultI>(shared_from_this());
+        if(!::dbus_pending_call_set_notify(_call, pendingCallCompletedCallback, self, pendingCallFree))
         {
             ::dbus_pending_call_cancel(_call);
             ::dbus_pending_call_unref(_call);
@@ -948,17 +953,17 @@ private:
 static void
 pendingCallCompletedCallback(DBusPendingCall*, void* userData)
 {
-    AsyncResultI* r = static_cast<AsyncResultI*>(userData);
+    auto r = static_cast<shared_ptr<AsyncResultI>*>(userData);
     assert(r);
-    r->replyReceived();
+    (*r)->replyReceived();
 }
 
 static void
-pendingCallFree(void* /*userData*/)
+pendingCallFree(void* userData)
 {
-    // TODO review this code
-    // AsyncResultI* r = static_cast<AsyncResultI*>(userData);
-    // assert(r);
+    auto* r = static_cast<shared_ptr<AsyncResultI>*>(userData);
+    assert(r);
+    delete r;
 }
 
 static DBusHandlerResult filterCallback(DBusConnection*, DBusMessage*, void*);
@@ -1040,7 +1045,9 @@ public:
         {
             throw ExceptionI("dbus_connection_send_with_reply failed - disconnected?");
         }
-        return make_shared<AsyncResultI>(call, cb);
+        auto asyncResult = make_shared<AsyncResultI>(call, cb);
+        asyncResult->init();
+        return asyncResult;
     }
 
     virtual void sendAsync(const MessagePtr& m)
@@ -1090,7 +1097,8 @@ public:
 
         ::dbus_connection_set_exit_on_disconnect(_connection, FALSE);
 
-        if(!::dbus_connection_add_filter(_connection, filterCallback, this, freeConnection))
+        auto self = new shared_ptr<ConnectionI>(shared_from_this());
+        if(!::dbus_connection_add_filter(_connection, filterCallback, self, freeConnection))
         {
             throw ExceptionI("out of memory calling dbus_connection_add_filter");
         }
@@ -1202,16 +1210,16 @@ private:
 static DBusHandlerResult
 filterCallback(DBusConnection*, DBusMessage* message, void* userData)
 {
-    ConnectionI* c = static_cast<ConnectionI*>(userData);
+    auto c = static_cast<shared_ptr<ConnectionI>*>(userData);
     assert(c);
-    return c->handleMessage(message);
+    return (*c)->handleMessage(message);
 }
 
-static void freeConnection(void* /*p*/)
+static void freeConnection(void* p)
 {
-    // TODO review this code
-    // ConnectionI* c = static_cast<ConnectionI*>(p);
-    // assert(c);
+    auto c = static_cast<shared_ptr<ConnectionI>*>(p);
+    assert(c);
+    delete c;
 }
 
 }
