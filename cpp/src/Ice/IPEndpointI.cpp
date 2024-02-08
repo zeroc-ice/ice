@@ -526,9 +526,9 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
                 return;
             }
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
-            callback->exception(ex);
+            callback->exception(current_exception());
             return;
         }
     }
@@ -633,19 +633,20 @@ IceInternal::EndpointHostResolver::run()
                 r.observer->failed(ex.ice_id());
                 r.observer->detach();
             }
-            r.callback->exception(ex);
+            r.callback->exception(current_exception());
         }
     }
 
     for(deque<ResolveEntry>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)
     {
         Ice::CommunicatorDestroyedException ex(__FILE__, __LINE__);
+        auto eptr = make_exception_ptr(ex);
         if(p->observer)
         {
             p->observer->failed(ex.ice_id());
             p->observer->detach();
         }
-        p->callback->exception(ex);
+        p->callback->exception(eptr);
     }
     _queue.clear();
 

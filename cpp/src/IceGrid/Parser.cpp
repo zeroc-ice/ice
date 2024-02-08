@@ -589,9 +589,9 @@ Parser::addApplication(const list<string>& origArgs)
             }
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -612,9 +612,9 @@ Parser::removeApplication(const list<string>& args)
 
         _admin->removeApplication(name);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -640,9 +640,9 @@ Parser::describeApplication(const list<string>& args)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -756,9 +756,9 @@ Parser::diffApplication(const list<string>& origArgs)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -826,9 +826,9 @@ Parser::updateApplication(const list<string>& origArgs)
     {
         error("registry doesn't support updates without restart");
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -867,9 +867,9 @@ Parser::patchApplication(const list<string>& origArgs)
         string name = *p++;
         _admin->patchApplication(name, opts.isSet("force"));
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -889,9 +889,9 @@ Parser::listAllApplications(const list<string>& args)
         copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
         outputString(os.str());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -943,9 +943,9 @@ Parser::describeServerTemplate(const list<string>& args)
         }
         outputString(os.str());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -980,9 +980,9 @@ Parser::instantiateServerTemplate(const list<string>& args)
         desc.parameterValues = vars;
         _admin->instantiateServer(application, node, desc);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1026,9 +1026,9 @@ Parser::describeServiceTemplate(const list<string>& args)
         }
         outputString(os.str());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1058,9 +1058,9 @@ Parser::describeNode(const list<string>& args)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1084,9 +1084,9 @@ Parser::pingNode(const list<string>& args)
             consoleOut << "node is down" << endl;
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1104,9 +1104,9 @@ Parser::printLoadNode(const list<string>& args)
         LoadInfo load = _admin->getNodeLoad(args.front());
         consoleOut << "load average (1/5/15): " << load.avg1 << " / " << load.avg5 << " / " << load.avg15 << endl;
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1175,9 +1175,9 @@ Parser::printNodeProcessorSockets(const list<string>& args)
             consoleOut << os.str() << flush;
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1194,9 +1194,9 @@ Parser::shutdownNode(const list<string>& args)
     {
         _admin->shutdownNode(args.front());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1216,9 +1216,9 @@ Parser::listAllNodes(const list<string>& args)
         copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
         consoleOut << os.str();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1243,9 +1243,9 @@ Parser::describeRegistry(const list<string>& args)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1269,9 +1269,9 @@ Parser::pingRegistry(const list<string>& args)
             consoleOut << "registry is down" << endl;
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1295,9 +1295,9 @@ Parser::shutdownRegistry(const list<string>& args)
             _admin->shutdownRegistry(args.front());
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1317,9 +1317,9 @@ Parser::listAllRegistries(const list<string>& args)
         copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
         consoleOut << os.str();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1343,9 +1343,9 @@ Parser::removeServer(const list<string>& args)
         update.nodes.push_back(nodeUpdate);
         _admin->updateApplication(update);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1366,9 +1366,9 @@ Parser::startServer(const list<string>& args)
     {
         error("the server didn't start successfully:\n" + ex.reason);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1389,9 +1389,9 @@ Parser::stopServer(const list<string>& args)
     {
         error("the server didn't stop successfully:\n" + ex.reason);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1428,9 +1428,9 @@ Parser::patchServer(const list<string>& origArgs)
     {
         _admin->patchServer(args.front(), opts.isSet("force"));
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1449,9 +1449,9 @@ Parser::signalServer(const list<string>& args)
         string server = *p++;
         _admin->sendSignal(server, *p);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1482,9 +1482,9 @@ Parser::writeMessage(const list<string>& args, int fd)
     {
         error("the server's Admin object does not provide a 'Process' facet");
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1514,9 +1514,9 @@ Parser::describeServer(const list<string>& args)
         out << nl;
         outputString(os.str());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1576,9 +1576,9 @@ Parser::stateServer(const list<string>& args)
             assert(false);
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1603,9 +1603,9 @@ Parser::pidServer(const list<string>& args)
             error("server is not running");
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1649,9 +1649,9 @@ Parser::propertiesServer(const list<string>& args, bool single)
     {
         error("the server's Admin object does not provide a 'Properties' facet");
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1675,9 +1675,9 @@ Parser::enableServer(const list<string>& args, bool enable)
     {
         _admin->enableServer(args.front(), enable);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1697,9 +1697,9 @@ Parser::listAllServers(const list<string>& args)
         copy(ids.begin(), ids.end(), ostream_iterator<string>(os,"\n"));
         consoleOut << os.str();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1736,9 +1736,9 @@ Parser::startService(const list<string>& args)
     {
         error("the server's Admin object does not provide a 'IceBox.ServiceManager' facet");
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1775,9 +1775,9 @@ Parser::stopService(const list<string>& args)
     {
         error("the server's Admin object does not provide a 'IceBox.ServiceManager' facet");
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1823,9 +1823,9 @@ Parser::describeService(const list<string>& args)
             return;
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1910,9 +1910,9 @@ Parser::propertiesService(const list<string>& args, bool single)
     {
         error("the server's Admin object does not provide an 'IceBox.Service." + service + ".Properties' facet");
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1943,9 +1943,9 @@ Parser::listServices(const list<string>& args)
             }
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1977,9 +1977,9 @@ Parser::endpointsAdapter(const list<string>& args)
             }
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -1996,9 +1996,9 @@ Parser::removeAdapter(const list<string>& args)
     {
         _admin->removeAdapter(*args.begin());
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -2018,9 +2018,9 @@ Parser::listAllAdapters(const list<string>& args)
         copy(ids.begin(), ids.end(), ostream_iterator<string>(os,"\n"));
         consoleOut << os.str();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -2049,9 +2049,9 @@ Parser::addObject(const list<string>& args)
             _admin->addObject(_communicator->stringToProxy(proxy));
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -2068,9 +2068,9 @@ Parser::removeObject(const list<string>& args)
     {
         _admin->removeObject(Ice::stringToIdentity((*(args.begin()))));
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -2091,9 +2091,9 @@ Parser::findObject(const list<string>& args)
             consoleOut << _communicator->proxyToString(p->proxy) << endl;
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -2135,9 +2135,9 @@ Parser::describeObject(const list<string>& args)
         }
 
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -2167,9 +2167,9 @@ Parser::listObject(const list<string>& args)
             consoleOut << _communicator->identityToString(p->proxy->ice_getIdentity()) << endl;
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -2264,9 +2264,9 @@ Parser::show(const string& reader, const list<string>& origArgs)
             showFile(id, reader, filename, head, tail, follow, lineCount);
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception&)
     {
-        exception(ex);
+        exception(current_exception());
     }
 }
 
@@ -2858,11 +2858,11 @@ Parser::parse(const std::string& commands, bool debug)
 }
 
 void
-Parser::exception(const Ice::Exception& pex)
+Parser::exception(std::exception_ptr pex)
 {
     try
     {
-        pex.ice_throw();
+        rethrow_exception(pex);
     }
     catch(const ApplicationNotExistException& ex)
     {

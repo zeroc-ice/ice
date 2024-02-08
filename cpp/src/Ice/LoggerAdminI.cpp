@@ -40,7 +40,7 @@ public:
 
     vector<RemoteLoggerPrxPtr> log(const LogMessage&);
 
-    void deadRemoteLogger(const RemoteLoggerPrxPtr&, const LoggerPtr&, const LocalException&, const string&);
+    void deadRemoteLogger(const RemoteLoggerPrxPtr&, const LoggerPtr&, exception_ptr, const string&);
 
     int getTraceLevel() const
     {
@@ -389,19 +389,12 @@ LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
             },
             [self, logger, remoteLogger](exception_ptr e)
             {
-                try
-                {
-                    rethrow_exception(e);
-                }
-                catch(const Ice::LocalException& le)
-                {
-                    self->deadRemoteLogger(remoteLogger, logger, le, "init");
-                }
+                self->deadRemoteLogger(remoteLogger, logger, e, "init");
             });
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
-        deadRemoteLogger(remoteLogger, logger, ex, "init");
+        deadRemoteLogger(remoteLogger, logger, current_exception(), "init");
         throw;
     }
 }
@@ -576,7 +569,7 @@ LoggerAdminI::log(const LogMessage& logMessage)
 void
 LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger,
                                const LoggerPtr& logger,
-                               const LocalException& ex,
+                               std::exception_ptr ex,
                                const string& operation)
 {
     //
@@ -586,8 +579,15 @@ LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger,
     {
         if(_traceLevel > 0)
         {
-            Trace trace(logger, traceCategory);
-            trace << "detached `" << remoteLogger << "' because " << operation << " raised:\n" << ex;
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const std::exception& e)
+            {
+                Trace trace(logger, traceCategory);
+                trace << "detached `" << remoteLogger << "' because " << operation << " raised:\n" << e;
+            }
         }
     }
 }
@@ -781,15 +781,15 @@ LoggerAdminLoggerI::run()
                         {
                             // expected if there are outstanding calls during communicator destruction
                         }
-                        catch(const LocalException& ex)
+                        catch(const LocalException&)
                         {
-                            self->_loggerAdmin->deadRemoteLogger(remoteLogger, self->_localLogger, ex, "log");
+                            self->_loggerAdmin->deadRemoteLogger(remoteLogger, self->_localLogger, e, "log");
                         }
                     });
             }
-            catch(const LocalException& ex)
+            catch(const LocalException&)
             {
-                _loggerAdmin->deadRemoteLogger(*p, _localLogger, ex, "log");
+                _loggerAdmin->deadRemoteLogger(*p, _localLogger, current_exception(), "log");
             }
         }
     }

@@ -90,7 +90,7 @@ BatchRequestQueue::prepareBatchRequest(OutputStream* os)
     unique_lock lock(_mutex);
     if(_exception)
     {
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
     _conditionVariable.wait(lock, [this] { return !_batchStreamInUse; });
 
@@ -203,10 +203,10 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress)
 }
 
 void
-BatchRequestQueue::destroy(const Ice::LocalException& ex)
+BatchRequestQueue::destroy(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    _exception = ex.ice_clone();
+    _exception = ex;
 }
 
 bool

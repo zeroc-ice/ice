@@ -61,7 +61,7 @@ public:
         catch(const Ice::ObjectNotExistException&)
         {
         }
-        catch(const Ice::LocalException& ex)
+        catch (const std::exception& ex)
         {
             Ice::Warning out(_logger);
             out << "unexpected exception while reaping session:\n" << ex;

@@ -42,7 +42,7 @@ public:
     }
 
     virtual void
-    connectFailed(const Glacier2::SessionHelperPtr&, const Ice::Exception&)
+    connectFailed(const Glacier2::SessionHelperPtr&, std::exception_ptr)
     {
     }
 

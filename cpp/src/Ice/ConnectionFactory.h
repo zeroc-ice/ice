@@ -30,7 +30,6 @@
 namespace Ice
 {
 
-class LocalException;
 class ObjectAdapterI;
 
 }
@@ -49,7 +48,7 @@ public:
     public:
 
         virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
+        virtual void setException(std::exception_ptr) = 0;
     };
     using CreateConnectionCallbackPtr = std::shared_ptr<CreateConnectionCallback>;
 
@@ -92,10 +91,10 @@ private:
                         const CreateConnectionCallbackPtr&, Ice::EndpointSelectionType);
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
-        virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
+        virtual void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
 
         virtual void connectors(const std::vector<ConnectorPtr>&);
-        virtual void exception(const Ice::LocalException&);
+        virtual void exception(std::exception_ptr);
 
         void getConnectors();
         void nextEndpoint();
@@ -104,7 +103,7 @@ private:
         void nextConnector();
 
         void setConnection(const Ice::ConnectionIPtr&, bool);
-        void setException(const Ice::LocalException&);
+        void setException(std::exception_ptr);
 
         bool hasConnector(const ConnectorInfo&);
         bool removeConnectors(const std::vector<ConnectorInfo>&);
@@ -114,7 +113,7 @@ private:
 
     private:
 
-        bool connectionStartFailedImpl(const Ice::LocalException&);
+        bool connectionStartFailedImpl(std::exception_ptr);
 
         const InstancePtr _instance;
         const OutgoingConnectionFactoryPtr _factory;
@@ -137,7 +136,7 @@ private:
     Ice::ConnectionIPtr getConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, bool&);
     void finishGetConnection(const std::vector<ConnectorInfo>&, const ConnectorInfo&, const Ice::ConnectionIPtr&,
                              const ConnectCallbackPtr&);
-    void finishGetConnection(const std::vector<ConnectorInfo>&, const Ice::LocalException&, const ConnectCallbackPtr&);
+    void finishGetConnection(const std::vector<ConnectorInfo>&, std::exception_ptr, const ConnectCallbackPtr&);
 
     bool addToPending(const ConnectCallbackPtr&, const std::vector<ConnectorInfo>&);
     void removeFromPending(const ConnectCallbackPtr&, const std::vector<ConnectorInfo>&);
@@ -145,8 +144,8 @@ private:
     Ice::ConnectionIPtr findConnection(const std::vector<ConnectorInfo>&, bool&);
     Ice::ConnectionIPtr createConnection(const TransceiverPtr&, const ConnectorInfo&);
 
-    void handleException(const Ice::LocalException&, bool);
-    void handleConnectionException(const Ice::LocalException&, bool);
+    void handleException(std::exception_ptr, bool);
+    void handleConnectionException(std::exception_ptr, bool);
 
     Ice::CommunicatorPtr _communicator;
     const InstancePtr _instance;
@@ -205,7 +204,7 @@ public:
     virtual NativeInfoPtr getNativeInfo();
 
     virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
-    virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
+    virtual void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
     void initialize();
     ~IncomingConnectionFactory();
 
@@ -248,7 +247,7 @@ private:
     State _state;
 
 #if defined(ICE_USE_IOCP)
-    std::unique_ptr<Ice::LocalException> _acceptorException;
+    std::exception_ptr _acceptorException;
 #endif
     mutable std::mutex _mutex;
     mutable std::condition_variable _conditionVariable;

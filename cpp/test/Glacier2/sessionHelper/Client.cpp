@@ -109,7 +109,7 @@ public:
     }
 
     void
-    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, const Ice::Exception&) override
+    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr) override
     {
         test(false);
     }
@@ -138,11 +138,11 @@ public:
     }
 
     void
-    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, const Ice::Exception& ex) override
+    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Ice::ConnectFailedException&)
         {
@@ -179,11 +179,11 @@ public:
     }
 
     void
-    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, const Ice::Exception& ex) override
+    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Glacier2::PermissionDeniedException&)
         {
@@ -220,11 +220,11 @@ public:
     }
 
     void
-    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, const Ice::Exception& ex) override
+    connectFailed(const shared_ptr<Glacier2::SessionHelper>&, std::exception_ptr ex) override
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Ice::CommunicatorDestroyedException&)
         {

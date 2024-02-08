@@ -476,25 +476,24 @@ class ConnectFailed : public Ice::DispatcherCall
 public:
 
     ConnectFailed(const Glacier2::SessionCallbackPtr& callback, const Glacier2::SessionHelperPtr& session,
-                  const Ice::Exception& ex) :
+                  std::exception_ptr ex) :
         _callback(callback),
         _session(session)
     {
-        _ex = ex.ice_clone();
+        _ex = ex;
     }
 
     virtual void
     run()
     {
-        const Ice::Exception* ex(_ex.get());
-        _callback->connectFailed(_session, *ex);
+        _callback->connectFailed(_session, _ex);
     }
 
 private:
 
     const Glacier2::SessionCallbackPtr _callback;
     const Glacier2::SessionHelperPtr _session;
-    unique_ptr<Ice::Exception> _ex;
+    std::exception_ptr _ex;
 };
 
 class CreatedCommunicator : public Ice::DispatcherCall
@@ -544,13 +543,13 @@ public:
             communicator = Ice::initialize(_session->_initData);
             _session->_communicator = communicator;
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
             {
                 lock_guard lock(_session->_mutex);
                 _session->_destroy = true;
             }
-            _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), nullptr);
+            _session->dispatchCallback(new ConnectFailed(_callback, _session, current_exception()), nullptr);
             return;
         }
 
@@ -564,9 +563,9 @@ public:
                     finder = Ice::uncheckedCast<Ice::RouterFinderPrx>(communicator->stringToProxy(_finder));
                     communicator->setDefaultRouter(finder->getRouter());
                 }
-                catch(const Ice::CommunicatorDestroyedException& ex)
+                catch(const Ice::CommunicatorDestroyedException&)
                 {
-                    _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), 0);
+                    _session->dispatchCallback(new ConnectFailed(_callback, _session, current_exception()), 0);
                     return;
                 }
                 catch(const Ice::Exception&)
@@ -586,7 +585,7 @@ public:
             Glacier2::SessionPrxPtr session = _factory->connect(routerPrx);
             _session->connected(routerPrx, session);
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception&)
         {
             try
             {
@@ -596,7 +595,7 @@ public:
             {
             }
 
-            _session->dispatchCallback(new ConnectFailed(_callback, _session, ex), 0);
+            _session->dispatchCallback(new ConnectFailed(_callback, _session, current_exception()), 0);
         }
         _session = 0;
     }

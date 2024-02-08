@@ -152,10 +152,10 @@ IceInternal::RouterInfo::getClientProxyResponse(const Ice::ObjectPrxPtr& proxy,
 }
 
 void
-IceInternal::RouterInfo::getClientProxyException(const Ice::Exception& ex,
+IceInternal::RouterInfo::getClientProxyException(std::exception_ptr ex,
                                                  const GetClientEndpointsCallbackPtr& callback)
 {
-    callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
+    callback->setException(ex);
 }
 
 void
@@ -181,14 +181,7 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
         },
         [self, callback](exception_ptr e)
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                self->getClientProxyException(ex, callback);
-            }
+            self->getClientProxyException(e, callback);
         });
 }
 
@@ -212,9 +205,9 @@ IceInternal::RouterInfo::addProxyResponse(const Ice::ObjectProxySeq& proxies, co
 }
 
 void
-IceInternal::RouterInfo::addProxyException(const Ice::Exception& ex, const AddProxyCookiePtr& cookie)
+IceInternal::RouterInfo::addProxyException(std::exception_ptr ex, const AddProxyCookiePtr& cookie)
 {
-    cookie->cb()->setException(dynamic_cast<const Ice::LocalException&>(ex));
+    cookie->cb()->setException(ex);
 }
 
 bool
@@ -248,14 +241,7 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
         },
         [self, cookie](exception_ptr e)
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                self->addProxyException(ex, cookie);
-            }
+            self->addProxyException(e, cookie);
         });
     return false;
 }

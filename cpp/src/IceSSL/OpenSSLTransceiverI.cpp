@@ -479,7 +479,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 }
 
 IceInternal::SocketOperation
-OpenSSL::TransceiverI::closing(bool initiator, const Ice::LocalException&)
+OpenSSL::TransceiverI::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

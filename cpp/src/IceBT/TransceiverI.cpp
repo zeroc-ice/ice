@@ -33,7 +33,7 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
         //
         // Raise the stored exception from a failed connection attempt.
         //
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
     else if(_needConnect)
     {
@@ -49,7 +49,7 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
 }
 
 IceInternal::SocketOperation
-IceBT::TransceiverI::closing(bool initiator, const Ice::LocalException&)
+IceBT::TransceiverI::closing(bool initiator, exception_ptr)
 {
     //
     // If we are initiating the connection closure, wait for the peer
@@ -176,13 +176,13 @@ IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
 }
 
 void
-IceBT::TransceiverI::connectFailed(const Ice::LocalException& ex)
+IceBT::TransceiverI::connectFailed(std::exception_ptr ex)
 {
     lock_guard lock(_mutex);
     //
     // Save the exception - it will be raised in initialize().
     //
-    _exception = ex.ice_clone();
+    _exception = ex;
     //
     // Triggers a call to write() from a different thread.
     //

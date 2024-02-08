@@ -54,3 +54,19 @@ IceInternal::InvocationObserver::attach(IceInternal::Instance* instance, const s
 
     attach(obsv->getInvocationObserver(0, op, Ice::noExplicitContext));
 }
+
+std::string IceInternal::getExceptionId(std::exception_ptr eptr)
+{
+    try
+    {
+        std::rethrow_exception(eptr);
+    }
+    catch (const Ice::Exception& ex)
+    {
+        return ex.ice_id();
+    }
+    catch (const std::exception& ex)
+    {
+       return ex.what();
+    }
+}

@@ -33,7 +33,7 @@ public:
 #endif
 
     SocketOperation initialize(Buffer&, Buffer&) final;
-    SocketOperation closing(bool, const Ice::LocalException&) final;
+    SocketOperation closing(bool, std::exception_ptr) final;
     void close() final;
     SocketOperation write(Buffer&) final;
     SocketOperation read(Buffer&) final;
