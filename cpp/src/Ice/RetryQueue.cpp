@@ -39,14 +39,21 @@ IceInternal::RetryTask::runTimerTask()
 }
 
 void
-IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& /*outAsync*/, const Ice::LocalException& ex)
+IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& /*outAsync*/, exception_ptr ex)
 {
     if(_queue->cancel(shared_from_this()))
     {
         if(_instance->traceLevels()->retry >= 1)
         {
-            Trace out(_instance->initializationData().logger, _instance->traceLevels()->retryCat);
-            out << "operation retry canceled\n" << ex;
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const std::exception& e)
+            {
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->retryCat);
+                out << "operation retry canceled\n" << e;
+            }
         }
         if(_outAsync->exception(ex))
         {
@@ -60,7 +67,7 @@ IceInternal::RetryTask::destroy()
 {
     try
     {
-        _outAsync->abort(CommunicatorDestroyedException(__FILE__, __LINE__));
+        _outAsync->abort(make_exception_ptr(CommunicatorDestroyedException(__FILE__, __LINE__)));
     }
     catch(const CommunicatorDestroyedException&)
     {

@@ -39,12 +39,12 @@ public:
 
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
     virtual void sendResponse(Ice::Int, Ice::OutputStream*, Ice::Byte, bool);
     virtual void sendNoResponse();
-    virtual bool systemException(Ice::Int, const Ice::SystemException&, bool);
-    virtual void invokeException(Ice::Int, const Ice::LocalException&, int, bool);
+    virtual bool systemException(Ice::Int, std::exception_ptr, bool);
+    virtual void invokeException(Ice::Int, std::exception_ptr, int, bool);
 
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 
@@ -64,7 +64,7 @@ public:
 
 private:
 
-    void handleException(Ice::Int, const Ice::Exception&, bool);
+    void handleException(Ice::Int, std::exception_ptr, bool);
 
     const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
     const bool _dispatcher;

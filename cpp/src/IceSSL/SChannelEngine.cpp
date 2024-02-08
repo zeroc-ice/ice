@@ -1218,5 +1218,5 @@ SChannel::SSLEngine::createTransceiver(const InstancePtr& instance,
                                        const string& hostOrAdapterName,
                                        bool incoming)
 {
-    return new SChannel::TransceiverI(instance, delegate, hostOrAdapterName, incoming);
+    return make_shared<SChannel::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
 }

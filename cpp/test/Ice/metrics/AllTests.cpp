@@ -23,7 +23,7 @@ public:
 
     virtual void response() = 0;
 
-    virtual void exception(const Ice::Exception& ex) = 0;
+    virtual void exception(std::exception_ptr) = 0;
 
     void
     waitForResponse()
@@ -53,9 +53,8 @@ public:
         notify();
     }
 
-    virtual void exception(const Ice::Exception& ex)
+    virtual void exception(std::exception_ptr)
     {
-        cerr << ex << endl;
         test(false);
     }
 };
@@ -69,11 +68,11 @@ public:
         test(false);
     }
 
-    virtual void exception(const Ice::Exception& ex)
+    virtual void exception(std::exception_ptr ex)
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Test::UserEx&)
         {
@@ -97,11 +96,11 @@ public:
         test(false);
     }
 
-    virtual void exception(const Ice::Exception& ex)
+    virtual void exception(std::exception_ptr ex)
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Ice::RequestFailedException&)
         {
@@ -125,11 +124,11 @@ public:
         test(false);
     }
 
-    virtual void exception(const Ice::Exception& ex)
+    virtual void exception(std::exception_ptr ex)
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Ice::LocalException&)
         {
@@ -153,11 +152,11 @@ public:
         test(false);
     }
 
-    virtual void exception(const Ice::Exception& ex)
+    virtual void exception(std::exception_ptr ex)
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Ice::UnknownException&)
         {
@@ -181,11 +180,11 @@ public:
         test(false);
     }
 
-    virtual void exception(const Ice::Exception& ex)
+    virtual void exception(std::exception_ptr ex)
     {
         try
         {
-            ex.ice_throw();
+            rethrow_exception(ex);
         }
         catch(const Ice::ConnectionLostException&)
         {
@@ -1120,21 +1119,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         {
             cb->response();
         },
-        [cb](exception_ptr e)
+        [cb](exception_ptr)
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cerr << ex << endl;
-                test(false);
-            }
-            catch(...)
-            {
-                test(false);
-            }
+            test(false);
         });
     cb->waitForResponse();
 
@@ -1169,18 +1156,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         },
         [cb](exception_ptr e)
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cb->exception(ex);
-            }
-            catch(...)
-            {
-                test(false);
-            }
+            cb->exception(e);
         });
     cb->waitForResponse();
 
@@ -1211,18 +1187,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         },
         [cb](exception_ptr e)
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cb->exception(ex);
-            }
-            catch(...)
-            {
-                test(false);
-            }
+            cb->exception(e);
         });
     cb->waitForResponse();
 
@@ -1253,18 +1218,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         },
         [cb](exception_ptr e)
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cb->exception(ex);
-            }
-            catch(...)
-            {
-                test(false);
-            }
+            cb->exception(e);
         });
     cb->waitForResponse();
 
@@ -1295,18 +1249,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         },
         [cb](exception_ptr e)
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cb->exception(ex);
-            }
-            catch(...)
-            {
-                test(false);
-            }
+            cb->exception(e);
         });
     cb->waitForResponse();
 
@@ -1339,18 +1282,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             },
             [cb](exception_ptr e)
             {
-                try
-                {
-                    rethrow_exception(e);
-                }
-                catch(const Ice::Exception& ex)
-                {
-                    cb->exception(ex);
-                }
-                catch(...)
-                {
-                    test(false);
-                }
+                cb->exception(e);
             });
         cb->waitForResponse();
     }
@@ -1450,18 +1382,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         },
         [cb](exception_ptr e)
         {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cb->exception(ex);
-            }
-            catch(...)
-            {
-                test(false);
-            }
+            cb->exception(e);
         },
         [&](bool) { sent.set_value(); });
     sent.get_future().get();

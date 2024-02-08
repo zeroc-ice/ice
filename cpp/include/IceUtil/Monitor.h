@@ -8,6 +8,7 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Lock.h>
 #include <IceUtil/Cond.h>
+#include <IceUtil/Mutex.h>
 
 namespace IceUtil
 {

@@ -24,7 +24,7 @@
 #endif
 
 //
-// Automatically link IceDB37[D|++11|++11D].lib with Visual C++
+// Automatically link IceDB37[D].lib with Visual C++
 //
 #if !defined(ICE_BUILDING_ICE_DB) && defined(ICE_DB_API_EXPORTS)
 #   define ICE_BUILDING_ICE_DB

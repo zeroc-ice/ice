@@ -6,7 +6,7 @@
 #define ICE_PATCH2_CONFIG_H
 
 //
-// Automatically link with IcePatch2[D|++11|++11D].lib
+// Automatically link with IcePatch2[D].lib
 //
 
 #if !defined(ICE_BUILDING_ICE_PATCH2) && defined(ICEPATCH2_API_EXPORTS)

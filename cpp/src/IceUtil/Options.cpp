@@ -132,8 +132,6 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
 void
 IceUtilInternal::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType at, string dflt, RepeatType rt)
 {
-    RecMutex::Lock sync(_m);
-
     if(parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot add options after parse() was called");
@@ -550,8 +548,6 @@ IceUtilInternal::Options::split(const string& line)
 IceUtilInternal::Options::StringVector
 IceUtilInternal::Options::parse(const StringVector& args)
 {
-    RecMutex::Lock sync(_m);
-
     if(parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot call parse() more than once on the same Option instance");
@@ -738,8 +734,6 @@ IceUtilInternal::Options::parse(int argc, const char* const argv[])
 bool
 IceUtilInternal::Options::isSet(const string& opt) const
 {
-    RecMutex::Lock sync(_m);
-
     if(!parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
@@ -752,8 +746,6 @@ IceUtilInternal::Options::isSet(const string& opt) const
 string
 IceUtilInternal::Options::optArg(const string& opt) const
 {
-    RecMutex::Lock sync(_m);
-
     if(!parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
@@ -784,8 +776,6 @@ IceUtilInternal::Options::optArg(const string& opt) const
 IceUtilInternal::Options::StringVector
 IceUtilInternal::Options::argVec(const string& opt) const
 {
-    RecMutex::Lock sync(_m);
-
     if(!parseCalled)
     {
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");

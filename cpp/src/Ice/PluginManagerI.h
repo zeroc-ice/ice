@@ -56,7 +56,6 @@ private:
     std::mutex _mutex;
     static const char * const _kindOfObject;
 };
-typedef IceUtil::Handle<PluginManagerI> PluginManagerIPtr;
 
 }
 

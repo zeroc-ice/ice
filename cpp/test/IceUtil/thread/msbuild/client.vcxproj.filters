@@ -16,9 +16,6 @@
     <ClCompile Include="..\Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AliveTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\CountDownLatchTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -28,13 +25,7 @@
     <ClCompile Include="..\MonitorMutexTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\MonitorRecMutexTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\MutexTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\RecMutexTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SleepTest.cpp">
@@ -51,9 +42,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\AliveTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\CountDownLatchTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,13 +51,7 @@
     <ClInclude Include="..\MonitorMutexTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\MonitorRecMutexTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\MutexTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\RecMutexTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SleepTest.h">

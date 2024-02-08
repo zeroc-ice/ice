@@ -30,7 +30,7 @@ public:
 
     int swap(Ice::OutputStream*, bool&);
 
-    void destroy(const Ice::LocalException&);
+    void destroy(std::exception_ptr);
     bool isEmpty();
 
     void enqueueBatchRequest(const Ice::ObjectPrxPtr&);
@@ -44,7 +44,7 @@ private:
     bool _batchCompress;
     int _batchRequestNum;
     size_t _batchMarker;
-    std::unique_ptr<Ice::LocalException> _exception;
+    std::exception_ptr _exception;
     size_t _maxSize;
 
     std::mutex _mutex;

@@ -13,10 +13,15 @@ RetryException::RetryException(exception_ptr ex)
     _ex = ex;
 }
 
+RetryException::RetryException(const RetryException& ex)
+{
+    _ex = ex.get();
+}
+
 exception_ptr
 RetryException::get() const
 {
-   return _ex;
+    return _ex;
 }
 
 RequestHandler::RequestHandler(const ReferencePtr& reference) :

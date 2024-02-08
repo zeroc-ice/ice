@@ -30,7 +30,7 @@ IceInternal::TcpTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 }
 
 SocketOperation
-IceInternal::TcpTransceiver::closing(bool initiator, const Ice::LocalException&)
+IceInternal::TcpTransceiver::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

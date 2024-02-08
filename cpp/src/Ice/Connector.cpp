@@ -12,5 +12,3 @@ Connector::~Connector()
 {
     // Out of line to avoid weak vtable
 }
-
-IceUtil::Shared* IceInternal::upCast(Connector* p) { return p; }

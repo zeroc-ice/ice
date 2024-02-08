@@ -72,18 +72,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     }
 
     _lastStatus = _servant->ice_dispatch(request, []() { return true; }, [this](exception_ptr ex) {
-        try
-        {
-            rethrow_exception(ex);
-        }
-        catch(const IceUtil::Exception& e)
-        {
-            setException(e);
-        }
-        catch(...)
-        {
-            test(false);
-        }
+        setException(ex);
         return true;
     });
 
@@ -108,17 +97,17 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 }
 
 void
-AMDInterceptorI::setException(const IceUtil::Exception& e)
+AMDInterceptorI::setException(std::exception_ptr e)
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    _exception = e.ice_clone();
+    _exception = e;
 }
 
-IceUtil::Exception*
+std::exception_ptr
 AMDInterceptorI::getException() const
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    return _exception.get();
+    return _exception;
 }
 
 void
@@ -126,5 +115,5 @@ AMDInterceptorI::clear()
 {
     InterceptorI::clear();
     IceUtil::Mutex::Lock lock(_mutex);
-    _exception.reset();
+    _exception = nullptr;
 }

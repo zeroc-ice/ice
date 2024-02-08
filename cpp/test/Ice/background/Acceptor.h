@@ -12,6 +12,7 @@ class Acceptor : public IceInternal::Acceptor
 {
 public:
 
+    Acceptor(const EndpointIPtr&, const IceInternal::AcceptorPtr&);
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 
     virtual void close();
@@ -28,9 +29,6 @@ public:
     IceInternal::AcceptorPtr delegate() const { return _acceptor; }
 
 private:
-
-    Acceptor(const EndpointIPtr&, const IceInternal::AcceptorPtr&);
-    friend class EndpointI;
 
     EndpointIPtr _endpoint;
     const IceInternal::AcceptorPtr _acceptor;

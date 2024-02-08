@@ -32,6 +32,8 @@ class RetryException
 public:
 
     RetryException(std::exception_ptr);
+    RetryException(const RetryException&);
+
     std::exception_ptr get() const;
 
 private:
@@ -43,7 +45,7 @@ class CancellationHandler
 {
 public:
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&) = 0;
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) = 0;
 };
 
 class RequestHandler : public CancellationHandler

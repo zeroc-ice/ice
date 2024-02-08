@@ -31,7 +31,7 @@ public:
 
 private:
     Context _context;
-    IceUtil::Mutex _mutex;
+    mutable std::mutex _mutex;
 };
 
 class PerThreadImplicitContext : public ImplicitContextI
@@ -142,21 +142,21 @@ ImplicitContextI::cleanupThread()
 Context
 SharedImplicitContext::getContext() const
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     return _context;
 }
 
 void
 SharedImplicitContext::setContext(const Context& newContext)
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     _context = newContext;
 }
 
 bool
 SharedImplicitContext::containsKey(const string& k) const
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     Context::const_iterator p = _context.find(k);
     return p != _context.end();
 }
@@ -164,7 +164,7 @@ SharedImplicitContext::containsKey(const string& k) const
 string
 SharedImplicitContext::get(const string& k) const
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     Context::const_iterator p = _context.find(k);
     if(p == _context.end())
     {
@@ -176,7 +176,7 @@ SharedImplicitContext::get(const string& k) const
 string
 SharedImplicitContext::put(const string& k, const string& v)
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     string& val = _context[k];
 
     string oldVal = val;
@@ -187,7 +187,7 @@ SharedImplicitContext::put(const string& k, const string& v)
 string
 SharedImplicitContext::remove(const string& k)
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     Context::iterator p = _context.find(k);
     if(p == _context.end())
     {
@@ -204,21 +204,21 @@ SharedImplicitContext::remove(const string& k)
 void
 SharedImplicitContext::write(const Context& proxyCtx, ::Ice::OutputStream* s) const
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    unique_lock lock(_mutex);
     if(proxyCtx.size() == 0)
     {
         s->write(_context);
     }
     else if(_context.size() == 0)
     {
-        lock.release();
+        lock.unlock();
         s->write(proxyCtx);
     }
     else
     {
         Context combined = proxyCtx;
         combined.insert(_context.begin(), _context.end());
-        lock.release();
+        lock.unlock();
         s->write(combined);
     }
 }
@@ -226,7 +226,7 @@ SharedImplicitContext::write(const Context& proxyCtx, ::Ice::OutputStream* s) co
 void
 SharedImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     if(proxyCtx.size() == 0)
     {
         ctx = _context;

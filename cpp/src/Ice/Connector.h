@@ -12,7 +12,7 @@
 namespace IceInternal
 {
 
-class ICE_API Connector : public ::IceUtil::Shared
+class ICE_API Connector
 {
 public:
 

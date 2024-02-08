@@ -16,14 +16,14 @@ namespace IceInternal
 
 class Buffer;
 
-class ICE_API Transceiver : public virtual ::IceUtil::Shared
+class ICE_API Transceiver
 {
 public:
 
     virtual NativeInfoPtr getNativeInfo() = 0;
 
     virtual SocketOperation initialize(Buffer&, Buffer&) = 0;
-    virtual SocketOperation closing(bool, const Ice::LocalException&) = 0;
+    virtual SocketOperation closing(bool, std::exception_ptr) = 0;
 
     virtual void close() = 0;
     virtual EndpointIPtr bind();

@@ -16,15 +16,13 @@ IceUtil::Shared* upCast(Instance*);
 typedef IceInternal::Handle<Instance> InstancePtr;
 
 class EndpointI;
-using EndpointIPtr = ::std::shared_ptr<EndpointI>;
+using EndpointIPtr = std::shared_ptr<EndpointI>;
 
 class TransceiverI;
-IceUtil::Shared* upCast(TransceiverI*);
-typedef IceInternal::Handle<TransceiverI> TransceiverIPtr;
+using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 
 class AcceptorI;
-IceUtil::Shared* upCast(AcceptorI*);
-typedef IceInternal::Handle<AcceptorI> AcceptorIPtr;
+using AcceptorIPtr = std::shared_ptr<AcceptorI>;
 
 }
 

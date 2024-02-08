@@ -71,7 +71,7 @@ public:
     void setMarshaledResult(const Ice::MarshaledResult&);
 
     void response(bool);
-    void exception(const std::exception&, bool);
+    void exception(std::exception_ptr, bool);
     void exception(const std::string&, bool);
 
 protected:
@@ -84,7 +84,7 @@ protected:
 
     bool servantLocatorFinished(bool);
 
-    void handleException(const std::exception&, bool);
+    void handleException(std::exception_ptr, bool);
     void handleException(const std::string&, bool);
 
     Ice::Current _current;

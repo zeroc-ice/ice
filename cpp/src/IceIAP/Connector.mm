@@ -25,7 +25,7 @@ IceObjC::iAPConnector::connect()
     {
         throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
     }
-    TransceiverPtr transceiver = new iAPTransceiver(_instance, session);
+    auto transceiver = make_shared<iAPTransceiver>(_instance, session);
 #if defined(__clang__) && !__has_feature(objc_arc)
     [session release];
 #endif

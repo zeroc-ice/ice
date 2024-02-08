@@ -164,12 +164,12 @@ IceSSL::EndpointI::connectors_async(Ice::EndpointSelectionType selType,
             vector<IceInternal::ConnectorPtr> connectors = c;
             for(vector<IceInternal::ConnectorPtr>::iterator p = connectors.begin(); p != connectors.end(); ++p)
             {
-                *p = new ConnectorI(_instance, *p, _host);
+                *p = make_shared<ConnectorI>(_instance, *p, _host);
             }
             _callback->connectors(connectors);
         }
 
-        virtual void exception(const Ice::LocalException& ex)
+        virtual void exception(std::exception_ptr ex)
         {
             _callback->exception(ex);
         }
@@ -188,7 +188,7 @@ IceSSL::EndpointI::connectors_async(Ice::EndpointSelectionType selType,
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-    return new AcceptorI(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, _delegate->acceptor(adapterName), adapterName);
+    return make_shared<AcceptorI>(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, _delegate->acceptor(adapterName), adapterName);
 }
 
 EndpointIPtr
@@ -344,7 +344,7 @@ IceSSL::EndpointFactoryI::destroy()
 IceInternal::EndpointFactoryPtr
 IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, Short underlying) const
 {
-    return new EndpointFactoryI(new Instance(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
+    return make_shared<EndpointFactoryI>(new Instance(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
 }
 
 IceInternal::EndpointIPtr

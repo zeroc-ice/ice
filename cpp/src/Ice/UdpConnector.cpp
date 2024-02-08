@@ -15,7 +15,7 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::UdpConnector::connect()
 {
-    return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
+    return make_shared<UdpTransceiver>(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
 }
 
 Short

@@ -7,10 +7,11 @@
 
 #include <Ice/EndpointFactory.h>
 
-class EndpointFactory : public IceInternal::EndpointFactory
+class EndpointFactory : public IceInternal::EndpointFactory, std::enable_shared_from_this<EndpointFactory>
 {
 public:
 
+    EndpointFactory(const IceInternal::EndpointFactoryPtr&);
     virtual ~EndpointFactory() { }
 
     virtual ::Ice::Short type() const;
@@ -22,9 +23,6 @@ public:
     virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
 
 protected:
-
-    EndpointFactory(const IceInternal::EndpointFactoryPtr&);
-    friend class TestPluginI;
 
     IceInternal::EndpointFactoryPtr _factory;
 };

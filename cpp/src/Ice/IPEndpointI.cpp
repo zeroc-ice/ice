@@ -47,7 +47,7 @@ IceInternal::IPEndpointInfoI::secure() const noexcept
 Ice::EndpointInfoPtr
 IceInternal::IPEndpointI::getInfo() const noexcept
 {
-    Ice::IPEndpointInfoPtr info = make_shared<IPEndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+    Ice::IPEndpointInfoPtr info = make_shared<IPEndpointInfoI>(const_cast<IPEndpointI*>(this)->shared_from_this());
     fillEndpointInfo(info.get());
     return info;
 }
@@ -88,7 +88,7 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-        return ICE_SHARED_FROM_CONST_THIS(IPEndpointI);
+        return const_cast<IPEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -99,7 +99,7 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 void
 IceInternal::IPEndpointI::connectors_async(Ice::EndpointSelectionType selType, const EndpointI_connectorsPtr& cb) const
 {
-    _instance->resolve(_host, _port, selType, ICE_SHARED_FROM_CONST_THIS(IPEndpointI), cb);
+    _instance->resolve(_host, _port, selType, const_cast<IPEndpointI*>(this)->shared_from_this(), cb);
 }
 
 vector<EndpointIPtr>
@@ -109,7 +109,7 @@ IceInternal::IPEndpointI::expandIfWildcard() const
     vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
     if(hosts.empty())
     {
-        endps.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+        endps.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
     }
     else
     {
@@ -131,7 +131,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     if(_host.empty())
     {
         vector<EndpointIPtr> endpoints;
-        endpoints.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+        endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
         return endpoints;
     }
 
@@ -142,7 +142,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     //
     if(_port > 0)
     {
-        publish = ICE_SHARED_FROM_CONST_THIS(IPEndpointI);
+        publish = const_cast<IPEndpointI*>(this)->shared_from_this();
     }
 
     vector<Address> addrs = getAddresses(_host,
@@ -155,7 +155,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     vector<EndpointIPtr> endpoints;
     if(addrs.size() == 1)
     {
-        endpoints.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+        endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
     }
     else
     {
@@ -526,9 +526,9 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
                 return;
             }
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
-            callback->exception(ex);
+            callback->exception(current_exception());
             return;
         }
     }
@@ -633,19 +633,20 @@ IceInternal::EndpointHostResolver::run()
                 r.observer->failed(ex.ice_id());
                 r.observer->detach();
             }
-            r.callback->exception(ex);
+            r.callback->exception(current_exception());
         }
     }
 
     for(deque<ResolveEntry>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)
     {
         Ice::CommunicatorDestroyedException ex(__FILE__, __LINE__);
+        auto eptr = make_exception_ptr(ex);
         if(p->observer)
         {
             p->observer->failed(ex.ice_id());
             p->observer->detach();
         }
-        p->callback->exception(ex);
+        p->callback->exception(eptr);
     }
     _queue.clear();
 

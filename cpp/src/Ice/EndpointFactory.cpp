@@ -11,8 +11,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(EndpointFactory* p) { return p; }
-
 IceInternal::EndpointFactory::EndpointFactory()
 {
 }
@@ -82,7 +80,7 @@ IceInternal::EndpointFactoryWithUnderlying::create(vector<string>& args, bool oa
 {
     if(!_underlying)
     {
-        return 0; // Can't create an endpoint without underlying factory.
+        return nullptr; // Can't create an endpoint without underlying factory.
     }
     return createWithUnderlying(_underlying->create(args, oaEndpoint), args, oaEndpoint);
 }
@@ -92,7 +90,7 @@ IceInternal::EndpointFactoryWithUnderlying::read(InputStream* s) const
 {
     if(!_underlying)
     {
-        return 0; // Can't create an endpoint without underlying factory.
+        return nullptr; // Can't create an endpoint without underlying factory.
     }
     return readWithUnderlying(_underlying->read(s), s);
 }
@@ -104,7 +102,7 @@ IceInternal::EndpointFactoryWithUnderlying::destroy()
     {
         _underlying->destroy();
     }
-    _instance = 0;
+    _instance = nullptr;
 }
 
 EndpointFactoryPtr
@@ -157,7 +155,7 @@ IceInternal::UnderlyingEndpointFactory::create(vector<string>& args, bool oaEndp
 {
     if(!_factory)
     {
-        return 0;
+        return nullptr;
     }
     return _factory->create(args, oaEndpoint);
 }
@@ -167,7 +165,7 @@ IceInternal::UnderlyingEndpointFactory::read(InputStream* s) const
 {
     if(!_factory)
     {
-        return 0;
+        return nullptr;
     }
     return _factory->read(s);
 }
@@ -179,11 +177,11 @@ IceInternal::UnderlyingEndpointFactory::destroy()
     {
         _factory->destroy();
     }
-    _instance = 0;
+    _instance = nullptr;
 }
 
 EndpointFactoryPtr
 IceInternal::UnderlyingEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
-    return new UnderlyingEndpointFactory(instance, _type, _underlying);
+    return make_shared<UnderlyingEndpointFactory>(instance, _type, _underlying);
 }

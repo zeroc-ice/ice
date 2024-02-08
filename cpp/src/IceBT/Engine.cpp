@@ -20,13 +20,13 @@ namespace IceBT
 {
 
 class ConnectionI;
-typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
+using ConnectionIPtr = std::shared_ptr<ConnectionI>;
 
 //
 // ConnectionI implements IceBT::Connection and encapsulates a DBus connection along with
 // some additional state.
 //
-class ConnectionI : public Connection
+class ConnectionI final : public Connection
 {
 public:
 
@@ -45,7 +45,7 @@ public:
     //
     // Blocking close.
     //
-    virtual void close()
+    void close() final
     {
         try
         {
@@ -54,7 +54,7 @@ public:
             //
             DBus::MessagePtr msg =
                 DBus::Message::createCall("org.bluez", _devicePath, "org.bluez.Device1", "DisconnectProfile");
-            msg->write(new DBus::StringValue(_uuid));
+            msg->write(make_shared<DBus::StringValue>(_uuid));
             DBus::AsyncResultPtr r = _connection->callAsync(msg);
             r->waitUntilFinished(); // Block until the call completes.
         }
@@ -89,7 +89,7 @@ class Profile : public DBus::Service
 {
 public:
 
-    virtual void handleMethodCall(const DBus::ConnectionPtr& conn, const DBus::MessagePtr& m)
+    void handleMethodCall(const DBus::ConnectionPtr& conn, const DBus::MessagePtr& m) final
     {
         string member = m->getMember();
         if(member == "Release")
@@ -106,7 +106,7 @@ public:
             //
             // This argument is the Unix file descriptor for the new connection.
             //
-            DBus::UnixFDValuePtr fd = DBus::UnixFDValuePtr::dynamicCast(values[1]);
+            auto fd = dynamic_pointer_cast<DBus::UnixFDValue>(values[1]);
             assert(fd);
 
             try
@@ -154,8 +154,6 @@ public:
 
 protected:
 
-    Profile() {}
-
     virtual void newConnection(int) = 0;
 };
 using ProfilePtr = std::shared_ptr<Profile>;
@@ -163,7 +161,7 @@ using ProfilePtr = std::shared_ptr<Profile>;
 //
 // ClientProfile represents an outgoing connection profile.
 //
-class ClientProfile : public Profile
+class ClientProfile final : public Profile
 {
 public:
 
@@ -179,14 +177,14 @@ public:
 
 protected:
 
-    virtual void newConnection(int fd)
+    void newConnection(int fd) final
     {
         //
         // The callback assumes ownership of the file descriptor and connection.
         //
         _callback->completed(fd, _connection);
-        _connection = 0; // Remove circular reference.
-        _callback = 0;
+        _connection = nullptr; // Remove circular reference.
+        _callback = nullptr;
     }
 
 private:
@@ -199,7 +197,7 @@ using ClientProfilePtr = std::shared_ptr<ClientProfile>;
 //
 // ServerProfile represents an incoming connection profile.
 //
-class ServerProfile : public Profile
+class ServerProfile final : public Profile
 {
 public:
 
@@ -210,7 +208,7 @@ public:
 
 protected:
 
-    virtual void newConnection(int fd)
+    void newConnection(int fd) final
     {
         _callback->newConnection(fd);
     }
@@ -249,7 +247,7 @@ public:
             VariantMap::const_iterator i = properties.find("Address");
             if(i != properties.end())
             {
-                DBus::StringValuePtr str = DBus::StringValuePtr::dynamicCast(i->second->v);
+                auto str = dynamic_pointer_cast<DBus::StringValue>(i->second->v);
                 assert(str);
                 addr = str->v;
             }
@@ -262,7 +260,7 @@ public:
             VariantMap::const_iterator i = properties.find("Adapter");
             if(i != properties.end())
             {
-                DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(i->second->v);
+                auto path = dynamic_pointer_cast<DBus::ObjectPathValue>(i->second->v);
                 assert(path);
                 adapter = path->v;
             }
@@ -289,7 +287,7 @@ public:
             VariantMap::const_iterator i = properties.find("Address");
             if(i != properties.end())
             {
-                DBus::StringValuePtr str = DBus::StringValuePtr::dynamicCast(i->second->v);
+                auto str = dynamic_pointer_cast<DBus::StringValue>(i->second->v);
                 assert(str);
                 addr = str->v;
             }
@@ -347,7 +345,7 @@ public:
 
             vector<DBus::ValuePtr> values = msg->readAll();
             assert(values.size() == 2);
-            DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(values[0]);
+            auto path = dynamic_pointer_cast<DBus::ObjectPathValue>(values[0]);
             assert(path);
 
             InterfacePropertiesMap interfaceProps;
@@ -384,15 +382,15 @@ public:
 
             vector<DBus::ValuePtr> values = msg->readAll();
             assert(values.size() == 2);
-            DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(values[0]);
+            auto path = dynamic_pointer_cast<DBus::ObjectPathValue>(values[0]);
             assert(path);
-            DBus::ArrayValuePtr ifaces = DBus::ArrayValuePtr::dynamicCast(values[1]);
+            auto ifaces = dynamic_pointer_cast<DBus::ArrayValue>(values[1]);
             assert(ifaces);
 
             for(vector<DBus::ValuePtr>::const_iterator q = ifaces->elements.begin(); q != ifaces->elements.end(); ++q)
             {
                 assert((*q)->getType()->getKind() == DBus::Type::KindString);
-                DBus::StringValuePtr ifaceName = DBus::StringValuePtr::dynamicCast(*q);
+                auto ifaceName = dynamic_pointer_cast<DBus::StringValue>(*q);
 
                 //
                 // A remote device was removed.
@@ -421,7 +419,7 @@ public:
 
             vector<DBus::ValuePtr> values = msg->readAll();
             assert(values.size() == 3);
-            DBus::StringValuePtr iface = DBus::StringValuePtr::dynamicCast(values[0]);
+            auto iface = dynamic_pointer_cast<DBus::StringValue>(values[0]);
             assert(iface);
 
             if(iface->v != "org.bluez.Device1" && iface->v != "org.bluez.Adapter1")
@@ -432,12 +430,12 @@ public:
             VariantMap changed;
             extractProperties(values[1], changed);
 
-            DBus::ArrayValuePtr a = DBus::ArrayValuePtr::dynamicCast(values[2]);
+            auto a = dynamic_pointer_cast<DBus::ArrayValue>(values[2]);
             assert(a);
             vector<string> removedNames;
             for(vector<DBus::ValuePtr>::const_iterator p = a->elements.begin(); p != a->elements.end(); ++p)
             {
-                DBus::StringValuePtr sv = DBus::StringValuePtr::dynamicCast(*p);
+                auto sv = dynamic_pointer_cast<DBus::StringValue>(*p);
                 assert(sv);
                 removedNames.push_back(sv->v);
             }
@@ -752,13 +750,13 @@ public:
             // Iterate through the dictionary and collect the objects that we need.
             //
             assert(v->getType()->getKind() == DBus::Type::KindArray);
-            DBus::ArrayValuePtr a = DBus::ArrayValuePtr::dynamicCast(v);
+            auto a = dynamic_pointer_cast<DBus::ArrayValue>(v);
             for(vector<DBus::ValuePtr>::const_iterator p = a->elements.begin(); p != a->elements.end(); ++p)
             {
                 assert((*p)->getType()->getKind() == DBus::Type::KindDictEntry);
-                DBus::DictEntryValuePtr e = DBus::DictEntryValuePtr::dynamicCast(*p);
+                auto e = dynamic_pointer_cast<DBus::DictEntryValue>(*p);
                 assert(e->key->getType()->getKind() == DBus::Type::KindObjectPath);
-                DBus::ObjectPathValuePtr path = DBus::ObjectPathValuePtr::dynamicCast(e->key);
+                auto path = dynamic_pointer_cast<DBus::ObjectPathValue>(e->key);
 
                 assert(e->value->getType()->getKind() == DBus::Type::KindArray);
                 InterfacePropertiesMap ipmap;
@@ -806,32 +804,41 @@ public:
         DBus::MessagePtr msg =
             DBus::Message::createCall("org.bluez", "/org/bluez", "org.bluez.ProfileManager1", "RegisterProfile");
         vector<DBus::ValuePtr> args;
-        args.push_back(new DBus::ObjectPathValue(path));
-        args.push_back(new DBus::StringValue(uuid));
-        DBus::DictEntryTypePtr dt =
-            new DBus::DictEntryType(DBus::Type::getPrimitive(DBus::Type::KindString), new DBus::VariantType);
-        DBus::TypePtr t = new DBus::ArrayType(dt);
-        DBus::ArrayValuePtr options = new DBus::ArrayValue(t);
+        args.push_back(make_shared<DBus::ObjectPathValue>(path));
+        args.push_back(make_shared<DBus::StringValue>(uuid));
+        auto dt = make_shared<DBus::DictEntryType>(
+            DBus::Type::getPrimitive(DBus::Type::KindString),
+            make_shared<DBus::VariantType>());
+        auto t = make_shared<DBus::ArrayType>(dt);
+        auto options = make_shared<DBus::ArrayValue>(t);
         if(!name.empty())
         {
             options->elements.push_back(
-                new DBus::DictEntryValue(dt, new DBus::StringValue("Name"),
-                                         new DBus::VariantValue(new DBus::StringValue(name))));
+                make_shared<DBus::DictEntryValue>(
+                    dt,
+                    make_shared<DBus::StringValue>("Name"),
+                    make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>(name))));
         }
         if(channel != -1)
         {
             options->elements.push_back(
-                new DBus::DictEntryValue(dt, new DBus::StringValue("Channel"),
-                                         new DBus::VariantValue(new DBus::Uint16Value(channel))));
+                make_shared<DBus::DictEntryValue>(
+                    dt,
+                    make_shared<DBus::StringValue>("Channel"),
+                    make_shared<DBus::VariantValue>(make_shared<DBus::Uint16Value>(channel))));
             options->elements.push_back(
-                new DBus::DictEntryValue(dt, new DBus::StringValue("Role"),
-                                         new DBus::VariantValue(new DBus::StringValue("server"))));
+                make_shared<DBus::DictEntryValue>(
+                    dt,
+                    make_shared<DBus::StringValue>("Role"),
+                    make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>("server"))));
         }
         else
         {
             options->elements.push_back(
-                new DBus::DictEntryValue(dt, new DBus::StringValue("Role"),
-                                         new DBus::VariantValue(new DBus::StringValue("client"))));
+                make_shared<DBus::DictEntryValue>(
+                    dt,
+                    make_shared<DBus::StringValue>("Role"),
+                    make_shared<DBus::VariantValue>(make_shared<DBus::StringValue>("client"))));
         }
         args.push_back(options);
         msg->write(args);
@@ -845,7 +852,7 @@ public:
         //
         DBus::MessagePtr msg =
             DBus::Message::createCall("org.bluez", "/org/bluez", "org.bluez.ProfileManager1", "UnregisterProfile");
-        msg->write(new DBus::ObjectPathValue(path));
+        msg->write(make_shared<DBus::ObjectPathValue>(path));
         return conn->callAsync(msg);
     }
 
@@ -1031,15 +1038,15 @@ public:
         //     Value: Property value (variant)
         //
 
-        DBus::ArrayValuePtr ifaces = DBus::ArrayValuePtr::dynamicCast(v);
+        auto ifaces = dynamic_pointer_cast<DBus::ArrayValue>(v);
         assert(ifaces);
 
         for(vector<DBus::ValuePtr>::const_iterator q = ifaces->elements.begin(); q != ifaces->elements.end(); ++q)
         {
             assert((*q)->getType()->getKind() == DBus::Type::KindDictEntry);
-            DBus::DictEntryValuePtr ie = DBus::DictEntryValuePtr::dynamicCast(*q);
+            auto ie = dynamic_pointer_cast<DBus::DictEntryValue>(*q);
             assert(ie->key->getType()->getKind() == DBus::Type::KindString);
-            DBus::StringValuePtr ifaceName = DBus::StringValuePtr::dynamicCast(ie->key);
+            auto ifaceName = dynamic_pointer_cast<DBus::StringValue>(ie->key);
 
             VariantMap pm;
             extractProperties(ie->value, pm);
@@ -1058,15 +1065,15 @@ public:
         //
 
         assert(v->getType()->getKind() == DBus::Type::KindArray);
-        DBus::ArrayValuePtr props = DBus::ArrayValuePtr::dynamicCast(v);
+        auto props = dynamic_pointer_cast<DBus::ArrayValue>(v);
         for(vector<DBus::ValuePtr>::const_iterator s = props->elements.begin(); s != props->elements.end(); ++s)
         {
             assert((*s)->getType()->getKind() == DBus::Type::KindDictEntry);
-            DBus::DictEntryValuePtr pe = DBus::DictEntryValuePtr::dynamicCast(*s);
+            auto pe = dynamic_pointer_cast<DBus::DictEntryValue>(*s);
             assert(pe->key->getType()->getKind() == DBus::Type::KindString);
-            DBus::StringValuePtr propName = DBus::StringValuePtr::dynamicCast(pe->key);
+            auto propName = dynamic_pointer_cast<DBus::StringValue>(pe->key);
             assert(pe->value->getType()->getKind() == DBus::Type::KindVariant);
-            vm[propName->v] = DBus::VariantValuePtr::dynamicCast(pe->value);
+            vm[propName->v] = dynamic_pointer_cast<DBus::VariantValue>(pe->value);
         }
     }
 
@@ -1150,7 +1157,7 @@ public:
             // We have a matching device, now register a client profile.
             //
             DBus::ConnectionPtr dbusConn = DBus::Connection::getSystemBus();
-            conn = new ConnectionI(dbusConn, devicePath, uuid);
+            conn = make_shared<ConnectionI>(dbusConn, devicePath, uuid);
 
             ProfilePtr profile = make_shared<ClientProfile>(conn, cb);
             string path = generatePath();
@@ -1175,7 +1182,7 @@ public:
             //
             DBus::MessagePtr msg =
                 DBus::Message::createCall("org.bluez", devicePath, "org.bluez.Device1", "ConnectProfile");
-            msg->write(new DBus::StringValue(uuid));
+            msg->write(make_shared<DBus::StringValue>(uuid));
             r = dbusConn->callAsync(msg);
             reply = r->waitUntilFinished();
             if(reply->isError())
@@ -1199,12 +1206,12 @@ public:
         catch(const DBus::Exception& ex)
         {
             ok = false;
-            cb->failed(BluetoothException(__FILE__, __LINE__, ex.reason));
+            cb->failed(make_exception_ptr(BluetoothException(__FILE__, __LINE__, ex.reason)));
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
             ok = false;
-            cb->failed(ex);
+            cb->failed(current_exception());
         }
 
         //
@@ -1256,7 +1263,7 @@ public:
         ConnectCallbackPtr _cb;
     };
 
-    std::mutex _mutex;
+    mutable std::mutex _mutex;
     DBus::ConnectionPtr _dbusConnection;
 
     AdapterMap _adapters;

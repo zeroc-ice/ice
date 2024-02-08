@@ -125,9 +125,7 @@ private:
 };
 using AdapterRequestPtr = std::shared_ptr<AdapterRequest>;
 
-class LookupI : public Lookup,
-                public std::enable_shared_from_this<LookupI>,
-                private IceUtil::Mutex
+class LookupI : public Lookup, public std::enable_shared_from_this<LookupI>
 {
 public:
 
@@ -149,9 +147,9 @@ public:
     void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrxPtr&, bool);
 
     void adapterRequestTimedOut(const AdapterRequestPtr&);
-    void adapterRequestException(const AdapterRequestPtr&, const Ice::LocalException&);
+    void adapterRequestException(const AdapterRequestPtr&, std::exception_ptr);
     void objectRequestTimedOut(const ObjectRequestPtr&);
-    void objectRequestException(const ObjectRequestPtr&, const Ice::LocalException&);
+    void objectRequestException(const ObjectRequestPtr&, std::exception_ptr);
 
     const IceUtil::TimerPtr&
     timer()
@@ -181,6 +179,7 @@ private:
 
     std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
     std::map<std::string, AdapterRequestPtr> _adapterRequests;
+    std::mutex _mutex;
 };
 
 class LookupReplyI : public LookupReply

@@ -18,12 +18,12 @@ public:
 
     virtual void clear();
 
-    IceUtil::Exception* getException() const;
-    void setException(const IceUtil::Exception&);
+    std::exception_ptr getException() const;
+    void setException(std::exception_ptr);
 
 private:
 
-    std::unique_ptr<IceUtil::Exception> _exception;
+    std::exception_ptr _exception;
 
     IceUtil::Mutex _mutex;
 };

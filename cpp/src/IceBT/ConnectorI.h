@@ -15,23 +15,20 @@
 namespace IceBT
 {
 
-class ConnectorI : public IceInternal::Connector
+class ConnectorI final : public IceInternal::Connector
 {
 public:
 
-    virtual IceInternal::TransceiverPtr connect();
+    ConnectorI(const InstancePtr&, const std::string&, const std::string&, Ice::Int, const std::string&);
+    IceInternal::TransceiverPtr connect() final;
 
-    virtual Ice::Short type() const;
-    virtual std::string toString() const;
+    Ice::Short type() const final;
+    std::string toString() const final;
 
-    virtual bool operator==(const IceInternal::Connector&) const;
-    virtual bool operator!=(const IceInternal::Connector&) const;
-    virtual bool operator<(const IceInternal::Connector&) const;
+    bool operator==(const IceInternal::Connector&) const final;
+    bool operator<(const IceInternal::Connector&) const final;
 
 private:
-
-    ConnectorI(const InstancePtr&, const std::string&, const std::string&, Ice::Int, const std::string&);
-    friend class EndpointI;
 
     const InstancePtr _instance;
     const std::string _addr;

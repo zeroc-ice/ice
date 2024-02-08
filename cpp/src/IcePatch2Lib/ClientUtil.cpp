@@ -30,7 +30,7 @@ IcePatch2::PatcherFeedback::~PatcherFeedback()
 namespace
 {
 
-class Decompressor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class Decompressor : public IceUtil::Thread
 {
 public:
 
@@ -51,6 +51,8 @@ private:
     list<LargeFileInfo> _files;
     LargeFileInfoSeq _filesDone;
     bool _destroy;
+    mutable std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 typedef IceUtil::Handle<Decompressor> DecompressorPtr;
 
@@ -105,27 +107,27 @@ Decompressor::~Decompressor()
 void
 Decompressor::destroy()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     _destroy = true;
-    notify();
+    _conditionVariable.notify_one();
 }
 
 void
 Decompressor::add(const LargeFileInfo& info)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_exception.empty())
     {
         throw runtime_error(_exception);
     }
     _files.push_back(info);
-    notify();
+    _conditionVariable.notify_one();
 }
 
 void
 Decompressor::exception() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_exception.empty())
     {
         throw runtime_error(_exception);
@@ -135,7 +137,7 @@ Decompressor::exception() const
 void
 Decompressor::log(FILE* fp)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     for(LargeFileInfoSeq::const_iterator p = _filesDone.begin(); p != _filesDone.end(); ++p)
     {
@@ -156,26 +158,22 @@ Decompressor::run()
     while(true)
     {
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            unique_lock lock(_mutex);
 
             if(!info.path.empty())
             {
                 _filesDone.push_back(info);
             }
 
-            while(!_destroy && _files.empty())
+            _conditionVariable.wait(lock, [this] { return _destroy || !_files.empty(); });
+            if(_files.empty())
             {
-                wait();
-            }
-
-            if(!_files.empty())
-            {
-                info = _files.front();
-                _files.pop_front();
+                return;
             }
             else
             {
-                return;
+                info = _files.front();
+                _files.pop_front();
             }
         }
 
@@ -187,7 +185,7 @@ Decompressor::run()
         }
         catch(const std::exception& ex)
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            lock_guard lock(_mutex);
             _destroy = true;
             _exception = ex.what();
             return;

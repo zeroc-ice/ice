@@ -13,12 +13,10 @@ namespace IceInternal
 {
 
 class RouterManager;
-IceUtil::Shared* upCast(RouterManager*);
-typedef Handle<RouterManager> RouterManagerPtr;
+using RouterManagerPtr = std::shared_ptr<RouterManager>;
 
 class RouterInfo;
-IceUtil::Shared* upCast(RouterInfo*);
-typedef Handle<RouterInfo> RouterInfoPtr;
+using RouterInfoPtr = std::shared_ptr<RouterInfo>;
 
 }
 

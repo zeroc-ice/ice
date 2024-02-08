@@ -33,13 +33,15 @@ public:
 
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
 
     virtual void setConnection(const Ice::ConnectionIPtr&, bool);
     virtual void setException(std::exception_ptr);
+
+    virtual void addedProxy();
 
 private:
 

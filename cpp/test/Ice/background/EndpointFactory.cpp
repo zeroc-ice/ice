@@ -57,5 +57,5 @@ EndpointFactory::destroy()
 IceInternal::EndpointFactoryPtr
 EndpointFactory::clone(const IceInternal::ProtocolInstancePtr&) const
 {
-    return const_cast<EndpointFactory*>(this);
+    return const_cast<EndpointFactory*>(this)->shared_from_this();
 }

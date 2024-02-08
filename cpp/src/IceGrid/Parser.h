@@ -140,7 +140,7 @@ public:
 
 private:
 
-    void exception(const Ice::Exception&);
+    void exception(std::exception_ptr);
 
     void showFile(const std::string&, const std::string&, const std::string&, bool, bool, bool, int);
     void showLog(const std::string&, const std::string&, bool, bool, int);

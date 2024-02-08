@@ -20,7 +20,7 @@
 namespace IceInternal
 {
 
-class RouterManager : public IceUtil::Shared
+class RouterManager final
 {
 public:
 
@@ -46,25 +46,25 @@ private:
     std::mutex _mutex;
 };
 
-class RouterInfo : public IceUtil::Shared
+class RouterInfo final : public std::enable_shared_from_this<RouterInfo>
 {
 public:
 
-    class GetClientEndpointsCallback : public virtual Ice::LocalObject
+    class GetClientEndpointsCallback
     {
     public:
 
         virtual void setEndpoints(const std::vector<EndpointIPtr>&) = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
+        virtual void setException(std::exception_ptr) = 0;
     };
-    typedef IceUtil::Handle<GetClientEndpointsCallback> GetClientEndpointsCallbackPtr;
+    using GetClientEndpointsCallbackPtr = std::shared_ptr<GetClientEndpointsCallback>;
 
     class AddProxyCallback
     {
     public:
 
         virtual void addedProxy() = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
+        virtual void setException(std::exception_ptr) = 0;
     };
     using AddProxyCallbackPtr = std::shared_ptr<AddProxyCallback>;
 
@@ -84,12 +84,12 @@ public:
     }
     void getClientProxyResponse(const Ice::ObjectPrxPtr&, const std::optional<bool>&,
                                 const GetClientEndpointsCallbackPtr&);
-    void getClientProxyException(const Ice::Exception&, const GetClientEndpointsCallbackPtr&);
+    void getClientProxyException(std::exception_ptr, const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getClientEndpoints();
     void getClientEndpoints(const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getServerEndpoints();
 
-    class AddProxyCookie : public Ice::LocalObject
+    class AddProxyCookie final
     {
     public:
 
@@ -114,10 +114,10 @@ public:
         const AddProxyCallbackPtr _cb;
         const Ice::ObjectPrxPtr _proxy;
     };
-    typedef IceUtil::Handle<AddProxyCookie> AddProxyCookiePtr;
+    using AddProxyCookiePtr = std::shared_ptr<AddProxyCookie>;
 
     void addProxyResponse(const Ice::ObjectProxySeq&, const AddProxyCookiePtr&);
-    void addProxyException(const Ice::Exception&, const AddProxyCookiePtr&);
+    void addProxyException(std::exception_ptr, const AddProxyCookiePtr&);
     bool addProxy(const Ice::ObjectPrxPtr&, const AddProxyCallbackPtr&);
 
     bool addProxyAsync(

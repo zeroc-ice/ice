@@ -72,8 +72,8 @@ WSEndpointFactoryPlugin::WSEndpointFactoryPlugin(const CommunicatorPtr& communic
     assert(communicator);
 
     const EndpointFactoryManagerPtr efm = getInstance(communicator)->endpointFactoryManager();
-    efm->add(new WSEndpointFactory(new ProtocolInstance(communicator, WSEndpointType, "ws", false), TCPEndpointType));
-    efm->add(new WSEndpointFactory(new ProtocolInstance(communicator, WSSEndpointType, "wss", true), SSLEndpointType));
+    efm->add(make_shared<WSEndpointFactory>(new ProtocolInstance(communicator, WSEndpointType, "ws", false), TCPEndpointType));
+    efm->add(make_shared<WSEndpointFactory>(new ProtocolInstance(communicator, WSSEndpointType, "wss", true), SSLEndpointType));
 }
 
 void
@@ -232,12 +232,12 @@ IceInternal::WSEndpoint::connectors_async(EndpointSelectionType selType,
             vector<ConnectorPtr> connectors = c;
             for(vector<ConnectorPtr>::iterator p = connectors.begin(); p != connectors.end(); ++p)
             {
-                *p = new WSConnector(_instance, *p, _host, _resource);
+                *p = make_shared<WSConnector>(_instance, *p, _host, _resource);
             }
             _callback->connectors(connectors);
         }
 
-        virtual void exception(const LocalException& ex)
+        virtual void exception(std::exception_ptr ex)
         {
             _callback->exception(ex);
         }
@@ -263,7 +263,7 @@ AcceptorPtr
 IceInternal::WSEndpoint::acceptor(const string& adapterName) const
 {
     AcceptorPtr delAcc = _delegate->acceptor(adapterName);
-    return new WSAcceptor(ICE_SHARED_FROM_CONST_THIS(WSEndpoint), _instance, delAcc);
+    return make_shared<WSAcceptor>(ICE_SHARED_FROM_CONST_THIS(WSEndpoint), _instance, delAcc);
 }
 
 WSEndpointPtr
@@ -471,7 +471,7 @@ IceInternal::WSEndpointFactory::WSEndpointFactory(const ProtocolInstancePtr& ins
 EndpointFactoryPtr
 IceInternal::WSEndpointFactory::cloneWithUnderlying(const ProtocolInstancePtr& instance, Short underlying) const
 {
-    return new WSEndpointFactory(instance, underlying);
+    return make_shared<WSEndpointFactory>(instance, underlying);
 }
 
 EndpointIPtr

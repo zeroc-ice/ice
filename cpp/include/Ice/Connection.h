@@ -672,13 +672,6 @@ public:
 
 }
 
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
 /// \cond INTERNAL
 namespace Ice
 {

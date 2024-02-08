@@ -27,7 +27,7 @@ public:
 
     virtual void runTimerTask();
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
     void destroy();
 
