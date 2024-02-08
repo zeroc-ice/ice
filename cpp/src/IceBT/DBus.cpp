@@ -133,6 +133,17 @@ class MessageI : public Message
 {
 public:
 
+    MessageI(DBusMessage* m, bool adopt) :
+        _message(m),
+        _iter(0)
+    {
+        assert(_message);
+        if(!adopt)
+        {
+            ::dbus_message_ref(m); // Bump the reference count.
+        }
+    }
+
     static MessagePtr wrap(DBusMessage* m)
     {
         return make_shared<MessageI>(m, false);
@@ -296,17 +307,6 @@ public:
     }
 
 private:
-
-    MessageI(DBusMessage* m, bool adopt) :
-        _message(m),
-        _iter(0)
-    {
-        assert(_message);
-        if(!adopt)
-        {
-            ::dbus_message_ref(m); // Bump the reference count.
-        }
-    }
 
     vector<TypePtr> buildTypes()
     {
@@ -755,7 +755,7 @@ private:
         }
         case Type::KindStruct:
         {
-            StructTypePtr st = StructTypePtr::dynamicCast(t);
+            auto st = dynamic_pointer_cast<StructType>(t);
             assert(st);
             pushIter();
             StructValuePtr v = make_shared<StructValue>(st);
@@ -769,7 +769,7 @@ private:
         }
         case Type::KindDictEntry:
         {
-            DictEntryTypePtr dt = DictEntryTypePtr::dynamicCast(t);
+            auto dt = dynamic_pointer_cast<DictEntryType>(t);
             assert(dt);
             pushIter();
             DictEntryValuePtr v = make_shared<DictEntryValue>(dt);
@@ -781,7 +781,7 @@ private:
         }
         default:
             assert(false);
-            return 0;
+            return nullptr;
         }
     }
 
@@ -804,12 +804,11 @@ private:
     stack<DBusMessageIter> _iterators;
     DBusMessageIter* _iter;
 };
-typedef IceUtil::Handle<MessageI> MessageIPtr;
 
 static void pendingCallCompletedCallback(DBusPendingCall*, void*);
 static void pendingCallFree(void*);
 
-class AsyncResultI : public AsyncResult
+class AsyncResultI final : public AsyncResult, public enable_shared_from_this<AsyncResultI>
 {
 public:
 
@@ -818,12 +817,6 @@ public:
         _callback(cb),
         _status(StatusPending)
     {
-        //
-        // Bump our refcount to ensure this object lives until the reply is received.
-        // The pendingFree function will decrement the refcount.
-        //
-        __incRef();
-
         if(!::dbus_pending_call_set_notify(_call, pendingCallCompletedCallback, this, pendingCallFree))
         {
             ::dbus_pending_call_cancel(_call);
@@ -896,7 +889,7 @@ public:
         {
             try
             {
-                cb->completed(this);
+                cb->completed(shared_from_this());
             }
             catch(...)
             {
@@ -931,7 +924,7 @@ public:
         {
             try
             {
-                cb->completed(this);
+                cb->completed(shared_from_this());
             }
             catch(...)
             {
@@ -961,20 +954,17 @@ pendingCallCompletedCallback(DBusPendingCall*, void* userData)
 }
 
 static void
-pendingCallFree(void* userData)
+pendingCallFree(void* /*userData*/)
 {
-    AsyncResultI* r = static_cast<AsyncResultI*>(userData);
-    assert(r);
-    r->__decRef();
+    // TODO review this code
+    // AsyncResultI* r = static_cast<AsyncResultI*>(userData);
+    // assert(r);
 }
 
 static DBusHandlerResult filterCallback(DBusConnection*, DBusMessage*, void*);
 static void freeConnection(void*);
 
-class ConnectionI;
-typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
-
-class ConnectionI : public Connection
+class ConnectionI final : public Connection, public enable_shared_from_this<ConnectionI>
 {
 public:
 
@@ -984,7 +974,7 @@ public:
     {
     }
 
-    virtual ~ConnectionI()
+    ~ConnectionI()
     {
         if(_connection)
         {
@@ -992,7 +982,7 @@ public:
         }
     }
 
-    virtual void addFilter(const FilterPtr& f)
+    void addFilter(const FilterPtr& f) final
     {
         lock_guard lock(_mutex);
 
@@ -1038,7 +1028,7 @@ public:
 
     virtual AsyncResultPtr callAsync(const MessagePtr& m, const AsyncCallbackPtr& cb)
     {
-        MessageIPtr mi = MessageIPtr::dynamicCast(m);
+        auto mi = dynamic_pointer_cast<MessageI>(m);
         assert(mi);
 
         DBusPendingCall* call;
@@ -1055,7 +1045,7 @@ public:
 
     virtual void sendAsync(const MessagePtr& m)
     {
-        MessageIPtr mi = MessageIPtr::dynamicCast(m);
+        auto mi = dynamic_pointer_cast<MessageI>(m);
         assert(mi);
 
         //
@@ -1111,9 +1101,7 @@ public:
         ::dbus_bus_add_match(_connection, "type='signal'", 0);
         //::dbus_bus_add_match(_connection, "type='method_call'", 0);
 
-        __incRef(); // __decRef called in freeConnection.
-
-        _thread = make_shared<HelperThread>(this);
+        _thread = new HelperThread(this);
         _thread->start();
     }
 
@@ -1137,7 +1125,7 @@ public:
         {
             try
             {
-                if((*p)->handleMessage(this, msg))
+                if((*p)->handleMessage(shared_from_this(), msg))
                 {
                     return DBUS_HANDLER_RESULT_HANDLED;
                 }
@@ -1155,7 +1143,7 @@ public:
             {
                 try
                 {
-                    p->second->handleMethodCall(this, msg);
+                    p->second->handleMethodCall(shared_from_this(), msg);
                 }
                 catch(...)
                 {
@@ -1219,11 +1207,11 @@ filterCallback(DBusConnection*, DBusMessage* message, void* userData)
     return c->handleMessage(message);
 }
 
-static void freeConnection(void* p)
+static void freeConnection(void* /*p*/)
 {
-    ConnectionI* c = static_cast<ConnectionI*>(p);
-    assert(c);
-    c->__decRef();
+    // TODO review this code
+    // ConnectionI* c = static_cast<ConnectionI*>(p);
+    // assert(c);
 }
 
 }
@@ -1313,7 +1301,7 @@ IceBT::DBus::Message::createCall(const string& dest, const string& path, const s
 MessagePtr
 IceBT::DBus::Message::createReturn(const MessagePtr& call)
 {
-    MessageIPtr c = MessageIPtr::dynamicCast(call);
+    auto c = dynamic_pointer_cast<MessageI>(call);
     assert(c);
     DBusMessage* r = ::dbus_message_new_method_return(c->message());
     if(!r)
@@ -1326,7 +1314,7 @@ IceBT::DBus::Message::createReturn(const MessagePtr& call)
 ConnectionPtr
 IceBT::DBus::Connection::getSystemBus()
 {
-    ConnectionI* conn = new ConnectionI;
+    auto conn = make_shared<ConnectionI>();
     conn->connect(true);
     return conn;
 }
@@ -1334,7 +1322,7 @@ IceBT::DBus::Connection::getSystemBus()
 ConnectionPtr
 IceBT::DBus::Connection::getSessionBus()
 {
-    ConnectionI* conn = new ConnectionI;
+    auto conn = make_shared<ConnectionI>();
     conn->connect(false);
     return conn;
 }

@@ -29,14 +29,14 @@ using ProfileCallbackPtr = std::shared_ptr<ProfileCallback>;
 // Represents an outgoing (client) connection. The transport must keep a reference to this object
 // and call close() when no longer needed.
 //
-class Connection : public IceUtil::Shared
+class Connection
 {
 public:
 
     virtual void close() = 0;
 
 };
-typedef IceUtil::Handle<Connection> ConnectionPtr;
+using ConnectionPtr = std::shared_ptr<Connection>;
 
 //
 // Callback API for an outgoing connection attempt.

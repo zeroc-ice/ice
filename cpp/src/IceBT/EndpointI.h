@@ -92,6 +92,7 @@ class EndpointFactoryI : public IceInternal::EndpointFactory
 {
 public:
 
+    EndpointFactoryI(const InstancePtr&);
     virtual ~EndpointFactoryI();
 
     virtual Ice::Short type() const;
@@ -103,9 +104,6 @@ public:
     virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
 
 private:
-
-    EndpointFactoryI(const InstancePtr&);
-    friend class PluginI;
 
     InstancePtr _instance;
 };

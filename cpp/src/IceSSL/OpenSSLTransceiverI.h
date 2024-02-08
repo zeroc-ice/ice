@@ -30,7 +30,7 @@ class TransceiverI final : public IceInternal::Transceiver
 public:
 
     TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
-    ~TransceiverI() final;
+    ~TransceiverI();
     IceInternal::NativeInfoPtr getNativeInfo() final;
 
     IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;

@@ -77,7 +77,7 @@ IceBT::AcceptorI::listen()
 
     try
     {
-        ProfileCallbackPtr cb = make_shared<ProfileCallbackI>(this);
+        ProfileCallbackPtr cb = make_shared<ProfileCallbackI>(shared_from_this());
         _path = _instance->engine()->registerProfile(_uuid, _name, _channel, cb);
     }
     catch(const BluetoothException& ex)
@@ -91,7 +91,7 @@ IceBT::AcceptorI::listen()
         throw InitializationException(__FILE__, __LINE__, os.str());
     }
 
-    _endpoint = _endpoint->endpoint(this);
+    _endpoint = _endpoint->endpoint(shared_from_this());
     return _endpoint;
 }
 
@@ -173,7 +173,11 @@ IceBT::AcceptorI::newConnection(int fd)
 {
     lock_guard lock(_mutex);
 
-    _transceivers.push(make_shared<TransceiverI>(_instance, make_shared<StreamSocket>(_instance, fd), 0, _uuid));
+    _transceivers.push(make_shared<TransceiverI>(
+        _instance,
+        make_shared<StreamSocket>(_instance, fd),
+        nullptr,
+        _uuid));
 
     //
     // Notify the thread pool that we are ready to "read". The thread pool will invoke accept()

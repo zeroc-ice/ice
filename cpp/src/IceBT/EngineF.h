@@ -16,7 +16,7 @@ IceUtil::Shared* upCast(Engine*);
 typedef IceInternal::Handle<Engine> EnginePtr;
 
 class BluetoothService;
-using BluetoothServicePtr = ::std::shared_ptr<BluetoothService>;
+using BluetoothServicePtr = std::shared_ptr<BluetoothService>;
 
 }
 

@@ -46,7 +46,7 @@ private:
     SocketAddress _addr;
     std::string _desc;
 };
-typedef IceUtil::Handle<StreamSocket> StreamSocketPtr;
+using StreamSocketPtr = std::shared_ptr<StreamSocket>;
 
 }
 

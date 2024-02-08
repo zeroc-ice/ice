@@ -158,7 +158,7 @@ IceBT::EndpointI::secure() const
 IceInternal::TransceiverPtr
 IceBT::EndpointI::transceiver() const
 {
-    return 0;
+    return nullptr;
 }
 
 void

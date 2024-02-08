@@ -26,7 +26,6 @@ public:
     std::string toString() const final;
 
     bool operator==(const IceInternal::Connector&) const final;
-    bool operator!=(const IceInternal::Connector&) const final;
     bool operator<(const IceInternal::Connector&) const final;
 
 private:

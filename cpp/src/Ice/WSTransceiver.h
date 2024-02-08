@@ -29,7 +29,7 @@ public:
 
     NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
-    AsyncInfo* getAsyncInfo(SocketOperation) final;
+    AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
 
     SocketOperation initialize(Buffer&, Buffer&) final;

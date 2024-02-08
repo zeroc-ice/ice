@@ -5,7 +5,12 @@
 #ifndef ICE_BT_DBUS_H
 #define ICE_BT_DBUS_H
 
+#include <vector>
+#include <string>
+#include <map>
 #include <memory>
+#include <cassert>
+#include <sstream>
 
 using namespace std;
 
@@ -183,24 +188,24 @@ operator<<(std::ostream& ostr, const ValuePtr& v)
 }
 
 template<typename E, Type::Kind K>
-class PrimitiveValue : public Value
+class PrimitiveValue final : public Value
 {
 public:
 
     PrimitiveValue() : v(E()), kind(K) {}
     PrimitiveValue(const E& val) : v(val), kind(K) {}
 
-    virtual TypePtr getType() const
+    TypePtr getType() const final
     {
         return Type::getPrimitive(kind);
     }
 
-    virtual ValuePtr clone() const
+    ValuePtr clone() const final
     {
-        return new PrimitiveValue(v);
+        return make_shared<PrimitiveValue>(v);
     }
 
-    virtual std::string toString() const
+    std::string toString() const final
     {
         std::ostringstream out;
         out << v;
@@ -212,7 +217,7 @@ public:
 
 protected:
 
-    virtual void print(std::ostream& ostr)
+    void print(std::ostream& ostr) final
     {
         ostr << v;
     }
@@ -248,15 +253,18 @@ using UnixFDValuePtr = std::shared_ptr<UnixFDValue>;
 class VariantValue;
 using VariantValuePtr = std::shared_ptr<VariantValue>;
 
-class VariantValue : public Value
+class VariantValue : public Value, public std::enable_shared_from_this<VariantValue>
 {
 public:
 
-    VariantValue() : _type(new VariantType) {}
+    VariantValue() :
+        _type(make_shared<VariantType>())
+    {
+    }
 
     VariantValue(const ValuePtr& val) :
         v(val),
-        _type(new VariantType)
+        _type(make_shared<VariantType>())
     {
     }
 
@@ -267,7 +275,7 @@ public:
 
     virtual ValuePtr clone() const
     {
-        return const_cast<VariantValue*>(this);
+        return const_cast<VariantValue*>(this)->shared_from_this();
     }
 
     virtual std::string toString() const
@@ -312,7 +320,7 @@ public:
 
     virtual ValuePtr clone() const
     {
-        DictEntryValuePtr r = new DictEntryValue(_type);
+        DictEntryValuePtr r = make_shared<DictEntryValue>(_type);
         r->key = key->clone();
         r->value = value->clone();
         return r;
@@ -356,7 +364,7 @@ public:
 
     virtual ValuePtr clone() const
     {
-        ArrayValuePtr r = new ArrayValue(_type);
+        auto r = make_shared<ArrayValue>(_type);
         for(std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
         {
             r->elements.push_back((*p)->clone());
@@ -382,9 +390,9 @@ public:
     {
         for(std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
         {
-            DictEntryValuePtr de = DictEntryValuePtr::dynamicCast(*p);
+            auto de = dynamic_pointer_cast<DictEntryValue>(*p);
             assert(de);
-            StringValuePtr s = StringValuePtr::dynamicCast(de->key);
+            auto s = dynamic_pointer_cast<StringValue>(de->key);
             assert(s);
             m[s->v] = de->value;
         }
@@ -410,20 +418,20 @@ private:
 class StructValue;
 using StructValuePtr = std::shared_ptr<StructValue>;
 
-class StructValue : public Value
+class StructValue final : public Value
 {
 public:
 
     StructValue(const StructTypePtr& t) : _type(t) {}
 
-    virtual TypePtr getType() const
+    TypePtr getType() const final
     {
         return _type;
     }
 
-    virtual ValuePtr clone() const
+    ValuePtr clone() const final
     {
-        StructValuePtr r = new StructValue(_type);
+        auto r = make_shared<StructValue>(_type);
         for(std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
         {
             r->members.push_back((*p)->clone());
@@ -431,7 +439,7 @@ public:
         return r;
     }
 
-    virtual std::string toString() const
+    std::string toString() const final
     {
         std::ostringstream out;
         for(std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
@@ -447,17 +455,15 @@ public:
 
     std::vector<ValuePtr> members;
 
-protected:
+private:
 
-    virtual void print(std::ostream& ostr)
+    void print(std::ostream& ostr) final
     {
         for(std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
         {
             ostr << *p << endl;
         }
     }
-
-private:
 
     StructTypePtr _type;
 };
@@ -587,10 +593,6 @@ public:
     virtual void sendAsync(const MessagePtr&) = 0;
 
     virtual void close() = 0;
-
-protected:
-
-    Connection() {}
 };
 
 void initThreads();
