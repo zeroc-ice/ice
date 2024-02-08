@@ -20,6 +20,8 @@ class ConnectorI : public IceInternal::Connector
 {
 public:
 
+    ConnectorI(const InstancePtr&, const IceInternal::ConnectorPtr&, const std::string&);
+    virtual ~ConnectorI();
     virtual IceInternal::TransceiverPtr connect();
 
     virtual Ice::Short type() const;
@@ -30,8 +32,6 @@ public:
 
 private:
 
-    ConnectorI(const InstancePtr&, const IceInternal::ConnectorPtr&, const std::string&);
-    virtual ~ConnectorI();
     friend class EndpointI;
 
     const InstancePtr _instance;

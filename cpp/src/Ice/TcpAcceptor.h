@@ -15,10 +15,12 @@ namespace IceInternal
 
 class TcpEndpoint;
 
-class TcpAcceptor : public Acceptor, public NativeInfo
+class TcpAcceptor : public Acceptor, public NativeInfo, public std::enable_shared_from_this<TcpAcceptor>
 {
 public:
 
+    TcpAcceptor(const TcpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int);
+    virtual ~TcpAcceptor();
     virtual NativeInfoPtr getNativeInfo();
 #if defined(ICE_USE_IOCP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
@@ -40,8 +42,6 @@ public:
 
 private:
 
-    TcpAcceptor(const TcpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int);
-    virtual ~TcpAcceptor();
     friend class TcpEndpointI;
 
     TcpEndpointIPtr _endpoint;

@@ -24,10 +24,12 @@ class ServantLocator;
 namespace IceInternal
 {
 
-class ServantManager : public IceUtil::Shared
+class ServantManager
 {
 public:
 
+    ServantManager(const InstancePtr&, const std::string&);
+    ~ServantManager();
     void addServant(const std::shared_ptr<Ice::Object>&, const Ice::Identity&, const std::string&);
     void addDefaultServant(const std::shared_ptr<Ice::Object>&, const std::string&);
     std::shared_ptr<Ice::Object> removeServant(const Ice::Identity&, const std::string&);
@@ -44,8 +46,6 @@ public:
 
 private:
 
-    ServantManager(const InstancePtr&, const std::string&);
-    ~ServantManager();
     void destroy();
     friend class Ice::ObjectAdapterI;
 

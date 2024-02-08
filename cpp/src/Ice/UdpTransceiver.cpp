@@ -16,12 +16,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(UdpTransceiver* p) { return p; }
-
 NativeInfoPtr
 IceInternal::UdpTransceiver::getNativeInfo()
 {
-    return this;
+    return shared_from_this();
 }
 
 #if defined(ICE_USE_IOCP)
@@ -127,7 +125,7 @@ IceInternal::UdpTransceiver::bind()
 
     _bound = true;
 
-    _endpoint = _endpoint->endpoint(this);
+    _endpoint = _endpoint->endpoint(shared_from_this());
     return _endpoint;
 }
 
@@ -660,15 +658,22 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #endif
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint, const ProtocolInstancePtr& instance,
-                                            const string& host, int port, const string& mcastInterface, bool connect) :
+IceInternal::UdpTransceiver::UdpTransceiver(
+    const UdpEndpointIPtr& endpoint,
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int port,
+    const string& mcastInterface,
+    bool connect) :
     _endpoint(endpoint),
     _instance(instance),
     _incoming(true),
     _bound(false),
     _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true)),
     _mcastInterface(mcastInterface),
+#ifdef _WIN32
     _port(port),
+#endif
     _state(connect ? StateNeedConnect : StateNotConnected)
 #if defined(ICE_USE_IOCP)
     , _read(SocketOperationRead),

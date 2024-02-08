@@ -5,7 +5,6 @@
 #ifndef ICE_ACCEPTOR_H
 #define ICE_ACCEPTOR_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/EndpointIF.h>
@@ -14,7 +13,7 @@
 namespace IceInternal
 {
 
-class ICE_API Acceptor : public virtual ::IceUtil::Shared
+class ICE_API Acceptor
 {
 public:
     virtual ~Acceptor();

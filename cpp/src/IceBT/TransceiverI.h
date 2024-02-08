@@ -17,32 +17,28 @@ namespace IceBT
 class ConnectorI;
 class AcceptorI;
 
-class TransceiverI : public IceInternal::Transceiver
+class TransceiverI final : public IceInternal::Transceiver, public std::enable_shared_from_this<TransceiverI>
 {
 public:
 
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
-
-    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
-    virtual void close();
-    virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation read(IceInternal::Buffer&);
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const IceInternal::Buffer&);
-    virtual void setBufferSize(int rcvSize, int sndSize);
-
-private:
-
     TransceiverI(const InstancePtr&, const StreamSocketPtr&, const ConnectionPtr&, const std::string&);
     TransceiverI(const InstancePtr&, const std::string&, const std::string&);
-    virtual ~TransceiverI();
+    ~TransceiverI();
+    IceInternal::NativeInfoPtr getNativeInfo() final;
 
-    friend class ConnectorI;
-    friend class AcceptorI;
+    IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
+    IceInternal::SocketOperation closing(bool, const Ice::LocalException&) final;
+    void close() final;
+    IceInternal::SocketOperation write(IceInternal::Buffer&) final;
+    IceInternal::SocketOperation read(IceInternal::Buffer&) final;
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const IceInternal::Buffer&) final;
+    void setBufferSize(int rcvSize, int sndSize) final;
+
+private:
 
     const InstancePtr _instance;
     StreamSocketPtr _stream;
@@ -55,7 +51,7 @@ private:
     void connectCompleted(int, const ConnectionPtr&);
     void connectFailed(const Ice::LocalException&);
 
-    class ConnectCallbackI : public ConnectCallback
+    class ConnectCallbackI final : public ConnectCallback
     {
     public:
 
@@ -64,12 +60,12 @@ private:
         {
         }
 
-        virtual void completed(int fd, const ConnectionPtr& conn)
+        void completed(int fd, const ConnectionPtr& conn) final
         {
             _transceiver->connectCompleted(fd, conn);
         }
 
-        virtual void failed(const Ice::LocalException& ex)
+        void failed(const Ice::LocalException& ex) final
         {
             _transceiver->connectFailed(ex);
         }

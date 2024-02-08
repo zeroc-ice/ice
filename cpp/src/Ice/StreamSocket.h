@@ -78,7 +78,7 @@ private:
     AsyncInfo _write;
 #endif
 };
-typedef IceUtil::Handle<StreamSocket> StreamSocketPtr;
+using StreamSocketPtr = std::shared_ptr<StreamSocket>;
 
 }
 

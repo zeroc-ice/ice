@@ -16,7 +16,7 @@ IceInternal::TransceiverPtr
 Connector::connect()
 {
     _configuration->checkConnectException();
-    return new Transceiver(_connector->connect());
+    return make_shared<Transceiver>(_connector->connect());
 }
 
 Ice::Short

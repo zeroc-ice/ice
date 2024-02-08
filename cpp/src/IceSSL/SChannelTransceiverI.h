@@ -38,34 +38,33 @@ namespace IceSSL
 namespace SChannel
 {
 
-class TransceiverI : public IceInternal::Transceiver
+class TransceiverI final : public IceInternal::Transceiver
 {
 public:
 
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
+    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+    ~TransceiverI();
+    IceInternal::NativeInfoPtr getNativeInfo() final;
 
-    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
-    virtual void close();
-    virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation read(IceInternal::Buffer&);
+    IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
+    IceInternal::SocketOperation closing(bool, const Ice::LocalException&) final;
+    void close();
+    IceInternal::SocketOperation write(IceInternal::Buffer&) final;
+    IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 #ifdef ICE_USE_IOCP
-    virtual bool startWrite(IceInternal::Buffer&);
-    virtual void finishWrite(IceInternal::Buffer&);
-    virtual void startRead(IceInternal::Buffer&);
-    virtual void finishRead(IceInternal::Buffer&);
+    bool startWrite(IceInternal::Buffer&) final;
+    void finishWrite(IceInternal::Buffer&) final;
+    void startRead(IceInternal::Buffer&) final;
+    void finishRead(IceInternal::Buffer&) final;
 #endif
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const IceInternal::Buffer&);
-    virtual void setBufferSize(int rcvSize, int sndSize);
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const IceInternal::Buffer&) final;
+    void setBufferSize(int rcvSize, int sndSize) final;
 
 private:
-
-    TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
-    virtual ~TransceiverI();
 
     IceInternal::SocketOperation sslHandshake();
 
@@ -74,8 +73,6 @@ private:
 
     bool writeRaw(IceInternal::Buffer&);
     bool readRaw(IceInternal::Buffer&);
-
-    friend class IceSSL::SChannel::SSLEngine;
 
     enum State
     {
@@ -122,7 +119,7 @@ private:
     bool _verified;
     TrustError _trustError;
 };
-typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
+using TransceiverIPtr = std::shared_ptr<TransceiverI>;
 
 } // SChannel namespace end
 
