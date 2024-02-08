@@ -522,9 +522,7 @@ public:
     virtual ~ObjectPrx() = default;
 
     /// \cond INTERNAL
-    ObjectPrx(const IceInternal::ReferencePtr& ref) noexcept : _reference(ref)
-    {
-    }
+    ObjectPrx(const IceInternal::ReferencePtr& ref) noexcept;
     /// \endcond
 
     /**
@@ -1162,7 +1160,7 @@ public:
     void _checkTwowayOnly(const ::std::string&) const;
 
     ::IceInternal::RequestHandlerPtr _getRequestHandler();
-    ::IceInternal::BatchRequestQueuePtr _getBatchRequestQueue();
+    ::IceInternal::BatchRequestQueuePtr _getBatchRequestQueue() const { return _batchRequestQueue; }
     ::IceInternal::RequestHandlerPtr _setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
     void _updateRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
 
@@ -1225,9 +1223,9 @@ private:
     IceInternal::ReferencePtr _timeout(int) const;
     IceInternal::ReferencePtr _twoway() const;
 
-    const ::IceInternal::ReferencePtr _reference;
+    const IceInternal::ReferencePtr _reference;
     ::IceInternal::RequestHandlerPtr _requestHandler;
-    ::IceInternal::BatchRequestQueuePtr _batchRequestQueue;
+    const IceInternal::BatchRequestQueuePtr _batchRequestQueue;
     mutable std::mutex _mutex;
 };
 
