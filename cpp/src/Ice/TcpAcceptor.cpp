@@ -139,7 +139,7 @@ IceInternal::TcpAcceptor::accept()
 
     SOCKET fd = _acceptFd;
     _acceptFd = INVALID_SOCKET;
-    return new TcpTransceiver(_instance, new StreamSocket(_instance, fd));
+    return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, fd));
 }
 #else
 
