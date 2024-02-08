@@ -9,32 +9,6 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/ThreadException.h>
 
-#if defined(_WIN32) && !defined(ICE_HAS_WIN32_CONDVAR)
-#   include <IceUtil/Mutex.h>
-
-namespace IceUtilInternal
-{
-//
-// Needed for implementation.
-//
-class Semaphore
-{
-public:
-
-    Semaphore(long = 0);
-    ICE_API ~Semaphore();
-
-    void wait() const;
-    bool timedWait(const IceUtil::Time&) const;
-    void post(int = 1) const;
-
-private:
-
-    mutable HANDLE _sem;
-};
-}
-#endif
-
 namespace IceUtil
 {
 
@@ -79,7 +53,7 @@ public:
     //
     // wait atomically unlocks the mutex and waits for the condition
     // variable to be signaled. Before returning to the calling thread
-    // the mutex is reaquired.
+    // the mutex is reacquired.
     //
     template <typename Lock> inline void
     wait(const Lock& lock) const
@@ -94,7 +68,7 @@ public:
     //
     // wait atomically unlocks the mutex and waits for the condition
     // variable to be signaled for up to the given timeout. Before
-    // returning to the calling thread the mutex is reaquired. Returns
+    // returning to the calling thread the mutex is reacquired. Returns
     // true if the condition variable was signaled, false on a
     // timeout.
     //
@@ -113,85 +87,11 @@ private:
     friend class Monitor<Mutex>;
     friend class Monitor<RecMutex>;
 
-    //
-    // The Monitor implementation uses waitImpl & timedWaitImpl.
-    //
-#if defined(_WIN32) && !defined(ICE_HAS_WIN32_CONDVAR)
-
-    template <typename M> void
-    waitImpl(const M& mutex) const
-    {
-        preWait();
-
-        typedef typename M::LockState LockState;
-
-        LockState state;
-        mutex.unlock(state);
-
-        try
-        {
-            dowait();
-            mutex.lock(state);
-        }
-        catch(...)
-        {
-            mutex.lock(state);
-            throw;
-        }
-    }
-    template <typename M> bool
-    timedWaitImpl(const M& mutex, const Time& timeout) const
-    {
-        preWait();
-
-        typedef typename M::LockState LockState;
-
-        LockState state;
-        mutex.unlock(state);
-
-        try
-        {
-            bool rc = timedDowait(timeout);
-            mutex.lock(state);
-            return rc;
-        }
-        catch(...)
-        {
-            mutex.lock(state);
-            throw;
-        }
-    }
-
-#else
-
     template <typename M> void waitImpl(const M&) const;
     template <typename M> bool timedWaitImpl(const M&, const Time&) const;
 
-#endif
-
 #ifdef _WIN32
-#  ifdef ICE_HAS_WIN32_CONDVAR
     mutable CONDITION_VARIABLE _cond;
-#  else
-    void wake(bool);
-    void preWait() const;
-    void postWait(bool) const;
-    bool timedDowait(const Time&) const;
-    void dowait() const;
-
-    Mutex _internal;
-    IceUtilInternal::Semaphore _gate;
-    IceUtilInternal::Semaphore _queue;
-    mutable long _blocked;
-    mutable long _unblocked;
-    enum State
-    {
-        StateIdle,
-        StateSignal,
-        StateBroadcast
-    };
-    mutable State _state;
-#  endif
 #else
     mutable pthread_cond_t _cond;
 #endif
@@ -199,8 +99,6 @@ private:
 };
 
 #ifdef _WIN32
-
-#   ifdef ICE_HAS_WIN32_CONDVAR
 
 template <typename M> inline void
 Cond::waitImpl(const M& mutex) const
@@ -247,9 +145,8 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     return true;
 }
 
-#   endif
-
 #else
+
 template <typename M> inline void
 Cond::waitImpl(const M& mutex) const
 {

@@ -7,7 +7,6 @@
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
-#include <IceUtil/RecMutex.h>
 #include <IceUtil/Timer.h>
 #include <Ice/StringConverter.h>
 #include <Ice/InstanceF.h>
@@ -75,7 +74,7 @@ struct BufSizeWarnInfo
     int rcvSize;
 };
 
-class Instance : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::RecMutex>
+class Instance : public IceUtil::Shared
 {
 public:
 
@@ -197,6 +196,8 @@ private:
     IceInternal::MetricsAdminIPtr _metricsAdmin;
     std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
     std::mutex _setBufSizeWarnMutex;
+    mutable std::recursive_mutex _mutex;
+    std::condition_variable_any _conditionVariable;
 };
 
 class ProcessI : public Ice::Process
