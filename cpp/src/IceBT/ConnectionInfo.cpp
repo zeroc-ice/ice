@@ -4,7 +4,6 @@
 
 #include <IceBT/ConnectionInfo.h>
 
-
 IceBT::ConnectionInfo::~ConnectionInfo()
 {
 }
