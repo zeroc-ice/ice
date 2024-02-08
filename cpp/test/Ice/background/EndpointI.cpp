@@ -127,7 +127,7 @@ EndpointI::transceiver() const
     IceInternal::TransceiverPtr transceiver = _endpoint->transceiver();
     if(transceiver)
     {
-        return new Transceiver(transceiver);
+        return make_shared<Transceiver>(transceiver);
     }
     else
     {
@@ -152,7 +152,7 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
             vector<IceInternal::ConnectorPtr> c;
             for(vector<IceInternal::ConnectorPtr>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
             {
-                c.push_back(new Connector(*p));
+                c.push_back(make_shared<Connector>(*p));
             }
             _callback->connectors(c);
         }
@@ -182,7 +182,7 @@ EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInterna
 IceInternal::AcceptorPtr
 EndpointI::acceptor(const string& adapterName) const
 {
-    return new Acceptor(ICE_SHARED_FROM_CONST_THIS(EndpointI), _endpoint->acceptor(adapterName));
+    return make_shared<Acceptor>(ICE_SHARED_FROM_CONST_THIS(EndpointI), _endpoint->acceptor(adapterName));
 }
 
 /*IceInternal::EndpointIPtr

@@ -5,16 +5,13 @@
 #ifndef ICE_CONNECTOR_F_H
 #define ICE_CONNECTOR_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class Connector;
-ICE_API IceUtil::Shared* upCast(Connector*);
-typedef Handle<Connector> ConnectorPtr;
+using ConnectorPtr = std::shared_ptr<Connector>;
 
 }
 

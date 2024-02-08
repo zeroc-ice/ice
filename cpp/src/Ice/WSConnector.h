@@ -15,20 +15,19 @@ namespace IceInternal
 
 class WSEndpoint;
 
-class WSConnector : public Connector
+class WSConnector final : public Connector
 {
 public:
 
-    virtual TransceiverPtr connect();
-
-    virtual Ice::Short type() const;
-    virtual std::string toString() const;
-
-    virtual bool operator==(const Connector&) const;
-    virtual bool operator<(const Connector&) const;
-
     WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, const std::string&);
-    virtual ~WSConnector();
+    ~WSConnector();
+    TransceiverPtr connect() final;
+
+    Ice::Short type() const final;
+    std::string toString() const final;
+
+    bool operator==(const Connector&) const final;
+    bool operator<(const Connector&) const final;
 
 private:
 

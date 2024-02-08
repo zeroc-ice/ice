@@ -15,8 +15,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-IceUtil::Shared* IceSSL::upCast(AcceptorI* p) { return p; }
-
 IceInternal::NativeInfoPtr
 IceSSL::AcceptorI::getNativeInfo()
 {

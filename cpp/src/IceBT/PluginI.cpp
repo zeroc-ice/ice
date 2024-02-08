@@ -62,10 +62,10 @@ IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) :
     // interpret proxies before the plug-in is fully initialized.
     //
     InstancePtr bt = new Instance(_engine, BTEndpointType, "bt");
-    f->addEndpointFactory(new EndpointFactoryI(bt));
+    f->addEndpointFactory(make_shared<EndpointFactoryI>(bt));
 
     InstancePtr bts = new Instance(_engine, BTSEndpointType, "bts");
-    f->addEndpointFactory(new IceInternal::UnderlyingEndpointFactory(bts, SSLEndpointType, BTEndpointType));
+    f->addEndpointFactory(make_shared<IceInternal::UnderlyingEndpointFactory>(bts, SSLEndpointType, BTEndpointType));
 }
 
 void

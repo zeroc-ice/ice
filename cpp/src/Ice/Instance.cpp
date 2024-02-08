@@ -1203,9 +1203,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         const_cast<ImplicitContextIPtr&>(_implicitContext) =
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
 
-        _routerManager = new RouterManager;
+        _routerManager = make_shared<RouterManager>();
 
-        _locatorManager = new LocatorManager(_initData.properties);
+        _locatorManager = make_shared<LocatorManager>(_initData.properties);
 
         _referenceFactory = make_shared<ReferenceFactory>(this, communicator);
 
@@ -1247,7 +1247,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _initData.valueFactoryManager = make_shared<ValueFactoryManagerI>();
         }
 
-        _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
+        _outgoingConnectionFactory = make_shared<OutgoingConnectionFactory>(communicator, this);
 
         _objectAdapterFactory = make_shared<ObjectAdapterFactory>(this, communicator);
 

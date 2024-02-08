@@ -33,7 +33,7 @@ PluginI::PluginI(const Ice::CommunicatorPtr& com, const SSLEnginePtr& engine) :
     // interpret proxies before the plug-in is fully initialized.
     //
     InstancePtr instance = new Instance(_engine, SSLEndpointType, "ssl"); // SSL based on TCP
-    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(new EndpointFactoryI(instance, TCPEndpointType));
+    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(make_shared<EndpointFactoryI>(instance, TCPEndpointType));
 }
 
 void

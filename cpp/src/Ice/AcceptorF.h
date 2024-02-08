@@ -13,12 +13,10 @@ namespace IceInternal
 {
 
 class Acceptor;
-ICE_API IceUtil::Shared* upCast(Acceptor*);
-typedef Handle<Acceptor> AcceptorPtr;
+using AcceptorPtr = std::shared_ptr<Acceptor>;
 
 class TcpAcceptor;
-ICE_API IceUtil::Shared* upCast(TcpAcceptor*);
-typedef Handle<TcpAcceptor> TcpAcceptorPtr;
+using TcpAcceptorPtr = std::shared_ptr<TcpAcceptor>;
 
 }
 

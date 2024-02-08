@@ -22,23 +22,21 @@ class iAPEndpointI;
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
-class iAPConnector : public IceInternal::Connector
+class iAPConnector final : public IceInternal::Connector
 {
 public:
 
-    virtual IceInternal::TransceiverPtr connect();
+    iAPConnector(const IceInternal::ProtocolInstancePtr&, Ice::Int, const std::string&, NSString*, EAAccessory*);
+    ~iAPConnector();
+    IceInternal::TransceiverPtr connect() final;
 
-    virtual Ice::Short type() const;
-    virtual std::string toString() const;
+    Ice::Short type() const final;
+    std::string toString() const final;
 
-    virtual bool operator==(const IceInternal::Connector&) const;
-    virtual bool operator<(const IceInternal::Connector&) const;
+    bool operator==(const IceInternal::Connector&) const final;
+    bool operator<(const IceInternal::Connector&) const final;
 
 private:
-
-    iAPConnector(const IceInternal::ProtocolInstancePtr&, Ice::Int, const std::string&, NSString*, EAAccessory*);
-    virtual ~iAPConnector();
-    friend class iAPEndpointI;
 
     const IceInternal::ProtocolInstancePtr _instance;
     const Ice::Int _timeout;

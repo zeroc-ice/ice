@@ -17,8 +17,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceUtil::Shared* IceBT::upCast(TransceiverI* p) { return p; }
-
 IceInternal::NativeInfoPtr
 IceBT::TransceiverI::getNativeInfo()
 {
@@ -43,7 +41,7 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
         // We need to initiate a connection attempt.
         //
         _needConnect = false;
-        _instance->engine()->connect(_addr, _uuid, make_shared<ConnectCallbackI>(this));
+        _instance->engine()->connect(_addr, _uuid, make_shared<ConnectCallbackI>(shared_from_this()));
         return IceInternal::SocketOperationConnect;
     }
 

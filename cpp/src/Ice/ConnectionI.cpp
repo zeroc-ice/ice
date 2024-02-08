@@ -141,7 +141,6 @@ private:
 
     const Ice::ConnectionIPtr _connection;
 };
-typedef IceUtil::Handle<ConnectionFlushBatchAsync> ConnectionFlushBatchAsyncPtr;
 
 ConnectionState connectionStateMap[] = {
     ConnectionState::ConnectionStateValidating,   // StateNotInitialized
@@ -868,7 +867,6 @@ private:
     CommunicatorPtr _communicator;
     ConnectionIPtr _connection;
 };
-typedef IceUtil::Handle<HeartbeatAsync> HeartbeatAsyncPtr;
 
 }
 

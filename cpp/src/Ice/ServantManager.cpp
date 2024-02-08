@@ -13,8 +13,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-ICE_API IceUtil::Shared* IceInternal::upCast(ServantManager* p) { return p; }
-
 void
 IceInternal::ServantManager::addServant(const shared_ptr<Object>& object, const Identity& ident, const string& facet)
 {

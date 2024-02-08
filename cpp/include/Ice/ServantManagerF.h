@@ -5,16 +5,13 @@
 #ifndef ICE_SERVANT_MANAGER_F_H
 #define ICE_SERVANT_MANAGER_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class ServantManager;
-ICE_API IceUtil::Shared* upCast(ServantManager*);
-typedef Handle<ServantManager> ServantManagerPtr;
+using ServantManagerPtr = std::shared_ptr<ServantManager>;
 
 }
 

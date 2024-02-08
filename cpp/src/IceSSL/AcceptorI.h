@@ -19,6 +19,8 @@ class AcceptorI : public IceInternal::Acceptor, public IceInternal::NativeInfo
 {
 public:
 
+    AcceptorI(const EndpointIPtr&, const InstancePtr&, const IceInternal::AcceptorPtr&, const std::string&);
+    virtual ~AcceptorI();
     virtual IceInternal::NativeInfoPtr getNativeInfo();
 #if defined(ICE_USE_IOCP)
     virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
@@ -36,10 +38,6 @@ public:
     virtual std::string toDetailedString() const;
 
 private:
-
-    AcceptorI(const EndpointIPtr&, const InstancePtr&, const IceInternal::AcceptorPtr&, const std::string&);
-    virtual ~AcceptorI();
-    friend class EndpointI;
 
     EndpointIPtr _endpoint;
     const InstancePtr _instance;

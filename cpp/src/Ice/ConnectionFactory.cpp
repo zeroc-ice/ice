@@ -38,8 +38,6 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(OutgoingConnectionFactory* p) { return p; }
-
 namespace
 {
 
@@ -129,7 +127,7 @@ private:
 bool
 IceInternal::OutgoingConnectionFactory::ConnectorInfo::operator==(const ConnectorInfo& other) const
 {
-    return connector == other.connector;
+    return targetEqualTo(connector, other.connector);
 }
 
 void
@@ -147,7 +145,7 @@ IceInternal::OutgoingConnectionFactory::destroy()
         p.second->destroy(ConnectionI::CommunicatorDestroyed);
     }
     _destroyed = true;
-    _communicator = 0;
+    _communicator = nullptr;
 
     _conditionVariable.notify_all();
 }
@@ -165,7 +163,7 @@ IceInternal::OutgoingConnectionFactory::updateConnectionObservers()
 void
 IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 {
-    multimap<ConnectorPtr, ConnectionIPtr> connections;
+    multimap<ConnectorPtr, ConnectionIPtr, Ice::TargetCompare<ConnectorPtr, std::less>> connections;
 
     {
         unique_lock lock(_mutex);
@@ -239,7 +237,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         return;
     }
 
-    auto cb = make_shared<ConnectCallback>(_instance, this, endpoints, hasMore, callback, selType);
+    auto cb = make_shared<ConnectCallback>(_instance, shared_from_this(), endpoints, hasMore, callback, selType);
     cb->getConnectors();
 }
 
@@ -395,9 +393,11 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
 
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
     assert(!endpoints.empty());
-    for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+
+    for(const auto& p : endpoints)
     {
-        auto connection = find(_connectionsByEndpoint, *p,
+        auto connection = find(_connectionsByEndpoint,
+                               p,
                                [](const ConnectionIPtr& conn)
                                {
                                    return conn->isActiveOrHolding();
@@ -410,7 +410,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
             }
             else
             {
-                compress = (*p)->compress();
+                compress = p->compress();
             }
             return connection;
         }
@@ -424,14 +424,15 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
     // This must be called with the mutex locked.
 
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-    for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+    for(const auto& p : connectors)
     {
-        if(_pending.find(p->connector) != _pending.end())
+        if(_pending.find(p.connector) != _pending.end())
         {
             continue;
         }
 
-        auto connection = find(_connections, p->connector,
+        auto connection = find(_connections,
+                               p.connector,
                                [](const ConnectionIPtr& conn)
                                {
                                    return conn->isActiveOrHolding();
@@ -444,7 +445,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             }
             else
             {
-                    compress = p->endpoint->compress();
+                    compress = p.endpoint->compress();
             }
             return connection;
         }
@@ -501,11 +502,11 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
         //
         vector<Ice::ConnectionIPtr> cons;
         _monitor->swapReapedConnections(cons);
-        for(vector<Ice::ConnectionIPtr>::const_iterator p = cons.begin(); p != cons.end(); ++p)
+        for(const auto& p : cons)
         {
-            remove(_connections, (*p)->connector(), *p);
-            remove(_connectionsByEndpoint, (*p)->endpoint(), *p);
-            remove(_connectionsByEndpoint, (*p)->endpoint()->compress(true), *p);
+            remove(_connections, p->connector(), p);
+            remove(_connectionsByEndpoint, p->endpoint(), p);
+            remove(_connectionsByEndpoint, p->endpoint()->compress(true), p);
         }
 
         //
@@ -624,21 +625,21 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
                                                             const ConnectionIPtr& connection,
                                                             const ConnectCallbackPtr& cb)
 {
-    set<ConnectCallbackPtr> connectionCallbacks;
+    ConnectCallbackSet connectionCallbacks;
     if(cb)
     {
         connectionCallbacks.insert(cb);
     }
 
-    set<ConnectCallbackPtr> callbacks;
+    ConnectCallbackSet callbacks;
     {
         lock_guard lock(_mutex);
         for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
         {
-            map<ConnectorPtr, set<ConnectCallbackPtr> >::iterator q = _pending.find(p->connector);
+            auto q = _pending.find(p->connector);
             if(q != _pending.end())
             {
-                for(set<ConnectCallbackPtr>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
+                for(auto r = q->second.begin(); r != q->second.end(); ++r)
                 {
                     if((*r)->hasConnector(ci))
                     {
@@ -653,12 +654,12 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
             }
         }
 
-        for(set<ConnectCallbackPtr>::iterator r = connectionCallbacks.begin(); r != connectionCallbacks.end(); ++r)
+        for(auto r = connectionCallbacks.begin(); r != connectionCallbacks.end(); ++r)
         {
             (*r)->removeFromPending();
             callbacks.erase(*r);
         }
-        for(set<ConnectCallbackPtr>::iterator r = callbacks.begin(); r != callbacks.end(); ++r)
+        for(auto r = callbacks.begin(); r != callbacks.end(); ++r)
         {
             (*r)->removeFromPending();
         }
@@ -676,11 +677,11 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
         compress = ci.endpoint->compress();
     }
 
-    for(set<ConnectCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
+    for(auto p = callbacks.begin(); p != callbacks.end(); ++p)
     {
         (*p)->getConnection();
     }
-    for(set<ConnectCallbackPtr>::const_iterator p = connectionCallbacks.begin(); p != connectionCallbacks.end(); ++p)
+    for(auto p = connectionCallbacks.begin(); p != connectionCallbacks.end(); ++p)
     {
         (*p)->setConnection(connection, compress);
     }
@@ -691,21 +692,21 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
                                                             std::exception_ptr ex,
                                                             const ConnectCallbackPtr& cb)
 {
-    set<ConnectCallbackPtr> failedCallbacks;
+    ConnectCallbackSet failedCallbacks;
     if(cb)
     {
         failedCallbacks.insert(cb);
     }
 
-    set<ConnectCallbackPtr> callbacks;
+    ConnectCallbackSet callbacks;
     {
         lock_guard lock(_mutex);
-        for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+        for(auto p = connectors.begin(); p != connectors.end(); ++p)
         {
-            map<ConnectorPtr, set<ConnectCallbackPtr> >::iterator q = _pending.find(p->connector);
+            auto q = _pending.find(p->connector);
             if(q != _pending.end())
             {
-                for(set<ConnectCallbackPtr>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
+                for(auto r = q->second.begin(); r != q->second.end(); ++r)
                 {
                     if((*r)->removeConnectors(connectors))
                     {
@@ -720,7 +721,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
             }
         }
 
-        for(set<ConnectCallbackPtr>::iterator r = callbacks.begin(); r != callbacks.end(); ++r)
+        for(auto r = callbacks.begin(); r != callbacks.end(); ++r)
         {
             assert(failedCallbacks.find(*r) == failedCallbacks.end());
             (*r)->removeFromPending();
@@ -728,11 +729,11 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
         _conditionVariable.notify_all();
     }
 
-    for(set<ConnectCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
+    for(auto p = callbacks.begin(); p != callbacks.end(); ++p)
     {
         (*p)->getConnection();
     }
-    for(set<ConnectCallbackPtr>::const_iterator p = failedCallbacks.begin(); p != failedCallbacks.end(); ++p)
+    for(auto p = failedCallbacks.begin(); p != failedCallbacks.end(); ++p)
     {
         (*p)->setException(ex);
     }
@@ -746,9 +747,9 @@ IceInternal::OutgoingConnectionFactory::addToPending(const ConnectCallbackPtr& c
     // Add the callback to each connector pending list.
     //
     bool found = false;
-    for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+    for(auto p = connectors.begin(); p != connectors.end(); ++p)
     {
-        map<ConnectorPtr, set<ConnectCallbackPtr> >::iterator q = _pending.find(p->connector);
+        auto q = _pending.find(p->connector);
         if(q != _pending.end())
         {
             found = true;
@@ -773,7 +774,7 @@ IceInternal::OutgoingConnectionFactory::addToPending(const ConnectCallbackPtr& c
     {
         if(_pending.find(r->connector) == _pending.end())
         {
-            _pending.insert(pair<ConnectorPtr, set<ConnectCallbackPtr> >(r->connector, set<ConnectCallbackPtr>()));
+            _pending.insert(make_pair(r->connector, ConnectCallbackSet()));
         }
     }
     return false;
@@ -783,9 +784,9 @@ void
 IceInternal::OutgoingConnectionFactory::removeFromPending(const ConnectCallbackPtr& cb,
                                                           const vector<ConnectorInfo>& connectors)
 {
-    for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+    for(auto p = connectors.begin(); p != connectors.end(); ++p)
     {
-        map<ConnectorPtr, set<ConnectCallbackPtr> >::iterator q = _pending.find(p->connector);
+        auto q = _pending.find(p->connector);
         if(q != _pending.end())
         {
             q->second.erase(cb);
@@ -1103,9 +1104,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::removeConnectors(const 
     // failed, we remove the connectors and return true if there's
     // no more connectors left to try.
     //
-    for(vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+    for (const auto& p : connectors)
     {
-        _connectors.erase(remove(_connectors.begin(), _connectors.end(), *p), _connectors.end());
+        _connectors.erase(remove(_connectors.begin(), _connectors.end(), p), _connectors.end());
     }
     return _connectors.empty();
 }
@@ -1186,7 +1187,7 @@ void
 IceInternal::IncomingConnectionFactory::updateConnectionObservers()
 {
     lock_guard lock(_mutex);
-    for(const auto& conn : _connections)
+    for (const auto& conn : _connections)
     {
         conn->updateObserver();
     }
@@ -1238,7 +1239,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
         //
         // Clear the OA. See bug 1673 for the details of why this is necessary.
         //
-        _adapter = 0;
+        _adapter = nullptr;
 
         // We want to wait until all connections are finished outside the
         // thread synchronization.
@@ -1508,7 +1509,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 void
 IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
 {
-    lock_guard lock(_mutex);
+    unique_lock lock(_mutex);
     if(_state < StateClosed)
     {
         if(close)
@@ -1537,7 +1538,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
     }
 
 #if TARGET_OS_IPHONE != 0
-    sync.release();
+    lock.unlock();
     finish();
 #endif
 }

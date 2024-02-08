@@ -5,7 +5,6 @@
 #ifndef ICE_ENDPOINT_FACTORY_H
 #define ICE_ENDPOINT_FACTORY_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/ProtocolInstanceF.h>
@@ -22,10 +21,11 @@ class InputStream;
 namespace IceInternal
 {
 
-class ICE_API EndpointFactory : public ::IceUtil::Shared
+class ICE_API EndpointFactory
 {
 public:
 
+    EndpointFactory();
     virtual ~EndpointFactory();
 
     virtual void initialize();
@@ -36,10 +36,6 @@ public:
     virtual void destroy() = 0;
 
     virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const = 0;
-
-protected:
-
-    EndpointFactory();
 };
 
 //

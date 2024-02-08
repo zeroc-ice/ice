@@ -504,7 +504,7 @@ IceInternal::ThreadPool::initialize(const EventHandlerPtr& handler)
         const ThreadPoolPtr _threadPool;
         const EventHandlerPtr _handler;
     };
-    handler->getNativeInfo()->setReadyCallback(new ReadyCallbackI(this, handler));
+    handler->getNativeInfo()->setReadyCallback(make_shared<ReadyCallbackI>(this, handler));
 }
 
 void

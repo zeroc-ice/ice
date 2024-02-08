@@ -1026,7 +1026,7 @@ IceSSL::SecureTransport::SSLEngine::createTransceiver(const InstancePtr& instanc
                                                       const string& hostOrAdapterName,
                                                       bool incoming)
 {
-    return new IceSSL::SecureTransport::TransceiverI(instance, delegate, hostOrAdapterName, incoming);
+    return make_shared<IceSSL::SecureTransport::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
 }
 
 SSLContextRef

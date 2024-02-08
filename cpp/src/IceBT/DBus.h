@@ -5,8 +5,12 @@
 #ifndef ICE_BT_DBUS_H
 #define ICE_BT_DBUS_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/Handle.h>
+#include <vector>
+#include <string>
+#include <map>
+#include <memory>
+#include <cassert>
+#include <sstream>
 
 using namespace std;
 
@@ -31,9 +35,9 @@ protected:
 // Type is the base class for a hierarchy representing DBus data types.
 //
 class Type;
-typedef IceUtil::Handle<Type> TypePtr;
+using TypePtr = std::shared_ptr<Type>;
 
-class Type : public IceUtil::SimpleShared
+class Type
 {
 public:
 
@@ -87,7 +91,7 @@ public:
 
     TypePtr elementType;
 };
-typedef IceUtil::Handle<ArrayType> ArrayTypePtr;
+using ArrayTypePtr = std::shared_ptr<ArrayType>;
 
 class VariantType : public Type
 {
@@ -102,7 +106,7 @@ public:
 
     virtual std::string getSignature() const;
 };
-typedef IceUtil::Handle<VariantType> VariantTypePtr;
+using VariantTypePtr = std::shared_ptr<VariantType>;
 
 class StructType : public Type
 {
@@ -122,7 +126,7 @@ public:
 
     std::vector<TypePtr> memberTypes;
 };
-typedef IceUtil::Handle<StructType> StructTypePtr;
+using StructTypePtr = std::shared_ptr<StructType>;
 
 class DictEntryType : public Type
 {
@@ -144,15 +148,15 @@ public:
     TypePtr keyType;
     TypePtr valueType;
 };
-typedef IceUtil::Handle<DictEntryType> DictEntryTypePtr;
+using DictEntryTypePtr = std::shared_ptr<DictEntryType>;
 
 //
 // Value is the base class of a hierarchy representing DBus data values.
 //
 class Value;
-typedef IceUtil::Handle<Value> ValuePtr;
+using ValuePtr = std::shared_ptr<Value>;
 
-class Value : public IceUtil::SimpleShared
+class Value
 {
 public:
 
@@ -184,24 +188,24 @@ operator<<(std::ostream& ostr, const ValuePtr& v)
 }
 
 template<typename E, Type::Kind K>
-class PrimitiveValue : public Value
+class PrimitiveValue final : public Value
 {
 public:
 
     PrimitiveValue() : v(E()), kind(K) {}
     PrimitiveValue(const E& val) : v(val), kind(K) {}
 
-    virtual TypePtr getType() const
+    TypePtr getType() const final
     {
         return Type::getPrimitive(kind);
     }
 
-    virtual ValuePtr clone() const
+    ValuePtr clone() const final
     {
-        return new PrimitiveValue(v);
+        return make_shared<PrimitiveValue>(v);
     }
 
-    virtual std::string toString() const
+    std::string toString() const final
     {
         std::ostringstream out;
         out << v;
@@ -213,51 +217,54 @@ public:
 
 protected:
 
-    virtual void print(std::ostream& ostr)
+    void print(std::ostream& ostr) final
     {
         ostr << v;
     }
 };
 
-typedef PrimitiveValue<bool, Type::KindBoolean> BooleanValue;
-typedef IceUtil::Handle<BooleanValue> BooleanValuePtr;
-typedef PrimitiveValue<unsigned char, Type::KindByte> ByteValue;
-typedef IceUtil::Handle<ByteValue> ByteValuePtr;
-typedef PrimitiveValue<unsigned short, Type::KindUint16> Uint16Value;
-typedef IceUtil::Handle<Uint16Value> Uint16ValuePtr;
-typedef PrimitiveValue<short, Type::KindInt16> Int16Value;
-typedef IceUtil::Handle<Int16Value> Int16ValuePtr;
-typedef PrimitiveValue<unsigned int, Type::KindUint32> Uint32Value;
-typedef IceUtil::Handle<Uint32Value> Uint32ValuePtr;
-typedef PrimitiveValue<int, Type::KindInt32> Int32Value;
-typedef IceUtil::Handle<Int32Value> Int32ValuePtr;
-typedef PrimitiveValue<unsigned long long, Type::KindUint64> Uint64Value;
-typedef IceUtil::Handle<Uint64Value> Uint64ValuePtr;
-typedef PrimitiveValue<long long, Type::KindInt64> Int64Value;
-typedef IceUtil::Handle<Int64Value> Int64ValuePtr;
-typedef PrimitiveValue<double, Type::KindDouble> DoubleValue;
-typedef IceUtil::Handle<DoubleValue> DoubleValuePtr;
-typedef PrimitiveValue<string, Type::KindString> StringValue;
-typedef IceUtil::Handle<StringValue> StringValuePtr;
-typedef PrimitiveValue<string, Type::KindObjectPath> ObjectPathValue;
-typedef IceUtil::Handle<ObjectPathValue> ObjectPathValuePtr;
-typedef PrimitiveValue<string, Type::KindSignature> SignatureValue;
-typedef IceUtil::Handle<SignatureValue> SignatureValuePtr;
-typedef PrimitiveValue<unsigned int, Type::KindUnixFD> UnixFDValue;
-typedef IceUtil::Handle<UnixFDValue> UnixFDValuePtr;
+using BooleanValue = PrimitiveValue<bool, Type::KindBoolean>;
+using BooleanValuePtr = std::shared_ptr<BooleanValue>;
+using ByteValue = PrimitiveValue<unsigned char, Type::KindByte>;
+using ByteValuePtr = std::shared_ptr<ByteValue>;
+using Uint16Value = PrimitiveValue<unsigned short, Type::KindUint16>;
+using Uint16ValuePtr = std::shared_ptr<Uint16Value>;
+using Int16Value = PrimitiveValue<short, Type::KindInt16>;
+using Int16ValuePtr = std::shared_ptr<Int16Value>;
+using Uint32Value = PrimitiveValue<unsigned int, Type::KindUint32>;
+using Uint32ValuePtr = std::shared_ptr<Uint32Value>;
+using Int32Value = PrimitiveValue<int, Type::KindInt32>;
+using Int32ValuePtr = std::shared_ptr<Int32Value>;
+using Uint64Value = PrimitiveValue<unsigned long long, Type::KindUint64>;
+using Uint64ValuePtr = std::shared_ptr<Uint64Value>;
+using Int64Value = PrimitiveValue<long long, Type::KindInt64>;
+using Int64ValuePtr = std::shared_ptr<Int64Value>;
+using DoubleValue = PrimitiveValue<double, Type::KindDouble>;
+using DoubleValuePtr = std::shared_ptr<DoubleValue>;
+using StringValue = PrimitiveValue<string, Type::KindString>;
+using StringValuePtr = std::shared_ptr<StringValue>;
+using ObjectPathValue = PrimitiveValue<string, Type::KindObjectPath>;
+using ObjectPathValuePtr = std::shared_ptr<ObjectPathValue>;
+using SignatureValue = PrimitiveValue<string, Type::KindSignature>;
+using SignatureValuePtr = std::shared_ptr<SignatureValue>;
+using UnixFDValue = PrimitiveValue<unsigned int, Type::KindUnixFD>;
+using UnixFDValuePtr = std::shared_ptr<UnixFDValue>;
 
 class VariantValue;
-typedef IceUtil::Handle<VariantValue> VariantValuePtr;
+using VariantValuePtr = std::shared_ptr<VariantValue>;
 
-class VariantValue : public Value
+class VariantValue : public Value, public std::enable_shared_from_this<VariantValue>
 {
 public:
 
-    VariantValue() : _type(new VariantType) {}
+    VariantValue() :
+        _type(make_shared<VariantType>())
+    {
+    }
 
     VariantValue(const ValuePtr& val) :
         v(val),
-        _type(new VariantType)
+        _type(make_shared<VariantType>())
     {
     }
 
@@ -268,7 +275,7 @@ public:
 
     virtual ValuePtr clone() const
     {
-        return const_cast<VariantValue*>(this);
+        return const_cast<VariantValue*>(this)->shared_from_this();
     }
 
     virtual std::string toString() const
@@ -291,7 +298,7 @@ private:
 };
 
 class DictEntryValue;
-typedef IceUtil::Handle<DictEntryValue> DictEntryValuePtr;
+using DictEntryValuePtr = std::shared_ptr<DictEntryValue>;
 
 class DictEntryValue : public Value
 {
@@ -313,7 +320,7 @@ public:
 
     virtual ValuePtr clone() const
     {
-        DictEntryValuePtr r = new DictEntryValue(_type);
+        DictEntryValuePtr r = make_shared<DictEntryValue>(_type);
         r->key = key->clone();
         r->value = value->clone();
         return r;
@@ -342,7 +349,7 @@ private:
 };
 
 class ArrayValue;
-typedef IceUtil::Handle<ArrayValue> ArrayValuePtr;
+using ArrayValuePtr = std::shared_ptr<ArrayValue>;
 
 class ArrayValue : public Value
 {
@@ -357,7 +364,7 @@ public:
 
     virtual ValuePtr clone() const
     {
-        ArrayValuePtr r = new ArrayValue(_type);
+        auto r = make_shared<ArrayValue>(_type);
         for(std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
         {
             r->elements.push_back((*p)->clone());
@@ -383,9 +390,9 @@ public:
     {
         for(std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
         {
-            DictEntryValuePtr de = DictEntryValuePtr::dynamicCast(*p);
+            auto de = dynamic_pointer_cast<DictEntryValue>(*p);
             assert(de);
-            StringValuePtr s = StringValuePtr::dynamicCast(de->key);
+            auto s = dynamic_pointer_cast<StringValue>(de->key);
             assert(s);
             m[s->v] = de->value;
         }
@@ -409,22 +416,22 @@ private:
 };
 
 class StructValue;
-typedef IceUtil::Handle<StructValue> StructValuePtr;
+using StructValuePtr = std::shared_ptr<StructValue>;
 
-class StructValue : public Value
+class StructValue final : public Value
 {
 public:
 
     StructValue(const StructTypePtr& t) : _type(t) {}
 
-    virtual TypePtr getType() const
+    TypePtr getType() const final
     {
         return _type;
     }
 
-    virtual ValuePtr clone() const
+    ValuePtr clone() const final
     {
-        StructValuePtr r = new StructValue(_type);
+        auto r = make_shared<StructValue>(_type);
         for(std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
         {
             r->members.push_back((*p)->clone());
@@ -432,7 +439,7 @@ public:
         return r;
     }
 
-    virtual std::string toString() const
+    std::string toString() const final
     {
         std::ostringstream out;
         for(std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
@@ -448,17 +455,15 @@ public:
 
     std::vector<ValuePtr> members;
 
-protected:
+private:
 
-    virtual void print(std::ostream& ostr)
+    void print(std::ostream& ostr) final
     {
         for(std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
         {
             ostr << *p << endl;
         }
     }
-
-private:
 
     StructTypePtr _type;
 };
@@ -467,9 +472,9 @@ private:
 // Message encapsulates a DBus message. It only provides the functionality required by the IceBT transport.
 //
 class Message;
-typedef IceUtil::Handle<Message> MessagePtr;
+using MessagePtr = std::shared_ptr<Message>;
 
-class Message : public IceUtil::Shared
+class Message
 {
 public:
 
@@ -504,7 +509,7 @@ public:
 };
 
 class AsyncResult;
-typedef IceUtil::Handle<AsyncResult> AsyncResultPtr;
+using AsyncResultPtr = std::shared_ptr<AsyncResult>;
 
 class AsyncCallback
 {
@@ -517,7 +522,7 @@ using AsyncCallbackPtr = std::shared_ptr<AsyncCallback>;
 //
 // The result of an asynchronous DBus operation.
 //
-class AsyncResult : public IceUtil::Shared
+class AsyncResult
 {
 public:
 
@@ -532,7 +537,7 @@ public:
 };
 
 class Connection;
-typedef IceUtil::Handle<Connection> ConnectionPtr;
+using ConnectionPtr = std::shared_ptr<Connection>;
 
 //
 // Allows a subclass to intercept DBus messages.
@@ -562,7 +567,7 @@ using ServicePtr = std::shared_ptr<Service>;
 //
 // Encapsulates a DBus connection.
 //
-class Connection : public IceUtil::Shared
+class Connection
 {
 public:
 
@@ -588,15 +593,12 @@ public:
     virtual void sendAsync(const MessagePtr&) = 0;
 
     virtual void close() = 0;
-
-protected:
-
-    Connection() {}
 };
 
 void initThreads();
 
 }
+
 }
 
 #endif

@@ -21,7 +21,7 @@
 namespace IceInternal
 {
 
-class LocatorManager : public IceUtil::Shared
+class LocatorManager final
 {
 public:
 
@@ -49,7 +49,7 @@ private:
     std::mutex _mutex;
 };
 
-class LocatorTable : public IceUtil::Shared
+class LocatorTable final
 {
 public:
 
@@ -74,20 +74,20 @@ private:
     std::mutex _mutex;
 };
 
-class LocatorInfo : public IceUtil::Shared
+class LocatorInfo final : public std::enable_shared_from_this<LocatorInfo>
 {
 public:
 
-    class GetEndpointsCallback : public virtual IceUtil::Shared
+    class GetEndpointsCallback
     {
     public:
 
         virtual void setEndpoints(const std::vector<EndpointIPtr>&, bool) = 0;
         virtual void setException(std::exception_ptr) = 0;
     };
-    typedef IceUtil::Handle<GetEndpointsCallback> GetEndpointsCallbackPtr;
+    using GetEndpointsCallbackPtr = std::shared_ptr<GetEndpointsCallback>;
 
-    class RequestCallback : public virtual IceUtil::Shared
+    class RequestCallback final
     {
     public:
 
@@ -102,9 +102,9 @@ public:
         const int _ttl;
         const GetEndpointsCallbackPtr _callback;
     };
-    typedef IceUtil::Handle<RequestCallback> RequestCallbackPtr;
+    using RequestCallbackPtr = std::shared_ptr<RequestCallback>;
 
-    class Request : public virtual IceUtil::Shared
+    class Request
     {
     public:
 
@@ -132,7 +132,7 @@ public:
         Ice::ObjectPrxPtr _proxy;
         std::exception_ptr _exception;
     };
-    typedef IceUtil::Handle<Request> RequestPtr;
+    using RequestPtr = std::shared_ptr<Request>;
 
     LocatorInfo(const Ice::LocatorPrxPtr&, const LocatorTablePtr&, bool);
 

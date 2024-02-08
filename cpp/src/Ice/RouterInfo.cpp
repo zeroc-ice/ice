@@ -12,9 +12,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(RouterManager* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(RouterInfo* p) { return p; }
-
 IceInternal::RouterManager::RouterManager() :
     _tableHint(_table.end())
 {
@@ -38,7 +35,7 @@ IceInternal::RouterManager::get(const RouterPrxPtr& rtr)
 {
     if(!rtr)
     {
-        return 0;
+        return nullptr;
     }
 
     RouterPrxPtr router = rtr->ice_router(0); // The router cannot be routed.
@@ -176,7 +173,7 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
         return;
     }
 
-    RouterInfoPtr self = this;
+    RouterInfoPtr self = shared_from_this();
     _router->getClientProxyAsync(
         [self, callback](const Ice::ObjectPrxPtr& proxy, optional<bool> hasRoutingTable)
         {
@@ -234,9 +231,9 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
 
     Ice::ObjectProxySeq proxies;
     proxies.push_back(proxy);
-    AddProxyCookiePtr cookie = new AddProxyCookie(callback, proxy);
+    auto cookie = make_shared<AddProxyCookie>(callback, proxy);
 
-    RouterInfoPtr self = this;
+    RouterInfoPtr self = shared_from_this();
     _router->addProxiesAsync(proxies,
         [self, cookie](const Ice::ObjectProxySeq& p)
         {
