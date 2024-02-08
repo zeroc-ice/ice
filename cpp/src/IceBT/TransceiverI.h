@@ -65,11 +65,7 @@ private:
             _transceiver->connectCompleted(fd, conn);
         }
 
-<<<<<<< HEAD
-        virtual void failed(std::exception_ptr ex)
-=======
-        void failed(const Ice::LocalException& ex) final
->>>>>>> origin/main
+        void failed(std::exception_ptr ex) final
         {
             _transceiver->connectFailed(ex);
         }
