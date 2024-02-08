@@ -48,9 +48,6 @@ private:
     bool initialized(std::unique_lock<std::mutex>&);
     void flushRequests();
 
-    void addedProxy();
-    void setException(std::exception_ptr);
-
     Ice::ObjectPrxPtr _proxy;
     std::set<Ice::ObjectPrxPtr> _proxies;
 

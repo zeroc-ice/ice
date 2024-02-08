@@ -103,7 +103,7 @@ ConnectRequestHandler::getConnection()
     {
         return _connection;
     }
-    else if (_exception)
+    else if(_exception)
     {
         rethrow_exception(_exception);
     }
@@ -114,16 +114,16 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::waitForConnection()
 {
     unique_lock lock(_mutex);
-    if (_exception)
+    if(_exception)
     {
         throw RetryException(_exception);
     }
     //
     // Wait for the connection establishment to complete or fail.
     //
-    _conditionVariable.wait(lock, [this] { return _initialized || _exception != nullptr; });
+    _conditionVariable.wait(lock, [this] { return _initialized || _exception; });
 
-    if (_exception)
+    if(_exception)
     {
         rethrow_exception(_exception);
     }
@@ -148,13 +148,17 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     // add this proxy to the router info object.
     //
     RouterInfoPtr ri = _reference->getRouterInfo();
-    auto self = shared_from_this();
-    if (ri && !ri->addProxyAsync(
-        _proxy,
-        [self] { self->addedProxy(); },
-        [self](exception_ptr ex) { self->setException(ex); }))
+
+    if (ri)
     {
-        return; // The request handler will be initialized once addProxyAsync returns.
+        auto self = shared_from_this();
+        if (!ri->addProxyAsync(
+                _proxy,
+                [self] { self->addedProxy(); },
+                [self](exception_ptr ex) { self->setException(ex); }))
+        {
+            return; // The request handler will be initialized once addProxyAsync completes.
+        }
     }
 
     //

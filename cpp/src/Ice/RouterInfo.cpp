@@ -197,55 +197,6 @@ IceInternal::RouterInfo::getServerEndpoints()
     return serverProxy->_getReference()->getEndpoints();
 }
 
-void
-IceInternal::RouterInfo::addProxyResponse(const Ice::ObjectProxySeq& proxies, const AddProxyCookiePtr& cookie)
-{
-    addAndEvictProxies(cookie->proxy(), proxies);
-    cookie->cb()->addedProxy();
-}
-
-void
-IceInternal::RouterInfo::addProxyException(std::exception_ptr ex, const AddProxyCookiePtr& cookie)
-{
-    cookie->cb()->setException(ex);
-}
-
-bool
-IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxyCallbackPtr& callback)
-{
-    assert(proxy);
-    {
-        lock_guard lock(_mutex);
-        if(!_hasRoutingTable)
-        {
-            return true; // The router implementation doesn't maintain a routing table.
-        }
-        else if(_identities.find(proxy->ice_getIdentity()) != _identities.end())
-        {
-            //
-            // Only add the proxy to the router if it's not already in our local map.
-            //
-            return true;
-        }
-    }
-
-    Ice::ObjectProxySeq proxies;
-    proxies.push_back(proxy);
-    auto cookie = make_shared<AddProxyCookie>(callback, proxy);
-
-    RouterInfoPtr self = shared_from_this();
-    _router->addProxiesAsync(proxies,
-        [self, cookie](const Ice::ObjectProxySeq& p)
-        {
-            self->addProxyResponse(p, cookie);
-        },
-        [self, cookie](exception_ptr e)
-        {
-            self->addProxyException(e, cookie);
-        });
-    return false;
-}
-
 bool
 IceInternal::RouterInfo::addProxyAsync(
     const Ice::ObjectPrxPtr& proxy,
@@ -271,7 +222,7 @@ IceInternal::RouterInfo::addProxyAsync(
     Ice::ObjectProxySeq proxies;
     proxies.push_back(proxy);
 
-    RouterInfoPtr self = this;
+    RouterInfoPtr self = shared_from_this();
     _router->addProxiesAsync(
         proxies,
         [response, self, proxy](Ice::ObjectProxySeq evictedProxies)

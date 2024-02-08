@@ -59,15 +59,6 @@ public:
     };
     using GetClientEndpointsCallbackPtr = std::shared_ptr<GetClientEndpointsCallback>;
 
-    class AddProxyCallback
-    {
-    public:
-
-        virtual void addedProxy() = 0;
-        virtual void setException(std::exception_ptr) = 0;
-    };
-    using AddProxyCallbackPtr = std::shared_ptr<AddProxyCallback>;
-
     RouterInfo(const Ice::RouterPrxPtr&);
 
     void destroy();
@@ -87,38 +78,8 @@ public:
     void getClientProxyException(std::exception_ptr, const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getClientEndpoints();
     void getClientEndpoints(const GetClientEndpointsCallbackPtr&);
+
     std::vector<EndpointIPtr> getServerEndpoints();
-
-    class AddProxyCookie final
-    {
-    public:
-
-        AddProxyCookie(const AddProxyCallbackPtr cb, const Ice::ObjectPrxPtr& proxy) :
-            _cb(cb),
-            _proxy(proxy)
-        {
-        }
-
-        AddProxyCallbackPtr cb() const
-        {
-            return _cb;
-        }
-
-        Ice::ObjectPrxPtr proxy() const
-        {
-            return _proxy;
-        }
-
-    private:
-
-        const AddProxyCallbackPtr _cb;
-        const Ice::ObjectPrxPtr _proxy;
-    };
-    using AddProxyCookiePtr = std::shared_ptr<AddProxyCookie>;
-
-    void addProxyResponse(const Ice::ObjectProxySeq&, const AddProxyCookiePtr&);
-    void addProxyException(std::exception_ptr, const AddProxyCookiePtr&);
-    bool addProxy(const Ice::ObjectPrxPtr&, const AddProxyCallbackPtr&);
 
     bool addProxyAsync(
         const Ice::ObjectPrxPtr& proxy,
