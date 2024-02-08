@@ -36,7 +36,7 @@ namespace IceInternal
 {
 
 //
-// Class for handling the proxy's begin_ice_flushBatchRequest request.
+// Class for handling the proxy's flushBatchRequest request.
 //
 class ICE_API ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
 {
@@ -1130,10 +1130,21 @@ public:
     ice_flushBatchRequestsAsync(::std::function<void(::std::exception_ptr)> ex,
                                 ::std::function<void(bool)> sent = nullptr)
     {
-        using LambdaOutgoing = ::IceInternal::ProxyFlushBatchLambda;
-        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), std::move(ex), std::move(sent));
-        _iceI_flushBatchRequests(outAsync);
-        return [outAsync]() { outAsync->cancel(); };
+        if (_batchRequestQueue)
+        {
+            using LambdaOutgoing = ::IceInternal::ProxyFlushBatchLambda;
+            auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), std::move(ex), std::move(sent));
+            _iceI_flushBatchRequests(outAsync);
+            return [outAsync]() { outAsync->cancel(); };
+        }
+        else
+        {
+            if (sent)
+            {
+                sent(true);
+            }
+            return []() {}; // return a callable function target that does nothing.
+        }
     }
 
     /**
@@ -1143,10 +1154,19 @@ public:
     template<template<typename> class P = std::promise> auto
     ice_flushBatchRequestsAsync() -> decltype(std::declval<P<void>>().get_future())
     {
-        using PromiseOutgoing = ::IceInternal::ProxyFlushBatchPromise<P<void>>;
-        auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this());
-        _iceI_flushBatchRequests(outAsync);
-        return outAsync->getFuture();
+        if (_batchRequestQueue)
+        {
+            using PromiseOutgoing = ::IceInternal::ProxyFlushBatchPromise<P<void>>;
+            auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this());
+            _iceI_flushBatchRequests(outAsync);
+            return outAsync->getFuture();
+        }
+        else
+        {
+            P<void> p;
+            p.set_value();
+            return p.get_future();
+        }
     }
 
     /// \cond INTERNAL
