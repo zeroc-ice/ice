@@ -961,7 +961,7 @@ pendingCallCompletedCallback(DBusPendingCall*, void* userData)
 static void
 pendingCallFree(void* userData)
 {
-    auto* r = static_cast<shared_ptr<AsyncResultI>*>(userData);
+    auto r = static_cast<shared_ptr<AsyncResultI>*>(userData);
     assert(r);
     delete r;
 }
