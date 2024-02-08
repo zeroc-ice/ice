@@ -12,7 +12,7 @@ using namespace IceUtil;
 
 static const string createTestName("thread create");
 
-class CreateTestThread : public Thread
+class CreateTestThread final : public Thread
 {
 public:
 
@@ -21,15 +21,13 @@ public:
     {
     }
 
-    virtual void run()
+    void run() final
     {
         threadran = true;
     }
 
     bool threadran;
 };
-
-typedef Handle<CreateTestThread> CreateTestThreadPtr;
 
 CreateTest::CreateTest() :
     TestBase(createTestName)
@@ -41,7 +39,7 @@ CreateTest::run()
 {
     for(int i = 0; i < 4096 ; ++i)
     {
-        CreateTestThreadPtr t = new CreateTestThread();
+        auto t = make_shared<CreateTestThread>();
         ThreadControl control = t->start();
         control.join();
         test(t->threadran);

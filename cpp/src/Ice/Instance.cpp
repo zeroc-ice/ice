@@ -186,20 +186,28 @@ class Timer : public IceUtil::Timer
 {
 public:
 
-    Timer(int priority) :
-        IceUtil::Timer(priority),
-        _hasObserver(0)
+    static TimerPtr create()
     {
+        auto timer = shared_ptr<Timer>(new Timer());
+        timer->start();
+        return timer;
     }
 
-    Timer() :
-        _hasObserver(0)
+    static TimerPtr create(int priority)
     {
+        auto timer = shared_ptr<Timer>(new Timer());
+        timer->start(0, priority);
+        return timer;
     }
 
     void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
 private:
+
+    Timer() :
+        _hasObserver(0)
+    {
+    }
 
     virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 
@@ -225,7 +233,7 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 void
 Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
 {
-    if(_hasObserver != 0)
+    if(_hasObserver)
     {
         Ice::Instrumentation::ThreadObserverPtr threadObserver;
         {

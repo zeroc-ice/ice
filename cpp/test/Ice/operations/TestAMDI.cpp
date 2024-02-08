@@ -108,7 +108,7 @@ MyDerivedClassI::opVoidAsync(function<void()> response,
         _opVoidThread = 0;
     }
 
-    _opVoidThread = new Thread_opVoid(response);
+    _opVoidThread = make_shared<Thread_opVoid>(response);
     _opVoidThread->start();
 }
 

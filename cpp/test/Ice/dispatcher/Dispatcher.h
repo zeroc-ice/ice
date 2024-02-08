@@ -32,24 +32,26 @@ private:
     std::function<void()> _call;
 };
 
-class Dispatcher : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class Dispatcher : public IceUtil::Thread
 {
 public:
 
-    Dispatcher();
-
+    static std::shared_ptr<Dispatcher> create();
     void dispatch(const std::shared_ptr<DispatcherCall>&, const std::shared_ptr<Ice::Connection>&);
 
     void run();
+    void terminate();
 
-    static void terminate();
     static bool isDispatcherThread();
 
 private:
 
-    static IceUtil::Handle<Dispatcher> _instance;
+    Dispatcher();
+    static std::shared_ptr<Dispatcher> _instance;
     std::deque<std::shared_ptr<DispatcherCall>> _calls;
     bool _terminated;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 #endif

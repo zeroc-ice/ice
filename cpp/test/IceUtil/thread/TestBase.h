@@ -17,7 +17,7 @@ public:
     const std::string name;
 };
 
-class TestBase : public IceUtil::Shared
+class TestBase
 {
 public:
 
@@ -32,7 +32,6 @@ protected:
 
     const std::string _name;
 };
-
-typedef IceUtil::Handle<TestBase> TestBasePtr;
+using TestBasePtr = std::shared_ptr<TestBase>;
 
 #endif

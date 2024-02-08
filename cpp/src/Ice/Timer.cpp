@@ -18,7 +18,7 @@ TimerTask::~TimerTask()
 TimerPtr
 Timer::create()
 {
-    auto timer = make_shared<Timer>();
+    auto timer = shared_ptr<Timer>(new Timer());
     timer->start();
     return timer;
 }
@@ -26,18 +26,12 @@ Timer::create()
 TimerPtr
 Timer::create(int priority)
 {
-    auto timer = make_shared<Timer>(priority);
-    timer->start(priority);
+    auto timer = shared_ptr<Timer>(new Timer());
+    timer->start(0, priority);
     return timer;
 }
 
 Timer::Timer() :
-    Thread("IceUtil timer thread"),
-    _destroyed(false)
-{
-}
-
-Timer::Timer(int priority) :
     Thread("IceUtil timer thread"),
     _destroyed(false)
 {

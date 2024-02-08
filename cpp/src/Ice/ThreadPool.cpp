@@ -1256,7 +1256,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 
     try
     {
-        _pool->run(shared_from_this());
+        _pool->run(dynamic_pointer_cast<EventHandlerThread>(shared_from_this()));
     }
     catch(const exception& ex)
     {

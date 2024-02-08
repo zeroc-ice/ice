@@ -27,7 +27,7 @@ Server::run(int argc, char** argv)
     //
     initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
 
-    IceUtil::Handle<Dispatcher> dispatcher = new Dispatcher;
+    auto dispatcher = Dispatcher::create();
     initData.dispatcher = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
         {
             dispatcher->dispatch(make_shared<DispatcherCall>(call), conn);
@@ -55,7 +55,7 @@ Server::run(int argc, char** argv)
 
         communicator->waitForShutdown();
     }
-    Dispatcher::terminate();
+    dispatcher->terminate();
 }
 
 DEFINE_TEST(Server)

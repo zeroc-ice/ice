@@ -10,7 +10,7 @@
 using namespace std;
 using namespace IceUtil;
 
-class MonitorMutexTestThread : public Thread
+class MonitorMutexTestThread final : public Thread
 {
 public:
 
@@ -20,7 +20,7 @@ public:
     {
     }
 
-    virtual void run()
+    void run() final
     {
         Monitor<Mutex>::TryLock tlock(_monitor);
         test(!tlock.acquired());
@@ -54,8 +54,7 @@ private:
     Cond _tryLockCond;
     Mutex _tryLockMutex;
 };
-
-typedef Handle<MonitorMutexTestThread> MonitorMutexTestThreadPtr;
+using MonitorMutexTestThreadPtr = shared_ptr<MonitorMutexTestThread>;
 
 class MonitorMutexTestThread2 : public Thread
 {
@@ -80,8 +79,7 @@ private:
 
     Monitor<Mutex>& _monitor;
 };
-
-typedef Handle<MonitorMutexTestThread2> MonitorMutexTestThread2Ptr;
+using MonitorMutexTestThread2Ptr = shared_ptr<MonitorMutexTestThread2>;
 
 static const string monitorMutexTestName("monitor<mutex>");
 
@@ -117,7 +115,7 @@ MonitorMutexTest::run()
         }
 
         // TEST: Start thread, try to acquire the mutex.
-        t = new MonitorMutexTestThread(monitor);
+        t = make_shared<MonitorMutexTestThread>(monitor);
         control = t->start();
 
         // TEST: Wait until the tryLock has been tested.
@@ -131,9 +129,9 @@ MonitorMutexTest::run()
     control.join();
 
     // TEST: notify() wakes one consumer.
-    t2 = new MonitorMutexTestThread2(monitor);
+    t2 = make_shared<MonitorMutexTestThread2>(monitor);
     control = t2->start();
-    t3 = new MonitorMutexTestThread2(monitor);
+    t3 = make_shared<MonitorMutexTestThread2>(monitor);
     control2 = t3->start();
 
     // Give the thread time to start waiting.
@@ -157,9 +155,9 @@ MonitorMutexTest::run()
     control2.join();
 
     // TEST: notifyAll() wakes one consumer.
-    t2 = new MonitorMutexTestThread2(monitor);
+    t2 = make_shared<MonitorMutexTestThread2>(monitor);
     control = t2->start();
-    t3 = new MonitorMutexTestThread2(monitor);
+    t3 = make_shared<MonitorMutexTestThread2>(monitor);
     control2 = t3->start();
 
     // Give the threads time to start waiting.

@@ -424,7 +424,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create a new timer to handle server activation/deactivation timeouts.
     //
-    _timer = new IceUtil::Timer;
+    _timer = IceUtil::Timer::create();
 
     //
     // The IceGrid instance name.

@@ -73,7 +73,7 @@ CountDownLatchTest::run()
     ThreadPtr t1[wave1Count];
     for(i = 0; i < wave1Count; i++)
     {
-        t1[i] = new CountDownLatchTestThread(latch, val, false);
+        t1[i] = make_shared<CountDownLatchTestThread>(latch, val, false);
         t1[i]->start();
     }
 
@@ -89,7 +89,7 @@ CountDownLatchTest::run()
     ThreadPtr t2[fullCount - 1];
     for(i = 0; i < fullCount - 1; i++)
     {
-        t2[i] = new CountDownLatchTestThread(latch, val, true);
+        t2[i] = make_shared<CountDownLatchTestThread>(latch, val, true);
         t2[i]->start();
     }
 
@@ -138,7 +138,7 @@ CountDownLatchTest::run()
     ThreadPtr t3[wave2Count];
     for(i = 0; i < wave2Count; i++)
     {
-        t3[i] = new CountDownLatchTestThread(latch, val, true);
+        t3[i] = make_shared<CountDownLatchTestThread>(latch, val, true);
         t3[i]->start();
     }
     test(latch.getCount() == 0);

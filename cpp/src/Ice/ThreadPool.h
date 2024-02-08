@@ -65,7 +65,7 @@ using DispatchWorkItemPtr = std::shared_ptr<DispatchWorkItem>;
 
 class ThreadPool : public std::enable_shared_from_this<ThreadPool>
 {
-    class EventHandlerThread : public IceUtil::Thread, public std::enable_shared_from_this<EventHandlerThread>
+    class EventHandlerThread : public IceUtil::Thread
     {
     public:
 

@@ -12,7 +12,7 @@ using namespace IceUtil;
 
 static const string mutexTestName("mutex");
 
-class MutexTestThread : public Thread
+class MutexTestThread final : public Thread
 {
 public:
 
@@ -22,7 +22,7 @@ public:
     {
     }
 
-    virtual void run()
+    void run() final
     {
         Mutex::TryLock tlock(_mutex);
         test(!tlock.acquired());
@@ -36,8 +36,7 @@ public:
         Mutex::Lock lock(_mutex);
     }
 
-    void
-    waitTryLock()
+    void waitTryLock()
     {
         Mutex::Lock lock(_tryLockMutex);
         while(!_tryLock)
@@ -56,8 +55,7 @@ private:
     Cond _tryLockCond;
     Mutex _tryLockMutex;
 };
-
-typedef Handle<MutexTestThread> MutexTestThreadPtr;
+using MutexTestThreadPtr = shared_ptr<MutexTestThread>;
 
 MutexTest::MutexTest() :
     TestBase(mutexTestName)
@@ -141,7 +139,7 @@ MutexTest::run()
 #endif
 
         // TEST: Start thread, try to acquire the mutex.
-        t = new MutexTestThread(mutex);
+        t = make_shared<MutexTestThread>(mutex);
         control = t->start();
 
         // TEST: Wait until the tryLock has been tested.

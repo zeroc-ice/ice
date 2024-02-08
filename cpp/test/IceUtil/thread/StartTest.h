@@ -7,7 +7,7 @@
 
 #include <TestBase.h>
 
-class StartTest : public TestBase
+class StartTest final : public TestBase
 {
 public:
 
@@ -15,7 +15,7 @@ public:
 
 private:
 
-    virtual void run();
+    void run() final;
 };
 
 #endif

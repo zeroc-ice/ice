@@ -188,7 +188,7 @@ private:
     bool _destroyed;
     BackgroundPrxPtr _background;
 };
-typedef IceUtil::Handle<OpThread> OpThreadPtr;
+using OpThreadPtr = shared_ptr<OpThread>;
 
 void connectTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&);
 void initializeTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
@@ -456,8 +456,8 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
     }
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
 
     for(int i = 0; i < 5; i++)
     {
@@ -646,8 +646,8 @@ initializeTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
 
     for(int i = 0; i < 5; i++)
     {
@@ -1492,8 +1492,8 @@ readWriteTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
 
     for(int i = 0; i < 5; i++)
     {

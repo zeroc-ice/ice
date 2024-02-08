@@ -135,7 +135,7 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
     Time start = Time::now();
     for(int i = 0; i < threadCount; i++)
     {
-        ThreadPtr t = new InsertThread<T, GenerateFunc>(i, itemSet, func, howMany / threadCount, verbose);
+        ThreadPtr t = make_shared<InsertThread<T, GenerateFunc>>(i, itemSet, func, howMany / threadCount, verbose);
         threads.push_back(t->start());
     }
     for(vector<ThreadControl>::iterator p = threads.begin(); p != threads.end(); ++p)
