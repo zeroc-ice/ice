@@ -679,7 +679,7 @@ IceInternal::FixedReference::toProperty(const string&) const
 }
 
 RequestHandlerPtr
-IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) const
+IceInternal::FixedReference::getRequestHandler() const
 {
     switch(getMode())
     {
@@ -737,7 +737,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     }
 
     ReferencePtr ref = const_cast<FixedReference*>(this)->shared_from_this();
-    return proxy->_setRequestHandler(make_shared<ConnectionRequestHandler>(ref, _fixedConnection, compress));
+    return make_shared<FixedRequestHandler>(ref, _fixedConnection, compress);
 }
 
 BatchRequestQueuePtr
@@ -1399,10 +1399,10 @@ IceInternal::RoutableReference::clone() const
 }
 
 RequestHandlerPtr
-IceInternal::RoutableReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) const
+IceInternal::RoutableReference::getRequestHandler() const
 {
     return getInstance()->requestHandlerFactory()->getRequestHandler(
-        dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this()), proxy);
+        dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this()));
 }
 
 BatchRequestQueuePtr

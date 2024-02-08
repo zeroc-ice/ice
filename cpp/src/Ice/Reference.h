@@ -142,7 +142,7 @@ public:
     //
     // Get a suitable connection for this reference.
     //
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const = 0;
+    virtual RequestHandlerPtr getRequestHandler() const = 0;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const = 0;
 
     virtual bool operator==(const Reference&) const;
@@ -221,7 +221,7 @@ public:
     virtual void streamWrite(Ice::OutputStream*) const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
+    virtual RequestHandlerPtr getRequestHandler() const;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
     virtual bool operator==(const Reference&) const;
@@ -287,7 +287,7 @@ public:
 
     virtual ReferencePtr clone() const;
 
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
+    virtual RequestHandlerPtr getRequestHandler() const;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
     void getConnection(const GetConnectionCallbackPtr&) const;

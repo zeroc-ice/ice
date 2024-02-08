@@ -1164,7 +1164,7 @@ public:
     ::IceInternal::RequestHandlerPtr _getRequestHandler();
     ::IceInternal::BatchRequestQueuePtr _getBatchRequestQueue();
     ::IceInternal::RequestHandlerPtr _setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
-    void _updateRequestHandler(const ::IceInternal::RequestHandlerPtr&, const ::IceInternal::RequestHandlerPtr&);
+    void _clearRequestHandler(const ::IceInternal::RequestHandlerPtr&);
 
     int _hash() const;
 

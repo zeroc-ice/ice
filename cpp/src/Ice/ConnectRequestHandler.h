@@ -27,10 +27,9 @@ class ConnectRequestHandler final :
 {
 public:
 
-    ConnectRequestHandler(const ReferencePtr&, const Ice::ObjectPrxPtr&);
+    ConnectRequestHandler(const ReferencePtr&);
 
-    RequestHandlerPtr connect(const Ice::ObjectPrxPtr&);
-    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
+    RequestHandlerPtr connect();
 
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
@@ -48,9 +47,6 @@ private:
 
     bool initialized(std::unique_lock<std::mutex>&);
     void flushRequests();
-
-    Ice::ObjectPrxPtr _proxy;
-    std::set<Ice::ObjectPrxPtr> _proxies;
 
     Ice::ConnectionIPtr _connection;
     bool _compress;

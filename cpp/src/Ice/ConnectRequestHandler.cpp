@@ -13,33 +13,23 @@
 #include <Ice/Protocol.h>
 #include <Ice/Properties.h>
 #include <Ice/ThreadPool.h>
+#include <Ice/ProxyFactory.h>
 
 using namespace std;
 using namespace IceInternal;
 
-ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice::ObjectPrxPtr& proxy) :
+ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref) :
     RequestHandler(ref),
-    _proxy(proxy),
     _initialized(false),
     _flushing(false)
 {
 }
 
 RequestHandlerPtr
-ConnectRequestHandler::connect(const Ice::ObjectPrxPtr& proxy)
+ConnectRequestHandler::connect()
 {
     unique_lock lock(_mutex);
-    if(!initialized(lock))
-    {
-        _proxies.insert(proxy);
-    }
     return _requestHandler ? _requestHandler : shared_from_this();
-}
-
-RequestHandlerPtr
-ConnectRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
-{
-    return previousHandler.get() == this ? newHandler : shared_from_this();
 }
 
 AsyncStatus
@@ -149,7 +139,8 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     // add this proxy to the router info object.
     //
     RouterInfoPtr ri = _reference->getRouterInfo();
-    if(ri && !ri->addProxy(_proxy, shared_from_this()))
+    Ice::ObjectPrxPtr proxy = _reference->getInstance()->proxyFactory()->referenceToProxy(_reference);
+    if(ri && !ri->addProxy(proxy, shared_from_this()))
     {
         return; // The request handler will be initialized once addProxy returns.
     }
@@ -196,8 +187,6 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     {
         lock_guard lock(_mutex);
         _flushing = false;
-        _proxies.clear();
-        _proxy = 0; // Break cyclic reference count.
         _conditionVariable.notify_all();
     }
 }
@@ -295,21 +284,6 @@ ConnectRequestHandler::flushRequests()
         _requests.pop_front();
     }
 
-    //
-    // If we aren't caching the connection, don't bother creating a
-    // connection request handler. Otherwise, update the proxies
-    // request handler to use the more efficient connection request
-    // handler.
-    //
-    if(_reference->getCacheConnection() && !exception)
-    {
-        _requestHandler = make_shared<ConnectionRequestHandler>(_reference, _connection, _compress);
-        for(set<Ice::ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
-        {
-            (*p)->_updateRequestHandler(shared_from_this(), _requestHandler);
-        }
-    }
-
     {
         lock_guard lock(_mutex);
         assert(!_initialized);
@@ -323,8 +297,6 @@ ConnectRequestHandler::flushRequests()
         //
         _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
 
-        _proxies.clear();
-        _proxy = nullptr; // Break cyclic reference count.
         _conditionVariable.notify_all();
     }
 }

@@ -35,8 +35,6 @@ public:
     CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
     virtual ~CollocatedRequestHandler();
 
-    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
-
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);

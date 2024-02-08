@@ -696,14 +696,13 @@ Ice::ObjectAdapterI::getDispatchQueue() const
 #endif
 
 bool
-Ice::ObjectAdapterI::isLocal(const ObjectPrxPtr& proxy) const
+Ice::ObjectAdapterI::isLocal(const ReferencePtr& ref) const
 {
     //
     // NOTE: it's important that isLocal() doesn't perform any blocking operations as
     // it can be called for AMI invocations if the proxy has no delegate set yet.
     //
 
-    ReferencePtr ref = proxy->_getReference();
     if(ref->isWellKnown())
     {
         //
