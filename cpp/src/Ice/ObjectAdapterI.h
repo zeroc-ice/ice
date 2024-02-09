@@ -80,7 +80,7 @@ public:
     dispatch_queue_t getDispatchQueue() const final;
 #endif
 
-    bool isLocal(const ObjectPrxPtr&) const;
+    bool isLocal(const IceInternal::ReferencePtr&) const;
 
     void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&, CompressBatch);
 

@@ -77,12 +77,6 @@ CollocatedRequestHandler::~CollocatedRequestHandler()
 {
 }
 
-RequestHandlerPtr
-CollocatedRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
-{
-    return previousHandler.get() == this ? newHandler : shared_from_this();
-}
-
 AsyncStatus
 CollocatedRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& outAsync)
 {
