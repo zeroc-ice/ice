@@ -737,7 +737,7 @@ IceInternal::FixedReference::getRequestHandler() const
     }
 
     ReferencePtr ref = const_cast<FixedReference*>(this)->shared_from_this();
-    return make_shared<FixedRequestHandler>(ref, _fixedConnection, compress);
+    return make_shared<ConnectionRequestHandler>(ref, _fixedConnection, compress);
 }
 
 BatchRequestQueuePtr

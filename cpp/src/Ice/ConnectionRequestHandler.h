@@ -12,13 +12,13 @@
 namespace IceInternal
 {
 
-class FixedRequestHandler final :
+class ConnectionRequestHandler final :
     public RequestHandler,
-    public std::enable_shared_from_this<FixedRequestHandler>
+    public std::enable_shared_from_this<ConnectionRequestHandler>
 {
 public:
 
-    FixedRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
+    ConnectionRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
 
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
