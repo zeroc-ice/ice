@@ -56,8 +56,6 @@ public:
 
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
 
-    const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
-
     virtual Ice::ConnectionIPtr getConnection() = 0;
     virtual Ice::ConnectionIPtr waitForConnection() = 0;
 
