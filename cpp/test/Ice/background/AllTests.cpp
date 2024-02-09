@@ -143,7 +143,6 @@ public:
         _destroyed(false),
         _background(Ice::uncheckedCast<BackgroundPrx>(background->ice_oneway()))
     {
-        start();
     }
 
     void
@@ -457,7 +456,9 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
     }
 
     OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
     OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {
@@ -647,7 +648,9 @@ initializeTests(const ConfigurationPtr& configuration,
 #endif
 
     OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
     OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {
@@ -1493,7 +1496,9 @@ readWriteTests(const ConfigurationPtr& configuration,
 #endif
 
     OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
     OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {
