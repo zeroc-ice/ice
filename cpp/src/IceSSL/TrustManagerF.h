@@ -5,16 +5,13 @@
 #ifndef ICESSL_TRUST_MANAGER_F_H
 #define ICESSL_TRUST_MANAGER_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceSSL
 {
 
 class TrustManager;
-IceUtil::Shared* upCast(IceSSL::TrustManager*);
-typedef IceInternal::Handle<TrustManager> TrustManagerPtr;
+using TrustManagerPtr = std::shared_ptr<TrustManager>;
 
 }
 

@@ -10,6 +10,7 @@
 #include <IceSSL/PluginI.h>
 #include <IceSSL/SSLEngine.h>
 #include <IceSSL/Util.h>
+#include <IceSSL/OpenSSL.h>
 
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
@@ -26,21 +27,6 @@
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
-
-//
-// BUGFIX: an openssl bug that affects OpenSSL < 1.0.0k
-// could cause a deadlock when decoding public keys.
-//
-// See: http://cvs.openssl.org/chngview?cn=22569
-//
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
-namespace
-{
-
-mutex sslMutex;
-
-}
-#endif
 
 extern "C"
 {
@@ -247,10 +233,6 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                 }
             }
 
-            //
-            // Hostname verification was included in OpenSSL 1.0.2
-            //
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x10002000L
             if(_engine->getCheckCertName() && !_host.empty())
             {
                 X509_VERIFY_PARAM* param = SSL_get0_param(_ssl);
@@ -271,8 +253,6 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                     }
                 }
             }
-#endif
-
             SSL_set_verify(_ssl, sslVerifyMode, IceSSL_opensslVerifyCallback);
         }
 
@@ -290,26 +270,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 
     while(!SSL_is_init_finished(_ssl))
     {
-        //
-        // Only one thread calls initialize(), so synchronization is not necessary here.
-        //
-
-        //
-        // BUGFIX: an openssl bug that affects OpenSSL < 1.0.0k
-        // could cause a deadlock when decoding public keys.
-        //
-        // See: http://cvs.openssl.org/chngview?cn=22569
-        //
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
-        unique_lock lock(sslMutex);
-#endif
-
         int ret = _incoming ? SSL_accept(_ssl) : SSL_connect(_ssl);
-
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x100000bfL && !defined(LIBRESSL_VERSION_NUMBER)
-        lock.unlock();
-#endif
-
         if(_memBio && BIO_ctrl_pending(_memBio))
         {
             if(!send())
@@ -431,25 +392,6 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
 
     _cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
-#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER < 0x10002000L
-    try
-    {
-        //
-        // Peer hostname verification is new in OpenSSL 1.0.2 for older versions
-        // We use IceSSL built-in hostname verification.
-        //
-        _engine->verifyPeerCertName(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()));
-    }
-    catch(const SecurityException&)
-    {
-        _trustError = IceSSL::TrustError::HostNameMismatch;
-        _verified = false;
-        if(_engine->getVerifyPeer() > 0)
-        {
-            throw;
-        }
-    }
-#endif
     _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
 
     if(_engine->securityTraceLevel() >= 1)
@@ -458,7 +400,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
 
         //
-        // The const_cast is necesary because Solaris still uses OpenSSL 0.9.7.
+        // The const_cast is necessary because Solaris still uses OpenSSL 0.9.7.
         //
         //const SSL_CIPHER *cipher = SSL_get_current_cipher(ssl);
         SSL_CIPHER *cipher = const_cast<SSL_CIPHER*>(SSL_get_current_cipher(_ssl));
@@ -1002,7 +944,7 @@ OpenSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
                                     const string& hostOrAdapterName,
                                     bool incoming) :
     _instance(instance),
-    _engine(OpenSSL::SSLEnginePtr::dynamicCast(instance->engine())),
+    _engine(dynamic_pointer_cast<OpenSSL::SSLEngine>(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),

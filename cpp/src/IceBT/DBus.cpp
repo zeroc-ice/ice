@@ -1109,7 +1109,7 @@ public:
         ::dbus_bus_add_match(_connection, "type='signal'", 0);
         //::dbus_bus_add_match(_connection, "type='method_call'", 0);
 
-        _thread = new HelperThread(this);
+        _thread = make_shared<HelperThread>(this);
         _thread->start();
     }
 

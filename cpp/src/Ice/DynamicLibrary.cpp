@@ -14,9 +14,6 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace std;
 
-IceUtil::Shared* IceInternal::upCast(DynamicLibrary* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(DynamicLibraryList* p) { return p; }
-
 IceInternal::DynamicLibrary::DynamicLibrary() :
     _hnd(0)
 {

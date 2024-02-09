@@ -7,44 +7,48 @@
 
 using namespace std;
 
-IceUtil::Handle<Dispatcher> Dispatcher::_instance;
+shared_ptr<Dispatcher> instance;
+
+shared_ptr<Dispatcher> Dispatcher::create()
+{
+    auto dispatcher = shared_ptr<Dispatcher>(new Dispatcher());
+    dispatcher->start();
+    instance = dispatcher;
+    return dispatcher;
+}
 
 Dispatcher::Dispatcher()
 {
-    _instance = this;
     _terminated = false;
-    __setNoDelete(true);
-    start();
-    __setNoDelete(false);
 }
 
 void
 Dispatcher::terminate()
 {
     {
-        Lock sync(*_instance);
-        _instance->_terminated = true;
-        _instance->notify();
+        lock_guard lock(_mutex);
+        _terminated = true;
+        _conditionVariable.notify_one();
     }
 
-    _instance->getThreadControl().join();
-    _instance = 0;
+    instance->getThreadControl().join();
+    instance = nullptr;
 }
 
 bool
 Dispatcher::isDispatcherThread()
 {
-    return IceUtil::ThreadControl() == _instance->getThreadControl();
+    return IceUtil::ThreadControl() == instance->getThreadControl();
 }
 
 void
 Dispatcher::dispatch(const shared_ptr<DispatcherCall>& call, const shared_ptr<Ice::Connection>&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _calls.push_back(call);
     if(_calls.size() == 1)
     {
-        notify();
+        _conditionVariable.notify_one();
     }
 }
 
@@ -55,12 +59,8 @@ Dispatcher::run()
     {
         shared_ptr<DispatcherCall> call;
         {
-            Lock sync(*this);
-
-            while(!_terminated && _calls.empty())
-            {
-                wait();
-            }
+            unique_lock lock(_mutex);
+            _conditionVariable.wait(lock, [this] { return _terminated || !_calls.empty(); });
 
             if(!_calls.empty())
             {

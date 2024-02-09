@@ -9,8 +9,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceUtil::Shared* IceBT::upCast(IceBT::Instance* p) { return p; }
-
 IceBT::Instance::Instance(const EnginePtr& engine, Short type, const string& protocol) :
     ProtocolInstance(engine->communicator(), type, protocol, type == BTSEndpointType),
     _engine(engine)

@@ -5,7 +5,6 @@
 #ifndef ICE_REFERENCE_FACTORY_H
 #define ICE_REFERENCE_FACTORY_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/Reference.h> // For Reference::Mode
 #include <Ice/ConnectionIF.h>

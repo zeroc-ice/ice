@@ -5,9 +5,7 @@
 #ifndef ICE_ACCEPTOR_F_H
 #define ICE_ACCEPTOR_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {

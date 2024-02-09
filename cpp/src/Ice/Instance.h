@@ -6,7 +6,6 @@
 #define ICE_INSTANCE_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Shared.h>
 #include <IceUtil/Timer.h>
 #include <Ice/StringConverter.h>
 #include <Ice/InstanceF.h>
@@ -45,13 +44,13 @@ namespace IceInternal
 {
 
 class Timer;
-typedef IceUtil::Handle<Timer> TimerPtr;
+using TimerPtr = std::shared_ptr<Timer>;
 
 class MetricsAdminI;
 using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
 
 class RequestHandlerFactory;
-typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;
+using RequestHandlerFactoryPtr = std::shared_ptr<RequestHandlerFactory>;
 
 class ProxyFactory;
 using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
@@ -64,20 +63,22 @@ struct BufSizeWarnInfo
     // Whether send size warning has been emitted
     bool sndWarn;
 
-    // The send size for which the warning wwas emitted
+    // The send size for which the warning was emitted
     int sndSize;
 
     // Whether receive size warning has been emitted
     bool rcvWarn;
 
-    // The receive size for which the warning wwas emitted
+    // The receive size for which the warning was emitted
     int rcvSize;
 };
 
-class Instance : public IceUtil::Shared
+class Instance : public std::enable_shared_from_this<Instance>
 {
 public:
 
+    static InstancePtr create(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
+    virtual ~Instance();
     bool destroyed() const;
     const Ice::InitializationData& initializationData() const { return _initData; }
     TraceLevelsPtr traceLevels() const;
@@ -135,8 +136,8 @@ public:
 
 private:
 
-    Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
-    virtual ~Instance();
+    Instance(const Ice::InitializationData&);
+    void initialize(const Ice::CommunicatorPtr&);
     void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
     void destroy();
     friend class Ice::CommunicatorI;

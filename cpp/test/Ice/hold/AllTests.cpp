@@ -13,7 +13,7 @@ using namespace Test;
 namespace
 {
 
-class Condition : public IceUtil::Mutex, public IceUtil::Shared
+class Condition : public IceUtil::Mutex
 {
 public:
 
@@ -39,36 +39,7 @@ private:
 
     bool _value;
 };
-typedef IceUtil::Handle<Condition> ConditionPtr;
-
-class SetCB : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    SetCB(const ConditionPtr& condition, Ice::Int expected) : _condition(condition), _expected(expected)
-    {
-    }
-
-    void
-    response(Ice::Int value)
-    {
-        if(value != _expected)
-        {
-            _condition->set(false);
-        }
-    }
-
-    void
-    exception(const Ice::Exception&)
-    {
-    }
-
-private:
-
-    const ConditionPtr _condition;
-    Ice::Int _expected;
-};
-typedef IceUtil::Handle<SetCB> SetCBPtr;
+using ConditionPtr = shared_ptr<Condition>;
 
 }
 
@@ -116,7 +87,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing without serialize mode... " << flush;
     {
-        ConditionPtr cond = new Condition(true);
+        ConditionPtr cond = make_shared<Condition>(true);
         int value = 0;
         shared_ptr<promise<void>> completed;
         while(cond->value())
@@ -163,7 +134,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing with serialize mode... " << flush;
     {
-        ConditionPtr cond = new Condition(true);
+        ConditionPtr cond = make_shared<Condition>(true);
         int value = 0;
         shared_ptr<promise<void>> completed;
         while(value < 3000 && cond->value())

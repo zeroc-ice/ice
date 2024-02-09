@@ -5,8 +5,7 @@
 #ifndef ICE_ENDPOINT_I_F_H
 #define ICE_ENDPOINT_I_F_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {

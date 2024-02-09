@@ -234,9 +234,6 @@
     <ClCompile Include="..\..\..\IceUtil\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\Shared.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -364,9 +361,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\IPEndpointI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\LocalObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\LocatorInfo.cpp">

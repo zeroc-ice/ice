@@ -85,7 +85,7 @@ Instance::Instance(const string& instanceName,
             }
         }
 
-        _timer = new IceUtil::Timer();
+        _timer = IceUtil::Timer::create();
 
         string policy = properties->getProperty(name + ".Send.QueueSizeMaxPolicy");
         if(policy == "RemoveSubscriber")

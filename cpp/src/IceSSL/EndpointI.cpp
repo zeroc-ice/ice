@@ -26,7 +26,7 @@ getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
 {
     for(Ice::EndpointInfoPtr p = info; p; p = p->underlying)
     {
-        Ice::IPEndpointInfoPtr ipInfo = ICE_DYNAMIC_CAST(Ice::IPEndpointInfo, p);
+        Ice::IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
         if(ipInfo)
         {
             return ipInfo;
@@ -51,7 +51,8 @@ IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 Ice::EndpointInfoPtr
 IceSSL::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info = make_shared<IceInternal::InfoI<EndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    EndpointInfoPtr info = make_shared<IceInternal::InfoI<EndpointInfo>>(
+        const_cast<EndpointI*>(this)->shared_from_this());
     info->underlying = _delegate->getInfo();
     info->compress = info->underlying->compress;
     info->timeout = info->underlying->timeout;
@@ -81,7 +82,7 @@ IceSSL::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _delegate->timeout())
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -100,7 +101,7 @@ IceSSL::EndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _delegate->connectionId())
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -119,7 +120,7 @@ IceSSL::EndpointI::compress(bool compress) const
 {
     if(compress == _delegate->compress())
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -142,7 +143,7 @@ IceSSL::EndpointI::secure() const
 IceInternal::TransceiverPtr
 IceSSL::EndpointI::transceiver() const
 {
-    return 0;
+    return nullptr;
 }
 
 void
@@ -188,7 +189,7 @@ IceSSL::EndpointI::connectors_async(Ice::EndpointSelectionType selType,
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-    return make_shared<AcceptorI>(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, _delegate->acceptor(adapterName), adapterName);
+    return make_shared<AcceptorI>(const_cast<EndpointI*>(this)->shared_from_this(), _instance, _delegate->acceptor(adapterName), adapterName);
 }
 
 EndpointIPtr
@@ -196,7 +197,7 @@ IceSSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
     if(delEndp.get() == _delegate.get())
     {
-        return ICE_DYNAMIC_CAST(EndpointI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
+        return ICE_DYNAMIC_CAST(EndpointI, const_cast<EndpointI*>(this)->shared_from_this());
     }
     else
     {
@@ -212,7 +213,7 @@ IceSSL::EndpointI::expandIfWildcard() const
     {
         if(p->get() == _delegate.get())
         {
-            *p = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+            *p = const_cast<EndpointI*>(this)->shared_from_this();
         }
         else
         {
@@ -228,7 +229,7 @@ IceSSL::EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
     vector<IceInternal::EndpointIPtr> endps = _delegate->expandHost(publish);
     if(publish.get() == _delegate.get())
     {
-        publish = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        publish = const_cast<EndpointI*>(this)->shared_from_this();
     }
     else if(publish.get())
     {
@@ -238,7 +239,7 @@ IceSSL::EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
     {
         if(p->get() == _delegate.get())
         {
-            *p = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+            *p = const_cast<EndpointI*>(this)->shared_from_this();
         }
         else
         {
@@ -331,20 +332,20 @@ IceSSL::EndpointI::checkOption(const string& /*option*/, const string& /*argumen
 }
 
 IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, Short type) :
-    IceInternal::EndpointFactoryWithUnderlying(instance, type), _sslInstance(instance.get())
+    IceInternal::EndpointFactoryWithUnderlying(instance, type), _sslInstance(instance)
 {
 }
 
 void
 IceSSL::EndpointFactoryI::destroy()
 {
-    _sslInstance = 0;
+    _sslInstance = nullptr;
 }
 
 IceInternal::EndpointFactoryPtr
 IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, Short underlying) const
 {
-    return make_shared<EndpointFactoryI>(new Instance(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
+    return make_shared<EndpointFactoryI>(make_shared<Instance>(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
 }
 
 IceInternal::EndpointIPtr

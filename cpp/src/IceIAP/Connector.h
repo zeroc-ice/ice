@@ -20,7 +20,7 @@ namespace IceObjC
 class iAPEndpointI;
 
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
+using InstancePtr = std::shared_ptr<Instance>;
 
 class iAPConnector final : public IceInternal::Connector
 {

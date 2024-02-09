@@ -53,88 +53,6 @@ private:
     bool _called;
 };
 
-class OpAMICallback : public IceUtil::Shared
-{
-public:
-
-    void
-    response()
-    {
-        _response.called();
-    }
-
-    void
-    responseNoOp()
-    {
-    }
-
-    void
-    noResponse()
-    {
-        test(false);
-    }
-
-    void
-    exception(const Ice::Exception&)
-    {
-        _response.called();
-    }
-
-    void
-    noException(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
-        test(false);
-    }
-
-    void
-    sent(bool)
-    {
-        _sent.called();
-    }
-
-    bool checkException(bool wait = true)
-    {
-        if(wait)
-        {
-            _response.check();
-            return true;
-        }
-        else
-        {
-            return _response.isCalled();
-        }
-    }
-
-    bool
-    checkResponse(bool wait = true)
-    {
-        if(wait)
-        {
-            _response.check();
-            return true;
-        }
-        else
-        {
-            return _response.isCalled();
-        }
-    }
-
-    void
-    checkResponseAndSent()
-    {
-        _sent.check();
-        _response.check();
-    }
-
-private:
-
-    Callback _response;
-    Callback _sent;
-};
-typedef IceUtil::Handle<OpAMICallback> OpAMICallbackPtr;
-
 class OpThread : public IceUtil::Thread, public IceUtil::Mutex
 {
 public:
@@ -143,7 +61,6 @@ public:
         _destroyed(false),
         _background(Ice::uncheckedCast<BackgroundPrx>(background->ice_oneway()))
     {
-        start();
     }
 
     void
@@ -188,7 +105,7 @@ private:
     bool _destroyed;
     BackgroundPrxPtr _background;
 };
-typedef IceUtil::Handle<OpThread> OpThreadPtr;
+using OpThreadPtr = shared_ptr<OpThread>;
 
 void connectTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&);
 void initializeTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
@@ -456,8 +373,10 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
     }
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {
@@ -646,8 +565,10 @@ initializeTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {
@@ -1492,8 +1413,10 @@ readWriteTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {

@@ -43,7 +43,7 @@ ReferencePtr
 IceInternal::Reference::changeContext(const Context& newContext) const
 {
     ReferencePtr r = clone();
-    r->_context = new SharedContext(newContext);
+    r->_context = make_shared<SharedContext>(newContext);
     return r;
 }
 
@@ -452,7 +452,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
     _mode(mode),
     _secure(secure),
     _identity(id),
-    _context(new SharedContext(ctx)),
+    _context(make_shared<SharedContext>(ctx)),
     _facet(facet),
     _hashInitialized(false),
     _protocol(protocol),
@@ -1408,7 +1408,7 @@ IceInternal::RoutableReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy
 BatchRequestQueuePtr
 IceInternal::RoutableReference::getBatchRequestQueue() const
 {
-    return new BatchRequestQueue(getInstance(), getMode() == Reference::ModeBatchDatagram);
+    return make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram);
 }
 
 void

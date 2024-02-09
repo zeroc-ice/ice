@@ -7,10 +7,9 @@
 
 #ifdef _WIN32
 
-#include <IceUtil/Shared.h>
-#include <Ice/Handle.h>
-
 #include <IceSSL/SChannel.h>
+
+#include <memory>
 
 namespace IceSSL
 {
@@ -19,8 +18,7 @@ namespace SChannel
 {
 
 class SSLEngine;
-ICESSL_API IceUtil::Shared* upCast(SSLEngine*);
-typedef IceInternal::Handle<SSLEngine> SSLEnginePtr;
+using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 
 }
 

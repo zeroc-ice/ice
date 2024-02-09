@@ -5,10 +5,9 @@
 #ifndef ICE_SHARED_CONTEXT_H
 #define ICE_SHARED_CONTEXT_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <string>
 #include <map>
+#include <memory>
 
 namespace Ice
 {
@@ -18,7 +17,7 @@ typedef ::std::map< ::std::string, ::std::string> Context;
 namespace IceInternal
 {
 
-class SharedContext : public IceUtil::Shared
+class SharedContext
 {
 public:
 
@@ -40,7 +39,9 @@ private:
 
     Ice::Context _val;
 };
-typedef IceUtil::Handle<SharedContext> SharedContextPtr;
+
+using SharedContextPtr = std::shared_ptr<SharedContext>;
+
 }
 
 #endif

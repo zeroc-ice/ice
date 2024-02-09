@@ -39,7 +39,7 @@ namespace
 
 mutex staticMutex;
 
-class RegExp : public IceUtil::Shared
+class RegExp
 {
 public:
 
@@ -51,7 +51,7 @@ private:
 
     regex_t _preg;
 };
-typedef IceUtil::Handle<RegExp> RegExpPtr;
+using RegExpPtr = shared_ptr<RegExp>;
 
 RegExp::RegExp(const string& regexp)
 {
@@ -791,12 +791,6 @@ parseProtocol(const string& p)
 
 }
 
-IceUtil::Shared*
-IceSSL::SecureTransport::upCast(IceSSL::SecureTransport::SSLEngine* p)
-{
-    return p;
-}
-
 IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator) :
     IceSSL::SSLEngine(communicator),
     _certificateAuthorities(0),
@@ -1191,7 +1185,7 @@ IceSSL::SecureTransport::SSLEngine::parseCiphers(const string& ciphers)
 
                 try
                 {
-                    ce.re = new RegExp(token.substr(1, token.size() - 2));
+                    ce.re = make_shared<RegExp>(token.substr(1, token.size() - 2));
                 }
                 catch(const Ice::SyscallException&)
                 {

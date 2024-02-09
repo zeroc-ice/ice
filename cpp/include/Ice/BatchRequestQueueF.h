@@ -5,15 +5,13 @@
 #ifndef ICE_BATCH_REQUEST_QUEUE_F_H
 #define ICE_BATCH_REQUEST_QUEUE_F_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class BatchRequestQueue;
-ICE_API IceUtil::Shared* upCast(BatchRequestQueue*);
-typedef IceInternal::Handle<BatchRequestQueue> BatchRequestQueuePtr;
+using BatchRequestQueuePtr = std::shared_ptr<BatchRequestQueue>;
 
 }
 

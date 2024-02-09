@@ -72,8 +72,8 @@ WSEndpointFactoryPlugin::WSEndpointFactoryPlugin(const CommunicatorPtr& communic
     assert(communicator);
 
     const EndpointFactoryManagerPtr efm = getInstance(communicator)->endpointFactoryManager();
-    efm->add(make_shared<WSEndpointFactory>(new ProtocolInstance(communicator, WSEndpointType, "ws", false), TCPEndpointType));
-    efm->add(make_shared<WSEndpointFactory>(new ProtocolInstance(communicator, WSSEndpointType, "wss", true), SSLEndpointType));
+    efm->add(make_shared<WSEndpointFactory>(make_shared<ProtocolInstance>(communicator, WSEndpointType, "ws", false), TCPEndpointType));
+    efm->add(make_shared<WSEndpointFactory>(make_shared<ProtocolInstance>(communicator, WSSEndpointType, "wss", true), SSLEndpointType));
 }
 
 void

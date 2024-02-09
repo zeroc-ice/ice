@@ -77,7 +77,7 @@ OutgoingAsyncBase::invokeSentAsync()
     //
     try
     {
-        _instance->clientThreadPool()->dispatch(new AsynchronousSent(_cachedConnection, shared_from_this()));
+        _instance->clientThreadPool()->dispatch(make_shared<AsynchronousSent>(_cachedConnection, shared_from_this()));
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
@@ -110,7 +110,7 @@ OutgoingAsyncBase::invokeExceptionAsync()
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->dispatch(new AsynchronousException(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->dispatch(make_shared<AsynchronousException>(_cachedConnection, shared_from_this()));
 }
 
 void
@@ -139,7 +139,7 @@ OutgoingAsyncBase::invokeResponseAsync()
     //
     // CommunicatorDestroyedException is the only exception that can propagate directly from this method.
     //
-    _instance->clientThreadPool()->dispatch(new AsynchronousResponse(_cachedConnection, shared_from_this()));
+    _instance->clientThreadPool()->dispatch(make_shared<AsynchronousResponse>(_cachedConnection, shared_from_this()));
 }
 
 void

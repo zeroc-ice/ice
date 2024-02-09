@@ -58,10 +58,10 @@ private:
     std::string _proxyHost;
     int _proxyPort;
 };
-typedef IceUtil::Handle<Instance> InstancePtr;
+using InstancePtr = std::shared_ptr<Instance>;
 
 class StreamAcceptor;
-typedef IceUtil::Handle<StreamAcceptor> StreamAcceptorPtr;
+using StreamAcceptorPtr = std::shared_ptr<StreamAcceptor>;
 
 class StreamEndpointI;
 using StreamEndpointIPtr = std::shared_ptr<StreamEndpointI>;

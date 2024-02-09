@@ -58,7 +58,7 @@ ControllerI::holdAdapter(Ice::Int to, const Ice::Current&)
 
     if(to >= 0)
     {
-        IceUtil::ThreadPtr thread = new ActivateAdapterThread(_adapter, to);
+        IceUtil::ThreadPtr thread = make_shared<ActivateAdapterThread>(_adapter, to);
         IceUtil::ThreadControl threadControl = thread->start();
         threadControl.detach();
     }

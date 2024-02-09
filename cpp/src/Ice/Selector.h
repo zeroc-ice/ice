@@ -22,6 +22,8 @@
 #   include <sys/poll.h>
 #endif
 
+#include <condition_variable>
+
 #if defined(ICE_USE_CFSTREAM)
 #   include <IceUtil/Thread.h>
 #   include <set>
@@ -169,7 +171,7 @@ private:
 
 class Selector;
 
-class SelectorReadyCallback : public IceUtil::Shared
+class SelectorReadyCallback
 {
 public:
 
@@ -199,9 +201,9 @@ private:
 
     int _connectError;
 };
-typedef IceUtil::Handle<StreamNativeInfo> StreamNativeInfoPtr;
+using StreamNativeInfoPtr = std::shared_ptr<StreamNativeInfo>;
 
-class EventHandlerWrapper : public SelectorReadyCallback
+class EventHandlerWrapper final : public SelectorReadyCallback
 {
 public:
 
@@ -210,7 +212,7 @@ public:
 
     void updateRunLoop();
 
-    virtual void readyCallback(SocketOperation, int = 0);
+    void readyCallback(SocketOperation, int = 0) final;
     void ready(SocketOperation, int);
 
     SocketOperation readyOp();
@@ -236,7 +238,7 @@ private:
     IceInternal::UniqueRef<CFSocketRef> _socket;
     IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
 };
-typedef IceUtil::Handle<EventHandlerWrapper> EventHandlerWrapperPtr;
+using EventHandlerWrapperPtr = std::shared_ptr<EventHandlerWrapper>;
 
 class Selector
 {
@@ -282,7 +284,7 @@ private:
     std::vector<std::pair<EventHandlerWrapperPtr, SocketOperation> > _selectedHandlers;
     std::map<EventHandler*, EventHandlerWrapperPtr> _wrappers;
     std::recursive_mutex _mutex;
-    std::condition_variable_any;
+    std::condition_variable_any _conditionVariable;
 };
 
 #endif

@@ -5,7 +5,6 @@
 #ifndef ICE_BATCH_REQUEST_INTERCEPTOR_H
 #define ICE_BATCH_REQUEST_INTERCEPTOR_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/ProxyF.h>
 
 namespace Ice

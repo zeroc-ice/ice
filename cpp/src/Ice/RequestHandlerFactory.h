@@ -5,8 +5,6 @@
 #ifndef ICE_REQUEST_HANDLER_FACTORY_H
 #define ICE_REQUEST_HANDLER_FACTORY_H
 
-#include <IceUtil/Shared.h>
-
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ConnectRequestHandlerF.h>
 #include <Ice/ProxyF.h>
@@ -17,7 +15,7 @@
 namespace IceInternal
 {
 
-class RequestHandlerFactory : public IceUtil::Shared
+class RequestHandlerFactory
 {
 public:
 

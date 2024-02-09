@@ -5,7 +5,6 @@
 #ifndef ICE_UTIL_TIMER_H
 #define ICE_UTIL_TIMER_H
 
-#include <IceUtil/Shared.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
@@ -18,7 +17,7 @@ namespace IceUtil
 {
 
 class Timer;
-typedef IceUtil::Handle<Timer> TimerPtr;
+using TimerPtr = std::shared_ptr<Timer>;
 
 //
 // Extend the TimerTask class and override the runTimerTask() method to execute
@@ -39,19 +38,19 @@ using TimerTaskPtr = std::shared_ptr<TimerTask>;
 // repeated execution. Tasks are executed by the dedicated timer thread
 // sequentially.
 //
-class ICE_API Timer : public virtual IceUtil::Shared, private IceUtil::Thread
+class ICE_API Timer : public Thread
 {
 public:
 
     //
     // Construct a timer and starts its execution thread.
     //
-    Timer();
+    static TimerPtr create();
 
     //
     // Construct a timer and starts its execution thread with the priority.
     //
-    Timer(int priority);
+    static TimerPtr create(int priority);
 
     //
     // Destroy the timer and detach its execution thread if the calling thread
@@ -74,11 +73,16 @@ public:
     // Cancel a task. Returns true if the task has not yet run or if
     // it's a task scheduled for repeated execution. Returns false if
     // the task has already run, was already cancelled or was never
-    // schedulded.
+    // scheduled.
     //
     bool cancel(const TimerTaskPtr&);
 
 protected:
+
+    //
+    // Construct a timer and starts its execution thread.
+    //
+    Timer();
 
     virtual void run();
     virtual void runTimerTask(const TimerTaskPtr&);
@@ -108,8 +112,8 @@ protected:
     };
     std::map<TimerTaskPtr, IceUtil::Time, TimerTaskCompare> _tasks;
     IceUtil::Time _wakeUpTime;
+    IceUtil::ThreadPtr _thread;
 };
-typedef IceUtil::Handle<Timer> TimerPtr;
 
 inline
 Timer::Token::Token(const IceUtil::Time& st, const IceUtil::Time& d, const TimerTaskPtr& t) :

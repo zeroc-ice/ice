@@ -5,16 +5,13 @@
 #ifndef ICE_DEFAULTS_AND_OVERRIDES_F_H
 #define ICE_DEFAULTS_AND_OVERRIDES_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class DefaultsAndOverrides;
-IceUtil::Shared* upCast(DefaultsAndOverrides*);
-typedef Handle<DefaultsAndOverrides> DefaultsAndOverridesPtr;
+using DefaultsAndOverridesPtr = std::shared_ptr<DefaultsAndOverrides>;
 
 }
 

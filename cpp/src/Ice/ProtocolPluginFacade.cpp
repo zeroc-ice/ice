@@ -13,8 +13,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(ProtocolPluginFacade* p) { return p; }
-
 IceInternal::ProtocolPluginFacade::~ProtocolPluginFacade()
 {
     // Out of line to avoid weak vtable
@@ -23,7 +21,7 @@ IceInternal::ProtocolPluginFacade::~ProtocolPluginFacade()
 ProtocolPluginFacadePtr
 IceInternal::getProtocolPluginFacade(const CommunicatorPtr& communicator)
 {
-    return new ProtocolPluginFacade(communicator);
+    return make_shared<ProtocolPluginFacade>(communicator);
 }
 
 CommunicatorPtr

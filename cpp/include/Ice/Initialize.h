@@ -217,7 +217,7 @@ inline PropertiesPtr createProperties(int& argc, wchar_t* argv[], const Properti
  * to receive notifications when Ice threads are started and stopped.
  * \headerfile Ice/Ice.h
  */
-class ICE_API ThreadNotification : public IceUtil::Shared
+class ICE_API ThreadNotification
 {
 public:
 
@@ -232,7 +232,7 @@ public:
     virtual void stop() = 0;
 };
 
-typedef IceUtil::Handle<ThreadNotification> ThreadNotificationPtr;
+using ThreadNotificationPtr = std::shared_ptr<ThreadNotification>;
 
 /**
  * A special plug-in that installs a thread hook during a communicator's initialization.

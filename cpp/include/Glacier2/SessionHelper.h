@@ -5,8 +5,6 @@
 #ifndef GLACIER2_SESSION_HELPER_H
 #define GLACIER2_SESSION_HELPER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <IceUtil/Thread.h>
 
 #include <Ice/Initialize.h>

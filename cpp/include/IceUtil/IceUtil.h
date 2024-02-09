@@ -19,12 +19,10 @@
 #   include <IceUtil/CtrlCHandler.h>
 #endif
 #include <IceUtil/Exception.h>
-#include <IceUtil/Handle.h>
 #include <IceUtil/Lock.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/MutexProtocol.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/Shared.h>
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/ThreadException.h>

@@ -15,22 +15,26 @@ TimerTask::~TimerTask()
     // Out of line to avoid weak vtable
 }
 
+TimerPtr
+Timer::create()
+{
+    auto timer = shared_ptr<Timer>(new Timer());
+    timer->start();
+    return timer;
+}
+
+TimerPtr
+Timer::create(int priority)
+{
+    auto timer = shared_ptr<Timer>(new Timer());
+    timer->start(0, priority);
+    return timer;
+}
+
 Timer::Timer() :
     Thread("IceUtil timer thread"),
     _destroyed(false)
 {
-    __setNoDelete(true);
-    start();
-    __setNoDelete(false);
-}
-
-Timer::Timer(int priority) :
-    Thread("IceUtil timer thread"),
-    _destroyed(false)
-{
-    __setNoDelete(true);
-    start(0, priority);
-    __setNoDelete(false);
 }
 
 void
@@ -150,7 +154,7 @@ Timer::run()
             {
                 //
                 // If the task we just ran is a repeated task, schedule it
-                // again for executation if it wasn't canceled.
+                // again for execution if it wasn't canceled.
                 //
                 if(token.delay != IceUtil::Time())
                 {
@@ -246,7 +250,7 @@ Timer::run()
             if(token.delay == IceUtil::Time())
             {
                 //
-                // If thisthe task is not a repeated task, clear the task reference now rather than
+                // If the task is not a repeated task, clear the task reference now rather than
                 // in the synchronization block above. Clearing the task reference might end up
                 // calling user code which could trigger a deadlock. See also issue #352.
                 //

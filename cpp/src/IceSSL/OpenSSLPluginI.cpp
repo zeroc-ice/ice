@@ -34,7 +34,7 @@ public:
 // Plugin implementation.
 //
 PluginI::PluginI(const Ice::CommunicatorPtr& com) :
-    IceSSL::PluginI(com, new IceSSL::OpenSSL::SSLEngine(com))
+    IceSSL::PluginI(com, make_shared<IceSSL::OpenSSL::SSLEngine>(com))
 {
 }
 

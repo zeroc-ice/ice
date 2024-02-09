@@ -662,5 +662,5 @@ IceBT::EndpointFactoryI::destroy()
 IceInternal::EndpointFactoryPtr
 IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
 {
-    return make_shared<EndpointFactoryI>(new Instance(_instance->engine(), instance->type(), instance->protocol()));
+    return make_shared<EndpointFactoryI>(make_shared<Instance>(_instance->engine(), instance->type(), instance->protocol()));
 }
