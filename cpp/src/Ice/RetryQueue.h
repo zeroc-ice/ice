@@ -30,8 +30,6 @@ public:
 
     void destroy();
 
-    bool operator<(const RetryTask&) const;
-
 private:
 
     const InstancePtr _instance;

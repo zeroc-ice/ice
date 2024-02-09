@@ -115,8 +115,6 @@ private:
     std::string _path;
 };
 
-using FileLockPtr = std::shared_ptr<FileLock>;
-
 //
 // Use streamFilename to construct the filename given to std stream classes
 // like ifstream and ofstream.

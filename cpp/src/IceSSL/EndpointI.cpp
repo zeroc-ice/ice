@@ -332,14 +332,14 @@ IceSSL::EndpointI::checkOption(const string& /*option*/, const string& /*argumen
 }
 
 IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, Short type) :
-    IceInternal::EndpointFactoryWithUnderlying(instance, type), _sslInstance(instance.get())
+    IceInternal::EndpointFactoryWithUnderlying(instance, type), _sslInstance(instance)
 {
 }
 
 void
 IceSSL::EndpointFactoryI::destroy()
 {
-    _sslInstance = 0;
+    _sslInstance = nullptr;
 }
 
 IceInternal::EndpointFactoryPtr

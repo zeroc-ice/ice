@@ -73,12 +73,6 @@ IceInternal::RetryTask::destroy()
     }
 }
 
-bool
-IceInternal::RetryTask::operator<(const RetryTask& rhs) const
-{
-    return this < &rhs;
-}
-
 IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(instance)
 {
 }

@@ -25,7 +25,7 @@ IceSSL::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator) :
     _initialized(false),
     _communicator(communicator),
     _logger(communicator->getLogger()),
-    _trustManager(new TrustManager(communicator)),
+    _trustManager(make_shared<TrustManager>(communicator)),
     _revocationCheckCacheOnly(false),
     _revocationCheck(0)
 {
