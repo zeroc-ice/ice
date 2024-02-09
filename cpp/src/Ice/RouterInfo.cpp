@@ -144,22 +144,9 @@ IceInternal::RouterInfo::getClientEndpoints()
 }
 
 void
-IceInternal::RouterInfo::getClientProxyResponse(const Ice::ObjectPrxPtr& proxy,
-                                                const optional<bool>& hasRoutingTable,
-                                                const GetClientEndpointsCallbackPtr& callback)
-{
-    callback->setEndpoints(setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true));
-}
-
-void
-IceInternal::RouterInfo::getClientProxyException(std::exception_ptr ex,
-                                                 const GetClientEndpointsCallbackPtr& callback)
-{
-    callback->setException(ex);
-}
-
-void
-IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr& callback)
+IceInternal::RouterInfo::getClientEndpointsAsync(
+    std::function<void(vector<EndpointIPtr>)> response,
+    std::function<void(std::exception_ptr)> ex)
 {
     vector<EndpointIPtr> clientEndpoints;
     {
@@ -167,22 +154,19 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
         clientEndpoints = _clientEndpoints;
     }
 
-    if(!clientEndpoints.empty())
+    if (!clientEndpoints.empty())
     {
-        callback->setEndpoints(clientEndpoints);
+        response(std::move(clientEndpoints));
         return;
     }
 
     RouterInfoPtr self = shared_from_this();
     _router->getClientProxyAsync(
-        [self, callback](const Ice::ObjectPrxPtr& proxy, optional<bool> hasRoutingTable)
+        [self, response](const Ice::ObjectPrxPtr& proxy, optional<bool> hasRoutingTable)
         {
-            self->getClientProxyResponse(proxy, hasRoutingTable, callback);
+            response(self->setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true));
         },
-        [self, callback](exception_ptr e)
-        {
-            self->getClientProxyException(e, callback);
-        });
+        ex);
 }
 
 vector<EndpointIPtr>
