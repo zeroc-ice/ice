@@ -44,8 +44,6 @@ public:
     virtual bool systemException(Ice::Int, std::exception_ptr, bool);
     virtual void invokeException(Ice::Int, std::exception_ptr, int, bool);
 
-    const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
-
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
 

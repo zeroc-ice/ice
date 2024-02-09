@@ -134,14 +134,20 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     }
 
     //
-    // If this proxy is for a non-local object, and we are using a router, then
-    // add this proxy to the router info object.
+    // If we are using a router, add this proxy to the router info object.
     //
     RouterInfoPtr ri = _reference->getRouterInfo();
-    Ice::ObjectPrxPtr proxy = _reference->getInstance()->proxyFactory()->referenceToProxy(_reference);
-    if(ri && !ri->addProxy(proxy, shared_from_this()))
+
+    if (ri)
     {
-        return; // The request handler will be initialized once addProxy returns.
+        auto self = shared_from_this();
+        if (!ri->addProxyAsync(
+                _reference->getInstance()->proxyFactory()->referenceToProxy(_reference),
+                [self] { self->addedProxy(); },
+                [self](exception_ptr ex) { self->setException(ex); }))
+        {
+            return; // The request handler will be initialized once addProxyAsync completes.
+        }
     }
 
     //
