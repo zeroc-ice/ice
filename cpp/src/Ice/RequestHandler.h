@@ -5,8 +5,6 @@
 #ifndef ICE_REQUEST_HANDLER_H
 #define ICE_REQUEST_HANDLER_H
 
-#include <IceUtil/Shared.h>
-
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/OutgoingAsyncF.h>

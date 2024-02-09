@@ -5,16 +5,13 @@
 #ifndef ICE_LOCAL_OBJECT_F_H
 #define ICE_LOCAL_OBJECT_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace Ice
 {
 
 class LocalObject;
-ICE_API IceUtil::Shared* upCast(::Ice::LocalObject*);
-typedef IceInternal::Handle< LocalObject > LocalObjectPtr;
+using LocalObjectPtr = std::shared_ptr<LocalObject>;
 
 }
 

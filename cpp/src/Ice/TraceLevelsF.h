@@ -5,16 +5,13 @@
 #ifndef ICE_TRACE_LEVELS_F_H
 #define ICE_TRACE_LEVELS_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class TraceLevels;
-IceUtil::Shared* upCast(TraceLevels*);
-typedef Handle<TraceLevels> TraceLevelsPtr;
+using TraceLevelsPtr = std::shared_ptr<TraceLevels>;
 
 }
 

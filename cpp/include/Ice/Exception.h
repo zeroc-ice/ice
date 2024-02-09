@@ -8,7 +8,6 @@
 #include <IceUtil/Exception.h>
 #include <Ice/Config.h>
 #include <Ice/Format.h>
-#include <Ice/Handle.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/SlicedDataF.h>

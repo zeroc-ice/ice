@@ -7,9 +7,8 @@
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Exception.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 
+#include <memory>
 #include <string>
 
 namespace IceUtil

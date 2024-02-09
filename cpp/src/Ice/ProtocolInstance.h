@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ICE_API ProtocolInstance : public IceUtil::Shared
+class ICE_API ProtocolInstance
 {
 public:
 

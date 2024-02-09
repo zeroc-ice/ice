@@ -169,7 +169,7 @@ private:
 
 class Selector;
 
-class SelectorReadyCallback : public IceUtil::Shared
+class SelectorReadyCallback
 {
 public:
 
@@ -199,9 +199,9 @@ private:
 
     int _connectError;
 };
-typedef IceUtil::Handle<StreamNativeInfo> StreamNativeInfoPtr;
+using StreamNativeInfoPtr = std::shared_ptr<StreamNativeInfo>;
 
-class EventHandlerWrapper : public SelectorReadyCallback
+class EventHandlerWrapper final : public SelectorReadyCallback
 {
 public:
 
@@ -210,7 +210,7 @@ public:
 
     void updateRunLoop();
 
-    virtual void readyCallback(SocketOperation, int = 0);
+    void readyCallback(SocketOperation, int = 0) final;
     void ready(SocketOperation, int);
 
     SocketOperation readyOp();
@@ -236,7 +236,7 @@ private:
     IceInternal::UniqueRef<CFSocketRef> _socket;
     IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
 };
-typedef IceUtil::Handle<EventHandlerWrapper> EventHandlerWrapperPtr;
+using EventHandlerWrapperPtr = std::shared_ptr<EventHandlerWrapper>;
 
 class Selector
 {

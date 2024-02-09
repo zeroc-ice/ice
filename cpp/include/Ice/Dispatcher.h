@@ -12,8 +12,6 @@
 //
 
 #include <Ice/Config.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <Ice/ConnectionF.h>
 
 namespace Ice

@@ -6,7 +6,6 @@
 #define ICE_IP_ENDPOINT_I_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Shared.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <Ice/IPEndpointIF.h>

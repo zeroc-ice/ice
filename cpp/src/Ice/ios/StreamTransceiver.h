@@ -27,7 +27,7 @@ namespace IceObjC
 {
 
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
+using InstancePtr = std::shared_ptr<Instance>;
 
 class StreamTransceiver : public IceInternal::Transceiver, public IceInternal::StreamNativeInfo
 {

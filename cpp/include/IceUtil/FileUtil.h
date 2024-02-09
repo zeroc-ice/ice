@@ -6,8 +6,6 @@
 #define ICE_FILE_UTIL_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -89,7 +87,7 @@ ICE_API int close(int);
 // This class is used to implement process file locking. This class
 // is not intended to do file locking within the same process.
 //
-class ICE_API FileLock : public IceUtil::Shared, public IceUtil::noncopyable
+class ICE_API FileLock : public IceUtil::noncopyable
 {
 public:
     //
@@ -117,7 +115,7 @@ private:
     std::string _path;
 };
 
-typedef IceUtil::Handle<FileLock> FileLockPtr;
+using FileLockPtr = std::shared_ptr<FileLock>;
 
 //
 // Use streamFilename to construct the filename given to std stream classes

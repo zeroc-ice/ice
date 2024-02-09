@@ -13,7 +13,7 @@ using namespace Test;
 namespace
 {
 
-class CallbackBase : public IceUtil::Shared, protected IceUtil::Monitor<IceUtil::Mutex>
+class CallbackBase : protected IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -40,35 +40,35 @@ protected:
 
     bool _wait;
 };
-typedef IceUtil::Handle<CallbackBase> CallbackBasePtr;
+using CallbackBasePtr = std::shared_ptr<CallbackBase>;
 
-class Callback : public CallbackBase
+class Callback final : public CallbackBase
 {
 public:
 
-    virtual void response()
+    void response() final
     {
         Lock sync(*this);
         _wait = false;
         notify();
     }
 
-    virtual void exception(std::exception_ptr)
+    void exception(std::exception_ptr) final
     {
         test(false);
     }
 };
 
-class UserExCallback : public CallbackBase
+class UserExCallback final : public CallbackBase
 {
 public:
 
-    virtual void response()
+    void response() final
     {
         test(false);
     }
 
-    virtual void exception(std::exception_ptr ex)
+    void exception(std::exception_ptr ex) final
     {
         try
         {
@@ -87,16 +87,16 @@ public:
     }
 };
 
-class RequestFailedExceptionCallback : public CallbackBase
+class RequestFailedExceptionCallback final : public CallbackBase
 {
 public:
 
-    virtual void response()
+    void response() final
     {
         test(false);
     }
 
-    virtual void exception(std::exception_ptr ex)
+    void exception(std::exception_ptr ex) final
     {
         try
         {
@@ -115,16 +115,16 @@ public:
     }
 };
 
-class LocalExceptionCallback : public CallbackBase
+class LocalExceptionCallback final : public CallbackBase
 {
 public:
 
-    virtual void response()
+    void response() final
     {
         test(false);
     }
 
-    virtual void exception(std::exception_ptr ex)
+    void exception(std::exception_ptr ex) final
     {
         try
         {
@@ -143,16 +143,16 @@ public:
     }
 };
 
-class UnknownExceptionCallback : public CallbackBase
+class UnknownExceptionCallback final : public CallbackBase
 {
 public:
 
-    virtual void response()
+    void response() final
     {
         test(false);
     }
 
-    virtual void exception(std::exception_ptr ex)
+    void exception(std::exception_ptr ex) final
     {
         try
         {
@@ -171,16 +171,16 @@ public:
     }
 };
 
-class ConnectionLostExceptionCallback : public CallbackBase
+class ConnectionLostExceptionCallback final : public CallbackBase
 {
 public:
 
-    virtual void response()
+    void response() final
     {
         test(false);
     }
 
-    virtual void exception(std::exception_ptr ex)
+    void exception(std::exception_ptr ex) final
     {
         try
         {
@@ -1110,7 +1110,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     updateProps(clientProps, serverProps, update.get(), props, "Invocation");
     test(serverMetrics->getMetricsView("View", timestamp)["Invocation"].empty());
 
-    CallbackBasePtr cb = new Callback();
+    CallbackBasePtr cb = make_shared<Callback>();
     metrics->op();
     metrics->opAsync().get();
 
@@ -1126,7 +1126,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     cb->waitForResponse();
 
     // User exception
-    cb = new UserExCallback();
+    cb = make_shared<UserExCallback>();
     try
     {
         metrics->opWithUserException();
@@ -1161,7 +1161,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     cb->waitForResponse();
 
     // Request failed exception
-    cb = new RequestFailedExceptionCallback();
+    cb = make_shared<RequestFailedExceptionCallback>();
     try
     {
         metrics->opWithRequestFailedException();
@@ -1192,7 +1192,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     cb->waitForResponse();
 
     // Local exception
-    cb = new LocalExceptionCallback();
+    cb = make_shared<LocalExceptionCallback>();
     try
     {
         metrics->opWithLocalException();
@@ -1223,7 +1223,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     cb->waitForResponse();
 
     // Unknown exception
-    cb = new UnknownExceptionCallback();
+    cb = make_shared<UnknownExceptionCallback>();
     try
     {
         metrics->opWithUnknownException();
@@ -1256,7 +1256,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     // Fail
     if(!collocated)
     {
-        cb = new ConnectionLostExceptionCallback();
+        cb = make_shared<ConnectionLostExceptionCallback>();
         try
         {
             metrics->fail();
@@ -1370,7 +1370,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
     props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
     updateProps(clientProps, serverProps, update.get(), props, "Invocation");
-    cb = new Callback();
+    cb = make_shared<Callback>();
     MetricsPrxPtr metricsOneway = metrics->ice_oneway();
     metricsOneway->op();
     metricsOneway->opAsync().get();

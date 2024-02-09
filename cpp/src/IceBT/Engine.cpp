@@ -14,8 +14,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceUtil::Shared* IceBT::upCast(IceBT::Engine* p) { return p; }
-
 namespace IceBT
 {
 

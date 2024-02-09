@@ -23,7 +23,7 @@ namespace
 
 //
 // The following arrays are predefined Diffie Hellman group parameters.
-// It is highly recommeded that applications provide their own Diffie
+// It is highly recommended that applications provide their own Diffie
 // Hellman parameters.
 //
 

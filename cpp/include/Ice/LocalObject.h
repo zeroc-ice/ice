@@ -11,7 +11,7 @@
 // with the C++11 mapping
 //
 
-#include <IceUtil/Shared.h>
+#include <Ice/Config.h>
 #include <Ice/LocalObjectF.h>
 
 namespace Ice
@@ -21,7 +21,7 @@ namespace Ice
  * Base class for local Slice classes and interfaces.
  * \headerfile Ice/Ice.h
  */
-class ICE_API LocalObject : public virtual ::IceUtil::Shared
+class ICE_API LocalObject
 {
 public:
 

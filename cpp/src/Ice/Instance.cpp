@@ -269,8 +269,6 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
     }
 }
 
-IceUtil::Shared* IceInternal::upCast(Instance* p) { return p; }
-
 IceInternal::ObserverUpdaterI::ObserverUpdaterI(const InstancePtr& instance) : _instance(instance)
 {
 }
@@ -457,7 +455,7 @@ IceInternal::Instance::serverThreadPool()
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
         int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
-        _serverThreadPool = ThreadPool::create(this, "Ice.ThreadPool.Server", timeout);
+        _serverThreadPool = ThreadPool::create(shared_from_this(), "Ice.ThreadPool.Server", timeout);
     }
 
     return _serverThreadPool;
@@ -925,7 +923,15 @@ bool logStdErrConvert = true;
 
 }
 
-IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
+InstancePtr
+IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
+{
+    auto instance = shared_ptr<Instance>(new Instance(initData));
+    instance->initialize(communicator);
+    return instance;
+}
+
+IceInternal::Instance::Instance(const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
     _messageSizeMax(0),
@@ -933,14 +939,18 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _classGraphDepthMax(0),
     _toStringMode(ToStringMode::Unicode),
     _acceptClassCycles(false),
-    _implicitContext(0),
+    _implicitContext(nullptr),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
     _adminEnabled(false)
 {
+}
+
+void
+IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
+{
     try
     {
-        __setNoDelete(true);
         {
             lock_guard lock(staticMutex);
             instanceList->push_back(this);
@@ -1121,10 +1131,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             }
         }
 
-        const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_initData.properties);
+        const_cast<TraceLevelsPtr&>(_traceLevels) = make_shared<TraceLevels>(_initData.properties);
 
         const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) =
-            new DefaultsAndOverrides(_initData.properties, _initData.logger);
+            make_shared<DefaultsAndOverrides>(_initData.properties, _initData.logger);
 
         const ACMConfig defaultClientACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(false));
         const ACMConfig defaultServerACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(true));
@@ -1215,11 +1225,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _locatorManager = make_shared<LocatorManager>(_initData.properties);
 
-        _referenceFactory = make_shared<ReferenceFactory>(this, communicator);
+        _referenceFactory = make_shared<ReferenceFactory>(shared_from_this(), communicator);
 
-        _requestHandlerFactory = new RequestHandlerFactory(this);
+        _requestHandlerFactory = make_shared<RequestHandlerFactory>(shared_from_this());
 
-        _proxyFactory = make_shared<ProxyFactory>(this);
+        _proxyFactory = make_shared<ProxyFactory>(shared_from_this());
 
         const bool isIPv6Supported = IceInternal::isIPv6Supported();
         const bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
@@ -1244,9 +1254,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _networkProxy = IceInternal::createNetworkProxy(_initData.properties, _protocolSupport);
 
-        _endpointFactoryManager = new EndpointFactoryManager(this);
+        _endpointFactoryManager = make_shared<EndpointFactoryManager>(shared_from_this());
 
-        _dynamicLibraryList = new DynamicLibraryList;
+        _dynamicLibraryList = make_shared<DynamicLibraryList>();
 
         _pluginManager = make_shared<PluginManagerI>(communicator, _dynamicLibraryList);
 
@@ -1255,13 +1265,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _initData.valueFactoryManager = make_shared<ValueFactoryManagerI>();
         }
 
-        _outgoingConnectionFactory = make_shared<OutgoingConnectionFactory>(communicator, this);
+        _outgoingConnectionFactory = make_shared<OutgoingConnectionFactory>(communicator, shared_from_this());
 
-        _objectAdapterFactory = make_shared<ObjectAdapterFactory>(this, communicator);
+        _objectAdapterFactory = make_shared<ObjectAdapterFactory>(shared_from_this(), communicator);
 
-        _retryQueue = new RetryQueue(this);
+        _retryQueue = make_shared<RetryQueue>(shared_from_this());
 
-        __setNoDelete(false);
     }
     catch(...)
     {
@@ -1270,7 +1279,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             instanceList->remove(this);
         }
         destroy();
-        __setNoDelete(false);
         throw;
     }
 }
@@ -1391,7 +1399,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         PropertiesAdminIPtr propsAdmin;
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            propsAdmin = make_shared<PropertiesAdminI>(this);
+            propsAdmin = make_shared<PropertiesAdminI>(shared_from_this());
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
         }
 
@@ -1422,7 +1430,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if(_initData.observer)
     {
-        _initData.observer->setObserverUpdater(make_shared<ObserverUpdaterI>(this));
+        _initData.observer->setObserverUpdater(make_shared<ObserverUpdaterI>(shared_from_this()));
     }
 
     //
@@ -1450,7 +1458,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     try
     {
-        _endpointHostResolver = make_shared<EndpointHostResolver>(this);
+        _endpointHostResolver = make_shared<EndpointHostResolver>(shared_from_this());
         bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
         int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
         if(hasPriority)
@@ -1469,7 +1477,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         throw;
     }
 
-    _clientThreadPool = ThreadPool::create(this, "Ice.ThreadPool.Client", 0);
+    _clientThreadPool = ThreadPool::create(shared_from_this(), "Ice.ThreadPool.Client", 0);
 
     //
     // The default router/locator may have been set during the loading of plugins.

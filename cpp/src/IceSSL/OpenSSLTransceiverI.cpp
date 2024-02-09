@@ -1002,7 +1002,7 @@ OpenSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
                                     const string& hostOrAdapterName,
                                     bool incoming) :
     _instance(instance),
-    _engine(OpenSSL::SSLEnginePtr::dynamicCast(instance->engine())),
+    _engine(dynamic_pointer_cast<OpenSSL::SSLEngine>(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),

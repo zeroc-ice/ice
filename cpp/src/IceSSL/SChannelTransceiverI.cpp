@@ -1141,7 +1141,7 @@ SChannel::TransceiverI::TransceiverI(const InstancePtr& instance,
                                    const string& hostOrAdapterName,
                                    bool incoming) :
     _instance(instance),
-    _engine(SChannel::SSLEnginePtr::dynamicCast(instance->engine())),
+    _engine(dynamic_pointer_cast<SChannel::SSLEngine>(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),

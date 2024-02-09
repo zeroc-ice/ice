@@ -5,8 +5,6 @@
 #ifndef ICE_BATCH_REQUEST_QUEUE_H
 #define ICE_BATCH_REQUEST_QUEUE_H
 
-#include <IceUtil/Shared.h>
-
 #include <Ice/BatchRequestInterceptor.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/InstanceF.h>
@@ -18,7 +16,7 @@
 namespace IceInternal
 {
 
-class BatchRequestQueue : public IceUtil::Shared
+class BatchRequestQueue
 {
 public:
 

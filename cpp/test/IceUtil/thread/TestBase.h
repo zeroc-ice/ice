@@ -5,8 +5,8 @@
 #ifndef TEST_BASE_H
 #define TEST_BASE_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
+#include <memory>
+#include <string>
 
 class TestFailed
 {

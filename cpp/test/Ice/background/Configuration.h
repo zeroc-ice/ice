@@ -21,9 +21,9 @@
 #endif
 
 class Configuration;
-typedef IceUtil::Handle<Configuration> ConfigurationPtr;
+using ConfigurationPtr = std::shared_ptr<Configuration>;
 
-class TEST_API Configuration : public IceUtil::Shared, public IceUtil::Mutex
+class TEST_API Configuration : public IceUtil::Mutex
 {
 public:
 

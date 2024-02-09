@@ -5,7 +5,7 @@
 #ifndef ICE_CONNECTOR_H
 #define ICE_CONNECTOR_H
 
-#include <IceUtil/Shared.h>
+#include <Ice/Config.h>
 #include <Ice/ConnectorF.h>
 #include <Ice/TransceiverF.h>
 

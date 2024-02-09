@@ -6,7 +6,6 @@
 #define ICE_OBJECT_H
 
 #include <IceUtil/Mutex.h>
-#include <IceUtil/Shared.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/IncomingAsyncF.h>

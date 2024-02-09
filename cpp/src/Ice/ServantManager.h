@@ -5,7 +5,6 @@
 #ifndef ICE_SERVANT_MANAGER_H
 #define ICE_SERVANT_MANAGER_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Identity.h>

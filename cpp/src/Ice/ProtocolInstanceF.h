@@ -5,16 +5,13 @@
 #ifndef ICE_PROTOCOL_INSTANCE_F_H
 #define ICE_PROTOCOL_INSTANCE_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class ProtocolInstance;
-ICE_API IceUtil::Shared* upCast(ProtocolInstance*);
-typedef IceInternal::Handle<ProtocolInstance> ProtocolInstancePtr;
+using ProtocolInstancePtr = std::shared_ptr<ProtocolInstance>;
 
 }
 

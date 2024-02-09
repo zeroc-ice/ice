@@ -5,7 +5,6 @@
 #ifndef ICE_PROXY_H
 #define ICE_PROXY_H
 
-#include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ConnectionIF.h>
@@ -53,7 +52,6 @@ private:
 
     int _batchRequestNum;
 };
-typedef IceUtil::Handle<ProxyFlushBatchAsync> ProxyFlushBatchAsyncPtr;
 
 //
 // Class for handling the proxy's begin_ice_getConnection request.
@@ -71,7 +69,6 @@ public:
 
     void invoke(const std::string&);
 };
-typedef IceUtil::Handle<ProxyGetConnection> ProxyGetConnectionPtr;
 
 }
 

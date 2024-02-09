@@ -13,8 +13,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(RetryQueue* p) { return p; }
-
 IceInternal::RetryTask::RetryTask(const InstancePtr& instance,
                                   const RetryQueuePtr& queue,
                                   const ProxyOutgoingAsyncBasePtr& outAsync) :
@@ -93,7 +91,7 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    RetryTaskPtr task = make_shared<RetryTask>(_instance, this, out);
+    RetryTaskPtr task = make_shared<RetryTask>(_instance, shared_from_this(), out);
     out->cancelable(task); // This will throw if the request is canceled.
     try
     {

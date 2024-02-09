@@ -49,7 +49,7 @@ private:
     bool _called;
 };
 
-class CallbackSuccess : public IceUtil::Shared, public CallbackBase
+class CallbackSuccess : public CallbackBase
 {
 public:
 
@@ -63,9 +63,9 @@ public:
         test(false);
     }
 };
-typedef IceUtil::Handle<CallbackSuccess> CallbackSuccessPtr;
+using CallbackSuccessPtr = shared_ptr<CallbackSuccess>;
 
-class CallbackFail : public IceUtil::Shared, public CallbackBase
+class CallbackFail : public CallbackBase
 {
 public:
 
@@ -81,7 +81,7 @@ public:
         called();
     }
 };
-typedef IceUtil::Handle<CallbackFail> CallbackFailPtr;
+using CallbackFailPtr = shared_ptr<CallbackFail>;
 
 RetryPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& communicator2, const string& ref)
@@ -134,8 +134,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     testRetryCount(0);
     cout << "ok" << endl;
 
-    CallbackSuccessPtr cb1 = new CallbackSuccess();
-    CallbackFailPtr cb2 = new CallbackFail();
+    CallbackSuccessPtr cb1 = make_shared<CallbackSuccess>();
+    CallbackFailPtr cb2 = make_shared<CallbackFail>();
 
     cout << "calling regular AMI operation with first proxy... " << flush;
     retry1->opAsync(false,

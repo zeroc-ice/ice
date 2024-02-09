@@ -53,7 +53,7 @@ using ConnectCallbackPtr = std::shared_ptr<ConnectCallback>;
 //
 // Engine encapsulates all Bluetooth activities.
 //
-class Engine : public IceUtil::Shared
+class Engine
 {
 public:
 

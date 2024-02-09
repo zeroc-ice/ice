@@ -16,8 +16,6 @@
 using namespace std;
 using namespace IceSSL;
 
-IceUtil::Shared* IceSSL::upCast(IceSSL::TrustManager* p) { return p; }
-
 TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator)
 {

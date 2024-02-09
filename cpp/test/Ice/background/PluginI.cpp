@@ -48,7 +48,7 @@ createTestTransport(const Ice::CommunicatorPtr& communicator, const string&, con
 
 TestPluginI::TestPluginI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
-    _configuration(new Configuration())
+    _configuration(make_shared<Configuration>())
 {
 }
 

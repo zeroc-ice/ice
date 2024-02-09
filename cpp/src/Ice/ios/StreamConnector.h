@@ -18,24 +18,24 @@ namespace IceObjC
 class StreamEndpointI;
 
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
+using InstancePtr = std::shared_ptr<Instance>;
 
-class StreamConnector : public IceInternal::Connector
+class StreamConnector final : public IceInternal::Connector
 {
 public:
 
-    virtual IceInternal::TransceiverPtr connect();
+    StreamConnector(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&);
+    ~StreamConnector();
+    IceInternal::TransceiverPtr connect() final;
 
-    virtual Ice::Short type() const;
-    virtual std::string toString() const;
+    Ice::Short type() const final;
+    std::string toString() const final;
 
-    virtual bool operator==(const IceInternal::Connector&) const;
-    virtual bool operator<(const IceInternal::Connector&) const;
+    bool operator==(const IceInternal::Connector&) const final;
+    bool operator<(const IceInternal::Connector&) const final;
 
 private:
 
-    StreamConnector(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&);
-    virtual ~StreamConnector();
     friend class StreamEndpointI;
 
     const InstancePtr _instance;

@@ -14,7 +14,7 @@
 namespace IceSSL
 {
 
-class TrustManager : public IceUtil::Shared
+class TrustManager
 {
 public:
 

@@ -44,11 +44,11 @@ public:
         ProtocolPluginFacadePtr f = getProtocolPluginFacade(com);
 
         // iAP transport
-        ProtocolInstancePtr iap = new ProtocolInstance(com, iAPEndpointType, "iap", false);
-        f->addEndpointFactory(new IceObjC::iAPEndpointFactory(iap));
+        ProtocolInstancePtr iap = make_shared<ProtocolInstance>(com, iAPEndpointType, "iap", false);
+        f->addEndpointFactory(make_shared<IceObjC::iAPEndpointFactory>(iap));
 
         // SSL based on iAP transport
-        ProtocolInstancePtr iaps = new ProtocolInstance(com, iAPSEndpointType, "iaps", true);
+        ProtocolInstancePtr iaps = make_shared<ProtocolInstance>(com, iAPSEndpointType, "iaps", true);
         f->addEndpointFactory(make_shared<UnderlyingEndpointFactory>(iaps, SSLEndpointType, iAPEndpointType));
     }
 

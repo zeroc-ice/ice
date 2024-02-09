@@ -102,12 +102,6 @@ passwordError()
 
 }
 
-IceUtil::Shared*
-OpenSSL::upCast(OpenSSL::SSLEngine* p)
-{
-    return p;
-}
-
 OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
     IceSSL::SSLEngine(communicator),
     _ctx(0)
@@ -631,7 +625,7 @@ OpenSSL::SSLEngine::initialize()
             //
             {
 #ifndef OPENSSL_NO_DH
-                _dhParams = new DHParams;
+                _dhParams = make_shared<DHParams>();
                 SSL_CTX_set_options(_ctx, SSL_OP_SINGLE_DH_USE);
                 SSL_CTX_set_tmp_dh_callback(_ctx, IceSSL_opensslDHCallback);
 #endif

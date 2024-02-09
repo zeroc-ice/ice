@@ -5,15 +5,13 @@
 #ifndef ICE_BT_INSTANCE_F_H
 #define ICE_BT_INSTANCE_F_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceBT
 {
 
 class Instance;
-IceUtil::Shared* upCast(Instance*);
-typedef IceInternal::Handle<Instance> InstancePtr;
+using InstancePtr = std::shared_ptr<Instance>;
 
 class EndpointI;
 using EndpointIPtr = std::shared_ptr<EndpointI>;

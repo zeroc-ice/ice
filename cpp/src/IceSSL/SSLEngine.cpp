@@ -21,8 +21,6 @@ using namespace Ice;
 using namespace IceUtil;
 using namespace IceSSL;
 
-IceUtil::Shared* IceSSL::upCast(IceSSL::SSLEngine* p) { return p; }
-
 IceSSL::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator) :
     _initialized(false),
     _communicator(communicator),

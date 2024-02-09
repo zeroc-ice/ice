@@ -16,7 +16,7 @@ static const string testName("countDownLatch");
 
 static const int magic = 0xbeef;
 
-class CountDownLatchTestThread : public Thread
+class CountDownLatchTestThread final : public Thread
 {
 public:
 
@@ -27,9 +27,8 @@ public:
     {
     }
 
-    virtual void run()
+    void run() final
     {
-
         if(_takeOne)
         {
             _latch.countDown();

@@ -5,7 +5,6 @@
 #ifndef ICE_TRANSCEIVER_H
 #define ICE_TRANSCEIVER_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/EndpointIF.h>

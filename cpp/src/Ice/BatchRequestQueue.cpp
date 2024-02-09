@@ -11,8 +11,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(BatchRequestQueue* p) { return p; }
-
 namespace
 {
 
@@ -23,7 +21,7 @@ class BatchRequestI : public Ice::BatchRequest
 public:
 
     BatchRequestI(BatchRequestQueue& queue, const Ice::ObjectPrxPtr& proxy, const string& operation, int size) :
-        _queue(queue), _proxy(proxy), _operation(operation), _size(size)
+        _queue(queue),_proxy(proxy), _operation(operation), _size(size)
     {
     }
 

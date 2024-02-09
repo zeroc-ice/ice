@@ -637,7 +637,7 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(const IceSSL::InstancePtr& i
                                                     const string& hostOrAdapterName,
                                                     bool incoming) :
     _instance(instance),
-    _engine(IceSSL::SecureTransport::SSLEnginePtr::dynamicCast(instance->engine())),
+    _engine(dynamic_pointer_cast<IceSSL::SecureTransport::SSLEngine>(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),

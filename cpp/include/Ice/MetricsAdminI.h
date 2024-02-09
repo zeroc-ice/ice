@@ -35,7 +35,7 @@ class ICE_API MetricsMapI : public std::enable_shared_from_this<MetricsMapI>
 {
 public:
 
-    class ICE_API RegExp : public IceUtil::Shared
+    class ICE_API RegExp
     {
     public:
 
@@ -527,7 +527,7 @@ private:
     std::map<std::string, std::pair<IceMX::MetricsMap MetricsType::*, MetricsMapFactoryPtr> > _subMaps;
 };
 
-class MetricsViewI : public IceUtil::Shared
+class MetricsViewI
 {
 public:
 

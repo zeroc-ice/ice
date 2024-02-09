@@ -5,9 +5,12 @@
 #ifndef ICE_HTTP_PARSER_H
 #define ICE_HTTP_PARSER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <Ice/Config.h>
+
+#include <vector>
+#include <map>
+#include <string>
+#include <memory>
 
 namespace IceInternal
 {
@@ -24,7 +27,7 @@ public:
     std::string reason;
 };
 
-class HttpParser : public IceUtil::Shared
+class HttpParser
 {
 public:
 
@@ -110,7 +113,7 @@ private:
     };
     State _state;
 };
-typedef IceUtil::Handle<HttpParser> HttpParserPtr;
+using HttpParserPtr = std::shared_ptr<HttpParser>;
 
 }
 

@@ -5,12 +5,12 @@
 #ifndef ICESSL_OPENSSL_UTIL_I_H
 #define ICESSL_OPENSSL_UTIL_I_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
-
 #include <openssl/ssl.h>
 
 #include <list>
+#include <string>
+#include <mutex>
+#include <memory>
 
 namespace IceSSL
 {
@@ -20,7 +20,7 @@ namespace OpenSSL
 
 #ifndef OPENSSL_NO_DH
 
-class DHParams : public IceUtil::Shared
+class DHParams
 {
 public:
 
@@ -42,7 +42,7 @@ private:
     DH* _dh2048;
     DH* _dh4096;
 };
-typedef IceUtil::Handle<DHParams> DHParamsPtr;
+using DHParamsPtr = std::shared_ptr<DHParams>;
 
 #endif
 

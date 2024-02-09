@@ -18,7 +18,7 @@ namespace Ice
  * The resolver can be installed via InitializationData.
  * \headerfile Ice/Ice.h
  */
-class ICE_API CompactIdResolver : public IceUtil::Shared
+class ICE_API CompactIdResolver
 {
 public:
 
@@ -29,7 +29,7 @@ public:
      */
     virtual ::std::string resolve(Ice::Int id) const = 0;
 };
-typedef IceUtil::Handle<CompactIdResolver> CompactIdResolverPtr;
+using CompactIdResolverPtr = ::std::shared_ptr<CompactIdResolver>;
 
 }
 

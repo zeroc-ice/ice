@@ -5,14 +5,13 @@
 #ifndef ICE_TRACE_LEVELS_H
 #define ICE_TRACE_LEVELS_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/PropertiesF.h>
 
 namespace IceInternal
 {
 
-class TraceLevels : public ::IceUtil::Shared
+class TraceLevels
 {
 public:
 
