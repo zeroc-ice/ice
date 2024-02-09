@@ -148,9 +148,17 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     // add this proxy to the router info object.
     //
     RouterInfoPtr ri = _reference->getRouterInfo();
-    if(ri && !ri->addProxy(_proxy, shared_from_this()))
+
+    if (ri)
     {
-        return; // The request handler will be initialized once addProxy returns.
+        auto self = shared_from_this();
+        if (!ri->addProxyAsync(
+                _proxy,
+                [self] { self->addedProxy(); },
+                [self](exception_ptr ex) { self->setException(ex); }))
+        {
+            return; // The request handler will be initialized once addProxyAsync completes.
+        }
     }
 
     //

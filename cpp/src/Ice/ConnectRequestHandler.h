@@ -22,7 +22,6 @@ namespace IceInternal
 class ConnectRequestHandler final :
     public RequestHandler,
     public Reference::GetConnectionCallback,
-    public RouterInfo::AddProxyCallback,
     public std::enable_shared_from_this<ConnectRequestHandler>
 {
 public:
@@ -42,9 +41,9 @@ public:
     virtual void setConnection(const Ice::ConnectionIPtr&, bool);
     virtual void setException(std::exception_ptr);
 
-    virtual void addedProxy();
-
 private:
+
+    void addedProxy();
 
     bool initialized(std::unique_lock<std::mutex>&);
     void flushRequests();

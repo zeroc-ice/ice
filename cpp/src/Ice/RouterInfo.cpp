@@ -197,21 +197,11 @@ IceInternal::RouterInfo::getServerEndpoints()
     return serverProxy->_getReference()->getEndpoints();
 }
 
-void
-IceInternal::RouterInfo::addProxyResponse(const Ice::ObjectProxySeq& proxies, const AddProxyCookiePtr& cookie)
-{
-    addAndEvictProxies(cookie->proxy(), proxies);
-    cookie->cb()->addedProxy();
-}
-
-void
-IceInternal::RouterInfo::addProxyException(std::exception_ptr ex, const AddProxyCookiePtr& cookie)
-{
-    cookie->cb()->setException(ex);
-}
-
 bool
-IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxyCallbackPtr& callback)
+IceInternal::RouterInfo::addProxyAsync(
+    const Ice::ObjectPrxPtr& proxy,
+    function<void()> response,
+    function<void(exception_ptr)> ex)
 {
     assert(proxy);
     {
@@ -231,18 +221,16 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
 
     Ice::ObjectProxySeq proxies;
     proxies.push_back(proxy);
-    auto cookie = make_shared<AddProxyCookie>(callback, proxy);
 
     RouterInfoPtr self = shared_from_this();
-    _router->addProxiesAsync(proxies,
-        [self, cookie](const Ice::ObjectProxySeq& p)
+    _router->addProxiesAsync(
+        proxies,
+        [response, self, proxy](Ice::ObjectProxySeq evictedProxies)
         {
-            self->addProxyResponse(p, cookie);
+            self->addAndEvictProxies(proxy, evictedProxies);
+            response();
         },
-        [self, cookie](exception_ptr e)
-        {
-            self->addProxyException(e, cookie);
-        });
+        ex);
     return false;
 }
 
