@@ -22,6 +22,8 @@
 #   include <sys/poll.h>
 #endif
 
+#include <condition_variable>
+
 #if defined(ICE_USE_CFSTREAM)
 #   include <IceUtil/Thread.h>
 #   include <set>
@@ -282,7 +284,7 @@ private:
     std::vector<std::pair<EventHandlerWrapperPtr, SocketOperation> > _selectedHandlers;
     std::map<EventHandler*, EventHandlerWrapperPtr> _wrappers;
     std::recursive_mutex _mutex;
-    std::condition_variable_any;
+    std::condition_variable_any _conditionVariable;
 };
 
 #endif
