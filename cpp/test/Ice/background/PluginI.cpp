@@ -50,6 +50,7 @@ TestPluginI::TestPluginI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
     _configuration(make_shared<Configuration>())
 {
+    _configuration->init();
 }
 
 void

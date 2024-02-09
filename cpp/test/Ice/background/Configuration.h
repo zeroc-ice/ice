@@ -23,11 +23,13 @@
 class Configuration;
 using ConfigurationPtr = std::shared_ptr<Configuration>;
 
-class TEST_API Configuration : public IceUtil::Mutex
+class TEST_API Configuration : public IceUtil::Mutex, public std::enable_shared_from_this<Configuration>
 {
 public:
 
     Configuration();
+    void init();
+
     virtual ~Configuration();
 
     void connectorsException(Ice::LocalException*);
@@ -54,7 +56,7 @@ public:
     void buffered(bool);
     bool buffered();
 
-    static Configuration* getInstance();
+    static ConfigurationPtr getInstance();
 
 private:
 
@@ -69,7 +71,7 @@ private:
     std::unique_ptr<Ice::LocalException> _writeException;
     bool _buffered;
 
-    static Configuration* _instance;
+    static ConfigurationPtr _instance;
 };
 
 #endif
