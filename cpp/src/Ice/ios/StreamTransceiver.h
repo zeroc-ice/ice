@@ -29,7 +29,7 @@ namespace IceObjC
 class Instance;
 using InstancePtr = std::shared_ptr<Instance>;
 
-class StreamTransceiver : public IceInternal::Transceiver, public IceInternal::StreamNativeInfo
+class StreamTransceiver : public IceInternal::Transceiver, public IceInternal::StreamNativeInfo, public std::enable_shared_from_this<StreamTransceiver>
 {
     enum State
     {

@@ -12,9 +12,9 @@ namespace IceObjC
 {
 
 class StreamEndpointI;
-typedef ::std::shared_ptr<StreamEndpointI> StreamEndpointIPtr;
+using StreamEndpointIPtr = std::shared_ptr<StreamEndpointI> ;
 
-class StreamAcceptor : public IceInternal::Acceptor, public IceInternal::NativeInfo
+class StreamAcceptor : public IceInternal::Acceptor, public IceInternal::NativeInfo,  public std::enable_shared_from_this<StreamAcceptor>
 {
 public:
 

@@ -27,7 +27,7 @@ using namespace IceInternal;
 NativeInfoPtr
 IceObjC::StreamAcceptor::getNativeInfo()
 {
-    return this;
+    return shared_from_this();
 }
 
 void
@@ -54,7 +54,7 @@ IceObjC::StreamAcceptor::listen()
         throw;
     }
 
-    _endpoint = _endpoint->endpoint(this);
+    _endpoint = _endpoint->endpoint(shared_from_this());
     return _endpoint;
 }
 
@@ -74,7 +74,7 @@ IceObjC::StreamAcceptor::accept()
     {
         CFStreamCreatePairWithSocket(nullptr, fd, &readStream.get(), &writeStream.get());
         _instance->setupStreams(readStream.get(), writeStream.get(), true, "");
-        return new StreamTransceiver(_instance, readStream.release(), writeStream.release(), fd);
+        return make_shared<StreamTransceiver>(_instance, readStream.release(), writeStream.release(), fd);
     }
     catch(const Ice::LocalException& ex)
     {
