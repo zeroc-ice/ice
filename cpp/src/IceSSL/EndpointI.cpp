@@ -160,14 +160,10 @@ IceSSL::EndpointI::connectorsAsync(
         [response, this, host](const vector<IceInternal::ConnectorPtr>& connectors)
         {
             vector<IceInternal::ConnectorPtr> sslConnectors(connectors.size());
-            transform(
-                connectors.cbegin(),
-                connectors.cend(),
-                sslConnectors.begin(),
-                [this, host] (const auto& connector)
-                {
-                    return make_shared<ConnectorI>(_instance, connector, host);
-                });
+            for (auto& connector : connectors)
+            {
+                sslConnectors.emplace_back(make_shared<ConnectorI>(_instance, connector, host));
+            }
             response(sslConnectors);
         },
         exception);

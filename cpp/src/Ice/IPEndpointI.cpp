@@ -547,8 +547,8 @@ IceInternal::EndpointHostResolver::resolve(
     entry.port = port;
     entry.selType = selType;
     entry.endpoint = endpoint;
-    entry.response = std::move(response);
-    entry.exception = std::move(exception);
+    entry.response = response;
+    entry.exception = exception;
 
     const CommunicatorObserverPtr& observer = _instance->initializationData().observer;
     if(observer)

@@ -149,11 +149,10 @@ EndpointI::connectorsAsync(
             [response] (const vector<IceInternal::ConnectorPtr>& connectors)
             {
                 vector<IceInternal::ConnectorPtr> backgroundConnectors;
-                transform(
-                    connectors.begin(),
-                    connectors.end(),
-                    backgroundConnectors.begin(),
-                    [] (const IceInternal::ConnectorPtr& c) { return make_shared<Connector>(c); });
+                for (const auto& connector : connectors)
+                {
+                    backgroundConnectors.emplace_back(make_shared<Connector>(connector));
+                }
                 response(backgroundConnectors);
             },
             exception);

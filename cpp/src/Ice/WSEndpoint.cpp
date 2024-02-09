@@ -233,14 +233,10 @@ IceInternal::WSEndpoint::connectorsAsync(
         [response, host, this](const vector<ConnectorPtr>& connectors)
         {
             vector<ConnectorPtr> wsConnectors(connectors.size());
-            transform(
-                connectors.cbegin(),
-                connectors.cend(),
-                wsConnectors.begin(),
-                [host, this](const ConnectorPtr& connector)
-                {
-                    return make_shared<WSConnector>(_instance, connector, host, _resource);
-                });
+            for (const auto& connector : connectors)
+            {
+                wsConnectors.emplace_back(make_shared<WSConnector>(_instance, connector, host, _resource));
+            }
             response(wsConnectors);
         },
         exception);
