@@ -61,7 +61,7 @@ namespace
     {
     public:
 
-        ProcessI(id<ControllerView>, ControllerHelperI*);
+        ProcessI(id<ControllerView>, std::shared_ptr<ControllerHelperI>);
         virtual ~ProcessI();
 
         void waitReady(int, const Ice::Current&);
@@ -71,7 +71,7 @@ namespace
     private:
 
         id<ControllerView> _controller;
-        IceUtil::Handle<ControllerHelperI> _helper;
+        std::shared_ptr<ControllerHelperI> _helper;
     };
 
     class ProcessControllerI : public ProcessController
@@ -205,7 +205,7 @@ ControllerHelperI::run()
     argv[_args.size()] = 0;
     try
     {
-        IceInternal::UniquePtr<Test::TestHelper> helper(createHelper());
+        unique_ptr<Test::TestHelper> helper(createHelper());
         helper->setControllerHelper(this);
         helper->run(static_cast<int>(_args.size()), argv);
         completed(0);
@@ -289,7 +289,7 @@ ControllerHelperI::getOutput() const
     return _out.str();
 }
 
-ProcessI::ProcessI(id<ControllerView> controller, ControllerHelperI* helper) :
+ProcessI::ProcessI(id<ControllerView> controller, std::shared_ptr<ControllerHelperI> helper) :
     _controller(controller),
     _helper(helper)
 {
@@ -333,14 +333,14 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     replace(prefix.begin(), prefix.end(), '/', '_');
     newArgs.insert(newArgs.begin(), testSuite + ' ' + exe);
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
-    IceUtil::Handle<ControllerHelperI> helper(new ControllerHelperI(_controller, prefix + '/' + exe + ".bundle", newArgs));
+    auto helper = make_shared<ControllerHelperI>(_controller, prefix + '/' + exe + ".bundle", newArgs);
 
     //
     // Use a 768KB thread stack size for the objects test. This is necessary when running the
     // test on arm64 devices with a debug Ice libraries which require lots of stack space.
     //
     helper->start(768 * 1024);
-    return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper.get())));
+    return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper)));
 }
 
 string

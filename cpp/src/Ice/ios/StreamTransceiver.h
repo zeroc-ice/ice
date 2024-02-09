@@ -45,26 +45,26 @@ public:
 
     virtual ~StreamTransceiver();
 
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
+    IceInternal::NativeInfoPtr getNativeInfo() final;
 
-    virtual void initStreams(IceInternal::SelectorReadyCallback*);
-    virtual IceInternal::SocketOperation registerWithRunLoop(IceInternal::SocketOperation);
-    virtual IceInternal::SocketOperation unregisterFromRunLoop(IceInternal::SocketOperation, bool);
-    virtual void closeStreams();
+    void initStreams(IceInternal::SelectorReadyCallback*) final;
+    IceInternal::SocketOperation registerWithRunLoop(IceInternal::SocketOperation) final;
+    IceInternal::SocketOperation unregisterFromRunLoop(IceInternal::SocketOperation, bool) final;
+    void closeStreams() final;
 
-    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation closing(bool, std::exception_ptr);
-    virtual void close();
+    IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
+    IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
+    void close() final;
 
-    virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation read(IceInternal::Buffer&);
+    IceInternal::SocketOperation write(IceInternal::Buffer&) final;
+    IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const IceInternal::Buffer&);
-    virtual void setBufferSize(int, int);
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const IceInternal::Buffer&) final;
+    void setBufferSize(int, int) final;
 
 private:
 

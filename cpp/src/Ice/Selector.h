@@ -203,7 +203,7 @@ private:
 };
 using StreamNativeInfoPtr = std::shared_ptr<StreamNativeInfo>;
 
-class EventHandlerWrapper final : public SelectorReadyCallback
+class EventHandlerWrapper final : public SelectorReadyCallback, public std::enable_shared_from_this<EventHandlerWrapper>
 {
 public:
 
@@ -268,7 +268,7 @@ public:
 private:
 
     void ready(EventHandlerWrapper*, SocketOperation, int = 0);
-    void addReadyHandler(EventHandlerWrapper*);
+    void addReadyHandler(EventHandlerWrapperPtr);
 
     friend class EventHandlerWrapper;
 

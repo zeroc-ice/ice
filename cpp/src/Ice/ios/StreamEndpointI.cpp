@@ -87,7 +87,8 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
     }
 }
 
-IceObjC::Instance::~Instance()
+IceObjC::Instance::Instance(const IceObjC::Instance& instance, const ProtocolInstancePtr& protocolInstance) :
+    Instance(instance._communicator, protocolInstance->type(), protocolInstance->protocol(), protocolInstance->secure())
 {
 }
 
@@ -105,12 +106,6 @@ IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
             throw Ice::SyscallException(__FILE__, __LINE__);
         }
     }
-}
-
-IceObjC::Instance*
-IceObjC::Instance::clone(const ProtocolInstancePtr& instance)
-{
-    return new Instance(_communicator, instance->type(), instance->protocol(), instance->secure());
 }
 
 IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, const string& ho, Int po,
@@ -205,7 +200,7 @@ IceObjC::StreamEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*
                                            const EndpointI_connectorsPtr& cb) const
 {
     vector<ConnectorPtr> connectors;
-    connectors.push_back(new StreamConnector(_streamInstance, _host, _port, _timeout, _connectionId));
+    connectors.push_back(make_shared<StreamConnector>(_streamInstance, _host, _port, _timeout, _connectionId));
     cb->connectors(connectors);
 }
 
@@ -218,7 +213,7 @@ IceObjC::StreamEndpointI::transceiver() const
 AcceptorPtr
 IceObjC::StreamEndpointI::acceptor(const string&) const
 {
-    return new StreamAcceptor(ICE_SHARED_FROM_CONST_THIS(StreamEndpointI), _streamInstance, _host, _port);
+    return make_shared<StreamAcceptor>(ICE_SHARED_FROM_CONST_THIS(StreamEndpointI), _streamInstance, _host, _port);
 }
 
 IceObjC::StreamEndpointIPtr
@@ -425,10 +420,6 @@ IceObjC::StreamEndpointFactory::StreamEndpointFactory(const InstancePtr& instanc
 {
 }
 
-IceObjC::StreamEndpointFactory::~StreamEndpointFactory()
-{
-}
-
 Short
 IceObjC::StreamEndpointFactory::type() const
 {
@@ -458,12 +449,12 @@ IceObjC::StreamEndpointFactory::read(Ice::InputStream* s) const
 void
 IceObjC::StreamEndpointFactory::destroy()
 {
-    _instance = 0;
+    _instance = nullptr;
 }
 
 EndpointFactoryPtr
 IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
-    return new StreamEndpointFactory(_instance->clone(instance));
+    return make_shared<StreamEndpointFactory>(make_shared<IceObjC::Instance>(*_instance.get(), instance));
 }
 #endif

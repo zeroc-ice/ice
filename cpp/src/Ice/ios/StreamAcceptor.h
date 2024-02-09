@@ -12,11 +12,13 @@ namespace IceObjC
 {
 
 class StreamEndpointI;
-using StreamEndpointIPtr = std::shared_ptr<StreamEndpointI> ;
+using StreamEndpointIPtr = std::shared_ptr<StreamEndpointI>;
 
 class StreamAcceptor : public IceInternal::Acceptor, public IceInternal::NativeInfo,  public std::enable_shared_from_this<StreamAcceptor>
 {
 public:
+    StreamAcceptor(const StreamEndpointIPtr&, const InstancePtr&, const std::string&, int);
+    virtual ~StreamAcceptor();
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
     virtual void close();
@@ -30,8 +32,6 @@ public:
 
 private:
 
-    StreamAcceptor(const StreamEndpointIPtr&, const InstancePtr&, const std::string&, int);
-    virtual ~StreamAcceptor();
     friend class StreamEndpointI;
 
     StreamEndpointIPtr _endpoint;
