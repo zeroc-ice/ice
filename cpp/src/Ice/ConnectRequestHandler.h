@@ -41,9 +41,9 @@ public:
     virtual void setConnection(const Ice::ConnectionIPtr&, bool);
     virtual void setException(std::exception_ptr);
 
-    virtual void addedProxy();
-
 private:
+
+    void addedProxy();
 
     bool initialized(std::unique_lock<std::mutex>&);
     void flushRequests();
