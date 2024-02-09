@@ -17,6 +17,8 @@
 #include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/LocalException.h>
+#include <Ice/ReferenceF.h>
+#include <Ice/IInvokerF.h>
 
 #include <exception>
 
@@ -164,6 +166,7 @@ public:
 
 protected:
 
+    // TODO: pass reference & invoker instead of proxy.
     ProxyOutgoingAsyncBase(const Ice::ObjectPrxPtr&);
     ~ProxyOutgoingAsyncBase();
 
@@ -174,7 +177,9 @@ protected:
 
     virtual void runTimerTask();
 
-    const Ice::ObjectPrxPtr _proxy;
+    const Ice::ObjectPrxPtr _proxy; // TODO: get rid once we sort out how to deal with the proxy batch request queue.
+    const ReferencePtr _reference;
+    const IInvokerPtr _invoker;
     RequestHandlerPtr _handler;
     Ice::OperationMode _mode;
 

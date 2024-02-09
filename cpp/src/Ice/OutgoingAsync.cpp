@@ -15,6 +15,7 @@
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/Invoker.h>
 
 using namespace std;
 using namespace Ice;
@@ -380,7 +381,7 @@ ProxyOutgoingAsyncBase::exception(const Exception& exc)
     }
 
     _cachedConnection = 0;
-    if(_proxy->_getReference()->getInvocationTimeout() == -2)
+    if(_reference->getInvocationTimeout() == -2)
     {
         _instance->timer()->cancel(shared_from_this());
     }
@@ -396,7 +397,7 @@ ProxyOutgoingAsyncBase::exception(const Exception& exc)
         // the retry interval is 0. This method can be called with the
         // connection locked so we can't just retry here.
         //
-        _instance->retryQueue()->add(shared_from_this(), _proxy->_handleException(exc, _handler, _mode, _sent, _cnt));
+        _instance->retryQueue()->add(shared_from_this(), _invoker->handleException(exc, _handler, _mode, _sent, _cnt));
         return false;
     }
     catch(const Exception& ex)
@@ -408,7 +409,7 @@ ProxyOutgoingAsyncBase::exception(const Exception& exc)
 void
 ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 {
-    if(_proxy->_getReference()->getInvocationTimeout() == -2 && _cachedConnection)
+    if(_reference->getInvocationTimeout() == -2 && _cachedConnection)
     {
         const int timeout = _cachedConnection->timeout();
         if(timeout > 0)
@@ -430,7 +431,7 @@ ProxyOutgoingAsyncBase::retryException(const Exception&)
         // require could end up waiting for the flush of the
         // connection to be done.
         //
-        _proxy->_clearRequestHandler(_handler); // Clear request handler and always retry.
+        _invoker->clearRequestHandler(_handler); // Clear request handler and always retry.
         _instance->retryQueue()->add(shared_from_this(), 0);
     }
     catch(const Ice::Exception& exc)
@@ -471,6 +472,8 @@ ProxyOutgoingAsyncBase::abort(const Ice::Exception& ex)
 ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(const ObjectPrxPtr& prx) :
     OutgoingAsyncBase(prx->_getReference()->getInstance()),
     _proxy(prx),
+    _reference(prx->_getReference()),
+    _invoker(prx->_getInvoker()),
     _mode(OperationMode::Normal),
     _cnt(0),
     _sent(false)
@@ -488,7 +491,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
     {
         if(userThread)
         {
-            int invocationTimeout = _proxy->_getReference()->getInvocationTimeout();
+            int invocationTimeout = _reference->getInvocationTimeout();
             if(invocationTimeout > 0)
             {
                 _instance->timer()->schedule(shared_from_this(), IceUtil::Time::milliSeconds(invocationTimeout));
@@ -504,8 +507,9 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             try
             {
                 _sent = false;
-                _handler = _proxy->_getRequestHandler();
-                AsyncStatus status = _handler->sendAsyncRequest(shared_from_this());
+                pair<AsyncStatus, RequestHandlerPtr> p = _invoker->invoke(shared_from_this());
+                AsyncStatus status = p.first;
+                _handler = p.second;
                 if(status & AsyncStatusSent)
                 {
                     if(userThread)
@@ -528,7 +532,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             }
             catch(const RetryException&)
             {
-                _proxy->_clearRequestHandler(_handler); // Clear request handler and always retry.
+                _invoker->clearRequestHandler(_handler); // Clear request handler and always retry.
             }
             catch(const Exception& ex)
             {
@@ -537,7 +541,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                 }
-                int interval = _proxy->_handleException(ex, _handler, _mode, _sent, _cnt);
+                int interval = _invoker->handleException(ex, _handler, _mode, _sent, _cnt);
                 if(interval > 0)
                 {
                     _instance->retryQueue()->add(shared_from_this(), interval);
@@ -573,7 +577,7 @@ ProxyOutgoingAsyncBase::sentImpl(bool done)
     _sent = true;
     if(done)
     {
-        if(_proxy->_getReference()->getInvocationTimeout() != -1)
+        if(_reference->getInvocationTimeout() != -1)
         {
             _instance->timer()->cancel(shared_from_this());
         }
@@ -584,7 +588,7 @@ ProxyOutgoingAsyncBase::sentImpl(bool done)
 bool
 ProxyOutgoingAsyncBase::exceptionImpl(const Exception& ex)
 {
-    if(_proxy->_getReference()->getInvocationTimeout() != -1)
+    if(_reference->getInvocationTimeout() != -1)
     {
         _instance->timer()->cancel(shared_from_this());
     }
@@ -594,7 +598,7 @@ ProxyOutgoingAsyncBase::exceptionImpl(const Exception& ex)
 bool
 ProxyOutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 {
-    if(_proxy->_getReference()->getInvocationTimeout() != -1)
+    if(_reference->getInvocationTimeout() != -1)
     {
         _instance->timer()->cancel(shared_from_this());
     }
@@ -604,7 +608,7 @@ ProxyOutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 void
 ProxyOutgoingAsyncBase::runTimerTask()
 {
-    if(_proxy->_getReference()->getInvocationTimeout() == -2)
+    if(_reference->getInvocationTimeout() == -2)
     {
         cancel(ConnectionTimeoutException(__FILE__, __LINE__));
     }
@@ -624,12 +628,13 @@ OutgoingAsync::OutgoingAsync(const ObjectPrxPtr& prx, bool synchronous) :
 void
 OutgoingAsync::prepare(const string& operation, OperationMode mode, const Context& context)
 {
-    checkSupportedProtocol(getCompatibleProtocol(_proxy->_getReference()->getProtocol()));
+    checkSupportedProtocol(getCompatibleProtocol(_reference->getProtocol()));
 
     _mode = mode;
+    // TODO: pass reference instead
     _observer.attach(_proxy, operation, context);
 
-    switch(_proxy->_getReference()->getMode())
+    switch(_reference->getMode())
     {
         case Reference::ModeTwoway:
         case Reference::ModeOneway:
@@ -647,7 +652,7 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
         }
     }
 
-    Reference* ref = _proxy->_getReference().get();
+    Reference* ref = _reference.get();
 
     _os.write(ref->getIdentity());
 
@@ -862,7 +867,7 @@ OutgoingAsync::invokeCollocated(CollocatedRequestHandler* handler)
 void
 OutgoingAsync::abort(const Exception& ex)
 {
-    const Reference::Mode mode = _proxy->_getReference()->getMode();
+    const Reference::Mode mode = _reference->getMode();
     if(mode == Reference::ModeBatchOneway || mode == Reference::ModeBatchDatagram)
     {
         //
@@ -879,7 +884,7 @@ OutgoingAsync::abort(const Exception& ex)
 void
 OutgoingAsync::invoke(const string& operation)
 {
-    const Reference::Mode mode = _proxy->_getReference()->getMode();
+    const Reference::Mode mode = _reference->getMode();
     if(mode == Reference::ModeBatchOneway || mode == Reference::ModeBatchDatagram)
     {
         _sentSynchronously = true;

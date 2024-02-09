@@ -6,7 +6,6 @@
 #define ICE_PROXY_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/RequestHandlerF.h>
@@ -15,6 +14,7 @@
 #include <Ice/Object.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
+#include <Ice/IInvokerF.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/RouterF.h>
 #include <Ice/LocatorF.h>
@@ -522,9 +522,7 @@ public:
     virtual ~ObjectPrx() = default;
 
     /// \cond INTERNAL
-    ObjectPrx(const IceInternal::ReferencePtr& ref) noexcept : _reference(ref)
-    {
-    }
+    ObjectPrx(const IceInternal::ReferencePtr& ref) noexcept;
     /// \endcond
 
     /**
@@ -1155,16 +1153,11 @@ public:
     void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&);
 
     const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
-
-    int _handleException(const ::Ice::Exception&, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
-                          bool, int&);
+    const ::IceInternal::IInvokerPtr&  _getInvoker() const { return _invoker; }
 
     void _checkTwowayOnly(const ::std::string&) const;
 
-    ::IceInternal::RequestHandlerPtr _getRequestHandler();
     ::IceInternal::BatchRequestQueuePtr _getBatchRequestQueue();
-    ::IceInternal::RequestHandlerPtr _setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
-    void _clearRequestHandler(const ::IceInternal::RequestHandlerPtr&);
 
     int _hash() const;
 
@@ -1226,9 +1219,11 @@ private:
     IceInternal::ReferencePtr _twoway() const;
 
     const ::IceInternal::ReferencePtr _reference;
-    ::IceInternal::RequestHandlerPtr _requestHandler;
+    const ::IceInternal::IInvokerPtr _invoker;
+    // still required for _batchRequestQueue. TODO: look into getting rid of it, possibly by moving the
+    // batch request queue to the invoker
+    mutable ::std::mutex _mutex;
     ::IceInternal::BatchRequestQueuePtr _batchRequestQueue;
-    mutable std::mutex _mutex;
 };
 
 ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);

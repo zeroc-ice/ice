@@ -20,6 +20,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/ConnectionI.h> // To convert from ConnectionIPtr to ConnectionPtr in ice_getConnection().
 #include <Ice/ImplicitContextI.h>
+#include <Ice/Invoker.h>
 
 using namespace std;
 using namespace Ice;
@@ -151,10 +152,9 @@ operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 
 Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
     enable_shared_from_this<ObjectPrx>(), // the copy is independent of other
-    _reference(other._reference)
+    _reference(other._reference),
+    _invoker(other._invoker)
 {
-    lock_guard lock(other._mutex);
-    _requestHandler = other._requestHandler;
 }
 
 void
@@ -418,12 +418,7 @@ Ice::ObjectPrx::ice_isFixed() const
 ConnectionPtr
 Ice::ObjectPrx::ice_getCachedConnection() const
 {
-    RequestHandlerPtr handler;
-    {
-        lock_guard lock(_mutex);
-        handler =  _requestHandler;
-    }
-
+    RequestHandlerPtr handler = _invoker->getRequestHandler();
     if(handler)
     {
         try
@@ -437,69 +432,6 @@ Ice::ObjectPrx::ice_getCachedConnection() const
     return 0;
 }
 
-int
-Ice::ObjectPrx::_handleException(const Exception& ex,
-                                 const RequestHandlerPtr& handler,
-                                 OperationMode mode,
-                                 bool sent,
-                                 int& cnt)
-{
-    _clearRequestHandler(handler); // Clear the request handler
-
-    //
-    // We only retry local exception, system exceptions aren't retried.
-    //
-    // A CloseConnectionException indicates graceful server shutdown, and is therefore
-    // always repeatable without violating "at-most-once". That's because by sending a
-    // close connection message, the server guarantees that all outstanding requests
-    // can safely be repeated.
-    //
-    // An ObjectNotExistException can always be retried as well without violating
-    // "at-most-once" (see the implementation of the checkRetryAfterException method
-    //  of the ProxyFactory class for the reasons why it can be useful).
-    //
-    // If the request didn't get sent or if it's non-mutating or idempotent it can
-    // also always be retried if the retry count isn't reached.
-    //
-    const LocalException* localEx = dynamic_cast<const LocalException*>(&ex);
-    if(localEx && (!sent ||
-                   mode == OperationMode::Nonmutating || mode == OperationMode::Idempotent ||
-                   dynamic_cast<const CloseConnectionException*>(&ex) ||
-                   dynamic_cast<const ObjectNotExistException*>(&ex)))
-    {
-        try
-        {
-            return _reference->getInstance()->proxyFactory()->checkRetryAfterException(*localEx, _reference, cnt);
-        }
-        catch(const CommunicatorDestroyedException&)
-        {
-            //
-            // The communicator is already destroyed, so we cannot retry.
-            //
-            ex.ice_throw();
-        }
-    }
-    else
-    {
-        ex.ice_throw(); // Retry could break at-most-once semantics, don't retry.
-    }
-    return 0; // Keep the compiler happy.
-}
-
-::IceInternal::RequestHandlerPtr
-Ice::ObjectPrx::_getRequestHandler()
-{
-    RequestHandlerPtr handler;
-    if(_reference->getCacheConnection())
-    {
-        lock_guard lock(_mutex);
-        if(_requestHandler)
-        {
-            return _requestHandler;
-        }
-    }
-    return _setRequestHandler(_reference->getRequestHandler());
-}
 
 IceInternal::BatchRequestQueuePtr
 Ice::ObjectPrx::_getBatchRequestQueue()
@@ -512,32 +444,10 @@ Ice::ObjectPrx::_getBatchRequestQueue()
     return _batchRequestQueue;
 }
 
-::IceInternal::RequestHandlerPtr
-Ice::ObjectPrx::_setRequestHandler(const ::IceInternal::RequestHandlerPtr& handler)
+Ice::ObjectPrx::ObjectPrx(const ReferencePtr& reference) noexcept :
+    _reference(reference),
+    _invoker(make_shared<ProxyInvoker>(reference))
 {
-    if(_reference->getCacheConnection())
-    {
-        lock_guard lock(_mutex);
-        if(!_requestHandler)
-        {
-            _requestHandler = handler;
-        }
-        return _requestHandler;
-    }
-    return handler;
-}
-
-void
-Ice::ObjectPrx::_clearRequestHandler(const ::IceInternal::RequestHandlerPtr& previous)
-{
-    if(_reference->getCacheConnection())
-    {
-        lock_guard lock(_mutex);
-        if(_requestHandler && _requestHandler.get() == previous.get())
-        {
-            _requestHandler = nullptr;
-        }
-    }
 }
 
 CommunicatorPtr

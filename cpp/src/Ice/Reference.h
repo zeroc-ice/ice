@@ -142,6 +142,8 @@ public:
     //
     // Get a suitable connection for this reference.
     //
+    // TODO: Move to ProxyInvoker?
+    //
     virtual RequestHandlerPtr getRequestHandler() const = 0;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const = 0;
 
