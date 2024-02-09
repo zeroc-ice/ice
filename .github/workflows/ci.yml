@@ -15,11 +15,12 @@ concurrency:
 
 jobs:
   ci:
-    name: ${{ matrix.language }} on ${{ matrix.os }}
+    name: ${{ matrix.name || matrix.language }} ${{ matrix.make_flags }} on ${{ matrix.os }}
     strategy:
       matrix:
         language: [cpp]
         os: [macos-14, ubuntu-latest, windows-latest]
+        name: [""]
         make_flags: [""]
         test_flags: [""]
         include:
@@ -33,6 +34,7 @@ jobs:
             language: ruby
           - os: macos-14
             language: cpp
+            name: "xcodesdk"
             make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
             test_flags: "--platform=iphonesimulator"
 

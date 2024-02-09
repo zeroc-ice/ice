@@ -25,7 +25,7 @@ runs:
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'php' || inputs.language == 'js' || inputs.language == 'ruby')
 
-    - name: Build ${{ inputs.language }}
+    - name: Build ${{ matrix.name || matrix.language }}
       working-directory: ./${{ inputs.language }}
       run: |
         make ${{ inputs.make_flags }} -j3 V=1
@@ -39,7 +39,7 @@ runs:
       shell: powershell
       if: (runner.os == 'Windows') && (inputs.language != 'cpp')
 
-    - name: Build ${{ inputs.language }}
+    - name: Build ${{ matrix.name || matrix.language }}
       run: msbuild /m /p:Platform=x64 msbuild/ice.proj
       working-directory: ./${{ inputs.language }}
       shell: powershell
