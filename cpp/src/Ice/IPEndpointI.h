@@ -50,7 +50,10 @@ public:
     virtual const std::string& connectionId() const;
     virtual EndpointIPtr connectionId(const ::std::string&) const;
 
-    virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const;
+    virtual void connectorsAsync(
+        Ice::EndpointSelectionType,
+        std::function<void(const std::vector<ConnectorPtr>&)>,
+        std::function<void(std::exception_ptr)>) const;
     virtual std::vector<EndpointIPtr> expandIfWildcard() const;
     virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
     virtual bool equivalent(const EndpointIPtr&) const;
@@ -101,8 +104,13 @@ public:
 
     EndpointHostResolver(const InstancePtr&);
 
-    void resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&,
-                 const EndpointI_connectorsPtr&);
+    void resolve(
+        const std::string&,
+        int,
+        Ice::EndpointSelectionType,
+        const IPEndpointIPtr&,
+        std::function<void(const std::vector<ConnectorPtr>&)>,
+        std::function<void(std::exception_ptr)>);
     void destroy();
 
     virtual void run();
@@ -116,7 +124,8 @@ private:
         int port;
         Ice::EndpointSelectionType selType;
         IPEndpointIPtr endpoint;
-        EndpointI_connectorsPtr callback;
+        std::function<void(const std::vector<ConnectorPtr>&)> response;
+        std::function<void(std::exception_ptr)> exception;
         Ice::Instrumentation::ObserverPtr observer;
     };
 

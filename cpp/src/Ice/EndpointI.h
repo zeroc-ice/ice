@@ -23,16 +23,6 @@ class InputStream;
 namespace IceInternal
 {
 
-class ICE_API EndpointI_connectors
-{
-public:
-
-    virtual ~EndpointI_connectors();
-
-    virtual void connectors(const std::vector<ConnectorPtr>&) = 0;
-    virtual void exception(std::exception_ptr) = 0;
-};
-
 class ICE_API EndpointI : public Ice::Endpoint
 {
 public:
@@ -111,7 +101,10 @@ public:
     // returning connectors sorted according to the endpoint selection
     // type.
     //
-    virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const = 0;
+    virtual void connectorsAsync(
+        Ice::EndpointSelectionType,
+        std::function<void(const std::vector<ConnectorPtr>&)>,
+        std::function<void(std::exception_ptr)>) const = 0;
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors

@@ -84,7 +84,10 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
 
-    virtual void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const;
+    virtual void connectorsAsync(
+        Ice::EndpointSelectionType,
+        std::function<void(const std::vector<IceInternal::ConnectorPtr>&)> response,
+        std::function<void(std::exception_ptr)> exception) const;
     virtual IceInternal::TransceiverPtr transceiver() const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
     virtual std::string options() const;

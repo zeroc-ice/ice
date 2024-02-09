@@ -34,7 +34,7 @@ getIPEndpointInfo(const EndpointInfoPtr& info)
 {
     for(EndpointInfoPtr p = info; p; p = p->underlying)
     {
-        IPEndpointInfoPtr ipInfo = ICE_DYNAMIC_CAST(IPEndpointInfo, p);
+        IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<IPEndpointInfo>(p);
         if(ipInfo)
         {
             return ipInfo;
@@ -111,7 +111,7 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
 EndpointInfoPtr
 IceInternal::WSEndpoint::getInfo() const noexcept
 {
-    WSEndpointInfoPtr info = make_shared<InfoI<WSEndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
+    WSEndpointInfoPtr info = make_shared<InfoI<WSEndpointInfo>>(const_cast<WSEndpoint*>(this)->shared_from_this());
     info->underlying = _delegate->getInfo();
     info->compress = info->underlying->compress;
     info->timeout = info->underlying->timeout;
@@ -149,7 +149,7 @@ IceInternal::WSEndpoint::timeout(Int timeout) const
 {
     if(timeout == _delegate->timeout())
     {
-        return ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+        return const_cast<WSEndpoint*>(this)->shared_from_this();
     }
     else
     {
@@ -168,7 +168,7 @@ IceInternal::WSEndpoint::connectionId(const string& connectionId) const
 {
     if(connectionId == _delegate->connectionId())
     {
-        return ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+        return const_cast<WSEndpoint*>(this)->shared_from_this();
     }
     else
     {
@@ -187,7 +187,7 @@ IceInternal::WSEndpoint::compress(bool compress) const
 {
     if(compress == _delegate->compress())
     {
-        return ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+        return const_cast<WSEndpoint*>(this)->shared_from_this();
     }
     else
     {
@@ -214,56 +214,43 @@ IceInternal::WSEndpoint::transceiver() const
 }
 
 void
-IceInternal::WSEndpoint::connectors_async(EndpointSelectionType selType,
-                                         const EndpointI_connectorsPtr& callback) const
+IceInternal::WSEndpoint::connectorsAsync(
+    EndpointSelectionType selType,
+    function<void(const vector<IceInternal::ConnectorPtr>&)> response,
+    function<void(exception_ptr)> exception) const
 {
-    class CallbackI : public EndpointI_connectors
-    {
-    public:
-
-        CallbackI(const EndpointI_connectorsPtr& callback, const ProtocolInstancePtr& instance,
-                  const string& host, const string& resource) :
-            _callback(callback), _instance(instance), _host(host), _resource(resource)
-        {
-        }
-
-        virtual void connectors(const vector<ConnectorPtr>& c)
-        {
-            vector<ConnectorPtr> connectors = c;
-            for(vector<ConnectorPtr>::iterator p = connectors.begin(); p != connectors.end(); ++p)
-            {
-                *p = make_shared<WSConnector>(_instance, *p, _host, _resource);
-            }
-            _callback->connectors(connectors);
-        }
-
-        virtual void exception(std::exception_ptr ex)
-        {
-            _callback->exception(ex);
-        }
-
-    private:
-
-        const EndpointI_connectorsPtr _callback;
-        const ProtocolInstancePtr _instance;
-        const string _host;
-        const string _resource;
-    };
-
-    ostringstream host;
+    string host;
     IPEndpointInfoPtr info = getIPEndpointInfo(_delegate->getInfo());
     if(info)
     {
-        host << info->host << ":" << info->port;
+        ostringstream os;
+        os << info->host << ":" << info->port;
+        host = os.str();
     }
-    _delegate->connectors_async(selType, make_shared<CallbackI>(callback, _instance, host.str(), _resource));
+
+    _delegate->connectorsAsync(
+        selType,
+        [response, host, this](const vector<ConnectorPtr>& connectors)
+        {
+            vector<ConnectorPtr> wsConnectors(connectors.size());
+            transform(
+                connectors.cbegin(),
+                connectors.cend(),
+                wsConnectors.begin(),
+                [host, this](const ConnectorPtr& connector)
+                {
+                    return make_shared<WSConnector>(_instance, connector, host, _resource);
+                });
+            response(wsConnectors);
+        },
+        exception);
 }
 
 AcceptorPtr
 IceInternal::WSEndpoint::acceptor(const string& adapterName) const
 {
     AcceptorPtr delAcc = _delegate->acceptor(adapterName);
-    return make_shared<WSAcceptor>(ICE_SHARED_FROM_CONST_THIS(WSEndpoint), _instance, delAcc);
+    return make_shared<WSAcceptor>(const_cast<WSEndpoint*>(this)->shared_from_this(), _instance, delAcc);
 }
 
 WSEndpointPtr
@@ -271,7 +258,7 @@ IceInternal::WSEndpoint::endpoint(const EndpointIPtr& delEndp) const
 {
     if(delEndp.get() == _delegate.get())
     {
-        return ICE_DYNAMIC_CAST(WSEndpoint, ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
+        return dynamic_pointer_cast<WSEndpoint>(const_cast<WSEndpoint*>(this)->shared_from_this());
     }
     else
     {
@@ -287,7 +274,7 @@ IceInternal::WSEndpoint::expandIfWildcard() const
     {
         if(p->get() == _delegate.get())
         {
-            *p = ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+            *p = const_cast<WSEndpoint*>(this)->shared_from_this();
         }
         else
         {
@@ -303,7 +290,7 @@ IceInternal::WSEndpoint::expandHost(EndpointIPtr& publish) const
     vector<EndpointIPtr> endps = _delegate->expandHost(publish);
     if(publish.get() == _delegate.get())
     {
-        publish = ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+        publish = const_cast<WSEndpoint*>(this)->shared_from_this();
     }
     else if(publish.get())
     {
@@ -313,7 +300,7 @@ IceInternal::WSEndpoint::expandHost(EndpointIPtr& publish) const
     {
         if(p->get() == _delegate.get())
         {
-            *p = ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+            *p = const_cast<WSEndpoint*>(this)->shared_from_this();
         }
         else
         {

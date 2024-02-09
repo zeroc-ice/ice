@@ -136,46 +136,31 @@ EndpointI::transceiver() const
 }
 
 void
-EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInternal::EndpointI_connectorsPtr& cb) const
+EndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    function<void(const vector<IceInternal::ConnectorPtr>&)> response,
+    function<void(exception_ptr)> exception) const
 {
-    class Callback : public IceInternal::EndpointI_connectors
-    {
-    public:
-
-        Callback(const IceInternal::EndpointI_connectorsPtr& callback) : _callback(callback)
-        {
-        }
-
-        void
-        connectors(const vector<IceInternal::ConnectorPtr>& connectors)
-        {
-            vector<IceInternal::ConnectorPtr> c;
-            for(vector<IceInternal::ConnectorPtr>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
-            {
-                c.push_back(make_shared<Connector>(*p));
-            }
-            _callback->connectors(c);
-        }
-
-        void
-        exception(std::exception_ptr ex)
-        {
-            _callback->exception(ex);
-        }
-
-    private:
-
-        IceInternal::EndpointI_connectorsPtr _callback;
-    };
-
     try
     {
         _configuration->checkConnectorsException();
-        _endpoint->connectors_async(selType, make_shared<Callback>(cb));
+        _endpoint->connectorsAsync(
+            selType,
+            [response] (const vector<IceInternal::ConnectorPtr>& connectors)
+            {
+                vector<IceInternal::ConnectorPtr> backgroundConnectors;
+                transform(
+                    connectors.begin(),
+                    connectors.end(),
+                    backgroundConnectors.begin(),
+                    [] (const IceInternal::ConnectorPtr& c) { return make_shared<Connector>(c); });
+                response(backgroundConnectors);
+            },
+            exception);
     }
     catch(const Ice::LocalException&)
     {
-        cb->exception(current_exception());
+        exception(current_exception());
     }
 }
 

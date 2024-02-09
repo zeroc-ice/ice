@@ -221,8 +221,10 @@ IceObjC::iAPEndpointI::transceiver() const
 }
 
 void
-IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*/,
-                                        const EndpointI_connectorsPtr& callback) const
+IceObjC::iAPEndpointI::connectorsAsync(
+    Ice::EndpointSelectionType /*selType*/,
+    function<void(const vector<IceInternal::ConnectorPtr>&)> response,
+    function<void(exception_ptr)> exception) const
 {
     try
     {
@@ -269,11 +271,11 @@ IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*/,
         {
             throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
         }
-        callback->connectors(c);
+        response(c);
     }
     catch(const Ice::LocalException&)
     {
-        callback->exception(current_exception());
+        exception(current_exception());
     }
 }
 
