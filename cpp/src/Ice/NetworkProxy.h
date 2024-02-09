@@ -11,7 +11,7 @@
 namespace IceInternal
 {
 
-class ICE_API NetworkProxy : public virtual IceUtil::Shared
+class ICE_API NetworkProxy
 {
 public:
 

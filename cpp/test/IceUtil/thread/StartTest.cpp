@@ -14,7 +14,7 @@ using namespace IceUtil;
 
 static const string createTestName("thread start");
 
-class StartTestThread : public Thread
+class StartTestThread final : public Thread
 {
 public:
 
@@ -22,12 +22,10 @@ public:
     {
     }
 
-    virtual void run()
+    void run() final
     {
     }
 };
-
-typedef Handle<StartTestThread> StartTestThreadPtr;
 
 StartTest::StartTest() :
     TestBase(createTestName)
@@ -40,7 +38,7 @@ StartTest::run()
     //
     // Check that calling start() more than once raises ThreadStartedException.
     //
-    StartTestThreadPtr t = new StartTestThread();
+    auto t = make_shared<StartTestThread>();
     ThreadControl control = t->start();
     control.join();
     try
@@ -59,7 +57,7 @@ StartTest::run()
     {
         for(int j = 0; j < 40; j++)
         {
-            Thread* thread = new StartTestThread;
+            auto thread = make_shared<StartTestThread>();
             thread->start().detach();
         }
         ThreadControl::sleep(Time::milliSeconds(5));

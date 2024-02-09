@@ -12,6 +12,7 @@
 
 #include <iterator>
 #include <mutex>
+#include <algorithm>
 
 using namespace std;
 using namespace Slice;

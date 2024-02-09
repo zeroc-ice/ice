@@ -5,6 +5,9 @@
 #include <IceSSL/OpenSSLUtil.h>
 
 #include <openssl/err.h>
+
+#include <sstream>
+
 //
 // Avoid old style cast warnings from OpenSSL macros
 //
@@ -23,7 +26,7 @@ namespace
 
 //
 // The following arrays are predefined Diffie Hellman group parameters.
-// It is highly recommeded that applications provide their own Diffie
+// It is highly recommended that applications provide their own Diffie
 // Hellman parameters.
 //
 

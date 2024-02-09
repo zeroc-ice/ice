@@ -5,7 +5,6 @@
 #ifndef ICE_LOCATOR_INFO_H
 #define ICE_LOCATOR_INFO_H
 
-#include <IceUtil/Shared.h>
 #include <IceUtil/Time.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/LocatorF.h>

@@ -446,7 +446,7 @@ Ice::CommunicatorI::create(const InitializationData& initData)
     Ice::CommunicatorIPtr communicator = make_shared<CommunicatorI>();
     try
     {
-        const_cast<InstancePtr&>(communicator->_instance) = new Instance(communicator, initData);
+        const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, initData);
 
         //
         // Keep a reference to the dynamic library list to ensure

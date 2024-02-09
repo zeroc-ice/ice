@@ -817,7 +817,7 @@ IceUtilInternal::Options::addValidOpt(const string& shortOpt, const string& long
         throw IllegalArgumentException(__FILE__, __LINE__, err);
     }
 
-    ODPtr odp = new OptionDetails;
+    ODPtr odp = make_shared<OptionDetails>();
     odp->arg = at;
     odp->repeat = rt;
     odp->hasDefault = !dflt.empty();
@@ -893,7 +893,7 @@ IceUtilInternal::Options::setNonRepeatingOpt(const string& opt, const string& va
     //
     assert(_opts.find(opt) == _opts.end() || _validOpts.find(opt)->second->hasDefault);
 
-    OValPtr ovp = new OptionValue;
+    OValPtr ovp = make_shared<OptionValue>();
     ovp->val = val;
     _opts[opt] = ovp;
 
@@ -953,7 +953,7 @@ IceUtilInternal::Options::setRepeatingOpt(const string& opt, const string& val)
     }
     else
     {
-        OVecPtr ovp = new OptionValueVector;
+        OVecPtr ovp = make_shared<OptionValueVector>();
         ovp->vals.push_back(val);
         _ropts[opt] = ovp;
         if(!synonym.empty())

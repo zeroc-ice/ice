@@ -44,11 +44,11 @@ public:
         ProtocolPluginFacadePtr f = getProtocolPluginFacade(com);
 
         // iAP transport
-        ProtocolInstancePtr iap = new ProtocolInstance(com, iAPEndpointType, "iap", false);
-        f->addEndpointFactory(new IceObjC::iAPEndpointFactory(iap));
+        ProtocolInstancePtr iap = make_shared<ProtocolInstance>(com, iAPEndpointType, "iap", false);
+        f->addEndpointFactory(make_shared<IceObjC::iAPEndpointFactory>(iap));
 
         // SSL based on iAP transport
-        ProtocolInstancePtr iaps = new ProtocolInstance(com, iAPSEndpointType, "iaps", true);
+        ProtocolInstancePtr iaps = make_shared<ProtocolInstance>(com, iAPSEndpointType, "iaps", true);
         f->addEndpointFactory(make_shared<UnderlyingEndpointFactory>(iaps, SSLEndpointType, iAPEndpointType));
     }
 
@@ -123,7 +123,7 @@ IceObjC::iAPEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceObjC::iAPEndpointI::getInfo() const noexcept
 {
-    IceIAP::EndpointInfoPtr info = make_shared<InfoI<IceIAP::EndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
+    IceIAP::EndpointInfoPtr info = make_shared<InfoI<IceIAP::EndpointInfo>>(const_cast<iAPEndpointI*>(this)->shared_from_this());
     info->timeout = _timeout;
     info->compress = _compress;
     info->manufacturer = _manufacturer;
@@ -168,7 +168,7 @@ IceObjC::iAPEndpointI::timeout(Int t) const
 {
     if(t == _timeout)
     {
-        return ICE_SHARED_FROM_CONST_THIS(iAPEndpointI);
+        return const_cast<iAPEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -187,7 +187,7 @@ IceObjC::iAPEndpointI::connectionId(const string& cId) const
 {
     if(cId == _connectionId)
     {
-        return ICE_SHARED_FROM_CONST_THIS(iAPEndpointI);
+        return const_cast<iAPEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -206,7 +206,7 @@ IceObjC::iAPEndpointI::compress(bool c) const
 {
     if(c == _compress)
     {
-        return ICE_SHARED_FROM_CONST_THIS(iAPEndpointI);
+        return const_cast<iAPEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -271,9 +271,9 @@ IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*/,
         }
         callback->connectors(c);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        callback->exception(ex);
+        callback->exception(current_exception());
     }
 }
 
@@ -288,7 +288,7 @@ vector<EndpointIPtr>
 IceObjC::iAPEndpointI::expandIfWildcard() const
 {
     vector<EndpointIPtr> endps;
-    endps.push_back(ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
+    endps.push_back(const_cast<iAPEndpointI*>(this)->shared_from_this());
     return endps;
 }
 
@@ -296,14 +296,14 @@ vector<EndpointIPtr>
 IceObjC::iAPEndpointI::expandHost(EndpointIPtr&) const
 {
     vector<EndpointIPtr> endps;
-    endps.push_back(ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
+    endps.push_back(const_cast<iAPEndpointI*>(this)->shared_from_this());
     return endps;
 }
 
 bool
 IceObjC::iAPEndpointI::equivalent(const EndpointIPtr& endpoint) const
 {
-    const iAPEndpointI* endpointI = dynamic_cast<const iAPEndpointI*>(endpoint.get());
+    auto endpointI = dynamic_pointer_cast<iAPEndpointI>(endpoint);
     if(!endpointI)
     {
         return false;

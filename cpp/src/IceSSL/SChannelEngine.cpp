@@ -43,11 +43,6 @@ using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace IceSSL;
 
-Shared* SChannel::upCast(SChannel::SSLEngine* p)
-{
-    return p;
-}
-
 namespace
 {
 

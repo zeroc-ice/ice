@@ -8,7 +8,6 @@
 #include <IceBT/Config.h>
 #include <IceBT/InstanceF.h>
 
-#include <IceUtil/Shared.h>
 #include <Ice/Network.h>
 #include <Ice/Buffer.h>
 

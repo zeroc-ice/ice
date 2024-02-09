@@ -19,6 +19,7 @@
 #include <DotNetNames.h>
 #include <string.h>
 #include <iterator>
+#include <algorithm>
 
 using namespace std;
 using namespace Slice;

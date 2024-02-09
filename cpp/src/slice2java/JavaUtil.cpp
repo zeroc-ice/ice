@@ -8,6 +8,7 @@
 #include <Slice/Util.h>
 #include <IceUtil/FileUtil.h>
 
+#include <algorithm>
 #include <sys/types.h>
 #include <string.h>
 

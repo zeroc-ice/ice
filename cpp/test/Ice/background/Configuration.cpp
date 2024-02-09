@@ -8,7 +8,7 @@
 
 #include <Configuration.h>
 
-Configuration* Configuration::_instance = 0;
+ConfigurationPtr Configuration::_instance = nullptr;
 
 Configuration::Configuration() :
     _initializeSocketOperation(IceInternal::SocketOperationNone),
@@ -18,12 +18,17 @@ Configuration::Configuration() :
     _buffered(false)
 {
     assert(!_instance);
-    _instance = this;
+}
+
+void
+Configuration::init()
+{
+    _instance = shared_from_this();
 }
 
 Configuration::~Configuration()
 {
-    _instance = 0;
+    _instance = nullptr;
 }
 
 void
@@ -188,7 +193,7 @@ Configuration::buffered()
     return _buffered;
 }
 
-Configuration*
+ConfigurationPtr
 Configuration::getInstance()
 {
     return _instance;

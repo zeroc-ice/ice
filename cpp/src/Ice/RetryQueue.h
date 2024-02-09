@@ -5,7 +5,6 @@
 #ifndef ICE_RETRY_QUEUE_H
 #define ICE_RETRY_QUEUE_H
 
-#include <IceUtil/Shared.h>
 #include <IceUtil/Timer.h>
 #include <Ice/RetryQueueF.h>
 #include <Ice/OutgoingAsyncF.h>
@@ -31,8 +30,6 @@ public:
 
     void destroy();
 
-    bool operator<(const RetryTask&) const;
-
 private:
 
     const InstancePtr _instance;
@@ -41,7 +38,7 @@ private:
 };
 using RetryTaskPtr = std::shared_ptr<RetryTask>;
 
-class RetryQueue : public IceUtil::Shared
+class RetryQueue : public std::enable_shared_from_this<RetryQueue>
 {
 public:
 

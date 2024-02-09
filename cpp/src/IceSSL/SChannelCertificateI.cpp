@@ -21,7 +21,7 @@ using namespace IceSSL;
 namespace
 {
 
-class CertInfoHolder : public IceUtil::Shared
+class CertInfoHolder
 {
 public:
 
@@ -38,7 +38,7 @@ private:
 
     CERT_INFO* _certInfo;
 };
-typedef IceUtil::Handle<CertInfoHolder> CertInfoHolderPtr;
+using CertInfoHolderPtr = shared_ptr<CertInfoHolder>;
 
 class SCHannelX509ExtensionI : public X509Extension
 {
@@ -312,7 +312,7 @@ SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) :
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
-        _certInfoHolder = new CertInfoHolder(_certInfo);
+        _certInfoHolder = make_shared<CertInfoHolder>(_certInfo);
     }
     catch(...)
     {

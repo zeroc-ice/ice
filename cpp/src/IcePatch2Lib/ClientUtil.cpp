@@ -54,7 +54,7 @@ private:
     mutable std::mutex _mutex;
     std::condition_variable _conditionVariable;
 };
-typedef IceUtil::Handle<Decompressor> DecompressorPtr;
+using DecompressorPtr = std::shared_ptr<Decompressor>;
 
 class PatcherI : public Patcher
 {
@@ -774,7 +774,7 @@ PatcherI::removeFiles(const LargeFileInfoSeq& files)
 bool
 PatcherI::updateFiles(const LargeFileInfoSeq& files)
 {
-    DecompressorPtr decompressor = new Decompressor(_dataDir);
+    auto decompressor = make_shared<Decompressor>(_dataDir);
 #if defined(__hppa)
     //
     // The thread stack size is only 64KB only HP-UX and that's not

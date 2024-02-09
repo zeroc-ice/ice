@@ -6,7 +6,6 @@
 #ifndef ICE_DEFAULTS_AND_OVERRIDES_H
 #define ICE_DEFAULTS_AND_OVERRIDES_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/Endpoint.h>
@@ -17,7 +16,7 @@
 namespace IceInternal
 {
 
-class DefaultsAndOverrides : public ::IceUtil::Shared
+class DefaultsAndOverrides
 {
 public:
 

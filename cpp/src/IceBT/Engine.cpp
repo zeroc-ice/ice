@@ -14,8 +14,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceUtil::Shared* IceBT::upCast(IceBT::Engine* p) { return p; }
-
 namespace IceBT
 {
 
@@ -567,7 +565,7 @@ public:
         //
         // Start a thread to establish the connection.
         //
-        IceUtil::ThreadPtr t = new ConnectThread(shared_from_this(), addr, uuid, cb);
+        IceUtil::ThreadPtr t = make_shared<ConnectThread>(shared_from_this(), addr, uuid, cb);
         _connectThreads.push_back(t);
         t->start();
     }
@@ -1252,7 +1250,7 @@ public:
 
         virtual void run()
         {
-            _mo->runConnectThread(this, _addr, _uuid, _cb);
+            _mo->runConnectThread(shared_from_this(), _addr, _uuid, _cb);
         }
 
     private:

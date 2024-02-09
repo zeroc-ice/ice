@@ -975,7 +975,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
         //
         if(threadPoolSize > 0 || threadPoolSizeMax > 0 || hasPriority)
         {
-            _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
+            _threadPool = ThreadPool::create(_instance, _name + ".ThreadPool", 0);
         }
 
         if(!router)

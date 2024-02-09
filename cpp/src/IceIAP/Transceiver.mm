@@ -221,7 +221,7 @@ IceObjC::iAPTransceiver::closeStreams()
 IceInternal::NativeInfoPtr
 IceObjC::iAPTransceiver::getNativeInfo()
 {
-    return this;
+    return shared_from_this();
 }
 
 SocketOperation
@@ -248,7 +248,7 @@ IceObjC::iAPTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffe
 }
 
 SocketOperation
-IceObjC::iAPTransceiver::closing(bool initiator, const Ice::LocalException&)
+IceObjC::iAPTransceiver::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

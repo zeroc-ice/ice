@@ -61,10 +61,10 @@ IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) :
     // than in initialize, because the communicator may need to
     // interpret proxies before the plug-in is fully initialized.
     //
-    InstancePtr bt = new Instance(_engine, BTEndpointType, "bt");
+    InstancePtr bt = make_shared<Instance>(_engine, BTEndpointType, "bt");
     f->addEndpointFactory(make_shared<EndpointFactoryI>(bt));
 
-    InstancePtr bts = new Instance(_engine, BTSEndpointType, "bts");
+    InstancePtr bts = make_shared<Instance>(_engine, BTSEndpointType, "bts");
     f->addEndpointFactory(make_shared<IceInternal::UnderlyingEndpointFactory>(bts, SSLEndpointType, BTEndpointType));
 }
 

@@ -23,37 +23,6 @@ public:
     }
 };
 
-class AMICallback : public IceUtil::Shared
-{
-public:
-    AMICallback()
-    {
-    }
-
-    void
-    exception1(const Ice::Exception&)
-    {
-        test(false);
-    }
-    void
-    exception2(const Ice::Exception& ex)
-    {
-        test(dynamic_cast<const Ice::NotRegisteredException*>(&ex));
-    }
-
-    void
-    response1()
-    {
-    }
-
-    void
-    response2()
-    {
-        test(false);
-    }
-};
-typedef IceUtil::Handle<AMICallback> AMICallbackPtr;
-
 void
 allTests(Test::TestHelper* helper, const string& ref)
 {

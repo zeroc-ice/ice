@@ -1782,7 +1782,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
                 if(impls[i] == "PerThread")
                 {
-                    IceUtil::ThreadPtr thread = new PerThreadContextInvokeThread(q->ice_context(Ice::Context()));
+                    IceUtil::ThreadPtr thread = make_shared<PerThreadContextInvokeThread>(q->ice_context(Ice::Context()));
                     thread->start();
                     thread->getThreadControl().join();
                 }

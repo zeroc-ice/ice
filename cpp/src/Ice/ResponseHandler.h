@@ -5,9 +5,6 @@
 #ifndef ICE_RESPONSE_HANDLER_H
 #define ICE_RESPONSE_HANDLER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
-
 #include <Ice/Config.h>
 #include <Ice/LocalException.h>
 #include <Ice/ResponseHandlerF.h>

@@ -7,7 +7,7 @@
 
 #include <TestBase.h>
 
-class MonitorMutexTest : public TestBase
+class MonitorMutexTest final : public TestBase
 {
 public:
 
@@ -15,7 +15,7 @@ public:
 
 private:
 
-    virtual void run();
+    void run() final;
 };
 
 #endif

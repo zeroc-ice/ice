@@ -34,9 +34,6 @@
     <ClCompile Include="..\..\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Shared.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -82,9 +79,6 @@
   <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h">
     <Filter>Header Files</Filter>
   </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Handle.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h">
     <Filter>Header Files</Filter>
   </ClInclude>
@@ -125,9 +119,6 @@
     <Filter>Header Files</Filter>
   </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Shared.h">
     <Filter>Header Files</Filter>
   </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h">

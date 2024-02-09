@@ -27,7 +27,9 @@ extern "C"
 Plugin*
 createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
 {
-    return new EndpointFactoryPlugin(c, make_shared<TcpEndpointFactory>(new ProtocolInstance(c, TCPEndpointType, "tcp", false)));
+    return new EndpointFactoryPlugin(
+        c,
+        make_shared<TcpEndpointFactory>(make_shared<ProtocolInstance>(c, TCPEndpointType, "tcp", false)));
 }
 
 }

@@ -5,13 +5,13 @@
 #ifndef ICE_DYNAMIC_LIBRARY_H
 #define ICE_DYNAMIC_LIBRARY_H
 
+#include <Ice/Config.h>
 #include <Ice/DynamicLibraryF.h>
-#include <IceUtil/Shared.h>
 
 namespace IceInternal
 {
 
-class ICE_API DynamicLibrary : public ::IceUtil::Shared
+class ICE_API DynamicLibrary
 {
 public:
 
@@ -84,7 +84,7 @@ private:
     std::string _err;
 };
 
-class ICE_API DynamicLibraryList : public ::IceUtil::Shared
+class ICE_API DynamicLibraryList
 {
 public:
 

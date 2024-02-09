@@ -18,7 +18,10 @@
 namespace IceObjC
 {
 
-class iAPTransceiver final : public IceInternal::Transceiver, public IceInternal::StreamNativeInfo
+class iAPTransceiver final :
+    public IceInternal::Transceiver,
+    public IceInternal::StreamNativeInfo,
+    public std::enable_shared_from_this<iAPTransceiver>
 {
     enum State
     {

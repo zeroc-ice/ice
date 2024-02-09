@@ -6,8 +6,6 @@
 #define ICE_UTIL_OPTIONS_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <IceUtil/Exception.h>
 #include <string>
 #include <vector>
@@ -64,26 +62,26 @@ public:
 
 private:
 
-    struct OptionDetails : public IceUtil::Shared
+    struct OptionDetails
     {
         LengthType length;
         ArgType arg;
         RepeatType repeat;
         bool hasDefault;
     };
-    typedef IceUtil::Handle<OptionDetails> ODPtr;
+    using ODPtr = ::std::shared_ptr<OptionDetails>;
 
-    struct OptionValue : public IceUtil::Shared
+    struct OptionValue
     {
         ::std::string val;
     };
-    typedef IceUtil::Handle<OptionValue> OValPtr;
+    using OValPtr = ::std::shared_ptr<OptionValue>;
 
-    struct OptionValueVector : public IceUtil::Shared
+    struct OptionValueVector
     {
         ::std::vector< ::std::string> vals;
     };
-    typedef IceUtil::Handle<OptionValueVector> OVecPtr;
+    using OVecPtr = ::std::shared_ptr<OptionValueVector>;
 
     typedef ::std::map< ::std::string, ODPtr> ValidOpts; // Valid options and their details.
     typedef ::std::map< ::std::string, OValPtr> Opts; // Value of non-repeating options.

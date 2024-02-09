@@ -24,7 +24,9 @@ extern "C"
 Plugin*
 createIceUDP(const CommunicatorPtr& c, const string&, const StringSeq&)
 {
-    return new EndpointFactoryPlugin(c, make_shared<UdpEndpointFactory>(new ProtocolInstance(c, UDPEndpointType, "udp", false)));
+    return new EndpointFactoryPlugin(
+        c,
+        make_shared<UdpEndpointFactory>(make_shared<ProtocolInstance>(c, UDPEndpointType, "udp", false)));
 }
 
 }

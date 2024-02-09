@@ -10,8 +10,6 @@
 using namespace std;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }
-
 NetworkProxy::~NetworkProxy()
 {
     // Out of line to avoid weak vtable
@@ -160,7 +158,7 @@ NetworkProxyPtr
 SOCKSNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return new SOCKSNetworkProxy(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0]);
+    return make_shared<SOCKSNetworkProxy>(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0]);
 }
 
 Address
@@ -263,7 +261,7 @@ NetworkProxyPtr
 HTTPNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return new HTTPNetworkProxy(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0], protocol);
+    return make_shared<HTTPNetworkProxy>(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0], protocol);
 }
 
 Address
@@ -298,14 +296,14 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
             throw Ice::InitializationException(__FILE__, __LINE__, "IPv6 only is not supported with SOCKS4 proxies");
         }
         int proxyPort = properties->getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
-        return new SOCKSNetworkProxy(proxyHost, proxyPort);
+        return make_shared<SOCKSNetworkProxy>(proxyHost, proxyPort);
     }
 
     proxyHost = properties->getProperty("Ice.HTTPProxyHost");
     if(!proxyHost.empty())
     {
-        return new HTTPNetworkProxy(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+        return make_shared<HTTPNetworkProxy>(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
     }
 
-    return 0;
+    return nullptr;
 }

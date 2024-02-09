@@ -130,12 +130,14 @@ class DestroyInternal : public IceUtil::Thread
 
 public:
 
-    DestroyInternal(const SessionHelperIPtr& session,
-                    const Glacier2::SessionCallbackPtr& callback,
-                    const Glacier2::SessionThreadCallbackPtr& threadCB) :
-        _session(session), _disconnected(new Disconnected(session, callback))
+    static IceUtil::ThreadPtr create(
+        const SessionHelperIPtr& session,
+        const Glacier2::SessionCallbackPtr& callback,
+        const Glacier2::SessionThreadCallbackPtr& threadCB)
     {
-        _previous = threadCB->add(session.get(), this);
+        auto thread = shared_ptr<DestroyInternal>(new DestroyInternal(session, callback));
+        thread->_previous = threadCB->add(session.get(), thread);
+        return thread;
     }
 
     virtual void run()
@@ -154,6 +156,13 @@ public:
 
 private:
 
+    DestroyInternal(const SessionHelperIPtr& session,
+                    const Glacier2::SessionCallbackPtr& callback) :
+        _session(session),
+        _disconnected(make_shared<Disconnected>(session, callback))
+    {
+    }
+
     SessionHelperIPtr _session;
     IceUtil::ThreadPtr _previous;
     const Ice::DispatcherCallPtr _disconnected;
@@ -164,10 +173,11 @@ class DestroyCommunicator : public IceUtil::Thread
 
 public:
 
-    DestroyCommunicator(const SessionHelperIPtr& session, const Glacier2::SessionThreadCallbackPtr& threadCB) :
-        _session(session)
+    static IceUtil::ThreadPtr create(const SessionHelperIPtr& session, const Glacier2::SessionThreadCallbackPtr& threadCB)
     {
-        _previous = threadCB->add(session.get(), this);
+        auto thread = shared_ptr<DestroyCommunicator>(new DestroyCommunicator(session));
+        thread->_previous = threadCB->add(session.get(), thread);
+        return thread;
     }
 
     virtual void run()
@@ -185,6 +195,11 @@ public:
     }
 
 private:
+
+    DestroyCommunicator(const SessionHelperIPtr& session) :
+        _session(session)
+    {
+    }
 
     SessionHelperIPtr _session;
     IceUtil::ThreadPtr _previous;
@@ -225,11 +240,11 @@ SessionHelperI::destroy()
         // We destroy the communicator to trigger the immediate
         // failure of the connection establishment.
         //
-        destroyThread = new DestroyCommunicator(shared_from_this(), _threadCB);
+        destroyThread = DestroyCommunicator::create(shared_from_this(), _threadCB);
     }
     else
     {
-        destroyThread = new DestroyInternal(shared_from_this(), _callback, _threadCB);
+        destroyThread = DestroyInternal::create(shared_from_this(), _callback, _threadCB);
         _connected = false;
         _session = nullptr;
     }
@@ -549,7 +564,7 @@ public:
                 lock_guard lock(_session->_mutex);
                 _session->_destroy = true;
             }
-            _session->dispatchCallback(new ConnectFailed(_callback, _session, current_exception()), nullptr);
+            _session->dispatchCallback(make_shared<ConnectFailed>(_callback, _session, current_exception()), nullptr);
             return;
         }
 
@@ -565,7 +580,7 @@ public:
                 }
                 catch(const Ice::CommunicatorDestroyedException&)
                 {
-                    _session->dispatchCallback(new ConnectFailed(_callback, _session, current_exception()), 0);
+                    _session->dispatchCallback(make_shared<ConnectFailed>(_callback, _session, current_exception()), 0);
                     return;
                 }
                 catch(const Ice::Exception&)
@@ -580,7 +595,7 @@ public:
                     communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(finder->ice_identity(ident)));
                 }
             }
-            _session->dispatchCallbackAndWait(new CreatedCommunicator(_callback, _session), 0);
+            _session->dispatchCallbackAndWait(make_shared<CreatedCommunicator>(_callback, _session), nullptr);
             auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter());
             Glacier2::SessionPrxPtr session = _factory->connect(routerPrx);
             _session->connected(routerPrx, session);
@@ -595,9 +610,9 @@ public:
             {
             }
 
-            _session->dispatchCallback(new ConnectFailed(_callback, _session, current_exception()), 0);
+            _session->dispatchCallback(make_shared<ConnectFailed>(_callback, _session, current_exception()), nullptr);
         }
-        _session = 0;
+        _session = nullptr;
     }
 
 private:
@@ -640,7 +655,7 @@ void
 SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
 {
     assert(!_destroy);
-    IceUtil::ThreadPtr thread = new ConnectThread(_callback, shared_from_this(), factory, _finder);
+    auto thread = make_shared<ConnectThread>(_callback, shared_from_this(), factory, _finder);
     _threadCB->add(this, thread);
     thread->start();
 }
@@ -754,11 +769,11 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
         // connected() is only called from the ConnectThread so it is ok to
         // call destroyInternal here.
         //
-        destroyInternal(new Disconnected(shared_from_this(), _callback));
+        destroyInternal(make_shared<Disconnected>(shared_from_this(), _callback));
     }
     else
     {
-        dispatchCallback(new Connected(_callback, shared_from_this()), conn);
+        dispatchCallback(make_shared<Connected>(_callback, shared_from_this()), conn);
     }
 }
 
@@ -814,7 +829,7 @@ SessionHelperI::dispatchCallbackAndWait(const Ice::DispatcherCallPtr& call, cons
     if(_initData.dispatcher)
     {
         IceUtilInternal::CountDownLatch cdl(1);
-        Ice::DispatcherCallPtr callWait = new DispatcherCallWait(cdl, call);
+        auto callWait = make_shared<DispatcherCallWait>(cdl, call);
         _initData.dispatcher([callWait]()
             {
                 callWait->run();
@@ -903,7 +918,7 @@ Glacier2::SessionFactoryHelper::addThread(const SessionHelper* session, const Ic
     }
     else
     {
-        _threads.insert(make_pair(session, thread));
+        _threads.emplace(make_pair(session, thread));
     }
     return previous;
 }

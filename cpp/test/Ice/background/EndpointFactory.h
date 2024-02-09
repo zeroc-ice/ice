@@ -7,7 +7,7 @@
 
 #include <Ice/EndpointFactory.h>
 
-class EndpointFactory : public IceInternal::EndpointFactory, std::enable_shared_from_this<EndpointFactory>
+class EndpointFactory : public IceInternal::EndpointFactory, public std::enable_shared_from_this<EndpointFactory>
 {
 public:
 

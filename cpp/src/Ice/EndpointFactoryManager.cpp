@@ -17,8 +17,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(EndpointFactoryManager* p) { return p; }
-
 IceInternal::EndpointFactoryManager::EndpointFactoryManager(const InstancePtr& instance)
     : _instance(instance)
 {

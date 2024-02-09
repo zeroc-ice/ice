@@ -166,7 +166,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     if(!synchronous || !_response || _reference->getInvocationTimeout() > 0)
     {
         // Don't invoke from the user thread if async or invocation timeout is set
-        _adapter->getThreadPool()->dispatch(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
+        _adapter->getThreadPool()->dispatch(make_shared<InvokeAllAsync>(ICE_GET_SHARED_FROM_THIS(outAsync),
                                                                outAsync->getOs(),
                                                                shared_from_this(),
                                                                requestId,
@@ -174,7 +174,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     }
     else if(_dispatcher)
     {
-        _adapter->getThreadPool()->dispatchFromThisThread(new InvokeAllAsync(ICE_GET_SHARED_FROM_THIS(outAsync),
+        _adapter->getThreadPool()->dispatchFromThisThread(make_shared<InvokeAllAsync>(ICE_GET_SHARED_FROM_THIS(outAsync),
                                                                              outAsync->getOs(),
                                                                              shared_from_this(),
                                                                              requestId,

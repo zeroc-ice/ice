@@ -34,7 +34,6 @@ Selector::~Selector()
 {
 }
 
-#ifdef ICE_USE_IOCP
 void
 Selector::setup(int sizeIO)
 {
@@ -44,14 +43,11 @@ Selector::setup(int sizeIO)
         throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
 }
-#endif
 
 void
 Selector::destroy()
 {
-#ifdef ICE_USE_IOCP
     CloseHandle(_handle);
-#endif
 }
 
 void
@@ -62,7 +58,6 @@ Selector::initialize(EventHandler* handler)
         return;
     }
 
-#ifdef ICE_USE_IOCP
     SOCKET socket = handler->getNativeInfo()->fd();
     if(socket != INVALID_SOCKET)
     {
@@ -75,19 +70,6 @@ Selector::initialize(EventHandler* handler)
         }
     }
     handler->getNativeInfo()->initialize(_handle, reinterpret_cast<ULONG_PTR>(handler));
-#else
-    EventHandlerPtr h = ICE_GET_SHARED_FROM_THIS(handler);
-    handler->getNativeInfo()->setCompletedHandler(
-        ref new SocketOperationCompletedHandler(
-            [=](int operation)
-            {
-                //
-                // Use the reference counted handler to ensure it's not
-                // destroyed as long as the callback lambda exists.
-                //
-                completed(h.get(), static_cast<SocketOperation>(operation));
-            }));
-#endif
 }
 
 void
@@ -98,12 +80,12 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
     if(add & SocketOperationRead && !(handler->_pending & SocketOperationRead))
     {
         handler->_pending = static_cast<SocketOperation>(handler->_pending | SocketOperationRead);
-        completed(handler, SocketOperationRead); // Start an asynchrnous read
+        completed(handler, SocketOperationRead); // Start an asynchronous read
     }
     else if(add & SocketOperationWrite && !(handler->_pending & SocketOperationWrite))
     {
         handler->_pending = static_cast<SocketOperation>(handler->_pending | SocketOperationWrite);
-        completed(handler, SocketOperationWrite); // Start an asynchrnous write
+        completed(handler, SocketOperationWrite); // Start an asynchronous write
     }
 }
 
@@ -133,13 +115,8 @@ Selector::ready(EventHandler* handler, SocketOperation status, bool value)
 }
 
 EventHandler*
-#ifdef ICE_USE_IOCP
 Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int timeout)
-#else
-Selector::getNextHandler(SocketOperation& status, int timeout)
-#endif
 {
-#ifdef ICE_USE_IOCP
     ULONG_PTR key;
     LPOVERLAPPED ol;
     error = ERROR_SUCCESS;
@@ -181,34 +158,11 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
         status = reinterpret_cast<EventHandler*>(key)->_ready;
     }
     return reinterpret_cast<EventHandler*>(key);
-#else
-    unique_lock lock(_mutex);
-    if(timeout > 0)
-    {
-        _monitor.wait_for(lock, chrono::seconds(timeout));
-        if(_events.empty())
-        {
-            throw SelectorTimeoutException();
-        }
-    }
-    else
-    {
-        _conditionVariable.wait(lock, [this] { return !_events.empty(); });
-    }
-
-    assert(!_events.empty());
-    IceInternal::EventHandlerPtr handler = _events.front().handler;
-    const SelectEvent& event = _events.front();
-    status = event.status;
-    _events.pop_front();
-    return handler.get();
-#endif
 }
 
 void
 Selector::completed(EventHandler* handler, SocketOperation op)
 {
-#ifdef ICE_USE_IOCP
     AsyncInfo* info = 0;
     NativeInfoPtr nativeInfo = handler->getNativeInfo();
     if(nativeInfo)
@@ -219,11 +173,6 @@ Selector::completed(EventHandler* handler, SocketOperation op)
     {
         throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
-#else
-    lock_guard lock(_mutex);
-    _events.push_back(SelectEvent(handler->shared_from_this(), op));
-    _conditionVariable.notify_one();
-#endif
 }
 
 #elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_SELECT) || defined(ICE_USE_POLL)
@@ -1081,7 +1030,7 @@ toCFCallbacks(SocketOperation op)
 
 EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& selector) :
     _handler(ICE_GET_SHARED_FROM_THIS(handler)),
-    _streamNativeInfo(StreamNativeInfoPtr::dynamicCast(handler->getNativeInfo())),
+    _streamNativeInfo(dynamic_pointer_cast<StreamNativeInfo>(handler->getNativeInfo())),
     _selector(selector),
     _ready(SocketOperationNone),
     _finish(false)
@@ -1261,7 +1210,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
     _source.reset(CFRunLoopSourceCreate(0, 0, &ctx));
     _runLoop = 0;
 
-    _thread = new SelectorHelperThread(*this);
+    _thread = make_shared<SelectorHelperThread>(*this);
     _thread->start();
 
     unique_lock<mutex> lock(_mutex);
@@ -1310,7 +1259,7 @@ void
 Selector::initialize(EventHandler* handler)
 {
     lock_guard lock(_mutex);
-    _wrappers[handler] = new EventHandlerWrapper(handler, *this);
+    _wrappers[handler] = make_shared<EventHandlerWrapper>(handler, *this);
 }
 
 void

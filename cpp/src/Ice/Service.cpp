@@ -144,7 +144,7 @@ static ServiceStatusManager* serviceStatusManager;
 // Interface implemented by SMEventLoggerI and called from
 // SMEventLoggerIWrapper.
 //
-class SMEventLogger : public IceUtil::Shared
+class SMEventLogger
 {
 public:
     virtual void print(const string&, const string&) = 0;
@@ -152,7 +152,7 @@ public:
     virtual void warning(const string&, const string&) = 0;
     virtual void error(const string&, const string&) = 0;
 };
-typedef IceUtil::Handle<SMEventLogger> SMEventLoggerPtr;
+using SMEventLoggerPtr = std::shared_ptr<SMEventLogger>;
 
 class SMEventLoggerIWrapper : public Ice::Logger
 {
@@ -586,7 +586,7 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
             if(ICE_DYNAMIC_CAST(LoggerI, _logger))
             {
                 string eventLogSource = initData.properties->getPropertyWithDefault("Ice.EventLog.Source", name);
-                _logger = make_shared<SMEventLoggerIWrapper>(new SMEventLoggerI(eventLogSource, stringConverter), "");
+                _logger = make_shared<SMEventLoggerIWrapper>(make_shared<SMEventLoggerI>(eventLogSource, stringConverter), "");
                 setProcessLogger(_logger);
             }
 
@@ -1457,7 +1457,7 @@ ServiceStatusManager::startUpdate(DWORD state)
 
     _stopped = false;
 
-    _thread = new StatusThread(this);
+    _thread = make_shared<StatusThread>(this);
     _thread->start();
 }
 

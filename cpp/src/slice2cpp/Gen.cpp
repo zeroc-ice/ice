@@ -11,6 +11,7 @@
 #include <IceUtil/FileUtil.h>
 
 #include <limits>
+#include <algorithm>
 #include <string.h>
 
 using namespace std;

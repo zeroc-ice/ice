@@ -446,7 +446,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     if(!factory)
     {
         assert(!entryPoint.empty());
-        library = new DynamicLibrary();
+        library = make_shared<DynamicLibrary>();
         DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
         if(sym == 0)
         {
