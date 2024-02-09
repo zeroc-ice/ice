@@ -495,7 +495,6 @@
     <ClCompile Include="..\..\..\IceUtil\Options.cpp" />
     <ClCompile Include="..\..\..\IceUtil\OutputUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Random.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\Shared.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp" />

@@ -1457,7 +1457,7 @@ ServiceStatusManager::startUpdate(DWORD state)
 
     _stopped = false;
 
-    _thread = new StatusThread(this);
+    _thread = make_shared<StatusThread>(this);
     _thread->start();
 }
 

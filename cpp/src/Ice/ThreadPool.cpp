@@ -897,7 +897,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
                 lock_guard lock(_mutex);
                 if(!_destroyed)
                 {
-                    _workQueue->queue(new ShutdownWorkItem(_instance));
+                    _workQueue->queue(make_shared<ShutdownWorkItem>(_instance));
                 }
                 continue;
             }
@@ -1045,7 +1045,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
             if(!current._handler->_pending && current._handler->_finish)
             {
                 lock_guard lock(_mutex);
-                _workQueue->queue(new FinishedWorkItem(current._handler, false));
+                _workQueue->queue(make_shared<FinishedWorkItem>(current._handler, false));
                 _selector.finish(current._handler.get());
             }
             return false;
@@ -1064,7 +1064,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
             if(!current._handler->_pending && current._handler->_finish)
             {
                 lock_guard lock(_mutex);
-                _workQueue->queue(new FinishedWorkItem(current._handler, false));
+                _workQueue->queue(make_shared<FinishedWorkItem>(current._handler, false));
                 _selector.finish(current._handler.get());
             }
             return false;
@@ -1088,7 +1088,7 @@ IceInternal::ThreadPool::startMessage(ThreadPoolCurrent& current)
         if(!current._handler->_pending && current._handler->_finish)
         {
             lock_guard lock(_mutex);
-            _workQueue->queue(new FinishedWorkItem(current._handler, false));
+            _workQueue->queue(make_shared<FinishedWorkItem>(current._handler, false));
             _selector.finish(current._handler.get());
         }
         return false;
@@ -1124,7 +1124,7 @@ IceInternal::ThreadPool::finishMessage(ThreadPoolCurrent& current)
     {
         // There are no more pending async operations, it's time to call finish.
         lock_guard lock(_mutex);
-        _workQueue->queue(new FinishedWorkItem(current._handler, false));
+        _workQueue->queue(make_shared<FinishedWorkItem>(current._handler, false));
         _selector.finish(current._handler.get());
     }
 }
