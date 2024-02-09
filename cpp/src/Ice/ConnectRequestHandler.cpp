@@ -135,7 +135,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     {
         auto self = shared_from_this();
         if (!ri->addProxyAsync(
-                _reference->getInstance()->proxyFactory()->referenceToProxy(_reference),
+                _reference,
                 [self] { self->addedProxy(); },
                 [self](exception_ptr ex) { self->setException(ex); }))
         {

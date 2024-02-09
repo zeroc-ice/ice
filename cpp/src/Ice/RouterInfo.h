@@ -82,7 +82,7 @@ public:
     std::vector<EndpointIPtr> getServerEndpoints();
 
     bool addProxyAsync(
-        const Ice::ObjectPrxPtr& proxy,
+        const ReferencePtr& proxy,
         std::function<void()> response,
         std::function<void(std::exception_ptr)> ex);
 
@@ -95,9 +95,10 @@ public:
     // The following methods need to be public for access by AMI callbacks.
     //
     std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrxPtr&, bool);
-    void addAndEvictProxies(const Ice::ObjectPrxPtr&, const Ice::ObjectProxySeq&);
 
 private:
+
+    void addAndEvictProxies(const Ice::Identity&, const Ice::ObjectProxySeq&);
 
     const Ice::RouterPrxPtr _router;
     std::vector<EndpointIPtr> _clientEndpoints;
