@@ -1,23 +1,34 @@
 name: Build Ice
 
+inputs:
+  language:
+    description: "The programming language to build"
+    required: true
+    type: string
+  make_flags:
+    description: "Additional flags to pass to make"
+    required: false
+    default: ""
+    type: string
+
 runs:
   using: "composite"
   steps:
     # Linux / macOS
     - name: Build C++ Dependencies
-      run: make -j3 V=1 -C cpp srcs
+      run: make ${{ inputs.make_flags }} -j3 V=1 -C cpp srcs
       shell: bash
-      if: runner.os == 'macOS' || runner.os == 'Linux'
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language != 'cpp')
 
     - name: Build C++ Tests for Scripting Languages
-      run: make -j3 V=1 -C cpp tests
+      run: make ${{ inputs.make_flags }} -j3 V=1 -C cpp tests
       shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (matrix.language == 'php' || matrix.language == 'js' || matrix.language == 'ruby')
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'php' || inputs.language == 'js' || inputs.language == 'ruby')
 
-    - name: Build ${{ matrix.language }}
-      working-directory: ./${{ matrix.language }}
+    - name: Build ${{ inputs.language }}
+      working-directory: ./${{ inputs.language }}
       run: |
-        make -j3 V=1
+        make ${{ inputs.make_flags }} -j3 V=1
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
@@ -26,10 +37,10 @@ runs:
       run: msbuild /m /p:Platform=x64 msbuild/ice.proj
       working-directory: ./cpp
       shell: powershell
-      if: runner.os == 'Windows'
+      if: (runner.os == 'Windows') && (inputs.language != 'cpp')
 
-    - name: Build ${{ matrix.language }}
+    - name: Build ${{ inputs.language }}
       run: msbuild /m /p:Platform=x64 msbuild/ice.proj
-      working-directory: ./${{ matrix.language }}
+      working-directory: ./${{ inputs.language }}
       shell: powershell
       if: runner.os == 'Windows'
