@@ -33,7 +33,7 @@ jobs:
             language: ruby
           - os: macos-14
             language: cpp
-            make_flags: "CONFIGS=xcodesdk"
+            make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
             test_flags: "--platform=iphonesimulator"
 
           - os: ubuntu-latest
@@ -62,7 +62,7 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
-      - name: Build ${{ matrix.language }} on ${{ matrix.os }}
+      - name: Build ${{ matrix.language }} ${{matrix.make_flags}} on ${{ matrix.os }}
         uses: ./.github/actions/build
         timeout-minutes: 90
         with:
