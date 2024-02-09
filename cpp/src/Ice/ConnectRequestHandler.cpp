@@ -25,13 +25,6 @@ ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref) :
 {
 }
 
-RequestHandlerPtr
-ConnectRequestHandler::connect()
-{
-    unique_lock lock(_mutex);
-    return _requestHandler ? _requestHandler : shared_from_this();
-}
-
 AsyncStatus
 ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 {

@@ -55,7 +55,6 @@ private:
 
     std::deque<ProxyOutgoingAsyncBasePtr> _requests;
 
-    RequestHandlerPtr _requestHandler;
     std::mutex _mutex;
     std::condition_variable _conditionVariable;
 };

@@ -54,7 +54,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
     {
         ref->getConnection(handler);
     }
-    return handler->connect();
+    return handler;
 }
 
 void
