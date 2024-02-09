@@ -413,7 +413,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
 }
 
 IceInternal::SocketOperation
-IceSSL::SecureTransport::TransceiverI::closing(bool initiator, const Ice::LocalException&)
+IceSSL::SecureTransport::TransceiverI::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

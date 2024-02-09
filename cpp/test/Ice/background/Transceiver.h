@@ -16,7 +16,7 @@ public:
     Transceiver(const IceInternal::TransceiverPtr&);
     IceInternal::NativeInfoPtr getNativeInfo() final;
 
-    IceInternal::SocketOperation closing(bool, const Ice::LocalException&) final;
+    IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
     void close();
     IceInternal::SocketOperation write(IceInternal::Buffer&) final;
     IceInternal::SocketOperation read(IceInternal::Buffer&) final;

@@ -31,21 +31,21 @@ class RetryException
 {
 public:
 
-    RetryException(const Ice::LocalException&);
+    RetryException(std::exception_ptr);
     RetryException(const RetryException&);
 
-    const Ice::LocalException* get() const;
+    std::exception_ptr get() const;
 
 private:
 
-    std::unique_ptr<Ice::LocalException> _ex;
+    std::exception_ptr _ex;
 };
 
 class CancellationHandler
 {
 public:
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&) = 0;
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) = 0;
 };
 
 class RequestHandler : public CancellationHandler

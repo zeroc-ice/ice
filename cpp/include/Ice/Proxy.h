@@ -125,9 +125,9 @@ public:
             }
             OutgoingAsync::invoke(operation);
         }
-        catch(const Ice::Exception& ex)
+        catch (const std::exception&)
         {
-            abort(ex);
+            abort(std::current_exception());
         }
     }
 
@@ -1174,7 +1174,7 @@ public:
 
     const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
 
-    int _handleException(const ::Ice::Exception&, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
+    int _handleException(std::exception_ptr, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
                           bool, int&);
 
     void _checkTwowayOnly(const ::std::string&) const;

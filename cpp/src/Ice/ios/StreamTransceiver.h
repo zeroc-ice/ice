@@ -53,7 +53,7 @@ public:
     virtual void closeStreams();
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
+    virtual IceInternal::SocketOperation closing(bool, std::exception_ptr);
     virtual void close();
 
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);

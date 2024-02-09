@@ -286,7 +286,7 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
 }
 
 SocketOperation
-IceObjC::StreamTransceiver::closing(bool initiator, const Ice::LocalException&)
+IceObjC::StreamTransceiver::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.

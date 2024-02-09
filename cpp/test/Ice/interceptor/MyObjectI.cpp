@@ -121,14 +121,7 @@ MyObjectI::amdAddWithRetryAsync(int x,
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        try
-        {
-            throw MyRetryException();
-        }
-        catch(...)
-        {
-            error(std::current_exception());
-        }
+        error(make_exception_ptr(MyRetryException()));
     }
 }
 
@@ -143,14 +136,7 @@ MyObjectI::amdBadAddAsync(int,
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
-            try
-            {
-                throw Test::InvalidInputException();
-            }
-            catch(...)
-            {
-                error(std::current_exception());
-            }
+            error(make_exception_ptr(Test::InvalidInputException()));
         });
     t.detach();
 }
@@ -166,14 +152,7 @@ MyObjectI::amdNotExistAddAsync(int,
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
-            try
-            {
-                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-            }
-            catch(...)
-            {
-                error(std::current_exception());
-            }
+            error(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
         });
     t.detach();
 }
@@ -189,14 +168,7 @@ MyObjectI::amdBadSystemAddAsync(int,
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
-            try
-            {
-                throw MySystemException(__FILE__, __LINE__);
-            }
-            catch(...)
-            {
-                error(std::current_exception());
-            }
+            error(make_exception_ptr(MySystemException(__FILE__, __LINE__)));
         });
     t.detach();
 }

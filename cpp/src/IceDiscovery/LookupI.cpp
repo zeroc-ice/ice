@@ -125,14 +125,7 @@ AdapterRequest::invokeWithLookup(const string& domainId, const LookupPrxPtr& loo
     auto self = shared_from_this();
     lookup->findAdapterByIdAsync(domainId, _id, lookupReply, nullptr, [self](exception_ptr ex)
     {
-        try
-        {
-            rethrow_exception(ex);
-        }
-        catch(const Ice::LocalException& e)
-        {
-            self->_lookup->adapterRequestException(self, e);
-        }
+        self->_lookup->adapterRequestException(self, ex);
     });
 }
 
@@ -159,14 +152,7 @@ ObjectRequest::invokeWithLookup(const string& domainId, const LookupPrxPtr& look
     auto self = shared_from_this();
     lookup->findObjectByIdAsync(domainId, _id, lookupReply, nullptr, [self](exception_ptr ex)
     {
-        try
-        {
-            rethrow_exception(ex);
-        }
-        catch(const Ice::LocalException& e)
-        {
-            self->_lookup->objectRequestException(self, e);
-        }
+        self->_lookup->objectRequestException(self, ex);
     });
 }
 
@@ -418,7 +404,7 @@ LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
 }
 
 void
-LookupI::adapterRequestException(const AdapterRequestPtr& request, const LocalException& ex)
+LookupI::adapterRequestException(const AdapterRequestPtr& request, exception_ptr ex)
 {
     lock_guard lock(_mutex);
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(request->getId());
@@ -431,9 +417,17 @@ LookupI::adapterRequestException(const AdapterRequestPtr& request, const LocalEx
     {
         if(_warnOnce)
         {
-            Warning warn(_lookup->ice_getCommunicator()->getLogger());
-            warn << "failed to lookup adapter `" << p->first << "' with lookup proxy `" << _lookup << "':\n" << ex;
-            _warnOnce = false;
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const std::exception& e)
+            {
+                Warning warn(_lookup->ice_getCommunicator()->getLogger());
+                warn << "failed to lookup adapter `" << p->first << "' with lookup proxy `" << _lookup << "':\n" << e;
+                _warnOnce = false;
+            }
+
         }
         _timer->cancel(request);
         _adapterRequests.erase(p);
@@ -469,7 +463,7 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
 }
 
 void
-LookupI::objectRequestException(const ObjectRequestPtr& request, const LocalException& ex)
+LookupI::objectRequestException(const ObjectRequestPtr& request, exception_ptr ex)
 {
     lock_guard lock(_mutex);
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(request->getId());
@@ -482,10 +476,17 @@ LookupI::objectRequestException(const ObjectRequestPtr& request, const LocalExce
     {
         if(_warnOnce)
         {
-            Warning warn(_lookup->ice_getCommunicator()->getLogger());
-            string id = _lookup->ice_getCommunicator()->identityToString(p->first);
-            warn << "failed to lookup object `" << id << "' with lookup proxy `" << _lookup << "':\n" << ex;
-            _warnOnce = false;
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const std::exception& e)
+            {
+                Warning warn(_lookup->ice_getCommunicator()->getLogger());
+                string id = _lookup->ice_getCommunicator()->identityToString(p->first);
+                warn << "failed to lookup object `" << id << "' with lookup proxy `" << _lookup << "':\n" << e;
+                _warnOnce = false;
+            }
         }
         _timer->cancel(request);
         _objectRequests.erase(p);

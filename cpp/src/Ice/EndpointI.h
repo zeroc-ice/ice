@@ -30,7 +30,7 @@ public:
     virtual ~EndpointI_connectors();
 
     virtual void connectors(const std::vector<ConnectorPtr>&) = 0;
-    virtual void exception(const Ice::LocalException&) = 0;
+    virtual void exception(std::exception_ptr) = 0;
 };
 
 class ICE_API EndpointI : public Ice::Endpoint

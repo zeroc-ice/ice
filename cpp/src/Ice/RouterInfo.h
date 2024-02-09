@@ -55,7 +55,7 @@ public:
     public:
 
         virtual void setEndpoints(const std::vector<EndpointIPtr>&) = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
+        virtual void setException(std::exception_ptr) = 0;
     };
     using GetClientEndpointsCallbackPtr = std::shared_ptr<GetClientEndpointsCallback>;
 
@@ -64,7 +64,7 @@ public:
     public:
 
         virtual void addedProxy() = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
+        virtual void setException(std::exception_ptr) = 0;
     };
     using AddProxyCallbackPtr = std::shared_ptr<AddProxyCallback>;
 
@@ -84,7 +84,7 @@ public:
     }
     void getClientProxyResponse(const Ice::ObjectPrxPtr&, const std::optional<bool>&,
                                 const GetClientEndpointsCallbackPtr&);
-    void getClientProxyException(const Ice::Exception&, const GetClientEndpointsCallbackPtr&);
+    void getClientProxyException(std::exception_ptr, const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getClientEndpoints();
     void getClientEndpoints(const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getServerEndpoints();
@@ -117,7 +117,7 @@ public:
     using AddProxyCookiePtr = std::shared_ptr<AddProxyCookie>;
 
     void addProxyResponse(const Ice::ObjectProxySeq&, const AddProxyCookiePtr&);
-    void addProxyException(const Ice::Exception&, const AddProxyCookiePtr&);
+    void addProxyException(std::exception_ptr, const AddProxyCookiePtr&);
     bool addProxy(const Ice::ObjectPrxPtr&, const AddProxyCallbackPtr&);
 
     void setAdapter(const Ice::ObjectAdapterPtr&);

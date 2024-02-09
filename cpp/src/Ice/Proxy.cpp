@@ -442,7 +442,7 @@ Ice::ObjectPrx::ice_getCachedConnection() const
 }
 
 int
-Ice::ObjectPrx::_handleException(const Exception& ex,
+Ice::ObjectPrx::_handleException(std::exception_ptr ex,
                                  const RequestHandlerPtr& handler,
                                  OperationMode mode,
                                  bool sent,
@@ -465,27 +465,34 @@ Ice::ObjectPrx::_handleException(const Exception& ex,
     // If the request didn't get sent or if it's non-mutating or idempotent it can
     // also always be retried if the retry count isn't reached.
     //
-    const LocalException* localEx = dynamic_cast<const LocalException*>(&ex);
-    if(localEx && (!sent ||
-                   mode == OperationMode::Nonmutating || mode == OperationMode::Idempotent ||
-                   dynamic_cast<const CloseConnectionException*>(&ex) ||
-                   dynamic_cast<const ObjectNotExistException*>(&ex)))
+
+    try
     {
-        try
-        {
-            return _reference->getInstance()->proxyFactory()->checkRetryAfterException(*localEx, _reference, cnt);
-        }
-        catch(const CommunicatorDestroyedException&)
-        {
-            //
-            // The communicator is already destroyed, so we cannot retry.
-            //
-            ex.ice_throw();
-        }
+        rethrow_exception(ex);
     }
-    else
+    catch (const Ice::LocalException& localEx)
     {
-        ex.ice_throw(); // Retry could break at-most-once semantics, don't retry.
+        if (!sent ||
+                mode == OperationMode::Nonmutating || mode == OperationMode::Idempotent ||
+                dynamic_cast<const CloseConnectionException*>(&localEx) ||
+                dynamic_cast<const ObjectNotExistException*>(&localEx))
+        {
+            try
+            {
+                return _reference->getInstance()->proxyFactory()->checkRetryAfterException(ex, _reference, cnt);
+            }
+            catch (const CommunicatorDestroyedException&)
+            {
+                //
+                // The communicator is already destroyed, so we cannot retry.
+                //
+                rethrow_exception(ex);
+            }
+        }
+        else
+        {
+            throw; // Retry could break at-most-once semantics, don't retry.
+        }
     }
     return 0; // Keep the compiler happy.
 }

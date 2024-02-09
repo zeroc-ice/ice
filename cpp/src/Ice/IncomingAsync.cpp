@@ -90,9 +90,9 @@ IceInternal::IncomingAsync::completed(exception_ptr ex)
     {
         rethrow_exception(ex);
     }
-    catch(const std::exception& exc)
+    catch(const std::exception&)
     {
-        IncomingBase::exception(exc, true); // User thread
+        IncomingBase::exception(current_exception(), true); // User thread
     }
     catch(...)
     {

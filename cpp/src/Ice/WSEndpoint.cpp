@@ -237,7 +237,7 @@ IceInternal::WSEndpoint::connectors_async(EndpointSelectionType selType,
             _callback->connectors(connectors);
         }
 
-        virtual void exception(const LocalException& ex)
+        virtual void exception(std::exception_ptr ex)
         {
             _callback->exception(ex);
         }

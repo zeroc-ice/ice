@@ -62,7 +62,7 @@ IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeB
 }
 
 SocketOperation
-IceInternal::UdpTransceiver::closing(bool, const Ice::LocalException&)
+IceInternal::UdpTransceiver::closing(bool, exception_ptr)
 {
     // Nothing to do.
     return SocketOperationNone;

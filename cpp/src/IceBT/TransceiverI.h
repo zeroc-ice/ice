@@ -27,7 +27,7 @@ public:
     IceInternal::NativeInfoPtr getNativeInfo() final;
 
     IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
-    IceInternal::SocketOperation closing(bool, const Ice::LocalException&) final;
+    IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
     void close() final;
     IceInternal::SocketOperation write(IceInternal::Buffer&) final;
     IceInternal::SocketOperation read(IceInternal::Buffer&) final;
@@ -46,10 +46,10 @@ private:
     std::string _addr;
     std::string _uuid;
     bool _needConnect;
-    std::unique_ptr<Ice::Exception> _exception;
+    std::exception_ptr _exception;
     std::mutex _mutex;
     void connectCompleted(int, const ConnectionPtr&);
-    void connectFailed(const Ice::LocalException&);
+    void connectFailed(std::exception_ptr);
 
     class ConnectCallbackI final : public ConnectCallback
     {
@@ -65,7 +65,7 @@ private:
             _transceiver->connectCompleted(fd, conn);
         }
 
-        void failed(const Ice::LocalException& ex) final
+        void failed(std::exception_ptr ex) final
         {
             _transceiver->connectFailed(ex);
         }

@@ -1206,12 +1206,12 @@ public:
         catch(const DBus::Exception& ex)
         {
             ok = false;
-            cb->failed(BluetoothException(__FILE__, __LINE__, ex.reason));
+            cb->failed(make_exception_ptr(BluetoothException(__FILE__, __LINE__, ex.reason)));
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
             ok = false;
-            cb->failed(ex);
+            cb->failed(current_exception());
         }
 
         //
