@@ -10,6 +10,7 @@
 #include <IceUtil/ConsoleUtil.h>
 #include <climits>
 #include <cstring>
+#include <algorithm>
 
 #ifndef _MSC_VER
 #  include <unistd.h> // For readlink()

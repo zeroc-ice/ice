@@ -5,6 +5,9 @@
 #include <IceSSL/OpenSSLUtil.h>
 
 #include <openssl/err.h>
+
+#include <sstream>
+
 //
 // Avoid old style cast warnings from OpenSSL macros
 //

@@ -14,6 +14,7 @@
 #include <cstring>
 #include <climits>
 #include <mutex>
+#include <algorithm>
 
 using namespace std;
 using namespace Slice;

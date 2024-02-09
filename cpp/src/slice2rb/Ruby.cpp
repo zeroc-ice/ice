@@ -12,6 +12,7 @@
 #include <Slice/Util.h>
 
 #include <mutex>
+#include <algorithm>
 
 #include <string.h>
 

@@ -16,6 +16,8 @@
 #include <Ice/StreamSocket.h>
 #include <Ice/WSTransceiver.h>
 
+#include <openssl/ssl.h>
+
 typedef struct ssl_st SSL;
 typedef struct bio_st BIO;
 

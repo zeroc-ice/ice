@@ -11,6 +11,7 @@
 #include <Slice/Util.h>
 #include "Gen.h"
 
+#include <algorithm>
 #include <mutex>
 
 using namespace std;
