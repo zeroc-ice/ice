@@ -36,8 +36,8 @@ extern "C"
 Plugin*
 createIceTCP(const CommunicatorPtr& com, const string&, const StringSeq&)
 {
-    IceObjC::InstancePtr tcpInstance = new IceObjC::Instance(com, TCPEndpointType, "tcp", false);
-    return new EndpointFactoryPlugin(com, new IceObjC::StreamEndpointFactory(tcpInstance));
+    IceObjC::InstancePtr tcpInstance = make_shared<IceObjC::Instance>(com, TCPEndpointType, "tcp", false);
+    return new EndpointFactoryPlugin(com, make_shared<IceObjC::StreamEndpointFactory>(tcpInstance));
 }
 
 }
