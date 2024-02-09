@@ -539,7 +539,6 @@
     <ClCompile Include="..\..\Instance.cpp" />
     <ClCompile Include="..\..\InstrumentationI.cpp" />
     <ClCompile Include="..\..\IPEndpointI.cpp" />
-    <ClCompile Include="..\..\LocalObject.cpp" />
     <ClCompile Include="..\..\LocatorInfo.cpp" />
     <ClCompile Include="..\..\LoggerAdminI.cpp" />
     <ClCompile Include="..\..\LoggerI.cpp" />
