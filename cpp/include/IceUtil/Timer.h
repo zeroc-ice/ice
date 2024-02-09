@@ -39,7 +39,7 @@ using TimerTaskPtr = std::shared_ptr<TimerTask>;
 // repeated execution. Tasks are executed by the dedicated timer thread
 // sequentially.
 //
-class ICE_API Timer : protected Thread
+class ICE_API Timer : public Thread
 {
 public:
 

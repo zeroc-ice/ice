@@ -154,7 +154,7 @@ Timer::run()
             {
                 //
                 // If the task we just ran is a repeated task, schedule it
-                // again for executation if it wasn't canceled.
+                // again for execution if it wasn't canceled.
                 //
                 if(token.delay != IceUtil::Time())
                 {
