@@ -34,7 +34,7 @@ public:
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
 
-    // setConnection and setException the response and exception for RoutableReference::getConnectionAsync.
+    // setConnection and setException are the response and exception for RoutableReference::getConnectionAsync.
     void setConnection(Ice::ConnectionIPtr, bool);
     void setException(std::exception_ptr);
 
