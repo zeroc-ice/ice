@@ -19,10 +19,7 @@
 namespace IceInternal
 {
 
-class ConnectRequestHandler final :
-    public RequestHandler,
-    public Reference::GetConnectionCallback,
-    public std::enable_shared_from_this<ConnectRequestHandler>
+class ConnectRequestHandler final : public RequestHandler, public std::enable_shared_from_this<ConnectRequestHandler>
 {
 public:
 
@@ -37,12 +34,11 @@ public:
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
 
-    virtual void setConnection(const Ice::ConnectionIPtr&, bool);
-    virtual void setException(std::exception_ptr);
+    // setConnection and setException the response and exception for RoutableReference::getConnectionAsync.
+    void setConnection(Ice::ConnectionIPtr, bool);
+    void setException(std::exception_ptr);
 
 private:
-
-    void addedProxy();
 
     bool initialized(std::unique_lock<std::mutex>&);
     void flushRequests();
