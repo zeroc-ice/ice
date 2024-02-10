@@ -50,15 +50,6 @@ class RouterInfo final : public std::enable_shared_from_this<RouterInfo>
 {
 public:
 
-    class GetClientEndpointsCallback
-    {
-    public:
-
-        virtual void setEndpoints(const std::vector<EndpointIPtr>&) = 0;
-        virtual void setException(std::exception_ptr) = 0;
-    };
-    using GetClientEndpointsCallbackPtr = std::shared_ptr<GetClientEndpointsCallback>;
-
     RouterInfo(const Ice::RouterPrxPtr&);
 
     void destroy();
@@ -73,16 +64,17 @@ public:
         //
         return _router;
     }
-    void getClientProxyResponse(const Ice::ObjectPrxPtr&, const std::optional<bool>&,
-                                const GetClientEndpointsCallbackPtr&);
-    void getClientProxyException(std::exception_ptr, const GetClientEndpointsCallbackPtr&);
+
     std::vector<EndpointIPtr> getClientEndpoints();
-    void getClientEndpoints(const GetClientEndpointsCallbackPtr&);
+
+    void getClientEndpointsAsync(
+        std::function<void(std::vector<EndpointIPtr>)> response,
+        std::function<void(std::exception_ptr)> ex);
 
     std::vector<EndpointIPtr> getServerEndpoints();
 
     bool addProxyAsync(
-        const Ice::ObjectPrxPtr& proxy,
+        const ReferencePtr& proxy,
         std::function<void()> response,
         std::function<void(std::exception_ptr)> ex);
 
@@ -91,13 +83,10 @@ public:
 
     void clearCache(const ReferencePtr&);
 
-    //
-    // The following methods need to be public for access by AMI callbacks.
-    //
-    std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrxPtr&, bool);
-    void addAndEvictProxies(const Ice::ObjectPrxPtr&, const Ice::ObjectProxySeq&);
-
 private:
+
+    void addAndEvictProxies(const Ice::Identity&, const Ice::ObjectProxySeq&);
+    std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrxPtr&, bool);
 
     const Ice::RouterPrxPtr _router;
     std::vector<EndpointIPtr> _clientEndpoints;

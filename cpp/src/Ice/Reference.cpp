@@ -1414,49 +1414,31 @@ IceInternal::RoutableReference::getBatchRequestQueue() const
 void
 IceInternal::RoutableReference::getConnection(const GetConnectionCallbackPtr& callback) const
 {
-    class Callback final : public RouterInfo::GetClientEndpointsCallback
-    {
-    public:
-
-        void setEndpoints(const vector<EndpointIPtr>& endpoints) final
-        {
-            vector<EndpointIPtr> endpts = endpoints;
-            if(!endpts.empty())
-            {
-                _reference->applyOverrides(endpts);
-                _reference->createConnection(endpts, _callback);
-                return;
-            }
-
-            _reference->getConnectionNoRouterInfo(_callback);
-        }
-
-        void setException(std::exception_ptr ex) final
-        {
-            _callback->setException(ex);
-        }
-
-        Callback(const RoutableReferencePtr& reference, const GetConnectionCallbackPtr& callback) :
-            _reference(reference), _callback(callback)
-        {
-        }
-
-    private:
-
-        const RoutableReferencePtr _reference;
-        const GetConnectionCallbackPtr _callback;
-    };
-
     if(_routerInfo)
     {
         //
         // If we route, we send everything to the router's client
         // proxy endpoints.
         //
-        _routerInfo->getClientEndpoints(
-            make_shared<Callback>(
-                dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this()),
-                callback));
+        auto self = dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
+
+        _routerInfo->getClientEndpointsAsync(
+            [self, callback](vector<EndpointIPtr> endpoints)
+            {
+                if (!endpoints.empty())
+                {
+                    self->applyOverrides(endpoints);
+                    self->createConnection(endpoints, callback);
+                }
+                else
+                {
+                    self->getConnectionNoRouterInfo(callback);
+                }
+            },
+            [callback](std::exception_ptr ex)
+            {
+                callback->setException(ex);
+            });
         return;
     }
 
