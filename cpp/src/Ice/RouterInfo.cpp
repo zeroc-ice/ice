@@ -164,7 +164,7 @@ IceInternal::RouterInfo::getClientEndpointsAsync(
     _router->getClientProxyAsync(
         [self, response](const Ice::ObjectPrxPtr& proxy, optional<bool> hasRoutingTable)
         {
-            response(self->setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true));
+            response(self->setClientEndpoints(proxy, hasRoutingTable.value_or(true)));
         },
         ex);
 }
