@@ -13,7 +13,7 @@ namespace IceInternal
 {
 
 // Represents an incoming request dispatched with AMD.
-class ICE_API IncomingAsync : public IncomingBase, public std::enable_shared_from_this<IncomingAsync>
+class ICE_API IncomingAsync final : public IncomingBase, public std::enable_shared_from_this<IncomingAsync>
 {
 public:
 

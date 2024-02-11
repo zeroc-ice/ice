@@ -106,7 +106,7 @@ protected:
     DispatchInterceptorCallbacks _interceptorCBs;
 };
 
-class ICE_API Incoming : public IncomingBase
+class ICE_API Incoming final : public IncomingBase
 {
 public:
 
