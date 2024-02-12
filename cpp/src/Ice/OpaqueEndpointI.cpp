@@ -174,8 +174,7 @@ IceInternal::OpaqueEndpointI::connectorsAsync(
     function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)>) const
 {
-    vector<ConnectorPtr> connectors;
-    response(connectors);
+    response(vector<ConnectorPtr>());
 }
 
 AcceptorPtr
