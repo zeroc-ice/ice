@@ -87,8 +87,8 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
     }
 }
 
-IceObjC::Instance::Instance(const IceObjC::Instance& instance, const ProtocolInstancePtr& protocolInstance) :
-    Instance(instance._communicator, protocolInstance->type(), protocolInstance->protocol(), protocolInstance->secure())
+IceObjC::Instance::Instance(const IceObjC::InstancePtr& instance, const ProtocolInstancePtr& protocolInstance) :
+    Instance(instance->_communicator, protocolInstance->type(), protocolInstance->protocol(), protocolInstance->secure())
 {
 }
 
@@ -455,6 +455,6 @@ IceObjC::StreamEndpointFactory::destroy()
 EndpointFactoryPtr
 IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
-    return make_shared<StreamEndpointFactory>(make_shared<IceObjC::Instance>(*_instance.get(), instance));
+    return make_shared<StreamEndpointFactory>(make_shared<IceObjC::Instance>(_instance, instance));
 }
 #endif

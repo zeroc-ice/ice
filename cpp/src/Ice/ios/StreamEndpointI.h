@@ -30,12 +30,15 @@ class InputStream;
 namespace IceObjC
 {
 
+class Instance;
+using InstancePtr = std::shared_ptr<Instance>;
+
 class Instance : public IceInternal::ProtocolInstance
 {
 public:
 
     Instance(const Ice::CommunicatorPtr&, Ice::Short, const std::string&, bool);
-    Instance(const Instance&, const IceInternal::ProtocolInstancePtr&);
+    Instance(const InstancePtr&, const IceInternal::ProtocolInstancePtr&);
     ~Instance() = default;
 
     const std::string& proxyHost() const
@@ -57,8 +60,6 @@ private:
     std::string _proxyHost;
     int _proxyPort;
 };
-
-using InstancePtr = std::shared_ptr<Instance>;
 
 class StreamAcceptor;
 using StreamAcceptorPtr = std::shared_ptr<StreamAcceptor>;
