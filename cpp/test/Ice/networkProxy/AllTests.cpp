@@ -17,7 +17,7 @@ getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
 {
     for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
     {
-        Ice::IPConnectionInfoPtr ipInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, p);
+        Ice::IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
         if(ipInfo)
         {
             return ipInfo;

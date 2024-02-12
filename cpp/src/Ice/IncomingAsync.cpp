@@ -28,7 +28,7 @@ std::mutex globalMutex;
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
     _responseSent(false),
-    _responseHandlerCopy(ICE_GET_SHARED_FROM_THIS(_responseHandler))
+    _responseHandlerCopy(_responseHandler->shared_from_this())
 {
 }
 

@@ -1124,7 +1124,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             else
             {
                 _initData.logger = getProcessLogger();
-                if(ICE_DYNAMIC_CAST(LoggerI, _initData.logger))
+                if(dynamic_pointer_cast<LoggerI>(_initData.logger))
                 {
                     _initData.logger = make_shared<LoggerI>(_initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
                 }
@@ -1616,7 +1616,7 @@ IceInternal::Instance::destroy()
         _initData.observer->setObserverUpdater(0); // Break cyclic reference count.
     }
 
-    LoggerAdminLoggerPtr logger = ICE_DYNAMIC_CAST(LoggerAdminLogger, _initData.logger);
+    LoggerAdminLoggerPtr logger = dynamic_pointer_cast<LoggerAdminLogger>(_initData.logger);
     if(logger)
     {
         //

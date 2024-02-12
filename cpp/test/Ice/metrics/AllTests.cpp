@@ -258,7 +258,7 @@ getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, Ice::Long e
     IceMX::ConnectionMetricsPtr s;
     int nRetry = 30;
     Ice::Long timestamp;
-    s = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, metrics->getMetricsView("View", timestamp)["Connection"][0]);
+    s = dynamic_pointer_cast<IceMX::ConnectionMetrics>(metrics->getMetricsView("View", timestamp)["Connection"][0]);
     while(s->sentBytes != expected && nRetry-- > 0)
     {
         // On some platforms, it's necessary to wait a little before obtaining the server metrics
@@ -266,7 +266,7 @@ getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, Ice::Long e
         // to the operation is sent and getMetricsView can be dispatched before the metric is really
         // updated.
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-        s = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, metrics->getMetricsView("View", timestamp)["Connection"][0]);
+        s = dynamic_pointer_cast<IceMX::ConnectionMetrics>(metrics->getMetricsView("View", timestamp)["Connection"][0]);
     }
     return s;
 }
@@ -644,7 +644,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     test(static_cast<int>(view["Thread"].size()) == threadCount);
     test(view["Invocation"].size() == 1);
 
-    IceMX::InvocationMetricsPtr invoke = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, view["Invocation"][0]);
+    IceMX::InvocationMetricsPtr invoke = dynamic_pointer_cast<IceMX::InvocationMetrics>(view["Invocation"][0]);
     test(invoke->id.find("[ice_ping]") > 0 && invoke->current == 0 && invoke->total == 5);
 
     if(!collocated)
@@ -710,14 +710,14 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->ice_ping();
 
         IceMX::ConnectionMetricsPtr cm1, sm1, cm2, sm2;
-        cm1 = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-        sm1 = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        sm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm1 = getServerConnectionMetrics(serverMetrics, 25);
         test(cm1->total == 1 && sm1->total == 1);
 
         metrics->ice_ping();
 
-        cm2 = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, 50);
 
         test(cm2->sentBytes - cm1->sentBytes == 45); // 45 for ice_ping request
@@ -731,7 +731,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         Test::ByteSeq bs;
         metrics->opByteS(bs);
 
-        cm2 = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + cm2->receivedBytes - cm1->receivedBytes);
         Ice::Long requestSz = cm2->sentBytes - cm1->sentBytes;
         Ice::Long replySz = cm2->receivedBytes - cm1->receivedBytes;
@@ -742,7 +742,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         bs.resize(456);
         metrics->opByteS(bs);
 
-        cm2 = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + replySz);
 
         // 4 is for the seq variable size
@@ -757,7 +757,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         bs.resize(1024 * 1024 * 10); // Try with large amount of data which should be sent in several chunks
         metrics->opByteS(bs);
 
-        cm2 = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + replySz);
 
         // 4 is for the seq variable size
@@ -814,11 +814,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         }
         controller->resume();
 
-        cm1 = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics, clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         while(true)
         {
-            sm1 = ICE_DYNAMIC_CAST(IceMX::ConnectionMetrics,
-                                   serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+            sm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+                serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
             if(sm1->failures >= 2)
             {
                 break;
@@ -1040,25 +1040,25 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         test(map.size() == 5);
     }
 
-    IceMX::DispatchMetricsPtr dm1 = ICE_DYNAMIC_CAST(IceMX::DispatchMetrics, map["op"]);
+    IceMX::DispatchMetricsPtr dm1 = dynamic_pointer_cast<IceMX::DispatchMetrics>(map["op"]);
     test(dm1->current <= 1 && dm1->total == 1 && dm1->failures == 0 && dm1->userException == 0);
     test(dm1->size == 21 && dm1->replySize == 7);
 
-    dm1 = ICE_DYNAMIC_CAST(IceMX::DispatchMetrics, map["opWithUserException"]);
+    dm1 = dynamic_pointer_cast<IceMX::DispatchMetrics>(map["opWithUserException"]);
     test(dm1->current <= 1 && dm1->total == 1 && dm1->failures == 0 && dm1->userException == 1);
     test(dm1->size == 38 && dm1->replySize == 23);
 
-    dm1 = ICE_DYNAMIC_CAST(IceMX::DispatchMetrics, map["opWithLocalException"]);
+    dm1 = dynamic_pointer_cast<IceMX::DispatchMetrics>(map["opWithLocalException"]);
     test(dm1->current <= 1 && dm1->total == 1 && dm1->failures == 1 && dm1->userException == 0);
     checkFailure(serverMetrics, "Dispatch", dm1->id, "::Ice::SyscallException", 1);
     test(dm1->size == 39 && dm1->replySize > 7); // Reply contains the exception stack depending on the OS.
 
-    dm1 = ICE_DYNAMIC_CAST(IceMX::DispatchMetrics, map["opWithRequestFailedException"]);
+    dm1 = dynamic_pointer_cast<IceMX::DispatchMetrics>(map["opWithRequestFailedException"]);
     test(dm1->current <= 1 && dm1->total == 1 && dm1->failures == 1 && dm1->userException == 0);
     checkFailure(serverMetrics, "Dispatch", dm1->id, "::Ice::ObjectNotExistException", 1);
     test(dm1->size == 47 && dm1->replySize == 40);
 
-    dm1 = ICE_DYNAMIC_CAST(IceMX::DispatchMetrics, map["opWithUnknownException"]);
+    dm1 = dynamic_pointer_cast<IceMX::DispatchMetrics>(map["opWithUnknownException"]);
     test(dm1->current <= 1 && dm1->total == 1 && dm1->failures == 1 && dm1->userException == 0);
     checkFailure(serverMetrics, "Dispatch", dm1->id, "unknown", 1);
     test(dm1->size == 41 && dm1->replySize == 23);
@@ -1291,50 +1291,50 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     IceMX::InvocationMetricsPtr im1;
     IceMX::ChildInvocationMetricsPtr rim1;
-    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["op"]);
+    im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["op"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
     test(collocated ? (im1->collocated.size() == 1) : (im1->remotes.size() == 1));
-    rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, collocated ? im1->collocated[0] : im1->remotes[0]);
+    rim1 = dynamic_pointer_cast<IceMX::ChildInvocationMetrics>(collocated ? im1->collocated[0] : im1->remotes[0]);
     test(rim1->current == 0 && rim1->total == 3 && rim1->failures == 0);
     test(rim1->size == 63 && rim1->replySize == 21);
 
-    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["opWithUserException"]);
+    im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["opWithUserException"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
     test(collocated ? (im1->collocated.size() == 1) : (im1->remotes.size() == 1));
-    rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, collocated ? im1->collocated[0] : im1->remotes[0]);
+    rim1 = dynamic_pointer_cast<IceMX::ChildInvocationMetrics>(collocated ? im1->collocated[0] : im1->remotes[0]);
     test(rim1->current == 0 && rim1->total == 3 && rim1->failures == 0);
     test(rim1->size == 114 && rim1->replySize == 69);
     test(im1->userException == 3);
 
-    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["opWithLocalException"]);
+    im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["opWithLocalException"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 3 && im1->retry == 0);
     test(collocated ? (im1->collocated.size() == 1) : (im1->remotes.size() == 1));
-    rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, collocated ? im1->collocated[0] : im1->remotes[0]);
+    rim1 = dynamic_pointer_cast<IceMX::ChildInvocationMetrics>(collocated ? im1->collocated[0] : im1->remotes[0]);
     test(rim1->current == 0 && rim1->total == 3 && rim1->failures == 0);
     test(rim1->size == 117 && rim1->replySize > 7);
     checkFailure(clientMetrics, "Invocation", im1->id, "::Ice::UnknownLocalException", 3);
 
-    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["opWithRequestFailedException"]);
+    im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["opWithRequestFailedException"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 3 && im1->retry == 0);
     test(collocated ? (im1->collocated.size() == 1) : (im1->remotes.size() == 1));
-    rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, collocated ? im1->collocated[0] : im1->remotes[0]);
+    rim1 = dynamic_pointer_cast<IceMX::ChildInvocationMetrics>(collocated ? im1->collocated[0] : im1->remotes[0]);
     test(rim1->current == 0 && rim1->total == 3 && rim1->failures == 0);
     test(rim1->size == 141 && rim1->replySize == 120);
     checkFailure(clientMetrics, "Invocation", im1->id, "::Ice::ObjectNotExistException", 3);
 
-    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["opWithUnknownException"]);
+    im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["opWithUnknownException"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 3 && im1->retry == 0);
     test(collocated ? (im1->collocated.size() == 1) : (im1->remotes.size() == 1));
-    rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, collocated ? im1->collocated[0] : im1->remotes[0]);
+    rim1 = dynamic_pointer_cast<IceMX::ChildInvocationMetrics>(collocated ? im1->collocated[0] : im1->remotes[0]);
     test(rim1->current == 0 && rim1->total == 3 && rim1->failures == 0);
     test(rim1->size == 123 && rim1->replySize == 69);
     checkFailure(clientMetrics, "Invocation", im1->id, "::Ice::UnknownException", 3);
 
     if(!collocated)
     {
-        im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["fail"]);
+        im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["fail"]);
         test(im1->current <= 1 && im1->total == 3 && im1->failures == 3 && im1->retry == 3 && im1->remotes.size() == 1);
-        rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, im1->remotes[0]);
+        rim1 = dynamic_pointer_cast<IceMX::ChildInvocationMetrics>(im1->remotes[0]);
         if(rim1->current != 0 || rim1->total != 6 || rim1->failures != 6)
         {
             cerr << "rim1->current = " << rim1->current << endl;
@@ -1389,10 +1389,10 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 1);
 
-    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["op"]);
+    im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["op"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
     test(collocated ? (im1->collocated.size() == 1) : (im1->remotes.size() == 1));
-    rim1 = ICE_DYNAMIC_CAST(IceMX::ChildInvocationMetrics, collocated ? im1->collocated[0] : im1->remotes[0]);
+    rim1 = dynamic_pointer_cast<IceMX::ChildInvocationMetrics>(collocated ? im1->collocated[0] : im1->remotes[0]);
     test(rim1->current <= 1 && rim1->total == 3 && rim1->failures == 0);
     test(rim1->size == 63 && rim1->replySize == 0);
 
@@ -1413,7 +1413,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 1);
 
-    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["op"]);
+    im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["op"]);
     test(im1->current == 0 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
     test(im1->remotes.size() == 0);
 
@@ -1437,7 +1437,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 2);
 
-    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["ice_flushBatchRequests"]);
+    im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["ice_flushBatchRequests"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
     if(!collocated)
     {
@@ -1459,7 +1459,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
         test(map.size() == 3);
 
-        im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["flushBatchRequests"]);
+        im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["flushBatchRequests"]);
         test(im1->current == 0 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
         test(im1->remotes.size() == 1); // The first operation got sent over a connection
 
@@ -1472,7 +1472,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
         test(map.size() == 2);
 
-        im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["flushBatchRequests"]);
+        im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["flushBatchRequests"]);
         test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
         test(im1->remotes.size() == 1); // The first operation got sent over a connection
     }

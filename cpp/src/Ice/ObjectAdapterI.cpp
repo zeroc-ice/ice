@@ -60,7 +60,7 @@ inline void checkServant(const shared_ptr<Object>& servant)
 
 inline EndpointIPtr toEndpointI(const EndpointPtr& endp)
 {
-    return ICE_DYNAMIC_CAST(EndpointI, endp);
+    return dynamic_pointer_cast<EndpointI>(endp);
 }
 
 }

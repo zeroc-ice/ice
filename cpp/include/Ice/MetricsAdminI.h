@@ -215,7 +215,7 @@ public:
         IceMX::MetricsPtr
         clone() const
         {
-            TPtr metrics = ICE_DYNAMIC_CAST(T, _object->ice_clone());
+            TPtr metrics = std::dynamic_pointer_cast<T>(_object->ice_clone());
             for(typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::const_iterator p =
                     _subMaps.begin(); p != _subMaps.end(); ++p)
             {

@@ -855,7 +855,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:\n" + secStatusToString(err));
     }
 
-    ConnectionInfoPtr info = ICE_DYNAMIC_CAST(ConnectionInfo, getInfo());
+    auto info = dynamic_pointer_cast<ConnectionInfo>(getInfo());
     try
     {
         _engine->verifyPeerCertName(_host, info);
@@ -864,7 +864,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     {
         _trustError = IceSSL::TrustError::HostNameMismatch;
         _verified = false;
-        ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info)->errorCode = IceSSL::TrustError::HostNameMismatch;
+        dynamic_pointer_cast<ExtendedConnectionInfo>(info)->errorCode = IceSSL::TrustError::HostNameMismatch;
         info->verified = false;
         if(_engine->getVerifyPeer() > 0)
         {
