@@ -20,7 +20,7 @@
 #include <Ice/HashUtil.h>
 #include "CollocatedRequestHandler.h"
 #include "ConnectRequestHandler.h"
-#include "ConnectionRequestHandler.h"
+#include "FixedRequestHandler.h"
 #include "ObjectAdapterFactory.h"
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Comparable.h>

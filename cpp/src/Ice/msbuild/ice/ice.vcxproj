@@ -513,7 +513,7 @@
     <ClCompile Include="..\..\Cond.cpp" />
     <ClCompile Include="..\..\ConnectionFactory.cpp" />
     <ClCompile Include="..\..\ConnectionI.cpp" />
-    <ClCompile Include="..\..\ConnectionRequestHandler.cpp" />
+    <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
     <ClCompile Include="..\..\CountDownLatch.cpp" />

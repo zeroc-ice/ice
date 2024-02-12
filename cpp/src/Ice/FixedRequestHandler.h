@@ -12,6 +12,7 @@
 namespace IceInternal
 {
 
+// A request handler for a fixed reference.
 class FixedRequestHandler final :
     public RequestHandler,
     public std::enable_shared_from_this<FixedRequestHandler>

@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ConnectionRequestHandler.h>
+#include <Ice/FixedRequestHandler.h>
 #include <Ice/Proxy.h>
 #include <Ice/Reference.h>
 #include <Ice/ConnectionI.h>
