@@ -267,7 +267,7 @@ IceObjC::iAPEndpointI::connectorsAsync(
 #if defined(__clang__) && !__has_feature(objc_arc)
         [protocol release];
 #endif
-        if(c.empty())
+        if(connectors.empty())
         {
             throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
         }
