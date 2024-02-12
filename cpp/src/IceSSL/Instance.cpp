@@ -15,10 +15,6 @@ IceSSL::Instance::Instance(const SSLEnginePtr& engine, Short type, const string&
 {
 }
 
-IceSSL::Instance::~Instance()
-{
-}
-
 bool
 IceSSL::Instance::initialized() const
 {
