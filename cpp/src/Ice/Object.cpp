@@ -202,6 +202,11 @@ operationModeToString(OperationMode mode)
     case OperationMode::Idempotent:
         return "::Ice::Idempotent";
     }
+    //
+    // This could not happen with C++11 strong type enums
+    //
+    assert(false);
+    return "";
 }
 
 }
