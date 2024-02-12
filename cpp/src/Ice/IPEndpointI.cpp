@@ -95,28 +95,37 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 }
 
 void
-IceInternal::IPEndpointI::connectors_async(Ice::EndpointSelectionType selType, const EndpointI_connectorsPtr& cb) const
+IceInternal::IPEndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    std::function<void(std::vector<ConnectorPtr>)> response,
+    std::function<void(exception_ptr)> exception) const
 {
-    _instance->resolve(_host, _port, selType, const_cast<IPEndpointI*>(this)->shared_from_this(), cb);
+    _instance->resolve(
+        _host,
+        _port,
+        selType,
+        const_cast<IPEndpointI*>(this)->shared_from_this(),
+        std::move(response),
+        std::move(exception));
 }
 
 vector<EndpointIPtr>
 IceInternal::IPEndpointI::expandIfWildcard() const
 {
-    vector<EndpointIPtr> endps;
+    vector<EndpointIPtr> endpoints;
     vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
     if(hosts.empty())
     {
-        endps.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
+        endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
     }
     else
     {
-        for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
+        for (const auto& host : hosts)
         {
-            endps.push_back(createEndpoint(*p, _port, _connectionId));
+            endpoints.push_back(createEndpoint(host, _port, _connectionId));
         }
     }
-    return endps;
+    return endpoints;
 }
 
 vector<EndpointIPtr>
@@ -505,8 +514,13 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 }
 
 void
-IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::EndpointSelectionType selType,
-                                           const IPEndpointIPtr& endpoint, const EndpointI_connectorsPtr& callback)
+IceInternal::EndpointHostResolver::resolve(
+    const string& host,
+    int port,
+    Ice::EndpointSelectionType selType,
+    const IPEndpointIPtr& endpoint,
+    function<void(vector<ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception)
 {
     //
     // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
@@ -520,13 +534,13 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
             vector<Address> addrs = getAddresses(host, port, _protocol, selType, _preferIPv6, false);
             if(!addrs.empty())
             {
-                callback->connectors(endpoint->connectors(addrs, 0));
+                response(endpoint->connectors(addrs, 0));
                 return;
             }
         }
         catch(const Ice::LocalException&)
         {
-            callback->exception(current_exception());
+            exception(current_exception());
             return;
         }
     }
@@ -539,12 +553,13 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
     entry.port = port;
     entry.selType = selType;
     entry.endpoint = endpoint;
-    entry.callback = callback;
+    entry.response = std::move(response);
+    entry.exception = std::move(exception);
 
-    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
-    if(obsv)
+    const CommunicatorObserverPtr& observer = _instance->initializationData().observer;
+    if(observer)
     {
-        entry.observer = obsv->getEndpointLookupObserver(endpoint);
+        entry.observer = observer->getEndpointLookupObserver(endpoint);
         if(entry.observer)
         {
             entry.observer->attach();
@@ -610,7 +625,7 @@ IceInternal::EndpointHostResolver::run()
                 r.observer = 0;
             }
 
-            r.callback->connectors(r.endpoint->connectors(addresses, networkProxy));
+            r.response(r.endpoint->connectors(addresses, networkProxy));
 
             if(threadObserver)
             {
@@ -631,20 +646,19 @@ IceInternal::EndpointHostResolver::run()
                 r.observer->failed(ex.ice_id());
                 r.observer->detach();
             }
-            r.callback->exception(current_exception());
+            r.exception(current_exception());
         }
     }
 
     for(deque<ResolveEntry>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)
     {
         Ice::CommunicatorDestroyedException ex(__FILE__, __LINE__);
-        auto eptr = make_exception_ptr(ex);
         if(p->observer)
         {
             p->observer->failed(ex.ice_id());
             p->observer->detach();
         }
-        p->callback->exception(eptr);
+        p->exception(make_exception_ptr(ex));
     }
     _queue.clear();
 
@@ -658,12 +672,13 @@ void
 IceInternal::EndpointHostResolver::updateObserver()
 {
     lock_guard lock(_mutex);
-    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
-    if(obsv)
+    const CommunicatorObserverPtr& observer = _instance->initializationData().observer;
+    if(observer)
     {
-        _observer.attach(obsv->getThreadObserver("Communicator",
-                                                 name(),
-                                                 ThreadState::ThreadStateIdle,
-                                                 _observer.get()));
+        _observer.attach(observer->getThreadObserver(
+            "Communicator",
+            name(),
+            ThreadState::ThreadStateIdle,
+            _observer.get()));
     }
 }

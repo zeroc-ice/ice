@@ -136,46 +136,29 @@ EndpointI::transceiver() const
 }
 
 void
-EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInternal::EndpointI_connectorsPtr& cb) const
+EndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception) const
 {
-    class Callback : public IceInternal::EndpointI_connectors
-    {
-    public:
-
-        Callback(const IceInternal::EndpointI_connectorsPtr& callback) : _callback(callback)
-        {
-        }
-
-        void
-        connectors(const vector<IceInternal::ConnectorPtr>& connectors)
-        {
-            vector<IceInternal::ConnectorPtr> c;
-            for(vector<IceInternal::ConnectorPtr>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
-            {
-                c.push_back(make_shared<Connector>(*p));
-            }
-            _callback->connectors(c);
-        }
-
-        void
-        exception(std::exception_ptr ex)
-        {
-            _callback->exception(ex);
-        }
-
-    private:
-
-        IceInternal::EndpointI_connectorsPtr _callback;
-    };
-
     try
     {
         _configuration->checkConnectorsException();
-        _endpoint->connectors_async(selType, make_shared<Callback>(cb));
+        _endpoint->connectorsAsync(
+            selType,
+            [response] (vector<IceInternal::ConnectorPtr> connectors)
+            {
+                for (vector<IceInternal::ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); ++it)
+                {
+                    *it = make_shared<Connector>(*it);
+                }
+                response(std::move(connectors));
+            },
+            exception);
     }
     catch(const Ice::LocalException&)
     {
-        cb->exception(current_exception());
+        exception(current_exception());
     }
 }
 

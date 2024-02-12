@@ -980,8 +980,18 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextEndpoint()
 {
     try
     {
+        auto self = shared_from_this();
         assert(_endpointsIter != _endpoints.end());
-        (*_endpointsIter)->connectors_async(_selType, shared_from_this());
+        (*_endpointsIter)->connectorsAsync(
+            _selType,
+            [self](const vector<ConnectorPtr>& connectors)
+            {
+                self->connectors(connectors);
+            },
+            [self](exception_ptr ex)
+            {
+                self->exception(ex);
+            });
 
     }
     catch (const std::exception&)

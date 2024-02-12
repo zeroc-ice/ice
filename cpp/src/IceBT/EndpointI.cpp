@@ -162,11 +162,14 @@ IceBT::EndpointI::transceiver() const
 }
 
 void
-IceBT::EndpointI::connectors_async(EndpointSelectionType /*selType*/, const IceInternal::EndpointI_connectorsPtr& cb) const
+IceBT::EndpointI::connectorsAsync(
+    EndpointSelectionType /*selType*/,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)>) const
 {
     vector<IceInternal::ConnectorPtr> connectors;
-    connectors.push_back(make_shared<ConnectorI>(_instance, _addr, _uuid, _timeout, _connectionId));
-    cb->connectors(connectors);
+    connectors.emplace_back(make_shared<ConnectorI>(_instance, _addr, _uuid, _timeout, _connectionId));
+    response(std::move(connectors));
 }
 
 IceInternal::AcceptorPtr

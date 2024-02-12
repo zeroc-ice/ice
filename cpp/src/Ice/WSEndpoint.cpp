@@ -214,49 +214,32 @@ IceInternal::WSEndpoint::transceiver() const
 }
 
 void
-IceInternal::WSEndpoint::connectors_async(EndpointSelectionType selType,
-                                         const EndpointI_connectorsPtr& callback) const
+IceInternal::WSEndpoint::connectorsAsync(
+    EndpointSelectionType selType,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception) const
 {
-    class CallbackI : public EndpointI_connectors
-    {
-    public:
-
-        CallbackI(const EndpointI_connectorsPtr& callback, const ProtocolInstancePtr& instance,
-                  const string& host, const string& resource) :
-            _callback(callback), _instance(instance), _host(host), _resource(resource)
-        {
-        }
-
-        virtual void connectors(const vector<ConnectorPtr>& c)
-        {
-            vector<ConnectorPtr> connectors = c;
-            for(vector<ConnectorPtr>::iterator p = connectors.begin(); p != connectors.end(); ++p)
-            {
-                *p = make_shared<WSConnector>(_instance, *p, _host, _resource);
-            }
-            _callback->connectors(connectors);
-        }
-
-        virtual void exception(std::exception_ptr ex)
-        {
-            _callback->exception(ex);
-        }
-
-    private:
-
-        const EndpointI_connectorsPtr _callback;
-        const ProtocolInstancePtr _instance;
-        const string _host;
-        const string _resource;
-    };
-
-    ostringstream host;
+    string host;
     IPEndpointInfoPtr info = getIPEndpointInfo(_delegate->getInfo());
     if(info)
     {
-        host << info->host << ":" << info->port;
+        ostringstream os;
+        os << info->host << ":" << info->port;
+        host = os.str();
     }
-    _delegate->connectors_async(selType, make_shared<CallbackI>(callback, _instance, host.str(), _resource));
+
+    auto self = const_cast<WSEndpoint*>(this)->shared_from_this();
+    _delegate->connectorsAsync(
+        selType,
+        [response, host, self](vector<ConnectorPtr> connectors)
+        {
+            for (vector<ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); it++)
+            {
+                *it = make_shared<WSConnector>(self->_instance, *it, host, self->_resource);
+            }
+            response(std::move(connectors));
+        },
+        exception);
 }
 
 AcceptorPtr
