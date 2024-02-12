@@ -60,7 +60,7 @@ namespace Ice
 namespace IceInternal
 {
 
-class ICE_API IncomingBase : private IceUtil::noncopyable
+class ICE_API IncomingBase
 {
 public:
 
@@ -72,20 +72,19 @@ public:
 
     void response(bool);
     void exception(std::exception_ptr, bool);
-    void exception(const std::string&, bool);
 
 protected:
 
     IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
     IncomingBase(IncomingBase&);
+    IncomingBase(const IncomingBase&) = delete;
 
     void warning(const Ice::Exception&) const;
-    void warning(const std::string&) const;
+    void warning(std::exception_ptr) const;
 
     bool servantLocatorFinished(bool);
 
     void handleException(std::exception_ptr, bool);
-    void handleException(const std::string&, bool);
 
     Ice::Current _current;
     std::shared_ptr<Ice::Object> _servant;
@@ -107,13 +106,7 @@ protected:
     DispatchInterceptorCallbacks _interceptorCBs;
 };
 
-// TODO: fix this warning
-#if defined(_MSC_VER)
-#   pragma warning(push)
-#   pragma warning(disable:4239)
-#endif
-
-class ICE_API Incoming : public IncomingBase
+class ICE_API Incoming final : public IncomingBase
 {
 public:
 
@@ -178,10 +171,6 @@ private:
 
     IncomingAsyncPtr _inAsync;
 };
-
-#if defined(_MSC_VER)
-#   pragma warning(pop)
-#endif
 
 }
 
