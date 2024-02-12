@@ -206,10 +206,12 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 }
 
 void
-IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpts,
-                                               bool hasMore,
-                                               Ice::EndpointSelectionType selType,
-                                               const CreateConnectionCallbackPtr& callback)
+IceInternal::OutgoingConnectionFactory::createAsync(
+    const vector<EndpointIPtr>& endpts,
+    bool hasMore,
+    Ice::EndpointSelectionType selType,
+    function<void(Ice::ConnectionIPtr, bool)> response,
+    function<void(std::exception_ptr)> exception)
 {
     assert(!endpts.empty());
 
@@ -227,17 +229,24 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         Ice::ConnectionIPtr connection = findConnection(endpoints, compress);
         if(connection)
         {
-            callback->setConnection(connection, compress);
+            response(connection, compress);
             return;
         }
     }
     catch (const std::exception&)
     {
-        callback->setException(current_exception());
+        exception(current_exception());
         return;
     }
 
-    auto cb = make_shared<ConnectCallback>(_instance, shared_from_this(), endpoints, hasMore, callback, selType);
+    auto cb = make_shared<ConnectCallback>(
+        _instance,
+        shared_from_this(),
+        endpoints,
+        hasMore,
+        std::move(response),
+        std::move(exception),
+        selType);
     cb->getConnectors();
 }
 
@@ -860,17 +869,20 @@ IceInternal::OutgoingConnectionFactory::handleConnectionException(exception_ptr 
     }
 }
 
-IceInternal::OutgoingConnectionFactory::ConnectCallback::ConnectCallback(const InstancePtr& instance,
-                                                                         const OutgoingConnectionFactoryPtr& factory,
-                                                                         const vector<EndpointIPtr>& endpoints,
-                                                                         bool hasMore,
-                                                                         const CreateConnectionCallbackPtr& cb,
-                                                                         Ice::EndpointSelectionType selType) :
+IceInternal::OutgoingConnectionFactory::ConnectCallback::ConnectCallback(
+    const InstancePtr& instance,
+    const OutgoingConnectionFactoryPtr& factory,
+    const vector<EndpointIPtr>& endpoints,
+    bool hasMore,
+    std::function<void(Ice::ConnectionIPtr, bool)> createConnectionResponse,
+    std::function<void(std::exception_ptr)> createConnectionException,
+    Ice::EndpointSelectionType selType) :
     _instance(instance),
     _factory(factory),
     _endpoints(endpoints),
     _hasMore(hasMore),
-    _callback(cb),
+    _createConnectionResponse(std::move(createConnectionResponse)),
+    _createConnectionException(std::move(createConnectionException)),
     _selType(selType)
 {
     _endpointsIter = _endpoints.begin();
@@ -949,7 +961,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::exception(exception_ptr
     }
     else
     {
-        _callback->setException(ex);
+        _createConnectionException(ex);
         _factory->decPendingConnectCount(); // Must be called last.
     }
 }
@@ -968,7 +980,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnectors()
     }
     catch (const std::exception&)
     {
-        _callback->setException(current_exception());
+        _createConnectionException(current_exception());
         return;
     }
 
@@ -1022,12 +1034,12 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::getConnection()
             return;
         }
 
-        _callback->setConnection(connection, compress);
+       _createConnectionResponse(connection, compress);
         _factory->decPendingConnectCount(); // Must be called last.
     }
     catch (const std::exception&)
     {
-        _callback->setException(current_exception());
+        _createConnectionException(current_exception());
         _factory->decPendingConnectCount(); // Must be called last.
     }
 }
@@ -1086,7 +1098,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::setConnection(const Ice
     // Callback from the factory: the connection to one of the callback
     // connectors has been established.
     //
-    _callback->setConnection(connection, compress);
+    _createConnectionResponse(connection, compress);
     _factory->decPendingConnectCount(); // Must be called last.
 }
 
@@ -1096,7 +1108,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::setException(exception_
     //
     // Callback from the factory: connection establishment failed.
     //
-    _callback->setException(ex);
+    _createConnectionException(ex);
     _factory->decPendingConnectCount(); // Must be called last.
 }
 
