@@ -50,7 +50,7 @@
 			containerPortal = 14905C491DF98FD8002AE61B /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 1440D86B1E0186FF00CF7ED3;
-			remoteInfo = Cpp11ControllerBundle;
+			remoteInfo = CppControllerBundle;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -209,7 +209,7 @@
 			dependencies = (
 			);
 			name = CppControllerBundle;
-			productName = Cpp11ControllerBundle;
+			productName = CppControllerBundle;
 			productReference = 1440D86C1E0186FF00CF7ED3 /* CppControllerBundle.bundle */;
 			productType = "com.apple.product-type.bundle";
 		};
