@@ -583,7 +583,7 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
             // our own logger.
             //
             _logger = getProcessLogger();
-            if(ICE_DYNAMIC_CAST(LoggerI, _logger))
+            if(dynamic_pointer_cast<LoggerI>(_logger))
             {
                 string eventLogSource = initData.properties->getPropertyWithDefault("Ice.EventLog.Source", name);
                 _logger = make_shared<SMEventLoggerIWrapper>(make_shared<SMEventLoggerI>(eventLogSource, stringConverter), "");
@@ -710,7 +710,7 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
     if(!_logger)
     {
         _logger = getProcessLogger();
-        if(ICE_DYNAMIC_CAST(LoggerI, _logger))
+        if(dynamic_pointer_cast<LoggerI>(_logger))
         {
             const bool convert =
                 initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&

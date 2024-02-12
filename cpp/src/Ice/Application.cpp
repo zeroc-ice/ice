@@ -71,7 +71,7 @@ Ice::Application::main(int argc, const char* const argv[], ICE_CONFIG_FILE_STRIN
         _appName = argv[0];
     }
 
-    if(argc > 0 && argv[0] && ICE_DYNAMIC_CAST(LoggerI, getProcessLogger()))
+    if(argc > 0 && argv[0] && dynamic_pointer_cast<LoggerI>(getProcessLogger()))
     {
         setProcessLogger(make_shared<LoggerI>(argv[0], "", true));
     }
@@ -124,7 +124,7 @@ Ice::Application::main(int argc, const wchar_t* const argv[], ICE_CONFIG_FILE_ST
 int
 Ice::Application::main(int argc, const char* const argv[], const InitializationData& initializationData, int version)
 {
-    if(argc > 0 && argv[0] && ICE_DYNAMIC_CAST(LoggerI, getProcessLogger()))
+    if(argc > 0 && argv[0] && dynamic_pointer_cast<LoggerI>(getProcessLogger()))
     {
         const bool convert = initializationData.properties ?
             initializationData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
@@ -407,7 +407,7 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
         // If the process logger is the default logger, we now replace it with a
         // a logger which is using the program name for the prefix.
         //
-        if(initData.properties->getProperty("Ice.ProgramName") != "" && ICE_DYNAMIC_CAST(LoggerI, getProcessLogger()))
+        if(initData.properties->getProperty("Ice.ProgramName") != "" && dynamic_pointer_cast<LoggerI>(getProcessLogger()))
         {
             const bool convert =
                 initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&

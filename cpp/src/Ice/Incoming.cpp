@@ -207,7 +207,7 @@ IceInternal::IncomingBase::warning(const Exception& ex) const
         {
             for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
             {
-                Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
+                Ice::IPConnectionInfoPtr ipConnInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(connInfo);
                 if(ipConnInfo)
                 {
                     out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
@@ -250,7 +250,7 @@ IceInternal::IncomingBase::warning(std::exception_ptr ex) const
     {
         for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
         {
-            Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
+            Ice::IPConnectionInfoPtr ipConnInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(connInfo);
             if(ipConnInfo)
             {
                 out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;

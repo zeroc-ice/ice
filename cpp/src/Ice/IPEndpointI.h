@@ -7,7 +7,6 @@
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Monitor.h>
 #include <Ice/IPEndpointIF.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Network.h>

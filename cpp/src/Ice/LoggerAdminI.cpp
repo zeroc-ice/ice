@@ -326,7 +326,7 @@ LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
     // In C++, LoggerAdminI does not keep a "logger" data member to avoid a hard-to-break circular
     // reference, so we retrieve the logger from Current
     //
-    LoggerAdminLoggerIPtr logger = ICE_DYNAMIC_CAST(LoggerAdminLoggerI, current.adapter->getCommunicator()->getLogger());
+    LoggerAdminLoggerIPtr logger = dynamic_pointer_cast<LoggerAdminLoggerI>(current.adapter->getCommunicator()->getLogger());
     assert(logger);
 
     RemoteLoggerPrxPtr remoteLogger = prx->ice_twoway();

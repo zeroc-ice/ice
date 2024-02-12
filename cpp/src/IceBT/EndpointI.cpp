@@ -97,7 +97,7 @@ IceBT::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -116,7 +116,7 @@ IceBT::EndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -135,7 +135,7 @@ IceBT::EndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -172,7 +172,14 @@ IceBT::EndpointI::connectors_async(EndpointSelectionType /*selType*/, const IceI
 IceInternal::AcceptorPtr
 IceBT::EndpointI::acceptor(const string& adapterName) const
 {
-    return make_shared<AcceptorI>(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, adapterName, _addr, _uuid, _name, _channel);
+    return make_shared<AcceptorI>(
+        const_cast<EndpointI*>(this)->shared_from_this(),
+        _instance,
+        adapterName,
+        _addr,
+        _uuid,
+        _name,
+        _channel);
 }
 
 vector<IceInternal::EndpointIPtr>
@@ -191,7 +198,7 @@ IceBT::EndpointI::expandIfWildcard() const
     }
     else
     {
-        endps.push_back(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+        endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
     }
 
     return endps;
@@ -204,7 +211,7 @@ IceBT::EndpointI::expandHost(IceInternal::EndpointIPtr&) const
     // Nothing to do here.
     //
     vector<IceInternal::EndpointIPtr> endps;
-    endps.push_back(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
     return endps;
 }
 
@@ -424,7 +431,7 @@ IceBT::EndpointI::options() const
 Ice::EndpointInfoPtr
 IceBT::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info = make_shared<EndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    EndpointInfoPtr info = make_shared<EndpointInfoI>(const_cast<EndpointI*>(this)->shared_from_this());
     info->addr = _addr;
     info->uuid = _uuid;
     return info;

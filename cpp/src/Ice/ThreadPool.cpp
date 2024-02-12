@@ -788,7 +788,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             if(_nextHandler != _handlers.end())
             {
                 current._ioCompleted = false;
-                current._handler = ICE_GET_SHARED_FROM_THIS(_nextHandler->first);
+                current._handler = _nextHandler->first->shared_from_this();
                 current.operation = _nextHandler->second;
                 ++_nextHandler;
                 thread->setState(ThreadState::ThreadStateInUseForIO);
