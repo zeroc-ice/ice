@@ -150,9 +150,12 @@ protected:
 
     virtual Ice::Int hashInit() const;
 
+    const InstancePtr _instance;
+    bool _overrideCompress;
+    bool _compress; // Only used if _overrideCompress == true
+
 private:
 
-    const InstancePtr _instance;
     const Ice::CommunicatorPtr _communicator;
 
     Mode _mode;
@@ -166,11 +169,6 @@ private:
     Ice::ProtocolVersion _protocol;
     Ice::EncodingVersion _encoding;
     int _invocationTimeout;
-
-protected:
-
-    bool _overrideCompress;
-    bool _compress; // Only used if _overrideCompress == true
 };
 
 class FixedReference : public Reference

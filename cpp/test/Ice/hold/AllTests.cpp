@@ -184,12 +184,14 @@ allTests(Test::TestHelper* helper)
     {
         int value = 0;
         holdSerialized->set(value, 0);
+        // We use the same proxy for all oneway calls.
+        auto holdSerializedOneway = holdSerialized->ice_oneway();
+
         shared_ptr<promise<void>> completed;
         for(int i = 0; i < 10000; ++i)
         {
             completed = make_shared<promise<void>>();
-            // Create a new proxy for each request
-            holdSerialized->ice_oneway()->setOnewayAsync(value + 1, value,
+            holdSerializedOneway->setOnewayAsync(value + 1, value,
                 nullptr,
                 [](exception_ptr)
                 {

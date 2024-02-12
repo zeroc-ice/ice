@@ -450,9 +450,6 @@
     <ClCompile Include="..\..\RequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\RequestHandlerFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\RetryQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

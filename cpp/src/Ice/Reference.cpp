@@ -18,8 +18,10 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/HashUtil.h>
-#include <Ice/RequestHandlerFactory.h>
-#include <Ice/ConnectionRequestHandler.h>
+#include "CollocatedRequestHandler.h"
+#include "ConnectRequestHandler.h"
+#include "ConnectionRequestHandler.h"
+#include "ObjectAdapterFactory.h"
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Comparable.h>
 #include <Ice/StringUtil.h>
@@ -448,6 +450,8 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
                                   int invocationTimeout,
                                   const Ice::Context& ctx) :
     _instance(instance),
+    _overrideCompress(false),
+    _compress(false),
     _communicator(communicator),
     _mode(mode),
     _secure(secure),
@@ -457,15 +461,15 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
     _hashInitialized(false),
     _protocol(protocol),
     _encoding(encoding),
-    _invocationTimeout(invocationTimeout),
-    _overrideCompress(false),
-    _compress(false)
+    _invocationTimeout(invocationTimeout)
 {
 }
 
 IceInternal::Reference::Reference(const Reference& r) :
     enable_shared_from_this<Reference>(),
     _instance(r._instance),
+    _overrideCompress(r._overrideCompress),
+    _compress(r._compress),
     _communicator(r._communicator),
     _mode(r._mode),
     _secure(r._secure),
@@ -475,9 +479,7 @@ IceInternal::Reference::Reference(const Reference& r) :
     _hashInitialized(false),
     _protocol(r._protocol),
     _encoding(r._encoding),
-    _invocationTimeout(r._invocationTimeout),
-    _overrideCompress(r._overrideCompress),
-    _compress(r._compress)
+    _invocationTimeout(r._invocationTimeout)
 {
 }
 
@@ -1401,8 +1403,29 @@ IceInternal::RoutableReference::clone() const
 RequestHandlerPtr
 IceInternal::RoutableReference::getRequestHandler() const
 {
-    return getInstance()->requestHandlerFactory()->getRequestHandler(
-        dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this()));
+    auto self = const_cast<RoutableReference*>(this)->shared_from_this();
+
+    if (_collocationOptimized)
+    {
+        Ice::ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->findObjectAdapter(self);
+        if(adapter)
+        {
+            return make_shared<CollocatedRequestHandler>(self, adapter);
+        }
+    }
+
+    ConnectRequestHandlerPtr handler = make_shared<ConnectRequestHandler>(self);
+    getConnectionAsync(
+        [handler](Ice::ConnectionIPtr connection, bool compress)
+        {
+            handler->setConnection(connection, compress);
+        },
+        [handler](exception_ptr ex)
+        {
+            handler->setException(ex);
+        });
+
+    return handler;
 }
 
 BatchRequestQueuePtr

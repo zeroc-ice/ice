@@ -148,10 +148,11 @@ func allTests(_ helper: TestHelper) throws {
     do {
         var value: Int32 = 0
         _ = try holdSerialized.set(value: value, delay: 0)
+        // We use the same proxy for all oneway calls.
+        let holdSerializedOneway = holdSerialized.ice_oneway()
         var completed: Promise<Void>!
         for i in 0 ..< 10000 {
-            // Create a new proxy for each request
-            completed = holdSerialized.ice_oneway().setOnewayAsync(value: value + 1, expected: value)
+            completed = holdSerializedOneway.setOnewayAsync(value: value + 1, expected: value)
             value += 1
             if (i % 100) == 0 {
                 try completed.wait()
