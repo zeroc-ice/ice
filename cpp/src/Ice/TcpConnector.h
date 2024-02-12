@@ -13,20 +13,20 @@
 namespace IceInternal
 {
 
-class TcpConnector : public Connector
+class TcpConnector final : public Connector
 {
 public:
 
     TcpConnector(const ProtocolInstancePtr&, const Address&, const NetworkProxyPtr&, const Address&, Ice::Int,
                  const std::string&);
-    virtual ~TcpConnector();
-    virtual TransceiverPtr connect();
+    ~TcpConnector();
+    TransceiverPtr connect() final;
 
-    virtual Ice::Short type() const;
-    virtual std::string toString() const;
+    Ice::Short type() const final;
+    std::string toString() const final;
 
-    virtual bool operator==(const Connector&) const;
-    virtual bool operator<(const Connector&) const;
+    bool operator==(const Connector&) const final;
+    bool operator<(const Connector&) const final;
 
 private:
 
