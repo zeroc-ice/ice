@@ -52,7 +52,15 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
     }
     if(connect)
     {
-        ref->getConnection(handler);
+        ref->getConnectionAsync(
+            [handler](Ice::ConnectionIPtr connection, bool compress)
+            {
+                handler->setConnection(connection, compress);
+            },
+            [handler](exception_ptr ex)
+            {
+                handler->setException(ex);
+            });
     }
     return handler;
 }

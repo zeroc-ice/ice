@@ -1412,130 +1412,112 @@ IceInternal::RoutableReference::getBatchRequestQueue() const
 }
 
 void
-IceInternal::RoutableReference::getConnection(const GetConnectionCallbackPtr& callback) const
+IceInternal::RoutableReference::getConnectionAsync(
+    function<void(ConnectionIPtr, bool)> response,
+    function<void(std::exception_ptr)> exception) const
 {
     if(_routerInfo)
     {
-        //
-        // If we route, we send everything to the router's client
-        // proxy endpoints.
-        //
+        // If we route, we send everything to the router's client proxy endpoints.
         auto self = dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
 
         _routerInfo->getClientEndpointsAsync(
-            [self, callback](vector<EndpointIPtr> endpoints)
+            [self, response, exception](vector<EndpointIPtr> endpoints)
             {
-                if (!endpoints.empty())
+                if (endpoints.empty())
                 {
-                    self->applyOverrides(endpoints);
-                    self->createConnection(endpoints, callback);
+                    self->getConnectionNoRouterInfoAsync(response, exception);
                 }
                 else
                 {
-                    self->getConnectionNoRouterInfo(callback);
+                    self->applyOverrides(endpoints);
+                    self->createConnectionAsync(endpoints, response, exception);
                 }
             },
-            [callback](std::exception_ptr ex)
-            {
-                callback->setException(ex);
-            });
+            exception);
         return;
     }
 
-    getConnectionNoRouterInfo(callback);
+    getConnectionNoRouterInfoAsync(response, exception);
 }
 
 void
-IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCallbackPtr& callback) const
+IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
+    function<void(ConnectionIPtr, bool)> response,
+    function<void(std::exception_ptr)> exception) const
 {
     class Callback final : public LocatorInfo::GetEndpointsCallback
     {
     public:
 
-        class Callback2 final : public Reference::GetConnectionCallback
-        {
-        public:
-
-            void setConnection(const Ice::ConnectionIPtr& connection, bool compress) final
-            {
-                _callback->setConnection(connection, compress);
-            }
-
-            void setException(std::exception_ptr exc) final
-            {
-                try
-                {
-                    rethrow_exception(exc);
-                }
-                catch(const Ice::NoEndpointException&)
-                {
-                    _callback->setException(exc); // No need to retry if there's no endpoints.
-                }
-                catch(const Ice::LocalException& ex)
-                {
-                    LocatorInfoPtr locatorInfo = _reference->getLocatorInfo();
-                    assert(locatorInfo);
-                    locatorInfo->clearCache(_reference);
-                    if(_cached)
-                    {
-                        TraceLevelsPtr traceLvls = _reference->getInstance()->traceLevels();
-                        if(traceLvls->retry >= 2)
-                        {
-                            Trace out(_reference->getInstance()->initializationData().logger, traceLvls->retryCat);
-                            out << "connection to cached endpoints failed\n"
-                                << "removing endpoints from cache and trying again\n" << ex;
-                        }
-                        _reference->getConnectionNoRouterInfo(_callback); // Retry.
-                        return;
-                    }
-                    _callback->setException(exc);
-                }
-            }
-
-            Callback2(const RoutableReferencePtr& reference, const GetConnectionCallbackPtr& cb, bool cached) :
-                _reference(reference), _callback(cb), _cached(cached)
-            {
-            }
-
-        private:
-
-            const RoutableReferencePtr _reference;
-            const GetConnectionCallbackPtr _callback;
-            const bool _cached;
-        };
-
         void setEndpoints(const vector<EndpointIPtr>& endpoints, bool cached) final
         {
-            if(endpoints.empty())
+            if (endpoints.empty())
             {
-                _callback->setException(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, _reference->toString())));
+                _exception(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, _reference->toString())));
                 return;
             }
 
             vector<EndpointIPtr> endpts = endpoints;
             _reference->applyOverrides(endpts);
-            _reference->createConnection(endpts, make_shared<Callback2>(_reference, _callback, cached));
+            _reference->createConnectionAsync(
+                endpts,
+                _response,
+                [reference = _reference, response = _response, exception = _exception, cached](std::exception_ptr exc)
+                {
+                    try
+                    {
+                        rethrow_exception(exc);
+                    }
+                    catch (const Ice::NoEndpointException&)
+                    {
+                        exception(exc); // No need to retry if there's no endpoints.
+                    }
+                    catch (const Ice::LocalException& ex)
+                    {
+                        LocatorInfoPtr locatorInfo = reference->getLocatorInfo();
+                        assert(locatorInfo);
+                        locatorInfo->clearCache(reference);
+                        if (cached)
+                        {
+                            TraceLevelsPtr traceLvls = reference->getInstance()->traceLevels();
+                            if(traceLvls->retry >= 2)
+                            {
+                                Trace out(reference->getInstance()->initializationData().logger, traceLvls->retryCat);
+                                out << "connection to cached endpoints failed\n"
+                                    << "removing endpoints from cache and trying again\n" << ex;
+                            }
+                            reference->getConnectionNoRouterInfoAsync(response, exception); // Retry.
+                            return;
+                        }
+                        exception(exc);
+                    }
+                });
         }
 
         void setException(std::exception_ptr ex) final
         {
-            _callback->setException(ex);
+            _exception(ex);
         }
 
-        Callback(const RoutableReferencePtr& reference, const GetConnectionCallbackPtr& callback) :
-            _reference(reference), _callback(callback)
+        Callback(
+            const RoutableReferencePtr& reference,
+            function<void(ConnectionIPtr, bool)> response,
+            function<void(std::exception_ptr)> exception) :
+            _reference(reference), _response(std::move(response)), _exception(std::move(exception))
         {
         }
 
     private:
 
         const RoutableReferencePtr _reference;
-        const GetConnectionCallbackPtr _callback;
+        const function<void(ConnectionIPtr, bool)> _response;
+        const function<void(std::exception_ptr)> _exception;
     };
 
     if(!_endpoints.empty())
     {
-        createConnection(_endpoints, callback);
+        createConnectionAsync(_endpoints, std::move(response), std::move(exception));
         return;
     }
 
@@ -1543,22 +1525,27 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     {
         RoutableReferencePtr self = dynamic_pointer_cast<RoutableReference>(
             const_cast<RoutableReference*>(this)->shared_from_this());
-        _locatorInfo->getEndpoints(self, _locatorCacheTimeout, make_shared<Callback>(self, callback));
+        _locatorInfo->getEndpoints(
+            self,
+            _locatorCacheTimeout,
+            make_shared<Callback>(self, std::move(response), std::move(exception)));
     }
     else
     {
-        callback->setException(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, toString())));
+        exception(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, toString())));
     }
 }
 
 void
-IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& allEndpoints,
-                                                 const GetConnectionCallbackPtr& callback) const
+IceInternal::RoutableReference::createConnectionAsync(
+    const vector<EndpointIPtr>& allEndpoints,
+    function<void(ConnectionIPtr, bool)> response,
+    function<void(std::exception_ptr)> exception) const
 {
     vector<EndpointIPtr> endpoints = filterEndpoints(allEndpoints);
-    if(endpoints.empty())
+    if (endpoints.empty())
     {
-        callback->setException(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, toString())));
+        exception(make_exception_ptr(Ice::NoEndpointException(__FILE__, __LINE__, toString())));
         return;
     }
 
@@ -1583,30 +1570,34 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
                 {
                     connection->setAdapter(_routerInfo->getAdapter());
                 }
-                _callback->setConnection(connection, compress);
+                _response(connection, compress);
             }
 
             void setException(std::exception_ptr ex) final
             {
-                _callback->setException(ex);
+                _exception(ex);
             }
 
-            CB1(const RouterInfoPtr& routerInfo, const GetConnectionCallbackPtr& callback) :
-                _routerInfo(routerInfo), _callback(callback)
+            CB1(
+                const RouterInfoPtr& routerInfo,
+                function<void(ConnectionIPtr, bool)> response,
+                function<void(std::exception_ptr)> exception) :
+                _routerInfo(routerInfo), _response(std::move(response)), _exception(std::move(exception))
             {
             }
 
         private:
 
             const RouterInfoPtr _routerInfo;
-            const GetConnectionCallbackPtr _callback;
+            const function<void(ConnectionIPtr, bool)> _response;
+            const function<void(std::exception_ptr)> _exception;
         };
 
         //
         // Get an existing connection or create one if there's no
         // existing connection to one of the given endpoints.
         //
-        factory->create(endpoints, false, getEndpointSelection(), make_shared<CB1>(_routerInfo, callback));
+        factory->create(endpoints, false, getEndpointSelection(), make_shared<CB1>(_routerInfo, response, exception));
         return;
     }
     else
@@ -1628,19 +1619,19 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
                 {
                     connection->setAdapter(_reference->getRouterInfo()->getAdapter());
                 }
-                _callback->setConnection(connection, compress);
+                _response(connection, compress);
             }
 
             void setException(std::exception_ptr ex) final
             {
-                if(!_exception)
+                if(!_exceptionPtr)
                 {
-                    _exception = ex;
+                    _exceptionPtr = ex;
                 }
 
                 if(++_i == _endpoints.size())
                 {
-                    _callback->setException(_exception);
+                    _exception(_exceptionPtr);
                     return;
                 }
 
@@ -1652,11 +1643,15 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
                 factory->create(endpoint, more, _reference->getEndpointSelection(), shared_from_this());
             }
 
-            CB2(const RoutableReferencePtr& reference, const vector<EndpointIPtr>& endpoints,
-                const GetConnectionCallbackPtr& callback) :
+            CB2(
+                const RoutableReferencePtr& reference,
+                const vector<EndpointIPtr>& endpoints,
+                function<void(ConnectionIPtr, bool)> response,
+                function<void(std::exception_ptr)> exception) :
                 _reference(reference),
                 _endpoints(endpoints),
-                _callback(callback),
+                _response(std::move(response)),
+                _exception(std::move(exception)),
                 _i(0)
             {
             }
@@ -1665,9 +1660,10 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
 
             const RoutableReferencePtr _reference;
             const vector<EndpointIPtr> _endpoints;
-            const GetConnectionCallbackPtr _callback;
+            const function<void(ConnectionIPtr, bool)> _response;
+            const function<void(std::exception_ptr)> _exception;
             size_t _i;
-            exception_ptr _exception;
+            exception_ptr _exceptionPtr;
         };
 
         //
@@ -1682,7 +1678,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
         endpt.push_back(endpoints[0]);
         RoutableReferencePtr self = dynamic_pointer_cast<RoutableReference>(
             const_cast<RoutableReference*>(this)->shared_from_this());
-        factory->create(endpt, true, getEndpointSelection(), make_shared<CB2>(self, endpoints, callback));
+        factory->create(endpt, true, getEndpointSelection(), make_shared<CB2>(self, endpoints, response, exception));
         return;
     }
 }
