@@ -225,24 +225,23 @@ IceInternal::IncomingBase::warning(const Exception& ex) const
 void
 IceInternal::IncomingBase::warning(std::exception_ptr ex) const
 {
-    string msg;
+    Warning out(_os.instance()->initializationData().logger);
+    ToStringMode toStringMode = _os.instance()->toStringMode();
+
+    out << "dispatch exception: ";
+
     try
     {
         rethrow_exception(ex);
     }
     catch (const std::exception& e)
     {
-        msg = string("std::exception: ") + e.what();
+        out << "std::exception: " << e.what();
     }
     catch (...)
     {
-        msg = "unknown c++ exception";
+        out << "unknown c++ exception";
     }
-
-    Warning out(_os.instance()->initializationData().logger);
-    ToStringMode toStringMode = _os.instance()->toStringMode();
-
-    out << "dispatch exception: " << msg;
     out << "\nidentity: " << identityToString(_current.id, toStringMode);
     out << "\nfacet: " << escapeString(_current.facet, "", toStringMode);
     out << "\noperation: " << _current.operation;
