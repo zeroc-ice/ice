@@ -18,22 +18,22 @@ NetworkProxy::~NetworkProxy()
 namespace
 {
 
-class SOCKSNetworkProxy : public NetworkProxy
+class SOCKSNetworkProxy final : public NetworkProxy
 {
 public:
 
     SOCKSNetworkProxy(const string&, int);
     SOCKSNetworkProxy(const Address&);
 
-    virtual void beginWrite(const Address&, Buffer&);
-    virtual SocketOperation endWrite(Buffer&);
-    virtual void beginRead(Buffer&);
-    virtual SocketOperation endRead(Buffer&);
-    virtual void finish(Buffer&, Buffer&);
-    virtual NetworkProxyPtr resolveHost(ProtocolSupport) const;
-    virtual Address getAddress() const;
-    virtual string getName() const;
-    virtual ProtocolSupport getProtocolSupport() const;
+    void beginWrite(const Address&, Buffer&) final;
+    SocketOperation endWrite(Buffer&) final;
+    void beginRead(Buffer&) final;
+    SocketOperation endRead(Buffer&) final;
+    void finish(Buffer&, Buffer&) final;
+    NetworkProxyPtr resolveHost(ProtocolSupport) const final;
+    Address getAddress() const final;
+    string getName() const final;
+    ProtocolSupport getProtocolSupport() const final;
 
 private:
 
@@ -42,22 +42,22 @@ private:
     Address _address;
 };
 
-class HTTPNetworkProxy : public NetworkProxy
+class HTTPNetworkProxy final : public NetworkProxy
 {
 public:
 
     HTTPNetworkProxy(const string&, int);
     HTTPNetworkProxy(const Address&, ProtocolSupport);
 
-    virtual void beginWrite(const Address&, Buffer&);
-    virtual SocketOperation endWrite(Buffer&);
-    virtual void beginRead(Buffer&);
-    virtual SocketOperation endRead(Buffer&);
-    virtual void finish(Buffer&, Buffer&);
-    virtual NetworkProxyPtr resolveHost(ProtocolSupport) const;
-    virtual Address getAddress() const;
-    virtual string getName() const;
-    virtual ProtocolSupport getProtocolSupport() const;
+    void beginWrite(const Address&, Buffer&) final;
+    SocketOperation endWrite(Buffer&) final;
+    void beginRead(Buffer&) final;
+    SocketOperation endRead(Buffer&) final;
+    void finish(Buffer&, Buffer&) final;
+    NetworkProxyPtr resolveHost(ProtocolSupport) const final;
+    Address getAddress() const final;
+    string getName() const final;
+    ProtocolSupport getProtocolSupport() const final;
 
 private:
 
