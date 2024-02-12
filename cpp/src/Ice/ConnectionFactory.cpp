@@ -229,11 +229,11 @@ IceInternal::OutgoingConnectionFactory::createAsync(
         Ice::ConnectionIPtr connection = findConnection(endpoints, compress);
         if(connection)
         {
-            response(connection, compress);
+            response(std::move(connection), compress);
             return;
         }
     }
-    catch (const std::exception&)
+    catch (...)
     {
         exception(current_exception());
         return;

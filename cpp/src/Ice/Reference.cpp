@@ -1600,6 +1600,7 @@ IceInternal::RoutableReference::createConnectionAsync(
                 if(++state->endpointIndex == self->_endpoints.size())
                 {
                     exception(state->exception);
+                    state->createConnectionException = nullptr; // Break the reference cycle.
                     return;
                 }
                 const bool more = state->endpointIndex != self->_endpoints.size() - 1;
@@ -1607,7 +1608,11 @@ IceInternal::RoutableReference::createConnectionAsync(
                     { self->_endpoints[state->endpointIndex] },
                     more,
                     self->getEndpointSelection(),
-                    createConnectionResponse,
+                    [createConnectionResponse, state](const Ice::ConnectionIPtr& connection, bool compress)
+                    {
+                        createConnectionResponse(std::move(connection), compress);
+                        state->createConnectionException = nullptr; // Break the reference cycle.
+                    },
                     state->createConnectionException);
             };
 
@@ -1615,7 +1620,11 @@ IceInternal::RoutableReference::createConnectionAsync(
             { endpoints [0] },
             true,
             getEndpointSelection(),
-            createConnectionResponse,
+            [createConnectionResponse, state](const Ice::ConnectionIPtr& connection, bool compress)
+            {
+                createConnectionResponse(std::move(connection), compress);
+                state->createConnectionException = nullptr; // Break the reference cycle.
+            },
             state->createConnectionException);
         return;
     }
