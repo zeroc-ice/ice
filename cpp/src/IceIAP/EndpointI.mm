@@ -223,12 +223,12 @@ IceObjC::iAPEndpointI::transceiver() const
 void
 IceObjC::iAPEndpointI::connectorsAsync(
     Ice::EndpointSelectionType /*selType*/,
-    function<void(const vector<IceInternal::ConnectorPtr>&)> response,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)> exception) const
 {
     try
     {
-        vector<ConnectorPtr> c;
+        vector<ConnectorPtr> connectors;
 
         EAAccessoryManager* manager = [EAAccessoryManager sharedAccessoryManager];
         if(manager == nil)
@@ -262,7 +262,7 @@ IceObjC::iAPEndpointI::connectorsAsync(
             {
                 continue;
             }
-            c.push_back(make_shared<iAPConnector>(_instance, _timeout, _connectionId, protocol, accessory));
+            connectors.emplace_back(make_shared<iAPConnector>(_instance, _timeout, _connectionId, protocol, accessory));
         }
 #if defined(__clang__) && !__has_feature(objc_arc)
         [protocol release];
@@ -271,7 +271,7 @@ IceObjC::iAPEndpointI::connectorsAsync(
         {
             throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
         }
-        response(c);
+        response(std::move(connectors));
     }
     catch(const Ice::LocalException&)
     {

@@ -203,12 +203,12 @@ IceObjC::StreamEndpointI::secure() const
 void
 IceObjC::StreamEndpointI::connectorsAsync(
     Ice::EndpointSelectionType /*selType*/,
-    function<void(const vector<IceInternal::ConnectorPtr>&)> response,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)>) const
 {
     vector<ConnectorPtr> connectors;
-    connectors.push_back(make_shared<StreamConnector>(_streamInstance, _host, _port, _timeout, _connectionId));
-    response(connectors);
+    connectors.emplace_back(make_shared<StreamConnector>(_streamInstance, _host, _port, _timeout, _connectionId));
+    response(std::move(connectors));
 }
 
 TransceiverPtr

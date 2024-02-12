@@ -52,7 +52,7 @@ public:
 
     virtual void connectorsAsync(
         Ice::EndpointSelectionType,
-        std::function<void(const std::vector<ConnectorPtr>&)>,
+        std::function<void(std::vector<ConnectorPtr>)>,
         std::function<void(std::exception_ptr)>) const;
     virtual std::vector<EndpointIPtr> expandIfWildcard() const;
     virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
@@ -109,7 +109,7 @@ public:
         int,
         Ice::EndpointSelectionType,
         const IPEndpointIPtr&,
-        std::function<void(const std::vector<ConnectorPtr>&)>,
+        std::function<void(std::vector<ConnectorPtr>)>,
         std::function<void(std::exception_ptr)>);
     void destroy();
 
@@ -124,7 +124,7 @@ private:
         int port;
         Ice::EndpointSelectionType selType;
         IPEndpointIPtr endpoint;
-        std::function<void(const std::vector<ConnectorPtr>&)> response;
+        std::function<void(std::vector<ConnectorPtr>)> response;
         std::function<void(std::exception_ptr)> exception;
         Ice::Instrumentation::ObserverPtr observer;
     };

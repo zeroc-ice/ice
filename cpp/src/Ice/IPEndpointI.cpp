@@ -97,10 +97,16 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 void
 IceInternal::IPEndpointI::connectorsAsync(
     Ice::EndpointSelectionType selType,
-    std::function<void(const std::vector<ConnectorPtr>&)> response,
+    std::function<void(std::vector<ConnectorPtr>)> response,
     std::function<void(exception_ptr)> exception) const
 {
-    _instance->resolve(_host, _port, selType, const_cast<IPEndpointI*>(this)->shared_from_this(), response, exception);
+    _instance->resolve(
+        _host,
+        _port,
+        selType,
+        const_cast<IPEndpointI*>(this)->shared_from_this(),
+        std::move(response),
+        std::move(exception));
 }
 
 vector<EndpointIPtr>
@@ -513,7 +519,7 @@ IceInternal::EndpointHostResolver::resolve(
     int port,
     Ice::EndpointSelectionType selType,
     const IPEndpointIPtr& endpoint,
-    function<void(const vector<ConnectorPtr>&)> response,
+    function<void(vector<ConnectorPtr>)> response,
     function<void(exception_ptr)> exception)
 {
     //
@@ -547,8 +553,8 @@ IceInternal::EndpointHostResolver::resolve(
     entry.port = port;
     entry.selType = selType;
     entry.endpoint = endpoint;
-    entry.response = response;
-    entry.exception = exception;
+    entry.response = std::move(response);
+    entry.exception = std::move(exception);
 
     const CommunicatorObserverPtr& observer = _instance->initializationData().observer;
     if(observer)

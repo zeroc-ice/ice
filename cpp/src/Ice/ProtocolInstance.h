@@ -77,7 +77,7 @@ public:
         int,
         Ice::EndpointSelectionType,
         const IPEndpointIPtr&,
-        std::function<void(const std::vector<ConnectorPtr>&)>,
+        std::function<void(std::vector<ConnectorPtr>)>,
         std::function<void(std::exception_ptr)>) const;
 
 protected:

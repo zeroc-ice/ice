@@ -81,12 +81,18 @@ private:
         EndpointIPtr endpoint;
     };
 
-    class ConnectCallback final : public Ice::ConnectionI::StartCallback, public std::enable_shared_from_this<ConnectCallback>
+    class ConnectCallback final :
+        public Ice::ConnectionI::StartCallback,
+        public std::enable_shared_from_this<ConnectCallback>
     {
     public:
 
-        ConnectCallback(const InstancePtr&, const OutgoingConnectionFactoryPtr&, const std::vector<EndpointIPtr>&, bool,
-                        const CreateConnectionCallbackPtr&, Ice::EndpointSelectionType);
+        ConnectCallback(
+            const InstancePtr&,
+            const OutgoingConnectionFactoryPtr&,
+            const std::vector<EndpointIPtr>&, bool,
+            const CreateConnectionCallbackPtr&,
+            Ice::EndpointSelectionType);
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
         virtual void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);

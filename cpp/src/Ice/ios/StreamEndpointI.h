@@ -86,7 +86,7 @@ public:
 
     virtual void connectorsAsync(
         Ice::EndpointSelectionType,
-        std::function<void(const std::vector<IceInternal::ConnectorPtr>&)> response,
+        std::function<void(std::vector<IceInternal::ConnectorPtr>)> response,
         std::function<void(std::exception_ptr)> exception) const;
     virtual IceInternal::TransceiverPtr transceiver() const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;

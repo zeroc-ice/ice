@@ -41,7 +41,7 @@ public:
     virtual TransceiverPtr transceiver() const;
     virtual void connectorsAsync(
         Ice::EndpointSelectionType,
-        std::function<void(const std::vector<IceInternal::ConnectorPtr>&)>,
+        std::function<void(std::vector<ConnectorPtr>)>,
         std::function<void(std::exception_ptr)>) const;
     virtual AcceptorPtr acceptor(const std::string&) const;
     virtual std::vector<EndpointIPtr> expandIfWildcard() const;

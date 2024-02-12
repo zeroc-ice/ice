@@ -216,7 +216,7 @@ IceInternal::WSEndpoint::transceiver() const
 void
 IceInternal::WSEndpoint::connectorsAsync(
     EndpointSelectionType selType,
-    function<void(const vector<IceInternal::ConnectorPtr>&)> response,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)> exception) const
 {
     string host;
@@ -228,16 +228,16 @@ IceInternal::WSEndpoint::connectorsAsync(
         host = os.str();
     }
 
+    auto self = const_cast<WSEndpoint*>(this)->shared_from_this();
     _delegate->connectorsAsync(
         selType,
-        [response, host, this](const vector<ConnectorPtr>& connectors)
+        [response, host, self](vector<ConnectorPtr> connectors)
         {
-            vector<ConnectorPtr> wsConnectors(connectors.size());
-            for (const auto& connector : connectors)
+            for (vector<ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); it++)
             {
-                wsConnectors.emplace_back(make_shared<WSConnector>(_instance, connector, host, _resource));
+                *it = make_shared<WSConnector>(self->_instance, *it, host, self->_resource);
             }
-            response(wsConnectors);
+            response(std::move(connectors));
         },
         exception);
 }

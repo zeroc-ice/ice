@@ -103,7 +103,7 @@ public:
     //
     virtual void connectorsAsync(
         Ice::EndpointSelectionType,
-        std::function<void(const std::vector<ConnectorPtr>&)>,
+        std::function<void(std::vector<ConnectorPtr>)>,
         std::function<void(std::exception_ptr)>) const = 0;
 
     //

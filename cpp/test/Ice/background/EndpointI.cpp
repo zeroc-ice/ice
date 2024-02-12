@@ -138,7 +138,7 @@ EndpointI::transceiver() const
 void
 EndpointI::connectorsAsync(
     Ice::EndpointSelectionType selType,
-    function<void(const vector<IceInternal::ConnectorPtr>&)> response,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)> exception) const
 {
     try
@@ -146,14 +146,13 @@ EndpointI::connectorsAsync(
         _configuration->checkConnectorsException();
         _endpoint->connectorsAsync(
             selType,
-            [response] (const vector<IceInternal::ConnectorPtr>& connectors)
+            [response] (vector<IceInternal::ConnectorPtr> connectors)
             {
-                vector<IceInternal::ConnectorPtr> backgroundConnectors;
-                for (const auto& connector : connectors)
+                for (vector<IceInternal::ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); ++it)
                 {
-                    backgroundConnectors.emplace_back(make_shared<Connector>(connector));
+                    *it = make_shared<Connector>(*it);
                 }
-                response(backgroundConnectors);
+                response(std::move(connectors));
             },
             exception);
     }

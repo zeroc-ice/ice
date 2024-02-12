@@ -127,7 +127,7 @@ IceInternal::ProtocolInstance::resolve(
     int port,
     EndpointSelectionType type,
     const IPEndpointIPtr& endpoint,
-    std::function<void(const std::vector<ConnectorPtr>&)> response,
+    std::function<void(std::vector<ConnectorPtr>)> response,
     std::function<void(exception_ptr)> exception) const
 {
     _instance->endpointHostResolver()->resolve(host, port, type, endpoint, response, exception);
