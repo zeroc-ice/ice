@@ -13,33 +13,16 @@
 #include <Ice/Protocol.h>
 #include <Ice/Properties.h>
 #include <Ice/ThreadPool.h>
+#include <Ice/ProxyFactory.h>
 
 using namespace std;
 using namespace IceInternal;
 
-ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref, const Ice::ObjectPrxPtr& proxy) :
+ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref) :
     RequestHandler(ref),
-    _proxy(proxy),
     _initialized(false),
     _flushing(false)
 {
-}
-
-RequestHandlerPtr
-ConnectRequestHandler::connect(const Ice::ObjectPrxPtr& proxy)
-{
-    unique_lock lock(_mutex);
-    if(!initialized(lock))
-    {
-        _proxies.insert(proxy);
-    }
-    return _requestHandler ? _requestHandler : shared_from_this();
-}
-
-RequestHandlerPtr
-ConnectRequestHandler::update(const RequestHandlerPtr& previousHandler, const RequestHandlerPtr& newHandler)
-{
-    return previousHandler.get() == this ? newHandler : shared_from_this();
 }
 
 AsyncStatus
@@ -134,18 +117,17 @@ ConnectRequestHandler::waitForConnection()
 }
 
 void
-ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool compress)
+ConnectRequestHandler::setConnection(Ice::ConnectionIPtr connection, bool compress)
 {
     {
         lock_guard lock(_mutex);
         assert(!_flushing && !_exception && !_connection);
-        _connection = connection;
+        _connection = std::move(connection);
         _compress = compress;
     }
 
     //
-    // If this proxy is for a non-local object, and we are using a router, then
-    // add this proxy to the router info object.
+    // If we are using a router, add this proxy to the router info object.
     //
     RouterInfoPtr ri = _reference->getRouterInfo();
 
@@ -153,8 +135,8 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
     {
         auto self = shared_from_this();
         if (!ri->addProxyAsync(
-                _proxy,
-                [self] { self->addedProxy(); },
+                _reference,
+                [self] { self->flushRequests(); },
                 [self](exception_ptr ex) { self->setException(ex); }))
         {
             return; // The request handler will be initialized once addProxyAsync completes.
@@ -204,20 +186,8 @@ ConnectRequestHandler::setException(exception_ptr ex)
     {
         lock_guard lock(_mutex);
         _flushing = false;
-        _proxies.clear();
-        _proxy = 0; // Break cyclic reference count.
         _conditionVariable.notify_all();
     }
-}
-
-void
-ConnectRequestHandler::addedProxy()
-{
-    //
-    // The proxy was added to the router info, we're now ready to send the
-    // queued requests.
-    //
-    flushRequests();
 }
 
 bool
@@ -302,21 +272,6 @@ ConnectRequestHandler::flushRequests()
         _requests.pop_front();
     }
 
-    //
-    // If we aren't caching the connection, don't bother creating a
-    // connection request handler. Otherwise, update the proxies
-    // request handler to use the more efficient connection request
-    // handler.
-    //
-    if(_reference->getCacheConnection() && !exception)
-    {
-        _requestHandler = make_shared<ConnectionRequestHandler>(_reference, _connection, _compress);
-        for(set<Ice::ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
-        {
-            (*p)->_updateRequestHandler(shared_from_this(), _requestHandler);
-        }
-    }
-
     {
         lock_guard lock(_mutex);
         assert(!_initialized);
@@ -330,8 +285,6 @@ ConnectRequestHandler::flushRequests()
         //
         _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
 
-        _proxies.clear();
-        _proxy = nullptr; // Break cyclic reference count.
         _conditionVariable.notify_all();
     }
 }

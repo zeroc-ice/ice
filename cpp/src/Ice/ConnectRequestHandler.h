@@ -19,17 +19,13 @@
 namespace IceInternal
 {
 
-class ConnectRequestHandler final :
-    public RequestHandler,
-    public Reference::GetConnectionCallback,
-    public std::enable_shared_from_this<ConnectRequestHandler>
+class ConnectRequestHandler final : public RequestHandler, public std::enable_shared_from_this<ConnectRequestHandler>
 {
 public:
 
-    ConnectRequestHandler(const ReferencePtr&, const Ice::ObjectPrxPtr&);
+    ConnectRequestHandler(const ReferencePtr&);
 
-    RequestHandlerPtr connect(const Ice::ObjectPrxPtr&);
-    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
+    RequestHandlerPtr connect();
 
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
@@ -38,18 +34,14 @@ public:
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
 
-    virtual void setConnection(const Ice::ConnectionIPtr&, bool);
-    virtual void setException(std::exception_ptr);
+    // setConnection and setException are the response and exception for RoutableReference::getConnectionAsync.
+    void setConnection(Ice::ConnectionIPtr, bool);
+    void setException(std::exception_ptr);
 
 private:
 
-    void addedProxy();
-
     bool initialized(std::unique_lock<std::mutex>&);
     void flushRequests();
-
-    Ice::ObjectPrxPtr _proxy;
-    std::set<Ice::ObjectPrxPtr> _proxies;
 
     Ice::ConnectionIPtr _connection;
     bool _compress;
@@ -59,7 +51,6 @@ private:
 
     std::deque<ProxyOutgoingAsyncBasePtr> _requests;
 
-    RequestHandlerPtr _requestHandler;
     std::mutex _mutex;
     std::condition_variable _conditionVariable;
 };

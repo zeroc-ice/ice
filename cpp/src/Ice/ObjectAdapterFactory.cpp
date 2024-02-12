@@ -175,7 +175,7 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 }
 
 ObjectAdapterPtr
-IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrxPtr& proxy)
+IceInternal::ObjectAdapterFactory::findObjectAdapter(const ReferencePtr& reference)
 {
     list<shared_ptr<ObjectAdapterI>> adapters;
     {
@@ -193,7 +193,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrxPtr& proxy)
     {
         try
         {
-            if((*p)->isLocal(proxy))
+            if((*p)->isLocal(reference))
             {
                 return *p;
             }

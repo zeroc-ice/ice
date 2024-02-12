@@ -448,7 +448,7 @@ Ice::ObjectPrx::_handleException(std::exception_ptr ex,
                                  bool sent,
                                  int& cnt)
 {
-    _updateRequestHandler(handler, 0); // Clear the request handler
+    _clearRequestHandler(handler); // Clear the request handler
 
     //
     // We only retry local exception, system exceptions aren't retried.
@@ -509,7 +509,7 @@ Ice::ObjectPrx::_getRequestHandler()
             return _requestHandler;
         }
     }
-    return _reference->getRequestHandler(shared_from_this());
+    return _setRequestHandler(_reference->getRequestHandler());
 }
 
 ::IceInternal::RequestHandlerPtr
@@ -528,22 +528,14 @@ Ice::ObjectPrx::_setRequestHandler(const ::IceInternal::RequestHandlerPtr& handl
 }
 
 void
-Ice::ObjectPrx::_updateRequestHandler(const ::IceInternal::RequestHandlerPtr& previous,
-                                      const ::IceInternal::RequestHandlerPtr& handler)
+Ice::ObjectPrx::_clearRequestHandler(const ::IceInternal::RequestHandlerPtr& previous)
 {
-    if(_reference->getCacheConnection() && previous)
+    if(_reference->getCacheConnection())
     {
         lock_guard lock(_mutex);
-        if(_requestHandler && _requestHandler.get() != handler.get())
+        if(_requestHandler && _requestHandler.get() == previous.get())
         {
-            //
-            // Update the request handler only if "previous" is the same
-            // as the current request handler. This is called after
-            // connection binding by the connect request handler. We only
-            // replace the request handler if the current handler is the
-            // connect request handler.
-            //
-            _requestHandler = _requestHandler->update(previous, handler);
+            _requestHandler = nullptr;
         }
     }
 }

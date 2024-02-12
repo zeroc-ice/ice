@@ -52,8 +52,6 @@ public:
 
     RequestHandler(const ReferencePtr&);
 
-    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
-
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
 
     virtual Ice::ConnectionIPtr getConnection() = 0;

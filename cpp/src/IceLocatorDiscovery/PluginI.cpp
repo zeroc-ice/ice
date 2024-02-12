@@ -453,13 +453,13 @@ LocatorI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
     //
     for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::iterator p = _lookups.begin(); p != _lookups.end(); ++p)
     {
-        Ice::UDPEndpointInfoPtr info = ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, p->first->ice_getEndpoints()[0]->getInfo());
+        Ice::UDPEndpointInfoPtr info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(p->first->ice_getEndpoints()[0]->getInfo());
         if(info && !info->mcastInterface.empty())
         {
             Ice::EndpointSeq endpts = lookupReply->ice_getEndpoints();
             for(Ice::EndpointSeq::const_iterator q = endpts.begin(); q != endpts.end(); ++q)
             {
-                Ice::IPEndpointInfoPtr r = ICE_DYNAMIC_CAST(Ice::IPEndpointInfo, (*q)->getInfo());
+                Ice::IPEndpointInfoPtr r = dynamic_pointer_cast<Ice::IPEndpointInfo>((*q)->getInfo());
                 if(r && r->host == info->mcastInterface)
                 {
                     Ice::EndpointSeq single;

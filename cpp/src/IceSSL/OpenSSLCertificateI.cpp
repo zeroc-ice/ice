@@ -486,8 +486,8 @@ OpenSSLCertificateI::loadX509Extensions() const
             oid.resize(len);
             len = OBJ_obj2txt(&oid[0], len, obj, 1);
             oid.resize(len);
-            _extensions.push_back(ICE_DYNAMIC_CAST(IceSSL::X509Extension,
-                make_shared<OpenSSLX509ExtensionI>(ext, oid, _cert)));
+            _extensions.push_back(
+                dynamic_pointer_cast<IceSSL::X509Extension>(make_shared<OpenSSLX509ExtensionI>(ext, oid, _cert)));
         }
     }
 }

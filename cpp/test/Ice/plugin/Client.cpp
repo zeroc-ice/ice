@@ -101,7 +101,7 @@ Client::run(int argc, char** argv)
     try
     {
         Ice::CommunicatorHolder communicator = initialize(argc, argv);
-        MyPluginPtr plugin = ICE_DYNAMIC_CAST(MyPlugin, communicator->getPluginManager()->getPlugin("Static1"));
+        MyPluginPtr plugin = dynamic_pointer_cast<MyPlugin>(communicator->getPluginManager()->getPlugin("Static1"));
         test(plugin && plugin->isInitialized());
         try
         {
@@ -122,9 +122,9 @@ Client::run(int argc, char** argv)
         Ice::PropertiesPtr properties = createTestProperties(argc, argv);
         properties->setProperty("Ice.Plugin.Static2", "1");
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-        MyPluginPtr plugin = ICE_DYNAMIC_CAST(MyPlugin, communicator->getPluginManager()->getPlugin("Static1"));
+        MyPluginPtr plugin = dynamic_pointer_cast<MyPlugin>(communicator->getPluginManager()->getPlugin("Static1"));
         test(plugin && plugin->isInitialized());
-        plugin = ICE_DYNAMIC_CAST(MyPlugin, communicator->getPluginManager()->getPlugin("Static2"));
+        plugin = dynamic_pointer_cast<MyPlugin>(communicator->getPluginManager()->getPlugin("Static2"));
         test(plugin && plugin->isInitialized());
     }
     catch(const Ice::Exception& ex)

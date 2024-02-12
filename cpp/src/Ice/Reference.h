@@ -39,15 +39,6 @@ public:
 
     virtual ~Reference() = default;
 
-    class GetConnectionCallback
-    {
-    public:
-
-        virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
-        virtual void setException(std::exception_ptr) = 0;
-    };
-    using GetConnectionCallbackPtr = std::shared_ptr<GetConnectionCallback>;
-
     enum Mode
     {
         ModeTwoway,
@@ -143,7 +134,7 @@ public:
     //
     // Get a suitable connection for this reference.
     //
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const = 0;
+    virtual RequestHandlerPtr getRequestHandler() const = 0;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const = 0;
 
     virtual bool operator==(const Reference&) const;
@@ -222,7 +213,7 @@ public:
     virtual void streamWrite(Ice::OutputStream*) const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
+    virtual RequestHandlerPtr getRequestHandler() const;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
     virtual bool operator==(const Reference&) const;
@@ -288,13 +279,13 @@ public:
 
     virtual ReferencePtr clone() const;
 
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
+    virtual RequestHandlerPtr getRequestHandler() const;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
-    void getConnection(const GetConnectionCallbackPtr&) const;
-    void getConnectionNoRouterInfo(const GetConnectionCallbackPtr&) const;
+    void getConnectionAsync(
+        std::function<void(Ice::ConnectionIPtr, bool)> response,
+        std::function<void(std::exception_ptr)> exception) const;
 
-    void createConnection(const std::vector<EndpointIPtr>&, const GetConnectionCallbackPtr&) const;
     void applyOverrides(std::vector<EndpointIPtr>&) const;
 
 protected:
@@ -304,6 +295,15 @@ protected:
     virtual int hashInit() const;
 
 private:
+
+    void createConnectionAsync(
+        const std::vector<EndpointIPtr>&,
+        std::function<void(Ice::ConnectionIPtr, bool)> response,
+        std::function<void(std::exception_ptr)> exception) const;
+
+    void getConnectionNoRouterInfoAsync(
+        std::function<void(Ice::ConnectionIPtr, bool)> response,
+        std::function<void(std::exception_ptr)> exception) const;
 
     std::vector<EndpointIPtr> _endpoints; // Empty if indirect proxy.
     std::string _adapterId; // Empty if direct proxy.

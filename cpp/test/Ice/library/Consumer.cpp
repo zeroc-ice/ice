@@ -22,7 +22,7 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
     // shared library
     //
 
-    Test::MyInterfacePtr servant = ICE_DYNAMIC_CAST(Test::MyInterface, o);
+    Test::MyInterfacePtr servant = dynamic_pointer_cast<Test::MyInterface>(o);
     test(servant);
 
     auto proxy = dynamic_pointer_cast<Test::MyInterfacePrx>(p);

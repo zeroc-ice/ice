@@ -175,7 +175,14 @@ IceBT::EndpointI::connectorsAsync(
 IceInternal::AcceptorPtr
 IceBT::EndpointI::acceptor(const string& adapterName) const
 {
-    return make_shared<AcceptorI>(const_cast<EndpointI*>(this)->shared_from_this(), _instance, adapterName, _addr, _uuid, _name, _channel);
+    return make_shared<AcceptorI>(
+        const_cast<EndpointI*>(this)->shared_from_this(),
+        _instance,
+        adapterName,
+        _addr,
+        _uuid,
+        _name,
+        _channel);
 }
 
 vector<IceInternal::EndpointIPtr>

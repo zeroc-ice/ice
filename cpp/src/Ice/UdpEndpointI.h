@@ -13,7 +13,7 @@
 namespace IceInternal
 {
 
-class UdpEndpointI : public IPEndpointI
+class UdpEndpointI final : public IPEndpointI
 {
 public:
 
@@ -22,37 +22,37 @@ public:
     UdpEndpointI(const ProtocolInstancePtr&);
     UdpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
-    virtual void streamWriteImpl(Ice::OutputStream*) const;
+    void streamWriteImpl(Ice::OutputStream*) const final;
 
-    virtual Ice::EndpointInfoPtr getInfo() const noexcept;
+    Ice::EndpointInfoPtr getInfo() const noexcept final;
 
-    virtual Ice::Int timeout() const;
-    virtual EndpointIPtr timeout(Ice::Int) const;
-    virtual bool compress() const;
-    virtual EndpointIPtr compress(bool) const;
-    virtual bool datagram() const;
+    Ice::Int timeout() const final;
+    EndpointIPtr timeout(Ice::Int) const final;
+    bool compress() const final;
+    EndpointIPtr compress(bool) const final;
+    bool datagram() const final;
 
-    virtual TransceiverPtr transceiver() const;
-    virtual AcceptorPtr acceptor(const std::string&) const;
-    virtual std::string options() const;
+    TransceiverPtr transceiver() const final;
+    AcceptorPtr acceptor(const std::string&) const final;
+    std::string options() const final;
 
-    virtual bool operator==(const Ice::Endpoint&) const;
-    virtual bool operator<(const Ice::Endpoint&) const;
+    bool operator==(const Ice::Endpoint&) const final;
+    bool operator<(const Ice::Endpoint&) const final;
 
     UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
 
     using IPEndpointI::connectionId;
 
-    virtual void initWithOptions(std::vector<std::string>&, bool);
+    void initWithOptions(std::vector<std::string>&, bool) final;
 
 protected:
 
-    virtual void hashInit(Ice::Int&) const;
-    virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
-    virtual bool checkOption(const std::string&, const std::string&, const std::string&);
+    void hashInit(Ice::Int&) const final;
+    void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
+    bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
-    virtual ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const;
-    virtual IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const;
+    ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const final;
+    IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
 
 private:
 
@@ -65,20 +65,20 @@ private:
     const bool _compress;
 };
 
-class UdpEndpointFactory : public EndpointFactory
+class UdpEndpointFactory final : public EndpointFactory
 {
 public:
 
     UdpEndpointFactory(const ProtocolInstancePtr&);
-    virtual ~UdpEndpointFactory();
+    ~UdpEndpointFactory();
 
-    virtual Ice::Short type() const;
-    virtual std::string protocol() const;
-    virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual EndpointIPtr read(Ice::InputStream*) const;
-    virtual void destroy();
+    Ice::Short type() const final;
+    std::string protocol() const final;
+    EndpointIPtr create(std::vector<std::string>&, bool) const final;
+    EndpointIPtr read(Ice::InputStream*) const final;
+    void destroy() final;
 
-    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
+    EndpointFactoryPtr clone(const ProtocolInstancePtr&) const final;
 
 private:
 

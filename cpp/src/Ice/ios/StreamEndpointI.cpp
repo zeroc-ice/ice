@@ -220,7 +220,11 @@ IceObjC::StreamEndpointI::transceiver() const
 AcceptorPtr
 IceObjC::StreamEndpointI::acceptor(const string&) const
 {
-    return make_shared<StreamAcceptor>(const_cast<StreamEndpointI*>(this)->shared_from_this(), _streamInstance, _host, _port);
+    return make_shared<StreamAcceptor>(
+        const_cast<StreamEndpointI*>(this)->shared_from_this(),
+        _streamInstance,
+        _host,
+        _port);
 }
 
 IceObjC::StreamEndpointIPtr

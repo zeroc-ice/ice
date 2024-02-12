@@ -465,13 +465,13 @@ allTests(Test::TestHelper* helper, bool)
     cout << "ok" << endl;
 
     cout << "testing marshalling... " << flush;
-    OneOptionalPtr oo4 = ICE_DYNAMIC_CAST(OneOptional, initial->pingPong(make_shared<OneOptional>()));
+    OneOptionalPtr oo4 = dynamic_pointer_cast<OneOptional>(initial->pingPong(make_shared<OneOptional>()));
     test(!oo4->a);
 
-    OneOptionalPtr oo5 = ICE_DYNAMIC_CAST(OneOptional, initial->pingPong(oo1));
+    OneOptionalPtr oo5 = dynamic_pointer_cast<OneOptional>(initial->pingPong(oo1));
     test(oo1->a == oo5->a);
 
-    MultiOptionalPtr mo4 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(make_shared<MultiOptional>()));
+    MultiOptionalPtr mo4 = dynamic_pointer_cast<MultiOptional>(initial->pingPong(make_shared<MultiOptional>()));
     test(!mo4->a);
     test(!mo4->b);
     test(!mo4->c);
@@ -506,7 +506,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo4->bos);
 
     mo1->k = mo1;
-    MultiOptionalPtr mo5 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo1));
+    MultiOptionalPtr mo5 = dynamic_pointer_cast<MultiOptional>(initial->pingPong(mo1));
 
     test(mo5->a == mo1->a);
     test(mo5->b == mo1->b);
@@ -571,7 +571,7 @@ allTests(Test::TestHelper* helper, bool)
     mo6->ivsd = nullopt;
     mo6->imipd = nullopt;
 
-    MultiOptionalPtr mo7 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo6));
+    MultiOptionalPtr mo7 = dynamic_pointer_cast<MultiOptional>(initial->pingPong(mo6));
     test(!mo7->a);
     test(mo7->b == mo1->b);
     test(!mo7->c);
@@ -622,7 +622,7 @@ allTests(Test::TestHelper* helper, bool)
     mo8->iood = nullopt;
 
     mo8->k = mo8;
-    MultiOptionalPtr mo9 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo8));
+    MultiOptionalPtr mo9 = dynamic_pointer_cast<MultiOptional>(initial->pingPong(mo8));
     test(mo9->a == mo1->a);
     test(!mo9->b);
     test(mo9->c == mo1->c);
@@ -776,7 +776,7 @@ allTests(Test::TestHelper* helper, bool)
     }
     mc->ifsd = ifsd;
 
-    mc = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mc));
+    mc = dynamic_pointer_cast<MultiOptional>(initial->pingPong(mc));
     test(mc->bs->size() == 1000);
     test(mc->shs->size() == 300);
     test(mc->fss->size() == 300);
@@ -804,7 +804,7 @@ allTests(Test::TestHelper* helper, bool)
     cout << "testing tag marshalling... " << flush;
     {
         BPtr b = make_shared<B>();
-        BPtr b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
+        BPtr b2 = dynamic_pointer_cast<B>(initial->pingPong(b));
         test(!b2->ma);
         test(!b2->mb);
         test(!b2->mc);
@@ -814,7 +814,7 @@ allTests(Test::TestHelper* helper, bool)
         b->mc = 12;
         b->md = 13;
 
-        b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
+        b2 = dynamic_pointer_cast<B>(initial->pingPong(b));
         test(b2->ma == 10);
         test(b2->mb == 11);
         test(b2->mc == 12);
@@ -845,7 +845,7 @@ allTests(Test::TestHelper* helper, bool)
         f->af = make_shared<A>();
         f->ae = *f->af;
 
-        FPtr rf = ICE_DYNAMIC_CAST(F, initial->pingPong(f));
+        FPtr rf = dynamic_pointer_cast<F>(initial->pingPong(f));
         test(rf->ae == *rf->af);
 
         factory->setEnabled(true);
@@ -867,12 +867,12 @@ allTests(Test::TestHelper* helper, bool)
     cout << "ok" << endl;
 
     cout << "testing optional with default values... " << flush;
-    WDPtr wd = ICE_DYNAMIC_CAST(WD, initial->pingPong(make_shared<WD>()));
+    WDPtr wd = dynamic_pointer_cast<WD>(initial->pingPong(make_shared<WD>()));
     test(*wd->a == 5);
     test(*wd->s == "test");
     wd->a = nullopt;
     wd->s = nullopt;
-    wd = ICE_DYNAMIC_CAST(WD, initial->pingPong(wd));
+    wd = dynamic_pointer_cast<WD>(initial->pingPong(wd));
     test(!wd->a);
     test(!wd->s);
     cout << "ok" << endl;

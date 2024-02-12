@@ -426,7 +426,7 @@ Ice::CommunicatorHolder::release()
 InstancePtr
 IceInternal::getInstance(const CommunicatorPtr& communicator)
 {
-    CommunicatorIPtr p = ICE_DYNAMIC_CAST(::Ice::CommunicatorI, communicator);
+    CommunicatorIPtr p = dynamic_pointer_cast<Ice::CommunicatorI>(communicator);
     assert(p);
     return p->_instance;
 }
@@ -434,7 +434,7 @@ IceInternal::getInstance(const CommunicatorPtr& communicator)
 IceUtil::TimerPtr
 IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
 {
-    CommunicatorIPtr p = ICE_DYNAMIC_CAST(::Ice::CommunicatorI, communicator);
+    CommunicatorIPtr p = dynamic_pointer_cast<Ice::CommunicatorI>(communicator);
     assert(p);
     return p->_instance->timer();
 }

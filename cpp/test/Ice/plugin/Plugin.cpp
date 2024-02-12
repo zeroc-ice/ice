@@ -132,7 +132,7 @@ public:
     void
     initialize()
     {
-        _other = ICE_DYNAMIC_CAST(BasePlugin, _communicator->getPluginManager()->getPlugin("PluginTwo"));
+        _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginTwo"));
         test(!_other->isInitialized());
         _initialized = true;
     }
@@ -160,7 +160,7 @@ public:
     initialize()
     {
         _initialized = true;
-        _other = ICE_DYNAMIC_CAST(BasePlugin, _communicator->getPluginManager()->getPlugin("PluginOne"));
+        _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginOne"));
         test(_other->isInitialized());
     }
 
@@ -187,7 +187,7 @@ public:
     initialize()
     {
         _initialized = true;
-        _other = ICE_DYNAMIC_CAST(BasePlugin, _communicator->getPluginManager()->getPlugin("PluginTwo"));
+        _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginTwo"));
         test(_other->isInitialized());
     }
 
@@ -250,9 +250,9 @@ public:
     void
     initialize()
     {
-        _two = ICE_DYNAMIC_CAST(BasePluginFail, _communicator->getPluginManager()->getPlugin("PluginTwoFail"));
+        _two = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginTwoFail"));
         test(!_two->isInitialized());
-        _three = ICE_DYNAMIC_CAST(BasePluginFail, _communicator->getPluginManager()->getPlugin("PluginThreeFail"));
+        _three = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginThreeFail"));
         test(!_three->isInitialized());
         _initialized = true;
     }
@@ -291,9 +291,9 @@ public:
     initialize()
     {
         _initialized = true;
-        _one = ICE_DYNAMIC_CAST(BasePluginFail, _communicator->getPluginManager()->getPlugin("PluginOneFail"));
+        _one = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginOneFail"));
         test(_one->isInitialized());
-        _three = ICE_DYNAMIC_CAST(BasePluginFail, _communicator->getPluginManager()->getPlugin("PluginThreeFail"));
+        _three = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginThreeFail"));
         test(!_three->isInitialized());
     }
 

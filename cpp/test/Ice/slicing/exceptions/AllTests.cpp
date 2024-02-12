@@ -741,7 +741,7 @@ allTests(Test::TestHelper* helper)
         test(ex.kp == "preserved");
         test(ex.kpd == "derived");
         test(ex.p1->ice_id() == PreservedClass::ice_staticId());
-        PreservedClassPtr pc = ICE_DYNAMIC_CAST(PreservedClass, ex.p1);
+        PreservedClassPtr pc = dynamic_pointer_cast<PreservedClass>(ex.p1);
         test(pc->bc == "bc");
         test(pc->pc == "pc");
         test(ex.p2 == ex.p1);
@@ -778,7 +778,7 @@ allTests(Test::TestHelper* helper)
         test(ex.kp == "preserved");
         test(ex.kpd == "derived");
         test(ex.p1->ice_id() == PreservedClass::ice_staticId());
-        PreservedClassPtr pc = ICE_DYNAMIC_CAST(PreservedClass, ex.p1);
+        PreservedClassPtr pc = dynamic_pointer_cast<PreservedClass>(ex.p1);
         test(pc->bc == "bc");
         test(pc->pc == "pc");
         test(ex.p2 == ex.p1);

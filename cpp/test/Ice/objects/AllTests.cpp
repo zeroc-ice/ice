@@ -46,17 +46,17 @@ void clear(const CPtr&);
 void
 clear(const BPtr& b)
 {
-    if(ICE_DYNAMIC_CAST(B, b->theA))
+    if(dynamic_pointer_cast<B>(b->theA))
     {
         auto tmp = b->theA;
         b->theA = nullptr;
-        clear(ICE_DYNAMIC_CAST(B, tmp));
+        clear(dynamic_pointer_cast<B>(tmp));
     }
     if(b->theB)
     {
         auto tmp = b->theB;
         b->theB = nullptr;
-        clear(ICE_DYNAMIC_CAST(B, tmp));
+        clear(dynamic_pointer_cast<B>(tmp));
     }
     b->theC = nullptr;
 }
@@ -71,9 +71,9 @@ clear(const CPtr& c)
 void
 clear(const DPtr& d)
 {
-    if(ICE_DYNAMIC_CAST(B, d->theA))
+    if(dynamic_pointer_cast<B>(d->theA))
     {
-        clear(ICE_DYNAMIC_CAST(B, d->theA));
+        clear(dynamic_pointer_cast<B>(d->theA));
     }
     d->theA = nullptr;
     clear(d->theB);
@@ -131,7 +131,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing ice_clone..." << flush;
 
-    BasePtr bp2 = ICE_DYNAMIC_CAST(Base, bp1->ice_clone());
+    BasePtr bp2 = dynamic_pointer_cast<Base>(bp1->ice_clone());
     test(bp1->theS.str == bp2->theS.str);
     test(bp1->str == bp2->str);
 
@@ -167,11 +167,11 @@ allTests(Test::TestHelper* helper)
 
     test(b1->theB == b1);
     test(b1->theC == nullptr);
-    test(ICE_DYNAMIC_CAST(B, b1->theA));
-    test(ICE_DYNAMIC_CAST(B, b1->theA)->theA == b1->theA);
-    test(ICE_DYNAMIC_CAST(B, b1->theA)->theB == b1);
-    test(ICE_DYNAMIC_CAST(C, ICE_DYNAMIC_CAST(B, b1->theA)->theC));
-    test(ICE_DYNAMIC_CAST(C, ICE_DYNAMIC_CAST(B, b1->theA)->theC)->theB == b1->theA);
+    test(dynamic_pointer_cast<B>(b1->theA));
+    test(dynamic_pointer_cast<B>(b1->theA)->theA == b1->theA);
+    test(dynamic_pointer_cast<B>(b1->theA)->theB == b1);
+    test(dynamic_pointer_cast<C>(dynamic_pointer_cast<B>(b1->theA)->theC));
+    test(dynamic_pointer_cast<C>(dynamic_pointer_cast<B>(b1->theA)->theC)->theB == b1->theA);
 
     test(b1->preMarshalInvoked);
     test(b1->postUnmarshalInvoked);
@@ -232,14 +232,14 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing protected members... " << flush;
 
-    EIPtr e = ICE_DYNAMIC_CAST(EI, initial->getE());
-    FIPtr f = ICE_DYNAMIC_CAST(FI, initial->getF());
+    EIPtr e = dynamic_pointer_cast<EI>(initial->getE());
+    FIPtr f = dynamic_pointer_cast<FI>(initial->getF());
     cout << "ok" << endl;
 
     cout << "getting K... " << flush;
     {
         KPtr k = initial->getK();
-        LPtr l = ICE_DYNAMIC_CAST(L, k->value);
+        LPtr l = dynamic_pointer_cast<L>(k->value);
         test(l);
         test(l->data == "l");
     }
@@ -250,8 +250,8 @@ allTests(Test::TestHelper* helper)
         LPtr v1 = make_shared<L>("l");
         Ice::ValuePtr v2;
         Ice::ValuePtr v3 = initial->opValue(v1, v2);
-        test(ICE_DYNAMIC_CAST(L, v2)->data == "l");
-        test(ICE_DYNAMIC_CAST(L, v3)->data == "l");
+        test(dynamic_pointer_cast<L>(v2)->data == "l");
+        test(dynamic_pointer_cast<L>(v3)->data == "l");
     }
 
     {
@@ -260,8 +260,8 @@ allTests(Test::TestHelper* helper)
         v1.push_back(l);
         Test::ValueSeq v2;
         Test::ValueSeq v3 = initial->opValueSeq(v1, v2);
-        test(ICE_DYNAMIC_CAST(L, v2[0])->data == "l");
-        test(ICE_DYNAMIC_CAST(L, v3[0])->data == "l");
+        test(dynamic_pointer_cast<L>(v2[0])->data == "l");
+        test(dynamic_pointer_cast<L>(v3[0])->data == "l");
     }
 
     {
@@ -270,8 +270,8 @@ allTests(Test::TestHelper* helper)
         v1["l"] = l;
         Test::ValueMap v2;
         Test::ValueMap v3 = initial->opValueMap(v1, v2);
-        test(ICE_DYNAMIC_CAST(L, v2["l"])->data == "l");
-        test(ICE_DYNAMIC_CAST(L, v3["l"])->data == "l");
+        test(dynamic_pointer_cast<L>(v2["l"])->data == "l");
+        test(dynamic_pointer_cast<L>(v3["l"])->data == "l");
     }
     cout << "ok" << endl;
 

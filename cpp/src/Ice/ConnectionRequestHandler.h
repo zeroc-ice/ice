@@ -20,8 +20,6 @@ public:
 
     ConnectionRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
 
-    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
-
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);

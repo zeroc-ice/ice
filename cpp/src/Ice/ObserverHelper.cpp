@@ -69,4 +69,8 @@ std::string IceInternal::getExceptionId(std::exception_ptr eptr)
     {
        return ex.what();
     }
+    catch (...)
+    {
+        return "unknown";
+    }
 }

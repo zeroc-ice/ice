@@ -15,7 +15,7 @@
 namespace IceInternal
 {
 
-class WSEndpoint : public EndpointI, public std::enable_shared_from_this<WSEndpoint>
+class WSEndpoint final : public EndpointI, public std::enable_shared_from_this<WSEndpoint>
 {
 public:
 
@@ -23,41 +23,41 @@ public:
     WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, std::vector<std::string>&);
     WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, Ice::InputStream*);
 
-    virtual void streamWriteImpl(Ice::OutputStream*) const;
+    void streamWriteImpl(Ice::OutputStream*) const final;
 
-    virtual Ice::EndpointInfoPtr getInfo() const noexcept;
-    virtual Ice::Short type() const;
-    virtual const std::string& protocol() const;
+    Ice::EndpointInfoPtr getInfo() const noexcept final;
+    Ice::Short type() const final;
+    const std::string& protocol() const final;
 
-    virtual Ice::Int timeout() const;
-    virtual EndpointIPtr timeout(Ice::Int) const;
-    virtual const std::string& connectionId() const;
-    virtual EndpointIPtr connectionId(const ::std::string&) const;
-    virtual bool compress() const;
-    virtual EndpointIPtr compress(bool) const;
-    virtual bool datagram() const;
-    virtual bool secure() const;
+    Ice::Int timeout() const final;
+    EndpointIPtr timeout(Ice::Int) const final;
+    const std::string& connectionId() const final;
+    EndpointIPtr connectionId(const ::std::string&) const final;
+    bool compress() const final;
+    EndpointIPtr compress(bool) const final;
+    bool datagram() const final;
+    bool secure() const final;
 
-    virtual TransceiverPtr transceiver() const;
-    virtual void connectorsAsync(
+    TransceiverPtr transceiver() const final;
+    void connectorsAsync(
         Ice::EndpointSelectionType,
         std::function<void(std::vector<ConnectorPtr>)>,
-        std::function<void(std::exception_ptr)>) const;
-    virtual AcceptorPtr acceptor(const std::string&) const;
-    virtual std::vector<EndpointIPtr> expandIfWildcard() const;
-    virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
-    virtual bool equivalent(const EndpointIPtr&) const;
-    virtual ::Ice::Int hash() const;
-    virtual std::string options() const;
+        std::function<void(std::exception_ptr)>) const final;
+    AcceptorPtr acceptor(const std::string&) const final;
+    std::vector<EndpointIPtr> expandIfWildcard() const final;
+    std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const final;
+    bool equivalent(const EndpointIPtr&) const final;
+    ::Ice::Int hash() const final;
+    std::string options() const final;
 
     WSEndpointPtr endpoint(const EndpointIPtr&) const;
 
-    virtual bool operator==(const Ice::Endpoint&) const;
-    virtual bool operator<(const Ice::Endpoint&) const;
+    bool operator==(const Ice::Endpoint&) const final;
+    bool operator<(const Ice::Endpoint&) const final;
 
 protected:
 
-    virtual bool checkOption(const std::string&, const std::string&, const std::string&);
+    bool checkOption(const std::string&, const std::string&, const std::string&);
 
 private:
 
@@ -69,18 +69,18 @@ private:
     const std::string _resource;
 };
 
-class ICE_API WSEndpointFactory : public EndpointFactoryWithUnderlying
+class ICE_API WSEndpointFactory final : public EndpointFactoryWithUnderlying
 {
 public:
 
     WSEndpointFactory(const ProtocolInstancePtr&, Ice::Short);
 
-    virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, Ice::Short) const;
+    EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, Ice::Short) const final;
 
 protected:
 
-    virtual EndpointIPtr createWithUnderlying(const EndpointIPtr&, std::vector<std::string>&, bool) const;
-    virtual EndpointIPtr readWithUnderlying(const EndpointIPtr&, Ice::InputStream*) const;
+    EndpointIPtr createWithUnderlying(const EndpointIPtr&, std::vector<std::string>&, bool) const final;
+    EndpointIPtr readWithUnderlying(const EndpointIPtr&, Ice::InputStream*) const final;
 };
 
 }

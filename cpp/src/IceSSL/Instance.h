@@ -12,15 +12,13 @@
 namespace IceSSL
 {
 
-class ICESSL_API Instance : public IceInternal::ProtocolInstance
+class ICESSL_API Instance final : public IceInternal::ProtocolInstance
 {
 public:
 
     Instance(const SSLEnginePtr&, Ice::Short, const std::string&);
-    virtual ~Instance();
 
-    SSLEnginePtr
-    engine() const
+    SSLEnginePtr engine() const
     {
         return _engine;
     }
