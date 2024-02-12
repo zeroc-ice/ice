@@ -40,7 +40,10 @@ public:
     IceInternal::EndpointIPtr compress(bool) const final;
 
     IceInternal::TransceiverPtr transceiver() const final;
-    void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const final;
+    void connectorsAsync(
+        Ice::EndpointSelectionType,
+        std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
+        std::function<void(std::exception_ptr)>) const final;
     IceInternal::AcceptorPtr acceptor(const std::string&) const final;
     std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const final;
     std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const final;

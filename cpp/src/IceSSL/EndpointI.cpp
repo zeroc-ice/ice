@@ -147,49 +147,35 @@ IceSSL::EndpointI::transceiver() const
 }
 
 void
-IceSSL::EndpointI::connectors_async(Ice::EndpointSelectionType selType,
-                                    const IceInternal::EndpointI_connectorsPtr& callback) const
+IceSSL::EndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception) const
 {
-    class CallbackI : public IceInternal::EndpointI_connectors
-    {
-    public:
-
-        CallbackI(const IceInternal::EndpointI_connectorsPtr& callback, const InstancePtr& instance,
-                  const string& host) :
-            _callback(callback), _instance(instance), _host(host)
-        {
-        }
-
-        virtual void connectors(const vector<IceInternal::ConnectorPtr>& c)
-        {
-            vector<IceInternal::ConnectorPtr> connectors = c;
-            for(vector<IceInternal::ConnectorPtr>::iterator p = connectors.begin(); p != connectors.end(); ++p)
-            {
-                *p = make_shared<ConnectorI>(_instance, *p, _host);
-            }
-            _callback->connectors(connectors);
-        }
-
-        virtual void exception(std::exception_ptr ex)
-        {
-            _callback->exception(ex);
-        }
-
-    private:
-
-        const IceInternal::EndpointI_connectorsPtr _callback;
-        const InstancePtr _instance;
-        const string _host;
-    };
-
     IPEndpointInfoPtr info = getIPEndpointInfo(_delegate->getInfo());
-    _delegate->connectors_async(selType, make_shared<CallbackI>(callback, _instance, info ? info->host : string()));
+    string host  = info ? info->host : string();
+
+    _delegate->connectorsAsync(
+        selType,
+        [response, this, host](vector<IceInternal::ConnectorPtr> connectors)
+        {
+            for (vector<IceInternal::ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); ++it)
+            {
+                *it = make_shared<ConnectorI>(_instance, *it, host);
+            }
+            response(std::move(connectors));
+        },
+        exception);
 }
 
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-    return make_shared<AcceptorI>(const_cast<EndpointI*>(this)->shared_from_this(), _instance, _delegate->acceptor(adapterName), adapterName);
+    return make_shared<AcceptorI>(
+        const_cast<EndpointI*>(this)->shared_from_this(),
+        _instance,
+        _delegate->acceptor(adapterName),
+        adapterName);
 }
 
 EndpointIPtr
