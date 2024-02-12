@@ -197,7 +197,7 @@ IceSSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
     if(delEndp.get() == _delegate.get())
     {
-        return ICE_DYNAMIC_CAST(EndpointI, const_cast<EndpointI*>(this)->shared_from_this());
+        return dynamic_pointer_cast<EndpointI>(const_cast<EndpointI*>(this)->shared_from_this());
     }
     else
     {

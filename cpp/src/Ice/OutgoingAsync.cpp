@@ -426,7 +426,7 @@ ProxyOutgoingAsyncBase::retryException()
         // require could end up waiting for the flush of the
         // connection to be done.
         //
-        _proxy->_updateRequestHandler(_handler, 0); // Clear request handler and always retry.
+        _proxy->_clearRequestHandler(_handler); // Clear request handler and always retry.
         _instance->retryQueue()->add(shared_from_this(), 0);
     }
     catch(const Ice::Exception&)
@@ -535,7 +535,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             }
             catch(const RetryException&)
             {
-                _proxy->_updateRequestHandler(_handler, 0); // Clear request handler and always retry.
+                _proxy->_clearRequestHandler(_handler); // Clear request handler and always retry.
             }
             catch(const Exception& ex)
             {

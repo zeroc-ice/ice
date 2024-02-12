@@ -217,13 +217,13 @@ LookupI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
     //
     for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::iterator p = _lookups.begin(); p != _lookups.end(); ++p)
     {
-        UDPEndpointInfoPtr info = ICE_DYNAMIC_CAST(UDPEndpointInfo, p->first->ice_getEndpoints()[0]->getInfo());
+        auto info = dynamic_pointer_cast<UDPEndpointInfo>(p->first->ice_getEndpoints()[0]->getInfo());
         if(info && !info->mcastInterface.empty())
         {
             EndpointSeq endpts = lookupReply->ice_getEndpoints();
             for(EndpointSeq::const_iterator q = endpts.begin(); q != endpts.end(); ++q)
             {
-                IPEndpointInfoPtr r = ICE_DYNAMIC_CAST(IPEndpointInfo, (*q)->getInfo());
+                auto r = dynamic_pointer_cast<IPEndpointInfo>((*q)->getInfo());
                 if(r && r->host == info->mcastInterface)
                 {
                     EndpointSeq single;

@@ -1031,7 +1031,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
             if(o->requestId)
             {
                 if(_asyncRequestsHint != _asyncRequests.end() &&
-                   _asyncRequestsHint->second == ICE_DYNAMIC_CAST(OutgoingAsync, outAsync))
+                   _asyncRequestsHint->second == dynamic_pointer_cast<OutgoingAsync>(outAsync))
                 {
                     _asyncRequests.erase(_asyncRequestsHint);
                     _asyncRequestsHint = _asyncRequests.end();
@@ -1074,7 +1074,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
         }
     }
 
-    if(ICE_DYNAMIC_CAST(OutgoingAsync, outAsync))
+    if(dynamic_pointer_cast<OutgoingAsync>(outAsync))
     {
         if(_asyncRequestsHint != _asyncRequests.end())
         {
@@ -1288,12 +1288,9 @@ Ice::ConnectionI::getEndpoint() const noexcept
 ObjectPrxPtr
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
-    //
-    // Create a reference and return a reverse proxy for this
-    // reference.
-    //
+    // Create a reference and return a reverse proxy for this reference.
     return _instance->proxyFactory()->referenceToProxy(
-        _instance->referenceFactory()->create(ident, ICE_SHARED_FROM_CONST_THIS(ConnectionI)));
+        _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this()));
 }
 
 void
@@ -1963,7 +1960,7 @@ Ice::ConnectionI::finish(bool close)
                 }
                 if(message->receivedReply)
                 {
-                    OutgoingAsyncPtr outAsync = ICE_DYNAMIC_CAST(OutgoingAsync, message->outAsync);
+                    OutgoingAsyncPtr outAsync = dynamic_pointer_cast<OutgoingAsync>(message->outAsync);
                     if(outAsync->response())
                     {
                         outAsync->invokeResponse();

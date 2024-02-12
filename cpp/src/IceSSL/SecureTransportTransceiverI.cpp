@@ -381,7 +381,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         _cipher = _engine->getCipherName(cipher);
     }
 
-    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
+    _engine->verifyPeer(_host, dynamic_pointer_cast<ConnectionInfo>(getInfo()), toString());
 
     if(_instance->engine()->securityTraceLevel() >= 1)
     {

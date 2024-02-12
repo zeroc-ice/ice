@@ -392,7 +392,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     }
 
     _cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
-    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
+    _engine->verifyPeer(_host, dynamic_pointer_cast<ConnectionInfo>(getInfo()), toString());
 
     if(_engine->securityTraceLevel() >= 1)
     {

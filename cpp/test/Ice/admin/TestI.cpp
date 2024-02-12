@@ -82,7 +82,7 @@ RemoteCommunicatorI::addUpdateCallback(const Ice::Current&)
     Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
     if(propFacet)
     {
-        Ice::NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, propFacet);
+        Ice::NativePropertiesAdminPtr admin = dynamic_pointer_cast<Ice::NativePropertiesAdmin>(propFacet);
         assert(admin);
         _removeCallback =
             admin->addUpdateCallback([this](const Ice::PropertyDict& changes) { updated(changes); });
@@ -97,7 +97,7 @@ RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
     Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
     if(propFacet)
     {
-        Ice::NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(Ice::NativePropertiesAdmin, propFacet);
+        Ice::NativePropertiesAdminPtr admin = dynamic_pointer_cast<Ice::NativePropertiesAdmin>(propFacet);
         assert(admin);
         if(_removeCallback)
         {

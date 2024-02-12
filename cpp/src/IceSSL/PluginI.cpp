@@ -97,7 +97,7 @@ registerIceSSL(bool loadOnInitialize)
 IceSSL::TrustError
 IceSSL::getTrustError(const IceSSL::ConnectionInfoPtr& info)
 {
-    ExtendedConnectionInfoPtr extendedInfo = ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info);
+    auto extendedInfo = dynamic_pointer_cast<ExtendedConnectionInfo>(info);
     if (extendedInfo)
     {
         return extendedInfo->errorCode;
@@ -204,6 +204,6 @@ IceSSL::getTrustErrorDescription(TrustError error)
 std::string
 IceSSL::getHost(const IceSSL::ConnectionInfoPtr& info)
 {
-    ExtendedConnectionInfoPtr extendedInfo = ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info);
+    auto extendedInfo = dynamic_pointer_cast<ExtendedConnectionInfo>(info);
     return extendedInfo ? extendedInfo->host : "";
 }

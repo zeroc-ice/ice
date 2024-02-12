@@ -17,14 +17,14 @@ RequestHandlerFactory::RequestHandlerFactory(const InstancePtr& instance) : _ins
 }
 
 RequestHandlerPtr
-IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr& ref, const Ice::ObjectPrxPtr& proxy)
+IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr& ref)
 {
     if(ref->getCollocationOptimized())
     {
-        Ice::ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->findObjectAdapter(proxy);
+        Ice::ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->findObjectAdapter(ref);
         if(adapter)
         {
-            return proxy->_setRequestHandler(make_shared<CollocatedRequestHandler>(ref, adapter));
+            return make_shared<CollocatedRequestHandler>(ref, adapter);
         }
     }
 
@@ -36,7 +36,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
         auto p = _handlers.find(ref);
         if(p == _handlers.end())
         {
-            handler = make_shared<ConnectRequestHandler>(ref, proxy);
+            handler = make_shared<ConnectRequestHandler>(ref);
             _handlers.insert(make_pair(ref, handler));
             connect = true;
         }
@@ -47,14 +47,22 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
     }
     else
     {
-        handler = make_shared<ConnectRequestHandler>(ref, proxy);
+        handler = make_shared<ConnectRequestHandler>(ref);
         connect = true;
     }
     if(connect)
     {
-        ref->getConnection(handler);
+        ref->getConnectionAsync(
+            [handler](Ice::ConnectionIPtr connection, bool compress)
+            {
+                handler->setConnection(connection, compress);
+            },
+            [handler](exception_ptr ex)
+            {
+                handler->setException(ex);
+            });
     }
-    return proxy->_setRequestHandler(handler->connect(proxy));
+    return handler;
 }
 
 void

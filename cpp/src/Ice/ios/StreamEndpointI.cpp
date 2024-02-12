@@ -138,7 +138,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Inpu
 EndpointInfoPtr
 IceObjC::StreamEndpointI::getInfo() const noexcept
 {
-    auto info = make_shared<InfoI<Ice::TCPEndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
+    auto info = make_shared<InfoI<Ice::TCPEndpointInfo>>(const_cast<StreamEndpointI*>(this)->shared_from_this());
     IPEndpointI::fillEndpointInfo(info.get());
     info->timeout = _timeout;
     info->compress = _compress;
@@ -156,7 +156,7 @@ IceObjC::StreamEndpointI::timeout(Int t) const
 {
     if(t == _timeout)
     {
-        return ICE_SHARED_FROM_CONST_THIS(StreamEndpointI);
+        return const_cast<StreamEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -175,7 +175,7 @@ IceObjC::StreamEndpointI::compress(bool c) const
 {
     if(c == _compress)
     {
-        return ICE_SHARED_FROM_CONST_THIS(StreamEndpointI);
+        return const_cast<StreamEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -213,7 +213,7 @@ IceObjC::StreamEndpointI::transceiver() const
 AcceptorPtr
 IceObjC::StreamEndpointI::acceptor(const string&) const
 {
-    return make_shared<StreamAcceptor>(ICE_SHARED_FROM_CONST_THIS(StreamEndpointI), _streamInstance, _host, _port);
+    return make_shared<StreamAcceptor>(const_cast<StreamEndpointI*>(this)->shared_from_this(), _streamInstance, _host, _port);
 }
 
 IceObjC::StreamEndpointIPtr
@@ -222,7 +222,7 @@ IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
     int port = a->effectivePort();
     if(port == _port)
     {
-        return ICE_DYNAMIC_CAST(StreamEndpointI, ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
+        return dynamic_pointer_cast<StreamEndpointI>(const_cast<StreamEndpointI*>(this)->shared_from_this());
     }
     else
     {
