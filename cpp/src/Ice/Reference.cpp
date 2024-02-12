@@ -1424,14 +1424,14 @@ IceInternal::RoutableReference::getConnectionAsync(
         _routerInfo->getClientEndpointsAsync(
             [self, response, exception](vector<EndpointIPtr> endpoints)
             {
-                if (!endpoints.empty())
+                if (endpoints.empty())
                 {
-                    self->applyOverrides(endpoints);
-                    self->createConnectionAsync(endpoints, response, exception);
+                    self->getConnectionNoRouterInfoAsync(response, exception);
                 }
                 else
                 {
-                    self->getConnectionNoRouterInfoAsync(response, exception);
+                    self->applyOverrides(endpoints);
+                    self->createConnectionAsync(endpoints, response, exception);
                 }
             },
             exception);
