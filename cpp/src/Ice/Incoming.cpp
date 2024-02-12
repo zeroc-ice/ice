@@ -57,7 +57,6 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
 }
 
 IceInternal::IncomingBase::IncomingBase(IncomingBase& other) :
-    IceUtil::noncopyable(), // TODO, remove noncopyable base class
     _current(other._current),
     _servant(other._servant),
     _locator(other._locator),
@@ -190,23 +189,6 @@ IceInternal::IncomingBase::exception(std::exception_ptr exc, bool amd)
 }
 
 void
-IceInternal::IncomingBase::exception(const string& msg, bool amd)
-{
-    try
-    {
-        if(_locator && !servantLocatorFinished(amd))
-        {
-            return;
-        }
-        handleException(msg, amd);
-    }
-    catch(const LocalException&)
-    {
-        _responseHandler->invokeException(_current.requestId, current_exception(), 1, amd);  // Fatal invocation exception
-    }
-}
-
-void
 IceInternal::IncomingBase::warning(const Exception& ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
@@ -241,12 +223,25 @@ IceInternal::IncomingBase::warning(const Exception& ex) const
 }
 
 void
-IceInternal::IncomingBase::warning(const string& msg) const
+IceInternal::IncomingBase::warning(std::exception_ptr ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
     ToStringMode toStringMode = _os.instance()->toStringMode();
 
-    out << "dispatch exception: " << msg;
+    out << "dispatch exception: ";
+
+    try
+    {
+        rethrow_exception(ex);
+    }
+    catch (const std::exception& e)
+    {
+        out << "std::exception: " << e.what();
+    }
+    catch (...)
+    {
+        out << "unknown c++ exception";
+    }
     out << "\nidentity: " << identityToString(_current.id, toStringMode);
     out << "\nfacet: " << escapeString(_current.facet, "", toStringMode);
     out << "\noperation: " << _current.operation;
@@ -274,13 +269,9 @@ IceInternal::IncomingBase::servantLocatorFinished(bool amd)
         _locator->finished(_current, _servant, _cookie);
         return true;
     }
-    catch(const std::exception&)
+    catch (...)
     {
         handleException(current_exception(), amd);
-    }
-    catch(...)
-    {
-        handleException("unknown c++ exception", amd);
     }
     return false;
 }
@@ -476,16 +467,18 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _responseHandler->sendNoResponse();
         }
     }
-    catch (const std::exception& ex)
+    catch (...)
     {
+        string exceptionId = getExceptionId(exc);
+
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
-            warning(string("std::exception: ") + ex.what());
+            warning(exc);
         }
 
         if(_observer)
         {
-            _observer.failed(ex.what());
+            _observer.failed(exceptionId);
         }
 
         if(_response)
@@ -494,7 +487,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _os.write(_current.requestId);
             _os.write(replyUnknownException);
             ostringstream str;
-            str << "std::exception: " << ex.what();
+            str << "c++ exception: " << exceptionId;
             _os.write(str.str(), false);
 
             _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
@@ -504,45 +497,6 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
         {
             _responseHandler->sendNoResponse();
         }
-    }
-
-    _observer.detach();
-    _responseHandler = 0;
-}
-
-void
-IceInternal::IncomingBase::handleException(const string& msg, bool amd)
-{
-    if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-    {
-        warning(msg);
-    }
-
-    assert(_responseHandler);
-
-    // Reset the stream, it's possible the marshalling of the response failed and left
-    // the stream in an unknown state.
-    _os.clear();
-    _os.b.clear();
-
-    if(_observer)
-    {
-        _observer.failed("unknown");
-    }
-
-    if(_response)
-    {
-        _os.writeBlob(replyHdr, sizeof(replyHdr));
-        _os.write(_current.requestId);
-        _os.write(replyUnknownException);
-        string reason = msg;
-        _os.write(reason, false);
-        _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
-        _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
-    }
-    else
-    {
-        _responseHandler->sendNoResponse();
     }
 
     _observer.detach();
@@ -672,16 +626,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
                 {
                     _servant = _locator->locate(_current, _cookie);
                 }
-                catch(const std::exception&)
+                catch (...)
                 {
                     skipReadParams(); // Required for batch requests.
                     handleException(current_exception(), false);
-                    return;
-                }
-                catch(...)
-                {
-                    skipReadParams(); // Required for batch requests.
-                    handleException("unknown c++ exception", false);
                     return;
                 }
             }
@@ -701,7 +649,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
                 throw ObjectNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
             }
         }
-        catch(const Ice::LocalException&)
+        catch (...)
         {
             skipReadParams(); // Required for batch requests
             handleException(current_exception(), false);
@@ -724,7 +672,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
             response(false);
         }
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
         if(_inAsync)
         {
@@ -732,44 +680,17 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
             {
                 _inAsync->kill(*this);
             }
-            catch(const Ice::ResponseSentException&)
+            catch (const Ice::ResponseSentException&)
             {
                 const Ice::PropertiesPtr properties = _os.instance()->initializationData().properties;
                 if(properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
                 {
-                    if(const IceUtil::Exception* exc = dynamic_cast<const IceUtil::Exception*>(&ex))
-                    {
-                        warning(*exc);
-                    }
-                    else
-                    {
-                        warning(string("std::exception: ") + ex.what());
-                    }
+                    warning(current_exception());
                 }
                 return;
             }
         }
         exception(current_exception(), false);
-    }
-    catch(...)
-    {
-        if(_inAsync)
-        {
-            try
-            {
-                _inAsync->kill(*this);
-            }
-            catch(const Ice::ResponseSentException&)
-            {
-                const Ice::PropertiesPtr properties = _os.instance()->initializationData().properties;
-                if(properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-                {
-                    warning("unknown c++ exception");
-                }
-                return;
-            }
-        }
-        exception("unknown c++ exception", false);
     }
 }
 

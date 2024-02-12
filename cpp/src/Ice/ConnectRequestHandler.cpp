@@ -117,12 +117,12 @@ ConnectRequestHandler::waitForConnection()
 }
 
 void
-ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool compress)
+ConnectRequestHandler::setConnection(Ice::ConnectionIPtr connection, bool compress)
 {
     {
         lock_guard lock(_mutex);
         assert(!_flushing && !_exception && !_connection);
-        _connection = connection;
+        _connection = std::move(connection);
         _compress = compress;
     }
 
@@ -136,7 +136,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
         auto self = shared_from_this();
         if (!ri->addProxyAsync(
                 _reference,
-                [self] { self->addedProxy(); },
+                [self] { self->flushRequests(); },
                 [self](exception_ptr ex) { self->setException(ex); }))
         {
             return; // The request handler will be initialized once addProxyAsync completes.
@@ -188,16 +188,6 @@ ConnectRequestHandler::setException(exception_ptr ex)
         _flushing = false;
         _conditionVariable.notify_all();
     }
-}
-
-void
-ConnectRequestHandler::addedProxy()
-{
-    //
-    // The proxy was added to the router info, we're now ready to send the
-    // queued requests.
-    //
-    flushRequests();
 }
 
 bool

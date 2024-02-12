@@ -113,7 +113,7 @@ testExceptions(const TestIntfPrxPtr& obj)
     }
     catch(const UnknownException& ex)
     {
-        test(ex.unknown == "std::exception: Hello");
+        test(ex.unknown == "c++ exception: Hello");
     }
     catch(...)
     {
@@ -127,7 +127,7 @@ testExceptions(const TestIntfPrxPtr& obj)
     }
     catch(const UnknownException& ex)
     {
-        test(ex.unknown == "unknown c++ exception");
+        test(ex.unknown == "c++ exception: unknown");
     }
     catch(const Ice::OperationNotExistException&)
     {
