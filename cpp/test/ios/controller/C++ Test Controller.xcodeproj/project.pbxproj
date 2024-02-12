@@ -462,7 +462,7 @@
 					"-lbz2",
 					"-liconv",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.Cpp11-Test-Controller";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.Cpp-Test-Controller";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -493,7 +493,7 @@
 					"-lbz2",
 					"-liconv",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.Cpp11-Test-Controller";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.zeroc.Cpp-Test-Controller";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
