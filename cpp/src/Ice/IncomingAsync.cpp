@@ -18,16 +18,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace
-{
-
-std::mutex globalMutex;
-
-}
-
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
-    _responseSent(false),
     _responseHandlerCopy(ICE_GET_SHARED_FROM_THIS(_responseHandler))
 {
 }
@@ -86,27 +78,14 @@ IceInternal::IncomingAsync::completed(exception_ptr ex)
     }
 
     checkResponseSent();
-    try
-    {
-        rethrow_exception(ex);
-    }
-    catch(const std::exception&)
-    {
-        IncomingBase::exception(current_exception(), true); // User thread
-    }
-    catch(...)
-    {
-        IncomingBase::exception("unknown c++ exception", true); // User thread
-    }
+    IncomingBase::exception(ex, true); // true = amd
 }
 
 void
 IceInternal::IncomingAsync::checkResponseSent()
 {
-    lock_guard lock(globalMutex);
-    if(_responseSent)
+    if (_responseSent.test_and_set())
     {
         throw ResponseSentException(__FILE__, __LINE__);
     }
-    _responseSent = true;
 }

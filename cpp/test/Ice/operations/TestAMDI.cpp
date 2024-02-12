@@ -87,11 +87,7 @@ void
 MyDerivedClassI::supportsCompressAsync(std::function<void(bool)> response,
                                        std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
-#if defined(ICE_OS_UWP)
-    response(false);
-#else
     response(true);
-#endif
 }
 
 void

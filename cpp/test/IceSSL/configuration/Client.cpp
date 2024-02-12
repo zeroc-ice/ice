@@ -56,7 +56,7 @@ Client::run(int argc, char** argv)
 
     cerr << "testing with PKCS12 certificates..." << endl;
     Test::ServerFactoryPrxPtr factory = allTests(this, testdir, true);
-#if TARGET_OS_IPHONE == 0 && !defined(ICE_OS_UWP)
+#if TARGET_OS_IPHONE == 0
     cerr << "testing with PEM certificates..." << endl;
     factory = allTests(this, testdir, false);
 #endif
