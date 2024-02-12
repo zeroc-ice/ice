@@ -49,9 +49,6 @@ using TimerPtr = std::shared_ptr<Timer>;
 class MetricsAdminI;
 using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
 
-class RequestHandlerFactory;
-using RequestHandlerFactoryPtr = std::shared_ptr<RequestHandlerFactory>;
-
 class ProxyFactory;
 using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
 
@@ -86,7 +83,6 @@ public:
     RouterManagerPtr routerManager() const;
     LocatorManagerPtr locatorManager() const;
     ReferenceFactoryPtr referenceFactory() const;
-    RequestHandlerFactoryPtr requestHandlerFactory() const;
     ProxyFactoryPtr proxyFactory() const;
     OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
@@ -171,7 +167,6 @@ private:
     RouterManagerPtr _routerManager;
     LocatorManagerPtr _locatorManager;
     ReferenceFactoryPtr _referenceFactory;
-    RequestHandlerFactoryPtr _requestHandlerFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
     ObjectAdapterFactoryPtr _objectAdapterFactory;

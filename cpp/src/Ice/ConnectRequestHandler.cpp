@@ -4,7 +4,6 @@
 
 #include <Ice/ConnectRequestHandler.h>
 #include <Ice/ConnectionRequestHandler.h>
-#include <Ice/RequestHandlerFactory.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
 #include <Ice/ConnectionI.h>
@@ -159,20 +158,6 @@ ConnectRequestHandler::setException(exception_ptr ex)
         _exception = ex;
     }
 
-    //
-    // NOTE: remove the request handler *before* notifying the requests that the connection
-    // failed. It's important to ensure that future invocations will obtain a new connect
-    // request handler once invocations are notified.
-    //
-    try
-    {
-        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
-    }
-    catch(const Ice::CommunicatorDestroyedException&)
-    {
-        // Ignore
-    }
-
     for (deque<ProxyOutgoingAsyncBasePtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
         if ((*p)->exception(ex))
@@ -254,10 +239,6 @@ ConnectRequestHandler::flushRequests()
         catch(const RetryException& ex)
         {
             exception = ex.get();
-
-            // Remove the request handler before retrying.
-            _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
-
             req->retryException();
         }
         catch(const Ice::LocalException&)
@@ -278,13 +259,6 @@ ConnectRequestHandler::flushRequests()
         swap(_exception, exception);
         _initialized = !_exception;
         _flushing = false;
-
-        //
-        // Only remove once all the requests are flushed to
-        // guarantee serialization.
-        //
-        _reference->getInstance()->requestHandlerFactory()->removeRequestHandler(_reference, shared_from_this());
-
         _conditionVariable.notify_all();
     }
 }
