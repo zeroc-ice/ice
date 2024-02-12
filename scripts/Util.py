@@ -3768,9 +3768,7 @@ class CppMapping(Mapping):
         return "{0}/com.zeroc.Cpp11-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        appName = (
-            "C++11 Test Controller.app"
-        )
+        appName = "C++ Test Controller.app"
         path = os.path.join(self.component.getTestDir(self), "ios", "controller")
         path = os.path.join(
             path,
