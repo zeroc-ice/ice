@@ -6,13 +6,15 @@
 #define ICE_REQUEST_HANDLER_CACHE_H
 
 #include "Ice/OperationMode.h"
-#include "Ice/RequestHandler.h"
 #include "Ice/ConnectionF.h"
+#include "RequestHandler.h"
 #include <mutex>
 
 namespace IceInternal
 {
 
+// Represents a holder/cache for a request handler. It's tied to a single Reference, and can be shared by multiple
+// proxies (all with the same Reference).
 class RequestHandlerCache final
 {
 public:
@@ -23,7 +25,7 @@ public:
 
     Ice::ConnectionPtr getCachedConnection();
 
-    void clear(const RequestHandlerPtr& handler);
+    void clearCachedRequestHandler(const RequestHandlerPtr& handler);
 
     int handleException(
         std::exception_ptr ex,
@@ -35,8 +37,8 @@ public:
 private:
 
     const ReferencePtr _reference;
-    std::mutex _mutex;
-    RequestHandlerPtr _handler; // The cached handler, set only when _reference->getCacheConnection() is true.
+    std::mutex _mutex; // protects _cachedRequestHandler
+    RequestHandlerPtr _cachedRequestHandler; // set only when _reference->getCacheConnection() is true.
 };
 
 }

@@ -503,7 +503,7 @@ private:
     std::shared_ptr<Prx> fromReference(IceInternal::ReferencePtr&& ref) const
     {
         auto self = static_cast<const Prx*>(this);
-        return ref == self->_reference ? std::make_shared<Prx>(*self) : std::make_shared<Prx>(ref);
+        return ref == self->_getReference() ? std::make_shared<Prx>(*self) : std::make_shared<Prx>(ref);
     }
 };
 
@@ -519,7 +519,7 @@ public:
     virtual ~ObjectPrx() = default;
 
     /// \cond INTERNAL
-    ObjectPrx(const IceInternal::ReferencePtr&, IceInternal::RequestHandlerCachePtr = nullptr) noexcept;
+    ObjectPrx(const IceInternal::ReferencePtr&) noexcept;
     /// \endcond
 
     /**
@@ -1169,16 +1169,11 @@ public:
     /// \cond INTERNAL
     void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&);
 
+    const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
+    const ::IceInternal::BatchRequestQueuePtr& _getBatchRequestQueue() const { return _batchRequestQueue; }
     const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
 
-    int _handleException(std::exception_ptr, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
-                          bool, int&);
-
     void _checkTwowayOnly(const ::std::string&) const;
-
-    ::IceInternal::RequestHandlerPtr _getRequestHandler();
-    ::IceInternal::BatchRequestQueuePtr _getBatchRequestQueue() const { return _batchRequestQueue; }
-    void _clearRequestHandler(const ::IceInternal::RequestHandlerPtr&);
 
     int _hash() const;
 
@@ -1215,7 +1210,7 @@ private:
     template<typename Prx, typename... Bases>
     friend class Proxy;
 
-    // Gets a reference with the specified setting; returns _reference if the setting is already set.
+    // Gets a reference with the specified setting; returns _requestHandlerCache->getReference if the setting is already set.
     IceInternal::ReferencePtr _adapterId(const std::string&) const;
     IceInternal::ReferencePtr _batchDatagram() const;
     IceInternal::ReferencePtr _batchOneway() const;

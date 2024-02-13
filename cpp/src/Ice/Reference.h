@@ -51,6 +51,7 @@ public:
 
     Mode getMode() const { return _mode; }
     bool isBatch() const { return _mode == ModeBatchOneway || _mode == ModeBatchDatagram; }
+    bool isTwoway() const { return _mode == ModeTwoway; }
     bool getSecure() const { return _secure; }
     const Ice::ProtocolVersion& getProtocol() const { return _protocol; }
     const Ice::EncodingVersion& getEncoding() const { return _encoding; }

@@ -150,17 +150,17 @@ operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 
 }
 
-Ice::ObjectPrx::ObjectPrx(
-    const ReferencePtr& ref,
-    RequestHandlerCachePtr requestHandlerCache) noexcept :
+Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
     _reference(ref),
-    _requestHandlerCache(requestHandlerCache ? std::move(requestHandlerCache) : make_shared<RequestHandlerCache>(ref)),
+    _requestHandlerCache(make_shared<RequestHandlerCache>(ref)),
     _batchRequestQueue(ref->isBatch() ? ref->getBatchRequestQueue() : nullptr)
 {
 }
 
 Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
-    ObjectPrx(other._reference, other._requestHandlerCache)
+    _reference(other._reference),
+    _requestHandlerCache(other._requestHandlerCache),
+    _batchRequestQueue(_reference->isBatch() ? _reference->getBatchRequestQueue() : nullptr)
 {
 }
 
@@ -425,28 +425,6 @@ Ice::ObjectPrx::ice_getCachedConnection() const
     return _requestHandlerCache->getCachedConnection();
 }
 
-int
-Ice::ObjectPrx::_handleException(std::exception_ptr ex,
-                                 const RequestHandlerPtr& handler,
-                                 OperationMode mode,
-                                 bool sent,
-                                 int& cnt)
-{
-    return _requestHandlerCache->handleException(ex, handler, mode, sent, cnt);
-}
-
-::IceInternal::RequestHandlerPtr
-Ice::ObjectPrx::_getRequestHandler()
-{
-    return _requestHandlerCache->getRequestHandler();
-}
-
-void
-Ice::ObjectPrx::_clearRequestHandler(const ::IceInternal::RequestHandlerPtr& previous)
-{
-    _requestHandlerCache->clear(previous);
-}
-
 CommunicatorPtr
 Ice::ObjectPrx::ice_getCommunicator() const
 {
@@ -473,8 +451,8 @@ Ice::ObjectPrx::_hash() const
 void
 Ice::ObjectPrx::_write(OutputStream& os) const
 {
-    os.write(_getReference()->getIdentity());
-    _getReference()->streamWrite(&os);
+    os.write(_reference->getIdentity());
+    _reference->streamWrite(&os);
 }
 
 ReferencePtr

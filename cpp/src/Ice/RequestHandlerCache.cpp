@@ -217,9 +217,9 @@ RequestHandlerCache::getRequestHandler()
     if (_reference->getCacheConnection())
     {
         lock_guard<mutex> lock(_mutex);
-        if (_handler)
+        if (_cachedRequestHandler)
         {
-            return _handler;
+            return _cachedRequestHandler;
         }
     }
 
@@ -227,12 +227,12 @@ RequestHandlerCache::getRequestHandler()
     if (_reference->getCacheConnection())
     {
         lock_guard<mutex> lock(_mutex);
-        if (!_handler)
+        if (!_cachedRequestHandler)
         {
-            _handler = handler;
+            _cachedRequestHandler = handler;
         }
         // else discard handler
-        return _handler;
+        return _cachedRequestHandler;
     }
     else
     {
@@ -246,7 +246,7 @@ RequestHandlerCache::getCachedConnection()
     RequestHandlerPtr handler;
     {
         lock_guard<mutex> lock(_mutex);
-        handler = _handler;
+        handler = _cachedRequestHandler;
     }
 
     if (handler)
@@ -260,12 +260,12 @@ RequestHandlerCache::getCachedConnection()
 }
 
 void
-RequestHandlerCache::clear(const RequestHandlerPtr& handler)
+RequestHandlerCache::clearCachedRequestHandler(const RequestHandlerPtr& handler)
 {
     lock_guard<mutex> lock(_mutex);
-    if (handler == _handler)
+    if (handler == _cachedRequestHandler)
     {
-        _handler = nullptr;
+        _cachedRequestHandler = nullptr;
     }
 }
 
@@ -277,7 +277,7 @@ RequestHandlerCache::handleException(
     bool sent,
     int& cnt)
 {
-    clear(handler);
+    clearCachedRequestHandler(handler);
 
     //
     // We only retry local exception, system exceptions aren't retried.
@@ -321,5 +321,4 @@ RequestHandlerCache::handleException(
             throw; // Retry could break at-most-once semantics, don't retry.
         }
     }
-    return 0; // Keep the compiler happy.
 }
