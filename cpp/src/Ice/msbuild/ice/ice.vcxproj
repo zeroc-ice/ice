@@ -567,7 +567,6 @@
     <ClCompile Include="..\..\ReferenceFactory.cpp" />
     <ClCompile Include="..\..\RegisterPluginsInit.cpp" />
     <ClCompile Include="..\..\RequestHandler.cpp" />
-    <ClCompile Include="..\..\RequestHandlerFactory.cpp" />
     <ClCompile Include="..\..\RetryQueue.cpp" />
     <ClCompile Include="..\..\RouterInfo.cpp" />
     <ClCompile Include="..\..\Selector.cpp" />

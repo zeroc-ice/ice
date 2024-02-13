@@ -73,10 +73,11 @@ runs:
       uses: hendrikmuhs/ccache-action@v1.2
       with:
         # create-symlink: true
-        key: ${{ runner.os }}-build-${{ matrix.language }}-${{ github.sha }}
+        default: false
+        key: ci-${{ runner.os }}-${{matrix.name || matrix.language }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ matrix.language }}
-          ${{ runner.os }}-build-
+          ci-${{ runner.os }}-${{matrix.name || matrix.language }}-
+          ci-${{ runner.os }}-
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Configure ccache path
@@ -96,8 +97,8 @@ runs:
           **/msbuild/**/x64
           **/include/generated
 
-        key: ${{ runner.os }}-build-${{ matrix.language }}-${{ github.sha }}
+        key: ci-${{ runner.os }}-${{matrix.name || matrix.language }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ matrix.language }}
-          ${{ runner.os }}-build-
+          ci-${{ runner.os }}-${{matrix.name || matrix.language }}-
+          ci-${{ runner.os }}-
       if: runner.os == 'Windows'

@@ -24,7 +24,6 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/IPEndpointI.h> // For EndpointHostResolver
 #include <Ice/WSEndpoint.h>
-#include <Ice/RequestHandlerFactory.h>
 #include <Ice/RetryQueue.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
@@ -348,20 +347,6 @@ IceInternal::Instance::referenceFactory() const
 
     assert(_referenceFactory);
     return _referenceFactory;
-}
-
-RequestHandlerFactoryPtr
-IceInternal::Instance::requestHandlerFactory() const
-{
-    lock_guard lock(_mutex);
-
-    if(_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    assert(_requestHandlerFactory);
-    return _requestHandlerFactory;
 }
 
 ProxyFactoryPtr
@@ -1227,8 +1212,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         _referenceFactory = make_shared<ReferenceFactory>(shared_from_this(), communicator);
 
-        _requestHandlerFactory = make_shared<RequestHandlerFactory>(shared_from_this());
-
         _proxyFactory = make_shared<ProxyFactory>(shared_from_this());
 
         const bool isIPv6Supported = IceInternal::isIPv6Supported();
@@ -1713,7 +1696,6 @@ IceInternal::Instance::destroy()
         _timer = nullptr;
 
         _referenceFactory = nullptr;
-        _requestHandlerFactory = nullptr;
         _proxyFactory = nullptr;
         _routerManager = nullptr;
         _locatorManager = nullptr;

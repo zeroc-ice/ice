@@ -905,7 +905,7 @@ Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
     {
         return;
     }
-    _heartbeatCallback = callback;
+    _heartbeatCallback = std::move(callback);
 }
 
 void
@@ -916,32 +916,16 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
     {
         if(callback)
         {
-            class CallbackWorkItem : public DispatchWorkItem
-            {
-            public:
-
-                CallbackWorkItem(const ConnectionIPtr& connection, CloseCallback callback) :
-                    _connection(connection),
-                    _callback(std::move(callback))
+            auto self = shared_from_this();
+            _threadPool->dispatch([self, callback = std::move(callback)]()
                 {
-                }
-
-                virtual void run()
-                {
-                    _connection->closeCallback(_callback);
-                }
-
-            private:
-
-                const ConnectionIPtr _connection;
-                const CloseCallback _callback;
-            };
-            _threadPool->dispatch(make_shared<CallbackWorkItem>(shared_from_this(), std::move(callback)));
+                    self->closeCallback(callback);
+                });
         }
     }
     else
     {
-        _closeCallback = callback;
+        _closeCallback = std::move(callback);
     }
 }
 
