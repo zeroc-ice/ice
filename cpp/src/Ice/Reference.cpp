@@ -1575,15 +1575,16 @@ IceInternal::RoutableReference::createConnectionAsync(
     OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
     auto self = static_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
 
-    auto createConnectionResponse = [self, response](const Ice::ConnectionIPtr& connection, bool compress)
+    auto createConnectionResponse =
+        [routerInfo = _routerInfo, response = std::move(response)](Ice::ConnectionIPtr connection, bool compress)
     {
         // If we have a router, set the object adapter for this router (if any) to the new connection, so that
         // callbacks from the router can be received over this new connection.
-        if (self->getRouterInfo() && self->getRouterInfo()->getAdapter())
+        if (routerInfo && routerInfo->getAdapter())
         {
-            connection->setAdapter(self->getRouterInfo()->getAdapter());
+            connection->setAdapter(routerInfo->getAdapter());
         }
-        response(connection, compress);
+        response(std::move(connection), compress);
     };
 
     if(getCacheConnection() || endpoints.size() == 1)
@@ -1595,7 +1596,6 @@ IceInternal::RoutableReference::createConnectionAsync(
             getEndpointSelection(),
             std::move(createConnectionResponse),
             std::move(exception));
-        return;
     }
     else
     {
@@ -1603,53 +1603,54 @@ IceInternal::RoutableReference::createConnectionAsync(
         // just calling create() with the given endpoints since this might create a new connection even if there's an
         // existing connection for one of the endpoints.
 
-        class CreateConnectionState final
+        struct CreateConnectionState final
         {
-        public:
             exception_ptr exception = nullptr;
             size_t endpointIndex = 0;
             function<void(exception_ptr)> createConnectionException;
+            vector<EndpointIPtr> endpoints;
         };
 
         auto state = make_shared<CreateConnectionState>();
+        state->endpoints = std::move(endpoints);
         state->createConnectionException =
-            [exception = std::move(exception), createConnectionResponse, state,  self, factory](std::exception_ptr ex)
+            [createConnectionResponse, exception = std::move(exception), self, state, factory](std::exception_ptr ex)
             {
-                if(!state->exception)
+                if (!state->exception)
                 {
                     state->exception = ex;
                 }
 
-                if(++state->endpointIndex == self->_endpoints.size())
+                if (++state->endpointIndex == state->endpoints.size())
                 {
-                    exception(state->exception);
                     state->createConnectionException = nullptr; // Break the reference cycle.
+                    exception(state->exception);
                     return;
                 }
-                const bool more = state->endpointIndex != self->_endpoints.size() - 1;
+
+                const bool more = state->endpointIndex != state->endpoints.size() - 1;
                 factory->createAsync(
-                    { self->_endpoints[state->endpointIndex] },
+                    { state->endpoints[state->endpointIndex] },
                     more,
                     self->getEndpointSelection(),
-                    [createConnectionResponse, state](const Ice::ConnectionIPtr& connection, bool compress)
+                    [createConnectionResponse, state](Ice::ConnectionIPtr connection, bool compress)
                     {
-                        createConnectionResponse(std::move(connection), compress);
                         state->createConnectionException = nullptr; // Break the reference cycle.
+                        createConnectionResponse(std::move(connection), compress);
                     },
                     state->createConnectionException);
             };
 
         factory->createAsync(
-            { endpoints [0] },
+            { state->endpoints [0] },
             true,
             getEndpointSelection(),
-            [createConnectionResponse, state](const Ice::ConnectionIPtr& connection, bool compress)
+            [createConnectionResponse, state](Ice::ConnectionIPtr connection, bool compress)
             {
-                createConnectionResponse(std::move(connection), compress);
                 state->createConnectionException = nullptr; // Break the reference cycle.
+                createConnectionResponse(std::move(connection), compress);
             },
             state->createConnectionException);
-        return;
     }
 }
 
