@@ -288,7 +288,7 @@
     <ClCompile Include="..\..\ConnectionI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ConnectionRequestHandler.cpp">
+    <ClCompile Include="..\..\FixedRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Connector.cpp">
@@ -611,6 +611,9 @@
     </ClCompile>
     <ClCompile Include="x64\Release\PropertyDict.cpp">
       <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\RequestHandlerCache.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

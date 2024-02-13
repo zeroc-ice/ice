@@ -13,8 +13,11 @@ namespace IceInternal
 
 class CancellationHandler;
 class RequestHandler;
+class RequestHandlerCache;
+
 using CancellationHandlerPtr = ::std::shared_ptr<CancellationHandler>;
 using RequestHandlerPtr = ::std::shared_ptr<RequestHandler>;
+using RequestHandlerCachePtr = ::std::shared_ptr<RequestHandlerCache>;
 
 }
 

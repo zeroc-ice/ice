@@ -1254,6 +1254,34 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         _retryQueue = make_shared<RetryQueue>(shared_from_this());
 
+        StringSeq retryValues = _initData.properties->getPropertyAsList("Ice.RetryIntervals");
+        if (retryValues.size() == 0)
+        {
+            _retryIntervals.push_back(0);
+        }
+        else
+        {
+            for (StringSeq::const_iterator p = retryValues.begin(); p != retryValues.end(); ++p)
+            {
+                istringstream value(*p);
+
+                int v;
+                if (!(value >> v) || !value.eof())
+                {
+                    v = 0;
+                }
+
+                //
+                // If -1 is the first value, no retry and wait intervals.
+                //
+                if (v == -1 && _retryIntervals.empty())
+                {
+                    break;
+                }
+
+                _retryIntervals.push_back(v > 0 ? v : 0);
+            }
+        }
     }
     catch(...)
     {
