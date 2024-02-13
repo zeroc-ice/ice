@@ -39,12 +39,9 @@ public:
 
     Ice::ObjectPrxPtr referenceToProxy(const ReferencePtr&) const;
 
-    int checkRetryAfterException(std::exception_ptr, const ReferencePtr&, int&) const;
-
 private:
 
     InstancePtr _instance;
-    std::vector<int> _retryIntervals;
 };
 
 using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;

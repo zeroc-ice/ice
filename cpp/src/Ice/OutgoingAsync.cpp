@@ -418,6 +418,8 @@ ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 void
 ProxyOutgoingAsyncBase::retryException()
 {
+    // retryException is only called by ConnectRequestHandler!
+
     try
     {
         //

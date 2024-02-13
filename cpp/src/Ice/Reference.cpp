@@ -683,28 +683,31 @@ IceInternal::FixedReference::toProperty(const string&) const
 RequestHandlerPtr
 IceInternal::FixedReference::getRequestHandler() const
 {
-    switch(getMode())
-    {
-    case Reference::ModeTwoway:
-    case Reference::ModeOneway:
-    case Reference::ModeBatchOneway:
-    {
-        if(_fixedConnection->endpoint()->datagram())
-        {
-            throw NoEndpointException(__FILE__, __LINE__, toString());
-        }
-        break;
-    }
+    // We need to perform all these checks here and not in the constructor because changeConnection() clones then
+    // sets the connection.
 
-    case Reference::ModeDatagram:
-    case Reference::ModeBatchDatagram:
+    switch (getMode())
     {
-        if(!_fixedConnection->endpoint()->datagram())
+        case Reference::ModeTwoway:
+        case Reference::ModeOneway:
+        case Reference::ModeBatchOneway:
         {
-            throw NoEndpointException(__FILE__, __LINE__, toString());
+            if(_fixedConnection->endpoint()->datagram())
+            {
+                throw NoEndpointException(__FILE__, __LINE__, toString());
+            }
+            break;
         }
-        break;
-    }
+
+        case Reference::ModeDatagram:
+        case Reference::ModeBatchDatagram:
+        {
+            if(!_fixedConnection->endpoint()->datagram())
+            {
+                throw NoEndpointException(__FILE__, __LINE__, toString());
+            }
+            break;
+        }
     }
 
     //

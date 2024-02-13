@@ -2,31 +2,28 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef ICE_CONNECTION_REQUEST_HANDLER_H
-#define ICE_CONNECTION_REQUEST_HANDLER_H
+#ifndef ICE_FIXED_REQUEST_HANDLER_H
+#define ICE_FIXED_REQUEST_HANDLER_H
 
-#include <Ice/RequestHandler.h>
-#include <Ice/ReferenceF.h>
-#include <Ice/ProxyF.h>
+#include "RequestHandler.h"
+#include "Ice/ReferenceF.h"
 
 namespace IceInternal
 {
 
 // A request handler for a fixed reference.
-class FixedRequestHandler final :
-    public RequestHandler,
-    public std::enable_shared_from_this<FixedRequestHandler>
+class FixedRequestHandler final : public RequestHandler
 {
 public:
 
     FixedRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
 
-    virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
+    AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) final;
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
+    void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
-    virtual Ice::ConnectionIPtr getConnection();
-    virtual Ice::ConnectionIPtr waitForConnection();
+    Ice::ConnectionIPtr getConnection() final;
+    Ice::ConnectionIPtr waitForConnection() final;
 
 private:
 

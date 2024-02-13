@@ -519,7 +519,7 @@ public:
     virtual ~ObjectPrx() = default;
 
     /// \cond INTERNAL
-    ObjectPrx(const IceInternal::ReferencePtr& ref) noexcept;
+    ObjectPrx(const IceInternal::ReferencePtr&, IceInternal::RequestHandlerCachePtr = nullptr) noexcept;
     /// \endcond
 
     /**
@@ -1178,7 +1178,6 @@ public:
 
     ::IceInternal::RequestHandlerPtr _getRequestHandler();
     ::IceInternal::BatchRequestQueuePtr _getBatchRequestQueue() const { return _batchRequestQueue; }
-    ::IceInternal::RequestHandlerPtr _setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
     void _clearRequestHandler(const ::IceInternal::RequestHandlerPtr&);
 
     int _hash() const;
@@ -1241,9 +1240,8 @@ private:
     IceInternal::ReferencePtr _twoway() const;
 
     const IceInternal::ReferencePtr _reference;
-    ::IceInternal::RequestHandlerPtr _requestHandler;
+    const IceInternal::RequestHandlerCachePtr _requestHandlerCache;
     const IceInternal::BatchRequestQueuePtr _batchRequestQueue;
-    mutable std::mutex _mutex;
 };
 
 ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
