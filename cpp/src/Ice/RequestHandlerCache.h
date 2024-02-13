@@ -37,8 +37,9 @@ public:
 private:
 
     const ReferencePtr _reference;
+    const bool _cacheConnection;
     std::mutex _mutex; // protects _cachedRequestHandler
-    RequestHandlerPtr _cachedRequestHandler; // set only when _reference->getCacheConnection() is true.
+    RequestHandlerPtr _cachedRequestHandler; // set only when _cacheConnection is true.
 };
 
 }

@@ -21,7 +21,7 @@ namespace
 int
 checkRetryAfterException(std::exception_ptr ex, const ReferencePtr& ref, int& cnt)
 {
-    InstancePtr instance = ref->getInstance();
+    const InstancePtr& instance = ref->getInstance();
 
     TraceLevelsPtr traceLevels = instance->traceLevels();
     LoggerPtr logger = instance->initializationData().logger;
@@ -31,7 +31,7 @@ checkRetryAfterException(std::exception_ptr ex, const ReferencePtr& ref, int& cn
     // caused all the requests batched with the connection to be
     // aborted and we want the application to be notified.
     //
-    if (ref->getMode() == Reference::ModeBatchOneway || ref->getMode() == Reference::ModeBatchDatagram)
+    if (ref->isBatch())
     {
         rethrow_exception(ex);
     }
@@ -40,7 +40,7 @@ checkRetryAfterException(std::exception_ptr ex, const ReferencePtr& ref, int& cn
     // If it's a fixed proxy, retrying isn't useful as the proxy is tied to
     // the connection and the request will fail with the exception.
     //
-    if(dynamic_cast<const FixedReference*>(ref.get()))
+    if (dynamic_cast<const FixedReference*>(ref.get()))
     {
         rethrow_exception(ex);
     }
@@ -207,14 +207,16 @@ checkRetryAfterException(std::exception_ptr ex, const ReferencePtr& ref, int& cn
 
 }
 
-RequestHandlerCache::RequestHandlerCache(const ReferencePtr& reference) : _reference(reference)
+RequestHandlerCache::RequestHandlerCache(const ReferencePtr& reference) :
+    _reference(reference),
+    _cacheConnection(reference->getCacheConnection())
 {
 }
 
 IceInternal::RequestHandlerPtr
 RequestHandlerCache::getRequestHandler()
 {
-    if (_reference->getCacheConnection())
+    if (_cacheConnection)
     {
         lock_guard<mutex> lock(_mutex);
         if (_cachedRequestHandler)
@@ -224,7 +226,7 @@ RequestHandlerCache::getRequestHandler()
     }
 
     auto handler = _reference->getRequestHandler();
-    if (_reference->getCacheConnection())
+    if (_cacheConnection)
     {
         lock_guard<mutex> lock(_mutex);
         if (!_cachedRequestHandler)
@@ -243,29 +245,31 @@ RequestHandlerCache::getRequestHandler()
 ConnectionPtr
 RequestHandlerCache::getCachedConnection()
 {
-    RequestHandlerPtr handler;
+    if (_cacheConnection)
     {
-        lock_guard<mutex> lock(_mutex);
-        handler = _cachedRequestHandler;
+        RequestHandlerPtr handler;
+        {
+            lock_guard<mutex> lock(_mutex);
+            handler = _cachedRequestHandler;
+        }
+        if (handler)
+        {
+            return handler->getConnection();
+        }
     }
-
-    if (handler)
-    {
-        return handler->getConnection();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return nullptr;
 }
 
 void
 RequestHandlerCache::clearCachedRequestHandler(const RequestHandlerPtr& handler)
 {
-    lock_guard<mutex> lock(_mutex);
-    if (handler == _cachedRequestHandler)
+    if (_cacheConnection)
     {
-        _cachedRequestHandler = nullptr;
+        lock_guard<mutex> lock(_mutex);
+        if (handler == _cachedRequestHandler)
+        {
+            _cachedRequestHandler = nullptr;
+        }
     }
 }
 
