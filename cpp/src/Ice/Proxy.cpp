@@ -158,6 +158,7 @@ Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
 }
 
 Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
+    std::enable_shared_from_this<ObjectPrx>(),
     _reference(other._reference),
     _requestHandlerCache(other._requestHandlerCache),
     _batchRequestQueue(_reference->isBatch() ? _reference->getBatchRequestQueue() : nullptr)

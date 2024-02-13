@@ -17,7 +17,6 @@
 #include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/LocalException.h>
-#include "BatchRequestQueueF.h"
 
 #include <exception>
 

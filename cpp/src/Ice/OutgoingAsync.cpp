@@ -633,7 +633,7 @@ ProxyOutgoingAsyncBase::runTimerTask()
     }
 }
 
-OutgoingAsync::OutgoingAsync(const Ice::ObjectPrxPtr& proxy, bool synchronous) :
+OutgoingAsync::OutgoingAsync(const ObjectPrxPtr& proxy, bool synchronous) :
     ProxyOutgoingAsyncBase(proxy),
     _encoding(getCompatibleEncoding(proxy->_getReference()->getEncoding())),
     _synchronous(synchronous)

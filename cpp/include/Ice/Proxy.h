@@ -503,7 +503,7 @@ private:
     std::shared_ptr<Prx> fromReference(IceInternal::ReferencePtr&& ref) const
     {
         auto self = static_cast<const Prx*>(this);
-        return ref == self->_getReference() ? std::make_shared<Prx>(*self) : std::make_shared<Prx>(ref);
+        return ref == self->_reference ? std::make_shared<Prx>(*self) : std::make_shared<Prx>(ref);
     }
 };
 
@@ -1210,7 +1210,7 @@ private:
     template<typename Prx, typename... Bases>
     friend class Proxy;
 
-    // Gets a reference with the specified setting; returns _requestHandlerCache->getReference if the setting is already set.
+    // Gets a reference with the specified setting; returns _reference if the setting is already set.
     IceInternal::ReferencePtr _adapterId(const std::string&) const;
     IceInternal::ReferencePtr _batchDatagram() const;
     IceInternal::ReferencePtr _batchOneway() const;
