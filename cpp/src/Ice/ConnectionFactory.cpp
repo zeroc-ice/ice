@@ -1137,12 +1137,6 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::removeFromPending()
 }
 
 bool
-IceInternal::OutgoingConnectionFactory::ConnectCallback::operator<(const ConnectCallback& rhs) const
-{
-    return this < &rhs;
-}
-
-bool
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedImpl(std::exception_ptr ex)
 {
     bool communicatorDestroyed = false;
