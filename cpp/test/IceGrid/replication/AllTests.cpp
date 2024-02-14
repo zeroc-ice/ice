@@ -192,7 +192,7 @@ removeServer(const AdminPrxPtr& admin, const string& id)
 }
 
 bool
-waitAndPing(const Ice::ObjectPrx& obj)
+waitAndPing(const Ice::ObjectPrxPtr& obj)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -402,7 +402,7 @@ allTests(Test::TestHelper* helper)
         query = Ice::uncheckedCast<QueryPrx>(
             communicator->stringToProxy("RepTestIceGrid/Query:" + endpoints[1]->toString()));
         auto objs2 = query->findAllObjectsByType("::IceGrid::Registry");
-        for(vector<Ice::ObjectPrx>::size_type i = 0; i < objs1.size(); i++)
+        for(vector<Ice::ObjectPrxPtr>::size_type i = 0; i < objs1.size(); i++)
         {
             test(Ice::targetEqualTo(objs1[i], objs2[i]));
         }

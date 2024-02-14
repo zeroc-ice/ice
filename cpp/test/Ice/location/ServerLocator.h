@@ -19,7 +19,7 @@ public:
                                             std::function<void()>,
                                             std::function<void(std::exception_ptr)>,
                                             const ::Ice::Current&);
-    virtual void setReplicatedAdapterDirectProxyAsync(std::string, std::string, Ice::ObjectPrx,
+    virtual void setReplicatedAdapterDirectProxyAsync(std::string, std::string, Ice::ObjectPrxPtr,
                                                       std::function<void()>,
                                                       std::function<void(std::exception_ptr)>,
                                                       const ::Ice::Current&);
@@ -33,14 +33,14 @@ public:
     //
     // Internal method
     //
-    ::Ice::ObjectPrx getAdapter(const ::std::string&) const;
-    ::Ice::ObjectPrx getObject(const ::Ice::Identity&) const;
-    void addObject(const ::Ice::ObjectPrx&);
+    ::Ice::ObjectPrxPtr getAdapter(const ::std::string&) const;
+    ::Ice::ObjectPrxPtr getObject(const ::Ice::Identity&) const;
+    void addObject(const ::Ice::ObjectPrxPtr&);
 
 private:
 
-    ::std::map< ::std::string, ::Ice::ObjectPrx> _adapters;
-    ::std::map< ::Ice::Identity, ::Ice::ObjectPrx> _objects;
+    ::std::map< ::std::string, ::Ice::ObjectPrxPtr> _adapters;
+    ::std::map< ::Ice::Identity, ::Ice::ObjectPrxPtr> _objects;
 };
 using ServerLocatorRegistryPtr = std::shared_ptr<ServerLocatorRegistry>;
 
@@ -51,12 +51,12 @@ public:
     ServerLocator(const ::ServerLocatorRegistryPtr&, const ::Ice::LocatorRegistryPrxPtr&);
 
     virtual void findObjectByIdAsync(::Ice::Identity,
-                                      std::function<void(const Ice::ObjectPrx&)>,
+                                      std::function<void(const Ice::ObjectPrxPtr&)>,
                                       std::function<void(std::exception_ptr)>,
                                       const ::Ice::Current&) const;
 
     virtual void findAdapterByIdAsync(::std::string,
-                                       std::function<void(const Ice::ObjectPrx&)>,
+                                       std::function<void(const Ice::ObjectPrxPtr&)>,
                                        std::function<void(std::exception_ptr)>,
                                        const ::Ice::Current&) const;
 

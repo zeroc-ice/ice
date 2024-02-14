@@ -113,7 +113,7 @@ Client::run(int argc, char** argv)
 
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
         auto proxy =
-            Ice::uncheckedCast<Test::MyObjectPrx>(communicator->stringToProxy("test:" + getTestEndpoint()));
+            Ice::uncheckedCast<Test::MyObjectPrxPtr>(communicator->stringToProxy("test:" + getTestEndpoint()));
 
         char oe = char(0xBD); // A single character in ISO Latin 9
         string msg = string("tu me fends le c") + oe + "ur!";
@@ -163,7 +163,7 @@ Client::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     auto proxy =
-        Ice::uncheckedCast<Test::MyObjectPrx>(communicator->stringToProxy("test:" + getTestEndpoint()));
+        Ice::uncheckedCast<Test::MyObjectPrxPtr>(communicator->stringToProxy("test:" + getTestEndpoint()));
 
     char oe = char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";

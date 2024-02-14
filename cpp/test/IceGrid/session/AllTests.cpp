@@ -1009,7 +1009,7 @@ allTests(TestHelper* helper)
         {
         }
 
-        Ice::ObjectPrx obj = communicator->stringToProxy("TestIceGrid/Query");
+        Ice::ObjectPrxPtr obj = communicator->stringToProxy("TestIceGrid/Query");
         obj->ice_connectionId("router11")->ice_router(router1)->ice_ping();
         obj->ice_connectionId("router21")->ice_router(router2)->ice_ping();
 

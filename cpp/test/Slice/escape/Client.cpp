@@ -79,7 +79,7 @@ public:
               const ::std::shared_ptr<::Ice::Value>&,
               const _cpp_and::breakPrxPtr&,
               const _cpp_and::charPrxPtr&,
-              const ::Ice::ObjectPrx&,
+              const ::Ice::ObjectPrxPtr&,
               const _cpp_and::doPrxPtr&,
               ::Ice::Int, ::Ice::Int,
               ::Ice::Int, ::Ice::Int,

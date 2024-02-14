@@ -30,7 +30,7 @@ public:
 
     virtual void
     findAdapterByIdAsync(string,
-                         function<void(const Ice::ObjectPrx&)> response,
+                         function<void(const Ice::ObjectPrxPtr&)> response,
                          function<void(exception_ptr)>,
                          const Ice::Current& current) const
     {
@@ -41,7 +41,7 @@ public:
 
     virtual void
     findObjectByIdAsync(Ice::Identity id,
-                        function<void(const Ice::ObjectPrx&)> response,
+                        function<void(const Ice::ObjectPrxPtr&)> response,
                         function<void(exception_ptr)>,
                         const Ice::Current& current) const
     {
@@ -69,7 +69,7 @@ class RouterI : public Ice::Router
 {
 public:
 
-    virtual Ice::ObjectPrx
+    virtual Ice::ObjectPrxPtr
     getClientProxy(optional<bool>& hasRoutingTable, const Ice::Current& current) const
     {
         hasRoutingTable = true;
@@ -77,7 +77,7 @@ public:
         return nullptr;
     }
 
-    virtual Ice::ObjectPrx
+    virtual Ice::ObjectPrxPtr
     getServerProxy(const Ice::Current& current) const
     {
         _controller->checkCallPause(current);

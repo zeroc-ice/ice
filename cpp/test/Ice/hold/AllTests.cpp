@@ -49,10 +49,10 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
     string ref = "hold:" + helper->getTestEndpoint();
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     string refSerialized = "hold:" + helper->getTestEndpoint(1);
-    Ice::ObjectPrx baseSerialized = communicator->stringToProxy(refSerialized);
+    Ice::ObjectPrxPtr baseSerialized = communicator->stringToProxy(refSerialized);
     test(base);
     cout << "ok" << endl;
 

@@ -35,7 +35,7 @@ class Pinger
 {
 public:
 
-    Pinger(Ice::ObjectPrx proxy, int nRepetitions) :
+    Pinger(Ice::ObjectPrxPtr proxy, int nRepetitions) :
         _proxy(std::move(proxy)),
         _finished(false),
         _nRepetitions(nRepetitions)
@@ -79,7 +79,7 @@ public:
 
 private:
 
-    Ice::ObjectPrx _proxy;
+    Ice::ObjectPrxPtr _proxy;
     exception_ptr _exception;
     bool _finished;
     int _nRepetitions;
@@ -434,7 +434,7 @@ allTests(Test::TestHelper* helper)
     {
         int i;
         const int nThreads = 3;
-        Ice::ObjectPrx invalid = communicator->stringToProxy("invalid-exe");
+        Ice::ObjectPrxPtr invalid = communicator->stringToProxy("invalid-exe");
         vector<pair<shared_ptr<Pinger>, thread>> pingers;
         for(i = 0; i < nThreads; i++)
         {
@@ -569,7 +569,7 @@ allTests(Test::TestHelper* helper)
     {
         test(admin->getServerState("server-activation-timeout") == IceGrid::ServerState::Inactive);
         const int nThreads = 5;
-        Ice::ObjectPrx proxy = communicator->stringToProxy("server-activation-timeout");
+        Ice::ObjectPrxPtr proxy = communicator->stringToProxy("server-activation-timeout");
         vector<pair<shared_ptr<Pinger>, thread>> pingers;
         for (int i = 0; i < nThreads; i++)
         {

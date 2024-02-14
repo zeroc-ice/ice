@@ -297,7 +297,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing stringToProxy... " << flush;
     string ref = "thrower:" + helper->getTestEndpoint();
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
 

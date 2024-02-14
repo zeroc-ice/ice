@@ -293,7 +293,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         proc->shutdown();
         com->waitForShutdown();
@@ -310,7 +310,7 @@ allTests(Test::TestHelper* helper)
         props["Prop2"] = "2";
         props["Prop3"] = "3";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         //
         // Test: PropertiesAdmin::getProperty()
@@ -392,7 +392,7 @@ allTests(Test::TestHelper* helper)
         com->error("error");
         com->print("print");
 
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Ice::LoggerAdminPrxPtr logger = Ice::checkedCast<Ice::LoggerAdminPrx>(obj, "Logger");
         test(logger);
 
@@ -565,7 +565,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         tf->op();
         com->destroy();
@@ -583,7 +583,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Properties";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         test(!proc);
         Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
@@ -600,7 +600,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Process";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
         Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
@@ -617,7 +617,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "TestFacet";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
         Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
@@ -634,7 +634,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Properties TestFacet";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(pa->getProperty("Ice.Admin.InstanceName") == "Test");
         Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
@@ -653,7 +653,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "TestFacet, Process";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrx obj = com->getAdmin();
+        Ice::ObjectPrxPtr obj = com->getAdmin();
         Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
         Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");

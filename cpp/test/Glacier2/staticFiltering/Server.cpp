@@ -20,14 +20,14 @@ class ServerLocatorRegistry final : public LocatorRegistry
 public:
 
     void
-    setAdapterDirectProxyAsync(string, ObjectPrx, function<void()> response, function<void(exception_ptr)>,
+    setAdapterDirectProxyAsync(string, ObjectPrxPtr, function<void()> response, function<void(exception_ptr)>,
                                const Current&) override
     {
         response();
     }
 
     void
-    setReplicatedAdapterDirectProxyAsync(string, string, ObjectPrx,
+    setReplicatedAdapterDirectProxyAsync(string, string, ObjectPrxPtr,
                                          function<void()> response, function<void(exception_ptr)>,
                                          const Current&) override
     {
@@ -57,7 +57,7 @@ public:
 
     void
     findObjectByIdAsync(Identity id,
-                        function<void(const ObjectPrx&)> response, function<void(exception_ptr)>,
+                        function<void(const ObjectPrxPtr&)> response, function<void(exception_ptr)>,
                         const Current&) const override
     {
         response(_adapter->createProxy(id));
@@ -65,7 +65,7 @@ public:
 
     void
     findAdapterByIdAsync(string,
-                         function<void(const ObjectPrx&)> response, function<void(exception_ptr)>,
+                         function<void(const ObjectPrxPtr&)> response, function<void(exception_ptr)>,
                          const Current&) const override
     {
         response(_adapter->createDirectProxy(stringToIdentity("dummy")));

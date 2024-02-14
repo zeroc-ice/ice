@@ -416,7 +416,7 @@ CallbackClient::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Warn.Connections", "0");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
-    ObjectPrx routerBase;
+    ObjectPrxPtr routerBase;
     {
         cout << "testing stringToProxy for router... " << flush;
         routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
@@ -454,7 +454,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    ObjectPrx base;
+    ObjectPrxPtr base;
 
     {
         cout << "testing stringToProxy for server object... " << flush;
@@ -904,7 +904,7 @@ CallbackClient::run(int argc, char** argv)
             cout << "ok" << endl;
         }
 
-        ObjectPrx processBase;
+        ObjectPrxPtr processBase;
 
         {
             cout << "testing stringToProxy for admin process facet... " << flush;

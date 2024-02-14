@@ -44,13 +44,13 @@ allTests(Test::TestHelper* helper)
     for(idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
-        MyObjectPrxPtr prx = Ice::uncheckedCast<MyObjectPrx>(oa->createProxy(identity));
+        MyObjectPrxPtr prx = Ice::uncheckedCast<MyObjectPrxPtr>(oa->createProxy(identity));
         prx->ice_ping();
         test(prx->getName() == names[idx]);
     }
 
     identity.name = "ObjectNotExist";
-    MyObjectPrxPtr prx = Ice::uncheckedCast<MyObjectPrx>(oa->createProxy(identity));
+    MyObjectPrxPtr prx = Ice::uncheckedCast<MyObjectPrxPtr>(oa->createProxy(identity));
     try
     {
         prx->ice_ping();
@@ -72,7 +72,7 @@ allTests(Test::TestHelper* helper)
     }
 
     identity.name = "FacetNotExist";
-    prx = Ice::uncheckedCast<MyObjectPrx>(oa->createProxy(identity));
+    prx = Ice::uncheckedCast<MyObjectPrxPtr>(oa->createProxy(identity));
     try
     {
         prx->ice_ping();
@@ -97,7 +97,7 @@ allTests(Test::TestHelper* helper)
     for(idx = 0; idx < 5; idx++)
     {
         identity.name = names[idx];
-        prx = Ice::uncheckedCast<MyObjectPrx>(oa->createProxy(identity));
+        prx = Ice::uncheckedCast<MyObjectPrxPtr>(oa->createProxy(identity));
 
         try
         {
@@ -122,7 +122,7 @@ allTests(Test::TestHelper* helper)
 
     oa->removeDefaultServant("foo");
     identity.category = "foo";
-    prx = Ice::uncheckedCast<MyObjectPrx>(oa->createProxy(identity));
+    prx = Ice::uncheckedCast<MyObjectPrxPtr>(oa->createProxy(identity));
     try
     {
         prx->ice_ping();
@@ -147,7 +147,7 @@ allTests(Test::TestHelper* helper)
     for(idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
-        prx = Ice::uncheckedCast<MyObjectPrx>(oa->createProxy(identity));
+        prx = Ice::uncheckedCast<MyObjectPrxPtr>(oa->createProxy(identity));
         prx->ice_ping();
         test(prx->getName() == names[idx]);
     }

@@ -6,7 +6,7 @@
 #include <Test.h>
 
 ICE_DECLSPEC_IMPORT void
-consume(const Ice::ObjectPtr&, const Ice::ObjectPrx&);
+consume(const Ice::ObjectPtr&, const Ice::ObjectPrxPtr&);
 
 #if defined(_MSC_VER)
 #   pragma comment(lib, ICE_LIBNAME("consumer"))

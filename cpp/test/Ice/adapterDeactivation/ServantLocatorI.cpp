@@ -21,13 +21,13 @@ public:
     {
     }
 
-    virtual Ice::ObjectPrx
+    virtual Ice::ObjectPrxPtr
     getClientProxy(optional<bool>&, const Ice::Current&) const
     {
         return nullptr;
     }
 
-    virtual Ice::ObjectPrx
+    virtual Ice::ObjectPrxPtr
     getServerProxy(const Ice::Current& c) const
     {
         ostringstream os;

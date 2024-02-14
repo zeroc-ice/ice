@@ -51,10 +51,10 @@ bool isLongLineEnd(const string& line)
 
 }
 
-function<bool(const Ice::ObjectPrx&)>
+function<bool(const Ice::ObjectPrxPtr&)>
 proxyIdentityEqual(const string& strId)
 {
-    return [id = Ice::stringToIdentity(strId)](const Ice::ObjectPrx& obj)
+    return [id = Ice::stringToIdentity(strId)](const Ice::ObjectPrxPtr& obj)
     {
         return obj->ice_getIdentity() == id;
     };
@@ -91,7 +91,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const AdminSessionPrxPtr& se
     {
     }
 
-    Ice::ObjectPrx obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("LogServer"));
+    Ice::ObjectPrxPtr obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("LogServer"));
     try
     {
         session->openServerStdErr("LogServer", -1)->destroy();
@@ -425,21 +425,21 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Ice::ObjectPrx obj = query->findObjectByType("::Test");
+        Ice::ObjectPrxPtr obj = query->findObjectByType("::Test");
         string id = comm->identityToString(obj->ice_getIdentity());
         test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
              id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
-        Ice::ObjectPrx obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample::LoadSample5);
+        Ice::ObjectPrxPtr obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample::LoadSample5);
         string id = comm->identityToString(obj->ice_getIdentity());
         test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
              id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
-        Ice::ObjectPrx obj = query->findObjectByType("::Foo");
+        Ice::ObjectPrxPtr obj = query->findObjectByType("::Foo");
         test(!obj);
 
         obj = query->findObjectByTypeOnLeastLoadedNode("::Foo", LoadSample::LoadSample15);

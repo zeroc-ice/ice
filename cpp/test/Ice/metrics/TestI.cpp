@@ -45,7 +45,7 @@ MetricsI::opByteS(Test::ByteSeq, const Ice::Current&)
 {
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 MetricsI::getAdmin(const Ice::Current& current)
 {
     return current.adapter->getCommunicator()->getAdmin();

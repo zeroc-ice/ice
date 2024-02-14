@@ -16,7 +16,7 @@ void
 testUOE(const Ice::CommunicatorPtr& communicator)
 {
     string ref = "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties());
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     UnexpectedObjectExceptionTestPrxPtr uoet = Ice::uncheckedCast<UnexpectedObjectExceptionTestPrx>(base);
     test(uoet);
@@ -88,7 +88,7 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
     string ref = "initial:" + helper->getTestEndpoint();
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
 

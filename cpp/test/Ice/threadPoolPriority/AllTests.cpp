@@ -16,7 +16,7 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing server priority... " << flush;
     string ref = "test:" + helper->getTestEndpoint() + " -t 10000";
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 
     auto priority = Ice::uncheckedCast<Test::PriorityPrx>(base);

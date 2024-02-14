@@ -74,7 +74,7 @@ public:
         {
             cout << "testing Glacier2::Application restart... " << flush;
         }
-        Ice::ObjectPrx base = communicator()->stringToProxy(
+        Ice::ObjectPrxPtr base = communicator()->stringToProxy(
             "callback:" + TestHelper::getTestEndpoint(communicator()->getProperties()));
         CallbackPrxPtr callback = Ice::uncheckedCast<CallbackPrx>(base);
         if(++_restart < 5)
@@ -132,7 +132,7 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
     cout << "testing stringToProxy for process object... " << flush;
-    Ice::ObjectPrx processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
+    Ice::ObjectPrxPtr processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
     cout << "ok" << endl;
 
     cout << "testing checked cast for admin object... " << flush;

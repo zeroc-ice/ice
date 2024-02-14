@@ -65,7 +65,7 @@ allTests(Test::TestHelper* helper)
     adapter->activate();
 
     cout << "testing udp... " << flush;
-    ObjectPrx base = communicator->stringToProxy("test -d:" + helper->getTestEndpoint("udp"));
+    ObjectPrxPtr base = communicator->stringToProxy("test -d:" + helper->getTestEndpoint("udp"));
     TestIntfPrxPtr obj = Ice::uncheckedCast<TestIntfPrx>(base);
 
     int nRetry = 5;

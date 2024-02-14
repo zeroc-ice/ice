@@ -87,9 +87,9 @@ RetryPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& communicator2, const string& ref)
 {
     cout << "testing stringToProxy... " << flush;
-    Ice::ObjectPrx base1 = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base1 = communicator->stringToProxy(ref);
     test(base1);
-    Ice::ObjectPrx base2 = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base2 = communicator->stringToProxy(ref);
     test(base2);
     cout << "ok" << endl;
 

@@ -31,7 +31,7 @@ ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, ::Ice::ObjectP
 }
 
 void
-ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, string replicaGroup, Ice::ObjectPrx object,
+ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, string replicaGroup, Ice::ObjectPrxPtr object,
                                                             function<void()> response,
                                                             function<void(exception_ptr)>,
                                                             const ::Ice::Current&)
@@ -60,15 +60,15 @@ ServerLocatorRegistry::setServerProcessProxyAsync(string,
 }
 
 void
-ServerLocatorRegistry::addObject(Ice::ObjectPrx object, const ::Ice::Current&)
+ServerLocatorRegistry::addObject(Ice::ObjectPrxPtr object, const ::Ice::Current&)
 {
     addObject(object);
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 ServerLocatorRegistry::getAdapter(const string& adapter) const
 {
-    map< string, ::Ice::ObjectPrx>::const_iterator p = _adapters.find(adapter);
+    map< string, ::Ice::ObjectPrxPtr>::const_iterator p = _adapters.find(adapter);
     if(_adapters.find(adapter) == _adapters.end())
     {
         throw Ice::AdapterNotFoundException();
@@ -76,10 +76,10 @@ ServerLocatorRegistry::getAdapter(const string& adapter) const
     return p->second;
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 ServerLocatorRegistry::getObject(const ::Ice::Identity& id) const
 {
-    map< ::Ice::Identity, ::Ice::ObjectPrx>::const_iterator p = _objects.find(id);
+    map< ::Ice::Identity, ::Ice::ObjectPrxPtr>::const_iterator p = _objects.find(id);
     if(p == _objects.end())
     {
         throw Ice::ObjectNotFoundException();
@@ -89,7 +89,7 @@ ServerLocatorRegistry::getObject(const ::Ice::Identity& id) const
 }
 
 void
-ServerLocatorRegistry::addObject(const Ice::ObjectPrx& object)
+ServerLocatorRegistry::addObject(const Ice::ObjectPrxPtr& object)
 {
     _objects[object->ice_getIdentity()] = object;
 }
@@ -103,7 +103,7 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 
 void
 ServerLocator::findObjectByIdAsync(::Ice::Identity id,
-                                   function<void(const Ice::ObjectPrx&)> response,
+                                   function<void(const Ice::ObjectPrxPtr&)> response,
                                    function<void(exception_ptr)>,
                                    const ::Ice::Current&) const
 {
@@ -116,7 +116,7 @@ ServerLocator::findObjectByIdAsync(::Ice::Identity id,
 
 void
 ServerLocator::findAdapterByIdAsync(string id,
-                                    function<void(const Ice::ObjectPrx&)> response,
+                                    function<void(const Ice::ObjectPrxPtr&)> response,
                                     function<void(exception_ptr)>,
                                     const ::Ice::Current& current) const
 {

@@ -109,7 +109,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     string sref = "test:" + helper->getTestEndpoint();
-    Ice::ObjectPrx obj = communicator->stringToProxy(sref);
+    Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
     auto p = Ice::uncheckedCast<Test::TestIntfPrx>(obj);

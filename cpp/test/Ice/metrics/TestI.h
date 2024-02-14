@@ -23,7 +23,7 @@ class MetricsI : public Test::Metrics
 
     virtual void opByteS(Test::ByteSeq, const Ice::Current&);
 
-    virtual Ice::ObjectPrx getAdmin(const Ice::Current&);
+    virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 };

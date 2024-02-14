@@ -46,7 +46,7 @@ allTests(Test::TestHelper* helper)
     const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
     string ref = communicator->getProperties()->getPropertyWithDefault("Custom.Proxy", "test:" + endp);
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
 
@@ -59,7 +59,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing ice_id and ice_ids with string converter... " << flush;
     test(t->ice_id() == Test::TestIntfPrx::ice_staticId());
-    test(t->ice_ids()[0] == Ice::ObjectPrx::ice_staticId());
+    test(t->ice_ids()[0] == Ice::ObjectPrxPtr::ice_staticId());
     test(t->ice_ids()[1] == Test::TestIntfPrx::ice_staticId());
     cout << "ok" << endl;
 

@@ -15,7 +15,7 @@ allTests(Test::TestHelper* helper)
 {
     CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
-    ObjectPrx base = communicator->stringToProxy("test:" + helper->getTestEndpoint());
+    ObjectPrxPtr base = communicator->stringToProxy("test:" + helper->getTestEndpoint());
     test(base);
     cout << "ok" << endl;
 
@@ -71,7 +71,7 @@ allTests(Test::TestHelper* helper)
         test(adapter->getPublishedEndpoints().size() == 1);
         Ice::EndpointPtr endpt = adapter->getPublishedEndpoints()[0];
         test(endpt->toString() == "tcp -h localhost -p 12345 -t 30000");
-        Ice::ObjectPrx prx =
+        Ice::ObjectPrxPtr prx =
             communicator->stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
         adapter->setPublishedEndpoints(prx->ice_getEndpoints());
         test(adapter->getPublishedEndpoints().size() == 2);

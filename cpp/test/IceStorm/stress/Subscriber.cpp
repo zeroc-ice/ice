@@ -47,10 +47,10 @@ protected:
 struct Subscription final
 {
     shared_ptr<Ice::ObjectAdapter> adapter;
-    Ice::ObjectPrx obj;
+    Ice::ObjectPrxPtr obj;
     shared_ptr<EventI> servant;
     IceStorm::QoS qos;
-    Ice::ObjectPrx publisher;
+    Ice::ObjectPrxPtr publisher;
     bool activate = true;
 };
 

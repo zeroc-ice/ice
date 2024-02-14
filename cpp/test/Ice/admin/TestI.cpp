@@ -53,7 +53,7 @@ RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicato
 {
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 RemoteCommunicatorI::getAdmin(const Ice::Current&)
 {
     return _communicator->getAdmin();
@@ -193,7 +193,7 @@ RemoteCommunicatorFactoryI::createCommunicator(Ice::PropertyDict props, const Ic
     RemoteCommunicatorIPtr servant = make_shared<RemoteCommunicatorI>(communicator);
     servant->addUpdateCallback(Ice::emptyCurrent);
 
-    Ice::ObjectPrx proxy = current.adapter->addWithUUID(servant);
+    Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);
     return Ice::uncheckedCast<Test::RemoteCommunicatorPrx>(proxy);
 }
 

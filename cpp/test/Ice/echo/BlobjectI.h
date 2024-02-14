@@ -27,7 +27,7 @@ private:
     Ice::ConnectionPtr getConnection(const Ice::Current&);
 
     bool _startBatch;
-    Ice::ObjectPrx _batchProxy;
+    Ice::ObjectPrxPtr _batchProxy;
     Ice::ConnectionPtr _connection;
 };
 

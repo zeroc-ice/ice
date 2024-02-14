@@ -20,7 +20,7 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
     {
         ref << ":" << helper->getTestEndpoint(*p);
     }
-    Ice::ObjectPrx base = communicator->stringToProxy(ref.str());
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref.str());
     test(base);
     cout << "ok" << endl;
 

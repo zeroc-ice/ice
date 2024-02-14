@@ -24,10 +24,10 @@ allTests(Test::TestHelper* helper)
     cout << "testing stringToProxy... " << flush;
 
     string ref = "test:" + endp;
-    Ice::ObjectPrx base = communicator->stringToProxy(ref);
+    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 
-    Ice::ObjectPrx b1 = communicator->stringToProxy("test");
+    Ice::ObjectPrxPtr b1 = communicator->stringToProxy("test");
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
          b1->ice_getAdapterId().empty() && b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy("test ");
@@ -389,7 +389,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing proxyToString... " << flush;
     b1 = communicator->stringToProxy(ref);
-    Ice::ObjectPrx b2 = communicator->stringToProxy(communicator->proxyToString(b1));
+    Ice::ObjectPrxPtr b2 = communicator->stringToProxy(communicator->proxyToString(b1));
     test(Ice::targetEqualTo(b1, b2));
 
     if(b1->ice_getConnection()) // not colloc-optimized target
@@ -528,7 +528,7 @@ allTests(Test::TestHelper* helper)
     b1 = b1->ice_invocationTimeout(1234);
     Ice::EncodingVersion v = { 1, 0 };
     b1 = b1->ice_encodingVersion(v);
-    Ice::ObjectPrx router = communicator->stringToProxy("router");
+    Ice::ObjectPrxPtr router = communicator->stringToProxy("router");
     router = router->ice_collocationOptimized(false);
     router = router->ice_connectionCached(true);
     router = router->ice_preferSecure(true);
@@ -536,7 +536,7 @@ allTests(Test::TestHelper* helper)
     router = router->ice_locatorCacheTimeout(200);
     router = router->ice_invocationTimeout(1500);
 
-    Ice::ObjectPrx locator = communicator->stringToProxy("locator");
+    Ice::ObjectPrxPtr locator = communicator->stringToProxy("locator");
     locator = locator->ice_collocationOptimized(true);
     locator = locator->ice_connectionCached(false);
     locator = locator->ice_preferSecure(true);
@@ -693,7 +693,7 @@ allTests(Test::TestHelper* helper)
     test(Ice::targetLess(communicator->stringToProxy("foo"), communicator->stringToProxy("foo2")));
     test(Ice::targetGreaterEqual(communicator->stringToProxy("foo2"), communicator->stringToProxy("foo")));
 
-    Ice::ObjectPrx compObj = communicator->stringToProxy("foo");
+    Ice::ObjectPrxPtr compObj = communicator->stringToProxy("foo");
 
     test(Ice::targetEqualTo(compObj->ice_facet("facet"), compObj->ice_facet("facet")));
     test(Ice::targetNotEqualTo(compObj->ice_facet("facet"), compObj->ice_facet("facet1")));
@@ -873,7 +873,7 @@ allTests(Test::TestHelper* helper)
     // Upcasting
     //
     auto cl2 = Ice::checkedCast<Test::MyClassPrx>(derived);
-    auto obj = Ice::checkedCast<Ice::ObjectPrx>(derived);
+    auto obj = Ice::checkedCast<Ice::ObjectPrxPtr>(derived);
     test(cl2);
     test(obj);
     test(Ice::targetEqualTo(cl2, obj));
@@ -1055,7 +1055,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Invalid -x option
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1065,7 +1065,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Missing -t and -v
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1075,7 +1075,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Repeated -t
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1085,7 +1085,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Repeated -v
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1095,7 +1095,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Missing -t
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -v abc");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1105,7 +1105,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Missing -v
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 1");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1115,7 +1115,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Missing arg for -t
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t -v abc");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1125,7 +1125,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Missing arg for -v
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 1 -v");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -v");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1135,7 +1135,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Not a number for -t
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t x -v abc");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t x -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1145,7 +1145,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // < 0 for -t
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t -1 -v abc");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t -1 -v abc");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1155,7 +1155,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Invalid char for -v
-        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 99 -v x?c");
+        Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 99 -v x?c");
         test(false);
     }
     catch(const Ice::EndpointParseException&)
@@ -1163,13 +1163,13 @@ allTests(Test::TestHelper* helper)
     }
 
     // Legal TCP endpoint expressed as opaque endpoint
-    Ice::ObjectPrx p1 = communicator->stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+    Ice::ObjectPrxPtr p1 = communicator->stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     string pstr = communicator->proxyToString(p1);
     test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
     // Opaque endpoint encoded with 1.1 encoding.
     {
-        Ice::ObjectPrx p2 = communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        Ice::ObjectPrxPtr p2 = communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         test(communicator->proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
     }
 
@@ -1218,7 +1218,7 @@ allTests(Test::TestHelper* helper)
         // sent over the wire and returned by the server without losing
         // the opaque endpoints.
         //
-        Ice::ObjectPrx p2 = derived->echo(p1);
+        Ice::ObjectPrxPtr p2 = derived->echo(p1);
         pstr = communicator->proxyToString(p2);
         if(ssl)
         {
