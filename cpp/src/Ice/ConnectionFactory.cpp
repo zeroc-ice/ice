@@ -1059,7 +1059,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
             }
             Ice::ConnectionIPtr connection = _factory->createConnection(_iter->connector->connect(), *_iter);
             auto self = shared_from_this();
-            connection->start(
+            connection->startAsync(
                 [self](ConnectionIPtr conn)
                 {
                     self->connectionStartCompleted(std::move(conn));
@@ -1523,7 +1523,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
     assert(connection);
 
     auto self = shared_from_this();
-    connection->start(
+    connection->startAsync(
         [self](ConnectionIPtr conn)
         {
             self->connectionStartCompleted(std::move(conn));
@@ -1720,7 +1720,7 @@ IceInternal::IncomingConnectionFactory::initialize()
             const_cast<EndpointIPtr&>(_endpoint) = _transceiver->bind();
             ConnectionIPtr connection(ConnectionI::create(_adapter->getCommunicator(), _instance, 0, _transceiver, 0,
                                                           _endpoint, _adapter));
-            connection->start(nullptr, nullptr);
+            connection->startAsync(nullptr, nullptr);
             _connections.insert(connection);
         }
         else

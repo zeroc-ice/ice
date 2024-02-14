@@ -126,7 +126,7 @@ public:
         CommunicatorDestroyed
     };
 
-    void start(
+    void startAsync(
         std::function<void(ConnectionIPtr)>,
         std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
     void activate();
