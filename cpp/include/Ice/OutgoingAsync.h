@@ -388,7 +388,7 @@ class LambdaOutgoing : public OutgoingAsyncT<R>, public LambdaInvoke
 {
 public:
 
-    LambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
+    LambdaOutgoing(const Ice::ObjectPrxPtr& proxy,
                    std::function<void(R)> response,
                    std::function<void(::std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
@@ -424,7 +424,7 @@ class LambdaOutgoing<void> : public OutgoingAsyncT<void>, public LambdaInvoke
 {
 public:
 
-    LambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
+    LambdaOutgoing(const Ice::ObjectPrxPtr& proxy,
                    std::function<void()> response,
                    std::function<void(::std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
@@ -460,7 +460,7 @@ class CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
 {
 public:
 
-    CustomLambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
+    CustomLambdaOutgoing(const Ice::ObjectPrxPtr& proxy,
                          std::function<void(Ice::InputStream*)> read,
                          std::function<void(::std::exception_ptr)> ex,
                          std::function<void(bool)> sent) :
@@ -500,7 +500,7 @@ class PromiseOutgoing : public OutgoingAsyncT<R>, public PromiseInvoke<P>
 {
 public:
 
-    PromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool sync) :
+    PromiseOutgoing(const Ice::ObjectPrxPtr& proxy, bool sync) :
         OutgoingAsyncT<R>(proxy, sync)
     {
         this->_response = [this](bool ok)
@@ -526,7 +526,7 @@ class PromiseOutgoing<P, void> : public OutgoingAsyncT<void>, public PromiseInvo
 {
 public:
 
-    PromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool sync) :
+    PromiseOutgoing(const Ice::ObjectPrxPtr& proxy, bool sync) :
         OutgoingAsyncT<void>(proxy, sync)
     {
         this->_response = [&](bool ok)

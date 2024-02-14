@@ -2598,7 +2598,7 @@ class RemoteProcessController(ProcessController):
         self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
         self.adapter.add(
             ProcessControllerRegistryI(self),
-            comm.stringToIdentity("Util/ProcessControllerRegistry"),
+            Ice.stringToIdentity("Util/ProcessControllerRegistry"),
         )
         self.adapter.activate()
 
@@ -2611,12 +2611,12 @@ class RemoteProcessController(ProcessController):
         )
 
     def getController(self, current):
-        ident = self.getControllerIdentity(current)
-        if isinstance(ident, str):
-            ident = current.driver.getCommunicator().stringToIdentity(ident)
-
         import Ice
         import Test
+
+        ident = self.getControllerIdentity(current)
+        if isinstance(ident, str):
+            ident = Ice.stringToIdentity(ident)
 
         proxy = None
         with self.cond:
@@ -3156,6 +3156,7 @@ class BrowserProcessController(RemoteProcessController):
         return False
 
     def getControllerIdentity(self, current):
+        import Ice
         #
         # Load the controller page each time we're asked for the controller and if we're running
         # another testcase, the controller page will connect to the process controller registry
@@ -3179,9 +3180,7 @@ class BrowserProcessController(RemoteProcessController):
         )
         if url != self.url:
             self.url = url
-            ident = current.driver.getCommunicator().stringToIdentity(
-                "Browser/ProcessController"
-            )
+            ident = Ice.stringToIdentity("Browser/ProcessController")
             if self.driver:
                 # Clear the previous controller connection if it exists. This ensures that the reload
                 # of the test controller will use a new connection (with Chrome the connection close

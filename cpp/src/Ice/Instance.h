@@ -93,6 +93,7 @@ public:
     ThreadPoolPtr serverThreadPool();
     EndpointHostResolverPtr endpointHostResolver();
     RetryQueuePtr retryQueue();
+    const std::vector<int>& retryIntervals() const { return _retryIntervals; }
     IceUtil::TimerPtr timer();
     EndpointFactoryManagerPtr endpointFactoryManager() const;
     DynamicLibraryListPtr dynamicLibraryList() const;
@@ -177,6 +178,7 @@ private:
     ThreadPoolPtr _serverThreadPool;
     EndpointHostResolverPtr _endpointHostResolver;
     RetryQueuePtr _retryQueue;
+    std::vector<int> _retryIntervals;
     TimerPtr _timer;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
