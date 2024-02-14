@@ -557,7 +557,7 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
                 }
                 else
                 {
-                    return 0;
+                    return nullptr;
                 }
             }
             else
@@ -583,7 +583,7 @@ IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo
         cb->nextConnector();
     }
 
-    return 0;
+    return nullptr;
 }
 
 ConnectionIPtr
@@ -1146,12 +1146,6 @@ void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::removeFromPending()
 {
     _factory->removeFromPending(shared_from_this(), _connectors);
-}
-
-bool
-IceInternal::OutgoingConnectionFactory::ConnectCallback::operator<(const ConnectCallback& rhs) const
-{
-    return this < &rhs;
 }
 
 bool
