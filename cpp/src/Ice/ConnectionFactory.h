@@ -81,9 +81,7 @@ private:
         EndpointIPtr endpoint;
     };
 
-    class ConnectCallback final :
-        public Ice::ConnectionI::StartCallback,
-        public std::enable_shared_from_this<ConnectCallback>
+    class ConnectCallback final : public std::enable_shared_from_this<ConnectCallback>
     {
     public:
 
@@ -167,7 +165,7 @@ private:
     std::condition_variable _conditionVariable;
 };
 
-class IncomingConnectionFactory final : public EventHandler, public Ice::ConnectionI::StartCallback
+class IncomingConnectionFactory final : public EventHandler
 {
 public:
 
