@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ConnectionRequestHandler.h>
+#include <Ice/FixedRequestHandler.h>
 #include <Ice/Proxy.h>
 #include <Ice/Reference.h>
 #include <Ice/ConnectionI.h>
@@ -10,9 +10,10 @@
 #include <Ice/OutgoingAsync.h>
 
 using namespace std;
+using namespace Ice;
 using namespace IceInternal;
 
-ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference,
+FixedRequestHandler::FixedRequestHandler(const ReferencePtr& reference,
                                          const Ice::ConnectionIPtr& connection,
                                          bool compress) :
     RequestHandler(reference),
@@ -22,25 +23,25 @@ ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference
 }
 
 AsyncStatus
-ConnectionRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
+FixedRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 {
     return out->invokeRemote(_connection, _compress, _response);
 }
 
 void
-ConnectionRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, std::exception_ptr ex)
+FixedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, std::exception_ptr ex)
 {
     _connection->asyncRequestCanceled(outAsync, ex);
 }
 
 Ice::ConnectionIPtr
-ConnectionRequestHandler::getConnection()
+FixedRequestHandler::getConnection()
 {
     return _connection;
 }
 
 Ice::ConnectionIPtr
-ConnectionRequestHandler::waitForConnection()
+FixedRequestHandler::waitForConnection()
 {
     return _connection;
 }

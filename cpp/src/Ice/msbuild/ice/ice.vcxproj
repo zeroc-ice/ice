@@ -173,6 +173,7 @@
     <ClCompile Include="..\..\ObjectAdapter.cpp" />
     <ClCompile Include="..\..\Plugin.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
+    <ClCompile Include="..\..\RequestHandlerCache.cpp" />
     <ClCompile Include="..\..\ServantLocator.cpp" />
     <ClCompile Include="..\..\ValueFactory.cpp" />
     <ClCompile Include="Win32\Debug\BuiltinSequences.cpp">
@@ -513,7 +514,7 @@
     <ClCompile Include="..\..\Cond.cpp" />
     <ClCompile Include="..\..\ConnectionFactory.cpp" />
     <ClCompile Include="..\..\ConnectionI.cpp" />
-    <ClCompile Include="..\..\ConnectionRequestHandler.cpp" />
+    <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
     <ClCompile Include="..\..\CountDownLatch.cpp" />

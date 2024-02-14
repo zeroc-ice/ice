@@ -1070,7 +1070,16 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
                     << _iter->connector->toString();
             }
             Ice::ConnectionIPtr connection = _factory->createConnection(_iter->connector->connect(), *_iter);
-            connection->start(shared_from_this());
+            auto self = shared_from_this();
+            connection->startAsync(
+                [self](ConnectionIPtr conn)
+                {
+                    self->connectionStartCompleted(std::move(conn));
+                },
+                [self](ConnectionIPtr conn, exception_ptr ex)
+                {
+                    self->connectionStartFailed(std::move(conn), ex);
+                });
         }
         catch(const Ice::LocalException& ex)
         {
@@ -1525,7 +1534,16 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 
     assert(connection);
 
-    connection->start(shared_from_this());
+    auto self = shared_from_this();
+    connection->startAsync(
+        [self](ConnectionIPtr conn)
+        {
+            self->connectionStartCompleted(std::move(conn));
+        },
+        [self](ConnectionIPtr conn, exception_ptr ex)
+        {
+            self->connectionStartFailed(std::move(conn), ex);
+        });
 }
 
 void
@@ -1714,7 +1732,7 @@ IceInternal::IncomingConnectionFactory::initialize()
             const_cast<EndpointIPtr&>(_endpoint) = _transceiver->bind();
             ConnectionIPtr connection(ConnectionI::create(_adapter->getCommunicator(), _instance, 0, _transceiver, 0,
                                                           _endpoint, _adapter));
-            connection->start(0);
+            connection->startAsync(nullptr, nullptr);
             _connections.insert(connection);
         }
         else

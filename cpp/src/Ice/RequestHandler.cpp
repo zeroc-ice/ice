@@ -6,6 +6,7 @@
 #include <Ice/Reference.h>
 
 using namespace std;
+using namespace Ice;
 using namespace IceInternal;
 
 RetryException::RetryException(exception_ptr ex)

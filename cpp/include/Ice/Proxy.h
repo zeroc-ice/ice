@@ -519,7 +519,7 @@ public:
     virtual ~ObjectPrx() = default;
 
     /// \cond INTERNAL
-    ObjectPrx(const IceInternal::ReferencePtr& ref) noexcept;
+    ObjectPrx(const IceInternal::ReferencePtr&) noexcept;
     /// \endcond
 
     /**
@@ -1169,17 +1169,11 @@ public:
     /// \cond INTERNAL
     void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&);
 
+    const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
+    const ::IceInternal::BatchRequestQueuePtr& _getBatchRequestQueue() const { return _batchRequestQueue; }
     const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
 
-    int _handleException(std::exception_ptr, const ::IceInternal::RequestHandlerPtr&, ::Ice::OperationMode,
-                          bool, int&);
-
     void _checkTwowayOnly(const ::std::string&) const;
-
-    ::IceInternal::RequestHandlerPtr _getRequestHandler();
-    ::IceInternal::BatchRequestQueuePtr _getBatchRequestQueue() const { return _batchRequestQueue; }
-    ::IceInternal::RequestHandlerPtr _setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
-    void _clearRequestHandler(const ::IceInternal::RequestHandlerPtr&);
 
     int _hash() const;
 
@@ -1241,9 +1235,8 @@ private:
     IceInternal::ReferencePtr _twoway() const;
 
     const IceInternal::ReferencePtr _reference;
-    ::IceInternal::RequestHandlerPtr _requestHandler;
+    const IceInternal::RequestHandlerCachePtr _requestHandlerCache;
     const IceInternal::BatchRequestQueuePtr _batchRequestQueue;
-    mutable std::mutex _mutex;
 };
 
 ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);

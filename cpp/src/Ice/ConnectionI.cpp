@@ -60,14 +60,21 @@ class DispatchCall : public DispatchWorkItem
 {
 public:
 
-    DispatchCall(const ConnectionIPtr& connection, const ConnectionI::StartCallbackPtr& startCB,
-                 const vector<ConnectionI::OutgoingMessage>& sentCBs, Byte compress, Int requestId,
-                 Int invokeNum, const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter,
-                 const OutgoingAsyncBasePtr& outAsync, const HeartbeatCallback& heartbeatCallback,
-                 InputStream& stream) :
+    DispatchCall(
+        const ConnectionIPtr& connection,
+        function<void (ConnectionIPtr)> connectionStartCompleted,
+        const vector<ConnectionI::OutgoingMessage>& sentCBs,
+        Byte compress,
+        Int requestId,
+        Int invokeNum,
+        const ServantManagerPtr& servantManager,
+        const ObjectAdapterPtr& adapter,
+        const OutgoingAsyncBasePtr& outAsync,
+        const HeartbeatCallback& heartbeatCallback,
+        InputStream& stream) :
         DispatchWorkItem(connection),
         _connection(connection),
-        _startCB(startCB),
+        _connectionStartCompleted(std::move(connectionStartCompleted)),
         _sentCBs(sentCBs),
         _compress(compress),
         _requestId(requestId),
@@ -84,14 +91,14 @@ public:
     virtual void
     run()
     {
-        _connection->dispatch(_startCB, _sentCBs, _compress, _requestId, _invokeNum, _servantManager, _adapter,
+        _connection->dispatch(_connectionStartCompleted, _sentCBs, _compress, _requestId, _invokeNum, _servantManager, _adapter,
                               _outAsync, _heartbeatCallback, _stream);
     }
 
 private:
 
     const ConnectionIPtr _connection;
-    const ConnectionI::StartCallbackPtr _startCB;
+    const function<void(Ice::ConnectionIPtr)> _connectionStartCompleted;
     const vector<ConnectionI::OutgoingMessage> _sentCBs;
     const Byte _compress;
     const Int _requestId;
@@ -381,7 +388,9 @@ Ice::ConnectionI::OutgoingMessage::completed(std::exception_ptr ex)
 }
 
 void
-Ice::ConnectionI::start(const StartCallbackPtr& callback)
+Ice::ConnectionI::startAsync(
+    function<void(Ice::ConnectionIPtr)> connectionStartCompleted,
+    function<void(Ice::ConnectionIPtr, exception_ptr)> connectionStartFailed)
 {
     try
     {
@@ -394,9 +403,10 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
 
         if(!initialize() || !validate())
         {
-            if(callback)
+            if(connectionStartCompleted && connectionStartFailed)
             {
-                _startCallback = callback;
+                _connectionStartCompleted = std::move(connectionStartCompleted);
+                _connectionStartFailed = std::move(connectionStartFailed);
                 return;
             }
 
@@ -420,9 +430,9 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
     catch(const Ice::LocalException&)
     {
         exception(current_exception());
-        if(callback)
+        if(connectionStartFailed)
         {
-            callback->connectionStartFailed(shared_from_this(), current_exception());
+            connectionStartFailed(shared_from_this(), current_exception());
             return;
         }
         else
@@ -432,9 +442,9 @@ Ice::ConnectionI::start(const StartCallbackPtr& callback)
         }
     }
 
-    if(callback)
+    if(connectionStartCompleted)
     {
-        callback->connectionStartCompleted(shared_from_this());
+        connectionStartCompleted(shared_from_this());
     }
 }
 
@@ -905,7 +915,7 @@ Ice::ConnectionI::setHeartbeatCallback(HeartbeatCallback callback)
     {
         return;
     }
-    _heartbeatCallback = callback;
+    _heartbeatCallback = std::move(callback);
 }
 
 void
@@ -916,32 +926,16 @@ Ice::ConnectionI::setCloseCallback(CloseCallback callback)
     {
         if(callback)
         {
-            class CallbackWorkItem : public DispatchWorkItem
-            {
-            public:
-
-                CallbackWorkItem(const ConnectionIPtr& connection, CloseCallback callback) :
-                    _connection(connection),
-                    _callback(std::move(callback))
+            auto self = shared_from_this();
+            _threadPool->dispatch([self, callback = std::move(callback)]()
                 {
-                }
-
-                virtual void run()
-                {
-                    _connection->closeCallback(_callback);
-                }
-
-            private:
-
-                const ConnectionIPtr _connection;
-                const CloseCallback _callback;
-            };
-            _threadPool->dispatch(make_shared<CallbackWorkItem>(shared_from_this(), std::move(callback)));
+                    self->closeCallback(callback);
+                });
         }
     }
     else
     {
-        _closeCallback = callback;
+        _closeCallback = std::move(callback);
     }
 }
 
@@ -1410,7 +1404,7 @@ Ice::ConnectionI::finishAsync(SocketOperation operation)
 void
 Ice::ConnectionI::message(ThreadPoolCurrent& current)
 {
-    StartCallbackPtr startCB;
+    function<void(ConnectionIPtr)> connectionStartCompleted;
     vector<OutgoingMessage> sentCBs;
     Byte compress = 0;
     Int requestId = 0;
@@ -1581,13 +1575,12 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 // We start out in holding state.
                 //
                 setState(StateHolding);
-                if(_startCallback)
+                if(_connectionStartCompleted)
                 {
-                    swap(_startCallback, startCB);
-                    if(startCB)
-                    {
-                        ++dispatchCount;
-                    }
+                    connectionStartCompleted = std::move(_connectionStartCompleted);
+                    ++dispatchCount;
+                    _connectionStartCompleted = nullptr;
+                    _connectionStartFailed = nullptr;
                 }
             }
             else
@@ -1680,27 +1673,56 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(shared_from_this(), startCB, sentCBs, compress, requestId,
-                                                         invokeNum, servantManager, adapter, outAsync,
-                                                         heartbeatCallback, current.stream));
+    _threadPool->dispatchFromThisThread(
+        make_shared<DispatchCall>(
+                shared_from_this(),
+                std::move(connectionStartCompleted),
+                sentCBs,
+                compress,
+                requestId,
+                invokeNum,
+                servantManager,
+                adapter,
+                outAsync,
+                heartbeatCallback,
+                current.stream));
 #else
     if(!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
     {
-        dispatch(startCB, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync, heartbeatCallback,
-                 current.stream);
+        dispatch(
+            connectionStartCompleted,
+            sentCBs,
+            compress,
+            requestId,
+            invokeNum,
+            servantManager,
+            adapter,
+            outAsync,
+            heartbeatCallback,
+            current.stream);
     }
     else
     {
-        _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(shared_from_this(), startCB, sentCBs, compress, requestId,
-                                                             invokeNum, servantManager, adapter, outAsync,
-                                                             heartbeatCallback, current.stream));
+        _threadPool->dispatchFromThisThread(
+            make_shared<DispatchCall>(
+                shared_from_this(),
+                std::move(connectionStartCompleted),
+                sentCBs,
+                compress,
+                requestId,
+                invokeNum,
+                servantManager,
+                adapter,
+                outAsync,
+                heartbeatCallback,
+                current.stream));
 
     }
 #endif
 }
 
 void
-ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMessage>& sentCBs,
+ConnectionI::dispatch(function<void(ConnectionIPtr)> connectionStartCompleted, const vector<OutgoingMessage>& sentCBs,
                       Byte compress, Int requestId, Int invokeNum, const ServantManagerPtr& servantManager,
                       const ObjectAdapterPtr& adapter, const OutgoingAsyncBasePtr& outAsync,
                       const HeartbeatCallback& heartbeatCallback, InputStream& stream)
@@ -1711,9 +1733,9 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     // Notify the factory that the connection establishment and
     // validation has completed.
     //
-    if(startCB)
+    if(connectionStartCompleted)
     {
-        startCB->connectionStartCompleted(shared_from_this());
+        connectionStartCompleted(shared_from_this());
         ++dispatchedCount;
     }
 
@@ -1837,7 +1859,12 @@ Ice::ConnectionI::finished(ThreadPoolCurrent& current, bool close)
     // to call code that will potentially block (this avoids promoting a new leader and
     // unecessary thread creation, especially if this is called on shutdown).
     //
-    if(!_startCallback && _sendStreams.empty() && _asyncRequests.empty() && !_closeCallback && !_heartbeatCallback)
+    if(!_connectionStartCompleted &&
+       !_connectionStartFailed &&
+       _sendStreams.empty() &&
+       _asyncRequests.empty() &&
+       !_closeCallback &&
+       !_heartbeatCallback)
     {
         finish(close);
         return;
@@ -1927,12 +1954,12 @@ Ice::ConnectionI::finish(bool close)
         }
     }
 
-    if(_startCallback)
+    if(_connectionStartFailed)
     {
         assert(_exception);
-
-        _startCallback->connectionStartFailed(shared_from_this(), _exception);
-        _startCallback = 0;
+        _connectionStartFailed(shared_from_this(), _exception);
+        _connectionStartFailed = nullptr;
+        _connectionStartCompleted = nullptr;
     }
 
     if(!_sendStreams.empty())
@@ -2185,7 +2212,8 @@ Ice::ConnectionI::create(const CommunicatorPtr& communicator,
 
 Ice::ConnectionI::~ConnectionI()
 {
-    assert(!_startCallback);
+    assert(!_connectionStartCompleted);
+    assert(!_connectionStartFailed);
     assert(!_closeCallback);
     assert(!_heartbeatCallback);
     assert(_state == StateFinished);
