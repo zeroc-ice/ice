@@ -492,12 +492,11 @@ namespace Ice
         /// <summary>
         /// Marks the end of a class instance.
         /// </summary>
-        /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData endValue(bool preserve)
+        public SlicedData endValue()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.endInstance(preserve);
+            return _encapsStack.decoder.endInstance();
         }
 
         /// <summary>
@@ -512,12 +511,10 @@ namespace Ice
         /// <summary>
         /// Marks the end of a user exception.
         /// </summary>
-        /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
-        /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData endException(bool preserve)
+        public void endException()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.endInstance(preserve);
+            _encapsStack.decoder.endInstance();
         }
 
         /// <summary>
@@ -2763,7 +2760,7 @@ namespace Ice
             internal abstract void throwException(UserExceptionFactory factory);
 
             internal abstract void startInstance(SliceType type);
-            internal abstract SlicedData endInstance(bool preserve);
+            internal abstract SlicedData endInstance();
             internal abstract string startSlice();
             internal abstract void endSlice();
             internal abstract void skipSlice();
@@ -3154,7 +3151,7 @@ namespace Ice
                 _skipFirstSlice = true;
             }
 
-            internal override SlicedData endInstance(bool preserve)
+            internal override SlicedData endInstance()
             {
                 //
                 // Read the Ice::Object slice.
@@ -3480,13 +3477,9 @@ namespace Ice
                 _current.skipFirstSlice = true;
             }
 
-            internal override SlicedData endInstance(bool preserve)
+            internal override SlicedData endInstance()
             {
-                SlicedData slicedData = null;
-                if(preserve)
-                {
-                    slicedData = readSlicedData();
-                }
+                SlicedData slicedData = readSlicedData();
                 if(_current.slices != null)
                 {
                     _current.slices.Clear();

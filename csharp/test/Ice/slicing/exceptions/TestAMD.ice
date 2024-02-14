@@ -48,20 +48,6 @@ interface TestIntf
     void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
     void unknownMostDerived2AsBase() throws Base;
 
-    ["format:compact"] void unknownMostDerived2AsBaseCompact() throws Base;
-
-    void knownPreservedAsBase() throws Base;
-    void knownPreservedAsKnownPreserved() throws KnownPreserved;
-
-    void relayKnownPreservedAsBase(Relay* r) throws Base;
-    void relayKnownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
-
-    void unknownPreservedAsBase() throws Base;
-    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
-
-    void relayUnknownPreservedAsBase(Relay* r) throws Base;
-    void relayUnknownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
-
     void shutdown();
 }
 

@@ -949,7 +949,7 @@ public class AllTests : Test.AllTests
 
         dm1 = (IceMX.DispatchMetrics)map["opWithUserException"];
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
-        test(dm1.size == 38 && dm1.replySize == 23);
+        test(dm1.size == 38 && dm1.replySize == 27);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithLocalException"];
         test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
@@ -1130,7 +1130,7 @@ public class AllTests : Test.AllTests
         test(collocated ? im1.collocated.Length == 1 : im1.remotes.Length == 1);
         rim1 = (IceMX.ChildInvocationMetrics)(collocated ? im1.collocated[0] : im1.remotes[0]);
         test(rim1.current == 0 && rim1.total == 2 && rim1.failures == 0);
-        test(rim1.size == 76 && rim1.replySize == 46);
+        test(rim1.size == 76 && rim1.replySize == 54);
         test(im1.userException == 2);
 
         im1 = (IceMX.InvocationMetrics)map["opWithLocalException"];

@@ -4,8 +4,14 @@
 
 #pragma once
 
+[["java:package:test.Ice.slicing.exceptions.client"]]
 module Test
 {
+
+//
+// Duplicate types from Test.ice. We cannot use #include since
+// that will use the types from the same prefix.
+//
 
 exception Base
 {
@@ -41,9 +47,7 @@ exception KnownPreservedDerived extends KnownPreserved
 interface TestIntf
 {
     void baseAsBase() throws Base;
-
-    // Test that the compact metadata is ignored (exceptions are always encoded with the sliced format).
-    ["format:compact"] void unknownDerivedAsBase() throws Base;
+    void unknownDerivedAsBase() throws Base;
     void knownDerivedAsBase() throws Base;
     void knownDerivedAsKnownDerived() throws KnownDerived;
 

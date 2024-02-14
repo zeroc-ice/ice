@@ -75,7 +75,6 @@ class PBase
 
 sequence<PBase> PBaseSeq;
 
-["preserve-slice"]
 class Preserved extends PBase
 {
     string ps;
@@ -91,13 +90,11 @@ class CompactPDerived(56) extends Preserved
     PBase pb;
 }
 
-["preserve-slice"]
 class PNode
 {
     PNode next;
 }
 
-["preserve-slice"]
 exception PreservedException
 {
 }
@@ -170,7 +167,6 @@ class D3 extends B
     B pd3;
 }
 
-["preserve-slice"]
 class PCUnknown extends PBase
 {
     string pu;

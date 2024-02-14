@@ -270,11 +270,10 @@ namespace Ice
         /// <summary>
         /// Marks the start of a user exception.
         /// </summary>
-        /// <param name="data">Preserved slices for this exception, or null.</param>
-        public void startException(SlicedData data)
+        public void startException()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.encoder != null);
-            _encapsStack.encoder.startInstance(SliceType.ExceptionSlice, data);
+            _encapsStack.encoder.startInstance(SliceType.ExceptionSlice, null);
         }
 
         /// <summary>
@@ -2057,6 +2056,8 @@ namespace Ice
         public void writeException(UserException v)
         {
             initEncaps();
+            // Exceptions are always encoded with the sliced format.
+            _encapsStack.format = FormatType.SlicedFormat;
             _encapsStack.encoder.writeException(v);
         }
 
