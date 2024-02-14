@@ -5,8 +5,6 @@
 #ifndef ICE_CONNECTION_I_H
 #define ICE_CONNECTION_I_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/StopWatch.h>
 #include <IceUtil/Timer.h>
@@ -34,11 +32,20 @@
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
 
+#include <condition_variable>
 #include <deque>
+#include <mutex>
 
 #ifndef ICE_HAS_BZIP2
 #   define ICE_HAS_BZIP2
 #endif
+
+namespace IceInternal
+{
+
+template<typename T> class ThreadPoolMessage;
+
+}
 
 namespace Ice
 {
@@ -49,8 +56,7 @@ class ObjectAdapterI;
 class ConnectionI : public Connection,
                     public IceInternal::EventHandler,
                     public IceInternal::ResponseHandler,
-                    public IceInternal::CancellationHandler,
-                    public IceUtil::Monitor<IceUtil::Mutex>
+                    public IceInternal::CancellationHandler
 {
     class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
     {
@@ -100,7 +106,7 @@ public:
         void adopt(Ice::OutputStream*);
         void canceled(bool);
         bool sent();
-        void completed(const Ice::LocalException&);
+        void completed(std::exception_ptr);
 
         Ice::OutputStream* stream;
         IceInternal::OutgoingAsyncBasePtr outAsync;
@@ -114,22 +120,15 @@ public:
 #endif
     };
 
-    class StartCallback
-    {
-    public:
-
-        virtual void connectionStartCompleted(const ConnectionIPtr&) = 0;
-        virtual void connectionStartFailed(const ConnectionIPtr&, const Ice::LocalException&) = 0;
-    };
-    using StartCallbackPtr = ::std::shared_ptr<StartCallback>;
-
     enum DestructionReason
     {
         ObjectAdapterDeactivated,
         CommunicatorDestroyed
     };
 
-    void start(const StartCallbackPtr&);
+    void startAsync(
+        std::function<void(ConnectionIPtr)>,
+        std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
     void activate();
     void hold();
     void destroy(DestructionReason);
@@ -164,17 +163,17 @@ public:
     virtual std::function<void()>
     heartbeatAsync(::std::function<void(::std::exception_ptr)>, ::std::function<void(bool)> = nullptr);
 
-    virtual void setACM(const IceUtil::Optional<int>&,
-                        const IceUtil::Optional<ACMClose>&,
-                        const IceUtil::Optional<ACMHeartbeat>&);
+    virtual void setACM(const std::optional<int>&,
+                        const std::optional<ACMClose>&,
+                        const std::optional<ACMHeartbeat>&);
     virtual ACM getACM() noexcept;
 
-    virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, const LocalException&);
+    virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
 
     virtual void sendResponse(Int, Ice::OutputStream*, Byte, bool);
     virtual void sendNoResponse();
-    virtual bool systemException(Int, const SystemException&, bool);
-    virtual void invokeException(Ice::Int, const LocalException&, int, bool);
+    virtual bool systemException(Int, std::exception_ptr, bool);
+    virtual void invokeException(Ice::Int, std::exception_ptr, int, bool);
 
     IceInternal::EndpointIPtr endpoint() const;
     IceInternal::ConnectorPtr connector() const;
@@ -207,10 +206,15 @@ public:
 
     virtual void setBufferSize(Ice::Int rcvSize, Ice::Int sndSize); // From Connection
 
-    void exception(const LocalException&);
+    void exception(std::exception_ptr);
 
-    void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
-                  const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
+    void dispatch(std::function<void(ConnectionIPtr)>,
+                  const std::vector<OutgoingMessage>&,
+                  Byte,
+                  Int,
+                  Int,
+                  const IceInternal::ServantManagerPtr&,
+                  const ObjectAdapterPtr&,
                   const IceInternal::OutgoingAsyncBasePtr&,
                   const HeartbeatCallback&,
                   Ice::InputStream&);
@@ -246,7 +250,7 @@ private:
     friend class IceInternal::IncomingConnectionFactory;
     friend class IceInternal::OutgoingConnectionFactory;
 
-    void setState(State, const LocalException&);
+    void setState(State, std::exception_ptr);
     void setState(State);
 
     void initiateShutdown();
@@ -305,7 +309,8 @@ private:
     const IceUtil::TimerTaskPtr _readTimeout;
     bool _readTimeoutScheduled;
 
-    StartCallbackPtr _startCallback;
+    std::function<void(ConnectionIPtr)> _connectionStartCompleted;
+    std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
 
     const bool _warn;
     const bool _warnUdp;
@@ -319,7 +324,7 @@ private:
     std::map<Int, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
     std::map<Int, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
 
-    std::unique_ptr<LocalException> _exception;
+    std::exception_ptr _exception;
 
     const size_t _messageSizeMax;
     IceInternal::BatchRequestQueuePtr _batchRequestQueue;
@@ -341,6 +346,12 @@ private:
 
     CloseCallback _closeCallback;
     HeartbeatCallback _heartbeatCallback;
+
+    mutable std::mutex _mutex;
+    mutable std::condition_variable _conditionVariable;
+
+    // For locking the _mutex
+    template<typename T> friend class IceInternal::ThreadPoolMessage;
 };
 
 }

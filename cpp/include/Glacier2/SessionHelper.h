@@ -5,10 +5,7 @@
 #ifndef GLACIER2_SESSION_HELPER_H
 #define GLACIER2_SESSION_HELPER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Mutex.h>
 
 #include <Ice/Initialize.h>
 #include <Ice/Properties.h>
@@ -21,6 +18,7 @@
 
 #include <map>
 #include <string>
+#include <mutex>
 
 namespace Glacier2
 {
@@ -122,7 +120,7 @@ public:
      * @param session The corresponding session helper.
      * @param ex The exception that caused the failure.
      */
-    virtual void connectFailed(const SessionHelperPtr& session, const Ice::Exception& ex) = 0;
+    virtual void connectFailed(const SessionHelperPtr& session, std::exception_ptr ex) = 0;
 };
 using SessionCallbackPtr = std::shared_ptr<SessionCallback>;
 
@@ -283,7 +281,7 @@ private:
     std::string createProxyStr(const Ice::Identity& ident);
     void setDefaultProperties();
 
-    IceUtil::Mutex _mutex;
+    mutable std::mutex _mutex;
     std::string _routerHost;
     Ice::Identity _identity;
     std::string _protocol;

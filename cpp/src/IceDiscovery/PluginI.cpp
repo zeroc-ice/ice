@@ -121,8 +121,8 @@ PluginI::initialize()
     // Setup locatory registry.
     //
     LocatorRegistryIPtr locatorRegistry = make_shared<LocatorRegistryI>(_communicator);
-    Ice::LocatorRegistryPrxPtr locatorRegistryPrx =
-        ICE_UNCHECKED_CAST(Ice::LocatorRegistryPrx, _locatorAdapter->addWithUUID(locatorRegistry));
+    auto locatorRegistryPrx =
+        Ice::uncheckedCast<Ice::LocatorRegistryPrx>(_locatorAdapter->addWithUUID(locatorRegistry));
 
     Ice::ObjectPrxPtr lookupPrx = _communicator->stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
     // No collocation optimization for the multicast proxy!
@@ -131,20 +131,20 @@ PluginI::initialize()
     //
     // Add lookup and lookup reply Ice objects
     //
-    _lookup = make_shared<LookupI>(locatorRegistry, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties);
+    _lookup = make_shared<LookupI>(locatorRegistry, Ice::uncheckedCast<LookupPrx>(lookupPrx), properties);
     _multicastAdapter->add(_lookup, Ice::stringToIdentity("IceDiscovery/Lookup"));
 
     _replyAdapter->addDefaultServant(make_shared<LookupReplyI>(_lookup), "");
     Ice::Identity id;
     id.name = "dummy";
-    _lookup->setLookupReply(ICE_UNCHECKED_CAST(LookupReplyPrx, _replyAdapter->createProxy(id)->ice_datagram()));
+    _lookup->setLookupReply(Ice::uncheckedCast<LookupReplyPrx>(_replyAdapter->createProxy(id)->ice_datagram()));
 
     //
     // Setup locator on the communicator.
     //
     Ice::ObjectPrxPtr loc = _locatorAdapter->addWithUUID(make_shared<LocatorI>(_lookup, locatorRegistryPrx));
     _defaultLocator = _communicator->getDefaultLocator();
-    _locator = ICE_UNCHECKED_CAST(Ice::LocatorPrx, loc);
+    _locator = Ice::uncheckedCast<Ice::LocatorPrx>(loc);
     _communicator->setDefaultLocator(_locator);
 
     _multicastAdapter->activate();

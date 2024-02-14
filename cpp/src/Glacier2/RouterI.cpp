@@ -108,7 +108,7 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
 }
 
 shared_ptr<ObjectPrx>
-Glacier2::RouterI::getClientProxy(Ice::optional<bool>& hasRoutingTable, const Current&) const
+Glacier2::RouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current&) const
 {
     // No mutex lock necessary, _clientProxy is immutable and is never destroyed.
     hasRoutingTable = true;

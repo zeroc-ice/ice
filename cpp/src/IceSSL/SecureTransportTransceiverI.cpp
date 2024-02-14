@@ -381,7 +381,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         _cipher = _engine->getCipherName(cipher);
     }
 
-    _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
+    _engine->verifyPeer(_host, dynamic_pointer_cast<ConnectionInfo>(getInfo()), toString());
 
     if(_instance->engine()->securityTraceLevel() >= 1)
     {
@@ -413,7 +413,7 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
 }
 
 IceInternal::SocketOperation
-IceSSL::SecureTransport::TransceiverI::closing(bool initiator, const Ice::LocalException&)
+IceSSL::SecureTransport::TransceiverI::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.
@@ -637,7 +637,7 @@ IceSSL::SecureTransport::TransceiverI::TransceiverI(const IceSSL::InstancePtr& i
                                                     const string& hostOrAdapterName,
                                                     bool incoming) :
     _instance(instance),
-    _engine(IceSSL::SecureTransport::SSLEnginePtr::dynamicCast(instance->engine())),
+    _engine(dynamic_pointer_cast<IceSSL::SecureTransport::SSLEngine>(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),

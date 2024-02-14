@@ -50,7 +50,7 @@ ServiceI::ServiceI(const CommunicatorPtr& serviceManagerCommunicator)
     // Set the callback on the admin facet.
     //
     ObjectPtr propFacet = serviceManagerCommunicator->findAdminFacet("IceBox.Service.TestService.Properties");
-    NativePropertiesAdminPtr admin = ICE_DYNAMIC_CAST(NativePropertiesAdmin, propFacet);
+    auto admin = dynamic_pointer_cast<NativePropertiesAdmin>(propFacet);
     assert(admin);
 
     admin->addUpdateCallback([facet](const Ice::PropertyDict& changes) { facet->updated(changes); });

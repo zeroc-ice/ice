@@ -18,7 +18,7 @@ allTests(Test::TestHelper* helper)
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 
-    Test::MyClassPrxPtr cl = ICE_CHECKED_CAST(Test::MyClassPrx, base);
+    Test::MyClassPrxPtr cl = Ice::checkedCast<Test::MyClassPrx>(base);
     test(cl);
 
     Test::MyClassPrxPtr oneway = cl->ice_oneway();

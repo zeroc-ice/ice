@@ -5,20 +5,16 @@
 #ifndef ICE_ROUTER_INFO_F_H
 #define ICE_ROUTER_INFO_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class RouterManager;
-IceUtil::Shared* upCast(RouterManager*);
-typedef Handle<RouterManager> RouterManagerPtr;
+using RouterManagerPtr = std::shared_ptr<RouterManager>;
 
 class RouterInfo;
-IceUtil::Shared* upCast(RouterInfo*);
-typedef Handle<RouterInfo> RouterInfoPtr;
+using RouterInfoPtr = std::shared_ptr<RouterInfo>;
 
 }
 

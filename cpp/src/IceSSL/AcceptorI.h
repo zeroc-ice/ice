@@ -15,31 +15,29 @@
 namespace IceSSL
 {
 
-class AcceptorI : public IceInternal::Acceptor, public IceInternal::NativeInfo
+class AcceptorI final : public IceInternal::Acceptor, public IceInternal::NativeInfo
 {
 public:
 
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
+    AcceptorI(const EndpointIPtr&, const InstancePtr&, const IceInternal::AcceptorPtr&, const std::string&);
+    ~AcceptorI();
+    IceInternal::NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
-    virtual IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation);
+    IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation) final;
 #endif
 
-    virtual void close();
-    virtual IceInternal::EndpointIPtr listen();
+    void close() final;
+    IceInternal::EndpointIPtr listen() final;
 #if defined(ICE_USE_IOCP)
-    virtual void startAccept();
-    virtual void finishAccept();
+    void startAccept() final;
+    void finishAccept() final;
 #endif
-    virtual IceInternal::TransceiverPtr accept();
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
+    IceInternal::TransceiverPtr accept() final;
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
 
 private:
-
-    AcceptorI(const EndpointIPtr&, const InstancePtr&, const IceInternal::AcceptorPtr&, const std::string&);
-    virtual ~AcceptorI();
-    friend class EndpointI;
 
     EndpointIPtr _endpoint;
     const InstancePtr _instance;

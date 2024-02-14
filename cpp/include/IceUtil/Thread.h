@@ -6,9 +6,9 @@
 #define ICE_UTIL_THREAD_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
-#include <IceUtil/Mutex.h>
+
+#include <memory>
+#include <mutex>
 
 namespace IceUtil
 {
@@ -95,7 +95,7 @@ private:
 #endif
 };
 
-class ICE_API Thread : public virtual IceUtil::Shared
+class ICE_API Thread : public std::enable_shared_from_this<Thread>
 {
 public:
 
@@ -131,7 +131,7 @@ public:
 
 protected:
     const std::string _name;
-    Mutex _stateMutex;
+    mutable std::mutex _stateMutex;
     bool _started;
     bool _running;
 
@@ -144,8 +144,7 @@ protected:
 
 private:
 
-#ifdef _WIN32
-#else
+#ifndef _WIN32
     ThreadControl start(size_t, bool, int);
 #endif
 
@@ -153,7 +152,7 @@ private:
     void operator=(const Thread&);      // Assignment is forbidden
 };
 
-typedef Handle<Thread> ThreadPtr;
+using ThreadPtr = std::shared_ptr<Thread>;
 
 }
 

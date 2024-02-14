@@ -34,11 +34,11 @@ public:
 protected:
 
     virtual bool handleSent(bool, bool) = 0;
-    virtual bool handleException(const Ice::Exception&) = 0;
+    virtual bool handleException(std::exception_ptr) = 0;
     virtual bool handleResponse(bool) = 0;
 
     virtual void handleInvokeSent(bool, OutgoingAsyncBase*) const = 0;
-    virtual void handleInvokeException(const Ice::Exception&, OutgoingAsyncBase*) const = 0;
+    virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const = 0;
     virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const = 0;
 };
 
@@ -53,7 +53,7 @@ class ICE_API OutgoingAsyncBase : public virtual OutgoingAsyncCompletionCallback
 public:
 
     virtual bool sent();
-    virtual bool exception(const Ice::Exception&);
+    virtual bool exception(std::exception_ptr);
     virtual bool response();
 
     void invokeSentAsync();
@@ -94,10 +94,10 @@ protected:
     OutgoingAsyncBase(const InstancePtr&);
 
     bool sentImpl(bool);
-    bool exceptionImpl(const Ice::Exception&);
+    bool exceptionImpl(std::exception_ptr);
     bool responseImpl(bool, bool);
 
-    void cancel(const Ice::LocalException&);
+    void cancel(std::exception_ptr);
     void checkCanceled();
 
     void warning(const std::exception&) const;
@@ -121,8 +121,8 @@ protected:
     std::mutex _m;
     using Lock = std::lock_guard<std::mutex>;
 
-    std::unique_ptr<Ice::Exception> _ex;
-    std::unique_ptr<Ice::LocalException> _cancellationException;
+    std::exception_ptr _ex;
+    std::exception_ptr _cancellationException;
 
     InvocationObserver _observer;
     ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
@@ -150,12 +150,12 @@ public:
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) = 0;
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*) = 0;
 
-    virtual bool exception(const Ice::Exception&);
+    virtual bool exception(std::exception_ptr);
     virtual void cancelable(const CancellationHandlerPtr&);
 
-    void retryException(const Ice::Exception&);
+    void retryException();
     void retry();
-    void abort(const Ice::Exception&);
+    void abort(std::exception_ptr);
 
     std::shared_ptr<ProxyOutgoingAsyncBase> shared_from_this()
     {
@@ -169,7 +169,7 @@ protected:
 
     void invokeImpl(bool);
     bool sentImpl(bool);
-    bool exceptionImpl(const Ice::Exception&);
+    bool exceptionImpl(std::exception_ptr);
     bool responseImpl(bool, bool);
 
     virtual void runTimerTask();
@@ -201,7 +201,7 @@ public:
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
 
-    void abort(const Ice::Exception&);
+    void abort(std::exception_ptr);
     void invoke(const std::string&);
     void invoke(const std::string&, Ice::OperationMode, Ice::FormatType, const Ice::Context&,
                 std::function<void(Ice::OutputStream*)>);
@@ -256,11 +256,11 @@ public:
 protected:
 
     virtual bool handleSent(bool, bool) override;
-    virtual bool handleException(const Ice::Exception&) override;
+    virtual bool handleException(std::exception_ptr) override;
     virtual bool handleResponse(bool) override;
 
     virtual void handleInvokeSent(bool, OutgoingAsyncBase*) const override;
-    virtual void handleInvokeException(const Ice::Exception&, OutgoingAsyncBase*) const override;
+    virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const override;
     virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const override;
 
     std::function<void(::std::exception_ptr)> _exception;
@@ -291,16 +291,9 @@ private:
         return false;
     }
 
-    virtual bool handleException(const Ice::Exception& ex) override
+    virtual bool handleException(std::exception_ptr ex) override
     {
-        try
-        {
-            ex.ice_throw();
-        }
-        catch(const Ice::Exception&)
-        {
-            _promise.set_exception(std::current_exception());
-        }
+        _promise.set_exception(ex);
         return false;
     }
 
@@ -315,7 +308,7 @@ private:
         assert(false);
     }
 
-    virtual void handleInvokeException(const Ice::Exception&, OutgoingAsyncBase*) const override
+    virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const override
     {
         assert(false);
     }
@@ -395,7 +388,7 @@ class LambdaOutgoing : public OutgoingAsyncT<R>, public LambdaInvoke
 {
 public:
 
-    LambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
+    LambdaOutgoing(const Ice::ObjectPrxPtr& proxy,
                    std::function<void(R)> response,
                    std::function<void(::std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
@@ -431,7 +424,7 @@ class LambdaOutgoing<void> : public OutgoingAsyncT<void>, public LambdaInvoke
 {
 public:
 
-    LambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
+    LambdaOutgoing(const Ice::ObjectPrxPtr& proxy,
                    std::function<void()> response,
                    std::function<void(::std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
@@ -467,7 +460,7 @@ class CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
 {
 public:
 
-    CustomLambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
+    CustomLambdaOutgoing(const Ice::ObjectPrxPtr& proxy,
                          std::function<void(Ice::InputStream*)> read,
                          std::function<void(::std::exception_ptr)> ex,
                          std::function<void(bool)> sent) :
@@ -507,7 +500,7 @@ class PromiseOutgoing : public OutgoingAsyncT<R>, public PromiseInvoke<P>
 {
 public:
 
-    PromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool sync) :
+    PromiseOutgoing(const Ice::ObjectPrxPtr& proxy, bool sync) :
         OutgoingAsyncT<R>(proxy, sync)
     {
         this->_response = [this](bool ok)
@@ -533,7 +526,7 @@ class PromiseOutgoing<P, void> : public OutgoingAsyncT<void>, public PromiseInvo
 {
 public:
 
-    PromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool sync) :
+    PromiseOutgoing(const Ice::ObjectPrxPtr& proxy, bool sync) :
         OutgoingAsyncT<void>(proxy, sync)
     {
         this->_response = [&](bool ok)

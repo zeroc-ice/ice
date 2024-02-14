@@ -5,16 +5,13 @@
 #ifndef ICE_THREAD_POOL_F_H
 #define ICE_THREAD_POOL_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class ThreadPool;
-ICE_API IceUtil::Shared* upCast(ThreadPool*);
-typedef Handle<ThreadPool> ThreadPoolPtr;
+using ThreadPoolPtr = std::shared_ptr<ThreadPool>;
 
 class ThreadPoolCurrent;
 

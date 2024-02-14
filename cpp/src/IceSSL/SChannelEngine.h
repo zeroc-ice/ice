@@ -32,7 +32,7 @@ namespace IceSSL
 namespace SChannel
 {
 
-class SSLEngine : public IceSSL::SSLEngine
+class SSLEngine final : public IceSSL::SSLEngine
 {
 public:
 
@@ -41,15 +41,15 @@ public:
     //
     // Setup the engine.
     //
-    virtual void initialize();
+    void initialize() final;
 
-    virtual IceInternal::TransceiverPtr
-    createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+    IceInternal::TransceiverPtr
+    createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
 
     //
     // Destroy the engine.
     //
-    virtual void destroy();
+    void destroy() final;
 
     std::string getCipherName(ALG_ID) const;
 

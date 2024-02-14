@@ -22,7 +22,7 @@ public:
     }
 
     virtual Ice::ObjectPrxPtr
-    getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const
+    getClientProxy(optional<bool>&, const Ice::Current&) const
     {
         return nullptr;
     }

@@ -133,7 +133,7 @@ $3/%.o: $1/%.mm
 $3/%.o: $1/%.mm
 	$(E) "Compiling [$8-$9] $$<"
 	$(Q)$(or $($8_cxx),$(platform_cxx)) $(CXXFLAGS) $(call depend-cppflags,$3/$$*.Td,$$@)\
-	$(strip $6) $(CPPFLAGS) -std=c++17 -c $$< -o $$@
+	$(strip $6) $(CPPFLAGS) -c $$< -o $$@
 	$(Q)$(MV) $3/$$*.Td $3/$$*.mm.d
 endif
 

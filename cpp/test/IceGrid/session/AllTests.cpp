@@ -471,7 +471,7 @@ allTests(TestHelper* helper)
         communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
 
     auto session = registry->createAdminSession("admin3", "test3");
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
     auto admin = session->getAdmin();
     test(admin);
@@ -1123,8 +1123,8 @@ allTests(TestHelper* helper)
         auto session1 = registry->createAdminSession("admin1", "test1");
         auto session2 = registry->createAdminSession("admin2", "test2");
 
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
-        session2->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
+        session2->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
         auto admin1 = session1->getAdmin();
         auto admin2 = session2->getAdmin();
@@ -1379,7 +1379,7 @@ allTests(TestHelper* helper)
         auto session1 = registry->createAdminSession("admin1", "test1");
         auto admin1 = session1->getAdmin();
 
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
         auto adpt1 = communicator->createObjectAdapter("");
         auto appObs1 = make_shared<ApplicationObserverI>("appObs1.2");
@@ -1475,7 +1475,7 @@ allTests(TestHelper* helper)
         auto session1 = Ice::uncheckedCast<AdminSessionPrx>(registry->createAdminSession("admin1", "test1"));
         auto admin1 = session1->getAdmin();
 
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
         auto adpt1 = communicator->createObjectAdapter("");
         auto adptObs1 = make_shared<AdapterObserverI>("adptObs1");
@@ -1559,7 +1559,7 @@ allTests(TestHelper* helper)
         auto session1 = Ice::uncheckedCast<AdminSessionPrx>(registry->createAdminSession("admin1", "test1"));
         auto admin1 = session1->getAdmin();
 
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
         auto adpt1 = communicator->createObjectAdapter("");
         auto objectObs1 = make_shared<ObjectObserverI>("objectObs1");
@@ -1611,7 +1611,7 @@ allTests(TestHelper* helper)
         cout << "testing node observer... " << flush;
         auto session1 = registry->createAdminSession("admin1", "test1");
 
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
         auto adpt1 = communicator->createObjectAdapter("");
         auto appObs1 = make_shared<ApplicationObserverI>("appObs1.3");
@@ -1761,7 +1761,7 @@ allTests(TestHelper* helper)
         cout << "testing registry observer... " << flush;
         auto session1 = registry->createAdminSession("admin1", "test1");
 
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
         auto adpt1 = communicator->createObjectAdapter("");
         auto appObs1 = make_shared<ApplicationObserverI>("appObs1.4");
@@ -1802,7 +1802,7 @@ allTests(TestHelper* helper)
         cout << "testing observer with direct proxy... " << flush;
         auto session1 = registry->createAdminSession("admin1", "test1");
 
-        session1->ice_getConnection()->setACM(registry->getACMTimeout(), Ice::nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
+        session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
         auto adpt1 = communicator->createObjectAdapterWithEndpoints("", "tcp");
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");

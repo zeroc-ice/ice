@@ -7,11 +7,6 @@
 
 using namespace std;
 
-IceInternal::EndpointI_connectors::~EndpointI_connectors()
-{
-    // Out of line to avoid weak vtable
-}
-
 void
 IceInternal::EndpointI::streamWrite(Ice::OutputStream* s) const
 {

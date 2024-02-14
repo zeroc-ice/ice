@@ -79,7 +79,7 @@ Ice_Service_CtrlHandler(DWORD ctrl)
 namespace
 {
 
-class ServiceStatusManager : public IceUtil::Monitor<IceUtil::Mutex>
+class ServiceStatusManager
 {
 public:
 
@@ -134,6 +134,8 @@ private:
     SERVICE_STATUS _status;
     IceUtil::ThreadPtr _thread;
     bool _stopped;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 static ServiceStatusManager* serviceStatusManager;
@@ -142,7 +144,7 @@ static ServiceStatusManager* serviceStatusManager;
 // Interface implemented by SMEventLoggerI and called from
 // SMEventLoggerIWrapper.
 //
-class SMEventLogger : public IceUtil::Shared
+class SMEventLogger
 {
 public:
     virtual void print(const string&, const string&) = 0;
@@ -150,7 +152,7 @@ public:
     virtual void warning(const string&, const string&) = 0;
     virtual void error(const string&, const string&) = 0;
 };
-typedef IceUtil::Handle<SMEventLogger> SMEventLoggerPtr;
+using SMEventLoggerPtr = std::shared_ptr<SMEventLogger>;
 
 class SMEventLoggerIWrapper : public Ice::Logger
 {
@@ -581,10 +583,10 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
             // our own logger.
             //
             _logger = getProcessLogger();
-            if(ICE_DYNAMIC_CAST(LoggerI, _logger))
+            if(dynamic_pointer_cast<LoggerI>(_logger))
             {
                 string eventLogSource = initData.properties->getPropertyWithDefault("Ice.EventLog.Source", name);
-                _logger = make_shared<SMEventLoggerIWrapper>(new SMEventLoggerI(eventLogSource, stringConverter), "");
+                _logger = make_shared<SMEventLoggerIWrapper>(make_shared<SMEventLoggerI>(eventLogSource, stringConverter), "");
                 setProcessLogger(_logger);
             }
 
@@ -708,7 +710,7 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
     if(!_logger)
     {
         _logger = getProcessLogger();
-        if(ICE_DYNAMIC_CAST(LoggerI, _logger))
+        if(dynamic_pointer_cast<LoggerI>(_logger))
         {
             const bool convert =
                 initData.properties->getPropertyAsIntWithDefault("Ice.LogStdErr.Convert", 1) > 0 &&
@@ -1445,7 +1447,7 @@ ServiceStatusManager::ServiceStatusManager(SERVICE_STATUS_HANDLE handle) :
 void
 ServiceStatusManager::startUpdate(DWORD state)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(state == SERVICE_START_PENDING || state == SERVICE_STOP_PENDING);
     assert(!_thread);
@@ -1455,7 +1457,7 @@ ServiceStatusManager::startUpdate(DWORD state)
 
     _stopped = false;
 
-    _thread = new StatusThread(this);
+    _thread = make_shared<StatusThread>(this);
     _thread->start();
 }
 
@@ -1465,12 +1467,12 @@ ServiceStatusManager::stopUpdate()
     IceUtil::ThreadPtr thread;
 
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
 
         if(_thread)
         {
             _stopped = true;
-            notify();
+            _conditionVariable.notify_one();
             thread = _thread;
             _thread = 0;
         }
@@ -1485,7 +1487,7 @@ ServiceStatusManager::stopUpdate()
 void
 ServiceStatusManager::changeStatus(DWORD state, DWORD controlsAccepted)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     _status.dwCurrentState = state;
     _status.dwControlsAccepted = controlsAccepted;
@@ -1496,7 +1498,7 @@ ServiceStatusManager::changeStatus(DWORD state, DWORD controlsAccepted)
 void
 ServiceStatusManager::reportStatus()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     SetServiceStatus(_handle, &_status);
 }
@@ -1504,9 +1506,9 @@ ServiceStatusManager::reportStatus()
 void
 ServiceStatusManager::run()
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
 
-    IceUtil::Time delay = IceUtil::Time::milliSeconds(1000);
+    auto delay = chrono::milliseconds(1000);
     _status.dwWaitHint = 2000;
     _status.dwCheckPoint = 0;
 
@@ -1514,7 +1516,7 @@ ServiceStatusManager::run()
     {
         _status.dwCheckPoint++;
         SetServiceStatus(_handle, &_status);
-        timedWait(delay);
+        _conditionVariable.wait_for(lock, delay);
     }
 }
 

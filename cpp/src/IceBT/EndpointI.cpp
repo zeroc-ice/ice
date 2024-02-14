@@ -97,7 +97,7 @@ IceBT::EndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -116,7 +116,7 @@ IceBT::EndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -135,7 +135,7 @@ IceBT::EndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -158,21 +158,31 @@ IceBT::EndpointI::secure() const
 IceInternal::TransceiverPtr
 IceBT::EndpointI::transceiver() const
 {
-    return 0;
+    return nullptr;
 }
 
 void
-IceBT::EndpointI::connectors_async(EndpointSelectionType /*selType*/, const IceInternal::EndpointI_connectorsPtr& cb) const
+IceBT::EndpointI::connectorsAsync(
+    EndpointSelectionType /*selType*/,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)>) const
 {
     vector<IceInternal::ConnectorPtr> connectors;
-    connectors.push_back(new ConnectorI(_instance, _addr, _uuid, _timeout, _connectionId));
-    cb->connectors(connectors);
+    connectors.emplace_back(make_shared<ConnectorI>(_instance, _addr, _uuid, _timeout, _connectionId));
+    response(std::move(connectors));
 }
 
 IceInternal::AcceptorPtr
 IceBT::EndpointI::acceptor(const string& adapterName) const
 {
-    return new AcceptorI(ICE_SHARED_FROM_CONST_THIS(EndpointI), _instance, adapterName, _addr, _uuid, _name, _channel);
+    return make_shared<AcceptorI>(
+        const_cast<EndpointI*>(this)->shared_from_this(),
+        _instance,
+        adapterName,
+        _addr,
+        _uuid,
+        _name,
+        _channel);
 }
 
 vector<IceInternal::EndpointIPtr>
@@ -191,7 +201,7 @@ IceBT::EndpointI::expandIfWildcard() const
     }
     else
     {
-        endps.push_back(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+        endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
     }
 
     return endps;
@@ -204,7 +214,7 @@ IceBT::EndpointI::expandHost(IceInternal::EndpointIPtr&) const
     // Nothing to do here.
     //
     vector<IceInternal::EndpointIPtr> endps;
-    endps.push_back(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    endps.push_back(const_cast<EndpointI*>(this)->shared_from_this());
     return endps;
 }
 
@@ -424,7 +434,7 @@ IceBT::EndpointI::options() const
 Ice::EndpointInfoPtr
 IceBT::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info = make_shared<EndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    EndpointInfoPtr info = make_shared<EndpointInfoI>(const_cast<EndpointI*>(this)->shared_from_this());
     info->addr = _addr;
     info->uuid = _uuid;
     return info;
@@ -656,11 +666,11 @@ IceBT::EndpointFactoryI::read(InputStream* s) const
 void
 IceBT::EndpointFactoryI::destroy()
 {
-    _instance = 0;
+    _instance = nullptr;
 }
 
 IceInternal::EndpointFactoryPtr
 IceBT::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& instance) const
 {
-    return new EndpointFactoryI(new Instance(_instance->engine(), instance->type(), instance->protocol()));
+    return make_shared<EndpointFactoryI>(make_shared<Instance>(_instance->engine(), instance->type(), instance->protocol()));
 }

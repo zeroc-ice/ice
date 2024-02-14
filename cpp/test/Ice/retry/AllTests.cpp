@@ -49,7 +49,7 @@ private:
     bool _called;
 };
 
-class CallbackSuccess : public IceUtil::Shared, public CallbackBase
+class CallbackSuccess : public CallbackBase
 {
 public:
 
@@ -63,9 +63,9 @@ public:
         test(false);
     }
 };
-typedef IceUtil::Handle<CallbackSuccess> CallbackSuccessPtr;
+using CallbackSuccessPtr = shared_ptr<CallbackSuccess>;
 
-class CallbackFail : public IceUtil::Shared, public CallbackBase
+class CallbackFail : public CallbackBase
 {
 public:
 
@@ -81,7 +81,7 @@ public:
         called();
     }
 };
-typedef IceUtil::Handle<CallbackFail> CallbackFailPtr;
+using CallbackFailPtr = shared_ptr<CallbackFail>;
 
 RetryPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& communicator2, const string& ref)
@@ -94,11 +94,11 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    RetryPrxPtr retry1 = ICE_CHECKED_CAST(RetryPrx, base1);
+    RetryPrxPtr retry1 = Ice::checkedCast<RetryPrx>(base1);
     test(retry1);
     test(Ice::targetEqualTo(retry1, base1));
 
-    RetryPrxPtr retry2 = ICE_CHECKED_CAST(RetryPrx, base2);
+    RetryPrxPtr retry2 = Ice::checkedCast<RetryPrx>(base2);
     test(retry2);
     test(Ice::targetEqualTo(retry2, base2));
     cout << "ok" << endl;
@@ -134,8 +134,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     testRetryCount(0);
     cout << "ok" << endl;
 
-    CallbackSuccessPtr cb1 = new CallbackSuccess();
-    CallbackFailPtr cb2 = new CallbackFail();
+    CallbackSuccessPtr cb1 = make_shared<CallbackSuccess>();
+    CallbackFailPtr cb2 = make_shared<CallbackFail>();
 
     cout << "calling regular AMI operation with first proxy... " << flush;
     retry1->opAsync(false,
@@ -294,7 +294,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
 
     {
         cout << "testing invocation timeout and retries... " << flush;
-        retry2 = ICE_CHECKED_CAST(RetryPrx, communicator2->stringToProxy(retry1->ice_toString()));
+        retry2 = Ice::checkedCast<RetryPrx>(communicator2->stringToProxy(retry1->ice_toString()));
         try
         {
             retry2->ice_invocationTimeout(500)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in

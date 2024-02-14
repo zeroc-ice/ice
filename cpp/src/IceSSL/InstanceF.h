@@ -5,24 +5,18 @@
 #ifndef ICESSL_INSTANCE_F_H
 #define ICESSL_INSTANCE_F_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/Handle.h>
-#include <IceSSL/Plugin.h>
+#include <memory>
 
 namespace IceSSL
 {
 
 class Instance;
-ICESSL_API IceUtil::Shared* upCast(Instance*);
-typedef IceInternal::Handle<Instance> InstancePtr;
+using InstancePtr = std::shared_ptr<Instance>;
 
 class EndpointI;
-typedef ::std::shared_ptr<EndpointI> EndpointIPtr;
+using EndpointIPtr = std::shared_ptr<EndpointI>;
 
 class AcceptorI;
-ICESSL_API IceUtil::Shared* upCast(AcceptorI*);
-typedef IceInternal::Handle<AcceptorI> AcceptorIPtr;
-
 }
 
 #endif

@@ -48,7 +48,7 @@ Acceptor::finishAccept()
 IceInternal::TransceiverPtr
 Acceptor::accept()
 {
-    return new Transceiver(_acceptor->accept());
+    return make_shared<Transceiver>(_acceptor->accept());
 }
 
 string

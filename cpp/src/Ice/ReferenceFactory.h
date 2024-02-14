@@ -5,7 +5,6 @@
 #ifndef ICE_REFERENCE_FACTORY_H
 #define ICE_REFERENCE_FACTORY_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/Reference.h> // For Reference::Mode
 #include <Ice/ConnectionIF.h>
@@ -14,14 +13,11 @@
 namespace IceInternal
 {
 
-class ReferenceFactory : public ::IceUtil::Shared
+class ReferenceFactory : public std::enable_shared_from_this<ReferenceFactory>
 {
 public:
 
-    //
-    // Make a polymorphic copy of a reference.
-    //
-    ReferencePtr copy(const Reference* r) const;
+    ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
 
     //
     // Create a direct reference.
@@ -56,9 +52,6 @@ public:
     ::Ice::LocatorPrxPtr getDefaultLocator() const;
 
 private:
-
-    ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
-    friend class Instance;
 
     void checkForUnknownProperties(const std::string&);
     RoutableReferencePtr create(const ::Ice::Identity&, const ::std::string&, Reference::Mode, bool,

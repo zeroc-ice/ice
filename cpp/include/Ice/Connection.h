@@ -10,11 +10,10 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
-#include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
 #include <Ice/OutgoingAsync.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/Identity.h>
 #include <Ice/Endpoint.h>
@@ -409,7 +408,7 @@ public:
      * @param close The close condition
      * @param heartbeat The hertbeat condition
      */
-    virtual void setACM(const Ice::optional<int>& timeout, const Ice::optional<ACMClose>& close, const Ice::optional<ACMHeartbeat>& heartbeat) = 0;
+    virtual void setACM(const std::optional<int>& timeout, const std::optional<ACMClose>& close, const std::optional<ACMHeartbeat>& heartbeat) = 0;
 
     /**
      * Get the ACM parameters.
@@ -671,13 +670,6 @@ public:
 };
 
 }
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
 
 /// \cond INTERNAL
 namespace Ice

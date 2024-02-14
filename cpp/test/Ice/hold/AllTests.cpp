@@ -13,7 +13,7 @@ using namespace Test;
 namespace
 {
 
-class Condition : public IceUtil::Mutex, public IceUtil::Shared
+class Condition : public IceUtil::Mutex
 {
 public:
 
@@ -39,36 +39,7 @@ private:
 
     bool _value;
 };
-typedef IceUtil::Handle<Condition> ConditionPtr;
-
-class SetCB : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    SetCB(const ConditionPtr& condition, Ice::Int expected) : _condition(condition), _expected(expected)
-    {
-    }
-
-    void
-    response(Ice::Int value)
-    {
-        if(value != _expected)
-        {
-            _condition->set(false);
-        }
-    }
-
-    void
-    exception(const Ice::Exception&)
-    {
-    }
-
-private:
-
-    const ConditionPtr _condition;
-    Ice::Int _expected;
-};
-typedef IceUtil::Handle<SetCB> SetCBPtr;
+using ConditionPtr = shared_ptr<Condition>;
 
 }
 
@@ -86,10 +57,10 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    HoldPrxPtr hold = ICE_CHECKED_CAST(HoldPrx, base);
+    HoldPrxPtr hold = Ice::checkedCast<HoldPrx>(base);
     test(hold);
     test(Ice::targetEqualTo(hold, base));
-    HoldPrxPtr holdSerialized = ICE_CHECKED_CAST(HoldPrx, baseSerialized);
+    HoldPrxPtr holdSerialized = Ice::checkedCast<HoldPrx>(baseSerialized);
     test(holdSerialized);
 
     test(Ice::targetEqualTo(holdSerialized, baseSerialized));
@@ -116,7 +87,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing without serialize mode... " << flush;
     {
-        ConditionPtr cond = new Condition(true);
+        ConditionPtr cond = make_shared<Condition>(true);
         int value = 0;
         shared_ptr<promise<void>> completed;
         while(cond->value())
@@ -163,7 +134,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing with serialize mode... " << flush;
     {
-        ConditionPtr cond = new Condition(true);
+        ConditionPtr cond = make_shared<Condition>(true);
         int value = 0;
         shared_ptr<promise<void>> completed;
         while(value < 3000 && cond->value())
@@ -213,12 +184,14 @@ allTests(Test::TestHelper* helper)
     {
         int value = 0;
         holdSerialized->set(value, 0);
+        // We use the same proxy for all oneway calls.
+        auto holdSerializedOneway = holdSerialized->ice_oneway();
+
         shared_ptr<promise<void>> completed;
         for(int i = 0; i < 10000; ++i)
         {
             completed = make_shared<promise<void>>();
-            // Create a new proxy for each request
-            holdSerialized->ice_oneway()->setOnewayAsync(value + 1, value,
+            holdSerializedOneway->setOnewayAsync(value + 1, value,
                 nullptr,
                 [](exception_ptr)
                 {

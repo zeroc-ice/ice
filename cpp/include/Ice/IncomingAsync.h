@@ -5,23 +5,15 @@
 #ifndef ICE_INCOMING_ASYNC_H
 #define ICE_INCOMING_ASYNC_H
 
-#include <Ice/IncomingAsyncF.h>
-#include <Ice/Incoming.h>
+#include "IncomingAsyncF.h"
+#include "Incoming.h"
+#include <atomic>
 
 namespace IceInternal
 {
 
-// TODO: fix this warning
-#if defined(_MSC_VER)
-#   pragma warning(push)
-#   pragma warning(disable:4239)
-#endif
-
-//
-// We need virtual inheritance from AMDCallback, because we use multiple
-// inheritance from Ice::AMDCallback for generated AMD code.
-//
-class ICE_API IncomingAsync : public IncomingBase, public ::std::enable_shared_from_this<IncomingAsync>
+// Represents an incoming request dispatched with AMD.
+class ICE_API IncomingAsync final : public IncomingBase, public std::enable_shared_from_this<IncomingAsync>
 {
 public:
 
@@ -31,8 +23,7 @@ public:
 
     std::function<void()> response()
     {
-        auto self = shared_from_this();
-        return [self]()
+        return [self = shared_from_this()]
         {
             self->writeEmptyParams();
             self->completed();
@@ -42,8 +33,7 @@ public:
     template<class T>
     std::function<void(const T&)> response()
     {
-        auto self = shared_from_this();
-        return [self](const T& marshaledResult)
+        return [self = shared_from_this()](const T& marshaledResult)
         {
             self->setMarshaledResult(marshaledResult);
             self->completed();
@@ -52,8 +42,7 @@ public:
 
     std::function<void(std::exception_ptr)> exception()
     {
-        auto self = shared_from_this();
-        return [self](std::exception_ptr ex) { self->completed(ex); };
+        return [self = shared_from_this()](std::exception_ptr ex) { self->completed(ex); };
     }
 
     void kill(Incoming&);
@@ -65,18 +54,12 @@ public:
 private:
 
     void checkResponseSent();
-    bool _responseSent;
+    std::atomic_flag _responseSent = ATOMIC_FLAG_INIT;
 
-    //
-    // We need a separate ConnectionIPtr, because IncomingBase only
-    // holds a ConnectionI* for optimization.
-    //
+    // We need a ResponseHandlerPtr, because IncomingBase only holds a pointer to its ResponseHandler as an
+    // optimization.
     const ResponseHandlerPtr _responseHandlerCopy;
 };
-
-#if defined(_MSC_VER)
-#   pragma warning(pop)
-#endif
 
 }
 

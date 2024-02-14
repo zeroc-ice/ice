@@ -33,9 +33,9 @@ InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 }
 
 void
-InitialI::opOptionalException(Optional<Int> a,
-                              Optional<string> b,
-                              Optional<OneOptionalPtr> o,
+InitialI::opOptionalException(optional<Int> a,
+                              optional<string> b,
+                              optional<OneOptionalPtr> o,
                               const Ice::Current&)
 {
     OptionalException ex;
@@ -46,9 +46,9 @@ InitialI::opOptionalException(Optional<Int> a,
 }
 
 void
-InitialI::opDerivedException(Optional<Int> a,
-                             Optional<string> b,
-                             Optional<OneOptionalPtr> o,
+InitialI::opDerivedException(optional<Int> a,
+                             optional<string> b,
+                             optional<OneOptionalPtr> o,
                              const Ice::Current&)
 {
     DerivedException ex;
@@ -63,9 +63,9 @@ InitialI::opDerivedException(Optional<Int> a,
 }
 
 void
-InitialI::opRequiredException(Optional<Int> a,
-                              Optional<string> b,
-                              Optional<OneOptionalPtr> o,
+InitialI::opRequiredException(optional<Int> a,
+                              optional<string> b,
+                              optional<OneOptionalPtr> o,
                               const Ice::Current&)
 {
     RequiredException ex;
@@ -83,64 +83,64 @@ InitialI::opRequiredException(Optional<Int> a,
     throw ex;
 }
 
-Optional<Ice::Byte>
-InitialI::opByte(Optional<Ice::Byte> p1, Optional<Ice::Byte>& p3, const Current&)
+optional<Ice::Byte>
+InitialI::opByte(optional<Ice::Byte> p1, optional<Ice::Byte>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<bool>
-InitialI::opBool(Optional<bool> p1, Optional<bool>& p3, const Current&)
+optional<bool>
+InitialI::opBool(optional<bool> p1, optional<bool>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<Short>
-InitialI::opShort(Optional<Short> p1, Optional<Short>& p3, const Current&)
+optional<Short>
+InitialI::opShort(optional<Short> p1, optional<Short>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<Int>
-InitialI::opInt(Optional<Int> p1, Optional<Int>& p3, const Current&)
+optional<Int>
+InitialI::opInt(optional<Int> p1, optional<Int>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<Long>
-InitialI::opLong(Optional<Long> p1, Optional<Long>& p3, const Current&)
+optional<Long>
+InitialI::opLong(optional<Long> p1, optional<Long>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<Float>
-InitialI::opFloat(Optional<Float> p1, Optional<Float>& p3, const Current&)
+optional<Float>
+InitialI::opFloat(optional<Float> p1, optional<Float>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<Double>
-InitialI::opDouble(Optional<Double> p1, Optional<Double>& p3, const Current&)
+optional<Double>
+InitialI::opDouble(optional<Double> p1, optional<Double>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<string>
-InitialI::opString(Optional<string> p1, Optional<string>& p3, const Current&)
+optional<string>
+InitialI::opString(optional<string> p1, optional<string>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<string>
-InitialI::opCustomString(Optional<Util::string_view> p1, Optional<string>& p3, const Current&)
+optional<string>
+InitialI::opCustomString(optional<Util::string_view> p1, optional<string>& p3, const Current&)
 {
     if(p1)
     {
@@ -149,50 +149,50 @@ InitialI::opCustomString(Optional<Util::string_view> p1, Optional<string>& p3, c
     return p3;
 }
 
-Optional<MyEnum>
-InitialI::opMyEnum(Optional<MyEnum> p1, Optional<MyEnum>& p3, const Current&)
+optional<MyEnum>
+InitialI::opMyEnum(optional<MyEnum> p1, optional<MyEnum>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<SmallStruct>
-InitialI::opSmallStruct(Optional<SmallStruct> p1, Optional<SmallStruct>& p3, const Current&)
+optional<SmallStruct>
+InitialI::opSmallStruct(optional<SmallStruct> p1, optional<SmallStruct>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<FixedStruct>
-InitialI::opFixedStruct(Optional<FixedStruct> p1, Optional<FixedStruct>& p3, const Current&)
+optional<FixedStruct>
+InitialI::opFixedStruct(optional<FixedStruct> p1, optional<FixedStruct>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<VarStruct>
-InitialI::opVarStruct(Optional<VarStruct> p1, Optional<VarStruct>& p3, const Current&)
+optional<VarStruct>
+InitialI::opVarStruct(optional<VarStruct> p1, optional<VarStruct>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<OneOptionalPtr>
-InitialI::opOneOptional(Optional<OneOptionalPtr> p1, Optional<OneOptionalPtr>& p3, const Current&)
+optional<OneOptionalPtr>
+InitialI::opOneOptional(optional<OneOptionalPtr> p1, optional<OneOptionalPtr>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<MyInterfacePrxPtr>
-InitialI::opMyInterfaceProxy(Optional<MyInterfacePrxPtr> p1, Optional<MyInterfacePrxPtr>& p3, const Current&)
+optional<MyInterfacePrxPtr>
+InitialI::opMyInterfaceProxy(optional<MyInterfacePrxPtr> p1, optional<MyInterfacePrxPtr>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-Optional<Test::ByteSeq>
-InitialI::opByteSeq(Optional<pair<const Ice::Byte*, const Ice::Byte*> > p1, Optional<Test::ByteSeq>& p3,
+optional<Test::ByteSeq>
+InitialI::opByteSeq(optional<pair<const Ice::Byte*, const Ice::Byte*> > p1, optional<Test::ByteSeq>& p3,
                     const Current&)
 {
     if(p1)
@@ -202,8 +202,8 @@ InitialI::opByteSeq(Optional<pair<const Ice::Byte*, const Ice::Byte*> > p1, Opti
     return p3;
 }
 
-Optional<Test::BoolSeq>
-InitialI::opBoolSeq(Optional<pair<const bool*, const bool*> > p1, Optional<Test::BoolSeq>& p3, const Current&)
+optional<Test::BoolSeq>
+InitialI::opBoolSeq(optional<pair<const bool*, const bool*> > p1, optional<Test::BoolSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -212,8 +212,8 @@ InitialI::opBoolSeq(Optional<pair<const bool*, const bool*> > p1, Optional<Test:
     return p3;
 }
 
-Optional<Test::ShortSeq>
-InitialI::opShortSeq(Optional<pair<const Short*, const Short*> > p1, Optional<Test::ShortSeq>& p3,
+optional<Test::ShortSeq>
+InitialI::opShortSeq(optional<pair<const Short*, const Short*> > p1, optional<Test::ShortSeq>& p3,
                      const Current&)
 {
     if(p1)
@@ -223,8 +223,8 @@ InitialI::opShortSeq(Optional<pair<const Short*, const Short*> > p1, Optional<Te
     return p3;
 }
 
-Optional<Test::IntSeq>
-InitialI::opIntSeq(Optional<pair<const Int*, const Int*> > p1, Optional<Test::IntSeq>& p3, const Current&)
+optional<Test::IntSeq>
+InitialI::opIntSeq(optional<pair<const Int*, const Int*> > p1, optional<Test::IntSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -233,8 +233,8 @@ InitialI::opIntSeq(Optional<pair<const Int*, const Int*> > p1, Optional<Test::In
     return p3;
 }
 
-Optional<Test::LongSeq>
-InitialI::opLongSeq(Optional<pair<const Long*, const Long*> > p1, Optional<Test::LongSeq>& p3, const Current&)
+optional<Test::LongSeq>
+InitialI::opLongSeq(optional<pair<const Long*, const Long*> > p1, optional<Test::LongSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -243,8 +243,8 @@ InitialI::opLongSeq(Optional<pair<const Long*, const Long*> > p1, Optional<Test:
     return p3;
 }
 
-Optional<Test::FloatSeq>
-InitialI::opFloatSeq(Optional<pair<const Float*, const Float*> > p1, Optional<Test::FloatSeq>& p3,
+optional<Test::FloatSeq>
+InitialI::opFloatSeq(optional<pair<const Float*, const Float*> > p1, optional<Test::FloatSeq>& p3,
                      const Current&)
 {
     if(p1)
@@ -254,8 +254,8 @@ InitialI::opFloatSeq(Optional<pair<const Float*, const Float*> > p1, Optional<Te
     return p3;
 }
 
-Optional<Test::DoubleSeq>
-InitialI::opDoubleSeq(Optional<pair<const Double*, const Double*> > p1, Optional<Test::DoubleSeq>& p3,
+optional<Test::DoubleSeq>
+InitialI::opDoubleSeq(optional<pair<const Double*, const Double*> > p1, optional<Test::DoubleSeq>& p3,
                       const Current&)
 {
     if(p1)
@@ -265,9 +265,9 @@ InitialI::opDoubleSeq(Optional<pair<const Double*, const Double*> > p1, Optional
     return p3;
 }
 
-Ice::optional<Ice::StringSeq>
-InitialI::opStringSeq(Ice::optional<Ice::StringSeq> p1,
-                      Ice::optional<Ice::StringSeq>& p3, const Current&)
+optional<Ice::StringSeq>
+InitialI::opStringSeq(optional<Ice::StringSeq> p1,
+                      optional<Ice::StringSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -276,9 +276,9 @@ InitialI::opStringSeq(Ice::optional<Ice::StringSeq> p1,
     return p3;
 }
 
-Optional<SmallStructSeq>
-InitialI::opSmallStructSeq(Optional<pair<const SmallStruct*, const SmallStruct*> > p1,
-                           Optional<SmallStructSeq>& p3, const Current&)
+optional<SmallStructSeq>
+InitialI::opSmallStructSeq(optional<pair<const SmallStruct*, const SmallStruct*> > p1,
+                           optional<SmallStructSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -287,9 +287,9 @@ InitialI::opSmallStructSeq(Optional<pair<const SmallStruct*, const SmallStruct*>
     return p3;
 }
 
-Optional<SmallStructList>
-InitialI::opSmallStructList(Optional<pair<const SmallStruct*, const SmallStruct*> > p1,
-                            Optional<SmallStructList>& p3, const Current&)
+optional<SmallStructList>
+InitialI::opSmallStructList(optional<pair<const SmallStruct*, const SmallStruct*> > p1,
+                            optional<SmallStructList>& p3, const Current&)
 {
     if(p1)
     {
@@ -298,9 +298,9 @@ InitialI::opSmallStructList(Optional<pair<const SmallStruct*, const SmallStruct*
     return p3;
 }
 
-Optional<FixedStructSeq>
-InitialI::opFixedStructSeq(Optional<pair<const FixedStruct*, const FixedStruct*> > p1,
-                           Optional<FixedStructSeq>& p3, const Current&)
+optional<FixedStructSeq>
+InitialI::opFixedStructSeq(optional<pair<const FixedStruct*, const FixedStruct*> > p1,
+                           optional<FixedStructSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -309,9 +309,9 @@ InitialI::opFixedStructSeq(Optional<pair<const FixedStruct*, const FixedStruct*>
     return p3;
 }
 
-Optional<FixedStructList>
-InitialI::opFixedStructList(Optional<pair<const FixedStruct*, const FixedStruct*> > p1,
-                            Optional<FixedStructList>& p3, const Current&)
+optional<FixedStructList>
+InitialI::opFixedStructList(optional<pair<const FixedStruct*, const FixedStruct*> > p1,
+                            optional<FixedStructList>& p3, const Current&)
 {
     if(p1)
     {
@@ -320,9 +320,9 @@ InitialI::opFixedStructList(Optional<pair<const FixedStruct*, const FixedStruct*
     return p3;
 }
 
-Ice::optional<VarStructSeq>
-InitialI::opVarStructSeq(Ice::optional<VarStructSeq> p1,
-                         Ice::optional<VarStructSeq>& p3, const Current&)
+optional<VarStructSeq>
+InitialI::opVarStructSeq(optional<VarStructSeq> p1,
+                         optional<VarStructSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -331,37 +331,37 @@ InitialI::opVarStructSeq(Ice::optional<VarStructSeq> p1,
     return p3;
 }
 
-Optional<Serializable>
-InitialI::opSerializable(Optional<Serializable> p1, Optional<Serializable>& p3, const Current&)
+optional<Serializable>
+InitialI::opSerializable(optional<Serializable> p1, optional<Serializable>& p3, const Current&)
 {
     p3 = p1;
     return p3;
 }
 
-Optional<IntIntDict>
-InitialI::opIntIntDict(Optional<IntIntDict> p1, Optional<IntIntDict>& p3, const Current&)
+optional<IntIntDict>
+InitialI::opIntIntDict(optional<IntIntDict> p1, optional<IntIntDict>& p3, const Current&)
 {
     p3 = p1;
     return p3;
 }
 
-Optional<StringIntDict>
-InitialI::opStringIntDict(Optional<StringIntDict> p1, Optional<StringIntDict>& p3, const Current&)
+optional<StringIntDict>
+InitialI::opStringIntDict(optional<StringIntDict> p1, optional<StringIntDict>& p3, const Current&)
 {
     p3 = p1;
     return p3;
 }
 
-Optional<IntOneOptionalDict>
-InitialI::opIntOneOptionalDict(Optional<IntOneOptionalDict> p1, Optional<IntOneOptionalDict>& p3, const Current&)
+optional<IntOneOptionalDict>
+InitialI::opIntOneOptionalDict(optional<IntOneOptionalDict> p1, optional<IntOneOptionalDict>& p3, const Current&)
 {
     p3 = p1;
     return p3;
 }
 
-Optional<IntStringDict>
-InitialI::opCustomIntStringDict(Optional<std::map<int, Util::string_view> > p1,
-                                Optional<IntStringDict>& p3, const Current&)
+optional<IntStringDict>
+InitialI::opCustomIntStringDict(optional<std::map<int, Util::string_view> > p1,
+                                optional<IntStringDict>& p3, const Current&)
 {
     if(p1)
     {
@@ -381,12 +381,12 @@ InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 }
 
 void
-InitialI::sendOptionalClass(bool, Optional<OneOptionalPtr>, const Ice::Current&)
+InitialI::sendOptionalClass(bool, optional<OneOptionalPtr>, const Ice::Current&)
 {
 }
 
 void
-InitialI::returnOptionalClass(bool, Optional<OneOptionalPtr>& o, const Ice::Current&)
+InitialI::returnOptionalClass(bool, optional<OneOptionalPtr>& o, const Ice::Current&)
 {
     o = make_shared<OneOptional>(53);
 }
@@ -409,7 +409,7 @@ InitialI::opMStruct1(const Ice::Current& current)
 }
 
 InitialI::OpMStruct2MarshaledResult
-InitialI::opMStruct2(IceUtil::Optional<Test::SmallStruct> p1, const Ice::Current& current)
+InitialI::opMStruct2(optional<Test::SmallStruct> p1, const Ice::Current& current)
 {
     return OpMStruct2MarshaledResult(p1, p1, current);
 }
@@ -421,7 +421,7 @@ InitialI::opMSeq1(const Ice::Current& current)
 }
 
 InitialI::OpMSeq2MarshaledResult
-InitialI::opMSeq2(IceUtil::Optional<Test::StringSeq> p1, const Ice::Current& current)
+InitialI::opMSeq2(optional<Test::StringSeq> p1, const Ice::Current& current)
 {
     return OpMSeq2MarshaledResult(p1, p1, current);
 }
@@ -433,7 +433,7 @@ InitialI::opMDict1(const Ice::Current& current)
 }
 
 InitialI::OpMDict2MarshaledResult
-InitialI::opMDict2(IceUtil::Optional<Test::StringIntDict> p1, const Ice::Current& current)
+InitialI::opMDict2(optional<Test::StringIntDict> p1, const Ice::Current& current)
 {
     return OpMDict2MarshaledResult(p1, p1, current);
 }
@@ -445,7 +445,7 @@ InitialI::opMG1(const Ice::Current& current)
 }
 
 InitialI::OpMG2MarshaledResult
-InitialI::opMG2(IceUtil::Optional<Test::GPtr> p1, const Ice::Current& current)
+InitialI::opMG2(optional<Test::GPtr> p1, const Ice::Current& current)
 {
     return OpMG2MarshaledResult(p1, p1, current);
 }

@@ -31,12 +31,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(TcpAcceptor* p) { return p; }
-
 NativeInfoPtr
 IceInternal::TcpAcceptor::getNativeInfo()
 {
-    return this;
+    return shared_from_this();
 }
 
 void
@@ -69,7 +67,7 @@ IceInternal::TcpAcceptor::listen()
         _fd = INVALID_SOCKET;
         throw;
     }
-    _endpoint = _endpoint->endpoint(this);
+    _endpoint = _endpoint->endpoint(shared_from_this());
     return _endpoint;
 }
 
@@ -141,14 +139,14 @@ IceInternal::TcpAcceptor::accept()
 
     SOCKET fd = _acceptFd;
     _acceptFd = INVALID_SOCKET;
-    return new TcpTransceiver(_instance, new StreamSocket(_instance, fd));
+    return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, fd));
 }
 #else
 
 TransceiverPtr
 IceInternal::TcpAcceptor::accept()
 {
-    return new TcpTransceiver(_instance, new StreamSocket(_instance, doAccept(_fd)));
+    return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, doAccept(_fd)));
 }
 
 #endif

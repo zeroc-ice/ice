@@ -51,8 +51,8 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
     properties->setProperty(name + ".ThreadPool.Size", "2");
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + opts);
 
-    return ICE_UNCHECKED_CAST(RemoteObjectAdapterPrx, current.adapter->addWithUUID(
-                              make_shared<RemoteObjectAdapterI>(adapter)));
+    return Ice::uncheckedCast<RemoteObjectAdapterPrx>(
+        current.adapter->addWithUUID(make_shared<RemoteObjectAdapterI>(adapter)));
 }
 
 void
@@ -63,7 +63,7 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
 
 RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter),
-    _testIntf(ICE_UNCHECKED_CAST(TestIntfPrx, _adapter->add(make_shared<TestI>(),
+    _testIntf(Ice::uncheckedCast<TestIntfPrx>(_adapter->add(make_shared<TestI>(),
                                          stringToIdentity("test"))))
 {
     _adapter->activate();

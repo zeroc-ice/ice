@@ -6,23 +6,23 @@
 #include <Ice/Reference.h>
 
 using namespace std;
+using namespace Ice;
 using namespace IceInternal;
 
-RetryException::RetryException(const Ice::LocalException& ex)
+RetryException::RetryException(exception_ptr ex)
 {
-    _ex = ex.ice_clone();
+    _ex = ex;
 }
 
 RetryException::RetryException(const RetryException& ex)
 {
-    _ex = ex.get()->ice_clone();
+    _ex = ex.get();
 }
 
-const Ice::LocalException*
+exception_ptr
 RetryException::get() const
 {
-    assert(_ex.get());
-    return _ex.get();
+    return _ex;
 }
 
 RequestHandler::RequestHandler(const ReferencePtr& reference) :

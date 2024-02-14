@@ -27,7 +27,7 @@ namespace IceObjC
 {
 
 class Instance;
-typedef IceUtil::Handle<Instance> InstancePtr;
+using InstancePtr = std::shared_ptr<Instance>;
 
 class StreamTransceiver : public IceInternal::Transceiver, public IceInternal::StreamNativeInfo
 {
@@ -53,7 +53,7 @@ public:
     virtual void closeStreams();
 
     virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
+    virtual IceInternal::SocketOperation closing(bool, std::exception_ptr);
     virtual void close();
 
     virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
@@ -79,7 +79,7 @@ private:
     bool _writeStreamRegistered;
     bool _opening;
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     bool _error;
 
     State _state;

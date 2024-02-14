@@ -87,11 +87,7 @@ void
 MyDerivedClassI::supportsCompressAsync(std::function<void(bool)> response,
                                        std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
-#if defined(ICE_OS_UWP)
-    response(false);
-#else
     response(true);
-#endif
 }
 
 void
@@ -108,7 +104,7 @@ MyDerivedClassI::opVoidAsync(function<void()> response,
         _opVoidThread = 0;
     }
 
-    _opVoidThread = new Thread_opVoid(response);
+    _opVoidThread = make_shared<Thread_opVoid>(response);
     _opVoidThread->start();
 }
 

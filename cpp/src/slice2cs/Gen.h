@@ -82,20 +82,15 @@ public:
     Gen(const std::string&,
         const std::vector<std::string>&,
         const std::string&,
-        bool,
-        bool,
         bool);
     ~Gen();
 
     void generate(const UnitPtr&);
-    void generateImpl(const UnitPtr&);
-    void generateImplTie(const UnitPtr&);
     void closeOutput();
 
 private:
 
     IceUtilInternal::Output _out;
-    IceUtilInternal::Output _impl;
     std::vector<std::string> _includePaths;
     bool _tie;
 
@@ -241,40 +236,6 @@ private:
         void writeTieOperations(const InterfaceDefPtr&, NameSet* = 0);
 
         bool _tie;
-    };
-
-    class BaseImplVisitor : public CsVisitor
-    {
-    public:
-
-        BaseImplVisitor(::IceUtilInternal::Output&);
-
-    protected:
-
-        void writeOperation(const OperationPtr&, bool, bool);
-    };
-
-    class ImplVisitor : public BaseImplVisitor
-    {
-    public:
-
-        ImplVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-    };
-
-    class ImplTieVisitor : public BaseImplVisitor
-    {
-    public:
-
-        ImplTieVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
     };
 };
 

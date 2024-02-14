@@ -5,15 +5,15 @@
 #ifndef ICE_COLLOCATED_REQUEST_HANDLER_H
 #define ICE_COLLOCATED_REQUEST_HANDLER_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
-
 #include <Ice/RequestHandler.h>
 #include <Ice/ResponseHandler.h>
 #include <Ice/OutputStream.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
+
+#include <condition_variable>
+#include <mutex>
 
 namespace Ice
 {
@@ -28,27 +28,21 @@ namespace IceInternal
 class OutgoingAsyncBase;
 class OutgoingAsync;
 
-class CollocatedRequestHandler : public RequestHandler,
-                                 public ResponseHandler,
-                                 private IceUtil::Monitor<IceUtil::Mutex>
+class CollocatedRequestHandler : public RequestHandler, public ResponseHandler
 {
 public:
 
     CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
     virtual ~CollocatedRequestHandler();
 
-    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&);
-
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
     virtual void sendResponse(Ice::Int, Ice::OutputStream*, Ice::Byte, bool);
     virtual void sendNoResponse();
-    virtual bool systemException(Ice::Int, const Ice::SystemException&, bool);
-    virtual void invokeException(Ice::Int, const Ice::LocalException&, int, bool);
-
-    const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
+    virtual bool systemException(Ice::Int, std::exception_ptr, bool);
+    virtual void invokeException(Ice::Int, std::exception_ptr, int, bool);
 
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
@@ -66,7 +60,7 @@ public:
 
 private:
 
-    void handleException(Ice::Int, const Ice::Exception&, bool);
+    void handleException(Ice::Int, std::exception_ptr, bool);
 
     const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
     const bool _dispatcher;
@@ -76,6 +70,8 @@ private:
     int _requestId;
     std::map<OutgoingAsyncBasePtr, Ice::Int> _sendAsyncRequests;
     std::map<Ice::Int, OutgoingAsyncBasePtr> _asyncRequests;
+
+    std::mutex _mutex;
 };
 using CollocatedRequestHandlerPtr = std::shared_ptr<CollocatedRequestHandler>;
 

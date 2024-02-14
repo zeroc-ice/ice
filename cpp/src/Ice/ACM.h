@@ -5,8 +5,6 @@
 #ifndef ICE_ACM_H
 #define ICE_ACM_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <IceUtil/Timer.h>
 #include <Ice/ACMF.h>
 #include <Ice/Connection.h>
@@ -14,6 +12,9 @@
 #include <Ice/InstanceF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
+
+#include <condition_variable>
+#include <mutex>
 #include <set>
 
 namespace IceInternal
@@ -39,14 +40,13 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&) = 0;
     virtual void reap(const Ice::ConnectionIPtr&) = 0;
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
-                              const IceUtil::Optional<Ice::ACMClose>&,
-                              const IceUtil::Optional<Ice::ACMHeartbeat>&) = 0;
+    virtual ACMMonitorPtr acm(const std::optional<int>&,
+                              const std::optional<Ice::ACMClose>&,
+                              const std::optional<Ice::ACMHeartbeat>&) = 0;
     virtual Ice::ACM getACM() = 0;
 };
 
 class FactoryACMMonitor : public ACMMonitor,
-                          public IceUtil::Monitor<IceUtil::Mutex>,
                           public std::enable_shared_from_this<FactoryACMMonitor>
 {
 public:
@@ -58,9 +58,9 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&);
     virtual void reap(const Ice::ConnectionIPtr&);
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
-                              const IceUtil::Optional<Ice::ACMClose>&,
-                              const IceUtil::Optional<Ice::ACMHeartbeat>&);
+    virtual ACMMonitorPtr acm(const std::optional<int>&,
+                              const std::optional<Ice::ACMClose>&,
+                              const std::optional<Ice::ACMHeartbeat>&);
     virtual Ice::ACM getACM();
 
     void destroy();
@@ -80,10 +80,11 @@ private:
     std::vector<std::pair<Ice::ConnectionIPtr, bool> > _changes;
     std::set<Ice::ConnectionIPtr> _connections;
     std::vector<Ice::ConnectionIPtr> _reapedConnections;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 class ConnectionACMMonitor : public ACMMonitor,
-                             public IceUtil::Mutex,
                              public std::enable_shared_from_this<ConnectionACMMonitor>
 {
 public:
@@ -95,9 +96,9 @@ public:
     virtual void remove(const Ice::ConnectionIPtr&);
     virtual void reap(const Ice::ConnectionIPtr&);
 
-    virtual ACMMonitorPtr acm(const IceUtil::Optional<int>&,
-                              const IceUtil::Optional<Ice::ACMClose>&,
-                              const IceUtil::Optional<Ice::ACMHeartbeat>&);
+    virtual ACMMonitorPtr acm(const std::optional<int>&,
+                              const std::optional<Ice::ACMClose>&,
+                              const std::optional<Ice::ACMHeartbeat>&);
     virtual Ice::ACM getACM();
 
 private:
@@ -109,6 +110,7 @@ private:
     const ACMConfig _config;
 
     Ice::ConnectionIPtr _connection;
+    std::mutex _mutex;
 };
 
 }

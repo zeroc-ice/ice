@@ -17,7 +17,7 @@ extern bool ICE_API printStackTraces;
 
 namespace
 {
-class Thrower : public IceUtil::Shared
+class Thrower
 {
 public:
 
@@ -59,7 +59,7 @@ private:
 
     int _idx;
 };
-typedef IceUtil::Handle<Thrower> ThrowerPtr;
+using ThrowerPtr = shared_ptr<Thrower>;
 
 vector<string>
 splitLines(const string& str)
@@ -95,7 +95,7 @@ Client::run(int, char*[])
 
     cout << "checking stacktrace... ";
 
-    ThrowerPtr thrower = new Thrower();
+    ThrowerPtr thrower = make_shared<Thrower>();
     try
     {
         thrower->first();

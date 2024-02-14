@@ -9,10 +9,9 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
-#include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICESSL_API
@@ -31,13 +30,6 @@ namespace IceSSL
 class ConnectionInfo;
 
 }
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
 
 /// \cond INTERNAL
 namespace IceSSL

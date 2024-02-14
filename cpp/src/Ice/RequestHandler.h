@@ -5,8 +5,6 @@
 #ifndef ICE_REQUEST_HANDLER_H
 #define ICE_REQUEST_HANDLER_H
 
-#include <IceUtil/Shared.h>
-
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/OutgoingAsyncF.h>
@@ -31,21 +29,21 @@ class RetryException
 {
 public:
 
-    RetryException(const Ice::LocalException&);
+    RetryException(std::exception_ptr);
     RetryException(const RetryException&);
 
-    const Ice::LocalException* get() const;
+    std::exception_ptr get() const;
 
 private:
 
-    std::unique_ptr<Ice::LocalException> _ex;
+    std::exception_ptr _ex;
 };
 
 class CancellationHandler
 {
 public:
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&) = 0;
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) = 0;
 };
 
 class RequestHandler : public CancellationHandler
@@ -54,11 +52,7 @@ public:
 
     RequestHandler(const ReferencePtr&);
 
-    virtual RequestHandlerPtr update(const RequestHandlerPtr&, const RequestHandlerPtr&) = 0;
-
     virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
-
-    const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 
     virtual Ice::ConnectionIPtr getConnection() = 0;
     virtual Ice::ConnectionIPtr waitForConnection() = 0;

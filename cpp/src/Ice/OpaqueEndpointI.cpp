@@ -123,7 +123,7 @@ IceInternal::OpaqueEndpointI::timeout() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::timeout(Int) const
 {
-    return ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI);
+    return const_cast<OpaqueEndpointI*>(this)->shared_from_this();
 }
 
 const string&
@@ -135,7 +135,7 @@ IceInternal::OpaqueEndpointI::connectionId() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::connectionId(const string&) const
 {
-    return ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI);
+    return const_cast<OpaqueEndpointI*>(this)->shared_from_this();
 }
 
 bool
@@ -147,7 +147,7 @@ IceInternal::OpaqueEndpointI::compress() const
 EndpointIPtr
 IceInternal::OpaqueEndpointI::compress(bool) const
 {
-    return ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI);
+    return const_cast<OpaqueEndpointI*>(this)->shared_from_this();
 }
 
 bool
@@ -169,9 +169,12 @@ IceInternal::OpaqueEndpointI::transceiver() const
 }
 
 void
-IceInternal::OpaqueEndpointI::connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr& cb) const
+IceInternal::OpaqueEndpointI::connectorsAsync(
+    Ice::EndpointSelectionType,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)>) const
 {
-    cb->connectors(vector<ConnectorPtr>());
+    response(vector<ConnectorPtr>());
 }
 
 AcceptorPtr
@@ -184,7 +187,7 @@ vector<EndpointIPtr>
 IceInternal::OpaqueEndpointI::expandIfWildcard() const
 {
     vector<EndpointIPtr> endps;
-    endps.push_back(ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI));
+    endps.push_back(const_cast<OpaqueEndpointI*>(this)->shared_from_this());
     return endps;
 }
 
@@ -192,7 +195,7 @@ vector<EndpointIPtr>
 IceInternal::OpaqueEndpointI::expandHost(EndpointIPtr&) const
 {
     vector<EndpointIPtr> endps;
-    endps.push_back(ICE_SHARED_FROM_CONST_THIS(OpaqueEndpointI));
+    endps.push_back(const_cast<OpaqueEndpointI*>(this)->shared_from_this());
     return endps;
 }
 

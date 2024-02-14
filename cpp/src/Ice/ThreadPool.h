@@ -5,7 +5,6 @@
 #ifndef ICE_THREAD_POOL_H
 #define ICE_THREAD_POOL_H
 
-#include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
@@ -32,15 +31,18 @@ class ThreadPoolCurrent;
 class ThreadPoolWorkQueue;
 using ThreadPoolWorkQueuePtr = std::shared_ptr<ThreadPoolWorkQueue>;
 
-class ThreadPoolWorkItem : public virtual IceUtil::Shared
+class ThreadPoolWorkItem
 {
 public:
 
     virtual void execute(ThreadPoolCurrent&) = 0;
 };
-typedef IceUtil::Handle<ThreadPoolWorkItem> ThreadPoolWorkItemPtr;
+using ThreadPoolWorkItemPtr = std::shared_ptr<ThreadPoolWorkItem>;
 
-class DispatchWorkItem : public ThreadPoolWorkItem, public Ice::DispatcherCall
+class DispatchWorkItem :
+    public ThreadPoolWorkItem,
+    public Ice::DispatcherCall,
+    public std::enable_shared_from_this<DispatchWorkItem>
 {
 public:
 
@@ -59,9 +61,9 @@ private:
 
     const Ice::ConnectionPtr _connection;
 };
-typedef IceUtil::Handle<DispatchWorkItem> DispatchWorkItemPtr;
+using DispatchWorkItemPtr = std::shared_ptr<DispatchWorkItem>;
 
-class ThreadPool : public IceUtil::Shared, private IceUtil::Monitor<IceUtil::Mutex>
+class ThreadPool : public std::enable_shared_from_this<ThreadPool>
 {
     class EventHandlerThread : public IceUtil::Thread
     {
@@ -79,11 +81,12 @@ class ThreadPool : public IceUtil::Shared, private IceUtil::Monitor<IceUtil::Mut
         ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
         Ice::Instrumentation::ThreadState _state;
     };
-    typedef IceUtil::Handle<EventHandlerThread> EventHandlerThreadPtr;
+    using EventHandlerThreadPtr = std::shared_ptr<EventHandlerThread>;
 
 public:
 
-    ThreadPool(const InstancePtr&, const std::string&, int);
+    static ThreadPoolPtr create(const InstancePtr&, const std::string&, int);
+
     virtual ~ThreadPool();
 
     void destroy();
@@ -117,6 +120,9 @@ public:
 
 private:
 
+    ThreadPool(const InstancePtr&, const std::string&, int);
+    void initialize();
+
     void run(const EventHandlerThreadPtr&);
 
     bool ioCompleted(ThreadPoolCurrent&);
@@ -126,7 +132,7 @@ private:
     void finishMessage(ThreadPoolCurrent&);
 #else
     void promoteFollower(ThreadPoolCurrent&);
-    bool followerWait(ThreadPoolCurrent&);
+    bool followerWait(ThreadPoolCurrent&, std::unique_lock<std::mutex>&);
 #endif
 
     std::string nextThreadId();
@@ -167,6 +173,8 @@ private:
 #endif
 
     bool _promote;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 class ThreadPoolCurrent
@@ -358,8 +366,10 @@ public:
     };
     friend class IOScope;
 
-    ThreadPoolMessage(ThreadPoolCurrent& current, const T& mutex) :
-        _current(current), _mutex(mutex), _finish(false)
+    ThreadPoolMessage(ThreadPoolCurrent& current, const T& eventHandler) :
+        _current(current),
+        _eventHandler(eventHandler),
+        _finish(false)
     {
     }
 
@@ -372,7 +382,7 @@ public:
             // of the event handler. We need to lock the event handler here to call
             // finishMessage.
             //
-            IceUtil::LockT<T> sync(_mutex);
+            lock_guard lock(_eventHandler._mutex);
             _current.finishMessage();
         }
     }
@@ -380,7 +390,7 @@ public:
 private:
 
     ThreadPoolCurrent& _current;
-    const T& _mutex;
+    const T& _eventHandler;
     bool _finish;
 };
 #endif

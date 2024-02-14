@@ -26,7 +26,7 @@ IceBT::ConnectorI::connect()
     //
     // The transceiver handles all connection activity.
     //
-    return new TransceiverI(_instance, _addr, _uuid);
+    return make_shared<TransceiverI>(_instance, _addr, _uuid);
 }
 
 Short
@@ -71,12 +71,6 @@ IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
     }
 
     return true;
-}
-
-bool
-IceBT::ConnectorI::operator!=(const IceInternal::Connector& r) const
-{
-    return !operator==(r);
 }
 
 bool

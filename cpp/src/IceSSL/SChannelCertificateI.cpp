@@ -21,7 +21,7 @@ using namespace IceSSL;
 namespace
 {
 
-class CertInfoHolder : public IceUtil::Shared
+class CertInfoHolder
 {
 public:
 
@@ -38,7 +38,7 @@ private:
 
     CERT_INFO* _certInfo;
 };
-typedef IceUtil::Handle<CertInfoHolder> CertInfoHolderPtr;
+using CertInfoHolderPtr = shared_ptr<CertInfoHolder>;
 
 class SCHannelX509ExtensionI : public X509Extension
 {
@@ -59,8 +59,7 @@ private:
 
 class SChannelCertificateI : public SChannel::Certificate,
                              public CertificateI,
-                             public IceSSL::CertificateExtendedInfo,
-                             public IceUtil::Mutex
+                             public IceSSL::CertificateExtendedInfo
 {
 public:
 
@@ -96,6 +95,7 @@ private:
     CERT_SIGNED_CONTENT_INFO* _cert;
     CERT_INFO* _certInfo;
     CertInfoHolderPtr _certInfoHolder;
+    mutable std::mutex _mutex;
 };
 
 const Ice::Long TICKS_PER_MSECOND = 10000LL;
@@ -312,7 +312,7 @@ SChannelCertificateI::SChannelCertificateI(CERT_SIGNED_CONTENT_INFO* cert) :
         {
             throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
         }
-        _certInfoHolder = new CertInfoHolder(_certInfo);
+        _certInfoHolder = make_shared<CertInfoHolder>(_certInfo);
     }
     catch(...)
     {
@@ -523,7 +523,7 @@ SChannelCertificateI::getCert() const
 void
 SChannelCertificateI::loadX509Extensions() const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_extensions.empty())
     {
         for(size_t i = 0; i < _certInfo->cExtension; ++i)

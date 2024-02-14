@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ICE_API ProtocolInstance : public IceUtil::Shared
+class ICE_API ProtocolInstance
 {
 public:
 
@@ -72,8 +72,13 @@ public:
     size_t messageSizeMax() const;
     int defaultTimeout() const;
 
-    void resolve(const std::string&, int, Ice::EndpointSelectionType, const IPEndpointIPtr&,
-                 const EndpointI_connectorsPtr&) const;
+    void resolve(
+        const std::string&,
+        int,
+        Ice::EndpointSelectionType,
+        const IPEndpointIPtr&,
+        std::function<void(std::vector<ConnectorPtr>)>,
+        std::function<void(std::exception_ptr)>) const;
 
 protected:
 

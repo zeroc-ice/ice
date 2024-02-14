@@ -34,9 +34,6 @@
     <ClCompile Include="..\..\Random.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Shared.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -44,9 +41,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\OutputUtil.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\RecMutex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ThreadException.cpp">
@@ -83,9 +77,6 @@
     <Filter>Header Files</Filter>
   </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Handle.h">
     <Filter>Header Files</Filter>
   </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h">
@@ -127,13 +118,7 @@
   <ClInclude Include="..\..\..\..\include\IceUtil\Random.h">
     <Filter>Header Files</Filter>
   </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\RecMutex.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Shared.h">
     <Filter>Header Files</Filter>
   </ClInclude>
   <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h">

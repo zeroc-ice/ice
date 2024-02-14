@@ -17,8 +17,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceUtil::Shared* IceBT::upCast(TransceiverI* p) { return p; }
-
 IceInternal::NativeInfoPtr
 IceBT::TransceiverI::getNativeInfo()
 {
@@ -28,14 +26,14 @@ IceBT::TransceiverI::getNativeInfo()
 IceInternal::SocketOperation
 IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal::Buffer& /*writeBuffer*/)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+    lock_guard lock(_mutex);
 
     if(_exception)
     {
         //
         // Raise the stored exception from a failed connection attempt.
         //
-        _exception->ice_throw();
+        rethrow_exception(_exception);
     }
     else if(_needConnect)
     {
@@ -43,7 +41,7 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
         // We need to initiate a connection attempt.
         //
         _needConnect = false;
-        _instance->engine()->connect(_addr, _uuid, make_shared<ConnectCallbackI>(this));
+        _instance->engine()->connect(_addr, _uuid, make_shared<ConnectCallbackI>(shared_from_this()));
         return IceInternal::SocketOperationConnect;
     }
 
@@ -51,7 +49,7 @@ IceBT::TransceiverI::initialize(IceInternal::Buffer& /*readBuffer*/, IceInternal
 }
 
 IceInternal::SocketOperation
-IceBT::TransceiverI::closing(bool initiator, const Ice::LocalException&)
+IceBT::TransceiverI::closing(bool initiator, exception_ptr)
 {
     //
     // If we are initiating the connection closure, wait for the peer
@@ -168,7 +166,7 @@ IceBT::TransceiverI::~TransceiverI()
 void
 IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+    lock_guard lock(_mutex);
     _connection = conn;
     _stream->setFd(fd);
     //
@@ -178,13 +176,13 @@ IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)
 }
 
 void
-IceBT::TransceiverI::connectFailed(const Ice::LocalException& ex)
+IceBT::TransceiverI::connectFailed(std::exception_ptr ex)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+    lock_guard lock(_mutex);
     //
     // Save the exception - it will be raised in initialize().
     //
-    _exception = ex.ice_clone();
+    _exception = ex;
     //
     // Triggers a call to write() from a different thread.
     //

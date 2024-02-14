@@ -12,9 +12,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(RouterManager* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(RouterInfo* p) { return p; }
-
 IceInternal::RouterManager::RouterManager() :
     _tableHint(_table.end())
 {
@@ -23,7 +20,7 @@ IceInternal::RouterManager::RouterManager() :
 void
 IceInternal::RouterManager::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     for_each(_table.begin(), _table.end(),
              [](const pair<RouterPrxPtr, RouterInfoPtr> it)
              {
@@ -38,12 +35,12 @@ IceInternal::RouterManager::get(const RouterPrxPtr& rtr)
 {
     if(!rtr)
     {
-        return 0;
+        return nullptr;
     }
 
     RouterPrxPtr router = rtr->ice_router(0); // The router cannot be routed.
 
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     RouterInfoTable::iterator p = _table.end();
 
@@ -78,8 +75,8 @@ IceInternal::RouterManager::erase(const RouterPrxPtr& rtr)
     RouterInfoPtr info;
     if(rtr)
     {
-        RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, rtr->ice_router(nullptr)); // The router cannot be routed.
-        IceUtil::Mutex::Lock sync(*this);
+        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(rtr->ice_router(nullptr)); // The router cannot be routed.
+        lock_guard lock(_mutex);
 
         RouterInfoTable::iterator p = _table.end();
         if(_tableHint != _table.end() && targetEqualTo(_tableHint->first, router))
@@ -111,7 +108,7 @@ IceInternal::RouterInfo::RouterInfo(const RouterPrxPtr& router) : _router(router
 void
 IceInternal::RouterInfo::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     _clientEndpoints.clear();
     _adapter = 0;
@@ -134,65 +131,42 @@ vector<EndpointIPtr>
 IceInternal::RouterInfo::getClientEndpoints()
 {
     {
-        IceUtil::Mutex::Lock sync(*this);
+        lock_guard lock(_mutex);
         if(!_clientEndpoints.empty())
         {
             return _clientEndpoints;
         }
     }
 
-    IceUtil::Optional<bool> hasRoutingTable;
+    optional<bool> hasRoutingTable;
     Ice::ObjectPrxPtr proxy = _router->getClientProxy(hasRoutingTable);
     return setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true);
 }
 
 void
-IceInternal::RouterInfo::getClientProxyResponse(const Ice::ObjectPrxPtr& proxy,
-                                                const IceUtil::Optional<bool>& hasRoutingTable,
-                                                const GetClientEndpointsCallbackPtr& callback)
-{
-    callback->setEndpoints(setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true));
-}
-
-void
-IceInternal::RouterInfo::getClientProxyException(const Ice::Exception& ex,
-                                                 const GetClientEndpointsCallbackPtr& callback)
-{
-    callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
-}
-
-void
-IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr& callback)
+IceInternal::RouterInfo::getClientEndpointsAsync(
+    std::function<void(vector<EndpointIPtr>)> response,
+    std::function<void(std::exception_ptr)> ex)
 {
     vector<EndpointIPtr> clientEndpoints;
     {
-        IceUtil::Mutex::Lock sync(*this);
+        lock_guard lock(_mutex);
         clientEndpoints = _clientEndpoints;
     }
 
-    if(!clientEndpoints.empty())
+    if (!clientEndpoints.empty())
     {
-        callback->setEndpoints(clientEndpoints);
+        response(std::move(clientEndpoints));
         return;
     }
 
-    RouterInfoPtr self = this;
+    RouterInfoPtr self = shared_from_this();
     _router->getClientProxyAsync(
-        [self, callback](const Ice::ObjectPrxPtr& proxy, Ice::optional<bool> hasRoutingTable)
+        [self, response](const Ice::ObjectPrxPtr& proxy, optional<bool> hasRoutingTable)
         {
-            self->getClientProxyResponse(proxy, hasRoutingTable, callback);
+            response(self->setClientEndpoints(proxy, hasRoutingTable.value_or(true)));
         },
-        [self, callback](exception_ptr e)
-        {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                self->getClientProxyException(ex, callback);
-            }
-        });
+        ex);
 }
 
 vector<EndpointIPtr>
@@ -207,30 +181,22 @@ IceInternal::RouterInfo::getServerEndpoints()
     return serverProxy->_getReference()->getEndpoints();
 }
 
-void
-IceInternal::RouterInfo::addProxyResponse(const Ice::ObjectProxySeq& proxies, const AddProxyCookiePtr& cookie)
-{
-    addAndEvictProxies(cookie->proxy(), proxies);
-    cookie->cb()->addedProxy();
-}
-
-void
-IceInternal::RouterInfo::addProxyException(const Ice::Exception& ex, const AddProxyCookiePtr& cookie)
-{
-    cookie->cb()->setException(dynamic_cast<const Ice::LocalException&>(ex));
-}
-
 bool
-IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxyCallbackPtr& callback)
+IceInternal::RouterInfo::addProxyAsync(
+    const ReferencePtr& reference,
+    function<void()> response,
+    function<void(exception_ptr)> ex)
 {
-    assert(proxy);
+    assert(reference);
+    Identity identity = reference->getIdentity();
+
     {
-        IceUtil::Mutex::Lock sync(*this);
+        lock_guard lock(_mutex);
         if(!_hasRoutingTable)
         {
             return true; // The router implementation doesn't maintain a routing table.
         }
-        else if(_identities.find(proxy->ice_getIdentity()) != _identities.end())
+        else if(_identities.find(identity) != _identities.end())
         {
             //
             // Only add the proxy to the router if it's not already in our local map.
@@ -240,54 +206,45 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
     }
 
     Ice::ObjectProxySeq proxies;
-    proxies.push_back(proxy);
-    AddProxyCookiePtr cookie = new AddProxyCookie(callback, proxy);
+    proxies.push_back(make_shared<ObjectPrx>(reference));
 
-    RouterInfoPtr self = this;
-    _router->addProxiesAsync(proxies,
-        [self, cookie](const Ice::ObjectProxySeq& p)
+    RouterInfoPtr self = shared_from_this();
+    _router->addProxiesAsync(
+        proxies,
+        [response, self, identity](Ice::ObjectProxySeq evictedProxies)
         {
-            self->addProxyResponse(p, cookie);
+            self->addAndEvictProxies(identity, evictedProxies);
+            response();
         },
-        [self, cookie](exception_ptr e)
-        {
-            try
-            {
-                rethrow_exception(e);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                self->addProxyException(ex, cookie);
-            }
-        });
+        ex);
     return false;
 }
 
 void
 IceInternal::RouterInfo::setAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     _adapter = adapter;
 }
 
 ObjectAdapterPtr
 IceInternal::RouterInfo::getAdapter() const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     return _adapter;
 }
 
 void
 IceInternal::RouterInfo::clearCache(const ReferencePtr& ref)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     _identities.erase(ref->getIdentity());
 }
 
 vector<EndpointIPtr>
 IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy, bool hasRoutingTable)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_clientEndpoints.empty())
     {
         _hasRoutingTable = hasRoutingTable;
@@ -319,15 +276,15 @@ IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy, bool
 }
 
 void
-IceInternal::RouterInfo::addAndEvictProxies(const Ice::ObjectPrxPtr& proxy, const Ice::ObjectProxySeq& evictedProxies)
+IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice::ObjectProxySeq& evictedProxies)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     //
     // Check if the proxy hasn't already been evicted by a concurrent addProxies call.
     // If it's the case, don't add it to our local map.
     //
-    multiset<Identity>::iterator p = _evictedIdentities.find(proxy->ice_getIdentity());
+    multiset<Identity>::iterator p = _evictedIdentities.find(identity);
     if(p != _evictedIdentities.end())
     {
         _evictedIdentities.erase(p);
@@ -338,7 +295,7 @@ IceInternal::RouterInfo::addAndEvictProxies(const Ice::ObjectPrxPtr& proxy, cons
         // If we successfully added the proxy to the router,
         // we add it to our local map.
         //
-        _identities.insert(proxy->ice_getIdentity());
+        _identities.insert(identity);
     }
 
     //

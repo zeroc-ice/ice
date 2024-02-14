@@ -19,16 +19,16 @@ namespace IceSSL
 namespace SecureTransport
 {
 
-class SSLEngine : public IceSSL::SSLEngine
+class SSLEngine final : public IceSSL::SSLEngine
 {
 public:
 
     SSLEngine(const Ice::CommunicatorPtr&);
 
-    virtual void initialize();
-    virtual void destroy();
-    virtual IceInternal::TransceiverPtr
-    createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+    void initialize() final;
+    void destroy() final;
+    IceInternal::TransceiverPtr
+    createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
 
     SSLContextRef newContext(bool);
     CFArrayRef getCertificateAuthorities() const;

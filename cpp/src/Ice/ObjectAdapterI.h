@@ -5,9 +5,6 @@
 #ifndef ICE_OBJECT_ADAPTER_I_H
 #define ICE_OBJECT_ADAPTER_I_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/RecMutex.h>
-#include <IceUtil/Monitor.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
@@ -25,14 +22,14 @@
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Proxy.h>
 #include <Ice/ACM.h>
+
 #include <list>
+#include <mutex>
 
 namespace Ice
 {
-class ObjectAdapterI final : public ObjectAdapter,
-                             public IceUtil::Monitor<IceUtil::RecMutex>,
-                             public std::enable_shared_from_this<ObjectAdapterI>
 
+class ObjectAdapterI final : public ObjectAdapter, public std::enable_shared_from_this<ObjectAdapterI>
 {
 public:
 
@@ -83,7 +80,7 @@ public:
     dispatch_queue_t getDispatchQueue() const final;
 #endif
 
-    bool isLocal(const ObjectPrxPtr&) const;
+    bool isLocal(const IceInternal::ReferencePtr&) const;
 
     void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&, CompressBatch);
 
@@ -146,6 +143,8 @@ private:
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _noConfig;
     size_t _messageSizeMax;
+    mutable std::recursive_mutex _mutex;
+    std::condition_variable_any _conditionVariable;
 };
 
 }

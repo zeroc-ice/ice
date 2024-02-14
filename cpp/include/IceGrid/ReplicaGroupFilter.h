@@ -5,6 +5,10 @@
 #ifndef ICEGRID_H
 #define ICEGRID_H
 
+#include <Ice/Ice.h>
+
+#include <string>
+
 namespace IceGrid
 {
 
@@ -12,7 +16,7 @@ namespace IceGrid
  * Abstract base class for a replica group filter.
  * \headerfile IceGrid/IceGrid.h
  */
-class ReplicaGroupFilter : public IceUtil::Shared
+class ReplicaGroupFilter
 {
 public:
 
@@ -25,7 +29,7 @@ public:
      * @param context The incoming connection from the client to the registry.
      * @return The filtered list of adapter identifiers.
      */
-    virtual Ice::StringSeq filter(const string& replicaGroupId, const Ice::StringSeq& adapterIds,
+    virtual Ice::StringSeq filter(const std::string& replicaGroupId, const Ice::StringSeq& adapterIds,
                                   const Ice::ConnectionPtr& connection, const Ice::Context& context) = 0;
 };
 

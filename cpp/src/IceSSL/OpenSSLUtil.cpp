@@ -5,6 +5,9 @@
 #include <IceSSL/OpenSSLUtil.h>
 
 #include <openssl/err.h>
+
+#include <sstream>
+
 //
 // Avoid old style cast warnings from OpenSSL macros
 //
@@ -23,7 +26,7 @@ namespace
 
 //
 // The following arrays are predefined Diffie Hellman group parameters.
-// It is highly recommeded that applications provide their own Diffie
+// It is highly recommended that applications provide their own Diffie
 // Hellman parameters.
 //
 
@@ -195,7 +198,7 @@ IceSSL::OpenSSL::DHParams::get(int keyLength)
     //
     // No match found. Use one of the predefined parameter sets instead.
     //
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(keyLength >= 4096)
     {
         if(!_dh4096)

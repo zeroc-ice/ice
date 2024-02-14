@@ -113,7 +113,7 @@ testExceptions(const TestIntfPrxPtr& obj)
     }
     catch(const UnknownException& ex)
     {
-        test(ex.unknown == "std::exception: Hello");
+        test(ex.unknown == "c++ exception: Hello");
     }
     catch(...)
     {
@@ -127,7 +127,7 @@ testExceptions(const TestIntfPrxPtr& obj)
     }
     catch(const UnknownException& ex)
     {
-        test(ex.unknown == "unknown c++ exception");
+        test(ex.unknown == "c++ exception: unknown");
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -219,7 +219,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
     test(Ice::targetEqualTo(obj, base));
     cout << "ok" << endl;
@@ -258,10 +258,10 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing servant locator..." << flush;
     base = communicator->stringToProxy("category/locate:" + endp);
-    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    obj = Ice::checkedCast<TestIntfPrx>(base);
     try
     {
-        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("category/unknown:" + endp));
+        Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("category/unknown:" + endp));
     }
     catch(const ObjectNotExistException&)
     {
@@ -270,19 +270,19 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing default servant locator..." << flush;
     base = communicator->stringToProxy("anothercategory/locate:" + endp);
-    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    obj = Ice::checkedCast<TestIntfPrx>(base);
     base = communicator->stringToProxy("locate:" + endp);
-    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    obj = Ice::checkedCast<TestIntfPrx>(base);
     try
     {
-        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("anothercategory/unknown:" + endp));
+        Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("anothercategory/unknown:" + endp));
     }
     catch(const ObjectNotExistException&)
     {
     }
     try
     {
-        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("unknown:" + endp));
+        Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("unknown:" + endp));
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -291,13 +291,13 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing locate exceptions... " << flush;
     base = communicator->stringToProxy("category/locate:" + endp);
-    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    obj = Ice::checkedCast<TestIntfPrx>(base);
     testExceptions(obj);
     cout << "ok" << endl;
 
     cout << "testing finished exceptions... " << flush;
     base = communicator->stringToProxy("category/finished:" + endp);
-    obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    obj = Ice::checkedCast<TestIntfPrx>(base);
     testExceptions(obj);
 
     //
@@ -337,7 +337,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing servant locator removal... " << flush;
     base = communicator->stringToProxy("test/activation:" + endp);
-    TestActivationPrxPtr activation = ICE_CHECKED_CAST(TestActivationPrx, base);
+    TestActivationPrxPtr activation = Ice::checkedCast<TestActivationPrx>(base);
     activation->activateServantLocator(false);
     try
     {

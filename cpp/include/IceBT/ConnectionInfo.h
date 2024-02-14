@@ -5,15 +5,15 @@
 #ifndef __IceBT_ConnectionInfo_h__
 #define __IceBT_ConnectionInfo_h__
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
-#include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
 #include <Ice/OutgoingAsync.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/Connection.h>
 #include <IceUtil/UndefSysMacros.h>
 
@@ -130,4 +130,5 @@ using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
 }
 /// \endcond
 
+#include <IceUtil/PopDisableWarnings.h>
 #endif

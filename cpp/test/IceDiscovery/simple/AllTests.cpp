@@ -21,12 +21,12 @@ allTests(Test::TestHelper* helper, int num)
         {
             ostringstream os;
             os << "controller" << i;
-            proxies.push_back(ICE_UNCHECKED_CAST(ControllerPrx, communicator->stringToProxy(os.str())));
+            proxies.push_back(Ice::uncheckedCast<ControllerPrx>(communicator->stringToProxy(os.str())));
         }
         {
             ostringstream os;
             os << "controller" << i << "@control" << i;
-            indirectProxies.push_back(ICE_UNCHECKED_CAST(ControllerPrx, communicator->stringToProxy(os.str())));
+            indirectProxies.push_back(Ice::uncheckedCast<ControllerPrx>(communicator->stringToProxy(os.str())));
         }
     }
 
@@ -154,7 +154,7 @@ allTests(Test::TestHelper* helper, int num)
         adapterIds.insert("oa1");
         adapterIds.insert("oa2");
         adapterIds.insert("oa3");
-        TestIntfPrxPtr intf = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("object"));
+        TestIntfPrxPtr intf = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("object"));
         intf = intf->ice_connectionCached(false)->ice_locatorCacheTimeout(0);
         while(!adapterIds.empty())
         {
@@ -166,7 +166,7 @@ allTests(Test::TestHelper* helper, int num)
             adapterIds.insert("oa1");
             adapterIds.insert("oa2");
             adapterIds.insert("oa3");
-            intf = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("object @ rg"))->ice_connectionCached(false);
+            intf = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("object @ rg"))->ice_connectionCached(false);
             int nRetry = 100;
             while(!adapterIds.empty() && --nRetry > 0)
             {
@@ -183,12 +183,12 @@ allTests(Test::TestHelper* helper, int num)
 
         proxies[0]->deactivateObjectAdapter("oa");
         proxies[1]->deactivateObjectAdapter("oa");
-        test(ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("object @ rg"))->getAdapterId() == "oa3");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("object @ rg"))->getAdapterId() == "oa3");
         proxies[2]->deactivateObjectAdapter("oa");
 
         proxies[0]->activateObjectAdapter("oa", "oa1", "rg");
         proxies[0]->addObject("oa", "object");
-        test(ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("object @ rg"))->getAdapterId() == "oa1");
+        test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("object @ rg"))->getAdapterId() == "oa1");
         proxies[0]->deactivateObjectAdapter("oa");
     }
     cout << "ok" << endl;

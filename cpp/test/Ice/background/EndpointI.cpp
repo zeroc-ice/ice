@@ -67,7 +67,7 @@ EndpointI::timeout(int timeout) const
     IceInternal::EndpointIPtr endpoint = _endpoint->timeout(timeout);
     if(endpoint == _endpoint)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -81,7 +81,7 @@ EndpointI::connectionId(const string& connectionId) const
     IceInternal::EndpointIPtr endpoint = _endpoint->connectionId(connectionId);
     if(endpoint == _endpoint)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -101,7 +101,7 @@ EndpointI::compress(bool compress) const
     IceInternal::EndpointIPtr endpoint = _endpoint->compress(compress);
     if(endpoint == _endpoint)
     {
-        return ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        return const_cast<EndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -127,7 +127,7 @@ EndpointI::transceiver() const
     IceInternal::TransceiverPtr transceiver = _endpoint->transceiver();
     if(transceiver)
     {
-        return new Transceiver(transceiver);
+        return make_shared<Transceiver>(transceiver);
     }
     else
     {
@@ -136,76 +136,44 @@ EndpointI::transceiver() const
 }
 
 void
-EndpointI::connectors_async(Ice::EndpointSelectionType selType, const IceInternal::EndpointI_connectorsPtr& cb) const
+EndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception) const
 {
-    class Callback : public IceInternal::EndpointI_connectors
-    {
-    public:
-
-        Callback(const IceInternal::EndpointI_connectorsPtr& callback) : _callback(callback)
-        {
-        }
-
-        void
-        connectors(const vector<IceInternal::ConnectorPtr>& connectors)
-        {
-            vector<IceInternal::ConnectorPtr> c;
-            for(vector<IceInternal::ConnectorPtr>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
-            {
-                c.push_back(new Connector(*p));
-            }
-            _callback->connectors(c);
-        }
-
-        void
-        exception(const Ice::LocalException& ex)
-        {
-            _callback->exception(ex);
-        }
-
-    private:
-
-        IceInternal::EndpointI_connectorsPtr _callback;
-    };
-
     try
     {
         _configuration->checkConnectorsException();
-        _endpoint->connectors_async(selType, make_shared<Callback>(cb));
+        _endpoint->connectorsAsync(
+            selType,
+            [response] (vector<IceInternal::ConnectorPtr> connectors)
+            {
+                for (vector<IceInternal::ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); ++it)
+                {
+                    *it = make_shared<Connector>(*it);
+                }
+                response(std::move(connectors));
+            },
+            exception);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
-        cb->exception(ex);
+        exception(current_exception());
     }
 }
 
 IceInternal::AcceptorPtr
 EndpointI::acceptor(const string& adapterName) const
 {
-    return new Acceptor(ICE_SHARED_FROM_CONST_THIS(EndpointI), _endpoint->acceptor(adapterName));
+    return make_shared<Acceptor>(const_cast<EndpointI*>(this)->shared_from_this(), _endpoint->acceptor(adapterName));
 }
-
-/*IceInternal::EndpointIPtr
-EndpointI::endpoint(const IceInternal::TransceiverPtr& transceiver) const
-{
-    Transceiver* p = dynamic_cast<Transceiver*>(transceiver.get());
-    IceInternal::EndpointIPtr endpt = _endpoint->endpoint(p->delegate());
-    if(endpt == _endpoint)
-    {
-        return const_cast<EndpointI*>(this);
-    }
-    else
-    {
-        return new EndpointI(endpt);
-    }
-}*/
 
 EndpointIPtr
 EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
     if(delEndp.get() == _endpoint.get())
     {
-        return ICE_DYNAMIC_CAST(EndpointI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
+        return dynamic_pointer_cast<EndpointI>(const_cast<EndpointI*>(this)->shared_from_this());
     }
     else
     {
@@ -219,7 +187,7 @@ EndpointI::expandIfWildcard() const
     vector<IceInternal::EndpointIPtr> e = _endpoint->expandIfWildcard();
     for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
     {
-        *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : make_shared<EndpointI>(*p);
+        *p = (*p == _endpoint) ? const_cast<EndpointI*>(this)->shared_from_this() : make_shared<EndpointI>(*p);
     }
     return e;
 }
@@ -230,11 +198,11 @@ EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
     vector<IceInternal::EndpointIPtr> e = _endpoint->expandHost(publish);
     if(publish)
     {
-        publish = publish == _endpoint ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : make_shared<EndpointI>(publish);
+        publish = publish == _endpoint ? const_cast<EndpointI*>(this)->shared_from_this() : make_shared<EndpointI>(publish);
     }
     for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
     {
-        *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : make_shared<EndpointI>(*p);
+        *p = (*p == _endpoint) ? const_cast<EndpointI*>(this)->shared_from_this() : make_shared<EndpointI>(*p);
     }
     return e;
 }

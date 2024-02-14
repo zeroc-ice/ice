@@ -18,7 +18,10 @@
 namespace IceObjC
 {
 
-class iAPTransceiver : public IceInternal::Transceiver, public IceInternal::StreamNativeInfo
+class iAPTransceiver final :
+    public IceInternal::Transceiver,
+    public IceInternal::StreamNativeInfo,
+    public std::enable_shared_from_this<iAPTransceiver>
 {
     enum State
     {
@@ -30,28 +33,28 @@ class iAPTransceiver : public IceInternal::Transceiver, public IceInternal::Stre
 public:
 
     iAPTransceiver(const IceInternal::ProtocolInstancePtr&, EASession*);
-    virtual ~iAPTransceiver();
+    ~iAPTransceiver();
 
-    virtual void initStreams(IceInternal::SelectorReadyCallback*);
-    virtual IceInternal::SocketOperation registerWithRunLoop(IceInternal::SocketOperation);
-    virtual IceInternal::SocketOperation unregisterFromRunLoop(IceInternal::SocketOperation, bool);
-    virtual void closeStreams();
+    void initStreams(IceInternal::SelectorReadyCallback*) final;
+    IceInternal::SocketOperation registerWithRunLoop(IceInternal::SocketOperation) final;
+    IceInternal::SocketOperation unregisterFromRunLoop(IceInternal::SocketOperation, bool) final;
+    void closeStreams() final;
 
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
+    IceInternal::NativeInfoPtr getNativeInfo() final;
 
-    virtual IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&);
+    IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
 
-    virtual IceInternal::SocketOperation closing(bool, const Ice::LocalException&);
-    virtual void close();
-    virtual IceInternal::SocketOperation write(IceInternal::Buffer&);
-    virtual IceInternal::SocketOperation read(IceInternal::Buffer&);
+    IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
+    void close() final;
+    IceInternal::SocketOperation write(IceInternal::Buffer&) final;
+    IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const IceInternal::Buffer&);
-    virtual void setBufferSize(int, int);
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const IceInternal::Buffer&) final;
+    void setBufferSize(int, int) final;
 
 private:
 
@@ -66,7 +69,7 @@ private:
     bool _writeStreamRegistered;
     bool _opening;
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     bool _error;
 
     State _state;

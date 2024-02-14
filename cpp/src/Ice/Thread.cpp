@@ -142,13 +142,13 @@ WINAPI startHook(void* arg)
 
     try
     {
-        IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
+        auto rawThread = static_cast<shared_ptr<IceUtil::Thread>*>(arg);
 
         //
         // Ensure that the thread doesn't go away until run() has
         // completed.
         //
-        thread = rawThread;
+        thread = *rawThread;
 
         //
         // Initialize the random number generator in each thread on
@@ -160,7 +160,7 @@ WINAPI startHook(void* arg)
         //
         // See the comment in IceUtil::Thread::start() for details.
         //
-        rawThread->__decRef();
+        delete rawThread;
         thread->run();
     }
     catch(...)
@@ -188,52 +188,39 @@ IceUtil::Thread::start(size_t stackSize)
 IceUtil::ThreadControl
 IceUtil::Thread::start(size_t stackSize, int priority)
 {
-    //
-    // Keep this alive for the duration of start
-    //
-    IceUtil::ThreadPtr keepMe = this;
-
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
 
     if(_started)
     {
         throw ThreadStartedException(__FILE__, __LINE__);
     }
 
-    //
-    // It's necessary to increment the reference count since
-    // pthread_create won't necessarily call the thread function until
-    // later. If the user does (new MyThread)->start() then the thread
-    // object could be deleted before the thread object takes
-    // ownership. It's also necessary to increment the reference count
-    // prior to calling pthread_create since the thread itself calls
-    // __decRef().
-    //
-    __incRef();
-
+    auto self = new shared_ptr<Thread>(shared_from_this());
     unsigned int id;
     _handle =
         reinterpret_cast<HANDLE>(
-            _beginthreadex(0,
-                            static_cast<unsigned int>(stackSize),
-                            startHook, this,
-                            CREATE_SUSPENDED,
-                            &id));
+            _beginthreadex(
+                0,
+                static_cast<unsigned int>(stackSize),
+                startHook,
+                self,
+                CREATE_SUSPENDED,
+                &id));
     _id = id;
     assert(_handle != (HANDLE)-1L);
     if(_handle == 0)
     {
-        __decRef();
+        delete self;
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
     if(SetThreadPriority(_handle, priority) == 0)
     {
-        __decRef();
+        delete self;
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
     if(static_cast<int>(ResumeThread(_handle)) == -1)
     {
-        __decRef();
+        delete self;
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 
@@ -246,7 +233,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
 IceUtil::ThreadControl
 IceUtil::Thread::getThreadControl() const
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     if(!_started)
     {
         throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -269,14 +256,14 @@ IceUtil::Thread::operator<(const Thread& rhs) const
 bool
 IceUtil::Thread::isAlive() const
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     return _running;
 }
 
 void
 IceUtil::Thread::_done()
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     _running = false;
 }
 
@@ -396,18 +383,14 @@ startHook(void* arg)
     // Ensure that the thread doesn't go away until run() has
     // completed.
     //
-    IceUtil::ThreadPtr thread;
+    shared_ptr<IceUtil::Thread> thread;
 
     try
     {
-        IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
+        auto rawThread = static_cast<shared_ptr<IceUtil::Thread>*>(arg);
 
-        thread = rawThread;
-
-        //
-        // See the comment in IceUtil::Thread::start() for details.
-        //
-        rawThread->__decRef();
+        thread = *rawThread;
+        delete rawThread;
         thread->run();
     }
     catch(...)
@@ -439,34 +422,17 @@ IceUtil::Thread::start(size_t stackSize, int priority)
 IceUtil::ThreadControl
 IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
 {
-    //
-    // Keep this alive for the duration of start
-    //
-    IceUtil::ThreadPtr keepMe = this;
-
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
 
     if(_started)
     {
         throw ThreadStartedException(__FILE__, __LINE__);
     }
 
-    //
-    // It's necessary to increment the reference count since
-    // pthread_create won't necessarily call the thread function until
-    // later. If the user does (new MyThread)->start() then the thread
-    // object could be deleted before the thread object takes
-    // ownership. It's also necessary to increment the reference count
-    // prior to calling pthread_create since the thread itself calls
-    // __decRef().
-    //
-    __incRef();
-
     pthread_attr_t attr;
     int rc = pthread_attr_init(&attr);
     if(rc != 0)
     {
-        __decRef();
         pthread_attr_destroy(&attr);
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
@@ -485,7 +451,6 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
         rc = pthread_attr_setstacksize(&attr, stackSize);
         if(rc != 0)
         {
-            __decRef();
             pthread_attr_destroy(&attr);
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
@@ -496,7 +461,6 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
         rc = pthread_attr_setschedpolicy(&attr, SCHED_RR);
         if(rc != 0)
         {
-            __decRef();
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
         sched_param param;
@@ -504,17 +468,19 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
         rc = pthread_attr_setschedparam(&attr, &param);
         if(rc != 0)
         {
-            __decRef();
             pthread_attr_destroy(&attr);
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
         pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
     }
-    rc = pthread_create(&_thread, &attr, startHook, this);
+
+    auto self = new shared_ptr<Thread>(shared_from_this());
+
+    rc = pthread_create(&_thread, &attr, startHook, self);
     pthread_attr_destroy(&attr);
     if(rc != 0)
     {
-        __decRef();
+        delete self;
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 
@@ -526,7 +492,7 @@ IceUtil::Thread::start(size_t stackSize, bool realtimeScheduling, int priority)
 IceUtil::ThreadControl
 IceUtil::Thread::getThreadControl() const
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     if(!_started)
     {
         throw ThreadNotStartedException(__FILE__, __LINE__);
@@ -549,14 +515,14 @@ IceUtil::Thread::operator<(const Thread& rhs) const
 bool
 IceUtil::Thread::isAlive() const
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     return _running;
 }
 
 void
 IceUtil::Thread::_done()
 {
-    IceUtil::Mutex::Lock lock(_stateMutex);
+    lock_guard lock(_stateMutex);
     _running = false;
 }
 

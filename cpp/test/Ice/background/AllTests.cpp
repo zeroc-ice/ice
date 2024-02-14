@@ -53,97 +53,14 @@ private:
     bool _called;
 };
 
-class OpAMICallback : public IceUtil::Shared
-{
-public:
-
-    void
-    response()
-    {
-        _response.called();
-    }
-
-    void
-    responseNoOp()
-    {
-    }
-
-    void
-    noResponse()
-    {
-        test(false);
-    }
-
-    void
-    exception(const Ice::Exception&)
-    {
-        _response.called();
-    }
-
-    void
-    noException(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        cerr << "stack: " << ex.ice_stackTrace() << endl;
-        test(false);
-    }
-
-    void
-    sent(bool)
-    {
-        _sent.called();
-    }
-
-    bool checkException(bool wait = true)
-    {
-        if(wait)
-        {
-            _response.check();
-            return true;
-        }
-        else
-        {
-            return _response.isCalled();
-        }
-    }
-
-    bool
-    checkResponse(bool wait = true)
-    {
-        if(wait)
-        {
-            _response.check();
-            return true;
-        }
-        else
-        {
-            return _response.isCalled();
-        }
-    }
-
-    void
-    checkResponseAndSent()
-    {
-        _sent.check();
-        _response.check();
-    }
-
-private:
-
-    Callback _response;
-    Callback _sent;
-};
-typedef IceUtil::Handle<OpAMICallback> OpAMICallbackPtr;
-
 class OpThread : public IceUtil::Thread, public IceUtil::Mutex
 {
 public:
 
     OpThread(const BackgroundPrxPtr& background) :
         _destroyed(false),
-        _background(ICE_UNCHECKED_CAST(BackgroundPrx, background->ice_oneway()))
+        _background(Ice::uncheckedCast<BackgroundPrx>(background->ice_oneway()))
     {
-        start();
     }
 
     void
@@ -188,7 +105,7 @@ private:
     bool _destroyed;
     BackgroundPrxPtr _background;
 };
-typedef IceUtil::Handle<OpThread> OpThreadPtr;
+using OpThreadPtr = shared_ptr<OpThread>;
 
 void connectTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&);
 void initializeTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
@@ -204,13 +121,13 @@ allTests(Test::TestHelper* helper)
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
-    BackgroundPrxPtr background = ICE_UNCHECKED_CAST(BackgroundPrx, obj);
+    BackgroundPrxPtr background = Ice::uncheckedCast<BackgroundPrx>(obj);
 
     sref = "backgroundController:" + helper->getTestEndpoint(1, "tcp");
     obj = communicator->stringToProxy(sref);
     test(obj);
 
-    BackgroundControllerPrxPtr backgroundController = ICE_UNCHECKED_CAST(BackgroundControllerPrx, obj);
+    BackgroundControllerPrxPtr backgroundController = Ice::uncheckedCast<BackgroundControllerPrx>(obj);
 
     auto plugin = dynamic_pointer_cast<PluginI>(communicator->getPluginManager()->getPlugin("Test"));
     assert(plugin);
@@ -244,7 +161,7 @@ allTests(Test::TestHelper* helper)
     {
         Ice::LocatorPrxPtr locator;
         obj = communicator->stringToProxy("locator:" + endp)->ice_invocationTimeout(250);
-        locator = ICE_UNCHECKED_CAST(Ice::LocatorPrx, obj);
+        locator = Ice::uncheckedCast<Ice::LocatorPrx>(obj);
         obj = communicator->stringToProxy("background@Test")->ice_locator(locator)->ice_oneway();
 
         backgroundController->pauseCall("findAdapterById");
@@ -259,11 +176,11 @@ allTests(Test::TestHelper* helper)
         backgroundController->resumeCall("findAdapterById");
 
         obj = communicator->stringToProxy("locator:" + endp);
-        locator = ICE_UNCHECKED_CAST(Ice::LocatorPrx, obj);
+        locator = Ice::uncheckedCast<Ice::LocatorPrx>(obj);
         obj = obj->ice_locator(locator);
         obj->ice_ping();
         obj = communicator->stringToProxy("background@Test")->ice_locator(locator);
-        BackgroundPrxPtr bg = ICE_UNCHECKED_CAST(BackgroundPrx, obj);
+        BackgroundPrxPtr bg = Ice::uncheckedCast<BackgroundPrx>(obj);
 
         backgroundController->pauseCall("findAdapterById");
 
@@ -290,7 +207,7 @@ allTests(Test::TestHelper* helper)
     {
         Ice::RouterPrxPtr router;
         obj = communicator->stringToProxy("router:" + endp)->ice_invocationTimeout(250);
-        router = ICE_UNCHECKED_CAST(Ice::RouterPrx, obj);
+        router = Ice::uncheckedCast<Ice::RouterPrx>(obj);
         obj = communicator->stringToProxy("background@Test")->ice_router(router)->ice_oneway();
 
         backgroundController->pauseCall("getClientProxy");
@@ -305,9 +222,9 @@ allTests(Test::TestHelper* helper)
         backgroundController->resumeCall("getClientProxy");
 
         obj = communicator->stringToProxy("router:" + endp);
-        router = ICE_UNCHECKED_CAST(Ice::RouterPrx, obj);
+        router = Ice::uncheckedCast<Ice::RouterPrx>(obj);
         obj = communicator->stringToProxy("background@Test")->ice_router(router);
-        BackgroundPrxPtr bg = ICE_UNCHECKED_CAST(BackgroundPrx, obj);
+        BackgroundPrxPtr bg = Ice::uncheckedCast<BackgroundPrx>(obj);
         test(bg->ice_getRouter());
         backgroundController->pauseCall("getClientProxy");
 
@@ -456,8 +373,10 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
     }
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {
@@ -646,8 +565,10 @@ initializeTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {
@@ -978,7 +899,7 @@ validationTests(const ConfigurationPtr& configuration,
     Ice::ByteSeq seq;
     seq.resize(512 * 1024);
 
-    BackgroundPrxPtr backgroundBatchOneway = ICE_UNCHECKED_CAST(BackgroundPrx, background->ice_batchOneway());
+    BackgroundPrxPtr backgroundBatchOneway = Ice::uncheckedCast<BackgroundPrx>(background->ice_batchOneway());
 
     //
     // First send small requests to test without auto-flushing.
@@ -1315,7 +1236,7 @@ readWriteTests(const ConfigurationPtr& configuration,
 
     background->ice_ping(); // Establish the connection
 
-    BackgroundPrxPtr backgroundOneway = ICE_UNCHECKED_CAST(BackgroundPrx, background->ice_oneway());
+    BackgroundPrxPtr backgroundOneway = Ice::uncheckedCast<BackgroundPrx>(background->ice_oneway());
     test(backgroundOneway->ice_getConnection() == background->ice_getConnection());
 
     ctl->holdAdapter(); // Hold to block in request send.
@@ -1492,8 +1413,10 @@ readWriteTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = new OpThread(background);
-    OpThreadPtr thread2 = new OpThread(background);
+    OpThreadPtr thread1 = make_shared<OpThread>(background);
+    thread1->start();
+    OpThreadPtr thread2 = make_shared<OpThread>(background);
+    thread2->start();
 
     for(int i = 0; i < 5; i++)
     {

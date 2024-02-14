@@ -20,160 +20,160 @@ public:
                                ::std::function<void(const ::std::shared_ptr<::Ice::Value>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opOptionalExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opOptionalExceptionAsync(std::optional<int>, std::optional<::std::string>, std::optional<::std::shared_ptr<::Test::OneOptional>>,
                                           ::std::function<void()>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opDerivedExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opDerivedExceptionAsync(std::optional<int>, std::optional<::std::string>, std::optional<::std::shared_ptr<::Test::OneOptional>>,
                                          ::std::function<void()>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opRequiredExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void opRequiredExceptionAsync(std::optional<int>, std::optional<::std::string>, std::optional<::std::shared_ptr<::Test::OneOptional>>,
                                           ::std::function<void()>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opByteAsync(Ice::optional<::Ice::Byte>,
-                             ::std::function<void(const Ice::optional<::Ice::Byte>&, const Ice::optional<::Ice::Byte>&)>,
+    virtual void opByteAsync(std::optional<::Ice::Byte>,
+                             ::std::function<void(const std::optional<::Ice::Byte>&, const std::optional<::Ice::Byte>&)>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opBoolAsync(Ice::optional<bool>,
-                             ::std::function<void(const Ice::optional<bool>&, const Ice::optional<bool>&)>,
+    virtual void opBoolAsync(std::optional<bool>,
+                             ::std::function<void(const std::optional<bool>&, const std::optional<bool>&)>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opShortAsync(Ice::optional<short>,
-                              ::std::function<void(const Ice::optional<short>&, const Ice::optional<short>&)>,
+    virtual void opShortAsync(std::optional<short>,
+                              ::std::function<void(const std::optional<short>&, const std::optional<short>&)>,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opIntAsync(Ice::optional<int>,
-                            ::std::function<void(const Ice::optional<int>&, const Ice::optional<int>&)>,
+    virtual void opIntAsync(std::optional<int>,
+                            ::std::function<void(const std::optional<int>&, const std::optional<int>&)>,
                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opLongAsync(Ice::optional<long long int>,
-                             ::std::function<void(const Ice::optional<long long int>&, const Ice::optional<long long int>&)>,
+    virtual void opLongAsync(std::optional<long long int>,
+                             ::std::function<void(const std::optional<long long int>&, const std::optional<long long int>&)>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opFloatAsync(Ice::optional<float>,
-                              ::std::function<void(const Ice::optional<float>&, const Ice::optional<float>&)>,
+    virtual void opFloatAsync(std::optional<float>,
+                              ::std::function<void(const std::optional<float>&, const std::optional<float>&)>,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opDoubleAsync(Ice::optional<double>,
-                               ::std::function<void(const Ice::optional<double>&, const Ice::optional<double>&)>,
+    virtual void opDoubleAsync(std::optional<double>,
+                               ::std::function<void(const std::optional<double>&, const std::optional<double>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opStringAsync(Ice::optional<::std::string>,
-                               ::std::function<void(const Ice::optional<::std::string>&, const Ice::optional<::std::string>&)>,
+    virtual void opStringAsync(std::optional<::std::string>,
+                               ::std::function<void(const std::optional<::std::string>&, const std::optional<::std::string>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opCustomStringAsync(Ice::optional<Util::string_view>,
-                                     ::std::function<void(const Ice::optional<Util::string_view>&, const Ice::optional<Util::string_view>&)>,
+    virtual void opCustomStringAsync(std::optional<Util::string_view>,
+                                     ::std::function<void(const std::optional<Util::string_view>&, const std::optional<Util::string_view>&)>,
                                      ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opMyEnumAsync(Ice::optional<::Test::MyEnum>,
-                               ::std::function<void(const Ice::optional<::Test::MyEnum>&, const Ice::optional<::Test::MyEnum>&)>,
+    virtual void opMyEnumAsync(std::optional<::Test::MyEnum>,
+                               ::std::function<void(const std::optional<::Test::MyEnum>&, const std::optional<::Test::MyEnum>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opSmallStructAsync(Ice::optional<::Test::SmallStruct>,
-                                    ::std::function<void(const Ice::optional<::Test::SmallStruct>&, const Ice::optional<::Test::SmallStruct>&)>,
+    virtual void opSmallStructAsync(std::optional<::Test::SmallStruct>,
+                                    ::std::function<void(const std::optional<::Test::SmallStruct>&, const std::optional<::Test::SmallStruct>&)>,
                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opFixedStructAsync(Ice::optional<::Test::FixedStruct>,
-                                    ::std::function<void(const Ice::optional<::Test::FixedStruct>&, const Ice::optional<::Test::FixedStruct>&)>,
+    virtual void opFixedStructAsync(std::optional<::Test::FixedStruct>,
+                                    ::std::function<void(const std::optional<::Test::FixedStruct>&, const std::optional<::Test::FixedStruct>&)>,
                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opVarStructAsync(Ice::optional<::Test::VarStruct>,
-                                  ::std::function<void(const Ice::optional<::Test::VarStruct>&, const Ice::optional<::Test::VarStruct>&)>,
+    virtual void opVarStructAsync(std::optional<::Test::VarStruct>,
+                                  ::std::function<void(const std::optional<::Test::VarStruct>&, const std::optional<::Test::VarStruct>&)>,
                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opOneOptionalAsync(Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
-                                    ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&, const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
+    virtual void opOneOptionalAsync(std::optional<::std::shared_ptr<::Test::OneOptional>>,
+                                    ::std::function<void(const std::optional<::std::shared_ptr<::Test::OneOptional>>&, const std::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opMyInterfaceProxyAsync(Ice::optional<::std::shared_ptr<Test::MyInterfacePrx>>,
-                                         ::std::function<void(const Ice::optional<::std::shared_ptr<Test::MyInterfacePrx>>&, const Ice::optional<::std::shared_ptr<Test::MyInterfacePrx>>&)>,
+    virtual void opMyInterfaceProxyAsync(std::optional<::std::shared_ptr<Test::MyInterfacePrx>>,
+                                         ::std::function<void(const std::optional<::std::shared_ptr<Test::MyInterfacePrx>>&, const std::optional<::std::shared_ptr<Test::MyInterfacePrx>>&)>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opByteSeqAsync(Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>,
-                                ::std::function<void(const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const Ice::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)>,
+    virtual void opByteSeqAsync(std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>,
+                                ::std::function<void(const std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)>,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opBoolSeqAsync(Ice::optional<::std::pair<const bool*, const bool*>>,
-                                ::std::function<void(const Ice::optional<::std::pair<const bool*, const bool*>>&, const Ice::optional<::std::pair<const bool*, const bool*>>&)>,
+    virtual void opBoolSeqAsync(std::optional<::std::pair<const bool*, const bool*>>,
+                                ::std::function<void(const std::optional<::std::pair<const bool*, const bool*>>&, const std::optional<::std::pair<const bool*, const bool*>>&)>,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opShortSeqAsync(Ice::optional<::std::pair<const short*, const short*>>,
-                                 ::std::function<void(const Ice::optional<::std::pair<const short*, const short*>>&, const Ice::optional<::std::pair<const short*, const short*>>&)>,
+    virtual void opShortSeqAsync(std::optional<::std::pair<const short*, const short*>>,
+                                 ::std::function<void(const std::optional<::std::pair<const short*, const short*>>&, const std::optional<::std::pair<const short*, const short*>>&)>,
                                  ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opIntSeqAsync(Ice::optional<::std::pair<const int*, const int*>>,
-                               ::std::function<void(const Ice::optional<::std::pair<const int*, const int*>>&, const Ice::optional<::std::pair<const int*, const int*>>&)>,
+    virtual void opIntSeqAsync(std::optional<::std::pair<const int*, const int*>>,
+                               ::std::function<void(const std::optional<::std::pair<const int*, const int*>>&, const std::optional<::std::pair<const int*, const int*>>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opLongSeqAsync(Ice::optional<::std::pair<const long long int*, const long long int*>>,
-                                ::std::function<void(const Ice::optional<::std::pair<const long long int*, const long long int*>>&, const Ice::optional<::std::pair<const long long int*, const long long int*>>&)>,
+    virtual void opLongSeqAsync(std::optional<::std::pair<const long long int*, const long long int*>>,
+                                ::std::function<void(const std::optional<::std::pair<const long long int*, const long long int*>>&, const std::optional<::std::pair<const long long int*, const long long int*>>&)>,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opFloatSeqAsync(Ice::optional<::std::pair<const float*, const float*>>,
-                                 ::std::function<void(const Ice::optional<::std::pair<const float*, const float*>>&, const Ice::optional<::std::pair<const float*, const float*>>&)>,
+    virtual void opFloatSeqAsync(std::optional<::std::pair<const float*, const float*>>,
+                                 ::std::function<void(const std::optional<::std::pair<const float*, const float*>>&, const std::optional<::std::pair<const float*, const float*>>&)>,
                                  ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opDoubleSeqAsync(Ice::optional<::std::pair<const double*, const double*>>,
-                                  ::std::function<void(const Ice::optional<::std::pair<const double*, const double*>>&, const Ice::optional<::std::pair<const double*, const double*>>&)>,
+    virtual void opDoubleSeqAsync(std::optional<::std::pair<const double*, const double*>>,
+                                  ::std::function<void(const std::optional<::std::pair<const double*, const double*>>&, const std::optional<::std::pair<const double*, const double*>>&)>,
                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opStringSeqAsync(Ice::optional<::Test::StringSeq>,
-                                  ::std::function<void(const Ice::optional<::Test::StringSeq>&, const Ice::optional<::Test::StringSeq>&)>,
+    virtual void opStringSeqAsync(std::optional<::Test::StringSeq>,
+                                  ::std::function<void(const std::optional<::Test::StringSeq>&, const std::optional<::Test::StringSeq>&)>,
                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opSmallStructSeqAsync(Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>,
-                                       ::std::function<void(const Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&, const Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&)>,
+    virtual void opSmallStructSeqAsync(std::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>,
+                                       ::std::function<void(const std::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&, const std::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&)>,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opSmallStructListAsync(Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>,
-                                        ::std::function<void(const Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&, const Ice::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&)>,
+    virtual void opSmallStructListAsync(std::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>,
+                                        ::std::function<void(const std::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&, const std::optional<::std::pair<const ::Test::SmallStruct*, const ::Test::SmallStruct*>>&)>,
                                         ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opFixedStructSeqAsync(Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>,
-                                       ::std::function<void(const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)>,
+    virtual void opFixedStructSeqAsync(std::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>,
+                                       ::std::function<void(const std::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const std::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)>,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opFixedStructListAsync(Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>,
-                                        ::std::function<void(const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)>,
+    virtual void opFixedStructListAsync(std::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>,
+                                        ::std::function<void(const std::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const std::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)>,
                                         ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opVarStructSeqAsync(Ice::optional<::Test::VarStructSeq>,
-                                     ::std::function<void(const Ice::optional<::Test::VarStructSeq>&, const Ice::optional<::Test::VarStructSeq>&)>,
+    virtual void opVarStructSeqAsync(std::optional<::Test::VarStructSeq>,
+                                     ::std::function<void(const std::optional<::Test::VarStructSeq>&, const std::optional<::Test::VarStructSeq>&)>,
                                      ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opSerializableAsync(Ice::optional<::Test::Serializable>,
-                                     ::std::function<void(const Ice::optional<::Test::Serializable>&, const Ice::optional<::Test::Serializable>&)>,
+    virtual void opSerializableAsync(std::optional<::Test::Serializable>,
+                                     ::std::function<void(const std::optional<::Test::Serializable>&, const std::optional<::Test::Serializable>&)>,
                                      ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opIntIntDictAsync(Ice::optional<::Test::IntIntDict>,
-                                   ::std::function<void(const Ice::optional<::Test::IntIntDict>&, const Ice::optional<::Test::IntIntDict>&)>,
+    virtual void opIntIntDictAsync(std::optional<::Test::IntIntDict>,
+                                   ::std::function<void(const std::optional<::Test::IntIntDict>&, const std::optional<::Test::IntIntDict>&)>,
                                    ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opStringIntDictAsync(Ice::optional<::Test::StringIntDict>,
-                                      ::std::function<void(const Ice::optional<::Test::StringIntDict>&, const Ice::optional<::Test::StringIntDict>&)>,
+    virtual void opStringIntDictAsync(std::optional<::Test::StringIntDict>,
+                                      ::std::function<void(const std::optional<::Test::StringIntDict>&, const std::optional<::Test::StringIntDict>&)>,
                                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opIntOneOptionalDictAsync(Ice::optional<::Test::IntOneOptionalDict>,
-                                           ::std::function<void(const Ice::optional<::Test::IntOneOptionalDict>&, const Ice::optional<::Test::IntOneOptionalDict>&)>,
+    virtual void opIntOneOptionalDictAsync(std::optional<::Test::IntOneOptionalDict>,
+                                           ::std::function<void(const std::optional<::Test::IntOneOptionalDict>&, const std::optional<::Test::IntOneOptionalDict>&)>,
                                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opCustomIntStringDictAsync(Ice::optional<::std::map< int, ::Util::string_view>>,
-                                            ::std::function<void(const Ice::optional<::std::map< int, ::Util::string_view>>&, const Ice::optional<::std::map< int, ::Util::string_view>>&)>,
+    virtual void opCustomIntStringDictAsync(std::optional<::std::map< int, ::Util::string_view>>,
+                                            ::std::function<void(const std::optional<::std::map< int, ::Util::string_view>>&, const std::optional<::std::map< int, ::Util::string_view>>&)>,
                                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opClassAndUnknownOptionalAsync(::std::shared_ptr<::Test::A>,
                                                 ::std::function<void()>,
                                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void sendOptionalClassAsync(bool, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
+    virtual void sendOptionalClassAsync(bool, std::optional<::std::shared_ptr<::Test::OneOptional>>,
                                         ::std::function<void()>,
                                         ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void returnOptionalClassAsync(bool,
-                                          ::std::function<void(const Ice::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
+                                          ::std::function<void(const std::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opGAsync(::std::shared_ptr<::Test::G>,
@@ -187,7 +187,7 @@ public:
                                  ::std::function<void(::std::exception_ptr)>,
                                  const Ice::Current&) override;
 
-    virtual void opMStruct2Async(Ice::optional<Test::SmallStruct>,
+    virtual void opMStruct2Async(std::optional<Test::SmallStruct>,
                                  ::std::function<void(const OpMStruct2MarshaledResult&)>,
                                  ::std::function<void(::std::exception_ptr)>,
                                  const Ice::Current&) override;
@@ -196,7 +196,7 @@ public:
                               ::std::function<void(::std::exception_ptr)>,
                               const Ice::Current&) override;
 
-    virtual void opMSeq2Async(Ice::optional<Test::StringSeq>,
+    virtual void opMSeq2Async(std::optional<Test::StringSeq>,
                               ::std::function<void(const OpMSeq2MarshaledResult&)>,
                               ::std::function<void(::std::exception_ptr)>,
                               const Ice::Current&) override;
@@ -205,7 +205,7 @@ public:
                                ::std::function<void(::std::exception_ptr)>,
                                const Ice::Current&) override;
 
-    virtual void opMDict2Async(Ice::optional<Test::StringIntDict>,
+    virtual void opMDict2Async(std::optional<Test::StringIntDict>,
                                ::std::function<void(const OpMDict2MarshaledResult&)>,
                                ::std::function<void(::std::exception_ptr)>,
                                const Ice::Current&) override;
@@ -214,7 +214,7 @@ public:
                             ::std::function<void(::std::exception_ptr)>,
                             const Ice::Current&) override;
 
-    virtual void opMG2Async(Ice::optional<Test::GPtr>,
+    virtual void opMG2Async(std::optional<Test::GPtr>,
                             ::std::function<void(const OpMG2MarshaledResult&)>,
                             ::std::function<void(::std::exception_ptr)>,
                             const Ice::Current&) override;

@@ -605,7 +605,7 @@ SessionRouterI::destroy()
 }
 
 shared_ptr<ObjectPrx>
-SessionRouterI::getClientProxy(Ice::optional<bool>& hasRoutingTable, const Current& current) const
+SessionRouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current& current) const
 {
     return getRouter(current.con, current.id)->getClientProxy(hasRoutingTable, current); // Forward to the per-client router.
 }

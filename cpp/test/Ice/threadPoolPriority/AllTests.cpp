@@ -19,8 +19,7 @@ allTests(Test::TestHelper* helper)
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 
-    Test::PriorityPrxPtr priority = ICE_UNCHECKED_CAST(Test::PriorityPrx, base);
-
+    auto priority = Ice::uncheckedCast<Test::PriorityPrx>(base);
     try
     {
 #ifdef _WIN32

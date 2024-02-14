@@ -5,18 +5,16 @@
 #ifndef ICE_BT_ENGINE_F_H
 #define ICE_BT_ENGINE_F_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceBT
 {
 
 class Engine;
-IceUtil::Shared* upCast(Engine*);
-typedef IceInternal::Handle<Engine> EnginePtr;
+using EnginePtr = std::shared_ptr<Engine>;
 
 class BluetoothService;
-using BluetoothServicePtr = ::std::shared_ptr<BluetoothService>;
+using BluetoothServicePtr = std::shared_ptr<BluetoothService>;
 
 }
 

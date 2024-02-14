@@ -9,100 +9,6 @@
 using namespace std;
 using namespace Test;
 
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    CallbackBase() :
-        _called(false)
-    {
-    }
-
-    virtual ~CallbackBase()
-    {
-    }
-
-    void check()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
-        _called = false;
-    }
-
-protected:
-
-    void called()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        assert(!_called);
-        _called = true;
-        notify();
-    }
-
-private:
-
-    bool _called;
-};
-
-class Callback : public virtual IceUtil::Shared, public virtual CallbackBase
-{
-public:
-
-    void response()
-    {
-        test(false);
-    }
-
-    void exception(const Ice::Exception&)
-    {
-        test(false);
-    }
-
-    void opPidI(Ice::Int pid)
-    {
-        _pid = pid;
-        called();
-    }
-
-    void opShutdownI()
-    {
-        called();
-    }
-
-    void exceptAbortI(const Ice::Exception& ex)
-    {
-        try
-        {
-            ex.ice_throw();
-        }
-        catch(const Ice::ConnectionLostException&)
-        {
-        }
-        catch(const Ice::ConnectFailedException&)
-        {
-        }
-        catch(const Ice::Exception& e)
-        {
-            cout << e << endl;
-            test(false);
-        }
-        called();
-    }
-
-    Ice::Int pid() const
-    {
-        return _pid;
-    }
-
-private:
-
-    Ice::Int _pid;
-};
-typedef IceUtil::Handle<Callback> CallbackPtr;
-
 void
 allTests(Test::TestHelper* helper, const vector<int>& ports)
 {
@@ -119,7 +25,7 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = ICE_CHECKED_CAST(TestIntfPrx, base);
+    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
     test(Ice::targetEqualTo(obj, base));
     cout << "ok" << endl;

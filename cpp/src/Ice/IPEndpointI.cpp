@@ -16,8 +16,6 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(EndpointHostResolver* p) { return p; }
-
 IceInternal::IPEndpointInfoI::IPEndpointInfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
 {
 }
@@ -47,7 +45,7 @@ IceInternal::IPEndpointInfoI::secure() const noexcept
 Ice::EndpointInfoPtr
 IceInternal::IPEndpointI::getInfo() const noexcept
 {
-    Ice::IPEndpointInfoPtr info = make_shared<IPEndpointInfoI>(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+    Ice::IPEndpointInfoPtr info = make_shared<IPEndpointInfoI>(const_cast<IPEndpointI*>(this)->shared_from_this());
     fillEndpointInfo(info.get());
     return info;
 }
@@ -88,7 +86,7 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-        return ICE_SHARED_FROM_CONST_THIS(IPEndpointI);
+        return const_cast<IPEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -97,28 +95,37 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 }
 
 void
-IceInternal::IPEndpointI::connectors_async(Ice::EndpointSelectionType selType, const EndpointI_connectorsPtr& cb) const
+IceInternal::IPEndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    std::function<void(std::vector<ConnectorPtr>)> response,
+    std::function<void(exception_ptr)> exception) const
 {
-    _instance->resolve(_host, _port, selType, ICE_SHARED_FROM_CONST_THIS(IPEndpointI), cb);
+    _instance->resolve(
+        _host,
+        _port,
+        selType,
+        const_cast<IPEndpointI*>(this)->shared_from_this(),
+        std::move(response),
+        std::move(exception));
 }
 
 vector<EndpointIPtr>
 IceInternal::IPEndpointI::expandIfWildcard() const
 {
-    vector<EndpointIPtr> endps;
+    vector<EndpointIPtr> endpoints;
     vector<string> hosts = getHostsForEndpointExpand(_host, _instance->protocolSupport(), false);
     if(hosts.empty())
     {
-        endps.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+        endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
     }
     else
     {
-        for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
+        for (const auto& host : hosts)
         {
-            endps.push_back(createEndpoint(*p, _port, _connectionId));
+            endpoints.push_back(createEndpoint(host, _port, _connectionId));
         }
     }
-    return endps;
+    return endpoints;
 }
 
 vector<EndpointIPtr>
@@ -131,7 +138,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     if(_host.empty())
     {
         vector<EndpointIPtr> endpoints;
-        endpoints.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+        endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
         return endpoints;
     }
 
@@ -142,7 +149,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     //
     if(_port > 0)
     {
-        publish = ICE_SHARED_FROM_CONST_THIS(IPEndpointI);
+        publish = const_cast<IPEndpointI*>(this)->shared_from_this();
     }
 
     vector<Address> addrs = getAddresses(_host,
@@ -155,7 +162,7 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
     vector<EndpointIPtr> endpoints;
     if(addrs.size() == 1)
     {
-        endpoints.push_back(ICE_SHARED_FROM_CONST_THIS(IPEndpointI));
+        endpoints.push_back(const_cast<IPEndpointI*>(this)->shared_from_this());
     }
     else
     {
@@ -507,8 +514,13 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 }
 
 void
-IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::EndpointSelectionType selType,
-                                           const IPEndpointIPtr& endpoint, const EndpointI_connectorsPtr& callback)
+IceInternal::EndpointHostResolver::resolve(
+    const string& host,
+    int port,
+    Ice::EndpointSelectionType selType,
+    const IPEndpointIPtr& endpoint,
+    function<void(vector<ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception)
 {
     //
     // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
@@ -522,18 +534,18 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
             vector<Address> addrs = getAddresses(host, port, _protocol, selType, _preferIPv6, false);
             if(!addrs.empty())
             {
-                callback->connectors(endpoint->connectors(addrs, 0));
+                response(endpoint->connectors(addrs, 0));
                 return;
             }
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException&)
         {
-            callback->exception(ex);
+            exception(current_exception());
             return;
         }
     }
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     assert(!_destroyed);
 
     ResolveEntry entry;
@@ -541,12 +553,13 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
     entry.port = port;
     entry.selType = selType;
     entry.endpoint = endpoint;
-    entry.callback = callback;
+    entry.response = std::move(response);
+    entry.exception = std::move(exception);
 
-    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
-    if(obsv)
+    const CommunicatorObserverPtr& observer = _instance->initializationData().observer;
+    if(observer)
     {
-        entry.observer = obsv->getEndpointLookupObserver(endpoint);
+        entry.observer = observer->getEndpointLookupObserver(endpoint);
         if(entry.observer)
         {
             entry.observer->attach();
@@ -554,16 +567,16 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, Ice::En
     }
 
     _queue.push_back(entry);
-    notify();
+    _conditionVariable.notify_one();
 }
 
 void
 IceInternal::EndpointHostResolver::destroy()
 {
-    Lock sync(*this);
+   lock_guard lock(_mutex);
     assert(!_destroyed);
     _destroyed = true;
-    notify();
+    _conditionVariable.notify_one();
 }
 
 void
@@ -574,11 +587,8 @@ IceInternal::EndpointHostResolver::run()
         ResolveEntry r;
         ThreadObserverPtr threadObserver;
         {
-            Lock sync(*this);
-            while(!_destroyed && _queue.empty())
-            {
-                wait();
-            }
+            unique_lock lock(_mutex);
+            _conditionVariable.wait(lock, [this] { return _destroyed || !_queue.empty(); });
 
             if(_destroyed)
             {
@@ -615,7 +625,7 @@ IceInternal::EndpointHostResolver::run()
                 r.observer = 0;
             }
 
-            r.callback->connectors(r.endpoint->connectors(addresses, networkProxy));
+            r.response(r.endpoint->connectors(addresses, networkProxy));
 
             if(threadObserver)
             {
@@ -636,7 +646,7 @@ IceInternal::EndpointHostResolver::run()
                 r.observer->failed(ex.ice_id());
                 r.observer->detach();
             }
-            r.callback->exception(ex);
+            r.exception(current_exception());
         }
     }
 
@@ -648,7 +658,7 @@ IceInternal::EndpointHostResolver::run()
             p->observer->failed(ex.ice_id());
             p->observer->detach();
         }
-        p->callback->exception(ex);
+        p->exception(make_exception_ptr(ex));
     }
     _queue.clear();
 
@@ -661,13 +671,14 @@ IceInternal::EndpointHostResolver::run()
 void
 IceInternal::EndpointHostResolver::updateObserver()
 {
-    Lock sync(*this);
-    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
-    if(obsv)
+    lock_guard lock(_mutex);
+    const CommunicatorObserverPtr& observer = _instance->initializationData().observer;
+    if(observer)
     {
-        _observer.attach(obsv->getThreadObserver("Communicator",
-                                                 name(),
-                                                 ThreadState::ThreadStateIdle,
-                                                 _observer.get()));
+        _observer.attach(observer->getThreadObserver(
+            "Communicator",
+            name(),
+            ThreadState::ThreadStateIdle,
+            _observer.get()));
     }
 }

@@ -25,20 +25,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(::IceInternal::ReferenceFactory* p) { return p; }
-
-ReferencePtr
-IceInternal::ReferenceFactory::copy(const Reference* r) const
-{
-    const Ice::Identity& ident = r->getIdentity();
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
-
-    return r->clone();
-}
-
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
                                       const string& facet,
@@ -80,18 +66,19 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
     //
     // Create new reference
     //
-    return new FixedReference(_instance,
-                              _communicator,
-                              ident,
-                              "",  // Facet
-                              connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
-                              connection->endpoint()->secure(),
-                              Ice::Protocol_1_0,
-                              _instance->defaultsAndOverrides()->defaultEncoding,
-                              connection,
-                              -1,
-                              Ice::Context(),
-                              IceUtil::Optional<bool>());
+    return make_shared<FixedReference>(
+        _instance,
+        _communicator,
+        ident,
+        "", // Facet
+        connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
+        connection->endpoint()->secure(),
+        Ice::Protocol_1_0,
+        _instance->defaultsAndOverrides()->defaultEncoding,
+        connection,
+        -1,
+        Ice::Context(),
+        optional<bool>());
 }
 
 ReferencePtr
@@ -617,10 +604,10 @@ IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrxPtr& defaultRoute
 {
     if(defaultRouter == _defaultRouter)
     {
-        return this;
+        return shared_from_this();
     }
 
-    ReferenceFactoryPtr factory = new ReferenceFactory(_instance, _communicator);
+    ReferenceFactoryPtr factory = make_shared<ReferenceFactory>(_instance, _communicator);
     factory->_defaultLocator = _defaultLocator;
     factory->_defaultRouter = defaultRouter;
     return factory;
@@ -637,10 +624,10 @@ IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrxPtr& defaultLoc
 {
     if(defaultLocator == _defaultLocator)
     {
-        return this;
+        return shared_from_this();
     }
 
-    ReferenceFactoryPtr factory = new ReferenceFactory(_instance, _communicator);
+    ReferenceFactoryPtr factory = make_shared<ReferenceFactory>(_instance, _communicator);
     factory->_defaultRouter = _defaultRouter;
     factory->_defaultLocator = defaultLocator;
     return factory;
@@ -768,7 +755,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         string property;
 
         property = propertyPrefix + ".Locator";
-        LocatorPrxPtr locator = ICE_UNCHECKED_CAST(LocatorPrx, _communicator->propertyToProxy(property));
+        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_communicator->propertyToProxy(property));
         if(locator)
         {
             if(locator->ice_getEncodingVersion() != encoding)
@@ -782,7 +769,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         }
 
         property = propertyPrefix + ".Router";
-        RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, _communicator->propertyToProxy(property));
+        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_communicator->propertyToProxy(property));
         if(router)
         {
             if(propertyPrefix.size() > 7 && propertyPrefix.substr(propertyPrefix.size() - 7, 7) == ".Router")
@@ -866,23 +853,24 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new RoutableReference(_instance,
-                                 _communicator,
-                                 ident,
-                                 facet,
-                                 mode,
-                                 secure,
-                                 protocol,
-                                 encoding,
-                                 endpoints,
-                                 adapterId,
-                                 locatorInfo,
-                                 routerInfo,
-                                 collocationOptimized,
-                                 cacheConnection,
-                                 preferSecure,
-                                 endpointSelection,
-                                 locatorCacheTimeout,
-                                 invocationTimeout,
-                                 ctx);
+    return make_shared<RoutableReference>(
+        _instance,
+        _communicator,
+        ident,
+        facet,
+        mode,
+        secure,
+        protocol,
+        encoding,
+        endpoints,
+        adapterId,
+        locatorInfo,
+        routerInfo,
+        collocationOptimized,
+        cacheConnection,
+        preferSecure,
+        endpointSelection,
+        locatorCacheTimeout,
+        invocationTimeout,
+        ctx);
 }

@@ -48,8 +48,9 @@ createTestTransport(const Ice::CommunicatorPtr& communicator, const string&, con
 
 TestPluginI::TestPluginI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
-    _configuration(new Configuration())
+    _configuration(make_shared<Configuration>())
 {
+    _configuration->init();
 }
 
 void
@@ -62,7 +63,7 @@ TestPluginI::initialize()
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
         if(factory)
         {
-            facade->addEndpointFactory(new EndpointFactory(factory));
+            facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
     for(Ice::Short s = 1000; s < 1010; ++s)
@@ -70,7 +71,7 @@ TestPluginI::initialize()
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
         if(factory)
         {
-            facade->addEndpointFactory(new EndpointFactory(factory));
+            facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
     for(Ice::Short s = 10000; s < 10010; ++s)
@@ -78,7 +79,7 @@ TestPluginI::initialize()
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
         if(factory)
         {
-            facade->addEndpointFactory(new EndpointFactory(factory));
+            facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
 }

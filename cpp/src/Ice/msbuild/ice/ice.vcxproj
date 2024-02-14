@@ -173,6 +173,7 @@
     <ClCompile Include="..\..\ObjectAdapter.cpp" />
     <ClCompile Include="..\..\Plugin.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
+    <ClCompile Include="..\..\RequestHandlerCache.cpp" />
     <ClCompile Include="..\..\ServantLocator.cpp" />
     <ClCompile Include="..\..\ValueFactory.cpp" />
     <ClCompile Include="Win32\Debug\BuiltinSequences.cpp">
@@ -495,8 +496,6 @@
     <ClCompile Include="..\..\..\IceUtil\Options.cpp" />
     <ClCompile Include="..\..\..\IceUtil\OutputUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Random.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\RecMutex.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\Shared.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp" />
@@ -515,7 +514,7 @@
     <ClCompile Include="..\..\Cond.cpp" />
     <ClCompile Include="..\..\ConnectionFactory.cpp" />
     <ClCompile Include="..\..\ConnectionI.cpp" />
-    <ClCompile Include="..\..\ConnectionRequestHandler.cpp" />
+    <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
     <ClCompile Include="..\..\CountDownLatch.cpp" />
@@ -540,7 +539,6 @@
     <ClCompile Include="..\..\Instance.cpp" />
     <ClCompile Include="..\..\InstrumentationI.cpp" />
     <ClCompile Include="..\..\IPEndpointI.cpp" />
-    <ClCompile Include="..\..\LocalObject.cpp" />
     <ClCompile Include="..\..\LocatorInfo.cpp" />
     <ClCompile Include="..\..\LoggerAdminI.cpp" />
     <ClCompile Include="..\..\LoggerI.cpp" />
@@ -570,7 +568,6 @@
     <ClCompile Include="..\..\ReferenceFactory.cpp" />
     <ClCompile Include="..\..\RegisterPluginsInit.cpp" />
     <ClCompile Include="..\..\RequestHandler.cpp" />
-    <ClCompile Include="..\..\RequestHandlerFactory.cpp" />
     <ClCompile Include="..\..\RetryQueue.cpp" />
     <ClCompile Include="..\..\RouterInfo.cpp" />
     <ClCompile Include="..\..\Selector.cpp" />

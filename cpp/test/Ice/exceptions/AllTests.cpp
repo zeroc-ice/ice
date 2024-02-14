@@ -28,350 +28,6 @@ public:
     void deactivate(const string&) final {}
 };
 
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    CallbackBase() :
-        _called(false)
-    {
-    }
-
-    virtual ~CallbackBase()
-    {
-    }
-
-    void check()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
-        _called = false;
-    }
-
-protected:
-
-    void called()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        assert(!_called);
-        _called = true;
-        notify();
-    }
-
-private:
-
-    bool _called;
-};
-
-class Callback : public CallbackBase, public IceUtil::Shared
-{
-public:
-
-    Callback()
-    {
-    }
-
-    Callback(const Ice::CommunicatorPtr& c)
-        : _communicator(c)
-    {
-    }
-
-    virtual void response()
-    {
-        test(false);
-    }
-
-    virtual void exception_AasA(const Ice::Exception& exc)
-    {
-        const A* ex = dynamic_cast<const A*>(&exc);
-        test(ex);
-        test(ex->aMem == 1);
-        called();
-    }
-
-    virtual void exception_AorDasAorD(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const A& ex)
-        {
-            test(ex.aMem == 1);
-        }
-        catch(const D& ex)
-        {
-            test(ex.dMem == -1);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_BasB(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const B& ex)
-        {
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_CasC(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const C& ex)
-        {
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
-            test(ex.cMem == 3);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_ModA(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Mod::A& ex)
-        {
-            test(ex.aMem == 1);
-            test(ex.a2Mem == 2);
-        }
-        catch(const Ice::OperationNotExistException&)
-        {
-            //
-            // This operation is not supported in Java.
-            //
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_BasA(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const B& ex)
-        {
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_CasA(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const C& ex)
-        {
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
-            test(ex.cMem == 3);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_CasB(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const C& ex)
-        {
-            test(ex.aMem == 1);
-            test(ex.bMem == 2);
-            test(ex.cMem == 3);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_UndeclaredA(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Ice::UnknownUserException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_UndeclaredB(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Ice::UnknownUserException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_UndeclaredC(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Ice::UnknownUserException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_AasAObjectNotExist(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Ice::ObjectNotExistException& ex)
-        {
-            Ice::Identity id = Ice::stringToIdentity("does not exist");
-            test(ex.id == id);
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_AasAFacetNotExist(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Ice::FacetNotExistException& ex)
-        {
-            test(ex.facet == "no such facet");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_noSuchOperation(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Ice::OperationNotExistException& ex)
-        {
-            test(ex.operation == "noSuchOperation");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_LocalException(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Ice::UnknownLocalException&)
-        {
-        }
-        catch(const Ice::OperationNotExistException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-    virtual void exception_NonIceException(const Ice::Exception& exc)
-    {
-        try
-        {
-            exc.ice_throw();
-        }
-        catch(const Ice::UnknownException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
-        called();
-    }
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
-};
-
-typedef IceUtil::Handle<Callback> CallbackPtr;
-
 bool
 endsWith(const string& s, const string& findme)
 {
@@ -646,7 +302,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    ThrowerPrxPtr thrower = ICE_CHECKED_CAST(ThrowerPrx, base);
+    ThrowerPrxPtr thrower = Ice::checkedCast<ThrowerPrx>(base);
     test(thrower);
     test(Ice::targetEqualTo(thrower, base));
     cout << "ok" << endl;
@@ -947,7 +603,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             ThrowerPrxPtr thrower2 =
-                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + helper->getTestEndpoint(1)));
+                Ice::uncheckedCast<ThrowerPrx>(communicator->stringToProxy("thrower:" + helper->getTestEndpoint(1)));
             try
             {
                 thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
@@ -956,7 +612,7 @@ allTests(Test::TestHelper* helper)
             {
             }
             ThrowerPrxPtr thrower3 =
-                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + helper->getTestEndpoint(2)));
+                Ice::uncheckedCast<ThrowerPrx>(communicator->stringToProxy("thrower:" + helper->getTestEndpoint(2)));
             try
             {
                 thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit
@@ -978,7 +634,7 @@ allTests(Test::TestHelper* helper)
     Ice::Identity id = Ice::stringToIdentity("does not exist");
     try
     {
-        ThrowerPrxPtr thrower2 = ICE_UNCHECKED_CAST(ThrowerPrx, thrower->ice_identity(id));
+        ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
         thrower2->throwAasA(1);
 //      thrower2->ice_ping();
         test(false);
@@ -1020,7 +676,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        WrongOperationPrxPtr thrower2 = ICE_UNCHECKED_CAST(WrongOperationPrx, thrower);
+        WrongOperationPrxPtr thrower2 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
         thrower2->noSuchOperation();
         test(false);
     }

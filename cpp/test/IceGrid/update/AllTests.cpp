@@ -67,7 +67,7 @@ allTests(Test::TestHelper* helper)
     shared_ptr<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         IceUtil::None,
+                                         nullopt,
                                          Ice::ACMHeartbeat::HeartbeatAlways);
 
     shared_ptr<AdminPrx> admin = session->getAdmin();

@@ -254,7 +254,7 @@ allTests(Test::TestHelper* helper)
     auto adminSession = registry->createAdminSession("foo", "bar");
 
     adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                              Ice::nullopt,
+                                              nullopt,
                                               Ice::ACMHeartbeat::HeartbeatAlways);
 
     auto admin = adminSession->getAdmin();

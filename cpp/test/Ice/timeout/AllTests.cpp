@@ -13,71 +13,6 @@ using namespace Test;
 namespace
 {
 
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    CallbackBase() :
-        _called(false)
-    {
-    }
-
-    virtual ~CallbackBase()
-    {
-    }
-
-    void check()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
-        _called = false;
-    }
-
-protected:
-
-    void called()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        assert(!_called);
-        _called = true;
-        notify();
-    }
-
-private:
-
-    bool _called;
-};
-
-class Callback : public IceUtil::Shared, public CallbackBase
-{
-public:
-
-    void response()
-    {
-        called();
-    }
-
-    void exception(const ::Ice::Exception&)
-    {
-        test(false);
-    }
-
-    void responseEx()
-    {
-        test(false);
-    }
-
-    void exceptionEx(const ::Ice::Exception& ex)
-    {
-        test(dynamic_cast<const Ice::InvocationTimeoutException*>(&ex));
-        called();
-    }
-};
-typedef IceUtil::Handle<Callback> CallbackPtr;
-
 Ice::ConnectionPtr
 connect(const Ice::ObjectPrxPtr& prx)
 {
@@ -114,7 +49,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
-    TimeoutPrxPtr timeout = ICE_CHECKED_CAST(TimeoutPrx, obj);
+    TimeoutPrxPtr timeout = Ice::checkedCast<TimeoutPrx>(obj);
     test(timeout);
 
     cout << "testing connect timeout... " << flush;
@@ -122,7 +57,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Expect ConnectTimeoutException.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(100));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_timeout(100));
         controller->holdAdapter(-1);
         try
         {
@@ -140,7 +75,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Expect success.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(-1));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_timeout(-1));
         controller->holdAdapter(100);
         try
         {
@@ -161,7 +96,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Expect TimeoutException.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_timeout(250));
         connect(to);
         controller->holdAdapter(-1);
         try
@@ -180,7 +115,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Expect success.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(2000));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_timeout(2000));
         controller->holdAdapter(100);
         try
         {
@@ -197,7 +132,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
     cout << "testing invocation timeout... " << flush;
     {
         Ice::ConnectionPtr connection = obj->ice_getConnection();
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(100));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_invocationTimeout(100));
         test(connection == to->ice_getConnection());
         try
         {
@@ -208,7 +143,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         {
         }
         obj->ice_ping();
-        to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(1000));
+        to = Ice::checkedCast<TimeoutPrx>(obj->ice_invocationTimeout(1000));
         test(connection == to->ice_getConnection());
         try
         {
@@ -224,7 +159,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Expect InvocationTimeoutException.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(100));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_invocationTimeout(100));
 
         auto f = to->sleepAsync(1000);
         try
@@ -245,7 +180,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Expect success.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(1000));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_invocationTimeout(1000));
         auto f = to->sleepAsync(100);
         try
         {
@@ -260,7 +195,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Backward compatible connection timeouts
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(-2)->ice_timeout(250));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_invocationTimeout(-2)->ice_timeout(250));
         Ice::ConnectionPtr con = connect(to);
         try
         {
@@ -304,7 +239,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
 
     cout << "testing close timeout... " << flush;
     {
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(obj->ice_timeout(250));
         Ice::ConnectionPtr connection = connect(to);
         controller->holdAdapter(-1);
         connection->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -346,7 +281,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
         initData.properties->setProperty("Ice.Override.Timeout", "100");
         Ice::CommunicatorHolder ich(initData);
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(ich->stringToProxy(sref));
         connect(to);
         controller->holdAdapter(-1);
         try
@@ -364,7 +299,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Calling ice_timeout() should have no effect.
         //
-        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(1000));
+        to = Ice::uncheckedCast<TimeoutPrx>(to->ice_timeout(1000));
         connect(to);
         controller->holdAdapter(-1);
         try
@@ -388,7 +323,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
         Ice::CommunicatorHolder ich(initData);
         controller->holdAdapter(-1);
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));
+        TimeoutPrxPtr to = Ice::uncheckedCast<TimeoutPrx>(ich->stringToProxy(sref));
         try
         {
             to->op();
@@ -405,7 +340,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         // Calling ice_timeout() should have no effect on the connect timeout.
         //
         controller->holdAdapter(-1);
-        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(1000));
+        to = Ice::uncheckedCast<TimeoutPrx>(to->ice_timeout(1000));
         try
         {
             to->op();
@@ -421,7 +356,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         //
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
-        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(250));
+        to = Ice::uncheckedCast<TimeoutPrx>(to->ice_timeout(250));
         connect(to);
         controller->holdAdapter(-1);
         try
@@ -461,7 +396,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TimeoutCollocated");
         adapter->activate();
 
-        timeout = ICE_UNCHECKED_CAST(TimeoutPrx, adapter->addWithUUID(std::make_shared<TimeoutI>()));
+        timeout = Ice::uncheckedCast<TimeoutPrx>(adapter->addWithUUID(std::make_shared<TimeoutI>()));
         timeout = timeout->ice_invocationTimeout(100);
         try
         {
@@ -517,9 +452,8 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
 void
 allTests(Test::TestHelper* helper)
 {
-    ControllerPrxPtr controller =
-        ICE_CHECKED_CAST(ControllerPrx,
-                         helper->communicator()->stringToProxy("controller:" + helper->getTestEndpoint(1)));
+    ControllerPrxPtr controller = Ice::checkedCast<ControllerPrx>(
+        helper->communicator()->stringToProxy("controller:" + helper->getTestEndpoint(1)));
     test(controller);
 
     try

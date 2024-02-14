@@ -10,7 +10,7 @@ IceUtilInternal::CountDownLatch::CountDownLatch(int count) :
 {
     if(count < 0)
     {
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "count must be greather than 0");
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "count must be greater than 0");
     }
 
 #ifdef _WIN32

@@ -6,7 +6,6 @@
 #define ICE_PROTOCOL_PLUGIN_FACADE_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Shared.h>
 #include <Ice/ProtocolPluginFacadeF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/EndpointFactoryF.h>
@@ -27,10 +26,11 @@ ICE_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorP
 // ProtocolPluginFacade wraps the internal operations that protocol
 // plug-ins may need.
 //
-class ICE_API ProtocolPluginFacade : public ::IceUtil::Shared
+class ICE_API ProtocolPluginFacade
 {
 public:
 
+    ProtocolPluginFacade(const Ice::CommunicatorPtr&);
     virtual ~ProtocolPluginFacade();
 
     //
@@ -50,8 +50,6 @@ public:
     EndpointFactoryPtr getEndpointFactory(Ice::Short) const;
 
 private:
-
-    ProtocolPluginFacade(const Ice::CommunicatorPtr&);
 
     friend ICE_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);
 

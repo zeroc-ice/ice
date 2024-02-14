@@ -5,28 +5,22 @@
 #ifndef ICE_TRANSCEIVER_F_H
 #define ICE_TRANSCEIVER_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class Transceiver;
-ICE_API IceUtil::Shared* upCast(Transceiver*);
-typedef Handle<Transceiver> TransceiverPtr;
+using TransceiverPtr = std::shared_ptr<Transceiver>;
 
 class TcpTransceiver;
-ICE_API IceUtil::Shared* upCast(TcpTransceiver*);
-typedef Handle<TcpTransceiver> TcpTransceiverPtr;
+using TcpTransceiverPtr = std::shared_ptr<TcpTransceiver>;
 
 class UdpTransceiver;
-ICE_API IceUtil::Shared* upCast(UdpTransceiver*);
-typedef Handle<UdpTransceiver> UdpTransceiverPtr;
+using UdpTransceiverPtr = std::shared_ptr<UdpTransceiver>;
 
 class WSTransceiver;
-ICE_API IceUtil::Shared* upCast(WSTransceiver*);
-typedef Handle<WSTransceiver> WSTransceiverPtr;
+using WSTransceiverPtr = std::shared_ptr<WSTransceiver>;
 
 }
 

@@ -16,30 +16,30 @@ namespace IceInternal
 
 class WSEndpoint;
 
-class WSAcceptor : public Acceptor, public NativeInfo
+class WSAcceptor final : public Acceptor, public NativeInfo
 {
 public:
 
-    virtual NativeInfoPtr getNativeInfo();
+    WSAcceptor(const WSEndpointPtr&, const ProtocolInstancePtr&, const AcceptorPtr&);
+    ~WSAcceptor();
+    NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
-    virtual AsyncInfo* getAsyncInfo(SocketOperation);
+    AsyncInfo* getAsyncInfo(SocketOperation) final;
 #endif
 
-    virtual void close();
-    virtual EndpointIPtr listen();
+    void close() final;
+    EndpointIPtr listen() final;
 #if defined(ICE_USE_IOCP)
-    virtual void startAccept();
-    virtual void finishAccept();
+    void startAccept() final;
+    void finishAccept() final;
 #endif
-    virtual TransceiverPtr accept();
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
+    TransceiverPtr accept() final;
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
 
 private:
 
-    WSAcceptor(const WSEndpointPtr&, const ProtocolInstancePtr&, const AcceptorPtr&);
-    virtual ~WSAcceptor();
     friend class WSEndpoint;
 
     WSEndpointPtr _endpoint;

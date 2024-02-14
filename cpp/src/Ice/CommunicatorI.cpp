@@ -61,9 +61,9 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         }
 
         virtual bool
-        exception(const Exception& ex)
+        exception(std::exception_ptr ex)
         {
-            _childObserver.failed(ex.ice_id());
+            _childObserver.failed(getExceptionId(ex));
             _childObserver.detach();
             _outAsync->check(false);
             return false;
@@ -80,7 +80,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
             return false;
         }
 
-        virtual bool handleException(const Ice::Exception&)
+        virtual bool handleException(std::exception_ptr)
         {
             return false;
         }
@@ -95,7 +95,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
             assert(false);
         }
 
-        virtual void handleInvokeException(const Ice::Exception&, OutgoingAsyncBase*) const
+        virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const
         {
             assert(false);
         }
@@ -446,7 +446,7 @@ Ice::CommunicatorI::create(const InitializationData& initData)
     Ice::CommunicatorIPtr communicator = make_shared<CommunicatorI>();
     try
     {
-        const_cast<InstancePtr&>(communicator->_instance) = new Instance(communicator, initData);
+        const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, initData);
 
         //
         // Keep a reference to the dynamic library list to ensure

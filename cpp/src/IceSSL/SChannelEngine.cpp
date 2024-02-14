@@ -43,11 +43,6 @@ using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace IceSSL;
 
-Shared* SChannel::upCast(SChannel::SSLEngine* p)
-{
-    return p;
-}
-
 namespace
 {
 
@@ -565,7 +560,7 @@ SChannel::SSLEngine::initialize()
     // We still have to acquire the instance mutex because it is used by the base
     // class to access _initialized data member.
     //
-    Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     if(_initialized)
     {
         return;
@@ -1218,5 +1213,5 @@ SChannel::SSLEngine::createTransceiver(const InstancePtr& instance,
                                        const string& hostOrAdapterName,
                                        bool incoming)
 {
-    return new SChannel::TransceiverI(instance, delegate, hostOrAdapterName, incoming);
+    return make_shared<SChannel::TransceiverI>(instance, delegate, hostOrAdapterName, incoming);
 }

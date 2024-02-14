@@ -13,8 +13,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(RetryQueue* p) { return p; }
-
 IceInternal::RetryTask::RetryTask(const InstancePtr& instance,
                                   const RetryQueuePtr& queue,
                                   const ProxyOutgoingAsyncBasePtr& outAsync) :
@@ -39,14 +37,21 @@ IceInternal::RetryTask::runTimerTask()
 }
 
 void
-IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& /*outAsync*/, const Ice::LocalException& ex)
+IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& /*outAsync*/, exception_ptr ex)
 {
     if(_queue->cancel(shared_from_this()))
     {
         if(_instance->traceLevels()->retry >= 1)
         {
-            Trace out(_instance->initializationData().logger, _instance->traceLevels()->retryCat);
-            out << "operation retry canceled\n" << ex;
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const std::exception& e)
+            {
+                Trace out(_instance->initializationData().logger, _instance->traceLevels()->retryCat);
+                out << "operation retry canceled\n" << e;
+            }
         }
         if(_outAsync->exception(ex))
         {
@@ -60,18 +65,12 @@ IceInternal::RetryTask::destroy()
 {
     try
     {
-        _outAsync->abort(CommunicatorDestroyedException(__FILE__, __LINE__));
+        _outAsync->abort(make_exception_ptr(CommunicatorDestroyedException(__FILE__, __LINE__)));
     }
     catch(const CommunicatorDestroyedException&)
     {
         // Abort can throw if there's no callback, ignore.
     }
-}
-
-bool
-IceInternal::RetryTask::operator<(const RetryTask& rhs) const
-{
-    return this < &rhs;
 }
 
 IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(instance)
@@ -81,12 +80,12 @@ IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(ins
 void
 IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lock(_mutex);
     if(!_instance)
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    RetryTaskPtr task = make_shared<RetryTask>(_instance, this, out);
+    RetryTaskPtr task = make_shared<RetryTask>(_instance, shared_from_this(), out);
     out->cancelable(task); // This will throw if the request is canceled.
     try
     {
@@ -102,7 +101,7 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
 void
 IceInternal::RetryQueue::destroy()
 {
-    Lock sync(*this);
+    unique_lock<mutex> lock(_mutex);
     assert(_instance);
 
     set<RetryTaskPtr>::iterator p = _requests.begin();
@@ -119,29 +118,27 @@ IceInternal::RetryQueue::destroy()
         }
     }
 
-    _instance = 0;
-    while(!_requests.empty())
-    {
-        wait();
-    }
+    _instance = nullptr;
+    _conditionVariable.wait(lock, [this] { return _requests.empty(); });
 }
 
 void
 IceInternal::RetryQueue::remove(const RetryTaskPtr& task)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lock(_mutex);
     assert(_requests.find(task) != _requests.end());
     _requests.erase(task);
     if(!_instance && _requests.empty())
     {
-        notify(); // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+        // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+        _conditionVariable.notify_one();
     }
 }
 
 bool
 IceInternal::RetryQueue::cancel(const RetryTaskPtr& task)
 {
-    Lock sync(*this);
+    lock_guard<mutex> lock(_mutex);
     if(_requests.erase(task) > 0)
     {
         if(_instance)
@@ -150,7 +147,8 @@ IceInternal::RetryQueue::cancel(const RetryTaskPtr& task)
         }
         else if(_requests.empty())
         {
-            notify(); // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+            // If we are destroying the queue, destroy is probably waiting on the queue to be empty.
+            _conditionVariable.notify_one();
         }
     }
     return false;

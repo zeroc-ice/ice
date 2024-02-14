@@ -280,7 +280,7 @@ allTests(Test::TestHelper* helper)
 
     string ref = "factory:" + helper->getTestEndpoint() + " -t 10000";
     RemoteCommunicatorFactoryPrxPtr factory =
-        ICE_UNCHECKED_CAST(RemoteCommunicatorFactoryPrx, communicator->stringToProxy(ref));
+        Ice::uncheckedCast<RemoteCommunicatorFactoryPrx>(communicator->stringToProxy(ref));
 
     string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
 
@@ -379,11 +379,6 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-#ifndef ICE_OS_UWP
-    //
-    // This doesn't work well with UWP because connection to localhost are
-    // restricted to the same process.
-    //
     cout << "testing logger facet... " << flush;
     {
         Ice::PropertyDict props;
@@ -491,8 +486,7 @@ allTests(Test::TestHelper* helper)
 
         RemoteLoggerIPtr remoteLogger = std::make_shared<RemoteLoggerI>();
 
-        Ice::RemoteLoggerPrxPtr myProxy =
-            ICE_UNCHECKED_CAST(Ice::RemoteLoggerPrx, adapter->addWithUUID(remoteLogger));
+        auto myProxy = Ice::uncheckedCast<Ice::RemoteLoggerPrx>(adapter->addWithUUID(remoteLogger));
 
         adapter->activate();
 
@@ -561,7 +555,6 @@ allTests(Test::TestHelper* helper)
         com->destroy();
     }
     cout << "ok" << endl;
-#endif
 
     cout << "testing custom facet... " << flush;
     {

@@ -65,7 +65,7 @@ struct StartServiceInfo
 
 }
 
-/*static*/ ServiceManagerIPtr
+ServiceManagerIPtr
 IceBox::ServiceManagerI::create(Ice::CommunicatorPtr communicator, int& argc, char* argv[])
 {
     ServiceManagerIPtr ptr(new ServiceManagerI(communicator, argc, argv));
@@ -116,7 +116,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
 {
     ServiceInfo info;
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        lock_guard<mutex> lock(_mutex);
 
         //
         // Search would be more efficient if services were contained in
@@ -162,7 +162,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
     }
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        lock_guard<mutex> lock(_mutex);
         for(vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
         {
             if(p->name == name)
@@ -183,7 +183,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
             }
         }
         _pendingStatusChanges = false;
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 }
 
@@ -192,7 +192,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
 {
     ServiceInfo info;
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        lock_guard<mutex> lock(_mutex);
 
         //
         // Search would be more efficient if services were contained in
@@ -238,7 +238,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
     }
 
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        lock_guard<mutex> lock(_mutex);
         for(vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
         {
             if(p->name == name)
@@ -259,7 +259,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
             }
         }
         _pendingStatusChanges = false;
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 }
 
@@ -270,7 +270,7 @@ IceBox::ServiceManagerI::addObserver(ServiceObserverPrxPtr observer, const Curre
     // Null observers and duplicate registrations are ignored
     //
 
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    lock_guard<mutex> lock(_mutex);
     if(observer != 0 && _observers.insert(observer).second)
     {
         if(_traceServiceObserver >= 1)
@@ -511,12 +511,12 @@ IceBox::ServiceManagerI::stop()
 void
 IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, const StringSeq& args)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    lock_guard<mutex> lock(_mutex);
 
     //
     // Load the entry point.
     //
-    IceInternal::DynamicLibraryPtr library = new IceInternal::DynamicLibrary();
+    IceInternal::DynamicLibraryPtr library = make_shared<IceInternal::DynamicLibrary>();
     IceInternal::DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint, false);
     if(sym == 0)
     {
@@ -717,15 +717,12 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 void
 IceBox::ServiceManagerI::stopAll()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    unique_lock<mutex> lock(_mutex);
 
     //
     // First wait for any active startService/stopService calls to complete.
     //
-    while(_pendingStatusChanges)
-    {
-        wait();
-    }
+    _conditionVariable.wait(lock, [this] { return !_pendingStatusChanges; });
 
     //
     // Services are stopped in the reverse order from which they are started.
@@ -933,7 +930,7 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
 void
 ServiceManagerI::observerCompleted(const shared_ptr<ServiceObserverPrx>& observer, exception_ptr ex)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    lock_guard<mutex> lock(_mutex);
     //
     // It's possible to remove several times the same observer, e.g. multiple concurrent
     // requests that fail

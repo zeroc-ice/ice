@@ -5,13 +5,13 @@
 #ifndef ICE_RETRY_QUEUE_H
 #define ICE_RETRY_QUEUE_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
 #include <Ice/RetryQueueF.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/RequestHandler.h> // For CancellationHandler
+
+#include <mutex>
 
 namespace IceInternal
 {
@@ -26,11 +26,9 @@ public:
 
     virtual void runTimerTask();
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, const Ice::LocalException&);
+    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
     void destroy();
-
-    bool operator<(const RetryTask&) const;
 
 private:
 
@@ -40,7 +38,7 @@ private:
 };
 using RetryTaskPtr = std::shared_ptr<RetryTask>;
 
-class RetryQueue : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
+class RetryQueue : public std::enable_shared_from_this<RetryQueue>
 {
 public:
 
@@ -57,6 +55,8 @@ private:
 
     InstancePtr _instance;
     std::set<RetryTaskPtr> _requests;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
 
 }

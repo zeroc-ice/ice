@@ -32,8 +32,8 @@ PluginI::PluginI(const Ice::CommunicatorPtr& com, const SSLEnginePtr& engine) :
     // than in initialize, because the communicator may need to
     // interpret proxies before the plug-in is fully initialized.
     //
-    InstancePtr instance = new Instance(_engine, SSLEndpointType, "ssl"); // SSL based on TCP
-    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(new EndpointFactoryI(instance, TCPEndpointType));
+    InstancePtr instance = make_shared<Instance>(_engine, SSLEndpointType, "ssl"); // SSL based on TCP
+    IceInternal::getProtocolPluginFacade(com)->addEndpointFactory(make_shared<EndpointFactoryI>(instance, TCPEndpointType));
 }
 
 void
@@ -97,7 +97,7 @@ registerIceSSL(bool loadOnInitialize)
 IceSSL::TrustError
 IceSSL::getTrustError(const IceSSL::ConnectionInfoPtr& info)
 {
-    ExtendedConnectionInfoPtr extendedInfo = ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info);
+    auto extendedInfo = dynamic_pointer_cast<ExtendedConnectionInfo>(info);
     if (extendedInfo)
     {
         return extendedInfo->errorCode;
@@ -204,6 +204,6 @@ IceSSL::getTrustErrorDescription(TrustError error)
 std::string
 IceSSL::getHost(const IceSSL::ConnectionInfoPtr& info)
 {
-    ExtendedConnectionInfoPtr extendedInfo = ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info);
+    auto extendedInfo = dynamic_pointer_cast<ExtendedConnectionInfo>(info);
     return extendedInfo ? extendedInfo->host : "";
 }

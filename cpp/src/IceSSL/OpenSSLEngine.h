@@ -17,17 +17,17 @@ namespace IceSSL
 namespace OpenSSL
 {
 
-class SSLEngine : public IceSSL::SSLEngine
+class SSLEngine final : public IceSSL::SSLEngine
 {
 public:
 
     SSLEngine(const Ice::CommunicatorPtr&);
     ~SSLEngine();
 
-    virtual void initialize();
-    virtual void destroy();
-    virtual IceInternal::TransceiverPtr
-    createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
+    void initialize() final;
+    void destroy() final;
+    IceInternal::TransceiverPtr
+    createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
 
 #ifndef OPENSSL_NO_DH
     DH* dhParams(int);

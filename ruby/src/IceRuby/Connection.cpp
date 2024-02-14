@@ -109,9 +109,9 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
         Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
         assert(p);
 
-        IceUtil::Optional<Ice::Int> timeout;
-        IceUtil::Optional<Ice::ACMClose> close;
-        IceUtil::Optional<Ice::ACMHeartbeat> heartbeat;
+        optional<Ice::Int> timeout;
+        optional<Ice::ACMClose> close;
+        optional<Ice::ACMHeartbeat> heartbeat;
 
         if(t != Unset)
         {

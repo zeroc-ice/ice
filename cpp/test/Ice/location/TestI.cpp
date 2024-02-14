@@ -65,8 +65,8 @@ ServerManagerI::startServer(const Ice::Current&)
 
             Ice::ObjectPrxPtr locator =
                 serverCommunicator->stringToProxy("locator:" + TestHelper::getTestEndpoint(props));
-            adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
-            adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
+            adapter->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
+            adapter2->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
 
             Ice::ObjectPtr object = make_shared<TestI>(adapter, adapter2, _registry);
             _registry->addObject(adapter->add(object, Ice::stringToIdentity("test")));
@@ -125,14 +125,13 @@ TestI::shutdown(const Ice::Current&)
 HelloPrxPtr
 TestI::getHello(const Ice::Current&)
 {
-    return ICE_UNCHECKED_CAST(HelloPrx, _adapter1->createIndirectProxy(
-                                            Ice::stringToIdentity("hello")));
+    return Ice::uncheckedCast<HelloPrx>(_adapter1->createIndirectProxy(Ice::stringToIdentity("hello")));
 }
 
 HelloPrxPtr
 TestI::getReplicatedHello(const Ice::Current&)
 {
-    return ICE_UNCHECKED_CAST(HelloPrx, _adapter1->createProxy(Ice::stringToIdentity("hello")));
+    return Ice::uncheckedCast<HelloPrx>(_adapter1->createProxy(Ice::stringToIdentity("hello")));
 }
 
 void

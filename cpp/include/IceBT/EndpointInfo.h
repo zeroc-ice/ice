@@ -5,14 +5,14 @@
 #ifndef __IceBT_EndpointInfo_h__
 #define __IceBT_EndpointInfo_h__
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
-#include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/Endpoint.h>
 #include <IceUtil/UndefSysMacros.h>
 
@@ -89,4 +89,5 @@ using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
 }
 /// \endcond
 
+#include <IceUtil/PopDisableWarnings.h>
 #endif

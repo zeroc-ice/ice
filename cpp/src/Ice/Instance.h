@@ -6,9 +6,6 @@
 #define ICE_INSTANCE_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/RecMutex.h>
 #include <IceUtil/Timer.h>
 #include <Ice/StringConverter.h>
 #include <Ice/InstanceF.h>
@@ -19,7 +16,6 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ReferenceFactoryF.h>
-#include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ACM.h>
@@ -48,13 +44,13 @@ namespace IceInternal
 {
 
 class Timer;
-typedef IceUtil::Handle<Timer> TimerPtr;
+using TimerPtr = std::shared_ptr<Timer>;
 
 class MetricsAdminI;
 using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;
 
-class RequestHandlerFactory;
-typedef IceUtil::Handle<RequestHandlerFactory> RequestHandlerFactoryPtr;
+class ProxyFactory;
+using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
 
 //
 // Structure to track warnings for attempts to set socket buffer sizes
@@ -64,20 +60,22 @@ struct BufSizeWarnInfo
     // Whether send size warning has been emitted
     bool sndWarn;
 
-    // The send size for which the warning wwas emitted
+    // The send size for which the warning was emitted
     int sndSize;
 
     // Whether receive size warning has been emitted
     bool rcvWarn;
 
-    // The receive size for which the warning wwas emitted
+    // The receive size for which the warning was emitted
     int rcvSize;
 };
 
-class Instance : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::RecMutex>
+class Instance : public std::enable_shared_from_this<Instance>
 {
 public:
 
+    static InstancePtr create(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
+    virtual ~Instance();
     bool destroyed() const;
     const Ice::InitializationData& initializationData() const { return _initData; }
     TraceLevelsPtr traceLevels() const;
@@ -85,7 +83,6 @@ public:
     RouterManagerPtr routerManager() const;
     LocatorManagerPtr locatorManager() const;
     ReferenceFactoryPtr referenceFactory() const;
-    RequestHandlerFactoryPtr requestHandlerFactory() const;
     ProxyFactoryPtr proxyFactory() const;
     OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
@@ -96,6 +93,7 @@ public:
     ThreadPoolPtr serverThreadPool();
     EndpointHostResolverPtr endpointHostResolver();
     RetryQueuePtr retryQueue();
+    const std::vector<int>& retryIntervals() const { return _retryIntervals; }
     IceUtil::TimerPtr timer();
     EndpointFactoryManagerPtr endpointFactoryManager() const;
     DynamicLibraryListPtr dynamicLibraryList() const;
@@ -135,8 +133,8 @@ public:
 
 private:
 
-    Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
-    virtual ~Instance();
+    Instance(const Ice::InitializationData&);
+    void initialize(const Ice::CommunicatorPtr&);
     void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
     void destroy();
     friend class Ice::CommunicatorI;
@@ -170,7 +168,6 @@ private:
     RouterManagerPtr _routerManager;
     LocatorManagerPtr _locatorManager;
     ReferenceFactoryPtr _referenceFactory;
-    RequestHandlerFactoryPtr _requestHandlerFactory;
     ProxyFactoryPtr _proxyFactory;
     OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
@@ -181,6 +178,7 @@ private:
     ThreadPoolPtr _serverThreadPool;
     EndpointHostResolverPtr _endpointHostResolver;
     RetryQueuePtr _retryQueue;
+    std::vector<int> _retryIntervals;
     TimerPtr _timer;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
@@ -195,7 +193,9 @@ private:
     std::set<std::string> _adminFacetFilter;
     IceInternal::MetricsAdminIPtr _metricsAdmin;
     std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
-    IceUtil::Mutex _setBufSizeWarnMutex;
+    std::mutex _setBufSizeWarnMutex;
+    mutable std::recursive_mutex _mutex;
+    std::condition_variable_any _conditionVariable;
 };
 
 class ProcessI : public Ice::Process

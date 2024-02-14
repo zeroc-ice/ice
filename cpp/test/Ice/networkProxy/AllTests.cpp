@@ -17,7 +17,7 @@ getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
 {
     for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
     {
-        Ice::IPConnectionInfoPtr ipInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, p);
+        Ice::IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
         if(ipInfo)
         {
             return ipInfo;
@@ -42,7 +42,7 @@ allTests(Test::TestHelper* helper)
         proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.SOCKSProxyPort");
     }
 
-    TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
+    TestIntfPrxPtr test = Ice::checkedCast<TestIntfPrx>(obj);
     test(test);
 
     cout << "testing connection... " << flush;

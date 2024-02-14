@@ -55,7 +55,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
 }
 
 IceInternal::SocketOperation
-Transceiver::closing(bool initiator, const Ice::LocalException& ex)
+Transceiver::closing(bool initiator, std::exception_ptr ex)
 {
     return _transceiver->closing(initiator, ex);
 }

@@ -40,7 +40,7 @@ public:
 
     vector<RemoteLoggerPrxPtr> log(const LogMessage&);
 
-    void deadRemoteLogger(const RemoteLoggerPrxPtr&, const LoggerPtr&, const LocalException&, const string&);
+    void deadRemoteLogger(const RemoteLoggerPrxPtr&, const LoggerPtr&, exception_ptr, const string&);
 
     int getTraceLevel() const
     {
@@ -51,7 +51,7 @@ private:
 
     bool removeRemoteLogger(const RemoteLoggerPrxPtr&);
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     list<LogMessage> _queue;
     int _logCount; // non-trace messages
     const int _maxLogCount;
@@ -104,7 +104,7 @@ private:
 };
 using LoggerAdminIPtr = std::shared_ptr<LoggerAdminI>;
 
-class Job : public IceUtil::Shared
+class Job
 {
 public:
 
@@ -117,7 +117,7 @@ public:
     const vector<RemoteLoggerPrxPtr> remoteLoggers;
     const LogMessage logMessage;
 };
-typedef IceUtil::Handle<Job> JobPtr;
+using JobPtr = std::shared_ptr<Job>;
 
 class LoggerAdminLoggerI : public IceInternal::LoggerAdminLogger, public std::enable_shared_from_this<LoggerAdminLoggerI>
 {
@@ -150,7 +150,8 @@ private:
     LoggerPtr _localLogger;
     const LoggerAdminIPtr _loggerAdmin;
 
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 
     bool _destroyed;
     IceUtil::ThreadPtr _sendLogThread;
@@ -158,13 +159,13 @@ private:
 };
 using LoggerAdminLoggerIPtr = std::shared_ptr<LoggerAdminLoggerI>;
 
-class SendLogThread : public IceUtil::Thread
+class SendLogThread final : public IceUtil::Thread
 {
 public:
 
     SendLogThread(const LoggerAdminLoggerIPtr&);
 
-    virtual void run();
+    void run() final;
 
 private:
 
@@ -242,7 +243,7 @@ changeCommunicator(const RemoteLoggerPrxPtr& prx, const CommunicatorPtr& communi
         return 0;
     }
 
-    RemoteLoggerPrxPtr result = ICE_UNCHECKED_CAST(RemoteLoggerPrx, communicator->stringToProxy(prx->ice_toString()));
+    RemoteLoggerPrxPtr result = Ice::uncheckedCast<RemoteLoggerPrx>(communicator->stringToProxy(prx->ice_toString()));
 
     return result->ice_invocationTimeout(prx->ice_getInvocationTimeout());
 }
@@ -325,7 +326,7 @@ LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
     // In C++, LoggerAdminI does not keep a "logger" data member to avoid a hard-to-break circular
     // reference, so we retrieve the logger from Current
     //
-    LoggerAdminLoggerIPtr logger = ICE_DYNAMIC_CAST(LoggerAdminLoggerI, current.adapter->getCommunicator()->getLogger());
+    LoggerAdminLoggerIPtr logger = dynamic_pointer_cast<LoggerAdminLoggerI>(current.adapter->getCommunicator()->getLogger());
     assert(logger);
 
     RemoteLoggerPrxPtr remoteLogger = prx->ice_twoway();
@@ -333,7 +334,7 @@ LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
     Filters filters(messageTypes, categories);
     LogMessageSeq initLogMessages;
     {
-        IceUtil::Mutex::Lock lock(_mutex);
+        lock_guard lock(_mutex);
 
         if(!_sendLogCommunicator)
         {
@@ -388,19 +389,12 @@ LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
             },
             [self, logger, remoteLogger](exception_ptr e)
             {
-                try
-                {
-                    rethrow_exception(e);
-                }
-                catch(const Ice::LocalException& le)
-                {
-                    self->deadRemoteLogger(remoteLogger, logger, le, "init");
-                }
+                self->deadRemoteLogger(remoteLogger, logger, e, "init");
             });
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
-        deadRemoteLogger(remoteLogger, logger, ex, "init");
+        deadRemoteLogger(remoteLogger, logger, current_exception(), "init");
         throw;
     }
 }
@@ -440,7 +434,7 @@ LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
 {
     LogMessageSeq logMessages;
     {
-        IceUtil::Mutex::Lock lock(_mutex);
+        lock_guard lock(_mutex);
 
         if(messageMax != 0)
         {
@@ -465,7 +459,7 @@ LoggerAdminI::destroy()
 {
     CommunicatorPtr sendLogCommunicator;
     {
-        IceUtil::Mutex::Lock lock(_mutex);
+        lock_guard lock(_mutex);
         if(!_destroyed)
         {
             _destroyed = true;
@@ -489,7 +483,7 @@ LoggerAdminI::log(const LogMessage& logMessage)
 {
     vector<RemoteLoggerPrxPtr> remoteLoggers;
 
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
 
     //
     // Put message in _queue
@@ -575,7 +569,7 @@ LoggerAdminI::log(const LogMessage& logMessage)
 void
 LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger,
                                const LoggerPtr& logger,
-                               const LocalException& ex,
+                               std::exception_ptr ex,
                                const string& operation)
 {
     //
@@ -585,8 +579,15 @@ LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger,
     {
         if(_traceLevel > 0)
         {
-            Trace trace(logger, traceCategory);
-            trace << "detached `" << remoteLogger << "' because " << operation << " raised:\n" << ex;
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const std::exception& e)
+            {
+                Trace trace(logger, traceCategory);
+                trace << "detached `" << remoteLogger << "' because " << operation << " raised:\n" << e;
+            }
         }
     }
 }
@@ -594,7 +595,7 @@ LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger,
 bool
 LoggerAdminI::removeRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger)
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     return _remoteLoggerMap.erase(remoteLogger) > 0;
 }
 
@@ -685,16 +686,16 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 
     if(!remoteLoggers.empty())
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+        lock_guard lock(_mutex);
 
         if(!_sendLogThread)
         {
-            _sendLogThread = new SendLogThread(shared_from_this());
+            _sendLogThread = make_shared<SendLogThread>(shared_from_this());
             _sendLogThread->start();
         }
 
-        _jobQueue.push_back(new Job(remoteLoggers, logMessage));
-        _monitor.notifyAll();
+        _jobQueue.push_back(make_shared<Job>(remoteLoggers, logMessage));
+        _conditionVariable.notify_all();
     }
 }
 
@@ -704,7 +705,7 @@ LoggerAdminLoggerI::destroy()
     IceUtil::ThreadControl sendLogThreadControl;
     bool joinThread = false;
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+        lock_guard lock(_mutex);
 
         if(_sendLogThread)
         {
@@ -712,7 +713,7 @@ LoggerAdminLoggerI::destroy()
             sendLogThreadControl = _sendLogThread->getThreadControl();
             _sendLogThread = 0;
             _destroyed = true;
-            _monitor.notifyAll();
+            _conditionVariable.notify_all();
         }
     }
 
@@ -736,11 +737,9 @@ LoggerAdminLoggerI::run()
 
     for(;;)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-        while(!_destroyed && _jobQueue.empty())
-        {
-            _monitor.wait();
-        }
+        unique_lock lock(_mutex);
+        _conditionVariable.wait(lock, [this] { return _destroyed || !_jobQueue.empty(); });
+
         if(_destroyed)
         {
             break; // for(;;)
@@ -749,7 +748,7 @@ LoggerAdminLoggerI::run()
         assert(!_jobQueue.empty());
         JobPtr job = _jobQueue.front();
         _jobQueue.pop_front();
-        lock.release();
+        lock.unlock();
 
         for(vector<RemoteLoggerPrxPtr>::const_iterator p = job->remoteLoggers.begin(); p != job->remoteLoggers.end(); ++p)
         {
@@ -782,15 +781,15 @@ LoggerAdminLoggerI::run()
                         {
                             // expected if there are outstanding calls during communicator destruction
                         }
-                        catch(const LocalException& ex)
+                        catch(const LocalException&)
                         {
-                            self->_loggerAdmin->deadRemoteLogger(remoteLogger, self->_localLogger, ex, "log");
+                            self->_loggerAdmin->deadRemoteLogger(remoteLogger, self->_localLogger, e, "log");
                         }
                     });
             }
-            catch(const LocalException& ex)
+            catch(const LocalException&)
             {
-                _loggerAdmin->deadRemoteLogger(*p, _localLogger, ex, "log");
+                _loggerAdmin->deadRemoteLogger(*p, _localLogger, current_exception(), "log");
             }
         }
     }

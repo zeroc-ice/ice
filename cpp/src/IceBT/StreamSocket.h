@@ -8,7 +8,6 @@
 #include <IceBT/Config.h>
 #include <IceBT/InstanceF.h>
 
-#include <IceUtil/Shared.h>
 #include <Ice/Network.h>
 #include <Ice/Buffer.h>
 
@@ -46,7 +45,7 @@ private:
     SocketAddress _addr;
     std::string _desc;
 };
-typedef IceUtil::Handle<StreamSocket> StreamSocketPtr;
+using StreamSocketPtr = std::shared_ptr<StreamSocket>;
 
 }
 

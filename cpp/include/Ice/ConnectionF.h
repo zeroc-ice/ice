@@ -10,10 +10,9 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
-#include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_API
@@ -34,13 +33,6 @@ class WSConnectionInfo;
 class Connection;
 
 }
-
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
 
 /// \cond INTERNAL
 namespace Ice

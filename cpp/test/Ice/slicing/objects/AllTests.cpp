@@ -34,9 +34,9 @@ void breakCycles(const map<K, shared_ptr<V>>& d)
 
 void breakCycles(shared_ptr<Ice::Value> o)
 {
-    if(ICE_DYNAMIC_CAST(D1, o))
+    if(dynamic_pointer_cast<D1>(o))
     {
-        auto d1 = ICE_DYNAMIC_CAST(D1, o);
+        auto d1 = dynamic_pointer_cast<D1>(o);
         auto tmp = d1->pd1;
         d1->pd1 = nullptr;
         if(tmp != d1)
@@ -44,9 +44,9 @@ void breakCycles(shared_ptr<Ice::Value> o)
             breakCycles(tmp);
         }
     }
-    if(ICE_DYNAMIC_CAST(D3, o))
+    if(dynamic_pointer_cast<D3>(o))
     {
-        auto d3 = ICE_DYNAMIC_CAST(D3, o);
+        auto d3 = dynamic_pointer_cast<D3>(o);
         auto tmp = d3->pd3;
         d3->pd3 = nullptr;
         if(tmp != d3)
@@ -54,9 +54,9 @@ void breakCycles(shared_ptr<Ice::Value> o)
             breakCycles(tmp);
         }
     }
-    if(ICE_DYNAMIC_CAST(B, o))
+    if(dynamic_pointer_cast<B>(o))
     {
-        auto b = ICE_DYNAMIC_CAST(B, o);
+        auto b = dynamic_pointer_cast<B>(o);
         auto tmp = b->pb;
         b->pb = nullptr;
         if (tmp != b)
@@ -68,38 +68,38 @@ void breakCycles(shared_ptr<Ice::Value> o)
             b->ice_getSlicedData()->clear();
         }
     }
-    if(ICE_DYNAMIC_CAST(PDerived, o))
+    if(dynamic_pointer_cast<PDerived>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(PDerived, o);
+        auto p = dynamic_pointer_cast<PDerived>(o);
         p->pb = nullptr;
     }
-    if(ICE_DYNAMIC_CAST(CompactPDerived, o))
+    if(dynamic_pointer_cast<CompactPDerived>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(CompactPDerived, o);
+        auto p = dynamic_pointer_cast<CompactPDerived>(o);
         p->pb = nullptr;
     }
-    if(ICE_DYNAMIC_CAST(PCDerived, o))
+    if(dynamic_pointer_cast<PCDerived>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(PCDerived, o);
+        auto p = dynamic_pointer_cast<PCDerived>(o);
         auto seq(p->pbs);
         p->pbs.clear();
         breakCycles(seq);
     }
-    if(ICE_DYNAMIC_CAST(CompactPCDerived, o))
+    if(dynamic_pointer_cast<CompactPCDerived>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(CompactPCDerived, o);
+        auto p = dynamic_pointer_cast<CompactPCDerived>(o);
         auto seq(p->pbs);
         p->pbs.clear();
         breakCycles(seq);
     }
-    if(ICE_DYNAMIC_CAST(PCDerived3, o))
+    if(dynamic_pointer_cast<PCDerived3>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(PCDerived3, o);
+        auto p = dynamic_pointer_cast<PCDerived3>(o);
         p->pcd3 = nullptr;
     }
-    if(ICE_DYNAMIC_CAST(PNode, o))
+    if(dynamic_pointer_cast<PNode>(o))
     {
-        auto curr = ICE_DYNAMIC_CAST(PNode, o);
+        auto curr = dynamic_pointer_cast<PNode>(o);
         while(curr && o != curr->next)
         {
             auto next = curr->next;
@@ -107,19 +107,19 @@ void breakCycles(shared_ptr<Ice::Value> o)
             curr = next;
         }
     }
-    if(ICE_DYNAMIC_CAST(SS1, o))
+    if(dynamic_pointer_cast<SS1>(o))
     {
-        auto s = ICE_DYNAMIC_CAST(SS1, o);
+        auto s = dynamic_pointer_cast<SS1>(o);
         breakCycles(s->s);
     }
-    if(ICE_DYNAMIC_CAST(SS2, o))
+    if(dynamic_pointer_cast<SS2>(o))
     {
-        auto s = ICE_DYNAMIC_CAST(SS2, o);
+        auto s = dynamic_pointer_cast<SS2>(o);
         breakCycles(s->s);
     }
-    if(ICE_DYNAMIC_CAST(Forward, o))
+    if(dynamic_pointer_cast<Forward>(o))
     {
-        auto f = ICE_DYNAMIC_CAST(Forward, o);
+        auto f = dynamic_pointer_cast<Forward>(o);
         f->h = nullptr;
     }
 }
@@ -171,7 +171,7 @@ public:
     {
         test(o);
         test(o->ice_id() == "::Test::SBase");
-        SBasePtr sb = ICE_DYNAMIC_CAST(SBase, o);
+        SBasePtr sb = dynamic_pointer_cast<SBase>(o);
         test(sb);
         test(sb->sb == "SBase.sb");
         called();
@@ -188,7 +188,7 @@ public:
     void
     response_SBSKnownDerivedAsSBase(const SBasePtr& sb)
     {
-        SBSKnownDerivedPtr sbskd = ICE_DYNAMIC_CAST(SBSKnownDerived, sb);
+        SBSKnownDerivedPtr sbskd = dynamic_pointer_cast<SBSKnownDerived>(sb);
         test(sbskd);
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         breakCycles(sbskd);
@@ -240,10 +240,10 @@ public:
     void
     response_SUnknownAsObject11(const Ice::ValuePtr& o)
     {
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o));
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_id() == "::Test::SUnknown");
+        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
+        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
         called();
-        ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_getSlicedData()->clear();
+        dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
     }
 
     void
@@ -287,7 +287,7 @@ public:
         test(b1->sb == "D1.sb");
         test(b1->pb);
         test(b1->pb != b1);
-        D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+        D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
         test(d1);
         test(d1->sd1 == "D1.sd1");
         test(d1->pd1);
@@ -335,7 +335,7 @@ public:
         test(b1->ice_id() == "::Test::D1");
         test(b1->sb == "D1.sb");
         test(b1->pb == b2);
-        D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+        D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
         test(d1);
         test(d1->sd1 == "D1.sd1");
         test(d1->pd1 == b2);
@@ -353,7 +353,7 @@ public:
         test(b1->ice_id() == "::Test::D1");
         test(b1->sb == "D1.sb");
         test(b1->pb == b2);
-        D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+        D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
         test(d1);
         test(d1->sd1 == "D1.sd1");
         test(d1->pd1 == b2);
@@ -514,7 +514,7 @@ public:
     void
     response_preserved1(const PBasePtr& r)
     {
-        PDerivedPtr pd = ICE_DYNAMIC_CAST(PDerived, r);
+        PDerivedPtr pd = dynamic_pointer_cast<PDerived>(r);
         test(pd);
         test(pd->pi == 3);
         test(pd->ps == "preserved");
@@ -527,7 +527,9 @@ public:
     void
     response_preserved2(const PBasePtr& r)
     {
-        rbase = r;
+        PCUnknownPtr p2 = dynamic_pointer_cast<PCUnknown>(r);
+        test(!p2);
+        test(r->pi == 3);
         called();
     }
 
@@ -537,7 +539,7 @@ public:
         //
         // Encoding 1.0
         //
-        PCDerivedPtr p2 = ICE_DYNAMIC_CAST(PCDerived, r);
+        PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
         test(!p2);
         test(r->pi == 3);
         called();
@@ -551,7 +553,7 @@ public:
         //
         // Encoding > 1.0
         //
-        PCDerivedPtr p2 = ICE_DYNAMIC_CAST(PCDerived, r);
+        PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
         test(p2);
         test(p2->pi == 3);
         test(p2->pbs[0] == p2);
@@ -563,12 +565,12 @@ public:
     void
     response_preserved5(const PBasePtr& r)
     {
-        PCDerived3Ptr p3 = ICE_DYNAMIC_CAST(PCDerived3, r);
+        PCDerived3Ptr p3 = dynamic_pointer_cast<PCDerived3>(r);
         test(p3);
         test(p3->pi == 3);
         for(int i = 0; i < 300; ++i)
         {
-            PCDerived2Ptr p2 = ICE_DYNAMIC_CAST(PCDerived2, p3->pbs[static_cast<size_t>(i)]);
+            PCDerived2Ptr p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[static_cast<size_t>(i)]);
             test(p2->pi == i);
             test(p2->pbs.size() == 1);
             test(!p2->pbs[0]);
@@ -587,7 +589,7 @@ public:
         //
         // Encoding 1.0
         //
-        CompactPCDerivedPtr p2 = ICE_DYNAMIC_CAST(CompactPCDerived, r);
+        CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
         test(!p2);
         test(r->pi == 3);
         called();
@@ -601,7 +603,7 @@ public:
         //
         // Encoding > 1.0
         //
-        CompactPCDerivedPtr p2 = ICE_DYNAMIC_CAST(CompactPCDerived, r);
+        CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
         test(p2);
         test(p2->pi == 3);
         test(p2->pbs[0] == p2);
@@ -629,7 +631,6 @@ public:
         }
     }
 
-    PBasePtr rbase;
     BPtr rb;
     SS3 rss3;
     BDict rbdict;
@@ -645,11 +646,11 @@ testUOO(const TestIntfPrxPtr& test)
     {
         o = test->SUnknownAsObject();
         test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o));
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_id() == "::Test::SUnknown");
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_getSlicedData());
+        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
+        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
+        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData());
         test->checkSUnknown(o);
-        ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_getSlicedData()->clear();
+        dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
     }
     catch(const Ice::NoValueFactoryException&)
     {
@@ -673,7 +674,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:" + helper->getTestEndpoint());
-    TestIntfPrxPtr test = ICE_CHECKED_CAST(TestIntfPrx, obj);
+    TestIntfPrxPtr test = Ice::checkedCast<TestIntfPrx>(obj);
 
     cout << "base as Object... " << flush;
     {
@@ -693,7 +694,7 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-        SBasePtr sb = ICE_DYNAMIC_CAST(SBase, o);
+        SBasePtr sb = dynamic_pointer_cast<SBase>(o);
         test(sb);
         test(sb->sb == "SBase.sb");
     }
@@ -759,7 +760,7 @@ allTests(Test::TestHelper* helper)
         {
             test(false);
         }
-        SBSKnownDerivedPtr sbskd = ICE_DYNAMIC_CAST(SBSKnownDerived, sb);
+        SBSKnownDerivedPtr sbskd = dynamic_pointer_cast<SBSKnownDerived>(sb);
         test(sbskd);
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
     }
@@ -773,7 +774,7 @@ allTests(Test::TestHelper* helper)
             shared_ptr<SBase> sb = f.get();
             sb = test->SBSKnownDerivedAsSBase();
             test(sb->sb == "SBSKnownDerived.sb");
-            SBSKnownDerivedPtr sbskd = ICE_DYNAMIC_CAST(SBSKnownDerived, sb);
+            SBSKnownDerivedPtr sbskd = dynamic_pointer_cast<SBSKnownDerived>(sb);
             test(sbskd);
             test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         }
@@ -1071,7 +1072,7 @@ allTests(Test::TestHelper* helper)
             test(b1->sb == "D1.sb");
             test(b1->pb);
             test(b1->pb != b1);
-            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+            D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1);
@@ -1197,7 +1198,7 @@ allTests(Test::TestHelper* helper)
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
-            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+            D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
@@ -1256,7 +1257,7 @@ allTests(Test::TestHelper* helper)
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
-            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+            D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
@@ -1289,7 +1290,7 @@ allTests(Test::TestHelper* helper)
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
-            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+            D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
@@ -1321,7 +1322,7 @@ allTests(Test::TestHelper* helper)
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
             test(b1->pb == b2);
-            D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b1);
+            D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
@@ -1435,7 +1436,7 @@ allTests(Test::TestHelper* helper)
             test(b1);
             test(b1->sb == "D1.sb");
             test(b1->ice_id() == "::Test::D1");
-            D1Ptr p1 = ICE_DYNAMIC_CAST(D1, b1);
+            D1Ptr p1 = dynamic_pointer_cast<D1>(b1);
             test(p1);
             test(p1->sd1 == "D1.sd1");
             test(p1->pd1 == b1->pb);
@@ -1444,7 +1445,7 @@ allTests(Test::TestHelper* helper)
             test(b2);
             test(b2->sb == "D3.sb");
             test(b2->pb == b1);
-            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, b2);
+            D3Ptr p3 = dynamic_pointer_cast<D3>(b2);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
@@ -1493,7 +1494,7 @@ allTests(Test::TestHelper* helper)
             test(b1);
             test(b1->sb == "D1.sb");
             test(b1->ice_id() == "::Test::D1");
-            D1Ptr p1 = ICE_DYNAMIC_CAST(D1, b1);
+            D1Ptr p1 = dynamic_pointer_cast<D1>(b1);
             test(p1);
             test(p1->sd1 == "D1.sd1");
             test(p1->pd1 == b1->pb);
@@ -1502,7 +1503,7 @@ allTests(Test::TestHelper* helper)
             test(b2);
             test(b2->sb == "D3.sb");
             test(b2->pb == b1);
-            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, b2);
+            D3Ptr p3 = dynamic_pointer_cast<D3>(b2);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
@@ -1556,12 +1557,12 @@ allTests(Test::TestHelper* helper)
             test(b2->ice_id() == "::Test::D1");
             test(b2->pb == b1);
 
-            D1Ptr p3 = ICE_DYNAMIC_CAST(D1, b2);
+            D1Ptr p3 = dynamic_pointer_cast<D1>(b2);
             test(p3);
             test(p3->sd1 == "D1.sd1");
             test(p3->pd1 == b1);
 
-            D3Ptr p1 = ICE_DYNAMIC_CAST(D3, b1);
+            D3Ptr p1 = dynamic_pointer_cast<D3>(b1);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p1);
@@ -1614,12 +1615,12 @@ allTests(Test::TestHelper* helper)
             test(b2->sb == "D1.sb");
             test(b2->ice_id() == "::Test::D1");
             test(b2->pb == b1);
-            D1Ptr p3 = ICE_DYNAMIC_CAST(D1, b2);
+            D1Ptr p3 = dynamic_pointer_cast<D1>(b2);
             test(p3);
             test(p3->sd1 == "D1.sd1");
             test(p3->pd1 == b1);
 
-            D3Ptr p1 = ICE_DYNAMIC_CAST(D3, b1);
+            D3Ptr p1 = dynamic_pointer_cast<D3>(b1);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p1);
@@ -2218,7 +2219,7 @@ allTests(Test::TestHelper* helper)
                 s << "D1." << i * 20;
                 test(b->sb == s.str());
                 test(b->pb == (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second));
-                D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b);
+                D1Ptr d1 = dynamic_pointer_cast<D1>(b);
                 test(d1);
                 test(d1->sd1 == s.str());
                 test(d1->pd1 == d1);
@@ -2281,7 +2282,7 @@ allTests(Test::TestHelper* helper)
                 s << "D1." << i * 20;
                 test(b->sb == s.str());
                 test(b->pb == (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second));
-                D1Ptr d1 = ICE_DYNAMIC_CAST(D1, b);
+                D1Ptr d1 = dynamic_pointer_cast<D1>(b);
                 test(d1);
                 test(d1->sd1 == s.str());
                 test(d1->pd1 == d1);
@@ -2520,7 +2521,7 @@ allTests(Test::TestHelper* helper)
         pd->ps = "preserved";
         pd->pb = pd;
         PBasePtr r = test->exchangePBase(pd);
-        PDerivedPtr p2 = ICE_DYNAMIC_CAST(PDerived, r);
+        PDerivedPtr p2 = dynamic_pointer_cast<PDerived>(r);
         test(p2);
         test(p2->pi == 3);
         test(p2->ps == "preserved");
@@ -2543,9 +2544,8 @@ allTests(Test::TestHelper* helper)
         pu->pu = "preserved";
 
         PBasePtr r = test->exchangePBase(pu);
-
         test(r->pi == 3);
-        PCUnknownPtr p2 = ICE_DYNAMIC_CAST(PCUnknown, r);
+        PCUnknownPtr p2 = dynamic_pointer_cast<PCUnknown>(r);
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
@@ -2572,7 +2572,7 @@ allTests(Test::TestHelper* helper)
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
         PBasePtr r = test->exchangePBase(pcd);
-        PCDerivedPtr p2 = ICE_DYNAMIC_CAST(PCDerived, r);
+        PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
@@ -2603,7 +2603,7 @@ allTests(Test::TestHelper* helper)
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
         PBasePtr r = test->exchangePBase(pcd);
-        CompactPCDerivedPtr p2 = ICE_DYNAMIC_CAST(CompactPCDerived, r);
+        CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
@@ -2648,11 +2648,11 @@ allTests(Test::TestHelper* helper)
         pcd->pcd3 = pcd->pbs[10];
 
         PBasePtr r = test->exchangePBase(pcd);
-        PCDerived3Ptr p3 = ICE_DYNAMIC_CAST(PCDerived3, r);
+        PCDerived3Ptr p3 = dynamic_pointer_cast<PCDerived3>(r);
         if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p3);
-            test(ICE_DYNAMIC_CAST(Preserved, r));
+            test(dynamic_pointer_cast<Preserved>(r));
             test(r->pi == 3);
         }
         else
@@ -2661,7 +2661,7 @@ allTests(Test::TestHelper* helper)
             test(p3->pi == 3);
             for(i = 0; i < 300; ++i)
             {
-                PCDerived2Ptr p2 = ICE_DYNAMIC_CAST(PCDerived2, p3->pbs[static_cast<size_t>(i)]);
+                PCDerived2Ptr p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[static_cast<size_t>(i)]);
                 test(p2->pi == i);
                 test(p2->pbs.size() == 1);
                 test(!p2->pbs[0]);

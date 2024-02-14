@@ -41,24 +41,21 @@ class SliceUnicodePathsTestCase(ClientTestCase):
         )
 
         tests = [
-            ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl-c++11"),
-            ("cpp", ["Test.cpp", "Test.h", "TestI.cpp", "TestI.h"], "--impl-c++98"),
-            ("cs", ["Test.cs", "TestI.cs"], "--impl"),
-            ("html", ["index.html"], ""),
-            ("java", ["Test/Point.java", "Test/CanvasI.java"], "--impl"),
-            ("js", ["Test.js"], ""),
-            ("php", ["Test.php"], ""),
+            ("cpp", ["Test.cpp", "Test.h"]),
+            ("cs", ["Test.cs"]),
+            ("html", ["index.html"]),
+            ("java", ["Test/Point.java"]),
+            ("js", ["Test.js"]),
+            ("php", ["Test.php"]),
         ]
 
         try:
-            for language, generated, args in tests:
+            for language, generated in tests:
                 compiler = SliceTranslator("slice2%s" % language)
                 if not os.path.isfile(compiler.getCommandLine(current)):
                     continue
 
-                args = [srcPath + "/Test.ice", "--output-dir", srcPath] + args.split(
-                    " "
-                )
+                args = [srcPath + "/Test.ice", "--output-dir", srcPath]
                 compiler.run(current, args=args)
 
                 for f in generated:

@@ -637,9 +637,9 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
 {
     assert(self->connection);
 
-    IceUtil::Optional<Ice::Int> timeout;
-    IceUtil::Optional<Ice::ACMClose> close;
-    IceUtil::Optional<Ice::ACMHeartbeat> heartbeat;
+    optional<Ice::Int> timeout;
+    optional<Ice::ACMClose> close;
+    optional<Ice::ACMHeartbeat> heartbeat;
 
     PyObject* acmCloseType = lookupType("Ice.ACMClose");
     PyObject* acmHeartbeatType = lookupType("Ice.ACMHeartbeat");

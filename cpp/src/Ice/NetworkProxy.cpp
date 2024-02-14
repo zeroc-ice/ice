@@ -10,8 +10,6 @@
 using namespace std;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(NetworkProxy* p) { return p; }
-
 NetworkProxy::~NetworkProxy()
 {
     // Out of line to avoid weak vtable
@@ -20,22 +18,22 @@ NetworkProxy::~NetworkProxy()
 namespace
 {
 
-class SOCKSNetworkProxy : public NetworkProxy
+class SOCKSNetworkProxy final : public NetworkProxy
 {
 public:
 
     SOCKSNetworkProxy(const string&, int);
     SOCKSNetworkProxy(const Address&);
 
-    virtual void beginWrite(const Address&, Buffer&);
-    virtual SocketOperation endWrite(Buffer&);
-    virtual void beginRead(Buffer&);
-    virtual SocketOperation endRead(Buffer&);
-    virtual void finish(Buffer&, Buffer&);
-    virtual NetworkProxyPtr resolveHost(ProtocolSupport) const;
-    virtual Address getAddress() const;
-    virtual string getName() const;
-    virtual ProtocolSupport getProtocolSupport() const;
+    void beginWrite(const Address&, Buffer&) final;
+    SocketOperation endWrite(Buffer&) final;
+    void beginRead(Buffer&) final;
+    SocketOperation endRead(Buffer&) final;
+    void finish(Buffer&, Buffer&) final;
+    NetworkProxyPtr resolveHost(ProtocolSupport) const final;
+    Address getAddress() const final;
+    string getName() const final;
+    ProtocolSupport getProtocolSupport() const final;
 
 private:
 
@@ -44,22 +42,22 @@ private:
     Address _address;
 };
 
-class HTTPNetworkProxy : public NetworkProxy
+class HTTPNetworkProxy final : public NetworkProxy
 {
 public:
 
     HTTPNetworkProxy(const string&, int);
     HTTPNetworkProxy(const Address&, ProtocolSupport);
 
-    virtual void beginWrite(const Address&, Buffer&);
-    virtual SocketOperation endWrite(Buffer&);
-    virtual void beginRead(Buffer&);
-    virtual SocketOperation endRead(Buffer&);
-    virtual void finish(Buffer&, Buffer&);
-    virtual NetworkProxyPtr resolveHost(ProtocolSupport) const;
-    virtual Address getAddress() const;
-    virtual string getName() const;
-    virtual ProtocolSupport getProtocolSupport() const;
+    void beginWrite(const Address&, Buffer&) final;
+    SocketOperation endWrite(Buffer&) final;
+    void beginRead(Buffer&) final;
+    SocketOperation endRead(Buffer&) final;
+    void finish(Buffer&, Buffer&) final;
+    NetworkProxyPtr resolveHost(ProtocolSupport) const final;
+    Address getAddress() const final;
+    string getName() const final;
+    ProtocolSupport getProtocolSupport() const final;
 
 private:
 
@@ -160,7 +158,7 @@ NetworkProxyPtr
 SOCKSNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return new SOCKSNetworkProxy(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0]);
+    return make_shared<SOCKSNetworkProxy>(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0]);
 }
 
 Address
@@ -263,7 +261,7 @@ NetworkProxyPtr
 HTTPNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return new HTTPNetworkProxy(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0], protocol);
+    return make_shared<HTTPNetworkProxy>(getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0], protocol);
 }
 
 Address
@@ -298,14 +296,14 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
             throw Ice::InitializationException(__FILE__, __LINE__, "IPv6 only is not supported with SOCKS4 proxies");
         }
         int proxyPort = properties->getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
-        return new SOCKSNetworkProxy(proxyHost, proxyPort);
+        return make_shared<SOCKSNetworkProxy>(proxyHost, proxyPort);
     }
 
     proxyHost = properties->getProperty("Ice.HTTPProxyHost");
     if(!proxyHost.empty())
     {
-        return new HTTPNetworkProxy(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+        return make_shared<HTTPNetworkProxy>(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
     }
 
-    return 0;
+    return nullptr;
 }

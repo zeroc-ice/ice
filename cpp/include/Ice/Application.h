@@ -6,7 +6,6 @@
 #define ICE_APPLICATION_H
 
 #include <Ice/Initialize.h>
-#include <IceUtil/Mutex.h>
 #include <IceUtil/Cond.h>
 #include <IceUtil/CtrlCHandler.h>
 

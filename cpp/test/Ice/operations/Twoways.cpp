@@ -1717,7 +1717,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
                 test(r == ctx);
             }
             {
-                Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
+                Test::MyClassPrxPtr p2 = Ice::checkedCast<Test::MyClassPrx>(p->ice_context(ctx));
                 test(p2->ice_getContext() == ctx);
                 Test::StringStringD r = p2->opContext();
                 test(r == ctx);
@@ -1747,9 +1747,8 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
                 ctx["three"] = "THREE";
 
                 Ice::PropertiesPtr properties = ic->getProperties();
-                Test::MyClassPrxPtr q =
-                    ICE_UNCHECKED_CAST(Test::MyClassPrx,
-                                       ic->stringToProxy("test:" + TestHelper::getTestEndpoint(properties, 0)));
+                Test::MyClassPrxPtr q = Ice::uncheckedCast<Test::MyClassPrx>(
+                    ic->stringToProxy("test:" + TestHelper::getTestEndpoint(properties, 0)));
 
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
@@ -1771,7 +1770,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
 
-                q = ICE_UNCHECKED_CAST(Test::MyClassPrx, q->ice_context(prxContext));
+                q = Ice::uncheckedCast<Test::MyClassPrx>(q->ice_context(prxContext));
 
                 ic->getImplicitContext()->setContext(Ice::Context());
                 test(q->opContext() == prxContext);
@@ -1783,7 +1782,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
                 if(impls[i] == "PerThread")
                 {
-                    IceUtil::ThreadPtr thread = new PerThreadContextInvokeThread(q->ice_context(Ice::Context()));
+                    IceUtil::ThreadPtr thread = make_shared<PerThreadContextInvokeThread>(q->ice_context(Ice::Context()));
                     thread->start();
                     thread->getThreadControl().join();
                 }
@@ -1812,7 +1811,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     test(p->opDouble1(1.0) == 1.0);
     test(p->opString1("opString1") == "opString1");
 
-    Test::MyDerivedClassPrxPtr d = ICE_UNCHECKED_CAST(Test::MyDerivedClassPrx, p);
+    auto d = Ice::uncheckedCast<Test::MyDerivedClassPrx>(p);
 
     Test::MyStruct1 s;
     s.tesT = "Test::MyStruct1::s";

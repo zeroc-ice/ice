@@ -99,7 +99,7 @@ IceObjC::StreamTransceiver::initStreams(SelectorReadyCallback* callback)
 SocketOperation
 IceObjC::StreamTransceiver::registerWithRunLoop(SocketOperation op)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     SocketOperation readyOp = SocketOperationNone;
     if(op & SocketOperationConnect)
     {
@@ -162,7 +162,7 @@ IceObjC::StreamTransceiver::registerWithRunLoop(SocketOperation op)
 SocketOperation
 IceObjC::StreamTransceiver::unregisterFromRunLoop(SocketOperation op, bool error)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     _error |= error;
 
     if(_opening)
@@ -228,7 +228,7 @@ IceObjC::StreamTransceiver::closeStreams()
 SocketOperation
 IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     if(_state == StateNeedConnect)
     {
         _state = StateConnectPending;
@@ -286,7 +286,7 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
 }
 
 SocketOperation
-IceObjC::StreamTransceiver::closing(bool initiator, const Ice::LocalException&)
+IceObjC::StreamTransceiver::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.
@@ -317,7 +317,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
     // Don't hold the lock while calling on the CFStream API to avoid deadlocks in case the CFStream API calls
     // the stream notification callbacks with an internal lock held.
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
         if(_error)
         {
             checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
@@ -366,7 +366,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
     // Don't hold the lock while calling on the CFStream API to avoid deadlocks in case the CFStream API calls
     // the stream notification callbacks with an internal lock held.
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
         if (_error)
         {
             checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);

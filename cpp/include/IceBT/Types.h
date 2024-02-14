@@ -5,14 +5,14 @@
 #ifndef __IceBT_Types_h__
 #define __IceBT_Types_h__
 
+#include <IceUtil/PushDisableWarnings.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
-#include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/ExceptionHelpers.h>
 #include <IceUtil/UndefSysMacros.h>
 
@@ -90,4 +90,5 @@ public:
 
 }
 
+#include <IceUtil/PopDisableWarnings.h>
 #endif

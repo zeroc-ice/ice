@@ -16,29 +16,30 @@
 namespace IceBT
 {
 
-class AcceptorI : public IceInternal::Acceptor, public IceInternal::NativeInfo
+class AcceptorI final :
+    public IceInternal::Acceptor,
+    public IceInternal::NativeInfo,
+    public std::enable_shared_from_this<AcceptorI>
 {
 public:
 
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
+    AcceptorI(const EndpointIPtr&, const InstancePtr&, const std::string&, const std::string&, const std::string&,
+              const std::string&, int);
+    ~AcceptorI();
+    IceInternal::NativeInfoPtr getNativeInfo() final;
 
-    virtual void close();
-    virtual IceInternal::EndpointIPtr listen();
-    virtual IceInternal::TransceiverPtr accept();
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
+    void close() final;
+    IceInternal::EndpointIPtr listen() final;
+    IceInternal::TransceiverPtr accept() final;
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
 
     int effectiveChannel() const;
 
     void newConnection(int);
 
 private:
-
-    AcceptorI(const EndpointIPtr&, const InstancePtr&, const std::string&, const std::string&, const std::string&,
-              const std::string&, int);
-    virtual ~AcceptorI();
-    friend class EndpointI;
 
     EndpointIPtr _endpoint;
     const InstancePtr _instance;
@@ -49,7 +50,7 @@ private:
     const int _channel;
     std::string _path;
 
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
+    std::mutex _mutex;
     std::stack<IceInternal::TransceiverPtr> _transceivers;
 };
 

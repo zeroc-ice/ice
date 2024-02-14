@@ -19,38 +19,38 @@ namespace IceInternal
 class ConnectorI;
 class AcceptorI;
 
-class WSTransceiver : public Transceiver
+class WSTransceiver final : public Transceiver
 {
 public:
 
-    virtual NativeInfoPtr getNativeInfo();
-#if defined(ICE_USE_IOCP)
-    virtual AsyncInfo* getAsyncInfo(SocketOperation);
-#endif
-
-    virtual SocketOperation initialize(Buffer&, Buffer&);
-    virtual SocketOperation closing(bool, const Ice::LocalException&);
-    virtual void close();
-    virtual SocketOperation write(Buffer&);
-    virtual SocketOperation read(Buffer&);
-#if defined(ICE_USE_IOCP)
-    virtual bool startWrite(Buffer&);
-    virtual void finishWrite(Buffer&);
-    virtual void startRead(Buffer&);
-    virtual void finishRead(Buffer&);
-#endif
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
-    virtual Ice::ConnectionInfoPtr getInfo() const;
-    virtual void checkSendSize(const Buffer&);
-    virtual void setBufferSize(int rcvSize, int sndSize);
-
-private:
-
     WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, const std::string&);
     WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&);
-    virtual ~WSTransceiver();
+    ~WSTransceiver();
+
+    NativeInfoPtr getNativeInfo() final;
+#if defined(ICE_USE_IOCP)
+    AsyncInfo* getAsyncInfo(SocketOperation);
+#endif
+
+    SocketOperation initialize(Buffer&, Buffer&) final;
+    SocketOperation closing(bool, std::exception_ptr) final;
+    void close() final;
+    SocketOperation write(Buffer&) final;
+    SocketOperation read(Buffer&) final;
+#if defined(ICE_USE_IOCP)
+    bool startWrite(Buffer&) final;
+    void finishWrite(Buffer&) final;
+    void startRead(Buffer&) final;
+    void finishRead(Buffer&) final;
+#endif
+    std::string protocol() const final;
+    std::string toString() const final;
+    std::string toDetailedString() const final;
+    Ice::ConnectionInfoPtr getInfo() const final;
+    void checkSendSize(const Buffer&) final;
+    void setBufferSize(int rcvSize, int sndSize) final;
+
+private:
 
     void handleRequest(Buffer&);
     void handleResponse();

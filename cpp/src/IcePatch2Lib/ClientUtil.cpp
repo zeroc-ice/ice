@@ -30,7 +30,7 @@ IcePatch2::PatcherFeedback::~PatcherFeedback()
 namespace
 {
 
-class Decompressor : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+class Decompressor : public IceUtil::Thread
 {
 public:
 
@@ -51,8 +51,10 @@ private:
     list<LargeFileInfo> _files;
     LargeFileInfoSeq _filesDone;
     bool _destroy;
+    mutable std::mutex _mutex;
+    std::condition_variable _conditionVariable;
 };
-typedef IceUtil::Handle<Decompressor> DecompressorPtr;
+using DecompressorPtr = std::shared_ptr<Decompressor>;
 
 class PatcherI : public Patcher
 {
@@ -105,27 +107,27 @@ Decompressor::~Decompressor()
 void
 Decompressor::destroy()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     _destroy = true;
-    notify();
+    _conditionVariable.notify_one();
 }
 
 void
 Decompressor::add(const LargeFileInfo& info)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_exception.empty())
     {
         throw runtime_error(_exception);
     }
     _files.push_back(info);
-    notify();
+    _conditionVariable.notify_one();
 }
 
 void
 Decompressor::exception() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(!_exception.empty())
     {
         throw runtime_error(_exception);
@@ -135,7 +137,7 @@ Decompressor::exception() const
 void
 Decompressor::log(FILE* fp)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     for(LargeFileInfoSeq::const_iterator p = _filesDone.begin(); p != _filesDone.end(); ++p)
     {
@@ -156,26 +158,22 @@ Decompressor::run()
     while(true)
     {
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            unique_lock lock(_mutex);
 
             if(!info.path.empty())
             {
                 _filesDone.push_back(info);
             }
 
-            while(!_destroy && _files.empty())
+            _conditionVariable.wait(lock, [this] { return _destroy || !_files.empty(); });
+            if(_files.empty())
             {
-                wait();
-            }
-
-            if(!_files.empty())
-            {
-                info = _files.front();
-                _files.pop_front();
+                return;
             }
             else
             {
-                return;
+                info = _files.front();
+                _files.pop_front();
             }
         }
 
@@ -187,7 +185,7 @@ Decompressor::run()
         }
         catch(const std::exception& ex)
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            lock_guard lock(_mutex);
             _destroy = true;
             _exception = ex.what();
             return;
@@ -211,7 +209,7 @@ PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr
         throw runtime_error("property `IcePatch2Client.Proxy' is not set");
     }
 
-    FileServerPrxPtr server = ICE_CHECKED_CAST(FileServerPrx, communicator->stringToProxy(clientProxy));
+    FileServerPrxPtr server = Ice::checkedCast<FileServerPrx>(communicator->stringToProxy(clientProxy));
     if(!server)
     {
         throw runtime_error("proxy `" + clientProxy + "' is not a file server.");
@@ -715,9 +713,9 @@ PatcherI::init(const FileServerPrxPtr& server)
     }
 
     const_cast<FileServerPrxPtr&>(_serverCompress) =
-        ICE_UNCHECKED_CAST(FileServerPrx, server->ice_compress(true));
+        Ice::uncheckedCast<FileServerPrx>(server->ice_compress(true));
     const_cast<FileServerPrxPtr&>(_serverNoCompress) =
-        ICE_UNCHECKED_CAST(FileServerPrx, server->ice_compress(false));
+        Ice::uncheckedCast<FileServerPrx>(server->ice_compress(false));
 }
 
 bool
@@ -776,7 +774,7 @@ PatcherI::removeFiles(const LargeFileInfoSeq& files)
 bool
 PatcherI::updateFiles(const LargeFileInfoSeq& files)
 {
-    DecompressorPtr decompressor = new Decompressor(_dataDir);
+    auto decompressor = make_shared<Decompressor>(_dataDir);
 #if defined(__hppa)
     //
     // The thread stack size is only 64KB only HP-UX and that's not

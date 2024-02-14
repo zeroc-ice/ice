@@ -54,11 +54,7 @@ MyDerivedClassI::shutdown(const Ice::Current& current)
 bool
 MyDerivedClassI::supportsCompress(const Ice::Current&)
 {
-#if defined(ICE_OS_UWP)
-    return false;
-#else
     return true;
-#endif
 }
 
 void
@@ -140,10 +136,8 @@ MyDerivedClassI::opMyClass(Test::MyClassPrxPtr p1,
                            const Ice::Current& current)
 {
     p2 = p1;
-    p3 = ICE_UNCHECKED_CAST(Test::MyClassPrx,
-                            current.adapter->createProxy(
-                                stringToIdentity("noSuchIdentity")));
-    return ICE_UNCHECKED_CAST(Test::MyClassPrx, current.adapter->createProxy(current.id));
+    p3 = Ice::uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(stringToIdentity("noSuchIdentity")));
+    return Ice::uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(current.id));
 }
 
 Test::Structure

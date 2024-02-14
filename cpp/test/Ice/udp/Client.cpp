@@ -33,7 +33,7 @@ Client::run(int argc, char** argv)
     {
         ostringstream os;
         os << "control:" << getTestEndpoint(i, "tcp");
-        ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy(os.str()))->shutdown();
+        Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy(os.str()))->shutdown();
     }
 }
 

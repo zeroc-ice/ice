@@ -855,7 +855,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
         throw SecurityException(__FILE__, __LINE__, "IceSSL: error reading cipher info:\n" + secStatusToString(err));
     }
 
-    ConnectionInfoPtr info = ICE_DYNAMIC_CAST(ConnectionInfo, getInfo());
+    auto info = dynamic_pointer_cast<ConnectionInfo>(getInfo());
     try
     {
         _engine->verifyPeerCertName(_host, info);
@@ -864,7 +864,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
     {
         _trustError = IceSSL::TrustError::HostNameMismatch;
         _verified = false;
-        ICE_DYNAMIC_CAST(ExtendedConnectionInfo, info)->errorCode = IceSSL::TrustError::HostNameMismatch;
+        dynamic_pointer_cast<ExtendedConnectionInfo>(info)->errorCode = IceSSL::TrustError::HostNameMismatch;
         info->verified = false;
         if(_engine->getVerifyPeer() > 0)
         {
@@ -907,7 +907,7 @@ SChannel::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal:
 }
 
 IceInternal::SocketOperation
-SChannel::TransceiverI::closing(bool initiator, const Ice::LocalException&)
+SChannel::TransceiverI::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.
@@ -1141,7 +1141,7 @@ SChannel::TransceiverI::TransceiverI(const InstancePtr& instance,
                                    const string& hostOrAdapterName,
                                    bool incoming) :
     _instance(instance),
-    _engine(SChannel::SSLEnginePtr::dynamicCast(instance->engine())),
+    _engine(dynamic_pointer_cast<SChannel::SSLEngine>(instance->engine())),
     _host(incoming ? "" : hostOrAdapterName),
     _adapterName(incoming ? hostOrAdapterName : ""),
     _incoming(incoming),

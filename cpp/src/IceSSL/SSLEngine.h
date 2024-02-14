@@ -11,7 +11,6 @@
 #include <IceSSL/TrustManagerF.h>
 #include <IceSSL/InstanceF.h>
 
-#include <IceUtil/Shared.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/Network.h>
 #include <Ice/TransceiverF.h>
@@ -19,7 +18,7 @@
 namespace IceSSL
 {
 
-class ICESSL_API SSLEngine : public IceUtil::Shared
+class ICESSL_API SSLEngine
 {
 public:
 
@@ -73,7 +72,7 @@ public:
 protected:
 
     bool _initialized;
-    IceUtil::Mutex _mutex;
+    mutable std::mutex _mutex;
 
 private:
 

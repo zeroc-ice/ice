@@ -134,7 +134,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     try
     {
         _communicator = Ice::initialize(args, initData, version);
-        _router = ICE_UNCHECKED_CAST(Glacier2::RouterPrx, communicator()->getDefaultRouter());
+        _router = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator()->getDefaultRouter());
 
         if(!_router)
         {
@@ -184,7 +184,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
                 {
                     Ice::ConnectionPtr connection = _router->ice_getCachedConnection();
                     assert(connection);
-                    connection->setACM(acmTimeout, IceUtil::None, ACMHeartbeat::HeartbeatAlways);
+                    connection->setACM(acmTimeout, nullopt, ACMHeartbeat::HeartbeatAlways);
                     connection->setCloseCallback(
                         [this](Ice::ConnectionPtr)
                         {

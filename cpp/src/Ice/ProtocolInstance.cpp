@@ -14,8 +14,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(ProtocolInstance* p) { return p; }
-
 IceInternal::ProtocolInstance::~ProtocolInstance()
 {
     // Out of line to avoid weak vtable
@@ -124,8 +122,13 @@ IceInternal::ProtocolInstance::messageSizeMax() const
 }
 
 void
-IceInternal::ProtocolInstance::resolve(const string& host, int port, EndpointSelectionType type,
-                                       const IPEndpointIPtr& endpt, const EndpointI_connectorsPtr& cb) const
+IceInternal::ProtocolInstance::resolve(
+    const string& host,
+    int port,
+    EndpointSelectionType type,
+    const IPEndpointIPtr& endpoint,
+    std::function<void(std::vector<ConnectorPtr>)> response,
+    std::function<void(exception_ptr)> exception) const
 {
-    _instance->endpointHostResolver()->resolve(host, port, type, endpt, cb);
+    _instance->endpointHostResolver()->resolve(host, port, type, endpoint, response, exception);
 }

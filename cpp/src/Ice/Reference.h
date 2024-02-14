@@ -5,7 +5,6 @@
 #ifndef ICE_REFERENCE_H
 #define ICE_REFERENCE_H
 
-#include <IceUtil/Shared.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/EndpointIF.h>
@@ -34,18 +33,11 @@ class OutputStream;
 namespace IceInternal
 {
 
-class Reference : public IceUtil::Shared
+class Reference : public std::enable_shared_from_this<Reference>
 {
 public:
 
-    class GetConnectionCallback
-    {
-    public:
-
-        virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
-    };
-    using GetConnectionCallbackPtr = std::shared_ptr<GetConnectionCallback>;
+    virtual ~Reference() = default;
 
     enum Mode
     {
@@ -58,6 +50,8 @@ public:
     };
 
     Mode getMode() const { return _mode; }
+    bool isBatch() const { return _mode == ModeBatchOneway || _mode == ModeBatchDatagram; }
+    bool isTwoway() const { return _mode == ModeTwoway; }
     bool getSecure() const { return _secure; }
     const Ice::ProtocolVersion& getProtocol() const { return _protocol; }
     const Ice::EncodingVersion& getEncoding() const { return _encoding; }
@@ -66,9 +60,9 @@ public:
     const InstancePtr& getInstance() const { return _instance; }
     const SharedContextPtr& getContext() const { return _context; }
     int getInvocationTimeout() const { return _invocationTimeout; }
-    IceUtil::Optional<bool> getCompress() const
+    std::optional<bool> getCompress() const
     {
-        return _overrideCompress ? IceUtil::Optional<bool>(_compress) : IceUtil::None;
+        return _overrideCompress ? std::optional<bool>(_compress) : std::nullopt;
     }
 
     Ice::CommunicatorPtr getCommunicator() const;
@@ -83,7 +77,7 @@ public:
     virtual Ice::EndpointSelectionType getEndpointSelection() const = 0;
     virtual int getLocatorCacheTimeout() const = 0;
     virtual std::string getConnectionId() const = 0;
-    virtual IceUtil::Optional<int> getTimeout() const = 0;
+    virtual std::optional<int> getTimeout() const = 0;
 
     //
     // The change* methods (here and in derived classes) create
@@ -134,14 +128,14 @@ public:
     virtual std::string toString() const;
 
     //
-    // Convert the refernce to its property form.
+    // Convert the reference to its property form.
     //
     virtual Ice::PropertyDict toProperty(const std::string&) const = 0;
 
     //
     // Get a suitable connection for this reference.
     //
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const = 0;
+    virtual RequestHandlerPtr getRequestHandler() const = 0;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const = 0;
 
     virtual bool operator==(const Reference&) const;
@@ -157,9 +151,12 @@ protected:
 
     virtual Ice::Int hashInit() const;
 
+    const InstancePtr _instance;
+    bool _overrideCompress;
+    bool _compress; // Only used if _overrideCompress == true
+
 private:
 
-    const InstancePtr _instance;
     const Ice::CommunicatorPtr _communicator;
 
     Mode _mode;
@@ -173,11 +170,6 @@ private:
     Ice::ProtocolVersion _protocol;
     Ice::EncodingVersion _encoding;
     int _invocationTimeout;
-
-protected:
-
-    bool _overrideCompress;
-    bool _compress; // Only used if _overrideCompress == true
 };
 
 class FixedReference : public Reference
@@ -186,7 +178,9 @@ public:
 
     FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode,
                    bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const Ice::ConnectionIPtr&,
-                   int, const Ice::Context&, const IceUtil::Optional<bool>&);
+                   int, const Ice::Context&, const std::optional<bool>&);
+
+    FixedReference(const FixedReference&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;
@@ -196,7 +190,7 @@ public:
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
     virtual int getLocatorCacheTimeout() const;
     virtual std::string getConnectionId() const;
-    virtual IceUtil::Optional<int> getTimeout() const;
+    virtual std::optional<int> getTimeout() const;
 
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
@@ -218,7 +212,7 @@ public:
     virtual void streamWrite(Ice::OutputStream*) const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
+    virtual RequestHandlerPtr getRequestHandler() const;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
     virtual bool operator==(const Reference&) const;
@@ -228,10 +222,10 @@ public:
 
 private:
 
-    FixedReference(const FixedReference&);
-
     Ice::ConnectionIPtr _fixedConnection;
 };
+
+using FixedReferencePtr = std::shared_ptr<FixedReference>;
 
 class RoutableReference : public Reference
 {
@@ -241,6 +235,8 @@ public:
                       bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::vector<EndpointIPtr>&,
                       const std::string&, const LocatorInfoPtr&, const RouterInfoPtr&, bool, bool, bool,
                       Ice::EndpointSelectionType, int, int, const Ice::Context&);
+
+    RoutableReference(const RoutableReference&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;
@@ -252,7 +248,7 @@ public:
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
     virtual int getLocatorCacheTimeout() const;
     virtual std::string getConnectionId() const;
-    virtual IceUtil::Optional<int> getTimeout() const;
+    virtual std::optional<int> getTimeout() const;
 
     virtual ReferencePtr changeEncoding(const Ice::EncodingVersion&) const;
     virtual ReferencePtr changeCompress(bool) const;
@@ -282,24 +278,31 @@ public:
 
     virtual ReferencePtr clone() const;
 
-    virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
+    virtual RequestHandlerPtr getRequestHandler() const;
     virtual BatchRequestQueuePtr getBatchRequestQueue() const;
 
-    void getConnection(const GetConnectionCallbackPtr&) const;
-    void getConnectionNoRouterInfo(const GetConnectionCallbackPtr&) const;
+    void getConnectionAsync(
+        std::function<void(Ice::ConnectionIPtr, bool)> response,
+        std::function<void(std::exception_ptr)> exception) const;
 
-    void createConnection(const std::vector<EndpointIPtr>&, const GetConnectionCallbackPtr&) const;
     void applyOverrides(std::vector<EndpointIPtr>&) const;
 
 protected:
-
-    RoutableReference(const RoutableReference&);
 
     std::vector<EndpointIPtr> filterEndpoints(const std::vector<EndpointIPtr>&) const;
 
     virtual int hashInit() const;
 
 private:
+
+    void createConnectionAsync(
+        const std::vector<EndpointIPtr>&,
+        std::function<void(Ice::ConnectionIPtr, bool)> response,
+        std::function<void(std::exception_ptr)> exception) const;
+
+    void getConnectionNoRouterInfoAsync(
+        std::function<void(Ice::ConnectionIPtr, bool)> response,
+        std::function<void(std::exception_ptr)> exception) const;
 
     std::vector<EndpointIPtr> _endpoints; // Empty if indirect proxy.
     std::string _adapterId; // Empty if direct proxy.
@@ -316,6 +319,8 @@ private:
     int _timeout; // Only used if _overrideTimeout == true
     std::string _connectionId;
 };
+
+using RoutableReferencePtr = std::shared_ptr<RoutableReference>;
 
 }
 

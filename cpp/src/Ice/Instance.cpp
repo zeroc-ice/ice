@@ -24,7 +24,6 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/IPEndpointI.h> // For EndpointHostResolver
 #include <Ice/WSEndpoint.h>
-#include <Ice/RequestHandlerFactory.h>
 #include <Ice/RetryQueue.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
@@ -186,24 +185,32 @@ class Timer : public IceUtil::Timer
 {
 public:
 
-    Timer(int priority) :
-        IceUtil::Timer(priority),
-        _hasObserver(0)
+    static TimerPtr create()
     {
+        auto timer = shared_ptr<Timer>(new Timer());
+        timer->start();
+        return timer;
     }
 
-    Timer() :
-        _hasObserver(0)
+    static TimerPtr create(int priority)
     {
+        auto timer = shared_ptr<Timer>(new Timer());
+        timer->start(0, priority);
+        return timer;
     }
 
     void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
 private:
 
+    Timer() :
+        _hasObserver(0)
+    {
+    }
+
     virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     std::atomic<bool> _hasObserver;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 };
@@ -213,7 +220,7 @@ private:
 void
 Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     assert(obsv);
     _observer.attach(obsv->getThreadObserver("Communicator",
                                             "Ice.Timer",
@@ -225,11 +232,11 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 void
 Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
 {
-    if(_hasObserver != 0)
+    if(_hasObserver)
     {
         Ice::Instrumentation::ThreadObserverPtr threadObserver;
         {
-            IceUtil::Mutex::Lock sync(_mutex);
+            lock_guard lock(_mutex);
             threadObserver = _observer.get();
         }
         if(threadObserver)
@@ -261,8 +268,6 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
     }
 }
 
-IceUtil::Shared* IceInternal::upCast(Instance* p) { return p; }
-
 IceInternal::ObserverUpdaterI::ObserverUpdaterI(const InstancePtr& instance) : _instance(instance)
 {
 }
@@ -282,7 +287,7 @@ IceInternal::ObserverUpdaterI::updateThreadObservers()
 bool
 IceInternal::Instance::destroyed() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _state == StateDestroyed;
 }
 
@@ -305,7 +310,7 @@ IceInternal::Instance::defaultsAndOverrides() const
 RouterManagerPtr
 IceInternal::Instance::routerManager() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -319,7 +324,7 @@ IceInternal::Instance::routerManager() const
 LocatorManagerPtr
 IceInternal::Instance::locatorManager() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -333,7 +338,7 @@ IceInternal::Instance::locatorManager() const
 ReferenceFactoryPtr
 IceInternal::Instance::referenceFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -344,24 +349,10 @@ IceInternal::Instance::referenceFactory() const
     return _referenceFactory;
 }
 
-RequestHandlerFactoryPtr
-IceInternal::Instance::requestHandlerFactory() const
-{
-    Lock sync(*this);
-
-    if(_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    assert(_requestHandlerFactory);
-    return _requestHandlerFactory;
-}
-
 ProxyFactoryPtr
 IceInternal::Instance::proxyFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -375,7 +366,7 @@ IceInternal::Instance::proxyFactory() const
 OutgoingConnectionFactoryPtr
 IceInternal::Instance::outgoingConnectionFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -389,7 +380,7 @@ IceInternal::Instance::outgoingConnectionFactory() const
 ObjectAdapterFactoryPtr
 IceInternal::Instance::objectAdapterFactory() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -421,7 +412,7 @@ IceInternal::Instance::networkProxy() const
 ThreadPoolPtr
 IceInternal::Instance::clientThreadPool()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -435,7 +426,7 @@ IceInternal::Instance::clientThreadPool()
 ThreadPoolPtr
 IceInternal::Instance::serverThreadPool()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -449,7 +440,7 @@ IceInternal::Instance::serverThreadPool()
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
         int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
-        _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
+        _serverThreadPool = ThreadPool::create(shared_from_this(), "Ice.ThreadPool.Server", timeout);
     }
 
     return _serverThreadPool;
@@ -458,7 +449,7 @@ IceInternal::Instance::serverThreadPool()
 EndpointHostResolverPtr
 IceInternal::Instance::endpointHostResolver()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -472,7 +463,7 @@ IceInternal::Instance::endpointHostResolver()
 RetryQueuePtr
 IceInternal::Instance::retryQueue()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -486,7 +477,7 @@ IceInternal::Instance::retryQueue()
 IceUtil::TimerPtr
 IceInternal::Instance::timer()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -499,7 +490,7 @@ IceInternal::Instance::timer()
 EndpointFactoryManagerPtr
 IceInternal::Instance::endpointFactoryManager() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -513,7 +504,7 @@ IceInternal::Instance::endpointFactoryManager() const
 DynamicLibraryListPtr
 IceInternal::Instance::dynamicLibraryList() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -527,7 +518,7 @@ IceInternal::Instance::dynamicLibraryList() const
 PluginManagerPtr
 IceInternal::Instance::pluginManager() const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -558,7 +549,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     ObjectAdapterPtr adapter = adminAdapter;
     bool createAdapter = !adminAdapter;
 
-    Lock sync(*this);
+    unique_lock lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -595,7 +586,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     _adminIdentity = adminIdentity;
     _adminAdapter = adapter;
     addAllAdminFacets();
-    sync.release();
+    lock.unlock();
 
     if(createAdapter)
     {
@@ -611,8 +602,8 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
             // in the adapter are lost)
             //
             adapter->destroy();
-            sync.acquire();
-            _adminAdapter = 0;
+            lock.lock();
+            _adminAdapter = nullptr;
             throw;
         }
     }
@@ -623,7 +614,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
 Ice::ObjectPrxPtr
 IceInternal::Instance::getAdmin()
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -657,7 +648,7 @@ IceInternal::Instance::getAdmin()
         _adminIdentity = adminIdentity;
         _adminAdapter = adapter;
         addAllAdminFacets();
-        sync.release();
+        lock.unlock();
         try
         {
             adapter->activate();
@@ -670,8 +661,8 @@ IceInternal::Instance::getAdmin()
             // in the adapter are lost)
             //
             adapter->destroy();
-            sync.acquire();
-            _adminAdapter = 0;
+            lock.lock();
+            _adminAdapter = nullptr;
             throw;
         }
 
@@ -716,7 +707,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
     const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
     if(locator && serverId != "")
     {
-        ProcessPrxPtr process = ICE_UNCHECKED_CAST(ProcessPrx, admin->ice_facet("Process"));
+        ProcessPrxPtr process = Ice::uncheckedCast<ProcessPrx>(admin->ice_facet("Process"));
         try
         {
             //
@@ -758,7 +749,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
 void
 IceInternal::Instance::addAdminFacet(const shared_ptr<Object>& servant, const string& facet)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -781,7 +772,7 @@ IceInternal::Instance::addAdminFacet(const shared_ptr<Object>& servant, const st
 shared_ptr<Object>
 IceInternal::Instance::removeAdminFacet(const string& facet)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -814,7 +805,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
 shared_ptr<Object>
 IceInternal::Instance::findAdminFacet(const string& facet)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -846,7 +837,7 @@ IceInternal::Instance::findAdminFacet(const string& facet)
 FacetMap
 IceInternal::Instance::findAllAdminFacets()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -872,7 +863,7 @@ IceInternal::Instance::findAllAdminFacets()
 void
 IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocator)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -885,7 +876,7 @@ IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocato
 void
 IceInternal::Instance::setDefaultRouter(const Ice::RouterPrxPtr& defaultRouter)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_state == StateDestroyed)
     {
@@ -917,7 +908,15 @@ bool logStdErrConvert = true;
 
 }
 
-IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
+InstancePtr
+IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
+{
+    auto instance = shared_ptr<Instance>(new Instance(initData));
+    instance->initialize(communicator);
+    return instance;
+}
+
+IceInternal::Instance::Instance(const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
     _messageSizeMax(0),
@@ -925,14 +924,18 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _classGraphDepthMax(0),
     _toStringMode(ToStringMode::Unicode),
     _acceptClassCycles(false),
-    _implicitContext(0),
+    _implicitContext(nullptr),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
     _adminEnabled(false)
 {
+}
+
+void
+IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
+{
     try
     {
-        __setNoDelete(true);
         {
             lock_guard lock(staticMutex);
             instanceList->push_back(this);
@@ -1106,17 +1109,17 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             else
             {
                 _initData.logger = getProcessLogger();
-                if(ICE_DYNAMIC_CAST(LoggerI, _initData.logger))
+                if(dynamic_pointer_cast<LoggerI>(_initData.logger))
                 {
                     _initData.logger = make_shared<LoggerI>(_initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
                 }
             }
         }
 
-        const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_initData.properties);
+        const_cast<TraceLevelsPtr&>(_traceLevels) = make_shared<TraceLevels>(_initData.properties);
 
         const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) =
-            new DefaultsAndOverrides(_initData.properties, _initData.logger);
+            make_shared<DefaultsAndOverrides>(_initData.properties, _initData.logger);
 
         const ACMConfig defaultClientACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(false));
         const ACMConfig defaultServerACM(_initData.properties, _initData.logger, "Ice.ACM", ACMConfig(true));
@@ -1203,15 +1206,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         const_cast<ImplicitContextIPtr&>(_implicitContext) =
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
 
-        _routerManager = new RouterManager;
+        _routerManager = make_shared<RouterManager>();
 
-        _locatorManager = new LocatorManager(_initData.properties);
+        _locatorManager = make_shared<LocatorManager>(_initData.properties);
 
-        _referenceFactory = new ReferenceFactory(this, communicator);
+        _referenceFactory = make_shared<ReferenceFactory>(shared_from_this(), communicator);
 
-        _requestHandlerFactory = new RequestHandlerFactory(this);
-
-        _proxyFactory = new ProxyFactory(this);
+        _proxyFactory = make_shared<ProxyFactory>(shared_from_this());
 
         const bool isIPv6Supported = IceInternal::isIPv6Supported();
         const bool ipv4 = _initData.properties->getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
@@ -1236,9 +1237,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _networkProxy = IceInternal::createNetworkProxy(_initData.properties, _protocolSupport);
 
-        _endpointFactoryManager = new EndpointFactoryManager(this);
+        _endpointFactoryManager = make_shared<EndpointFactoryManager>(shared_from_this());
 
-        _dynamicLibraryList = new DynamicLibraryList;
+        _dynamicLibraryList = make_shared<DynamicLibraryList>();
 
         _pluginManager = make_shared<PluginManagerI>(communicator, _dynamicLibraryList);
 
@@ -1247,13 +1248,40 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _initData.valueFactoryManager = make_shared<ValueFactoryManagerI>();
         }
 
-        _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
+        _outgoingConnectionFactory = make_shared<OutgoingConnectionFactory>(communicator, shared_from_this());
 
-        _objectAdapterFactory = make_shared<ObjectAdapterFactory>(this, communicator);
+        _objectAdapterFactory = make_shared<ObjectAdapterFactory>(shared_from_this(), communicator);
 
-        _retryQueue = new RetryQueue(this);
+        _retryQueue = make_shared<RetryQueue>(shared_from_this());
 
-        __setNoDelete(false);
+        StringSeq retryValues = _initData.properties->getPropertyAsList("Ice.RetryIntervals");
+        if (retryValues.size() == 0)
+        {
+            _retryIntervals.push_back(0);
+        }
+        else
+        {
+            for (StringSeq::const_iterator p = retryValues.begin(); p != retryValues.end(); ++p)
+            {
+                istringstream value(*p);
+
+                int v;
+                if (!(value >> v) || !value.eof())
+                {
+                    v = 0;
+                }
+
+                //
+                // If -1 is the first value, no retry and wait intervals.
+                //
+                if (v == -1 && _retryIntervals.empty())
+                {
+                    break;
+                }
+
+                _retryIntervals.push_back(v > 0 ? v : 0);
+            }
+        }
     }
     catch(...)
     {
@@ -1262,7 +1290,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             instanceList->remove(this);
         }
         destroy();
-        __setNoDelete(false);
         throw;
     }
 }
@@ -1322,7 +1349,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     //
     // Initialize the endpoint factories once all the plugins are loaded. This gives
-    // the opportunity for the endpoint factories to find underyling factories.
+    // the opportunity for the endpoint factories to find underlying factories.
     //
     _endpointFactoryManager->initialize();
 
@@ -1383,7 +1410,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         PropertiesAdminIPtr propsAdmin;
         if(_adminFacetFilter.empty() || _adminFacetFilter.find(propertiesFacetName) != _adminFacetFilter.end())
         {
-            propsAdmin = make_shared<PropertiesAdminI>(this);
+            propsAdmin = make_shared<PropertiesAdminI>(shared_from_this());
             _adminFacets.insert(make_pair(propertiesFacetName, propsAdmin));
         }
 
@@ -1414,7 +1441,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if(_initData.observer)
     {
-        _initData.observer->setObserverUpdater(make_shared<ObserverUpdaterI>(this));
+        _initData.observer->setObserverUpdater(make_shared<ObserverUpdaterI>(shared_from_this()));
     }
 
     //
@@ -1426,11 +1453,11 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
         if(hasPriority)
         {
-            _timer = new Timer(priority);
+            _timer = Timer::create(priority);
         }
         else
         {
-            _timer = new Timer;
+            _timer = Timer::create();
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -1442,7 +1469,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     try
     {
-        _endpointHostResolver = new EndpointHostResolver(this);
+        _endpointHostResolver = make_shared<EndpointHostResolver>(shared_from_this());
         bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
         int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
         if(hasPriority)
@@ -1461,7 +1488,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
         throw;
     }
 
-    _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
+    _clientThreadPool = ThreadPool::create(shared_from_this(), "Ice.ThreadPool.Client", 0);
 
     //
     // The default router/locator may have been set during the loading of plugins.
@@ -1469,7 +1496,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if(!_referenceFactory->getDefaultRouter())
     {
-        RouterPrxPtr router = ICE_UNCHECKED_CAST(RouterPrx, _proxyFactory->propertyToProxy("Ice.Default.Router"));
+        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_proxyFactory->propertyToProxy("Ice.Default.Router"));
         if(router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1478,7 +1505,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if(!_referenceFactory->getDefaultLocator())
     {
-        LocatorPrxPtr locator = ICE_UNCHECKED_CAST(LocatorPrx, _proxyFactory->propertyToProxy("Ice.Default.Locator"));
+        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
         if(locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);
@@ -1532,7 +1559,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     // remote clients to invoke Admin facets as soon as it's registered).
     //
     // Note: getAdmin here can return 0 and do nothing in the event the
-    // application set Ice.Admin.Enabled but did not set Ice.Admin.Enpoints
+    // application set Ice.Admin.Enabled but did not set Ice.Admin.Endpoints
     // and one or more of the properties required to create the Admin object.
     //
     if(_adminEnabled && _initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
@@ -1545,17 +1572,14 @@ void
 IceInternal::Instance::destroy()
 {
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
 
         //
         // If destroy is in progress, wait for it to be done. This is
         // necessary in case destroy() is called concurrently by
         // multiple threads.
         //
-        while(_state == StateDestroyInProgress)
-        {
-            wait();
-        }
+        _conditionVariable.wait(lock, [this] { return _state != StateDestroyInProgress; });
 
         if(_state == StateDestroyed)
         {
@@ -1603,7 +1627,7 @@ IceInternal::Instance::destroy()
         _initData.observer->setObserverUpdater(0); // Break cyclic reference count.
     }
 
-    LoggerAdminLoggerPtr logger = ICE_DYNAMIC_CAST(LoggerAdminLogger, _initData.logger);
+    LoggerAdminLoggerPtr logger = dynamic_pointer_cast<LoggerAdminLogger>(_initData.logger);
     if(logger)
     {
         //
@@ -1688,31 +1712,30 @@ IceInternal::Instance::destroy()
     }
 
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
 
-        _objectAdapterFactory = 0;
-        _outgoingConnectionFactory = 0;
-        _retryQueue = 0;
+        _objectAdapterFactory = nullptr;
+        _outgoingConnectionFactory = nullptr;
+        _retryQueue = nullptr;
 
-        _serverThreadPool = 0;
-        _clientThreadPool = 0;
-        _endpointHostResolver = 0;
-        _timer = 0;
+        _serverThreadPool = nullptr;
+        _clientThreadPool = nullptr;
+        _endpointHostResolver = nullptr;
+        _timer = nullptr;
 
-        _referenceFactory = 0;
-        _requestHandlerFactory = 0;
-        _proxyFactory = 0;
-        _routerManager = 0;
-        _locatorManager = 0;
-        _endpointFactoryManager = 0;
-        _pluginManager = 0;
-        _dynamicLibraryList = 0;
+        _referenceFactory = nullptr;
+        _proxyFactory = nullptr;
+        _routerManager = nullptr;
+        _locatorManager = nullptr;
+        _endpointFactoryManager = nullptr;
+        _pluginManager = nullptr;
+        _dynamicLibraryList = nullptr;
 
-        _adminAdapter = 0;
+        _adminAdapter = nullptr;
         _adminFacets.clear();
 
         _state = StateDestroyed;
-        notifyAll();
+        _conditionVariable.notify_all();
     }
 }
 
@@ -1763,7 +1786,7 @@ IceInternal::Instance::updateThreadObservers()
 BufSizeWarnInfo
 IceInternal::Instance::getBufSizeWarn(Short type)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     return getBufSizeWarnInternal(type);
 }
@@ -1791,7 +1814,7 @@ IceInternal::Instance::getBufSizeWarnInternal(Short type)
 void
 IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     BufSizeWarnInfo info = getBufSizeWarnInternal(type);
     info.sndWarn = true;
@@ -1802,7 +1825,7 @@ IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 void
 IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
 {
-    IceUtil::Mutex::Lock lock(_setBufSizeWarnMutex);
+    lock_guard lock(_setBufSizeWarnMutex);
 
     BufSizeWarnInfo info = getBufSizeWarnInternal(type);
     info.rcvWarn = true;

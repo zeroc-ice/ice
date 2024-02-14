@@ -5,12 +5,13 @@
 #ifndef ICE_ENDPOINT_FACTORY_MANAGER_H
 #define ICE_ENDPOINT_FACTORY_MANAGER_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Mutex.h>
+#include <Ice/Config.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/EndpointFactoryF.h>
 #include <Ice/EndpointFactoryManagerF.h>
+
+#include <mutex>
 
 namespace Ice
 {
@@ -22,10 +23,11 @@ class InputStream;
 namespace IceInternal
 {
 
-class EndpointFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
+class EndpointFactoryManager
 {
 public:
 
+    EndpointFactoryManager(const InstancePtr&);
     void initialize() const;
     void add(const EndpointFactoryPtr&);
     EndpointFactoryPtr get(::Ice::Short) const;
@@ -34,12 +36,12 @@ public:
 
 private:
 
-    EndpointFactoryManager(const InstancePtr&);
     void destroy();
     friend class Instance;
 
     InstancePtr _instance;
     std::vector<EndpointFactoryPtr> _factories;
+    mutable std::mutex _mutex;
 };
 
 }

@@ -88,7 +88,7 @@ IceObjC::iAPTransceiver::initStreams(SelectorReadyCallback* callback)
 SocketOperation
 IceObjC::iAPTransceiver::registerWithRunLoop(SocketOperation op)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     SocketOperation readyOp = SocketOperationNone;
     if(op & SocketOperationConnect)
     {
@@ -150,7 +150,7 @@ IceObjC::iAPTransceiver::registerWithRunLoop(SocketOperation op)
 SocketOperation
 IceObjC::iAPTransceiver::unregisterFromRunLoop(SocketOperation op, bool error)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     _error |= error;
 
     if(_opening)
@@ -221,13 +221,13 @@ IceObjC::iAPTransceiver::closeStreams()
 IceInternal::NativeInfoPtr
 IceObjC::iAPTransceiver::getNativeInfo()
 {
-    return this;
+    return shared_from_this();
 }
 
 SocketOperation
 IceObjC::iAPTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     if(_state == StateNeedConnect)
     {
         _state = StateConnectPending;
@@ -248,7 +248,7 @@ IceObjC::iAPTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffe
 }
 
 SocketOperation
-IceObjC::iAPTransceiver::closing(bool initiator, const Ice::LocalException&)
+IceObjC::iAPTransceiver::closing(bool initiator, exception_ptr)
 {
     // If we are initiating the connection closure, wait for the peer
     // to close the TCP/IP connection. Otherwise, close immediately.
@@ -266,7 +266,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
     // Don't hold the lock while calling on the NSStream API to avoid deadlocks in case the NSStream API calls
     // the stream notification callbacks with an internal lock held.
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
         if(_error)
         {
             checkErrorStatus(_writeStream, __FILE__, __LINE__);
@@ -314,7 +314,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
     // Don't hold the lock while calling on the NSStream API to avoid deadlocks in case the NSStream API calls
     // the stream notification callbacks with an internal lock held.
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
         if(_error)
         {
             checkErrorStatus(_readStream, __FILE__, __LINE__);

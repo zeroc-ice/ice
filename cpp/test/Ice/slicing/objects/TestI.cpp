@@ -34,9 +34,9 @@ void breakCycles(const map<K, shared_ptr<V>>& d)
 
 void breakCycles(Ice::ValuePtr o)
 {
-    if(ICE_DYNAMIC_CAST(D1, o))
+    if(dynamic_pointer_cast<D1>(o))
     {
-        auto d1 = ICE_DYNAMIC_CAST(D1, o);
+        auto d1 = dynamic_pointer_cast<D1>(o);
         auto tmp = d1->pd1;
         d1->pd1 = nullptr;
         if(tmp != d1)
@@ -44,9 +44,9 @@ void breakCycles(Ice::ValuePtr o)
             breakCycles(tmp);
         }
     }
-    if(ICE_DYNAMIC_CAST(D2, o))
+    if(dynamic_pointer_cast<D2>(o))
     {
-        auto d2 = ICE_DYNAMIC_CAST(D2, o);
+        auto d2 = dynamic_pointer_cast<D2>(o);
         auto tmp = d2->pd2;
         d2->pd2 = nullptr;
         if(tmp != d2)
@@ -54,15 +54,15 @@ void breakCycles(Ice::ValuePtr o)
             breakCycles(tmp);
         }
     }
-    if(ICE_DYNAMIC_CAST(D4, o))
+    if(dynamic_pointer_cast<D4>(o))
     {
-        auto d4 = ICE_DYNAMIC_CAST(D4, o);
+        auto d4 = dynamic_pointer_cast<D4>(o);
         d4->p1 = nullptr;
         d4->p2 = nullptr;
     }
-    if(ICE_DYNAMIC_CAST(B, o))
+    if(dynamic_pointer_cast<B>(o))
     {
-        auto b = ICE_DYNAMIC_CAST(B, o);
+        auto b = dynamic_pointer_cast<B>(o);
         auto tmp = b->pb;
         b->pb = nullptr;
         if (tmp != b)
@@ -74,27 +74,27 @@ void breakCycles(Ice::ValuePtr o)
             b->ice_getSlicedData()->clear();
         }
     }
-    if(ICE_DYNAMIC_CAST(Preserved, o))
+    if(dynamic_pointer_cast<Preserved>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(Preserved, o);
+        auto p = dynamic_pointer_cast<Preserved>(o);
         if(p->ice_getSlicedData())
         {
             p->ice_getSlicedData()->clear();
         }
     }
-    if(ICE_DYNAMIC_CAST(PDerived, o))
+    if(dynamic_pointer_cast<PDerived>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(PDerived, o);
+        auto p = dynamic_pointer_cast<PDerived>(o);
         p->pb = nullptr;
     }
-    if(ICE_DYNAMIC_CAST(CompactPDerived, o))
+    if(dynamic_pointer_cast<CompactPDerived>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(CompactPDerived, o);
+        auto p = dynamic_pointer_cast<CompactPDerived>(o);
         p->pb = nullptr;
     }
-    if(ICE_DYNAMIC_CAST(PNode, o))
+    if(dynamic_pointer_cast<PNode>(o))
     {
-        auto curr = ICE_DYNAMIC_CAST(PNode, o);
+        auto curr = dynamic_pointer_cast<PNode>(o);
         while(curr && o != curr->next)
         {
             curr = curr->next;
@@ -104,34 +104,34 @@ void breakCycles(Ice::ValuePtr o)
             curr->next = nullptr;
         }
     }
-    if(ICE_DYNAMIC_CAST(PSUnknown, o))
+    if(dynamic_pointer_cast<PSUnknown>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(PSUnknown, o);
+        auto p = dynamic_pointer_cast<PSUnknown>(o);
         breakCycles(p->graph);
     }
-    if(ICE_DYNAMIC_CAST(PSUnknown2, o))
+    if(dynamic_pointer_cast<PSUnknown2>(o))
     {
-        auto p = ICE_DYNAMIC_CAST(PSUnknown2, o);
+        auto p = dynamic_pointer_cast<PSUnknown2>(o);
         p->pb = nullptr;
     }
-    if(ICE_DYNAMIC_CAST(SS1, o))
+    if(dynamic_pointer_cast<SS1>(o))
     {
-        auto s = ICE_DYNAMIC_CAST(SS1, o);
+        auto s = dynamic_pointer_cast<SS1>(o);
         breakCycles(s->s);
     }
-    if(ICE_DYNAMIC_CAST(SS2, o))
+    if(dynamic_pointer_cast<SS2>(o))
     {
-        auto s = ICE_DYNAMIC_CAST(SS2, o);
+        auto s = dynamic_pointer_cast<SS2>(o);
         breakCycles(s->s);
     }
-    if(ICE_DYNAMIC_CAST(Forward, o))
+    if(dynamic_pointer_cast<Forward>(o))
     {
-        auto f = ICE_DYNAMIC_CAST(Forward, o);
+        auto f = dynamic_pointer_cast<Forward>(o);
         f->h = nullptr;
     }
-    if(ICE_DYNAMIC_CAST(SUnknown, o))
+    if(dynamic_pointer_cast<SUnknown>(o))
     {
-        auto u = ICE_DYNAMIC_CAST(SUnknown, o);
+        auto u = dynamic_pointer_cast<SUnknown>(o);
         u->cycle = nullptr;
     }
 }
@@ -215,7 +215,7 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
 void
 TestI::checkSUnknown(Ice::ValuePtr obj, const ::Ice::Current& current)
 {
-    SUnknownPtr su = ICE_DYNAMIC_CAST(SUnknown, obj);
+    SUnknownPtr su = dynamic_pointer_cast<SUnknown>(obj);
     if(current.encoding == Ice::Encoding_1_0)
     {
         test(!su);
@@ -476,7 +476,7 @@ TestI::PBSUnknownAsPreserved(const Ice::Current& current)
 void
 TestI::checkPBSUnknown(Test::PreservedPtr p, const Ice::Current& current)
 {
-    PSUnknownPtr pu =  ICE_DYNAMIC_CAST(PSUnknown, p);
+    PSUnknownPtr pu =  dynamic_pointer_cast<PSUnknown>(p);
     if(current.encoding == Ice::Encoding_1_0)
     {
         test(!pu);
@@ -514,7 +514,7 @@ TestI::PBSUnknownAsPreservedWithGraphAsync(function<void(const shared_ptr<Test::
 void
 TestI::checkPBSUnknownWithGraph(Test::PreservedPtr p, const Ice::Current& current)
 {
-    PSUnknownPtr pu = ICE_DYNAMIC_CAST(PSUnknown, p);
+    PSUnknownPtr pu = dynamic_pointer_cast<PSUnknown>(p);
     if(current.encoding == Ice::Encoding_1_0)
     {
         test(!pu);
@@ -550,7 +550,7 @@ TestI::PBSUnknown2AsPreservedWithGraphAsync(function<void(const shared_ptr<Test:
 void
 TestI::checkPBSUnknown2WithGraph(Test::PreservedPtr p, const Ice::Current& current)
 {
-    PSUnknown2Ptr pu = ICE_DYNAMIC_CAST(PSUnknown2, p);
+    PSUnknown2Ptr pu = dynamic_pointer_cast<PSUnknown2>(p);
     if(current.encoding == Ice::Encoding_1_0)
     {
         test(!pu);

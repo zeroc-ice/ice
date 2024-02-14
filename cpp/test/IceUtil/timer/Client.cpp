@@ -160,7 +160,7 @@ Client::run(int, char*[])
 {
     cout << "testing timer... " << flush;
     {
-        IceUtil::TimerPtr timer = new IceUtil::Timer();
+        IceUtil::TimerPtr timer = IceUtil::Timer::create();
 
         {
             TestTaskPtr task = make_shared<TestTask>();
@@ -246,7 +246,7 @@ Client::run(int, char*[])
     cout << "testing timer destroy... " << flush;
     {
         {
-            IceUtil::TimerPtr timer = new IceUtil::Timer();
+            IceUtil::TimerPtr timer = IceUtil::Timer::create();
             DestroyTaskPtr destroyTask = make_shared<DestroyTask>(timer);
             timer->schedule(destroyTask, IceUtil::Time());
             destroyTask->waitForRun();
@@ -260,7 +260,7 @@ Client::run(int, char*[])
             }
         }
         {
-            IceUtil::TimerPtr timer = new IceUtil::Timer();
+            IceUtil::TimerPtr timer = IceUtil::Timer::create();
             TestTaskPtr testTask = make_shared<TestTask>();
             timer->schedule(testTask, IceUtil::Time());
             timer->destroy();

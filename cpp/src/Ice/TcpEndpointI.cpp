@@ -27,7 +27,9 @@ extern "C"
 Plugin*
 createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
 {
-    return new EndpointFactoryPlugin(c, new TcpEndpointFactory(new ProtocolInstance(c, TCPEndpointType, "tcp", false)));
+    return new EndpointFactoryPlugin(
+        c,
+        make_shared<TcpEndpointFactory>(make_shared<ProtocolInstance>(c, TCPEndpointType, "tcp", false)));
 }
 
 }
@@ -68,7 +70,7 @@ IceInternal::TcpEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceInternal::TcpEndpointI::getInfo() const noexcept
 {
-    auto info = make_shared<InfoI<Ice::TCPEndpointInfo>>(ICE_SHARED_FROM_CONST_THIS(TcpEndpointI));
+    auto info = make_shared<InfoI<Ice::TCPEndpointInfo>>(const_cast<TcpEndpointI*>(this)->shared_from_this());
     fillEndpointInfo(info.get());
     return info;
 }
@@ -84,7 +86,7 @@ IceInternal::TcpEndpointI::timeout(Int timeout) const
 {
     if(timeout == _timeout)
     {
-        return ICE_SHARED_FROM_CONST_THIS(TcpEndpointI);
+        return const_cast<TcpEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -103,7 +105,7 @@ IceInternal::TcpEndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-        return ICE_SHARED_FROM_CONST_THIS(TcpEndpointI);
+        return const_cast<TcpEndpointI*>(this)->shared_from_this();
     }
     else
     {
@@ -126,7 +128,11 @@ IceInternal::TcpEndpointI::transceiver() const
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(const string&) const
 {
-    return new TcpAcceptor(ICE_DYNAMIC_CAST(TcpEndpointI, ICE_SHARED_FROM_CONST_THIS(TcpEndpointI)), _instance, _host, _port);
+    return make_shared<TcpAcceptor>(
+        dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this()),
+        _instance,
+        _host,
+        _port);
 }
 
 TcpEndpointIPtr
@@ -135,7 +141,7 @@ IceInternal::TcpEndpointI::endpoint(const TcpAcceptorPtr& acceptor) const
     int port = acceptor->effectivePort();
     if(_port == port)
     {
-        return ICE_DYNAMIC_CAST(TcpEndpointI, ICE_SHARED_FROM_CONST_THIS(TcpEndpointI));
+        return dynamic_pointer_cast<TcpEndpointI>(const_cast<TcpEndpointI*>(this)->shared_from_this());
     }
     else
     {
@@ -316,7 +322,7 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
 ConnectorPtr
 IceInternal::TcpEndpointI::createConnector(const Address& address, const NetworkProxyPtr& proxy) const
 {
-    return new TcpConnector(_instance, address, proxy, _sourceAddr, _timeout, _connectionId);
+    return make_shared<TcpConnector>(_instance, address, proxy, _sourceAddr, _timeout, _connectionId);
 }
 
 IPEndpointIPtr
@@ -362,12 +368,12 @@ IceInternal::TcpEndpointFactory::read(InputStream* s) const
 void
 IceInternal::TcpEndpointFactory::destroy()
 {
-    _instance = 0;
+    _instance = nullptr;
 }
 
 EndpointFactoryPtr
 IceInternal::TcpEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
-    return new TcpEndpointFactory(instance);
+    return make_shared<TcpEndpointFactory>(instance);
 }
 #endif

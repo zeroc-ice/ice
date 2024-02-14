@@ -5,7 +5,6 @@
 #ifndef ICE_ROUTER_INFO_H
 #define ICE_ROUTER_INFO_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/Router.h>
 #include <Ice/ProxyF.h>
@@ -15,12 +14,13 @@
 #include <Ice/Identity.h>
 #include <Ice/Comparable.h>
 
+#include <mutex>
 #include <set>
 
 namespace IceInternal
 {
 
-class RouterManager : public IceUtil::Shared, public IceUtil::Mutex
+class RouterManager final
 {
 public:
 
@@ -43,29 +43,12 @@ private:
 
     RouterInfoTable _table;
     RouterInfoTable::iterator _tableHint;
+    std::mutex _mutex;
 };
 
-class RouterInfo : public IceUtil::Shared, public IceUtil::Mutex
+class RouterInfo final : public std::enable_shared_from_this<RouterInfo>
 {
 public:
-
-    class GetClientEndpointsCallback : public virtual Ice::LocalObject
-    {
-    public:
-
-        virtual void setEndpoints(const std::vector<EndpointIPtr>&) = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
-    };
-    typedef IceUtil::Handle<GetClientEndpointsCallback> GetClientEndpointsCallbackPtr;
-
-    class AddProxyCallback
-    {
-    public:
-
-        virtual void addedProxy() = 0;
-        virtual void setException(const Ice::LocalException&) = 0;
-    };
-    using AddProxyCallbackPtr = std::shared_ptr<AddProxyCallback>;
 
     RouterInfo(const Ice::RouterPrxPtr&);
 
@@ -81,56 +64,29 @@ public:
         //
         return _router;
     }
-    void getClientProxyResponse(const Ice::ObjectPrxPtr&, const IceUtil::Optional<bool>&,
-                                const GetClientEndpointsCallbackPtr&);
-    void getClientProxyException(const Ice::Exception&, const GetClientEndpointsCallbackPtr&);
+
     std::vector<EndpointIPtr> getClientEndpoints();
-    void getClientEndpoints(const GetClientEndpointsCallbackPtr&);
+
+    void getClientEndpointsAsync(
+        std::function<void(std::vector<EndpointIPtr>)> response,
+        std::function<void(std::exception_ptr)> ex);
+
     std::vector<EndpointIPtr> getServerEndpoints();
 
-    class AddProxyCookie : public Ice::LocalObject
-    {
-    public:
-
-        AddProxyCookie(const AddProxyCallbackPtr cb, const Ice::ObjectPrxPtr& proxy) :
-            _cb(cb),
-            _proxy(proxy)
-        {
-        }
-
-        AddProxyCallbackPtr cb() const
-        {
-            return _cb;
-        }
-
-        Ice::ObjectPrxPtr proxy() const
-        {
-            return _proxy;
-        }
-
-    private:
-
-        const AddProxyCallbackPtr _cb;
-        const Ice::ObjectPrxPtr _proxy;
-    };
-    typedef IceUtil::Handle<AddProxyCookie> AddProxyCookiePtr;
-
-    void addProxyResponse(const Ice::ObjectProxySeq&, const AddProxyCookiePtr&);
-    void addProxyException(const Ice::Exception&, const AddProxyCookiePtr&);
-    bool addProxy(const Ice::ObjectPrxPtr&, const AddProxyCallbackPtr&);
+    bool addProxyAsync(
+        const ReferencePtr& proxy,
+        std::function<void()> response,
+        std::function<void(std::exception_ptr)> ex);
 
     void setAdapter(const Ice::ObjectAdapterPtr&);
     Ice::ObjectAdapterPtr getAdapter() const;
 
     void clearCache(const ReferencePtr&);
 
-    //
-    // The following methods need to be public for access by AMI callbacks.
-    //
-    std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrxPtr&, bool);
-    void addAndEvictProxies(const Ice::ObjectPrxPtr&, const Ice::ObjectProxySeq&);
-
 private:
+
+    void addAndEvictProxies(const Ice::Identity&, const Ice::ObjectProxySeq&);
+    std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrxPtr&, bool);
 
     const Ice::RouterPrxPtr _router;
     std::vector<EndpointIPtr> _clientEndpoints;
@@ -138,6 +94,7 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     std::set<Ice::Identity> _identities;
     std::multiset<Ice::Identity> _evictedIdentities;
+    mutable std::mutex _mutex;
 };
 
 }

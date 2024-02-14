@@ -5,10 +5,11 @@
 #ifndef ICESSL_UTIL_H
 #define ICESSL_UTIL_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
 #include <IceSSL/Plugin.h>
+
+#include <string>
+#include <functional>
+#include <vector>
 
 #if defined(__APPLE__)
 #  include <CoreFoundation/CoreFoundation.h>

@@ -10,7 +10,6 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
 #include <Ice/Exception.h>
-#include <Ice/LocalObject.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/Comparable.h>
 #include <Ice/Proxy.h>
@@ -18,7 +17,7 @@
 #include <Ice/Value.h>
 #include <Ice/Incoming.h>
 #include <Ice/FactoryTableInit.h>
-#include <Ice/Optional.h>
+#include <optional>
 #include <Ice/PropertyDict.h>
 #include <IceUtil/UndefSysMacros.h>
 

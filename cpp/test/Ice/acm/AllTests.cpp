@@ -175,8 +175,8 @@ public:
     virtual void
     run()
     {
-        TestIntfPrxPtr proxy = ICE_UNCHECKED_CAST(TestIntfPrx, _communicator->stringToProxy(
-                                                           _adapter->getTestIntf()->ice_toString()));
+        auto proxy = Ice::uncheckedCast<TestIntfPrx>(
+            _communicator->stringToProxy(_adapter->getTestIntf()->ice_toString()));
         try
         {
             auto self = shared_from_this();
@@ -545,7 +545,7 @@ public:
 
         try
         {
-            con->setACM(-19, IceUtil::None, IceUtil::None);
+            con->setACM(-19, nullopt, nullopt);
             test(false);
         }
         catch(const invalid_argument&)
@@ -558,7 +558,7 @@ public:
         test(acm.close == Ice::ACMClose::CloseOnIdleForceful);
         test(acm.heartbeat == Ice::ACMHeartbeat::HeartbeatOff);
 
-        con->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
+        con->setACM(nullopt, nullopt, nullopt);
         acm = con->getACM();
         test(acm.timeout == 15);
         test(acm.close == Ice::ACMClose::CloseOnIdleForceful);
@@ -611,7 +611,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     string ref = "communicator:" + helper->getTestEndpoint();
-    RemoteCommunicatorPrxPtr com = ICE_UNCHECKED_CAST(RemoteCommunicatorPrx, communicator->stringToProxy(ref));
+    RemoteCommunicatorPrxPtr com = Ice::uncheckedCast<RemoteCommunicatorPrx>(communicator->stringToProxy(ref));
 
     vector<TestCasePtr> tests;
 

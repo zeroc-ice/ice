@@ -5,20 +5,16 @@
 #ifndef ICE_DYNAMIC_LIBRARY_F_H
 #define ICE_DYNAMIC_LIBRARY_F_H
 
-#include <IceUtil/Shared.h>
-
-#include <Ice/Handle.h>
+#include <memory>
 
 namespace IceInternal
 {
 
 class DynamicLibrary;
-ICE_API IceUtil::Shared* upCast(DynamicLibrary*);
-typedef Handle<DynamicLibrary> DynamicLibraryPtr;
+using DynamicLibraryPtr = std::shared_ptr<DynamicLibrary>;
 
 class DynamicLibraryList;
-ICE_API IceUtil::Shared* upCast(DynamicLibraryList*);
-typedef Handle<DynamicLibraryList> DynamicLibraryListPtr;
+using DynamicLibraryListPtr = std::shared_ptr<DynamicLibraryList>;
 
 }
 #endif

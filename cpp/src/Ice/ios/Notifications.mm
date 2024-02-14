@@ -13,6 +13,7 @@
 #include <Ice/ConnectionFactory.h>
 
 #include <set>
+#include <mutex>
 
 using namespace std;
 using namespace IceInternal;
@@ -62,7 +63,7 @@ public:
     bool
     add(const IncomingConnectionFactoryPtr& factory)
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
         if(_background)
         {
             factory->stopAcceptor();
@@ -78,14 +79,14 @@ public:
     void
     remove(const IncomingConnectionFactoryPtr& factory)
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
         _factories.erase(factory);
     }
 
     void
     didEnterBackground()
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
 
         //
         // Notify all the incoming connection factories that we are
@@ -101,7 +102,7 @@ public:
     void
     willEnterForeground()
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
 
         //
         // Notify all the incoming connection factories that we are
@@ -116,7 +117,7 @@ public:
 
 private:
 
-    IceUtil::Mutex _mutex;
+    mutex _mutex;
     bool _background;
     id _backgroundObserver;
     id _foregroundObserver;

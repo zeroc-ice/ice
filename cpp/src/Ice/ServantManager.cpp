@@ -13,12 +13,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-ICE_API IceUtil::Shared* IceInternal::upCast(ServantManager* p) { return p; }
-
 void
 IceInternal::ServantManager::addServant(const shared_ptr<Object>& object, const Identity& ident, const string& facet)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
@@ -56,7 +54,7 @@ IceInternal::ServantManager::addServant(const shared_ptr<Object>& object, const 
 void
 IceInternal::ServantManager::addDefaultServant(const shared_ptr<Object>& object, const string& category)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
@@ -79,7 +77,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     //
     shared_ptr<Object> servant = 0;
 
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
@@ -131,7 +129,7 @@ IceInternal::ServantManager::removeDefaultServant(const string& category)
     //
     shared_ptr<Object> servant = 0;
 
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
@@ -150,7 +148,7 @@ IceInternal::ServantManager::removeDefaultServant(const string& category)
 FacetMap
 IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
@@ -185,7 +183,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 shared_ptr<Object>
 IceInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     //
     // This assert is not valid if the adapter dispatch incoming
@@ -235,7 +233,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
 shared_ptr<Object>
 IceInternal::ServantManager::findDefaultServant(const string& category) const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     DefaultServantMap::const_iterator p = _defaultServantMap.find(category);
     if(p == _defaultServantMap.end())
@@ -251,7 +249,7 @@ IceInternal::ServantManager::findDefaultServant(const string& category) const
 FacetMap
 IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
@@ -278,7 +276,7 @@ IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 bool
 IceInternal::ServantManager::hasServant(const Identity& ident) const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     //
     // This assert is not valid if the adapter dispatch incoming
@@ -311,7 +309,7 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
 void
 IceInternal::ServantManager::addServantLocator(const shared_ptr<ServantLocator>& locator, const string& category)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
@@ -327,7 +325,7 @@ IceInternal::ServantManager::addServantLocator(const shared_ptr<ServantLocator>&
 shared_ptr<ServantLocator>
 IceInternal::ServantManager::removeServantLocator(const string& category)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     assert(_instance); // Must not be called after destruction.
 
@@ -359,7 +357,7 @@ IceInternal::ServantManager::removeServantLocator(const string& category)
 shared_ptr<ServantLocator>
 IceInternal::ServantManager::findServantLocator(const string& category) const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     //
     // This assert is not valid if the adapter dispatch incoming
@@ -424,7 +422,7 @@ IceInternal::ServantManager::destroy()
     Ice::LoggerPtr logger;
 
     {
-        IceUtil::Mutex::Lock sync(*this);
+        lock_guard lock(_mutex);
         //
         // If the ServantManager has already been destroyed, we're done.
         //

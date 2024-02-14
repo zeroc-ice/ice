@@ -4,11 +4,12 @@
 
 #include <IceBT/DBus.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 
 #include <dbus/dbus.h>
+
 #include <stack>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 using namespace IceBT::DBus;
@@ -132,14 +133,25 @@ class MessageI : public Message
 {
 public:
 
+    MessageI(DBusMessage* m, bool adopt) :
+        _message(m),
+        _iter(0)
+    {
+        assert(_message);
+        if(!adopt)
+        {
+            ::dbus_message_ref(m); // Bump the reference count.
+        }
+    }
+
     static MessagePtr wrap(DBusMessage* m)
     {
-        return new MessageI(m, false);
+        return make_shared<MessageI>(m, false);
     }
 
     static MessagePtr adopt(DBusMessage* m)
     {
-        return new MessageI(m, true);
+        return make_shared<MessageI>(m, true);
     }
 
     virtual ~MessageI()
@@ -296,17 +308,6 @@ public:
 
 private:
 
-    MessageI(DBusMessage* m, bool adopt) :
-        _message(m),
-        _iter(0)
-    {
-        assert(_message);
-        if(!adopt)
-        {
-            ::dbus_message_ref(m); // Bump the reference count.
-        }
-    }
-
     vector<TypePtr> buildTypes()
     {
         vector<TypePtr> types;
@@ -355,11 +356,11 @@ private:
             case DBUS_TYPE_ARRAY:
             {
                 TypePtr elem = buildType(iter);
-                return new ArrayType(elem);
+                return make_shared<ArrayType>(elem);
             }
             case DBUS_TYPE_VARIANT:
             {
-                return new VariantType;
+                return make_shared<VariantType>();
             }
             case '(': // Struct
             {
@@ -370,7 +371,7 @@ private:
                 }
                 assert(*iter == ')');
                 ++iter;
-                return new StructType(types);
+                return make_shared<StructType>(types);
             }
             case '{': // Dict entry
             {
@@ -379,7 +380,7 @@ private:
                 value = buildType(iter);
                 assert(*iter == '}');
                 ++iter;
-                return new DictEntryType(key, value);
+                return make_shared<DictEntryType>(key, value);
             }
             case DBUS_TYPE_INVALID:
                 assert(false);
@@ -395,7 +396,7 @@ private:
         {
         case Type::KindBoolean:
         {
-            BooleanValuePtr v = BooleanValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<BooleanValue>(p);
             assert(v);
             const dbus_bool_t b = v->v ? TRUE : FALSE;
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_BOOLEAN, &b);
@@ -403,63 +404,63 @@ private:
         }
         case Type::KindByte:
         {
-            ByteValuePtr v = ByteValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<ByteValue>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_BYTE, &v->v);
             break;
         }
         case Type::KindUint16:
         {
-            Uint16ValuePtr v = Uint16ValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<Uint16Value>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_UINT16, &v->v);
             break;
         }
         case Type::KindInt16:
         {
-            Int16ValuePtr v = Int16ValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<Int16Value>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_INT16, &v->v);
             break;
         }
         case Type::KindUint32:
         {
-            Uint32ValuePtr v = Uint32ValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<Uint32Value>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_UINT32, &v->v);
             break;
         }
         case Type::KindInt32:
         {
-            Int32ValuePtr v = Int32ValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<Int32Value>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_INT32, &v->v);
             break;
         }
         case Type::KindUint64:
         {
-            Uint64ValuePtr v = Uint64ValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<Uint64Value>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_UINT64, &v->v);
             break;
         }
         case Type::KindInt64:
         {
-            Int64ValuePtr v = Int64ValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<Int64Value>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_INT64, &v->v);
             break;
         }
         case Type::KindDouble:
         {
-            DoubleValuePtr v = DoubleValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<DoubleValue>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_DOUBLE, &v->v);
             break;
         }
         case Type::KindString:
         {
-            StringValuePtr v = StringValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<StringValue>(p);
             assert(v);
             const char* s = v->v.c_str();
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_STRING, &s);
@@ -467,7 +468,7 @@ private:
         }
         case Type::KindObjectPath:
         {
-            ObjectPathValuePtr v = ObjectPathValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<ObjectPathValue>(p);
             assert(v);
             const char* s = v->v.c_str();
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_OBJECT_PATH, &s);
@@ -475,7 +476,7 @@ private:
         }
         case Type::KindSignature:
         {
-            SignatureValuePtr v = SignatureValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<SignatureValue>(p);
             assert(v);
             const char* s = v->v.c_str();
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_SIGNATURE, &s);
@@ -483,16 +484,16 @@ private:
         }
         case Type::KindUnixFD:
         {
-            UnixFDValuePtr v = UnixFDValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<UnixFDValue>(p);
             assert(v);
             ::dbus_message_iter_append_basic(iter, DBUS_TYPE_UNIX_FD, &v->v);
             break;
         }
         case Type::KindArray:
         {
-            ArrayTypePtr t = ArrayTypePtr::dynamicCast(p->getType());
+            auto t = dynamic_pointer_cast<ArrayType>(p->getType());
             assert(t);
-            ArrayValuePtr arr = ArrayValuePtr::dynamicCast(p);
+            auto arr = dynamic_pointer_cast<ArrayValue>(p);
             assert(arr);
 
             string sig = t->elementType->getSignature();
@@ -514,7 +515,7 @@ private:
         }
         case Type::KindVariant:
         {
-            VariantValuePtr v = VariantValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<VariantValue>(p);
             assert(v);
 
             string sig = v->v->getType()->getSignature();
@@ -533,7 +534,7 @@ private:
         }
         case Type::KindStruct:
         {
-            StructValuePtr v = StructValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<StructValue>(p);
             assert(v);
 
             DBusMessageIter sub;
@@ -553,7 +554,7 @@ private:
         }
         case Type::KindDictEntry:
         {
-            DictEntryValuePtr v = DictEntryValuePtr::dynamicCast(p);
+            auto v = dynamic_pointer_cast<DictEntryValue>(p);
             assert(v);
 
             DBusMessageIter sub;
@@ -644,86 +645,86 @@ private:
         {
             bool v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new BooleanValue(v);
+            return make_shared<BooleanValue>(v);
         }
         case Type::KindByte:
         {
             unsigned char v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new ByteValue(v);
+            return make_shared<ByteValue>(v);
         }
         case Type::KindUint16:
         {
             unsigned short v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new Uint16Value(v);
+            return make_shared<Uint16Value>(v);
         }
         case Type::KindInt16:
         {
             short v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new Int16Value(v);
+            return make_shared<Int16Value>(v);
         }
         case Type::KindUint32:
         {
             unsigned int v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new Uint32Value(v);
+            return make_shared<Uint32Value>(v);
         }
         case Type::KindInt32:
         {
             int v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new Int32Value(v);
+            return make_shared<Int32Value>(v);
         }
         case Type::KindUint64:
         {
             unsigned long long v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new Uint64Value(v);
+            return make_shared<Uint64Value>(v);
         }
         case Type::KindInt64:
         {
             long long v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new Int64Value(v);
+            return make_shared<Int64Value>(v);
         }
         case Type::KindDouble:
         {
             double v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new DoubleValue(v);
+            return make_shared<DoubleValue>(v);
         }
         case Type::KindString:
         {
             char* str;
             ::dbus_message_iter_get_basic(_iter, &str);
-            return new StringValue(str);
+            return make_shared<StringValue>(str);
         }
         case Type::KindObjectPath:
         {
             char* str;
             ::dbus_message_iter_get_basic(_iter, &str);
-            return new ObjectPathValue(str);
+            return make_shared<ObjectPathValue>(str);
         }
         case Type::KindSignature:
         {
             char* str;
             ::dbus_message_iter_get_basic(_iter, &str);
-            return new SignatureValue(str);
+            return make_shared<SignatureValue>(str);
         }
         case Type::KindUnixFD:
         {
             unsigned int v;
             ::dbus_message_iter_get_basic(_iter, &v);
-            return new UnixFDValue(v);
+            return make_shared<UnixFDValue>(v);
         }
         case Type::KindArray:
         {
-            ArrayTypePtr arr = ArrayTypePtr::dynamicCast(t);
+            auto arr = dynamic_pointer_cast<ArrayType>(t);
             assert(arr);
             pushIter();
-            ArrayValuePtr v = new ArrayValue(arr);
+            ArrayValuePtr v = make_shared<ArrayValue>(arr);
             while(true)
             {
                 Type::Kind k = currentKind();
@@ -747,17 +748,17 @@ private:
             string sig = ::dbus_message_iter_get_signature(_iter);
             string::iterator p = sig.begin();
             TypePtr vt = buildType(p);
-            VariantValuePtr v = new VariantValue;
+            VariantValuePtr v = make_shared<VariantValue>();
             v->v = readValue(vt);
             popIter();
             return v;
         }
         case Type::KindStruct:
         {
-            StructTypePtr st = StructTypePtr::dynamicCast(t);
+            auto st = dynamic_pointer_cast<StructType>(t);
             assert(st);
             pushIter();
-            StructValuePtr v = new StructValue(st);
+            StructValuePtr v = make_shared<StructValue>(st);
             for(vector<TypePtr>::iterator p = st->memberTypes.begin(); p != st->memberTypes.end(); ++p)
             {
                 v->members.push_back(readValue(*p));
@@ -768,10 +769,10 @@ private:
         }
         case Type::KindDictEntry:
         {
-            DictEntryTypePtr dt = DictEntryTypePtr::dynamicCast(t);
+            auto dt = dynamic_pointer_cast<DictEntryType>(t);
             assert(dt);
             pushIter();
-            DictEntryValuePtr v = new DictEntryValue(dt);
+            DictEntryValuePtr v = make_shared<DictEntryValue>(dt);
             v->key = readValue(dt->keyType);
             next();
             v->value = readValue(dt->valueType);
@@ -780,7 +781,7 @@ private:
         }
         default:
             assert(false);
-            return 0;
+            return nullptr;
         }
     }
 
@@ -803,12 +804,11 @@ private:
     stack<DBusMessageIter> _iterators;
     DBusMessageIter* _iter;
 };
-typedef IceUtil::Handle<MessageI> MessageIPtr;
 
 static void pendingCallCompletedCallback(DBusPendingCall*, void*);
 static void pendingCallFree(void*);
 
-class AsyncResultI : public AsyncResult
+class AsyncResultI final : public AsyncResult, public enable_shared_from_this<AsyncResultI>
 {
 public:
 
@@ -817,13 +817,12 @@ public:
         _callback(cb),
         _status(StatusPending)
     {
-        //
-        // Bump our refcount to ensure this object lives until the reply is received.
-        // The pendingFree function will decrement the refcount.
-        //
-        __incRef();
+    }
 
-        if(!::dbus_pending_call_set_notify(_call, pendingCallCompletedCallback, this, pendingCallFree))
+    void init()
+    {
+        auto self = new shared_ptr<AsyncResultI>(shared_from_this());
+        if(!::dbus_pending_call_set_notify(_call, pendingCallCompletedCallback, self, pendingCallFree))
         {
             ::dbus_pending_call_cancel(_call);
             ::dbus_pending_call_unref(_call);
@@ -838,7 +837,7 @@ public:
         //
         bool complete;
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             complete = (::dbus_pending_call_get_completed(_call) && _status == StatusPending);
         }
 
@@ -855,29 +854,26 @@ public:
 
     virtual bool isPending() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
         return _status == StatusPending;
     }
 
     virtual bool isComplete() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
         return _status == StatusComplete;
     }
 
     virtual MessagePtr waitUntilFinished() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
-        while(_status == StatusPending)
-        {
-            _lock.wait();
-        }
+        unique_lock lock(_mutex);
+        _conditionVariable.wait(lock, [this] { return _status != StatusPending; });
         return _reply;
     }
 
     virtual MessagePtr getReply() const
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
         return _reply;
     }
 
@@ -886,7 +882,7 @@ public:
         bool call = false;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             _callback = cb;
             if(_status == StatusComplete)
             {
@@ -898,7 +894,7 @@ public:
         {
             try
             {
-                cb->completed(this);
+                cb->completed(shared_from_this());
             }
             catch(...)
             {
@@ -913,7 +909,7 @@ public:
         AsyncCallbackPtr cb;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
 
             //
             // Make sure we haven't already handled the reply (see constructor).
@@ -925,7 +921,7 @@ public:
                 _reply = MessageI::adopt(m);
                 _status = StatusComplete;
                 cb = _callback;
-                _lock.notifyAll();
+                _conditionVariable.notify_all();
             }
         }
 
@@ -933,7 +929,7 @@ public:
         {
             try
             {
-                cb->completed(this);
+                cb->completed(shared_from_this());
             }
             catch(...)
             {
@@ -943,7 +939,8 @@ public:
 
 private:
 
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
+    mutable std::mutex _mutex;
+    mutable std::condition_variable _conditionVariable;
     DBusPendingCall* _call;
     AsyncCallbackPtr _callback;
 
@@ -956,26 +953,23 @@ private:
 static void
 pendingCallCompletedCallback(DBusPendingCall*, void* userData)
 {
-    AsyncResultI* r = static_cast<AsyncResultI*>(userData);
+    auto r = static_cast<shared_ptr<AsyncResultI>*>(userData);
     assert(r);
-    r->replyReceived();
+    (*r)->replyReceived();
 }
 
 static void
 pendingCallFree(void* userData)
 {
-    AsyncResultI* r = static_cast<AsyncResultI*>(userData);
+    auto r = static_cast<shared_ptr<AsyncResultI>*>(userData);
     assert(r);
-    r->__decRef();
+    delete r;
 }
 
 static DBusHandlerResult filterCallback(DBusConnection*, DBusMessage*, void*);
 static void freeConnection(void*);
 
-class ConnectionI;
-typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
-
-class ConnectionI : public Connection
+class ConnectionI final : public Connection, public enable_shared_from_this<ConnectionI>
 {
 public:
 
@@ -985,7 +979,7 @@ public:
     {
     }
 
-    virtual ~ConnectionI()
+    ~ConnectionI()
     {
         if(_connection)
         {
@@ -993,16 +987,16 @@ public:
         }
     }
 
-    virtual void addFilter(const FilterPtr& f)
+    void addFilter(const FilterPtr& f) final
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         _filters.push_back(f);
     }
 
     virtual void removeFilter(const FilterPtr& f)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         for(vector<FilterPtr>::iterator p = _filters.begin(); p != _filters.end(); ++p)
         {
@@ -1016,7 +1010,7 @@ public:
 
     virtual void addService(const string& path, const ServicePtr& s)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         map<string, ServicePtr>::iterator p = _services.find(path);
         if(p != _services.end())
@@ -1028,7 +1022,7 @@ public:
 
     virtual void removeService(const string& path)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+        lock_guard lock(_mutex);
 
         map<string, ServicePtr>::iterator p = _services.find(path);
         if(p != _services.end())
@@ -1039,7 +1033,7 @@ public:
 
     virtual AsyncResultPtr callAsync(const MessagePtr& m, const AsyncCallbackPtr& cb)
     {
-        MessageIPtr mi = MessageIPtr::dynamicCast(m);
+        auto mi = dynamic_pointer_cast<MessageI>(m);
         assert(mi);
 
         DBusPendingCall* call;
@@ -1051,12 +1045,14 @@ public:
         {
             throw ExceptionI("dbus_connection_send_with_reply failed - disconnected?");
         }
-        return new AsyncResultI(call, cb);
+        auto asyncResult = make_shared<AsyncResultI>(call, cb);
+        asyncResult->init();
+        return asyncResult;
     }
 
     virtual void sendAsync(const MessagePtr& m)
     {
-        MessageIPtr mi = MessageIPtr::dynamicCast(m);
+        auto mi = dynamic_pointer_cast<MessageI>(m);
         assert(mi);
 
         //
@@ -1080,7 +1076,7 @@ public:
             ;
 
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             _closed = true;
             _services.clear();
         }
@@ -1101,7 +1097,8 @@ public:
 
         ::dbus_connection_set_exit_on_disconnect(_connection, FALSE);
 
-        if(!::dbus_connection_add_filter(_connection, filterCallback, this, freeConnection))
+        auto self = new shared_ptr<ConnectionI>(shared_from_this());
+        if(!::dbus_connection_add_filter(_connection, filterCallback, self, freeConnection))
         {
             throw ExceptionI("out of memory calling dbus_connection_add_filter");
         }
@@ -1112,9 +1109,7 @@ public:
         ::dbus_bus_add_match(_connection, "type='signal'", 0);
         //::dbus_bus_add_match(_connection, "type='method_call'", 0);
 
-        __incRef(); // __decRef called in freeConnection.
-
-        _thread = new HelperThread(this);
+        _thread = make_shared<HelperThread>(this);
         _thread->start();
     }
 
@@ -1128,7 +1123,7 @@ public:
         vector<FilterPtr> filters;
         map<string, ServicePtr> services;
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             filters = _filters;
             services = _services;
         }
@@ -1138,7 +1133,7 @@ public:
         {
             try
             {
-                if((*p)->handleMessage(this, msg))
+                if((*p)->handleMessage(shared_from_this(), msg))
                 {
                     return DBUS_HANDLER_RESULT_HANDLED;
                 }
@@ -1156,7 +1151,7 @@ public:
             {
                 try
                 {
-                    p->second->handleMethodCall(this, msg);
+                    p->second->handleMethodCall(shared_from_this(), msg);
                 }
                 catch(...)
                 {
@@ -1175,7 +1170,7 @@ private:
     {
         while(::dbus_connection_read_write_dispatch(_connection, 200))
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_lock);
+            lock_guard lock(_mutex);
             if(_closed)
             {
                 break;
@@ -1206,7 +1201,7 @@ private:
 
     DBusConnection* _connection;
     IceUtil::ThreadPtr _thread;
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
+    std::mutex _mutex;
     bool _closed;
     vector<FilterPtr> _filters;
     map<string, ServicePtr> _services;
@@ -1215,16 +1210,16 @@ private:
 static DBusHandlerResult
 filterCallback(DBusConnection*, DBusMessage* message, void* userData)
 {
-    ConnectionI* c = static_cast<ConnectionI*>(userData);
+    auto c = static_cast<shared_ptr<ConnectionI>*>(userData);
     assert(c);
-    return c->handleMessage(message);
+    return (*c)->handleMessage(message);
 }
 
 static void freeConnection(void* p)
 {
-    ConnectionI* c = static_cast<ConnectionI*>(p);
+    auto c = static_cast<shared_ptr<ConnectionI>*>(p);
     assert(c);
-    c->__decRef();
+    delete c;
 }
 
 }
@@ -1247,7 +1242,7 @@ IceBT::DBus::Type::getPrimitive(Kind k)
     case KindObjectPath:
     case KindSignature:
     case KindUnixFD:
-        return new PrimitiveType(k);
+        return make_shared<PrimitiveType>(k);
     case KindInvalid:
     case KindArray:
     case KindVariant:
@@ -1314,7 +1309,7 @@ IceBT::DBus::Message::createCall(const string& dest, const string& path, const s
 MessagePtr
 IceBT::DBus::Message::createReturn(const MessagePtr& call)
 {
-    MessageIPtr c = MessageIPtr::dynamicCast(call);
+    auto c = dynamic_pointer_cast<MessageI>(call);
     assert(c);
     DBusMessage* r = ::dbus_message_new_method_return(c->message());
     if(!r)
@@ -1327,7 +1322,7 @@ IceBT::DBus::Message::createReturn(const MessagePtr& call)
 ConnectionPtr
 IceBT::DBus::Connection::getSystemBus()
 {
-    ConnectionI* conn = new ConnectionI;
+    auto conn = make_shared<ConnectionI>();
     conn->connect(true);
     return conn;
 }
@@ -1335,7 +1330,7 @@ IceBT::DBus::Connection::getSystemBus()
 ConnectionPtr
 IceBT::DBus::Connection::getSessionBus()
 {
-    ConnectionI* conn = new ConnectionI;
+    auto conn = make_shared<ConnectionI>();
     conn->connect(false);
     return conn;
 }

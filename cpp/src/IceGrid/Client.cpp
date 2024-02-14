@@ -49,7 +49,7 @@ public:
     }
 
     shared_ptr<Ice::ObjectPrx>
-    getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Ice::Current&) const override
+    getClientProxy(optional<bool>& hasRoutingTable, const Ice::Current&) const override
     {
         hasRoutingTable = false;
         return _clientProxy;
@@ -352,7 +352,7 @@ run(const Ice::StringSeq& args)
                 auto plugin = dynamic_pointer_cast<IceLocatorDiscovery::Plugin>(pluginObj);
                 plugin->initialize();
 
-                auto locators = plugin->getLocators(instanceName, IceUtil::Time::milliSeconds(300));
+                auto locators = plugin->getLocators(instanceName, chrono::milliseconds(300));
                 if(locators.size() > 1)
                 {
                     consoleOut << "found " << locators.size() << " Ice locators:" << endl;
@@ -630,7 +630,7 @@ run(const Ice::StringSeq& args)
 
         if(acmTimeout > 0)
         {
-            session->ice_getConnection()->setACM(acmTimeout, IceUtil::None, Ice::ACMHeartbeat::HeartbeatAlways);
+            session->ice_getConnection()->setACM(acmTimeout, nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
         }
 
         {

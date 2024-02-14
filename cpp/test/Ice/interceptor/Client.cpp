@@ -63,8 +63,8 @@ Client::run(int argc, char* argv[])
     InterceptorIPtr interceptor = make_shared<InterceptorI>(servant);
     AMDInterceptorIPtr amdInterceptor = make_shared<AMDInterceptorI>(servant);
 
-    Test::MyObjectPrxPtr prx = ICE_UNCHECKED_CAST(Test::MyObjectPrx, oa->addWithUUID(interceptor));
-    Test::MyObjectPrxPtr prxForAMD = ICE_UNCHECKED_CAST(Test::MyObjectPrx, oa->addWithUUID(amdInterceptor));
+    Test::MyObjectPrxPtr prx = Ice::uncheckedCast<Test::MyObjectPrx>(oa->addWithUUID(interceptor));
+    Test::MyObjectPrxPtr prxForAMD = Ice::uncheckedCast<Test::MyObjectPrx>(oa->addWithUUID(amdInterceptor));
 
     cout << "Collocation optimization on" << endl;
     runTest(prx, interceptor);
@@ -76,12 +76,12 @@ Client::run(int argc, char* argv[])
 
     cout << "Collocation optimization off" << endl;
     interceptor->clear();
-    prx = ICE_UNCHECKED_CAST(Test::MyObjectPrx, prx->ice_collocationOptimized(false));
+    prx = Ice::uncheckedCast<Test::MyObjectPrx>(prx->ice_collocationOptimized(false));
     runTest(prx, interceptor);
 
     cout << "Now with AMD" << endl;
     amdInterceptor->clear();
-    prxForAMD = ICE_UNCHECKED_CAST(Test::MyObjectPrx, prxForAMD->ice_collocationOptimized(false));
+    prxForAMD = Ice::uncheckedCast<Test::MyObjectPrx>(prxForAMD->ice_collocationOptimized(false));
     runAmdTest(prxForAMD, amdInterceptor);
 #ifndef _WIN32
     //
@@ -227,7 +227,18 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
     test(interceptor->getLastOperation() == "amdNotExistAdd");
     test(!interceptor->getLastStatus());
 
-    test(dynamic_cast<Ice::ObjectNotExistException*>(interceptor->getException()) != 0);
+    try
+    {
+        rethrow_exception(interceptor->getException());
+    }
+    catch (const Ice::ObjectNotExistException&)
+    {
+        // ok
+    }
+    catch (...)
+    {
+        test(false);
+    }
 
     cout << "ok" << endl;
     cout << "testing system exception... " << flush;
@@ -245,9 +256,23 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
     {
         test(prx->ice_isCollocationOptimized());
     }
+
     test(interceptor->getLastOperation() == "amdBadSystemAdd");
     test(!interceptor->getLastStatus());
-    test(dynamic_cast<MySystemException*>(interceptor->getException()) != 0);
+
+    try
+    {
+       rethrow_exception(interceptor->getException());
+    }
+    catch (const MySystemException&)
+    {
+        // ok
+    }
+    catch (...)
+    {
+        test(false);
+    }
+
     cout << "ok" << endl;
 
     cout << "testing exceptions raised by the interceptor... " << flush;

@@ -90,7 +90,6 @@
     <ClCompile Include="..\..\ConsoleUtil.cpp" />
     <ClCompile Include="..\..\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\OutputUtil.cpp" />
-    <ClCompile Include="..\..\RecMutex.cpp" />
     <ClCompile Include="..\..\StringConverter.cpp" />
     <ClCompile Include="..\..\ThreadException.cpp" />
     <ClCompile Include="..\..\Time.cpp" />
@@ -99,7 +98,6 @@
     <ClCompile Include="..\..\InputUtil.cpp" />
     <ClCompile Include="..\..\Options.cpp" />
     <ClCompile Include="..\..\Random.cpp" />
-    <ClCompile Include="..\..\Shared.cpp" />
     <ClCompile Include="..\..\StringUtil.cpp" />
     <ClCompile Include="..\..\UUID.cpp" />
   </ItemGroup>
@@ -112,7 +110,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Handle.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\InputUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h" />
@@ -126,9 +123,7 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\PopDisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\PushDisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Random.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\RecMutex.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Shared.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Thread.h" />

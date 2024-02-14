@@ -3,6 +3,7 @@
 //
 
 #include <Ice/Proxy.h>
+#include <Ice/Comparable.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/Object.h>
@@ -19,6 +20,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/ConnectionI.h> // To convert from ConnectionIPtr to ConnectionPtr in ice_getConnection().
 #include <Ice/ImplicitContextI.h>
+#include "RequestHandlerCache.h"
 
 using namespace std;
 using namespace Ice;
@@ -137,15 +139,30 @@ namespace Ice
 bool
 operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return lhs._reference < rhs._reference;
+    return targetLess(lhs._getReference(), rhs._getReference());
 }
 
 bool
 operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return lhs._reference == rhs._reference;
+    return targetEqualTo(lhs._getReference(), rhs._getReference());
 }
 
+}
+
+Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
+    _reference(ref),
+    _requestHandlerCache(make_shared<RequestHandlerCache>(ref)),
+    _batchRequestQueue(ref->isBatch() ? ref->getBatchRequestQueue() : nullptr)
+{
+}
+
+Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
+    std::enable_shared_from_this<ObjectPrx>(),
+    _reference(other._reference),
+    _requestHandlerCache(other._requestHandlerCache),
+    _batchRequestQueue(_reference->isBatch() ? _reference->getBatchRequestQueue() : nullptr)
+{
 }
 
 void
@@ -209,19 +226,10 @@ Ice::ObjectPrx::_iceI_flushBatchRequests(const shared_ptr<IceInternal::ProxyFlus
 void
 Ice::ObjectPrx::_checkTwowayOnly(const string& name) const
 {
-    //
-    // No mutex lock necessary, there is nothing mutable in this operation.
-    //
-    if(!ice_isTwoway())
+    if (!ice_isTwoway())
     {
         throw Ice::TwowayOnlyException(__FILE__, __LINE__, name);
     }
-}
-
-shared_ptr<ObjectPrx>
-Ice::ObjectPrx::_newInstance() const
-{
-    return createProxy<ObjectPrx>();
 }
 
 ostream&
@@ -230,17 +238,14 @@ Ice::operator<<(ostream& os, const Ice::ObjectPrx& p)
     return os << p.ice_toString();
 }
 
-#define ICE_OBJECT_PRX Ice::ObjectPrx
-#define CONST_POINTER_CAST_OBJECT_PRX const_pointer_cast<ObjectPrx>(shared_from_this())
-
 Identity
-ICE_OBJECT_PRX::ice_getIdentity() const
+Ice::ObjectPrx::ice_getIdentity() const
 {
     return _reference->getIdentity();
 }
 
 ObjectPrxPtr
-ICE_OBJECT_PRX::ice_identity(const Identity& newIdentity) const
+Ice::ObjectPrx::ice_identity(const Identity& newIdentity) const
 {
     if(newIdentity.name.empty())
     {
@@ -248,702 +253,187 @@ ICE_OBJECT_PRX::ice_identity(const Identity& newIdentity) const
     }
     if(newIdentity == _reference->getIdentity())
     {
-        return CONST_POINTER_CAST_OBJECT_PRX;
+        return const_pointer_cast<ObjectPrx>(shared_from_this());
     }
     else
     {
-        auto proxy = createProxy<ObjectPrx>();
-        proxy->setup(_reference->changeIdentity(newIdentity));
-        return proxy;
+        return make_shared<ObjectPrx>(_reference->changeIdentity(newIdentity));
     }
 }
 
 Context
-ICE_OBJECT_PRX::ice_getContext() const
+Ice::ObjectPrx::ice_getContext() const
 {
     return _reference->getContext()->getValue();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_context(const Context& newContext) const
-{
-    ObjectPrxPtr proxy = _newInstance();
-    proxy->setup(_reference->changeContext(newContext));
-    return proxy;
-}
-
 const string&
-ICE_OBJECT_PRX::ice_getFacet() const
+Ice::ObjectPrx::ice_getFacet() const
 {
     return _reference->getFacet();
 }
 
 ObjectPrxPtr
-ICE_OBJECT_PRX::ice_facet(const string& newFacet) const
+Ice::ObjectPrx::ice_facet(const string& newFacet) const
 {
     if(newFacet == _reference->getFacet())
     {
-        return CONST_POINTER_CAST_OBJECT_PRX;
+        return const_pointer_cast<ObjectPrx>(shared_from_this());
     }
     else
     {
-        auto proxy = createProxy<ObjectPrx>();
-        proxy->setup(_reference->changeFacet(newFacet));
-        return proxy;
+        return make_shared<ObjectPrx>(_reference->changeFacet(newFacet));
     }
 }
 
 string
-ICE_OBJECT_PRX::ice_getAdapterId() const
+Ice::ObjectPrx::ice_getAdapterId() const
 {
     return _reference->getAdapterId();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_adapterId(const string& newAdapterId) const
-{
-    if(newAdapterId == _reference->getAdapterId())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeAdapterId(newAdapterId));
-        return proxy;
-    }
-}
-
 EndpointSeq
-ICE_OBJECT_PRX::ice_getEndpoints() const
+Ice::ObjectPrx::ice_getEndpoints() const
 {
     vector<EndpointIPtr> endpoints = _reference->getEndpoints();
     EndpointSeq retSeq;
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-        retSeq.push_back(ICE_DYNAMIC_CAST(Endpoint, *p));
+        retSeq.push_back(dynamic_pointer_cast<Endpoint>(*p));
     }
     return retSeq;
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_endpoints(const EndpointSeq& newEndpoints) const
-{
-    vector<EndpointIPtr> endpoints;
-    for(EndpointSeq::const_iterator p = newEndpoints.begin(); p != newEndpoints.end(); ++p)
-    {
-        endpoints.push_back(ICE_DYNAMIC_CAST(EndpointI, *p));
-    }
-
-    if(endpoints == _reference->getEndpoints())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeEndpoints(endpoints));
-        return proxy;
-    }
-}
-
 Int
-ICE_OBJECT_PRX::ice_getLocatorCacheTimeout() const
+Ice::ObjectPrx::ice_getLocatorCacheTimeout() const
 {
     return _reference->getLocatorCacheTimeout();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_locatorCacheTimeout(Int newTimeout) const
-{
-    if(newTimeout < -1)
-    {
-        ostringstream s;
-        s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout;
-        throw invalid_argument(s.str());
-    }
-    if(newTimeout == _reference->getLocatorCacheTimeout())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeLocatorCacheTimeout(newTimeout));
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isConnectionCached() const
+Ice::ObjectPrx::ice_isConnectionCached() const
 {
     return _reference->getCacheConnection();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_connectionCached(bool newCache) const
-{
-    if(newCache == _reference->getCacheConnection())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeCacheConnection(newCache));
-        return proxy;
-    }
-}
-
 EndpointSelectionType
-ICE_OBJECT_PRX::ice_getEndpointSelection() const
+Ice::ObjectPrx::ice_getEndpointSelection() const
 {
     return _reference->getEndpointSelection();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_endpointSelection(EndpointSelectionType newType) const
-{
-    if(newType == _reference->getEndpointSelection())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeEndpointSelection(newType));
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isSecure() const
+Ice::ObjectPrx::ice_isSecure() const
 {
     return _reference->getSecure();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_secure(bool b) const
-{
-    if(b == _reference->getSecure())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeSecure(b));
-        return proxy;
-    }
-}
-
 ::Ice::EncodingVersion
-ICE_OBJECT_PRX::ice_getEncodingVersion() const
+Ice::ObjectPrx::ice_getEncodingVersion() const
 {
     return _reference->getEncoding();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_encodingVersion(const ::Ice::EncodingVersion& encoding) const
-{
-    if(encoding == _reference->getEncoding())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeEncoding(encoding));
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isPreferSecure() const
+Ice::ObjectPrx::ice_isPreferSecure() const
 {
     return _reference->getPreferSecure();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_preferSecure(bool b) const
-{
-    if(b == _reference->getPreferSecure())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changePreferSecure(b));
-        return proxy;
-    }
-}
-
 RouterPrxPtr
-ICE_OBJECT_PRX::ice_getRouter() const
+Ice::ObjectPrx::ice_getRouter() const
 {
     RouterInfoPtr ri = _reference->getRouterInfo();
     return ri ? ri->getRouter() : nullptr;
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_router(const RouterPrxPtr& router) const
-{
-    ReferencePtr ref = _reference->changeRouter(router);
-    if(ref == _reference)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(ref);
-        return proxy;
-    }
-}
-
 LocatorPrxPtr
-ICE_OBJECT_PRX::ice_getLocator() const
+Ice::ObjectPrx::ice_getLocator() const
 {
     LocatorInfoPtr ri = _reference->getLocatorInfo();
     return ri ? ri->getLocator() : nullptr;
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_locator(const LocatorPrxPtr& locator) const
-{
-    ReferencePtr ref = _reference->changeLocator(locator);
-    if(ref == _reference)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(ref);
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isCollocationOptimized() const
+Ice::ObjectPrx::ice_isCollocationOptimized() const
 {
     return _reference->getCollocationOptimized();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_collocationOptimized(bool b) const
-{
-    if(b == _reference->getCollocationOptimized())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeCollocationOptimized(b));
-        return proxy;
-    }
-}
-
 Int
-ICE_OBJECT_PRX::ice_getInvocationTimeout() const
+Ice::ObjectPrx::ice_getInvocationTimeout() const
 {
     return _reference->getInvocationTimeout();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_invocationTimeout(Int newTimeout) const
-{
-    if(newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
-    {
-        ostringstream s;
-        s << "invalid value passed to ice_invocationTimeout: " << newTimeout;
-        throw invalid_argument(s.str());
-    }
-    if(newTimeout == _reference->getInvocationTimeout())
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeInvocationTimeout(newTimeout));
-        return proxy;
-    }
-}
-
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_twoway() const
-{
-    if(_reference->getMode() == Reference::ModeTwoway)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeMode(Reference::ModeTwoway));
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isTwoway() const
+Ice::ObjectPrx::ice_isTwoway() const
 {
     return _reference->getMode() == Reference::ModeTwoway;
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_oneway() const
-{
-    if(_reference->getMode() == Reference::ModeOneway)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeMode(Reference::ModeOneway));
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isOneway() const
+Ice::ObjectPrx::ice_isOneway() const
 {
     return _reference->getMode() == Reference::ModeOneway;
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_batchOneway() const
-{
-    if(_reference->getMode() == Reference::ModeBatchOneway)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeMode(Reference::ModeBatchOneway));
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isBatchOneway() const
+Ice::ObjectPrx::ice_isBatchOneway() const
 {
     return _reference->getMode() == Reference::ModeBatchOneway;
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_datagram() const
-{
-    if(_reference->getMode() == Reference::ModeDatagram)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeMode(Reference::ModeDatagram));
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isDatagram() const
+Ice::ObjectPrx::ice_isDatagram() const
 {
     return _reference->getMode() == Reference::ModeDatagram;
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_batchDatagram() const
-{
-    if(_reference->getMode() == Reference::ModeBatchDatagram)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(_reference->changeMode(Reference::ModeBatchDatagram));
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isBatchDatagram() const
+Ice::ObjectPrx::ice_isBatchDatagram() const
 {
     return _reference->getMode() == Reference::ModeBatchDatagram;
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_compress(bool b) const
-{
-    ReferencePtr ref = _reference->changeCompress(b);
-    if(ref == _reference)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(ref);
-        return proxy;
-    }
-}
-
-IceUtil::Optional<bool>
-ICE_OBJECT_PRX::ice_getCompress() const
+optional<bool>
+Ice::ObjectPrx::ice_getCompress() const
 {
     return _reference->getCompress();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_timeout(int t) const
-{
-    if(t < 1 && t != -1)
-    {
-        ostringstream s;
-        s << "invalid value passed to ice_timeout: " << t;
-        throw invalid_argument(s.str());
-    }
-    ReferencePtr ref = _reference->changeTimeout(t);
-    if(ref == _reference)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(ref);
-        return proxy;
-    }
-}
-
-IceUtil::Optional<int>
-ICE_OBJECT_PRX::ice_getTimeout() const
+optional<int>
+Ice::ObjectPrx::ice_getTimeout() const
 {
     return _reference->getTimeout();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_connectionId(const string& id) const
-{
-    ReferencePtr ref = _reference->changeConnectionId(id);
-    if(ref == _reference)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(ref);
-        return proxy;
-    }
-}
-
 string
-ICE_OBJECT_PRX::ice_getConnectionId() const
+Ice::ObjectPrx::ice_getConnectionId() const
 {
     return _reference->getConnectionId();
 }
 
-ObjectPrxPtr
-ICE_OBJECT_PRX::ice_fixed(const ::Ice::ConnectionPtr& connection) const
-{
-    if(!connection)
-    {
-        throw invalid_argument("invalid null connection passed to ice_fixed");
-    }
-    ::Ice::ConnectionIPtr impl = ICE_DYNAMIC_CAST(::Ice::ConnectionI, connection);
-    if(!impl)
-    {
-        throw invalid_argument("invalid connection passed to ice_fixed");
-    }
-    ReferencePtr ref = _reference->changeConnection(impl);
-    if(ref == _reference)
-    {
-        return CONST_POINTER_CAST_OBJECT_PRX;
-    }
-    else
-    {
-        ObjectPrxPtr proxy = _newInstance();
-        proxy->setup(ref);
-        return proxy;
-    }
-}
-
 bool
-ICE_OBJECT_PRX::ice_isFixed() const
+Ice::ObjectPrx::ice_isFixed() const
 {
-    return FixedReferencePtr::dynamicCast(_reference);
+    return dynamic_pointer_cast<FixedReference>(_reference) != nullptr;
 }
 
 ConnectionPtr
-ICE_OBJECT_PRX::ice_getCachedConnection() const
+Ice::ObjectPrx::ice_getCachedConnection() const
 {
-    RequestHandlerPtr handler;
-    {
-        IceUtil::Mutex::Lock sync(_mutex);
-        handler =  _requestHandler;
-    }
-
-    if(handler)
-    {
-        try
-        {
-            return handler->getConnection();
-        }
-        catch(const LocalException&)
-        {
-        }
-    }
-    return 0;
-}
-
-void
-ICE_OBJECT_PRX::setup(const ReferencePtr& ref)
-{
-    //
-    // No need to synchronize "*this", as this operation is only
-    // called upon initialization.
-    //
-
-    assert(!_reference);
-    assert(!_requestHandler);
-
-    _reference = ref;
-}
-
-int
-ICE_OBJECT_PRX::_handleException(const Exception& ex,
-                                 const RequestHandlerPtr& handler,
-                                 OperationMode mode,
-                                 bool sent,
-                                 int& cnt)
-{
-    _updateRequestHandler(handler, 0); // Clear the request handler
-
-    //
-    // We only retry local exception, system exceptions aren't retried.
-    //
-    // A CloseConnectionException indicates graceful server shutdown, and is therefore
-    // always repeatable without violating "at-most-once". That's because by sending a
-    // close connection message, the server guarantees that all outstanding requests
-    // can safely be repeated.
-    //
-    // An ObjectNotExistException can always be retried as well without violating
-    // "at-most-once" (see the implementation of the checkRetryAfterException method
-    //  of the ProxyFactory class for the reasons why it can be useful).
-    //
-    // If the request didn't get sent or if it's non-mutating or idempotent it can
-    // also always be retried if the retry count isn't reached.
-    //
-    const LocalException* localEx = dynamic_cast<const LocalException*>(&ex);
-    if(localEx && (!sent ||
-                   mode == OperationMode::Nonmutating || mode == OperationMode::Idempotent ||
-                   dynamic_cast<const CloseConnectionException*>(&ex) ||
-                   dynamic_cast<const ObjectNotExistException*>(&ex)))
-    {
-        try
-        {
-            return _reference->getInstance()->proxyFactory()->checkRetryAfterException(*localEx, _reference, cnt);
-        }
-        catch(const CommunicatorDestroyedException&)
-        {
-            //
-            // The communicator is already destroyed, so we cannot retry.
-            //
-            ex.ice_throw();
-        }
-    }
-    else
-    {
-        ex.ice_throw(); // Retry could break at-most-once semantics, don't retry.
-    }
-    return 0; // Keep the compiler happy.
-}
-
-::IceInternal::RequestHandlerPtr
-ICE_OBJECT_PRX::_getRequestHandler()
-{
-    RequestHandlerPtr handler;
-    if(_reference->getCacheConnection())
-    {
-        IceUtil::Mutex::Lock sync(_mutex);
-        if(_requestHandler)
-        {
-            return _requestHandler;
-        }
-    }
-    return _reference->getRequestHandler(shared_from_this());
-}
-
-IceInternal::BatchRequestQueuePtr
-ICE_OBJECT_PRX::_getBatchRequestQueue()
-{
-    IceUtil::Mutex::Lock sync(_mutex);
-    if(!_batchRequestQueue)
-    {
-        _batchRequestQueue = _reference->getBatchRequestQueue();
-    }
-    return _batchRequestQueue;
-}
-
-::IceInternal::RequestHandlerPtr
-ICE_OBJECT_PRX::_setRequestHandler(const ::IceInternal::RequestHandlerPtr& handler)
-{
-    if(_reference->getCacheConnection())
-    {
-        IceUtil::Mutex::Lock sync(_mutex);
-        if(!_requestHandler)
-        {
-            _requestHandler = handler;
-        }
-        return _requestHandler;
-    }
-    return handler;
-}
-
-void
-ICE_OBJECT_PRX::_updateRequestHandler(const ::IceInternal::RequestHandlerPtr& previous,
-                                      const ::IceInternal::RequestHandlerPtr& handler)
-{
-    if(_reference->getCacheConnection() && previous)
-    {
-        IceUtil::Mutex::Lock sync(_mutex);
-        if(_requestHandler && _requestHandler.get() != handler.get())
-        {
-            //
-            // Update the request handler only if "previous" is the same
-            // as the current request handler. This is called after
-            // connection binding by the connect request handler. We only
-            // replace the request handler if the current handler is the
-            // connect request handler.
-            //
-            _requestHandler = _requestHandler->update(previous, handler);
-        }
-    }
-}
-
-void
-ICE_OBJECT_PRX::_copyFrom(const ObjectPrxPtr& from)
-{
-    IceUtil::Mutex::Lock sync(from->_mutex);
-    _reference = from->_reference;
-    _requestHandler = from->_requestHandler;
+    return _requestHandlerCache->getCachedConnection();
 }
 
 CommunicatorPtr
-ICE_OBJECT_PRX::ice_getCommunicator() const
+Ice::ObjectPrx::ice_getCommunicator() const
 {
     return _reference->getCommunicator();
 }
 
 string
-ICE_OBJECT_PRX::ice_toString() const
+Ice::ObjectPrx::ice_toString() const
 {
     //
     // Returns the stringified proxy. There's no need to convert the
@@ -954,16 +444,341 @@ ICE_OBJECT_PRX::ice_toString() const
 }
 
 Int
-ICE_OBJECT_PRX::_hash() const
+Ice::ObjectPrx::_hash() const
 {
     return _reference->hash();
 }
 
 void
-ICE_OBJECT_PRX::_write(OutputStream& os) const
+Ice::ObjectPrx::_write(OutputStream& os) const
 {
-    os.write(_getReference()->getIdentity());
-    _getReference()->streamWrite(&os);
+    os.write(_reference->getIdentity());
+    _reference->streamWrite(&os);
+}
+
+ReferencePtr
+Ice::ObjectPrx::_adapterId(const string& newAdapterId) const
+{
+    if (newAdapterId == _reference->getAdapterId())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeAdapterId(newAdapterId);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_batchDatagram() const
+{
+    if (_reference->getMode() == Reference::ModeBatchDatagram)
+    {
+        return _reference;
+    }
+    else
+    {
+       return _reference->changeMode(Reference::ModeBatchDatagram);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_batchOneway() const
+{
+    if (_reference->getMode() == Reference::ModeBatchOneway)
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeMode(Reference::ModeBatchOneway);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_collocationOptimized(bool b) const
+{
+    if (b == _reference->getCollocationOptimized())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeCollocationOptimized(b);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_compress(bool b) const
+{
+    ReferencePtr ref = _reference->changeCompress(b);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+       return ref;
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_connectionCached(bool newCache) const
+{
+    if (newCache == _reference->getCacheConnection())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeCacheConnection(newCache);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_connectionId(const string& id) const
+{
+    ReferencePtr ref = _reference->changeConnectionId(id);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_context(const Context& newContext) const
+{
+    return _reference->changeContext(newContext);
+}
+
+ReferencePtr
+Ice::ObjectPrx::_datagram() const
+{
+    if (_reference->getMode() == Reference::ModeDatagram)
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeMode(Reference::ModeDatagram);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_encodingVersion(const ::Ice::EncodingVersion& encoding) const
+{
+    if (encoding == _reference->getEncoding())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeEncoding(encoding);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_endpointSelection(EndpointSelectionType newType) const
+{
+    if (newType == _reference->getEndpointSelection())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeEndpointSelection(newType);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_endpoints(const EndpointSeq& newEndpoints) const
+{
+    vector<EndpointIPtr> endpoints;
+    for (EndpointSeq::const_iterator p = newEndpoints.begin(); p != newEndpoints.end(); ++p)
+    {
+        endpoints.push_back(dynamic_pointer_cast<EndpointI>(*p));
+    }
+
+    auto currentEndpoints = _reference->getEndpoints();
+
+    if (equal(
+            endpoints.begin(),
+            endpoints.end(),
+            currentEndpoints.begin(),
+            currentEndpoints.end(),
+            targetEqualTo<EndpointIPtr, EndpointIPtr>))
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeEndpoints(endpoints);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_fixed(const ::Ice::ConnectionPtr& connection) const
+{
+    if (!connection)
+    {
+        throw invalid_argument("invalid null connection passed to ice_fixed");
+    }
+    auto impl = dynamic_pointer_cast<Ice::ConnectionI>(connection);
+    if (!impl)
+    {
+        throw invalid_argument("invalid connection passed to ice_fixed");
+    }
+    ReferencePtr ref = _reference->changeConnection(impl);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_invocationTimeout(Int newTimeout) const
+{
+    if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_invocationTimeout: " << newTimeout;
+        throw invalid_argument(s.str());
+    }
+    if (newTimeout == _reference->getInvocationTimeout())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeInvocationTimeout(newTimeout);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_locator(const LocatorPrxPtr& locator) const
+{
+    ReferencePtr ref = _reference->changeLocator(locator);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_locatorCacheTimeout(Int newTimeout) const
+{
+    if (newTimeout < -1)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_locatorCacheTimeout: " << newTimeout;
+        throw invalid_argument(s.str());
+    }
+    if (newTimeout == _reference->getLocatorCacheTimeout())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeLocatorCacheTimeout(newTimeout);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_oneway() const
+{
+    if (_reference->getMode() == Reference::ModeOneway)
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeMode(Reference::ModeOneway);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_preferSecure(bool b) const
+{
+    if (b == _reference->getPreferSecure())
+    {
+        return _reference;
+    }
+    else
+    {
+       return _reference->changePreferSecure(b);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_router(const RouterPrxPtr& router) const
+{
+    ReferencePtr ref = _reference->changeRouter(router);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_secure(bool b) const
+{
+    if (b == _reference->getSecure())
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeSecure(b);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_timeout(int t) const
+{
+    if (t < 1 && t != -1)
+    {
+        ostringstream s;
+        s << "invalid value passed to ice_timeout: " << t;
+        throw invalid_argument(s.str());
+    }
+    ReferencePtr ref = _reference->changeTimeout(t);
+    if (targetEqualTo(ref, _reference))
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_twoway() const
+{
+    if (_reference->getMode() == Reference::ModeTwoway)
+    {
+        return _reference;
+    }
+    else
+    {
+        return _reference->changeMode(Reference::ModeTwoway);
+    }
 }
 
 bool
