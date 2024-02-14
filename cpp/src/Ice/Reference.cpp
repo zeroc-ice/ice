@@ -595,13 +595,13 @@ IceInternal::FixedReference::changeAdapterId(const string& /*newAdapterId*/) con
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeLocator(const LocatorPrxPtr&) const
+IceInternal::FixedReference::changeLocator(const optional<LocatorPrx>&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeRouter(const RouterPrxPtr&) const
+IceInternal::FixedReference::changeRouter(const optional<RouterPrx>&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -956,18 +956,20 @@ IceInternal::RoutableReference::changeAdapterId(const string& newAdapterId) cons
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeLocator(const LocatorPrxPtr& newLocator) const
+IceInternal::RoutableReference::changeLocator(const optional<LocatorPrx>& newLocator) const
 {
-    LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
+    LocatorInfoPtr newLocatorInfo = newLocator ?
+        getInstance()->locatorManager()->get(newLocator.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_locatorInfo = newLocatorInfo;
     return r;
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeRouter(const RouterPrxPtr& newRouter) const
+IceInternal::RoutableReference::changeRouter(const optional<RouterPrx>& newRouter) const
 {
-    RouterInfoPtr newRouterInfo = getInstance()->routerManager()->get(newRouter);
+    RouterInfoPtr newRouterInfo = newRouter ?
+        getInstance()->routerManager()->get(newRouter.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_routerInfo = newRouterInfo;
     return r;

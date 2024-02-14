@@ -429,14 +429,14 @@ Client::run(int argc, char** argv)
         communicator->setDefaultRouter(nullptr);
         cout << "ok" << endl;
 
-        shared_ptr<Ice::ObjectPrx> processBase;
+        Ice::ObjectPrx processBase;
         {
             cout << "testing stringToProxy for process object... " << flush;
             processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
             cout << "ok" << endl;
         }
 
-        shared_ptr<Ice::ProcessPrx> process;
+        Ice::ProcessPrxPtr process;
         {
             cout << "testing checked cast for admin object... " << flush;
             process = Ice::checkedCast<Ice::ProcessPrx>(processBase);

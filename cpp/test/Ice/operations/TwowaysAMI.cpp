@@ -1173,7 +1173,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = make_shared<Callback>(communicator);
         p->opMyClassAsync(p,
-                          [&](shared_ptr<Test::MyClassPrx> c1, shared_ptr<Test::MyClassPrx> c2, shared_ptr<Test::MyClassPrx> c3)
+                          [&](Test::MyClassPrxPtr c1, Test::MyClassPrxPtr c2, Test::MyClassPrxPtr c3)
             {
                 cb->opMyClass(std::move(c1), std::move(c2), std::move(c3));
             },

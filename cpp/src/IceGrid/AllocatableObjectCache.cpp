@@ -261,7 +261,7 @@ AllocatableObjectEntry::AllocatableObjectEntry(AllocatableObjectCache& cache,
     assert(_server);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 AllocatableObjectEntry::getProxy() const
 {
     return _info.proxy;

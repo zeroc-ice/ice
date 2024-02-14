@@ -22,7 +22,7 @@ class AdapterRequest final : public LocatorI::Request
 {
 public:
 
-    AdapterRequest(function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+    AdapterRequest(function<void(const Ice::ObjectPrx&)> response,
                    function<void(exception_ptr)> exception,
                    const shared_ptr<LocatorI>& locator,
                    const Ice::EncodingVersion& encoding,
@@ -50,7 +50,7 @@ public:
     }
 
     void
-    response(const std::string& id, const shared_ptr<Ice::ObjectPrx>& proxy) override
+    response(const std::string& id, const Ice::ObjectPrx& proxy) override
     {
         assert(proxy);
 
@@ -83,7 +83,7 @@ public:
 
 private:
 
-    const function<void(const shared_ptr<Ice::ObjectPrx>&)> _response;
+    const function<void(const Ice::ObjectPrx&)> _response;
     const function<void(exception_ptr)> _exception;
     const shared_ptr<LocatorI> _locator;
     const Ice::EncodingVersion _encoding;
@@ -95,14 +95,14 @@ class ReplicaGroupRequest final : public LocatorI::Request
 {
 public:
 
-    ReplicaGroupRequest(function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+    ReplicaGroupRequest(function<void(const Ice::ObjectPrx&)> response,
                         function<void(exception_ptr)> exception,
                         const shared_ptr<LocatorI>& locator,
                         const string& id,
                         const Ice::EncodingVersion& encoding,
                         const LocatorAdapterInfoSeq& adapters,
                         int count,
-                        shared_ptr<Ice::ObjectPrx> firstProxy) :
+                        Ice::ObjectPrx firstProxy) :
         _response(std::move(response)),
         _exception(std::move(exception)),
         _locator(locator),
@@ -239,7 +239,7 @@ public:
     }
 
     void
-    response(const string& id, const shared_ptr<Ice::ObjectPrx>& proxy) override
+    response(const string& id, const Ice::ObjectPrx& proxy) override
     {
         //
         // Ensure the server supports the request encoding.
@@ -318,7 +318,7 @@ private:
         }
     }
 
-    const function<void(const shared_ptr<Ice::ObjectPrx>&)> _response;
+    const function<void(const Ice::ObjectPrx&)> _response;
     const function<void(exception_ptr)> _exception;
     const shared_ptr<LocatorI> _locator;
     const std::string _id;
@@ -327,7 +327,7 @@ private:
     const shared_ptr<TraceLevels> _traceLevels;
     unsigned int _count;
     LocatorAdapterInfoSeq::const_iterator _lastAdapter;
-    std::map<std::string, shared_ptr<Ice::ObjectPrx>> _proxies;
+    std::map<std::string, Ice::ObjectPrx> _proxies;
     exception_ptr _exptr;
     std::mutex _mutex;
 };
@@ -336,7 +336,7 @@ class RoundRobinRequest final : public LocatorI::Request, SynchronizationCallbac
 {
 public:
 
-    RoundRobinRequest(function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+    RoundRobinRequest(function<void(const Ice::ObjectPrx&)> response,
                       function<void(exception_ptr)> exception,
                       const shared_ptr<LocatorI>& locator,
                       const shared_ptr<Database> database,
@@ -401,7 +401,7 @@ public:
     }
 
     void
-    response(const std::string& id, const shared_ptr<Ice::ObjectPrx>& proxy) override
+    response(const std::string& id, const Ice::ObjectPrx& proxy) override
     {
         //
         // Ensure the server supports the request encoding.
@@ -619,7 +619,7 @@ private:
         }
     }
 
-    const function<void(const shared_ptr<Ice::ObjectPrx>&)> _response;
+    const function<void(const Ice::ObjectPrx&)> _response;
     const function<void(exception_ptr)> _exception;
     const shared_ptr<LocatorI> _locator;
     const shared_ptr<Database> _database;
@@ -642,7 +642,7 @@ class FindAdapterByIdCallback final : public SynchronizationCallback
 public:
 
     FindAdapterByIdCallback(const shared_ptr<LocatorI>& locator,
-                            function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                            function<void(const Ice::ObjectPrx&)> response,
                             function<void(exception_ptr)> exception,
                             const string& id,
                             const Ice::Current& current) :
@@ -692,7 +692,7 @@ public:
 private:
 
     const shared_ptr<LocatorI> _locator;
-    const function<void(const shared_ptr<Ice::ObjectPrx>&)> _response;
+    const function<void(const Ice::ObjectPrx&)> _response;
     const function<void(exception_ptr)> _exception;
     const string _id;
     const Ice::Current _current;
@@ -703,8 +703,8 @@ private:
 LocatorI::LocatorI(const shared_ptr<Ice::Communicator>& communicator,
                    const shared_ptr<Database>& database,
                    const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-                   const shared_ptr<RegistryPrx>& registry,
-                   const shared_ptr<QueryPrx>& query) :
+                   const RegistryPrxPtr& registry,
+                   const QueryPrxPtr& query) :
     _communicator(communicator),
     _database(database),
     _wellKnownObjects(wellKnownObjects),
@@ -719,7 +719,7 @@ LocatorI::LocatorI(const shared_ptr<Ice::Communicator>& communicator,
 //
 void
 LocatorI::findObjectByIdAsync(Ice::Identity id,
-                              function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                              function<void(const Ice::ObjectPrx&)> response,
                               function<void(exception_ptr)>,
                               const Ice::Current&) const
 {
@@ -739,7 +739,7 @@ LocatorI::findObjectByIdAsync(Ice::Identity id,
 //
 void
 LocatorI::findAdapterByIdAsync(string id,
-                               function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                               function<void(const Ice::ObjectPrx&)> response,
                                function<void(exception_ptr)> exception,
                                const Ice::Current& current) const
 {
@@ -824,19 +824,19 @@ LocatorI::findAdapterByIdAsync(string id,
     }
 }
 
-shared_ptr<Ice::LocatorRegistryPrx>
+Ice::LocatorRegistryPrxPtr
 LocatorI::getRegistry(const Ice::Current&) const
 {
     return _wellKnownObjects->getLocatorRegistry();
 }
 
-shared_ptr<RegistryPrx>
+RegistryPrxPtr
 LocatorI::getLocalRegistry(const Ice::Current&) const
 {
     return _localRegistry;
 }
 
-shared_ptr<QueryPrx>
+QueryPrxPtr
 LocatorI::getLocalQuery(const Ice::Current&) const
 {
     return _localQuery;
@@ -883,7 +883,7 @@ LocatorI::getDirectProxy(const LocatorAdapterInfo& adapter, const shared_ptr<Req
 }
 
 void
-LocatorI::getDirectProxyResponse(const LocatorAdapterInfo& adapter, const shared_ptr<Ice::ObjectPrx>& proxy)
+LocatorI::getDirectProxyResponse(const LocatorAdapterInfo& adapter, const Ice::ObjectPrx& proxy)
 {
     PendingRequests requests;
     {

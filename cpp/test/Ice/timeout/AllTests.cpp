@@ -14,7 +14,7 @@ namespace
 {
 
 Ice::ConnectionPtr
-connect(const Ice::ObjectPrxPtr& prx)
+connect(const Ice::ObjectPrx& prx)
 {
     //
     // Establish connection with the given proxy (which might have a timeout
@@ -46,7 +46,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
     Ice::CommunicatorPtr communicator = helper->communicator();
     string sref = "timeout:" + helper->getTestEndpoint();
 
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
+    Ice::ObjectPrx obj = communicator->stringToProxy(sref);
     test(obj);
 
     TimeoutPrxPtr timeout = Ice::checkedCast<TimeoutPrx>(obj);

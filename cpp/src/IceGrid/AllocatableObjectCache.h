@@ -21,7 +21,7 @@ class AllocatableObjectEntry : public Allocatable
 public:
 
     AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const std::shared_ptr<ServerEntry>&);
-    std::shared_ptr<Ice::ObjectPrx> getProxy() const;
+    Ice::ObjectPrx getProxy() const;
     std::string getType() const;
 
     bool canRemove();
@@ -50,7 +50,7 @@ public:
     {
     }
 
-    virtual void response(const std::shared_ptr<Ice::ObjectPrx>&) = 0;
+    virtual void response(const Ice::ObjectPrx&) = 0;
     virtual void exception(std::exception_ptr) = 0;
 
 private:

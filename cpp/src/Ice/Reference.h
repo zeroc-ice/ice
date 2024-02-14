@@ -9,8 +9,8 @@
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/RouterF.h>
-#include <Ice/LocatorF.h>
+#include <Ice/Router.h>
+#include <Ice/Locator.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ConnectionIF.h>
@@ -95,8 +95,8 @@ public:
 
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const = 0;
     virtual ReferencePtr changeAdapterId(const std::string&) const = 0;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const = 0;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const = 0;
+    virtual ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const = 0;
+    virtual ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const = 0;
     virtual ReferencePtr changeCollocationOptimized(bool) const = 0;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
     virtual ReferencePtr changeCacheConnection(bool) const = 0;
@@ -194,8 +194,8 @@ public:
 
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const;
+    virtual ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const;
+    virtual ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const;
     virtual ReferencePtr changeCollocationOptimized(bool) const;
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changePreferSecure(bool) const;
@@ -254,8 +254,8 @@ public:
     virtual ReferencePtr changeCompress(bool) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const;
+    virtual ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const;
+    virtual ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const;
     virtual ReferencePtr changeCollocationOptimized(bool) const;
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changePreferSecure(bool) const;

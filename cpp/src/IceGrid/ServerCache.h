@@ -70,20 +70,20 @@ public:
     ServerInfo getInfo(bool = false) const;
     std::string getId() const;
 
-    std::shared_ptr<ServerPrx> getProxy(std::chrono::seconds&, std::chrono::seconds&, std::string&, bool = true,
+    ServerPrxPtr getProxy(std::chrono::seconds&, std::chrono::seconds&, std::string&, bool = true,
                                         std::chrono::seconds = std::chrono::seconds(0));
-    std::shared_ptr<ServerPrx> getProxy(bool = true, std::chrono::seconds = std::chrono::seconds(0));
-    std::shared_ptr<Ice::ObjectPrx> getAdminProxy();
+    ServerPrxPtr getProxy(bool = true, std::chrono::seconds = std::chrono::seconds(0));
+    Ice::ObjectPrx getAdminProxy();
 
-    std::shared_ptr<AdapterPrx> getAdapter(const std::string&, bool);
-    std::shared_ptr<AdapterPrx> getAdapter(std::chrono::seconds&, std::chrono::seconds&, const std::string&, bool);
+    AdapterPrxPtr getAdapter(const std::string&, bool);
+    AdapterPrxPtr getAdapter(std::chrono::seconds&, std::chrono::seconds&, const std::string&, bool);
     float getLoad(LoadSample) const;
 
     bool canRemove();
     std::shared_ptr<CheckUpdateResult> checkUpdate(const ServerInfo&, bool);
     bool isDestroyed();
 
-    void loadCallback(const std::shared_ptr<ServerPrx>&, const AdapterPrxDict&, std::chrono::seconds,
+    void loadCallback(const ServerPrxPtr&, const AdapterPrxDict&, std::chrono::seconds,
                       std::chrono::seconds);
     void destroyCallback();
     void exception(std::exception_ptr);
@@ -107,7 +107,7 @@ private:
     std::unique_ptr<ServerInfo> _load;
     std::unique_ptr<ServerInfo> _destroy;
 
-    std::shared_ptr<ServerPrx> _proxy;
+    ServerPrxPtr _proxy;
     AdapterPrxDict _adapters;
     std::chrono::seconds _activationTimeout;
     std::chrono::seconds _deactivationTimeout;

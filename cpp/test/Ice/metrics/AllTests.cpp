@@ -418,7 +418,7 @@ struct Void
 
 struct Connect
 {
-    Connect(const Ice::ObjectPrxPtr& proxyP) : proxy(proxyP)
+    Connect(const Ice::ObjectPrx& proxyP) : proxy(proxyP)
     {
     }
 
@@ -442,7 +442,7 @@ struct Connect
         }
     }
 
-    Ice::ObjectPrxPtr proxy;
+    Ice::ObjectPrx proxy;
 };
 
 struct InvokeOp
@@ -578,7 +578,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     bool collocated = !metrics->ice_getConnection();
 
     cout << "testing metrics admin facet checkedCast... " << flush;
-    Ice::ObjectPrxPtr admin = communicator->getAdmin();
+    Ice::ObjectPrx admin = communicator->getAdmin();
 
     Ice::PropertiesAdminPrxPtr clientProps =  Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
     IceMX::MetricsAdminPrxPtr clientMetrics = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics");
@@ -770,7 +770,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["active"]->current == 1);
 
-        Ice::ObjectPrxPtr cprx = communicator->stringToProxy("controller:" + helper->getTestEndpoint(1));
+        Ice::ObjectPrx cprx = communicator->stringToProxy("controller:" + helper->getTestEndpoint(1));
         ControllerPrxPtr controller = Ice::checkedCast<ControllerPrx>(cprx);
         controller->hold();
 
@@ -917,7 +917,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         updateProps(clientProps, serverProps, update.get(), props, "EndpointLookup");
         test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].empty());
 
-        Ice::ObjectPrxPtr prx = communicator->stringToProxy("metrics:" + protocol + " -h localhost -t 500 -p " + port);
+        Ice::ObjectPrx prx = communicator->stringToProxy("metrics:" + protocol + " -h localhost -t 500 -p " + port);
         try
         {
             prx->ice_ping();

@@ -124,7 +124,7 @@ PluginI::initialize()
     auto locatorRegistryPrx =
         Ice::uncheckedCast<Ice::LocatorRegistryPrx>(_locatorAdapter->addWithUUID(locatorRegistry));
 
-    Ice::ObjectPrxPtr lookupPrx = _communicator->stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
+    Ice::ObjectPrx lookupPrx = _communicator->stringToProxy("IceDiscovery/Lookup -d:" + lookupEndpoints);
     // No collocation optimization for the multicast proxy!
     lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullptr);
 
@@ -142,7 +142,7 @@ PluginI::initialize()
     //
     // Setup locator on the communicator.
     //
-    Ice::ObjectPrxPtr loc = _locatorAdapter->addWithUUID(make_shared<LocatorI>(_lookup, locatorRegistryPrx));
+    Ice::ObjectPrx loc = _locatorAdapter->addWithUUID(make_shared<LocatorI>(_lookup, locatorRegistryPrx));
     _defaultLocator = _communicator->getDefaultLocator();
     _locator = Ice::uncheckedCast<Ice::LocatorPrx>(loc);
     _communicator->setDefaultLocator(_locator);

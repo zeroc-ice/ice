@@ -92,7 +92,7 @@ SessionServantManager::deactivate(const std::string&)
     assert(_adminConnections.empty());
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 SessionServantManager::addSession(const shared_ptr<Ice::Object>& session,
                                   const shared_ptr<Ice::Connection>& con, const string& category)
 {
@@ -117,7 +117,7 @@ SessionServantManager::addSession(const shared_ptr<Ice::Object>& session,
 
 void
 SessionServantManager::setSessionControl(const shared_ptr<Ice::Object>& session,
-                                         const shared_ptr<Glacier2::SessionControlPrx>& ctl,
+                                         const Glacier2::SessionControlPrxPtr& ctl,
                                          const Ice::IdentitySeq& ids)
 {
     lock_guard lock(_mutex);
@@ -146,7 +146,7 @@ SessionServantManager::setSessionControl(const shared_ptr<Ice::Object>& session,
     }
 }
 
-shared_ptr<Glacier2::IdentitySetPrx>
+Glacier2::IdentitySetPrxPtr
 SessionServantManager::getGlacier2IdentitySet(const shared_ptr<Ice::Object>& session)
 {
     lock_guard lock(_mutex);
@@ -165,7 +165,7 @@ SessionServantManager::getGlacier2IdentitySet(const shared_ptr<Ice::Object>& ses
     }
 }
 
-shared_ptr<Glacier2::StringSetPrx>
+Glacier2::StringSetPrxPtr
 SessionServantManager::getGlacier2AdapterIdSet(const shared_ptr<Ice::Object>& session)
 {
     lock_guard lock(_mutex);
@@ -218,7 +218,7 @@ SessionServantManager::removeSession(const shared_ptr<Ice::Object>& session)
     _sessions.erase(p);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 SessionServantManager::add(const shared_ptr<Ice::Object>& servant, const shared_ptr<Ice::Object>& session)
 {
     lock_guard lock(_mutex);
@@ -260,7 +260,7 @@ SessionServantManager::remove(const Ice::Identity& id)
     _servants.erase(p);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 SessionServantManager::addImpl(const shared_ptr<Ice::Object>& servant, const shared_ptr<Ice::Object>& session)
 {
     auto p = _sessions.find(session);

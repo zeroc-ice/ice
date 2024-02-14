@@ -544,7 +544,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     }
 #endif
     string factoryRef = "factory:" + helper->getTestEndpoint("tcp");
-    ObjectPrxPtr base = communicator->stringToProxy(factoryRef);
+    ObjectPrx base = communicator->stringToProxy(factoryRef);
     test(base);
     Test::ServerFactoryPrxPtr factory = Ice::checkedCast<Test::ServerFactoryPrx>(base);
 
@@ -589,7 +589,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         initData.properties = createClientProps(defaultProps, p12);
         initData.properties->setProperty("Ice.InitPlugins", "0");
         CommunicatorPtr comm = initialize(initData);
-        ObjectPrxPtr p = comm->stringToProxy("dummy:ssl -p 9999");
+        ObjectPrx p = comm->stringToProxy("dummy:ssl -p 9999");
         try
         {
             p->ice_ping();
@@ -624,7 +624,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         CommunicatorPtr comm = initialize(initData);
         PluginManagerPtr pm = comm->getPluginManager();
         pm->initializePlugins();
-        ObjectPrxPtr obj = comm->stringToProxy(factoryRef);
+        ObjectPrx obj = comm->stringToProxy(factoryRef);
         test(obj);
         Test::ServerFactoryPrxPtr fact = Ice::checkedCast<Test::ServerFactoryPrx>(obj);
         Test::Properties d = createServerProps(defaultProps, p12);
@@ -4009,7 +4009,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("IceSSL.VerifyDepthMax", "5");
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             CommunicatorPtr comm = initialize(initData);
-            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
+            Ice::ObjectPrx p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
             {
                 try
@@ -4052,7 +4052,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             initData.properties->setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             initData.properties->setProperty("IceSSL.UsePlatformCAs", "1");
             CommunicatorPtr comm = initialize(initData);
-            Ice::ObjectPrxPtr p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
+            Ice::ObjectPrx p = comm->stringToProxy("Glacier2/router:wss -p 443 -h zeroc.com -r /demo-proxy/chat/glacier2");
             while(true)
             {
                 try

@@ -18,6 +18,7 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/FactoryTable.h>
+#include "ReferenceF.h"
 
 namespace Ice
 {
@@ -926,28 +927,21 @@ public:
      * @param v The extracted sequence.
      */
     void read(std::vector<std::wstring>& v);
-
-    /**
-     * Reads a proxy from the stream.
-     * @return The proxy as the base ObjectPrx type.
-     */
-    std::shared_ptr<ObjectPrx> readProxy();
-
     /**
      * Reads a typed proxy from the stream.
      * @param v The proxy as a user-defined type.
      */
-    template<typename T, typename ::std::enable_if<::std::is_base_of<ObjectPrx, T>::value>::type* = nullptr>
-    void read(::std::shared_ptr<T>& v)
+    template<typename Prx, typename std::enable_if<std::is_base_of<ObjectPrx, Prx>::value>::type* = nullptr>
+    void read(std::optional<Prx>& v)
     {
-        ::std::shared_ptr<ObjectPrx> proxy(readProxy());
-        if(!proxy)
+        IceInternal::ReferencePtr ref = readReference();
+        if (ref)
         {
-            v = 0;
+            v.emplace(ref);
         }
         else
         {
-            v = std::make_shared<T>(*proxy);
+            v = std::nullopt;
         }
     }
 
@@ -1046,6 +1040,9 @@ public:
     /// \cond INTERNAL
     InputStream(IceInternal::Instance*, const EncodingVersion&);
     InputStream(IceInternal::Instance*, const EncodingVersion&, IceInternal::Buffer&, bool = false);
+
+    // Reads a reference from the stream; the return value can be null.
+    IceInternal::ReferencePtr readReference();
 
     void initialize(IceInternal::Instance*, const EncodingVersion&);
 

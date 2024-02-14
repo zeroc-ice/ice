@@ -16,7 +16,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
-    Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
+    Ice::ObjectPrx base = communicator->stringToProxy("test @ TestAdapter");
     test(base);
     cout << "ok" << endl;
 
@@ -227,9 +227,9 @@ allTestsWithDeploy(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
-    Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
+    Ice::ObjectPrx base = communicator->stringToProxy("test @ TestAdapter");
     test(base);
-    Ice::ObjectPrxPtr base2 = communicator->stringToProxy("test");
+    Ice::ObjectPrx base2 = communicator->stringToProxy("test");
     test(base2);
     cout << "ok" << endl;
 
@@ -248,9 +248,9 @@ allTestsWithDeploy(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing encoding versioning... " << flush;
-    Ice::ObjectPrxPtr base10 = communicator->stringToProxy("test10 @ TestAdapter10");
+    Ice::ObjectPrx base10 = communicator->stringToProxy("test10 @ TestAdapter10");
     test(base10);
-    Ice::ObjectPrxPtr base102 = communicator->stringToProxy("test10");
+    Ice::ObjectPrx base102 = communicator->stringToProxy("test10");
     test(base102);
     try
     {

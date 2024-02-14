@@ -12,7 +12,7 @@
 using namespace std;
 
 ICE_DECLSPEC_EXPORT void
-consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
+consume(const Ice::ObjectPtr& o, const Ice::ObjectPrx& p)
 {
     cout << "testing dynamic cast across libraries... " << flush;
 

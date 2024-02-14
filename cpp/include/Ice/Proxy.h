@@ -41,7 +41,7 @@ class ICE_API ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyFlushBatchAsync(const Ice::ObjectPrxPtr&);
+    ProxyFlushBatchAsync(const Ice::ObjectPrx&);
 
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
@@ -60,7 +60,7 @@ class ICE_API ProxyGetConnection :  public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyGetConnection(const Ice::ObjectPrxPtr&);
+    ProxyGetConnection(const Ice::ObjectPrx&);
 
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
@@ -138,7 +138,7 @@ class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
 {
 public:
 
-    InvokeLambdaOutgoing(const std::shared_ptr<::Ice::ObjectPrx>& proxy,
+    InvokeLambdaOutgoing(const Ice::ObjectPrx& proxy,
                          ::std::function<void(R)> response,
                          ::std::function<void(::std::exception_ptr)> ex,
                          ::std::function<void(bool)> sent) :
@@ -166,7 +166,7 @@ class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvo
 {
 public:
 
-    InvokePromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool synchronous) :
+    InvokePromiseOutgoing(const Ice::ObjectPrx& proxy, bool synchronous) :
         InvokeOutgoingAsyncT<R>(proxy, false)
     {
         this->_synchronous = synchronous;
@@ -199,7 +199,7 @@ class ProxyGetConnectionLambda : public ProxyGetConnection, public LambdaInvoke
 {
 public:
 
-    ProxyGetConnectionLambda(const std::shared_ptr<::Ice::ObjectPrx>& proxy,
+    ProxyGetConnectionLambda(const Ice::ObjectPrx& proxy,
                              ::std::function<void(std::shared_ptr<Ice::Connection>)> response,
                              ::std::function<void(::std::exception_ptr)> ex,
                              ::std::function<void(bool)> sent) :
@@ -217,7 +217,7 @@ class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvok
 {
 public:
 
-    ProxyGetConnectionPromise(const std::shared_ptr<::Ice::ObjectPrx>& proxy) : ProxyGetConnection(proxy)
+    ProxyGetConnectionPromise(const Ice::ObjectPrx& proxy) : ProxyGetConnection(proxy)
     {
         this->_response = [&](bool)
         {
@@ -230,7 +230,7 @@ class ProxyFlushBatchLambda : public ProxyFlushBatchAsync, public LambdaInvoke
 {
 public:
 
-    ProxyFlushBatchLambda(const std::shared_ptr<::Ice::ObjectPrx>& proxy,
+    ProxyFlushBatchLambda(const Ice::ObjectPrx& proxy,
                           ::std::function<void(::std::exception_ptr)> ex,
                           ::std::function<void(bool)> sent) :
         ProxyFlushBatchAsync(proxy), LambdaInvoke(::std::move(ex), ::std::move(sent))
@@ -269,32 +269,35 @@ class Proxy : public virtual Bases...
 {
 public:
 
+    Prx* operator->() { return static_cast<Prx*>(this); }
+    const Prx* operator->() const { return &asPrx(); }
+
     /**
      * Obtains a proxy that is identical to this proxy, except for the adapter ID.
      * @param id The adapter ID for the new proxy.
      * @return A proxy with the new adapter ID.
      */
-    std::shared_ptr<Prx> ice_adapterId(const std::string& id) const
+    Prx ice_adapterId(const std::string& id) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_adapterId(id));
+        return fromReference(asPrx()._adapterId(id));
     }
 
     /**
      * Obtains a proxy that is identical to this proxy, but uses batch datagram invocations.
      * @return A proxy that uses batch datagram invocations.
      */
-    std::shared_ptr<Prx> ice_batchDatagram() const
+    Prx ice_batchDatagram() const
     {
-        return fromReference(static_cast<const Prx*>(this)->_batchDatagram());
+        return fromReference(asPrx()._batchDatagram());
     }
 
     /**
      * Obtains a proxy that is identical to this proxy, but uses batch oneway invocations.
      * @return A proxy that uses batch oneway invocations.
      */
-    std::shared_ptr<Prx> ice_batchOneway() const
+    Prx ice_batchOneway() const
     {
-        return fromReference(static_cast<const Prx*>(this)->_batchOneway());
+        return fromReference(asPrx()._batchOneway());
     }
 
     /**
@@ -302,9 +305,9 @@ public:
      * @param b True if the new proxy enables collocation optimization, false otherwise.
      * @return A proxy with the specified collocation optimization.
      */
-    std::shared_ptr<Prx> ice_collocationOptimized(bool b) const
+    Prx ice_collocationOptimized(bool b) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_collocationOptimized(b));
+        return fromReference(asPrx()._collocationOptimized(b));
     }
 
     /**
@@ -313,9 +316,9 @@ public:
      * @param b True enables compression for the new proxy, false disables compression.
      * @return A proxy with the specified compression override setting.
      */
-    std::shared_ptr<Prx> ice_compress(bool b) const
+    Prx ice_compress(bool b) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_compress(b));
+        return fromReference(asPrx()._compress(b));
     }
 
     /**
@@ -323,9 +326,9 @@ public:
      * @param b True if the new proxy should cache connections, false otherwise.
      * @return A proxy with the specified caching policy.
      */
-    std::shared_ptr<Prx> ice_connectionCached(bool b) const
+    Prx ice_connectionCached(bool b) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_connectionCached(b));
+        return fromReference(asPrx()._connectionCached(b));
     }
 
     /**
@@ -334,9 +337,9 @@ public:
      * connection ID.
      * @return A proxy with the specified connection ID.
      */
-    std::shared_ptr<Prx> ice_connectionId(const ::std::string& id) const
+    Prx ice_connectionId(const ::std::string& id) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_connectionId(id));
+        return fromReference(asPrx()._connectionId(id));
     }
 
     /**
@@ -344,18 +347,18 @@ public:
      * @param context The context for the new proxy.
      * @return A proxy with the new per-proxy context.
      */
-    std::shared_ptr<Prx> ice_context(const ::Ice::Context& context) const
+    Prx ice_context(const ::Ice::Context& context) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_context(context));
+        return fromReference(asPrx()._context(context));
     }
 
     /**
      * Obtains a proxy that is identical to this proxy, but uses datagram invocations.
      * @return A proxy that uses datagram invocations.
      */
-    std::shared_ptr<Prx> ice_datagram() const
+    Prx ice_datagram() const
     {
-        return fromReference(static_cast<const Prx*>(this)->_datagram());
+        return fromReference(asPrx()._datagram());
     }
 
     /**
@@ -364,9 +367,9 @@ public:
      * @param version The encoding version to use to marshal request parameters.
      * @return A proxy with the specified encoding version.
      */
-    std::shared_ptr<Prx> ice_encodingVersion(const ::Ice::EncodingVersion& version) const
+    Prx ice_encodingVersion(const ::Ice::EncodingVersion& version) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_encodingVersion(version));
+        return fromReference(asPrx()._encodingVersion(version));
     }
 
     /**
@@ -374,9 +377,9 @@ public:
      * @param type The new endpoint selection policy.
      * @return A proxy with the specified endpoint selection policy.
      */
-    std::shared_ptr<Prx> ice_endpointSelection(::Ice::EndpointSelectionType type) const
+    Prx ice_endpointSelection(::Ice::EndpointSelectionType type) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_endpointSelection(type));
+        return fromReference(asPrx()._endpointSelection(type));
     }
 
     /**
@@ -384,9 +387,9 @@ public:
      * @param endpoints The endpoints for the new proxy.
      * @return A proxy with the new endpoints.
      */
-    std::shared_ptr<Prx> ice_endpoints(const ::Ice::EndpointSeq& endpoints) const
+    Prx ice_endpoints(const ::Ice::EndpointSeq& endpoints) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_endpoints(endpoints));
+        return fromReference(asPrx()._endpoints(endpoints));
     }
 
     /**
@@ -395,9 +398,9 @@ public:
      * @param connection The fixed proxy connection.
      * @return A fixed proxy bound to the given connection.
      */
-    std::shared_ptr<Prx> ice_fixed(const std::shared_ptr<::Ice::Connection>& connection) const
+    Prx ice_fixed(const std::shared_ptr<::Ice::Connection>& connection) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_fixed(connection));
+        return fromReference(asPrx()._fixed(connection));
     }
 
     /**
@@ -405,19 +408,9 @@ public:
      * @param timeout The new invocation timeout (in milliseconds).
      * @return A proxy with the new timeout.
      */
-    std::shared_ptr<Prx> ice_invocationTimeout(int timeout) const
+    Prx ice_invocationTimeout(int timeout) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_invocationTimeout(timeout));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the locator.
-     * @param locator The locator for the new proxy.
-     * @return A proxy with the specified locator.
-     */
-    std::shared_ptr<Prx> ice_locator(const std::shared_ptr<::Ice::LocatorPrx>& locator) const
-    {
-        return fromReference(static_cast<const Prx*>(this)->_locator(locator));
+        return fromReference(asPrx()._invocationTimeout(timeout));
     }
 
     /**
@@ -425,18 +418,18 @@ public:
      * @param timeout The new locator cache timeout (in seconds).
      * @return A proxy with the new timeout.
      */
-    std::shared_ptr<Prx> ice_locatorCacheTimeout(int timeout) const
+    Prx ice_locatorCacheTimeout(int timeout) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_locatorCacheTimeout(timeout));
+        return fromReference(asPrx()._locatorCacheTimeout(timeout));
     }
 
     /**
      * Obtains a proxy that is identical to this proxy, but uses oneway invocations.
      * @return A proxy that uses oneway invocations.
      */
-    std::shared_ptr<Prx> ice_oneway() const
+    Prx ice_oneway() const
     {
-        return fromReference(static_cast<const Prx*>(this)->_oneway());
+        return fromReference(asPrx()._oneway());
     }
 
     /**
@@ -446,19 +439,9 @@ public:
      * proxy prefers insecure endpoints to secure ones.
      * @return A proxy with the specified selection policy.
      */
-    std::shared_ptr<Prx> ice_preferSecure(bool b) const
+    Prx ice_preferSecure(bool b) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_preferSecure(b));
-    }
-
-    /**
-     * Obtains a proxy that is identical to this proxy, except for the router.
-     * @param router The router for the new proxy.
-     * @return A proxy with the specified router.
-     */
-    std::shared_ptr<Prx> ice_router(const std::shared_ptr<::Ice::RouterPrx>& router) const
-    {
-        return fromReference(static_cast<const Prx*>(this)->_router(router));
+        return fromReference(asPrx()._preferSecure(b));
     }
 
     /**
@@ -467,9 +450,9 @@ public:
      * If false, the returned proxy uses both secure and insecure endpoints.
      * @return A proxy with the specified security policy.
      */
-    std::shared_ptr<Prx> ice_secure(bool b) const
+    Prx ice_secure(bool b) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_secure(b));
+        return fromReference(asPrx()._secure(b));
     }
 
     /**
@@ -478,18 +461,18 @@ public:
      * @param timeout The connection timeout override for the proxy (in milliseconds).
      * @return A proxy with the specified timeout override.
      */
-    std::shared_ptr<Prx> ice_timeout(int timeout) const
+    Prx ice_timeout(int timeout) const
     {
-        return fromReference(static_cast<const Prx*>(this)->_timeout(timeout));
+        return fromReference(asPrx()._timeout(timeout));
     }
 
     /**
      * Obtains a proxy that is identical to this proxy, but uses twoway invocations.
      * @return A proxy that uses twoway invocations.
      */
-    std::shared_ptr<Prx> ice_twoway() const
+    Prx ice_twoway() const
     {
-        return fromReference(static_cast<const Prx*>(this)->_twoway());
+        return fromReference(asPrx()._twoway());
     }
 
 protected:
@@ -500,23 +483,30 @@ protected:
 
 private:
 
-    std::shared_ptr<Prx> fromReference(IceInternal::ReferencePtr&& ref) const
+    Prx fromReference(IceInternal::ReferencePtr&& ref) const
     {
-        auto self = static_cast<const Prx*>(this);
-        return ref == self->_reference ? std::make_shared<Prx>(*self) : std::make_shared<Prx>(ref);
+        const Prx& self = asPrx();
+        return ref == self._reference ? self : Prx(std::move(ref));
     }
+
+    const Prx& asPrx() const { return *static_cast<const Prx*>(this); }
 };
 
 /**
  * Base class of all object proxies.
  * \headerfile Ice/Ice.h
  */
-class ICE_API ObjectPrx : public Proxy<ObjectPrx>, public ::std::enable_shared_from_this<ObjectPrx>
+class ICE_API ObjectPrx : public Proxy<ObjectPrx>
 {
 public:
 
     ObjectPrx(const ObjectPrx& other) noexcept;
+    ObjectPrx(ObjectPrx&&) noexcept = default;
+
     virtual ~ObjectPrx() = default;
+
+    ObjectPrx& operator=(const ObjectPrx& rhs) noexcept;
+    ObjectPrx& operator=(ObjectPrx&& rhs) noexcept = default;
 
     /// \cond INTERNAL
     ObjectPrx(const IceInternal::ReferencePtr&) noexcept;
@@ -542,7 +532,7 @@ public:
      * specified by id or derives from the interface specified by id.
      */
     bool
-    ice_isA(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext)
+    ice_isA(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         return _makePromiseOutgoing<bool>(true, this, &ObjectPrx::_iceI_isA, typeId, context).get();
     }
@@ -561,7 +551,7 @@ public:
                  ::std::function<void(bool)> response,
                  ::std::function<void(::std::exception_ptr)> ex = nullptr,
                  ::std::function<void(bool)> sent = nullptr,
-                 const ::Ice::Context& context = ::Ice::noExplicitContext)
+                 const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         return _makeLambdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this,
                                          &ObjectPrx::_iceI_isA, typeId, context);
@@ -574,7 +564,7 @@ public:
      * @return The future object for the invocation.
      */
     template<template<typename> class P = std::promise> auto
-    ice_isAAsync(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext)
+    ice_isAAsync(const ::std::string& typeId, const ::Ice::Context& context = ::Ice::noExplicitContext) const
         -> decltype(std::declval<P<bool>>().get_future())
     {
         return _makePromiseOutgoing<bool, P>(false, this, &ObjectPrx::_iceI_isA, typeId, context);
@@ -582,7 +572,7 @@ public:
 
     /// \cond INTERNAL
     void
-    _iceI_isA(const std::shared_ptr<::IceInternal::OutgoingAsyncT<bool>>&, const ::std::string&, const ::Ice::Context&);
+    _iceI_isA(const std::shared_ptr<::IceInternal::OutgoingAsyncT<bool>>&, const ::std::string&, const ::Ice::Context&) const;
     /// \endcond
 
     /**
@@ -590,7 +580,7 @@ public:
      * @param context The context map for the invocation.
      */
     void
-    ice_ping(const ::Ice::Context& context = ::Ice::noExplicitContext)
+    ice_ping(const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         _makePromiseOutgoing<void>(true, this, &ObjectPrx::_iceI_ping, context).get();
     }
@@ -607,7 +597,7 @@ public:
     ice_pingAsync(::std::function<void()> response,
                   ::std::function<void(::std::exception_ptr)> ex = nullptr,
                   ::std::function<void(bool)> sent = nullptr,
-                  const ::Ice::Context& context = ::Ice::noExplicitContext)
+                  const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         return _makeLambdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this,
                                          &ObjectPrx::_iceI_ping, context);
@@ -619,7 +609,7 @@ public:
      * @return The future object for the invocation.
      */
     template<template<typename> class P = std::promise>
-    auto ice_pingAsync(const ::Ice::Context& context = ::Ice::noExplicitContext)
+    auto ice_pingAsync(const ::Ice::Context& context = ::Ice::noExplicitContext) const
         -> decltype(std::declval<P<void>>().get_future())
     {
         return _makePromiseOutgoing<void, P>(false, this, &ObjectPrx::_iceI_ping, context);
@@ -627,7 +617,7 @@ public:
 
     /// \cond INTERNAL
     void
-    _iceI_ping(const std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::Ice::Context&);
+    _iceI_ping(const std::shared_ptr<::IceInternal::OutgoingAsyncT<void>>&, const ::Ice::Context&) const;
     /// \endcond
 
     /**
@@ -636,7 +626,7 @@ public:
      * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
      */
     ::std::vector<::std::string>
-    ice_ids(const ::Ice::Context& context = ::Ice::noExplicitContext)
+    ice_ids(const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         return _makePromiseOutgoing<::std::vector<::std::string>>(true, this, &ObjectPrx::_iceI_ids, context).get();
     }
@@ -653,7 +643,7 @@ public:
     ice_idsAsync(::std::function<void(::std::vector<::std::string>)> response,
                  ::std::function<void(::std::exception_ptr)> ex = nullptr,
                  ::std::function<void(bool)> sent = nullptr,
-                 const ::Ice::Context& context = ::Ice::noExplicitContext)
+                 const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         return _makeLambdaOutgoing<::std::vector<::std::string>>(std::move(response), std::move(ex), std::move(sent),
                                                                  this, &ObjectPrx::_iceI_ids, context);
@@ -665,7 +655,7 @@ public:
      * @return The future object for the invocation.
      */
     template<template<typename> class P = std::promise> auto
-    ice_idsAsync(const ::Ice::Context& context = ::Ice::noExplicitContext)
+    ice_idsAsync(const ::Ice::Context& context = ::Ice::noExplicitContext) const
         -> decltype(std::declval<P<::std::vector<::std::string>>>().get_future())
     {
         return _makePromiseOutgoing<::std::vector<::std::string>, P>(false, this, &ObjectPrx::_iceI_ids, context);
@@ -673,7 +663,7 @@ public:
 
     /// \cond INTERNAL
     void
-    _iceI_ids(const std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::vector<::std::string>>>&, const ::Ice::Context&);
+    _iceI_ids(const std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::vector<::std::string>>>&, const ::Ice::Context&) const;
     /// \endcond
 
     /**
@@ -682,7 +672,7 @@ public:
      * @return The Slice type ID of the most-derived interface.
      */
     ::std::string
-    ice_id(const ::Ice::Context& context = ::Ice::noExplicitContext)
+    ice_id(const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         return _makePromiseOutgoing<::std::string>(true, this, &ObjectPrx::_iceI_id, context).get();
     }
@@ -699,7 +689,7 @@ public:
     ice_idAsync(::std::function<void(::std::string)> response,
                 ::std::function<void(::std::exception_ptr)> ex = nullptr,
                 ::std::function<void(bool)> sent = nullptr,
-                const ::Ice::Context& context = ::Ice::noExplicitContext)
+                const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         return _makeLambdaOutgoing<::std::string>(std::move(response), std::move(ex), std::move(sent), this,
                                                   &ObjectPrx::_iceI_id, context);
@@ -711,7 +701,7 @@ public:
      * @return The future object for the invocation.
      */
     template<template<typename> class P = std::promise>
-    auto ice_idAsync(const ::Ice::Context& context = ::Ice::noExplicitContext)
+    auto ice_idAsync(const ::Ice::Context& context = ::Ice::noExplicitContext) const
         -> decltype(std::declval<P<::std::string>>().get_future())
     {
         return _makePromiseOutgoing<::std::string, P>(false, this, &ObjectPrx::_iceI_id, context);
@@ -719,7 +709,7 @@ public:
 
     /// \cond INTERNAL
     void
-    _iceI_id(const std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::string>>&, const ::Ice::Context&);
+    _iceI_id(const std::shared_ptr<::IceInternal::OutgoingAsyncT<::std::string>>&, const ::Ice::Context&) const;
     /// \endcond
 
     /**
@@ -748,7 +738,7 @@ public:
                ::Ice::OperationMode mode,
                const ::std::vector<Byte>& inParams,
                ::std::vector<::Ice::Byte>& outParams,
-               const ::Ice::Context& context = ::Ice::noExplicitContext)
+               const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         return ice_invoke(operation, mode, ::IceInternal::makePair(inParams), outParams, context);
     }
@@ -765,7 +755,7 @@ public:
     ice_invokeAsync(const ::std::string& operation,
                     ::Ice::OperationMode mode,
                     const ::std::vector<Byte>& inParams,
-                    const ::Ice::Context& context = ::Ice::noExplicitContext)
+                    const ::Ice::Context& context = ::Ice::noExplicitContext) const
         -> decltype(std::declval<P<::Ice::Object::Ice_invokeResult>>().get_future())
     {
         return ice_invokeAsync<P>(operation, mode, ::IceInternal::makePair(inParams), context);
@@ -789,7 +779,7 @@ public:
                     ::std::function<void(bool, ::std::vector<::Ice::Byte>)> response,
                     ::std::function<void(::std::exception_ptr)> ex = nullptr,
                     ::std::function<void(bool)> sent = nullptr,
-                    const ::Ice::Context& context = ::Ice::noExplicitContext)
+                    const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         using Outgoing = ::IceInternal::InvokeLambdaOutgoing<::Ice::Object::Ice_invokeResult>;
         ::std::function<void(::Ice::Object::Ice_invokeResult&&)> r;
@@ -800,7 +790,7 @@ public:
                 response(result.returnValue, std::move(result.outParams));
             };
         }
-        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), std::move(r), std::move(ex), std::move(sent));
+        auto outAsync = ::std::make_shared<Outgoing>(*this, std::move(r), std::move(ex), std::move(sent));
         outAsync->invoke(operation, mode, ::IceInternal::makePair(inParams), context);
         return [outAsync]() { outAsync->cancel(); };
     }
@@ -822,11 +812,11 @@ public:
                ::Ice::OperationMode mode,
                const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
                ::std::vector<::Ice::Byte>& outParams,
-               const ::Ice::Context& context = ::Ice::noExplicitContext)
+               const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         using Outgoing = ::IceInternal::InvokePromiseOutgoing<
             ::std::promise<::Ice::Object::Ice_invokeResult>, ::Ice::Object::Ice_invokeResult>;
-        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), true);
+        auto outAsync = ::std::make_shared<Outgoing>(*this, true);
         outAsync->invoke(operation, mode, inParams, context);
         auto result = outAsync->getFuture().get();
         outParams.swap(result.outParams);
@@ -845,12 +835,12 @@ public:
     ice_invokeAsync(const ::std::string& operation,
                     ::Ice::OperationMode mode,
                     const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-                    const ::Ice::Context& context = ::Ice::noExplicitContext)
+                    const ::Ice::Context& context = ::Ice::noExplicitContext) const
         -> decltype(std::declval<P<::Ice::Object::Ice_invokeResult>>().get_future())
     {
         using Outgoing =
             ::IceInternal::InvokePromiseOutgoing<P<::Ice::Object::Ice_invokeResult>, ::Ice::Object::Ice_invokeResult>;
-        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), false);
+        auto outAsync = ::std::make_shared<Outgoing>(*this, false);
         outAsync->invoke(operation, mode, inParams, context);
         return outAsync->getFuture();
     }
@@ -873,7 +863,7 @@ public:
                     ::std::function<void(bool, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>)> response,
                     ::std::function<void(::std::exception_ptr)> ex = nullptr,
                     ::std::function<void(bool)> sent = nullptr,
-                    const ::Ice::Context& context = ::Ice::noExplicitContext)
+                    const ::Ice::Context& context = ::Ice::noExplicitContext) const
     {
         using Result = ::std::tuple<bool, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>;
         using Outgoing = ::IceInternal::InvokeLambdaOutgoing<Result>;
@@ -886,7 +876,7 @@ public:
                 response(::std::get<0>(result), ::std::move(::std::get<1>(result)));
             };
         }
-        auto outAsync = ::std::make_shared<Outgoing>(shared_from_this(), std::move(r), std::move(ex), std::move(sent));
+        auto outAsync = ::std::make_shared<Outgoing>(*this, std::move(r), std::move(ex), std::move(sent));
         outAsync->invoke(operation, mode, inParams, context);
         return [outAsync]() { outAsync->cancel(); };
     }
@@ -902,7 +892,7 @@ public:
      * @param id The identity for the new proxy.
      * @return A proxy with the new identity.
      */
-    std::shared_ptr<::Ice::ObjectPrx> ice_identity(const ::Ice::Identity& id) const;
+    Ice::ObjectPrx ice_identity(const ::Ice::Identity& id) const;
 
     /**
      * Obtains the per-proxy context for this proxy.
@@ -921,7 +911,7 @@ public:
      * @param facet The facet for the new proxy.
      * @return A proxy with the new facet.
      */
-    std::shared_ptr<::Ice::ObjectPrx> ice_facet(const ::std::string& facet) const;
+    Ice::ObjectPrx ice_facet(const ::std::string& facet) const;
 
     /**
      * Obtains the adapter ID for this proxy.
@@ -971,19 +961,6 @@ public:
      * attempts to use insecure endpoints, false otherwise.
      */
     bool ice_isPreferSecure() const;
-
-    /**
-     * Obtains the router for this proxy.
-     * @return The router for the proxy. If no router is configured for the proxy, the return value
-     * is nil.
-     */
-    std::shared_ptr<::Ice::RouterPrx> ice_getRouter() const;
-
-    /**
-     * Obtains the locator for this proxy.
-     * @return The locator for this proxy. If no locator is configured, the return value is nil.
-     */
-    std::shared_ptr<::Ice::LocatorPrx> ice_getLocator() const;
 
     /**
      * Determines whether this proxy uses collocation optimization.
@@ -1058,8 +1035,7 @@ public:
      * it first attempts to create a connection.
      * @return The connection for this proxy.
      */
-    std::shared_ptr<::Ice::Connection>
-    ice_getConnection()
+    std::shared_ptr<::Ice::Connection> ice_getConnection() const
     {
         return ice_getConnectionAsync().get();
     }
@@ -1075,10 +1051,10 @@ public:
     ::std::function<void()>
     ice_getConnectionAsync(::std::function<void(std::shared_ptr<::Ice::Connection>)> response,
                            ::std::function<void(::std::exception_ptr)> ex = nullptr,
-                           ::std::function<void(bool)> sent = nullptr)
+                           ::std::function<void(bool)> sent = nullptr) const
     {
         using LambdaOutgoing = ::IceInternal::ProxyGetConnectionLambda;
-        auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), std::move(response), std::move(ex), std::move(sent));
+        auto outAsync = ::std::make_shared<LambdaOutgoing>(*this, std::move(response), std::move(ex), std::move(sent));
         _iceI_getConnection(outAsync);
         return [outAsync]() { outAsync->cancel(); };
     }
@@ -1089,16 +1065,16 @@ public:
      * @return The future object for the invocation.
      */
     template<template<typename> class P = std::promise> auto
-    ice_getConnectionAsync() -> decltype(std::declval<P<std::shared_ptr<::Ice::Connection>>>().get_future())
+    ice_getConnectionAsync() const -> decltype(std::declval<P<std::shared_ptr<::Ice::Connection>>>().get_future())
     {
         using PromiseOutgoing = ::IceInternal::ProxyGetConnectionPromise<P<std::shared_ptr<::Ice::Connection>>>;
-        auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this());
+        auto outAsync = ::std::make_shared<PromiseOutgoing>(*this);
         _iceI_getConnection(outAsync);
         return outAsync->getFuture();
     }
 
     /// \cond INTERNAL
-    void _iceI_getConnection(const std::shared_ptr<::IceInternal::ProxyGetConnection>&);
+    void _iceI_getConnection(const std::shared_ptr<::IceInternal::ProxyGetConnection>&) const;
     /// \endcond
 
     /**
@@ -1112,7 +1088,7 @@ public:
     /**
      * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
      */
-    void ice_flushBatchRequests()
+    void ice_flushBatchRequests() const
     {
         return ice_flushBatchRequestsAsync().get();
     }
@@ -1125,12 +1101,12 @@ public:
      */
     std::function<void()>
     ice_flushBatchRequestsAsync(::std::function<void(::std::exception_ptr)> ex,
-                                ::std::function<void(bool)> sent = nullptr)
+                                ::std::function<void(bool)> sent = nullptr) const
     {
         if (_batchRequestQueue)
         {
             using LambdaOutgoing = ::IceInternal::ProxyFlushBatchLambda;
-            auto outAsync = ::std::make_shared<LambdaOutgoing>(shared_from_this(), std::move(ex), std::move(sent));
+            auto outAsync = ::std::make_shared<LambdaOutgoing>(*this, std::move(ex), std::move(sent));
             _iceI_flushBatchRequests(outAsync);
             return [outAsync]() { outAsync->cancel(); };
         }
@@ -1149,12 +1125,12 @@ public:
      * @return The future object for the invocation.
      */
     template<template<typename> class P = std::promise> auto
-    ice_flushBatchRequestsAsync() -> decltype(std::declval<P<void>>().get_future())
+    ice_flushBatchRequestsAsync() const -> decltype(std::declval<P<void>>().get_future())
     {
         if (_batchRequestQueue)
         {
             using PromiseOutgoing = ::IceInternal::ProxyFlushBatchPromise<P<void>>;
-            auto outAsync = ::std::make_shared<PromiseOutgoing>(shared_from_this());
+            auto outAsync = ::std::make_shared<PromiseOutgoing>(*this);
             _iceI_flushBatchRequests(outAsync);
             return outAsync->getFuture();
         }
@@ -1167,7 +1143,7 @@ public:
     }
 
     /// \cond INTERNAL
-    void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&);
+    void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&) const;
 
     const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
     const ::IceInternal::BatchRequestQueuePtr& _getBatchRequestQueue() const { return _batchRequestQueue; }
@@ -1187,18 +1163,18 @@ protected:
     ObjectPrx() = default;
 
     template<typename R, template<typename> class P = ::std::promise, typename Obj, typename Fn, typename... Args>
-    auto _makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args)
+    auto _makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args) const
         -> decltype(std::declval<P<R>>().get_future())
     {
-        auto outAsync = ::std::make_shared<::IceInternal::PromiseOutgoing<P<R>, R>>(shared_from_this(), sync);
+        auto outAsync = ::std::make_shared<::IceInternal::PromiseOutgoing<P<R>, R>>(*this, sync);
         (obj->*fn)(outAsync, std::forward<Args>(args)...);
         return outAsync->getFuture();
     }
 
     template<typename R, typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
-    ::std::function<void()> _makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
+    ::std::function<void()> _makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args) const
     {
-        auto outAsync = ::std::make_shared<::IceInternal::LambdaOutgoing<R>>(shared_from_this(),
+        auto outAsync = ::std::make_shared<::IceInternal::LambdaOutgoing<R>>(*this,
                                                                              std::move(r), std::move(e), std::move(s));
         (obj->*fn)(outAsync, std::forward<Args>(args)...);
         return [outAsync]() { outAsync->cancel(); };
@@ -1209,6 +1185,22 @@ private:
 
     template<typename Prx, typename... Bases>
     friend class Proxy;
+
+    // TODO: all this is temporary pending further refactoring
+    friend class ::IceInternal::OutgoingAsync; // for the private constructor
+    friend class ::IceInternal::ProxyFlushBatchAsync; // ditto
+    friend class ::IceInternal::ProxyGetConnection;
+
+    // Used by OutgoingAsync to recreate a proxy from its fields.
+    ObjectPrx(
+        const IceInternal::ReferencePtr& ref,
+        const IceInternal::RequestHandlerCachePtr& requestHandlerCache,
+        const IceInternal::BatchRequestQueuePtr& batchRequestQueue) noexcept :
+        _reference(ref),
+        _requestHandlerCache(requestHandlerCache),
+        _batchRequestQueue(batchRequestQueue)
+    {
+    }
 
     // Gets a reference with the specified setting; returns _reference if the setting is already set.
     IceInternal::ReferencePtr _adapterId(const std::string&) const;
@@ -1225,18 +1217,17 @@ private:
     IceInternal::ReferencePtr _endpoints(const EndpointSeq&) const;
     IceInternal::ReferencePtr _fixed(const ConnectionPtr&) const;
     IceInternal::ReferencePtr _invocationTimeout(int) const;
-    IceInternal::ReferencePtr _locator(const std::shared_ptr<LocatorPrx>&) const;
     IceInternal::ReferencePtr _locatorCacheTimeout(int) const;
     IceInternal::ReferencePtr _oneway() const;
     IceInternal::ReferencePtr _preferSecure(bool) const;
-    IceInternal::ReferencePtr _router(const std::shared_ptr<Ice::RouterPrx>&) const;
     IceInternal::ReferencePtr _secure(bool) const;
     IceInternal::ReferencePtr _timeout(int) const;
     IceInternal::ReferencePtr _twoway() const;
 
-    const IceInternal::ReferencePtr _reference;
-    const IceInternal::RequestHandlerCachePtr _requestHandlerCache;
-    const IceInternal::BatchRequestQueuePtr _batchRequestQueue;
+    // Only the assignment operators can change these fields. All other member functions must be const.
+    IceInternal::ReferencePtr _reference;
+    IceInternal::RequestHandlerCachePtr _requestHandlerCache;
+    IceInternal::BatchRequestQueuePtr _batchRequestQueue;
 };
 
 ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
@@ -1266,7 +1257,7 @@ operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs)
     return !(lhs == rhs);
 }
 
-ICE_API ::std::ostream& operator<<(::std::ostream&, const ::Ice::ObjectPrx&);
+ICE_API ::std::ostream& operator<<(::std::ostream&, const ObjectPrx&);
 
 /**
  * Compares the object identities of two proxies.
@@ -1274,7 +1265,7 @@ ICE_API ::std::ostream& operator<<(::std::ostream&, const ::Ice::ObjectPrx&);
  * @param rhs A proxy.
  * @return True if the identity in lhs compares less than the identity in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityLess(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs);
+ICE_API bool proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs);
 
 /**
  * Compares the object identities of two proxies.
@@ -1282,7 +1273,7 @@ ICE_API bool proxyIdentityLess(const std::shared_ptr<ObjectPrx>& lhs, const std:
  * @param rhs A proxy.
  * @return True if the identity in lhs compares equal to the identity in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityEqual(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs);
+ICE_API bool proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs);
 
 /**
  * Compares the object identities and facets of two proxies.
@@ -1291,8 +1282,7 @@ ICE_API bool proxyIdentityEqual(const std::shared_ptr<ObjectPrx>& lhs, const std
  * @return True if the identity and facet in lhs compare less than the identity and facet
  * in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityAndFacetLess(const std::shared_ptr<ObjectPrx>& lhs,
-                                       const std::shared_ptr<ObjectPrx>& rhs);
+ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs);
 
 /**
  * Compares the object identities and facets of two proxies.
@@ -1301,8 +1291,7 @@ ICE_API bool proxyIdentityAndFacetLess(const std::shared_ptr<ObjectPrx>& lhs,
  * @return True if the identity and facet in lhs compare equal to the identity and facet
  * in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityAndFacetEqual(const std::shared_ptr<ObjectPrx>& lhs,
-                                        const std::shared_ptr<ObjectPrx>& rhs);
+ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs);
 
 /**
  * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
@@ -1312,7 +1301,7 @@ ICE_API bool proxyIdentityAndFacetEqual(const std::shared_ptr<ObjectPrx>& lhs,
 
 struct ProxyIdentityLess
 {
-    bool operator()(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs) const
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
         return proxyIdentityLess(lhs, rhs);
     }
@@ -1325,7 +1314,7 @@ struct ProxyIdentityLess
  */
 struct ProxyIdentityEqual
 {
-    bool operator()(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs) const
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
         return proxyIdentityEqual(lhs, rhs);
     }
@@ -1338,7 +1327,7 @@ struct ProxyIdentityEqual
  */
 struct ProxyIdentityAndFacetLess
 {
-    bool operator()(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs) const
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
         return proxyIdentityAndFacetLess(lhs, rhs);
     }
@@ -1351,110 +1340,11 @@ struct ProxyIdentityAndFacetLess
  */
 struct ProxyIdentityAndFacetEqual
 {
-    bool operator()(const std::shared_ptr<ObjectPrx>& lhs, const std::shared_ptr<ObjectPrx>& rhs) const
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
         return proxyIdentityAndFacetEqual(lhs, rhs);
     }
 };
-
-/**
- * Downcasts a proxy without confirming the target object's type via a remote invocation.
- * @param b The target proxy.
- * @return A proxy with the requested type.
- */
-template<typename P,
-         typename T,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> std::shared_ptr<P>
-uncheckedCast(const std::shared_ptr<T>& b)
-{
-    std::shared_ptr<P> r;
-    if(b)
-    {
-        r = ::std::dynamic_pointer_cast<P>(b);
-        if(!r)
-        {
-            r = std::make_shared<P>(*b);
-        }
-    }
-    return r;
-}
-
-/**
- * Downcasts a proxy without confirming the target object's type via a remote invocation.
- * @param b The target proxy.
- * @param f A facet name.
- * @return A proxy with the requested type and facet.
- */
-template<typename P,
-         typename T,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> std::shared_ptr<P>
-uncheckedCast(const std::shared_ptr<T>& b, const std::string& f)
-{
-    std::shared_ptr<P> r;
-    if(b)
-    {
-        r = std::make_shared<P>(*(b->ice_facet(f)));
-    }
-    return r;
-}
-
-/**
- * Downcasts a proxy after confirming the target object's type via a remote invocation.
- * @param b The target proxy.
- * @param context The context map for the invocation.
- * @return A proxy with the requested type, or nil if the target proxy is nil or the target
- * object does not support the requested type.
- */
-template<typename P,
-         typename T,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> std::shared_ptr<P>
-checkedCast(const std::shared_ptr<T>& b, const ::Ice::Context& context = Ice::noExplicitContext)
-{
-    std::shared_ptr<P> r;
-    if(b)
-    {
-        if(b->ice_isA(P::ice_staticId(), context))
-        {
-            r = std::make_shared<P>(*b);
-        }
-    }
-    return r;
-}
-
-/**
- * Downcasts a proxy after confirming the target object's type via a remote invocation.
- * @param b The target proxy.
- * @param f A facet name.
- * @param context The context map for the invocation.
- * @return A proxy with the requested type and facet, or nil if the target proxy is nil or the target
- * object does not support the requested type.
- */
-template<typename P,
-         typename T,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, P>::value>::type* = nullptr,
-         typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr> std::shared_ptr<P>
-checkedCast(const std::shared_ptr<T>& b, const std::string& f, const ::Ice::Context& context = Ice::noExplicitContext)
-{
-    std::shared_ptr<P> r;
-    if(b)
-    {
-        try
-        {
-            std::shared_ptr<::Ice::ObjectPrx> bb = b->ice_facet(f);
-            if(bb->ice_isA(P::ice_staticId(), context))
-            {
-                r = std::make_shared<P>(*bb);
-            }
-        }
-        catch(const Ice::FacetNotExistException&)
-        {
-        }
-    }
-    return r;
-}
 
 }
 

@@ -316,7 +316,7 @@ Client::testInterceptorExceptions(const Test::MyObjectPrxPtr& prx)
             test(p->second == "system"); // collocated
         }
         {
-            Ice::ObjectPrxPtr batch = prx->ice_batchOneway();
+            Ice::ObjectPrx batch = prx->ice_batchOneway();
             batch->ice_ping(ctx);
             batch->ice_ping();
             batch->ice_flushBatchRequests();

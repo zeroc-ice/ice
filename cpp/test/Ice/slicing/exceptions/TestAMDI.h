@@ -93,13 +93,13 @@ public:
         const ::Ice::Current&);
 
     virtual void relayKnownPreservedAsBaseAsync(
-        std::shared_ptr<::Test::RelayPrx>,
+        ::Test::RelayPrxPtr,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const ::Ice::Current&);
 
     virtual void relayKnownPreservedAsKnownPreservedAsync(
-        std::shared_ptr<::Test::RelayPrx>,
+        ::Test::RelayPrxPtr,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const ::Ice::Current&);
@@ -115,13 +115,13 @@ public:
         const ::Ice::Current&);
 
     virtual void relayUnknownPreservedAsBaseAsync(
-        std::shared_ptr<::Test::RelayPrx>,
+        ::Test::RelayPrxPtr,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const ::Ice::Current&);
 
     virtual void relayUnknownPreservedAsKnownPreservedAsync(
-        std::shared_ptr<::Test::RelayPrx>,
+        ::Test::RelayPrxPtr,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const ::Ice::Current&);

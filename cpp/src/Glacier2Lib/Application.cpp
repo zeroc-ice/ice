@@ -37,7 +37,7 @@ Glacier2::Application::objectAdapter()
     IceUtil::Mutex::Lock lock(_mutex);
     if(!_adapter)
     {
-        _adapter = communicator()->createObjectAdapterWithRouter("", _router);
+        _adapter = communicator()->createObjectAdapterWithRouter("", _router.value());
         _adapter->activate();
     }
     return _adapter;
@@ -319,7 +319,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
             Error out(getProcessLogger());
             out << "unexpected exception when destroying the session:\n" << ex;
         }
-        _router = 0;
+        _router = nullopt;
     }
 
     if(_communicator)
@@ -334,8 +334,8 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
     // this method.
     //
     _adapter = 0;
-    _router = 0;
-    _session = 0;
+    _router = nullopt;
+    _session = nullopt;
     _category.clear();
 
     return restart;

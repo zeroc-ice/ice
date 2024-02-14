@@ -19,7 +19,7 @@ class ObjectEntry
 public:
 
     ObjectEntry(const ObjectInfo&, const std::string&, const std::string&);
-    std::shared_ptr<Ice::ObjectPrx> getProxy() const;
+    Ice::ObjectPrx getProxy() const;
     std::string getType() const;
     std::string getApplication() const;
     std::string getServer() const;

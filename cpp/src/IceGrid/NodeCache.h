@@ -32,13 +32,13 @@ public:
     void removeServer(const std::shared_ptr<ServerEntry>&);
     void setSession(const std::shared_ptr<NodeSessionI>&);
 
-    std::shared_ptr<NodePrx> getProxy() const;
+    NodePrxPtr getProxy() const;
     std::shared_ptr<InternalNodeInfo> getInfo() const;
     ServerEntrySeq getServers() const;
     LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
     std::shared_ptr<NodeSessionI> getSession() const;
 
-    std::shared_ptr<Ice::ObjectPrx> getAdminProxy() const;
+    Ice::ObjectPrx getAdminProxy() const;
 
     bool canRemove();
 
@@ -50,7 +50,7 @@ public:
     std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
 
     void checkSession(std::unique_lock<std::mutex>&) const;
-    void setProxy(const std::shared_ptr<NodePrx>&);
+    void setProxy(const NodePrxPtr&);
     void finishedRegistration();
     void finishedRegistration(std::exception_ptr);
 
@@ -68,7 +68,7 @@ private:
     std::map<std::string, NodeDescriptor> _descriptors;
 
     mutable bool _registering;
-    mutable std::shared_ptr<NodePrx> _proxy;
+    mutable NodePrxPtr _proxy;
 
     mutable std::mutex _mutex;
     mutable std::condition_variable _condVar;

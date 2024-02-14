@@ -56,7 +56,7 @@ TestIntfPrxPtr
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:" + helper->getTestEndpoint());
+    Ice::ObjectPrx obj = communicator->stringToProxy("Test:" + helper->getTestEndpoint());
     TestIntfPrxPtr test = Ice::checkedCast<TestIntfPrx>(obj);
 
     cout << "base... " << flush;

@@ -221,7 +221,7 @@ public:
         communicator->destroy();
     }
 
-    virtual void stress(shared_ptr<CallbackPrx> callback, shared_ptr<CallbackReceiverPrx>) = 0;
+    virtual void stress(CallbackPrxPtr callback, CallbackReceiverPrxPtr) = 0;
 
     void
     notifyThread()
@@ -261,7 +261,7 @@ public:
 
 protected:
 
-    shared_ptr<Glacier2::RouterPrx> _router;
+    Glacier2::RouterPrxPtr _router;
     int _id;
     shared_ptr<CallbackReceiverI> _callbackReceiver;
     bool _initialized = false;
@@ -279,7 +279,7 @@ public:
     }
 
     void
-    stress(shared_ptr<CallbackPrx> callback, shared_ptr<CallbackReceiverPrx>) override
+    stress(CallbackPrxPtr callback, CallbackReceiverPrxPtr) override
     {
         try
         {
@@ -318,7 +318,7 @@ public:
     }
 
     void
-    stress(shared_ptr<CallbackPrx> callback, shared_ptr<CallbackReceiverPrx> receiver) override
+    stress(CallbackPrxPtr callback, CallbackReceiverPrxPtr receiver) override
     {
         try
         {
@@ -362,7 +362,7 @@ public:
     }
 
     void
-    stress(shared_ptr<CallbackPrx> callback, shared_ptr<CallbackReceiverPrx> receiver) override
+    stress(CallbackPrxPtr callback, CallbackReceiverPrxPtr receiver) override
     {
         try
         {
@@ -416,14 +416,14 @@ CallbackClient::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Warn.Connections", "0");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
-    shared_ptr<ObjectPrx> routerBase;
+    ObjectPrx routerBase;
     {
         cout << "testing stringToProxy for router... " << flush;
         routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
         cout << "ok" << endl;
     }
 
-    shared_ptr<Glacier2::RouterPrx> router;
+    Glacier2::RouterPrxPtr router;
 
     {
         cout << "testing checked cast for router... " << flush;
@@ -454,7 +454,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    shared_ptr<ObjectPrx> base;
+    ObjectPrx base;
 
     {
         cout << "testing stringToProxy for server object... " << flush;
@@ -475,7 +475,7 @@ CallbackClient::run(int argc, char** argv)
         }
     }
 
-    shared_ptr<Glacier2::SessionPrx> session;
+    Glacier2::SessionPrxPtr session;
 
     {
         cout << "trying to create session with wrong password... " << flush;
@@ -549,7 +549,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    shared_ptr<CallbackPrx> twoway;
+    CallbackPrxPtr twoway;
 
     {
         cout << "testing checked cast for server object... " << flush;
@@ -577,8 +577,8 @@ CallbackClient::run(int argc, char** argv)
     }
 
     shared_ptr<CallbackReceiverI> callbackReceiver;
-    shared_ptr<CallbackReceiverPrx> twowayR;
-    shared_ptr<CallbackReceiverPrx> fakeTwowayR;
+    CallbackReceiverPrxPtr twowayR;
+    CallbackReceiverPrxPtr fakeTwowayR;
 
     {
         cout << "creating and adding callback receiver object... " << flush;
@@ -904,7 +904,7 @@ CallbackClient::run(int argc, char** argv)
             cout << "ok" << endl;
         }
 
-        shared_ptr<ObjectPrx> processBase;
+        ObjectPrx processBase;
 
         {
             cout << "testing stringToProxy for admin process facet... " << flush;
@@ -912,7 +912,7 @@ CallbackClient::run(int argc, char** argv)
             cout << "ok" << endl;
         }
 
-        shared_ptr<Ice::ProcessPrx> process;
+        Ice::ProcessPrxPtr process;
 
         {
             cout << "testing checked cast for process facet... " << flush;

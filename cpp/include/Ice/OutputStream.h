@@ -744,7 +744,7 @@ public:
      * Writes a proxy to the stream.
      * @param v The proxy to be written.
      */
-    void writeProxy(const ::std::shared_ptr<ObjectPrx>& v);
+    void writeProxy(const std::optional<ObjectPrx>& v);
 
     /**
      * Writes a proxy to the stream.

@@ -14,7 +14,7 @@ using namespace IceGrid;
 ServerAdapterI::ServerAdapterI(const shared_ptr<NodeI>& node,
                                ServerI* server,
                                const string& serverName,
-                               const shared_ptr<AdapterPrx>& proxy,
+                               const AdapterPrxPtr& proxy,
                                const string& id,
                                bool enabled) :
     _node(node),
@@ -32,7 +32,7 @@ ServerAdapterI::~ServerAdapterI()
 }
 
 void
-ServerAdapterI::activateAsync(function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrx&)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {
@@ -104,7 +104,7 @@ ServerAdapterI::activateAsync(function<void(const shared_ptr<Ice::ObjectPrx>&)> 
     }
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
     lock_guard lock(_mutex);
@@ -124,7 +124,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
 }
 
 void
-ServerAdapterI::setDirectProxy(shared_ptr<Ice::ObjectPrx> prx, const Ice::Current&)
+ServerAdapterI::setDirectProxy(Ice::ObjectPrx prx, const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
@@ -260,7 +260,7 @@ ServerAdapterI::activationCompleted()
     _activateCB.clear();
 }
 
-shared_ptr<AdapterPrx>
+AdapterPrxPtr
 ServerAdapterI::getProxy() const
 {
     return _this;

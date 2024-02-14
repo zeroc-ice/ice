@@ -63,7 +63,7 @@ public:
 #   pragma clang diagnostic pop
 #endif
 
-    ServerI(const std::shared_ptr<NodeI>&, const std::shared_ptr<ServerPrx>&,
+    ServerI(const std::shared_ptr<NodeI>&, const ServerPrxPtr&,
             const std::string&, const std::string&, int);
 
     void waitForApplicationUpdateCompleted();
@@ -78,7 +78,7 @@ public:
 
     void setEnabled(bool, const Ice::Current&) override;
     bool isEnabled(const Ice::Current&) const override;
-    void setProcessAsync(std::shared_ptr<Ice::ProcessPrx>, std::function<void()>,
+    void setProcessAsync(Ice::ProcessPrxPtr, std::function<void()>,
                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     long long getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
@@ -91,7 +91,7 @@ public:
 
     void start(ServerActivation, std::function<void()> = nullptr, std::function<void(std::exception_ptr)> = nullptr);
     std::shared_ptr<ServerCommand> load(const std::shared_ptr<InternalServerDescriptor>&, const std::string&, bool,
-                          std::function<void(const std::shared_ptr<ServerPrx> &, const AdapterPrxDict &, int, int)>,
+                          std::function<void(const ServerPrxPtr &, const AdapterPrxDict &, int, int)>,
                           std::function<void(std::exception_ptr)>);
     bool checkUpdate(std::shared_ptr<InternalServerDescriptor>, bool, const Ice::Current&) override;
     void checkRemove(bool, const Ice::Current&);
@@ -116,7 +116,7 @@ public:
     //
     // A proxy to the Process facet of the real Admin object; called by the AdminFacade servant implementation
     //
-    std::shared_ptr<Ice::ObjectPrx> getProcess() const;
+    Ice::ObjectPrx getProcess() const;
 
     PropertyDescriptorSeqDict getProperties(const std::shared_ptr<InternalServerDescriptor>&);
 
@@ -144,7 +144,7 @@ private:
     std::string getFilePath(const std::string&) const;
 
     const std::shared_ptr<NodeI> _node;
-    const std::shared_ptr<ServerPrx> _this;
+    const ServerPrxPtr _this;
     const std::string _id;
     const std::chrono::seconds _waitTime;
     const std::string _serverDir;
@@ -162,7 +162,7 @@ private:
     using ServerAdapterDict = std::map<std::string, std::shared_ptr<ServerAdapterI>> ;
     ServerAdapterDict _adapters;
     std::set<std::string> _serverLifetimeAdapters;
-    std::shared_ptr<Ice::ProcessPrx> _process;
+    Ice::ProcessPrxPtr _process;
     std::set<std::string> _activatedAdapters;
     std::optional<std::chrono::steady_clock::time_point> _failureTime;
     ServerActivation _previousActivation;
@@ -323,17 +323,17 @@ public:
     void setUpdate(const std::shared_ptr<InternalServerDescriptor>&, bool);
     bool clearDir() const;
     std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor() const;
-    void addCallback(std::function<void(const std::shared_ptr<ServerPrx>&, const AdapterPrxDict &, int, int)>,
+    void addCallback(std::function<void(const ServerPrxPtr&, const AdapterPrxDict &, int, int)>,
                      std::function<void(std::exception_ptr)>);
-    void startRuntimePropertiesUpdate(const std::shared_ptr<Ice::ObjectPrx>&);
+    void startRuntimePropertiesUpdate(const Ice::ObjectPrx&);
     bool finishRuntimePropertiesUpdate(const std::shared_ptr<InternalServerDescriptor>&,
-                                       const std::shared_ptr<Ice::ObjectPrx>&);
+                                       const Ice::ObjectPrx&);
     void failed(std::exception_ptr);
-    void finished(const std::shared_ptr<ServerPrx>&, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
+    void finished(const ServerPrxPtr&, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
 
 private:
 
-    std::vector<std::pair<std::function<void(const std::shared_ptr<ServerPrx> &, const AdapterPrxDict &, int, int)>,
+    std::vector<std::pair<std::function<void(const ServerPrxPtr &, const AdapterPrxDict &, int, int)>,
                           std::function<void(std::exception_ptr)>>> _loadCB;
     bool _clearDir;
     std::shared_ptr<InternalServerDescriptor> _desc;

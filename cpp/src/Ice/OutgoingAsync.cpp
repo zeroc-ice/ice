@@ -377,7 +377,7 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
     }
 
     _cachedConnection = 0;
-    if(_proxy->_getReference()->getInvocationTimeout() == -2)
+    if(_reference->getInvocationTimeout() == -2)
     {
         _instance->timer()->cancel(shared_from_this());
     }
@@ -395,7 +395,7 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
         //
         _instance->retryQueue()->add(
             shared_from_this(),
-            _proxy->_getRequestHandlerCache()->handleException(exc, _handler, _mode, _sent, _cnt));
+            _requestHandlerCache->handleException(exc, _handler, _mode, _sent, _cnt));
 
         return false;
     }
@@ -408,7 +408,7 @@ ProxyOutgoingAsyncBase::exception(std::exception_ptr exc)
 void
 ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 {
-    if(_proxy->_getReference()->getInvocationTimeout() == -2 && _cachedConnection)
+    if(_reference->getInvocationTimeout() == -2 && _cachedConnection)
     {
         const int timeout = _cachedConnection->timeout();
         if(timeout > 0)
@@ -432,7 +432,7 @@ ProxyOutgoingAsyncBase::retryException()
         // require could end up waiting for the flush of the
         // connection to be done.
         //
-        _proxy->_getRequestHandlerCache()->clearCachedRequestHandler(_handler); // Clear cached request handler and always retry.
+        _requestHandlerCache->clearCachedRequestHandler(_handler); // Clear cached request handler and always retry.
         _instance->retryQueue()->add(shared_from_this(), 0);
     }
     catch(const Ice::Exception&)
@@ -481,9 +481,11 @@ ProxyOutgoingAsyncBase::abort(std::exception_ptr ex)
     }
 }
 
-ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(const ObjectPrxPtr& proxy) :
+ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(const ObjectPrx& proxy) :
     OutgoingAsyncBase(proxy->_getReference()->getInstance()),
-    _proxy(proxy),
+    _reference(proxy._getReference()),
+    _requestHandlerCache(proxy._getRequestHandlerCache()),
+    _batchRequestQueue(proxy._getBatchRequestQueue()),
     _mode(OperationMode::Normal),
     _cnt(0),
     _sent(false)
@@ -501,7 +503,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
     {
         if(userThread)
         {
-            int invocationTimeout = _proxy->_getReference()->getInvocationTimeout();
+            int invocationTimeout = _reference->getInvocationTimeout();
             if(invocationTimeout > 0)
             {
                 _instance->timer()->schedule(shared_from_this(), IceUtil::Time::milliSeconds(invocationTimeout));
@@ -517,7 +519,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             try
             {
                 _sent = false;
-                _handler = _proxy->_getRequestHandlerCache()->getRequestHandler();
+                _handler = _requestHandlerCache->getRequestHandler();
                 AsyncStatus status = _handler->sendAsyncRequest(shared_from_this());
                 if(status & AsyncStatusSent)
                 {
@@ -541,7 +543,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             }
             catch(const RetryException&)
             {
-                _proxy->_getRequestHandlerCache()->clearCachedRequestHandler(_handler); // Clear request handler and always retry.
+                _requestHandlerCache->clearCachedRequestHandler(_handler); // Clear request handler and always retry.
             }
             catch(const Exception& ex)
             {
@@ -550,7 +552,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                 }
-                int interval = _proxy->_getRequestHandlerCache()->handleException(
+                int interval = _requestHandlerCache->handleException(
                     current_exception(),
                     _handler,
                     _mode,
@@ -592,7 +594,7 @@ ProxyOutgoingAsyncBase::sentImpl(bool done)
     _sent = true;
     if(done)
     {
-        if(_proxy->_getReference()->getInvocationTimeout() != -1)
+        if(_reference->getInvocationTimeout() != -1)
         {
             _instance->timer()->cancel(shared_from_this());
         }
@@ -603,7 +605,7 @@ ProxyOutgoingAsyncBase::sentImpl(bool done)
 bool
 ProxyOutgoingAsyncBase::exceptionImpl(std::exception_ptr ex)
 {
-    if(_proxy->_getReference()->getInvocationTimeout() != -1)
+    if(_reference->getInvocationTimeout() != -1)
     {
         _instance->timer()->cancel(shared_from_this());
     }
@@ -613,7 +615,7 @@ ProxyOutgoingAsyncBase::exceptionImpl(std::exception_ptr ex)
 bool
 ProxyOutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 {
-    if(_proxy->_getReference()->getInvocationTimeout() != -1)
+    if(_reference->getInvocationTimeout() != -1)
     {
         _instance->timer()->cancel(shared_from_this());
     }
@@ -623,7 +625,7 @@ ProxyOutgoingAsyncBase::responseImpl(bool ok, bool invoke)
 void
 ProxyOutgoingAsyncBase::runTimerTask()
 {
-    if(_proxy->_getReference()->getInvocationTimeout() == -2)
+    if(_reference->getInvocationTimeout() == -2)
     {
         cancel(make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
     }
@@ -633,7 +635,7 @@ ProxyOutgoingAsyncBase::runTimerTask()
     }
 }
 
-OutgoingAsync::OutgoingAsync(const ObjectPrxPtr& proxy, bool synchronous) :
+OutgoingAsync::OutgoingAsync(const ObjectPrx& proxy, bool synchronous) :
     ProxyOutgoingAsyncBase(proxy),
     _encoding(getCompatibleEncoding(proxy->_getReference()->getEncoding())),
     _synchronous(synchronous)
@@ -643,22 +645,22 @@ OutgoingAsync::OutgoingAsync(const ObjectPrxPtr& proxy, bool synchronous) :
 void
 OutgoingAsync::prepare(const string& operation, OperationMode mode, const Context& context)
 {
-    checkSupportedProtocol(getCompatibleProtocol(_proxy->_getReference()->getProtocol()));
+    checkSupportedProtocol(getCompatibleProtocol(_reference->getProtocol()));
 
     _mode = mode;
 
-    _observer.attach(_proxy, operation, context);
+    _observer.attach(ObjectPrx(_reference, _requestHandlerCache, _batchRequestQueue), operation, context);
 
-    if (_proxy->_getBatchRequestQueue())
+    if (_batchRequestQueue)
     {
-        _proxy->_getBatchRequestQueue()->prepareBatchRequest(&_os);
+        _batchRequestQueue->prepareBatchRequest(&_os);
     }
     else
     {
         _os.writeBlob(requestHdr, sizeof(requestHdr));
     }
 
-    Reference* ref = _proxy->_getReference().get();
+    Reference* ref = _reference.get();
 
     _os.write(ref->getIdentity());
 
@@ -707,7 +709,7 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
 bool
 OutgoingAsync::sent()
 {
-    return ProxyOutgoingAsyncBase::sentImpl(!_proxy->_getReference()->isTwoway()); // done = true if it's not a two-way proxy
+    return ProxyOutgoingAsyncBase::sentImpl(!_reference->isTwoway()); // done = true if it's not a two-way proxy
 }
 
 bool
@@ -718,7 +720,7 @@ OutgoingAsync::response()
     // with the connection locked. Therefore, it must not invoke
     // any user callbacks.
     //
-    assert(_proxy->_getReference()->isTwoway()); // Can only be called for twoways.
+    assert(_reference->isTwoway()); // Can only be called for twoways.
 
     if(_childObserver)
     {
@@ -873,14 +875,14 @@ OutgoingAsync::invokeCollocated(CollocatedRequestHandler* handler)
 void
 OutgoingAsync::abort(std::exception_ptr ex)
 {
-    if (_proxy->_getBatchRequestQueue())
+    if (_batchRequestQueue)
     {
         //
         // If we didn't finish a batch oneway or datagram request, we
         // must notify the connection about that we give up ownership
         // of the batch stream.
         //
-        _proxy->_getBatchRequestQueue()->abortBatchRequest(&_os);
+        _batchRequestQueue->abortBatchRequest(&_os);
     }
 
     ProxyOutgoingAsyncBase::abort(ex);
@@ -889,10 +891,13 @@ OutgoingAsync::abort(std::exception_ptr ex)
 void
 OutgoingAsync::invoke(const string& operation)
 {
-    if (_proxy->_getBatchRequestQueue())
+    if (_batchRequestQueue)
     {
         _sentSynchronously = true;
-        _proxy->_getBatchRequestQueue()->finishBatchRequest(&_os, _proxy, operation);
+        _batchRequestQueue->finishBatchRequest(
+            &_os,
+            ObjectPrx(_reference, _requestHandlerCache, _batchRequestQueue),
+            operation);
         responseImpl(true, false); // Don't call sent/completed callback for batch AMI requests
         return;
     }

@@ -20,6 +20,7 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/PropertyNames.h>
 #include <Ice/StringUtil.h>
+#include "Ice/ProxyFunctions.h"
 
 using namespace std;
 using namespace Ice;
@@ -600,9 +601,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
 }
 
 ReferenceFactoryPtr
-IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrxPtr& defaultRouter)
+IceInternal::ReferenceFactory::setDefaultRouter(const optional<RouterPrx>& defaultRouter)
 {
-    if(defaultRouter == _defaultRouter)
+    if (defaultRouter == _defaultRouter)
     {
         return shared_from_this();
     }
@@ -613,14 +614,14 @@ IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrxPtr& defaultRoute
     return factory;
 }
 
-RouterPrxPtr
+std::optional<RouterPrx>
 IceInternal::ReferenceFactory::getDefaultRouter() const
 {
     return _defaultRouter;
 }
 
 ReferenceFactoryPtr
-IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrxPtr& defaultLocator)
+IceInternal::ReferenceFactory::setDefaultLocator(const std::optional<LocatorPrx>& defaultLocator)
 {
     if(defaultLocator == _defaultLocator)
     {
@@ -633,7 +634,7 @@ IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrxPtr& defaultLoc
     return factory;
 }
 
-LocatorPrxPtr
+std::optional<LocatorPrx>
 IceInternal::ReferenceFactory::getDefaultLocator() const
 {
     return _defaultLocator;
@@ -729,10 +730,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         }
         else
         {
-            locatorInfo = _instance->locatorManager()->get(_defaultLocator);
+            locatorInfo = _instance->locatorManager()->get(_defaultLocator.value());
         }
     }
-    RouterInfoPtr routerInfo = _instance->routerManager()->get(_defaultRouter);
+    RouterInfoPtr routerInfo = _defaultRouter ? _instance->routerManager()->get(_defaultRouter.value()) : nullptr;
     bool collocationOptimized = defaultsAndOverrides->defaultCollocationOptimization;
     bool cacheConnection = true;
     bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
@@ -755,7 +756,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         string property;
 
         property = propertyPrefix + ".Locator";
-        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_communicator->propertyToProxy(property));
+        auto locator = Ice::uncheckedCast<LocatorPrx>(_communicator->propertyToProxy(property));
         if(locator)
         {
             if(locator->ice_getEncodingVersion() != encoding)
@@ -764,13 +765,13 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
             }
             else
             {
-                locatorInfo = _instance->locatorManager()->get(locator);
+                locatorInfo = _instance->locatorManager()->get(locator.value());
             }
         }
 
         property = propertyPrefix + ".Router";
-        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_communicator->propertyToProxy(property));
-        if(router)
+        auto router = Ice::uncheckedCast<RouterPrx>(_communicator->propertyToProxy(property));
+        if (router)
         {
             if(propertyPrefix.size() > 7 && propertyPrefix.substr(propertyPrefix.size() - 7, 7) == ".Router")
             {
@@ -780,7 +781,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
             }
             else
             {
-                routerInfo = _instance->routerManager()->get(router);
+                routerInfo = _instance->routerManager()->get(router.value());
             }
         }
 

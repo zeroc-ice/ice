@@ -16,7 +16,7 @@ public:
 
     RemoteCommunicatorI(const Ice::CommunicatorPtr&);
 
-    virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
+    virtual Ice::ObjectPrx getAdmin(const Ice::Current&);
     virtual Ice::PropertyDict getChanges(const Ice::Current&);
 
     virtual void addUpdateCallback(const Ice::Current&);

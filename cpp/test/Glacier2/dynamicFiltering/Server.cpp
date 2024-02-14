@@ -24,14 +24,14 @@ class ServerLocatorRegistry final : public LocatorRegistry
 public:
 
     void
-    setAdapterDirectProxyAsync(string, shared_ptr<ObjectPrx>, function<void()> response,
+    setAdapterDirectProxyAsync(string, ObjectPrx, function<void()> response,
                                function<void(exception_ptr)>, const Current&) override
     {
         response();
     }
 
     void
-    setReplicatedAdapterDirectProxyAsync(string, string, shared_ptr<ObjectPrx>,
+    setReplicatedAdapterDirectProxyAsync(string, string, ObjectPrx,
                                          function<void()> response, function<void(exception_ptr)>,
                                          const Current&) override
     {
@@ -39,7 +39,7 @@ public:
     }
 
     void
-    setServerProcessProxyAsync(string, shared_ptr<ProcessPrx>,
+    setServerProcessProxyAsync(string, ProcessPrxPtr,
                                function<void()> response, function<void(exception_ptr)>,
                                const Current&) override
     {
@@ -60,7 +60,7 @@ public:
 
     void
     findObjectByIdAsync(Identity id,
-                        function<void(const shared_ptr<ObjectPrx>&)> response, function<void(exception_ptr)>,
+                        function<void(const ObjectPrx&)> response, function<void(exception_ptr)>,
                         const Current&) const override
     {
         response(_adapter->createProxy(id));
@@ -68,13 +68,13 @@ public:
 
     void
     findAdapterByIdAsync(string,
-                         function<void(const shared_ptr<ObjectPrx>&)> response, function<void(exception_ptr)>,
+                         function<void(const ObjectPrx&)> response, function<void(exception_ptr)>,
                          const Current&) const override
     {
         response(_adapter->createDirectProxy(stringToIdentity("dummy")));
     }
 
-    shared_ptr<LocatorRegistryPrx>
+    LocatorRegistryPrxPtr
     getRegistry(const Current&) const override
     {
         return _registryPrx;
@@ -83,7 +83,7 @@ public:
 private:
     shared_ptr<Backend> _backend;
     shared_ptr<ObjectAdapter> _adapter;
-    shared_ptr<LocatorRegistryPrx> _registryPrx;
+    LocatorRegistryPrxPtr _registryPrx;
 };
 
 class SessionControlServer final : public Test::TestHelper

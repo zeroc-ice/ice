@@ -271,12 +271,12 @@ IceBox::ServiceManagerI::addObserver(ServiceObserverPrxPtr observer, const Curre
     //
 
     lock_guard<mutex> lock(_mutex);
-    if(observer != 0 && _observers.insert(observer).second)
+    if(observer && _observers.insert(observer).second)
     {
         if(_traceServiceObserver >= 1)
         {
             Trace out(_logger, "IceBox.ServiceObserver");
-            out << "Added service observer " << _communicator->proxyToString(observer);
+            out << "Added service observer " << _communicator->proxyToString(observer.value());
         }
 
         vector<string> activeServices;
@@ -832,7 +832,7 @@ IceBox::ServiceManagerI::stopAll()
 }
 
 function<void(exception_ptr)>
-IceBox::ServiceManagerI::makeObserverCompletedCallback(const shared_ptr<ServiceObserverPrx>& observer)
+IceBox::ServiceManagerI::makeObserverCompletedCallback(const ServiceObserverPrxPtr& observer)
 {
     weak_ptr<ServiceManagerI> self = shared_from_this();
     return [self, observer](exception_ptr ex)
@@ -845,7 +845,7 @@ IceBox::ServiceManagerI::makeObserverCompletedCallback(const shared_ptr<ServiceO
         };
 }
 void
-IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<shared_ptr<ServiceObserverPrx>>& observers)
+IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const set<ServiceObserverPrxPtr>& observers)
 {
     if(services.size() > 0)
     {
@@ -857,7 +857,7 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
 }
 
 void
-IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<shared_ptr<ServiceObserverPrx>>& observers)
+IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const set<ServiceObserverPrxPtr>& observers)
 {
     if(services.size() > 0)
     {
@@ -869,7 +869,7 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
 }
 
 void
-IceBox::ServiceManagerI::observerRemoved(const shared_ptr<ServiceObserverPrx>& observer, exception_ptr err)
+IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrxPtr& observer, exception_ptr err)
 {
     if(_traceServiceObserver >= 1)
     {
@@ -888,7 +888,7 @@ IceBox::ServiceManagerI::observerRemoved(const shared_ptr<ServiceObserverPrx>& o
         catch(const exception& ex)
         {
             Trace out(_logger, "IceBox.ServiceObserver");
-            out << "Removed service observer " << _communicator->proxyToString(observer)
+            out << "Removed service observer " << _communicator->proxyToString(observer.value())
                 << "\nafter catching " << ex.what();
         }
     }
@@ -928,7 +928,7 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
 }
 
 void
-ServiceManagerI::observerCompleted(const shared_ptr<ServiceObserverPrx>& observer, exception_ptr ex)
+ServiceManagerI::observerCompleted(const ServiceObserverPrxPtr& observer, exception_ptr ex)
 {
     lock_guard<mutex> lock(_mutex);
     //

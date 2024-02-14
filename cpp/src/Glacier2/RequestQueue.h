@@ -23,7 +23,7 @@ class Request
 {
 public:
 
-    Request(std::shared_ptr<Ice::ObjectPrx>,
+    Request(Ice::ObjectPrx,
             const std::pair<const Ice::Byte*, const Ice::Byte*>&,
             const Ice::Current&,
             bool,
@@ -44,7 +44,7 @@ private:
     void exception(std::exception_ptr);
     void queued();
 
-    const std::shared_ptr<Ice::ObjectPrx> _proxy;
+    const Ice::ObjectPrx _proxy;
     const Ice::ByteSeq _inParams;
     const Ice::Current _current;
     const bool _forwardContext;

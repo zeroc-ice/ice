@@ -74,7 +74,7 @@ AdapterRequest::retry()
 }
 
 bool
-AdapterRequest::response(const Ice::ObjectPrxPtr& proxy, bool isReplicaGroup)
+AdapterRequest::response(const Ice::ObjectPrx& proxy, bool isReplicaGroup)
 {
     if(isReplicaGroup)
     {
@@ -92,7 +92,7 @@ AdapterRequest::response(const Ice::ObjectPrxPtr& proxy, bool isReplicaGroup)
 }
 
 void
-AdapterRequest::finished(const ObjectPrxPtr& proxy)
+AdapterRequest::finished(const ObjectPrx& proxy)
 {
     if(proxy || _proxies.empty())
     {
@@ -105,8 +105,8 @@ AdapterRequest::finished(const ObjectPrxPtr& proxy)
     else
     {
         EndpointSeq endpoints;
-        ObjectPrxPtr prx;
-        for(set<ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
+        ObjectPrx prx;
+        for(set<ObjectPrx>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
         {
             if(!prx)
             {
@@ -141,7 +141,7 @@ ObjectRequest::ObjectRequest(const LookupIPtr& lookup, const Ice::Identity& id, 
 }
 
 void
-ObjectRequest::response(const Ice::ObjectPrxPtr& proxy)
+ObjectRequest::response(const Ice::ObjectPrx& proxy)
 {
     finished(proxy);
 }
@@ -248,7 +248,7 @@ LookupI::findObjectById(string domainId, Ice::Identity id, LookupReplyPrxPtr rep
         return; // Ignore.
     }
 
-    Ice::ObjectPrxPtr proxy = _registry->findObject(id);
+    Ice::ObjectPrx proxy = _registry->findObject(id);
     if(proxy)
     {
         //
@@ -275,7 +275,7 @@ LookupI::findAdapterById(string domainId, string adapterId, LookupReplyPrxPtr re
     }
 
     bool isReplicaGroup;
-    Ice::ObjectPrxPtr proxy = _registry->findAdapter(adapterId, isReplicaGroup);
+    Ice::ObjectPrx proxy = _registry->findAdapter(adapterId, isReplicaGroup);
     if(proxy)
     {
         //
@@ -347,7 +347,7 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
 }
 
 void
-LookupI::foundObject(const Ice::Identity& id, const string& requestId, const Ice::ObjectPrxPtr& proxy)
+LookupI::foundObject(const Ice::Identity& id, const string& requestId, const Ice::ObjectPrx& proxy)
 {
     lock_guard lock(_mutex);
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
@@ -360,7 +360,7 @@ LookupI::foundObject(const Ice::Identity& id, const string& requestId, const Ice
 }
 
 void
-LookupI::foundAdapter(const string& adapterId, const string& requestId, const Ice::ObjectPrxPtr& proxy,
+LookupI::foundAdapter(const string& adapterId, const string& requestId, const Ice::ObjectPrx& proxy,
                       bool isReplicaGroup)
 {
     lock_guard lock(_mutex);
@@ -498,13 +498,13 @@ LookupReplyI::LookupReplyI(const LookupIPtr& lookup) : _lookup(lookup)
 }
 
 void
-LookupReplyI::foundObjectById(Identity id, shared_ptr<ObjectPrx> proxy, const Current& current)
+LookupReplyI::foundObjectById(Identity id, ObjectPrx proxy, const Current& current)
 {
     _lookup->foundObject(id, current.id.name, proxy);
 }
 
 void
-LookupReplyI::foundAdapterById(string adapterId, shared_ptr<ObjectPrx> proxy, bool isReplicaGroup,
+LookupReplyI::foundAdapterById(string adapterId, ObjectPrx proxy, bool isReplicaGroup,
                                const Current& current)
 {
     _lookup->foundAdapter(adapterId, current.id.name, proxy, isReplicaGroup);

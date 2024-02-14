@@ -24,7 +24,7 @@ LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& com) :
 
 void
 LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,
-                                              shared_ptr<ObjectPrx> proxy,
+                                              ObjectPrx proxy,
                                               function<void()> response,
                                               function<void(exception_ptr)>,
                                               const Ice::Current&)
@@ -44,7 +44,7 @@ LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,
 void
 LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
                                                         string replicaGroupId,
-                                                        shared_ptr<ObjectPrx> proxy,
+                                                        ObjectPrx proxy,
                                                         function<void()> response,
                                                         function<void(exception_ptr)>,
                                                         const Ice::Current&)
@@ -78,7 +78,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
 
 void
 LocatorRegistryI::setServerProcessProxyAsync(string,
-                                              shared_ptr<ProcessPrx>,
+                                              ProcessPrxPtr,
                                               function<void()> response,
                                               function<void(exception_ptr)>,
                                               const Ice::Current&)
@@ -86,7 +86,7 @@ LocatorRegistryI::setServerProcessProxyAsync(string,
     response();
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 LocatorRegistryI::findObject(const Ice::Identity& id) const
 {
     lock_guard lock(_mutex);
@@ -95,7 +95,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         return 0;
     }
 
-    Ice::ObjectPrxPtr prx = _wellKnownProxy->ice_identity(id);
+    Ice::ObjectPrx prx = _wellKnownProxy->ice_identity(id);
 
     vector<string> adapterIds;
     for(map<string, set<string> >::const_iterator p = _replicaGroups.begin(); p != _replicaGroups.end(); ++p)
@@ -113,7 +113,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
 
     if(adapterIds.empty())
     {
-        for(map<string, Ice::ObjectPrxPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+        for(map<string, Ice::ObjectPrx>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
         {
             try
             {
@@ -136,12 +136,12 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
     return prx->ice_adapterId(adapterIds[0]);
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) const
 {
     lock_guard lock(_mutex);
 
-    map<string, Ice::ObjectPrxPtr>::const_iterator p = _adapters.find(adapterId);
+    map<string, Ice::ObjectPrx>::const_iterator p = _adapters.find(adapterId);
     if(p != _adapters.end())
     {
         isReplicaGroup = false;
@@ -152,10 +152,10 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
     if(q != _replicaGroups.end())
     {
         Ice::EndpointSeq endpoints;
-        Ice::ObjectPrxPtr prx;
+        Ice::ObjectPrx prx;
         for(set<string>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
         {
-            map<string, Ice::ObjectPrxPtr>::const_iterator s = _adapters.find(*r);
+            map<string, Ice::ObjectPrx>::const_iterator s = _adapters.find(*r);
             if(s == _adapters.end())
             {
                 continue; // TODO: Inconsistency
@@ -187,7 +187,7 @@ LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrxPtr& regist
 
 void
 LocatorI::findObjectByIdAsync(Ice::Identity id,
-                              function<void(const shared_ptr<ObjectPrx>&)> response,
+                              function<void(const ObjectPrx&)> response,
                               function<void(exception_ptr)> ex,
                               const Ice::Current&) const
 {
@@ -196,7 +196,7 @@ LocatorI::findObjectByIdAsync(Ice::Identity id,
 
 void
 LocatorI::findAdapterByIdAsync(string adapterId,
-                               function<void(const shared_ptr<ObjectPrx>&)> response,
+                               function<void(const ObjectPrx&)> response,
                                function<void(exception_ptr)> ex,
                                const Ice::Current&) const
 {

@@ -400,8 +400,8 @@ Parser* parser;
 }
 
 Parser::Parser(shared_ptr<Communicator> communicator,
-               shared_ptr<AdminSessionPrx> session,
-               shared_ptr<AdminPrx> admin,
+               AdminSessionPrxPtr session,
+               AdminPrxPtr admin,
                bool interactive) :
     _communicator(std::move(communicator)),
     _session(std::move(session)),
@@ -1878,7 +1878,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         }
 
         auto admin = _admin->getServerAdmin(server);
-        shared_ptr<Ice::PropertiesAdminPrx> propAdmin;
+        Ice::PropertiesAdminPrxPtr propAdmin;
         if(getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0)
         {
             propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.SharedCommunicator.Properties");
@@ -2277,7 +2277,7 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
 
     int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 
-    shared_ptr<FileIteratorPrx> it;
+    FileIteratorPrxPtr it;
 
     try
     {
@@ -2422,7 +2422,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 {
     outputNewline();
 
-    shared_ptr<Ice::ObjectPrx> admin;
+    Ice::ObjectPrx admin;
 
     if(reader == "server")
     {
@@ -2443,7 +2443,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         return;
     }
 
-    shared_ptr<Ice::LoggerAdminPrx> loggerAdmin;
+    Ice::LoggerAdminPrxPtr loggerAdmin;
 
     try
     {

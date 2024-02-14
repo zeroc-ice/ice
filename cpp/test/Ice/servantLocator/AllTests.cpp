@@ -214,7 +214,7 @@ allTests(Test::TestHelper* helper)
     CommunicatorPtr communicator = helper->communicator();
     const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
-    ObjectPrxPtr base = communicator->stringToProxy("asm:" + endp);
+    ObjectPrx base = communicator->stringToProxy("asm:" + endp);
     test(base);
     cout << "ok" << endl;
 
@@ -227,7 +227,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing ice_ids... " << flush;
     try
     {
-        ObjectPrxPtr o = communicator->stringToProxy("category/locate:" + endp);
+        ObjectPrx o = communicator->stringToProxy("category/locate:" + endp);
         o->ice_ids();
         test(false);
     }
@@ -242,7 +242,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        ObjectPrxPtr o = communicator->stringToProxy("category/finished:" + endp);
+        ObjectPrx o = communicator->stringToProxy("category/finished:" + endp);
         o->ice_ids();
         test(false);
     }

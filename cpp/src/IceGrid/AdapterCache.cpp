@@ -429,7 +429,7 @@ ServerAdapterEntry::getAdapterInfoAsync() const
     return result;
 }
 
-shared_ptr<AdapterPrx>
+AdapterPrxPtr
 ServerAdapterEntry::getProxy(const string& replicaGroupId, bool upToDate) const
 {
     if(replicaGroupId.empty())

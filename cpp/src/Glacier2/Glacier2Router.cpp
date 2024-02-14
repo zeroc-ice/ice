@@ -103,11 +103,11 @@ class FinderI : public Ice::RouterFinder
 {
 public:
 
-    FinderI(shared_ptr<Glacier2::RouterPrx> router) : _router(std::move(router))
+    FinderI(Glacier2::RouterPrxPtr router) : _router(std::move(router))
     {
     }
 
-    shared_ptr<Ice::RouterPrx>
+    Ice::RouterPrxPtr
     getRouter(const Ice::Current&) override
     {
         return _router;
@@ -115,7 +115,7 @@ public:
 
 private:
 
-    const shared_ptr<Glacier2::RouterPrx> _router;
+    const Glacier2::RouterPrxPtr _router;
 };
 
 };
@@ -206,8 +206,8 @@ RouterService::start(int argc, char* argv[], int& status)
     Glacier2Internal::setupNullPermissionsVerifier(communicator(), instanceName, verifierProperties);
 
     string verifierProperty = verifierProperties[0];
-    shared_ptr<PermissionsVerifierPrx> verifier;
-    shared_ptr<ObjectPrx> obj;
+    PermissionsVerifierPrxPtr verifier;
+    ObjectPrx obj;
     try
     {
         //
@@ -254,7 +254,7 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     string sessionManagerProperty = "Glacier2.SessionManager";
     string sessionManagerPropertyValue = properties->getProperty(sessionManagerProperty);
-    shared_ptr<SessionManagerPrx> sessionManager;
+    SessionManagerPrxPtr sessionManager;
     if(!sessionManagerPropertyValue.empty())
     {
         try
@@ -294,7 +294,7 @@ RouterService::start(int argc, char* argv[], int& status)
     // Check for an SSL permissions verifier.
     //
     string sslVerifierProperty = verifierProperties[1];
-    shared_ptr<SSLPermissionsVerifierPrx> sslVerifier;
+    SSLPermissionsVerifierPrxPtr sslVerifier;
 
     try
     {
@@ -339,7 +339,7 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     string sslSessionManagerProperty = "Glacier2.SSLSessionManager";
     string sslSessionManagerPropertyValue = properties->getProperty(sslSessionManagerProperty);
-    shared_ptr<SSLSessionManagerPrx> sslSessionManager;
+    SSLSessionManagerPrxPtr sslSessionManager;
     if(!sslSessionManagerPropertyValue.empty())
     {
         try

@@ -133,7 +133,7 @@ public:
 
     virtual void
     findObjectByIdAsync(::Ice::Identity,
-                        function<void(const shared_ptr<::Ice::ObjectPrx>&)> response,
+                        function<void(const ::Ice::ObjectPrxPtr&)> response,
                         function<void(exception_ptr)>,
                         const Ice::Current&) const
     {
@@ -142,7 +142,7 @@ public:
 
     virtual void
     findAdapterByIdAsync(string,
-                         function<void(const shared_ptr<::Ice::ObjectPrx>&)> response,
+                         function<void(const ::Ice::ObjectPrxPtr&)> response,
                          function<void(exception_ptr)>,
                          const Ice::Current&) const
     {
@@ -268,7 +268,7 @@ PluginI::initialize()
     _replyAdapter->setLocator(0);
     _locatorAdapter->setLocator(0);
 
-    Ice::ObjectPrxPtr lookupPrx = _communicator->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
+    Ice::ObjectPrx lookupPrx = _communicator->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
     // No collocation optimization for the multicast proxy!
     lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullptr);
 
@@ -284,7 +284,7 @@ PluginI::initialize()
     _locatorPrx = Ice::uncheckedCast<Ice::LocatorPrx>(_locatorAdapter->add(_locator, id));
     _communicator->setDefaultLocator(_locatorPrx);
 
-    Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(make_shared<LookupReplyI>(_locator))->ice_datagram();
+    Ice::ObjectPrx lookupReply = _replyAdapter->addWithUUID(make_shared<LookupReplyI>(_locator))->ice_datagram();
     _locator->setLookupReply(Ice::uncheckedCast<LookupReplyPrx>(lookupReply));
 
     _replyAdapter->activate();

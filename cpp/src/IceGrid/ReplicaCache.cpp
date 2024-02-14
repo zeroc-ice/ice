@@ -13,10 +13,10 @@ using namespace std;
 using namespace IceGrid;
 
 ReplicaCache::ReplicaCache(const shared_ptr<Ice::Communicator>& communicator,
-                           const shared_ptr<IceStorm::TopicManagerPrx>& topicManager) :
+                           const IceStorm::TopicManagerPrxPtr& topicManager) :
     _communicator(communicator)
 {
-    shared_ptr<IceStorm::TopicPrx> t;
+    IceStorm::TopicPrxPtr t;
     try
     {
         t = topicManager->create("ReplicaObserverTopic");
@@ -26,9 +26,9 @@ ReplicaCache::ReplicaCache(const shared_ptr<Ice::Communicator>& communicator,
         t = topicManager->retrieve("ReplicaObserverTopic");
     }
 
-    const_cast<shared_ptr<IceStorm::TopicPrx>&>(_topic) =
+    const_cast<IceStorm::TopicPrxPtr&>(_topic) =
         Ice::uncheckedCast<IceStorm::TopicPrx>(t->ice_endpoints(Ice::EndpointSeq()));
-    const_cast<shared_ptr<ReplicaObserverPrx>&>(_observers) =
+    const_cast<ReplicaObserverPrxPtr&>(_observers) =
         Ice::uncheckedCast<ReplicaObserverPrx>(_topic->getPublisher()->ice_endpoints(Ice::EndpointSeq()));
 }
 
@@ -160,7 +160,7 @@ ReplicaCache::get(const string& name) const
 }
 
 void
-ReplicaCache::subscribe(const shared_ptr<ReplicaObserverPrx>& observer)
+ReplicaCache::subscribe(const ReplicaObserverPrxPtr& observer)
 {
     try
     {
@@ -196,7 +196,7 @@ ReplicaCache::subscribe(const shared_ptr<ReplicaObserverPrx>& observer)
 }
 
 void
-ReplicaCache::unsubscribe(const shared_ptr<ReplicaObserverPrx>& observer)
+ReplicaCache::unsubscribe(const ReplicaObserverPrxPtr& observer)
 {
     try
     {
@@ -221,8 +221,8 @@ ReplicaCache::unsubscribe(const shared_ptr<ReplicaObserverPrx>& observer)
     }
 }
 
-shared_ptr<Ice::ObjectPrx>
-ReplicaCache::getEndpoints(const string& name, const shared_ptr<Ice::ObjectPrx>& proxy) const
+Ice::ObjectPrx
+ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrx& proxy) const
 {
     Ice::EndpointSeq endpoints;
 
@@ -247,7 +247,7 @@ ReplicaCache::getEndpoints(const string& name, const shared_ptr<Ice::ObjectPrx>&
 }
 
 void
-ReplicaCache::setInternalRegistry(const shared_ptr<InternalRegistryPrx>& proxy)
+ReplicaCache::setInternalRegistry(const InternalRegistryPrxPtr& proxy)
 {
     //
     // Setup this replica internal registry proxy.
@@ -255,7 +255,7 @@ ReplicaCache::setInternalRegistry(const shared_ptr<InternalRegistryPrx>& proxy)
     _self = proxy;
 }
 
-shared_ptr<InternalRegistryPrx>
+InternalRegistryPrxPtr
 ReplicaCache::getInternalRegistry() const
 {
     //
@@ -282,13 +282,13 @@ ReplicaEntry::getInfo() const
     return _session->getInfo();
 }
 
-shared_ptr<InternalRegistryPrx>
+InternalRegistryPrxPtr
 ReplicaEntry::getProxy() const
 {
     return _session->getInternalRegistry();
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 ReplicaEntry::getAdminProxy() const
 {
     auto prx = getProxy();

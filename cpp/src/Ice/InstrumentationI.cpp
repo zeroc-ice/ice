@@ -353,16 +353,18 @@ public:
 
             add("operation", &InvocationHelper::getOperation);
             add("identity", &InvocationHelper::getIdentity);
-            add("facet", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getFacet);
-            add("encoding", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getEncodingVersion);
-            add("mode", &InvocationHelper::getMode);
-            add("proxy", &InvocationHelper::getProxy);
+
+            // TODO: fix this code
+            // add("facet", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getFacet);
+            // add("encoding", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getEncodingVersion);
+            // add("mode", &InvocationHelper::getMode);
+            // add("proxy", &InvocationHelper::getProxy);
 
             setDefault(&InvocationHelper::resolve);
         }
     };
     static Attributes attributes;
-    InvocationHelper(const ObjectPrxPtr& proxy, const string& op, const Context& ctx) :
+    InvocationHelper(const optional<ObjectPrx>& proxy, const string& op, const Context& ctx) :
         _proxy(proxy), _operation(op), _context(ctx)
     {
     }
@@ -442,6 +444,7 @@ public:
             {
                 os << _operation;
             }
+
             _id = os.str();
         }
         return _id;
@@ -453,7 +456,7 @@ public:
         return "Communicator";
     }
 
-    const ObjectPrxPtr&
+    const optional<ObjectPrx>
     getProxy() const
     {
         return _proxy;
@@ -480,7 +483,7 @@ public:
 
 private:
 
-    const ObjectPrxPtr& _proxy;
+    const std::optional<ObjectPrx>& _proxy;
     const string& _operation;
     const Context& _context;
     mutable string _id;
@@ -1024,7 +1027,7 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
 }
 
 InvocationObserverPtr
-CommunicatorObserverI::getInvocationObserver(const ObjectPrxPtr& proxy, const string& op, const Context& ctx)
+CommunicatorObserverI::getInvocationObserver(const std::optional<ObjectPrx>& proxy, const string& op, const Context& ctx)
 {
     if(_invocations.isEnabled())
     {

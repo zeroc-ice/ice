@@ -76,7 +76,7 @@ operator<<(LoggerOutputBase& out, const T& val)
 
 template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr>
 inline LoggerOutputBase&
-operator<<(LoggerOutputBase& os, const ::std::shared_ptr<T>& p)
+operator<<(LoggerOutputBase& os, const ::std::optional<T>& p)
 {
     return os << (p ? p->ice_toString() : "");
 }

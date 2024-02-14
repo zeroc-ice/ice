@@ -63,7 +63,7 @@ ServerManagerI::startServer(const Ice::Current&)
             adapter = serverCommunicator->createObjectAdapter("TestAdapter");
             adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
-            Ice::ObjectPrxPtr locator =
+            Ice::ObjectPrx locator =
                 serverCommunicator->stringToProxy("locator:" + TestHelper::getTestEndpoint(props));
             adapter->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
             adapter2->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));

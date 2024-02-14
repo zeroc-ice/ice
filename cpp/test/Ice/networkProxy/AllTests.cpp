@@ -33,7 +33,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     string sref = "test:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
+    Ice::ObjectPrx obj = communicator->stringToProxy(sref);
     test(obj);
 
     int proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.HTTPProxyPort");

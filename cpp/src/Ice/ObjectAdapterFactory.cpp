@@ -7,6 +7,7 @@
 #include <Ice/Object.h>
 #include <Ice/LocalException.h>
 #include <Ice/UUID.h>
+#include "Ice/Router.h"
 
 using namespace std;
 using namespace Ice;
@@ -109,7 +110,7 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
 }
 
 ObjectAdapterPtr
-IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const RouterPrxPtr& router)
+IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const optional<RouterPrx>& router)
 {
     shared_ptr<ObjectAdapterI> adapter;
     {

@@ -43,6 +43,8 @@
 #include <IceUtil/StringUtil.h>
 #include <Ice/UUID.h>
 
+#include "Ice/ProxyFunctions.h"
+
 #include <stdio.h>
 #include <list>
 #include <mutex>
@@ -543,7 +545,7 @@ IceInternal::Instance::serverACM() const
     return _serverACM;
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
     ObjectAdapterPtr adapter = adminAdapter;
@@ -575,7 +577,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     {
         if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt);
         }
         else
         {
@@ -608,10 +610,10 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         }
     }
     setServerProcessProxy(adapter, adminIdentity);
-    return adapter->createProxy(adminIdentity);
+    return adapter->createProxy(adminIdentity).value();
 }
 
-Ice::ObjectPrxPtr
+std::optional<ObjectPrx>
 IceInternal::Instance::getAdmin()
 {
     unique_lock lock(_mutex);
@@ -630,11 +632,11 @@ IceInternal::Instance::getAdmin()
         ObjectAdapterPtr adapter;
         if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt);
         }
         else
         {
-            return 0;
+            return nullopt;
         }
 
         Identity adminIdentity;
@@ -671,7 +673,7 @@ IceInternal::Instance::getAdmin()
     }
     else
     {
-        return 0;
+        return nullopt;
     }
 }
 
@@ -702,12 +704,12 @@ IceInternal::Instance::addAllAdminFacets()
 void
 IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
-    ObjectPrxPtr admin = adminAdapter->createProxy(adminIdentity);
-    LocatorPrxPtr locator = adminAdapter->getLocator();
+    ObjectPrx admin = adminAdapter->createProxy(adminIdentity).value();
+    optional<LocatorPrx> locator = adminAdapter->getLocator();
     const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
     if(locator && serverId != "")
     {
-        ProcessPrxPtr process = Ice::uncheckedCast<ProcessPrx>(admin->ice_facet("Process"));
+        ProcessPrx process = Ice::uncheckedCast<ProcessPrx>(admin->ice_facet("Process"));
         try
         {
             //
@@ -725,7 +727,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
                 out << "the server is not known to the locator registry";
             }
 
-            throw InitializationException(__FILE__, __LINE__, "Locator `" + _proxyFactory->proxyToString(locator) +
+            throw InitializationException(__FILE__, __LINE__, "Locator `" + _proxyFactory->proxyToString(locator.value()) +
                                           "' knows nothing about server `" + serverId + "'");
         }
         catch(const LocalException& ex)
@@ -861,7 +863,7 @@ IceInternal::Instance::findAllAdminFacets()
 }
 
 void
-IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocator)
+IceInternal::Instance::setDefaultLocator(const optional<LocatorPrx>& defaultLocator)
 {
     lock_guard lock(_mutex);
 
@@ -874,7 +876,7 @@ IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocato
 }
 
 void
-IceInternal::Instance::setDefaultRouter(const Ice::RouterPrxPtr& defaultRouter)
+IceInternal::Instance::setDefaultRouter(const optional<RouterPrx>& defaultRouter)
 {
     lock_guard lock(_mutex);
 
@@ -1496,7 +1498,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if(!_referenceFactory->getDefaultRouter())
     {
-        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_proxyFactory->propertyToProxy("Ice.Default.Router"));
+        optional<RouterPrx> router = Ice::uncheckedCast<RouterPrx>(_proxyFactory->propertyToProxy("Ice.Default.Router"));
         if(router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1505,7 +1507,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if(!_referenceFactory->getDefaultLocator())
     {
-        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
+        optional<LocatorPrx> locator = Ice::uncheckedCast<LocatorPrx>(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
         if(locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);

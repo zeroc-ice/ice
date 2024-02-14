@@ -11,8 +11,8 @@ MyDerivedClassI::MyDerivedClassI()
 {
 }
 
-shared_ptr<Ice::ObjectPrx>
-MyDerivedClassI::echo(shared_ptr<Ice::ObjectPrx> obj, const Ice::Current&)
+Ice::ObjectPrx
+MyDerivedClassI::echo(Ice::ObjectPrx obj, const Ice::Current&)
 {
     return obj;
 }

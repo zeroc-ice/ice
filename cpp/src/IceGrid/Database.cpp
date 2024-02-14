@@ -180,7 +180,7 @@ findByType(const IceDB::ReadOnlyTxn& txn,
 
 shared_ptr<Database>
 Database::create(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-                 const shared_ptr<IceStorm::TopicManagerPrx>& topicManager,
+                 const IceStorm::TopicManagerPrxPtr& topicManager,
                  const string& instanceName,
                  const shared_ptr<TraceLevels>& traceLevels,
                  const RegistryInfo& info,
@@ -194,7 +194,7 @@ Database::create(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
 }
 
 Database::Database(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-                   const shared_ptr<IceStorm::TopicManagerPrx>& topicManager,
+                   const IceStorm::TopicManagerPrxPtr& topicManager,
                    const string& instanceName,
                    const shared_ptr<TraceLevels>& traceLevels,
                    const RegistryInfo& info,
@@ -1009,7 +1009,7 @@ Database::getAllocatableObject(const Ice::Identity& id) const
 
 void
 Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId,
-                                const shared_ptr<Ice::ObjectPrx>& proxy, long long dbSerial)
+                                const Ice::ObjectPrx& proxy, long long dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
@@ -1099,7 +1099,7 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& encoding,
                                 const shared_ptr<Ice::Connection>& con,
                                 const Ice::Context& ctx)
@@ -1211,7 +1211,7 @@ Database::removeAdapter(const string& adapterId)
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-shared_ptr<AdapterPrx>
+AdapterPrxPtr
 Database::getAdapterProxy(const string& adapterId, const string& replicaGroupId, bool upToDate)
 {
     lock_guard lock(_mutex); // Make sure this isn't call during an update.
@@ -1621,7 +1621,7 @@ Database::removeObject(const Ice::Identity& id, long long dbSerial)
 }
 
 void
-Database::updateObject(const shared_ptr<Ice::ObjectPrx>& proxy)
+Database::updateObject(const Ice::ObjectPrx& proxy)
 {
     assert(_master);
 
@@ -1724,7 +1724,7 @@ Database::removeRegistryWellKnownObjects(const ObjectInfoSeq& objects)
     return _objectObserverTopic->wellKnownObjectsRemoved(objects);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 Database::getObjectProxy(const Ice::Identity& id)
 {
     try
@@ -1747,7 +1747,7 @@ Database::getObjectProxy(const Ice::Identity& id)
     return info.proxy;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
@@ -1758,7 +1758,7 @@ Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>&
     return objs[IceUtilInternal::random(static_cast<unsigned int>(objs.size()))];
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample,
                                            const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
@@ -1769,7 +1769,7 @@ Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample
     }
 
     IceUtilInternal::shuffle(objs.begin(), objs.end());
-    vector<pair<shared_ptr<Ice::ObjectPrx>, float>> objectsWithLoad;
+    vector<pair<Ice::ObjectPrx, float>> objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for(const auto& obj : objs)
     {

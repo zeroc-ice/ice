@@ -148,10 +148,10 @@ public:
      * ProxyParseException, EndpointParseException, or IdentityParseException. Refer to the Ice manual for a detailed
      * description of the syntax supported by stringified proxies.
      * @param str The stringified proxy to convert into a proxy.
-     * @return The proxy, or nil if <code>str</code> is an empty string.
+     * @return The proxy, or nullopt if <code>str</code> is an empty string.
      * @see #proxyToString
      */
-    virtual ::std::shared_ptr<::Ice::ObjectPrx> stringToProxy(const ::std::string& str) const = 0;
+    virtual std::optional<ObjectPrx> stringToProxy(const ::std::string& str) const = 0;
 
     /**
      * Convert a proxy into a string.
@@ -160,7 +160,7 @@ public:
      * <code>obj</code> is nil.
      * @see #stringToProxy
      */
-    virtual ::std::string proxyToString(const ::std::shared_ptr<ObjectPrx>& obj) const = 0;
+    virtual ::std::string proxyToString(const ObjectPrx& obj) const = 0;
 
     /**
      * Convert a set of proxy properties into a proxy. The "base" name supplied in the <code>property</code> argument
@@ -170,7 +170,7 @@ public:
      * @param property The base property name.
      * @return The proxy.
      */
-    virtual ::std::shared_ptr<::Ice::ObjectPrx> propertyToProxy(const ::std::string& property) const = 0;
+    virtual std::optional<ObjectPrx> propertyToProxy(const ::std::string& property) const = 0;
 
     /**
      * Convert a proxy to a set of proxy properties.
@@ -178,7 +178,7 @@ public:
      * @param property The base property name.
      * @return The property set.
      */
-    virtual ::Ice::PropertyDict proxyToProperty(const ::std::shared_ptr<ObjectPrx>& proxy, const ::std::string& property) const = 0;
+    virtual ::Ice::PropertyDict proxyToProperty(const ObjectPrx& proxy, const ::std::string& property) const = 0;
 
     /**
      * Convert an identity into a string.
@@ -226,7 +226,7 @@ public:
      * @see ObjectAdapter
      * @see Properties
      */
-    virtual ::std::shared_ptr<::Ice::ObjectAdapter> createObjectAdapterWithRouter(const ::std::string& name, const ::std::shared_ptr<RouterPrx>& rtr) = 0;
+    virtual ::std::shared_ptr<::Ice::ObjectAdapter> createObjectAdapterWithRouter(const ::std::string& name, const RouterPrx& rtr) = 0;
 
     /**
      * Get the implicit context associated with this communicator.
@@ -261,7 +261,7 @@ public:
      * @see #setDefaultRouter
      * @see Router
      */
-    virtual ::std::shared_ptr<::Ice::RouterPrx> getDefaultRouter() const = 0;
+    virtual std::optional<RouterPrx> getDefaultRouter() const = 0;
 
     /**
      * Set a default router for this communicator. All newly created proxies will use this default router. To disable
@@ -273,7 +273,7 @@ public:
      * @see #createObjectAdapterWithRouter
      * @see Router
      */
-    virtual void setDefaultRouter(const ::std::shared_ptr<RouterPrx>& rtr) = 0;
+    virtual void setDefaultRouter(const std::optional<RouterPrx>& rtr) = 0;
 
     /**
      * Get the default locator for this communicator.
@@ -281,7 +281,7 @@ public:
      * @see #setDefaultLocator
      * @see Locator
      */
-    virtual ::std::shared_ptr<::Ice::LocatorPrx> getDefaultLocator() const = 0;
+    virtual std::optional<Ice::LocatorPrx> getDefaultLocator() const = 0;
 
     /**
      * Set a default Ice locator for this communicator. All newly created proxy and object adapters will use this
@@ -294,7 +294,7 @@ public:
      * @see Locator
      * @see ObjectAdapter#setLocator
      */
-    virtual void setDefaultLocator(const ::std::shared_ptr<LocatorPrx>& loc) = 0;
+    virtual void setDefaultLocator(const std::optional<LocatorPrx>& loc) = 0;
 
     /**
      * Get the plug-in manager for this communicator.
@@ -374,7 +374,7 @@ public:
      * @return A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
      * @see #getAdmin
      */
-    virtual ::std::shared_ptr<::Ice::ObjectPrx> createAdmin(const ::std::shared_ptr<ObjectAdapter>& adminAdapter, const Identity& adminId) = 0;
+    virtual ObjectPrx createAdmin(const ::std::shared_ptr<ObjectAdapter>& adminAdapter, const Identity& adminId) = 0;
 
     /**
      * Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
@@ -382,10 +382,10 @@ public:
      * the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin when
      * <code>Ice.Admin.InstanceName</code> is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called
      * by the communicator initialization, after initialization of all plugins.
-     * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no Admin object is configured.
+     * @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
      * @see #createAdmin
      */
-    virtual ::std::shared_ptr<::Ice::ObjectPrx> getAdmin() const = 0;
+    virtual std::optional<ObjectPrx> getAdmin() const = 0;
 
     /**
      * Add a new facet to the Admin object. Adding a servant with a facet that is already registered throws

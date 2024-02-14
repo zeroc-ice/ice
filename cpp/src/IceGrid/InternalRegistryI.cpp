@@ -42,8 +42,8 @@ InternalRegistryI::InternalRegistryI(const shared_ptr<RegistryI>& registry,
     _requireReplicaCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireReplicaCertCN", 0);
 }
 
-shared_ptr<NodeSessionPrx>
-InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, shared_ptr<NodePrx> node, LoadInfo load,
+NodeSessionPrxPtr
+InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, NodePrxPtr node, LoadInfo load,
                                 const Ice::Current& current)
 {
     const auto traceLevels = _database->getTraceLevels();
@@ -108,9 +108,9 @@ InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, shared_ptr<No
     }
 }
 
-shared_ptr<ReplicaSessionPrx>
+ReplicaSessionPrxPtr
 InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
-                                   shared_ptr<InternalRegistryPrx> prx,
+                                   InternalRegistryPrxPtr prx,
                                    const Ice::Current& current)
 {
     const auto traceLevels = _database->getTraceLevels();
@@ -176,7 +176,7 @@ InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
 }
 
 void
-InternalRegistryI::registerWithReplica(shared_ptr<InternalRegistryPrx> replica, const Ice::Current&)
+InternalRegistryI::registerWithReplica(InternalRegistryPrxPtr replica, const Ice::Current&)
 {
     _session.create(std::move(replica));
 }

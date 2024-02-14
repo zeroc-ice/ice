@@ -29,16 +29,16 @@ public:
     void finished(const Ice::Current&, const std::shared_ptr<Ice::Object>&, const std::shared_ptr<void>&);
     void deactivate(const std::string&);
 
-    std::shared_ptr<Ice::ObjectPrx> addSession(const std::shared_ptr<Ice::Object>&,
+    Ice::ObjectPrx addSession(const std::shared_ptr<Ice::Object>&,
                                                const std::shared_ptr<Ice::Connection>&,
                                                const std::string&);
     void setSessionControl(const std::shared_ptr<Ice::Object>&,
-                           const std::shared_ptr<Glacier2::SessionControlPrx>&, const Ice::IdentitySeq&);
-    std::shared_ptr<Glacier2::IdentitySetPrx> getGlacier2IdentitySet(const std::shared_ptr<Ice::Object>&);
-    std::shared_ptr<Glacier2::StringSetPrx> getGlacier2AdapterIdSet(const std::shared_ptr<Ice::Object>&);
+                           const Glacier2::SessionControlPrxPtr&, const Ice::IdentitySeq&);
+    Glacier2::IdentitySetPrxPtr getGlacier2IdentitySet(const std::shared_ptr<Ice::Object>&);
+    Glacier2::StringSetPrxPtr getGlacier2AdapterIdSet(const std::shared_ptr<Ice::Object>&);
     void removeSession(const std::shared_ptr<Ice::Object>&);
 
-    std::shared_ptr<Ice::ObjectPrx> add(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
+    Ice::ObjectPrx add(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
     void remove(const Ice::Identity&);
 
     void connectionHeartbeat(const std::shared_ptr<Ice::Connection>&);
@@ -46,7 +46,7 @@ public:
 
 private:
 
-    std::shared_ptr<Ice::ObjectPrx> addImpl(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
+    Ice::ObjectPrx addImpl(const std::shared_ptr<Ice::Object>&, const std::shared_ptr<Ice::Object>&);
 
     struct ServantInfo
     {
@@ -70,9 +70,9 @@ private:
 
         const std::shared_ptr<Ice::Connection> connection;
         const std::string category;
-        std::shared_ptr<Glacier2::SessionControlPrx> sessionControl;
-        std::shared_ptr<Glacier2::IdentitySetPrx> identitySet;
-        std::shared_ptr<Glacier2::StringSetPrx> adapterIdSet;
+        Glacier2::SessionControlPrxPtr sessionControl;
+        Glacier2::IdentitySetPrxPtr identitySet;
+        Glacier2::StringSetPrxPtr adapterIdSet;
         std::set<Ice::Identity> identities;
     };
 

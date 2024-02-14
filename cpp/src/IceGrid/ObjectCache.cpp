@@ -176,7 +176,7 @@ ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application, cons
 {
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 ObjectEntry::getProxy() const
 {
     return _info.proxy;

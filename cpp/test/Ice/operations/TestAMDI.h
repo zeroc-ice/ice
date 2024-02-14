@@ -64,10 +64,10 @@ public:
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void opMyClassAsync(std::shared_ptr<Test::MyClassPrx>,
-                                std::function<void(const std::shared_ptr<Test::MyClassPrx>&,
-                                                    const std::shared_ptr<Test::MyClassPrx>&,
-                                                    const std::shared_ptr<Test::MyClassPrx>&)>,
+    virtual void opMyClassAsync(Test::MyClassPrxPtr,
+                                std::function<void(const Test::MyClassPrxPtr&,
+                                                    const Test::MyClassPrxPtr&,
+                                                    const Test::MyClassPrxPtr&)>,
                                 ::std::function<void(std::exception_ptr)>,
                                 const Ice::Current&);
 

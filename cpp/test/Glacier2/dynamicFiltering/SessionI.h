@@ -22,8 +22,8 @@ class SessionManagerI final : public Glacier2::SessionManager
 public:
     SessionManagerI(const std::shared_ptr<TestControllerI>&);
 
-    std::shared_ptr<Glacier2::SessionPrx>
-    create(std::string, std::shared_ptr<Glacier2::SessionControlPrx>, const Ice::Current&) override;
+    Glacier2::SessionPrxPtr
+    create(std::string, Glacier2::SessionControlPrxPtr, const Ice::Current&) override;
 
 private:
     std::shared_ptr<TestControllerI> _controller;
@@ -33,13 +33,13 @@ class SessionI final : public Test::TestSession
 {
 public:
 
-    SessionI(std::shared_ptr<Glacier2::SessionControlPrx>, std::shared_ptr<TestControllerI>);
+    SessionI(Glacier2::SessionControlPrxPtr, std::shared_ptr<TestControllerI>);
     void shutdown(const Ice::Current&) override;
     void destroy(const Ice::Current&) override;
 
 private:
 
-    std::shared_ptr<Glacier2::SessionControlPrx> _sessionControl;
+    Glacier2::SessionControlPrxPtr _sessionControl;
     std::shared_ptr<TestControllerI> _controller;
 };
 

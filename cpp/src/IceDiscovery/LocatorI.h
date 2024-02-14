@@ -21,7 +21,7 @@ public:
 
     virtual void
     setAdapterDirectProxyAsync(std::string,
-                               std::shared_ptr<Ice::ObjectPrx>,
+                               Ice::ObjectPrx,
                                std::function<void()>,
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
@@ -29,24 +29,24 @@ public:
     virtual void
     setReplicatedAdapterDirectProxyAsync(std::string,
                                          std::string,
-                                         std::shared_ptr<Ice::ObjectPrx>,
+                                         Ice::ObjectPrx,
                                          std::function<void()>,
                                          std::function<void(std::exception_ptr)>,
                                          const Ice::Current&);
 
     virtual void
     setServerProcessProxyAsync(std::string,
-                               std::shared_ptr<Ice::ProcessPrx>,
+                               Ice::ProcessPrxPtr,
                                std::function<void()>,
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
-    Ice::ObjectPrxPtr findObject(const Ice::Identity&) const;
-    Ice::ObjectPrxPtr findAdapter(const std::string&, bool&) const;
+    Ice::ObjectPrx findObject(const Ice::Identity&) const;
+    Ice::ObjectPrx findAdapter(const std::string&, bool&) const;
 
 private:
 
-    const Ice::ObjectPrxPtr _wellKnownProxy;
-    std::map<std::string, Ice::ObjectPrxPtr> _adapters;
+    const Ice::ObjectPrx _wellKnownProxy;
+    std::map<std::string, Ice::ObjectPrx> _adapters;
     std::map<std::string, std::set<std::string> > _replicaGroups;
     mutable std::mutex _mutex;
 };
@@ -63,13 +63,13 @@ public:
 
     virtual void
     findObjectByIdAsync(Ice::Identity,
-                        std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>,
+                        std::function<void(const Ice::ObjectPrx&)>,
                         std::function<void(std::exception_ptr)>,
                         const Ice::Current&) const;
 
     virtual void
     findAdapterByIdAsync(std::string,
-                         std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>,
+                         std::function<void(const Ice::ObjectPrx&)>,
                          std::function<void(std::exception_ptr)>,
                          const Ice::Current&) const;
 

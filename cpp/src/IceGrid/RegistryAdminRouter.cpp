@@ -68,7 +68,7 @@ RegistryServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byt
                                        function<void(exception_ptr)> exception,
                                        const Ice::Current& current)
 {
-    shared_ptr<ObjectPrx> target;
+    ObjectPrx target;
 
     try
     {
@@ -117,7 +117,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*
                                        function<void(exception_ptr)> exception,
                                        const Ice::Current& current)
 {
-    shared_ptr<ObjectPrx> target;
+    ObjectPrx target;
 
     if(!_collocNodeName.empty() && current.id.name == _collocNodeName)
     {
@@ -168,7 +168,7 @@ RegistryReplicaAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::By
                                        function<void(exception_ptr)> exception,
                                        const Ice::Current& current)
 {
-    shared_ptr<ObjectPrx> target;
+    ObjectPrx target;
 
     if(current.id.name == _name)
     {

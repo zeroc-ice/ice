@@ -118,7 +118,7 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     const string endp = helper->getTestEndpoint();
     string sref = "background:" + endp;
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
+    Ice::ObjectPrx obj = communicator->stringToProxy(sref);
     test(obj);
 
     BackgroundPrxPtr background = Ice::uncheckedCast<BackgroundPrx>(obj);

@@ -15,32 +15,32 @@ public:
 
     ServerLocatorRegistry();
 
-    virtual void setAdapterDirectProxyAsync(std::string, std::shared_ptr<::Ice::ObjectPrx>,
+    virtual void setAdapterDirectProxyAsync(std::string, ::Ice::ObjectPrxPtr,
                                             std::function<void()>,
                                             std::function<void(std::exception_ptr)>,
                                             const ::Ice::Current&);
-    virtual void setReplicatedAdapterDirectProxyAsync(std::string, std::string, std::shared_ptr<Ice::ObjectPrx>,
+    virtual void setReplicatedAdapterDirectProxyAsync(std::string, std::string, Ice::ObjectPrx,
                                                       std::function<void()>,
                                                       std::function<void(std::exception_ptr)>,
                                                       const ::Ice::Current&);
 
-    virtual void setServerProcessProxyAsync(std::string, std::shared_ptr<Ice::ProcessPrx>,
+    virtual void setServerProcessProxyAsync(std::string, Ice::ProcessPrxPtr,
                                             std::function<void()>,
                                             std::function<void(std::exception_ptr)>,
                                             const ::Ice::Current&);
-    void addObject(std::shared_ptr<::Ice::ObjectPrx>, const ::Ice::Current&);
+    void addObject(::Ice::ObjectPrxPtr, const ::Ice::Current&);
 
     //
     // Internal method
     //
-    ::Ice::ObjectPrxPtr getAdapter(const ::std::string&) const;
-    ::Ice::ObjectPrxPtr getObject(const ::Ice::Identity&) const;
-    void addObject(const ::Ice::ObjectPrxPtr&);
+    ::Ice::ObjectPrx getAdapter(const ::std::string&) const;
+    ::Ice::ObjectPrx getObject(const ::Ice::Identity&) const;
+    void addObject(const ::Ice::ObjectPrx&);
 
 private:
 
-    ::std::map< ::std::string, ::Ice::ObjectPrxPtr> _adapters;
-    ::std::map< ::Ice::Identity, ::Ice::ObjectPrxPtr> _objects;
+    ::std::map< ::std::string, ::Ice::ObjectPrx> _adapters;
+    ::std::map< ::Ice::Identity, ::Ice::ObjectPrx> _objects;
 };
 using ServerLocatorRegistryPtr = std::shared_ptr<ServerLocatorRegistry>;
 
@@ -51,12 +51,12 @@ public:
     ServerLocator(const ::ServerLocatorRegistryPtr&, const ::Ice::LocatorRegistryPrxPtr&);
 
     virtual void findObjectByIdAsync(::Ice::Identity,
-                                      std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>,
+                                      std::function<void(const Ice::ObjectPrx&)>,
                                       std::function<void(std::exception_ptr)>,
                                       const ::Ice::Current&) const;
 
     virtual void findAdapterByIdAsync(::std::string,
-                                       std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>,
+                                       std::function<void(const Ice::ObjectPrx&)>,
                                        std::function<void(std::exception_ptr)>,
                                        const ::Ice::Current&) const;
 

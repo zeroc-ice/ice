@@ -19,6 +19,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
 #include <Ice/StringConverter.h>
+#include "ReferenceFactory.h"
 #include <iterator>
 
 #ifndef ICE_UNALIGNED
@@ -1165,15 +1166,17 @@ Ice::InputStream::read(vector<wstring>& v)
     }
 }
 
-shared_ptr<ObjectPrx>
-Ice::InputStream::readProxy()
+ReferencePtr
+Ice::InputStream::readReference()
 {
     if(!_instance)
     {
         throw MarshalException(__FILE__, __LINE__, "cannot unmarshal a proxy without a communicator");
     }
 
-    return _instance->proxyFactory()->streamToProxy(this);
+    Identity ident;
+    read(ident);
+    return _instance->referenceFactory()->create(ident, this);
 }
 
 Int

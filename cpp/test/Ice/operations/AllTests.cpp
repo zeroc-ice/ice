@@ -14,7 +14,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     string ref = "test:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
     Test::MyClassPrxPtr cl = Ice::checkedCast<Test::MyClassPrx>(base);
     Test::MyDerivedClassPrxPtr derived = Ice::checkedCast<Test::MyDerivedClassPrx>(cl);
 

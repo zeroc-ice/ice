@@ -18,10 +18,7 @@ class LocatorRegistry;
 class LocatorRegistryPrx;
 
 using LocatorPtr = ::std::shared_ptr<Locator>;
-using LocatorPrxPtr = ::std::shared_ptr<LocatorPrx>;
-
 using LocatorRegistryPtr = ::std::shared_ptr<LocatorRegistry>;
-using LocatorRegistryPrxPtr = ::std::shared_ptr<LocatorRegistryPrx>;
 
 }
 

@@ -26,6 +26,7 @@
     // We don't need to see the following headers when building the generated code.
 
 #   include <Ice/Initialize.h>
+#   include <Ice/ProxyFunctions.h>
 #   include <Ice/Properties.h>
 #   include <Ice/Logger.h>
 #   include <Ice/LoggerUtil.h>

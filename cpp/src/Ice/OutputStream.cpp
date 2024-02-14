@@ -760,7 +760,7 @@ Ice::OutputStream::write(const wstring* begin, const wstring* end)
 }
 
 void
-Ice::OutputStream::writeProxy(const shared_ptr<ObjectPrx>& v)
+Ice::OutputStream::writeProxy(const std::optional<ObjectPrx>& v)
 {
     if(v)
     {

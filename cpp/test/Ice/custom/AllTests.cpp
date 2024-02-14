@@ -46,7 +46,7 @@ allTests(Test::TestHelper* helper)
     const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
     string ref = communicator->getProperties()->getPropertyWithDefault("Custom.Proxy", "test:" + endp);
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
+    Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
 
@@ -1822,7 +1822,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opDPrxSeqAsync(in,
-                          [&](deque<shared_ptr<Test::DPrx>> ret, deque<shared_ptr<Test::DPrx>> out)
+                          [&](deque<Test::DPrxPtr> ret, deque<Test::DPrxPtr> out)
                           {
                               test(ret.size() == in.size());
                               auto op = out.begin();
@@ -1853,7 +1853,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opDPrxListAsync(in,
-                           [&](list<shared_ptr<Test::DPrx>> ret, list<shared_ptr<Test::DPrx>> out)
+                           [&](list<Test::DPrxPtr> ret, list<Test::DPrxPtr> out)
                            {
                                test(ret.size() == in.size());
                               auto op = out.begin();

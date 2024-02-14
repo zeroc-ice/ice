@@ -103,7 +103,7 @@ public:
     }
 
     virtual Ice::Instrumentation::InvocationObserverPtr
-    getInvocationObserver(const Ice::ObjectPrxPtr&, const ::std::string&, const Ice::Context&)
+    getInvocationObserver(const Ice::ObjectPrx&, const ::std::string&, const Ice::Context&)
     {
         return invocationObserver;
     }

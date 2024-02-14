@@ -7,6 +7,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Connection.h> // For ice_connection()->timeout().
 #include <Ice/Reference.h>
+#include "Ice/ProxyFunctions.h"
 
 using namespace std;
 using namespace Ice;
@@ -22,7 +23,7 @@ IceInternal::RouterManager::destroy()
 {
     lock_guard lock(_mutex);
     for_each(_table.begin(), _table.end(),
-             [](const pair<RouterPrxPtr, RouterInfoPtr> it)
+             [](const pair<RouterPrx, RouterInfoPtr> it)
              {
                  it.second->destroy();
              });
@@ -31,14 +32,9 @@ IceInternal::RouterManager::destroy()
 }
 
 RouterInfoPtr
-IceInternal::RouterManager::get(const RouterPrxPtr& rtr)
+IceInternal::RouterManager::get(const RouterPrx& rtr)
 {
-    if(!rtr)
-    {
-        return nullptr;
-    }
-
-    RouterPrxPtr router = rtr->ice_router(0); // The router cannot be routed.
+    RouterPrx router = ice_router(rtr, nullopt); // The router cannot be routed.
 
     lock_guard lock(_mutex);
 
@@ -46,7 +42,7 @@ IceInternal::RouterManager::get(const RouterPrxPtr& rtr)
 
     if(_tableHint != _table.end())
     {
-        if(targetEqualTo(_tableHint->first, router))
+        if(_tableHint->first == router)
         {
             p = _tableHint;
         }
@@ -59,7 +55,7 @@ IceInternal::RouterManager::get(const RouterPrxPtr& rtr)
 
     if(p == _table.end())
     {
-        _tableHint = _table.insert(_tableHint, pair<const RouterPrxPtr, RouterInfoPtr>(router, new RouterInfo(router)));
+        _tableHint = _table.insert(_tableHint, pair<const RouterPrx, RouterInfoPtr>(router, new RouterInfo(router)));
     }
     else
     {
@@ -70,39 +66,35 @@ IceInternal::RouterManager::get(const RouterPrxPtr& rtr)
 }
 
 RouterInfoPtr
-IceInternal::RouterManager::erase(const RouterPrxPtr& rtr)
+IceInternal::RouterManager::erase(const RouterPrx& rtr)
 {
     RouterInfoPtr info;
-    if(rtr)
+    RouterPrx router = ice_router(rtr, nullopt); // The router cannot be routed.
+    lock_guard lock(_mutex);
+
+    RouterInfoTable::iterator p = _table.end();
+    if (_tableHint != _table.end() && _tableHint->first == router)
     {
-        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(rtr->ice_router(nullptr)); // The router cannot be routed.
-        lock_guard lock(_mutex);
+        p = _tableHint;
+        _tableHint = _table.end();
+    }
 
-        RouterInfoTable::iterator p = _table.end();
-        if(_tableHint != _table.end() && targetEqualTo(_tableHint->first, router))
-        {
-            p = _tableHint;
-            _tableHint = _table.end();
-        }
+    if (p == _table.end())
+    {
+        p = _table.find(router);
+    }
 
-        if(p == _table.end())
-        {
-            p = _table.find(router);
-        }
-
-        if(p != _table.end())
-        {
-            info = p->second;
-            _table.erase(p);
-        }
+    if (p != _table.end())
+    {
+        info = p->second;
+        _table.erase(p);
     }
 
     return info;
 }
 
-IceInternal::RouterInfo::RouterInfo(const RouterPrxPtr& router) : _router(router), _hasRoutingTable(false)
+IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) : _router(router), _hasRoutingTable(false)
 {
-    assert(_router);
 }
 
 void
@@ -118,13 +110,13 @@ IceInternal::RouterInfo::destroy()
 bool
 IceInternal::RouterInfo::operator==(const RouterInfo& rhs) const
 {
-    return Ice::targetEqualTo(_router, rhs._router);
+    return _router == rhs._router;
 }
 
 bool
 IceInternal::RouterInfo::operator<(const RouterInfo& rhs) const
 {
-    return Ice::targetLess(_router, rhs._router);
+    return _router < rhs._router;
 }
 
 vector<EndpointIPtr>
@@ -139,7 +131,7 @@ IceInternal::RouterInfo::getClientEndpoints()
     }
 
     optional<bool> hasRoutingTable;
-    Ice::ObjectPrxPtr proxy = _router->getClientProxy(hasRoutingTable);
+    optional<ObjectPrx> proxy = _router->getClientProxy(hasRoutingTable);
     return setClientEndpoints(proxy, hasRoutingTable ? hasRoutingTable.value() : true);
 }
 
@@ -162,7 +154,7 @@ IceInternal::RouterInfo::getClientEndpointsAsync(
 
     RouterInfoPtr self = shared_from_this();
     _router->getClientProxyAsync(
-        [self, response](const Ice::ObjectPrxPtr& proxy, optional<bool> hasRoutingTable)
+        [self, response](const optional<Ice::ObjectPrx>& proxy, optional<bool> hasRoutingTable)
         {
             response(self->setClientEndpoints(proxy, hasRoutingTable.value_or(true)));
         },
@@ -172,12 +164,12 @@ IceInternal::RouterInfo::getClientEndpointsAsync(
 vector<EndpointIPtr>
 IceInternal::RouterInfo::getServerEndpoints()
 {
-    Ice::ObjectPrxPtr serverProxy = _router->getServerProxy();
+    optional<ObjectPrx> serverProxy = _router->getServerProxy();
     if(!serverProxy)
     {
         throw NoEndpointException(__FILE__, __LINE__);
     }
-    serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
+    serverProxy = ice_router(serverProxy.value(), nullopt); // The server proxy cannot be routed.
     return serverProxy->_getReference()->getEndpoints();
 }
 
@@ -206,7 +198,7 @@ IceInternal::RouterInfo::addProxyAsync(
     }
 
     Ice::ObjectProxySeq proxies;
-    proxies.push_back(make_shared<ObjectPrx>(reference));
+    proxies.push_back(ObjectPrx(reference));
 
     RouterInfoPtr self = shared_from_this();
     _router->addProxiesAsync(
@@ -242,7 +234,7 @@ IceInternal::RouterInfo::clearCache(const ReferencePtr& ref)
 }
 
 vector<EndpointIPtr>
-IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy, bool hasRoutingTable)
+IceInternal::RouterInfo::setClientEndpoints(const optional<ObjectPrx>& proxy, bool hasRoutingTable)
 {
     lock_guard lock(_mutex);
     if(_clientEndpoints.empty())
@@ -257,7 +249,7 @@ IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrxPtr& proxy, bool
         }
         else
         {
-            Ice::ObjectPrxPtr clientProxy = proxy->ice_router(0); // The client proxy cannot be routed.
+            ObjectPrx clientProxy = ice_router(proxy.value(), nullopt); // The client proxy cannot be routed.
 
             //
             // In order to avoid creating a new connection to the router,

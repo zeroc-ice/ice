@@ -1269,7 +1269,7 @@ Ice::ConnectionI::getEndpoint() const noexcept
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
-ObjectPrxPtr
+optional<ObjectPrx>
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
     // Create a reference and return a reverse proxy for this reference.

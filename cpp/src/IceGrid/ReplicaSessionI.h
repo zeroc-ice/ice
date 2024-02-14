@@ -22,33 +22,33 @@ public:
     static std::shared_ptr<ReplicaSessionI> create(const std::shared_ptr<Database>&,
                                                    const std::shared_ptr<WellKnownObjectsManager>&,
                                                    const std::shared_ptr<InternalReplicaInfo>&,
-                                                   const std::shared_ptr<InternalRegistryPrx>&,
+                                                   const InternalRegistryPrxPtr&,
                                                    std::chrono::seconds);
 
     void keepAlive(const Ice::Current&) override;
     int getTimeout(const Ice::Current&) const override;
-    void setDatabaseObserver(std::shared_ptr<DatabaseObserverPrx>, std::optional<StringLongDict>,
+    void setDatabaseObserver(DatabaseObserverPrxPtr, std::optional<StringLongDict>,
                              const Ice::Current&) override;
     void setEndpoints(StringObjectProxyDict, const Ice::Current&) override;
     void registerWellKnownObjects(ObjectInfoSeq, const Ice::Current&) override;
-    void setAdapterDirectProxy(std::string, std::string, std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&) override;
+    void setAdapterDirectProxy(std::string, std::string, Ice::ObjectPrx, const Ice::Current&) override;
     void receivedUpdate(TopicName, int, std::string, const Ice::Current&) override;
     void destroy(const Ice::Current&) override;
 
     std::chrono::steady_clock::time_point timestamp() const;
     void shutdown();
 
-    const std::shared_ptr<InternalRegistryPrx>& getInternalRegistry() const;
+    const InternalRegistryPrxPtr& getInternalRegistry() const;
     const std::shared_ptr<InternalReplicaInfo>& getInfo() const;
-    std::shared_ptr<ReplicaSessionPrx> getProxy() const;
+    ReplicaSessionPrxPtr getProxy() const;
 
-    std::shared_ptr<Ice::ObjectPrx> getEndpoint(const std::string&);
+    Ice::ObjectPrx getEndpoint(const std::string&);
     bool isDestroyed() const;
 
 private:
 
     ReplicaSessionI(const std::shared_ptr<Database>&, const std::shared_ptr<WellKnownObjectsManager>&,
-                    const std::shared_ptr<InternalReplicaInfo>&, const std::shared_ptr<InternalRegistryPrx>&,
+                    const std::shared_ptr<InternalReplicaInfo>&, const InternalRegistryPrxPtr&,
                     std::chrono::seconds);
 
     void destroyImpl(bool);
@@ -56,11 +56,11 @@ private:
     const std::shared_ptr<Database> _database;
     const std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
     const std::shared_ptr<TraceLevels> _traceLevels;
-    const std::shared_ptr<InternalRegistryPrx> _internalRegistry;
+    const InternalRegistryPrxPtr _internalRegistry;
     const std::shared_ptr<InternalReplicaInfo> _info;
     const std::chrono::seconds _timeout;
-    std::shared_ptr<ReplicaSessionPrx> _proxy;
-    std::shared_ptr<DatabaseObserverPrx> _observer;
+    ReplicaSessionPrxPtr _proxy;
+    DatabaseObserverPrxPtr _observer;
     ObjectInfoSeq _replicaWellKnownObjects;
     StringObjectProxyDict _replicaEndpoints;
     std::chrono::steady_clock::time_point _timestamp;

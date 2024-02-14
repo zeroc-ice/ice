@@ -484,7 +484,7 @@ ServerEntry::getId() const
     return _id;
 }
 
-shared_ptr<ServerPrx>
+ServerPrxPtr
 ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
 {
     //
@@ -497,7 +497,7 @@ ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
     return getProxy(actTimeout, deactTimeout, node, upToDate, timeout);
 }
 
-shared_ptr<ServerPrx>
+ServerPrxPtr
 ServerEntry::getProxy(chrono::seconds& activationTimeout, chrono::seconds& deactivationTimeout, string& node,
                       bool upToDate, chrono::seconds timeout)
 {
@@ -528,7 +528,7 @@ ServerEntry::getProxy(chrono::seconds& activationTimeout, chrono::seconds& deact
     }
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 ServerEntry::getAdminProxy()
 {
     //
@@ -537,7 +537,7 @@ ServerEntry::getAdminProxy()
     return getProxy(true)->ice_identity({ _id, _cache.getInstanceName() + "-NodeServerAdminRouter" });
 }
 
-shared_ptr<AdapterPrx>
+AdapterPrxPtr
 ServerEntry::getAdapter(const string& id, bool upToDate)
 {
     //
@@ -549,7 +549,7 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
     return getAdapter(activationTimeout, deactivationTimeout, id, upToDate);
 }
 
-shared_ptr<AdapterPrx>
+AdapterPrxPtr
 ServerEntry::getAdapter(chrono::seconds& activationTimeout, chrono::seconds& deactivationTimeout, const string& id,
                         bool upToDate)
 {
@@ -792,7 +792,7 @@ ServerEntry::synchronized(exception_ptr ex)
 }
 
 void
-ServerEntry::loadCallback(const shared_ptr<ServerPrx>& proxy, const AdapterPrxDict& adpts,
+ServerEntry::loadCallback(const ServerPrxPtr& proxy, const AdapterPrxDict& adpts,
                           chrono::seconds activationTimeout, chrono::seconds deactivationTimeout)
 {
     ServerInfo load;
@@ -1019,7 +1019,7 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
         throw NodeUnreachableException(info.node, "node is not active");
     }
 
-    shared_ptr<ServerPrx> server;
+    ServerPrxPtr server;
     try
     {
         server = getProxy(true, 5s);

@@ -85,7 +85,7 @@ sequence<CList> CListSeq;
 
 interface D {}
 sequence<D*> DPrxSeq;
-["cpp:type:std::list< ::Test::DPrx>", "cpp11:type:std::list<std::shared_ptr<DPrx>>"] sequence<D*> DPrxList;
+["cpp:type:std::list< ::Test::DPrx>", "cpp11:type:std::list<DPrxPtr>"] sequence<D*> DPrxList;
 
 ["cpp:type:std::list< ::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
 sequence<DPrxList> DPrxListSeq;
@@ -210,9 +210,9 @@ interface TestIntf
 
     EList opEList(EList inSeq, out EList outSeq);
 
-    ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq
-    opDPrxSeq(["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq inSeq,
-              out ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq outSeq);
+    ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq
+    opDPrxSeq(["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq inSeq,
+              out ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq outSeq);
 
     DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 

@@ -107,7 +107,7 @@ allTests(Test::TestHelper* helper)
         }
 
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("subscriber" ,"tcp");
-        Ice::ObjectPrxPtr subscriber = adapter->addWithUUID(std::make_shared<ClockI>());
+        Ice::ObjectPrx subscriber = adapter->addWithUUID(std::make_shared<ClockI>());
         adapter->activate();
         assert(!topic);
         cout << "ok" << endl;
@@ -116,7 +116,7 @@ allTests(Test::TestHelper* helper)
     {
         cout << "Testing IceGrid stub... " << flush;
 
-        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + helper->getTestEndpoint());
+        Ice::ObjectPrx base = communicator->stringToProxy("test:" + helper->getTestEndpoint());
         auto registry = Ice::uncheckedCast<IceGrid::RegistryPrx>(base);
         IceGrid::AdminSessionPrxPtr session;
         IceGrid::AdminPrxPtr admin;

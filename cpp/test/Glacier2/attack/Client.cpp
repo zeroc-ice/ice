@@ -47,7 +47,7 @@ AttackClient::run(int argc, char** argv)
     auto backend = checkedCast<BackendPrx>(backendBase);
     backend->ice_ping();
 
-    set<shared_ptr<BackendPrx>, TargetCompare<shared_ptr<BackendPrx>, std::less>> backends;
+    set<BackendPrxPtr, TargetCompare<BackendPrxPtr, std::less>> backends;
 
     string msg;
     for(int i = 1; i <= 10000; ++i)

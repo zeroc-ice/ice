@@ -39,11 +39,11 @@ public:
     bool startImpl();
     void stop();
 
-    std::shared_ptr<SessionPrx> createSession(std::string, std::string, const Ice::Current&) override;
-    std::shared_ptr<AdminSessionPrx> createAdminSession(std::string, std::string, const Ice::Current&) override;
+    SessionPrxPtr createSession(std::string, std::string, const Ice::Current&) override;
+    AdminSessionPrxPtr createAdminSession(std::string, std::string, const Ice::Current&) override;
 
-    std::shared_ptr<SessionPrx> createSessionFromSecureConnection(const Ice::Current&) override;
-    std::shared_ptr<AdminSessionPrx> createAdminSessionFromSecureConnection(const Ice::Current&) override;
+    SessionPrxPtr createSessionFromSecureConnection(const Ice::Current&) override;
+    AdminSessionPrxPtr createAdminSessionFromSecureConnection(const Ice::Current&) override;
 
     int getSessionTimeout(const Ice::Current&) const override;
     int getACMTimeout(const Ice::Current&) const override;
@@ -58,34 +58,34 @@ public:
     std::string getNodeAdminCategory() const { return _instanceName + "-RegistryNodeAdminRouter"; }
     std::string getReplicaAdminCategory() const { return _instanceName + "-RegistryReplicaAdminRouter"; }
 
-    std::shared_ptr<Ice::ObjectPrx> createAdminCallbackProxy(const Ice::Identity&) const;
+    Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
 
     const std::shared_ptr<Ice::ObjectAdapter>& getRegistryAdapter() { return _registryAdapter; }
 
-    std::shared_ptr<Ice::LocatorPrx> getLocator();
+    Ice::LocatorPrxPtr getLocator();
 
 private:
 
     void setupLocatorRegistry();
-    std::shared_ptr<LocatorPrx> setupLocator(const std::shared_ptr<RegistryPrx>&, const std::shared_ptr<QueryPrx>&);
-    std::shared_ptr<QueryPrx> setupQuery();
-    std::shared_ptr<RegistryPrx> setupRegistry();
-    std::shared_ptr<InternalRegistryPrx> setupInternalRegistry();
+    LocatorPrxPtr setupLocator(const RegistryPrxPtr&, const QueryPrxPtr&);
+    QueryPrxPtr setupQuery();
+    RegistryPrxPtr setupRegistry();
+    InternalRegistryPrxPtr setupInternalRegistry();
     bool setupUserAccountMapper();
-    std::shared_ptr<Ice::ObjectAdapter> setupClientSessionFactory(const std::shared_ptr<LocatorPrx>&);
+    std::shared_ptr<Ice::ObjectAdapter> setupClientSessionFactory(const LocatorPrxPtr&);
     std::shared_ptr<Ice::ObjectAdapter> setupAdminSessionFactory(const std::shared_ptr<Ice::Object>&,
                                                                  const std::shared_ptr<Ice::Object>&,
                                                                  const std::shared_ptr<Ice::Object>&,
-                                                                 const std::shared_ptr<LocatorPrx>&);
+                                                                 const LocatorPrxPtr&);
 
-    std::shared_ptr<Glacier2::PermissionsVerifierPrx> getPermissionsVerifier(const std::shared_ptr<LocatorPrx>&,
+    Glacier2::PermissionsVerifierPrxPtr getPermissionsVerifier(const LocatorPrxPtr&,
                                                                              const std::string&);
-    std::shared_ptr<Glacier2::SSLPermissionsVerifierPrx> getSSLPermissionsVerifier(const std::shared_ptr<LocatorPrx>&,
+    Glacier2::SSLPermissionsVerifierPrxPtr getSSLPermissionsVerifier(const LocatorPrxPtr&,
                                                                                    const std::string&);
     Glacier2::SSLInfo getSSLInfo(const std::shared_ptr<Ice::Connection>&, std::string&);
 
-    NodePrxSeq registerReplicas(const std::shared_ptr<InternalRegistryPrx>&, const NodePrxSeq&);
-    void registerNodes(const std::shared_ptr<InternalRegistryPrx>&, const NodePrxSeq&);
+    NodePrxSeq registerReplicas(const InternalRegistryPrxPtr&, const NodePrxSeq&);
+    void registerNodes(const InternalRegistryPrxPtr&, const NodePrxSeq&);
 
     const std::shared_ptr<Ice::Communicator> _communicator;
     const std::shared_ptr<TraceLevels> _traceLevels;
@@ -110,12 +110,12 @@ private:
     mutable PlatformInfo _platform;
 
     std::shared_ptr<ClientSessionFactory> _clientSessionFactory;
-    std::shared_ptr<Glacier2::PermissionsVerifierPrx> _clientVerifier;
-    std::shared_ptr<Glacier2::SSLPermissionsVerifierPrx> _sslClientVerifier;
+    Glacier2::PermissionsVerifierPrxPtr _clientVerifier;
+    Glacier2::SSLPermissionsVerifierPrxPtr _sslClientVerifier;
 
     std::shared_ptr<AdminSessionFactory> _adminSessionFactory;
-    std::shared_ptr<Glacier2::PermissionsVerifierPrx> _adminVerifier;
-    std::shared_ptr<Glacier2::SSLPermissionsVerifierPrx> _sslAdminVerifier;
+    Glacier2::PermissionsVerifierPrxPtr _adminVerifier;
+    Glacier2::SSLPermissionsVerifierPrxPtr _sslAdminVerifier;
 
     std::shared_ptr<IceStormInternal::Service> _iceStorm;
 };

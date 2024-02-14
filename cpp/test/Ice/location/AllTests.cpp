@@ -35,12 +35,12 @@ allTests(Test::TestHelper* helper, const string& ref)
     test(registry);
 
     cout << "testing stringToProxy... " << flush;
-    Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
-    Ice::ObjectPrxPtr base2 = communicator->stringToProxy("test @ TestAdapter");
-    Ice::ObjectPrxPtr base3 = communicator->stringToProxy("test");
-    Ice::ObjectPrxPtr base4 = communicator->stringToProxy("ServerManager");
-    Ice::ObjectPrxPtr base5 = communicator->stringToProxy("test2");
-    Ice::ObjectPrxPtr base6 = communicator->stringToProxy("test @ ReplicatedAdapter");
+    Ice::ObjectPrx base = communicator->stringToProxy("test @ TestAdapter");
+    Ice::ObjectPrx base2 = communicator->stringToProxy("test @ TestAdapter");
+    Ice::ObjectPrx base3 = communicator->stringToProxy("test");
+    Ice::ObjectPrx base4 = communicator->stringToProxy("ServerManager");
+    Ice::ObjectPrx base5 = communicator->stringToProxy("test2");
+    Ice::ObjectPrx base6 = communicator->stringToProxy("test @ ReplicatedAdapter");
     cout << "ok" << endl;
 
     cout << "testing ice_locator and ice_getLocator... " << flush;
@@ -241,7 +241,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "testing locator cache timeout... " << flush;
 
     int count = locator->getRequestCount();
-    Ice::ObjectPrxPtr basencc = communicator->stringToProxy("test@TestAdapter")->ice_connectionCached(false);
+    Ice::ObjectPrx basencc = communicator->stringToProxy("test@TestAdapter")->ice_connectionCached(false);
     basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     test(++count == locator->getRequestCount());
     basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.

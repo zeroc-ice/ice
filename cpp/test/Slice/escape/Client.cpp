@@ -40,7 +40,7 @@ class switchI: public _cpp_and::_cpp_switch
 {
 public:
 
-    virtual void foo(shared_ptr<_cpp_and::charPrx>, Ice::Int&, const ::Ice::Current&)
+    virtual void foo(_cpp_and::charPrxPtr, Ice::Int&, const ::Ice::Current&)
     {
     }
 };
@@ -79,7 +79,7 @@ public:
               const ::std::shared_ptr<::Ice::Value>&,
               const _cpp_and::breakPrxPtr&,
               const _cpp_and::charPrxPtr&,
-              const ::std::shared_ptr<::Ice::ObjectPrx>&,
+              const ::Ice::ObjectPrx&,
               const _cpp_and::doPrxPtr&,
               ::Ice::Int, ::Ice::Int,
               ::Ice::Int, ::Ice::Int,

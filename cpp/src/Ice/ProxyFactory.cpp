@@ -22,7 +22,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-ObjectPrxPtr
+std::optional<ObjectPrx>
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
     ReferencePtr ref = _instance->referenceFactory()->create(str, "");
@@ -30,19 +30,12 @@ IceInternal::ProxyFactory::stringToProxy(const string& str) const
 }
 
 string
-IceInternal::ProxyFactory::proxyToString(const ObjectPrxPtr& proxy) const
+IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 {
-    if(proxy)
-    {
-        return proxy->_getReference()->toString();
-    }
-    else
-    {
-        return "";
-    }
+    return proxy->_getReference()->toString();
 }
 
-ObjectPrxPtr
+std::optional<ObjectPrx>
 IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
 {
     string proxy = _instance->initializationData().properties->getProperty(prefix);
@@ -51,39 +44,15 @@ IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
 }
 
 PropertyDict
-IceInternal::ProxyFactory::proxyToProperty(const ObjectPrxPtr& proxy, const string& prefix) const
+IceInternal::ProxyFactory::proxyToProperty(const ObjectPrx& proxy, const string& prefix) const
 {
-    if(proxy)
-    {
-        return proxy->_getReference()->toProperty(prefix);
-    }
-    else
-    {
-        return PropertyDict();
-    }
+    return proxy->_getReference()->toProperty(prefix);
 }
 
-ObjectPrxPtr
-IceInternal::ProxyFactory::streamToProxy(InputStream* s) const
-{
-    Identity ident;
-    s->read(ident);
-
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, s);
-    return referenceToProxy(ref);
-}
-
-ObjectPrxPtr
+std::optional<ObjectPrx>
 IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 {
-    if(ref)
-    {
-        return make_shared<ObjectPrx>(ref);
-    }
-    else
-    {
-        return nullptr;
-    }
+    return ref ? make_optional<ObjectPrx>(ref) : nullopt;
 }
 
 IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :

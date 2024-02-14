@@ -130,7 +130,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
     Ice::Identity identity;
     identity.name = "invalid";
     {
-        Ice::ObjectPrxPtr batch3 = batch->ice_identity(identity);
+        Ice::ObjectPrx batch3 = batch->ice_identity(identity);
         batch3->ice_ping();
         batch3->ice_flushBatchRequests();
         // Make sure that a bogus batch request doesn't cause troubles to other ones.
@@ -196,7 +196,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
     if(supportsCompress && batch->ice_getConnection() &&
        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Override.Compress") == "")
     {
-        Ice::ObjectPrxPtr prx = batch->ice_getConnection()->createProxy(batch->ice_getIdentity())->ice_batchOneway();
+        Ice::ObjectPrx prx = batch->ice_getConnection()->createProxy(batch->ice_getIdentity())->ice_batchOneway();
 
         Test::MyClassPrxPtr batch1 = Ice::uncheckedCast<Test::MyClassPrx>(prx->ice_compress(false));
         Test::MyClassPrxPtr batch2 = Ice::uncheckedCast<Test::MyClassPrx>(prx->ice_compress(true));
