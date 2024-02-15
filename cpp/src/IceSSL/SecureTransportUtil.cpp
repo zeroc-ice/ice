@@ -823,7 +823,7 @@ IceSSL::SecureTransport::findCertificateChain(const std::string& keychainPath,
 
     //
     // SecIdentityCreateWithCertificate isn't supported on iOS so we lookup the identity
-    // using the certicate label. If the user added the identity with SecItemAdd the
+    // using the certificate label. If the user added the identity with SecItemAdd the
     // identity has the same label as the certificate.
     //
     query.reset(CFDictionaryCreateMutable(0, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
@@ -851,7 +851,7 @@ IceSSL::SecureTransport::findCertificateChain(const std::string& keychainPath,
         UniqueRef<SecCertificateRef> cert2;
         if((err = SecIdentityCopyCertificate(identity.get(), &cert2.get())) == noErr)
         {
-            err = CFEqual(cert2.get(), cert.get()) ? noErr : errSecItemNotFound;
+            err = CFEqual(cert2.get(), cert.get()) ? static_cast<OSStatus>(noErr) : errSecItemNotFound;
         }
     }
 #else

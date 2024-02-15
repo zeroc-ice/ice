@@ -2934,7 +2934,7 @@ class AndroidProcessController(RemoteProcessController):
 
 class iOSSimulatorProcessController(RemoteProcessController):
     device = "iOSSimulatorProcessController"
-    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-13"
+    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, None)
@@ -3764,12 +3764,10 @@ class CppMapping(Mapping):
             if current.config.buildPlatform == "iphonesimulator"
             else "iPhoneOS"
         )
-        return "{0}/com.zeroc.Cpp11-Test-Controller".format(category)
+        return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        appName = (
-            "C++11 Test Controller.app"
-        )
+        appName = "C++ Test Controller.app"
         path = os.path.join(self.component.getTestDir(self), "ios", "controller")
         path = os.path.join(
             path,

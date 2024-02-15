@@ -30,12 +30,16 @@ class InputStream;
 namespace IceObjC
 {
 
+class Instance;
+using InstancePtr = std::shared_ptr<Instance>;
+
 class Instance : public IceInternal::ProtocolInstance
 {
 public:
 
     Instance(const Ice::CommunicatorPtr&, Ice::Short, const std::string&, bool);
-    virtual ~Instance();
+    Instance(const InstancePtr&, const IceInternal::ProtocolInstancePtr&);
+    ~Instance() = default;
 
     const std::string& proxyHost() const
     {
@@ -49,8 +53,6 @@ public:
 
     void setupStreams(CFReadStreamRef, CFWriteStreamRef, bool, const std::string&) const;
 
-    Instance* clone(const IceInternal::ProtocolInstancePtr&);
-
 private:
 
     const Ice::CommunicatorPtr _communicator;
@@ -58,7 +60,6 @@ private:
     std::string _proxyHost;
     int _proxyPort;
 };
-using InstancePtr = std::shared_ptr<Instance>;
 
 class StreamAcceptor;
 using StreamAcceptorPtr = std::shared_ptr<StreamAcceptor>;
@@ -88,8 +89,6 @@ public:
         Ice::EndpointSelectionType,
         std::function<void(std::vector<IceInternal::ConnectorPtr>)> response,
         std::function<void(std::exception_ptr)> exception) const;
-    virtual IceInternal::TransceiverPtr transceiver() const;
-    virtual IceInternal::AcceptorPtr acceptor(const std::string&) const final;
     IceInternal::TransceiverPtr transceiver() const final;
     IceInternal::AcceptorPtr acceptor(const std::string&) const final;
     std::string options() const final;
@@ -132,8 +131,7 @@ class StreamEndpointFactory final : public IceInternal::EndpointFactory
 public:
 
     StreamEndpointFactory(const InstancePtr&);
-
-    ~StreamEndpointFactory() final;
+    ~StreamEndpointFactory() = default;
 
     Ice::Short type() const final;
     std::string protocol() const final;

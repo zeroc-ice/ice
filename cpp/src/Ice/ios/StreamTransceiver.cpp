@@ -79,7 +79,7 @@ fromCFString(CFStringRef ref)
 IceInternal::NativeInfoPtr
 IceObjC::StreamTransceiver::getNativeInfo()
 {
-    return this;
+    return shared_from_this();
 }
 
 void

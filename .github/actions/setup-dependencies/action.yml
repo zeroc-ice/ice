@@ -21,6 +21,14 @@ runs:
       shell: bash
       if: runner.os == 'macOS'
 
+    - name: Install xcodesdk dependencies
+      run: |
+        # We should consider removing the dependency on ice-xcode-builder
+        brew install zeroc-ice/tap/ice-builder-xcode
+        CFLAGS='-Wno-implicit-function-declaration' python3 -m pip install zeroc-ice
+      shell: bash
+      if: (runner.os == 'macOS') && (matrix.name == 'xcodesdk')
+
     - name: Install apt dependencies
       run: |
         sudo apt-get update && sudo apt-get install -y \

@@ -68,11 +68,7 @@ public:
 
     void ready(EventHandler*, SocketOperation, bool);
 
-#ifdef ICE_USE_IOCP
     EventHandler* getNextHandler(SocketOperation&, DWORD&, int&, int);
-#else
-    EventHandler* getNextHandler(SocketOperation&, int);
-#endif
 
     void completed(EventHandler*, SocketOperation);
 
@@ -203,7 +199,7 @@ private:
 };
 using StreamNativeInfoPtr = std::shared_ptr<StreamNativeInfo>;
 
-class EventHandlerWrapper final : public SelectorReadyCallback
+class EventHandlerWrapper final : public SelectorReadyCallback, public std::enable_shared_from_this<EventHandlerWrapper>
 {
 public:
 
@@ -268,7 +264,7 @@ public:
 private:
 
     void ready(EventHandlerWrapper*, SocketOperation, int = 0);
-    void addReadyHandler(EventHandlerWrapper*);
+    void addReadyHandler(EventHandlerWrapperPtr);
 
     friend class EventHandlerWrapper;
 

@@ -31,7 +31,7 @@ IceObjC::StreamConnector::connect()
     UniqueRef<CFHostRef> host(CFHostCreateWithName(nullptr, h.get()));
     CFStreamCreatePairWithSocketToCFHost(nullptr, host.get(), _port, &readStream.get(), &writeStream.get());
     _instance->setupStreams(readStream.get(), writeStream.get(), false, _host);
-    return new StreamTransceiver(_instance, readStream.release(), writeStream.release(), _host, _port);
+    return make_shared<StreamTransceiver>(_instance, readStream.release(), writeStream.release(), _host, _port);
 }
 
 Short

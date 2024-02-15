@@ -12,12 +12,11 @@ namespace IceObjC
 {
 
 class StreamEndpointI;
-typedef ::std::shared_ptr<StreamEndpointI> StreamEndpointIPtr;
+using StreamEndpointIPtr = std::shared_ptr<StreamEndpointI>;
 
-class StreamAcceptor final : public IceInternal::Acceptor, public IceInternal::NativeInfo
+class StreamAcceptor final : public IceInternal::Acceptor, public IceInternal::NativeInfo,  public std::enable_shared_from_this<StreamAcceptor>
 {
 public:
-
     StreamAcceptor(const StreamEndpointIPtr&, const InstancePtr&, const std::string&, int);
     ~StreamAcceptor();
 
@@ -32,6 +31,8 @@ public:
     int effectivePort() const;
 
 private:
+
+    friend class StreamEndpointI;
 
     StreamEndpointIPtr _endpoint;
     InstancePtr _instance;

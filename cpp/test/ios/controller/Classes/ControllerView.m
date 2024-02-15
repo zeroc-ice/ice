@@ -18,7 +18,7 @@
     // Load the controller bundle.
     //
     NSString* bundlePath = [[NSBundle mainBundle] privateFrameworksPath];
-    const char* bundle = "Cpp11ControllerBundle.bundle";
+    const char* bundle = "CppControllerBundle.bundle";
     bundlePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithUTF8String:bundle]];
 
     NSURL* bundleURL = [NSURL fileURLWithPath:bundlePath];
