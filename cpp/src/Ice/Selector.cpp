@@ -30,10 +30,6 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance)
 {
 }
 
-Selector::~Selector()
-{
-}
-
 void
 Selector::setup(int sizeIO)
 {
@@ -229,10 +225,6 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
     pollFd.events = POLLIN;
     _pollFdSet.push_back(pollFd);
 #endif
-}
-
-Selector::~Selector()
-{
 }
 
 void
@@ -1215,10 +1207,6 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
 
     unique_lock lock(_mutex);
     _conditionVariable.wait(lock, [this] { return _runLoop != 0; });
-}
-
-Selector::~Selector()
-{
 }
 
 void

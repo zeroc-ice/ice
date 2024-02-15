@@ -50,16 +50,13 @@ class SelectorTimeoutException
 
 #if defined(ICE_USE_IOCP)
 
-class Selector
+class Selector final
 {
 public:
 
     Selector(const InstancePtr&);
-    ~Selector();
 
-#ifdef ICE_USE_IOCP
     void setup(int);
-#endif
     void destroy();
 
     void initialize(EventHandler*);
@@ -75,23 +72,16 @@ public:
 private:
 
     const InstancePtr _instance;
-#ifdef ICE_USE_IOCP
     HANDLE _handle;
-#else
-    std::mutex _mutex;
-    std::condition_variable _conditionVariable;
-    std::deque<SelectEvent> _events;
-#endif
 };
 
 #elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_SELECT) || defined(ICE_USE_POLL)
 
-class Selector
+class Selector final
 {
 public:
 
     Selector(const InstancePtr&);
-    ~Selector();
 
     void destroy();
 
@@ -236,13 +226,12 @@ private:
 };
 using EventHandlerWrapperPtr = std::shared_ptr<EventHandlerWrapper>;
 
-class Selector
+class Selector final
 {
 
 public:
 
     Selector(const InstancePtr&);
-    virtual ~Selector();
 
     void destroy();
 
