@@ -43,22 +43,19 @@ class OutgoingConnectionFactory final : public std::enable_shared_from_this<Outg
 {
 public:
 
-    class CreateConnectionCallback
-    {
-    public:
-
-        virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
-        virtual void setException(std::exception_ptr) = 0;
-    };
-    using CreateConnectionCallbackPtr = std::shared_ptr<CreateConnectionCallback>;
-
     void destroy();
 
     void updateConnectionObservers();
 
     void waitUntilFinished();
 
-    void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, const CreateConnectionCallbackPtr&);
+    void createAsync(
+        const std::vector<EndpointIPtr>&,
+        bool,
+        Ice::EndpointSelectionType,
+        std::function<void(Ice::ConnectionIPtr, bool)>,
+        std::function<void(std::exception_ptr)>);
+
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
     void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
@@ -88,8 +85,10 @@ private:
         ConnectCallback(
             const InstancePtr&,
             const OutgoingConnectionFactoryPtr&,
-            const std::vector<EndpointIPtr>&, bool,
-            const CreateConnectionCallbackPtr&,
+            const std::vector<EndpointIPtr>&,
+            bool,
+            std::function<void(Ice::ConnectionIPtr, bool)>,
+            std::function<void(std::exception_ptr)>,
             Ice::EndpointSelectionType);
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
@@ -119,7 +118,8 @@ private:
         const OutgoingConnectionFactoryPtr _factory;
         const std::vector<EndpointIPtr> _endpoints;
         const bool _hasMore;
-        const CreateConnectionCallbackPtr _callback;
+        const std::function<void(Ice::ConnectionIPtr, bool)> _createConnectionResponse;
+        const std::function<void(std::exception_ptr)> _createConnectionException;
         const Ice::EndpointSelectionType _selType;
         Ice::Instrumentation::ObserverPtr _observer;
         std::vector<EndpointIPtr>::const_iterator _endpointsIter;
