@@ -1606,52 +1606,74 @@ IceInternal::RoutableReference::createConnectionAsync(
         // just calling create() with the given endpoints since this might create a new connection even if there's an
         // existing connection for one of the endpoints.
 
-        struct CreateConnectionState final : public std::enable_shared_from_this<CreateConnectionState>
+        class CreateConnectionState final : public std::enable_shared_from_this<CreateConnectionState>
         {
-            exception_ptr exception = nullptr;
-            size_t endpointIndex = 0;
-            vector<EndpointIPtr> endpoints;
-            OutgoingConnectionFactoryPtr factory;
-            EndpointSelectionType endpointSelection;
-            std::function<void(Ice::ConnectionIPtr, bool)> createConnectionSucceded;
-            std::function<void(exception_ptr)> createConnectionFailed;
+        public:
+
+            CreateConnectionState(
+                vector<EndpointIPtr> endpoints,
+                OutgoingConnectionFactoryPtr factory,
+                EndpointSelectionType endpointSelection,
+                function<void(Ice::ConnectionIPtr, bool)> createConnectionSucceded,
+                function<void(exception_ptr)> exception) :
+                _endpoints(std::move(endpoints)),
+                _factory(std::move(factory)),
+                _endpointSelection(endpointSelection),
+                _createConnectionSucceded(std::move(createConnectionSucceded)),
+                _createConnectionFailed(std::move(exception))
+            {
+            }
+
+            void createAsync()
+            {
+                _factory->createAsync(
+                    { _endpoints[_endpointIndex] },
+                    true,
+                    _endpointSelection,
+                    _createConnectionSucceded,
+                    [self = shared_from_this()] (exception_ptr e) { self->handleException(e); });
+            }
 
             void handleException(std::exception_ptr ex)
             {
-                if (!exception)
+                if (!_exception)
                 {
-                    exception = ex;
+                    _exception = ex;
                 }
 
-                if (++endpointIndex == endpoints.size())
+                if (++_endpointIndex == _endpoints.size())
                 {
-                    createConnectionFailed(exception);
+                    _createConnectionFailed(_exception);
                     return;
                 }
 
-                const bool more = endpointIndex != endpoints.size() - 1;
-                factory->createAsync(
-                    { endpoints[endpointIndex] },
+                const bool more = _endpointIndex != _endpoints.size() - 1;
+                _factory->createAsync(
+                    { _endpoints[_endpointIndex] },
                     more,
-                    endpointSelection,
-                    createConnectionSucceded,
+                    _endpointSelection,
+                    _createConnectionSucceded,
                     [self = shared_from_this()] (exception_ptr e) { self->handleException(e); });
             }
+
+        private:
+
+            exception_ptr _exception = nullptr;
+            size_t _endpointIndex = 0;
+            vector<EndpointIPtr> _endpoints;
+            OutgoingConnectionFactoryPtr _factory;
+            EndpointSelectionType _endpointSelection;
+            std::function<void(Ice::ConnectionIPtr, bool)> _createConnectionSucceded;
+            std::function<void(exception_ptr)> _createConnectionFailed;
         };
 
-        auto state = make_shared<CreateConnectionState>();
-        state->endpoints = std::move(endpoints);
-        state->factory = factory;
-        state->endpointSelection = getEndpointSelection();
-        state->createConnectionSucceded = createConnectionSucceded;
-        state->createConnectionFailed = std::move(exception);
-
-        factory->createAsync(
-            { state->endpoints [0] },
-            true,
-            state->endpointSelection,
-            createConnectionSucceded,
-            [state](exception_ptr ex) { state->handleException(ex); });
+        auto state = make_shared<CreateConnectionState>(
+            std::move(endpoints),
+            std::move(factory),
+            getEndpointSelection(),
+            std::move(createConnectionSucceded),
+            std::move(exception));
+        state->createAsync();
     }
 }
 
