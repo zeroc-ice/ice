@@ -4,6 +4,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/ConsoleUtil.h>
+#include <Ice/CtrlCHandler.h>
 #include <IceUtil/Options.h>
 #include <ServiceInstaller.h>
 

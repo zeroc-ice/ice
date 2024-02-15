@@ -6,6 +6,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/CtrlCHandler.h>
 #include <Ice/ConsoleUtil.h>
 #include <IceDB/IceDB.h>
 #include <IceStorm/DBTypes.h>
@@ -31,6 +32,7 @@ main(int argc, char* argv[])
     {
         Ice::CtrlCHandler ctrlCHandler;
         Ice::CommunicatorHolder ich(argc, argv);
+        ctrlCHandler.setCallback([communicator = ich.communicator()](int) { communicator->destroy(); });
         status = run(ich.communicator(), Ice::argsToStringSeq(argc, argv));
     }
     catch(const std::exception& ex)

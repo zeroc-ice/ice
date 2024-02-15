@@ -5,6 +5,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/CtrlCHandler.h>
 #include <Ice/ConsoleUtil.h>
 #include <IcePatch2Lib/Util.h>
 #include <IcePatch2/ClientUtil.h>
