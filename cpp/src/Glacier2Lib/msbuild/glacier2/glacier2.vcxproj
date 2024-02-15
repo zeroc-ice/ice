@@ -97,7 +97,6 @@
     <SliceCompile Include="..\..\..\..\..\slice\Glacier2\SSLInfo.ice" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Application.cpp" />
     <ClCompile Include="..\..\NullPermissionsVerifier.cpp" />
     <ClCompile Include="..\..\SessionHelper.cpp" />
     <ClCompile Include="Win32\Debug\Metrics.cpp">
@@ -222,127 +221,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Glacier2\Metrics.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Metrics.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Glacier2\PermissionsVerifier.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\PermissionsVerifier.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Glacier2\Router.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Router.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Glacier2\Session.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Session.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\Glacier2\SSLInfo.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\SSLInfo.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Glacier2\Metrics.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Metrics.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Glacier2\PermissionsVerifier.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\PermissionsVerifier.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Glacier2\Router.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Router.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Glacier2\Session.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Session.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Release\Glacier2\SSLInfo.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\SSLInfo.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Glacier2\Metrics.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Metrics.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Glacier2\PermissionsVerifier.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\PermissionsVerifier.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Glacier2\Router.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Router.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Glacier2\Session.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Session.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Debug\Glacier2\SSLInfo.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\SSLInfo.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Glacier2\Metrics.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Metrics.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Glacier2\PermissionsVerifier.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\PermissionsVerifier.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Glacier2\Router.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Router.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Glacier2\Session.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\Session.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\Glacier2\SSLInfo.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\..\..\..\slice\Glacier2\SSLInfo.ice</SliceCompileSource>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\Glacier2\Application.h" />
     <ClInclude Include="..\..\..\..\include\Glacier2\Config.h" />
     <ClInclude Include="..\..\..\..\include\Glacier2\Glacier2.h" />
     <ClInclude Include="..\..\..\..\include\Glacier2\NullPermissionsVerifier.h" />
