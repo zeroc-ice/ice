@@ -2589,7 +2589,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        futureT = resultStructName(name, fixKwd(interface->name()));
+        futureT = resultStructName(name, interfaceScope + fixKwd(interface->name()));
     }
 
     const string deprecateSymbol = getDeprecateSymbol(p, interface);
@@ -2656,7 +2656,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     //
     // Promise based asynchronous operation
-    // TODO: remove template P and move implementation out of line
     //
     H << sp;
     if(comment)
@@ -2667,18 +2666,23 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
 
-    H << nl << deprecateSymbol << "std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl << contextDecl << epar;
-    H << sb;
+    H << nl << deprecateSymbol << "std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
+        << contextDecl << epar << ";";
 
-    H << nl << "return _makePromiseOutgoing<" << futureT << ", std::promise>" << spar;
+    C << sp;
+    C << nl << "std::future<" << futureT << ">";
+    C << nl;
+    C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar;
 
-    H << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
+    C << sb;
+    C << nl << "return _makePromiseOutgoing<" << futureT << ", std::promise>" << spar;
+    C << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
-        H << fixKwd((*q)->name());
+        C << paramPrefix + (*q)->name();
     }
-    H << contextParam << epar << ";";
-    H << eb;
+    C << "context" << epar << ";";
+    C << eb;
 
     //
     // Lambda based asynchronous operation
