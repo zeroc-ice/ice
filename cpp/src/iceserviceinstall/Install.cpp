@@ -7,6 +7,8 @@
 #include <IceUtil/Options.h>
 #include <ServiceInstaller.h>
 
+#include <csignal>
+
 using namespace std;
 using namespace IceInternal;
 
@@ -17,7 +19,10 @@ Ice::CommunicatorPtr communicator;
 void
 destroyCommunicator(int)
 {
-    communicator->destroy();
+    if (communicator)
+    {
+        communicator->destroy();
+    }
 }
 
 bool debug = false;
@@ -31,14 +36,12 @@ wmain(int argc, wchar_t* argv[])
 
     try
     {
-        Ice::CtrlCHandler ctrlCHandler;
+        signal(SIGINT, destroyCommunicator);
         Ice::InitializationData id;
         id.properties = Ice::createProperties();
         id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
         Ice::CommunicatorHolder ich(argc, argv, id);
         communicator = ich.communicator();
-
-        ctrlCHandler.setCallback(&destroyCommunicator);
 
         status = run(Ice::argsToStringSeq(argc, argv));
     }
