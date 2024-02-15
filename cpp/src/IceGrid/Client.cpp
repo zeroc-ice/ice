@@ -6,7 +6,6 @@
 #include <IceUtil/StringUtil.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/UUID.h>
-#include <Ice/CtrlCHandler.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Parser.h>
 #include <IceGrid/FileParserI.h>

@@ -6,7 +6,6 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
-#include <Ice/CtrlCHandler.h>
 #include <Ice/ConsoleUtil.h>
 #include <IceDB/IceDB.h>
 #include <IceGrid/Admin.h>

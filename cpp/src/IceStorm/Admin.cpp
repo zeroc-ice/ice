@@ -4,7 +4,6 @@
 
 #include <IceUtil/Options.h>
 #include <Ice/Ice.h>
-#include <Ice/CtrlCHandler.h>
 #include <Ice/ConsoleUtil.h>
 #include <IceStorm/Parser.h>
 
