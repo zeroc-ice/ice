@@ -73,7 +73,7 @@ runs:
       uses: hendrikmuhs/ccache-action@v1.2
       with:
         # create-symlink: true
-        default: false
+        append-timestamp: false
         key: ci-${{ runner.os }}-${{matrix.name || matrix.language }}-${{ github.sha }}
         restore-keys: |
           ci-${{ runner.os }}-${{matrix.name || matrix.language }}-
