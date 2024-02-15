@@ -2373,9 +2373,7 @@ Slice::Gen::ExceptionVisitor::visitDataMember(const DataMemberPtr& p)
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllClassExport(toDllClassExport(dllExport)),
-    _dllMemberExport(toDllMemberExport(dllExport)),
-    _useWstring(false)
+    H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -2411,7 +2409,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << p->name() << "Prx : public "
+    H << nl << "class " << _dllExport << p->name() << "Prx : public "
       << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
     if(bases.empty())
     {
@@ -2450,7 +2448,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this interface.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    H << nl << "static const ::std::string& ice_staticId();";
     H << sp;
     H << nl << "explicit " << prx << "(const ::Ice::ObjectPrx& other) : ::Ice::ObjectPrx(other)";
     H << nl << "{";
@@ -2610,7 +2608,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back(contextDoc);
         writeOpDocSummary(H, p, comment, OpDocAllParams, true, StringList(), postParams, comment->returns());
     }
-    H << nl << deprecateSymbol << _dllMemberExport << retS << ' ' << fixKwd(name)
+    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name)
         << spar << paramsDecl << contextDecl << epar << ";";
 
     C << sp;
@@ -2668,14 +2666,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         returns.push_back(futureDoc);
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
-    H << nl << "template<template<typename> class P = ::std::promise>";
-    H << nl << deprecateSymbol << "auto " << name << "Async" << spar << inParamsDecl << contextDecl << epar;
-    H.inc();
-    H << nl << "-> decltype(::std::declval<P<" << futureT << ">>().get_future())";
-    H.dec();
+
+    H << nl << deprecateSymbol << "std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl << contextDecl << epar;
     H << sb;
 
-    H << nl << "return _makePromiseOutgoing<" << futureT << ", P>" << spar;
+    H << nl << "return _makePromiseOutgoing<" << futureT << ", std::promise>" << spar;
 
     H << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
@@ -2706,10 +2701,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
     H << nl;
-    if(lambdaCustomOut)
-    {
-        H << _dllMemberExport;
-    }
+    H << deprecateSymbol;
     H << "::std::function<void()>";
     H << nl << name << "Async(";
     H.useCurrentPosAsIndent();
@@ -2865,7 +2857,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     H << sp;
     H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllMemberExport << "void _iceI_" << name << spar;
+    H << nl << "void _iceI_" << name << spar;
     H << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>&";
     H << inParamsS;
     H << ("const " + getUnqualified("::Ice::Context&", interfaceScope));
@@ -3003,7 +2995,6 @@ Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceUtilInternal::Output& h,
     H(h),
     C(c),
     _dllExport(dllExport),
-    _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
     _useWstring(false)
 {
 }

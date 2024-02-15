@@ -181,8 +181,7 @@ private:
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
 
-        std::string _dllClassExport;
-        std::string _dllMemberExport;
+        std::string _dllExport;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
@@ -228,8 +227,6 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
-        std::string _dllClassExport;
-        std::string _dllMemberExport;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
