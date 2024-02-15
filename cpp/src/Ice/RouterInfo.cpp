@@ -34,7 +34,7 @@ IceInternal::RouterManager::destroy()
 RouterInfoPtr
 IceInternal::RouterManager::get(const RouterPrx& rtr)
 {
-    RouterPrx router = ice_router(rtr, nullopt); // The router cannot be routed.
+    RouterPrx router = rtr->ice_router(nullopt); // The router cannot be routed.
 
     lock_guard lock(_mutex);
 
@@ -69,7 +69,7 @@ RouterInfoPtr
 IceInternal::RouterManager::erase(const RouterPrx& rtr)
 {
     RouterInfoPtr info;
-    RouterPrx router = ice_router(rtr, nullopt); // The router cannot be routed.
+    RouterPrx router = rtr->ice_router(nullopt); // The router cannot be routed.
     lock_guard lock(_mutex);
 
     RouterInfoTable::iterator p = _table.end();
@@ -169,7 +169,7 @@ IceInternal::RouterInfo::getServerEndpoints()
     {
         throw NoEndpointException(__FILE__, __LINE__);
     }
-    serverProxy = ice_router(serverProxy.value(), nullopt); // The server proxy cannot be routed.
+    serverProxy = serverProxy->ice_router(nullopt); // The server proxy cannot be routed.
     return serverProxy->_getReference()->getEndpoints();
 }
 
@@ -249,7 +249,7 @@ IceInternal::RouterInfo::setClientEndpoints(const optional<ObjectPrx>& proxy, bo
         }
         else
         {
-            ObjectPrx clientProxy = ice_router(proxy.value(), nullopt); // The client proxy cannot be routed.
+            ObjectPrx clientProxy = proxy->ice_router(nullopt); // The client proxy cannot be routed.
 
             //
             // In order to avoid creating a new connection to the router,

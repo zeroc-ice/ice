@@ -29,6 +29,9 @@ namespace Ice
 /** Marker value used to indicate that no explicit context was passed to a proxy invocation. */
 ICE_API extern const Context noExplicitContext;
 
+class LocatorPrx;
+class RouterPrx;
+
 }
 
 namespace IceInternal
@@ -414,6 +417,16 @@ public:
     }
 
     /**
+     * Obtains a proxy that is identical to this proxy, except for the locator.
+     * @param locator The locator for the new proxy.
+     * @return A proxy with the specified locator.
+     */
+    Prx ice_locator(const std::optional<LocatorPrx>& locator) const
+    {
+        return fromReference(asPrx()._locator(locator));
+    }
+
+    /**
      * Obtains a proxy that is identical to this proxy, except for the locator cache timeout.
      * @param timeout The new locator cache timeout (in seconds).
      * @return A proxy with the new timeout.
@@ -442,6 +455,16 @@ public:
     Prx ice_preferSecure(bool b) const
     {
         return fromReference(asPrx()._preferSecure(b));
+    }
+
+    /**
+     * Obtains a proxy that is identical to this proxy, except for the router.
+     * @param router The router for the new proxy.
+     * @return A proxy with the specified router.
+     */
+    Prx ice_router(const std::optional<RouterPrx>& router) const
+    {
+        return fromReference(asPrx()._router(router));
     }
 
     /**
@@ -963,6 +986,19 @@ public:
     bool ice_isPreferSecure() const;
 
     /**
+     * Obtains the router for this proxy.
+     * @return The router for the proxy. If no router is configured for the proxy, the return value
+     * is nullopt.
+     */
+    std::optional<RouterPrx> ice_getRouter() const;
+
+    /**
+     * Obtains the locator for this proxy.
+     * @return The locator for this proxy. If no locator is configured, the return value is nullopt.
+     */
+    std::optional<LocatorPrx> ice_getLocator() const;
+
+    /**
      * Determines whether this proxy uses collocation optimization.
      * @return True if the proxy uses collocation optimization, false otherwise.
      */
@@ -1217,9 +1253,11 @@ private:
     IceInternal::ReferencePtr _endpoints(const EndpointSeq&) const;
     IceInternal::ReferencePtr _fixed(const ConnectionPtr&) const;
     IceInternal::ReferencePtr _invocationTimeout(int) const;
+    IceInternal::ReferencePtr _locator(const std::optional<LocatorPrx>&) const;
     IceInternal::ReferencePtr _locatorCacheTimeout(int) const;
     IceInternal::ReferencePtr _oneway() const;
     IceInternal::ReferencePtr _preferSecure(bool) const;
+    IceInternal::ReferencePtr _router(const std::optional<RouterPrx>&) const;
     IceInternal::ReferencePtr _secure(bool) const;
     IceInternal::ReferencePtr _timeout(int) const;
     IceInternal::ReferencePtr _twoway() const;

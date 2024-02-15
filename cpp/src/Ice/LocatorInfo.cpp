@@ -110,7 +110,7 @@ LocatorInfoPtr
 IceInternal::LocatorManager::get(const LocatorPrx& loc)
 {
 
-    LocatorPrx locator = ice_locator(loc, nullopt); // The locator can't be located.
+    LocatorPrx locator = loc->ice_locator(nullopt); // The locator can't be located.
 
     //
     // TODO: reap unused locator info objects?
@@ -508,7 +508,7 @@ IceInternal::LocatorInfo::getLocatorRegistry()
         // endpoint selection in case the locator returned a proxy
         // with some endpoints which are preferred to be tried first.
         //
-        _locatorRegistry = ice_locator(locatorRegistry.value(), nullopt)->
+        _locatorRegistry = locatorRegistry->ice_locator(nullopt)->
             ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
         return _locatorRegistry;
     }

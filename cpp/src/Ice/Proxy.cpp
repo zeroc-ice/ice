@@ -13,7 +13,8 @@
 #include <Ice/CollocatedRequestHandler.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Instance.h>
-#include <Ice/RouterInfo.h>
+#include "RouterInfo.h"
+#include "LocatorInfo.h"
 
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
@@ -351,6 +352,20 @@ Ice::ObjectPrx::ice_isPreferSecure() const
     return _reference->getPreferSecure();
 }
 
+optional<RouterPrx>
+Ice::ObjectPrx::ice_getRouter() const
+{
+    RouterInfoPtr routerInfo = _reference->getRouterInfo();
+    return routerInfo ? make_optional(routerInfo->getRouter()) : nullopt;
+}
+
+optional<LocatorPrx>
+Ice::ObjectPrx::ice_getLocator() const
+{
+    LocatorInfoPtr locatorInfo = _reference->getLocatorInfo();
+    return locatorInfo ? make_optional(locatorInfo->getLocator()) : nullopt;
+}
+
 bool
 Ice::ObjectPrx::ice_isCollocationOptimized() const
 {
@@ -660,6 +675,20 @@ Ice::ObjectPrx::_invocationTimeout(Int newTimeout) const
 }
 
 ReferencePtr
+Ice::ObjectPrx::_locator(const std::optional<LocatorPrx>& locator) const
+{
+    ReferencePtr ref = _reference->changeLocator(locator);
+    if (*ref == *_reference)
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
+    }
+}
+
+ReferencePtr
 Ice::ObjectPrx::_locatorCacheTimeout(Int newTimeout) const
 {
     if (newTimeout < -1)
@@ -701,6 +730,20 @@ Ice::ObjectPrx::_preferSecure(bool b) const
     else
     {
        return _reference->changePreferSecure(b);
+    }
+}
+
+ReferencePtr
+Ice::ObjectPrx::_router(const std::optional<RouterPrx>& router) const
+{
+    ReferencePtr ref = _reference->changeRouter(router);
+    if (*ref == *_reference)
+    {
+        return _reference;
+    }
+    else
+    {
+        return ref;
     }
 }
 
