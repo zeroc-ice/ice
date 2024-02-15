@@ -1392,16 +1392,19 @@ Selector::select(int timeout)
             _conditionVariable.wait(lock);
         }
 
-        if(timeout > 0)
+        if (_readyHandlers.empty())
         {
-            if(_conditionVariable.wait_for(lock, chrono::seconds(timeout)) == cv_status::no_timeout)
+            if(timeout > 0)
             {
-                break;
+                if(_conditionVariable.wait_for(lock, chrono::seconds(timeout)) == cv_status::no_timeout)
+                {
+                    break;
+                }
             }
-        }
-        else
-        {
-            _conditionVariable.wait(lock, [this] { return !_readyHandlers.empty(); });
+            else
+            {
+                _conditionVariable.wait(lock);
+            }
         }
 
         if(_changes.empty())

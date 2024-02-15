@@ -68,11 +68,7 @@ public:
 
     void ready(EventHandler*, SocketOperation, bool);
 
-#ifdef ICE_USE_IOCP
     EventHandler* getNextHandler(SocketOperation&, DWORD&, int&, int);
-#else
-    EventHandler* getNextHandler(SocketOperation&, int);
-#endif
 
     void completed(EventHandler*, SocketOperation);
 
