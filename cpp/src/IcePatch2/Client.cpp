@@ -9,6 +9,8 @@
 #include <IcePatch2Lib/Util.h>
 #include <IcePatch2/ClientUtil.h>
 
+#include <csignal>
+
 #ifdef _WIN32
 #   include <conio.h>
 #else
@@ -254,7 +256,10 @@ Ice::CommunicatorPtr communicator;
 void
 destroyCommunicator(int)
 {
-    communicator->destroy();
+    if (communicator)
+    {
+        communicator->destroy();
+    }
 }
 
 int
@@ -268,11 +273,9 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::CtrlCHandler ctrlCHandler;
+        signal(SIGINT, destroyCommunicator);
         Ice::CommunicatorHolder ich(argc, argv);
         communicator = ich.communicator();
-
-        ctrlCHandler.setCallback(&destroyCommunicator);
 
         status = run(Ice::argsToStringSeq(argc, argv));
     }

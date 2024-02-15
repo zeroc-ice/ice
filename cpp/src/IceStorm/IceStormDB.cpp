@@ -16,32 +16,6 @@
 using namespace std;
 using namespace IceInternal;
 
-int run(const shared_ptr<Ice::Communicator>&, const Ice::StringSeq&);
-
-int
-#ifdef _WIN32
-wmain(int argc, wchar_t* argv[])
-#else
-main(int argc, char* argv[])
-#endif
-{
-    int status = 0;
-
-    try
-    {
-        Ice::CtrlCHandler ctrlCHandler;
-        Ice::CommunicatorHolder ich(argc, argv);
-        status = run(ich.communicator(), Ice::argsToStringSeq(argc, argv));
-    }
-    catch(const std::exception& ex)
-    {
-        consoleErr << ex.what() << endl;
-        status = 1;
-    }
-
-    return status;
-}
-
 void
 usage(const string& name)
 {
@@ -314,4 +288,38 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     }
 
     return 0;
+}
+
+Ice::CommunicatorPtr communicator;
+void destroyCommunicator(int)
+{
+    if(communicator)
+    {
+        communicator->destroy();
+    }
+}
+
+int
+#ifdef _WIN32
+wmain(int argc, wchar_t* argv[])
+#else
+main(int argc, char* argv[])
+#endif
+{
+    int status = 0;
+
+    try
+    {
+        signal(SIGINT, destroyCommunicator);
+        Ice::CommunicatorHolder ich(argc, argv);
+        communicator = ich.communicator();
+        status = run(communicator, Ice::argsToStringSeq(argc, argv));
+    }
+    catch(const std::exception& ex)
+    {
+        consoleErr << ex.what() << endl;
+        status = 1;
+    }
+
+    return status;
 }

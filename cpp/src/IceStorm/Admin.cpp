@@ -7,6 +7,8 @@
 #include <Ice/ConsoleUtil.h>
 #include <IceStorm/Parser.h>
 
+#include <csignal>
+
 #ifdef _WIN32
 #   include <fcntl.h>
 #   include <io.h>
@@ -16,45 +18,6 @@ using namespace std;
 using namespace IceInternal;
 
 int run(const shared_ptr<Ice::Communicator>&, const Ice::StringSeq&);
-
-int
-#ifdef _WIN32
-wmain(int argc, wchar_t* argv[])
-{
-    //
-    // Enable binary input mode for stdin to avoid automatic conversions.
-    //
-    _setmode(_fileno(stdin), _O_BINARY);
-#else
-main(int argc, char* argv[])
-{
-#endif
-    int status = 0;
-
-    try
-    {
-        Ice::CtrlCHandler ctrlCHandler;
-
-        Ice::InitializationData id;
-        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-        id.properties = Ice::createProperties(args);
-        id.properties->setProperty("Ice.Warn.Endpoints", "0");
-
-        Ice::CommunicatorHolder ich(id);
-        auto communicator = ich.communicator();
-
-        ctrlCHandler.setCallback([communicator](int) { communicator->destroy(); });
-
-        status = run(communicator, args);
-    }
-    catch(const std::exception& ex)
-    {
-        consoleErr << ex.what() << endl;
-        status = 1;
-    }
-
-    return status;
-}
 
 void
 usage(const string& name)
@@ -203,6 +166,54 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         {
             status = 1;
         }
+    }
+
+    return status;
+}
+
+Ice::CommunicatorPtr communicator;
+
+void
+destroyCommunicator(int)
+{
+    if (communicator)
+    {
+        communicator->destroy();
+    }
+}
+
+int
+#ifdef _WIN32
+wmain(int argc, wchar_t* argv[])
+{
+    //
+    // Enable binary input mode for stdin to avoid automatic conversions.
+    //
+    _setmode(_fileno(stdin), _O_BINARY);
+#else
+main(int argc, char* argv[])
+{
+#endif
+    int status = 0;
+
+    try
+    {
+        signal(SIGINT, destroyCommunicator);
+
+        Ice::InitializationData id;
+        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+        id.properties = Ice::createProperties(args);
+        id.properties->setProperty("Ice.Warn.Endpoints", "0");
+
+        Ice::CommunicatorHolder ich(id);
+        communicator = ich.communicator();
+
+        status = run(communicator, args);
+    }
+    catch(const std::exception& ex)
+    {
+        consoleErr << ex.what() << endl;
+        status = 1;
     }
 
     return status;
