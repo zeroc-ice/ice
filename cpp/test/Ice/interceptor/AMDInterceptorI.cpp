@@ -99,14 +99,14 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 void
 AMDInterceptorI::setException(std::exception_ptr e)
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     _exception = e;
 }
 
 std::exception_ptr
 AMDInterceptorI::getException() const
 {
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     return _exception;
 }
 
@@ -114,6 +114,6 @@ void
 AMDInterceptorI::clear()
 {
     InterceptorI::clear();
-    IceUtil::Mutex::Lock lock(_mutex);
+    lock_guard lock(_mutex);
     _exception = nullptr;
 }

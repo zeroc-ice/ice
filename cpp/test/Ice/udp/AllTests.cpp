@@ -10,16 +10,16 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class PingReplyI : public PingReply, public IceUtil::Monitor<IceUtil::Mutex>
+class PingReplyI : public PingReply
 {
 public:
 
     virtual void
     reply(const Ice::Current&)
     {
-        Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ++_replies;
-        notify();
+        _condition.notify_one();
     }
 
     void
@@ -31,14 +31,14 @@ public:
     bool
     waitReply(int expectedReplies, const IceUtil::Time& timeout)
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         IceUtil::Time end = IceUtil::Time::now() + timeout;
         while(_replies < expectedReplies)
         {
             IceUtil::Time delay = end - IceUtil::Time::now();
             if(delay > IceUtil::Time::seconds(0))
             {
-                timedWait(delay);
+                _condition.wait_for(lock, chrono::milliseconds(delay.toMilliSeconds()));
             }
             else
             {
@@ -51,6 +51,8 @@ public:
 private:
 
     int _replies;
+    std::mutex _mutex;
+    std::condition_variable _condition;
 };
 using PingReplyIPtr = std::shared_ptr<PingReplyI>;
 

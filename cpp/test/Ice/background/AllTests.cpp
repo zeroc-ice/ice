@@ -13,7 +13,7 @@
 using namespace std;
 using namespace Test;
 
-class Callback : public IceUtil::Monitor<IceUtil::Mutex>
+class Callback
 {
 public:
 
@@ -24,36 +24,35 @@ public:
     void
     check()
     {
-        Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
+        unique_lock lock(_mutex);
+        _condition.wait(lock, [this]{ return _called; });
         _called = false;
     }
 
     void
     called()
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(!_called);
         _called = true;
-        notify();
+        _condition.notify_one();
     }
 
     bool
     isCalled()
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         return _called;
     }
 
 private:
 
     bool _called;
+    mutex _mutex;
+    condition_variable _condition;
 };
 
-class OpThread : public IceUtil::Thread, public IceUtil::Mutex
+class OpThread : public IceUtil::Thread
 {
 public:
 
@@ -70,7 +69,7 @@ public:
         while(true)
         {
             {
-                IceUtil::Mutex::Lock sync(*this);
+                lock_guard lock(_mutex);
                 if(_destroyed)
                 {
                     return;
@@ -96,7 +95,7 @@ public:
     void
     destroy()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        lock_guard lock(_mutex);
         _destroyed = true;
     }
 
@@ -104,6 +103,7 @@ private:
 
     bool _destroyed;
     BackgroundPrxPtr _background;
+    mutex _mutex;
 };
 using OpThreadPtr = shared_ptr<OpThread>;
 

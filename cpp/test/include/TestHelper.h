@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <mutex>
 
 #include <IceUtil/Config.h>
 
@@ -72,7 +73,7 @@ private:
     virtual int overflow(int);
     virtual int sputc(char);
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     ControllerHelper* _controllerHelper;
     char data[1024];
     Ice::LoggerPtr _previousLogger;

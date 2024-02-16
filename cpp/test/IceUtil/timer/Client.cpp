@@ -27,7 +27,7 @@ struct TargetLess
     }
 };
 
-class TestTask : public IceUtil::TimerTask, IceUtil::Monitor<IceUtil::Mutex>
+class TestTask : public IceUtil::TimerTask
 {
 public:
 
@@ -42,11 +42,10 @@ public:
     virtual void
     runTimerTask()
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         ++_count;
         _run = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        //cerr << "run: " << _scheduledTime.toMilliSeconds() << " " << _run.toMilliSeconds() << endl;
-        notifyAll();
+        _condition.notify_all();
     }
 
     virtual bool
@@ -58,21 +57,21 @@ public:
     virtual bool
     hasRun() const
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         return _run != IceUtil::Time();
     }
 
     int
     getCount() const
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         return _count;
     }
 
     virtual IceUtil::Time
     getRunTime() const
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         return _run;
     }
 
@@ -85,10 +84,10 @@ public:
     virtual void
     waitForRun()
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         while(_run == IceUtil::Time())
         {
-            if(!timedWait(IceUtil::Time::seconds(10)))
+            if(_condition.wait_for(lock, chrono::seconds(10)) == cv_status::timeout)
             {
                 test(false); // Timeout.
             }
@@ -107,10 +106,12 @@ private:
     IceUtil::Time _run;
     IceUtil::Time _scheduledTime;
     int _count;
+    mutable mutex _mutex;
+    condition_variable _condition;
 };
 using TestTaskPtr = std::shared_ptr<TestTask>;
 
-class DestroyTask : public IceUtil::TimerTask, IceUtil::Monitor<IceUtil::Mutex>
+class DestroyTask : public IceUtil::TimerTask
 {
 public:
 
@@ -121,19 +122,19 @@ public:
     virtual void
     runTimerTask()
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _timer->destroy();
         _run = true;
-        notify();
+        _condition.notify_one();
     }
 
     virtual void
     waitForRun()
     {
-        Lock sync(*this);
+        unique_lock lock(_mutex);
         while(!_run)
         {
-            if(!timedWait(IceUtil::Time::seconds(10)))
+            if(_condition.wait_for(lock, chrono::seconds(10)) == cv_status::timeout)
             {
                 test(false); // Timeout.
             }
@@ -144,6 +145,8 @@ private:
 
     IceUtil::TimerPtr _timer;
     bool _run;
+    mutable mutex _mutex;
+    condition_variable _condition;
 };
 using DestroyTaskPtr = std::shared_ptr<DestroyTask>;
 

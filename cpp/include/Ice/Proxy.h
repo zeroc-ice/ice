@@ -5,7 +5,6 @@
 #ifndef ICE_PROXY_H
 #define ICE_PROXY_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/RequestHandlerF.h>

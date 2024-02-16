@@ -102,23 +102,23 @@ RemoteObjectAdapterI::deactivate(const Ice::Current&)
 void
 TestI::sleep(int delay, const Ice::Current&)
 {
-    Lock sync(*this);
-    timedWait(IceUtil::Time::seconds(delay));
+    unique_lock lock(_mutex);
+    _condition.wait_for(lock, chrono::seconds(delay));
 }
 
 void
 TestI::sleepAndHold(int delay, const Ice::Current& current)
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     current.adapter->hold();
-    timedWait(IceUtil::Time::seconds(delay));
+    _condition.wait_for(lock, chrono::seconds(delay));
 }
 
 void
 TestI::interruptSleep(const Ice::Current&)
 {
-    Lock sync(*this);
-    notifyAll();
+    lock_guard lock(_mutex);
+    _condition.notify_all();
 }
 
 void

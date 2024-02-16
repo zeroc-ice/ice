@@ -6,6 +6,8 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <mutex>
+#include <condition_variable>
 
 class RemoteCommunicatorI : public Test::RemoteCommunicator
 {
@@ -32,7 +34,7 @@ private:
     const Test::TestIntfPrxPtr _testIntf;
 };
 
-class TestI : public Test::TestIntf, private IceUtil::Monitor<IceUtil::Mutex>
+class TestI : public Test::TestIntf
 {
 public:
 
@@ -44,9 +46,7 @@ public:
 
 private:
 
-    class HeartbeatCallbackI final :
-                                public std::enable_shared_from_this<HeartbeatCallbackI>,
-                                private IceUtil::Monitor<IceUtil::Mutex>
+    class HeartbeatCallbackI final : public std::enable_shared_from_this<HeartbeatCallbackI>
     {
     public:
 
@@ -58,28 +58,29 @@ private:
         void
         waitForCount(int count)
         {
-            Lock sync(*this);
-            while(_count < count)
-            {
-                wait();
-            }
+            std::unique_lock lock(_mutex);
+            _condition.wait(lock, [this, count] { return _count >= count; });
         }
 
         virtual void
         heartbeat(const Ice::ConnectionPtr&)
         {
-            Lock sync(*this);
+            std::lock_guard lock(_mutex);
             ++_count;
-            notifyAll();
+            _condition.notify_all();
         }
 
     private:
 
         int _count;
+        std::mutex _mutex;
+        std::condition_variable _condition;
     };
     using HeartbeatCallbackIPtr = std::shared_ptr<HeartbeatCallbackI>;
 
     HeartbeatCallbackIPtr _callback;
+    std::mutex _mutex;
+    std::condition_variable _condition;
 };
 
 #endif

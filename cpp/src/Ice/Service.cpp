@@ -5,8 +5,6 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Monitor.h>
-#include <IceUtil/Mutex.h>
 #include <Ice/ArgVector.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/ConsoleUtil.h>

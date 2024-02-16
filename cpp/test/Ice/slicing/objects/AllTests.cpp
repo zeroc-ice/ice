@@ -114,7 +114,7 @@ void breakCycles(shared_ptr<Ice::Value> o)
     }
 }
 
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
+class CallbackBase
 {
 public:
 
@@ -129,11 +129,8 @@ public:
 
     void check()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
+        unique_lock lock(_mutex);
+        _condition.wait(lock, [this] { return _called; });
         _called = false;
     }
 
@@ -141,15 +138,17 @@ protected:
 
     void called()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(!_called);
         _called = true;
-        notify();
+        _condition.notify_one();
     }
 
 private:
 
     bool _called;
+    mutex _mutex;
+    condition_variable _condition;
 };
 
 class Callback : public CallbackBase

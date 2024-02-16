@@ -5,8 +5,6 @@
 #ifndef ICE_THREAD_POOL_H
 #define ICE_THREAD_POOL_H
 
-#include <IceUtil/Mutex.h>
-#include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 
 #include <Ice/Config.h>
