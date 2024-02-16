@@ -504,7 +504,6 @@
     <ClCompile Include="..\..\..\IceUtil\UUID.cpp" />
     <ClCompile Include="..\..\Acceptor.cpp" />
     <ClCompile Include="..\..\ACM.cpp" />
-    <ClCompile Include="..\..\Application.cpp" />
     <ClCompile Include="..\..\ArgVector.cpp" />
     <ClCompile Include="..\..\Base64.cpp" />
     <ClCompile Include="..\..\BatchRequestQueue.cpp" />

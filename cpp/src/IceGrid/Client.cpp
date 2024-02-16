@@ -3,7 +3,6 @@
 //
 
 #include <IceUtil/Options.h>
-#include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/UUID.h>

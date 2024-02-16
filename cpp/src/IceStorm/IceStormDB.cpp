@@ -31,6 +31,7 @@ main(int argc, char* argv[])
     {
         Ice::CtrlCHandler ctrlCHandler;
         Ice::CommunicatorHolder ich(argc, argv);
+        ctrlCHandler.setCallback([communicator = ich.communicator()](int) { communicator->destroy(); });
         status = run(ich.communicator(), Ice::argsToStringSeq(argc, argv));
     }
     catch(const std::exception& ex)
