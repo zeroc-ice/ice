@@ -6,7 +6,6 @@
 #define ICE_OUTGOING_ASYNC_H
 
 #include <IceUtil/Timer.h>
-#include <IceUtil/Monitor.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionIF.h>

@@ -11,7 +11,7 @@
 class TestIntfControllerI;
 using TestIntfControllerIPtr = std::shared_ptr<TestIntfControllerI>;
 
-class TestIntfI : public virtual Test::TestIntf, public IceUtil::Monitor<IceUtil::Mutex>
+class TestIntfI : public virtual Test::TestIntf
 {
 public:
 
@@ -44,9 +44,11 @@ private:
     int _batchCount;
     bool _shutdown;
     std::function<void()> _pending;
+    std::mutex _mutex;
+    std::condition_variable _condition;
 };
 
-class TestIntfControllerI : public Test::TestIntfController, IceUtil::Monitor<IceUtil::Mutex>
+class TestIntfControllerI : public Test::TestIntfController
 {
 public:
 
@@ -58,6 +60,7 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
+    std::mutex _mutex;
 };
 
 class TestIntfII : public virtual Test::Outer::Inner::TestIntf

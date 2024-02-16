@@ -7,8 +7,7 @@
 
 #include <Test.h>
 
-class TestFacetI : public virtual ::Test::TestFacet,
-                   private IceUtil::Monitor<IceUtil::Mutex>
+class TestFacetI : public virtual ::Test::TestFacet
 {
 public:
 
@@ -21,6 +20,7 @@ public:
 private:
 
     Ice::PropertyDict _changes;
+    std::mutex _mutex;
 };
 using TestFacetIPtr = std::shared_ptr<TestFacetI>;
 

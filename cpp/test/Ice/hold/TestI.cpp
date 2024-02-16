@@ -117,7 +117,7 @@ HoldI::set(Ice::Int value, Ice::Int delay, const Ice::Current&)
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     Ice::Int tmp = _last;
     _last = value;
     return tmp;
@@ -126,7 +126,7 @@ HoldI::set(Ice::Int value, Ice::Int delay, const Ice::Current&)
 void
 HoldI::setOneway(Ice::Int value, Ice::Int expected, const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     test(_last == expected);
     _last = value;
 }

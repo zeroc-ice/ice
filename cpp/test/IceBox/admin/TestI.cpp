@@ -6,6 +6,7 @@
 #include <TestI.h>
 
 using namespace Test;
+using namespace std;
 
 TestFacetI::TestFacetI()
 {
@@ -14,13 +15,13 @@ TestFacetI::TestFacetI()
 Ice::PropertyDict
 TestFacetI::getChanges(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     return _changes;
 }
 
 void
 TestFacetI::updated(const Ice::PropertyDict& changes)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     _changes = changes;
 }

@@ -44,15 +44,15 @@ TestIntfI::opWithPayload(Ice::ByteSeq, const Ice::Current&)
 void
 TestIntfI::opBatch(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     ++_batchCount;
-    notify();
+    _condition.notify_one();
 }
 
 Ice::Int
 TestIntfI::opBatchCount(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     return _batchCount;
 }
 
@@ -77,10 +77,10 @@ TestIntfI::opWithArgs(Ice::Int& one, Ice::Int& two, Ice::Int& three, Ice::Int& f
 bool
 TestIntfI::waitForBatch(Ice::Int count, const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    unique_lock lock(_mutex);
     while(_batchCount < count)
     {
-        test(timedWait(IceUtil::Time::milliSeconds(5000)));
+        test(_condition.wait_for(lock, chrono::milliseconds(5000)) != cv_status::timeout);
     }
     bool result = count == _batchCount;
     _batchCount = 0;
@@ -96,15 +96,15 @@ TestIntfI::close(Test::CloseMode mode, const Ice::Current& current)
 void
 TestIntfI::sleep(Ice::Int ms, const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    timedWait(IceUtil::Time::milliSeconds(ms));
+    unique_lock lock(_mutex);
+    _condition.wait_for(lock, chrono::milliseconds(ms));
 }
 
 void
 TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)>,
                               const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_shutdown)
     {
         response();
@@ -120,7 +120,7 @@ TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void
 void
 TestIntfI::finishDispatch(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_shutdown)
     {
         return;
@@ -135,7 +135,7 @@ TestIntfI::finishDispatch(const Ice::Current&)
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     _shutdown = true;
     if(_pending)
     {

@@ -34,26 +34,23 @@ BackgroundI::BackgroundI(const BackgroundControllerIPtr& controller) :
 void
 BackgroundControllerI::pauseCall(string opName, const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _pausedCalls.insert(opName);
 }
 
 void
 BackgroundControllerI::resumeCall(string opName, const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _pausedCalls.erase(opName);
-    notifyAll();
+    _condition.notify_all();
 }
 
 void
 BackgroundControllerI::checkCallPause(const Ice::Current& current)
 {
-    Lock sync(*this);
-    while(_pausedCalls.find(current.operation) != _pausedCalls.end())
-    {
-        wait();
-    }
+    unique_lock lock(_mutex);
+    _condition.wait(lock, [this, &current] { return _pausedCalls.find(current.operation) == _pausedCalls.end(); });
 }
 
 void

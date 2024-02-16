@@ -25,7 +25,7 @@ private:
 
     std::exception_ptr _exception;
 
-    IceUtil::Mutex _mutex;
+    mutable std::mutex _mutex;
 };
 using AMDInterceptorIPtr = std::shared_ptr<AMDInterceptorI>;
 

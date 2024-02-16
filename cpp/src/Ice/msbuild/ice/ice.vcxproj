@@ -493,7 +493,6 @@
     <ClCompile Include="..\..\..\IceUtil\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\..\IceUtil\FileUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\InputUtil.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\MutexProtocol.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Options.cpp" />
     <ClCompile Include="..\..\..\IceUtil\OutputUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\Random.cpp" />
@@ -511,7 +510,6 @@
     <ClCompile Include="..\..\Buffer.cpp" />
     <ClCompile Include="..\..\CollocatedRequestHandler.cpp" />
     <ClCompile Include="..\..\CommunicatorI.cpp" />
-    <ClCompile Include="..\..\Cond.cpp" />
     <ClCompile Include="..\..\ConnectionFactory.cpp" />
     <ClCompile Include="..\..\ConnectionI.cpp" />
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
