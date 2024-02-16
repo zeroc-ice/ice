@@ -400,9 +400,9 @@ public:
 
 private:
     IceUtil::ThreadPtr _opVoidThread;
-    IceUtil::Mutex _opVoidMutex;
+    std::mutex _opVoidMutex;
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     int _opByteSOnewayCallCount;
 };
 

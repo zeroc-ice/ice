@@ -306,7 +306,7 @@ public:
 
 private:
 
-    IceUtil::Mutex _mutex;
+    std::mutex _mutex;
     int _opByteSOnewayCallCount;
 };
 

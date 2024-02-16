@@ -612,14 +612,14 @@ MyDerivedClassI::opIntS(Test::IntS s, const Ice::Current&)
 void
 MyDerivedClassI::opByteSOneway(Test::ByteS, const Ice::Current&)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     ++_opByteSOnewayCallCount;
 }
 
 int
 MyDerivedClassI::opByteSOnewayCallCount(const Ice::Current&)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     int count = _opByteSOnewayCallCount;
     _opByteSOnewayCallCount = 0;
     return count;

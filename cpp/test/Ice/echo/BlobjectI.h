@@ -7,7 +7,7 @@
 
 #include <Ice/Object.h>
 
-class BlobjectI : public Ice::BlobjectAsync, private IceUtil::Monitor<IceUtil::Mutex>
+class BlobjectI : public Ice::BlobjectAsync
 {
 public:
 
@@ -29,6 +29,8 @@ private:
     bool _startBatch;
     Ice::ObjectPrxPtr _batchProxy;
     Ice::ConnectionPtr _connection;
+    std::mutex _mutex;
+    std::condition_variable _condition;
 };
 
 using BlobjectIPtr = std::shared_ptr<BlobjectI>;
