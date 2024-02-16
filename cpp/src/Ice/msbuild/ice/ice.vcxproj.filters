@@ -273,9 +273,6 @@
     <ClCompile Include="..\..\CommunicatorI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Cond.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ConnectionFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
