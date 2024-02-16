@@ -57,8 +57,8 @@ namespace
         int _status;
         std::ostringstream _out;
         Ice::CommunicatorPtr _communicator;
-        std::mutex _mutex;
-        std::condition_variable _condition;
+        mutable std::mutex _mutex;
+        mutable std::condition_variable _condition;
     };
 
     class ProcessI : public Process
