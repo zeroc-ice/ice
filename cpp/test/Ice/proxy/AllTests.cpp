@@ -754,26 +754,26 @@ allTests(Test::TestHelper* helper)
     auto loc1 = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("loc1:default -p 10000"));
     auto loc2 = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("loc2:default -p 10000"));
 
-    test(Ice::targetEqualTo(compObj->ice_locator(0), compObj->ice_locator(0)));
+    test(Ice::targetEqualTo(compObj->ice_locator(nullopt), compObj->ice_locator(nullopt)));
     test(Ice::targetEqualTo(compObj->ice_locator(loc1), compObj->ice_locator(loc1)));
-    test(Ice::targetNotEqualTo(compObj->ice_locator(loc1), compObj->ice_locator(0)));
-    test(Ice::targetNotEqualTo(compObj->ice_locator(0), compObj->ice_locator(loc2)));
+    test(Ice::targetNotEqualTo(compObj->ice_locator(loc1), compObj->ice_locator(nullopt)));
+    test(Ice::targetNotEqualTo(compObj->ice_locator(nullopt), compObj->ice_locator(loc2)));
     test(Ice::targetNotEqualTo(compObj->ice_locator(loc1), compObj->ice_locator(loc2)));
-    test(Ice::targetLess(compObj->ice_locator(0), compObj->ice_locator(loc1)));
-    test(Ice::targetGreaterEqual(compObj->ice_locator(loc1), compObj->ice_locator(0)));
+    test(Ice::targetLess(compObj->ice_locator(nullopt), compObj->ice_locator(loc1)));
+    test(Ice::targetGreaterEqual(compObj->ice_locator(loc1), compObj->ice_locator(nullopt)));
     test(Ice::targetLess(compObj->ice_locator(loc1), compObj->ice_locator(loc2)));
     test(Ice::targetGreaterEqual(compObj->ice_locator(loc2), compObj->ice_locator(loc1)));
 
     auto rtr1 = Ice::uncheckedCast<Ice::RouterPrx>(communicator->stringToProxy("rtr1:default -p 10000"));
     auto rtr2 = Ice::uncheckedCast<Ice::RouterPrx>(communicator->stringToProxy("rtr2:default -p 10000"));
 
-    test(Ice::targetEqualTo(compObj->ice_router(0), compObj->ice_router(0)));
+    test(Ice::targetEqualTo(compObj->ice_router(nullopt), compObj->ice_router(nullopt)));
     test(Ice::targetEqualTo(compObj->ice_router(rtr1), compObj->ice_router(rtr1)));
-    test(Ice::targetNotEqualTo(compObj->ice_router(rtr1), compObj->ice_router(0)));
-    test(Ice::targetNotEqualTo(compObj->ice_router(0), compObj->ice_router(rtr2)));
+    test(Ice::targetNotEqualTo(compObj->ice_router(rtr1), compObj->ice_router(nullopt)));
+    test(Ice::targetNotEqualTo(compObj->ice_router(nullopt), compObj->ice_router(rtr2)));
     test(Ice::targetNotEqualTo(compObj->ice_router(rtr1), compObj->ice_router(rtr2)));
-    test(Ice::targetLess(compObj->ice_router(0), compObj->ice_router(rtr1)));
-    test(Ice::targetGreaterEqual(compObj->ice_router(rtr1), compObj->ice_router(0)));
+    test(Ice::targetLess(compObj->ice_router(nullopt), compObj->ice_router(rtr1)));
+    test(Ice::targetGreaterEqual(compObj->ice_router(rtr1), compObj->ice_router(nullopt)));
     test(Ice::targetLess(compObj->ice_router(rtr1), compObj->ice_router(rtr2)));
     test(Ice::targetGreaterEqual(compObj->ice_router(rtr2), compObj->ice_router(rtr1)));
 

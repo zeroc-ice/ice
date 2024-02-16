@@ -418,7 +418,7 @@ ServerAdapterEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 AdapterInfoSeq
 ServerAdapterEntry::getAdapterInfoNoEndpoints() const
 {
-    return { { _id, nullptr, _replicaGroupId } };
+    return { { _id, nullopt, _replicaGroupId } };
 }
 
 shared_ptr<GetAdapterInfoResult>

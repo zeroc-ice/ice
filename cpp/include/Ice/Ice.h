@@ -34,7 +34,7 @@
 #   include <Ice/ObjectAdapter.h>
 #   include <Ice/ServantLocator.h>
 #   if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-#       include <Ice/Application.h>
+#       include <Ice/CtrlCHandler.h>
 #       include <Ice/Service.h>
 #   endif
 #   include <Ice/Connection.h>

@@ -1009,7 +1009,7 @@ Database::getAllocatableObject(const Ice::Identity& id) const
 
 void
 Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId,
-                                const Ice::ObjectPrx& proxy, long long dbSerial)
+                                const Ice::ObjectPrxPtr& proxy, long long dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
@@ -1099,7 +1099,7 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& encoding,
                                 const shared_ptr<Ice::Connection>& con,
                                 const Ice::Context& ctx)
@@ -1132,7 +1132,7 @@ Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& en
     {
         return _communicator->stringToProxy("dummy:default")->ice_endpoints(endpoints);
     }
-    return 0;
+    return nullopt;
 }
 
 void
@@ -1621,7 +1621,7 @@ Database::removeObject(const Ice::Identity& id, long long dbSerial)
 }
 
 void
-Database::updateObject(const Ice::ObjectPrx& proxy)
+Database::updateObject(const Ice::ObjectPrxPtr& proxy)
 {
     assert(_master);
 
@@ -1724,7 +1724,7 @@ Database::removeRegistryWellKnownObjects(const ObjectInfoSeq& objects)
     return _objectObserverTopic->wellKnownObjectsRemoved(objects);
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 Database::getObjectProxy(const Ice::Identity& id)
 {
     try
@@ -1747,29 +1747,29 @@ Database::getObjectProxy(const Ice::Identity& id)
     return info.proxy;
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
     if(objs.empty())
     {
-        return 0;
+        return nullopt;
     }
     return objs[IceUtilInternal::random(static_cast<unsigned int>(objs.size()))];
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample,
                                            const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
     if(objs.empty())
     {
-        return 0;
+        return nullopt;
     }
 
     IceUtilInternal::shuffle(objs.begin(), objs.end());
-    vector<pair<Ice::ObjectPrx, float>> objectsWithLoad;
+    vector<pair<Ice::ObjectPrxPtr, float>> objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for(const auto& obj : objs)
     {

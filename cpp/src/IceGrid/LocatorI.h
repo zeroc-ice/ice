@@ -30,7 +30,7 @@ public:
     public:
         virtual void execute() = 0;
         virtual void activating(const std::string&) = 0;
-        virtual void response(const std::string&, const Ice::ObjectPrx&) = 0;
+        virtual void response(const std::string&, const Ice::ObjectPrxPtr&) = 0;
         virtual void exception(const std::string&, std::exception_ptr) = 0;
     };
 
@@ -39,12 +39,12 @@ public:
              const QueryPrxPtr&);
 
     void findObjectByIdAsync(Ice::Identity,
-                            std::function<void(const Ice::ObjectPrx&)>,
+                            std::function<void(const Ice::ObjectPrxPtr&)>,
                             std::function<void(std::exception_ptr)>,
                             const Ice::Current&) const override;
 
     void findAdapterByIdAsync(std::string,
-                              std::function<void(const Ice::ObjectPrx&)>,
+                              std::function<void(const Ice::ObjectPrxPtr&)>,
                               std::function<void(std::exception_ptr)>,
                               const Ice::Current&) const override;
 
@@ -56,7 +56,7 @@ public:
     const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
     bool getDirectProxy(const LocatorAdapterInfo&, const std::shared_ptr<Request>&);
-    void getDirectProxyResponse(const LocatorAdapterInfo&, const Ice::ObjectPrx&);
+    void getDirectProxyResponse(const LocatorAdapterInfo&, const Ice::ObjectPrxPtr&);
     void getDirectProxyException(const LocatorAdapterInfo&, std::exception_ptr);
 
 protected:

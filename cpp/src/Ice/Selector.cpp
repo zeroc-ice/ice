@@ -30,10 +30,6 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance)
 {
 }
 
-Selector::~Selector()
-{
-}
-
 void
 Selector::setup(int sizeIO)
 {
@@ -229,10 +225,6 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
     pollFd.events = POLLIN;
     _pollFdSet.push_back(pollFd);
 #endif
-}
-
-Selector::~Selector()
-{
 }
 
 void
@@ -1158,7 +1150,7 @@ EventHandlerWrapper::checkReady()
 {
     if((_ready | _handler->_ready) & ~_handler->_disabled & _handler->_registered)
     {
-        _selector.addReadyHandler(this);
+        _selector.addReadyHandler(shared_from_this());
         return false;
     }
     else
@@ -1189,7 +1181,7 @@ EventHandlerWrapper::update(SocketOperation remove, SocketOperation add)
 
     // Clear ready flags which might not be valid anymore.
     _ready = static_cast<SocketOperation>(_ready & _handler->_registered);
-    return _handler->getNativeInfo();
+    return _handler->getNativeInfo() != nullptr;
 }
 
 bool
@@ -1198,7 +1190,7 @@ EventHandlerWrapper::finish()
     _finish = true;
     _ready = SocketOperationNone;
     _handler->_registered = SocketOperationNone;
-    return _handler->getNativeInfo();
+    return _handler->getNativeInfo() != nullptr;
 }
 
 Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroyed(false)
@@ -1213,19 +1205,15 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
     _thread = make_shared<SelectorHelperThread>(*this);
     _thread->start();
 
-    unique_lock<mutex> lock(_mutex);
+    unique_lock lock(_mutex);
     _conditionVariable.wait(lock, [this] { return _runLoop != 0; });
-}
-
-Selector::~Selector()
-{
 }
 
 void
 Selector::destroy()
 {
     {
-        lock_guard lock(_mutex);
+        unique_lock lock(_mutex);
 
         //
         // Make sure any pending changes are processed to ensure remaining
@@ -1239,8 +1227,7 @@ Selector::destroy()
         {
             CFRunLoopSourceSignal(_source.get());
             CFRunLoopWakeUp(_runLoop);
-
-            wait();
+            _conditionVariable.wait(lock);
         }
     }
 
@@ -1393,16 +1380,19 @@ Selector::select(int timeout)
             _conditionVariable.wait(lock);
         }
 
-        if(timeout > 0)
+        if (_readyHandlers.empty())
         {
-            if(_conditionVariable.wait_for(chrono::seconds(timeout) == cv_status::no_timeout))
+            if(timeout > 0)
             {
-                break;
+                if(_conditionVariable.wait_for(lock, chrono::seconds(timeout)) == cv_status::no_timeout)
+                {
+                    break;
+                }
             }
-        }
-        else
-        {
-            _conditionVariable.wait(lock, [this] { return !_readyHandlers.empty(); });
+            else
+            {
+                _conditionVariable.wait(lock);
+            }
         }
 
         if(_changes.empty())
@@ -1453,7 +1443,7 @@ Selector::ready(EventHandlerWrapper* wrapper, SocketOperation op, int error)
 }
 
 void
-Selector::addReadyHandler(EventHandlerWrapper* wrapper)
+Selector::addReadyHandler(EventHandlerWrapperPtr wrapper)
 {
     // Called from ready()
     _readyHandlers.insert(wrapper);

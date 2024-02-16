@@ -173,9 +173,9 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
             bool importTemplates = attributes.asBool("import-default-templates", false);
 
             //
-            // TODO: is ignoring importTemplates the desired behavior when _admin == 0?
+            // TODO: is ignoring importTemplates the desired behavior when _admin == nullopt?
             //
-            if(importTemplates && _admin != 0)
+            if(importTemplates && _admin != nullopt)
             {
                 try
                 {

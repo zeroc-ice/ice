@@ -23,7 +23,7 @@ class SubscriberForwarderI : public Ice::BlobjectArrayAsync
 {
 public:
 
-    SubscriberForwarderI(const Ice::ObjectPrx& proxy) :
+    SubscriberForwarderI(const Ice::ObjectPrxPtr& proxy) :
         _proxy(proxy)
     {
     }
@@ -45,7 +45,7 @@ public:
 
 private:
 
-    const Ice::ObjectPrx _proxy;
+    const Ice::ObjectPrxPtr _proxy;
 };
 
 }
@@ -91,7 +91,7 @@ AdminSessionI::AdminSessionI(const string& id, const shared_ptr<Database>& db, c
 {
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 AdminSessionI::_register(const shared_ptr<SessionServantManager>& servantManager,
                          const shared_ptr<Ice::Connection>& con)
 {
@@ -128,7 +128,7 @@ AdminSessionI::getAdmin(const Ice::Current&) const
     return _admin;
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 AdminSessionI::getAdminCallbackTemplate(const Ice::Current&) const
 {
     return _adminCallbackTemplate;
@@ -159,7 +159,7 @@ AdminSessionI::setObservers(RegistryObserverPrxPtr registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::RegistryObserver, nullptr);
+        setupObserverSubscription(TopicName::RegistryObserver, nullopt);
     }
 
     if(nodeObserver)
@@ -169,7 +169,7 @@ AdminSessionI::setObservers(RegistryObserverPrxPtr registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::NodeObserver, nullptr);
+        setupObserverSubscription(TopicName::NodeObserver, nullopt);
     }
 
     if(appObserver)
@@ -179,7 +179,7 @@ AdminSessionI::setObservers(RegistryObserverPrxPtr registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::ApplicationObserver, nullptr);
+        setupObserverSubscription(TopicName::ApplicationObserver, nullopt);
     }
 
     if(adapterObserver)
@@ -189,7 +189,7 @@ AdminSessionI::setObservers(RegistryObserverPrxPtr registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::AdapterObserver, nullptr);
+        setupObserverSubscription(TopicName::AdapterObserver, nullopt);
     }
 
     if(objectObserver)
@@ -199,7 +199,7 @@ AdminSessionI::setObservers(RegistryObserverPrxPtr registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::ObjectObserver, nullptr);
+        setupObserverSubscription(TopicName::ObjectObserver, nullopt);
     }
 }
 
@@ -346,7 +346,7 @@ AdminSessionI::destroy(const Ice::Current&)
 }
 
 void
-AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& observer, bool forwarder)
+AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrxPtr& observer, bool forwarder)
 {
     if(_observers.find(name) != _observers.end() && _observers[name].first != observer)
     {
@@ -373,18 +373,18 @@ AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrx& o
     }
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 AdminSessionI::addForwarder(const Ice::Identity& id, const Ice::Current& current)
 {
     if(id.name.empty())
     {
-        return nullptr;
+        return nullopt;
     }
     return addForwarder(current.con->createProxy(id)->ice_encodingVersion(current.encoding));
 }
 
-Ice::ObjectPrx
-AdminSessionI::addForwarder(const Ice::ObjectPrx& prx)
+Ice::ObjectPrxPtr
+AdminSessionI::addForwarder(const Ice::ObjectPrxPtr& prx)
 {
     return _registry->getRegistryAdapter()->addWithUUID(make_shared<SubscriberForwarderI>(prx));
 }
@@ -450,11 +450,11 @@ AdminSessionI::destroyImpl(bool shutdown)
         //
         // Unsubscribe from the topics.
         //
-        setupObserverSubscription(TopicName::RegistryObserver, nullptr);
-        setupObserverSubscription(TopicName::NodeObserver, nullptr);
-        setupObserverSubscription(TopicName::ApplicationObserver, nullptr);
-        setupObserverSubscription(TopicName::AdapterObserver, nullptr);
-        setupObserverSubscription(TopicName::ObjectObserver, nullptr);
+        setupObserverSubscription(TopicName::RegistryObserver, nullopt);
+        setupObserverSubscription(TopicName::NodeObserver, nullopt);
+        setupObserverSubscription(TopicName::ApplicationObserver, nullopt);
+        setupObserverSubscription(TopicName::AdapterObserver, nullopt);
+        setupObserverSubscription(TopicName::ObjectObserver, nullopt);
     }
 }
 

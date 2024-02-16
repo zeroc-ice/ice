@@ -142,7 +142,7 @@ public:
         string failure;
         try
         {
-            _database->setAdapterDirectProxy(id, "", nullptr, getSerials(current.ctx, serial));
+            _database->setAdapterDirectProxy(id, "", nullopt, getSerials(current.ctx, serial));
         }
         catch(const AdapterExistsException&)
         {
@@ -402,7 +402,7 @@ ReplicaSessionManager::registerAllWellKnownObjects()
 InternalRegistryPrxPtr
 ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
 {
-    vector<future<Ice::ObjectPrx>> results;
+    vector<future<Ice::ObjectPrxPtr>> results;
     for(const auto& obj : findAllQueryObjects(true))
     {
         results.push_back(obj->findObjectByIdAsync(id));
@@ -419,7 +419,7 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
         }
     }
 
-    return nullptr;
+    return nullopt;
 }
 
 bool
@@ -477,7 +477,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::s
 
         if(!session)
         {
-            vector<future<Ice::ObjectPrx>> results;
+            vector<future<Ice::ObjectPrxPtr>> results;
             for(const auto& obj : findAllQueryObjects(false))
             {
                 results.push_back(obj->findObjectByIdAsync(registry->ice_getIdentity()));
@@ -650,6 +650,6 @@ ReplicaSessionManager::destroySession(const ReplicaSessionPrxPtr& session)
         catch(const Ice::LocalException&)
         {
         }
-        _observer = nullptr;
+        _observer = nullopt;
     }
 }

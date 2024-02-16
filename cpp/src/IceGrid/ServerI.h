@@ -116,7 +116,7 @@ public:
     //
     // A proxy to the Process facet of the real Admin object; called by the AdminFacade servant implementation
     //
-    Ice::ObjectPrx getProcess() const;
+    Ice::ObjectPrxPtr getProcess() const;
 
     PropertyDescriptorSeqDict getProperties(const std::shared_ptr<InternalServerDescriptor>&);
 
@@ -325,9 +325,9 @@ public:
     std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor() const;
     void addCallback(std::function<void(const ServerPrxPtr&, const AdapterPrxDict &, int, int)>,
                      std::function<void(std::exception_ptr)>);
-    void startRuntimePropertiesUpdate(const Ice::ObjectPrx&);
+    void startRuntimePropertiesUpdate(const Ice::ObjectPrxPtr&);
     bool finishRuntimePropertiesUpdate(const std::shared_ptr<InternalServerDescriptor>&,
-                                       const Ice::ObjectPrx&);
+                                       const Ice::ObjectPrxPtr&);
     void failed(std::exception_ptr);
     void finished(const ServerPrxPtr&, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
 

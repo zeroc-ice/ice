@@ -308,7 +308,7 @@ RegistryI::startImpl()
     }
     else if(_master)
     {
-        _communicator->setDefaultLocator(nullptr); // Clear the default locator in case it's set.
+        _communicator->setDefaultLocator(nullopt); // Clear the default locator in case it's set.
     }
 
     //
@@ -418,22 +418,19 @@ RegistryI::startImpl()
         id.category = _instanceName;
         id.name = (_initFromReplica == "Master") ? "Registry" : "Registry-" + _initFromReplica;
 
-        ObjectPrx proxy;
+        ObjectPrxPtr proxy;
         try
         {
             proxy = _database->getObjectProxy(id);
             id.name = "Query";
             auto query = uncheckedCast<IceGrid::QueryPrx>(proxy->ice_identity(id));
-            if(query)
+            id.name = "InternalRegistry-" + _initFromReplica;
+            try
             {
-                id.name = "InternalRegistry-" + _initFromReplica;
-                try
-                {
-                    proxy = query->findObjectById(id);
-                }
-                catch(const Ice::Exception&)
-                {
-                }
+                proxy = query->findObjectById(id);
+            }
+            catch (const Ice::Exception &)
+            {
             }
         }
         catch(const ObjectNotRegisteredException&)
@@ -962,7 +959,7 @@ RegistryI::createSession(string user, string password, const Current& current)
         throw PermissionDeniedException("internal server error");
     }
 
-    auto session = _clientSessionFactory->createSessionServant(user, nullptr);
+    auto session = _clientSessionFactory->createSessionServant(user, nullopt);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session), _sessionTimeout,
                  current.con);
@@ -1063,7 +1060,7 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
         throw PermissionDeniedException("internal server error");
     }
 
-    auto session = _clientSessionFactory->createSessionServant(userDN, 0);
+    auto session = _clientSessionFactory->createSessionServant(userDN, nullopt);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session), _sessionTimeout,
                  current.con);
@@ -1155,7 +1152,7 @@ RegistryI::shutdown()
     _clientAdapter->deactivate();
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 RegistryI::createAdminCallbackProxy(const Identity& id) const
 {
     return _serverAdapter->createProxy(id);
@@ -1174,7 +1171,7 @@ RegistryI::getPermissionsVerifier(const IceGrid::LocatorPrxPtr& locator,
     //
     // Get the permissions verifier
     //
-    ObjectPrx verifier;
+    ObjectPrxPtr verifier;
 
     try
     {
@@ -1185,12 +1182,12 @@ RegistryI::getPermissionsVerifier(const IceGrid::LocatorPrxPtr& locator,
         Error out(_communicator->getLogger());
         out << "permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
             << "' is invalid:\n" << ex;
-        return nullptr;
+        return nullopt;
     }
 
     if(!verifier)
     {
-        return nullptr;
+        return nullopt;
     }
 
     Glacier2::PermissionsVerifierPrxPtr verifierPrx;
@@ -1208,7 +1205,7 @@ RegistryI::getPermissionsVerifier(const IceGrid::LocatorPrxPtr& locator,
             Error out(_communicator->getLogger());
             out << "permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
                 << "' is invalid";
-            return nullptr;
+            return nullopt;
         }
     }
     catch(const LocalException& ex)
@@ -1231,7 +1228,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrxPtr& locator, cons
     // Get the permissions verifier, or create a default one if no
     // verifier is specified.
     //
-    ObjectPrx verifier;
+    ObjectPrxPtr verifier;
     try
     {
         verifier = _communicator->propertyToProxy(verifierProperty);
@@ -1241,12 +1238,12 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrxPtr& locator, cons
         Error out(_communicator->getLogger());
         out << "ssl permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
             << "' is invalid:\n" << ex;
-        return nullptr;
+        return nullopt;
     }
 
     if(!verifier)
     {
-        return nullptr;
+        return nullopt;
     }
 
     Glacier2::SSLPermissionsVerifierPrxPtr verifierPrx;
@@ -1264,7 +1261,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrxPtr& locator, cons
             Error out(_communicator->getLogger());
             out << "ssl permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
                 << "' is invalid";
-            return nullptr;
+            return nullopt;
         }
     }
     catch(const LocalException& ex)
@@ -1338,7 +1335,7 @@ RegistryI::registerReplicas(const InternalRegistryPrxPtr& internalRegistry, cons
 
     for(const auto& p : _database->getObjectsByType(InternalRegistry::ice_staticId()))
     {
-        replicas.insert({ uncheckedCast<InternalRegistryPrx>(p), nullptr });
+        replicas.insert({ uncheckedCast<InternalRegistryPrx>(p), nullopt });
     }
 
     for(const auto& p : _database->getObjectsByType(Registry::ice_staticId()))

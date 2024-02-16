@@ -73,7 +73,7 @@ public:
     ServerPrxPtr getProxy(std::chrono::seconds&, std::chrono::seconds&, std::string&, bool = true,
                                         std::chrono::seconds = std::chrono::seconds(0));
     ServerPrxPtr getProxy(bool = true, std::chrono::seconds = std::chrono::seconds(0));
-    Ice::ObjectPrx getAdminProxy();
+    Ice::ObjectPrxPtr getAdminProxy();
 
     AdapterPrxPtr getAdapter(const std::string&, bool);
     AdapterPrxPtr getAdapter(std::chrono::seconds&, std::chrono::seconds&, const std::string&, bool);

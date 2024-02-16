@@ -22,12 +22,6 @@
     <ClCompile Include="..\CreateTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\MonitorMutexTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\MutexTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\SleepTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,12 +40,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CreateTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\MonitorMutexTest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\MutexTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SleepTest.h">

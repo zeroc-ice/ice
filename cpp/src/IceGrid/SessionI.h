@@ -61,16 +61,16 @@ public:
 
     SessionI(const std::string&, const std::shared_ptr<Database>&, const IceUtil::TimerPtr&);
 
-    Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&,
+    Ice::ObjectPrxPtr _register(const std::shared_ptr<SessionServantManager>&,
                                               const std::shared_ptr<Ice::Connection>&);
 
     void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
     void allocateObjectByIdAsync(Ice::Identity id,
-                                 std::function<void(const Ice::ObjectPrx& returnValue)> response,
+                                 std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
                                  std::function<void(std::exception_ptr)> exception, const Ice::Current& current)
                                  override;
     void allocateObjectByTypeAsync(std::string,
-                                   std::function<void(const Ice::ObjectPrx& returnValue)> response,
+                                   std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
                                    std::function<void(std::exception_ptr)> exception, const Ice::Current& current)
                                    override;
     void releaseObject(Ice::Identity, const Ice::Current&) override;

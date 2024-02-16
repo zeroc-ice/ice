@@ -62,7 +62,7 @@ public:
     run()
     {
         using namespace std::chrono_literals;
-        TPrxPtr session;
+        std::optional<TPrx> session;
         InternalRegistryPrxPtr registry;
         std::chrono::seconds timeout = 10s;
         Action action = Connect;
@@ -153,7 +153,7 @@ public:
                 case Disconnect:
                     assert(session);
                     destroySession(session);
-                    session = nullptr;
+                    session = std::nullopt;
                     break;
                 case KeepAlive:
                     assert(session);
@@ -301,7 +301,7 @@ public:
         return _state == Destroyed;
     }
 
-    TPrxPtr
+    std::optional<TPrx>
     getSession()
     {
         std::lock_guard<std::mutex> lock(_mutex);
@@ -322,15 +322,15 @@ public:
         return _registry;
     }
 
-    virtual TPrxPtr createSession(InternalRegistryPrxPtr&, std::chrono::seconds&) = 0;
-    virtual void destroySession(const TPrxPtr&) = 0;
-    virtual bool keepAlive(const TPrxPtr&) = 0;
+    virtual std::optional<TPrx> createSession(InternalRegistryPrxPtr&, std::chrono::seconds&) = 0;
+    virtual void destroySession(const std::optional<TPrx>&) = 0;
+    virtual bool keepAlive(const std::optional<TPrx>&) = 0;
 
 protected:
 
     InternalRegistryPrxPtr _registry;
     std::shared_ptr<Ice::Logger> _logger;
-    TPrxPtr _session;
+    std::optional<TPrx> _session;
     State _state;
     Action _nextAction;
 

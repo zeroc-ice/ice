@@ -604,13 +604,13 @@ SessionRouterI::destroy()
     }
 }
 
-ObjectPrx
+ObjectPrxPtr
 SessionRouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current& current) const
 {
     return getRouter(current.con, current.id)->getClientProxy(hasRoutingTable, current); // Forward to the per-client router.
 }
 
-ObjectPrx
+ObjectPrxPtr
 SessionRouterI::getServerProxy(const Current& current) const
 {
     return getRouter(current.con, current.id)->getServerProxy(current); // Forward to the per-client router.

@@ -22,7 +22,7 @@ class AdapterRequest final : public LocatorI::Request
 {
 public:
 
-    AdapterRequest(function<void(const Ice::ObjectPrx&)> response,
+    AdapterRequest(function<void(const Ice::ObjectPrxPtr&)> response,
                    function<void(exception_ptr)> exception,
                    const shared_ptr<LocatorI>& locator,
                    const Ice::EncodingVersion& encoding,
@@ -50,7 +50,7 @@ public:
     }
 
     void
-    response(const std::string& id, const Ice::ObjectPrx& proxy) override
+    response(const std::string& id, const Ice::ObjectPrxPtr& proxy) override
     {
         assert(proxy);
 
@@ -78,12 +78,12 @@ public:
             Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
             out << "couldn't resolve adapter`" << _adapter.id << "' endpoints:\n" << toString(ex);
         }
-        _response(nullptr);
+        _response(nullopt);
     }
 
 private:
 
-    const function<void(const Ice::ObjectPrx&)> _response;
+    const function<void(const Ice::ObjectPrxPtr&)> _response;
     const function<void(exception_ptr)> _exception;
     const shared_ptr<LocatorI> _locator;
     const Ice::EncodingVersion _encoding;
@@ -95,14 +95,14 @@ class ReplicaGroupRequest final : public LocatorI::Request
 {
 public:
 
-    ReplicaGroupRequest(function<void(const Ice::ObjectPrx&)> response,
+    ReplicaGroupRequest(function<void(const Ice::ObjectPrxPtr&)> response,
                         function<void(exception_ptr)> exception,
                         const shared_ptr<LocatorI>& locator,
                         const string& id,
                         const Ice::EncodingVersion& encoding,
                         const LocatorAdapterInfoSeq& adapters,
                         int count,
-                        Ice::ObjectPrx firstProxy) :
+                        Ice::ObjectPrxPtr firstProxy) :
         _response(std::move(response)),
         _exception(std::move(exception)),
         _locator(locator),
@@ -239,7 +239,7 @@ public:
     }
 
     void
-    response(const string& id, const Ice::ObjectPrx& proxy) override
+    response(const string& id, const Ice::ObjectPrxPtr& proxy) override
     {
         //
         // Ensure the server supports the request encoding.
@@ -296,7 +296,7 @@ private:
                 out << "couldn't resolve replica group `" << _id << "' endpoints:\n";
                 out << (_exptr ? toString(_exptr) : string("replica group is empty"));
             }
-            _response(nullptr);
+            _response(nullopt);
         }
         else if(_proxies.size() > 1)
         {
@@ -318,7 +318,7 @@ private:
         }
     }
 
-    const function<void(const Ice::ObjectPrx&)> _response;
+    const function<void(const Ice::ObjectPrxPtr&)> _response;
     const function<void(exception_ptr)> _exception;
     const shared_ptr<LocatorI> _locator;
     const std::string _id;
@@ -327,7 +327,7 @@ private:
     const shared_ptr<TraceLevels> _traceLevels;
     unsigned int _count;
     LocatorAdapterInfoSeq::const_iterator _lastAdapter;
-    std::map<std::string, Ice::ObjectPrx> _proxies;
+    std::map<std::string, Ice::ObjectPrxPtr> _proxies;
     exception_ptr _exptr;
     std::mutex _mutex;
 };
@@ -336,7 +336,7 @@ class RoundRobinRequest final : public LocatorI::Request, SynchronizationCallbac
 {
 public:
 
-    RoundRobinRequest(function<void(const Ice::ObjectPrx&)> response,
+    RoundRobinRequest(function<void(const Ice::ObjectPrxPtr&)> response,
                       function<void(exception_ptr)> exception,
                       const shared_ptr<LocatorI>& locator,
                       const shared_ptr<Database> database,
@@ -370,7 +370,7 @@ public:
                 Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
                 out << "couldn't resolve replica group `" << _id << "' endpoints:\nreplica group is empty";
             }
-            _response(nullptr);
+            _response(nullopt);
             return;
         }
 
@@ -401,7 +401,7 @@ public:
     }
 
     void
-    response(const std::string& id, const Ice::ObjectPrx& proxy) override
+    response(const std::string& id, const Ice::ObjectPrxPtr& proxy) override
     {
         //
         // Ensure the server supports the request encoding.
@@ -502,7 +502,7 @@ public:
                     Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
                     out << "couldn't resolve replica group `" << _id << "' endpoints:\n" << toString(ex);
                 }
-                _response(nullptr);
+                _response(nullopt);
                 return;
             }
         }
@@ -596,7 +596,7 @@ private:
                     out << "couldn't resolve replica group `" << _id << "' endpoints:\n";
                     out << (_exptr ? toString(_exptr) : string("replica group is empty"));
                 }
-                _response(nullptr);
+                _response(nullopt);
                 return LocatorAdapterInfo();
             }
         }
@@ -614,12 +614,12 @@ private:
                 Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
                 out << "couldn't resolve replica group `" << _id << "' endpoints:\n" << toString(current_exception());
             }
-            _response(nullptr);
+            _response(nullopt);
             return LocatorAdapterInfo();
         }
     }
 
-    const function<void(const Ice::ObjectPrx&)> _response;
+    const function<void(const Ice::ObjectPrxPtr&)> _response;
     const function<void(exception_ptr)> _exception;
     const shared_ptr<LocatorI> _locator;
     const shared_ptr<Database> _database;
@@ -642,7 +642,7 @@ class FindAdapterByIdCallback final : public SynchronizationCallback
 public:
 
     FindAdapterByIdCallback(const shared_ptr<LocatorI>& locator,
-                            function<void(const Ice::ObjectPrx&)> response,
+                            function<void(const Ice::ObjectPrxPtr&)> response,
                             function<void(exception_ptr)> exception,
                             const string& id,
                             const Ice::Current& current) :
@@ -686,13 +686,13 @@ public:
                 out << "couldn't resolve adapter `" << _id << "' endpoints:\n" << toString(exptr);
             }
         }
-        _response(nullptr);
+        _response(nullopt);
     }
 
 private:
 
     const shared_ptr<LocatorI> _locator;
-    const function<void(const Ice::ObjectPrx&)> _response;
+    const function<void(const Ice::ObjectPrxPtr&)> _response;
     const function<void(exception_ptr)> _exception;
     const string _id;
     const Ice::Current _current;
@@ -719,7 +719,7 @@ LocatorI::LocatorI(const shared_ptr<Ice::Communicator>& communicator,
 //
 void
 LocatorI::findObjectByIdAsync(Ice::Identity id,
-                              function<void(const Ice::ObjectPrx&)> response,
+                              function<void(const Ice::ObjectPrxPtr&)> response,
                               function<void(exception_ptr)>,
                               const Ice::Current&) const
 {
@@ -739,7 +739,7 @@ LocatorI::findObjectByIdAsync(Ice::Identity id,
 //
 void
 LocatorI::findAdapterByIdAsync(string id,
-                               function<void(const Ice::ObjectPrx&)> response,
+                               function<void(const Ice::ObjectPrxPtr&)> response,
                                function<void(exception_ptr)> exception,
                                const Ice::Current& current) const
 {
@@ -782,7 +782,7 @@ LocatorI::findAdapterByIdAsync(string id,
         else if(replicaGroup)
         {
             request = make_shared<ReplicaGroupRequest>(response, exception, self, id, current.encoding, adapters, count,
-                                                       nullptr);
+                                                       nullopt);
         }
         else
         {
@@ -810,7 +810,7 @@ LocatorI::findAdapterByIdAsync(string id,
                 out << "couldn't resolve adapter `" << id << "' endpoints:\n" << toString(current_exception());
             }
         }
-        response(nullptr);
+        response(nullopt);
         return;
     }
 
@@ -883,7 +883,7 @@ LocatorI::getDirectProxy(const LocatorAdapterInfo& adapter, const shared_ptr<Req
 }
 
 void
-LocatorI::getDirectProxyResponse(const LocatorAdapterInfo& adapter, const Ice::ObjectPrx& proxy)
+LocatorI::getDirectProxyResponse(const LocatorAdapterInfo& adapter, const Ice::ObjectPrxPtr& proxy)
 {
     PendingRequests requests;
     {

@@ -1470,7 +1470,7 @@ Parser::writeMessage(const list<string>& args, int fd)
         string server = *p++;
 
         auto serverAdmin = _admin->getServerAdmin(server);
-        auto process = Ice::uncheckedCast<Ice::ProcessPrx>(serverAdmin, "Process");
+        auto process = Ice::uncheckedCast<Ice::ProcessPrx>(serverAdmin->ice_facet("Process"));
 
         process->writeMessage(*p,  fd);
     }
@@ -1626,7 +1626,7 @@ Parser::propertiesServer(const list<string>& args, bool single)
     try
     {
         auto serverAdmin = _admin->getServerAdmin(args.front());
-        auto propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(serverAdmin, "Properties");
+        auto propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(serverAdmin->ice_facet("Properties"));
 
         if(single)
         {
@@ -1717,7 +1717,7 @@ Parser::startService(const list<string>& args)
     try
     {
         auto admin = _admin->getServerAdmin(server);
-        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin, "IceBox.ServiceManager");
+        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin->ice_facet("IceBox.ServiceManager"));
         manager->startService(service);
     }
     catch(const IceBox::AlreadyStartedException&)
@@ -1756,7 +1756,7 @@ Parser::stopService(const list<string>& args)
     try
     {
         auto admin = _admin->getServerAdmin(server);
-        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin, "IceBox.ServiceManager");
+        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin->ice_facet("IceBox.ServiceManager"));
         manager->stopService(service);
     }
     catch(const IceBox::AlreadyStoppedException&)
@@ -1881,11 +1881,11 @@ Parser::propertiesService(const list<string>& args, bool single)
         Ice::PropertiesAdminPrxPtr propAdmin;
         if(getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0)
         {
-            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.SharedCommunicator.Properties");
+            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin->ice_facet("IceBox.SharedCommunicator.Properties"));
         }
         else
         {
-            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.Service." + service + ".Properties");
+            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin->ice_facet("IceBox.Service." + service + ".Properties"));
         }
 
         if(single)
@@ -1964,16 +1964,16 @@ Parser::endpointsAdapter(const list<string>& args)
         AdapterInfoSeq adpts = _admin->getAdapterInfo(adapterId);
         if(adpts.size() == 1 && adpts.begin()->id == adapterId)
         {
-            string endpoints = _communicator->proxyToString(adpts.begin()->proxy);
-            consoleOut << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
+            auto proxy = adpts.begin()->proxy;
+            consoleOut << (proxy ? _communicator->proxyToString(proxy.value()) : "<inactive>") << endl;
         }
         else
         {
             for(AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
             {
                 consoleOut << (p->id.empty() ? string("<empty>") : p->id) << ": ";
-                string endpoints = _communicator->proxyToString(p->proxy);
-                consoleOut << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
+                auto proxy = p->proxy;
+                consoleOut << (proxy ? _communicator->proxyToString(proxy.value()) : "<inactive>") << endl;
             }
         }
     }
@@ -2088,7 +2088,10 @@ Parser::findObject(const list<string>& args)
         ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            consoleOut << _communicator->proxyToString(p->proxy) << endl;
+            if (p->proxy)
+            {
+                consoleOut << _communicator->proxyToString(p->proxy.value()) << endl;
+            }
         }
     }
     catch(const Ice::Exception&)
@@ -2115,7 +2118,8 @@ Parser::describeObject(const list<string>& args)
             if(arg.find('*') == string::npos)
             {
                 ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
-                consoleOut << "proxy = `" << _communicator->proxyToString(info.proxy) << "'" << endl;
+                auto proxy = info.proxy;
+                consoleOut << "proxy = `" << (proxy ? _communicator->proxyToString(proxy.value()) : "") << "'" << endl;
                 consoleOut << "type = `" << info.type << "'" << endl;
                 return;
             }
@@ -2131,7 +2135,9 @@ Parser::describeObject(const list<string>& args)
 
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            consoleOut << "proxy = `" << _communicator->proxyToString(p->proxy) << "' type = `" << p->type << "'" << endl;
+            auto proxy = p->proxy;
+            consoleOut << "proxy = `" << (proxy ? _communicator->proxyToString(proxy.value()) : "")
+                << "' type = `" << p->type << "'" << endl;
         }
 
     }
@@ -2403,7 +2409,7 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
     }
     catch(...)
     {
-        if(it != 0)
+        if(it != nullopt)
         {
             try
             {
@@ -2422,7 +2428,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 {
     outputNewline();
 
-    Ice::ObjectPrx admin;
+    Ice::ObjectPrxPtr admin;
 
     if(reader == "server")
     {
@@ -2437,7 +2443,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         admin = _admin->getRegistryAdmin(id);
     }
 
-    if(admin == 0)
+    if(admin == nullopt)
     {
         error("cannot retrieve Admin proxy for " + reader + " `" + id + "'");
         return;
@@ -2447,13 +2453,13 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
     try
     {
-        loggerAdmin = Ice::checkedCast<Ice::LoggerAdminPrx>(admin, "Logger");
+        loggerAdmin = Ice::checkedCast<Ice::LoggerAdminPrx>(admin->ice_facet("Logger"));
     }
     catch(const Ice::Exception&)
     {
     }
 
-    if(loggerAdmin == 0)
+    if(loggerAdmin == nullopt)
     {
         error("cannot retrieve Logger admin facet for " + reader + " `" + id + "'");
         return;
@@ -2463,7 +2469,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
     {
         auto adminCallbackTemplate = _session->getAdminCallbackTemplate();
 
-        if(adminCallbackTemplate == 0)
+        if(adminCallbackTemplate == nullopt)
         {
             error("cannot retriever Callback template from IceGrid registry");
             return;

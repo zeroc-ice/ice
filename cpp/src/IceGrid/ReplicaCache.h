@@ -26,7 +26,7 @@ public:
     std::shared_ptr<InternalReplicaInfo> getInfo() const;
     InternalRegistryPrxPtr getProxy() const;
 
-    Ice::ObjectPrx getAdminProxy() const;
+    Ice::ObjectPrxPtr getAdminProxy() const;
 
 private:
 
@@ -47,7 +47,7 @@ public:
     void subscribe(const ReplicaObserverPrxPtr&);
     void unsubscribe(const ReplicaObserverPrxPtr&);
 
-    Ice::ObjectPrx getEndpoints(const std::string&, const Ice::ObjectPrx&) const;
+    Ice::ObjectPrxPtr getEndpoints(const std::string&, const Ice::ObjectPrxPtr&) const;
 
     void setInternalRegistry(const InternalRegistryPrxPtr&);
     InternalRegistryPrxPtr getInternalRegistry() const;

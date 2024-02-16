@@ -95,9 +95,9 @@ public:
     AllocatableObjectCache& getAllocatableObjectCache();
     std::shared_ptr<AllocatableObjectEntry> getAllocatableObject(const Ice::Identity&) const;
 
-    void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&,
+    void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrxPtr&,
                                long long = 0);
-    Ice::ObjectPrx getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&,
+    Ice::ObjectPrxPtr getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&,
                                                           const std::shared_ptr<Ice::Connection>&,
                                                           const Ice::Context&);
 
@@ -121,15 +121,15 @@ public:
     void addObject(const ObjectInfo&);
     void addOrUpdateObject(const ObjectInfo&, long long = 0);
     void removeObject(const Ice::Identity&, long long = 0);
-    void updateObject(const Ice::ObjectPrx&);
+    void updateObject(const Ice::ObjectPrxPtr&);
     int addOrUpdateRegistryWellKnownObjects(const ObjectInfoSeq&);
     int removeRegistryWellKnownObjects(const ObjectInfoSeq&);
 
-    Ice::ObjectPrx getObjectProxy(const Ice::Identity&);
-    Ice::ObjectPrx getObjectByType(const std::string&,
+    Ice::ObjectPrxPtr getObjectProxy(const Ice::Identity&);
+    Ice::ObjectPrxPtr getObjectByType(const std::string&,
                                                     const std::shared_ptr<Ice::Connection>& = nullptr,
                                                     const Ice::Context& = Ice::Context());
-    Ice::ObjectPrx getObjectByTypeOnLeastLoadedNode(const std::string&, LoadSample,
+    Ice::ObjectPrxPtr getObjectByTypeOnLeastLoadedNode(const std::string&, LoadSample,
                                                                      const std::shared_ptr<Ice::Connection>& = nullptr,
                                                                      const Ice::Context& = Ice::Context());
     Ice::ObjectProxySeq getObjectsByType(const std::string&,

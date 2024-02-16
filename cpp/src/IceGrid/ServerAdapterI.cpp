@@ -32,7 +32,7 @@ ServerAdapterI::~ServerAdapterI()
 }
 
 void
-ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrx&)> response,
+ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrxPtr&)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {
@@ -54,7 +54,7 @@ ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrx&)> response,
             //
             if(!_enabled || !_server->isAdapterActivatable(_id))
             {
-                response(nullptr);
+                response(nullopt);
                 return;
             }
         }
@@ -104,7 +104,7 @@ ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrx&)> response,
     }
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
     lock_guard lock(_mutex);
@@ -124,7 +124,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
 }
 
 void
-ServerAdapterI::setDirectProxy(Ice::ObjectPrx prx, const Ice::Current&)
+ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
@@ -182,7 +182,7 @@ ServerAdapterI::setDirectProxy(Ice::ObjectPrx prx, const Ice::Current&)
         out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
         if(_proxy)
         {
-            out << ": " << _node->getCommunicator()->proxyToString(_proxy);
+            out << ": " << _node->getCommunicator()->proxyToString(_proxy.value());
         }
     }
 }
@@ -212,7 +212,7 @@ void
 ServerAdapterI::clear()
 {
     lock_guard lock(_mutex);
-    _proxy = nullptr;
+    _proxy = nullopt;
     _activateAfterDeactivating = false;
 }
 
@@ -232,7 +232,7 @@ ServerAdapterI::activationFailed(const std::string& reason)
     lock_guard lock(_mutex);
     for(const auto& response : _activateCB)
     {
-        response(nullptr);
+        response(nullopt);
     }
     _activateCB.clear();
 }

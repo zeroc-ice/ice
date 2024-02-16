@@ -57,7 +57,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrxPtr& registry, chro
 
         if(!session)
         {
-            vector<future<Ice::ObjectPrx>> results;
+            vector<future<Ice::ObjectPrxPtr>> results;
             auto queryObjects = _manager.getQueryObjects();
             for(const auto& object : queryObjects)
             {
@@ -563,7 +563,7 @@ NodeSessionManager::createdSession(const NodeSessionPrxPtr& session)
             results2.push_back(object->findAllObjectsByTypeAsync(Registry::ice_staticId()));
         }
 
-        map<Ice::Identity, Ice::ObjectPrx> proxies;
+        map<Ice::Identity, Ice::ObjectPrxPtr> proxies;
 
         for(auto& result : results1)
         {

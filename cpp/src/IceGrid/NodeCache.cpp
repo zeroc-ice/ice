@@ -170,7 +170,7 @@ NodeEntry::setSession(const shared_ptr<NodeSessionI>& session)
         // so we won't need anymore to try to register it with this
         // registry.
         //
-        _proxy = nullptr;
+        _proxy = nullopt;
     }
     else
     {
@@ -291,7 +291,7 @@ NodeEntry::getSession() const
     return _session;
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 NodeEntry::getAdminProxy() const
 {
     auto prx = getProxy();
@@ -597,7 +597,7 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
                                         {
                                             self->finishedRegistration(ex);
                                         });
-        _proxy = nullptr; // Registration with the proxy is only attempted once.
+        _proxy = nullopt; // Registration with the proxy is only attempted once.
 
     }
 

@@ -23,13 +23,13 @@ public:
     AdminSessionI(const std::string&, const std::shared_ptr<Database>&,
                   std::chrono::seconds, const std::shared_ptr<RegistryI>&);
 
-    Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&,
+    Ice::ObjectPrxPtr _register(const std::shared_ptr<SessionServantManager>&,
                                               const std::shared_ptr<Ice::Connection>&);
 
     void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
 
     AdminPrxPtr getAdmin(const Ice::Current&) const override;
-    Ice::ObjectPrx getAdminCallbackTemplate(const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getAdminCallbackTemplate(const Ice::Current&) const override;
 
     void setObservers(RegistryObserverPrxPtr, NodeObserverPrxPtr,
                       ApplicationObserverPrxPtr, AdapterObserverPrxPtr,
@@ -59,9 +59,9 @@ public:
 
 private:
 
-    void setupObserverSubscription(TopicName, const Ice::ObjectPrx&, bool = false);
-    Ice::ObjectPrx addForwarder(const Ice::Identity&, const Ice::Current&);
-    Ice::ObjectPrx addForwarder(const Ice::ObjectPrx&);
+    void setupObserverSubscription(TopicName, const Ice::ObjectPrxPtr&, bool = false);
+    Ice::ObjectPrxPtr addForwarder(const Ice::Identity&, const Ice::Current&);
+    Ice::ObjectPrxPtr addForwarder(const Ice::ObjectPrxPtr&);
     FileIteratorPrxPtr addFileIterator(const FileReaderPrxPtr&, const std::string&, int,
                                                      const Ice::Current&);
 
@@ -70,9 +70,9 @@ private:
     const std::chrono::seconds _timeout;
     const std::string _replicaName;
     AdminPrxPtr _admin;
-    std::map<TopicName, std::pair<Ice::ObjectPrx, bool>> _observers;
+    std::map<TopicName, std::pair<Ice::ObjectPrxPtr, bool>> _observers;
     std::shared_ptr<RegistryI> _registry;
-    Ice::ObjectPrx _adminCallbackTemplate;
+    Ice::ObjectPrxPtr _adminCallbackTemplate;
 };
 
 class AdminSessionFactory

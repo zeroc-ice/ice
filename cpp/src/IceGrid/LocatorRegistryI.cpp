@@ -20,7 +20,7 @@ tuple<function<void()>, function<void(exception_ptr)>>
 newSetDirectProxyCB(function<void()> responseCb,
                     function<void(exception_ptr)> exceptionCb,
                     const shared_ptr<TraceLevels>& traceLevels, const string& id,
-                    const Ice::ObjectPrx& proxy)
+                    const Ice::ObjectPrxPtr& proxy)
 {
     auto response = [traceLevels, id, proxy, responseCb = std::move(responseCb)] ()
     {
@@ -81,7 +81,7 @@ public:
                                   function<void(exception_ptr)> exception,
                                   const string& adapterId,
                                   const string& replicaGroupId,
-                                  const Ice::ObjectPrx& proxy) :
+                                  const Ice::ObjectPrxPtr& proxy) :
         _registry(registry),
         _response(std::move(response)),
         _exception(std::move(exception)),
@@ -117,7 +117,7 @@ private:
     const function<void(exception_ptr)> _exception;
     const string _adapterId;
     const string _replicaGroupId;
-    const Ice::ObjectPrx _proxy;
+    const Ice::ObjectPrxPtr _proxy;
 };
 
 class SetServerProcessProxyCallback final : public SynchronizationCallback
@@ -196,7 +196,7 @@ LocatorRegistryI::LocatorRegistryI(const shared_ptr<Database>& database,
 }
 
 void
-LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId, Ice::ObjectPrx proxy,
+LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId, Ice::ObjectPrxPtr proxy,
                                              function<void()> response,
                                              function<void(exception_ptr)> exception,
                                               const Ice::Current&)
@@ -213,7 +213,7 @@ LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId, Ice::ObjectPrx pr
 
 void
 LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId, string replicaGroupId,
-                                                       Ice::ObjectPrx proxy,
+                                                       Ice::ObjectPrxPtr proxy,
                                                        function<void()> response,
                                                        function<void(exception_ptr)> exception,
                                                        const Ice::Current&)
@@ -323,7 +323,7 @@ LocatorRegistryI::setServerProcessProxyAsync(string id, Ice::ProcessPrxPtr proxy
 
 void
 LocatorRegistryI::setAdapterDirectProxy(string adapterId, string replicaGroupId,
-                                        Ice::ObjectPrx proxy,
+                                        Ice::ObjectPrxPtr proxy,
                                         function<void()> response,
                                         function<void(exception_ptr)> exception)
 {

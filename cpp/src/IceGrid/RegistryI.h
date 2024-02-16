@@ -58,7 +58,7 @@ public:
     std::string getNodeAdminCategory() const { return _instanceName + "-RegistryNodeAdminRouter"; }
     std::string getReplicaAdminCategory() const { return _instanceName + "-RegistryReplicaAdminRouter"; }
 
-    Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
+    Ice::ObjectPrxPtr createAdminCallbackProxy(const Ice::Identity&) const;
 
     const std::shared_ptr<Ice::ObjectAdapter>& getRegistryAdapter() { return _registryAdapter; }
 

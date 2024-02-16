@@ -65,7 +65,7 @@ public:
     void destroy();
 
     void registerAllWellKnownObjects();
-    ReplicaSessionPrxPtr getSession() const { return _thread ? _thread->getSession() : nullptr; }
+    ReplicaSessionPrxPtr getSession() const { return _thread ? _thread->getSession() : std::nullopt; }
 
     InternalRegistryPrxPtr findInternalRegistryForReplica(const Ice::Identity&);
 

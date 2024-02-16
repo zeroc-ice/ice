@@ -50,16 +50,13 @@ class SelectorTimeoutException
 
 #if defined(ICE_USE_IOCP)
 
-class Selector
+class Selector final
 {
 public:
 
     Selector(const InstancePtr&);
-    ~Selector();
 
-#ifdef ICE_USE_IOCP
     void setup(int);
-#endif
     void destroy();
 
     void initialize(EventHandler*);
@@ -68,34 +65,23 @@ public:
 
     void ready(EventHandler*, SocketOperation, bool);
 
-#ifdef ICE_USE_IOCP
     EventHandler* getNextHandler(SocketOperation&, DWORD&, int&, int);
-#else
-    EventHandler* getNextHandler(SocketOperation&, int);
-#endif
 
     void completed(EventHandler*, SocketOperation);
 
 private:
 
     const InstancePtr _instance;
-#ifdef ICE_USE_IOCP
     HANDLE _handle;
-#else
-    std::mutex _mutex;
-    std::condition_variable _conditionVariable;
-    std::deque<SelectEvent> _events;
-#endif
 };
 
 #elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_SELECT) || defined(ICE_USE_POLL)
 
-class Selector
+class Selector final
 {
 public:
 
     Selector(const InstancePtr&);
-    ~Selector();
 
     void destroy();
 
@@ -203,7 +189,7 @@ private:
 };
 using StreamNativeInfoPtr = std::shared_ptr<StreamNativeInfo>;
 
-class EventHandlerWrapper final : public SelectorReadyCallback
+class EventHandlerWrapper final : public SelectorReadyCallback, public std::enable_shared_from_this<EventHandlerWrapper>
 {
 public:
 
@@ -240,13 +226,12 @@ private:
 };
 using EventHandlerWrapperPtr = std::shared_ptr<EventHandlerWrapper>;
 
-class Selector
+class Selector final
 {
 
 public:
 
     Selector(const InstancePtr&);
-    virtual ~Selector();
 
     void destroy();
 
@@ -268,7 +253,7 @@ public:
 private:
 
     void ready(EventHandlerWrapper*, SocketOperation, int = 0);
-    void addReadyHandler(EventHandlerWrapper*);
+    void addReadyHandler(EventHandlerWrapperPtr);
 
     friend class EventHandlerWrapper;
 

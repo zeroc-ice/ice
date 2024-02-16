@@ -50,7 +50,7 @@ StreamHelper::~StreamHelper()
 void
 StreamHelper::setControllerHelper(ControllerHelper* controllerHelper)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     assert(_controllerHelper && !controllerHelper || !_controllerHelper && controllerHelper);
     _controllerHelper = controllerHelper;
 
@@ -73,7 +73,7 @@ StreamHelper::flush()
 void
 StreamHelper::newLine()
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     if(_controllerHelper)
     {
         _controllerHelper->print("\n");
@@ -85,7 +85,7 @@ StreamHelper::sync()
 {
     std::streamsize n = pptr() - pbase();
     {
-        IceUtil::Mutex::Lock sync(_mutex);
+        lock_guard lock(_mutex);
         if(_controllerHelper)
         {
             _controllerHelper->print(std::string(pbase(), static_cast<size_t>(n)));

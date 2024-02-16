@@ -38,7 +38,7 @@ public:
     LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
     std::shared_ptr<NodeSessionI> getSession() const;
 
-    Ice::ObjectPrx getAdminProxy() const;
+    Ice::ObjectPrxPtr getAdminProxy() const;
 
     bool canRemove();
 

@@ -70,6 +70,137 @@ std::optional<Prx> checkedCast(const std::optional<ObjectPrx>& proxy, const Cont
         std::nullopt;
 }
 
+ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool operator==(const ObjectPrx&, const ObjectPrx&);
+
+inline bool
+operator>(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return rhs < lhs;
+}
+
+inline bool
+operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return !(lhs > rhs);
+}
+
+inline bool
+operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return !(lhs < rhs);
+}
+
+inline bool
+operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return !(lhs == rhs);
+}
+
+ICE_API ::std::ostream& operator<<(::std::ostream&, const ObjectPrx&);
+
+template<typename Prx,
+         typename std::enable_if<std::is_base_of<ObjectPrx, Prx>::value>::type* = nullptr>
+inline ::std::ostream& operator<<(::std::ostream& os, const std::optional<Prx>& proxy)
+{
+    if (proxy)
+    {
+        os << proxy.value();
+    }
+    else
+    {
+        os << "";
+    }
+    return os;
+}
+
+/**
+ * Compares the object identities of two proxies.
+ * @param lhs A proxy.
+ * @param rhs A proxy.
+ * @return True if the identity in lhs compares less than the identity in rhs, false otherwise.
+ */
+ICE_API bool proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs);
+
+/**
+ * Compares the object identities of two proxies.
+ * @param lhs A proxy.
+ * @param rhs A proxy.
+ * @return True if the identity in lhs compares equal to the identity in rhs, false otherwise.
+ */
+ICE_API bool proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs);
+
+/**
+ * Compares the object identities and facets of two proxies.
+ * @param lhs A proxy.
+ * @param rhs A proxy.
+ * @return True if the identity and facet in lhs compare less than the identity and facet
+ * in rhs, false otherwise.
+ */
+ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs);
+
+/**
+ * Compares the object identities and facets of two proxies.
+ * @param lhs A proxy.
+ * @param rhs A proxy.
+ * @return True if the identity and facet in lhs compare equal to the identity and facet
+ * in rhs, false otherwise.
+ */
+ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs);
+
+/**
+ * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
+ * compares less than the identity in rhs, false otherwise.
+ * \headerfile Ice/Ice.h
+ */
+
+struct ProxyIdentityLess
+{
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    {
+        return proxyIdentityLess(lhs, rhs);
+    }
+};
+
+/**
+ * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
+ * compares equal to the identity in rhs, false otherwise.
+ * \headerfile Ice/Ice.h
+ */
+struct ProxyIdentityEqual
+{
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    {
+        return proxyIdentityEqual(lhs, rhs);
+    }
+};
+
+/**
+ * A functor that compares the object identities and facets of two proxies. Evaluates true if the identity
+ * and facet in lhs compare less than the identity and facet in rhs, false otherwise.
+ * \headerfile Ice/Ice.h
+ */
+struct ProxyIdentityAndFacetLess
+{
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    {
+        return proxyIdentityAndFacetLess(lhs, rhs);
+    }
+};
+
+/**
+ * A functor that compares the object identities and facets of two proxies. Evaluates true if the identity
+ * and facet in lhs compare equal to the identity and facet in rhs, false otherwise.
+ * \headerfile Ice/Ice.h
+ */
+struct ProxyIdentityAndFacetEqual
+{
+    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    {
+        return proxyIdentityAndFacetEqual(lhs, rhs);
+    }
+};
+
 }
 
 #endif

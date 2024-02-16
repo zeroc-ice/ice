@@ -24,14 +24,14 @@ class AllocateObject final : public ObjectAllocationRequest
 public:
 
     AllocateObject(const shared_ptr<SessionI>& session,
-                   function<void(const Ice::ObjectPrx& returnValue)>&& response,
+                   function<void(const Ice::ObjectPrxPtr& returnValue)>&& response,
                    function<void(exception_ptr)>&& exception) :
         ObjectAllocationRequest(session), _response(std::move(response)), _exception(std::move(exception))
     {
     }
 
     void
-    response(const Ice::ObjectPrx& proxy) override
+    response(const Ice::ObjectPrxPtr& proxy) override
     {
         assert(_response);
         _response(proxy);
@@ -49,7 +49,7 @@ public:
 
 private:
 
-    function<void(const Ice::ObjectPrx& returnValue)> _response;
+    function<void(const Ice::ObjectPrxPtr& returnValue)> _response;
     function<void(exception_ptr)> _exception;
 };
 
@@ -144,7 +144,7 @@ SessionI::SessionI(const string& id, const shared_ptr<Database>& database,
 {
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, const shared_ptr<Ice::Connection>& con)
 {
     //
@@ -156,7 +156,7 @@ SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, con
 
 void
 SessionI::allocateObjectByIdAsync(Ice::Identity id,
-                                 function<void(const Ice::ObjectPrx& returnValue)> response,
+                                 function<void(const Ice::ObjectPrxPtr& returnValue)> response,
                                  function<void(exception_ptr)> exception,
                                  const Ice::Current&)
 {
@@ -167,7 +167,7 @@ SessionI::allocateObjectByIdAsync(Ice::Identity id,
 
 void
 SessionI::allocateObjectByTypeAsync(string type,
-                                    function<void(const Ice::ObjectPrx& returnValue)> response,
+                                    function<void(const Ice::ObjectPrxPtr& returnValue)> response,
                                     function<void(exception_ptr)> exception,
                                     const Ice::Current&)
 {

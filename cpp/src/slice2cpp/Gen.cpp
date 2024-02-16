@@ -626,6 +626,50 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
     }
 }
 
+// Returns the client-side result type for an operation - can be void, a single type, or a tuple.
+string
+createResultType(const OperationPtr& p, const string& scope, int useWstring)
+{
+    assert(useWstring == 0 || useWstring == TypeContextUseWstring);
+
+    TypePtr ret = p->returnType();
+    string retS = returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(),
+                                     useWstring | TypeContextCpp11);
+
+    ParamDeclList outParams = p->outParameters();
+
+    if ((outParams.size() > 1) || (ret && outParams.size() > 0))
+    {
+        // Generate a tuple
+        ostringstream os;
+        Output out(os);
+        out << "::std::tuple" << sabrk;
+        if (ret)
+        {
+            out << retS;
+        }
+        for (const auto& param : outParams)
+        {
+            out << typeToString(param->type(), param->optional(), scope, param->getMetaData(), useWstring | TypeContextCpp11);
+        }
+        out << eabrk;
+        return os.str();
+    }
+    else if (ret)
+    {
+        return retS;
+    }
+    else if (outParams.size() == 1)
+    {
+        const auto& param = outParams.front();
+        return typeToString(param->type(), param->optional(), scope, param->getMetaData(), useWstring | TypeContextCpp11);
+    }
+    else
+    {
+        return "void";
+    }
+}
+
 }
 
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
@@ -908,22 +952,19 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         normalizeMetaData(p, true);
 
+        // Forward declares proxies, classes and structs.
         DeclVisitor declVisitor(H, C, _dllExport);
         p->visit(&declVisitor, false);
 
-        // All types except structs, classes, exceptions and proxies.
+        // Generate declarations and definitions for all types except structs, classes, exceptions and proxies.
         TypesVisitor typesVisitor(H);
         p->visit(&typesVisitor, false);
 
-        // TODO: we need the interface visitor before the proxy visitor because proxy functions can reference structs
-        // defined in the mapping server-side class. We should fix that.
-        InterfaceVisitor interfaceVisitor(H, C, _dllExport);
-        p->visit(&interfaceVisitor, false);
-
-        // We need to define proxy types before they can be used as struct and class fields
+        // We need to fully declare proxy types before they can be used as struct and class fields.
         ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
 
+        // It's ok to use forward-declared classes as fields.
         StructVisitor structVisitor(H);
         p->visit(&structVisitor, false);
 
@@ -931,8 +972,13 @@ Slice::Gen::generate(const UnitPtr& p)
         ValueVisitor valueVisitor(H, C, _dllExport);
         p->visit(&valueVisitor, false);
 
+        // Exceptions are not types.
         ExceptionVisitor exceptionVisitor(H, C, _dllExport);
         p->visit(&exceptionVisitor, false);
+
+        // Interfaces are not types either.
+        InterfaceVisitor interfaceVisitor(H, C, _dllExport);
+        p->visit(&interfaceVisitor, false);
 
         StreamVisitor streamVisitor(H, C, _dllExport);
         p->visit(&streamVisitor, false);
@@ -2373,9 +2419,7 @@ Slice::Gen::ExceptionVisitor::visitDataMember(const DataMemberPtr& p)
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h), C(c), _dllClassExport(toDllClassExport(dllExport)),
-    _dllMemberExport(toDllMemberExport(dllExport)),
-    _useWstring(false)
+    H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
 }
 
@@ -2411,7 +2455,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << p->name() << "Prx : public "
+    H << nl << "class " << _dllExport << p->name() << "Prx : public "
       << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
     if(bases.empty())
     {
@@ -2450,40 +2494,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this interface.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    H << nl << "static const ::std::string& ice_staticId();";
     H << sp;
     H << nl << "explicit " << prx << "(const ::Ice::ObjectPrx& other) : ::Ice::ObjectPrx(other)";
     H << nl << "{";
-    H << nl << "}";
-
-    // Copy constructor
-    H << sp;
-    H << nl << prx << "(const " << prx << "& other) : ::Ice::ObjectPrx(other)";
-    H << nl << "{";
-    H << nl << "}";
-
-    // Move constructor
-    H << sp;
-    H << nl << prx << "(" << prx << "&& other) noexcept = default;";
-
-    // Copy assignment
-    H << sp;
-    H << nl << prx << "& operator=(const " << prx << "& rhs)";
-    H << nl << "{";
-    H.inc();
-    H << nl << "Ice::ObjectPrx::operator=(rhs);";
-    H << nl << "return *this;";
-    H.dec();
-    H << nl << "}";
-
-    // Move assignment
-    H << sp;
-    H << nl << prx << "& operator=(" << prx << "&& rhs) noexcept";
-    H << nl << "{";
-    H.inc();
-    H << nl << "Ice::ObjectPrx::operator=(std::move(rhs));";
-    H << nl << "return *this;";
-    H.dec();
     H << nl << "}";
 
     H << sp;
@@ -2527,6 +2541,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     vector<string> params;
     vector<string> paramsDecl;
+    vector<string> paramsImplDecl;
 
     vector<string> inParamsS;
     vector<string> inParamsDecl;
@@ -2576,6 +2591,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
             params.push_back(outputTypeString);
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
+            paramsImplDecl.push_back(outputTypeString + ' ' +  paramPrefix + (*q)->name());
 
             outParamsHasOpt |= (*q)->optional();
 
@@ -2591,6 +2607,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
             params.push_back(typeString);
             paramsDecl.push_back(typeString + ' ' + paramName);
+            paramsImplDecl.push_back(typeString + ' ' +  paramPrefix + (*q)->name());
 
             inParamsS.push_back(typeString);
             inParamsDecl.push_back(typeString + ' ' + paramName);
@@ -2604,19 +2621,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string contextDef = "const " + getUnqualified("::Ice::Context&", interfaceScope) + " " + contextParam;
     const string contextDecl = contextDef + " = " + getUnqualified("::Ice::noExplicitContext", interfaceScope);
 
-    string futureT;
-    if(futureOutParams.empty())
-    {
-        futureT = "void";
-    }
-    else if(futureOutParams.size() == 1)
-    {
-        futureT = futureOutParams[0];
-    }
-    else
-    {
-        futureT = resultStructName(name, fixKwd(interface->name()));
-    }
+    string futureT = createResultType(p, interfaceScope, _useWstring);
+    string futureTAbsolute = createResultType(p, "", _useWstring);
 
     const string deprecateSymbol = getDeprecateSymbol(p, interface);
 
@@ -2634,12 +2640,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back(contextDoc);
         writeOpDocSummary(H, p, comment, OpDocAllParams, true, StringList(), postParams, comment->returns());
     }
-    H << nl << deprecateSymbol << _dllMemberExport << retS << ' ' << fixKwd(name)
+    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name)
         << spar << paramsDecl << contextDecl << epar << " const;";
 
     C << sp;
     C << nl << retSImpl << nl
-        << scoped << fixKwd(name) << spar << paramsDecl << contextDef << epar << " const";
+        << scoped << fixKwd(name) << spar << paramsImplDecl << "const ::Ice::Context& context" << epar << " const";
     C << sb;
     C << nl;
     if (futureOutParams.size() == 1)
@@ -2650,7 +2656,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            C << fixKwd((*outParams.begin())->name()) << " = ";
+            C << paramPrefix << (*outParams.begin())->name() << " = ";
         }
     }
     else if (futureOutParams.size() > 1)
@@ -2663,26 +2669,26 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << spar << "true, this" << "&" + interface->name() + "Prx::_iceI_" + name;
     for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
-        C << fixKwd((*q)->name());
+        C << paramPrefix + (*q)->name();
     }
-    C << contextParam << epar << ".get();";
+    C << "context" << epar << ".get();";
     if (futureOutParams.size() > 1)
     {
+        int index = ret ? 1 : 0;
         for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
         {
-            C << nl << fixKwd((*q)->name()) << " = ";
-            C << condMove(isMovable((*q)->type()), "_result." + fixKwd((*q)->name())) + ";";
+            C << nl << paramPrefix << (*q)->name() << " = ";
+            C << condMove(isMovable((*q)->type()), "::std::get<" + std::to_string(index++) + ">(_result)") << ";";
         }
         if(ret)
         {
-            C << nl << "return " + condMove(isMovable(ret), "_result." + returnValueS) + ";";
+            C << nl << "return " + condMove(isMovable(ret), "::std::get<0>(_result)") + ";";
         }
     }
     C << eb;
 
     //
     // Promise based asynchronous operation
-    // TODO: remove template P and move implementation out of line
     //
     H << sp;
     if(comment)
@@ -2692,22 +2698,24 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         returns.push_back(futureDoc);
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
-    H << nl << "template<template<typename> class P = ::std::promise>";
-    H << nl << deprecateSymbol << "auto " << name << "Async" << spar << inParamsDecl << contextDecl << epar << " const";
-    H.inc();
-    H << nl << "-> decltype(::std::declval<P<" << futureT << ">>().get_future())";
-    H.dec();
-    H << sb;
 
-    H << nl << "return _makePromiseOutgoing<" << futureT << ", P>" << spar;
+    H << nl << deprecateSymbol << "::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
+        << contextDecl << epar << "const;";
 
-    H << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
+    C << sp;
+    C << nl << "::std::future<" << futureTAbsolute << ">";
+    C << nl;
+    C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar << " const";
+
+    C << sb;
+    C << nl << "return _makePromiseOutgoing<" << futureT << ", ::std::promise>" << spar;
+    C << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
-        H << fixKwd((*q)->name());
+        C << paramPrefix + (*q)->name();
     }
-    H << contextParam << epar << ";";
-    H << eb;
+    C << "context" << epar << ";";
+    C << eb;
 
     //
     // Lambda based asynchronous operation
@@ -2730,10 +2738,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
     H << nl;
-    if(lambdaCustomOut)
-    {
-        H << _dllMemberExport;
-    }
+    H << deprecateSymbol;
     H << "::std::function<void()>";
     H << nl << name << "Async(";
     H.useCurrentPosAsIndent();
@@ -2758,43 +2763,23 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     H.restoreIndent();
 
-    // TODO: cleanup the code below to reduce duplication.
-
     C << sp;
     C << nl << "::std::function<void()>";
     C << nl << scoped << name << "Async(";
     C.useCurrentPosAsIndent();
-    if (lambdaCustomOut)
+    if (!inParamsImplDecl.empty())
     {
-        if (!inParamsImplDecl.empty())
+        for (vector<string>::const_iterator q = inParamsImplDecl.begin(); q != inParamsImplDecl.end(); ++q)
         {
-            for (vector<string>::const_iterator q = inParamsImplDecl.begin(); q != inParamsImplDecl.end(); ++q)
+            if (q != inParamsImplDecl.begin())
             {
-                if (q != inParamsImplDecl.begin())
-                {
-                    C << " ";
-                }
-                C << *q << ",";
+                C << " ";
             }
-            C << nl;
+            C << *q << ",";
         }
+        C << nl;
     }
-    else
-    {
-        if (!inParamsDecl.empty())
-        {
-            for (vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
-            {
-                if (q != inParamsDecl.begin())
-                {
-                    C << " ";
-                }
 
-                C << *q << ",";
-            }
-            C << nl;
-        }
-    }
     C << "::std::function<void " << spar << lambdaOutParams << epar << "> response,";
     C << nl << "::std::function<void(::std::exception_ptr)> ex,";
     C << nl << "::std::function<void(bool)> sent,";
@@ -2840,7 +2825,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         C << nl << "catch(...)";
         C << sb;
-        C << nl << "throw ::std::current_exception();";
+        C << nl << "throw ::std::current_exception();"; // TODO: what are doing here?
         C << eb;
         C << eb << ";";
         C << eb;
@@ -2877,27 +2862,28 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
             if(ret)
             {
-                C << condMove(isMovable(ret), string("_result.") + returnValueS);
+                C << condMove(isMovable(ret), "::std::get<0>(_result)");
             }
+            int index = ret ? 1 : 0;
             for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
             {
-                C << condMove(isMovable((*q)->type()), "_result." + fixKwd((*q)->name()));
+                C << condMove(isMovable((*q)->type()), "::std::get<" + std::to_string(index++) + ">(_result)");
             }
             C << epar << ";" << eb << ";";
         }
 
         C << nl << "return _makeLambdaOutgoing<" << futureT << ">" << spar;
 
-        C << "std::move(" + (futureOutParams.size() > 1 ? "_responseCb" : responseParam) + ")"
-          << "std::move(" + exParam + ")"
-          << "std::move(" + sentParam + ")"
+        C << "std::move(" + (futureOutParams.size() > 1 ? string("_responseCb") : "response") + ")"
+          << "std::move(ex)"
+          << "std::move(sent)"
           << "this";
         C << string("&" + getUnqualified(scoped, interfaceScope.substr(2)) + "_iceI_" + name);
         for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
         {
-            C << fixKwd((*q)->name());
+            C << paramPrefix + (*q)->name();
         }
-        C << contextParam << epar << ";";
+        C << "context" << epar << ";";
         C << eb;
     }
 
@@ -2907,7 +2893,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     H << sp;
     H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllMemberExport << "void _iceI_" << name << spar;
+    H << nl << "void _iceI_" << name << spar;
     H << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>&";
     H << inParamsS;
     H << ("const " + getUnqualified("::Ice::Context&", interfaceScope));
@@ -2945,7 +2931,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", interfaceScope) << " istr)";
         C << sb;
         C << nl << futureT << " v;";
-        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextCpp11, "", returnValueS, "v");
+        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextCpp11 | TypeContextTuple, "", returnValueS, "v");
 
         if(p->returnsClasses(false))
         {
@@ -3045,7 +3031,6 @@ Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceUtilInternal::Output& h,
     H(h),
     C(c),
     _dllExport(dllExport),
-    _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
     _useWstring(false)
 {
 }
@@ -3132,7 +3117,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return True if this object supports the interface, false, otherwise.";
     H << nl << " */";
-    H << nl << "virtual bool ice_isA(::std::string id, const " << getUnqualified("::Ice::Current&", scope)
+    H << nl << "bool ice_isA(::std::string id, const " << getUnqualified("::Ice::Current&", scope)
       << " current) const override;";
         H << sp;
     H << nl << "/**";
@@ -3141,7 +3126,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * @return A list of fully-scoped type IDs.";
     H << nl << " */";
     H << nl
-      << "virtual ::std::vector<::std::string> ice_ids(const " << getUnqualified("::Ice::Current&", scope)
+      << "::std::vector<::std::string> ice_ids(const " << getUnqualified("::Ice::Current&", scope)
       << " current) const override;";
         H << sp;
     H << nl << "/**";
@@ -3149,7 +3134,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "virtual ::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope)
+    H << nl << "::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope)
       << " current) const override;";
         H << sp;
     H << nl << "/**";
@@ -4089,7 +4074,7 @@ Slice::Gen::CompatibilityVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     H << sp << nl << "using " << p->name() << "Ptr = ::std::shared_ptr<" << name << ">;";
 
     // TODO: remove and update code that relies on these PrxPtr
-    H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << name << "Prx>;";
+    H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << p->name() << "Prx>;";
 }
 
 Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExport) :

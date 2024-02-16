@@ -5,6 +5,7 @@
 #include <Ice/ImplicitContextI.h>
 #include <Ice/OutputStream.h>
 #include <Ice/Object.h>
+#include <IceUtil/ThreadException.h>
 
 #include <mutex>
 

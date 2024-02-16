@@ -42,7 +42,7 @@ namespace IceGrid
     private:
 
         AdapterInfoSeq _adapters;
-        std::vector<std::optional<std::future<Ice::ObjectPrx>>> _results;
+        std::vector<std::optional<std::future<Ice::ObjectPrxPtr>>> _results;
     };
 
     class AdapterEntry
@@ -117,7 +117,7 @@ namespace IceGrid
         virtual float getLeastLoadedNodeLoad(LoadSample) const;
         virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const;
         virtual std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const;
-        virtual AdapterPrxPtr getProxy(const std::string&, bool) const { return nullptr; }
+        virtual AdapterPrxPtr getProxy(const std::string&, bool) const { return std::nullopt ; }
 
         void addReplica(const std::string&, const std::shared_ptr<ServerAdapterEntry>&);
         bool removeReplica(const std::string&);

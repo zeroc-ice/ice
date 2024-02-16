@@ -114,7 +114,7 @@ void breakCycles(shared_ptr<Ice::Value> o)
     }
 }
 
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
+class CallbackBase
 {
 public:
 
@@ -129,11 +129,8 @@ public:
 
     void check()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
+        unique_lock lock(_mutex);
+        _condition.wait(lock, [this] { return _called; });
         _called = false;
     }
 
@@ -141,15 +138,17 @@ protected:
 
     void called()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(!_called);
         _called = true;
-        notify();
+        _condition.notify_one();
     }
 
 private:
 
     bool _called;
+    mutex _mutex;
+    condition_variable _condition;
 };
 
 class Callback : public CallbackBase
@@ -1287,8 +1286,8 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            auto b1 = std::move(result.p1);
-            auto b2 = std::move(result.p2);
+            auto b1 = std::move(std::get<0>(result));
+            auto b2 = std::move(std::get<1>(result));
 
             test(b1);
             test(b1->ice_id() == "::Test::D1");
@@ -1372,10 +1371,10 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            test(result.returnValue == result.p1);
+            test(std::get<0>(result) == std::get<1>(result));
 
-            breakCycles(result.returnValue);
-            breakCycles(result.p1);
+            breakCycles(std::get<0>(result));
+            breakCycles(std::get<1>(result));
         }
         catch(...)
         {
@@ -1410,10 +1409,10 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            test(result.returnValue == result.p2);
+            test(std::get<0>(result) == std::get<1>(result));
 
-            breakCycles(result.returnValue);
-            breakCycles(result.p2);
+            breakCycles(std::get<0>(result));
+            breakCycles(std::get<1>(result));
         }
         catch(...)
         {
@@ -1662,9 +1661,9 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            auto ret = result.returnValue;
-            auto p1 = result.p1;
-            auto p2 = result.p2;
+            auto ret = std::get<0>(result);
+            auto p1 = std::get<1>(result);
+            auto p2 = std::get<2>(result);
 
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
@@ -1725,8 +1724,8 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            auto ret = std::move(result.returnValue);
-            auto b = std::move(result.p);
+            auto ret = std::move(std::get<0>(result));
+            auto b = std::move(std::get<1>(result));
 
             test(b);
             test(b->sb == "D4.sb (1)");
@@ -2165,8 +2164,8 @@ allTests(Test::TestHelper* helper)
             }
 
             auto result = test->dictionaryTestAsync(bin).get();
-            r = result.returnValue;
-            bout = result.bout;
+            r = std::get<0>(result);
+            bout = std::get<1>(result);
 
             test(bout.size() == 10);
             for(i = 0; i < 10; ++i)

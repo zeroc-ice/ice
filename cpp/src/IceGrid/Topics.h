@@ -20,13 +20,13 @@ public:
     ObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::string&, long long = 0);
     virtual ~ObserverTopic() = default;
 
-    int subscribe(const Ice::ObjectPrx&, const std::string& = std::string());
-    void unsubscribe(const Ice::ObjectPrx&, const std::string& = std::string());
+    int subscribe(const Ice::ObjectPrxPtr&, const std::string& = std::string());
+    void unsubscribe(const Ice::ObjectPrxPtr&, const std::string& = std::string());
     void destroy();
 
     void receivedUpdate(const std::string&, int, const std::string&);
 
-    virtual void initObserver(const Ice::ObjectPrx&) = 0;
+    virtual void initObserver(const Ice::ObjectPrxPtr&) = 0;
 
     void waitForSyncedSubscribers(int, const std::string& = std::string());
 
@@ -38,10 +38,10 @@ protected:
     void updateSerial(long long = 0);
     Ice::Context getContext(int, long long = 0) const;
 
-    template<typename T> std::vector<std::shared_ptr<T>> getPublishers() const
+    template<typename T> std::vector<std::optional<T>> getPublishers() const
     {
-        std::vector<std::shared_ptr<T>> publishers;
-        for(const auto& publisher :_basePublishers)
+        std::vector<std::optional<T>> publishers;
+        for(const auto& publisher : _basePublishers)
         {
             publishers.push_back(Ice::uncheckedCast<T>(publisher));
         }
@@ -50,7 +50,7 @@ protected:
 
     std::shared_ptr<Ice::Logger> _logger;
     std::map<Ice::EncodingVersion, IceStorm::TopicPrxPtr> _topics;
-    std::vector<Ice::ObjectPrx> _basePublishers;
+    std::vector<Ice::ObjectPrxPtr> _basePublishers;
     int _serial;
     long long _dbSerial;
 
@@ -71,7 +71,7 @@ public:
     void registryUp(const RegistryInfo&);
     void registryDown(const std::string&);
 
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrxPtr&);
 
 private:
 
@@ -95,7 +95,7 @@ public:
     const NodeObserverPrxPtr& getPublisher() { return _externalPublisher; }
 
     void nodeDown(const std::string&);
-    void initObserver(const Ice::ObjectPrx&) override;
+    void initObserver(const Ice::ObjectPrxPtr&) override;
 
     bool isServerEnabled(const std::string&) const;
 
@@ -120,7 +120,7 @@ public:
     int applicationRemoved(long long, const std::string&);
     int applicationUpdated(long long, const ApplicationUpdateInfo&);
 
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrxPtr&);
 
 private:
 
@@ -139,7 +139,7 @@ public:
     int adapterUpdated(long long, const AdapterInfo&);
     int adapterRemoved(long long, const std::string&);
 
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrxPtr&);
 
 private:
 
@@ -161,7 +161,7 @@ public:
     int wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq&);
     int wellKnownObjectsRemoved(const ObjectInfoSeq&);
 
-    virtual void initObserver(const Ice::ObjectPrx&);
+    virtual void initObserver(const Ice::ObjectPrxPtr&);
 
 private:
 

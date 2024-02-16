@@ -53,7 +53,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager, c
 }
 
 int
-ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, const string& name)
+ObserverTopic::subscribe(const Ice::ObjectPrxPtr& obsv, const string& name)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -92,7 +92,7 @@ ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, const string& name)
 }
 
 void
-ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer, const string& name)
+ObserverTopic::unsubscribe(const Ice::ObjectPrxPtr& observer, const string& name)
 {
     lock_guard lock(_mutex);
     Ice::EncodingVersion v = IceInternal::getCompatibleEncoding(observer->ice_getEncodingVersion());
@@ -336,7 +336,7 @@ RegistryObserverTopic::registryDown(const string& name)
 }
 
 void
-RegistryObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+RegistryObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 {
     auto observer = Ice::uncheckedCast<RegistryObserverPrx>(obsv);
     RegistryInfoSeq registries;
@@ -572,7 +572,7 @@ NodeObserverTopic::nodeDown(const string& name)
 }
 
 void
-NodeObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+NodeObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 {
     auto observer = Ice::uncheckedCast<NodeObserverPrx>(obsv);
     NodeDynamicInfoSeq nodes;
@@ -751,7 +751,7 @@ ApplicationObserverTopic::applicationUpdated(long long dbSerial, const Applicati
 }
 
 void
-ApplicationObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+ApplicationObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 {
     auto observer = Ice::uncheckedCast<ApplicationObserverPrx>(obsv);
     ApplicationInfoSeq applications;
@@ -879,7 +879,7 @@ AdapterObserverTopic::adapterRemoved(long long dbSerial, const string& id)
 }
 
 void
-AdapterObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+AdapterObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 {
     auto observer = Ice::uncheckedCast<AdapterObserverPrx>(obsv);
     AdapterInfoSeq adapters;
@@ -1098,7 +1098,7 @@ ObjectObserverTopic::wellKnownObjectsRemoved(const ObjectInfoSeq& infos)
 }
 
 void
-ObjectObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
+ObjectObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 {
     auto observer = Ice::uncheckedCast<ObjectObserverPrx>(obsv);
     ObjectInfoSeq objects;

@@ -23,7 +23,7 @@
 class Configuration;
 using ConfigurationPtr = std::shared_ptr<Configuration>;
 
-class TEST_API Configuration : public IceUtil::Mutex, public std::enable_shared_from_this<Configuration>
+class TEST_API Configuration : public std::enable_shared_from_this<Configuration>
 {
 public:
 
@@ -70,7 +70,7 @@ private:
     int _writeReadyCount;
     std::unique_ptr<Ice::LocalException> _writeException;
     bool _buffered;
-
+    std::mutex _mutex;
     static ConfigurationPtr _instance;
 };
 

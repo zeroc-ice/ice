@@ -21,11 +21,11 @@ public:
                    const AdapterPrxPtr&, const std::string&, bool);
     ~ServerAdapterI() override;
 
-    void activateAsync(std::function<void(const Ice::ObjectPrx&)>,
+    void activateAsync(std::function<void(const Ice::ObjectPrxPtr&)>, // TODO: pass by value!
                        std::function<void(std::exception_ptr)>,
                        const Ice::Current&) override;
-    Ice::ObjectPrx getDirectProxy(const Ice::Current&) const override;
-    void setDirectProxy(Ice::ObjectPrx, const ::Ice::Current&) override;
+    Ice::ObjectPrxPtr getDirectProxy(const Ice::Current&) const override;
+    void setDirectProxy(Ice::ObjectPrxPtr, const ::Ice::Current&) override;
 
     void destroy();
     void updateEnabled();
@@ -44,9 +44,9 @@ private:
     const std::string _replicaId;
     ServerI* _server;
 
-    Ice::ObjectPrx _proxy;
+    Ice::ObjectPrxPtr _proxy;
     bool _enabled;
-    std::vector<std::function<void(const Ice::ObjectPrx&)>> _activateCB;
+    std::vector<std::function<void(const Ice::ObjectPrxPtr&)>> _activateCB;
     bool _activateAfterDeactivating;
 
     mutable std::mutex _mutex;

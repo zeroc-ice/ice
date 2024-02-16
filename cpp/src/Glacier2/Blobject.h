@@ -26,7 +26,7 @@ public:
 
 protected:
 
-    void invoke(Ice::ObjectPrx&,
+    void invoke(Ice::ObjectPrxPtr&,
                 const std::pair<const Ice::Byte*, const Ice::Byte*>&,
                 std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
                 std::function<void(std::exception_ptr)>,

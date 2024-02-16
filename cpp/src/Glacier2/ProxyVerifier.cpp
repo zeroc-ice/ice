@@ -532,7 +532,7 @@ public:
     }
 
     bool
-    check(const ObjectPrx& prx) const override
+    check(const ObjectPrxPtr& prx) const override
     {
         EndpointSeq endpoints = prx->ice_getEndpoints();
         if(endpoints.size() == 0)
@@ -797,7 +797,7 @@ parseProperty(const shared_ptr<Ice::Communicator>& communicator, const string& p
 // Helper function for checking a rule set.
 //
 static bool
-match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
+match(const vector<ProxyRule*>& rules, const ObjectPrxPtr& proxy)
 {
     for(vector<ProxyRule*>::const_iterator i = rules.begin(); i != rules.end(); ++i)
     {
@@ -832,7 +832,7 @@ public:
     }
 
     bool
-    check(const ObjectPrx& p) const override
+    check(const ObjectPrxPtr& p) const override
     {
         string s = p->ice_toString();
         bool result = (s.size() > _count);
@@ -921,7 +921,7 @@ Glacier2::ProxyVerifier::~ProxyVerifier()
 }
 
 bool
-Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
+Glacier2::ProxyVerifier::verify(const ObjectPrxPtr& proxy)
 {
     //
     // No rules have been defined so we accept all.

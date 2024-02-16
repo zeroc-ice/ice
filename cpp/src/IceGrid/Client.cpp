@@ -3,7 +3,6 @@
 //
 
 #include <IceUtil/Options.h>
-#include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/UUID.h>
@@ -44,21 +43,21 @@ class ReuseConnectionRouter final : public Ice::Router
 {
 public:
 
-    ReuseConnectionRouter(Ice::ObjectPrx proxy) : _clientProxy(std::move(proxy))
+    ReuseConnectionRouter(Ice::ObjectPrxPtr proxy) : _clientProxy(std::move(proxy))
     {
     }
 
-    Ice::ObjectPrx
+    Ice::ObjectPrxPtr
     getClientProxy(optional<bool>& hasRoutingTable, const Ice::Current&) const override
     {
         hasRoutingTable = false;
         return _clientProxy;
     }
 
-    Ice::ObjectPrx
+    Ice::ObjectPrxPtr
     getServerProxy(const Ice::Current&) const override
     {
-        return nullptr;
+        return nullopt;
     }
 
     Ice::ObjectProxySeq
@@ -69,7 +68,7 @@ public:
 
 private:
 
-    const Ice::ObjectPrx _clientProxy;
+    const Ice::ObjectPrxPtr _clientProxy;
 };
 
 int run(const Ice::StringSeq&);
@@ -392,7 +391,7 @@ run(const Ice::StringSeq& args)
                 }
                 else
                 {
-                    communicator->setDefaultLocator(0);
+                    communicator->setDefaultLocator(nullopt);
                 }
 
                 //

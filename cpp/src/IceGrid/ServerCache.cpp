@@ -363,7 +363,7 @@ ServerEntry::unsync()
     {
         _load.reset(_loaded.release());
     }
-    _proxy = nullptr;
+    _proxy = nullopt;
     _adapters.clear();
     _activationTimeout = -1s;
     _deactivationTimeout = -1s;
@@ -528,7 +528,7 @@ ServerEntry::getProxy(chrono::seconds& activationTimeout, chrono::seconds& deact
     }
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 ServerEntry::getAdminProxy()
 {
     //
@@ -884,7 +884,7 @@ ServerEntry::destroyCallback()
     {
         lock_guard lock(_mutex);
         _destroy = nullptr;
-        _proxy = nullptr;
+        _proxy = nullopt;
         _adapters.clear();
         _activationTimeout = -1s;
         _deactivationTimeout = -1s;
@@ -939,7 +939,7 @@ ServerEntry::exception(exception_ptr ex)
             remove = _destroy.get();
             _destroy = nullptr;
             _exception = ex;
-            _proxy = nullptr;
+            _proxy = nullopt;
             _adapters.clear();
             _activationTimeout = -1s;
             _deactivationTimeout = -1s;

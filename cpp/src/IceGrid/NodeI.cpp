@@ -1317,7 +1317,7 @@ NodeI::destroyServer(string serverId, string uuid, int revision, string replicaN
 
         if(!server)
         {
-            server = make_shared<ServerI>(shared_from_this(), nullptr, _serversDir, serverId, _waitTime);
+            server = make_shared<ServerI>(shared_from_this(), nullopt, _serversDir, serverId, _waitTime);
         }
 
         //

@@ -87,7 +87,8 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
     }
 }
 
-IceObjC::Instance::~Instance()
+IceObjC::Instance::Instance(const IceObjC::InstancePtr& instance, const ProtocolInstancePtr& protocolInstance) :
+    Instance(instance->_communicator, protocolInstance->type(), protocolInstance->protocol(), protocolInstance->secure())
 {
 }
 
@@ -105,12 +106,6 @@ IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
             throw Ice::SyscallException(__FILE__, __LINE__);
         }
     }
-}
-
-IceObjC::Instance*
-IceObjC::Instance::clone(const ProtocolInstancePtr& instance)
-{
-    return new Instance(_communicator, instance->type(), instance->protocol(), instance->secure());
 }
 
 IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, const string& ho, Int po,
@@ -431,10 +426,6 @@ IceObjC::StreamEndpointFactory::StreamEndpointFactory(const InstancePtr& instanc
 {
 }
 
-IceObjC::StreamEndpointFactory::~StreamEndpointFactory()
-{
-}
-
 Short
 IceObjC::StreamEndpointFactory::type() const
 {
@@ -464,12 +455,12 @@ IceObjC::StreamEndpointFactory::read(Ice::InputStream* s) const
 void
 IceObjC::StreamEndpointFactory::destroy()
 {
-    _instance = 0;
+    _instance = nullptr;
 }
 
 EndpointFactoryPtr
 IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
-    return make_shared<StreamEndpointFactory>(_instance->clone(instance));
+    return make_shared<StreamEndpointFactory>(make_shared<IceObjC::Instance>(_instance, instance));
 }
 #endif

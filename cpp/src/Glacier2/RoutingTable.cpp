@@ -125,7 +125,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     return evictedProxies;
 }
 
-ObjectPrx
+ObjectPrxPtr
 Glacier2::RoutingTable::get(const Identity& ident)
 {
     if(ident.name.empty())

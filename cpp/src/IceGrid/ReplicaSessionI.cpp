@@ -219,7 +219,7 @@ ReplicaSessionI::registerWellKnownObjects(ObjectInfoSeq objects, const Ice::Curr
 void
 ReplicaSessionI::setAdapterDirectProxy(string adapterId,
                                        string replicaGroupId,
-                                       Ice::ObjectPrx proxy,
+                                       Ice::ObjectPrxPtr proxy,
                                        const Ice::Current&)
 {
     if(_database->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
@@ -280,13 +280,13 @@ ReplicaSessionI::getProxy() const
     return _proxy;
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 ReplicaSessionI::getEndpoint(const std::string& name)
 {
     lock_guard lock(_mutex);
     if(_destroy)
     {
-        return nullptr;
+        return nullopt;
     }
     return _replicaEndpoints[name];
 }

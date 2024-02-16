@@ -71,8 +71,8 @@ public:
     ~SessionRouterI() override;
     void destroy();
 
-    Ice::ObjectPrx getClientProxy(std::optional<bool>&, const Ice::Current&) const override;
-    Ice::ObjectPrx getServerProxy(const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getClientProxy(std::optional<bool>&, const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getServerProxy(const Ice::Current&) const override;
     Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override;
     std::string getCategoryForClient(const Ice::Current&) const override;
     void createSessionAsync(std::string, std::string,

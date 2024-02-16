@@ -71,7 +71,7 @@ MyDerivedClassI::shutdownAsync(function<void()> response,
                                const Ice::Current& current)
 {
     {
-        IceUtil::Mutex::Lock sync(_opVoidMutex);
+        lock_guard lock(_opVoidMutex);
         if(_opVoidThread)
         {
             _opVoidThread->getThreadControl().join();
@@ -97,7 +97,7 @@ MyDerivedClassI::opVoidAsync(function<void()> response,
 {
     test(current.mode == OperationMode::Normal);
 
-    IceUtil::Mutex::Lock sync(_opVoidMutex);
+    lock_guard lock(_opVoidMutex);
     if(_opVoidThread)
     {
         _opVoidThread->getThreadControl().join();
@@ -702,7 +702,7 @@ MyDerivedClassI::opByteSOnewayAsync(Test::ByteS,
                                     function<void(exception_ptr)>,
                                     const Ice::Current&)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     ++_opByteSOnewayCallCount;
     response();
 }
@@ -712,7 +712,7 @@ MyDerivedClassI::opByteSOnewayCallCountAsync(function<void(int)> response,
                                              function<void(exception_ptr)>,
                                              const Ice::Current&)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     response(_opByteSOnewayCallCount);
     _opByteSOnewayCallCount = 0;
 }

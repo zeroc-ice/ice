@@ -6,6 +6,7 @@
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
 #include <Ice/Reference.h>
+#include "Ice/Proxy.h"
 
 using namespace std;
 using namespace Ice;

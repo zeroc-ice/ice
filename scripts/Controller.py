@@ -216,7 +216,7 @@ class ControllerDriver(Driver):
             "ControllerAdapter.AdapterId", Ice.generateUUID()
         )
         adapter = self.communicator.createObjectAdapter("ControllerAdapter")
-        adapter.add(ControllerI(self), self.communicator.stringToIdentity(self.id))
+        adapter.add(ControllerI(self), Ice.stringToIdentity(self.id))
         adapter.activate()
         self.communicator.waitForShutdown()
 

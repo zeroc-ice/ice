@@ -30,7 +30,7 @@ public:
     bool exception();
     std::string getRequestId() const;
 
-    virtual void finished(const Ice::ObjectPrx&) = 0;
+    virtual void finished(const Ice::ObjectPrxPtr&) = 0;
 
 protected:
 
@@ -63,7 +63,7 @@ public:
         return _callbacks.size() == 1;
     }
 
-    virtual void finished(const Ice::ObjectPrx& proxy)
+    virtual void finished(const Ice::ObjectPrxPtr& proxy)
     {
         for(typename std::vector<CB>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
@@ -89,7 +89,7 @@ public:
 
     ObjectRequest(const LookupIPtr&, const Ice::Identity&, int);
 
-    void response(const Ice::ObjectPrx&);
+    void response(const Ice::ObjectPrxPtr&);
 
 private:
 
@@ -104,10 +104,10 @@ public:
 
     AdapterRequest(const LookupIPtr&, const std::string&, int);
 
-    bool response(const Ice::ObjectPrx&, bool);
+    bool response(const Ice::ObjectPrxPtr&, bool);
 
     virtual bool retry();
-    virtual void finished(const Ice::ObjectPrx&);
+    virtual void finished(const Ice::ObjectPrxPtr&);
 
 private:
 
@@ -119,7 +119,7 @@ private:
     // the same proxy if it's accessible through multiple network interfaces and if we
     // also sent the request to multiple interfaces.
     //
-    std::set<Ice::ObjectPrx, Ice::TargetCompare<Ice::ObjectPrx, std::less>> _proxies;
+    std::set<Ice::ObjectPrxPtr, Ice::TargetCompare<Ice::ObjectPrxPtr, std::less, Ice::ObjectPrx>> _proxies;
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };
@@ -143,8 +143,8 @@ public:
     void findObject(const ObjectCB&, const Ice::Identity&);
     void findAdapter(const AdapterCB&, const std::string&);
 
-    void foundObject(const Ice::Identity&, const std::string&, const Ice::ObjectPrx&);
-    void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrx&, bool);
+    void foundObject(const Ice::Identity&, const std::string&, const Ice::ObjectPrxPtr&);
+    void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrxPtr&, bool);
 
     void adapterRequestTimedOut(const AdapterRequestPtr&);
     void adapterRequestException(const AdapterRequestPtr&, std::exception_ptr);
@@ -174,7 +174,7 @@ private:
     const std::string _domainId;
 
     IceUtil::TimerPtr _timer;
-    Ice::ObjectPrx _wellKnownProxy;
+    Ice::ObjectPrxPtr _wellKnownProxy;
     bool _warnOnce;
 
     std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
@@ -188,8 +188,8 @@ public:
 
     LookupReplyI(const LookupIPtr&);
 
-    virtual void foundObjectById(Ice::Identity, Ice::ObjectPrx, const Ice::Current&);
-    virtual void foundAdapterById(std::string, Ice::ObjectPrx, bool, const Ice::Current&);
+    virtual void foundObjectById(Ice::Identity, Ice::ObjectPrxPtr, const Ice::Current&);
+    virtual void foundAdapterById(std::string, Ice::ObjectPrxPtr, bool, const Ice::Current&);
 
 private:
 

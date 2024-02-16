@@ -100,7 +100,7 @@ inline bool targetNotEqualTo(const T& lhs, const U& rhs)
  * Functor class that compares the contents of two smart pointers of the given type using the given comparator.
  * \headerfile Ice/Ice.h
  */
-template<typename T, template<typename> class Compare>
+template<typename T, template<typename> class Compare, typename E = typename T::element_type>
 struct TargetCompare
 {
     /**
@@ -111,7 +111,7 @@ struct TargetCompare
     {
         if(lhs && rhs)
         {
-            return Compare<typename T::element_type>()(*lhs, *rhs);
+            return Compare<E>()(*lhs, *rhs);
         }
         else
         {

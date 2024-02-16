@@ -411,7 +411,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     if(_replicaObserver)
     {
         _database->getReplicaCache().unsubscribe(_replicaObserver);
-        _replicaObserver = nullptr;
+        _replicaObserver = nullopt;
     }
 
     //

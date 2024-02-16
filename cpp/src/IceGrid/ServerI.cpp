@@ -246,7 +246,7 @@ class ResetPropertiesCB : public enable_shared_from_this<ResetPropertiesCB>
 public:
 
     ResetPropertiesCB(const shared_ptr<ServerI>& server,
-                      const Ice::ObjectPrx admin,
+                      const Ice::ObjectPrxPtr admin,
                       const shared_ptr<InternalServerDescriptor>& desc,
                       const shared_ptr<InternalServerDescriptor>& old,
                       const shared_ptr<TraceLevels>& traceLevels) :
@@ -329,7 +329,7 @@ private:
         //
         ++_p;
 
-        auto p = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(_admin, facet);
+        auto p = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(_admin->ice_facet(facet));
         p->setPropertiesAsync(props,
                               [self = shared_from_this()]
                               {
@@ -342,7 +342,7 @@ private:
     }
 
     const shared_ptr<ServerI> _server;
-    const Ice::ObjectPrx _admin;
+    const Ice::ObjectPrxPtr _admin;
     const shared_ptr<InternalServerDescriptor> _desc;
     const shared_ptr<TraceLevels> _traceLevels;
     PropertyDescriptorSeqDict _properties;
@@ -500,7 +500,7 @@ LoadCommand::addCallback(function<void(const ServerPrxPtr&, const AdapterPrxDict
 }
 
 void
-LoadCommand::startRuntimePropertiesUpdate(const Ice::ObjectPrx& process)
+LoadCommand::startRuntimePropertiesUpdate(const Ice::ObjectPrxPtr& process)
 {
     if(_updating)
     {
@@ -515,7 +515,7 @@ LoadCommand::startRuntimePropertiesUpdate(const Ice::ObjectPrx& process)
 
 bool
 LoadCommand::finishRuntimePropertiesUpdate(const shared_ptr<InternalServerDescriptor>& runtime,
-                                           const Ice::ObjectPrx& process)
+                                           const Ice::ObjectPrxPtr& process)
 {
     _updating = false;
     _runtime = runtime; // The new runtime server descriptor.
@@ -883,14 +883,14 @@ ServerI::getPid(const Ice::Current&) const
     return _node->getActivator()->getServerPid(_id);
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 ServerI::getProcess() const
 {
     lock_guard lock(_mutex);
 
-    if(_process == nullptr || _state <= Inactive || _state >= Deactivating)
+    if(_process == nullopt || _state <= Inactive || _state >= Deactivating)
     {
-        return nullptr;
+        return nullopt;
     }
     else
     {
@@ -1610,7 +1610,7 @@ ServerI::activate()
             waitForReplication = _waitForReplication;
             _waitForReplication = false;
 
-            _process = 0;
+            _process = nullopt;
 
 #ifndef _WIN32
             uid = _uid;
@@ -1935,7 +1935,7 @@ ServerI::terminated(const string& msg, int status)
     {
         try
         {
-            adpt.second->setDirectProxy(nullptr, Ice::emptyCurrent);
+            adpt.second->setDirectProxy(nullopt, Ice::emptyCurrent);
         }
         catch(const Ice::ObjectNotExistException&)
         {

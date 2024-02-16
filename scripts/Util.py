@@ -2598,7 +2598,7 @@ class RemoteProcessController(ProcessController):
         self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
         self.adapter.add(
             ProcessControllerRegistryI(self),
-            comm.stringToIdentity("Util/ProcessControllerRegistry"),
+            Ice.stringToIdentity("Util/ProcessControllerRegistry"),
         )
         self.adapter.activate()
 
@@ -2611,12 +2611,12 @@ class RemoteProcessController(ProcessController):
         )
 
     def getController(self, current):
-        ident = self.getControllerIdentity(current)
-        if isinstance(ident, str):
-            ident = current.driver.getCommunicator().stringToIdentity(ident)
-
         import Ice
         import Test
+
+        ident = self.getControllerIdentity(current)
+        if isinstance(ident, str):
+            ident = Ice.stringToIdentity(ident)
 
         proxy = None
         with self.cond:
@@ -2934,7 +2934,7 @@ class AndroidProcessController(RemoteProcessController):
 
 class iOSSimulatorProcessController(RemoteProcessController):
     device = "iOSSimulatorProcessController"
-    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-13"
+    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, None)
@@ -3156,6 +3156,7 @@ class BrowserProcessController(RemoteProcessController):
         return False
 
     def getControllerIdentity(self, current):
+        import Ice
         #
         # Load the controller page each time we're asked for the controller and if we're running
         # another testcase, the controller page will connect to the process controller registry
@@ -3179,9 +3180,7 @@ class BrowserProcessController(RemoteProcessController):
         )
         if url != self.url:
             self.url = url
-            ident = current.driver.getCommunicator().stringToIdentity(
-                "Browser/ProcessController"
-            )
+            ident = Ice.stringToIdentity("Browser/ProcessController")
             if self.driver:
                 # Clear the previous controller connection if it exists. This ensures that the reload
                 # of the test controller will use a new connection (with Chrome the connection close
@@ -3765,12 +3764,10 @@ class CppMapping(Mapping):
             if current.config.buildPlatform == "iphonesimulator"
             else "iPhoneOS"
         )
-        return "{0}/com.zeroc.Cpp11-Test-Controller".format(category)
+        return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        appName = (
-            "C++11 Test Controller.app"
-        )
+        appName = "C++ Test Controller.app"
         path = os.path.join(self.component.getTestDir(self), "ios", "controller")
         path = os.path.join(
             path,

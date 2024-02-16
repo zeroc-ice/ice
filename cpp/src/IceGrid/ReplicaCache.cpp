@@ -221,8 +221,8 @@ ReplicaCache::unsubscribe(const ReplicaObserverPrxPtr& observer)
     }
 }
 
-Ice::ObjectPrx
-ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrx& proxy) const
+Ice::ObjectPrxPtr
+ReplicaCache::getEndpoints(const string& name, const Ice::ObjectPrxPtr& proxy) const
 {
     Ice::EndpointSeq endpoints;
 
@@ -288,7 +288,7 @@ ReplicaEntry::getProxy() const
     return _session->getInternalRegistry();
 }
 
-Ice::ObjectPrx
+Ice::ObjectPrxPtr
 ReplicaEntry::getAdminProxy() const
 {
     auto prx = getProxy();

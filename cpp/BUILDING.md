@@ -7,28 +7,31 @@ ZeroC provides [Ice binary distributions][1] for many platforms and compilers,
 including Windows and Visual Studio, so building Ice from source is usually
 unnecessary.
 
-- [C++ Build Requirements](#c-build-requirements)
-  - [Operating Systems and Compilers](#operating-systems-and-compilers)
-  - [Third-Party Libraries](#third-party-libraries)
-    - [AIX](#aix)
-    - [Linux](#linux)
-    - [macOS](#macos)
-    - [Windows](#windows)
-- [Building Ice for AIX, Linux or macOS](#building-ice-for-aix-linux-or-macos)
-  - [Build configurations and platforms](#build-configurations-and-platforms)
-  - [C++11 mapping](#c11-mapping)
-  - [Ice Xcode SDK (macOS only)](#ice-xcode-sdk-macos-only)
-- [Building Ice for Windows](#building-ice-for-windows)
-  - [Build Using MSBuild](#build-using-msbuild)
-  - [Build Using Visual Studio](#build-using-visual-studio)
-- [Installing a C++ Source Build on AIX, Linux or macOS](#installing-a-c-source-build-on-aix-linux-or-macos)
-- [Creating a NuGet Package on Windows](#creating-a-nuget-package-on-windows)
-- [Cleaning the source build on AIX, Linux or macOS](#cleaning-the-source-build-on-aix-linux-or-macos)
-- [Running the Test Suite](#running-the-test-suite)
-  - [AIX, Linux, macOS or Windows](#aix-linux-macos-or-windows)
-  - [iOS](#ios)
-    - [iOS Simulator](#ios-simulator)
-    - [iOS Device](#ios-device)
+- [Building Ice for C++](#building-ice-for-c)
+  - [C++ Build Requirements](#c-build-requirements)
+    - [Operating Systems and Compilers](#operating-systems-and-compilers)
+    - [Third-Party Libraries](#third-party-libraries)
+      - [AIX](#aix)
+      - [Linux](#linux)
+        - [Amazon Linux 2](#amazon-linux-2)
+        - [RHEL 8](#rhel-8)
+        - [RHEL 7](#rhel-7)
+        - [SLES 12](#sles-12)
+      - [macOS](#macos)
+      - [Windows](#windows)
+  - [Building Ice for AIX, Linux or macOS](#building-ice-for-aix-linux-or-macos)
+    - [Build configurations and platforms](#build-configurations-and-platforms)
+    - [Ice Xcode SDK (macOS only)](#ice-xcode-sdk-macos-only)
+  - [Building Ice for Windows](#building-ice-for-windows)
+    - [Build Using MSBuild](#build-using-msbuild)
+    - [Build Using Visual Studio](#build-using-visual-studio)
+  - [Installing a C++ Source Build on AIX, Linux or macOS](#installing-a-c-source-build-on-aix-linux-or-macos)
+  - [Creating a NuGet Package on Windows](#creating-a-nuget-package-on-windows)
+  - [Cleaning the source build on AIX, Linux or macOS](#cleaning-the-source-build-on-aix-linux-or-macos)
+  - [Running the Test Suite](#running-the-test-suite)
+    - [AIX, Linux, macOS or Windows](#aix-linux-macos-or-windows)
+      - [iOS Simulator](#ios-simulator)
+      - [iOS Device](#ios-device)
 
 ## C++ Build Requirements
 
@@ -396,7 +399,7 @@ Python is required to run the test suite. Additionally, the Glacier2 tests
 require the Python module `passlib`, which you can install with the command:
 
 ```shell
-pip install passlib
+python3 -m pip install passlib
 ```
 
 After a successful source build, you can run the tests as follows:
@@ -411,48 +414,35 @@ the [python](../python) folder of this source distribution, or install the
 Python module `zeroc-ice`,  using the following command:
 
 ```shell
-pip install zeroc-ice
+python3 -m pip install zeroc-ice
 ```
 
 In order to run the test suite on `iphoneos`, you need to build the
-C++98 Test Controller app or C++11 Test Controller app from Xcode:
+C++ Test Controller app from Xcode:
 
-- Build the test suite with `make` for the `xcodedsk` or `cpp11-xcodesdk`
+- Build the test suite with `make` for the `xcodedsk`
   configuration, and the `iphoneos` platform.
 - Open the C++ Test Controller project located in the
   `cpp/test/ios/controller` directory.
-- Build the `C++98 Test Controller` or the `C++11 Test Controller` app (it must
-  match the configuration(s) selected when building the test suite).
+- Build the `C++ Test Controller` app.
 
 #### iOS Simulator
 
-- C++98 controller
+- C++ controller
 
 ```shell
-python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
-```
-
-- C++11 controller
-
-```shell
-python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controller-app
+python3 allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
 ```
 
 #### iOS Device
 
-- Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your
+- Start the `C++ Test Controller` app on your
   iOS device, from Xcode.
 
-- Start the C++98 controller on your Mac:
+- Start the C++ controller on your Mac:
 
 ```shell
-python allTests.py --config=xcodesdk --platform=iphoneos
-```
-
-- Start the C++11 controller on your Mac:
-
-```shell
-python allTests.py --config=cpp11-xcodesdk --platform=iphoneos
+python3 allTests.py --config=xcodesdk --platform=iphoneos
 ```
 
 All the test clients and servers run on the iOS device, not on your Mac

@@ -19,15 +19,15 @@ public:
 
     WellKnownObjectsManager(const std::shared_ptr<Database>&);
 
-    void add(const Ice::ObjectPrx&, const std::string&);
-    void addEndpoint(const std::string&, const Ice::ObjectPrx&);
+    void add(const Ice::ObjectPrxPtr&, const std::string&);
+    void addEndpoint(const std::string&, const Ice::ObjectPrxPtr&);
     void finish();
 
     void registerAll();
     void registerAll(const ReplicaSessionPrxPtr&);
     void updateReplicatedWellKnownObjects();
 
-    Ice::ObjectPrx getEndpoints(const std::string&);
+    Ice::ObjectPrxPtr getEndpoints(const std::string&);
 
     LocatorPrxPtr getLocator();
     Ice::LocatorRegistryPrxPtr getLocatorRegistry();
@@ -36,7 +36,7 @@ private:
 
     bool initialized() const;
 
-    Ice::ObjectPrx getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
+    Ice::ObjectPrxPtr getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
 
     const std::shared_ptr<Database> _database;
     bool _initialized;

@@ -31,7 +31,7 @@ public:
                              const Ice::Current&) override;
     void setEndpoints(StringObjectProxyDict, const Ice::Current&) override;
     void registerWellKnownObjects(ObjectInfoSeq, const Ice::Current&) override;
-    void setAdapterDirectProxy(std::string, std::string, Ice::ObjectPrx, const Ice::Current&) override;
+    void setAdapterDirectProxy(std::string, std::string, Ice::ObjectPrxPtr, const Ice::Current&) override;
     void receivedUpdate(TopicName, int, std::string, const Ice::Current&) override;
     void destroy(const Ice::Current&) override;
 
@@ -42,7 +42,7 @@ public:
     const std::shared_ptr<InternalReplicaInfo>& getInfo() const;
     ReplicaSessionPrxPtr getProxy() const;
 
-    Ice::ObjectPrx getEndpoint(const std::string&);
+    Ice::ObjectPrxPtr getEndpoint(const std::string&);
     bool isDestroyed() const;
 
 private:

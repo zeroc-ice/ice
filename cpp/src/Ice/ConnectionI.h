@@ -120,22 +120,15 @@ public:
 #endif
     };
 
-    class StartCallback
-    {
-    public:
-
-        virtual void connectionStartCompleted(const ConnectionIPtr&) = 0;
-        virtual void connectionStartFailed(const ConnectionIPtr&, std::exception_ptr) = 0;
-    };
-    using StartCallbackPtr = ::std::shared_ptr<StartCallback>;
-
     enum DestructionReason
     {
         ObjectAdapterDeactivated,
         CommunicatorDestroyed
     };
 
-    void start(const StartCallbackPtr&);
+    void startAsync(
+        std::function<void(ConnectionIPtr)>,
+        std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
     void activate();
     void hold();
     void destroy(DestructionReason);
@@ -215,8 +208,13 @@ public:
 
     void exception(std::exception_ptr);
 
-    void dispatch(const StartCallbackPtr&, const std::vector<OutgoingMessage>&, Byte, Int, Int,
-                  const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
+    void dispatch(std::function<void(ConnectionIPtr)>,
+                  const std::vector<OutgoingMessage>&,
+                  Byte,
+                  Int,
+                  Int,
+                  const IceInternal::ServantManagerPtr&,
+                  const ObjectAdapterPtr&,
                   const IceInternal::OutgoingAsyncBasePtr&,
                   const HeartbeatCallback&,
                   Ice::InputStream&);
@@ -311,7 +309,8 @@ private:
     const IceUtil::TimerTaskPtr _readTimeout;
     bool _readTimeoutScheduled;
 
-    StartCallbackPtr _startCallback;
+    std::function<void(ConnectionIPtr)> _connectionStartCompleted;
+    std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
 
     const bool _warn;
     const bool _warnUdp;

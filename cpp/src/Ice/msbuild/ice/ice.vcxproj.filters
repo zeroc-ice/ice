@@ -222,9 +222,6 @@
     <ClCompile Include="..\..\..\IceUtil\InputUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\MutexProtocol.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\Options.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -258,9 +255,6 @@
     <ClCompile Include="..\..\ACM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ArgVector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -277,9 +271,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\CommunicatorI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Cond.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ConnectionFactory.cpp">
@@ -613,6 +604,9 @@
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="..\..\RequestHandlerCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ProxyAsync.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

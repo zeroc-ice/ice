@@ -50,7 +50,7 @@ InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, NodePrxPtr no
     const auto logger = traceLevels->logger;
     if(!info || !node)
     {
-        return nullptr;
+        return nullopt;
     }
 
     if(_requireNodeCertCN)
@@ -117,7 +117,7 @@ InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
     const auto logger = traceLevels->logger;
     if(!info || !prx)
     {
-        return nullptr;
+        return nullopt;
     }
 
     if(_requireReplicaCertCN)

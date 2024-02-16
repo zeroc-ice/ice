@@ -26,8 +26,8 @@ public:
 
     void destroy(std::function<void(std::exception_ptr)>);
 
-    Ice::ObjectPrx getClientProxy(std::optional<bool>&, const Ice::Current&) const override;
-    Ice::ObjectPrx getServerProxy(const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getClientProxy(std::optional<bool>&, const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getServerProxy(const Ice::Current&) const override;
     Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override;
     std::string getCategoryForClient(const Ice::Current&) const override;
     void createSessionAsync(std::string, std::string,
@@ -59,8 +59,8 @@ private:
 
     const std::shared_ptr<Instance> _instance;
     const std::shared_ptr<RoutingTable> _routingTable;
-    const Ice::ObjectPrx _clientProxy;
-    const Ice::ObjectPrx _serverProxy;
+    const Ice::ObjectPrxPtr _clientProxy;
+    const Ice::ObjectPrxPtr _serverProxy;
     const std::shared_ptr<ClientBlobject> _clientBlobject;
     const std::shared_ptr<ServerBlobject> _serverBlobject;
     const bool _clientBlobjectBuffered;

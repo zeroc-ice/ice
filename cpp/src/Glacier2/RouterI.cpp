@@ -35,7 +35,7 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
     //
     if(_instance->properties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
     {
-        const_cast<ObjectPrx&>(_clientProxy) =
+        const_cast<ObjectPrxPtr&>(_clientProxy) =
             _instance->clientObjectAdapter()->createProxy(stringToIdentity("dummy"));
     }
 
@@ -51,7 +51,7 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
             ident.category.push_back(static_cast<char>(dist(gen)));
         }
 
-        const_cast<ObjectPrx&>(_serverProxy) = _instance->serverObjectAdapter()->createProxy(ident);
+        const_cast<ObjectPrxPtr&>(_serverProxy) = _instance->serverObjectAdapter()->createProxy(ident);
 
         shared_ptr<ServerBlobject>& serverBlobject = const_cast<shared_ptr<ServerBlobject>&>(_serverBlobject);
         serverBlobject = make_shared<ServerBlobject>(_instance, _connection);
@@ -107,7 +107,7 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
     _routingTable->destroy();
 }
 
-ObjectPrx
+ObjectPrxPtr
 Glacier2::RouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current&) const
 {
     // No mutex lock necessary, _clientProxy is immutable and is never destroyed.
@@ -115,7 +115,7 @@ Glacier2::RouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current
     return _clientProxy;
 }
 
-ObjectPrx
+ObjectPrxPtr
 Glacier2::RouterI::getServerProxy(const Current&) const
 {
     // No mutex lock necessary, _serverProxy is immutable and is never destroyed.
