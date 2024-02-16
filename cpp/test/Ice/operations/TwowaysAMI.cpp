@@ -2388,7 +2388,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByte(r.returnValue, r.p3);
+            cb->opByte(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2407,7 +2407,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opBool(r.returnValue, r.p3);
+            cb->opBool(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2426,7 +2426,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortIntLong(r.returnValue, r.p4, r.p5, r.p6);
+            cb->opShortIntLong(std::get<0>(r), std::get<1>(r), std::get<2>(r), std::get<3>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2445,7 +2445,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opFloatDouble(r.returnValue, r.p3, r.p4);
+            cb->opFloatDouble(std::get<0>(r), std::get<1>(r), std::get<2>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2464,7 +2464,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opString(r.returnValue, r.p3);
+            cb->opString(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2483,7 +2483,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyEnum(r.returnValue, r.p2);
+            cb->opMyEnum(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2502,7 +2502,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyClass(r.returnValue, r.p2, r.p3);
+            cb->opMyClass(std::get<0>(r), std::get<1>(r), std::get<2>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2530,7 +2530,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStruct(r.returnValue, r.p3);
+            cb->opStruct(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2562,7 +2562,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteS(r.returnValue, r.p3);
+            cb->opByteS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2590,7 +2590,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opBoolS(r.returnValue, r.p3);
+            cb->opBoolS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2626,7 +2626,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortIntLongS(r.returnValue, r.p4, r.p5, r.p6);
+            cb->opShortIntLongS(std::get<0>(r), std::get<1>(r), std::get<2>(r), std::get<3>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2655,7 +2655,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opFloatDoubleS(r.returnValue, r.p3, r.p4);
+            cb->opFloatDoubleS(std::get<0>(r), std::get<1>(r), std::get<2>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2683,7 +2683,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringS(r.returnValue, r.p3);
+            cb->opStringS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2716,7 +2716,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteSS(r.returnValue, r.p3);
+            cb->opByteSS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2747,7 +2747,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opFloatDoubleSS(r.returnValue, r.p3, r.p4);
+            cb->opFloatDoubleSS(std::get<0>(r), std::get<1>(r), std::get<2>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2777,7 +2777,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringSS(r.returnValue, r.p3);
+            cb->opStringSS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2804,7 +2804,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteBoolD(r.returnValue, r.p3);
+            cb->opByteBoolD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2831,7 +2831,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortIntD(r.returnValue, r.p3);
+            cb->opShortIntD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2858,7 +2858,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opLongFloatD(r.returnValue, r.p3);
+            cb->opLongFloatD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2885,7 +2885,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringStringD(r.returnValue, r.p3);
+            cb->opStringStringD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2912,7 +2912,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringMyEnumD(r.returnValue, r.p3);
+            cb->opStringMyEnumD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2944,7 +2944,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyStructMyEnumD(r.returnValue, r.p3);
+            cb->opMyStructMyEnumD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2983,7 +2983,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteBoolDS(r.returnValue, r.p3);
+            cb->opByteBoolDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3021,7 +3021,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortIntDS(r.returnValue, r.p3);
+            cb->opShortIntDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3059,7 +3059,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opLongFloatDS(r.returnValue, r.p3);
+            cb->opLongFloatDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3097,7 +3097,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringStringDS(r.returnValue, r.p3);
+            cb->opStringStringDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3135,7 +3135,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringMyEnumDS(r.returnValue, r.p3);
+            cb->opStringMyEnumDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3171,7 +3171,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyEnumStringDS(r.returnValue, r.p3);
+            cb->opMyEnumStringDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3215,7 +3215,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyStructMyEnumDS(r.returnValue, r.p3);
+            cb->opMyStructMyEnumDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3251,7 +3251,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteByteSD(r.returnValue, r.p3);
+            cb->opByteByteSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3286,7 +3286,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opBoolBoolSD(r.returnValue, r.p3);
+            cb->opBoolBoolSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3324,7 +3324,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortShortSD(r.returnValue, r.p3);
+            cb->opShortShortSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3362,7 +3362,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opIntIntSD(r.returnValue, r.p3);
+            cb->opIntIntSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3400,7 +3400,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opLongLongSD(r.returnValue, r.p3);
+            cb->opLongLongSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3438,7 +3438,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringFloatSD(r.returnValue, r.p3);
+            cb->opStringFloatSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3476,7 +3476,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringDoubleSD(r.returnValue, r.p3);
+            cb->opStringDoubleSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3516,7 +3516,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringStringSD(r.returnValue, r.p3);
+            cb->opStringStringSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3555,7 +3555,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyEnumMyEnumSD(r.returnValue, r.p3);
+            cb->opMyEnumMyEnumSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {

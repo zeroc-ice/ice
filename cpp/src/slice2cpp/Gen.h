@@ -79,6 +79,7 @@ private:
         virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitStructStart(const StructPtr&);
         virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
         virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);
@@ -96,24 +97,61 @@ private:
     {
     public:
 
-        TypesVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        TypesVisitor(::IceUtilInternal::Output&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&) { return false; }
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual void visitExceptionEnd(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitStructEnd(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
         virtual void visitEnum(const EnumPtr&);
         virtual void visitConst(const ConstPtr&);
-        virtual void visitDataMember(const DataMemberPtr&);
 
     private:
 
-        void emitUpcall(const ExceptionPtr&, const std::string&, const std::string&);
+        ::IceUtilInternal::Output& H;
+        int _useWstring;
+        std::list<int> _useWstringHist;
+    };
+
+    class StructVisitor final : private ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+        StructVisitor(::IceUtilInternal::Output&);
+
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitStructEnd(const StructPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+
+        // Otherwise we visit their data members.
+        bool visitClassDefStart(const ClassDefPtr&) final { return false; }
+        bool visitExceptionStart(const ExceptionPtr&) final { return false; }
+
+    private:
+
+        ::IceUtilInternal::Output& H;
+        int _useWstring;
+        std::list<int> _useWstringHist;
+    };
+
+    class ExceptionVisitor final : private ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+        ExceptionVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitExceptionEnd(const ExceptionPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+
+        // Otherwise we visit their data members.
+        bool visitClassDefStart(const ClassDefPtr&) final { return false; }
+        bool visitStructStart(const StructPtr&) final { return false; }
+
+    private:
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -143,8 +181,7 @@ private:
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
 
-        std::string _dllClassExport;
-        std::string _dllMemberExport;
+        std::string _dllExport;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
@@ -183,7 +220,6 @@ private:
         virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
         virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
-        void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
 
     private:
 
@@ -191,8 +227,6 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
-        std::string _dllClassExport;
-        std::string _dllMemberExport;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
@@ -207,7 +241,6 @@ private:
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
-        void emitUpcall(const ClassDefPtr&, const std::string&, const std::string&);
     };
 
     class StreamVisitor : private ::IceUtil::noncopyable, public ParserVisitor

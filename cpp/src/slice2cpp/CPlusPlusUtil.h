@@ -27,6 +27,7 @@ const int TypeContextAMIEnd = 2;
 const int TypeContextAMIPrivateEnd = 4;
 const int TypeContextAMICallPrivateEnd = 8;
 const int TypeContextUseWstring = 16;
+const int TypeContextTuple = 32;
 const int TypeContextCpp11 = 64;
 
 bool isMovable(const TypePtr&);

@@ -325,6 +325,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     }
 
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+    bool tuple = (typeCtx & TypeContextTuple) != 0;
 
     //
     // Marshal non optional parameters.
@@ -343,6 +344,8 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         }
     }
 
+    int retOffset = op && op->returnType() ? 1 : 0;
+
     if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsOptional()))
     {
         if(cpp11)
@@ -359,11 +362,26 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             out << spar;
             for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
             {
-                out << objPrefix + fixKwd(prefix + (*p)->name());
+                if (tuple)
+                {
+                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                    out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
+                }
+                else
+                {
+                    out << objPrefix + fixKwd(prefix + (*p)->name());
+                }
             }
             if(op && op->returnType() && !op->returnIsOptional())
             {
-                out << objPrefix + returnValueS;
+                if (tuple)
+                {
+                    out << "::std::get<0>(" + obj + ")";
+                }
+                else
+                {
+                    out << objPrefix + returnValueS;
+                }
             }
             out << epar << ";";
         }
@@ -450,14 +468,37 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 {
                     if(checkReturnType && op->returnTag() < (*p)->tag())
                     {
-                        out << objPrefix + returnValueS;
+                        if (tuple)
+                        {
+                            out << "::std::get<0>(" + obj + ")";
+                        }
+                        else
+                        {
+                            out << objPrefix + returnValueS;
+                        }
                         checkReturnType = false;
                     }
-                    out << objPrefix + fixKwd(prefix + (*p)->name());
+
+                    if (tuple)
+                    {
+                        auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                        out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
+                    }
+                    else
+                    {
+                        out << objPrefix + fixKwd(prefix + (*p)->name());
+                    }
                 }
                 if(checkReturnType)
                 {
-                    out << objPrefix + returnValueS;
+                    if (tuple)
+                    {
+                        out << "::std::get<0>(" + obj + ")";
+                    }
+                    else
+                    {
+                        out << objPrefix + returnValueS;
+                    }
                 }
             }
             out << epar << ";";
