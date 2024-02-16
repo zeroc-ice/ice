@@ -16,6 +16,7 @@
 #include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/LocalException.h>
+#include "Proxy.h"
 
 #include <exception>
 
@@ -556,6 +557,113 @@ public:
         if(done)
         {
             PromiseInvoke<P>::_promise.set_value();
+        }
+        return false;
+    }
+};
+
+template<typename R>
+class InvokeOutgoingAsyncT : public OutgoingAsync
+{
+public:
+
+    using OutgoingAsync::OutgoingAsync;
+
+    void
+    invoke(const std::string& operation,
+           Ice::OperationMode mode,
+           const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+           const Ice::Context& context)
+    {
+        _read = [](bool ok, Ice::InputStream* stream)
+        {
+            const Ice::Byte* encaps;
+            Ice::Int sz;
+            stream->readEncapsulation(encaps, sz);
+            return R { ok, { encaps, encaps + sz } };
+        };
+
+        try
+        {
+            prepare(operation, mode, context);
+            if(inParams.first == inParams.second)
+            {
+                _os.writeEmptyEncapsulation(_encoding);
+            }
+            else
+            {
+                _os.writeEncapsulation(inParams.first, static_cast<Ice::Int>(inParams.second - inParams.first));
+            }
+            OutgoingAsync::invoke(operation);
+        }
+        catch (const std::exception&)
+        {
+            abort(std::current_exception());
+        }
+    }
+
+protected:
+
+    std::function<R(bool, Ice::InputStream*)> _read;
+};
+
+template<typename R>
+class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
+{
+public:
+
+    InvokeLambdaOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy,
+                         std::function<void(R)> response,
+                         std::function<void(std::exception_ptr)> ex,
+                         std::function<void(bool)> sent) :
+        InvokeOutgoingAsyncT<R>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
+    {
+        if(response)
+        {
+            _response = [this, response = std::move(response)](bool ok)
+            {
+                if(this->_is.b.empty())
+                {
+                    response(R { ok, { 0, 0 }});
+                }
+                else
+                {
+                    response(this->_read(ok, &this->_is));
+                }
+            };
+        }
+    }
+};
+
+template<typename P, typename R>
+class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvoke<P>
+{
+public:
+
+    InvokePromiseOutgoing(const std::shared_ptr<Ice::ObjectPrx>& proxy, bool synchronous) :
+        InvokeOutgoingAsyncT<R>(proxy, false)
+    {
+        this->_synchronous = synchronous;
+        this->_response = [this](bool ok)
+        {
+            if(this->_is.b.empty())
+            {
+                std::vector<Ice::Byte> encaps;
+                this->_promise.set_value(R { ok, encaps});
+            }
+            else
+            {
+                this->_promise.set_value(this->_read(ok, &this->_is));
+            }
+        };
+    }
+
+    virtual bool handleSent(bool done, bool) override
+    {
+        if(done)
+        {
+            std::vector<Ice::Byte> encaps;
+            this->_promise.set_value(R { true, encaps});
         }
         return false;
     }

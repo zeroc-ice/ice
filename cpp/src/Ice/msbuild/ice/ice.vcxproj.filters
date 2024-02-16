@@ -606,6 +606,9 @@
     <ClCompile Include="..\..\RequestHandlerCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ProxyAsync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">
