@@ -2498,12 +2498,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "{";
     H << nl << "}";
 
-    // Copy constructor
-    H << sp;
-    H << nl << prx << "(const " << prx << "& other) : ::Ice::ObjectPrx(other)";
-    H << nl << "{";
-    H << nl << "}";
-
     H << sp;
     H << nl << "/// \\cond INTERNAL";
     H << nl << prx << "(const ::IceInternal::ReferencePtr& ref) : ::Ice::ObjectPrx(ref)";
