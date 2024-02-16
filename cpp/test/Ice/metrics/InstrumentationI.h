@@ -384,7 +384,7 @@ public:
     DispatchObserverIPtr dispatchObserver;
 
 private:
-    
+
     std::mutex _mutex;
 };
 using CommunicatorObserverIPtr = std::shared_ptr<CommunicatorObserverI>;
