@@ -27,8 +27,6 @@
 #   include <dirent.h>
 #endif
 
-#include <inttypes.h>
-
 #include <iterator>
 
 // Ignore macOS OpenSSL deprecation warnings

@@ -46,8 +46,8 @@ public:
                                                  std::optional<::Ice::Int>&,
                                                  const ::Ice::Current&);
 
-    virtual std::optional<::int64_t> opLong(std::optional<::int64_t>,
-                                                   std::optional<::int64_t>&,
+    virtual std::optional<int64_t> opLong(std::optional<int64_t>,
+                                                   std::optional<int64_t>&,
                                                    const ::Ice::Current&);
 
     virtual std::optional<::Ice::Float> opFloat(std::optional<::Ice::Float>,
@@ -111,7 +111,7 @@ public:
         const ::Ice::Current&);
 
     virtual std::optional<::Test::LongSeq> opLongSeq(
-        std::optional<::std::pair<const ::int64_t*, const ::int64_t*> >,
+        std::optional<::std::pair<const int64_t*, const int64_t*> >,
         std::optional<::Test::LongSeq>&,
         const ::Ice::Current&);
 

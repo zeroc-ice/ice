@@ -220,7 +220,7 @@ struct BufferStruct
 
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
-    ["cpp:type:::Test::CustomMap< ::int64_t, ::int64_t>"] LongLongDict
+    ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict
     opVarDict(["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict idict,
               out ["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict odict);
 
