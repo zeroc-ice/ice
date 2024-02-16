@@ -13,7 +13,7 @@ using namespace Test;
 namespace
 {
 
-class Condition : public IceUtil::Mutex
+class Condition
 {
 public:
 
@@ -24,20 +24,21 @@ public:
     void
     set(bool value)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _value = value;
     }
 
     bool
     value() const
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         return _value;
     }
 
 private:
 
     bool _value;
+    mutable mutex _mutex;
 };
 using ConditionPtr = shared_ptr<Condition>;
 

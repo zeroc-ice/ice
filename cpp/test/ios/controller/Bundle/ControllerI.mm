@@ -10,6 +10,9 @@
 
 #include <dlfcn.h>
 
+#include <mutex>
+#include <condition_variable>
+
 @protocol ControllerView
 -(void) print:(NSString*)msg;
 -(void) println:(NSString*)msg;
@@ -24,7 +27,6 @@ namespace
     typedef Test::TestHelper* (*CREATE_HELPER_ENTRY_POINT)();
 
     class ControllerHelperI : public Test::ControllerHelper,
-                              private IceUtil::Monitor<IceUtil::Mutex>,
                               public IceUtil::Thread
     {
     public:
@@ -55,6 +57,8 @@ namespace
         int _status;
         std::ostringstream _out;
         Ice::CommunicatorPtr _communicator;
+        std::mutex _mutex;
+        std::condition_variable _condition;
     };
 
     class ProcessI : public Process
@@ -122,15 +126,15 @@ ControllerHelperI::~ControllerHelperI()
 void
 ControllerHelperI::serverReady()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _ready = true;
-    notifyAll();
+    _condition.notify_all();
 }
 
 void
 ControllerHelperI::communicatorInitialized(const Ice::CommunicatorPtr& communicator)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _communicator = communicator;
 }
 
@@ -234,17 +238,17 @@ ControllerHelperI::run()
 void
 ControllerHelperI::completed(int status)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _completed = true;
     _status = status;
     _communicator = 0;
-    notifyAll();
+    _condition.notify_all();
 }
 
 void
 ControllerHelperI::shutdown()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_communicator)
     {
         _communicator->shutdown();
@@ -254,10 +258,10 @@ ControllerHelperI::shutdown()
 void
 ControllerHelperI::waitReady(int timeout) const
 {
-    Lock sync(*this);
+    unique_lock<mutex> lock(_mutex);
     while(!_ready && !_completed)
     {
-        if(!timedWait(IceUtil::Time::seconds(timeout)))
+        if(_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
         {
             throw ProcessFailedException("timed out waiting for the process to be ready");
         }
@@ -271,10 +275,10 @@ ControllerHelperI::waitReady(int timeout) const
 int
 ControllerHelperI::waitSuccess(int timeout) const
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     while(!_completed)
     {
-        if(!timedWait(IceUtil::Time::seconds(timeout)))
+        if(_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
         {
             throw ProcessFailedException("timed out waiting for the process to succeed");
         }

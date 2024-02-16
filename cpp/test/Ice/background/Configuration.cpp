@@ -8,6 +8,10 @@
 
 #include <Configuration.h>
 
+#include <mutex>
+
+using namespace std;
+
 ConfigurationPtr Configuration::_instance = nullptr;
 
 Configuration::Configuration() :
@@ -34,14 +38,14 @@ Configuration::~Configuration()
 void
 Configuration::connectorsException(Ice::LocalException* ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _connectorsException.reset(ex);
 }
 
 void
 Configuration::checkConnectorsException()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_connectorsException.get())
     {
         _connectorsException->ice_throw();
@@ -51,14 +55,14 @@ Configuration::checkConnectorsException()
 void
 Configuration::connectException(Ice::LocalException* ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _connectException.reset(ex);
 }
 
 void
 Configuration::checkConnectException()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_connectException.get())
     {
         _connectException->ice_throw();
@@ -68,7 +72,7 @@ Configuration::checkConnectException()
 void
 Configuration::initializeSocketOperation(IceInternal::SocketOperation status)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(status == IceInternal::SocketOperationNone)
     {
         _initializeResetCount = 0;
@@ -81,14 +85,14 @@ Configuration::initializeSocketOperation(IceInternal::SocketOperation status)
 void
 Configuration::initializeException(Ice::LocalException* ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _initializeException.reset(ex);
 }
 
 IceInternal::SocketOperation
 Configuration::initializeSocketOperation()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_initializeResetCount == 0)
     {
         return IceInternal::SocketOperationNone;
@@ -100,7 +104,7 @@ Configuration::initializeSocketOperation()
 void
 Configuration::checkInitializeException()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_initializeException.get())
     {
         _initializeException->ice_throw();
@@ -110,21 +114,21 @@ Configuration::checkInitializeException()
 void
 Configuration::readReady(bool ready)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _readReadyCount = ready ? 0 : 10;
 }
 
 void
 Configuration::readException(Ice::LocalException* ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _readException.reset(ex);
 }
 
 bool
 Configuration::readReady()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_readReadyCount == 0)
     {
         return true;
@@ -136,7 +140,7 @@ Configuration::readReady()
 void
 Configuration::checkReadException()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_readException.get())
     {
         _readException->ice_throw();
@@ -146,21 +150,21 @@ Configuration::checkReadException()
 void
 Configuration::writeReady(bool ready)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _writeReadyCount = ready ? 0 : 10;
 }
 
 void
 Configuration::writeException(Ice::LocalException* ex)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _writeException.reset(ex);
 }
 
 bool
 Configuration::writeReady()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_writeReadyCount == 0)
     {
         return true;
@@ -172,7 +176,7 @@ Configuration::writeReady()
 void
 Configuration::checkWriteException()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_writeException.get())
     {
         _writeException->ice_throw();
@@ -182,14 +186,14 @@ Configuration::checkWriteException()
 void
 Configuration::buffered(bool buffered)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _buffered = buffered;
 }
 
 bool
 Configuration::buffered()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     return _buffered;
 }
 

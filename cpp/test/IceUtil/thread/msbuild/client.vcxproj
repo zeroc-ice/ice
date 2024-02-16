@@ -87,8 +87,6 @@
     <ClCompile Include="..\Client.cpp"/>
     <ClCompile Include="..\CountDownLatchTest.cpp"/>
     <ClCompile Include="..\CreateTest.cpp"/>
-    <ClCompile Include="..\MonitorMutexTest.cpp"/>
-    <ClCompile Include="..\MutexTest.cpp"/>
     <ClCompile Include="..\SleepTest.cpp"/>
     <ClCompile Include="..\StartTest.cpp"/>
     <ClCompile Include="..\TestBase.cpp"/>
@@ -97,8 +95,6 @@
   <ItemGroup>
     <ClInclude Include="..\CountDownLatchTest.h"/>
     <ClInclude Include="..\CreateTest.h"/>
-    <ClInclude Include="..\MonitorMutexTest.h"/>
-    <ClInclude Include="..\MutexTest.h"/>
     <ClInclude Include="..\SleepTest.h"/>
     <ClInclude Include="..\StartTest.h"/>
     <ClInclude Include="..\TestBase.h"/>

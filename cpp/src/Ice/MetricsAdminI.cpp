@@ -353,7 +353,7 @@ MetricsAdminI::~MetricsAdminI()
 void
 MetricsAdminI::destroy()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {
         p->second->destroy();
@@ -365,7 +365,7 @@ MetricsAdminI::updateViews()
 {
     set<MetricsMapFactoryPtr> updatedMaps;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         const string viewsPrefix = "IceMX.Metrics.";
         PropertyDict viewsProps = _properties->getPropertiesForPrefix(viewsPrefix);
         map<string, MetricsViewIPtr> views;
@@ -447,7 +447,7 @@ MetricsAdminI::unregisterMap(const std::string& mapName)
     bool updated;
     MetricsMapFactoryPtr factory;
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         map<string, MetricsMapFactoryPtr>::iterator p = _factories.find(mapName);
         if(p == _factories.end())
         {
@@ -468,7 +468,7 @@ MetricsAdminI::getMetricsViewNames(Ice::StringSeq& disabledViews, const Current&
 {
     Ice::StringSeq enabledViews;
 
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {
         enabledViews.push_back(p->first);
@@ -481,7 +481,7 @@ void
 MetricsAdminI::enableMetricsView(string viewName, const Current&)
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         getMetricsView(viewName); // Throws if unkonwn metrics view.
         _properties->setProperty("IceMX.Metrics." + viewName + ".Disabled", "0");
     }
@@ -492,7 +492,7 @@ void
 MetricsAdminI::disableMetricsView(string viewName, const Current&)
 {
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         getMetricsView(viewName); // Throws if unkonwn metrics view.
         _properties->setProperty("IceMX.Metrics." + viewName + ".Disabled", "1");
     }
@@ -502,7 +502,7 @@ MetricsAdminI::disableMetricsView(string viewName, const Current&)
 MetricsView
 MetricsAdminI::getMetricsView(string viewName, ::Ice::Long& timestamp, const Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     MetricsViewIPtr view = getMetricsView(viewName);
     timestamp = IceUtil::Time::now().toMilliSeconds();
     if(view)
@@ -515,7 +515,7 @@ MetricsAdminI::getMetricsView(string viewName, ::Ice::Long& timestamp, const Cur
 MetricsFailuresSeq
 MetricsAdminI::getMapMetricsFailures(string viewName, string map, const Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     MetricsViewIPtr view = getMetricsView(viewName);
     if(view)
     {
@@ -527,7 +527,7 @@ MetricsAdminI::getMapMetricsFailures(string viewName, string map, const Current&
 MetricsFailures
 MetricsAdminI::getMetricsFailures(string viewName, string map, string id, const Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     MetricsViewIPtr view = getMetricsView(viewName);
     if(view)
     {
@@ -539,7 +539,7 @@ MetricsAdminI::getMetricsFailures(string viewName, string map, string id, const 
 vector<MetricsMapIPtr>
 MetricsAdminI::getMaps(const string& mapName) const
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     vector<MetricsMapIPtr> maps;
     for(std::map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {

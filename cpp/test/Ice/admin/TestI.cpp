@@ -62,7 +62,7 @@ RemoteCommunicatorI::getAdmin(const Ice::Current&)
 Ice::PropertyDict
 RemoteCommunicatorI::getChanges(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     if(_removeCallback)
     {
@@ -77,7 +77,7 @@ RemoteCommunicatorI::getChanges(const Ice::Current&)
 void
 RemoteCommunicatorI::addUpdateCallback(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
     if(propFacet)
@@ -92,7 +92,7 @@ RemoteCommunicatorI::addUpdateCallback(const Ice::Current&)
 void
 RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
 
     Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
     if(propFacet)
@@ -155,7 +155,7 @@ RemoteCommunicatorI::destroy(const Ice::Current&)
 void
 RemoteCommunicatorI::updated(const Ice::PropertyDict& changes)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     _changes = changes;
 }
 

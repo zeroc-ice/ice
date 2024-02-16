@@ -7,8 +7,7 @@
 
 #include <Test.h>
 
-class HoldI : public Test::Hold,
-              public IceUtil::Mutex
+class HoldI : public Test::Hold
 {
 public:
 
@@ -25,6 +24,7 @@ private:
     int _last;
     const IceUtil::TimerPtr _timer;
     const Ice::ObjectAdapterPtr _adapter;
+    std::mutex _mutex;
 };
 
 #endif

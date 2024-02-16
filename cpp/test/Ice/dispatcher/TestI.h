@@ -21,7 +21,7 @@ public:
     virtual void shutdown(const Ice::Current&);
 };
 
-class TestIntfControllerI : public Test::TestIntfController, IceUtil::Monitor<IceUtil::Mutex>
+class TestIntfControllerI : public Test::TestIntfController
 {
 public:
 
