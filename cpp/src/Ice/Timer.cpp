@@ -41,13 +41,13 @@ void
 Timer::destroy()
 {
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+        lock_guard lock(_mutex);
         if(_destroyed)
         {
             return;
         }
         _destroyed = true;
-        _monitor.notify();
+        _conditionVariable.notify_one();
         _tasks.clear();
         _tokens.clear();
     }
@@ -65,7 +65,7 @@ Timer::destroy()
 void
 Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& delay)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
@@ -87,14 +87,14 @@ Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& delay)
 
     if(_wakeUpTime == IceUtil::Time() || time < _wakeUpTime)
     {
-        _monitor.notify();
+        _conditionVariable.notify_one();
     }
 }
 
 void
 Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
@@ -116,14 +116,14 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
 
     if(_wakeUpTime == IceUtil::Time() || token.scheduledTime < _wakeUpTime)
     {
-        _monitor.notify();
+        _conditionVariable.notify_one();
     }
 }
 
 bool
 Timer::cancel(const TimerTaskPtr& task)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         return false;
@@ -148,7 +148,7 @@ Timer::run()
     while(true)
     {
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+            unique_lock lock(_mutex);
 
             if(!_destroyed)
             {
@@ -171,7 +171,7 @@ Timer::run()
                 if(_tokens.empty())
                 {
                     _wakeUpTime = IceUtil::Time();
-                    _monitor.wait();
+                    _conditionVariable.wait(lock);
                 }
             }
 
@@ -196,26 +196,7 @@ Timer::run()
                 }
 
                 _wakeUpTime = first.scheduledTime;
-                try
-                {
-                    _monitor.timedWait(first.scheduledTime - now);
-                }
-                catch(const IceUtil::InvalidTimeoutException&)
-                {
-                    IceUtil::Time timeout = (first.scheduledTime - now) / 2;
-                    while(timeout > IceUtil::Time())
-                    {
-                        try
-                        {
-                            _monitor.timedWait(timeout);
-                            break;
-                        }
-                        catch(const IceUtil::InvalidTimeoutException&)
-                        {
-                            timeout = timeout / 2;
-                        }
-                    }
-                }
+                _conditionVariable.wait_for(lock, chrono::microseconds((first.scheduledTime - now).toMicroSeconds()));
             }
 
             if(_destroyed)
