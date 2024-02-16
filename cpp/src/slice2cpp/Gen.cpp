@@ -626,6 +626,48 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
     }
 }
 
+// Returns the client-side result type for an operation - can be void, a single type, or a tuple.
+string
+createResultType(const OperationPtr& p, const string& scope, int useWstring)
+{
+    TypePtr ret = p->returnType();
+    string retS = returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(),
+                                     useWstring | TypeContextCpp11);
+
+    ParamDeclList outParams = p->outParameters();
+
+    if ((outParams.size() > 1) || (ret && outParams.size() > 0))
+    {
+        // Generate a tuple
+        ostringstream os;
+        Output out(os);
+        out << "::std::tuple" << sabrk;
+        if (ret)
+        {
+            out << retS;
+        }
+        for (ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), useWstring | TypeContextCpp11);
+        }
+        out << eabrk;
+        return os.str();
+    }
+    else if (ret)
+    {
+        return retS;
+    }
+    else if (outParams.size() == 1)
+    {
+        auto q = outParams.begin();
+        return typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), useWstring | TypeContextCpp11);
+    }
+    else
+    {
+        return "void";
+    }
+}
+
 }
 
 Slice::Gen::Gen(const string& base, const string& headerExtension, const string& sourceExtension,
@@ -908,31 +950,33 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         normalizeMetaData(p, true);
 
+        // Forward declares proxies, classes and structs.
         DeclVisitor declVisitor(H, C, _dllExport);
         p->visit(&declVisitor, false);
 
-        // All types except structs, classes, exceptions and proxies.
+        // Generate declarations and definitions for all types except structs, classes, exceptions and proxies.
         TypesVisitor typesVisitor(H);
         p->visit(&typesVisitor, false);
 
-        StructVisitor structVisitor(H);
-        p->visit(&structVisitor, false);
-
-        // TODO: we need the interface visitor before the proxy visitor because proxy functions can reference structs
-        // defined in the mapping server-side class. We should fix that.
-        InterfaceVisitor interfaceVisitor(H, C, _dllExport);
-        p->visit(&interfaceVisitor, false);
-
-        // We need to define proxy types before they can be used as struct and class fields
+        // We need to fully declare proxy types before they can be used as struct and class fields.
         ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
+
+        // It's ok to use forward-declared classes as fields.
+        StructVisitor structVisitor(H);
+        p->visit(&structVisitor, false);
 
         // Classes can use proxies and structs.
         ValueVisitor valueVisitor(H, C, _dllExport);
         p->visit(&valueVisitor, false);
 
+        // Exceptions are not types.
         ExceptionVisitor exceptionVisitor(H, C, _dllExport);
         p->visit(&exceptionVisitor, false);
+
+        // Interfaces are not types either.
+        InterfaceVisitor interfaceVisitor(H, C, _dllExport);
+        p->visit(&interfaceVisitor, false);
 
         StreamVisitor streamVisitor(H, C, _dllExport);
         p->visit(&streamVisitor, false);
@@ -2501,6 +2545,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     vector<string> params;
     vector<string> paramsDecl;
+    vector<string> paramsImplDecl;
 
     vector<string> inParamsS;
     vector<string> inParamsDecl;
@@ -2550,6 +2595,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
             params.push_back(outputTypeString);
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
+            paramsImplDecl.push_back(outputTypeString + ' ' +  paramPrefix + (*q)->name());
 
             outParamsHasOpt |= (*q)->optional();
 
@@ -2565,6 +2611,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
             params.push_back(typeString);
             paramsDecl.push_back(typeString + ' ' + paramName);
+            paramsImplDecl.push_back(typeString + ' ' +  paramPrefix + (*q)->name());
 
             inParamsS.push_back(typeString);
             inParamsDecl.push_back(typeString + ' ' + paramName);
@@ -2578,19 +2625,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string contextDef = "const " + getUnqualified("::Ice::Context&", interfaceScope) + " " + contextParam;
     const string contextDecl = contextDef + " = " + getUnqualified("::Ice::noExplicitContext", interfaceScope);
 
-    string futureT;
-    if(futureOutParams.empty())
-    {
-        futureT = "void";
-    }
-    else if(futureOutParams.size() == 1)
-    {
-        futureT = futureOutParams[0];
-    }
-    else
-    {
-        futureT = resultStructName(name, interfaceScope + fixKwd(interface->name()));
-    }
+    string futureT = createResultType(p, interfaceScope, _useWstring);
+    string futureTAbsolute = createResultType(p, "", _useWstring);
 
     const string deprecateSymbol = getDeprecateSymbol(p, interface);
 
@@ -2613,7 +2649,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C << sp;
     C << nl << retSImpl << nl
-        << scoped << fixKwd(name) << spar << paramsDecl << contextDef << epar;
+        << scoped << fixKwd(name) << spar << paramsImplDecl << "const ::Ice::Context& context" << epar;
     C << sb;
     C << nl;
     if (futureOutParams.size() == 1)
@@ -2624,7 +2660,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            C << fixKwd((*outParams.begin())->name()) << " = ";
+            C << paramPrefix << (*outParams.begin())->name() << " = ";
         }
     }
     else if (futureOutParams.size() > 1)
@@ -2637,19 +2673,20 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << spar << "true, this" << "&" + interface->name() + "Prx::_iceI_" + name;
     for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
-        C << fixKwd((*q)->name());
+        C << paramPrefix + (*q)->name();
     }
-    C << contextParam << epar << ".get();";
+    C << "context" << epar << ".get();";
     if (futureOutParams.size() > 1)
     {
+        int index = ret ? 1 : 0;
         for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
         {
-            C << nl << fixKwd((*q)->name()) << " = ";
-            C << condMove(isMovable((*q)->type()), "_result." + fixKwd((*q)->name())) + ";";
+            C << nl << paramPrefix << (*q)->name() << " = ";
+            C << condMove(isMovable((*q)->type()), "::std::get<" + std::to_string(index++) + ">(_result)") << ";";
         }
         if(ret)
         {
-            C << nl << "return " + condMove(isMovable(ret), "_result." + returnValueS) + ";";
+            C << nl << "return " + condMove(isMovable(ret), "::std::get<0>(_result)") + ";";
         }
     }
     C << eb;
@@ -2670,7 +2707,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         << contextDecl << epar << ";";
 
     C << sp;
-    C << nl << "std::future<" << futureT << ">";
+    C << nl << "std::future<" << futureTAbsolute << ">";
     C << nl;
     C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar;
 
@@ -2729,8 +2766,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl << contextDecl << ");";
 
     H.restoreIndent();
-
-    // TODO: cleanup the code below to reduce duplication.
 
     C << sp;
     C << nl << "::std::function<void()>";
@@ -2831,11 +2866,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
             if(ret)
             {
-                C << condMove(isMovable(ret), string("_result.") + returnValueS);
+                C << condMove(isMovable(ret), "::std::get<0>(_result)");
             }
+            int index = ret ? 1 : 0;
             for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
             {
-                C << condMove(isMovable((*q)->type()), "_result." + fixKwd((*q)->name()));
+                C << condMove(isMovable((*q)->type()), "::std::get<" + std::to_string(index++) + ">(_result)");
             }
             C << epar << ";" << eb << ";";
         }
@@ -2899,7 +2935,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", interfaceScope) << " istr)";
         C << sb;
         C << nl << futureT << " v;";
-        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextCpp11, "", returnValueS, "v");
+        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextCpp11 | TypeContextTuple, "", returnValueS, "v");
 
         if(p->returnsClasses(false))
         {

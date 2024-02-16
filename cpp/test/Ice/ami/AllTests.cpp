@@ -1594,7 +1594,7 @@ allTests(Test::TestHelper* helper, bool collocated)
     }
 
     {
-        cout << "testing result struct... " << flush;
+        cout << "testing result tuple... " << flush;
 
         auto q = Ice::uncheckedCast<Test::Outer::Inner::TestIntfPrx>(
             communicator->stringToProxy("test2:" + helper->getTestEndpoint()));
@@ -1622,8 +1622,9 @@ allTests(Test::TestHelper* helper, bool collocated)
 
         auto f = q->opAsync(1);
         auto r = f.get();
-        test(r.returnValue == r.j);
-        test(r.returnValue == 1);
+        // TODO: this is not really a good test as we could mix up the two values.
+        test(std::get<0>(r) == std::get<1>(r));
+        test(std::get<0>(r) == 1);
         cout << "ok" << endl;
     }
 

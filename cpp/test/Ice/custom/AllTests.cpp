@@ -657,8 +657,8 @@ allTests(Test::TestHelper* helper)
     {
         Util::string_view in = "HELLO WORLD!";
         auto r = t->opStringAsync(in).get();
-        test(r.returnValue == r.outString);
-        test(r.returnValue == in);
+        test(std::get<0>(r) == std::get<1>(r));
+        test(std::get<0>(r) == in);
     }
     cout << "ok" << endl;
 
@@ -678,8 +678,8 @@ allTests(Test::TestHelper* helper)
             }
             pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
             auto r = t->opDoubleArrayAsync(inPair).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -697,8 +697,8 @@ allTests(Test::TestHelper* helper)
             pair<const bool*, const bool*> inPair(inArray, inArray + 5);
 
             auto r = t->opBoolArrayAsync(inPair).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -717,8 +717,8 @@ allTests(Test::TestHelper* helper)
             pair<const Ice::Byte*, const Ice::Byte*> inPair(inArray, inArray + 5);
 
             auto r = t->opByteArrayAsync(inPair).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -737,8 +737,8 @@ allTests(Test::TestHelper* helper)
             pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
 
             auto r = t->opVariableArrayAsync(inPair).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -749,8 +749,8 @@ allTests(Test::TestHelper* helper)
             in[3] = false;
             in[4] = true;
             auto r = t->opBoolRangeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -762,8 +762,8 @@ allTests(Test::TestHelper* helper)
             in.push_back('5');
 
             auto r = t->opByteRangeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -780,8 +780,8 @@ allTests(Test::TestHelper* helper)
             v.s = "STRINGS.";
             in.push_back(v);
             auto r = t->opVariableRangeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -792,8 +792,8 @@ allTests(Test::TestHelper* helper)
             in.push_back('4');
             in.push_back('5');
             auto r = t->opByteRangeTypeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -817,8 +817,8 @@ allTests(Test::TestHelper* helper)
             inSeq.push_back(v);
 
             auto r = t->opVariableRangeTypeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -830,8 +830,8 @@ allTests(Test::TestHelper* helper)
             in[4] = true;
 
             auto r = t->opBoolSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -843,8 +843,8 @@ allTests(Test::TestHelper* helper)
             in.push_back(true);
 
             auto r = t->opBoolListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -856,8 +856,8 @@ allTests(Test::TestHelper* helper)
             in[4] = '5';
 
             auto r = t->opByteSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -869,8 +869,8 @@ allTests(Test::TestHelper* helper)
             in.push_back('5');
 
             auto r = t->opByteListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -882,8 +882,8 @@ allTests(Test::TestHelper* helper)
             }
 
             auto r = t->opMyByteSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -895,8 +895,8 @@ allTests(Test::TestHelper* helper)
             in[4] = "STRINGS.";
 
             auto r = t->opStringSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -908,8 +908,8 @@ allTests(Test::TestHelper* helper)
             in.push_back("STRINGS.");
 
             auto r = t->opStringListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -921,8 +921,8 @@ allTests(Test::TestHelper* helper)
             in[4].s = 5;
 
             auto r = t->opFixedSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -934,8 +934,8 @@ allTests(Test::TestHelper* helper)
             }
 
             auto r = t->opFixedListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -947,8 +947,8 @@ allTests(Test::TestHelper* helper)
             in[4].s = "STRINGS.";
 
             auto r = t->opVariableSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -966,8 +966,8 @@ allTests(Test::TestHelper* helper)
             in.push_back(v);
 
             auto r = t->opVariableListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -979,8 +979,8 @@ allTests(Test::TestHelper* helper)
             in[4]["E"] = "E";
 
             auto r = t->opStringStringDictSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -998,8 +998,8 @@ allTests(Test::TestHelper* helper)
             in.push_back(ssd);
 
             auto r = t->opStringStringDictListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -1011,8 +1011,8 @@ allTests(Test::TestHelper* helper)
             in[4] = Test:: E::E3;
 
             auto r = t->opESeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -1024,8 +1024,8 @@ allTests(Test::TestHelper* helper)
             in.push_back(Test:: E::E3);
 
             auto r = t->opEListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -1038,11 +1038,11 @@ allTests(Test::TestHelper* helper)
 
             auto r = t->opDPrxSeqAsync(in).get();
 
-            test(r.outSeq.size() == in.size());
-            test(r.returnValue.size() == in.size());
+            test(std::get<1>(r).size() == in.size());
+            test(std::get<0>(r).size() == in.size());
 
-            auto op = r.outSeq.begin();
-            auto rp = r.returnValue.begin();
+            auto op = std::get<1>(r).begin();
+            auto rp = std::get<0>(r).begin();
 
             for(auto i: in)
             {
@@ -1061,11 +1061,11 @@ allTests(Test::TestHelper* helper)
 
             auto r = t->opDPrxListAsync(in).get();
 
-            test(r.outSeq.size() == in.size());
-            test(r.returnValue.size() == in.size());
+            test(std::get<1>(r).size() == in.size());
+            test(std::get<0>(r).size() == in.size());
 
-            auto op = r.outSeq.begin();
-            auto rp = r.returnValue.begin();
+            auto op = std::get<1>(r).begin();
+            auto rp = std::get<0>(r).begin();
 
             for(auto i: in)
             {
@@ -1083,13 +1083,13 @@ allTests(Test::TestHelper* helper)
             in[4] = in[0];
 
             auto r = t->opCSeqAsync(in).get();
-            test(r.outSeq.size() == in.size());
-            test(r.returnValue.size() == in.size());
+            test(std::get<1>(r).size() == in.size());
+            test(std::get<0>(r).size() == in.size());
 
-            auto rp = r.returnValue.begin();
-            for(auto o: r.outSeq)
+            auto rp = std::get<0>(r).begin();
+            for(auto o: std::get<1>(r))
             {
-                test(o == r.outSeq[0]);
+                test(o == std::get<1>(r)[0]);
                 test(*rp++ == o);
             }
         }
@@ -1103,9 +1103,9 @@ allTests(Test::TestHelper* helper)
             in.push_back(make_shared<Test::C>());
 
             auto r = t->opCListAsync(in).get();
-            test(r.outSeq.size() == in.size());
-            test(r.returnValue.size() == in.size());
-            test(r.outSeq == r.returnValue);
+            test(std::get<1>(r).size() == in.size());
+            test(std::get<0>(r).size() == in.size());
+            test(std::get<1>(r) == std::get<0>(r));
         }
 
         {
@@ -1983,8 +1983,8 @@ allTests(Test::TestHelper* helper)
             idict[-1] = "MINUS ONE";
 
             auto r = t->opIntStringDictAsync(idict).get();
-            test(r.odict == idict);
-            test(r.returnValue == idict);
+            test(std::get<1>(r) == idict);
+            test(std::get<0>(r) == idict);
         }
 
         {
@@ -1996,9 +1996,9 @@ allTests(Test::TestHelper* helper)
             idict["MINUS ONE"] = -1;
 
             auto r = t->opVarDictAsync(idict).get();
-            test(r.odict == idict);
-            test(r.returnValue.size() == 1000);
-            for(auto i: r.returnValue)
+            test(std::get<1>(r) == idict);
+            test(std::get<0>(r).size() == 1000);
+            for(auto i: std::get<0>(r))
             {
                 test(i.second == i.first * i.first);
             }
@@ -2013,13 +2013,13 @@ allTests(Test::TestHelper* helper)
             idict[-1] = "MINUS ONE";
 
             auto r = t->opCustomIntStringDictAsync(idict).get();
-            test(r.odict.size() == idict.size());
+            test(std::get<1>(r).size() == idict.size());
 
-            test(r.odict == r.returnValue);
+            test(std::get<1>(r) == std::get<0>(r));
 
             for(auto i: idict)
             {
-                test(r.odict[i.first] == i.second);
+                test(std::get<1>(r)[i.first] == i.second);
             }
         }
 
@@ -2148,8 +2148,8 @@ allTests(Test::TestHelper* helper)
 
     {
         auto r = wsc1->opStringAsync(wstr).get();
-        test(r.s2 == wstr);
-        test(r.returnValue == wstr);
+        test(std::get<1>(r) == wstr);
+        test(std::get<0>(r) == wstr);
     }
 
     {
@@ -2176,8 +2176,8 @@ allTests(Test::TestHelper* helper)
 
     {
         auto r = wsc2->opStringAsync(wstr).get();
-        test(r.s2 == wstr);
-        test(r.returnValue == wstr);
+        test(std::get<1>(r) == wstr);
+        test(std::get<0>(r) == wstr);
     }
 
     {
