@@ -630,6 +630,8 @@ emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstri
 string
 createResultType(const OperationPtr& p, const string& scope, int useWstring)
 {
+    assert(useWstring == 0 || useWstring == TypeContextUseWstring);
+
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(),
                                      useWstring | TypeContextCpp11);
@@ -646,9 +648,9 @@ createResultType(const OperationPtr& p, const string& scope, int useWstring)
         {
             out << retS;
         }
-        for (ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
+        for (const auto& param : outParams)
         {
-            out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), useWstring | TypeContextCpp11);
+            out << typeToString(param->type(), param->optional(), scope, param->getMetaData(), useWstring | TypeContextCpp11);
         }
         out << eabrk;
         return os.str();
@@ -659,8 +661,8 @@ createResultType(const OperationPtr& p, const string& scope, int useWstring)
     }
     else if (outParams.size() == 1)
     {
-        auto q = outParams.begin();
-        return typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), useWstring | TypeContextCpp11);
+        const auto& param = outParams.front();
+        return typeToString(param->type(), param->optional(), scope, param->getMetaData(), useWstring | TypeContextCpp11);
     }
     else
     {
@@ -2697,16 +2699,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
     }
 
-    H << nl << deprecateSymbol << "std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
+    H << nl << deprecateSymbol << "::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
         << contextDecl << epar << ";";
 
     C << sp;
-    C << nl << "std::future<" << futureTAbsolute << ">";
+    C << nl << "::std::future<" << futureTAbsolute << ">";
     C << nl;
     C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar;
 
     C << sb;
-    C << nl << "return _makePromiseOutgoing<" << futureT << ", std::promise>" << spar;
+    C << nl << "return _makePromiseOutgoing<" << futureT << ", ::std::promise>" << spar;
     C << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
