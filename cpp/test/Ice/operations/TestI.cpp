@@ -83,13 +83,13 @@ MyDerivedClassI::opBool(bool p1,
     return p2;
 }
 
-Ice::Long
+int64_t
 MyDerivedClassI::opShortIntLong(Ice::Short p1,
                                 Ice::Int p2,
-                                Ice::Long p3,
+                                int64_t p3,
                                 Ice::Short& p4,
                                 Ice::Int& p5,
-                                Ice::Long& p6,
+                                int64_t& p6,
                                 const Ice::Current&)
 {
     p4 = p1;
@@ -677,8 +677,8 @@ MyDerivedClassI::opInt1(Ice::Int i, const Ice::Current&)
     return i;
 }
 
-Ice::Long
-MyDerivedClassI::opLong1(Ice::Long l, const Ice::Current&)
+int64_t
+MyDerivedClassI::opLong1(int64_t l, const Ice::Current&)
 {
     return l;
 }

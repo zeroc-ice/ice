@@ -143,7 +143,7 @@ public:
     virtual Test::IntStringDict opIntStringDict(Test::IntStringDict, Test::IntStringDict&,
                                                 const Ice::Current&);
 
-    virtual Test::CustomMap<Ice::Long, Ice::Long> opVarDict(Test::CustomMap<std::string, Ice::Int>,
+    virtual Test::CustomMap<int64_t, int64_t> opVarDict(Test::CustomMap<std::string, Ice::Int>,
                                                             Test::CustomMap<std::string, Ice::Int>&,
                                                             const Ice::Current&);
 

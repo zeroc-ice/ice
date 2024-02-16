@@ -500,7 +500,7 @@ MetricsAdminI::disableMetricsView(string viewName, const Current&)
 }
 
 MetricsView
-MetricsAdminI::getMetricsView(string viewName, ::Ice::Long& timestamp, const Current&)
+MetricsAdminI::getMetricsView(string viewName, int64_t& timestamp, const Current&)
 {
     Lock sync(*this);
     MetricsViewIPtr view = getMetricsView(viewName);

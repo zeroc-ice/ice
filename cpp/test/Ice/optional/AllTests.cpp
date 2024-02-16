@@ -415,7 +415,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->b == true);
     test(mo3->c == static_cast<short>(19));
     test(mo3->d == 78);
-    test(mo3->e == static_cast<Ice::Long>(99));
+    test(mo3->e == static_cast<int64_t>(99));
     test(mo3->f == 5.5f);
     test(mo3->g == 1.0);
     test(mo3->h == string("test"));
@@ -1066,12 +1066,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Long> p1;
-        optional<Ice::Long> p3;
-        optional<Ice::Long> p2 = initial->opLong(p1, p3);
+        optional<int64_t> p1;
+        optional<int64_t> p3;
+        optional<int64_t> p2 = initial->opLong(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Long lval = 56;
+        const int64_t lval = 56;
 
         p1 = lval;
         p2 = initial->opLong(p1, p3);
@@ -1546,12 +1546,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Long*, const Ice::Long*> > p1;
+        optional<std::pair<const int64_t*, const int64_t*> > p1;
         optional<LongSeq> p3;
         optional<LongSeq> p2 = initial->opLongSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Long> bs(100);
+        vector<int64_t> bs(100);
         fill(bs.begin(), bs.end(), 56);
         p1 = toArrayRange(bs);
         p2 = initial->opLongSeq(p1, p3);

@@ -131,7 +131,7 @@ class FileIteratorI : public FileIterator
 public:
 
     FileIteratorI(const std::shared_ptr<AdminSessionI>&, const std::shared_ptr<FileReaderPrx>&, const std::string&,
-                  long long, int);
+                  int64_t, int);
 
     virtual bool read(int, Ice::StringSeq&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
@@ -141,7 +141,7 @@ private:
     const std::shared_ptr<AdminSessionI> _session;
     const std::shared_ptr<FileReaderPrx> _reader;
     const std::string _filename;
-    long long _offset;
+    int64_t _offset;
     const int _messageSizeMax;
 };
 

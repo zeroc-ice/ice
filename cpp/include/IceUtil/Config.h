@@ -237,7 +237,7 @@ typedef long Int64;
 #    define ICE_INT64(n) n##L
 #    define ICE_INT64_FORMAT "%ld"
 #else
-typedef long long Int64;
+// typedef int64_t64;
 #    define ICE_INT64(n) n##LL
 #    define ICE_INT64_FORMAT "%lld"
 #endif

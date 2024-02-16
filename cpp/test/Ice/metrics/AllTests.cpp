@@ -253,11 +253,11 @@ getServerProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& or
 }
 
 IceMX::ConnectionMetricsPtr
-getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, Ice::Long expected)
+getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, int64_t expected)
 {
     IceMX::ConnectionMetricsPtr s;
     int nRetry = 30;
-    Ice::Long timestamp;
+    int64_t timestamp;
     s = dynamic_pointer_cast<IceMX::ConnectionMetrics>(metrics->getMetricsView("View", timestamp)["Connection"][0]);
     while(s->sentBytes != expected && nRetry-- > 0)
     {
@@ -320,7 +320,7 @@ waitForCurrent(const IceMX::MetricsAdminPrxPtr& metrics, const string& viewName,
 {
     while(true)
     {
-        Ice::Long timestamp;
+        int64_t timestamp;
         IceMX::MetricsView view = metrics->getMetricsView(viewName, timestamp);
         test(view.find(map) != view.end());
         bool ok = true;
@@ -379,7 +379,7 @@ testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
     }
 
     func();
-    Ice::Long timestamp;
+    int64_t timestamp;
     IceMX::MetricsView view = metrics->getMetricsView("View", timestamp);
     if(view.find(map) == view.end() || view[map].empty())
     {
@@ -605,7 +605,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     int threadCount = 4;
 
-    Ice::Long timestamp;
+    int64_t timestamp;
     IceMX::MetricsView view = clientMetrics->getMetricsView("View", timestamp);
     if(!collocated)
     {
@@ -729,8 +729,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
         cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + cm2->receivedBytes - cm1->receivedBytes);
-        Ice::Long requestSz = cm2->sentBytes - cm1->sentBytes;
-        Ice::Long replySz = cm2->receivedBytes - cm1->receivedBytes;
+        int64_t requestSz = cm2->sentBytes - cm1->sentBytes;
+        int64_t replySz = cm2->receivedBytes - cm1->receivedBytes;
 
         cm1 = cm2;
         sm1 = sm2;

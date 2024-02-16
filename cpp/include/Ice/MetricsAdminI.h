@@ -178,7 +178,7 @@ public:
         }
 
         void
-        detach(Ice::Long lifetime)
+        detach(int64_t lifetime)
         {
             IceUtil::Mutex::Lock sync(*_map);
             _object->totalLifetime += lifetime;
@@ -616,7 +616,7 @@ public:
 
     virtual void enableMetricsView(std::string, const ::Ice::Current&);
     virtual void disableMetricsView(std::string, const ::Ice::Current&);
-    virtual IceMX::MetricsView getMetricsView(std::string, Ice::Long&, const ::Ice::Current&);
+    virtual IceMX::MetricsView getMetricsView(std::string, int64_t&, const ::Ice::Current&);
     virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const ::Ice::Current&);
     virtual IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const ::Ice::Current&);
     std::vector<MetricsMapIPtr> getMaps(const std::string&) const;

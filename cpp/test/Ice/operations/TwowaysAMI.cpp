@@ -128,7 +128,7 @@ public:
         called();
     }
 
-    void opShortIntLong(Ice::Long r, Ice::Short s, Ice::Int i, Ice::Long l)
+    void opShortIntLong(int64_t r, Ice::Short s, Ice::Int i, int64_t l)
     {
         test(s == 10);
         test(i == 11);
@@ -1129,7 +1129,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = make_shared<Callback>();
         p->opShortIntLongAsync(10, 11, 12,
-            [&](long long int l1, short s1P, int i1, long long int l2)
+            [&](int64_t l1, short s1P, int i1, int64_t l2)
             {
                 cb->opShortIntLong(l1, s1P, i1, l2);
             },

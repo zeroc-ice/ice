@@ -40,7 +40,7 @@ public:
                              std::function<void(std::exception_ptr)>,
                              const Ice::Current&) override;
     void destroySession(const Ice::Current&) override;
-    long long int getSessionTimeout(const Ice::Current&) const override;
+    int64_t getSessionTimeout(const Ice::Current&) const override;
     int getACMTimeout(const Ice::Current&) const override;
 
     std::shared_ptr<ClientBlobject> getClientBlobject() const;

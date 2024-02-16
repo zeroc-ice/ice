@@ -854,7 +854,7 @@ SessionRouterI::destroySession(const shared_ptr<Connection>& connection)
     router->destroy([self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); });
 }
 
-long long int
+int64_t
 SessionRouterI::getSessionTimeout(const Ice::Current& current) const
 {
     return current.con->getACM().timeout;

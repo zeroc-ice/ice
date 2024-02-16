@@ -76,9 +76,9 @@ VALUE createString(const std::string&);
 long getInteger(VALUE);
 
 //
-// Convert a Ruby value into an Ice::Long. May raise RubyException.
+// Convert a Ruby value into an int64_t. May raise RubyException.
 //
-Ice::Long getLong(VALUE);
+int64_t getLong(VALUE);
 
 //
 // Convert a Ruby array into a vector<string>. Returns true on

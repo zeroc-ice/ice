@@ -565,7 +565,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
 
 #ifdef ICE_USE_OPENSSL
-    Ice::Long openSSLVersion;
+    int64_t openSSLVersion;
     {
         //
         // Get the IceSSL engine name and version

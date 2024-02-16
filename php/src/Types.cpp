@@ -789,7 +789,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
             string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
             IceUtilInternal::stringToInt64(sval, val);
         }
-        os->write(static_cast<Ice::Long>(val));
+        os->write(static_cast<int64_t>(val));
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -889,11 +889,11 @@ IcePHP::PrimitiveInfo::unmarshal(
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long val;
+        int64_t val;
         is->read(val);
 
         // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-        if(sizeof(Ice::Long) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
+        if(sizeof(int64_t) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
         {
             string str = IceUtilInternal::int64ToString(val);
             ZVAL_STRINGL(&zv, str.c_str(), static_cast<int>(str.length()));
@@ -1849,14 +1849,15 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindLong:
     {
-        pair<const Ice::Long*, const Ice::Long*> pr;
+        pair<const int64_t*, const int64_t*> pr;
         is->read(pr);
         Ice::Int i = 0;
-        for (const Ice::Long* p = pr.first; p != pr.second; ++p, ++i)
+        for (const int64_t* p = pr.first; p != pr.second; ++p, ++i)
         {
             zval val;
             // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-            if(sizeof(Ice::Long) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
+            // TODO: can we remove this now
+            if(sizeof(int64_t) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
             {
                 string str = IceUtilInternal::int64ToString(*p);
                 ZVAL_STRINGL(&val, str.c_str(), static_cast<int>(str.length()));

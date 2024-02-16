@@ -839,7 +839,7 @@ private:
 void getFileCompressed(
     FileServerPrxPtr serverNoCompress,
     std::string path,
-    Ice::Long pos,
+    int64_t pos,
     int chunkSize,
     std::shared_ptr<GetFileCompressedCB> cb,
     bool useSmallFileAPI)
@@ -867,8 +867,8 @@ void getFileCompressed(
 bool
 PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorPtr& decompressor)
 {
-    Long total = 0;
-    Long updated = 0;
+    int64_t total = 0;
+    int64_t updated = 0;
 
     for(LargeFileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
@@ -934,7 +934,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
 
                 try
                 {
-                    Ice::Long pos = 0;
+                    int64_t pos = 0;
 
                     while(pos < p->size)
                     {

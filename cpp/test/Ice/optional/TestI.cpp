@@ -111,8 +111,8 @@ InitialI::opInt(optional<Int> p1, optional<Int>& p3, const Current&)
     return p1;
 }
 
-optional<Long>
-InitialI::opLong(optional<Long> p1, optional<Long>& p3, const Current&)
+optional<int64_t>
+InitialI::opLong(optional<int64_t> p1, optional<int64_t>& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -234,7 +234,7 @@ InitialI::opIntSeq(optional<pair<const Int*, const Int*> > p1, optional<Test::In
 }
 
 optional<Test::LongSeq>
-InitialI::opLongSeq(optional<pair<const Long*, const Long*> > p1, optional<Test::LongSeq>& p3, const Current&)
+InitialI::opLongSeq(optional<pair<const int64_t*, const int64_t*> > p1, optional<Test::LongSeq>& p3, const Current&)
 {
     if(p1)
     {

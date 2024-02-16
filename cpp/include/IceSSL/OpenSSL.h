@@ -113,7 +113,7 @@ public:
      * Obtains the OpenSSL version number.
      * @return The version.
      */
-    virtual Ice::Long getOpenSSLVersion() const = 0;
+    virtual int64_t getOpenSSLVersion() const = 0;
 
     /**
      * Establishes the OpenSSL context. This must be done before the

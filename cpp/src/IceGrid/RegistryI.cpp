@@ -468,7 +468,7 @@ RegistryI::startImpl()
 
         try
         {
-            long long serial;
+            int64_t serial;
             auto registry = checkedCast<IceGrid::InternalRegistryPrx>(proxy);
             ApplicationInfoSeq applications = registry->getApplications(serial);
             _database->syncApplications(applications, serial);

@@ -576,12 +576,12 @@ allTests(Test::TestHelper* helper)
         Test::CustomMap<std::string, Ice::Int> out;
         out["FIVE"] = 5;
 
-        Test::CustomMap<Ice::Long, Ice::Long> ret = t->opVarDict(idict, out);
+        Test::CustomMap<int64_t, int64_t> ret = t->opVarDict(idict, out);
 
         test(out == idict);
 
         test(ret.size() == 1000);
-        for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        for(Test::CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
         {
             test(i->second == i->first * i->first);
         }
@@ -634,7 +634,7 @@ allTests(Test::TestHelper* helper)
         bs.boolBuf.setAndInit(new bool[10], 10);
         bs.shortBuf.setAndInit(new Ice::Short[10], 10);
         bs.intBuf.setAndInit(new Ice::Int[10], 10);
-        bs.longBuf.setAndInit(new Ice::Long[10], 10);
+        bs.longBuf.setAndInit(new int64_t[10], 10);
         bs.floatBuf.setAndInit(new Ice::Float[10], 10);
         bs.doubleBuf.setAndInit(new Ice::Double[10], 10);
 
@@ -2064,7 +2064,7 @@ allTests(Test::TestHelper* helper)
             promise<bool> done;
 
             t->opVarDictAsync(idict,
-                              [&](Test::CustomMap<long long, long long> ret, Test::CustomMap<string, int> out)
+                              [&](Test::CustomMap<int64_t, int64_t> ret, Test::CustomMap<string, int> out)
                               {
                                   test(out == idict);
                                   for(auto i: ret)

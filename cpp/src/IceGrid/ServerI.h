@@ -81,8 +81,8 @@ public:
     void setProcessAsync(std::shared_ptr<Ice::ProcessPrx>, std::function<void()>,
                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    long long getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
-    bool read(std::string, long long, int, long long&, Ice::StringSeq&, const Ice::Current&) const override;
+    int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+    bool read(std::string, int64_t, int, int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
 
     bool isAdapterActivatable(const std::string&) const;
     const std::string& getId() const;

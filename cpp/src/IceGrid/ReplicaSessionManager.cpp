@@ -226,7 +226,7 @@ public:
 
 private:
 
-    long long
+    int64_t
     getSerials(const Ice::Context& context, int& serial)
     {
         auto p = context.find("serial");
@@ -243,7 +243,7 @@ private:
         p = context.find("dbSerial");
         if(p != context.end())
         {
-            long long dbSerial;
+            int64_t dbSerial;
             istringstream is(p->second);
             is >> dbSerial;
             return dbSerial;

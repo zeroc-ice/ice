@@ -388,7 +388,7 @@ run(const Ice::StringSeq& args)
                     consoleOut << "Writing Serials Map:" << endl;
                 }
 
-                IceDB::Dbi<string, Ice::Long, IceDB::IceContext, Ice::OutputStream>
+                IceDB::Dbi<string, int64_t, IceDB::IceContext, Ice::OutputStream>
                     srls(txn, "serials", dbContext, MDB_CREATE);
 
                 for(IceGrid::StringLongDict::const_iterator p = data.serials.begin(); p != data.serials.end(); ++p)
@@ -503,11 +503,11 @@ run(const Ice::StringSeq& args)
                     consoleOut << "Reading Serials Map:" << endl;
                 }
 
-                IceDB::Dbi<string, Ice::Long, IceDB::IceContext, Ice::OutputStream>
+                IceDB::Dbi<string, int64_t, IceDB::IceContext, Ice::OutputStream>
                     serials(txn, "serials", dbContext, 0);
 
-                Ice::Long serial;
-                IceDB::ReadOnlyCursor<string, Ice::Long, IceDB::IceContext, Ice::OutputStream>
+                int64_t serial;
+                IceDB::ReadOnlyCursor<string, int64_t, IceDB::IceContext, Ice::OutputStream>
                     serialCursor(serials, txn);
                 while(serialCursor.get(name, serial, MDB_NEXT))
                 {

@@ -116,7 +116,7 @@ public:
     }
 
     virtual bool
-    patchStart(const string& /*path*/, Ice::Long /*size*/, Ice::Long totalProgress, Ice::Long totalSize)
+    patchStart(const string& /*path*/, int64_t /*size*/, int64_t totalProgress, int64_t totalSize)
     {
         if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
         {
@@ -154,7 +154,7 @@ public:
     }
 
     virtual bool
-    patchProgress(Ice::Long /*progress*/, Ice::Long /*size*/, Ice::Long /*totalProgress*/, Ice::Long /*totalSize*/)
+    patchProgress(int64_t /*progress*/, int64_t /*size*/, int64_t /*totalProgress*/, int64_t /*totalSize*/)
     {
         return true;
     }
@@ -559,14 +559,14 @@ NodeI::shutdown(const Ice::Current&) const
     _activator->shutdown();
 }
 
-long long
+int64_t
 NodeI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 {
     return _fileCache->getOffsetFromEnd(getFilePath(filename), count);
 }
 
 bool
-NodeI::read(string filename, long long pos, int size, long long& newPos, Ice::StringSeq& lines,
+NodeI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines,
             const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);

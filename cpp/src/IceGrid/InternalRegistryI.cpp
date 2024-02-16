@@ -206,19 +206,19 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
 }
 
 ApplicationInfoSeq
-InternalRegistryI::getApplications(long long& serial, const Ice::Current&) const
+InternalRegistryI::getApplications(int64_t& serial, const Ice::Current&) const
 {
     return _database->getApplications(serial);
 }
 
 AdapterInfoSeq
-InternalRegistryI::getAdapters(long long& serial, const Ice::Current&) const
+InternalRegistryI::getAdapters(int64_t& serial, const Ice::Current&) const
 {
     return _database->getAdapters(serial);
 }
 
 ObjectInfoSeq
-InternalRegistryI::getObjects(long long& serial, const Ice::Current&) const
+InternalRegistryI::getObjects(int64_t& serial, const Ice::Current&) const
 {
     return _database->getObjects(serial);
 }
@@ -229,14 +229,14 @@ InternalRegistryI::shutdown(const Ice::Current& /*current*/) const
     _registry->shutdown();
 }
 
-long long
+int64_t
 InternalRegistryI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 {
     return _fileCache->getOffsetFromEnd(getFilePath(filename), count);
 }
 
 bool
-InternalRegistryI::read(string filename, long long pos, int size, long long& newPos, Ice::StringSeq& lines,
+InternalRegistryI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines,
                         const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);

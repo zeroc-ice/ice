@@ -621,14 +621,14 @@ public:
      * Writes a long to the stream.
      * @param v The long to write.
      */
-    void write(Long v);
+    void write(int64_t v);
 
     /**
      * Writes a long sequence to the stream.
      * @param begin The beginning of the sequence.
      * @param end The end of the sequence.
      */
-    void write(const Long* begin, const Long* end);
+    void write(const int64_t* begin, const int64_t* end);
 
     /**
      * Writes a float to the stream.

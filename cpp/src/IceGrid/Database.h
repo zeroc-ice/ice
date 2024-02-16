@@ -40,7 +40,7 @@ using IdentityObjectInfoMap = IceDB::Dbi<Ice::Identity,
 using StringIdentityMap = IceDB::Dbi<std::string, Ice::Identity, IceDB::IceContext, Ice::OutputStream>;
 using StringAdapterInfoMap = IceDB::Dbi<std::string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream>;
 using StringStringMap = IceDB::Dbi<std::string, std::string, IceDB::IceContext, Ice::OutputStream>;
-using StringLongMap = IceDB::Dbi<std::string, Ice::Long, IceDB::IceContext, Ice::OutputStream>;
+using StringLongMap = IceDB::Dbi<std::string, int64_t, IceDB::IceContext, Ice::OutputStream>;
 
 class Database final
 {
@@ -63,21 +63,21 @@ public:
     int lock(AdminSessionI*, const std::string&);
     void unlock(AdminSessionI*);
 
-    void syncApplications(const ApplicationInfoSeq&, long long);
-    void syncAdapters(const AdapterInfoSeq&, long long);
-    void syncObjects(const ObjectInfoSeq&, long long);
+    void syncApplications(const ApplicationInfoSeq&, int64_t);
+    void syncAdapters(const AdapterInfoSeq&, int64_t);
+    void syncObjects(const ObjectInfoSeq&, int64_t);
 
-    ApplicationInfoSeq getApplications(long long&);
-    AdapterInfoSeq getAdapters(long long&);
-    ObjectInfoSeq getObjects(long long&);
+    ApplicationInfoSeq getApplications(int64_t&);
+    AdapterInfoSeq getAdapters(int64_t&);
+    ObjectInfoSeq getObjects(int64_t&);
 
     StringLongDict getSerials() const;
 
-    void addApplication(const ApplicationInfo&, AdminSessionI*, long long = 0);
-    void updateApplication(const ApplicationUpdateInfo&, bool, AdminSessionI*, long long = 0);
+    void addApplication(const ApplicationInfo&, AdminSessionI*, int64_t = 0);
+    void updateApplication(const ApplicationUpdateInfo&, bool, AdminSessionI*, int64_t = 0);
     void syncApplicationDescriptor(const ApplicationDescriptor&, bool, AdminSessionI*);
     void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, AdminSessionI*);
-    void removeApplication(const std::string&, AdminSessionI*, long long = 0);
+    void removeApplication(const std::string&, AdminSessionI*, int64_t = 0);
     ApplicationInfo getApplicationInfo(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
     void waitForApplicationUpdate(const std::string&, int, std::function<void()>,
@@ -96,7 +96,7 @@ public:
     std::shared_ptr<AllocatableObjectEntry> getAllocatableObject(const Ice::Identity&) const;
 
     void setAdapterDirectProxy(const std::string&, const std::string&, const std::shared_ptr<Ice::ObjectPrx>&,
-                               long long = 0);
+                               int64_t = 0);
     std::shared_ptr<Ice::ObjectPrx> getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&,
                                                           const std::shared_ptr<Ice::Connection>&,
                                                           const Ice::Context&);
@@ -119,8 +119,8 @@ public:
     Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
     void addObject(const ObjectInfo&);
-    void addOrUpdateObject(const ObjectInfo&, long long = 0);
-    void removeObject(const Ice::Identity&, long long = 0);
+    void addOrUpdateObject(const ObjectInfo&, int64_t = 0);
+    void removeObject(const Ice::Identity&, int64_t = 0);
     void updateObject(const std::shared_ptr<Ice::ObjectPrx>&);
     int addOrUpdateRegistryWellKnownObjects(const ObjectInfoSeq&);
     int removeRegistryWellKnownObjects(const ObjectInfoSeq&);
@@ -164,11 +164,11 @@ private:
 
     void checkUpdate(const ApplicationHelper&, const ApplicationHelper&, const std::string&, int, bool);
 
-    long long saveApplication(const ApplicationInfo&, const IceDB::ReadWriteTxn&, long long = 0);
-    long long removeApplication(const std::string&, const IceDB::ReadWriteTxn&, long long = 0);
+    int64_t saveApplication(const ApplicationInfo&, const IceDB::ReadWriteTxn&, int64_t = 0);
+    int64_t removeApplication(const std::string&, const IceDB::ReadWriteTxn&, int64_t = 0);
 
     void finishApplicationUpdate(const ApplicationUpdateInfo&, const ApplicationInfo&, const ApplicationHelper&,
-                                 const ApplicationHelper&, AdminSessionI*, bool, long long = 0);
+                                 const ApplicationHelper&, AdminSessionI*, bool, int64_t = 0);
 
     void checkSessionLock(AdminSessionI*);
 
@@ -176,8 +176,8 @@ private:
     void startUpdating(const std::string&, const std::string&, int);
     void finishUpdating(const std::string&);
 
-    long long getSerial(const IceDB::Txn&, const std::string&);
-    long long updateSerial(const IceDB::ReadWriteTxn&, const std::string&, long long = 0);
+    int64_t getSerial(const IceDB::Txn&, const std::string&);
+    int64_t updateSerial(const IceDB::ReadWriteTxn&, const std::string&, int64_t = 0);
 
     void addAdapter(const IceDB::ReadWriteTxn&, const AdapterInfo&);
     void deleteAdapter(const IceDB::ReadWriteTxn&, const AdapterInfo&);
