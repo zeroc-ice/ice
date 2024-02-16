@@ -6,11 +6,11 @@
 #define ICE_UTIL_TIMER_H
 
 #include <IceUtil/Thread.h>
-#include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
 
 #include <set>
 #include <map>
+#include <mutex>
 #include <functional>
 
 namespace IceUtil
@@ -97,7 +97,8 @@ protected:
         inline bool operator<(const Token& r) const;
     };
 
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    std::mutex _mutex;
+    std::condition_variable _conditionVariable;
     bool _destroyed;
     std::set<Token> _tokens;
 
