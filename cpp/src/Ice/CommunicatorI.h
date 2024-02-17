@@ -59,7 +59,7 @@ public:
     virtual bool isShutdown() const noexcept;
 
     virtual std::optional<ObjectPrx> stringToProxy(const std::string&) const;
-    virtual std::string proxyToString(const ObjectPrx&) const;
+    virtual std::string proxyToString(const std::optional<ObjectPrx>&) const;
 
     virtual std::optional<ObjectPrx> propertyToProxy(const std::string&) const;
     virtual PropertyDict proxyToProperty(const ObjectPrx&, const std::string&) const;

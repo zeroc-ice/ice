@@ -235,7 +235,7 @@ Ice::CommunicatorI::stringToProxy(const string& s) const
 }
 
 string
-Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy) const
+Ice::CommunicatorI::proxyToString(const std::optional<ObjectPrx>& proxy) const
 {
     return _instance->proxyFactory()->proxyToString(proxy);
 }

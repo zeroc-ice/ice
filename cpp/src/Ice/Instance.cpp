@@ -727,7 +727,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
                 out << "the server is not known to the locator registry";
             }
 
-            throw InitializationException(__FILE__, __LINE__, "Locator `" + _proxyFactory->proxyToString(locator.value()) +
+            throw InitializationException(__FILE__, __LINE__, "Locator `" + _proxyFactory->proxyToString(locator) +
                                           "' knows nothing about server `" + serverId + "'");
         }
         catch(const LocalException& ex)

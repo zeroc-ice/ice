@@ -30,7 +30,7 @@ public:
     ProxyFactory(const InstancePtr&);
 
     std::optional<Ice::ObjectPrx> stringToProxy(const std::string&) const;
-    std::string proxyToString(const Ice::ObjectPrx&) const;
+    std::string proxyToString(const std::optional<Ice::ObjectPrx>&) const;
 
     std::optional<Ice::ObjectPrx> propertyToProxy(const std::string&) const;
     Ice::PropertyDict proxyToProperty(const Ice::ObjectPrx&, const std::string&) const;

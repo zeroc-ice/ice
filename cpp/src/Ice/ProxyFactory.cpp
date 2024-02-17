@@ -30,9 +30,9 @@ IceInternal::ProxyFactory::stringToProxy(const string& str) const
 }
 
 string
-IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
+IceInternal::ProxyFactory::proxyToString(const optional<ObjectPrx>& proxy) const
 {
-    return proxy->_getReference()->toString();
+    return proxy ? proxy->_getReference()->toString() : "";
 }
 
 std::optional<ObjectPrx>

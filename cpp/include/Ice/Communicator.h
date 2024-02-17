@@ -160,7 +160,7 @@ public:
      * <code>obj</code> is nil.
      * @see #stringToProxy
      */
-    virtual ::std::string proxyToString(const ObjectPrx& obj) const = 0;
+    virtual ::std::string proxyToString(const std::optional<ObjectPrx>& obj) const = 0;
 
     /**
      * Convert a set of proxy properties into a proxy. The "base" name supplied in the <code>property</code> argument
