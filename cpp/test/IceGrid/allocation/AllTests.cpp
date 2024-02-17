@@ -149,12 +149,12 @@ public:
             case 2:
                 assert(!_session);
                 allocateAndDestroy(session);
-                session = 0;
+                session = nullopt;
                 break;
             case 3:
                 assert(!_session);
                 allocateByTypeAndDestroy(session);
-                session = 0;
+                session = nullopt;
                 break;
             }
 
@@ -169,7 +169,7 @@ public:
                 case 1:
                     assert(!_session);
                     session->destroy();
-                    session = 0;
+                    session = nullopt;
                     break;
                 }
             }
@@ -194,7 +194,7 @@ public:
             // and the object is already allocated.
             test(_session);
         }
-        return nullptr;
+        return nullopt;
     }
 
     Ice::ObjectPrxPtr
@@ -207,7 +207,7 @@ public:
         catch(const AllocationTimeoutException&)
         {
         }
-        return nullptr;
+        return nullopt;
     }
 
     void

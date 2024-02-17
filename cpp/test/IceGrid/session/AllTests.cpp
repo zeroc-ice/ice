@@ -1555,7 +1555,7 @@ allTests(TestHelper* helper)
             test(adptObs1->adapters["DummyAdapter"].replicaGroupId == "");
             test(adptObs1->adapters["DummyAdapter1"].replicaGroupId == "");
 
-            locatorRegistry->setAdapterDirectProxy("DummyAdapter", 0);
+            locatorRegistry->setAdapterDirectProxy("DummyAdapter", nullopt);
             adptObs1->waitForUpdate(__LINE__);
             test(adptObs1->adapters.find("DummyAdapter") == adptObs1->adapters.end());
         }

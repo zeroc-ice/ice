@@ -178,7 +178,7 @@ public:
      * @param property The base property name.
      * @return The property set.
      */
-    virtual ::Ice::PropertyDict proxyToProperty(const ObjectPrx& proxy, const ::std::string& property) const = 0;
+    virtual ::Ice::PropertyDict proxyToProperty(const std::optional<ObjectPrx>& proxy, const ::std::string& property) const = 0;
 
     /**
      * Convert an identity into a string.

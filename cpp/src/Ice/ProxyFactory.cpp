@@ -44,9 +44,9 @@ IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
 }
 
 PropertyDict
-IceInternal::ProxyFactory::proxyToProperty(const ObjectPrx& proxy, const string& prefix) const
+IceInternal::ProxyFactory::proxyToProperty(const std::optional<ObjectPrx>& proxy, const string& prefix) const
 {
-    return proxy->_getReference()->toProperty(prefix);
+    return proxy ? proxy->_getReference()->toProperty(prefix) : PropertyDict();
 }
 
 std::optional<ObjectPrx>

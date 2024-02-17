@@ -247,7 +247,7 @@ Ice::CommunicatorI::propertyToProxy(const string& p) const
 }
 
 PropertyDict
-Ice::CommunicatorI::proxyToProperty(const ObjectPrx& proxy, const string& property) const
+Ice::CommunicatorI::proxyToProperty(const std::optional<ObjectPrx>& proxy, const string& property) const
 {
     return _instance->proxyFactory()->proxyToProperty(proxy, property);
 }
