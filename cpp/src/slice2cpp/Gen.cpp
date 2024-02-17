@@ -2497,17 +2497,38 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
     H << nl << "static const ::std::string& ice_staticId();";
+
+    // TODO: generate doc-comments.
     H << sp;
     H << nl << "explicit " << prx << "(const ::Ice::ObjectPrx& other) : ::Ice::ObjectPrx(other)";
-    H << nl << "{";
-    H << nl << "}";
+    H << sb << eb;
+    H << sp;
 
+    // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
+
+    H << nl << prx << "(const " << prx << "& other) noexcept : ::Ice::ObjectPrx(other)";
+    H << sb << eb;
+    H << sp;
+    H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(::std::move(other))";
+    H << sb << eb;
     H << sp;
     H << nl << "/// \\cond INTERNAL";
-    H << nl << prx << "(const ::IceInternal::ReferencePtr& ref) : ::Ice::ObjectPrx(ref)";
-    H << nl << "{";
-    H << nl << "}";
+    H << nl << "explicit " << prx << "(const ::IceInternal::ReferencePtr& ref) : ::Ice::ObjectPrx(ref)";
+    H << sb << eb;
     H << nl << "/// \\endcond";
+    H << sp;
+    H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
+    H << sb;
+    H << nl << "::Ice::ObjectPrx::operator=(rhs);";
+    H << nl << "return *this;";
+    H << eb;
+    H << sp;
+    H << nl << prx << "&& operator=(" << prx << "&& rhs) noexcept";
+    H << sb;
+    H << nl << "::Ice::ObjectPrx::operator=(::std::move(rhs));";
+    H << nl << "return ::std::move(*this);";
+    H << eb;
+
     H.dec();
     H << sp << nl << "protected:";
     H.inc();

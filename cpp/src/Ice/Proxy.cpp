@@ -27,6 +27,7 @@ Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
     _reference(ref),
     _requestHandlerCache(make_shared<RequestHandlerCache>(ref))
 {
+    assert(ref);
 }
 
 void
