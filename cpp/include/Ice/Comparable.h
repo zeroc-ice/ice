@@ -6,6 +6,8 @@
 #define ICE_COMPARABLE_H
 
 #include <functional>
+#include <memory>
+#include <optional>
 
 namespace Ice
 {

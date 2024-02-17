@@ -2490,6 +2490,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     const string prx = fixKwd(p->name() + "Prx");
     const string scoped = fixKwd(p->scoped() + "Prx");
+    InterfaceList bases = p->allBases();
 
     H << sp;
     H << nl << "/**";
@@ -2497,6 +2498,19 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
     H << nl << "static const ::std::string& ice_staticId();";
+
+    if (!bases.empty())
+    {
+        // -Wextra wants to initialize all the virtual base classes _in the right order_, which is not practical, and
+        // is useless here.
+        H << sp;
+        H.zeroIndent();
+        H << nl << "#if defined(__GNUC__)";
+        H << nl << "#   pragma GCC diagnostic push";
+        H << nl << "#   pragma GCC diagnostic ignored \"-Wextra\" // initialize all virtual bases in correct order";
+        H << nl << "#endif";
+        H.restoreIndent();
+    }
 
     // TODO: generate doc-comments.
     H << sp;
@@ -2516,6 +2530,18 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "explicit " << prx << "(const ::IceInternal::ReferencePtr& ref) : ::Ice::ObjectPrx(ref)";
     H << sb << eb;
     H << nl << "/// \\endcond";
+    if (!bases.empty())
+    {
+        // -Wextra wants to initialize all the virtual base classes _in the right order_, which is not practical, and
+        // is useless here.
+        H << sp;
+        H.zeroIndent();
+        H << nl << "#if defined(__GNUC__)";
+        H << nl << "#   pragma GCC diagnostic pop";
+        H << nl << "#endif";
+        H.restoreIndent();
+    }
+
     H << sp;
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;
@@ -2523,10 +2549,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "return *this;";
     H << eb;
     H << sp;
-    H << nl << prx << "&& operator=(" << prx << "&& rhs) noexcept";
+    H << nl << prx << "& operator=(" << prx << "&& rhs) noexcept";
     H << sb;
     H << nl << "::Ice::ObjectPrx::operator=(::std::move(rhs));";
-    H << nl << "return ::std::move(*this);";
+    H << nl << "return *this;";
     H << eb;
 
     H.dec();

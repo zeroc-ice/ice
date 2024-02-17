@@ -291,6 +291,11 @@ protected:
     // derived class.
     Proxy() = default;
 
+    // The copy constructor and assignment operators are to keep GCC happy.
+    Proxy(const Proxy&) noexcept = default;
+    Proxy& operator=(const Proxy&) noexcept { return *this;}
+    Proxy& operator=(Proxy&&) noexcept { return *this; }
+
 private:
 
     Prx fromReference(IceInternal::ReferencePtr&& ref) const
