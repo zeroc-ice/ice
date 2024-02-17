@@ -77,9 +77,9 @@ public:
             add("service", &SubscriberHelper::getService);
 
             add("identity", &SubscriberHelper::getIdentity);
-            // TODO: re-enable commented out attributes
-            // add("facet", &SubscriberHelper::getProxy, &Ice::ObjectPrx::ice_getFacet);
-            // add("encoding", &SubscriberHelper::getProxy, &Ice::ObjectPrx::ice_getEncodingVersion);
+
+            add("facet", &SubscriberHelper::getProxy, &Ice::ObjectPrx::ice_getFacet);
+            add("encoding", &SubscriberHelper::getProxy, &Ice::ObjectPrx::ice_getEncodingVersion);
             add("mode", &SubscriberHelper::getMode);
             add("proxy", &SubscriberHelper::getProxy);
             add("link", &SubscriberHelper::_link);
@@ -176,7 +176,7 @@ public:
         return _id;
     }
 
-    const Ice::ObjectPrxPtr&
+    const Ice::ObjectPrxPtr
     getProxy() const
     {
         return _proxy;

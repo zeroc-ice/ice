@@ -354,11 +354,10 @@ public:
             add("operation", &InvocationHelper::getOperation);
             add("identity", &InvocationHelper::getIdentity);
 
-            // TODO: fix this code
-            // add("facet", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getFacet);
-            // add("encoding", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getEncodingVersion);
-            // add("mode", &InvocationHelper::getMode);
-            // add("proxy", &InvocationHelper::getProxy);
+            add("facet", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getFacet);
+            add("encoding", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getEncodingVersion);
+            add("mode", &InvocationHelper::getMode);
+            add("proxy", &InvocationHelper::getProxy);
 
             setDefault(&InvocationHelper::resolve);
         }

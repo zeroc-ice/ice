@@ -912,7 +912,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     cout << "ok" << endl;
 
-    /* TODO: fix invocation metrics and reenable this test
     cout << "testing invocation metrics... " << flush;
 
     props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
@@ -1327,7 +1326,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         test(im1->remotes.size() == 1); // The first operation got sent over a connection
     }
     cout << "ok" << endl;
-    */
 
     cout << "testing metrics view enable/disable..." << flush;
 
@@ -1414,8 +1412,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     }
     //test(obsv->dispatchObserver->getFailedCount() > 0);
 
-    // TODO: reenable test below once Metrics invocations are fixed.
-    /*
     test(obsv->invocationObserver->getFailedCount() > 0);
     if(!collocated)
     {
@@ -1438,7 +1434,6 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
         test(obsv->invocationObserver->collocatedObserver->replySize > 0);
     }
-    */
     cout << "ok" << endl;
 
     return metrics;
