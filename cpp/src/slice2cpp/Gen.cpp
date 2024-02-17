@@ -1774,6 +1774,8 @@ Slice::Gen::DeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     H << nl << "class " << fixKwd(p->name()) << ';';
     H << nl << "class " << p->name() << "Prx;";
+    // TODO: remove and update code that relies on these PrxPtr
+    H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << p->name() << "Prx>;";
 }
 
 bool
@@ -4072,9 +4074,6 @@ Slice::Gen::CompatibilityVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     string scoped = fixKwd(p->scoped());
 
     H << sp << nl << "using " << p->name() << "Ptr = ::std::shared_ptr<" << name << ">;";
-
-    // TODO: remove and update code that relies on these PrxPtr
-    H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << p->name() << "Prx>;";
 }
 
 Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExport) :

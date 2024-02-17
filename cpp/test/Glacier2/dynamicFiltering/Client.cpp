@@ -48,7 +48,7 @@ SessionControlClient::run(int argc, char** argv)
     currentState.config = 0;
     currentState.caseIndex = 0;
     currentState.code = StateCode::Initial;
-    controller->step(0, currentState, newState);
+    controller->step(nullopt, currentState, newState);
     currentState = newState;
     cout << "ok" << endl;
 
@@ -146,7 +146,7 @@ SessionControlClient::run(int argc, char** argv)
     //
     // Shut down the router.
     //
-    communicator->setDefaultRouter(0);
+    communicator->setDefaultRouter(nullopt);
     auto processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
     auto process = checkedCast<Ice::ProcessPrx>(processBase);
     test(process);

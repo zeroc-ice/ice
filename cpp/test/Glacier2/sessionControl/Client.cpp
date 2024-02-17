@@ -87,7 +87,7 @@ SessionControlClient::run(int argc, char** argv)
     cout << "testing shutdown... " << flush;
     session = uncheckedCast<Test::SessionPrx>(router->createSession("userid", "abc123"));
     session->shutdown();
-    communicator->setDefaultRouter(0);
+    communicator->setDefaultRouter(nullopt);
     auto processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
     auto process = checkedCast<Ice::ProcessPrx>(processBase);
     test(process);

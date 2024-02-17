@@ -87,7 +87,7 @@ public:
         os << "userid-" << _id;
         auto session = router->createSession(os.str(), "abc123");
         communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
-        auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+        auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router.value());
         adapter->activate();
 
         string category = router->getCategoryForClient();
@@ -187,7 +187,7 @@ public:
         os << "userid-" << _id;
         auto session = _router->createSession(os.str(), "abc123");
         communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
-        auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", _router);
+        auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", _router.value());
         adapter->activate();
 
         string category = _router->getCategoryForClient();
@@ -563,7 +563,7 @@ CallbackClient::run(int argc, char** argv)
     {
         cout << "creating and activating callback receiver adapter with router... " << flush;
         communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
-        adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+        adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router.value());
         adapter->activate();
         cout << "ok" << endl;
     }
@@ -900,7 +900,7 @@ CallbackClient::run(int argc, char** argv)
     {
         {
             cout << "uninstalling router with communicator... " << flush;
-            communicator->setDefaultRouter(0);
+            communicator->setDefaultRouter(nullopt);
             cout << "ok" << endl;
         }
 

@@ -101,7 +101,7 @@ AttackClient::run(int argc, char** argv)
 
     cout << "testing server and router shutdown... " << flush;
     backend->shutdown();
-    communicator->setDefaultRouter(0);
+    communicator->setDefaultRouter(nullopt);
     auto adminBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
     auto process = checkedCast<Ice::ProcessPrx>(adminBase);
     test(process);
