@@ -78,7 +78,8 @@ std::optional<Prx> checkedCast(const ObjectPrx& proxy, const Context& context = 
  * Downcasts a proxy after confirming the target object's type via a remote invocation.
  * @param proxy The source proxy (can be nullopt).
  * @param context The context map for the invocation.
- * @return A proxy with the requested type, or nullopt if the target object does not support the requested type.
+ * @return A proxy with the requested type, or nullopt if the source proxy is nullopt or if the target object does not
+ * support the requested type.
  */
 template<typename Prx,
          std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
@@ -92,8 +93,8 @@ std::optional<Prx> checkedCast(const std::optional<ObjectPrx>& proxy, const Cont
  * @param proxy The source proxy (can be nullopt).
  * @param facet A facet name.
  * @param context The context map for the invocation.
- * @return A proxy with the requested type and facet, or nullopt if the source proxy is nullopt or the target
- * object does not support the requested type.
+ * @return A proxy with the requested type and facet, or nullopt if the target object does not have the requested facet
+ * or if the facet is not of the requested type.
  */
 template<typename Prx,
          std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
@@ -102,7 +103,14 @@ std::optional<Prx> checkedCast(
     const std::string& facet,
     const Context& context = noExplicitContext)
 {
-    return checkedCast<Prx>(proxy->ice_facet(facet), context);
+    try
+    {
+        return checkedCast<Prx>(proxy->ice_facet(facet), context);
+    }
+    catch (const Ice::FacetNotExistException&)
+    {
+        return std::nullopt;
+    }
 }
 
 /**
@@ -110,8 +118,8 @@ std::optional<Prx> checkedCast(
  * @param proxy The source proxy (can be nullopt).
  * @param facet A facet name.
  * @param context The context map for the invocation.
- * @return A proxy with the requested type and facet, or nullopt if the source proxy is nullopt or the target
- * object does not support the requested type.
+ * @return A proxy with the requested type and facet, or nullopt if the source proxy is nullopt, if the target object
+ * does not have the requested facet, or if the facet is not of the requested type.
  */
 template<typename Prx,
          std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
@@ -120,7 +128,14 @@ std::optional<Prx> checkedCast(
     const std::string& facet,
     const Context& context = noExplicitContext)
 {
-    return proxy ? checkedCast<Prx>(proxy->ice_facet(facet), context) : std::nullopt;
+    try
+    {
+        return proxy ? checkedCast<Prx>(proxy->ice_facet(facet), context) : std::nullopt;
+    }
+    catch (const Ice::FacetNotExistException&)
+    {
+        return std::nullopt;
+    }
 }
 
 ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
