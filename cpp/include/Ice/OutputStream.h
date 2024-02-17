@@ -744,16 +744,28 @@ public:
      * Writes a proxy to the stream.
      * @param v The proxy to be written.
      */
-    void writeProxy(const std::optional<ObjectPrx>& v);
+    void writeProxy(const ObjectPrx& v);
+
+    /**
+     * Writes a null proxy to the stream.
+     */
+    void writeNullProxy();
 
     /**
      * Writes a proxy to the stream.
-     * @param v The proxy to be written.
+     * @param v The proxy to be write.
      */
-    template<typename T, typename ::std::enable_if<::std::is_base_of<ObjectPrx, T>::value>::type* = nullptr>
-    void write(const ::std::shared_ptr<T>& v)
+    template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+    void write(const std::optional<Prx>& v)
     {
-        writeProxy(::std::static_pointer_cast<ObjectPrx>(v));
+        if (v)
+        {
+            writeProxy(v.value());
+        }
+        else
+        {
+            writeNullProxy();
+        }
     }
 
     /**

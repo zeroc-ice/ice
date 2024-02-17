@@ -229,7 +229,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     {
         test(Test::MyClassPrx::ice_staticId() == Test::MyClass::ice_staticId());
-        test(Ice::ObjectPrxPtr::ice_staticId() == Ice::Object::ice_staticId());
+        test(Ice::ObjectPrx::ice_staticId() == Ice::Object::ice_staticId());
     }
 
     {
@@ -359,9 +359,9 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         {
         }
 
-        r = p->opMyClass(0, c1, c2);
-        test(c1 == 0);
-        test(c2 != 0);
+        r = p->opMyClass(nullopt, c1, c2);
+        test(c1 == nullopt);
+        test(c2 != nullopt);
         test(Ice::proxyIdentityAndFacetEqual(r, p));
         r->opVoid();
     }
@@ -372,13 +372,13 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         si1.e = MyEnum::enum3;
         si1.s.s = "abc";
         Test::Structure si2;
-        si2.p = 0;
+        si2.p = nullopt;
         si2.e = MyEnum::enum2;
         si2.s.s = "def";
 
         Test::Structure so;
         Test::Structure rso = p->opStruct(si1, si2, so);
-        test(rso.p == 0);
+        test(rso.p == nullopt);
         test(rso.e == MyEnum::enum2);
         test(rso.s.s == "def");
         test(Ice::targetEqualTo(so.p, p));
@@ -1815,20 +1815,20 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     Test::MyStruct1 s;
     s.tesT = "Test::MyStruct1::s";
-    s.myClass = 0;
+    s.myClass = nullopt;
     s.myStruct1 = "Test::MyStruct1::myStruct1";
     s = d->opMyStruct1(s);
     test(s.tesT == "Test::MyStruct1::s");
-    test(s.myClass == 0);
+    test(s.myClass == nullopt);
     test(s.myStruct1 == "Test::MyStruct1::myStruct1");
 
     Test::MyClass1Ptr c = make_shared<Test::MyClass1>();
     c->tesT = "Test::MyClass1::testT";
-    c->myClass = 0;
+    c->myClass = nullopt;
     c->myClass1 = "Test::MyClass1::myClass1";
     c = d->opMyClass1(c);
     test(c->tesT == "Test::MyClass1::testT");
-    test(c->myClass == 0);
+    test(c->myClass == nullopt);
     test(c->myClass1 == "Test::MyClass1::myClass1");
 
     Test::StringS seq;

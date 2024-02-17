@@ -649,9 +649,11 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
 
     _observer.attach(_proxy, operation, context);
 
-    if (_proxy._getBatchRequestQueue())
+    // We need to check isBatch() and not if getBatchRequestQueue() is not null: for a fixed proxy,
+    // getBatchRequestQueue() always returns a non null value.
+    if (_proxy._getReference()->isBatch())
     {
-        _proxy._getBatchRequestQueue()->prepareBatchRequest(&_os);
+        _proxy._getReference()->getBatchRequestQueue()->prepareBatchRequest(&_os);
     }
     else
     {
@@ -873,14 +875,14 @@ OutgoingAsync::invokeCollocated(CollocatedRequestHandler* handler)
 void
 OutgoingAsync::abort(std::exception_ptr ex)
 {
-    if (_proxy._getBatchRequestQueue())
+    if (_proxy._getReference()->isBatch())
     {
         //
         // If we didn't finish a batch oneway or datagram request, we
         // must notify the connection about that we give up ownership
         // of the batch stream.
         //
-        _proxy._getBatchRequestQueue()->abortBatchRequest(&_os);
+        _proxy._getReference()->getBatchRequestQueue()->abortBatchRequest(&_os);
     }
 
     ProxyOutgoingAsyncBase::abort(ex);
@@ -889,10 +891,10 @@ OutgoingAsync::abort(std::exception_ptr ex)
 void
 OutgoingAsync::invoke(const string& operation)
 {
-    if (_proxy._getBatchRequestQueue())
+    if (_proxy._getReference()->isBatch())
     {
         _sentSynchronously = true;
-        _proxy._getBatchRequestQueue()->finishBatchRequest(
+        _proxy._getReference()->getBatchRequestQueue()->finishBatchRequest(
             &_os,
             _proxy,
             operation);

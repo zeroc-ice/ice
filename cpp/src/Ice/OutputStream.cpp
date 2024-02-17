@@ -760,17 +760,16 @@ Ice::OutputStream::write(const wstring* begin, const wstring* end)
 }
 
 void
-Ice::OutputStream::writeProxy(const std::optional<ObjectPrx>& v)
+Ice::OutputStream::writeProxy(const ObjectPrx& v)
 {
-    if(v)
-    {
-        v->_write(*this);
-    }
-    else
-    {
-        Identity ident;
-        write(ident);
-    }
+    v->_write(*this);
+}
+
+void
+Ice::OutputStream::writeNullProxy()
+{
+    Identity ident;
+    write(ident);
 }
 
 void

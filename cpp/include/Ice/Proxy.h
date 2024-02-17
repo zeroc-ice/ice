@@ -310,16 +310,16 @@ class ICE_API ObjectPrx : public Proxy<ObjectPrx>
 {
 public:
 
-    ObjectPrx(const ObjectPrx& other) noexcept;
+    ObjectPrx(const ObjectPrx& other) noexcept = default;
     ObjectPrx(ObjectPrx&&) noexcept = default;
 
     virtual ~ObjectPrx() = default;
 
-    ObjectPrx& operator=(const ObjectPrx& rhs) noexcept;
+    ObjectPrx& operator=(const ObjectPrx& rhs) noexcept = default;
     ObjectPrx& operator=(ObjectPrx&& rhs) noexcept = default;
 
     /// \cond INTERNAL
-    ObjectPrx(const IceInternal::ReferencePtr&) noexcept;
+    explicit ObjectPrx(const IceInternal::ReferencePtr&) noexcept;
     /// \endcond
 
     /**
@@ -812,7 +812,6 @@ public:
     void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&) const;
 
     const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
-    const ::IceInternal::BatchRequestQueuePtr& _getBatchRequestQueue() const { return _batchRequestQueue; }
     const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
 
     void _checkTwowayOnly(const std::string&) const;
@@ -879,7 +878,6 @@ private:
     // Only the assignment operators can change these fields. All other member functions must be const.
     IceInternal::ReferencePtr _reference;
     IceInternal::RequestHandlerCachePtr _requestHandlerCache;
-    IceInternal::BatchRequestQueuePtr _batchRequestQueue;
 };
 
 }

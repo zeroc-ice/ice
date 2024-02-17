@@ -148,7 +148,7 @@ public:
 
     IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
 
-    IceInternal::BatchRequestQueuePtr getBatchRequestQueue() const;
+    const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
 
     virtual std::function<void()>
     flushBatchRequestsAsync(CompressBatch,

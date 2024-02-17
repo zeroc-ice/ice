@@ -769,7 +769,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     return status;
 }
 
-BatchRequestQueuePtr
+const BatchRequestQueuePtr&
 Ice::ConnectionI::getBatchRequestQueue() const
 {
     return _batchRequestQueue;

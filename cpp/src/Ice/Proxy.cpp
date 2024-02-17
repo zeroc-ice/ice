@@ -25,28 +25,8 @@ const Context noExplicitContext;
 
 Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
     _reference(ref),
-    _requestHandlerCache(make_shared<RequestHandlerCache>(ref)),
-    _batchRequestQueue(ref->isBatch() ? ref->getBatchRequestQueue() : nullptr)
+    _requestHandlerCache(make_shared<RequestHandlerCache>(ref))
 {
-}
-
-Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
-    _reference(other._reference),
-    _requestHandlerCache(other._requestHandlerCache),
-    _batchRequestQueue(_reference->isBatch() ? _reference->getBatchRequestQueue() : nullptr)
-{
-}
-
-ObjectPrx&
-Ice::ObjectPrx::operator=(const ObjectPrx& other) noexcept
-{
-    if (this != &other)
-    {
-        _reference = other._reference;
-        _requestHandlerCache = other._requestHandlerCache;
-        _batchRequestQueue = _reference->isBatch() ? _reference->getBatchRequestQueue() : nullptr;
-    }
-    return *this;
 }
 
 void

@@ -745,7 +745,7 @@ IceInternal::FixedReference::getRequestHandler() const
     return make_shared<FixedRequestHandler>(ref, _fixedConnection, compress);
 }
 
-BatchRequestQueuePtr
+const BatchRequestQueuePtr&
 IceInternal::FixedReference::getBatchRequestQueue() const
 {
     return _fixedConnection->getBatchRequestQueue();
@@ -836,6 +836,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
     _timeout(-1)
 {
     assert(_adapterId.empty() || _endpoints.empty());
+    setBatchRequestQueue();
 }
 
 vector<EndpointIPtr>
@@ -902,6 +903,14 @@ optional<int>
 IceInternal::RoutableReference::getTimeout() const
 {
     return _overrideTimeout ? optional<int>(_timeout) : nullopt;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeMode(Mode newMode) const
+{
+    ReferencePtr r = Reference::changeMode(newMode);
+    static_pointer_cast<RoutableReference>(r)->setBatchRequestQueue();
+    return r;
 }
 
 ReferencePtr
@@ -1433,10 +1442,10 @@ IceInternal::RoutableReference::getRequestHandler() const
     return handler;
 }
 
-BatchRequestQueuePtr
+const BatchRequestQueuePtr&
 IceInternal::RoutableReference::getBatchRequestQueue() const
 {
-    return make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram);
+    return _batchRequestQueue;
 }
 
 void
@@ -1711,6 +1720,7 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
     _timeout(r._timeout),
     _connectionId(r._connectionId)
 {
+    setBatchRequestQueue();
 }
 
 vector<EndpointIPtr>
@@ -1823,4 +1833,11 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     }
 
     return endpoints;
+}
+
+void
+IceInternal::RoutableReference::setBatchRequestQueue()
+{
+    _batchRequestQueue = isBatch() ?
+        make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram) : nullptr;
 }

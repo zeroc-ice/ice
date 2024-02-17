@@ -186,7 +186,7 @@ ProxyFlushBatchAsync::invoke(const string& operation)
     checkSupportedProtocol(getCompatibleProtocol(_proxy->_getReference()->getProtocol()));
     _observer.attach(_proxy, operation, noExplicitContext);
     bool compress; // Ignore for proxy flushBatchRequests
-    _batchRequestNum = _proxy->_getBatchRequestQueue()->swap(&_os, compress);
+    _batchRequestNum = _proxy._getReference()->getBatchRequestQueue()->swap(&_os, compress);
     invokeImpl(true); // userThread = true
 }
 
@@ -503,7 +503,7 @@ std::function<void()>
 Ice::ObjectPrx::ice_flushBatchRequestsAsync(std::function<void(std::exception_ptr)> ex,
                                             std::function<void(bool)> sent) const
 {
-    if (_batchRequestQueue)
+    if (_reference->isBatch())
     {
         using LambdaOutgoing = ProxyFlushBatchLambda;
         auto outAsync = std::make_shared<LambdaOutgoing>(*this, std::move(ex), std::move(sent));
@@ -523,7 +523,7 @@ Ice::ObjectPrx::ice_flushBatchRequestsAsync(std::function<void(std::exception_pt
 
 std::future<void> Ice::ObjectPrx::ice_flushBatchRequestsAsync() const
 {
-    if (_batchRequestQueue)
+    if (_reference->isBatch())
     {
         using PromiseOutgoing = ProxyFlushBatchPromise<std::promise<void>>;
         auto outAsync = std::make_shared<PromiseOutgoing>(*this);
