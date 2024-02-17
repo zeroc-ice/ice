@@ -119,14 +119,14 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing unchecked cast... " << flush;
-    Ice::ObjectPrxPtr prx = Ice::uncheckedCast<Ice::ObjectPrxPtr>(db);
+    Ice::ObjectPrxPtr prx = Ice::uncheckedCast<Ice::ObjectPrx>(db);
     test(prx->ice_getFacet().empty());
-    prx = Ice::uncheckedCast<Ice::ObjectPrxPtr>(db, "facetABCD");
+    prx = Ice::uncheckedCast<Ice::ObjectPrx>(db, "facetABCD");
     test(prx->ice_getFacet() == "facetABCD");
-    Ice::ObjectPrxPtr prx2 = Ice::uncheckedCast<Ice::ObjectPrxPtr>(prx);
+    Ice::ObjectPrxPtr prx2 = Ice::uncheckedCast<Ice::ObjectPrx>(prx);
     test(prx2->ice_getFacet() == "facetABCD");
 
-    Ice::ObjectPrxPtr prx3 = Ice::uncheckedCast<Ice::ObjectPrxPtr>(prx, "");
+    Ice::ObjectPrxPtr prx3 = Ice::uncheckedCast<Ice::ObjectPrx>(prx, "");
     test(prx3->ice_getFacet().empty());
     DPrxPtr d = Ice::uncheckedCast<Test::DPrx>(db);
     test(d->ice_getFacet().empty());
@@ -139,13 +139,13 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    prx = Ice::checkedCast<Ice::ObjectPrxPtr>(db);
+    prx = Ice::checkedCast<Ice::ObjectPrx>(db);
     test(prx->ice_getFacet().empty());
-    prx = Ice::checkedCast<Ice::ObjectPrxPtr>(db, "facetABCD");
+    prx = Ice::checkedCast<Ice::ObjectPrx>(db, "facetABCD");
     test(prx->ice_getFacet() == "facetABCD");
-    prx2 = Ice::checkedCast<Ice::ObjectPrxPtr>(prx);
+    prx2 = Ice::checkedCast<Ice::ObjectPrx>(prx);
     test(prx2->ice_getFacet() == "facetABCD");
-    prx3 = Ice::checkedCast<Ice::ObjectPrxPtr>(prx, "");
+    prx3 = Ice::checkedCast<Ice::ObjectPrx>(prx, "");
     test(prx3->ice_getFacet().empty());
     d = Ice::checkedCast<Test::DPrx>(db);
     test(d->ice_getFacet().empty());

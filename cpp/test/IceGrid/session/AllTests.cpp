@@ -1166,11 +1166,11 @@ allTests(TestHelper* helper)
         auto nodeObs2 = make_shared<NodeObserverI>("nodeObs1");
         auto no2 = adpt2->addWithUUID(nodeObs2);
         adpt2->activate();
-        session2->setObservers(nullptr,
+        session2->setObservers(nullopt,
                                Ice::uncheckedCast<NodeObserverPrx>(no2),
                                Ice::uncheckedCast<ApplicationObserverPrx>(app2),
-                               nullptr,
-                               nullptr);
+                               nullopt,
+                               nullopt);
 
         appObs1->waitForUpdate(__LINE__);
         appObs2->waitForUpdate(__LINE__);
@@ -1827,7 +1827,7 @@ allTests(TestHelper* helper)
         auto no1 = adpt1->addWithUUID(nodeObs1);
         adpt1->activate();
 
-        session1->setObservers(nullptr, Ice::uncheckedCast<NodeObserverPrx>(no1), nullptr, nullptr, nullptr);
+        session1->setObservers(nullopt, Ice::uncheckedCast<NodeObserverPrx>(no1), nullopt, nullopt, nullopt);
         nodeObs1->waitForUpdate(__LINE__); // init
 
         session1->destroy();
@@ -1849,7 +1849,7 @@ allTests(TestHelper* helper)
         assert(no1->ice_getAdapterId() == "adapter1");
         adpt1->activate();
 
-        session1->setObservers(nullptr, Ice::uncheckedCast<NodeObserverPrx>(no1), nullptr, nullptr, nullptr);
+        session1->setObservers(nullopt, Ice::uncheckedCast<NodeObserverPrx>(no1), nullopt, nullopt, nullopt);
         nodeObs1->waitForUpdate(__LINE__); // init
 
         session1->destroy();

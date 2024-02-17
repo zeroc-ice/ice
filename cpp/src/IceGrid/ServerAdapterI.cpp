@@ -182,7 +182,7 @@ ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
         out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
         if(_proxy)
         {
-            out << ": " << _node->getCommunicator()->proxyToString(_proxy.value());
+            out << ": " << _proxy;
         }
     }
 }

@@ -256,7 +256,7 @@ allTests(Test::TestHelper* helper)
         }
 
         Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("");
-        test(com->createAdmin(adapter, id));
+        com->createAdmin(adapter, id);
         test(com->getAdmin());
 
         testFacets(com);

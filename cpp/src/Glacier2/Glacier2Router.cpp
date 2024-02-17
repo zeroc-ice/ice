@@ -207,7 +207,7 @@ RouterService::start(int argc, char* argv[], int& status)
 
     string verifierProperty = verifierProperties[0];
     PermissionsVerifierPrxPtr verifier;
-    ObjectPrx obj;
+    ObjectPrxPtr obj;
     try
     {
         //

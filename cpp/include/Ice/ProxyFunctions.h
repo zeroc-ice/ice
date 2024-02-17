@@ -18,7 +18,7 @@ namespace Ice
  * constructor.
  */
 template<typename Prx,
-         typename std::enable_if<std::is_base_of<ObjectPrx, Prx>::value>::type* = nullptr>
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 Prx uncheckedCast(const ObjectPrx& proxy) { return Prx(proxy); }
 
 /**
@@ -29,10 +29,36 @@ Prx uncheckedCast(const ObjectPrx& proxy) { return Prx(proxy); }
  * constructor.
  */
 template<typename Prx,
-         typename std::enable_if<std::is_base_of<ObjectPrx, Prx>::value>::type* = nullptr>
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy)
 {
     return proxy ? std::make_optional<Prx>(proxy.value()) : std::nullopt;
+}
+
+/**
+ * Downcasts a proxy without confirming the target object's type via a remote invocation.
+ * @param proxy The source proxy.
+ * @param facet A facet name.
+ * @return A proxy with the requested type and facet.
+ */
+template<typename Prx,
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+Prx uncheckedCast(const ObjectPrx& proxy, const std::string& facet)
+{
+    return uncheckedCast<Prx>(proxy->ice_facet(facet));
+}
+
+/**
+ * Downcasts a proxy without confirming the target object's type via a remote invocation.
+ * @param proxy The source proxy.
+ * @param facet A facet name.
+ * @return A proxy with the requested type and facet.
+ */
+template<typename Prx,
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy, const std::string& facet)
+{
+    return proxy ? std::make_optional<Prx>(proxy->ice_facet(facet)) : std::nullopt;
 }
 
 /**
@@ -42,17 +68,10 @@ std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy)
  * @return A proxy with the requested type, or nullopt if the target object does not support the requested type.
  */
 template<typename Prx,
-         typename std::enable_if<std::is_base_of<ObjectPrx, Prx>::value>::type* = nullptr>
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> checkedCast(const ObjectPrx& proxy, const Context& context = noExplicitContext)
 {
-    if (proxy->ice_isA(Prx::ice_staticId(), context))
-    {
-        return Prx(proxy);
-    }
-    else
-    {
-        return std::nullopt;
-    }
+    return proxy->ice_isA(Prx::ice_staticId(), context) ? std::make_optional<Prx>(proxy) : std::nullopt;
 }
 
 /**
@@ -62,12 +81,46 @@ std::optional<Prx> checkedCast(const ObjectPrx& proxy, const Context& context = 
  * @return A proxy with the requested type, or nullopt if the target object does not support the requested type.
  */
 template<typename Prx,
-         typename std::enable_if<std::is_base_of<ObjectPrx, Prx>::value>::type* = nullptr>
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> checkedCast(const std::optional<ObjectPrx>& proxy, const Context& context = noExplicitContext)
 {
-    return (proxy && proxy->ice_isA(Prx::ice_staticId(), context)) ?
-        std::make_optional<Prx>(proxy.value()) :
-        std::nullopt;
+    return proxy ? checkedCast<Prx>(proxy.value(), context) : std::nullopt;
+}
+
+/**
+ * Downcasts a proxy after confirming the target object's type via a remote invocation.
+ * @param proxy The source proxy (can be nullopt).
+ * @param facet A facet name.
+ * @param context The context map for the invocation.
+ * @return A proxy with the requested type and facet, or nullopt if the source proxy is nullopt or the target
+ * object does not support the requested type.
+ */
+template<typename Prx,
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+std::optional<Prx> checkedCast(
+    const ObjectPrx& proxy,
+    const std::string& facet,
+    const Context& context = noExplicitContext)
+{
+    return checkedCast<Prx>(proxy->ice_facet(facet), context);
+}
+
+/**
+ * Downcasts a proxy after confirming the target object's type via a remote invocation.
+ * @param proxy The source proxy (can be nullopt).
+ * @param facet A facet name.
+ * @param context The context map for the invocation.
+ * @return A proxy with the requested type and facet, or nullopt if the source proxy is nullopt or the target
+ * object does not support the requested type.
+ */
+template<typename Prx,
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+std::optional<Prx> checkedCast(
+    const std::optional<ObjectPrx>& proxy,
+    const std::string& facet,
+    const Context& context = noExplicitContext)
+{
+    return proxy ? checkedCast<Prx>(proxy->ice_facet(facet), context) : std::nullopt;
 }
 
 ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
@@ -100,7 +153,7 @@ operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs)
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ObjectPrx&);
 
 template<typename Prx,
-         typename std::enable_if<std::is_base_of<ObjectPrx, Prx>::value>::type* = nullptr>
+         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 inline ::std::ostream& operator<<(::std::ostream& os, const std::optional<Prx>& proxy)
 {
     if (proxy)
@@ -120,7 +173,7 @@ inline ::std::ostream& operator<<(::std::ostream& os, const std::optional<Prx>& 
  * @param rhs A proxy.
  * @return True if the identity in lhs compares less than the identity in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs);
+ICE_API bool proxyIdentityLess(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs);
 
 /**
  * Compares the object identities of two proxies.
@@ -128,7 +181,7 @@ ICE_API bool proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs);
  * @param rhs A proxy.
  * @return True if the identity in lhs compares equal to the identity in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs);
+ICE_API bool proxyIdentityEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs);
 
 /**
  * Compares the object identities and facets of two proxies.
@@ -137,7 +190,7 @@ ICE_API bool proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs);
  * @return True if the identity and facet in lhs compare less than the identity and facet
  * in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs);
+ICE_API bool proxyIdentityAndFacetLess(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs);
 
 /**
  * Compares the object identities and facets of two proxies.
@@ -146,7 +199,7 @@ ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rh
  * @return True if the identity and facet in lhs compare equal to the identity and facet
  * in rhs, false otherwise.
  */
-ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs);
+ICE_API bool proxyIdentityAndFacetEqual(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs);
 
 /**
  * A functor that compares the object identities of two proxies. Evaluates true if the identity in lhs
@@ -156,7 +209,7 @@ ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& r
 
 struct ProxyIdentityLess
 {
-    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const
     {
         return proxyIdentityLess(lhs, rhs);
     }
@@ -169,7 +222,7 @@ struct ProxyIdentityLess
  */
 struct ProxyIdentityEqual
 {
-    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const
     {
         return proxyIdentityEqual(lhs, rhs);
     }
@@ -182,7 +235,7 @@ struct ProxyIdentityEqual
  */
 struct ProxyIdentityAndFacetLess
 {
-    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const
     {
         return proxyIdentityAndFacetLess(lhs, rhs);
     }
@@ -195,7 +248,7 @@ struct ProxyIdentityAndFacetLess
  */
 struct ProxyIdentityAndFacetEqual
 {
-    bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
+    bool operator()(const std::optional<ObjectPrx>& lhs, const std::optional<ObjectPrx>& rhs) const
     {
         return proxyIdentityAndFacetEqual(lhs, rhs);
     }

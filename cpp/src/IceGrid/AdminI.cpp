@@ -597,7 +597,7 @@ AdminI::addObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current& current)
     catch (const Ice::LocalException& ex)
     {
         ostringstream os;
-        os << "failed to invoke ice_id() on proxy `" + current.adapter->getCommunicator()->proxyToString(proxy.value())
+        os << "failed to invoke ice_id() on proxy `" << proxy
             << "':\n" << ex;
         throw DeploymentException(os.str());
     }

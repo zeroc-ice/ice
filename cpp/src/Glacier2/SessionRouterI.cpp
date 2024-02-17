@@ -109,7 +109,7 @@ public:
     {
         if(ok)
         {
-            authorized(_sessionRouter->_sessionManager != nullptr);
+            authorized(_sessionRouter->_sessionManager != nullopt);
         }
         else
         {
@@ -220,7 +220,7 @@ public:
     {
         if(ok)
         {
-            authorized(_sessionRouter->_sslSessionManager != nullptr);
+            authorized(_sessionRouter->_sslSessionManager != nullopt);
         }
         else
         {
@@ -406,7 +406,7 @@ CreateSession::authorized(bool createSession)
     }
     else
     {
-        sessionCreated(nullptr);
+        sessionCreated(nullopt);
     }
 }
 

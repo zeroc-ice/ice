@@ -19,24 +19,7 @@ namespace
 bool compareAllocatableObjectEntry(const shared_ptr<AllocatableObjectEntry>& lhs,
                                    const shared_ptr<AllocatableObjectEntry>& rhs)
 {
-    auto lhsProxy = lhs->getProxy();
-    auto rhsProxy = rhs->getProxy();
-    if(!lhsProxy && !rhsProxy)
-    {
-        return false;
-    }
-    else if(!rhsProxy && rhsProxy)
-    {
-        return true;
-    }
-    else if(rhsProxy && !rhsProxy)
-    {
-        return false;
-    }
-    else
-    {
-        return Ice::proxyIdentityLess(lhsProxy.value(), rhsProxy.value());
-    }
+    return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
 }
 
 };

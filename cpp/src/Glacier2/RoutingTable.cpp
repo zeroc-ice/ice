@@ -77,7 +77,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             if(_traceLevel == 1 || _traceLevel >= 3)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
-                out << "adding proxy to routing table:\n" << _communicator->proxyToString(proxy);
+                out << "adding proxy to routing table:\n" << proxy;
             }
 
             auto entry = make_shared<EvictorEntry>();
@@ -91,7 +91,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             if(_traceLevel == 1 || _traceLevel >= 3)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
-                out << "proxy already in routing table:\n" << _communicator->proxyToString(proxy);
+                out << "proxy already in routing table:\n" << proxy;
             }
 
             auto entry = p->second;
@@ -107,7 +107,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             if(_traceLevel >= 2)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
-                out << "evicting proxy from routing table:\n" << _communicator->proxyToString(p->second->proxy);
+                out << "evicting proxy from routing table:\n" << p->second->proxy;
             }
 
             evictedProxies.push_back(p->second->proxy);
@@ -130,7 +130,7 @@ Glacier2::RoutingTable::get(const Identity& ident)
 {
     if(ident.name.empty())
     {
-        return 0;
+        return nullopt;
     }
 
     lock_guard<mutex> lg(_mutex);
@@ -139,7 +139,7 @@ Glacier2::RoutingTable::get(const Identity& ident)
 
     if(p == _map.end())
     {
-        return 0;
+        return nullopt;
     }
     else
     {

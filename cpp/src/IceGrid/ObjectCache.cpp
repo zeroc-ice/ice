@@ -19,24 +19,7 @@ namespace IceGrid
 
 bool compareObjectEntryCI(const shared_ptr<ObjectEntry>& lhs, const shared_ptr<ObjectEntry>& rhs)
 {
-    auto lhsProxy = lhs->getProxy();
-    auto rhsProxy = rhs->getProxy();
-    if(!lhsProxy && !rhsProxy)
-    {
-        return false;
-    }
-    else if(!rhsProxy && rhsProxy)
-    {
-        return true;
-    }
-    else if(rhsProxy && !rhsProxy)
-    {
-        return false;
-    }
-    else
-    {
-        return Ice::proxyIdentityLess(lhsProxy.value(), rhsProxy.value());
-    }
+    return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
 }
 
 bool compareObjectLoadCI(const pair<Ice::ObjectPrxPtr, float>& lhs, const pair<Ice::ObjectPrxPtr, float>& rhs)

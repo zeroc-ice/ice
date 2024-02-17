@@ -180,7 +180,7 @@ Glacier2::Blobject::invoke(ObjectPrxPtr& proxy,
         }
         else
         {
-            out << "\nproxy = " << _instance->communicator()->proxyToString(proxy);
+            out << "\nproxy = " << proxy;
         }
         out << "\noperation = " << current.operation;
         out << "\ncontext = ";
@@ -229,7 +229,7 @@ Glacier2::Blobject::invoke(ObjectPrxPtr& proxy,
             }
             else
             {
-                out << "\nproxy = " << _instance->communicator()->proxyToString(proxy);
+                out << "\nproxy = " << proxy;
             }
             out << "\noperation = " << current.operation;
             out << "\ncontext = ";

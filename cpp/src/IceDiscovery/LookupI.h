@@ -119,7 +119,7 @@ private:
     // the same proxy if it's accessible through multiple network interfaces and if we
     // also sent the request to multiple interfaces.
     //
-    std::set<Ice::ObjectPrxPtr, Ice::TargetCompare<Ice::ObjectPrxPtr, std::less, Ice::ObjectPrx>> _proxies;
+    std::set<Ice::ObjectPrxPtr, Ice::OptionalCompare<Ice::ObjectPrxPtr, std::less>> _proxies;
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };

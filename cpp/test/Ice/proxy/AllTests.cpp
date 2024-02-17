@@ -389,13 +389,13 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing proxyToString... " << flush;
     b1 = communicator->stringToProxy(ref);
-    Ice::ObjectPrxPtr b2 = communicator->stringToProxy(communicator->proxyToString(b1));
+    Ice::ObjectPrxPtr b2 = communicator->stringToProxy(communicator->proxyToString(b1.value()));
     test(Ice::targetEqualTo(b1, b2));
 
     if(b1->ice_getConnection()) // not colloc-optimized target
     {
         b2 = b1->ice_getConnection()->createProxy(Ice::stringToIdentity("fixed"));
-        string str = communicator->proxyToString(b2);
+        string str = communicator->proxyToString(b2.value());
         test(b2->ice_toString() == str);
         string str2 = b1->ice_identity(b2->ice_getIdentity())->ice_secure(b2->ice_isSecure())->ice_toString();
 
@@ -873,7 +873,7 @@ allTests(Test::TestHelper* helper)
     // Upcasting
     //
     auto cl2 = Ice::checkedCast<Test::MyClassPrx>(derived);
-    auto obj = Ice::checkedCast<Ice::ObjectPrxPtr>(derived);
+    auto obj = Ice::checkedCast<Ice::ObjectPrx>(derived);
     test(cl2);
     test(obj);
     test(Ice::targetEqualTo(cl2, obj));
@@ -1164,13 +1164,13 @@ allTests(Test::TestHelper* helper)
 
     // Legal TCP endpoint expressed as opaque endpoint
     Ice::ObjectPrxPtr p1 = communicator->stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-    string pstr = communicator->proxyToString(p1);
+    string pstr = communicator->proxyToString(p1.value());
     test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
     // Opaque endpoint encoded with 1.1 encoding.
     {
         Ice::ObjectPrxPtr p2 = communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-        test(communicator->proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+        test(communicator->proxyToString(p2.value()) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
     }
 
     if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0 &&
@@ -1192,7 +1192,7 @@ allTests(Test::TestHelper* helper)
 
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
-        pstr = communicator->proxyToString(p1);
+        pstr = communicator->proxyToString(p1.value());
         test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
         //
@@ -1201,7 +1201,7 @@ allTests(Test::TestHelper* helper)
         //
         p1 = communicator->stringToProxy(
                 "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
-        pstr = communicator->proxyToString(p1);
+        pstr = communicator->proxyToString(p1.value());
         if(ssl)
         {
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
@@ -1219,7 +1219,7 @@ allTests(Test::TestHelper* helper)
         // the opaque endpoints.
         //
         Ice::ObjectPrxPtr p2 = derived->echo(p1);
-        pstr = communicator->proxyToString(p2);
+        pstr = communicator->proxyToString(p2.value());
         if(ssl)
         {
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");

@@ -839,7 +839,7 @@ public:
         if(_traceLevel >= 1)
         {
             Trace out(_communicator->getLogger(), "Glacier2");
-            out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ")
+            out << p << (result ? " exceeds " : " meets ")
                 << "proxy size restriction\n";
         }
         return result;
@@ -963,11 +963,11 @@ Glacier2::ProxyVerifier::verify(const ObjectPrxPtr& proxy)
         Trace out(_communicator->getLogger(), "Glacier2");
         if(result)
         {
-            out << "accepted proxy " << _communicator->proxyToString(proxy) << '\n';
+            out << "accepted proxy " << proxy << '\n';
         }
         else
         {
-            out << "rejected proxy " << _communicator->proxyToString(proxy) << '\n';
+            out << "rejected proxy " << proxy << '\n';
         }
     }
     return result;

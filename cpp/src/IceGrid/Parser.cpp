@@ -1965,7 +1965,14 @@ Parser::endpointsAdapter(const list<string>& args)
         if(adpts.size() == 1 && adpts.begin()->id == adapterId)
         {
             auto proxy = adpts.begin()->proxy;
-            consoleOut << (proxy ? _communicator->proxyToString(proxy.value()) : "<inactive>") << endl;
+            if (proxy)
+            {
+                consoleOut << proxy << endl;
+            }
+            else
+            {
+                consoleOut << "<inactive>" << endl;
+            }
         }
         else
         {
@@ -1973,7 +1980,14 @@ Parser::endpointsAdapter(const list<string>& args)
             {
                 consoleOut << (p->id.empty() ? string("<empty>") : p->id) << ": ";
                 auto proxy = p->proxy;
-                consoleOut << (proxy ? _communicator->proxyToString(proxy.value()) : "<inactive>") << endl;
+                if (proxy)
+                {
+                    consoleOut << proxy << endl;
+                }
+                else
+                {
+                    consoleOut << "<inactive>" << endl;
+                }
             }
         }
     }
@@ -2088,10 +2102,7 @@ Parser::findObject(const list<string>& args)
         ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            if (p->proxy)
-            {
-                consoleOut << _communicator->proxyToString(p->proxy.value()) << endl;
-            }
+            consoleOut << p->proxy << endl;
         }
     }
     catch(const Ice::Exception&)
@@ -2118,8 +2129,7 @@ Parser::describeObject(const list<string>& args)
             if(arg.find('*') == string::npos)
             {
                 ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
-                auto proxy = info.proxy;
-                consoleOut << "proxy = `" << (proxy ? _communicator->proxyToString(proxy.value()) : "") << "'" << endl;
+                consoleOut << "proxy = `" << info.proxy << "'" << endl;
                 consoleOut << "type = `" << info.type << "'" << endl;
                 return;
             }
@@ -2135,9 +2145,7 @@ Parser::describeObject(const list<string>& args)
 
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            auto proxy = p->proxy;
-            consoleOut << "proxy = `" << (proxy ? _communicator->proxyToString(proxy.value()) : "")
-                << "' type = `" << p->type << "'" << endl;
+            consoleOut << "proxy = `" << p->proxy << "' type = `" << p->type << "'" << endl;
         }
 
     }
