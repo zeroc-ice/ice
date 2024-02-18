@@ -46,7 +46,7 @@ public:
 
     OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
-    VALUE invoke(const shared_ptr<Ice::ObjectPrx>&, VALUE, VALUE) final;
+    VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE) final;
     void deprecate(const string&) final;
 
 private:
@@ -69,11 +69,11 @@ private:
 
     void convertParams(VALUE, ParamInfoList&, long, bool&);
     ParamInfoPtr convertParam(VALUE, long);
-    void prepareRequest(const shared_ptr<Ice::ObjectPrx>&, VALUE, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
+    void prepareRequest(const Ice::ObjectPrx&, VALUE, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(VALUE) const;
-    void checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>&) const;
+    void checkTwowayOnly(const Ice::ObjectPrx&) const;
 };
 using OperationIPtr = shared_ptr<OperationI>;
 
@@ -275,7 +275,7 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
 }
 
 VALUE
-IceRuby::OperationI::invoke(const shared_ptr<Ice::ObjectPrx>& proxy, VALUE args, VALUE hctx)
+IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
 {
     Ice::CommunicatorPtr communicator = proxy->ice_getCommunicator();
 
@@ -393,7 +393,7 @@ IceRuby::OperationI::convertParam(VALUE v, long pos)
 
 void
 IceRuby::OperationI::prepareRequest(
-    const shared_ptr<Ice::ObjectPrx>& proxy,
+    const Ice::ObjectPrx& proxy,
     VALUE args,
     Ice::OutputStream* os,
     pair<const Ice::Byte*, const Ice::Byte*>& params)
@@ -627,7 +627,7 @@ IceRuby::OperationI::validateException(VALUE ex) const
 }
 
 void
-IceRuby::OperationI::checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>& proxy) const
+IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 {
     if((_returnType != 0 || !_outParams.empty()) && !proxy->ice_isTwoway())
     {

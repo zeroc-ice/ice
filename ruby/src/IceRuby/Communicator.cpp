@@ -428,10 +428,10 @@ IceRuby_Communicator_stringToProxy(VALUE self, VALUE str)
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         string s = getString(str);
-        shared_ptr<Ice::ObjectPrx> proxy = p->stringToProxy(s);
+        optional<Ice::ObjectPrx> proxy = p->stringToProxy(s);
         if(proxy)
         {
-            return createProxy(proxy);
+            return createProxy(proxy.value());
         }
     }
     ICE_RUBY_CATCH
@@ -445,7 +445,7 @@ IceRuby_Communicator_proxyToString(VALUE self, VALUE proxy)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        shared_ptr<Ice::ObjectPrx> prx;
+        optional<Ice::ObjectPrx> prx;
         if(!NIL_P(proxy))
         {
             if(!checkProxy(proxy))
@@ -469,10 +469,10 @@ IceRuby_Communicator_propertyToProxy(VALUE self, VALUE str)
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
         string s = getString(str);
-        shared_ptr<Ice::ObjectPrx> proxy = p->propertyToProxy(s);
+        optional<Ice::ObjectPrx> proxy = p->propertyToProxy(s);
         if(proxy)
         {
-            return createProxy(proxy);
+            return createProxy(proxy.value());
         }
     }
     ICE_RUBY_CATCH
@@ -490,7 +490,7 @@ IceRuby_Communicator_proxyToProperty(VALUE self, VALUE obj, VALUE str)
             throw RubyException(rb_eTypeError, "argument must be a proxy");
         }
         Ice::CommunicatorPtr p = getCommunicator(self);
-        shared_ptr<Ice::ObjectPrx> o = getProxy(obj);
+        optional<Ice::ObjectPrx> o = getProxy(obj);
         string s = getString(str);
         Ice::PropertyDict dict = p->proxyToProperty(o, s);
         volatile VALUE result = callRuby(rb_hash_new);
@@ -585,12 +585,12 @@ IceRuby_Communicator_getDefaultRouter(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        shared_ptr<Ice::RouterPrx> router = p->getDefaultRouter();
+        optional<Ice::RouterPrx> router = p->getDefaultRouter();
         if(router)
         {
             volatile VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
             assert(!NIL_P(cls));
-            return createProxy(router, cls);
+            return createProxy(router.value(), cls);
         }
     }
     ICE_RUBY_CATCH
@@ -604,7 +604,7 @@ IceRuby_Communicator_setDefaultRouter(VALUE self, VALUE router)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        shared_ptr<Ice::RouterPrx> proxy;
+        optional<Ice::RouterPrx> proxy;
         if(!NIL_P(router))
         {
             if(!checkProxy(router))
@@ -626,12 +626,12 @@ IceRuby_Communicator_getDefaultLocator(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        shared_ptr<Ice::LocatorPrx> locator = p->getDefaultLocator();
+        optional<Ice::LocatorPrx> locator = p->getDefaultLocator();
         if(locator)
         {
             volatile VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
             assert(!NIL_P(cls));
-            return createProxy(locator, cls);
+            return createProxy(locator.value(), cls);
         }
     }
     ICE_RUBY_CATCH
@@ -645,7 +645,7 @@ IceRuby_Communicator_setDefaultLocator(VALUE self, VALUE locator)
     ICE_RUBY_TRY
     {
         Ice::CommunicatorPtr p = getCommunicator(self);
-        shared_ptr<Ice::LocatorPrx> proxy;
+        optional<Ice::LocatorPrx> proxy;
         if(!NIL_P(locator))
         {
             if(!checkProxy(locator))
