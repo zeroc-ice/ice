@@ -9,6 +9,7 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/Plugin.h>
 #include <Ice/Exception.h>
+#include "Proxy.h"
 
 namespace Ice
 {
@@ -79,6 +80,12 @@ inline LoggerOutputBase&
 operator<<(LoggerOutputBase& os, const ::std::optional<Prx>& p)
 {
     return os << (p ? p->ice_toString() : "");
+}
+
+inline LoggerOutputBase&
+operator<<(LoggerOutputBase& os, const ObjectPrx& p)
+{
+    return os << p.ice_toString();
 }
 
 inline LoggerOutputBase&

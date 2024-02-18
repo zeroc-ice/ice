@@ -671,8 +671,6 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
 string
 Slice::typeToString(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
-    // TODO: cleanup all this code!
-
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
     static const char* builtinTable[] =
@@ -847,7 +845,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "double",
         "const ::std::string&",
         "const ::std::shared_ptr<::Ice::Value>&",
-        "const ::std::optional<::Ice::ObjectPrx>&", // TODO: is this actually used?
+        "const ::std::optional<::Ice::ObjectPrx>&",
         "const ::std::shared_ptr<::Ice::Value>&"
     };
 

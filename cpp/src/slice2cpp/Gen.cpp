@@ -1774,7 +1774,7 @@ Slice::Gen::DeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     H << nl << "class " << fixKwd(p->name()) << ';';
     H << nl << "class " << p->name() << "Prx;";
-    // TODO: remove and update code that relies on these PrxPtr
+    // TODO: temporary PrxPtr
     H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << p->name() << "Prx>;";
 }
 
@@ -2881,7 +2881,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         C << nl << "catch(...)";
         C << sb;
-        C << nl << "throw ::std::current_exception();"; // TODO: what are doing here?
+        C << nl << "throw ::std::current_exception();";
         C << eb;
         C << eb << ";";
         C << eb;

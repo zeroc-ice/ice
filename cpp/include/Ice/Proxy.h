@@ -304,7 +304,7 @@ protected:
 
     // The copy constructor and assignment operators are to keep GCC happy.
     Proxy(const Proxy&) noexcept = default;
-    Proxy& operator=(const Proxy&) noexcept { return *this;}
+    Proxy& operator=(const Proxy&) noexcept { return *this; }
     Proxy& operator=(Proxy&&) noexcept { return *this; }
 
 private:

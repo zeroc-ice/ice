@@ -133,29 +133,10 @@ std::optional<Prx> checkedCast(
 ICE_API bool operator<(const ObjectPrx&, const ObjectPrx&);
 ICE_API bool operator==(const ObjectPrx&, const ObjectPrx&);
 
-inline bool
-operator>(const ObjectPrx& lhs, const ObjectPrx& rhs)
-{
-    return rhs < lhs;
-}
-
-inline bool
-operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs)
-{
-    return !(lhs > rhs);
-}
-
-inline bool
-operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs)
-{
-    return !(lhs < rhs);
-}
-
-inline bool
-operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs)
-{
-    return !(lhs == rhs);
-}
+inline bool operator>(const ObjectPrx& lhs, const ObjectPrx& rhs) { return rhs < lhs; }
+inline bool operator<=(const ObjectPrx& lhs, const ObjectPrx& rhs) { return !(lhs > rhs); }
+inline bool operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs) { return !(lhs < rhs); }
+inline bool operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs) { return !(lhs == rhs); }
 
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ObjectPrx&);
 

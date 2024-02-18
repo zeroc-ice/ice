@@ -1041,9 +1041,6 @@ public:
     InputStream(IceInternal::Instance*, const EncodingVersion&);
     InputStream(IceInternal::Instance*, const EncodingVersion&, IceInternal::Buffer&, bool = false);
 
-    // Reads a reference from the stream; the return value can be null.
-    IceInternal::ReferencePtr readReference();
-
     void initialize(IceInternal::Instance*, const EncodingVersion&);
 
     bool readOptImpl(Int, OptionalFormat);
@@ -1052,6 +1049,9 @@ public:
 private:
 
     void initialize(const EncodingVersion&);
+
+    // Reads a reference from the stream; the return value can be null.
+    IceInternal::ReferencePtr readReference();
 
     //
     // String
