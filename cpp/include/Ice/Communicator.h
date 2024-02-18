@@ -371,14 +371,14 @@ public:
      * @param adminAdapter The object adapter used to host the Admin object; if null and Ice.Admin.Endpoints is set,
      * create, activate and use the Ice.Admin object adapter.
      * @param adminId The identity of the Admin object.
-     * @return A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
+     * @return A proxy to the main ("") facet of the Admin object.
      * @see #getAdmin
      */
     virtual ObjectPrx createAdmin(const ::std::shared_ptr<ObjectAdapter>& adminAdapter, const Identity& adminId) = 0;
 
     /**
      * Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
-     * activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of
+     * activates the Ice.Admin object adapter to host this Admin object if Ice.Admin.Endpoints is set. The identity of
      * the Admin object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin when
      * <code>Ice.Admin.InstanceName</code> is not set. If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called
      * by the communicator initialization, after initialization of all plugins.

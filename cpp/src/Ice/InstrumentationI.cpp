@@ -353,7 +353,6 @@ public:
 
             add("operation", &InvocationHelper::getOperation);
             add("identity", &InvocationHelper::getIdentity);
-
             add("facet", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getFacet);
             add("encoding", &InvocationHelper::getProxy, &ICE_OBJECT_PRX::ice_getEncodingVersion);
             add("mode", &InvocationHelper::getMode);
@@ -443,7 +442,6 @@ public:
             {
                 os << _operation;
             }
-
             _id = os.str();
         }
         return _id;
@@ -455,7 +453,7 @@ public:
         return "Communicator";
     }
 
-    const optional<ObjectPrx>
+    const optional<ObjectPrx>&
     getProxy() const
     {
         return _proxy;
@@ -482,7 +480,7 @@ public:
 
 private:
 
-    const std::optional<ObjectPrx>& _proxy;
+    const optional<ObjectPrx>& _proxy;
     const string& _operation;
     const Context& _context;
     mutable string _id;
@@ -1026,7 +1024,7 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
 }
 
 InvocationObserverPtr
-CommunicatorObserverI::getInvocationObserver(const std::optional<ObjectPrx>& proxy, const string& op, const Context& ctx)
+CommunicatorObserverI::getInvocationObserver(const optional<ObjectPrx>& proxy, const string& op, const Context& ctx)
 {
     if(_invocations.isEnabled())
     {

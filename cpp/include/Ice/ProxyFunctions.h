@@ -17,8 +17,7 @@ namespace Ice
  * @remark The preferred syntax is to construct the proxy from another proxy using the explicit ObjectPrx
  * constructor.
  */
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 Prx uncheckedCast(const ObjectPrx& proxy) { return Prx(proxy); }
 
 /**
@@ -28,8 +27,7 @@ Prx uncheckedCast(const ObjectPrx& proxy) { return Prx(proxy); }
  * @remark The preferred syntax is to construct the proxy from another proxy using the explicit ObjectPrx
  * constructor.
  */
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy)
 {
     return proxy ? std::make_optional<Prx>(proxy.value()) : std::nullopt;
@@ -41,8 +39,7 @@ std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy)
  * @param facet A facet name.
  * @return A proxy with the requested type and facet.
  */
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 Prx uncheckedCast(const ObjectPrx& proxy, const std::string& facet)
 {
     return uncheckedCast<Prx>(proxy->ice_facet(facet));
@@ -54,8 +51,7 @@ Prx uncheckedCast(const ObjectPrx& proxy, const std::string& facet)
  * @param facet A facet name.
  * @return A proxy with the requested type and facet.
  */
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy, const std::string& facet)
 {
     return proxy ? std::make_optional<Prx>(proxy->ice_facet(facet)) : std::nullopt;
@@ -67,8 +63,7 @@ std::optional<Prx> uncheckedCast(const std::optional<ObjectPrx>& proxy, const st
  * @param context The context map for the invocation.
  * @return A proxy with the requested type, or nullopt if the target object does not support the requested type.
  */
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> checkedCast(const ObjectPrx& proxy, const Context& context = noExplicitContext)
 {
     return proxy->ice_isA(Prx::ice_staticId(), context) ? std::make_optional<Prx>(proxy) : std::nullopt;
@@ -81,8 +76,7 @@ std::optional<Prx> checkedCast(const ObjectPrx& proxy, const Context& context = 
  * @return A proxy with the requested type, or nullopt if the source proxy is nullopt or if the target object does not
  * support the requested type.
  */
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> checkedCast(const std::optional<ObjectPrx>& proxy, const Context& context = noExplicitContext)
 {
     return proxy ? checkedCast<Prx>(proxy.value(), context) : std::nullopt;
@@ -96,8 +90,7 @@ std::optional<Prx> checkedCast(const std::optional<ObjectPrx>& proxy, const Cont
  * @return A proxy with the requested type and facet, or nullopt if the target object does not have the requested facet
  * or if the facet is not of the requested type.
  */
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> checkedCast(
     const ObjectPrx& proxy,
     const std::string& facet,
@@ -121,8 +114,7 @@ std::optional<Prx> checkedCast(
  * @return A proxy with the requested type and facet, or nullopt if the source proxy is nullopt, if the target object
  * does not have the requested facet, or if the facet is not of the requested type.
  */
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 std::optional<Prx> checkedCast(
     const std::optional<ObjectPrx>& proxy,
     const std::string& facet,
@@ -167,8 +159,7 @@ operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs)
 
 ICE_API ::std::ostream& operator<<(::std::ostream&, const ObjectPrx&);
 
-template<typename Prx,
-         std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 inline ::std::ostream& operator<<(::std::ostream& os, const std::optional<Prx>& proxy)
 {
     if (proxy)

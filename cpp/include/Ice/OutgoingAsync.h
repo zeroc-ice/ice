@@ -16,8 +16,6 @@
 #include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/LocalException.h>
-#include "ReferenceF.h"
-#include "BatchRequestQueueF.h"
 #include "Proxy.h"
 
 #include <exception>

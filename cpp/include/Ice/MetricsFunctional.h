@@ -32,19 +32,11 @@ template<typename R> struct ReferenceWrapper<const ::std::shared_ptr<R>& >
     }
 };
 
-template<typename R> struct ReferenceWrapper<const ::std::optional<R>>
+template<typename R> struct ReferenceWrapper<const ::std::optional<R>&>
 {
     static R* get(const ::std::optional<R>& v)
     {
         return v ? const_cast<R*>(&v.value()) : nullptr;
-    }
-};
-
-template<typename R> struct ReferenceWrapper<::std::optional<R>>
-{
-    static R* get(const ::std::optional<R>& v)
-    {
-        return v ? &v.value() : nullptr;
     }
 };
 

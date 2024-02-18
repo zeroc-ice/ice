@@ -329,7 +329,7 @@ private:
         //
         ++_p;
 
-        auto p = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(_admin->ice_facet(facet));
+        auto p = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(_admin, facet);
         p->setPropertiesAsync(props,
                               [self = shared_from_this()]
                               {

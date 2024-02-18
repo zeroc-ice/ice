@@ -709,7 +709,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
     const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
     if(locator && serverId != "")
     {
-        ProcessPrx process = Ice::uncheckedCast<ProcessPrx>(admin->ice_facet("Process"));
+        ProcessPrx process = Ice::uncheckedCast<ProcessPrx>(admin, "Process");
         try
         {
             //

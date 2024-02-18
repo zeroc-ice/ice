@@ -1470,7 +1470,7 @@ Parser::writeMessage(const list<string>& args, int fd)
         string server = *p++;
 
         auto serverAdmin = _admin->getServerAdmin(server);
-        auto process = Ice::uncheckedCast<Ice::ProcessPrx>(serverAdmin->ice_facet("Process"));
+        auto process = Ice::uncheckedCast<Ice::ProcessPrx>(serverAdmin, "Process");
 
         process->writeMessage(*p,  fd);
     }
@@ -1626,7 +1626,7 @@ Parser::propertiesServer(const list<string>& args, bool single)
     try
     {
         auto serverAdmin = _admin->getServerAdmin(args.front());
-        auto propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(serverAdmin->ice_facet("Properties"));
+        auto propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(serverAdmin, "Properties");
 
         if(single)
         {
@@ -1717,7 +1717,7 @@ Parser::startService(const list<string>& args)
     try
     {
         auto admin = _admin->getServerAdmin(server);
-        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin->ice_facet("IceBox.ServiceManager"));
+        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin, "IceBox.ServiceManager");
         manager->startService(service);
     }
     catch(const IceBox::AlreadyStartedException&)
@@ -1756,7 +1756,7 @@ Parser::stopService(const list<string>& args)
     try
     {
         auto admin = _admin->getServerAdmin(server);
-        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin->ice_facet("IceBox.ServiceManager"));
+        auto manager = Ice::uncheckedCast<IceBox::ServiceManagerPrx>(admin, "IceBox.ServiceManager");
         manager->stopService(service);
     }
     catch(const IceBox::AlreadyStoppedException&)
@@ -1881,11 +1881,11 @@ Parser::propertiesService(const list<string>& args, bool single)
         Ice::PropertiesAdminPrxPtr propAdmin;
         if(getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0)
         {
-            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin->ice_facet("IceBox.SharedCommunicator.Properties"));
+            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.SharedCommunicator.Properties");
         }
         else
         {
-            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin->ice_facet("IceBox.Service." + service + ".Properties"));
+            propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.Service." + service + ".Properties");
         }
 
         if(single)
@@ -2461,7 +2461,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
     try
     {
-        loggerAdmin = Ice::checkedCast<Ice::LoggerAdminPrx>(admin->ice_facet("Logger"));
+        loggerAdmin = Ice::checkedCast<Ice::LoggerAdminPrx>(admin, "Logger");
     }
     catch(const Ice::Exception&)
     {

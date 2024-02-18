@@ -176,7 +176,7 @@ public:
         return _id;
     }
 
-    const Ice::ObjectPrxPtr
+    const Ice::ObjectPrxPtr&
     getProxy() const
     {
         return _proxy;

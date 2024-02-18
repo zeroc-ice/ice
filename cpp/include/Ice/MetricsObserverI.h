@@ -283,8 +283,7 @@ protected:
            return p->ice_toString();
         }
 
-        template<typename Prx,
-                 typename std::enable_if<std::is_base_of<Ice::ObjectPrx, Prx>::value>::type* = nullptr>
+        template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
         static const std::string
         toString(const std::optional<Prx>& p)
         {

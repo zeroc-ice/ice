@@ -931,7 +931,7 @@ public:
      * Reads a typed proxy from the stream.
      * @param v The proxy as a user-defined type.
      */
-    template<typename Prx, typename std::enable_if<std::is_base_of<ObjectPrx, Prx>::value>::type* = nullptr>
+    template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
     void read(std::optional<Prx>& v)
     {
         IceInternal::ReferencePtr ref = readReference();
