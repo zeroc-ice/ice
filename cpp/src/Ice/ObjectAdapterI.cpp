@@ -1099,7 +1099,15 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, _publishedEndpoints);
-    return _instance->proxyFactory()->referenceToProxy(ref);
+
+    if (ref)
+    {
+        return ObjectPrx::_fromReference(std::move(ref));
+    }
+    else
+    {
+        return std::nullopt;
+    }
 }
 
 std::optional<ObjectPrx>
@@ -1113,7 +1121,14 @@ Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet
     //
     // Return a proxy for the reference.
     //
-    return _instance->proxyFactory()->referenceToProxy(ref);
+    if (ref)
+    {
+        return ObjectPrx::_fromReference(std::move(ref));
+    }
+    else
+    {
+        return std::nullopt;
+    }
 }
 
 void

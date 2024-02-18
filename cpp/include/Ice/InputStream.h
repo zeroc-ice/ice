@@ -937,7 +937,7 @@ public:
         IceInternal::ReferencePtr ref = readReference();
         if (ref)
         {
-            v.emplace(ref);
+            v = Prx::_fromReference(ref);
         }
         else
         {

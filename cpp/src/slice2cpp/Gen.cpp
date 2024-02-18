@@ -2526,22 +2526,11 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(::std::move(other))";
     H << sb << eb;
     H << sp;
-    H << nl << "/// \\cond INTERNAL";
-    H << nl << "explicit " << prx << "(const ::IceInternal::ReferencePtr& ref) : ::Ice::ObjectPrx(ref)";
+    H << nl << prx << "(const ::std::shared_ptr<::Ice::Communicator>& communicator, const ::std::string& proxyString) :";
+    H.inc();
+    H << nl << "::Ice::ObjectPrx(communicator, proxyString)";
+    H.dec();
     H << sb << eb;
-    H << nl << "/// \\endcond";
-    if (!bases.empty())
-    {
-        // -Wextra wants to initialize all the virtual base classes _in the right order_, which is not practical, and
-        // is useless here.
-        H << sp;
-        H.zeroIndent();
-        H << nl << "#if defined(__GNUC__)";
-        H << nl << "#   pragma GCC diagnostic pop";
-        H << nl << "#endif";
-        H.restoreIndent();
-    }
-
     H << sp;
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;
@@ -2554,14 +2543,32 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << "::Ice::ObjectPrx::operator=(::std::move(rhs));";
     H << nl << "return *this;";
     H << eb;
-
+    H << sp;
+    H << nl << "/// \\cond INTERNAL";
+    H << nl << "static " << prx <<
+        " _fromReference(::IceInternal::ReferencePtr ref) { return " << prx << "(::std::move(ref)); }";
     H.dec();
     H << sp << nl << "protected:";
     H.inc();
     H << sp;
-    H << nl << "/// \\cond INTERNAL";
     H << nl << prx << "() = default;";
+    H << sp;
+    H << nl << "explicit " << prx << "(::IceInternal::ReferencePtr&& ref) : ::Ice::ObjectPrx(::std::move(ref))";
+    H << sb << eb;
     H << nl << "/// \\endcond";
+
+    if (!bases.empty())
+    {
+        // -Wextra wants to initialize all the virtual base classes _in the right order_, which is not practical, and
+        // is useless here.
+        H << sp;
+        H.zeroIndent();
+        H << nl << "#if defined(__GNUC__)";
+        H << nl << "#   pragma GCC diagnostic pop";
+        H << nl << "#endif";
+        H.restoreIndent();
+    }
+
     H << eb << ';';
 
     C << sp;

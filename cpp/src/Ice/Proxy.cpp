@@ -9,6 +9,8 @@
 #include "RouterInfo.h"
 #include "LocatorInfo.h"
 #include "Ice/LocalException.h"
+#include "Instance.h"
+#include "ReferenceFactory.h"
 #include "RequestHandlerCache.h"
 #include "ConnectionI.h"
 
@@ -23,11 +25,35 @@ const Context noExplicitContext;
 
 }
 
-Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
-    _reference(ref),
-    _requestHandlerCache(make_shared<RequestHandlerCache>(ref))
+namespace
 {
-    assert(ref);
+
+inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, const string& proxyString)
+{
+    if (!communicator)
+    {
+        throw std::invalid_argument("communicator cannot be null");
+    }
+
+    ReferencePtr ref = getInstance(communicator)->referenceFactory()->create(proxyString, "");
+    if (!ref)
+    {
+        throw std::invalid_argument("invalid proxyString");
+    }
+    return ref;
+}
+
+}
+
+Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, const string& proxyString) :
+    ObjectPrx(createReference(communicator, proxyString))
+{
+}
+
+Ice::ObjectPrx::ObjectPrx(ReferencePtr&& ref) :
+    _reference(std::move(ref)),
+    _requestHandlerCache(make_shared<RequestHandlerCache>(_reference))
+{
 }
 
 void

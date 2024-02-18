@@ -26,7 +26,14 @@ std::optional<ObjectPrx>
 IceInternal::ProxyFactory::stringToProxy(const string& str) const
 {
     ReferencePtr ref = _instance->referenceFactory()->create(str, "");
-    return referenceToProxy(ref);
+    if (ref)
+    {
+        return ObjectPrx::_fromReference(std::move(ref));
+    }
+    else
+    {
+        return nullopt;
+    }
 }
 
 string
@@ -40,19 +47,20 @@ IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
 {
     string proxy = _instance->initializationData().properties->getProperty(prefix);
     ReferencePtr ref = _instance->referenceFactory()->create(proxy, prefix);
-    return referenceToProxy(ref);
+    if (ref)
+    {
+        return ObjectPrx::_fromReference(std::move(ref));
+    }
+    else
+    {
+        return nullopt;
+    }
 }
 
 PropertyDict
 IceInternal::ProxyFactory::proxyToProperty(const std::optional<ObjectPrx>& proxy, const string& prefix) const
 {
     return proxy ? proxy->_getReference()->toProperty(prefix) : PropertyDict();
-}
-
-std::optional<ObjectPrx>
-IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
-{
-    return ref ? make_optional<ObjectPrx>(ref) : nullopt;
 }
 
 IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :

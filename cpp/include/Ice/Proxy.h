@@ -59,8 +59,19 @@ class Proxy : public virtual Bases...
 {
 public:
 
-    Prx* operator->() { return static_cast<Prx*>(this); }
+    /**
+     * The arrow operator.
+     * @return A pointer to this object.
+     * @remark This operator is provided for aesthetics and for compatibility reasons. A proxy is not pointer-like: it
+     * does not hold a value and can't be null. Calling `greeter->greet("bob")` is 100% equivalent to calling
+     * `greeter.greet("bob")` when greeter is a GreeterPrx proxy. An advantage of the arrow syntax is it's the same
+     * whether greeter is a GreeterPrx, an optional<GreeterPrx>, or a smart pointer like in earlier versions of Ice.
+     * It's also aesthetically pleasing when making invocations: the proxy appears like a pointer to the remote object.
+     */
     const Prx* operator->() const { return &asPrx(); }
+
+    // We don't provide the non-const operator-> because only the assignment operators can modify the proxy - and you
+    // shouldn't call operator-> before calling operator=.
 
     /**
      * Obtains a proxy that is identical to this proxy, except for the adapter ID.
@@ -301,7 +312,7 @@ private:
     Prx fromReference(IceInternal::ReferencePtr&& ref) const
     {
         const Prx& self = asPrx();
-        return ref == self._reference ? self : Prx(std::move(ref));
+        return ref == self._reference ? self : Prx::_fromReference(std::move(ref));
     }
 
     const Prx& asPrx() const { return *static_cast<const Prx*>(this); }
@@ -318,14 +329,12 @@ public:
     ObjectPrx(const ObjectPrx& other) noexcept = default;
     ObjectPrx(ObjectPrx&&) noexcept = default;
 
+    ObjectPrx(const std::shared_ptr<Ice::Communicator>& communicator, const std::string& proxyString);
+
     virtual ~ObjectPrx() = default;
 
     ObjectPrx& operator=(const ObjectPrx& rhs) noexcept = default;
     ObjectPrx& operator=(ObjectPrx&& rhs) noexcept = default;
-
-    /// \cond INTERNAL
-    explicit ObjectPrx(const IceInternal::ReferencePtr&) noexcept;
-    /// \endcond
 
     /**
      * Obtains the communicator that created this proxy.
@@ -795,7 +804,7 @@ public:
     /**
      * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
      */
-    void ice_flushBatchRequests();
+    void ice_flushBatchRequests() const;
 
     /**
      * Flushes asynchronously any pending batched requests for this communicator.
@@ -816,8 +825,10 @@ public:
     /// \cond INTERNAL
     void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&) const;
 
-    const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
+    static ObjectPrx _fromReference(IceInternal::ReferencePtr ref) { return ObjectPrx(std::move(ref)); }
+
     const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
+    const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
 
     void _checkTwowayOnly(const std::string&) const;
 
@@ -831,6 +842,9 @@ protected:
     /// \cond INTERNAL
     // This constructor is never called; it allows Proxy's default constructor to compile.
     ObjectPrx() = default;
+
+    // The constructor used by _fromReference.
+    explicit ObjectPrx(IceInternal::ReferencePtr&&);
 
     template<typename R, template<typename> class P = ::std::promise, typename Obj, typename Fn, typename... Args>
     auto _makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args) const

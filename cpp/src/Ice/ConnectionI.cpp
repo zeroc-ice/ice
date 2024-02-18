@@ -1283,8 +1283,17 @@ optional<ObjectPrx>
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
     // Create a reference and return a reverse proxy for this reference.
-    return _instance->proxyFactory()->referenceToProxy(
-        _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this()));
+    ReferencePtr ref =
+        _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this());
+
+    if (ref)
+    {
+        return ObjectPrx::_fromReference(std::move(ref));
+    }
+    else
+    {
+        return std::nullopt;
+    }
 }
 
 void

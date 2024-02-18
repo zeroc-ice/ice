@@ -35,8 +35,6 @@ public:
     std::optional<Ice::ObjectPrx> propertyToProxy(const std::string&) const;
     Ice::PropertyDict proxyToProperty(const std::optional<Ice::ObjectPrx>&, const std::string&) const;
 
-    std::optional<Ice::ObjectPrx> referenceToProxy(const ReferencePtr&) const;
-
 private:
 
     InstancePtr _instance;

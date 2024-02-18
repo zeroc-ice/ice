@@ -494,7 +494,7 @@ Ice::ObjectPrx::_iceI_getConnection(const shared_ptr<ProxyGetConnection>& outAsy
     outAsync->invoke(ice_getConnection_name);
 }
 
-void Ice::ObjectPrx::ice_flushBatchRequests()
+void Ice::ObjectPrx::ice_flushBatchRequests() const
 {
     return ice_flushBatchRequestsAsync().get();
 }
