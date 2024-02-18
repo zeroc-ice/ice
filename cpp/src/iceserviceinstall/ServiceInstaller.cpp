@@ -59,7 +59,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     {
         auto defaultLocator = Ice::uncheckedCast<LocatorPrx>(
             _communicator->stringToProxy(_serviceProperties->getProperty("Ice.Default.Locator")));
-        if(defaultLocator != 0)
+        if(defaultLocator != nullopt)
         {
             _icegridInstanceName = defaultLocator->ice_getIdentity().category;
         }
