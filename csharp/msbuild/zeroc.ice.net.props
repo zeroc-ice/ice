@@ -28,6 +28,12 @@
                         <IceToolsPath>/usr/local/bin</IceToolsPath>
                     </PropertyGroup>
                 </When>
+                <!-- For Homebrew on macOS with Apple Silicon   -->
+                <When Condition="Exists('/opt/homebrew/bin/slice2cs')">
+                    <PropertyGroup>
+                        <IceToolsPath>/opt/homebrew/bin/slice2cs</IceToolsPath>
+                    </PropertyGroup>
+                </When>
             </Choose>
         </When>
     </Choose>
