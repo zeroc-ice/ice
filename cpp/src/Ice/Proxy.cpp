@@ -137,7 +137,7 @@ Ice::ObjectPrx::ice_getEndpoints() const
     return retSeq;
 }
 
-Int
+int32_t
 Ice::ObjectPrx::ice_getLocatorCacheTimeout() const
 {
     return _reference->getLocatorCacheTimeout();
@@ -193,7 +193,7 @@ Ice::ObjectPrx::ice_isCollocationOptimized() const
     return _reference->getCollocationOptimized();
 }
 
-Int
+int32_t
 Ice::ObjectPrx::ice_getInvocationTimeout() const
 {
     return _reference->getInvocationTimeout();
@@ -276,7 +276,7 @@ Ice::ObjectPrx::ice_toString() const
     return _reference->toString();
 }
 
-Int
+int32_t
 Ice::ObjectPrx::_hash() const
 {
     return _reference->hash();
@@ -477,7 +477,7 @@ Ice::ObjectPrx::_fixed(const ::Ice::ConnectionPtr& connection) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_invocationTimeout(Int newTimeout) const
+Ice::ObjectPrx::_invocationTimeout(int32_t newTimeout) const
 {
     if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
     {
@@ -510,7 +510,7 @@ Ice::ObjectPrx::_locator(const std::optional<LocatorPrx>& locator) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_locatorCacheTimeout(Int newTimeout) const
+Ice::ObjectPrx::_locatorCacheTimeout(int32_t newTimeout) const
 {
     if (newTimeout < -1)
     {

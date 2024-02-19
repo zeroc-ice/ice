@@ -16,17 +16,17 @@ public:
     virtual void shutdown(const Ice::Current&);
     virtual PingPongMarshaledResult pingPong(Ice::ValuePtr, const Ice::Current&);
 
-    virtual void opOptionalException(std::optional<::Ice::Int>,
+    virtual void opOptionalException(std::optional<::std::int32_t>,
                                      std::optional<::std::string>,
                                      std::optional<Test::OneOptionalPtr>,
                                      const Ice::Current&);
 
-    virtual void opDerivedException(std::optional<::Ice::Int>,
+    virtual void opDerivedException(std::optional<::std::int32_t>,
                                     std::optional<::std::string>,
                                     std::optional<Test::OneOptionalPtr>,
                                     const Ice::Current&);
 
-    virtual void opRequiredException(std::optional<::Ice::Int>,
+    virtual void opRequiredException(std::optional<::std::int32_t>,
                                      std::optional<::std::string>,
                                      std::optional<Test::OneOptionalPtr>,
                                      const Ice::Current&);
@@ -42,8 +42,8 @@ public:
                                                      std::optional<::Ice::Short>&,
                                                      const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Int> opInt(std::optional<::Ice::Int>,
-                                                 std::optional<::Ice::Int>&,
+    virtual std::optional<::std::int32_t> opInt(std::optional<::std::int32_t>,
+                                                 std::optional<::std::int32_t>&,
                                                  const ::Ice::Current&);
 
     virtual std::optional<std::int64_t> opLong(std::optional<std::int64_t>,
@@ -106,7 +106,7 @@ public:
         const ::Ice::Current&);
 
     virtual std::optional<::Test::IntSeq> opIntSeq(
-        std::optional<::std::pair<const ::Ice::Int*, const ::Ice::Int*> >,
+        std::optional<::std::pair<const ::std::int32_t*, const ::std::int32_t*> >,
         std::optional<::Test::IntSeq>&,
         const ::Ice::Current&);
 

@@ -765,7 +765,7 @@ EndpointHelper::Attributes EndpointHelper::attributes;
 }
 
 void
-ConnectionObserverI::sentBytes(Int num)
+ConnectionObserverI::sentBytes(int32_t num)
 {
     forEach(add(&ConnectionMetrics::sentBytes, num));
     if(_delegate)
@@ -775,7 +775,7 @@ ConnectionObserverI::sentBytes(Int num)
 }
 
 void
-ConnectionObserverI::receivedBytes(Int num)
+ConnectionObserverI::receivedBytes(int32_t num)
 {
     forEach(add(&ConnectionMetrics::receivedBytes, num));
     if(_delegate)
@@ -806,7 +806,7 @@ DispatchObserverI::userException()
 }
 
 void
-DispatchObserverI::reply(Int size)
+DispatchObserverI::reply(int32_t size)
 {
     forEach(add(&DispatchMetrics::replySize, size));
     if(_delegate)
@@ -816,7 +816,7 @@ DispatchObserverI::reply(Int size)
 }
 
 void
-RemoteObserverI::reply(Int size)
+RemoteObserverI::reply(int32_t size)
 {
     forEach(add(&RemoteMetrics::replySize, size));
     if(_delegate)
@@ -826,7 +826,7 @@ RemoteObserverI::reply(Int size)
 }
 
 void
-CollocatedObserverI::reply(Int size)
+CollocatedObserverI::reply(int32_t size)
 {
     forEach(add(&CollocatedMetrics::replySize, size));
     if(_delegate)

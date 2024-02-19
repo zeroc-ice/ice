@@ -17,8 +17,8 @@ class UdpEndpointI final : public IPEndpointI
 {
 public:
 
-    UdpEndpointI(const ProtocolInstancePtr&, const std::string&, Ice::Int, const Address&, const std::string&,
-                 Ice::Int, bool, const std::string&, bool);
+    UdpEndpointI(const ProtocolInstancePtr&, const std::string&, std::int32_t, const Address&, const std::string&,
+                 std::int32_t, bool, const std::string&, bool);
     UdpEndpointI(const ProtocolInstancePtr&);
     UdpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 
@@ -26,8 +26,8 @@ public:
 
     Ice::EndpointInfoPtr getInfo() const noexcept final;
 
-    Ice::Int timeout() const final;
-    EndpointIPtr timeout(Ice::Int) const final;
+    std::int32_t timeout() const final;
+    EndpointIPtr timeout(std::int32_t) const final;
     bool compress() const final;
     EndpointIPtr compress(bool) const final;
     bool datagram() const final;
@@ -47,7 +47,7 @@ public:
 
 protected:
 
-    void hashInit(Ice::Int&) const final;
+    void hashInit(std::int32_t&) const final;
     void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
     bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
@@ -59,7 +59,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
-    const Ice::Int _mcastTtl;
+    const std::int32_t _mcastTtl;
     const std::string _mcastInterface;
     const bool _connect;
     const bool _compress;

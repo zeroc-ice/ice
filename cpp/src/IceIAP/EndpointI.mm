@@ -105,7 +105,7 @@ IceObjC::iAPEndpointI::iAPEndpointI(const ProtocolInstancePtr& instance, InputSt
     s->read(const_cast<string&>(_modelNumber), false);
     s->read(const_cast<string&>(_name), false);
     s->read(const_cast<string&>(_protocol), false);
-    s->read(const_cast<Int&>(_timeout));
+    s->read(const_cast<int32_t&>(_timeout));
     s->read(const_cast<bool&>(_compress));
 }
 
@@ -606,12 +606,12 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
         {
             if(argument == "infinite")
             {
-                const_cast<Int&>(_timeout) = -1;
+                const_cast<int32_t&>(_timeout) = -1;
             }
             else
             {
                 istringstream t(argument);
-                if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
+                if(!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
                     ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;

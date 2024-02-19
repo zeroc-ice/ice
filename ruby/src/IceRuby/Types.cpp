@@ -37,7 +37,7 @@ static VALUE _typeInfoClass, _exceptionInfoClass, _unsetTypeClass;
 typedef map<string, ClassInfoPtr> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
 
-typedef map<Ice::Int, ClassInfoPtr> CompactIdMap;
+typedef map<int32_t, ClassInfoPtr> CompactIdMap;
 static CompactIdMap _compactIdMap;
 
 typedef map<string, ProxyInfoPtr> ProxyInfoMap;
@@ -350,7 +350,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 info->typeId = getString(typeId);
 
                 volatile VALUE compactId = callRuby(rb_iv_get, s, "@compactId");
-                info->compactId = static_cast<Ice::Int>(getInteger(compactId));
+                info->compactId = static_cast<int32_t>(getInteger(compactId));
 
                 volatile VALUE bytes = callRuby(rb_iv_get, s, "@bytes");
                 assert(TYPE(bytes) == T_STRING);
@@ -574,7 +574,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
         long i = getInteger(p);
         if(i >= INT_MIN && i <= INT_MAX)
         {
-            os->write(static_cast<Ice::Int>(i));
+            os->write(static_cast<int32_t>(i));
             break;
         }
         throw RubyException(rb_eTypeError, "value is out of range for an int");
@@ -654,7 +654,7 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
     }
     case PrimitiveInfo::KindInt:
     {
-        Ice::Int i;
+        int32_t i;
         is->read(i);
         val = callRuby(rb_int2inum, i);
         break;
@@ -760,7 +760,7 @@ struct EnumDefinitionIterator : public IceRuby::HashIterator
 
     virtual void element(VALUE key, VALUE value)
     {
-        const Ice::Int v = static_cast<Ice::Int>(getInteger(key));
+        const int32_t v = static_cast<int32_t>(getInteger(key));
         assert(enumerators.find(v) == enumerators.end());
         enumerators[v] = value;
 
@@ -770,7 +770,7 @@ struct EnumDefinitionIterator : public IceRuby::HashIterator
         }
     }
 
-    Ice::Int maxValue;
+    int32_t maxValue;
     IceRuby::EnumeratorMap enumerators;
 };
 }
@@ -783,7 +783,7 @@ IceRuby::EnumInfo::EnumInfo(VALUE ident, VALUE t, VALUE e) :
     EnumDefinitionIterator iter;
     hashIterate(e, iter);
 
-    const_cast<Ice::Int&>(maxValue) = iter.maxValue;
+    const_cast<int32_t&>(maxValue) = iter.maxValue;
     const_cast<EnumeratorMap&>(enumerators) = iter.enumerators;
 }
 
@@ -826,7 +826,7 @@ IceRuby::EnumInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
     // Validate value.
     //
     volatile VALUE val = callRuby(rb_iv_get, p, "@value");
-    const Ice::Int ival = static_cast<Ice::Int>(getInteger(val));
+    const int32_t ival = static_cast<int32_t>(getInteger(val));
     if(enumerators.find(ival) == enumerators.end())
     {
         throw RubyException(rb_eRangeError, "invalid enumerator %ld for enum %s", ival, id.c_str());
@@ -839,7 +839,7 @@ void
 IceRuby::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure,
                              bool)
 {
-    Ice::Int val = is->readEnum(maxValue);
+    int32_t val = is->readEnum(maxValue);
 
     EnumeratorMap::const_iterator p = enumerators.find(val);
     if(p == enumerators.end())
@@ -1241,7 +1241,7 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMa
         }
 
         long sz = RARRAY_LEN(arr);
-        os->writeSize(static_cast<Ice::Int>(sz));
+        os->writeSize(static_cast<int32_t>(sz));
         for(long i = 0; i < sz; ++i)
         {
             if(!elementType->validate(RARRAY_AREF(arr, i)))
@@ -1286,10 +1286,10 @@ IceRuby::SequenceInfo::unmarshal(
         return;
     }
 
-    Ice::Int sz = is->readSize();
+    int32_t sz = is->readSize();
     volatile VALUE arr = createArray(sz);
 
-    for(Ice::Int i = 0; i < sz; ++i)
+    for(int32_t i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
         elementType->unmarshal(is, shared_from_this(), arr, cl, false);
@@ -1416,7 +1416,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             const long len = RSTRING_LEN(str);
             if(s == 0 || len == 0)
             {
-                os->write(Ice::Int(0));
+                os->write(int32_t(0));
             }
             else
             {
@@ -1459,7 +1459,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
     case PrimitiveInfo::KindInt:
     {
         long sz = RARRAY_LEN(arr);
-        Ice::IntSeq seq(static_cast<size_t>(sz));
+        IntSeq seq(static_cast<size_t>(sz));
         for(long i = 0; i < sz; ++i)
         {
             long val = getInteger(RARRAY_AREF(arr, i));
@@ -1467,7 +1467,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             {
                 throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<int>", i);
             }
-            seq[static_cast<size_t>(i)] = static_cast<Ice::Int>(val);
+            seq[static_cast<size_t>(i)] = static_cast<int32_t>(val);
         }
         os->write(seq);
         break;
@@ -1591,7 +1591,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
     }
     case PrimitiveInfo::KindInt:
     {
-        pair<const Ice::Int*, const Ice::Int*> p;
+        pair<const int32_t*, const int32_t*> p;
         is->read(p);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
@@ -1765,10 +1765,10 @@ IceRuby::DictionaryInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* value
         }
     }
 
-    Ice::Int sz = 0;
+    int32_t sz = 0;
     if(!NIL_P(hash))
     {
-        sz = static_cast<Ice::Int>(RHASH_SIZE(hash));
+        sz = static_cast<int32_t>(RHASH_SIZE(hash));
     }
 
     Ice::OutputStream::size_type sizePos = 0;
@@ -1842,8 +1842,8 @@ IceRuby::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallback
     KeyCallbackPtr keyCB = make_shared<KeyCallback>();
     keyCB->key = Qnil;
 
-    Ice::Int sz = is->readSize();
-    for(Ice::Int i = 0; i < sz; ++i)
+    int32_t sz = is->readSize();
+    for(int32_t i = 0; i < sz; ++i)
     {
         //
         // A dictionary key cannot be a class (or contain one), so the key must be
@@ -1999,7 +1999,7 @@ IceRuby::ClassInfo::define(VALUE t, VALUE compact, VALUE pres, VALUE intf, VALUE
         assert(base);
     }
 
-    const_cast<Ice::Int&>(compactId) = static_cast<Ice::Int>(getInteger(compact));
+    const_cast<int32_t&>(compactId) = static_cast<int32_t>(getInteger(compact));
     const_cast<bool&>(preserve) = RTEST(pres);
     const_cast<bool&>(interface) = RTEST(intf);
     convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers), true);

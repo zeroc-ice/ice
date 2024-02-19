@@ -23,7 +23,7 @@ namespace IceInternal
 // Compression status (Byte)
 // Message size (Int)
 //
-const ::Ice::Int headerSize = 14;
+const ::std::int32_t headerSize = 14;
 
 //
 // The magic number at the front of each message
@@ -53,8 +53,8 @@ const ::Ice::Byte closeConnectionMsg = 4;
 //
 // The request header, batch request header and reply header.
 //
-extern const ::Ice::Byte requestHdr[headerSize + sizeof(Ice::Int)];
-extern const ::Ice::Byte requestBatchHdr[headerSize + sizeof(Ice::Int)];
+extern const ::Ice::Byte requestHdr[headerSize + sizeof(std::int32_t)];
+extern const ::Ice::Byte requestBatchHdr[headerSize + sizeof(std::int32_t)];
 extern const ::Ice::Byte replyHdr[headerSize];
 
 //

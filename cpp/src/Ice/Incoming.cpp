@@ -41,7 +41,7 @@ Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
 
 IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* responseHandler,
                                         Ice::Connection* connection, const ObjectAdapterPtr& adapter,
-                                        bool response, Byte compress, Int requestId) :
+                                        bool response, Byte compress, int32_t requestId) :
     _response(response),
     _compress(compress),
     _format(Ice::FormatType::DefaultFormat),
@@ -111,7 +111,7 @@ IncomingBase::writeEmptyParams()
 }
 
 void
-IncomingBase::writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
+IncomingBase::writeParamEncaps(const Byte* v, int32_t sz, bool ok)
 {
     if(!ok)
     {
@@ -154,7 +154,7 @@ IceInternal::IncomingBase::response(bool amd)
         assert(_responseHandler);
         if(_response)
         {
-            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
+            _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
@@ -354,7 +354,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
 
             _os.write(rfe.operation, false);
 
-            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
+            _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
@@ -377,7 +377,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _os.startEncapsulation(_current.encoding, _format);
             _os.write(uex);
             _os.endEncapsulation();
-            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
+            _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
@@ -459,7 +459,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
                 _os.write(str.str(), false);
             }
 
-            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
+            _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
@@ -490,7 +490,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
             str << "c++ exception: " << exceptionId;
             _os.write(str.str(), false);
 
-            _observer.reply(static_cast<Int>(_os.b.size() - headerSize - 4));
+            _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
         }
         else
@@ -504,7 +504,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
 }
 
 IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection,
-                                const ObjectAdapterPtr& adapter, bool response, Byte compress, Int requestId) :
+                                const ObjectAdapterPtr& adapter, bool response, Byte compress, int32_t requestId) :
     IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
     _inParamPos(0)
 {
@@ -583,7 +583,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
     _is->read(b);
     _current.mode = static_cast<OperationMode>(b);
 
-    Int sz = _is->readSize();
+    int32_t sz = _is->readSize();
     while(sz--)
     {
         pair<const string, string> pr;
@@ -596,11 +596,11 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
     if(obsv)
     {
         // Read the parameter encapsulation size.
-        Ice::Int encapsSize;
+        int32_t encapsSize;
         _is->read(encapsSize);
         _is->i -= 4;
 
-        _observer.attach(obsv->getDispatchObserver(_current, static_cast<Int>(_is->i - start + encapsSize)));
+        _observer.attach(obsv->getDispatchObserver(_current, static_cast<int32_t>(_is->i - start + encapsSize)));
     }
 
     //

@@ -302,7 +302,7 @@ IcePHP::OperationI::convertParams(zval* p, ParamInfoList& params, bool& usesClas
     assert(Z_TYPE_P(p) == IS_ARRAY);
     HashTable* arr = Z_ARRVAL_P(p);
     zval* val;
-    Ice::Int i = 0;
+    int32_t i = 0;
     ZEND_HASH_FOREACH_VAL(arr, val)
     {
         ParamInfoPtr param = convertParam(val, i++);

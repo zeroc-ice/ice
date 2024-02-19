@@ -100,7 +100,7 @@ public:
     }
 
     virtual bool
-    fileListProgress(Ice::Int percent)
+    fileListProgress(int32_t percent)
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {

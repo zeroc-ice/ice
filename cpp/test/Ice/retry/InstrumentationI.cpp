@@ -53,13 +53,13 @@ public:
     }
 
     virtual ::Ice::Instrumentation::RemoteObserverPtr
-    getRemoteObserver(const ::Ice::ConnectionInfoPtr&, const ::Ice::EndpointPtr&, ::Ice::Int, ::Ice::Int)
+    getRemoteObserver(const ::Ice::ConnectionInfoPtr&, const ::Ice::EndpointPtr&, ::int32_t, ::int32_t)
     {
         return nullptr;
     }
 
     virtual ::Ice::Instrumentation::CollocatedObserverPtr
-    getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::Ice::Int, ::Ice::Int)
+    getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::int32_t, ::int32_t)
     {
         return nullptr;
     }
@@ -109,7 +109,7 @@ public:
     }
 
     virtual Ice::Instrumentation::DispatchObserverPtr
-    getDispatchObserver(const Ice::Current&, Ice::Int)
+    getDispatchObserver(const Ice::Current&, int32_t)
     {
         return nullptr;
     }

@@ -651,7 +651,7 @@ proxyIceGetLocatorCacheTimeout(ProxyObject* self, PyObject* /*args*/)
 
     try
     {
-        Ice::Int timeout = (*self->proxy)->ice_getLocatorCacheTimeout();
+        int32_t timeout = (*self->proxy)->ice_getLocatorCacheTimeout();
         return PyLong_FromLong(timeout);
     }
     catch(const Ice::Exception& ex)
@@ -671,7 +671,7 @@ proxyIceGetInvocationTimeout(ProxyObject* self, PyObject* /*args*/)
 
     try
     {
-        Ice::Int timeout = (*self->proxy)->ice_getInvocationTimeout();
+        int32_t timeout = (*self->proxy)->ice_getInvocationTimeout();
         return PyLong_FromLong(timeout);
     }
     catch(const Ice::Exception& ex)

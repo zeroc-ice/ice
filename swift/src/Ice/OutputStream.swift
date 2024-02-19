@@ -347,7 +347,7 @@ public extension OutputStream {
 
     func endSize(position: Int32) {
         precondition(position > 0)
-        write(bytesOf: Int32(data.count) - position - 4, at: Int(position))
+        write(bytesOf: Int32(data.count) - position - 4, at:int32_t(position))
     }
 
     /// Writes an enumerator to the stream.
@@ -748,7 +748,7 @@ private final class EncapsEncoder10: EncapsEncoder {
         // Write the slice length.
         //
         let sz = Int32(os.getCount()) - writeSlice + 4
-        os.write(bytesOf: sz, at: Int(writeSlice - 4))
+        os.write(bytesOf: sz, at:int32_t(writeSlice - 4))
     }
 
     func writePendingValues() {
@@ -954,7 +954,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         //
         if current.sliceFlags.contains(.FLAG_HAS_SLICE_SIZE) {
             let sz = Int32(os.getCount()) - current.writeSlice + 4
-            os.write(bytesOf: sz, at: Int(current.writeSlice - 4))
+            os.write(bytesOf: sz, at:int32_t(current.writeSlice - 4))
         }
 
         //
@@ -979,7 +979,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         //
         // Finally, update the slice flags.
         //
-        os.write(bytesOf: current.sliceFlags.rawValue, at: Int(current.sliceFlagsPos))
+        os.write(bytesOf: current.sliceFlags.rawValue, at:int32_t(current.sliceFlagsPos))
     }
 
     func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {

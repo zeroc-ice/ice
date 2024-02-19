@@ -38,10 +38,10 @@ public:
                         const Ice::Current&);
 
     virtual std::int64_t opShortIntLong(Ice::Short,
-                                     Ice::Int,
+                                     std::int32_t,
                                      std::int64_t,
                                      Ice::Short&,
-                                     Ice::Int&,
+                                     std::int32_t&,
                                      std::int64_t&,
                                      const Ice::Current&);
 
@@ -266,7 +266,7 @@ public:
 
     virtual Ice::Short opShort1(Ice::Short, const Ice::Current&);
 
-    virtual Ice::Int opInt1(Ice::Int, const Ice::Current&);
+    virtual std::int32_t opInt1(std::int32_t, const Ice::Current&);
 
     virtual std::int64_t opLong1(std::int64_t, const Ice::Current&);
 

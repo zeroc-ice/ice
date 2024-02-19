@@ -621,7 +621,7 @@ Activator::activate(const string& name,
 //         out << "activated server `" << name << "' (pid = " << pi.dwProcessId << ")";
 //     }
 
-    return static_cast<Ice::Int>(process.pid);
+    return static_cast<int32_t>(process.pid);
 #else
     struct passwd pwbuf;
     vector<char> buffer(4096); // 4KB initial buffer size
@@ -913,7 +913,7 @@ void
 Activator::deactivate(const string& name, const Ice::ProcessPrxPtr& process)
 {
 #ifdef _WIN32
-    Ice::Int pid = getServerPid(name);
+    int32_t pid = getServerPid(name);
     if(pid == 0)
     {
         //
@@ -981,7 +981,7 @@ Activator::sendSignal(const string& name, const string& signal)
 void
 Activator::sendSignal(const string& name, int signal)
 {
-    Ice::Int pid = getServerPid(name);
+    int32_t pid = getServerPid(name);
     if(pid == 0)
     {
         //

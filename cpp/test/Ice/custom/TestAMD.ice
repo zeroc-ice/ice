@@ -105,7 +105,7 @@ sequence<ClassOtherStruct> ClassOtherStructSeq;
 }
 sequence<ClassStruct> ClassStructSeq;
 
-["cpp:type:Test::CustomMap<Ice::Int, std::string>"] dictionary<int, string> IntStringDict;
+["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
 dictionary<long, long> LongLongDict;
 dictionary<string, int> StringIntDict;
 
@@ -116,7 +116,7 @@ class DictClass
 
 ["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Short>"] sequence<short> ShortBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Int>"] sequence<int> IntBuffer;
+["cpp:type:Test::CustomBuffer<std::int32_t>"] sequence<int> IntBuffer;
 ["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Float>"] sequence<float> FloatBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Double>"] sequence<double> DoubleBuffer;
@@ -221,13 +221,13 @@ struct BufferStruct
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
     ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict
-    opVarDict(["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict idict,
-              out ["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict odict);
+    opVarDict(["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict idict,
+              out ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict odict);
 
-    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict
+    ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict
     opCustomIntStringDict(
-        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict idict,
-        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict odict);
+        ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict idict,
+        out ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict odict);
 
     ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 

@@ -19,19 +19,19 @@ public:
     virtual bool supportsUndeclaredExceptions(const Ice::Current&);
     virtual bool supportsAssertException(const Ice::Current&);
 
-    virtual void throwAasA(Ice::Int, const Ice::Current&);
-    virtual void throwAorDasAorD(Ice::Int, const Ice::Current&);
-    virtual void throwBasA(Ice::Int, Ice::Int, const Ice::Current&);
-    virtual void throwCasA(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
-    virtual void throwBasB(Ice::Int, Ice::Int, const Ice::Current&);
-    virtual void throwCasB(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
-    virtual void throwCasC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwAasA(std::int32_t, const Ice::Current&);
+    virtual void throwAorDasAorD(std::int32_t, const Ice::Current&);
+    virtual void throwBasA(std::int32_t, std::int32_t, const Ice::Current&);
+    virtual void throwCasA(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&);
+    virtual void throwBasB(std::int32_t, std::int32_t, const Ice::Current&);
+    virtual void throwCasB(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&);
+    virtual void throwCasC(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&);
 
-    virtual void throwModA(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwModA(std::int32_t, std::int32_t, const Ice::Current&);
 
-    virtual void throwUndeclaredA(Ice::Int, const Ice::Current&);
-    virtual void throwUndeclaredB(Ice::Int, Ice::Int, const Ice::Current&);
-    virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwUndeclaredA(std::int32_t, const Ice::Current&);
+    virtual void throwUndeclaredB(std::int32_t, std::int32_t, const Ice::Current&);
+    virtual void throwUndeclaredC(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&);
     virtual void throwLocalException(const Ice::Current&);
     virtual void throwNonIceException(const Ice::Current&);
     virtual void throwAssertException(const Ice::Current&);

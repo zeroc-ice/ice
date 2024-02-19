@@ -282,9 +282,9 @@ TestIntfI::opIntStringDictAsync(Test::IntStringDict in,
 }
 
 void
-TestIntfI::opVarDictAsync(Test::CustomMap<std::string, Ice::Int> in,
+TestIntfI::opVarDictAsync(Test::CustomMap<std::string, int32_t> in,
                           std::function<void(const Test::CustomMap<int64_t, int64_t>&,
-                                              const Test::CustomMap<std::string, Ice::Int>&)> response,
+                                              const Test::CustomMap<std::string, int32_t>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     Test::CustomMap<int64_t, int64_t> result;
@@ -296,9 +296,9 @@ TestIntfI::opVarDictAsync(Test::CustomMap<std::string, Ice::Int> in,
 }
 
 void
-TestIntfI::opCustomIntStringDictAsync(std::map<Ice::Int, ::Util::string_view> in,
-                                      std::function<void(const std::map<Ice::Int, ::Util::string_view>&,
-                                                          const std::map<Ice::Int, ::Util::string_view>&)> response,
+TestIntfI::opCustomIntStringDictAsync(std::map<int32_t, ::Util::string_view> in,
+                                      std::function<void(const std::map<int32_t, ::Util::string_view>&,
+                                                          const std::map<int32_t, ::Util::string_view>&)> response,
                                       std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);

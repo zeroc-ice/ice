@@ -61,7 +61,7 @@ class PatcherI : public Patcher
 public:
 
     PatcherI(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
-    PatcherI(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
+    PatcherI(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, int32_t, int32_t);
     virtual ~PatcherI();
 
     virtual bool prepare();
@@ -79,8 +79,8 @@ private:
     const PatcherFeedbackPtr _feedback;
     const std::string _dataDir;
     const bool _thorough;
-    const Ice::Int _chunkSize;
-    const Ice::Int _remove;
+    const int32_t _chunkSize;
+    const int32_t _remove;
     const FileServerPrxPtr _serverCompress;
     const FileServerPrxPtr _serverNoCompress;
 
@@ -222,8 +222,8 @@ PatcherI::PatcherI(const FileServerPrxPtr& server,
                    const PatcherFeedbackPtr& feedback,
                    const string& dataDir,
                    bool thorough,
-                   Ice::Int chunkSize,
-                   Ice::Int remove) :
+                   int32_t chunkSize,
+                   int32_t remove) :
     _feedback(feedback),
     _dataDir(dataDir),
     _thorough(thorough),
@@ -407,14 +407,14 @@ PatcherI::prepare()
                             if (_useSmallFileAPI)
                             {
                                 _serverCompress->getFileInfoSeqAsync(
-                                    static_cast<Int>(node0),
+                                    static_cast<int32_t>(node0),
                                     [curCB](FileInfoSeq fileInfoSeq) { curCB->complete(fileInfoSeq); },
                                     [curCB](exception_ptr exception) { curCB->exception(exception); });
                             }
                             else
                             {
                                 _serverCompress->getLargeFileInfoSeqAsync(
-                                    static_cast<Int>(node0),
+                                    static_cast<int32_t>(node0),
                                     [curCB](LargeFileInfoSeq fileInfoSeq) { curCB->complete(fileInfoSeq); },
                                     [curCB](exception_ptr exception) { curCB->exception(exception); });
                             }
@@ -438,14 +438,14 @@ PatcherI::prepare()
                             if (_useSmallFileAPI)
                             {
                                 _serverCompress->getFileInfoSeqAsync(
-                                    static_cast<Int>(node0Nxt),
+                                    static_cast<int32_t>(node0Nxt),
                                     [nxtCB](FileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
                                     [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
                             }
                             else
                             {
                                 _serverCompress->getLargeFileInfoSeqAsync(
-                                    static_cast<Int>(node0Nxt),
+                                    static_cast<int32_t>(node0Nxt),
                                     [nxtCB](LargeFileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
                                     [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
                             }
@@ -514,7 +514,7 @@ PatcherI::prepare()
                                        FileInfoLess());
                     }
 
-                    if(!_feedback->fileListProgress(static_cast<Int>(node0 + 1) * 100 / 256))
+                    if(!_feedback->fileListProgress(static_cast<int32_t>(node0 + 1) * 100 / 256))
                     {
                         return false;
                     }
@@ -687,19 +687,19 @@ PatcherI::init(const FileServerPrxPtr& server)
     int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
     if(_chunkSize < 1)
     {
-        const_cast<Int&>(_chunkSize) = 1;
+        const_cast<int32_t&>(_chunkSize) = 1;
     }
     else if(_chunkSize > sizeMax)
     {
-        const_cast<Int&>(_chunkSize) = sizeMax;
+        const_cast<int32_t&>(_chunkSize) = sizeMax;
     }
     if(_chunkSize == sizeMax)
     {
-        const_cast<Int&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
+        const_cast<int32_t&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
     }
     else
     {
-        const_cast<Int&>(_chunkSize) *= 1024;
+        const_cast<int32_t&>(_chunkSize) *= 1024;
     }
 
     if(!IceUtilInternal::isAbsolutePath(_dataDir))
@@ -848,7 +848,7 @@ void getFileCompressed(
     {
         serverNoCompress->getFileCompressedAsync(
             path,
-            static_cast<Ice::Int>(pos),
+            static_cast<int32_t>(pos),
             chunkSize,
             [cb](std::pair<const Byte*, const Byte*> result) { cb->complete(ByteSeq(result.first, result.second)); },
             [cb](exception_ptr exception) { cb->exception(exception); });
@@ -1136,8 +1136,8 @@ PatcherFactory::create(const FileServerPrxPtr& server,
                        const PatcherFeedbackPtr& feedback,
                        const string& dataDir,
                        bool thorough,
-                       Ice::Int chunkSize,
-                       Ice::Int remove)
+                       int32_t chunkSize,
+                       int32_t remove)
 {
     return make_shared<PatcherI>(server, feedback, dataDir, thorough, chunkSize, remove);
 }

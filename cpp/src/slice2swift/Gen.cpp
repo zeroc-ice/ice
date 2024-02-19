@@ -897,7 +897,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "/// - returns: `" << fixIdent(name) << "` - The dictionary read from the stream.";
     out << nl << "public static func read(from istr: " << istr << ") throws -> " << fixIdent(name);
     out << sb;
-    out << nl << "let sz = try Swift.Int(istr.readSize())";
+    out << nl << "let sz = try Swiftint32_t(istr.readSize())";
     out << nl << "var v = " << fixIdent(name) << "()";
     if(isClassType(p->valueType()))
     {

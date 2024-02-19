@@ -24,7 +24,7 @@ public:
     virtual void streamWriteImpl(Ice::OutputStream*) const;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
-    virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;
+    virtual IceInternal::EndpointIPtr timeout(std::int32_t) const;
     virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
     virtual IceInternal::TransceiverPtr transceiver() const;
@@ -40,7 +40,7 @@ public:
     // From TestEndpoint
     virtual std::string toString() const noexcept;
     virtual Ice::EndpointInfoPtr getInfo() const noexcept;
-    virtual Ice::Int timeout() const;
+    virtual std::int32_t timeout() const;
     virtual const std::string& connectionId() const;
     virtual bool compress() const;
     virtual bool datagram() const;

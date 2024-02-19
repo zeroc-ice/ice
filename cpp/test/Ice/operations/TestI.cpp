@@ -85,10 +85,10 @@ MyDerivedClassI::opBool(bool p1,
 
 int64_t
 MyDerivedClassI::opShortIntLong(Ice::Short p1,
-                                Ice::Int p2,
+                                int32_t p2,
                                 int64_t p3,
                                 Ice::Short& p4,
-                                Ice::Int& p5,
+                                int32_t& p5,
                                 int64_t& p6,
                                 const Ice::Current&)
 {
@@ -671,8 +671,8 @@ MyDerivedClassI::opShort1(Ice::Short s, const Ice::Current&)
     return s;
 }
 
-Ice::Int
-MyDerivedClassI::opInt1(Ice::Int i, const Ice::Current&)
+int32_t
+MyDerivedClassI::opInt1(int32_t i, const Ice::Current&)
 {
     return i;
 }

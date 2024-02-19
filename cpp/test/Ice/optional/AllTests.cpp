@@ -65,7 +65,7 @@ public:
         in->startValue();
         // ::Test::B
         in->startSlice();
-        Ice::Int v;
+        int32_t v;
         in->read(v);
         in->endSlice();
         // ::Test::A
@@ -97,7 +97,7 @@ public:
         in->skipSlice();
         // ::Test::B
         in->startSlice();
-        Ice::Int v;
+        int32_t v;
         in->read(v);
         in->endSlice();
         // ::Test::A
@@ -140,7 +140,7 @@ public:
         out->endSlice();
         // ::Test::B
         out->startSlice(B::ice_staticId(), -1, false);
-        Ice::Int v = 14;
+        int32_t v = 14;
         out->write(v);
         out->endSlice();
         // ::Test::A
@@ -182,7 +182,7 @@ public:
         in->endSlice();
         // ::Test::B
         in->startSlice();
-        Ice::Int v;
+        int32_t v;
         in->read(v);
         in->endSlice();
         // ::Test::A
@@ -1036,12 +1036,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Int> p1;
-        optional<Ice::Int> p3;
-        optional<Ice::Int> p2 = initial->opInt(p1, p3);
+        optional<int32_t> p1;
+        optional<int32_t> p3;
+        optional<int32_t> p2 = initial->opInt(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Int ival = 56;
+        const int32_t ival = 56;
 
         p1 = ival;
         p2 = initial->opInt(p1, p3);
@@ -1515,12 +1515,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Int*, const Ice::Int*> > p1;
+        optional<std::pair<const int32_t*, const int32_t*> > p1;
         optional<IntSeq> p3;
         optional<IntSeq> p2 = initial->opIntSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Int> bs(100);
+        vector<int32_t> bs(100);
         fill(bs.begin(), bs.end(), 56);
         p1 = toArrayRange(bs);
         p2 = initial->opIntSeq(p1, p3);
@@ -1864,7 +1864,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            optional<Ice::Int> a;
+            optional<int32_t> a;
             optional<string> b;
             optional<OneOptionalPtr> o;
             initial->opDerivedException(a, b, o);
@@ -1887,7 +1887,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            optional<Ice::Int> a = 30;
+            optional<int32_t> a = 30;
             optional<string> b = string("test2");
             optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
             initial->opDerivedException(a, b, o);
@@ -1910,7 +1910,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            optional<Ice::Int> a;
+            optional<int32_t> a;
             optional<string> b;
             optional<OneOptionalPtr> o;
             initial->opRequiredException(a, b, o);
@@ -1931,7 +1931,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            optional<Ice::Int> a = 30;
+            optional<int32_t> a = 30;
             optional<string> b = string("test2");
             optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
             initial->opRequiredException(a, b, o);

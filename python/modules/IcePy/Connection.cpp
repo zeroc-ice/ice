@@ -637,7 +637,7 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
 {
     assert(self->connection);
 
-    optional<Ice::Int> timeout;
+    optional<int32_t> timeout;
     optional<Ice::ACMClose> close;
     optional<Ice::ACMHeartbeat> heartbeat;
 
@@ -653,7 +653,7 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
 
     if(t != Unset)
     {
-        timeout = static_cast<Ice::Int>(PyLong_AsLong(t));
+        timeout = static_cast<int32_t>(PyLong_AsLong(t));
         if(PyErr_Occurred())
         {
             return 0;
@@ -748,7 +748,7 @@ connectionGetACM(ConnectionObject* self, PyObject* /*args*/)
 
     EnumInfoPtr acmCloseEnum = dynamic_pointer_cast<EnumInfo>(getType(acmCloseType));
     assert(acmCloseEnum);
-    PyObjectHandle close = acmCloseEnum->enumeratorForValue(static_cast<Ice::Int>(acm.close));
+    PyObjectHandle close = acmCloseEnum->enumeratorForValue(static_cast<int32_t>(acm.close));
     if(!close.get())
     {
         PyErr_Format(PyExc_ValueError, "unexpected value for 'close' member of Ice.ACM");
@@ -762,7 +762,7 @@ connectionGetACM(ConnectionObject* self, PyObject* /*args*/)
 
     EnumInfoPtr acmHeartbeatEnum = dynamic_pointer_cast<EnumInfo>(getType(acmHeartbeatType));
     assert(acmHeartbeatEnum);
-    PyObjectHandle heartbeat = acmHeartbeatEnum->enumeratorForValue(static_cast<Ice::Int>(acm.heartbeat));
+    PyObjectHandle heartbeat = acmHeartbeatEnum->enumeratorForValue(static_cast<int32_t>(acm.heartbeat));
     if(!heartbeat.get())
     {
         PyErr_Format(PyExc_ValueError, "unexpected value for 'heartbeat' member of Ice.ACM");

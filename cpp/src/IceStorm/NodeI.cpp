@@ -644,7 +644,7 @@ NodeI::mergeContinue()
         {
             auto node = _nodes.find(n.id);
             assert(node != _nodes.end());
-            node->second->ready(_id, gp, _replicaProxy, static_cast<Ice::Int>(max), maxllu.generation);
+            node->second->ready(_id, gp, _replicaProxy, static_cast<int32_t>(max), maxllu.generation);
         }
         catch(const Ice::Exception& ex)
         {
@@ -757,7 +757,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
 
         _coord = j;
         _group = gn;
-        max = static_cast<Ice::Int>(_max);
+        max = static_cast<int32_t>(_max);
     }
 
     Ice::IntSeq forwardedInvites;

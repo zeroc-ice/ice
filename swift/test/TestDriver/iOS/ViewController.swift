@@ -29,13 +29,13 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
                 if (curr.pointee.ifa_flags & UInt32(IFF_UP)) != 0,
                    (curr.pointee.ifa_flags & UInt32(IFF_LOOPBACK)) == 0 {
                     if curr.pointee.ifa_addr!.pointee.sa_family == UInt32(AF_INET) {
-                        var buf = [Int8](repeating: 0, count: Int(INET_ADDRSTRLEN))
+                        var buf = [Int8](repeating: 0, count:int32_t(INET_ADDRSTRLEN))
                         curr.pointee.ifa_addr!.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { addr in
                             let s = inet_ntop(AF_INET, &addr.pointee.sin_addr, &buf, socklen_t(INET_ADDRSTRLEN))
                             interfacesIPv4.append("\(String(cString: s!))")
                         }
                     } else if curr.pointee.ifa_addr!.pointee.sa_family == UInt32(AF_INET6) {
-                        var buf = [Int8](repeating: 0, count: Int(INET6_ADDRSTRLEN))
+                        var buf = [Int8](repeating: 0, count:int32_t(INET6_ADDRSTRLEN))
                         curr.pointee.ifa_addr!.withMemoryRebound(to: sockaddr_in6.self, capacity: 1) { addr6 in
                             let s = inet_ntop(AF_INET6, &addr6.pointee.sin6_addr, &buf, socklen_t(INET6_ADDRSTRLEN))
                             interfacesIPv6.append("\(String(cString: s!))")

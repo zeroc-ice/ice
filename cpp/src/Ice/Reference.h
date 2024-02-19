@@ -153,7 +153,7 @@ protected:
               const Ice::ProtocolVersion&, const Ice::EncodingVersion&, int, const Ice::Context& ctx);
     Reference(const Reference&);
 
-    virtual Ice::Int hashInit() const;
+    virtual std::int32_t hashInit() const;
 
     const InstancePtr _instance;
     bool _overrideCompress;
@@ -168,7 +168,7 @@ private:
     Ice::Identity _identity;
     SharedContextPtr _context;
     std::string _facet;
-    mutable Ice::Int _hashValue;
+    mutable std::int32_t _hashValue;
     mutable bool _hashInitialized;
     mutable std::mutex _hashMutex;
     Ice::ProtocolVersion _protocol;

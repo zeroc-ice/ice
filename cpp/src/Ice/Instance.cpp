@@ -1100,7 +1100,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #endif
             if(!logfile.empty())
             {
-                Int sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
+                int32_t sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
                 if(sz < 0)
                 {
                     sz = 0;
@@ -1138,7 +1138,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         {
             static const int defaultMessageSizeMax = 1024;
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
@@ -1160,7 +1160,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
             if(num < 1)
             {
                 const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num);
@@ -1178,7 +1178,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         {
             static const int defaultValue = 100;
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
             {
                 const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
@@ -1847,7 +1847,7 @@ IceInternal::ProcessI::shutdown(const Current&)
 }
 
 void
-IceInternal::ProcessI::writeMessage(string message, Int fd, const Current&)
+IceInternal::ProcessI::writeMessage(string message, int32_t fd, const Current&)
 {
     switch(fd)
     {

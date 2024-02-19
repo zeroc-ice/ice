@@ -99,7 +99,7 @@ public:
     }
 
     virtual bool
-    fileListProgress(Ice::Int /*percent*/)
+    fileListProgress(int32_t /*percent*/)
     {
         return true;
     }

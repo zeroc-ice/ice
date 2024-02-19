@@ -42,30 +42,30 @@ public:
         ++failedCount;
     }
 
-    Ice::Int
+    std::int32_t
     getTotal() const
     {
         std::lock_guard lock(_mutex);
         return total;
     }
 
-    Ice::Int
+    std::int32_t
     getCurrent() const
     {
         std::lock_guard lock(_mutex);
         return current;
     }
 
-    Ice::Int
+    std::int32_t
     getFailedCount() const
     {
         std::lock_guard lock(_mutex);
         return failedCount;
     }
 
-    Ice::Int total;
-    Ice::Int current;
-    Ice::Int failedCount;
+    std::int32_t total;
+    std::int32_t current;
+    std::int32_t failedCount;
 
 protected:
 
@@ -87,21 +87,21 @@ public:
     }
 
     virtual void
-    sentBytes(Ice::Int s)
+    sentBytes(std::int32_t s)
     {
         std::lock_guard lock(_mutex);
         sent += s;
     }
 
     virtual void
-    receivedBytes(Ice::Int s)
+    receivedBytes(std::int32_t s)
     {
         std::lock_guard lock(_mutex);
         received += s;
     }
 
-    Ice::Int sent;
-    Ice::Int received;
+    std::int32_t sent;
+    std::int32_t received;
 };
 using ConnectionObserverIPtr = std::shared_ptr<ConnectionObserverI>;
 
@@ -124,7 +124,7 @@ public:
         ++states;
     }
 
-    Ice::Int states;
+    std::int32_t states;
 };
 using ThreadObserverIPtr = std::shared_ptr<ThreadObserverI>;
 
@@ -148,14 +148,14 @@ public:
     }
 
     virtual void
-    reply(Ice::Int s)
+    reply(std::int32_t s)
     {
         std::lock_guard lock(_mutex);
         replySize += s;
     }
 
-    Ice::Int userExceptionCount;
-    Ice::Int replySize;
+    std::int32_t userExceptionCount;
+    std::int32_t replySize;
 };
 using DispatchObserverIPtr = std::shared_ptr<DispatchObserverI>;
 
@@ -172,13 +172,13 @@ public:
     }
 
     virtual void
-    reply(Ice::Int s)
+    reply(std::int32_t s)
     {
         std::lock_guard lock(_mutex);
         replySize += s;
     }
 
-    Ice::Int replySize;
+    std::int32_t replySize;
 };
 using ChildInvocationObserverIPtr = std::shared_ptr<ChildInvocationObserverI>;
 
@@ -227,7 +227,7 @@ public:
     }
 
     virtual Ice::Instrumentation::RemoteObserverPtr
-    getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, Ice::Int, Ice::Int)
+    getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, std::int32_t, std::int32_t)
     {
         std::lock_guard lock(_mutex);
         if(!remoteObserver)
@@ -239,7 +239,7 @@ public:
     }
 
     virtual Ice::Instrumentation::CollocatedObserverPtr
-    getCollocatedObserver(const Ice::ObjectAdapterPtr&, Ice::Int, Ice::Int)
+    getCollocatedObserver(const Ice::ObjectAdapterPtr&, std::int32_t, std::int32_t)
     {
         std::lock_guard lock(_mutex);
         if(!collocatedObserver)
@@ -250,8 +250,8 @@ public:
         return collocatedObserver;
     }
 
-    Ice::Int userExceptionCount;
-    Ice::Int retriedCount;
+    std::int32_t userExceptionCount;
+    std::int32_t retriedCount;
 
     RemoteObserverIPtr remoteObserver;
     CollocatedObserverIPtr collocatedObserver;
@@ -335,7 +335,7 @@ public:
     }
 
     virtual Ice::Instrumentation::DispatchObserverPtr
-    getDispatchObserver(const Ice::Current&, Ice::Int)
+    getDispatchObserver(const Ice::Current&, std::int32_t)
     {
         std::lock_guard lock(_mutex);
         if(!dispatchObserver)

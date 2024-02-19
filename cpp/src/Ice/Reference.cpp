@@ -125,7 +125,7 @@ IceInternal::Reference::getCompressOverride(bool& compress) const
     return true;
 }
 
-Int
+int32_t
 Reference::hash() const
 {
     lock_guard lock(_hashMutex);
@@ -486,8 +486,8 @@ IceInternal::Reference::Reference(const Reference& r) :
 int
 IceInternal::Reference::hashInit() const
 {
-    Int h = 5381;
-    hashAdd(h, static_cast<Int>(_mode));
+    int32_t h = 5381;
+    hashAdd(h, static_cast<int32_t>(_mode));
     hashAdd(h, _secure);
     hashAdd(h, _identity.name);
     hashAdd(h, _identity.category);
@@ -1094,7 +1094,7 @@ IceInternal::RoutableReference::streamWrite(OutputStream* s) const
 {
     Reference::streamWrite(s);
 
-    Int sz = static_cast<Int>(_endpoints.size());
+    int32_t sz = static_cast<int32_t>(_endpoints.size());
     s->writeSize(sz);
     if(sz)
     {

@@ -31,11 +31,11 @@ public:
     LoggerAdminI(const PropertiesPtr&);
 
     virtual void attachRemoteLogger(optional<RemoteLoggerPrx>, LogMessageTypeSeq,
-                                    StringSeq, Int, const Current&);
+                                    StringSeq, int32_t, const Current&);
 
     virtual bool detachRemoteLogger(optional<RemoteLoggerPrx>, const Current&);
 
-    virtual LogMessageSeq getLog(LogMessageTypeSeq, StringSeq, Int, string&, const Current&);
+    virtual LogMessageSeq getLog(LogMessageTypeSeq, StringSeq, int32_t, string&, const Current&);
 
     void destroy();
 
@@ -177,7 +177,7 @@ private:
 //
 void
 filterLogMessages(LogMessageSeq& logMessages, const set<LogMessageType>& messageTypes,
-                  const set<string>& traceCategories, Int messageMax)
+                  const set<string>& traceCategories, int32_t messageMax)
 {
     assert(!logMessages.empty() && messageMax != 0);
 
@@ -305,7 +305,7 @@ void
 LoggerAdminI::attachRemoteLogger(optional<RemoteLoggerPrx> prx,
                                  LogMessageTypeSeq messageTypes,
                                  StringSeq categories,
-                                 Int messageMax,
+                                 int32_t messageMax,
                                  const Current& current)
 {
     if(!prx)
@@ -421,7 +421,7 @@ LoggerAdminI::detachRemoteLogger(std::optional<RemoteLoggerPrx> remoteLogger, co
 
 LogMessageSeq
 LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
-                     Int messageMax, string& prefix, const Current& current)
+                     int32_t messageMax, string& prefix, const Current& current)
 {
     LogMessageSeq logMessages;
     {

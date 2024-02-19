@@ -67,15 +67,15 @@ public:
     virtual void cancelable(const IceInternal::CancellationHandlerPtr&);
     void cancel();
 
-    void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, Ice::Int requestId)
+    void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, std::int32_t requestId)
     {
-        const Ice::Int size = static_cast<Ice::Int>(_os.b.size() - headerSize - 4);
+        const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
         _childObserver.attach(getObserver().getRemoteObserver(c, endpt, requestId, size));
     }
 
-    void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, Ice::Int requestId)
+    void attachCollocatedObserver(const Ice::ObjectAdapterPtr& adapter, std::int32_t requestId)
     {
-        const Ice::Int size = static_cast<Ice::Int>(_os.b.size() - headerSize - 4);
+        const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
         _childObserver.attach(getObserver().getCollocatedObserver(adapter, requestId, size));
     }
 
@@ -220,7 +220,7 @@ public:
     {
         _os.writeEmptyEncapsulation(_encoding);
     }
-    void writeParamEncaps(const ::Ice::Byte* encaps, ::Ice::Int size)
+    void writeParamEncaps(const ::Ice::Byte* encaps, ::std::int32_t size)
     {
         if(size == 0)
         {
@@ -578,7 +578,7 @@ public:
         _read = [](bool ok, Ice::InputStream* stream)
         {
             const Ice::Byte* encaps;
-            Ice::Int sz;
+            std::int32_t sz;
             stream->readEncapsulation(encaps, sz);
             return R { ok, { encaps, encaps + sz } };
         };
@@ -592,7 +592,7 @@ public:
             }
             else
             {
-                _os.writeEncapsulation(inParams.first, static_cast<Ice::Int>(inParams.second - inParams.first));
+                _os.writeEncapsulation(inParams.first, static_cast<std::int32_t>(inParams.second - inParams.first));
             }
             OutgoingAsync::invoke(operation);
         }

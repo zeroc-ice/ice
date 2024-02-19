@@ -41,7 +41,7 @@ ICEPATCH2_API Ice::StringSeq readDirectory(const std::string&);
 ICEPATCH2_API void createDirectory(const std::string&);
 ICEPATCH2_API void createDirectoryRecursive(const std::string&);
 
-ICEPATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
+ICEPATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, std::int32_t);
 ICEPATCH2_API void decompressFile(const std::string&);
 
 ICEPATCH2_API void setFileFlags(const std::string&, const IcePatch2::LargeFileInfo&);

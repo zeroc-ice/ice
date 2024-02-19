@@ -117,9 +117,9 @@ private:
     //
     void finishSetup(int&, const char*[]);
 
-    friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, Int);
-    friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, Int);
-    friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
+    friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
+    friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
+    friend ICE_API CommunicatorPtr initialize(const InitializationData&, std::int32_t);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
     friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
     const ::IceInternal::InstancePtr _instance;
