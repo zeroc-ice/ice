@@ -663,11 +663,6 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         volatile VALUE v = createString(e.str);
         callRuby(rb_iv_set, p, "@str", v);
     }
-    catch(const Ice::IllegalIdentityException& e)
-    {
-        volatile VALUE v = IceRuby::createIdentity(e.id);
-        callRuby(rb_iv_set, p, "@id", v);
-    }
     catch(const Ice::IllegalServantException& e)
     {
         volatile VALUE v = createString(e.reason);

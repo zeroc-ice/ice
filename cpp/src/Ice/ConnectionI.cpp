@@ -1283,7 +1283,7 @@ Ice::ConnectionI::getEndpoint() const noexcept
 optional<ObjectPrx>
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
     return ObjectPrx::_fromReference(
         _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this()));
 }

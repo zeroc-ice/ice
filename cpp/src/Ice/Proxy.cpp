@@ -81,7 +81,7 @@ Ice::ObjectPrx::ice_getIdentity() const
 ObjectPrx
 Ice::ObjectPrx::ice_identity(const Identity& newIdentity) const
 {
-    checkIdentity(newIdentity);
+    checkIdentity(newIdentity, __FILE__, __LINE__);
     if (newIdentity == _reference->getIdentity())
     {
         return *this;

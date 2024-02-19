@@ -559,7 +559,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    checkIdentity(adminIdentity);
+    checkIdentity(adminIdentity, __FILE__, __LINE__);
 
     if(_adminAdapter)
     {

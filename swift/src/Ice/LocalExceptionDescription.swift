@@ -247,8 +247,8 @@ extension ProxyParseException {
 extension IllegalIdentityException {
     var _IllegalIdentityExceptionDescription: String {
         var s = String()
-        let identity: String = identityToString(id: id, mode: .Unicode)
-        s.sep("llegal identity: `\(identity)'")
+
+        s.sep("an identity with an empty name is not allowed")
 
         return s
     }

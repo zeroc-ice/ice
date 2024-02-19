@@ -516,14 +516,14 @@ Ice::stringToIdentity(const string& s)
         }
     }
 
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
     return ident;
 }
 
 string
 Ice::identityToString(const Identity& ident, ToStringMode toStringMode)
 {
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
     if(ident.category.empty())
     {
         return escapeString(ident.name, "/", toStringMode);
