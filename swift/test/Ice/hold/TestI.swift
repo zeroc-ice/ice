@@ -26,7 +26,7 @@ class HoldI: Hold {
             _adapter.hold()
             try _adapter.activate()
         } else {
-            _queue.asyncAfter(deadline: .now() + .millisecondsint32_t(seconds))) {
+            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(seconds))) {
                 do {
                     try self.putOnHold(seconds: 0, current: current)
                 } catch is Ice.ObjectAdapterDeactivatedException {} catch {

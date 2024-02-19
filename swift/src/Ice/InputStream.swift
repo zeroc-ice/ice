@@ -63,7 +63,7 @@ public class InputStream {
         let encoding: EncodingVersion = try read()
         try changePos(offset: -6)
 
-        let bytes = data[pos ..< pos +int32_t(sz)]
+        let bytes = data[pos ..< pos + Int(sz)]
         return (bytes, encoding)
     }
 
@@ -95,7 +95,7 @@ public class InputStream {
 
         try checkSupportedEncoding(encoding)
 
-        encaps = Encaps(start: start, size:int32_t(sz), encoding: encoding)
+        encaps = Encaps(start: start, size: Int(sz), encoding: encoding)
 
         return encoding
     }
@@ -166,7 +166,7 @@ public class InputStream {
         }
 
         let encodingVersion: EncodingVersion = try read()
-        try changePos(offset:int32_t(sz) - 6)
+        try changePos(offset: Int(sz) - 6)
         return encodingVersion
     }
 
@@ -293,7 +293,7 @@ public class InputStream {
     ///
     /// - parameter _: `Int32` - The number of bytes to skip.
     public func skip(_ count: Int32) throws {
-        try changePos(offset:int32_t(count))
+        try changePos(offset: Int(count))
     }
 
     /// Skip over a size value.
@@ -576,7 +576,7 @@ public extension InputStream {
     ///
     /// - returns: `Int` - The size read from the stream.
     func readAndCheckSeqSize(minSize: Int) throws -> Int {
-        let sz = tryint32_t(readSize())
+        let sz = try Int(readSize())
 
         guard sz != 0 else {
             return sz
@@ -1555,7 +1555,7 @@ private class EncapsDecoder11: EncapsDecoder {
         // indirect patch list into patch entries with direct references.
         //
         if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
-            var indirectionTable = try [Int32](repeating: 0, count:int32_t(stream.readAndCheckSeqSize(minSize: 1)))
+            var indirectionTable = try [Int32](repeating: 0, count: Int(stream.readAndCheckSeqSize(minSize: 1)))
 
             for i in 0 ..< indirectionTable.count {
                 indirectionTable[i] = try readInstance(index: stream.readSize(), cb: nil)
@@ -1582,7 +1582,7 @@ private class EncapsDecoder11: EncapsDecoder {
                 if e.index >= indirectionTable.count {
                     throw MarshalException(reason: "indirection out of range")
                 }
-                try addPatchEntry(index: indirectionTableint32_t(e.index)], cb: e.cb)
+                try addPatchEntry(index: indirectionTable[Int(e.index)], cb: e.cb)
             }
             current.indirectPatchList.removeAll()
         }
@@ -1643,7 +1643,7 @@ private class EncapsDecoder11: EncapsDecoder {
         // readSlicedData is called.
         //
         if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
-            var indirectionTable = try [Int32](repeating: 0, count:int32_t(stream.readAndCheckSeqSize(minSize: 1)))
+            var indirectionTable = try [Int32](repeating: 0, count: Int(stream.readAndCheckSeqSize(minSize: 1)))
 
             for i in 0 ..< indirectionTable.count {
                 indirectionTable[i] = try readInstance(index: stream.readSize(), cb: nil)

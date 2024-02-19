@@ -161,7 +161,7 @@ func allTests(_ helper: TestHelper) throws {
         let ctx = try testIntf.getEndpointInfoAsContext()
         try test(ctx["host"] == tcpinfo.host)
         try test(ctx["compress"] == "false")
-        let port =int32_t(ctx["port"]!)!
+        let port = Int(ctx["port"]!)!
         try test(port > 0)
 
         info = try base.ice_datagram().ice_getConnection()!.getEndpoint().getInfo()!

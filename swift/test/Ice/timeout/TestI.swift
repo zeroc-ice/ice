@@ -28,7 +28,7 @@ class ControllerI: Controller {
             let queue = try current.adapter!.getDispatchQueue()
             queue.async {
                 self._adapter.waitForHold()
-                queue.asyncAfter(deadline: .now() + .millisecondsint32_t(to))) {
+                queue.asyncAfter(deadline: .now() + .milliseconds(Int(to))) {
                     do {
                         try self._adapter.activate()
                     } catch {
