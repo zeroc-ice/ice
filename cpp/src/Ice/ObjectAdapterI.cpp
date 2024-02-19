@@ -28,6 +28,7 @@
 #include <Ice/PropertyNames.h>
 #include <Ice/ConsoleUtil.h>
 #include "Ice/ProxyFunctions.h"
+#include "CheckIdentity.h"
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -43,13 +44,6 @@ using namespace IceInternal;
 
 namespace
 {
-inline void checkIdentity(const Identity& ident)
-{
-    if(ident.name.empty())
-    {
-        throw IllegalIdentityException(__FILE__, __LINE__, ident);
-    }
-}
 
 inline void checkServant(const shared_ptr<Object>& servant)
 {

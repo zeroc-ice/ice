@@ -44,6 +44,7 @@
 #include <Ice/UUID.h>
 
 #include "Ice/ProxyFunctions.h"
+#include "CheckIdentity.h"
 
 #include <stdio.h>
 #include <list>
@@ -558,10 +559,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if(adminIdentity.name.empty())
-    {
-        throw Ice::IllegalIdentityException(__FILE__, __LINE__, adminIdentity);
-    }
+    checkIdentity(adminIdentity);
 
     if(_adminAdapter)
     {
