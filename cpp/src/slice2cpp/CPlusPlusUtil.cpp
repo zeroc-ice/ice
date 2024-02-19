@@ -675,11 +675,11 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
 
     static const char* builtinTable[] =
     {
-        "uint8_t",
+        "::std::uint8_t",
         "bool",
-        "int16_t",
-        "int32_t",
-        "int64_t",
+        "::std::int16_t",
+        "::std::int32_t",
+        "::std::int64_t",
         "float",
         "double",
         "::std::string",
@@ -809,11 +809,11 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 
     static const char* InputBuiltinTable[] =
     {
-        "uint8_t",
+        "::std::uint8_t",
         "bool",
-        "int16_t",
-        "int32_t",
-        "int64_t",
+        "::std::int16_t",
+        "::std::int32_t",
+        "::std::int64_t",
         "float",
         "double",
         "const ::std::string&",
@@ -924,11 +924,11 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
 
     static const char* outputBuiltinTable[] =
     {
-        "uint8_t&",
+        "::std::uint8_t&",
         "bool&",
-        "int16_t&",
-        "int32_t&",
-        "int64_t&",
+        "::std::int16_t&",
+        "::std::int32_t&",
+        "::std::int64_t&",
         "float&",
         "double&",
         "::std::string&",
