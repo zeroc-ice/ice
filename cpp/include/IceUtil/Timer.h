@@ -19,7 +19,6 @@ namespace IceUtil
 class Timer;
 using TimerPtr = std::shared_ptr<Timer>;
 
-
 class ICE_API TimerTask
 {
 public:
@@ -29,7 +28,6 @@ public:
     virtual void runTimerTask() = 0;
 };
 using TimerTaskPtr = std::shared_ptr<TimerTask>;
-
 
 // The timer class is used to schedule tasks for one-time execution or repeated execution. Tasks are executed by a
 // dedicated timer thread sequentially.
@@ -95,7 +93,7 @@ public:
         if(!inserted)
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
-        } 
+        }
         _tokens.insert({ time, std::chrono::duration_cast<std::chrono::nanoseconds>(delay), task });
 
         if(_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
@@ -127,7 +125,7 @@ private:
         {
             if (scheduledTime < other.scheduledTime)
             {
-                return true;            
+                return true;
             }
             else if (scheduledTime > other.scheduledTime)
             {
@@ -147,7 +145,6 @@ private:
     std::chrono::steady_clock::time_point _wakeUpTime;
     std::thread _worker;
 };
-
 
 }
 
