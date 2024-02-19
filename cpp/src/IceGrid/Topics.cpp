@@ -25,7 +25,7 @@ Ice::EncodingVersion encodings[] = {
 }
 
 ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager, const string& name,
-                             long long dbSerial) :
+                             int64_t dbSerial) :
     _logger(topicManager->ice_getCommunicator()->getLogger()), _serial(0), _dbSerial(dbSerial)
 {
     for(int i = 0; i < static_cast<int>(sizeof(encodings) / sizeof(Ice::EncodingVersion)); ++i)
@@ -248,7 +248,7 @@ ObserverTopic::addExpectedUpdate(int serial, const string& name)
 }
 
 void
-ObserverTopic::updateSerial(long long dbSerial)
+ObserverTopic::updateSerial(int64_t dbSerial)
 {
     ++_serial;
     if(dbSerial > 0)
@@ -258,7 +258,7 @@ ObserverTopic::updateSerial(long long dbSerial)
 }
 
 Ice::Context
-ObserverTopic::getContext(int serial, long long dbSerial) const
+ObserverTopic::getContext(int serial, int64_t dbSerial) const
 {
     Ice::Context context;
     {
@@ -604,7 +604,7 @@ NodeObserverTopic::isServerEnabled(const string& server) const
 }
 
 ApplicationObserverTopic::ApplicationObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager,
-                                                   const map<string, ApplicationInfo>& applications, long long serial) :
+                                                   const map<string, ApplicationInfo>& applications, int64_t serial) :
     ObserverTopic(topicManager, "ApplicationObserver", serial),
     _applications(applications)
 {
@@ -612,7 +612,7 @@ ApplicationObserverTopic::ApplicationObserverTopic(const IceStorm::TopicManagerP
 }
 
 int
-ApplicationObserverTopic::applicationInit(long long dbSerial, const ApplicationInfoSeq& apps)
+ApplicationObserverTopic::applicationInit(int64_t dbSerial, const ApplicationInfoSeq& apps)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -642,7 +642,7 @@ ApplicationObserverTopic::applicationInit(long long dbSerial, const ApplicationI
 }
 
 int
-ApplicationObserverTopic::applicationAdded(long long dbSerial, const ApplicationInfo& info)
+ApplicationObserverTopic::applicationAdded(int64_t dbSerial, const ApplicationInfo& info)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -669,7 +669,7 @@ ApplicationObserverTopic::applicationAdded(long long dbSerial, const Application
 }
 
 int
-ApplicationObserverTopic::applicationRemoved(long long dbSerial, const string& name)
+ApplicationObserverTopic::applicationRemoved(int64_t dbSerial, const string& name)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -695,7 +695,7 @@ ApplicationObserverTopic::applicationRemoved(long long dbSerial, const string& n
 }
 
 int
-ApplicationObserverTopic::applicationUpdated(long long dbSerial, const ApplicationUpdateInfo& info)
+ApplicationObserverTopic::applicationUpdated(int64_t dbSerial, const ApplicationUpdateInfo& info)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -763,7 +763,7 @@ ApplicationObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 }
 
 AdapterObserverTopic::AdapterObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager,
-                                           const map<string, AdapterInfo>& adapters, long long serial) :
+                                           const map<string, AdapterInfo>& adapters, int64_t serial) :
     ObserverTopic(topicManager, "AdapterObserver", serial),
     _adapters(adapters)
 {
@@ -771,7 +771,7 @@ AdapterObserverTopic::AdapterObserverTopic(const IceStorm::TopicManagerPrxPtr& t
 }
 
 int
-AdapterObserverTopic::adapterInit(long long dbSerial, const AdapterInfoSeq& adpts)
+AdapterObserverTopic::adapterInit(int64_t dbSerial, const AdapterInfoSeq& adpts)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -801,7 +801,7 @@ AdapterObserverTopic::adapterInit(long long dbSerial, const AdapterInfoSeq& adpt
 }
 
 int
-AdapterObserverTopic::adapterAdded(long long dbSerial, const AdapterInfo& info)
+AdapterObserverTopic::adapterAdded(int64_t dbSerial, const AdapterInfo& info)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -827,7 +827,7 @@ AdapterObserverTopic::adapterAdded(long long dbSerial, const AdapterInfo& info)
 }
 
 int
-AdapterObserverTopic::adapterUpdated(long long dbSerial, const AdapterInfo& info)
+AdapterObserverTopic::adapterUpdated(int64_t dbSerial, const AdapterInfo& info)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -853,7 +853,7 @@ AdapterObserverTopic::adapterUpdated(long long dbSerial, const AdapterInfo& info
 }
 
 int
-AdapterObserverTopic::adapterRemoved(long long dbSerial, const string& id)
+AdapterObserverTopic::adapterRemoved(int64_t dbSerial, const string& id)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -891,7 +891,7 @@ AdapterObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 }
 
 ObjectObserverTopic::ObjectObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager,
-                                         const map<Ice::Identity, ObjectInfo>& objects, long long serial) :
+                                         const map<Ice::Identity, ObjectInfo>& objects, int64_t serial) :
     ObserverTopic(topicManager, "ObjectObserver", serial),
     _objects(objects)
 {
@@ -899,7 +899,7 @@ ObjectObserverTopic::ObjectObserverTopic(const IceStorm::TopicManagerPrxPtr& top
 }
 
 int
-ObjectObserverTopic::objectInit(long long dbSerial, const ObjectInfoSeq& objects)
+ObjectObserverTopic::objectInit(int64_t dbSerial, const ObjectInfoSeq& objects)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -929,7 +929,7 @@ ObjectObserverTopic::objectInit(long long dbSerial, const ObjectInfoSeq& objects
 }
 
 int
-ObjectObserverTopic::objectAdded(long long dbSerial, const ObjectInfo& info)
+ObjectObserverTopic::objectAdded(int64_t dbSerial, const ObjectInfo& info)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -955,7 +955,7 @@ ObjectObserverTopic::objectAdded(long long dbSerial, const ObjectInfo& info)
 }
 
 int
-ObjectObserverTopic::objectUpdated(long long dbSerial, const ObjectInfo& info)
+ObjectObserverTopic::objectUpdated(int64_t dbSerial, const ObjectInfo& info)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())
@@ -981,7 +981,7 @@ ObjectObserverTopic::objectUpdated(long long dbSerial, const ObjectInfo& info)
 }
 
 int
-ObjectObserverTopic::objectRemoved(long long dbSerial, const Ice::Identity& id)
+ObjectObserverTopic::objectRemoved(int64_t dbSerial, const Ice::Identity& id)
 {
     lock_guard lock(_mutex);
     if(_topics.empty())

@@ -675,26 +675,11 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
 
     static const char* builtinTable[] =
     {
-        "::Ice::Byte",
+        "::std::uint8_t",
         "bool",
-        "::Ice::Short",
-        "::Ice::Int",
-        "::Ice::Long",
-        "::Ice::Float",
-        "::Ice::Double",
-        "::std::string",
-        "::Ice::ValuePtr",
-        "::Ice::ObjectPrx",
-        "::Ice::ValuePtr"
-    };
-
-    static const char* cpp11BuiltinTable[] =
-    {
-        "::Ice::Byte",
-        "bool",
-        "short",
-        "int",
-        "long long int",
+        "::std::int16_t",
+        "::std::int32_t",
+        "::std::int64_t",
         "float",
         "double",
         "::std::string",
@@ -710,20 +695,16 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         {
             return stringTypeToString(type, metaData, typeCtx);
         }
-        else if(cpp11)
+        else
         {
             if(builtin->kind() == Builtin::KindObject)
             {
-                return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
+                return getUnqualified(builtinTable[Builtin::KindValue], scope);
             }
             else
             {
-                return getUnqualified(cpp11BuiltinTable[builtin->kind()], scope);
+                return getUnqualified(builtinTable[builtin->kind()], scope);
             }
-        }
-        else
-        {
-            return getUnqualified(builtinTable[builtin->kind()], scope);
         }
     }
 
@@ -819,28 +800,13 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 {
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
-    static const char* cpp98InputBuiltinTable[] =
+    static const char* InputBuiltinTable[] =
     {
-        "::Ice::Byte",
+        "::std::uint8_t",
         "bool",
-        "::Ice::Short",
-        "::Ice::Int",
-        "::Ice::Long",
-        "::Ice::Float",
-        "::Ice::Double",
-        "const ::std::string&",
-        "const ::Ice::ValuePtr&",
-        "const ::Ice::ObjectPrx&",
-        "const ::Ice::ValuePtr&"
-    };
-
-    static const char* cpp11InputBuiltinTable[] =
-    {
-        "::Ice::Byte",
-        "bool",
-        "short",
-        "int",
-        "long long int",
+        "::std::int16_t",
+        "::std::int32_t",
+        "::std::int64_t",
         "float",
         "double",
         "const ::std::string&",
@@ -863,20 +829,16 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         {
             return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
         }
-        else if(cpp11)
+        else
         {
             if(builtin->kind() == Builtin::KindObject)
             {
-                return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
+                return getUnqualified(InputBuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
-                return getUnqualified(cpp11InputBuiltinTable[builtin->kind()], scope);
+                return getUnqualified(InputBuiltinTable[builtin->kind()], scope);
             }
-        }
-        else
-        {
-            return getUnqualified(cpp98InputBuiltinTable[builtin->kind()], scope);
         }
     }
 
@@ -948,26 +910,11 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
 
     static const char* outputBuiltinTable[] =
     {
-        "::Ice::Byte&",
+        "::std::uint8_t&",
         "bool&",
-        "::Ice::Short&",
-        "::Ice::Int&",
-        "::Ice::Long&",
-        "::Ice::Float&",
-        "::Ice::Double&",
-        "::std::string&",
-        "::Ice::ValuePtr&",
-        "::Ice::ObjectPrx&",
-        "::Ice::ValuePtr&"
-    };
-
-    static const char* cpp11OutputBuiltinTable[] =
-    {
-        "::Ice::Byte&",
-        "bool&",
-        "short&",
-        "int&",
-        "long long int&",
+        "::std::int16_t&",
+        "::std::int32_t&",
+        "::std::int64_t&",
         "float&",
         "double&",
         "::std::string&",
@@ -988,20 +935,16 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         {
             return stringTypeToString(type, metaData, typeCtx) + "&";
         }
-        else if(cpp11)
+        else
         {
             if(builtin->kind() == Builtin::KindObject)
             {
-                return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
+                return getUnqualified(outputBuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
-                return getUnqualified(cpp11OutputBuiltinTable[builtin->kind()], scope);
+                return getUnqualified(outputBuiltinTable[builtin->kind()], scope);
             }
-        }
-        else
-        {
-            return getUnqualified(outputBuiltinTable[builtin->kind()], scope);
         }
     }
 

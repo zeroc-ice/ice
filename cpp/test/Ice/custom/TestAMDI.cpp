@@ -283,12 +283,12 @@ TestIntfI::opIntStringDictAsync(Test::IntStringDict in,
 
 void
 TestIntfI::opVarDictAsync(Test::CustomMap<std::string, Ice::Int> in,
-                          std::function<void(const Test::CustomMap<Ice::Long, Ice::Long>&,
+                          std::function<void(const Test::CustomMap<int64_t, int64_t>&,
                                               const Test::CustomMap<std::string, Ice::Int>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
-    Test::CustomMap<Ice::Long, Ice::Long> result;
-    for(Ice::Long i = 0; i < 1000; ++i)
+    Test::CustomMap<int64_t, int64_t> result;
+    for(int64_t i = 0; i < 1000; ++i)
     {
         result[i] = i*i;
     }

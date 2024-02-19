@@ -37,12 +37,12 @@ public:
                         bool&,
                         const Ice::Current&);
 
-    virtual Ice::Long opShortIntLong(Ice::Short,
+    virtual std::int64_t opShortIntLong(Ice::Short,
                                      Ice::Int,
-                                     Ice::Long,
+                                     std::int64_t,
                                      Ice::Short&,
                                      Ice::Int&,
-                                     Ice::Long&,
+                                     std::int64_t&,
                                      const Ice::Current&);
 
     virtual Ice::Double opFloatDouble(Ice::Float,
@@ -268,7 +268,7 @@ public:
 
     virtual Ice::Int opInt1(Ice::Int, const Ice::Current&);
 
-    virtual Ice::Long opLong1(Ice::Long, const Ice::Current&);
+    virtual std::int64_t opLong1(std::int64_t, const Ice::Current&);
 
     virtual Ice::Float opFloat1(Ice::Float, const Ice::Current&);
 

@@ -59,7 +59,7 @@ const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 //
 // Rename to avoid conflict with OS 10.10 htonll
 //
-void ice_htonll(Long v, Byte* dest)
+void ice_htonll(int64_t v, Byte* dest)
 {
     //
     // Transfer a 64-bit integer in network (big-endian) order.
@@ -75,7 +75,7 @@ void ice_htonll(Long v, Byte* dest)
     *dest++ = *src++;
     *dest = *src;
 #else
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Long) - 1;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(int64_t) - 1;
     *dest++ = *src--;
     *dest++ = *src--;
     *dest++ = *src--;
@@ -90,9 +90,9 @@ void ice_htonll(Long v, Byte* dest)
 //
 // Rename to avoid conflict with OS 10.10 nlltoh
 //
-Long ice_nlltoh(const Byte* src)
+int64_t ice_nlltoh(const Byte* src)
 {
-    Long v;
+    int64_t v;
 
     //
     // Extract a 64-bit integer in network (big-endian) order.
@@ -108,7 +108,7 @@ Long ice_nlltoh(const Byte* src)
     *dest++ = *src++;
     *dest = *src;
 #else
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Long) - 1;
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(int64_t) - 1;
     *dest-- = *src++;
     *dest-- = *src++;
     *dest-- = *src++;
@@ -1196,7 +1196,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
             else if(_readPayloadLength == 127)
             {
                 assert(_readPayloadLength == 127);
-                Long l = ice_nlltoh(_readI);
+                int64_t l = ice_nlltoh(_readI);
                 _readI += 8;
                 if(l < 0 || l > INT_MAX)
                 {
@@ -1691,7 +1691,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(Byte opCode, IceInternal::Buffer:
         // Use an extra 64 bits to encode the payload length.
         //
         *_writeBuffer.i++ = static_cast<Byte>(127);
-        ice_htonll(static_cast<Long>(payloadLength), _writeBuffer.i);
+        ice_htonll(static_cast<int64_t>(payloadLength), _writeBuffer.i);
         _writeBuffer.i += 8;
     }
 

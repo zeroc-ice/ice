@@ -313,14 +313,14 @@ TestIntfI::opIntStringDict(Test::IntStringDict data, Test::IntStringDict& copy, 
     return data;
 }
 
-Test::CustomMap<Ice::Long, Ice::Long>
+Test::CustomMap<int64_t, int64_t>
 TestIntfI::opVarDict(Test::CustomMap<std::string, Ice::Int> data,
                      Test::CustomMap<std::string, Ice::Int>& copy, const Ice::Current&)
 {
     copy = data;
 
-    Test::CustomMap<Ice::Long, Ice::Long> result;
-    for(Ice::Long i = 0; i < 1000; ++i)
+    Test::CustomMap<int64_t, int64_t> result;
+    for(int64_t i = 0; i < 1000; ++i)
     {
         result[i] = i*i;
     }

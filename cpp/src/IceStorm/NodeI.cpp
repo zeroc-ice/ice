@@ -812,7 +812,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
 }
 
 void
-NodeI::ready(int j, string gn, Ice::ObjectPrxPtr coordinator, int max, Ice::Long generation,
+NodeI::ready(int j, string gn, Ice::ObjectPrxPtr coordinator, int max, int64_t generation,
              const Ice::Current&)
 {
     lock_guard<recursive_mutex> lg(_mutex);
@@ -972,7 +972,7 @@ NodeI::query(const Ice::Current&) const
 }
 
 void
-NodeI::recovery(Ice::Long generation)
+NodeI::recovery(int64_t generation)
 {
     unique_lock<recursive_mutex> lock(_mutex);
 
@@ -1061,7 +1061,7 @@ NodeI::destroy()
 // A node should only receive an observer init call if the node is
 // reorganizing and its not the coordinator.
 void
-NodeI::checkObserverInit(Ice::Long)
+NodeI::checkObserverInit(int64_t)
 {
     lock_guard<recursive_mutex> lg(_mutex);
     if(_state != NodeState::NodeStateReorganization)
@@ -1076,7 +1076,7 @@ NodeI::checkObserverInit(Ice::Long)
 
 // Notify the node that we're about to start an update.
 Ice::ObjectPrxPtr
-NodeI::startUpdate(Ice::Long& generation, const char* file, int line)
+NodeI::startUpdate(int64_t& generation, const char* file, int line)
 {
     bool majority = _observers->check();
 
@@ -1134,7 +1134,7 @@ NodeI::updateMaster(const char*, int)
 }
 
 Ice::ObjectPrxPtr
-NodeI::startCachedRead(Ice::Long& generation, const char* file, int line)
+NodeI::startCachedRead(int64_t& generation, const char* file, int line)
 {
     unique_lock<recursive_mutex> lock(_mutex);
 
@@ -1150,7 +1150,7 @@ NodeI::startCachedRead(Ice::Long& generation, const char* file, int line)
 }
 
 void
-NodeI::startObserverUpdate(Ice::Long generation, const char* file, int line)
+NodeI::startObserverUpdate(int64_t generation, const char* file, int line)
 {
     lock_guard<recursive_mutex> lg(_mutex);
 

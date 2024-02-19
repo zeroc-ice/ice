@@ -1013,14 +1013,14 @@ ServerI::setProcessAsync(Ice::ProcessPrxPtr process, function<void()> response,
     }
 }
 
-long long
+int64_t
 ServerI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 {
     return _node->getFileCache()->getOffsetFromEnd(getFilePath(std::move(filename)), count);
 }
 
 bool
-ServerI::read(string filename, long long pos, int size, long long& newPos, Ice::StringSeq& lines,
+ServerI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines,
               const Ice::Current&) const
 {
     return _node->getFileCache()->read(getFilePath(std::move(filename)), pos, size, newPos, lines);

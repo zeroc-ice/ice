@@ -53,7 +53,7 @@ private:
 FileIteratorI::FileIteratorI(const shared_ptr<AdminSessionI>& session,
                              const FileReaderPrxPtr& reader,
                              const string& filename,
-                             long long offset,
+                             int64_t offset,
                              int messageSizeMax) :
     _session(session),
     _reader(reader),
@@ -404,7 +404,7 @@ AdminSessionI::addFileIterator(const FileReaderPrxPtr& reader, const string& fil
     // Always call getOffsetFromEnd even if nLines < 0. This allows to
     // throw right away if the file doesn't exit.
     //
-    long long offset;
+    int64_t offset;
     try
     {
         offset = reader->getOffsetFromEnd(filename, nLines);

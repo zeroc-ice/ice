@@ -117,7 +117,7 @@ class DictClass
 ["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Short>"] sequence<short> ShortBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Int>"] sequence<int> IntBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Long>"] sequence<long> LongBuffer;
+["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Float>"] sequence<float> FloatBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Double>"] sequence<double> DoubleBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Byte>"] sequence<byte> ByteBuffer;
@@ -220,7 +220,7 @@ struct BufferStruct
 
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
-    ["cpp:type:::Test::CustomMap< ::Ice::Long, ::Ice::Long>"] LongLongDict
+    ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict
     opVarDict(["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict idict,
               out ["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict odict);
 

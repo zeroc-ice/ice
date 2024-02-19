@@ -125,7 +125,7 @@ ReplicaSessionI::setDatabaseObserver(DatabaseObserverPrxPtr observer,
         bool error = false;
         for(StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
         {
-            Ice::Long serial = masterSerials[p->first];
+            int64_t serial = masterSerials[p->first];
             if(serial < p->second)
             {
                 error = true;
@@ -138,7 +138,7 @@ ReplicaSessionI::setDatabaseObserver(DatabaseObserverPrxPtr observer,
             os << "database from replica `" << _info->name << "' contains earlier updates:\n";
             for(StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
             {
-                Ice::Long serial = masterSerials[p->first];
+                int64_t serial = masterSerials[p->first];
                 os << "database `" << p->first << "': ";
                 os << "master serial = " << serial << ", replica serial = " << p->second << '\n';
             }

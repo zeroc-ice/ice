@@ -82,7 +82,7 @@ IcePatch2Internal::writeFileInfo(FILE* fp, const LargeFileInfo& info)
             IceUtilInternal::ToStringMode::Compat
         ).c_str(),
         bytesToString(info.checksum).c_str(),
-        info.size,
+        static_cast<long long int>(info.size),
         static_cast<int>(info.executable));
     return rc > 0;
 }

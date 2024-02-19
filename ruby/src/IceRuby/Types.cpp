@@ -661,7 +661,7 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long l;
+        int64_t l;
         is->read(l);
         val = callRuby(rb_ll2inum, l);
         break;
@@ -714,7 +714,7 @@ IceRuby::PrimitiveInfo::print(VALUE value, IceUtilInternal::Output& out, PrintOb
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long l = getLong(value);
+        int64_t l = getLong(value);
         out << IceUtilInternal::int64ToString(l);
         break;
     }
@@ -1607,7 +1607,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
     }
     case PrimitiveInfo::KindLong:
     {
-        pair<const Ice::Long*, const Ice::Long*> p;
+        pair<const int64_t*, const int64_t*> p;
         is->read(p);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);

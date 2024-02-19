@@ -856,7 +856,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long val = PyLong_AsLongLong(p);
+        int64_t val = PyLong_AsLongLong(p);
         assert(!PyErr_Occurred()); // validate() should have caught this.
         os->write(val);
         break;
@@ -941,7 +941,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long val;
+        int64_t val;
         is->read(val);
         PyObjectHandle p = PyLong_FromLongLong(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -1831,8 +1831,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
                 case PrimitiveInfo::KindLong:
                 {
-                    os->write(reinterpret_cast<const Ice::Long*>(b),
-                              reinterpret_cast<const Ice::Long*>(b + sz));
+                    os->write(reinterpret_cast<const int64_t*>(b),
+                              reinterpret_cast<const int64_t*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindFloat:
@@ -1996,7 +1996,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
-            Ice::Long val = PyLong_AsLongLong(item);
+            int64_t val = PyLong_AsLongLong(item);
 
             if(PyErr_Occurred())
             {
@@ -2277,7 +2277,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindLong:
     {
-        pair<const Ice::Long*, const Ice::Long*> p;
+        pair<const int64_t*, const int64_t*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)

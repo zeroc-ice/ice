@@ -41,7 +41,7 @@ public:
     {
         while(true)
         {
-            long long generation;
+            int64_t generation;
             auto master = getMaster(generation, __FILE__, __LINE__);
             if(master)
             {
@@ -90,7 +90,7 @@ public:
 
 private:
 
-    TopicManagerPrxPtr getMaster(long long& generation, const char* file, int line) const
+    TopicManagerPrxPtr getMaster(int64_t& generation, const char* file, int line) const
     {
         auto node = _instance->node();
         if(node)

@@ -96,7 +96,7 @@ IcePatch2::FileServerI::getFileCompressedAsync(
 void
 IcePatch2::FileServerI::getLargeFileCompressedAsync(
     string pa,
-    Long pos,
+    int64_t pos,
     Int num,
     function<void(const pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)> response,
     function<void(exception_ptr)> exception,
@@ -125,7 +125,7 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
 void
 IcePatch2::FileServerI::getFileCompressedInternal(
     std::string pa,
-    Ice::Long pos,
+    int64_t pos,
     Ice::Int num,
     vector<Byte>& buffer,
     bool largeFile) const

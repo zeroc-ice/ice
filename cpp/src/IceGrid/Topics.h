@@ -17,7 +17,7 @@ class ObserverTopic
 {
 public:
 
-    ObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::string&, long long = 0);
+    ObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::string&, int64_t = 0);
     virtual ~ObserverTopic() = default;
 
     int subscribe(const Ice::ObjectPrxPtr&, const std::string& = std::string());
@@ -35,8 +35,8 @@ public:
 protected:
 
     void addExpectedUpdate(int, const std::string& = std::string());
-    void updateSerial(long long = 0);
-    Ice::Context getContext(int, long long = 0) const;
+    void updateSerial(std::int64_t = 0);
+    Ice::Context getContext(int, std::int64_t = 0) const;
 
     template<typename T> std::vector<std::optional<T>> getPublishers() const
     {
@@ -52,7 +52,7 @@ protected:
     std::map<Ice::EncodingVersion, IceStorm::TopicPrxPtr> _topics;
     std::vector<Ice::ObjectPrxPtr> _basePublishers;
     int _serial;
-    long long _dbSerial;
+    std::int64_t _dbSerial;
 
     std::set<std::string> _syncSubscribers;
     std::map<int, std::set<std::string> > _waitForUpdates;
@@ -113,12 +113,12 @@ class ApplicationObserverTopic : public ObserverTopic
 {
 public:
 
-    ApplicationObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<std::string, ApplicationInfo>&, long long);
+    ApplicationObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<std::string, ApplicationInfo>&, std::int64_t);
 
-    int applicationInit(long long, const ApplicationInfoSeq&);
-    int applicationAdded(long long, const ApplicationInfo&);
-    int applicationRemoved(long long, const std::string&);
-    int applicationUpdated(long long, const ApplicationUpdateInfo&);
+    int applicationInit(std::int64_t, const ApplicationInfoSeq&);
+    int applicationAdded(std::int64_t, const ApplicationInfo&);
+    int applicationRemoved(std::int64_t, const std::string&);
+    int applicationUpdated(std::int64_t, const ApplicationUpdateInfo&);
 
     virtual void initObserver(const Ice::ObjectPrxPtr&);
 
@@ -132,12 +132,12 @@ class AdapterObserverTopic : public ObserverTopic
 {
 public:
 
-    AdapterObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<std::string, AdapterInfo>&, long long);
+    AdapterObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<std::string, AdapterInfo>&, std::int64_t);
 
-    int adapterInit(long long, const AdapterInfoSeq&);
-    int adapterAdded(long long, const AdapterInfo&);
-    int adapterUpdated(long long, const AdapterInfo&);
-    int adapterRemoved(long long, const std::string&);
+    int adapterInit(std::int64_t, const AdapterInfoSeq&);
+    int adapterAdded(std::int64_t, const AdapterInfo&);
+    int adapterUpdated(std::int64_t, const AdapterInfo&);
+    int adapterRemoved(std::int64_t, const std::string&);
 
     virtual void initObserver(const Ice::ObjectPrxPtr&);
 
@@ -151,12 +151,12 @@ class ObjectObserverTopic : public ObserverTopic
 {
 public:
 
-    ObjectObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<Ice::Identity, ObjectInfo>&, long long);
+    ObjectObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<Ice::Identity, ObjectInfo>&, std::int64_t);
 
-    int objectInit(long long, const ObjectInfoSeq&);
-    int objectAdded(long long, const ObjectInfo&);
-    int objectUpdated(long long, const ObjectInfo&);
-    int objectRemoved(long long, const Ice::Identity&);
+    int objectInit(std::int64_t, const ObjectInfoSeq&);
+    int objectAdded(std::int64_t, const ObjectInfo&);
+    int objectUpdated(std::int64_t, const ObjectInfo&);
+    int objectRemoved(std::int64_t, const Ice::Identity&);
 
     int wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq&);
     int wellKnownObjectsRemoved(const ObjectInfoSeq&);

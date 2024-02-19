@@ -36,7 +36,7 @@ public:
 
     void getLargeFileCompressedAsync(
         std::string,
-        Ice::Long,
+        std::int64_t,
         Ice::Int,
         std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
         std::function<void(std::exception_ptr)>,
@@ -47,7 +47,7 @@ private:
     void
     getFileCompressedInternal(
         std::string,
-        Ice::Long,
+        std::int64_t,
         Ice::Int,
         std::vector<Ice::Byte>&,
         bool) const;

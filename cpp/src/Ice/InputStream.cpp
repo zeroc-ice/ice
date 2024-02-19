@@ -661,16 +661,16 @@ Ice::InputStream::read(pair<const Int*, const Int*>& v)
 }
 
 void
-Ice::InputStream::read(Long& v)
+Ice::InputStream::read(int64_t& v)
 {
-    if(b.end() - i < static_cast<int>(sizeof(Long)))
+    if(b.end() - i < static_cast<int>(sizeof(int64_t)))
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
-    i += sizeof(Long);
+    i += sizeof(int64_t);
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Long) - 1;
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(int64_t) - 1;
     *dest-- = *src++;
     *dest-- = *src++;
     *dest-- = *src++;
@@ -693,17 +693,17 @@ Ice::InputStream::read(Long& v)
 }
 
 void
-Ice::InputStream::read(vector<Long>& v)
+Ice::InputStream::read(vector<int64_t>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(int64_t)));
     if(sz > 0)
     {
         Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(Long));
+        i += sz * static_cast<int>(sizeof(int64_t));
         v.resize(static_cast<size_t>(sz));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Long) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(int64_t) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -714,7 +714,7 @@ Ice::InputStream::read(vector<Long>& v)
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
-            dest += 2 * sizeof(Long);
+            dest += 2 * sizeof(int64_t);
         }
 #else
         copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -727,27 +727,27 @@ Ice::InputStream::read(vector<Long>& v)
 }
 
 void
-Ice::InputStream::read(pair<const Long*, const Long*>& v)
+Ice::InputStream::read(pair<const int64_t*, const int64_t*>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(int64_t)));
     if(sz > 0)
     {
 #ifdef ICE_UNALIGNED
-        v.first = reinterpret_cast<Long*>(i);
-        i += sz * static_cast<int>(sizeof(Long));
-        v.second = reinterpret_cast<Long*>(i);
+        v.first = reinterpret_cast<int64_t*>(i);
+        i += sz * static_cast<int>(sizeof(int64_t));
+        v.second = reinterpret_cast<int64_t*>(i);
 #else
 
-        auto result = new long long[static_cast<size_t>(sz)];
+        auto result = new int64_t[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
 
         Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(Long));
+        i += sz * static_cast<int>(sizeof(int64_t));
 #  ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Long) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(int64_t) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -758,7 +758,7 @@ Ice::InputStream::read(pair<const Long*, const Long*>& v)
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
-            dest += 2 * sizeof(Long);
+            dest += 2 * sizeof(int64_t);
         }
 #  else
         copy(begin, i, reinterpret_cast<Byte*>(&result[0]));

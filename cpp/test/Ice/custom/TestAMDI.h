@@ -152,7 +152,7 @@ public:
                               std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opVarDictAsync(::Test::CustomMap<std::string, ::Ice::Int>,
-                        std::function<void(const ::Test::CustomMap< ::Ice::Long, ::Ice::Long>&,
+                        std::function<void(const ::Test::CustomMap< std::int64_t, std::int64_t>&,
                                             const ::Test::CustomMap<std::string, ::Ice::Int>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 

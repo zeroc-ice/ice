@@ -125,7 +125,7 @@ public:
     {
         while(true)
         {
-            Ice::Long generation = -1;
+            int64_t generation = -1;
             auto master = getMasterFor(current, generation, __FILE__, __LINE__);
             if(master)
             {
@@ -156,7 +156,7 @@ public:
     {
         while(true)
         {
-            Ice::Long generation = -1;
+            int64_t generation = -1;
             auto master = getMasterFor(current, generation, __FILE__, __LINE__);
             if(master)
             {
@@ -206,7 +206,7 @@ public:
     {
         while(true)
         {
-            Ice::Long generation = -1;
+            int64_t generation = -1;
             auto master = getMasterFor(current, generation, __FILE__, __LINE__);
             if(master)
             {
@@ -238,7 +238,7 @@ public:
     {
         while(true)
         {
-            Ice::Long generation = -1;
+            int64_t generation = -1;
             auto master = getMasterFor(current, generation, __FILE__, __LINE__);
             if(master)
             {
@@ -282,7 +282,7 @@ public:
     {
         while(true)
         {
-            Ice::Long generation = -1;
+            int64_t generation = -1;
             auto master = getMasterFor(current, generation, __FILE__, __LINE__);
             if(master)
             {
@@ -312,7 +312,7 @@ public:
 
 private:
 
-    TopicPrxPtr getMasterFor(const Ice::Current& cur, Ice::Long& generation, const char* file, int line) const
+    TopicPrxPtr getMasterFor(const Ice::Current& cur, int64_t& generation, const char* file, int line) const
     {
         auto node = _instance->node();
         Ice::ObjectPrxPtr master;
@@ -922,7 +922,7 @@ void
 TopicImpl::publish(bool forwarded, const EventDataSeq& events)
 {
     TopicInternalPrxPtr masterInternal;
-    Ice::Long generation = -1;
+    int64_t generation = -1;
     Ice::IdentitySeq reap;
     {
         // Use cached reads.

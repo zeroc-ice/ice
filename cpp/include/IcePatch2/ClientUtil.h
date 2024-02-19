@@ -61,8 +61,8 @@ public:
     // These methods should return false to interrupt the patching,
     // false otherwise.
     //
-    virtual bool patchStart(const std::string&, Ice::Long, Ice::Long, Ice::Long) = 0;
-    virtual bool patchProgress(Ice::Long, Ice::Long, Ice::Long, Ice::Long) = 0;
+    virtual bool patchStart(const std::string&, std::int64_t, std::int64_t, std::int64_t) = 0;
+    virtual bool patchProgress(std::int64_t, std::int64_t, std::int64_t, std::int64_t) = 0;
     virtual bool patchEnd() = 0;
 };
 typedef std::shared_ptr<PatcherFeedback> PatcherFeedbackPtr;
