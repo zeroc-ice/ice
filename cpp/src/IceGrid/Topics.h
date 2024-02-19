@@ -17,16 +17,16 @@ class ObserverTopic
 {
 public:
 
-    ObserverTopic(const std::shared_ptr<IceStorm::TopicManagerPrx>&, const std::string&, long long = 0);
+    ObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::string&, long long = 0);
     virtual ~ObserverTopic() = default;
 
-    int subscribe(const std::shared_ptr<Ice::ObjectPrx>&, const std::string& = std::string());
-    void unsubscribe(const std::shared_ptr<Ice::ObjectPrx>&, const std::string& = std::string());
+    int subscribe(const Ice::ObjectPrxPtr&, const std::string& = std::string());
+    void unsubscribe(const Ice::ObjectPrxPtr&, const std::string& = std::string());
     void destroy();
 
     void receivedUpdate(const std::string&, int, const std::string&);
 
-    virtual void initObserver(const std::shared_ptr<Ice::ObjectPrx>&) = 0;
+    virtual void initObserver(const Ice::ObjectPrxPtr&) = 0;
 
     void waitForSyncedSubscribers(int, const std::string& = std::string());
 
@@ -38,10 +38,10 @@ protected:
     void updateSerial(long long = 0);
     Ice::Context getContext(int, long long = 0) const;
 
-    template<typename T> std::vector<std::shared_ptr<T>> getPublishers() const
+    template<typename T> std::vector<std::optional<T>> getPublishers() const
     {
-        std::vector<std::shared_ptr<T>> publishers;
-        for(const auto& publisher :_basePublishers)
+        std::vector<std::optional<T>> publishers;
+        for(const auto& publisher : _basePublishers)
         {
             publishers.push_back(Ice::uncheckedCast<T>(publisher));
         }
@@ -49,8 +49,8 @@ protected:
     }
 
     std::shared_ptr<Ice::Logger> _logger;
-    std::map<Ice::EncodingVersion, std::shared_ptr<IceStorm::TopicPrx>> _topics;
-    std::vector<std::shared_ptr<Ice::ObjectPrx>> _basePublishers;
+    std::map<Ice::EncodingVersion, IceStorm::TopicPrxPtr> _topics;
+    std::vector<Ice::ObjectPrxPtr> _basePublishers;
     int _serial;
     long long _dbSerial;
 
@@ -66,16 +66,16 @@ class RegistryObserverTopic : public ObserverTopic
 {
 public:
 
-    RegistryObserverTopic(const std::shared_ptr<IceStorm::TopicManagerPrx>&);
+    RegistryObserverTopic(const IceStorm::TopicManagerPrxPtr&);
 
     void registryUp(const RegistryInfo&);
     void registryDown(const std::string&);
 
-    virtual void initObserver(const std::shared_ptr<Ice::ObjectPrx>&);
+    virtual void initObserver(const Ice::ObjectPrxPtr&);
 
 private:
 
-    std::vector<std::shared_ptr<RegistryObserverPrx>> _publishers;
+    std::vector<RegistryObserverPrxPtr> _publishers;
     std::map<std::string, RegistryInfo> _registries;
 };
 
@@ -84,7 +84,7 @@ class NodeObserverTopic final : public ObserverTopic, public NodeObserver
 public:
 
     static std::shared_ptr<NodeObserverTopic>
-    create(const std::shared_ptr<IceStorm::TopicManagerPrx>&, const std::shared_ptr<Ice::ObjectAdapter>&);
+    create(const IceStorm::TopicManagerPrxPtr&, const std::shared_ptr<Ice::ObjectAdapter>&);
 
     void nodeInit(NodeDynamicInfoSeq, const Ice::Current&) override;
     void nodeUp(NodeDynamicInfo, const Ice::Current&) override;
@@ -92,19 +92,19 @@ public:
     void updateServer(std::string, ServerDynamicInfo, const Ice::Current&) override;
     void updateAdapter(std::string, AdapterDynamicInfo, const Ice::Current&) override;
 
-    const std::shared_ptr<NodeObserverPrx>& getPublisher() { return _externalPublisher; }
+    const NodeObserverPrxPtr& getPublisher() { return _externalPublisher; }
 
     void nodeDown(const std::string&);
-    void initObserver(const std::shared_ptr<Ice::ObjectPrx>&) override;
+    void initObserver(const Ice::ObjectPrxPtr&) override;
 
     bool isServerEnabled(const std::string&) const;
 
 private:
 
-    NodeObserverTopic(const std::shared_ptr<IceStorm::TopicManagerPrx>&);
+    NodeObserverTopic(const IceStorm::TopicManagerPrxPtr&);
 
-    const std::shared_ptr<NodeObserverPrx> _externalPublisher;
-    std::vector<std::shared_ptr<NodeObserverPrx>> _publishers;
+    const NodeObserverPrxPtr _externalPublisher;
+    std::vector<NodeObserverPrxPtr> _publishers;
     std::map<std::string, NodeDynamicInfo> _nodes;
     std::map<std::string, bool> _serverStatus;
 };
@@ -113,18 +113,18 @@ class ApplicationObserverTopic : public ObserverTopic
 {
 public:
 
-    ApplicationObserverTopic(const std::shared_ptr<IceStorm::TopicManagerPrx>&, const std::map<std::string, ApplicationInfo>&, long long);
+    ApplicationObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<std::string, ApplicationInfo>&, long long);
 
     int applicationInit(long long, const ApplicationInfoSeq&);
     int applicationAdded(long long, const ApplicationInfo&);
     int applicationRemoved(long long, const std::string&);
     int applicationUpdated(long long, const ApplicationUpdateInfo&);
 
-    virtual void initObserver(const std::shared_ptr<Ice::ObjectPrx>&);
+    virtual void initObserver(const Ice::ObjectPrxPtr&);
 
 private:
 
-    std::vector<std::shared_ptr<ApplicationObserverPrx>> _publishers;
+    std::vector<ApplicationObserverPrxPtr> _publishers;
     std::map<std::string, ApplicationInfo> _applications;
 };
 
@@ -132,18 +132,18 @@ class AdapterObserverTopic : public ObserverTopic
 {
 public:
 
-    AdapterObserverTopic(const std::shared_ptr<IceStorm::TopicManagerPrx>&, const std::map<std::string, AdapterInfo>&, long long);
+    AdapterObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<std::string, AdapterInfo>&, long long);
 
     int adapterInit(long long, const AdapterInfoSeq&);
     int adapterAdded(long long, const AdapterInfo&);
     int adapterUpdated(long long, const AdapterInfo&);
     int adapterRemoved(long long, const std::string&);
 
-    virtual void initObserver(const std::shared_ptr<Ice::ObjectPrx>&);
+    virtual void initObserver(const Ice::ObjectPrxPtr&);
 
 private:
 
-    std::vector<std::shared_ptr<AdapterObserverPrx>> _publishers;
+    std::vector<AdapterObserverPrxPtr> _publishers;
     std::map<std::string, AdapterInfo> _adapters;
 };
 
@@ -151,7 +151,7 @@ class ObjectObserverTopic : public ObserverTopic
 {
 public:
 
-    ObjectObserverTopic(const std::shared_ptr<IceStorm::TopicManagerPrx>&, const std::map<Ice::Identity, ObjectInfo>&, long long);
+    ObjectObserverTopic(const IceStorm::TopicManagerPrxPtr&, const std::map<Ice::Identity, ObjectInfo>&, long long);
 
     int objectInit(long long, const ObjectInfoSeq&);
     int objectAdded(long long, const ObjectInfo&);
@@ -161,11 +161,11 @@ public:
     int wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq&);
     int wellKnownObjectsRemoved(const ObjectInfoSeq&);
 
-    virtual void initObserver(const std::shared_ptr<Ice::ObjectPrx>&);
+    virtual void initObserver(const Ice::ObjectPrxPtr&);
 
 private:
 
-    std::vector<std::shared_ptr<ObjectObserverPrx>> _publishers;
+    std::vector<ObjectObserverPrxPtr> _publishers;
     std::map<Ice::Identity, ObjectInfo> _objects;
 };
 

@@ -31,7 +31,7 @@ namespace IcePy
 struct ProxyObject
 {
     PyObject_HEAD
-    shared_ptr<Ice::ObjectPrx>* proxy;
+    Ice::ObjectPrx* proxy;
     Ice::CommunicatorPtr* communicator;
 };
 
@@ -41,7 +41,7 @@ struct ProxyObject
 // Proxy implementation.
 //
 static ProxyObject*
-allocateProxy(const shared_ptr<Ice::ObjectPrx>& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
+allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
 {
     PyTypeObject* typeObj = reinterpret_cast<PyTypeObject*>(type);
     ProxyObject* p = reinterpret_cast<ProxyObject*>(typeObj->tp_alloc(typeObj, 0));
@@ -60,7 +60,7 @@ allocateProxy(const shared_ptr<Ice::ObjectPrx>& proxy, const Ice::CommunicatorPt
     //    p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimized(false));
     //}
     //
-    p->proxy = new shared_ptr<Ice::ObjectPrx>(proxy);
+    p->proxy = new Ice::ObjectPrx(proxy);
     p->communicator = new Ice::CommunicatorPtr(communicator);
 
     return p;
@@ -102,22 +102,22 @@ proxyCompare(ProxyObject* p1, PyObject* other, int op)
         switch(op)
         {
         case Py_EQ:
-            result = Ice::targetEqualTo(*p1->proxy, *p2->proxy);
+            result = *p1->proxy == *p2->proxy;
             break;
         case Py_NE:
-            result = !Ice::targetEqualTo(*p1->proxy, *p2->proxy);
+            result = *p1->proxy != *p2->proxy;
             break;
         case Py_LE:
-            result = Ice::targetLessEqual(*p1->proxy, *p2->proxy);
+            result = *p1->proxy <= *p2->proxy;
             break;
         case Py_GE:
-            result = Ice::targetGreaterEqual(*p1->proxy, *p2->proxy);
+            result = *p1->proxy >= *p2->proxy;
             break;
         case Py_LT:
-            result = Ice::targetLess(*p1->proxy, *p2->proxy);
+            result = *p1->proxy < *p2->proxy;
             break;
         case Py_GT:
-            result = Ice::targetGreater(*p1->proxy, *p2->proxy);
+            result = *p1->proxy > *p2->proxy;
             break;
         }
     }
@@ -379,7 +379,7 @@ proxyIceIdentity(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_identity(ident);
@@ -390,7 +390,7 @@ proxyIceIdentity(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator);
+    return createProxy(newProxy.value(), *self->communicator);
 }
 
 #ifdef WIN32
@@ -440,7 +440,7 @@ proxyIceContext(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_context(ctx);
@@ -451,7 +451,7 @@ proxyIceContext(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -496,7 +496,7 @@ proxyIceFacet(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_facet(facet);
@@ -507,7 +507,7 @@ proxyIceFacet(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator);
+    return createProxy(newProxy.value(), *self->communicator);
 }
 
 #ifdef WIN32
@@ -552,7 +552,7 @@ proxyIceAdapterId(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_adapterId(id);
@@ -563,7 +563,7 @@ proxyIceAdapterId(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -627,7 +627,7 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_endpoints(seq);
@@ -638,7 +638,7 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -715,7 +715,7 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_locatorCacheTimeout(timeout);
@@ -731,7 +731,7 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -748,7 +748,7 @@ proxyIceInvocationTimeout(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_invocationTimeout(timeout);
@@ -764,7 +764,7 @@ proxyIceInvocationTimeout(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -810,7 +810,7 @@ proxyIceConnectionCached(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_connectionCached(n == 1);
@@ -821,7 +821,7 @@ proxyIceConnectionCached(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -898,7 +898,7 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_endpointSelection(val);
@@ -909,7 +909,7 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -955,7 +955,7 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_secure(n == 1);
@@ -966,7 +966,7 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1014,7 +1014,7 @@ proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_encodingVersion(val);
@@ -1025,7 +1025,7 @@ proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1071,7 +1071,7 @@ proxyIcePreferSecure(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_preferSecure(n == 1);
@@ -1082,7 +1082,7 @@ proxyIcePreferSecure(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1093,7 +1093,7 @@ proxyIceGetRouter(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    shared_ptr<Ice::RouterPrx> router;
+    optional<Ice::RouterPrx> router;
     try
     {
         router = (*self->proxy)->ice_getRouter();
@@ -1112,7 +1112,7 @@ proxyIceGetRouter(ProxyObject* self, PyObject* /*args*/)
 
     PyObject* routerProxyType = lookupType("Ice.RouterPrx");
     assert(routerProxyType);
-    return createProxy(router, *self->communicator, routerProxyType);
+    return createProxy(router.value(), *self->communicator, routerProxyType);
 }
 
 #ifdef WIN32
@@ -1127,17 +1127,17 @@ proxyIceRouter(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "ice_router", "rtr", proxy, "Ice.RouterPrx"))
     {
         return 0;
     }
 
-    shared_ptr<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
+    optional<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_router(router);
@@ -1148,7 +1148,7 @@ proxyIceRouter(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1159,7 +1159,7 @@ proxyIceGetLocator(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    shared_ptr<Ice::LocatorPrx> locator;
+    optional<Ice::LocatorPrx> locator;
     try
     {
         locator = (*self->proxy)->ice_getLocator();
@@ -1178,7 +1178,7 @@ proxyIceGetLocator(ProxyObject* self, PyObject* /*args*/)
 
     PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
     assert(locatorProxyType);
-    return createProxy(locator, *self->communicator, locatorProxyType);
+    return createProxy(locator.value(), *self->communicator, locatorProxyType);
 }
 
 #ifdef WIN32
@@ -1193,17 +1193,17 @@ proxyIceLocator(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "ice_locator", "loc", proxy, "Ice.LocatorPrx"))
     {
         return 0;
     }
 
-    shared_ptr<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
+    optional<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_locator(locator);
@@ -1214,7 +1214,7 @@ proxyIceLocator(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1225,7 +1225,7 @@ proxyIceTwoway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_twoway();
@@ -1236,7 +1236,7 @@ proxyIceTwoway(ProxyObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1270,7 +1270,7 @@ proxyIceOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_oneway();
@@ -1281,7 +1281,7 @@ proxyIceOneway(ProxyObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1315,7 +1315,7 @@ proxyIceBatchOneway(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_batchOneway();
@@ -1326,7 +1326,7 @@ proxyIceBatchOneway(ProxyObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1360,7 +1360,7 @@ proxyIceDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_datagram();
@@ -1371,7 +1371,7 @@ proxyIceDatagram(ProxyObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1405,7 +1405,7 @@ proxyIceBatchDatagram(ProxyObject* self, PyObject* /*args*/)
 {
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_batchDatagram();
@@ -1416,7 +1416,7 @@ proxyIceBatchDatagram(ProxyObject* self, PyObject* /*args*/)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1462,7 +1462,7 @@ proxyIceCompress(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_compress(n == 1);
@@ -1473,7 +1473,7 @@ proxyIceCompress(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1520,7 +1520,7 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_timeout(timeout);
@@ -1536,7 +1536,7 @@ proxyIceTimeout(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1610,7 +1610,7 @@ proxyIceCollocationOptimized(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_collocationOptimized(n == 1);
@@ -1621,7 +1621,7 @@ proxyIceCollocationOptimized(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1644,7 +1644,7 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
 
     assert(self->proxy);
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_connectionId(id);
@@ -1655,7 +1655,7 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1678,7 +1678,7 @@ proxyIceFixed(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> newProxy;
+    optional<Ice::ObjectPrx> newProxy;
     try
     {
         newProxy = (*self->proxy)->ice_fixed(connection);
@@ -1694,7 +1694,7 @@ proxyIceFixed(ProxyObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+    return createProxy(newProxy.value(), *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
 #ifdef WIN32
@@ -1930,7 +1930,7 @@ proxyIceInvokeAsync(ProxyObject* self, PyObject* args, PyObject* /*kwds*/)
 static PyObject*
 checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx, PyObject* type)
 {
-    shared_ptr<Ice::ObjectPrx> target;
+    optional<Ice::ObjectPrx> target;
     if(!facet || facet == Py_None)
     {
         target = *p->proxy;
@@ -1940,6 +1940,7 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
         string facetStr = getString(facet);
         target = (*p->proxy)->ice_facet(facetStr);
     }
+    assert(target);
 
     bool b = false;
     try
@@ -1968,7 +1969,7 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
 
     if(b)
     {
-        return createProxy(target, *p->communicator, type);
+        return createProxy(target.value(), *p->communicator, type);
     }
 
     Py_INCREF(Py_None);
@@ -2424,10 +2425,8 @@ IcePy::initProxy(PyObject* module)
 }
 
 PyObject*
-IcePy::createProxy(const shared_ptr<Ice::ObjectPrx>& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
+IcePy::createProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator, PyObject* type)
 {
-    assert(proxy);
-
     if(!type)
     {
         PyTypeObject* proxyType = &ProxyType; // Necessary to prevent GCC's strict-alias warnings.
@@ -2443,7 +2442,7 @@ IcePy::checkProxy(PyObject* p)
     return PyObject_IsInstance(p, reinterpret_cast<PyObject*>(type)) == 1;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrx
 IcePy::getProxy(PyObject* p)
 {
     assert(checkProxy(p));
@@ -2452,7 +2451,7 @@ IcePy::getProxy(PyObject* p)
 }
 
 bool
-IcePy::getProxyArg(PyObject* p, const string& func, const string& arg, shared_ptr<Ice::ObjectPrx>& proxy, const string& type)
+IcePy::getProxyArg(PyObject* p, const string& func, const string& arg, optional<Ice::ObjectPrx>& proxy, const string& type)
 {
     bool result = true;
 
@@ -2482,7 +2481,7 @@ IcePy::getProxyArg(PyObject* p, const string& func, const string& arg, shared_pt
         }
         else
         {
-            proxy = 0;
+            proxy = nullopt;
         }
     }
     else

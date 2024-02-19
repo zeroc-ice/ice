@@ -29,15 +29,11 @@ public:
 
     ProxyFactory(const InstancePtr&);
 
-    Ice::ObjectPrxPtr stringToProxy(const std::string&) const;
-    std::string proxyToString(const Ice::ObjectPrxPtr&) const;
+    std::optional<Ice::ObjectPrx> stringToProxy(const std::string&) const;
+    std::string proxyToString(const std::optional<Ice::ObjectPrx>&) const;
 
-    Ice::ObjectPrxPtr propertyToProxy(const std::string&) const;
-    Ice::PropertyDict proxyToProperty(const Ice::ObjectPrxPtr&, const std::string&) const;
-
-    Ice::ObjectPrxPtr streamToProxy(Ice::InputStream*) const;
-
-    Ice::ObjectPrxPtr referenceToProxy(const ReferencePtr&) const;
+    std::optional<Ice::ObjectPrx> propertyToProxy(const std::string&) const;
+    Ice::PropertyDict proxyToProperty(const std::optional<Ice::ObjectPrx>&, const std::string&) const;
 
 private:
 

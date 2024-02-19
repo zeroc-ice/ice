@@ -45,7 +45,7 @@ private:
     struct ObserverInfo
     {
         int id;
-        std::shared_ptr<ReplicaObserverPrx> observer;
+        ReplicaObserverPrxPtr observer;
         std::future<void> future;
     };
     std::vector<ObserverInfo> _observers;

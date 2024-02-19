@@ -42,23 +42,23 @@ class CallbackI final : public ::Test::Callback
 {
 public:
 
-    void initiateCallbackAsync(std::shared_ptr<Test::CallbackReceiverPrx>,
+    void initiateCallbackAsync(Test::CallbackReceiverPrxPtr,
                                std::function<void()>, std::function<void(std::exception_ptr)>,
                                const Ice::Current&) override;
 
-    void initiateCallbackExAsync(std::shared_ptr<Test::CallbackReceiverPrx>,
+    void initiateCallbackExAsync(Test::CallbackReceiverPrxPtr,
                                  std::function<void()>, std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) override;
 
-    void initiateConcurrentCallbackAsync(int, std::shared_ptr<Test::CallbackReceiverPrx>,
+    void initiateConcurrentCallbackAsync(int, Test::CallbackReceiverPrxPtr,
                                          std::function<void(int)>, std::function<void(std::exception_ptr)>,
                                          const Ice::Current&) override;
 
-    void initiateWaitCallbackAsync(std::shared_ptr<Test::CallbackReceiverPrx>,
+    void initiateWaitCallbackAsync(Test::CallbackReceiverPrxPtr,
                                    std::function<void()>, std::function<void(std::exception_ptr)>,
                                    const Ice::Current&) override;
 
-    void initiateCallbackWithPayloadAsync(std::shared_ptr<Test::CallbackReceiverPrx>,
+    void initiateCallbackWithPayloadAsync(Test::CallbackReceiverPrxPtr,
                                           std::function<void()>, std::function<void(std::exception_ptr)>,
                                           const Ice::Current&) override;
 

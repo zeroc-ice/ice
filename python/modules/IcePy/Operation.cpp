@@ -92,7 +92,7 @@ class Invocation
 {
 public:
 
-    Invocation(const shared_ptr<Ice::ObjectPrx>&);
+    Invocation(const Ice::ObjectPrx&);
 
     virtual PyObject* invoke(PyObject*, PyObject* = 0) = 0;
 
@@ -107,9 +107,9 @@ protected:
     PyObject* unmarshalResults(const OperationPtr&, const pair<const Ice::Byte*, const Ice::Byte*>&);
     PyObject* unmarshalException(const OperationPtr&, const pair<const Ice::Byte*, const Ice::Byte*>&);
     bool validateException(const OperationPtr&, PyObject*) const;
-    void checkTwowayOnly(const OperationPtr&, const shared_ptr<Ice::ObjectPrx>&) const;
+    void checkTwowayOnly(const OperationPtr&, const Ice::ObjectPrx&) const;
 
-    shared_ptr<Ice::ObjectPrx> _prx;
+    Ice::ObjectPrx _prx;
     Ice::CommunicatorPtr _communicator;
 };
 using InvocationPtr = shared_ptr<Invocation>;
@@ -118,7 +118,7 @@ class SyncTypedInvocation final : public Invocation
 {
 public:
 
-    SyncTypedInvocation(const shared_ptr<Ice::ObjectPrx>&, const OperationPtr&);
+    SyncTypedInvocation(const Ice::ObjectPrx&, const OperationPtr&);
 
     PyObject* invoke(PyObject*, PyObject* = 0) final;
 
@@ -131,7 +131,7 @@ class AsyncInvocation : public Invocation
 {
 public:
 
-    AsyncInvocation(const shared_ptr<Ice::ObjectPrx>&, PyObject*, const string&);
+    AsyncInvocation(const Ice::ObjectPrx&, PyObject*, const string&);
     ~AsyncInvocation();
 
     PyObject* invoke(PyObject*, PyObject* = 0) final;
@@ -162,7 +162,7 @@ class AsyncTypedInvocation final : public AsyncInvocation, public enable_shared_
 {
 public:
 
-    AsyncTypedInvocation(const shared_ptr<Ice::ObjectPrx>&, PyObject*, const OperationPtr&);
+    AsyncTypedInvocation(const Ice::ObjectPrx&, PyObject*, const OperationPtr&);
 
 protected:
 
@@ -178,7 +178,7 @@ class SyncBlobjectInvocation final : public Invocation
 {
 public:
 
-    SyncBlobjectInvocation(const shared_ptr<Ice::ObjectPrx>&);
+    SyncBlobjectInvocation(const Ice::ObjectPrx&);
 
     PyObject* invoke(PyObject*, PyObject* = 0) final;
 };
@@ -187,7 +187,7 @@ class AsyncBlobjectInvocation final : public AsyncInvocation, public enable_shar
 {
 public:
 
-    AsyncBlobjectInvocation(const shared_ptr<Ice::ObjectPrx>&, PyObject*);
+    AsyncBlobjectInvocation(const Ice::ObjectPrx&, PyObject*);
 
 protected:
 
@@ -434,7 +434,7 @@ operationInvoke(OperationObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> prx = getProxy(pyProxy);
+    Ice::ObjectPrx prx = getProxy(pyProxy);
     assert(self->op);
 
     InvocationPtr i = make_shared<SyncTypedInvocation>(prx, *self->op);
@@ -454,7 +454,7 @@ operationInvokeAsync(OperationObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> prx = getProxy(proxy);
+    Ice::ObjectPrx prx = getProxy(proxy);
     InvocationPtr i = make_shared<AsyncTypedInvocation>(prx, proxy, *self->op);
     return i->invoke(opArgs);
 }
@@ -1373,7 +1373,7 @@ IcePy::initOperation(PyObject* module)
 //
 // Invocation
 //
-IcePy::Invocation::Invocation(const shared_ptr<Ice::ObjectPrx>& prx) :
+IcePy::Invocation::Invocation(const Ice::ObjectPrx& prx) :
     _prx(prx),
     _communicator(prx->ice_getCommunicator())
 {
@@ -1652,7 +1652,7 @@ IcePy::Invocation::validateException(const OperationPtr& op, PyObject* ex) const
 }
 
 void
-IcePy::Invocation::checkTwowayOnly(const OperationPtr& op, const shared_ptr<Ice::ObjectPrx>& proxy) const
+IcePy::Invocation::checkTwowayOnly(const OperationPtr& op, const Ice::ObjectPrx& proxy) const
 {
     if((op->returnType != 0 || !op->outParams.empty() || !op->exceptions.empty()) && !proxy->ice_isTwoway())
     {
@@ -1665,7 +1665,7 @@ IcePy::Invocation::checkTwowayOnly(const OperationPtr& op, const shared_ptr<Ice:
 //
 // SyncTypedInvocation
 //
-IcePy::SyncTypedInvocation::SyncTypedInvocation(const shared_ptr<Ice::ObjectPrx>& prx, const OperationPtr& op) :
+IcePy::SyncTypedInvocation::SyncTypedInvocation(const Ice::ObjectPrx& prx, const OperationPtr& op) :
     Invocation(prx),
     _op(op)
 {
@@ -1797,7 +1797,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 //
 // AsyncInvocation
 //
-IcePy::AsyncInvocation::AsyncInvocation(const shared_ptr<Ice::ObjectPrx>& prx, PyObject* pyProxy, const string& operation)
+IcePy::AsyncInvocation::AsyncInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, const string& operation)
     : Invocation(prx),
     _pyProxy(pyProxy),
     _operation(operation),
@@ -2064,7 +2064,7 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
 }
 
 IcePy::AsyncTypedInvocation::AsyncTypedInvocation(
-    const shared_ptr<Ice::ObjectPrx>& prx,
+    const Ice::ObjectPrx& prx,
     PyObject* pyProxy,
     const OperationPtr& op)
     : AsyncInvocation(prx, pyProxy, op->name),
@@ -2202,7 +2202,7 @@ IcePy::AsyncTypedInvocation::handleResponse(
     }
 }
 
-IcePy::SyncBlobjectInvocation::SyncBlobjectInvocation(const shared_ptr<Ice::ObjectPrx>& prx)
+IcePy::SyncBlobjectInvocation::SyncBlobjectInvocation(const Ice::ObjectPrx& prx)
     : Invocation(prx)
 {
 }
@@ -2295,7 +2295,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     }
 }
 
-IcePy::AsyncBlobjectInvocation::AsyncBlobjectInvocation(const shared_ptr<Ice::ObjectPrx>& prx, PyObject* pyProxy) :
+IcePy::AsyncBlobjectInvocation::AsyncBlobjectInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy) :
     AsyncInvocation(prx, pyProxy, "ice_invoke")
 {
 }
@@ -2807,7 +2807,7 @@ IcePy::invokeBuiltin(PyObject* proxy, const string& builtin, PyObject* args)
     OperationPtr op = getOperation(obj.get());
     assert(op);
 
-    shared_ptr<Ice::ObjectPrx> prx = getProxy(proxy);
+    Ice::ObjectPrx prx = getProxy(proxy);
     InvocationPtr i = make_shared<SyncTypedInvocation>(prx, op);
     return i->invoke(args);
 }
@@ -2824,7 +2824,7 @@ IcePy::invokeBuiltinAsync(PyObject* proxy, const string& builtin, PyObject* args
     OperationPtr op = getOperation(obj.get());
     assert(op);
 
-    shared_ptr<Ice::ObjectPrx> prx = getProxy(proxy);
+    Ice::ObjectPrx prx = getProxy(proxy);
     InvocationPtr i = make_shared<AsyncTypedInvocation>(prx, proxy, op);
     return i->invoke(args);
 }
@@ -2832,7 +2832,7 @@ IcePy::invokeBuiltinAsync(PyObject* proxy, const string& builtin, PyObject* args
 PyObject*
 IcePy::iceInvoke(PyObject* proxy, PyObject* args)
 {
-    shared_ptr<Ice::ObjectPrx> prx = getProxy(proxy);
+    Ice::ObjectPrx prx = getProxy(proxy);
     InvocationPtr i = make_shared<SyncBlobjectInvocation>(prx);
     return i->invoke(args);
 }
@@ -2840,7 +2840,7 @@ IcePy::iceInvoke(PyObject* proxy, PyObject* args)
 PyObject*
 IcePy::iceInvokeAsync(PyObject* proxy, PyObject* args)
 {
-    shared_ptr<Ice::ObjectPrx> prx = getProxy(proxy);
+    Ice::ObjectPrx prx = getProxy(proxy);
     InvocationPtr i = make_shared<AsyncBlobjectInvocation>(prx, proxy);
     return i->invoke(args);
 }

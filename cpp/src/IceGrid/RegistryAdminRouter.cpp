@@ -68,7 +68,7 @@ RegistryServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byt
                                        function<void(exception_ptr)> exception,
                                        const Ice::Current& current)
 {
-    shared_ptr<ObjectPrx> target;
+    ObjectPrxPtr target;
 
     try
     {
@@ -94,7 +94,7 @@ RegistryServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byt
     {
     }
 
-    if(target == nullptr)
+    if(target == nullopt)
     {
         throw ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -117,7 +117,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*
                                        function<void(exception_ptr)> exception,
                                        const Ice::Current& current)
 {
-    shared_ptr<ObjectPrx> target;
+    ObjectPrxPtr target;
 
     if(!_collocNodeName.empty() && current.id.name == _collocNodeName)
     {
@@ -137,7 +137,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*
         {
         }
 
-        if(target == 0)
+        if(target == nullopt)
         {
             if(_traceLevels->admin > 0)
             {
@@ -168,7 +168,7 @@ RegistryReplicaAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::By
                                        function<void(exception_ptr)> exception,
                                        const Ice::Current& current)
 {
-    shared_ptr<ObjectPrx> target;
+    ObjectPrxPtr target;
 
     if(current.id.name == _name)
     {
@@ -187,7 +187,7 @@ RegistryReplicaAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::By
         }
     }
 
-    if(target == nullptr)
+    if(target == nullopt)
     {
         if(_traceLevels->admin > 0)
         {

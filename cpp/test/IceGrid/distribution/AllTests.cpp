@@ -18,16 +18,16 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    shared_ptr<IceGrid::RegistryPrx> registry = Ice::checkedCast<IceGrid::RegistryPrx>(
+    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
-    shared_ptr<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
+    AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          nullopt,
                                          Ice::ACMHeartbeat::HeartbeatAlways);
 
-    shared_ptr<AdminPrx> admin = session->getAdmin();
+    AdminPrxPtr admin = session->getAdmin();
     test(admin);
 
     cout << "testing distributions... " << flush;
@@ -35,7 +35,7 @@ allTests(Test::TestHelper* helper)
         admin->startServer("Test.IcePatch2");
         admin->startServer("IcePatch2-Direct");
 
-        shared_ptr<TestIntfPrx> test = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-all"));
+        TestIntfPrxPtr test = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-all"));
         test(test->getServerFile("rootfile") == "");
 
         try
@@ -126,7 +126,7 @@ allTests(Test::TestHelper* helper)
         admin->startServer("Test.IcePatch2");
         admin->startServer("IcePatch2-Direct");
 
-        shared_ptr<TestIntfPrx> test = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-all"));
+        TestIntfPrxPtr test = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-all"));
         test(test->getServerFile("rootfile") == "rootfile");
 
         try
@@ -225,7 +225,7 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
 
-        shared_ptr<TestIntfPrx> test = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-dir1"));
+        TestIntfPrxPtr test = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-dir1"));
 
         test(test->getServerFile("rootfile") == "");
         test(test->getServerFile("dir1/file1") == "dummy-file1");

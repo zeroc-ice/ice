@@ -42,7 +42,7 @@ class Parser
 {
 public:
 
-    Parser(std::shared_ptr<Ice::Communicator>, std::shared_ptr<AdminSessionPrx>, std::shared_ptr<AdminPrx>, bool);
+    Parser(std::shared_ptr<Ice::Communicator>, AdminSessionPrxPtr, AdminPrxPtr, bool);
 
     void usage();
     void usage(const std::string&, const std::string& = std::string());
@@ -150,8 +150,8 @@ private:
 
     std::string _commands;
     std::shared_ptr<Ice::Communicator> _communicator;
-    std::shared_ptr<AdminSessionPrx> _session;
-    std::shared_ptr<AdminPrx> _admin;
+    AdminSessionPrxPtr _session;
+    AdminPrxPtr _admin;
     bool _continue;
     bool _interrupted;
     int _errors;

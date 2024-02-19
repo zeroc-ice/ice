@@ -538,7 +538,7 @@ allTests(TestHelper* helper)
 
     {
         cout << "testing username/password sessions... " << flush;
-        shared_ptr<SessionPrx> session1, session2;
+        SessionPrxPtr session1, session2;
 
         session1 = Ice::uncheckedCast<SessionPrx>(registry1->createSession("client1", "test1")->ice_connectionId("reg1"));
         session2 = Ice::uncheckedCast<SessionPrx>(registry2->createSession("client2", "test2")->ice_connectionId("reg2"));
@@ -602,7 +602,7 @@ allTests(TestHelper* helper)
         session1->destroy();
         session2->destroy();
 
-        shared_ptr<AdminSessionPrx> adminSession1, adminSession2;
+        AdminSessionPrxPtr adminSession1, adminSession2;
 
         adminSession1 = Ice::uncheckedCast<AdminSessionPrx>(
             registry1->createAdminSession("admin1", "test1")->ice_connectionId("reg1"));
@@ -678,7 +678,7 @@ allTests(TestHelper* helper)
     {
         cout << "testing sessions from secure connection... " << flush;
 
-        shared_ptr<SessionPrx> session1, session2;
+        SessionPrxPtr session1, session2;
 
         session1 = Ice::uncheckedCast<SessionPrx>(registry1->createSessionFromSecureConnection()->ice_connectionId("reg1"));
         session2 = Ice::uncheckedCast<SessionPrx>(registry2->createSessionFromSecureConnection()->ice_connectionId("reg2"));
@@ -718,7 +718,7 @@ allTests(TestHelper* helper)
         session1->destroy();
         session2->destroy();
 
-        shared_ptr<AdminSessionPrx> adminSession1, adminSession2;
+        AdminSessionPrxPtr adminSession1, adminSession2;
 
         adminSession1 = Ice::uncheckedCast<AdminSessionPrx>(
             registry1->createAdminSessionFromSecureConnection()->ice_connectionId("reg1"));
@@ -787,9 +787,9 @@ allTests(TestHelper* helper)
     {
         cout << "testing Glacier2 username/password sessions... " << flush;
 
-        shared_ptr<SessionPrx> session1, session2;
+        SessionPrxPtr session1, session2;
 
-        shared_ptr<Glacier2::SessionPrx> base;
+        Glacier2::SessionPrxPtr base;
 
         base = router1->createSession("client1", "test1");
         test(base);
@@ -868,7 +868,7 @@ allTests(TestHelper* helper)
         router1->destroySession();
         router2->destroySession();
 
-        shared_ptr<AdminSessionPrx> admSession1, admSession2;
+        AdminSessionPrxPtr admSession1, admSession2;
 
         base = adminRouter1->createSession("admin1", "test1");
         admSession1 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter1")->ice_router(adminRouter1));
@@ -957,9 +957,9 @@ allTests(TestHelper* helper)
     {
         cout << "testing Glacier2 sessions from secure connection... " << flush;
 
-        shared_ptr<SessionPrx> session1, session2;
+        SessionPrxPtr session1, session2;
 
-        shared_ptr<Glacier2::SessionPrx> base;
+        Glacier2::SessionPrxPtr base;
 
         //
         // BUGFIX: We can't re-use the same router proxies because of bug 1034.
@@ -1009,7 +1009,7 @@ allTests(TestHelper* helper)
         {
         }
 
-        shared_ptr<Ice::ObjectPrx> obj = communicator->stringToProxy("TestIceGrid/Query");
+        Ice::ObjectPrxPtr obj = communicator->stringToProxy("TestIceGrid/Query");
         obj->ice_connectionId("router11")->ice_router(router1)->ice_ping();
         obj->ice_connectionId("router21")->ice_router(router2)->ice_ping();
 
@@ -1034,7 +1034,7 @@ allTests(TestHelper* helper)
         router1->destroySession();
         router2->destroySession();
 
-        shared_ptr<AdminSessionPrx> admSession1, admSession2;
+        AdminSessionPrxPtr admSession1, admSession2;
 
         // BUGFIX: We can't re-use the same router proxies because of bug 1034.
         adminRouter1 = Ice::uncheckedCast<Glacier2::RouterPrx>(adminRouter->ice_connectionId("admRouter11"));
@@ -1166,11 +1166,11 @@ allTests(TestHelper* helper)
         auto nodeObs2 = make_shared<NodeObserverI>("nodeObs1");
         auto no2 = adpt2->addWithUUID(nodeObs2);
         adpt2->activate();
-        session2->setObservers(nullptr,
+        session2->setObservers(nullopt,
                                Ice::uncheckedCast<NodeObserverPrx>(no2),
                                Ice::uncheckedCast<ApplicationObserverPrx>(app2),
-                               nullptr,
-                               nullptr);
+                               nullopt,
+                               nullopt);
 
         appObs1->waitForUpdate(__LINE__);
         appObs2->waitForUpdate(__LINE__);
@@ -1555,7 +1555,7 @@ allTests(TestHelper* helper)
             test(adptObs1->adapters["DummyAdapter"].replicaGroupId == "");
             test(adptObs1->adapters["DummyAdapter1"].replicaGroupId == "");
 
-            locatorRegistry->setAdapterDirectProxy("DummyAdapter", 0);
+            locatorRegistry->setAdapterDirectProxy("DummyAdapter", nullopt);
             adptObs1->waitForUpdate(__LINE__);
             test(adptObs1->adapters.find("DummyAdapter") == adptObs1->adapters.end());
         }
@@ -1827,7 +1827,7 @@ allTests(TestHelper* helper)
         auto no1 = adpt1->addWithUUID(nodeObs1);
         adpt1->activate();
 
-        session1->setObservers(nullptr, Ice::uncheckedCast<NodeObserverPrx>(no1), nullptr, nullptr, nullptr);
+        session1->setObservers(nullopt, Ice::uncheckedCast<NodeObserverPrx>(no1), nullopt, nullopt, nullopt);
         nodeObs1->waitForUpdate(__LINE__); // init
 
         session1->destroy();
@@ -1849,7 +1849,7 @@ allTests(TestHelper* helper)
         assert(no1->ice_getAdapterId() == "adapter1");
         adpt1->activate();
 
-        session1->setObservers(nullptr, Ice::uncheckedCast<NodeObserverPrx>(no1), nullptr, nullptr, nullptr);
+        session1->setObservers(nullopt, Ice::uncheckedCast<NodeObserverPrx>(no1), nullopt, nullopt, nullopt);
         nodeObs1->waitForUpdate(__LINE__); // init
 
         session1->destroy();

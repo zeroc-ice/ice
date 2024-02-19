@@ -37,8 +37,8 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
     if(batch->ice_getConnection() &&
        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
     {
-        shared_ptr<Test::MyClassPrx> batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
-        shared_ptr<Test::MyClassPrx> batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
+        Test::MyClassPrxPtr batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
+        Test::MyClassPrxPtr batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
 
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();

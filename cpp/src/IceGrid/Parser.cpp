@@ -400,8 +400,8 @@ Parser* parser;
 }
 
 Parser::Parser(shared_ptr<Communicator> communicator,
-               shared_ptr<AdminSessionPrx> session,
-               shared_ptr<AdminPrx> admin,
+               AdminSessionPrxPtr session,
+               AdminPrxPtr admin,
                bool interactive) :
     _communicator(std::move(communicator)),
     _session(std::move(session)),
@@ -1878,7 +1878,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         }
 
         auto admin = _admin->getServerAdmin(server);
-        shared_ptr<Ice::PropertiesAdminPrx> propAdmin;
+        Ice::PropertiesAdminPrxPtr propAdmin;
         if(getPropertyAsInt(info.descriptor->propertySet.properties, "IceBox.UseSharedCommunicator." + service) > 0)
         {
             propAdmin = Ice::uncheckedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.SharedCommunicator.Properties");
@@ -1964,16 +1964,30 @@ Parser::endpointsAdapter(const list<string>& args)
         AdapterInfoSeq adpts = _admin->getAdapterInfo(adapterId);
         if(adpts.size() == 1 && adpts.begin()->id == adapterId)
         {
-            string endpoints = _communicator->proxyToString(adpts.begin()->proxy);
-            consoleOut << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
+            auto proxy = adpts.begin()->proxy;
+            if (proxy)
+            {
+                consoleOut << proxy << endl;
+            }
+            else
+            {
+                consoleOut << "<inactive>" << endl;
+            }
         }
         else
         {
             for(AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
             {
                 consoleOut << (p->id.empty() ? string("<empty>") : p->id) << ": ";
-                string endpoints = _communicator->proxyToString(p->proxy);
-                consoleOut << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
+                auto proxy = p->proxy;
+                if (proxy)
+                {
+                    consoleOut << proxy << endl;
+                }
+                else
+                {
+                    consoleOut << "<inactive>" << endl;
+                }
             }
         }
     }
@@ -2088,7 +2102,7 @@ Parser::findObject(const list<string>& args)
         ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            consoleOut << _communicator->proxyToString(p->proxy) << endl;
+            consoleOut << p->proxy << endl;
         }
     }
     catch(const Ice::Exception&)
@@ -2115,7 +2129,7 @@ Parser::describeObject(const list<string>& args)
             if(arg.find('*') == string::npos)
             {
                 ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
-                consoleOut << "proxy = `" << _communicator->proxyToString(info.proxy) << "'" << endl;
+                consoleOut << "proxy = `" << info.proxy << "'" << endl;
                 consoleOut << "type = `" << info.type << "'" << endl;
                 return;
             }
@@ -2131,7 +2145,7 @@ Parser::describeObject(const list<string>& args)
 
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            consoleOut << "proxy = `" << _communicator->proxyToString(p->proxy) << "' type = `" << p->type << "'" << endl;
+            consoleOut << "proxy = `" << p->proxy << "' type = `" << p->type << "'" << endl;
         }
 
     }
@@ -2277,7 +2291,7 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
 
     int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 
-    shared_ptr<FileIteratorPrx> it;
+    FileIteratorPrxPtr it;
 
     try
     {
@@ -2403,7 +2417,7 @@ Parser::showFile(const string& id, const string& reader, const string& filename,
     }
     catch(...)
     {
-        if(it != 0)
+        if(it != nullopt)
         {
             try
             {
@@ -2422,7 +2436,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 {
     outputNewline();
 
-    shared_ptr<Ice::ObjectPrx> admin;
+    Ice::ObjectPrxPtr admin;
 
     if(reader == "server")
     {
@@ -2437,13 +2451,13 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         admin = _admin->getRegistryAdmin(id);
     }
 
-    if(admin == 0)
+    if(admin == nullopt)
     {
         error("cannot retrieve Admin proxy for " + reader + " `" + id + "'");
         return;
     }
 
-    shared_ptr<Ice::LoggerAdminPrx> loggerAdmin;
+    Ice::LoggerAdminPrxPtr loggerAdmin;
 
     try
     {
@@ -2453,7 +2467,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
     {
     }
 
-    if(loggerAdmin == 0)
+    if(loggerAdmin == nullopt)
     {
         error("cannot retrieve Logger admin facet for " + reader + " `" + id + "'");
         return;
@@ -2463,7 +2477,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
     {
         auto adminCallbackTemplate = _session->getAdminCallbackTemplate();
 
-        if(adminCallbackTemplate == 0)
+        if(adminCallbackTemplate == nullopt)
         {
             error("cannot retriever Callback template from IceGrid registry");
             return;

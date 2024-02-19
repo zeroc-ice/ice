@@ -20,7 +20,7 @@ TransientTopicManagerImpl::TransientTopicManagerImpl(shared_ptr<Instance> instan
 {
 }
 
-shared_ptr<TopicPrx>
+TopicPrxPtr
 TransientTopicManagerImpl::create(string name, const Ice::Current&)
 {
     lock_guard<mutex> lg(_mutex);
@@ -58,7 +58,7 @@ TransientTopicManagerImpl::create(string name, const Ice::Current&)
     return prx;
 }
 
-shared_ptr<TopicPrx>
+TopicPrxPtr
 TransientTopicManagerImpl::retrieve(string name, const Ice::Current&)
 {
     lock_guard<mutex> lg(_mutex);
@@ -99,10 +99,10 @@ TransientTopicManagerImpl::retrieveAll(const Ice::Current&)
     return all;
 }
 
-shared_ptr<IceStormElection::NodePrx>
+IceStormElection::NodePrxPtr
 TransientTopicManagerImpl::getReplicaNode(const Ice::Current&) const
 {
-    return nullptr;
+    return nullopt;
 }
 
 void

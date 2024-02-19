@@ -228,26 +228,26 @@ Ice::CommunicatorI::isShutdown() const noexcept
     }
 }
 
-ObjectPrxPtr
+std::optional<ObjectPrx>
 Ice::CommunicatorI::stringToProxy(const string& s) const
 {
     return _instance->proxyFactory()->stringToProxy(s);
 }
 
 string
-Ice::CommunicatorI::proxyToString(const ObjectPrxPtr& proxy) const
+Ice::CommunicatorI::proxyToString(const std::optional<ObjectPrx>& proxy) const
 {
     return _instance->proxyFactory()->proxyToString(proxy);
 }
 
-ObjectPrxPtr
+std::optional<ObjectPrx>
 Ice::CommunicatorI::propertyToProxy(const string& p) const
 {
     return _instance->proxyFactory()->propertyToProxy(p);
 }
 
 PropertyDict
-Ice::CommunicatorI::proxyToProperty(const ObjectPrxPtr& proxy, const string& property) const
+Ice::CommunicatorI::proxyToProperty(const std::optional<ObjectPrx>& proxy, const string& property) const
 {
     return _instance->proxyFactory()->proxyToProperty(proxy, property);
 }
@@ -261,7 +261,7 @@ Ice::CommunicatorI::identityToString(const Identity& ident) const
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullptr);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullopt);
 }
 
 ObjectAdapterPtr
@@ -274,11 +274,11 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     }
 
     getProperties()->setProperty(oaName + ".Endpoints", endpoints);
-    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullptr);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullopt);
 }
 
 ObjectAdapterPtr
-Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const RouterPrxPtr& router)
+Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
 {
     string oaName = name;
     if(oaName.empty())
@@ -313,26 +313,26 @@ Ice::CommunicatorI::getObserver() const noexcept
     return _instance->initializationData().observer;
 }
 
-RouterPrxPtr
+std::optional<RouterPrx>
 Ice::CommunicatorI::getDefaultRouter() const
 {
     return _instance->referenceFactory()->getDefaultRouter();
 }
 
 void
-Ice::CommunicatorI::setDefaultRouter(const RouterPrxPtr& router)
+Ice::CommunicatorI::setDefaultRouter(const std::optional<RouterPrx>& router)
 {
     _instance->setDefaultRouter(router);
 }
 
-LocatorPrxPtr
+optional<LocatorPrx>
 Ice::CommunicatorI::getDefaultLocator() const
 {
     return _instance->referenceFactory()->getDefaultLocator();
 }
 
 void
-Ice::CommunicatorI::setDefaultLocator(const LocatorPrxPtr& locator)
+Ice::CommunicatorI::setDefaultLocator(const optional<LocatorPrx>& locator)
 {
     _instance->setDefaultLocator(locator);
 }
@@ -405,12 +405,13 @@ Ice::CommunicatorI::flushBatchRequestsAsync(CompressBatch compress,
     return [outAsync]() { outAsync->cancel(); };
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::CommunicatorI::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId)
 {
     return _instance->createAdmin(adminAdapter, adminId);
 }
-ObjectPrxPtr
+
+std::optional<ObjectPrx>
 Ice::CommunicatorI::getAdmin() const
 {
     return _instance->getAdmin();

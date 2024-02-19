@@ -4,7 +4,8 @@
 
 #pragma once
 
-[["cpp:source-include:Forward.h"]]
+// The type of a C++ struct field must be complete.
+[["cpp:include:Forward.h"]]
 
 module Test
 {

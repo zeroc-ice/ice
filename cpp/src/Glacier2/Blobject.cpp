@@ -66,7 +66,7 @@ Glacier2::Blobject::updateObserver(const shared_ptr<Glacier2::Instrumentation::S
 }
 
 void
-Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
+Glacier2::Blobject::invoke(ObjectPrxPtr& proxy,
                            const std::pair<const Byte*, const Byte*>& inParams,
                            function<void(bool, const pair<const Byte*, const Byte*>&)> response,
                            function<void(exception_ptr)> exception,
@@ -180,7 +180,7 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
         }
         else
         {
-            out << "\nproxy = " << _instance->communicator()->proxyToString(proxy);
+            out << "\nproxy = " << proxy;
         }
         out << "\noperation = " << current.operation;
         out << "\ncontext = ";
@@ -229,7 +229,7 @@ Glacier2::Blobject::invoke(shared_ptr<ObjectPrx>& proxy,
             }
             else
             {
-                out << "\nproxy = " << _instance->communicator()->proxyToString(proxy);
+                out << "\nproxy = " << proxy;
             }
             out << "\noperation = " << current.operation;
             out << "\ncontext = ";

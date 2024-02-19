@@ -56,8 +56,8 @@ private:
 
 }
 
-Parser::Parser(shared_ptr<Communicator> communicator, shared_ptr<TopicManagerPrx> admin,
-               map<Ice::Identity, shared_ptr<TopicManagerPrx>> managers) :
+Parser::Parser(shared_ptr<Communicator> communicator, TopicManagerPrxPtr admin,
+               map<Ice::Identity, TopicManagerPrxPtr> managers) :
     _communicator(std::move(communicator)),
     _defaultManager(std::move(admin)),
     _managers(std::move(managers))
@@ -197,7 +197,7 @@ Parser::links(const list<string>& args)
 
     try
     {
-        shared_ptr<TopicManagerPrx> manager;
+        TopicManagerPrxPtr manager;
         if(args.size() == 0)
         {
             manager = _defaultManager;
@@ -232,7 +232,7 @@ Parser::topics(const list<string>& args)
 
     try
     {
-        shared_ptr<TopicManagerPrx> manager;
+        TopicManagerPrxPtr manager;
         if(args.size() == 0)
         {
             manager = _defaultManager;
@@ -264,7 +264,7 @@ Parser::replica(const list<string>& args)
 
     try
     {
-        shared_ptr<TopicManagerPrx> m;
+        TopicManagerPrxPtr m;
         if(args.size() == 0)
         {
             m = _defaultManager;
@@ -607,7 +607,7 @@ Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-shared_ptr<TopicManagerPrx>
+TopicManagerPrxPtr
 Parser::findManagerById(const string& full, string& arg) const
 {
     auto id = Ice::stringToIdentity(full);
@@ -625,7 +625,7 @@ Parser::findManagerById(const string& full, string& arg) const
     return p->second;
 }
 
-shared_ptr<TopicManagerPrx>
+TopicManagerPrxPtr
 Parser::findManagerByCategory(const string& full) const
 {
     Ice::Identity id = {"TopicManager", full};
@@ -637,7 +637,7 @@ Parser::findManagerByCategory(const string& full) const
     return p->second;
 }
 
-shared_ptr<TopicPrx>
+TopicPrxPtr
 Parser::findTopic(const string& full) const
 {
     string topicName;

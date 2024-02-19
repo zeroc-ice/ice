@@ -564,13 +564,13 @@ communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
     }
 
     assert(self->communicator);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->communicator)->stringToProxy(str);
         if(proxy)
         {
-            return createProxy(proxy, *self->communicator);
+            return createProxy(proxy.value(), *self->communicator);
         }
     }
     catch(const Ice::Exception& ex)
@@ -595,7 +595,7 @@ communicatorProxyToString(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     if(!getProxyArg(obj, "proxyToString", "obj", proxy))
     {
         return 0;
@@ -636,13 +636,13 @@ communicatorPropertyToProxy(CommunicatorObject* self, PyObject* args)
     }
 
     assert(self->communicator);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->communicator)->propertyToProxy(str);
         if(proxy)
         {
-            return createProxy(proxy, *self->communicator);
+            return createProxy(proxy.value(), *self->communicator);
         }
     }
     catch(const Ice::Exception& ex)
@@ -672,7 +672,7 @@ communicatorProxyToProperty(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy = getProxy(proxyObj);
+    Ice::ObjectPrx proxy = getProxy(proxyObj);
     string str;
     if(!getStringArg(strObj, "property", str))
     {
@@ -870,13 +870,13 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
     }
 
     assert(self->communicator);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->communicator)->createAdmin(oa, identity);
         assert(proxy);
 
-        return createProxy(proxy, *self->communicator);
+        return createProxy(proxy.value(), *self->communicator);
     }
     catch(const Ice::Exception& ex)
     {
@@ -892,13 +892,13 @@ static PyObject*
 communicatorGetAdmin(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->communicator)->getAdmin();
         if(proxy)
         {
-            return createProxy(proxy, *self->communicator);
+            return createProxy(proxy.value(), *self->communicator);
         }
     }
     catch(const Ice::Exception& ex)
@@ -1337,20 +1337,20 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "createObjectAdapterWithRouter", "rtr", proxy, "Ice.RouterPrx"))
     {
         return 0;
     }
 
-    shared_ptr<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
+    optional<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
 
     assert(self->communicator);
     Ice::ObjectAdapterPtr adapter;
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
-        adapter = (*self->communicator)->createObjectAdapterWithRouter(name, router);
+        adapter = (*self->communicator)->createObjectAdapterWithRouter(name, router.value());
     }
     catch(const Ice::Exception& ex)
     {
@@ -1380,7 +1380,7 @@ static PyObject*
 communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    shared_ptr<Ice::RouterPrx> router;
+    optional<Ice::RouterPrx> router;
     try
     {
         router = (*self->communicator)->getDefaultRouter();
@@ -1399,7 +1399,7 @@ communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
 
     PyObject* routerProxyType = lookupType("Ice.RouterPrx");
     assert(routerProxyType);
-    return createProxy(router, *self->communicator, routerProxyType);
+    return createProxy(router.value(), *self->communicator, routerProxyType);
 }
 
 #ifdef WIN32
@@ -1414,13 +1414,13 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "setDefaultRouter", "rtr", proxy, "Ice.RouterPrx"))
     {
         return 0;
     }
 
-    shared_ptr<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
+    optional<Ice::RouterPrx> router = Ice::uncheckedCast<Ice::RouterPrx>(proxy);
 
     assert(self->communicator);
     try
@@ -1444,7 +1444,7 @@ static PyObject*
 communicatorGetDefaultLocator(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
-    shared_ptr<Ice::LocatorPrx> locator;
+    optional<Ice::LocatorPrx> locator;
     try
     {
         locator = (*self->communicator)->getDefaultLocator();
@@ -1463,7 +1463,7 @@ communicatorGetDefaultLocator(CommunicatorObject* self, PyObject* /*args*/)
 
     PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
     assert(locatorProxyType);
-    return createProxy(locator, *self->communicator, locatorProxyType);
+    return createProxy(locator.value(), *self->communicator, locatorProxyType);
 }
 
 #ifdef WIN32
@@ -1478,13 +1478,13 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "setDefaultLocator", "loc", proxy, "Ice.LocatorPrx"))
     {
         return 0;
     }
 
-    shared_ptr<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
+    optional<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
 
     assert(self->communicator);
     try

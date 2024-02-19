@@ -51,19 +51,19 @@ public:
     {
     }
 
-    shared_ptr<StringSetPrx>
+    StringSetPrxPtr
     categories(const Current&) override
     {
         return _filters->categoriesPrx();
     }
 
-    shared_ptr<StringSetPrx>
+    StringSetPrxPtr
     adapterIds(const Current&) override
     {
         return _filters->adapterIdsPrx();
     }
 
-    shared_ptr<IdentitySetPrx>
+    IdentitySetPrxPtr
     identities(const Current&) override
     {
         return _filters->identitiesPrx();
@@ -93,7 +93,7 @@ class UserPasswordCreateSession final : public CreateSession
 {
 public:
 
-    UserPasswordCreateSession(function<void(const shared_ptr<SessionPrx>&)> response,
+    UserPasswordCreateSession(function<void(const SessionPrxPtr&)> response,
                               function<void(exception_ptr)> exception,
                               const string& user, const string& password,
                               const Ice::Current& current, const shared_ptr<SessionRouterI>& sessionRouter) :
@@ -109,7 +109,7 @@ public:
     {
         if(ok)
         {
-            authorized(_sessionRouter->_sessionManager != nullptr);
+            authorized(_sessionRouter->_sessionManager != nullopt);
         }
         else
         {
@@ -168,7 +168,7 @@ public:
         ctx.insert(_context.begin(), _context.end());
         auto self = shared_from_this();
         _sessionRouter->_sessionManager->createAsync(_user, _control,
-                                                     [self](shared_ptr<SessionPrx> response)
+                                                     [self](SessionPrxPtr response)
                                                      {
                                                          self->sessionCreated(std::move(response));
                                                      },
@@ -182,7 +182,7 @@ public:
     }
 
     void
-    finished(const shared_ptr<SessionPrx>& session) override
+    finished(const SessionPrxPtr& session) override
     {
         _response(session);
     }
@@ -195,7 +195,7 @@ public:
 
 private:
 
-    const function<void(shared_ptr<SessionPrx>)> _response;
+    const function<void(SessionPrxPtr)> _response;
     const function<void(exception_ptr)> _exception;
     const string _password;
 };
@@ -204,7 +204,7 @@ class SSLCreateSession final : public CreateSession
 {
 public:
 
-    SSLCreateSession(function<void(const shared_ptr<SessionPrx>& returnValue)> response,
+    SSLCreateSession(function<void(const SessionPrxPtr& returnValue)> response,
                      function<void(exception_ptr)> exception,
                      const string& user,
                      const SSLInfo& sslInfo, const Ice::Current& current, const shared_ptr<SessionRouterI>& sessionRouter) :
@@ -220,7 +220,7 @@ public:
     {
         if(ok)
         {
-            authorized(_sessionRouter->_sslSessionManager != nullptr);
+            authorized(_sessionRouter->_sslSessionManager != nullopt);
         }
         else
         {
@@ -281,7 +281,7 @@ public:
 
         auto self = static_pointer_cast<SSLCreateSession>(shared_from_this());
         _sessionRouter->_sslSessionManager->createAsync(_sslInfo, _control,
-                                                        [self](shared_ptr<SessionPrx> response)
+                                                        [self](SessionPrxPtr response)
                                                         {
                                                             self->sessionCreated(std::move(response));
                                                         },
@@ -294,7 +294,7 @@ public:
     }
 
     void
-    finished(const shared_ptr<SessionPrx>& session) override
+    finished(const SessionPrxPtr& session) override
     {
         _response(session);
     }
@@ -307,7 +307,7 @@ public:
 
 private:
 
-    const function<void(const shared_ptr<SessionPrx>)> _response;
+    const function<void(const SessionPrxPtr)> _response;
     const function<void(exception_ptr)> _exception;
     const SSLInfo _sslInfo;
 };
@@ -406,7 +406,7 @@ CreateSession::authorized(bool createSession)
     }
     else
     {
-        sessionCreated(nullptr);
+        sessionCreated(nullopt);
     }
 }
 
@@ -449,7 +449,7 @@ CreateSession::createException(exception_ptr sex)
 }
 
 void
-CreateSession::sessionCreated(const shared_ptr<SessionPrx>& session)
+CreateSession::sessionCreated(const SessionPrxPtr& session)
 {
     //
     // Create the session router object.
@@ -550,10 +550,10 @@ CreateSession::exception(exception_ptr ex)
 }
 
 SessionRouterI::SessionRouterI(shared_ptr<Instance> instance,
-                               shared_ptr<PermissionsVerifierPrx> verifier,
-                               shared_ptr<SessionManagerPrx> sessionManager,
-                               shared_ptr<SSLPermissionsVerifierPrx> sslVerifier,
-                               shared_ptr<SSLSessionManagerPrx> sslSessionManager) :
+                               PermissionsVerifierPrxPtr verifier,
+                               SessionManagerPrxPtr sessionManager,
+                               SSLPermissionsVerifierPrxPtr sslVerifier,
+                               SSLSessionManagerPrxPtr sslSessionManager) :
     _instance(std::move(instance)),
     _sessionTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Trace.Session")),
     _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
@@ -604,13 +604,13 @@ SessionRouterI::destroy()
     }
 }
 
-shared_ptr<ObjectPrx>
+ObjectPrxPtr
 SessionRouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current& current) const
 {
     return getRouter(current.con, current.id)->getClientProxy(hasRoutingTable, current); // Forward to the per-client router.
 }
 
-shared_ptr<ObjectPrx>
+ObjectPrxPtr
 SessionRouterI::getServerProxy(const Current& current) const
 {
     return getRouter(current.con, current.id)->getServerProxy(current); // Forward to the per-client router.
@@ -641,7 +641,7 @@ SessionRouterI::getCategoryForClient(const Ice::Current& current) const
 
 void
 SessionRouterI::createSessionAsync(string userId, string password,
-                                   function<void(const shared_ptr<SessionPrx>&)> response,
+                                   function<void(const SessionPrxPtr&)> response,
                                    function<void(exception_ptr)> exception,
                                    const Current& current)
 {
@@ -661,7 +661,7 @@ SessionRouterI::createSessionAsync(string userId, string password,
 }
 
 void
-SessionRouterI::createSessionFromSecureConnectionAsync(function<void(const std::shared_ptr<SessionPrx>&)> response,
+SessionRouterI::createSessionFromSecureConnectionAsync(function<void(const SessionPrxPtr&)> response,
                                                        function<void(std::exception_ptr)> exception,
                                                        const Current& current)
 {

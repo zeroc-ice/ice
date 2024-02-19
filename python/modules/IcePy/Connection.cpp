@@ -330,7 +330,7 @@ connectionCreateProxy(ConnectionObject* self, PyObject* args)
 
     assert(self->connection);
     assert(self->communicator);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->connection)->createProxy(ident);
@@ -341,7 +341,7 @@ connectionCreateProxy(ConnectionObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, (*self->communicator));
+    return createProxy(proxy.value(), (*self->communicator));
 }
 
 #ifdef WIN32

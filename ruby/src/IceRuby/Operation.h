@@ -19,7 +19,7 @@ public:
 
     virtual ~Operation();
 
-    virtual VALUE invoke(const std::shared_ptr<Ice::ObjectPrx>&, VALUE, VALUE) = 0;
+    virtual VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE) = 0;
     virtual void deprecate(const std::string&) = 0;
 };
 using OperationPtr = std::shared_ptr<Operation>;

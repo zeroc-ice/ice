@@ -21,22 +21,22 @@ public:
 
     LocatorRegistryI(const std::shared_ptr<Database>&, bool, bool, ReplicaSessionManager&);
 
-    void setAdapterDirectProxyAsync(std::string, std::shared_ptr<Ice::ObjectPrx>,
+    void setAdapterDirectProxyAsync(std::string, Ice::ObjectPrxPtr,
                                     std::function<void()>,
                                     std::function<void(std::exception_ptr)>,
                                     const Ice::Current&) override;
 
-    void setReplicatedAdapterDirectProxyAsync(std::string, std::string, std::shared_ptr<Ice::ObjectPrx>,
+    void setReplicatedAdapterDirectProxyAsync(std::string, std::string, Ice::ObjectPrxPtr,
                                               std::function<void()>,
                                               std::function<void(std::exception_ptr)>,
                                               const Ice::Current&) override;
 
-    void setServerProcessProxyAsync(std::string, std::shared_ptr<Ice::ProcessPrx>,
+    void setServerProcessProxyAsync(std::string, Ice::ProcessPrxPtr,
                                     std::function<void()>,
                                     std::function<void(std::exception_ptr)>,
                                     const Ice::Current&) override;
 
-    void setAdapterDirectProxy(std::string, std::string, std::shared_ptr<Ice::ObjectPrx>,
+    void setAdapterDirectProxy(std::string, std::string, Ice::ObjectPrxPtr,
                                std::function<void()>,
                                std::function<void(std::exception_ptr)>);
 

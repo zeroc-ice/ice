@@ -40,8 +40,8 @@ class Parser
 {
 public:
 
-    Parser(std::shared_ptr<Ice::Communicator>, std::shared_ptr<TopicManagerPrx>,
-           std::map<Ice::Identity, std::shared_ptr<TopicManagerPrx>>);
+    Parser(std::shared_ptr<Ice::Communicator>, TopicManagerPrxPtr,
+           std::map<Ice::Identity, TopicManagerPrxPtr>);
 
     void usage();
 
@@ -81,15 +81,15 @@ public:
 
 private:
 
-    std::shared_ptr<TopicManagerPrx> findManagerById(const std::string&, std::string&) const;
-    std::shared_ptr<TopicManagerPrx> findManagerByCategory(const std::string&) const;
-    std::shared_ptr<TopicPrx> findTopic(const std::string&) const;
+    TopicManagerPrxPtr findManagerById(const std::string&, std::string&) const;
+    TopicManagerPrxPtr findManagerByCategory(const std::string&) const;
+    TopicPrxPtr findTopic(const std::string&) const;
 
     void exception(std::exception_ptr, bool = false);
 
     const std::shared_ptr<Ice::Communicator> _communicator;
-    std::shared_ptr<TopicManagerPrx> _defaultManager;
-    const std::map<Ice::Identity, std::shared_ptr<TopicManagerPrx>> _managers;
+    TopicManagerPrxPtr _defaultManager;
+    const std::map<Ice::Identity, TopicManagerPrxPtr> _managers;
     std::string _commands;
     bool _continue;
     int _errors;

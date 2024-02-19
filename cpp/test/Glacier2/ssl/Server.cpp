@@ -106,8 +106,8 @@ class SessionManagerI final : public Glacier2::SessionManager
 {
 public:
 
-    shared_ptr<Glacier2::SessionPrx>
-    create(string userId, shared_ptr<Glacier2::SessionControlPrx>, const Ice::Current& current) override
+    Glacier2::SessionPrxPtr
+    create(string userId, Glacier2::SessionControlPrxPtr, const Ice::Current& current) override
     {
         testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
 
@@ -120,8 +120,8 @@ class SSLSessionManagerI final : public Glacier2::SSLSessionManager
 {
 public:
 
-    shared_ptr<Glacier2::SessionPrx>
-    create(Glacier2::SSLInfo info, shared_ptr<Glacier2::SessionControlPrx>, const Ice::Current& current) override
+    Glacier2::SessionPrxPtr
+    create(Glacier2::SSLInfo info, Glacier2::SessionControlPrxPtr, const Ice::Current& current) override
     {
         testContext(true, current.adapter->getCommunicator(), current.ctx);
 

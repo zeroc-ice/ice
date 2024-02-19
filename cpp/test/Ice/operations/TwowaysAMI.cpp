@@ -184,7 +184,7 @@ public:
 
     void opStruct(const Test::Structure& rso, const Test::Structure& so)
     {
-        test(rso.p == 0);
+        test(rso.p == nullopt);
         test(rso.e == Test::MyEnum::enum2);
         test(rso.s.s == "def");
         test(so.e == Test::MyEnum::enum3);
@@ -1171,7 +1171,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = make_shared<Callback>(communicator);
         p->opMyClassAsync(p,
-                          [&](shared_ptr<Test::MyClassPrx> c1, shared_ptr<Test::MyClassPrx> c2, shared_ptr<Test::MyClassPrx> c3)
+                          [&](Test::MyClassPrxPtr c1, Test::MyClassPrxPtr c2, Test::MyClassPrxPtr c3)
             {
                 cb->opMyClass(std::move(c1), std::move(c2), std::move(c3));
             },
@@ -1185,7 +1185,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         si1.e = Test::MyEnum::enum3;
         si1.s.s = "abc";
         Test::Structure si2;
-        si2.p = 0;
+        si2.p = nullopt;
         si2.e = Test::MyEnum::enum2;
         si2.s.s = "def";
 
@@ -2519,7 +2519,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         si1.e = Test::MyEnum::enum3;
         si1.s.s = "abc";
         Test::Structure si2;
-        si2.p = 0;
+        si2.p = nullopt;
         si2.e = Test::MyEnum::enum2;
         si2.s.s = "def";
 

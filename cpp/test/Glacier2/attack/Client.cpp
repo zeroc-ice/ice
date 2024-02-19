@@ -47,7 +47,7 @@ AttackClient::run(int argc, char** argv)
     auto backend = checkedCast<BackendPrx>(backendBase);
     backend->ice_ping();
 
-    set<shared_ptr<BackendPrx>, TargetCompare<shared_ptr<BackendPrx>, std::less>> backends;
+    set<BackendPrxPtr, TargetCompare<BackendPrxPtr, std::less>> backends;
 
     string msg;
     for(int i = 1; i <= 10000; ++i)
@@ -101,7 +101,7 @@ AttackClient::run(int argc, char** argv)
 
     cout << "testing server and router shutdown... " << flush;
     backend->shutdown();
-    communicator->setDefaultRouter(0);
+    communicator->setDefaultRouter(nullopt);
     auto adminBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
     auto process = checkedCast<Ice::ProcessPrx>(adminBase);
     test(process);

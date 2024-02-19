@@ -24,14 +24,14 @@ class AllocateObject final : public ObjectAllocationRequest
 public:
 
     AllocateObject(const shared_ptr<SessionI>& session,
-                   function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)>&& response,
+                   function<void(const Ice::ObjectPrxPtr& returnValue)>&& response,
                    function<void(exception_ptr)>&& exception) :
         ObjectAllocationRequest(session), _response(std::move(response)), _exception(std::move(exception))
     {
     }
 
     void
-    response(const shared_ptr<Ice::ObjectPrx>& proxy) override
+    response(const Ice::ObjectPrxPtr& proxy) override
     {
         assert(_response);
         _response(proxy);
@@ -49,7 +49,7 @@ public:
 
 private:
 
-    function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)> _response;
+    function<void(const Ice::ObjectPrxPtr& returnValue)> _response;
     function<void(exception_ptr)> _exception;
 };
 
@@ -122,14 +122,14 @@ BaseSessionI::shutdown()
     destroyImpl(true);
 }
 
-shared_ptr<Glacier2::IdentitySetPrx>
+Glacier2::IdentitySetPrxPtr
 BaseSessionI::getGlacier2IdentitySet()
 {
     assert(_servantManager);
     return _servantManager->getGlacier2IdentitySet(shared_from_this());
 }
 
-shared_ptr<Glacier2::StringSetPrx>
+Glacier2::StringSetPrxPtr
 BaseSessionI::getGlacier2AdapterIdSet()
 {
     assert(_servantManager);
@@ -144,7 +144,7 @@ SessionI::SessionI(const string& id, const shared_ptr<Database>& database,
 {
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, const shared_ptr<Ice::Connection>& con)
 {
     //
@@ -156,7 +156,7 @@ SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, con
 
 void
 SessionI::allocateObjectByIdAsync(Ice::Identity id,
-                                 function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)> response,
+                                 function<void(const Ice::ObjectPrxPtr& returnValue)> response,
                                  function<void(exception_ptr)> exception,
                                  const Ice::Current&)
 {
@@ -167,7 +167,7 @@ SessionI::allocateObjectByIdAsync(Ice::Identity id,
 
 void
 SessionI::allocateObjectByTypeAsync(string type,
-                                    function<void(const shared_ptr<Ice::ObjectPrx>& returnValue)> response,
+                                    function<void(const Ice::ObjectPrxPtr& returnValue)> response,
                                     function<void(exception_ptr)> exception,
                                     const Ice::Current&)
 {
@@ -295,9 +295,9 @@ ClientSessionFactory::ClientSessionFactory(const shared_ptr<SessionServantManage
     }
 }
 
-shared_ptr<Glacier2::SessionPrx>
+Glacier2::SessionPrxPtr
 ClientSessionFactory::createGlacier2Session(const string& sessionId,
-                                            const shared_ptr<Glacier2::SessionControlPrx>& ctl)
+                                            const Glacier2::SessionControlPrxPtr& ctl)
 {
     assert(_servantManager);
 
@@ -332,7 +332,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId,
 }
 
 shared_ptr<SessionI>
-ClientSessionFactory::createSessionServant(const string& userId, const shared_ptr<Glacier2::SessionControlPrx>&)
+ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrxPtr&)
 {
     return make_shared<SessionI>(userId, _database, _timer);
 }
@@ -347,8 +347,8 @@ ClientSessionManagerI::ClientSessionManagerI(const shared_ptr<ClientSessionFacto
 {
 }
 
-shared_ptr<Glacier2::SessionPrx>
-ClientSessionManagerI::create(string user, shared_ptr<Glacier2::SessionControlPrx> ctl, const Ice::Current&)
+Glacier2::SessionPrxPtr
+ClientSessionManagerI::create(string user, Glacier2::SessionControlPrxPtr ctl, const Ice::Current&)
 {
     return _factory->createGlacier2Session(std::move(user), std::move(ctl));
 }
@@ -357,9 +357,9 @@ ClientSSLSessionManagerI::ClientSSLSessionManagerI(const shared_ptr<ClientSessio
 {
 }
 
-shared_ptr<Glacier2::SessionPrx>
+Glacier2::SessionPrxPtr
 ClientSSLSessionManagerI::create(Glacier2::SSLInfo info,
-                                 shared_ptr<Glacier2::SessionControlPrx> ctl,
+                                 Glacier2::SessionControlPrxPtr ctl,
                                  const Ice::Current&)
 {
     string userDN;

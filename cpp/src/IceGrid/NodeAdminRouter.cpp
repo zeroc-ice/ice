@@ -44,7 +44,7 @@ NodeServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> 
     //
     auto target = server->getProcess();
 
-    if(target == nullptr)
+    if(target == nullopt)
     {
         if(_traceLevels->admin > 0)
         {
