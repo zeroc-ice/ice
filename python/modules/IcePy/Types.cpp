@@ -1960,7 +1960,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     case PrimitiveInfo::KindInt:
     {
         sz = PySequence_Fast_GET_SIZE(fs.get());
-        IntSeq seq(static_cast<size_t>(sz));
+        Ice::IntSeq seq(static_cast<size_t>(sz));
         for(Py_ssize_t i = 0; i < sz; ++i)
         {
             PyObject* item = PySequence_Fast_GET_ITEM(fs.get(), i);

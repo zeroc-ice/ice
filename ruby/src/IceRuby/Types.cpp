@@ -1459,7 +1459,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
     case PrimitiveInfo::KindInt:
     {
         long sz = RARRAY_LEN(arr);
-        IntSeq seq(static_cast<size_t>(sz));
+        Ice::IntSeq seq(static_cast<size_t>(sz));
         for(long i = 0; i < sz; ++i)
         {
             long val = getInteger(RARRAY_AREF(arr, i));

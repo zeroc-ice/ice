@@ -1654,7 +1654,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     }
     case PrimitiveInfo::KindInt:
     {
-        IntSeq seq(sz);
+        Ice::IntSeq seq(sz);
         int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
