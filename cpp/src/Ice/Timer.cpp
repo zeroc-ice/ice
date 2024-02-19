@@ -75,7 +75,7 @@ void Timer::run()
         {
             unique_lock lock(_mutex);
 
-            if(!_destroyed)
+            if (!_destroyed)
             {
                 // If the task we just ran is a repeated task, schedule it again for execution if it wasn't canceled.
                 if (token.delay)
@@ -83,14 +83,14 @@ void Timer::run()
                     auto p = _tasks.find(token.task);
                     if (p != _tasks.end())
                     {
-                        token.scheduledTime = chrono::steady_clock::time_point() + token.delay.value();
+                        token.scheduledTime = chrono::steady_clock::now() + token.delay.value();
                         p->second = token.scheduledTime;
                         _tokens.insert(token);
                     }
                 }
                 token = { chrono::steady_clock::time_point(), nullopt, nullptr };
 
-                if(_tokens.empty())
+                if (_tokens.empty())
                 {
                     _wakeUpTime = chrono::steady_clock::time_point();
                     _condition.wait(lock);
@@ -127,7 +127,7 @@ void Timer::run()
             }
         }
 
-        if(token.task)
+        if (token.task)
         {
             try
             {

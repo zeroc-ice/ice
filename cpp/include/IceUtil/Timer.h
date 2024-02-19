@@ -47,7 +47,7 @@ public:
 
     // Schedule a task for execution after a given delay.
     template<class Rep, class Period>
-    void schedule(TimerTaskPtr task, const std::chrono::duration<Rep, Period>& delay)
+    void schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
     {
         std::lock_guard lock(_mutex);
         if (_destroyed)
@@ -57,7 +57,7 @@ public:
 
         auto now = std::chrono::steady_clock::now();
         auto time = now + delay;
-        if (delay > std::chrono::nanoseconds::zero() && time < now)
+        if (delay < std::chrono::nanoseconds::zero())
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
         }
@@ -67,7 +67,7 @@ public:
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
         }
-        _tokens.insert({ time, std::nullopt, std::move(task) });
+        _tokens.insert({ time, std::nullopt, task });
 
         if(_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
         {
@@ -87,7 +87,7 @@ public:
 
         auto now = std::chrono::steady_clock::now();
         auto time = now + delay;
-        if(delay > std::chrono::nanoseconds::zero() && time < now)
+        if(delay < std::chrono::nanoseconds::zero())
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
         }
@@ -97,7 +97,7 @@ public:
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
         } 
-        _tokens.insert({ time, std::chrono::duration_cast<std::chrono::nanoseconds>(delay), std::move(task) });
+        _tokens.insert({ time, std::chrono::duration_cast<std::chrono::nanoseconds>(delay), task });
 
         if(_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
         {
@@ -138,13 +138,13 @@ private:
 
     void run();
 
+    std::mutex _mutex;
+    std::condition_variable _condition;
     std::set<Token> _tokens;
     std::map<TimerTaskPtr, std::chrono::steady_clock::time_point> _tasks;
     bool _destroyed;
     std::chrono::steady_clock::time_point _wakeUpTime;
     std::thread _worker;
-    std::mutex _mutex;
-    std::condition_variable _condition;
 };
 
 

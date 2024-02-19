@@ -47,7 +47,7 @@ public:
     {
         lock_guard lock(_mutex);
         ++_count;
-        _run = chrono::steady_clock::time_point();
+        _run = chrono::steady_clock::now();
         _condition.notify_all();
     }
 
@@ -172,7 +172,6 @@ Client::run(int, char*[])
             timer->schedule(task, chrono::seconds::zero());
             task->waitForRun();
             task->clear();
-
             //
             // Verify that the same task cannot be scheduled more than once.
             //
