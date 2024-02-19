@@ -12,7 +12,6 @@
 #include <mutex>
 #include <chrono>
 #include <functional>
-#include <queue>
 
 namespace IceUtil
 {
