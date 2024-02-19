@@ -113,6 +113,8 @@ public:
     //
     bool cancel(const TimerTaskPtr&);
 
+protected:
+
     virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 
 private:
