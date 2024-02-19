@@ -237,7 +237,7 @@ namespace IceSSL
                         }
                         else
                         {
-                            cert = new X509Certificate2(certFile, "", importFlags);
+                            cert = new X509Certificate2(certFile, (string)null, importFlags);
                         }
                         _certs.Add(cert);
                     }
