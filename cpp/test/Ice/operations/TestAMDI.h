@@ -44,8 +44,8 @@ public:
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
 
-    virtual void opShortIntLongAsync(short, int, int64_t,
-                                     ::std::function<void(int64_t, short, int, int64_t)>,
+    virtual void opShortIntLongAsync(short, int, std::int64_t,
+                                     ::std::function<void(std::int64_t, short, int, std::int64_t)>,
                                      ::std::function<void(std::exception_ptr)>,
                                      const Ice::Current&);
 
@@ -313,8 +313,8 @@ public:
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
 
-    virtual void opLong1Async(int64_t,
-                              ::std::function<void(int64_t)>,
+    virtual void opLong1Async(std::int64_t,
+                              ::std::function<void(std::int64_t)>,
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);
 

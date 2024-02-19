@@ -90,8 +90,8 @@ public:
     int getProcessorSocketCount(const Ice::Current&) const override;
     void shutdown(const Ice::Current&) const override;
 
-    int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
-    bool read(std::string, int64_t, int, int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
+    std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+    bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
 
     void shutdown();
 

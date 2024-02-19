@@ -228,7 +228,7 @@ struct StreamableTraits<int32_t>
  * \headerfile Ice/Ice.h
  */
 template<>
-struct StreamableTraits<int64_t>
+struct StreamableTraits<std::int64_t>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
     static const int minWireSize = 8;

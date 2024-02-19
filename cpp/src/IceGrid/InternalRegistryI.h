@@ -37,14 +37,14 @@ public:
     NodePrxSeq getNodes(const Ice::Current&) const override;
     InternalRegistryPrxSeq getReplicas(const Ice::Current&) const override;
 
-    ApplicationInfoSeq getApplications(int64_t&, const Ice::Current&) const override;
-    AdapterInfoSeq getAdapters(int64_t&, const Ice::Current&) const override;
-    ObjectInfoSeq getObjects(int64_t&, const Ice::Current&) const override;
+    ApplicationInfoSeq getApplications(std::int64_t&, const Ice::Current&) const override;
+    AdapterInfoSeq getAdapters(std::int64_t&, const Ice::Current&) const override;
+    ObjectInfoSeq getObjects(std::int64_t&, const Ice::Current&) const override;
 
     void shutdown(const Ice::Current&) const override;
 
-    int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
-    bool read(std::string, int64_t, int, int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
+    std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+    bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
 
 private:
 

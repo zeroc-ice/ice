@@ -840,19 +840,19 @@ public:
      * Reads a long from the stream.
      * @param v The extracted long.
      */
-    void read(int64_t& v);
+    void read(std::int64_t& v);
 
     /**
      * Reads a sequence of longs from the stream.
      * @param v A vector to hold a copy of the long values.
      */
-    void read(std::vector<int64_t>& v);
+    void read(std::vector<std::int64_t>& v);
 
     /**
      * Reads a sequence of longs from the stream.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
-    void read(std::pair<const int64_t*, const int64_t*>& v);
+    void read(std::pair<const std::int64_t*, const std::int64_t*>& v);
 
     /**
      * Reads a float from the stream.

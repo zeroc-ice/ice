@@ -48,8 +48,8 @@ public:
                             ::std::function<void(const std::optional<int>&, const std::optional<int>&)>,
                             ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opLongAsync(std::optional<int64_t>,
-                             ::std::function<void(const std::optional<int64_t>&, const std::optional<int64_t>&)>,
+    virtual void opLongAsync(std::optional<std::int64_t>,
+                             ::std::function<void(const std::optional<std::int64_t>&, const std::optional<std::int64_t>&)>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opFloatAsync(std::optional<float>,
@@ -108,8 +108,8 @@ public:
                                ::std::function<void(const std::optional<::std::pair<const int*, const int*>>&, const std::optional<::std::pair<const int*, const int*>>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opLongSeqAsync(std::optional<::std::pair<const int64_t*, const int64_t*>>,
-                                ::std::function<void(const std::optional<::std::pair<const int64_t*, const int64_t*>>&, const std::optional<::std::pair<const int64_t*, const int64_t*>>&)>,
+    virtual void opLongSeqAsync(std::optional<::std::pair<const std::int64_t*, const std::int64_t*>>,
+                                ::std::function<void(const std::optional<::std::pair<const std::int64_t*, const std::int64_t*>>&, const std::optional<::std::pair<const std::int64_t*, const std::int64_t*>>&)>,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opFloatSeqAsync(std::optional<::std::pair<const float*, const float*>>,

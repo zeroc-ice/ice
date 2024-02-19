@@ -85,7 +85,7 @@ public:
                              std::function<void(std::exception_ptr)>,
                              const ::Ice::Current&) override;
     void destroySession(const ::Ice::Current&) override;
-    int64_t getSessionTimeout(const ::Ice::Current&) const override;
+    std::int64_t getSessionTimeout(const ::Ice::Current&) const override;
     int getACMTimeout(const ::Ice::Current&) const override;
 
     void updateSessionObservers() override;

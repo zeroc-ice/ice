@@ -34,7 +34,7 @@ public:
     void merge(const std::set<int>&);
     void mergeContinue();
     void invitation(int, std::string, const Ice::Current&) override;
-    void ready(int, std::string, std::shared_ptr<Ice::ObjectPrx>, int, int64_t, const Ice::Current&) override;
+    void ready(int, std::string, std::shared_ptr<Ice::ObjectPrx>, int, std::int64_t, const Ice::Current&) override;
     void accept(int, std::string, Ice::IntSeq, std::shared_ptr<Ice::ObjectPrx>, LogUpdate, int,
                 const Ice::Current&) override;
     bool areYouCoordinator(const Ice::Current&) const override;
@@ -42,15 +42,15 @@ public:
     std::shared_ptr<Ice::ObjectPrx> sync(const Ice::Current&) const override;
     NodeInfoSeq nodes(const Ice::Current&) const override;
     QueryInfo query(const Ice::Current&) const override;
-    void recovery(int64_t = -1);
+    void recovery(std::int64_t = -1);
 
     void destroy();
 
     // Notify the node that we're about to start an update.
-    void checkObserverInit(int64_t);
-    std::shared_ptr<Ice::ObjectPrx> startUpdate(int64_t&, const char*, int);
-    std::shared_ptr<Ice::ObjectPrx> startCachedRead(int64_t&, const char*, int);
-    void startObserverUpdate(int64_t, const char*, int);
+    void checkObserverInit(std::int64_t);
+    std::shared_ptr<Ice::ObjectPrx> startUpdate(std::int64_t&, const char*, int);
+    std::shared_ptr<Ice::ObjectPrx> startCachedRead(std::int64_t&, const char*, int);
+    void startObserverUpdate(std::int64_t, const char*, int);
     bool updateMaster(const char*, int);
 
     // The node has completed the update.
@@ -85,7 +85,7 @@ private:
     std::set<int> _invitesAccepted; // The accepted invitations.
 
     unsigned int _max; // The highest group count I've seen.
-    int64_t _generation; // The current generation (or -1 if not set).
+    std::int64_t _generation; // The current generation (or -1 if not set).
 
     std::shared_ptr<Ice::ObjectPrx> _coordinatorProxy;
     bool _destroy;
@@ -148,14 +148,14 @@ public:
         return _master;
     }
 
-    int64_t
+    std::int64_t
     generation() const
     {
         return _generation;
     }
 
     bool
-    observerPrecondition(int64_t generation) const
+    observerPrecondition(std::int64_t generation) const
     {
         return generation == _generation && _master;
     }
@@ -164,14 +164,14 @@ private:
 
     const std::shared_ptr<NodeI> _node;
     std::shared_ptr<Ice::ObjectPrx> _master;
-    int64_t _generation;
+    std::int64_t _generation;
 };
 
 class ObserverUpdateHelper
 {
 public:
 
-    ObserverUpdateHelper(std::shared_ptr<NodeI> node, int64_t generation, const char* file, int line) :
+    ObserverUpdateHelper(std::shared_ptr<NodeI> node, std::int64_t generation, const char* file, int line) :
         _node(std::move(node))
     {
         if(_node)

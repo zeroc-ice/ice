@@ -62,8 +62,8 @@ struct FileInfoEqual
         // not take the actual size into account, as it might be set
         // to 0 if no compressed file is available.
         //
-        int64_t lsz = lhs.size > 0 ? 0 : lhs.size;
-        int64_t rsz = rhs.size > 0 ? 0 : rhs.size;
+        std::int64_t lsz = lhs.size > 0 ? 0 : lhs.size;
+        std::int64_t rsz = rhs.size > 0 ? 0 : rhs.size;
         if(lsz != rsz)
         {
             return false;
@@ -104,8 +104,8 @@ struct FileInfoWithoutFlagsLess
         // not take the actual size into account, as it might be set
         // to 0 if no compressed file is available.
         //
-        int64_t lsz = lhs.size > 0 ? 0 : lhs.size;
-        int64_t rsz = rhs.size > 0 ? 0 : rhs.size;
+        std::int64_t lsz = lhs.size > 0 ? 0 : lhs.size;
+        std::int64_t rsz = rhs.size > 0 ? 0 : rhs.size;
         if(lsz < rsz)
         {
             return -1;
