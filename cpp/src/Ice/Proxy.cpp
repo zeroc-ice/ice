@@ -38,7 +38,7 @@ inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator
     ReferencePtr ref = getInstance(communicator)->referenceFactory()->create(proxyString, "");
     if (!ref)
     {
-        throw std::invalid_argument("invalid proxyString");
+        throw std::invalid_argument("invalid proxy string");
     }
     return ref;
 }

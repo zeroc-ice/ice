@@ -100,7 +100,7 @@ inline bool targetNotEqualTo(const T& lhs, const U& rhs)
 
 /**
  * Functor class that compares the contents of two smart pointers (or similar) of the given type using the given
- * comparator. It provides partial specializations for std::shared and std::optional.
+ * comparator. It provides partial specializations for std::shared_ptr and std::optional.
  * \headerfile Ice/Ice.h
  */
 template<typename T, template<typename> class Compare>
