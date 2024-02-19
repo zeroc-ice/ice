@@ -86,9 +86,9 @@ private:
 
     LookupPrxPtr _lookup;
     vector<pair<LookupPrxPtr, LookupReplyPrxPtr> > _lookups;
-    IceUtil::Time _timeout;
+    chrono::milliseconds _timeout;
     int _retryCount;
-    IceUtil::Time _retryDelay;
+    chrono::milliseconds _retryDelay;
     const IceUtil::TimerPtr _timer;
     const int _traceLevel;
 
@@ -98,7 +98,7 @@ private:
     map<string, Ice::LocatorPrxPtr> _locators;
     Ice::LocatorPrxPtr _voidLocator;
 
-    IceUtil::Time _nextRetry;
+    chrono::steady_clock::time_point _nextRetry;
     bool _pending;
     int _pendingRetryCount;
     size_t _failureCount;
@@ -404,9 +404,9 @@ LocatorI::LocatorI(const string& name,
                    const string& instanceName,
                    const Ice::LocatorPrxPtr& voidLocator) :
     _lookup(lookup),
-    _timeout(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault(name + ".Timeout", 300))),
+    _timeout(chrono::milliseconds(p->getPropertyAsIntWithDefault(name + ".Timeout", 300))),
     _retryCount(p->getPropertyAsIntWithDefault(name + ".RetryCount", 3)),
-    _retryDelay(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault(name + ".RetryDelay", 2000))),
+    _retryDelay(chrono::milliseconds(p->getPropertyAsIntWithDefault(name + ".RetryDelay", 2000))),
     _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
     _traceLevel(p->getPropertyAsInt(name + ".Trace.Lookup")),
     _instanceName(instanceName),
@@ -418,17 +418,17 @@ LocatorI::LocatorI(const string& name,
     _failureCount(0),
     _warnOnce(true)
 {
-    if(_timeout < IceUtil::Time::milliSeconds(0))
+    if(_timeout < chrono::milliseconds::zero())
     {
-        _timeout = IceUtil::Time::milliSeconds(300);
+        _timeout = chrono::milliseconds(300);
     }
     if(_retryCount < 0)
     {
         _retryCount = 0;
     }
-    if(_retryDelay < IceUtil::Time::milliSeconds(0))
+    if(_retryDelay < chrono::milliseconds::zero())
     {
-        _retryDelay = IceUtil::Time::milliSeconds(0);
+        _retryDelay = chrono::milliseconds::zero();
     }
 
     //
@@ -666,7 +666,7 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
     {
         request->invoke(_locator);
     }
-    else if(request && IceUtil::Time::now() < _nextRetry)
+    else if(request && chrono::steady_clock::now() < _nextRetry)
     {
         request->invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
     }
@@ -860,7 +860,7 @@ LocatorI::runTimerTask()
         }
        _pendingRequests.clear();
     }
-    _nextRetry = IceUtil::Time::now() + _retryDelay; // Only retry when the retry delay expires
+    _nextRetry = chrono::steady_clock::now() + _retryDelay; // Only retry when the retry delay expires
 }
 
 void

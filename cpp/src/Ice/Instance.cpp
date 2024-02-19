@@ -185,30 +185,16 @@ class Timer : public IceUtil::Timer
 {
 public:
 
-    static TimerPtr create()
+    Timer() :
+        _hasObserver(0)
     {
-        auto timer = shared_ptr<Timer>(new Timer());
-        timer->start();
-        return timer;
-    }
-
-    static TimerPtr create(int priority)
-    {
-        auto timer = shared_ptr<Timer>(new Timer());
-        timer->start(0, priority);
-        return timer;
     }
 
     void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
 private:
 
-    Timer() :
-        _hasObserver(0)
-    {
-    }
-
-    virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
+    void runTimerTask(const IceUtil::TimerTaskPtr&) final;
 
     std::mutex _mutex;
     std::atomic<bool> _hasObserver;
@@ -1449,18 +1435,9 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     try
     {
-        bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
-        int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
-        if(hasPriority)
-        {
-            _timer = Timer::create(priority);
-        }
-        else
-        {
-            _timer = Timer::create();
-        }
+        _timer = make_shared<Timer>();
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         Error out(_initData.logger);
         out << "cannot create thread for timer:\n" << ex;

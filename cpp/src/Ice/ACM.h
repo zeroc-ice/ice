@@ -16,6 +16,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <set>
+#include <chrono>
 
 namespace IceInternal
 {
@@ -27,7 +28,7 @@ public:
     ACMConfig(bool = false);
     ACMConfig(const Ice::PropertiesPtr&, const Ice::LoggerPtr&, const std::string&, const ACMConfig&);
 
-    IceUtil::Time timeout;
+    std::chrono::seconds timeout;
     Ice::ACMHeartbeat heartbeat;
     Ice::ACMClose close;
 };

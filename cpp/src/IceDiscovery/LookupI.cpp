@@ -82,7 +82,7 @@ AdapterRequest::response(const Ice::ObjectPrxPtr& proxy, bool isReplicaGroup)
         {
             _latency = (IceUtil::Time::now() - _start) * _lookup->latencyMultiplier();
             _lookup->timer()->cancel(shared_from_this());
-            _lookup->timer()->schedule(shared_from_this(), _latency);
+            _lookup->timer()->schedule(shared_from_this(), chrono::milliseconds(_latency.toMilliSeconds()));
         }
         _proxies.insert(proxy);
         return false;
@@ -309,7 +309,7 @@ LookupI::findObject(const ObjectCB& cb, const Ice::Identity& id)
         try
         {
             p->second->invoke(_domainId, _lookups);
-            _timer->schedule(p->second, _timeout);
+            _timer->schedule(p->second, chrono::milliseconds(_timeout.toMilliSeconds()));
         }
         catch(const Ice::LocalException&)
         {
@@ -336,7 +336,7 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
         try
         {
             p->second->invoke(_domainId, _lookups);
-            _timer->schedule(p->second, _timeout);
+            _timer->schedule(p->second, chrono::milliseconds(_timeout.toMilliSeconds()));
         }
         catch(const Ice::LocalException&)
         {
@@ -390,7 +390,7 @@ LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
         try
         {
             request->invoke(_domainId, _lookups);
-            _timer->schedule(request, _timeout);
+            _timer->schedule(request, chrono::milliseconds(_timeout.toMilliSeconds()));
             return;
         }
         catch(const Ice::LocalException&)
@@ -449,7 +449,7 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
         try
         {
             request->invoke(_domainId, _lookups);
-            _timer->schedule(request, _timeout);
+            _timer->schedule(request, chrono::milliseconds(_timeout.toMilliSeconds()));
             return;
         }
         catch(const Ice::LocalException&)

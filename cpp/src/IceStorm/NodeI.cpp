@@ -190,7 +190,7 @@ NodeI::start()
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
     _timer->schedule(_checkTask,
-                     IceUtil::Time::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
+                     chrono::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
     recovery();
 }
 
@@ -208,7 +208,7 @@ NodeI::check()
         if(_state == NodeState::NodeStateElection || _state == NodeState::NodeStateReorganization || _coord != _id)
         {
             assert(_checkTask);
-            _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+            _timer->schedule(_checkTask, chrono::seconds(_electionTimeout.count()));
             return;
         }
 
@@ -298,7 +298,7 @@ NodeI::check()
     if(tmpset.empty())
     {
         assert(_checkTask);
-        _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+        _timer->schedule(_checkTask, _electionTimeout);
         return;
     }
 
@@ -325,7 +325,7 @@ NodeI::check()
 
     assert(!_mergeTask);
     _mergeTask = make_shared<MergeTask>(shared_from_this(), tmpset);
-    _timer->schedule(_mergeTask, IceUtil::Time::seconds(delay.count()));
+    _timer->schedule(_mergeTask, delay);
 }
 
 // Called if the node has not heard from the coordinator in some time.
@@ -485,7 +485,7 @@ NodeI::merge(const set<int>& coordinatorSet)
         {
             timeout = 0s;
         }
-        _timer->schedule(_mergeContinueTask, IceUtil::Time::seconds(timeout.count()));
+        _timer->schedule(_mergeContinueTask, timeout);
     }
 }
 
@@ -678,7 +678,7 @@ NodeI::mergeContinue()
 
         assert(!_checkTask);
         _checkTask = make_shared<CheckTask>(shared_from_this());
-        _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+        _timer->schedule(_checkTask, _electionTimeout);
     }
 }
 
@@ -794,7 +794,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
         if(!_timeoutTask)
         {
             _timeoutTask = make_shared<TimeoutTask>(shared_from_this());
-            _timer->scheduleRepeated(_timeoutTask, IceUtil::Time::seconds(_masterTimeout.count()));
+            _timer->scheduleRepeated(_timeoutTask, _masterTimeout);
         }
     }
 
@@ -849,7 +849,7 @@ NodeI::ready(int j, string gn, shared_ptr<Ice::ObjectPrx> coordinator, int max, 
         if(!_checkTask)
         {
             _checkTask = make_shared<CheckTask>(shared_from_this());
-            _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+            _timer->schedule(_checkTask, _electionTimeout);
         }
     }
 }
@@ -914,7 +914,7 @@ NodeI::accept(int j, string gn, Ice::IntSeq forwardedInvites, shared_ptr<Ice::Ob
         if((_up.size() == _nodes.size()-1 || _invitesIssued == _invitesAccepted) &&
             _mergeContinueTask && _timer->cancel(_mergeContinueTask))
         {
-            _timer->schedule(_mergeContinueTask, IceUtil::Time::seconds(0));
+            _timer->schedule(_mergeContinueTask, chrono::seconds::zero());
         }
     }
 }
@@ -1021,7 +1021,7 @@ NodeI::recovery(Ice::Long generation)
     if(!_checkTask)
     {
         _checkTask = make_shared<CheckTask>(shared_from_this());
-        _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+        _timer->schedule(_checkTask, _electionTimeout);
     }
 }
 

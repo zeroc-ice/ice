@@ -456,9 +456,9 @@ Ice::ConnectionI::activate()
     {
         return;
     }
-    if(_acmLastActivity != IceUtil::Time())
+    if(_acmLastActivity != chrono::steady_clock::time_point())
     {
-        _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        _acmLastActivity = chrono::steady_clock::now();
     }
     setState(StateActive);
 }
@@ -617,14 +617,14 @@ Ice::ConnectionI::updateObserver()
 }
 
 void
-Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
+Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACMConfig& acm)
 {
-    std::lock_guard lock(_mutex);
+    lock_guard lock(_mutex);
     if(_state != StateActive)
     {
         return;
     }
-    assert(acm.timeout != IceUtil::Time());
+    assert(acm.timeout != chrono::seconds::zero());
 
     //
     // We send a heartbeat if there was no activity in the last
@@ -981,11 +981,11 @@ Ice::ConnectionI::setACM(const optional<int>& timeout,
 
     if(_monitor->getACM().timeout <= 0)
     {
-        _acmLastActivity = IceUtil::Time(); // Disable the recording of last activity.
+        _acmLastActivity = chrono::steady_clock::time_point(); // Disable the recording of last activity.
     }
-    else if(_acmLastActivity == IceUtil::Time() && _state == StateActive)
+    else if(_acmLastActivity == chrono::steady_clock::time_point() && _state == StateActive)
     {
-        _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        _acmLastActivity = chrono::steady_clock::now();
     }
 
     if(_state == StateActive)
@@ -1620,9 +1620,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 }
             }
 
-            if(_acmLastActivity != IceUtil::Time())
+            if(_acmLastActivity != chrono::steady_clock::time_point())
             {
-                _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+                _acmLastActivity = chrono::steady_clock::now();
             }
 
             if(dispatchCount == 0)
@@ -2183,7 +2183,7 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
 
     if(_monitor && _monitor->getACM().timeout > 0)
     {
-        _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        _acmLastActivity = chrono::steady_clock::now();
     }
 }
 
@@ -2427,9 +2427,9 @@ Ice::ConnectionI::setState(State state)
     {
         if(state == StateActive)
         {
-            if(_acmLastActivity != IceUtil::Time())
+            if(_acmLastActivity != chrono::steady_clock::time_point())
             {
-                _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+                _acmLastActivity = chrono::steady_clock::now();
             }
             _monitor->add(shared_from_this());
         }
@@ -2943,9 +2943,9 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             {
                 status = static_cast<AsyncStatus>(status | AsyncStatusInvokeSentCallback);
             }
-            if(_acmLastActivity != IceUtil::Time())
+            if(_acmLastActivity != chrono::steady_clock::time_point())
             {
-                _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+                _acmLastActivity = chrono::steady_clock::now();
             }
             return status;
         }
@@ -2997,9 +2997,9 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
             {
                 status = static_cast<AsyncStatus>(status | AsyncStatusInvokeSentCallback);
             }
-            if(_acmLastActivity != IceUtil::Time())
+            if(_acmLastActivity != chrono::steady_clock::time_point())
             {
-                _acmLastActivity = IceUtil::Time::now(IceUtil::Time::Monotonic);
+                _acmLastActivity = chrono::steady_clock::now();
             }
             return status;
         }
@@ -3473,7 +3473,7 @@ Ice::ConnectionI::scheduleTimeout(SocketOperation status)
             {
                 _timer->cancel(_readTimeout);
             }
-            _timer->schedule(_readTimeout, IceUtil::Time::milliSeconds(timeout));
+            _timer->schedule(_readTimeout, chrono::milliseconds(timeout));
             _readTimeoutScheduled = true;
         }
         if(status & (IceInternal::SocketOperationWrite | IceInternal::SocketOperationConnect))
@@ -3482,7 +3482,7 @@ Ice::ConnectionI::scheduleTimeout(SocketOperation status)
             {
                 _timer->cancel(_writeTimeout);
             }
-            _timer->schedule(_writeTimeout, IceUtil::Time::milliSeconds(timeout));
+            _timer->schedule(_writeTimeout, chrono::milliseconds(timeout));
             _writeTimeoutScheduled = true;
         }
     }

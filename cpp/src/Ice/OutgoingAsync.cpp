@@ -413,7 +413,7 @@ ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
         const int timeout = _cachedConnection->timeout();
         if(timeout > 0)
         {
-            _instance->timer()->schedule(shared_from_this(), IceUtil::Time::milliSeconds(timeout));
+            _instance->timer()->schedule(shared_from_this(), chrono::milliseconds(timeout));
         }
     }
     OutgoingAsyncBase::cancelable(handler);
@@ -504,7 +504,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
             int invocationTimeout = _proxy->_getReference()->getInvocationTimeout();
             if(invocationTimeout > 0)
             {
-                _instance->timer()->schedule(shared_from_this(), IceUtil::Time::milliSeconds(invocationTimeout));
+                _instance->timer()->schedule(shared_from_this(), chrono::milliseconds(invocationTimeout));
             }
         }
         else

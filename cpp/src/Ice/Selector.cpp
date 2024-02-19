@@ -7,6 +7,8 @@
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
+
+#include <IceUtil/Thread.h>
 #include <IceUtil/Time.h>
 
 #ifdef ICE_USE_CFSTREAM
