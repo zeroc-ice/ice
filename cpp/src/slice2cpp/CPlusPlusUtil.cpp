@@ -684,7 +684,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "double",
         "::std::string",
         "::std::shared_ptr<::Ice::Value>",
-        "::std::shared_ptr<::Ice::ObjectPrx>",
+        "::std::optional<::Ice::ObjectPrx>",
         "::std::shared_ptr<::Ice::Value>"
     };
 
@@ -740,14 +740,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
-        if(cpp11)
-        {
-            return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">";
-        }
-        else
-        {
-            return getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope);
-        }
+        return "::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
@@ -818,7 +811,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "double",
         "const ::std::string&",
         "const ::std::shared_ptr<::Ice::Value>&",
-        "const ::std::shared_ptr<::Ice::ObjectPrx>&",
+        "const ::std::optional<::Ice::ObjectPrx>&",
         "const ::std::shared_ptr<::Ice::Value>&"
     };
 
@@ -885,14 +878,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
-        if(cpp11)
-        {
-            return "const ::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
-        }
-        else
-        {
-            return "const " + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + "&";
-        }
+        return "const ::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
@@ -933,7 +919,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "double&",
         "::std::string&",
         "::std::shared_ptr<::Ice::Value>&",
-        "::std::shared_ptr<::Ice::ObjectPrx>&",
+        "::std::optional<::Ice::ObjectPrx>&",
         "::std::shared_ptr<::Ice::Value>&"
     };
 
@@ -991,14 +977,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
-        if(cpp11)
-        {
-            return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
-        }
-        else
-        {
-            return getUnqualified(fixKwd(proxy->scoped() + "Prx&"), scope);
-        }
+        return "::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);

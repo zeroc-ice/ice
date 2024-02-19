@@ -9,8 +9,8 @@
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/RouterF.h>
-#include <Ice/LocatorF.h>
+#include <Ice/Router.h>
+#include <Ice/Locator.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ConnectionIF.h>
@@ -85,18 +85,18 @@ public:
     // corresponding value changed.
     //
     ReferencePtr changeContext(const Ice::Context&) const;
-    ReferencePtr changeMode(Mode) const;
     ReferencePtr changeSecure(bool) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
     ReferencePtr changeInvocationTimeout(int) const;
+
     virtual ReferencePtr changeEncoding(const Ice::EncodingVersion&) const;
     virtual ReferencePtr changeCompress(bool) const;
-
+    virtual ReferencePtr changeMode(Mode) const;
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const = 0;
     virtual ReferencePtr changeAdapterId(const std::string&) const = 0;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const = 0;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const = 0;
+    virtual ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const = 0;
+    virtual ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const = 0;
     virtual ReferencePtr changeCollocationOptimized(bool) const = 0;
     virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
     virtual ReferencePtr changeCacheConnection(bool) const = 0;
@@ -136,7 +136,11 @@ public:
     // Get a suitable connection for this reference.
     //
     virtual RequestHandlerPtr getRequestHandler() const = 0;
-    virtual BatchRequestQueuePtr getBatchRequestQueue() const = 0;
+
+    //
+    // Get batch request queue.
+    //
+    virtual const BatchRequestQueuePtr& getBatchRequestQueue() const = 0;
 
     virtual bool operator==(const Reference&) const;
     virtual bool operator<(const Reference&) const;
@@ -172,7 +176,7 @@ private:
     int _invocationTimeout;
 };
 
-class FixedReference : public Reference
+class FixedReference final : public Reference
 {
 public:
 
@@ -182,43 +186,43 @@ public:
 
     FixedReference(const FixedReference&);
 
-    virtual std::vector<EndpointIPtr> getEndpoints() const;
-    virtual std::string getAdapterId() const;
-    virtual bool getCollocationOptimized() const;
-    virtual bool getCacheConnection() const;
-    virtual bool getPreferSecure() const;
-    virtual Ice::EndpointSelectionType getEndpointSelection() const;
-    virtual int getLocatorCacheTimeout() const;
-    virtual std::string getConnectionId() const;
-    virtual std::optional<int> getTimeout() const;
+    std::vector<EndpointIPtr> getEndpoints() const final;
+    std::string getAdapterId() const final;
+    bool getCollocationOptimized() const final;
+    bool getCacheConnection() const final;
+    bool getPreferSecure() const final;
+    Ice::EndpointSelectionType getEndpointSelection() const final;
+    int getLocatorCacheTimeout() const final;
+    std::string getConnectionId() const final;
+    std::optional<int> getTimeout() const final;
 
-    virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
-    virtual ReferencePtr changeAdapterId(const std::string&) const;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const;
-    virtual ReferencePtr changeCollocationOptimized(bool) const;
-    virtual ReferencePtr changeCacheConnection(bool) const;
-    virtual ReferencePtr changePreferSecure(bool) const;
-    virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
-    virtual ReferencePtr changeLocatorCacheTimeout(int) const;
+    ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const final;
+    ReferencePtr changeAdapterId(const std::string&) const final;
+    ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const final;
+    ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const final;
+    ReferencePtr changeCollocationOptimized(bool) const final;
+    ReferencePtr changeCacheConnection(bool) const final;
+    ReferencePtr changePreferSecure(bool) const final;
+    ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const final;
+    ReferencePtr changeLocatorCacheTimeout(int) const final;
 
-    virtual ReferencePtr changeTimeout(int) const;
-    virtual ReferencePtr changeConnectionId(const std::string&) const;
-    virtual ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const;
+    ReferencePtr changeTimeout(int) const final;
+    ReferencePtr changeConnectionId(const std::string&) const final;
+    ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const final;
 
-    virtual bool isIndirect() const;
-    virtual bool isWellKnown() const;
+    bool isIndirect() const final;
+    bool isWellKnown() const final;
 
-    virtual void streamWrite(Ice::OutputStream*) const;
-    virtual Ice::PropertyDict toProperty(const std::string&) const;
+    void streamWrite(Ice::OutputStream*) const final;
+    Ice::PropertyDict toProperty(const std::string&) const final;
 
-    virtual RequestHandlerPtr getRequestHandler() const;
-    virtual BatchRequestQueuePtr getBatchRequestQueue() const;
+    RequestHandlerPtr getRequestHandler() const final;
+    const BatchRequestQueuePtr& getBatchRequestQueue() const final;
 
-    virtual bool operator==(const Reference&) const;
-    virtual bool operator<(const Reference&) const;
+    bool operator==(const Reference&) const final;
+    bool operator<(const Reference&) const final;
 
-    virtual ReferencePtr clone() const;
+    ReferencePtr clone() const final;
 
 private:
 
@@ -227,7 +231,7 @@ private:
 
 using FixedReferencePtr = std::shared_ptr<FixedReference>;
 
-class RoutableReference : public Reference
+class RoutableReference final : public Reference
 {
 public:
 
@@ -238,48 +242,49 @@ public:
 
     RoutableReference(const RoutableReference&);
 
-    virtual std::vector<EndpointIPtr> getEndpoints() const;
-    virtual std::string getAdapterId() const;
-    virtual LocatorInfoPtr getLocatorInfo() const;
-    virtual RouterInfoPtr getRouterInfo() const;
-    virtual bool getCollocationOptimized() const;
-    virtual bool getCacheConnection() const;
-    virtual bool getPreferSecure() const;
-    virtual Ice::EndpointSelectionType getEndpointSelection() const;
-    virtual int getLocatorCacheTimeout() const;
-    virtual std::string getConnectionId() const;
-    virtual std::optional<int> getTimeout() const;
+    std::vector<EndpointIPtr> getEndpoints() const final;
+    std::string getAdapterId() const final;
+    LocatorInfoPtr getLocatorInfo() const final;
+    RouterInfoPtr getRouterInfo() const final;
+    bool getCollocationOptimized() const final;
+    bool getCacheConnection() const final;
+    bool getPreferSecure() const final;
+    Ice::EndpointSelectionType getEndpointSelection() const final;
+    int getLocatorCacheTimeout() const final;
+    std::string getConnectionId() const final;
+    std::optional<int> getTimeout() const final;
 
-    virtual ReferencePtr changeEncoding(const Ice::EncodingVersion&) const;
-    virtual ReferencePtr changeCompress(bool) const;
-    virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
-    virtual ReferencePtr changeAdapterId(const std::string&) const;
-    virtual ReferencePtr changeLocator(const Ice::LocatorPrxPtr&) const;
-    virtual ReferencePtr changeRouter(const Ice::RouterPrxPtr&) const;
-    virtual ReferencePtr changeCollocationOptimized(bool) const;
-    virtual ReferencePtr changeCacheConnection(bool) const;
-    virtual ReferencePtr changePreferSecure(bool) const;
-    virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
-    virtual ReferencePtr changeLocatorCacheTimeout(int) const;
+    ReferencePtr changeEncoding(const Ice::EncodingVersion&) const final;
+    ReferencePtr changeCompress(bool) const final;
+    ReferencePtr changeMode(Mode) const final;
+    ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const final;
+    ReferencePtr changeAdapterId(const std::string&) const final;
+    ReferencePtr changeLocator(const std::optional<Ice::LocatorPrx>&) const final;
+    ReferencePtr changeRouter(const std::optional<Ice::RouterPrx>&) const final;
+    ReferencePtr changeCollocationOptimized(bool) const final;
+    ReferencePtr changeCacheConnection(bool) const final;
+    ReferencePtr changePreferSecure(bool) const final;
+    ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const final;
+    ReferencePtr changeLocatorCacheTimeout(int) const final;
 
-    virtual ReferencePtr changeTimeout(int) const;
-    virtual ReferencePtr changeConnectionId(const std::string&) const;
-    virtual ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const;
+    ReferencePtr changeTimeout(int) const final;
+    ReferencePtr changeConnectionId(const std::string&) const final;
+    ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const final;
 
-    virtual bool isIndirect() const;
-    virtual bool isWellKnown() const;
+    bool isIndirect() const final;
+    bool isWellKnown() const final;
 
-    virtual void streamWrite(Ice::OutputStream*) const;
-    virtual std::string toString() const;
-    virtual Ice::PropertyDict toProperty(const std::string&) const;
+    void streamWrite(Ice::OutputStream*) const final;
+    std::string toString() const final;
+    Ice::PropertyDict toProperty(const std::string&) const final;
 
-    virtual bool operator==(const Reference&) const;
-    virtual bool operator<(const Reference&) const;
+    bool operator==(const Reference&) const final;
+    bool operator<(const Reference&) const final;
 
-    virtual ReferencePtr clone() const;
+    ReferencePtr clone() const final;
 
-    virtual RequestHandlerPtr getRequestHandler() const;
-    virtual BatchRequestQueuePtr getBatchRequestQueue() const;
+    RequestHandlerPtr getRequestHandler() const final;
+    const BatchRequestQueuePtr& getBatchRequestQueue() const final;
 
     void getConnectionAsync(
         std::function<void(Ice::ConnectionIPtr, bool)> response,
@@ -291,7 +296,7 @@ protected:
 
     std::vector<EndpointIPtr> filterEndpoints(const std::vector<EndpointIPtr>&) const;
 
-    virtual int hashInit() const;
+    int hashInit() const final;
 
 private:
 
@@ -303,6 +308,11 @@ private:
     void getConnectionNoRouterInfoAsync(
         std::function<void(Ice::ConnectionIPtr, bool)> response,
         std::function<void(std::exception_ptr)> exception) const;
+
+    // Sets or resets _batchRequestQueue based on _mode.
+    void setBatchRequestQueue();
+
+    BatchRequestQueuePtr _batchRequestQueue;
 
     std::vector<EndpointIPtr> _endpoints; // Empty if indirect proxy.
     std::string _adapterId; // Empty if direct proxy.

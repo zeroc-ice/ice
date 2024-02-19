@@ -129,8 +129,9 @@ ICEIMPL_API @interface ICEObjectPrx : NSObject
 #ifdef __cplusplus
 
 @interface ICEObjectPrx()
-@property (nonatomic, readonly) std::shared_ptr<Ice::ObjectPrx> prx;
--(nullable instancetype) initWithCppObjectPrx:(std::shared_ptr<Ice::ObjectPrx>)prx;
+// prx is always set; we just need a field with a default constructor.
+@property (nonatomic, readonly) std::optional<Ice::ObjectPrx> prx;
+-(nonnull instancetype) initWithCppObjectPrx:(const Ice::ObjectPrx&)prx;
 @end
 
 #endif

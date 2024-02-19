@@ -595,13 +595,13 @@ IceInternal::FixedReference::changeAdapterId(const string& /*newAdapterId*/) con
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeLocator(const LocatorPrxPtr&) const
+IceInternal::FixedReference::changeLocator(const optional<LocatorPrx>&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeRouter(const RouterPrxPtr&) const
+IceInternal::FixedReference::changeRouter(const optional<RouterPrx>&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -745,7 +745,7 @@ IceInternal::FixedReference::getRequestHandler() const
     return make_shared<FixedRequestHandler>(ref, _fixedConnection, compress);
 }
 
-BatchRequestQueuePtr
+const BatchRequestQueuePtr&
 IceInternal::FixedReference::getBatchRequestQueue() const
 {
     return _fixedConnection->getBatchRequestQueue();
@@ -836,6 +836,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
     _timeout(-1)
 {
     assert(_adapterId.empty() || _endpoints.empty());
+    setBatchRequestQueue();
 }
 
 vector<EndpointIPtr>
@@ -905,6 +906,14 @@ IceInternal::RoutableReference::getTimeout() const
 }
 
 ReferencePtr
+IceInternal::RoutableReference::changeMode(Mode newMode) const
+{
+    ReferencePtr r = Reference::changeMode(newMode);
+    static_pointer_cast<RoutableReference>(r)->setBatchRequestQueue();
+    return r;
+}
+
+ReferencePtr
 IceInternal::RoutableReference::changeEncoding(const Ice::EncodingVersion& encoding) const
 {
     ReferencePtr r = Reference::changeEncoding(encoding);
@@ -956,18 +965,20 @@ IceInternal::RoutableReference::changeAdapterId(const string& newAdapterId) cons
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeLocator(const LocatorPrxPtr& newLocator) const
+IceInternal::RoutableReference::changeLocator(const optional<LocatorPrx>& newLocator) const
 {
-    LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
+    LocatorInfoPtr newLocatorInfo = newLocator ?
+        getInstance()->locatorManager()->get(newLocator.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_locatorInfo = newLocatorInfo;
     return r;
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeRouter(const RouterPrxPtr& newRouter) const
+IceInternal::RoutableReference::changeRouter(const optional<RouterPrx>& newRouter) const
 {
-    RouterInfoPtr newRouterInfo = getInstance()->routerManager()->get(newRouter);
+    RouterInfoPtr newRouterInfo = newRouter ?
+        getInstance()->routerManager()->get(newRouter.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_routerInfo = newRouterInfo;
     return r;
@@ -1431,10 +1442,10 @@ IceInternal::RoutableReference::getRequestHandler() const
     return handler;
 }
 
-BatchRequestQueuePtr
+const BatchRequestQueuePtr&
 IceInternal::RoutableReference::getBatchRequestQueue() const
 {
-    return make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram);
+    return _batchRequestQueue;
 }
 
 void
@@ -1709,6 +1720,7 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
     _timeout(r._timeout),
     _connectionId(r._connectionId)
 {
+    setBatchRequestQueue();
 }
 
 vector<EndpointIPtr>
@@ -1821,4 +1833,11 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     }
 
     return endpoints;
+}
+
+void
+IceInternal::RoutableReference::setBatchRequestQueue()
+{
+    _batchRequestQueue = isBatch() ?
+        make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram) : nullptr;
 }

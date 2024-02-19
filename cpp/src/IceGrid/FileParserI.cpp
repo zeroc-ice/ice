@@ -11,7 +11,7 @@ using namespace std;
 using namespace IceGrid;
 
 ApplicationDescriptor
-FileParserI::parse(string file, shared_ptr<AdminPrx> admin, const Ice::Current& current)
+FileParserI::parse(string file, AdminPrxPtr admin, const Ice::Current& current)
 {
     try
     {

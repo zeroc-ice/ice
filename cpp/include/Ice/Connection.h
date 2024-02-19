@@ -270,7 +270,7 @@ public:
      * @return A proxy that matches the given identity and uses this connection.
      * @see #setAdapter
      */
-    virtual ::std::shared_ptr<::Ice::ObjectPrx> createProxy(const Identity& id) const = 0;
+    virtual std::optional<Ice::ObjectPrx> createProxy(const Identity& id) const = 0;
 
     /**
      * Explicitly set an object adapter that dispatches requests that are received over this connection. A client can

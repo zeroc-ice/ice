@@ -18,13 +18,13 @@ using namespace Ice;
 using namespace IceDiscovery;
 
 LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& com) :
-    _wellKnownProxy(com->stringToProxy("p")->ice_locator(0)->ice_router(0)->ice_collocationOptimized(true))
+    _wellKnownProxy(com->stringToProxy("p")->ice_locator(nullopt)->ice_router(nullopt)->ice_collocationOptimized(true))
 {
 }
 
 void
 LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,
-                                              shared_ptr<ObjectPrx> proxy,
+                                              ObjectPrxPtr proxy,
                                               function<void()> response,
                                               function<void(exception_ptr)>,
                                               const Ice::Current&)
@@ -44,7 +44,7 @@ LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,
 void
 LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
                                                         string replicaGroupId,
-                                                        shared_ptr<ObjectPrx> proxy,
+                                                        ObjectPrxPtr proxy,
                                                         function<void()> response,
                                                         function<void(exception_ptr)>,
                                                         const Ice::Current&)
@@ -78,7 +78,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
 
 void
 LocatorRegistryI::setServerProcessProxyAsync(string,
-                                              shared_ptr<ProcessPrx>,
+                                              ProcessPrxPtr,
                                               function<void()> response,
                                               function<void(exception_ptr)>,
                                               const Ice::Current&)
@@ -92,7 +92,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
     lock_guard lock(_mutex);
     if(id.name.empty())
     {
-        return 0;
+        return nullopt;
     }
 
     Ice::ObjectPrxPtr prx = _wellKnownProxy->ice_identity(id);
@@ -129,7 +129,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
 
     if(adapterIds.empty())
     {
-        return 0;
+        return nullopt;
     }
 
     IceUtilInternal::shuffle(adapterIds.begin(), adapterIds.end());
@@ -178,7 +178,7 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
     }
 
     isReplicaGroup = false;
-    return 0;
+    return nullopt;
 }
 
 LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrxPtr& registry) : _lookup(lookup), _registry(registry)
@@ -187,7 +187,7 @@ LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrxPtr& regist
 
 void
 LocatorI::findObjectByIdAsync(Ice::Identity id,
-                              function<void(const shared_ptr<ObjectPrx>&)> response,
+                              function<void(const ObjectPrxPtr&)> response,
                               function<void(exception_ptr)> ex,
                               const Ice::Current&) const
 {
@@ -196,7 +196,7 @@ LocatorI::findObjectByIdAsync(Ice::Identity id,
 
 void
 LocatorI::findAdapterByIdAsync(string adapterId,
-                               function<void(const shared_ptr<ObjectPrx>&)> response,
+                               function<void(const ObjectPrxPtr&)> response,
                                function<void(exception_ptr)> ex,
                                const Ice::Current&) const
 {

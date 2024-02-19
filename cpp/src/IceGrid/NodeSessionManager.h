@@ -20,19 +20,19 @@ class NodeSessionKeepAliveThread : public SessionKeepAliveThread<NodeSessionPrx>
 {
 public:
 
-    NodeSessionKeepAliveThread(const std::shared_ptr<InternalRegistryPrx>&, const std::shared_ptr<NodeI>&,
+    NodeSessionKeepAliveThread(const InternalRegistryPrxPtr&, const std::shared_ptr<NodeI>&,
                                NodeSessionManager&);
 
-    virtual std::shared_ptr<NodeSessionPrx> createSession(std::shared_ptr<InternalRegistryPrx>&,
+    virtual NodeSessionPrxPtr createSession(InternalRegistryPrxPtr&,
                                                           std::chrono::seconds&) override;
-    virtual void destroySession(const std::shared_ptr<NodeSessionPrx>&) override;
-    virtual bool keepAlive(const std::shared_ptr<NodeSessionPrx>&) override;
+    virtual void destroySession(const NodeSessionPrxPtr&) override;
+    virtual bool keepAlive(const NodeSessionPrxPtr&) override;
 
     std::string getName() const { return "IceGrid session keepalive thread"; }
 
 protected:
 
-    std::shared_ptr<NodeSessionPrx> createSessionImpl(const std::shared_ptr<InternalRegistryPrx>&,
+    NodeSessionPrxPtr createSessionImpl(const InternalRegistryPrxPtr&,
                                                       std::chrono::seconds&);
 
     const std::shared_ptr<NodeI> _node;
@@ -47,7 +47,7 @@ public:
     NodeSessionManager(const std::shared_ptr<Ice::Communicator>&, const std::string&);
 
     void create(const std::shared_ptr<NodeI>&);
-    void create(const std::shared_ptr<InternalRegistryPrx>&);
+    void create(const InternalRegistryPrxPtr&);
     void activate();
     bool isWaitingForCreate();
     bool waitForCreate();
@@ -55,19 +55,19 @@ public:
     void destroy();
 
     void replicaInit(const InternalRegistryPrxSeq&);
-    void replicaAdded(const std::shared_ptr<InternalRegistryPrx>&);
-    void replicaRemoved(const std::shared_ptr<InternalRegistryPrx>&);
+    void replicaAdded(const InternalRegistryPrxPtr&);
+    void replicaRemoved(const InternalRegistryPrxPtr&);
 
-    std::shared_ptr<NodeSessionPrx> getMasterNodeSession() const { return _thread->getSession(); }
-    std::vector<std::shared_ptr<IceGrid::QueryPrx>> getQueryObjects() { return findAllQueryObjects(true); }
+    NodeSessionPrxPtr getMasterNodeSession() const { return _thread->getSession(); }
+    std::vector<IceGrid::QueryPrxPtr> getQueryObjects() { return findAllQueryObjects(true); }
 
 private:
 
-    std::shared_ptr<NodeSessionKeepAliveThread> addReplicaSession(const std::shared_ptr<InternalRegistryPrx>&);
+    std::shared_ptr<NodeSessionKeepAliveThread> addReplicaSession(const InternalRegistryPrxPtr&);
 
     void reapReplicas();
 
-    void syncServers(const std::shared_ptr<NodeSessionPrx>&);
+    void syncServers(const NodeSessionPrxPtr&);
 
     bool isDestroyed()
     {
@@ -83,8 +83,8 @@ private:
         {
         }
 
-        std::shared_ptr<NodeSessionPrx>
-        createSession(std::shared_ptr<InternalRegistryPrx>& master, std::chrono::seconds& timeout) override
+        NodeSessionPrxPtr
+        createSession(InternalRegistryPrxPtr& master, std::chrono::seconds& timeout) override
         {
             auto session = NodeSessionKeepAliveThread::createSession(master, timeout);
             _manager.createdSession(session);
@@ -93,14 +93,14 @@ private:
         }
 
         void
-        destroySession(const std::shared_ptr<NodeSessionPrx>& session) override
+        destroySession(const NodeSessionPrxPtr& session) override
         {
             NodeSessionKeepAliveThread::destroySession(session);
             _manager.reapReplicas();
         }
 
         bool
-        keepAlive(const std::shared_ptr<NodeSessionPrx>& session) override
+        keepAlive(const NodeSessionPrxPtr& session) override
         {
             bool alive = NodeSessionKeepAliveThread::keepAlive(session);
             _manager.reapReplicas();
@@ -109,7 +109,7 @@ private:
     };
     friend class Thread;
 
-    void createdSession(const std::shared_ptr<NodeSessionPrx>&);
+    void createdSession(const NodeSessionPrxPtr&);
 
     const std::shared_ptr<NodeI> _node;
     std::shared_ptr<Thread> _thread;

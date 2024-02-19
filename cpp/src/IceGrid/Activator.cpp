@@ -910,7 +910,7 @@ Activator::activate(const string& name,
 }
 
 void
-Activator::deactivate(const string& name, const shared_ptr<Ice::ProcessPrx>& process)
+Activator::deactivate(const string& name, const Ice::ProcessPrxPtr& process)
 {
 #ifdef _WIN32
     Ice::Int pid = getServerPid(name);

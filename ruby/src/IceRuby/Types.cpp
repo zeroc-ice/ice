@@ -2339,15 +2339,14 @@ IceRuby::ProxyInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool opti
         sizePos = os->startSize();
     }
 
-    if(NIL_P(p))
-    {
-        os->write(shared_ptr<Ice::ObjectPrx>());
-    }
-    else
+    std::optional<Ice::ObjectPrx> proxy;
+
+    if (!NIL_P(p))
     {
         assert(checkProxy(p)); // validate() should have caught this.
-        os->write(getProxy(p));
+        proxy = getProxy(p);
     }
+    os->write(proxy);
 
     if(optional)
     {
@@ -2364,7 +2363,7 @@ IceRuby::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
         is->skip(4);
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    std::optional<Ice::ObjectPrx> proxy;
     is->read(proxy);
 
     if(!proxy)
@@ -2378,7 +2377,7 @@ IceRuby::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& 
         throw RubyException(rb_eRuntimeError, "class %s is declared but not defined", id.c_str());
     }
 
-    volatile VALUE p = createProxy(proxy, rubyClass);
+    volatile VALUE p = createProxy(proxy.value(), rubyClass);
     cb->unmarshaled(p, target, closure);
 }
 

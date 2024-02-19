@@ -9,6 +9,8 @@
 #include "RouterInfo.h"
 #include "LocatorInfo.h"
 #include "Ice/LocalException.h"
+#include "Instance.h"
+#include "ReferenceFactory.h"
 #include "RequestHandlerCache.h"
 #include "ConnectionI.h"
 
@@ -23,35 +25,34 @@ const Context noExplicitContext;
 
 }
 
-namespace Ice
+namespace
 {
 
-bool
-operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
+inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, const string& proxyString)
 {
-    return targetLess(lhs._getReference(), rhs._getReference());
+    if (!communicator)
+    {
+        throw std::invalid_argument("communicator cannot be null");
+    }
+
+    ReferencePtr ref = getInstance(communicator)->referenceFactory()->create(proxyString, "");
+    if (!ref)
+    {
+        throw std::invalid_argument("invalid proxy string");
+    }
+    return ref;
 }
 
-bool
-operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
+}
+
+Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, const string& proxyString) :
+    ObjectPrx(createReference(communicator, proxyString))
 {
-    return targetEqualTo(lhs._getReference(), rhs._getReference());
 }
 
-}
-
-Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
-    _reference(ref),
-    _requestHandlerCache(make_shared<RequestHandlerCache>(ref)),
-    _batchRequestQueue(ref->isBatch() ? ref->getBatchRequestQueue() : nullptr)
-{
-}
-
-Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
-    std::enable_shared_from_this<ObjectPrx>(),
-    _reference(other._reference),
-    _requestHandlerCache(other._requestHandlerCache),
-    _batchRequestQueue(_reference->isBatch() ? _reference->getBatchRequestQueue() : nullptr)
+Ice::ObjectPrx::ObjectPrx(ReferencePtr&& ref) :
+    _reference(std::move(ref)),
+    _requestHandlerCache(make_shared<RequestHandlerCache>(_reference))
 {
 }
 
@@ -76,20 +77,20 @@ Ice::ObjectPrx::ice_getIdentity() const
     return _reference->getIdentity();
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectPrx::ice_identity(const Identity& newIdentity) const
 {
-    if(newIdentity.name.empty())
+    if (newIdentity.name.empty())
     {
         throw IllegalIdentityException(__FILE__, __LINE__);
     }
-    if(newIdentity == _reference->getIdentity())
+    if (newIdentity == _reference->getIdentity())
     {
-        return const_pointer_cast<ObjectPrx>(shared_from_this());
+        return *this;
     }
     else
     {
-        return make_shared<ObjectPrx>(_reference->changeIdentity(newIdentity));
+        return ObjectPrx(_reference->changeIdentity(newIdentity));
     }
 }
 
@@ -105,16 +106,16 @@ Ice::ObjectPrx::ice_getFacet() const
     return _reference->getFacet();
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectPrx::ice_facet(const string& newFacet) const
 {
     if(newFacet == _reference->getFacet())
     {
-        return const_pointer_cast<ObjectPrx>(shared_from_this());
+        return *this;
     }
     else
     {
-        return make_shared<ObjectPrx>(_reference->changeFacet(newFacet));
+        return ObjectPrx(_reference->changeFacet(newFacet));
     }
 }
 
@@ -172,18 +173,18 @@ Ice::ObjectPrx::ice_isPreferSecure() const
     return _reference->getPreferSecure();
 }
 
-RouterPrxPtr
+optional<RouterPrx>
 Ice::ObjectPrx::ice_getRouter() const
 {
-    RouterInfoPtr ri = _reference->getRouterInfo();
-    return ri ? ri->getRouter() : nullptr;
+    RouterInfoPtr routerInfo = _reference->getRouterInfo();
+    return routerInfo ? make_optional(routerInfo->getRouter()) : nullopt;
 }
 
-LocatorPrxPtr
+optional<LocatorPrx>
 Ice::ObjectPrx::ice_getLocator() const
 {
-    LocatorInfoPtr ri = _reference->getLocatorInfo();
-    return ri ? ri->getLocator() : nullptr;
+    LocatorInfoPtr locatorInfo = _reference->getLocatorInfo();
+    return locatorInfo ? make_optional(locatorInfo->getLocator()) : nullopt;
 }
 
 bool
@@ -495,10 +496,10 @@ Ice::ObjectPrx::_invocationTimeout(Int newTimeout) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_locator(const LocatorPrxPtr& locator) const
+Ice::ObjectPrx::_locator(const std::optional<LocatorPrx>& locator) const
 {
     ReferencePtr ref = _reference->changeLocator(locator);
-    if (targetEqualTo(ref, _reference))
+    if (*ref == *_reference)
     {
         return _reference;
     }
@@ -554,10 +555,10 @@ Ice::ObjectPrx::_preferSecure(bool b) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_router(const RouterPrxPtr& router) const
+Ice::ObjectPrx::_router(const std::optional<RouterPrx>& router) const
 {
     ReferencePtr ref = _reference->changeRouter(router);
-    if (targetEqualTo(ref, _reference))
+    if (*ref == *_reference)
     {
         return _reference;
     }
@@ -613,73 +614,50 @@ Ice::ObjectPrx::_twoway() const
     }
 }
 
-bool
-Ice::proxyIdentityLess(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
+// TODO: move the code below to ProxyFunctions.cpp
+namespace Ice
 {
-    if(!lhs && !rhs)
-    {
-        return false;
-    }
-    else if(!lhs && rhs)
-    {
-        return true;
-    }
-    else if(lhs && !rhs)
-    {
-        return false;
-    }
-    else
-    {
-        return lhs->ice_getIdentity() < rhs->ice_getIdentity();
-    }
+
+bool
+operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return targetLess(lhs._getReference(), rhs._getReference());
 }
 
 bool
-Ice::proxyIdentityEqual(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
+operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    if(!lhs && !rhs)
-    {
-        return true;
-    }
-    else if(!lhs && rhs)
-    {
-        return false;
-    }
-    else if(lhs && !rhs)
-    {
-        return false;
-    }
-    else
-    {
-        return lhs->ice_getIdentity() == rhs->ice_getIdentity();
-    }
+    return targetEqualTo(lhs._getReference(), rhs._getReference());
+}
+
 }
 
 bool
-Ice::proxyIdentityAndFacetLess(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
+Ice::proxyIdentityLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
 {
-    if(!lhs && !rhs)
-    {
-        return false;
-    }
-    else if(!lhs && rhs)
-    {
-        return true;
-    }
-    else if(lhs && !rhs)
-    {
-        return false;
-    }
-    else
+    return lhs && rhs ? lhs->ice_getIdentity() < rhs->ice_getIdentity() :
+        std::less<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+}
+
+bool
+Ice::proxyIdentityEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
+{
+   return lhs && rhs ? lhs->ice_getIdentity() == rhs->ice_getIdentity() :
+        std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));}
+
+bool
+Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
+{
+    if (lhs && rhs)
     {
         Identity lhsIdentity = lhs->ice_getIdentity();
         Identity rhsIdentity = rhs->ice_getIdentity();
 
-        if(lhsIdentity < rhsIdentity)
+        if (lhsIdentity < rhsIdentity)
         {
             return true;
         }
-        else if(rhsIdentity < lhsIdentity)
+        else if (rhsIdentity < lhsIdentity)
         {
             return false;
         }
@@ -687,50 +665,47 @@ Ice::proxyIdentityAndFacetLess(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
         string lhsFacet = lhs->ice_getFacet();
         string rhsFacet = rhs->ice_getFacet();
 
-        if(lhsFacet < rhsFacet)
+        if (lhsFacet < rhsFacet)
         {
             return true;
         }
-        else if(rhsFacet < lhsFacet)
+        else if (rhsFacet < lhsFacet)
         {
             return false;
         }
 
         return false;
     }
+    else
+    {
+        return std::less<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+    }
 }
 
 bool
-Ice::proxyIdentityAndFacetEqual(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
+Ice::proxyIdentityAndFacetEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
 {
-    if(!lhs && !rhs)
-    {
-        return true;
-    }
-    else if(!lhs && rhs)
-    {
-        return false;
-    }
-    else if(lhs && !rhs)
-    {
-        return false;
-    }
-    else
+
+    if (lhs && rhs)
     {
         Identity lhsIdentity = lhs->ice_getIdentity();
         Identity rhsIdentity = rhs->ice_getIdentity();
 
-        if(lhsIdentity == rhsIdentity)
+        if (lhsIdentity == rhsIdentity)
         {
             string lhsFacet = lhs->ice_getFacet();
             string rhsFacet = rhs->ice_getFacet();
 
-            if(lhsFacet == rhsFacet)
+            if (lhsFacet == rhsFacet)
             {
                 return true;
             }
         }
 
         return false;
+    }
+    else
+    {
+        return std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
     }
 }

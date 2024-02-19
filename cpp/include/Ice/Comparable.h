@@ -6,6 +6,8 @@
 #define ICE_COMPARABLE_H
 
 #include <functional>
+#include <memory>
+#include <optional>
 
 namespace Ice
 {
@@ -97,21 +99,47 @@ inline bool targetNotEqualTo(const T& lhs, const U& rhs)
 }
 
 /**
- * Functor class that compares the contents of two smart pointers of the given type using the given comparator.
+ * Functor class that compares the contents of two smart pointers (or similar) of the given type using the given
+ * comparator. It provides partial specializations for std::shared_ptr and std::optional.
  * \headerfile Ice/Ice.h
  */
 template<typename T, template<typename> class Compare>
-struct TargetCompare
+struct TargetCompare;
+
+// Partial specialization for std::shared_ptr.
+template<typename T, template<typename> class Compare>
+struct TargetCompare<std::shared_ptr<T>, Compare>
 {
     /**
      * Executes the functor to compare the contents of two smart pointers.
      * @return True if the contents satisfy the given comparator, false otherwise.
      */
-    bool operator()(const T& lhs, const T& rhs) const
+    bool operator()(const std::shared_ptr<T>& lhs, const std::shared_ptr<T>& rhs) const
     {
         if(lhs && rhs)
         {
-            return Compare<typename T::element_type>()(*lhs, *rhs);
+            return Compare<T>()(*lhs, *rhs);
+        }
+        else
+        {
+            return Compare<bool>()(static_cast<const bool>(lhs), static_cast<const bool>(rhs));
+        }
+    }
+};
+
+// Partial specialization for std::optional.
+template<typename T, template<typename> class Compare>
+struct TargetCompare<std::optional<T>, Compare>
+{
+    /**
+     * Executes the functor to compare the contents of two optionals.
+     * @return True if the contents satisfy the given comparator, false otherwise.
+     */
+    bool operator()(const std::optional<T>& lhs, const std::optional<T>& rhs) const
+    {
+        if(lhs && rhs)
+        {
+            return Compare<T>()(*lhs, *rhs);
         }
         else
         {

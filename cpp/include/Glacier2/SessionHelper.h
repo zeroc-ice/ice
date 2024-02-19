@@ -64,7 +64,7 @@ public:
      * @return A proxy for the object.
      * @throws SessionNotExistException if no session is currently active.
      */
-    virtual Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr& servant) = 0;
+    virtual Ice::ObjectPrx addWithUUID(const Ice::ObjectPtr& servant) = 0;
 
     /**
      * Obtains a proxy for the Glacier2 session.

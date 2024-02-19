@@ -43,7 +43,7 @@ public:
      * Obtains the proxy on which the batch request was invoked.
      * @return The originating proxy.
      */
-    virtual const Ice::ObjectPrxPtr& getProxy() const = 0;
+    virtual const Ice::ObjectPrx& getProxy() const = 0;
 };
 
 }

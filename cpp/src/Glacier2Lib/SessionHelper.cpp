@@ -63,7 +63,6 @@ public:
     virtual
     void run()
     {
-
         _callback->disconnected(_session);
     }
 
@@ -83,7 +82,7 @@ public:
     void destroy();
     Ice::CommunicatorPtr communicator() const;
     std::string categoryForClient() const;
-    Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr&);
+    Ice::ObjectPrx addWithUUID(const Ice::ObjectPtr&);
     Glacier2::SessionPrxPtr session() const;
     bool isConnected() const;
     Ice::ObjectAdapterPtr objectAdapter();
@@ -246,7 +245,7 @@ SessionHelperI::destroy()
     {
         destroyThread = DestroyInternal::create(shared_from_this(), _callback, _threadCB);
         _connected = false;
-        _session = nullptr;
+        _session = nullopt;
     }
     _threadCB = nullptr;
 
@@ -274,7 +273,7 @@ SessionHelperI::categoryForClient() const
     return _category;
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 SessionHelperI::addWithUUID(const Ice::ObjectPtr& servant)
 {
     lock_guard lock(_mutex);
@@ -408,7 +407,7 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
     {
         lock_guard lock(_mutex);
         router = _router;
-        _router = nullptr;
+        _router = nullopt;
         _connected = false;
 
         communicator = _communicator;
@@ -726,7 +725,7 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
     //
     if(_useCallbacks)
     {
-        _adapter = _communicator->createObjectAdapterWithRouter("", router);
+        _adapter = _communicator->createObjectAdapterWithRouter("", router.value());
         _adapter->activate();
     }
 

@@ -19,24 +19,24 @@ public:
 
     WellKnownObjectsManager(const std::shared_ptr<Database>&);
 
-    void add(const std::shared_ptr<Ice::ObjectPrx>&, const std::string&);
-    void addEndpoint(const std::string&, const std::shared_ptr<Ice::ObjectPrx>&);
+    void add(const Ice::ObjectPrxPtr&, const std::string&);
+    void addEndpoint(const std::string&, const Ice::ObjectPrxPtr&);
     void finish();
 
     void registerAll();
-    void registerAll(const std::shared_ptr<ReplicaSessionPrx>&);
+    void registerAll(const ReplicaSessionPrxPtr&);
     void updateReplicatedWellKnownObjects();
 
-    std::shared_ptr<Ice::ObjectPrx> getEndpoints(const std::string&);
+    Ice::ObjectPrxPtr getEndpoints(const std::string&);
 
-    std::shared_ptr<LocatorPrx> getLocator();
-    std::shared_ptr<Ice::LocatorRegistryPrx> getLocatorRegistry();
+    LocatorPrxPtr getLocator();
+    Ice::LocatorRegistryPrxPtr getLocatorRegistry();
 
 private:
 
     bool initialized() const;
 
-    std::shared_ptr<Ice::ObjectPrx> getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
+    Ice::ObjectPrxPtr getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
 
     const std::shared_ptr<Database> _database;
     bool _initialized;

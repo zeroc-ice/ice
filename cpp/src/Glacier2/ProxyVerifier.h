@@ -24,7 +24,7 @@ public:
     //
     // Checks to see if the proxy passes.
     //
-    virtual bool check(const std::shared_ptr<Ice::ObjectPrx>&) const = 0;
+    virtual bool check(const Ice::ObjectPrxPtr&) const = 0;
 };
 
 class ProxyVerifier final
@@ -38,7 +38,7 @@ public:
     // Verifies that the proxy is permissible under the configured
     // rules.
     //
-    bool verify(const std::shared_ptr<Ice::ObjectPrx>&);
+    bool verify(const Ice::ObjectPrxPtr&);
 
 private:
 

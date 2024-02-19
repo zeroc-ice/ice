@@ -215,9 +215,9 @@ TestIntfI::opEListAsync(Test::EList in,
 }
 
 void
-TestIntfI::opDPrxSeqAsync(std::deque<std::shared_ptr<Test::DPrx>> in,
-                          std::function<void(const std::deque<std::shared_ptr<Test::DPrx>>&,
-                                             const std::deque<std::shared_ptr<Test::DPrx>>&)> response,
+TestIntfI::opDPrxSeqAsync(std::deque<Test::DPrxPtr> in,
+                          std::function<void(const std::deque<Test::DPrxPtr>&,
+                                             const std::deque<Test::DPrxPtr>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);

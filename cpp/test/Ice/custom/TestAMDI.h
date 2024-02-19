@@ -116,9 +116,9 @@ public:
                       std::function<void(const ::Test::EList&, const ::Test::EList&)>,
                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opDPrxSeqAsync(std::deque<std::shared_ptr<::Test::DPrx>>,
-                        std::function<void(const std::deque<std::shared_ptr<::Test::DPrx>>&,
-                                            const std::deque<std::shared_ptr<::Test::DPrx>>&)>,
+    void opDPrxSeqAsync(std::deque<::Test::DPrxPtr>,
+                        std::function<void(const std::deque<::Test::DPrxPtr>&,
+                                            const std::deque<::Test::DPrxPtr>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opDPrxListAsync(::Test::DPrxList,

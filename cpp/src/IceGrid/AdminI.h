@@ -42,7 +42,7 @@ public:
     ServerState getServerState(std::string, const Ice::Current&) const override;
     Ice::Int getServerPid(std::string, const Ice::Current&) const override;
     std::string getServerAdminCategory(const Ice::Current&) const override;
-    std::shared_ptr<Ice::ObjectPrx> getServerAdmin(std::string, const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getServerAdmin(std::string, const Ice::Current&) const override;
     void startServerAsync(std::string, std::function<void()>, std::function<void(std::exception_ptr)>,
                           const Ice::Current&) override;
     void stopServerAsync(std::string, std::function<void()>, std::function<void(std::exception_ptr)>,
@@ -63,16 +63,16 @@ public:
     void removeAdapter(std::string, const Ice::Current&) override;
     Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const override;
 
-    void addObject(std::shared_ptr<Ice::ObjectPrx>, const ::Ice::Current&) override;
-    void updateObject(std::shared_ptr<Ice::ObjectPrx>, const ::Ice::Current&) override;
-    void addObjectWithType(std::shared_ptr<Ice::ObjectPrx>, std::string, const ::Ice::Current&) override;
+    void addObject(Ice::ObjectPrxPtr, const ::Ice::Current&) override;
+    void updateObject(Ice::ObjectPrxPtr, const ::Ice::Current&) override;
+    void addObjectWithType(Ice::ObjectPrxPtr, std::string, const ::Ice::Current&) override;
     void removeObject(Ice::Identity, const ::Ice::Current&) override;
     ObjectInfo getObjectInfo(Ice::Identity, const ::Ice::Current&) const override;
     ObjectInfoSeq getObjectInfosByType(std::string, const ::Ice::Current&) const override;
     ObjectInfoSeq getAllObjectInfos(std::string, const ::Ice::Current&) const override;
 
     NodeInfo getNodeInfo(std::string, const Ice::Current&) const override;
-    std::shared_ptr<Ice::ObjectPrx> getNodeAdmin(std::string, const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getNodeAdmin(std::string, const Ice::Current&) const override;
     bool pingNode(std::string, const Ice::Current&) const override;
     LoadInfo getNodeLoad(std::string, const Ice::Current&) const override;
     int getNodeProcessorSocketCount(std::string, const Ice::Current&) const override;
@@ -81,7 +81,7 @@ public:
     Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const override;
 
     RegistryInfo getRegistryInfo(std::string, const Ice::Current&) const override;
-    std::shared_ptr<Ice::ObjectPrx> getRegistryAdmin(std::string, const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getRegistryAdmin(std::string, const Ice::Current&) const override;
     bool pingRegistry(std::string, const Ice::Current&) const override;
     void shutdownRegistry(std::string, const Ice::Current&) override;
     Ice::StringSeq getAllRegistryNames(const ::Ice::Current&) const override;

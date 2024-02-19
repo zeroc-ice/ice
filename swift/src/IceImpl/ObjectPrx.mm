@@ -15,23 +15,13 @@
 {
     assert(prx);
     self = [super init];
-    _prx = std::shared_ptr<Ice::ObjectPrx>([prx prx]);
+    _prx = [prx prx];
     return self;
 }
 
--(ICEObjectPrx*) initWithCppObjectPrx:(std::shared_ptr<Ice::ObjectPrx>)prx
+-(ICEObjectPrx*) initWithCppObjectPrx:(const Ice::ObjectPrx&)prx
 {
-    if(!prx)
-    {
-        return nil;
-    }
-
     self = [super init];
-    if(!self)
-    {
-        return nil;
-    }
-
     self->_prx = prx;
 
     return self;
@@ -250,14 +240,26 @@
 
 -(ICEObjectPrx*) ice_getRouter
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_prx->ice_getRouter()];
+    std::optional<Ice::RouterPrx> router = _prx->ice_getRouter();
+    if (router)
+    {
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:router.value()];
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 -(instancetype) ice_router:(ICEObjectPrx*)router error:(NSError**)error
 {
     try
     {
-        auto r = router ? [router prx] : nullptr;
+        std::optional<Ice::ObjectPrx> r;
+        if (router)
+        {
+            r = [router prx];
+        }
         auto prx = _prx->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(r));
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
@@ -270,14 +272,27 @@
 
 -(ICEObjectPrx*) ice_getLocator
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_prx->ice_getLocator()];
+    std::optional<Ice::LocatorPrx> locator = _prx->ice_getLocator();
+
+    if (locator)
+    {
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:locator.value()];
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 -(instancetype) ice_locator:(ICEObjectPrx*)locator error:(NSError**)error
 {
     try
     {
-        auto l = locator ? [locator prx] : nullptr;
+        std::optional<Ice::ObjectPrx> l;
+        if (locator)
+        {
+            l = [locator prx];
+        }
         auto prx = _prx->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
         return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
@@ -566,13 +581,13 @@
     {
         Ice::InputStream ins(comm, Ice::EncodingVersion{major, minor}, p);
 
-        std::shared_ptr<Ice::ObjectPrx> proxy;
+        std::optional<Ice::ObjectPrx> proxy;
         ins.read(proxy);
 
         *bytesRead = ins.pos();
         if(proxy)
         {
-            return [[ICEObjectPrx alloc] initWithCppObjectPrx:proxy];
+            return [[ICEObjectPrx alloc] initWithCppObjectPrx:proxy.value()];
         }
         else
         {

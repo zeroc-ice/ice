@@ -19,16 +19,16 @@ public:
 
     QueryI(const std::shared_ptr<Ice::Communicator>&, const std::shared_ptr<Database>&);
 
-    std::shared_ptr<Ice::ObjectPrx> findObjectById(Ice::Identity, const Ice::Current&) const override;
+    Ice::ObjectPrxPtr findObjectById(Ice::Identity, const Ice::Current&) const override;
 
-    std::shared_ptr<Ice::ObjectPrx> findObjectByType(std::string, const Ice::Current&) const override;
+    Ice::ObjectPrxPtr findObjectByType(std::string, const Ice::Current&) const override;
 
-    std::shared_ptr<Ice::ObjectPrx> findObjectByTypeOnLeastLoadedNode(std::string, LoadSample,
+    Ice::ObjectPrxPtr findObjectByTypeOnLeastLoadedNode(std::string, LoadSample,
                                                                       const Ice::Current&) const override;
 
     Ice::ObjectProxySeq findAllObjectsByType(std::string, const Ice::Current&) const override;
 
-    Ice::ObjectProxySeq findAllReplicas(std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&) const override;
+    Ice::ObjectProxySeq findAllReplicas(Ice::ObjectPrxPtr, const Ice::Current&) const override;
 
 private:
 

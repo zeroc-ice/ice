@@ -16,7 +16,7 @@ WellKnownObjectsManager::WellKnownObjectsManager(const shared_ptr<Database>& dat
 }
 
 void
-WellKnownObjectsManager::add(const std::shared_ptr<Ice::ObjectPrx>& proxy, const string& type)
+WellKnownObjectsManager::add(const Ice::ObjectPrxPtr& proxy, const string& type)
 {
     assert(!_initialized);
     ObjectInfo info = { proxy, type };
@@ -24,7 +24,7 @@ WellKnownObjectsManager::add(const std::shared_ptr<Ice::ObjectPrx>& proxy, const
 }
 
 void
-WellKnownObjectsManager::addEndpoint(const string& name, const std::shared_ptr<Ice::ObjectPrx>& proxy)
+WellKnownObjectsManager::addEndpoint(const string& name, const Ice::ObjectPrxPtr& proxy)
 {
     _endpoints.insert(make_pair(name, proxy));
 }
@@ -37,7 +37,7 @@ WellKnownObjectsManager::finish()
 }
 
 void
-WellKnownObjectsManager::registerAll(const shared_ptr<ReplicaSessionPrx>& session)
+WellKnownObjectsManager::registerAll(const ReplicaSessionPrxPtr& session)
 {
     if(!initialized())
     {
@@ -120,28 +120,28 @@ WellKnownObjectsManager::initialized() const
     return _initialized;
 }
 
-std::shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 WellKnownObjectsManager::getEndpoints(const string& name)
 {
     lock_guard lock(_mutex);
     return _endpoints[name];
 }
 
-shared_ptr<LocatorPrx>
+LocatorPrxPtr
 WellKnownObjectsManager::getLocator()
 {
     Ice::Identity id = { "Locator", _database->getInstanceName() };
     return Ice::uncheckedCast<LocatorPrx>(getWellKnownObjectReplicatedProxy(std::move(id), "Client"));
 }
 
-shared_ptr<Ice::LocatorRegistryPrx>
+Ice::LocatorRegistryPrxPtr
 WellKnownObjectsManager::getLocatorRegistry()
 {
     Ice::Identity id = { "LocatorRegistry", _database->getInstanceName() };
     return Ice::uncheckedCast<Ice::LocatorRegistryPrx>(getWellKnownObjectReplicatedProxy(std::move(id), "Server"));
 }
 
-std::shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& id, const string& endpt)
 {
     try

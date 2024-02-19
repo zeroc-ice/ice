@@ -227,7 +227,7 @@ public:
                                                                       Ice::Instrumentation::ThreadState,
                                                                       const Ice::Instrumentation::ThreadObserverPtr&);
 
-    virtual Ice::Instrumentation::InvocationObserverPtr getInvocationObserver(const Ice::ObjectPrxPtr&,
+    virtual Ice::Instrumentation::InvocationObserverPtr getInvocationObserver(const std::optional<Ice::ObjectPrx>&,
                                                                               const std::string&,
                                                                               const Ice::Context&);
 

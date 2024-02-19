@@ -362,7 +362,7 @@ public:
         }
     };
     static Attributes attributes;
-    InvocationHelper(const ObjectPrxPtr& proxy, const string& op, const Context& ctx) :
+    InvocationHelper(const optional<ObjectPrx>& proxy, const string& op, const Context& ctx) :
         _proxy(proxy), _operation(op), _context(ctx)
     {
     }
@@ -453,7 +453,7 @@ public:
         return "Communicator";
     }
 
-    const ObjectPrxPtr&
+    const optional<ObjectPrx>&
     getProxy() const
     {
         return _proxy;
@@ -480,7 +480,7 @@ public:
 
 private:
 
-    const ObjectPrxPtr& _proxy;
+    const optional<ObjectPrx>& _proxy;
     const string& _operation;
     const Context& _context;
     mutable string _id;
@@ -1024,7 +1024,7 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
 }
 
 InvocationObserverPtr
-CommunicatorObserverI::getInvocationObserver(const ObjectPrxPtr& proxy, const string& op, const Context& ctx)
+CommunicatorObserverI::getInvocationObserver(const optional<ObjectPrx>& proxy, const string& op, const Context& ctx)
 {
     if(_invocations.isEnabled())
     {

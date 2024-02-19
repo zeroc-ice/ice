@@ -18,6 +18,7 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/FactoryTable.h>
+#include "ReferenceF.h"
 
 namespace Ice
 {
@@ -926,28 +927,21 @@ public:
      * @param v The extracted sequence.
      */
     void read(std::vector<std::wstring>& v);
-
-    /**
-     * Reads a proxy from the stream.
-     * @return The proxy as the base ObjectPrx type.
-     */
-    std::shared_ptr<ObjectPrx> readProxy();
-
     /**
      * Reads a typed proxy from the stream.
      * @param v The proxy as a user-defined type.
      */
-    template<typename T, typename ::std::enable_if<::std::is_base_of<ObjectPrx, T>::value>::type* = nullptr>
-    void read(::std::shared_ptr<T>& v)
+    template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+    void read(std::optional<Prx>& v)
     {
-        ::std::shared_ptr<ObjectPrx> proxy(readProxy());
-        if(!proxy)
+        IceInternal::ReferencePtr ref = readReference();
+        if (ref)
         {
-            v = 0;
+            v = Prx::_fromReference(ref);
         }
         else
         {
-            v = std::make_shared<T>(*proxy);
+            v = std::nullopt;
         }
     }
 
@@ -1055,6 +1049,9 @@ public:
 private:
 
     void initialize(const EncodingVersion&);
+
+    // Reads a reference from the stream; the return value can be null.
+    IceInternal::ReferencePtr readReference();
 
     //
     // String

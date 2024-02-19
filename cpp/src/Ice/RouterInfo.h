@@ -32,14 +32,12 @@ public:
     // Returns router info for a given router. Automatically creates
     // the router info if it doesn't exist yet.
     //
-    RouterInfoPtr get(const Ice::RouterPrxPtr&);
-    RouterInfoPtr erase(const Ice::RouterPrxPtr&);
+    RouterInfoPtr get(const Ice::RouterPrx&);
+    RouterInfoPtr erase(const Ice::RouterPrx&);
 
 private:
 
-    using RouterInfoTable = std::map<std::shared_ptr<Ice::RouterPrx>,
-                                     RouterInfoPtr,
-                                     Ice::TargetCompare<std::shared_ptr<Ice::RouterPrx>, std::less>>;
+    using RouterInfoTable = std::map<Ice::RouterPrx, RouterInfoPtr>;
 
     RouterInfoTable _table;
     RouterInfoTable::iterator _tableHint;
@@ -50,14 +48,14 @@ class RouterInfo final : public std::enable_shared_from_this<RouterInfo>
 {
 public:
 
-    RouterInfo(const Ice::RouterPrxPtr&);
+    RouterInfo(const Ice::RouterPrx&);
 
     void destroy();
 
     bool operator==(const RouterInfo&) const;
     bool operator<(const RouterInfo&) const;
 
-    const Ice::RouterPrxPtr& getRouter() const
+    Ice::RouterPrx getRouter() const
     {
         //
         // No mutex lock necessary, _router is immutable.
@@ -86,9 +84,9 @@ public:
 private:
 
     void addAndEvictProxies(const Ice::Identity&, const Ice::ObjectProxySeq&);
-    std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrxPtr&, bool);
+    std::vector<EndpointIPtr> setClientEndpoints(const std::optional<Ice::ObjectPrx>&, bool);
 
-    const Ice::RouterPrxPtr _router;
+    const Ice::RouterPrx _router;
     std::vector<EndpointIPtr> _clientEndpoints;
     bool _hasRoutingTable;
     Ice::ObjectAdapterPtr _adapter;

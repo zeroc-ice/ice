@@ -304,7 +304,7 @@ struct StreamableTraits< ::std::vector<bool> >
  * \headerfile Ice/Ice.h
  */
 template<typename T>
-struct StreamableTraits<::std::shared_ptr<T>, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type>
+struct StreamableTraits<std::optional<T>, typename std::enable_if<std::is_base_of<ObjectPrx, T>::value>::type>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryProxy;
     static const int minWireSize = 2;

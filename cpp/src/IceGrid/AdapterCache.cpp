@@ -418,7 +418,7 @@ ServerAdapterEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 AdapterInfoSeq
 ServerAdapterEntry::getAdapterInfoNoEndpoints() const
 {
-    return { { _id, nullptr, _replicaGroupId } };
+    return { { _id, nullopt, _replicaGroupId } };
 }
 
 shared_ptr<GetAdapterInfoResult>
@@ -429,7 +429,7 @@ ServerAdapterEntry::getAdapterInfoAsync() const
     return result;
 }
 
-shared_ptr<AdapterPrx>
+AdapterPrxPtr
 ServerAdapterEntry::getProxy(const string& replicaGroupId, bool upToDate) const
 {
     if(replicaGroupId.empty())

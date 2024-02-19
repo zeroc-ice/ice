@@ -35,7 +35,7 @@ public:
     void authorized(bool);
     void unexpectedAuthorizeException(std::exception_ptr);
 
-    void sessionCreated(const std::shared_ptr<SessionPrx>&);
+    void sessionCreated(const SessionPrxPtr&);
     void unexpectedCreateSessionException(std::exception_ptr);
 
     void exception(std::exception_ptr);
@@ -45,7 +45,7 @@ public:
     virtual void authorize() = 0;
     virtual void createSession() = 0;
     virtual std::shared_ptr<FilterManager> createFilterManager() = 0;
-    virtual void finished(const std::shared_ptr<SessionPrx>&) = 0;
+    virtual void finished(const SessionPrxPtr&) = 0;
     virtual void finished(std::exception_ptr) = 0;
 
 protected:
@@ -56,7 +56,7 @@ protected:
     const Ice::Current _current;
     Ice::Context _context;
     std::vector<std::shared_ptr<CreateSession>> _pendingCallbacks;
-    std::shared_ptr<SessionControlPrx> _control;
+    SessionControlPrxPtr _control;
     std::shared_ptr<FilterManager> _filterManager;
 };
 
@@ -65,21 +65,21 @@ class SessionRouterI final : public Router, public Glacier2::Instrumentation::Ob
 {
 public:
 
-    SessionRouterI(std::shared_ptr<Instance>, std::shared_ptr<PermissionsVerifierPrx>,
-                   std::shared_ptr<SessionManagerPrx>, std::shared_ptr<SSLPermissionsVerifierPrx>,
-                   std::shared_ptr<SSLSessionManagerPrx>);
+    SessionRouterI(std::shared_ptr<Instance>, PermissionsVerifierPrxPtr,
+                   SessionManagerPrxPtr, SSLPermissionsVerifierPrxPtr,
+                   SSLSessionManagerPrxPtr);
     ~SessionRouterI() override;
     void destroy();
 
-    std::shared_ptr<Ice::ObjectPrx> getClientProxy(std::optional<bool>&, const Ice::Current&) const override;
-    std::shared_ptr<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getClientProxy(std::optional<bool>&, const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getServerProxy(const Ice::Current&) const override;
     Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override;
     std::string getCategoryForClient(const Ice::Current&) const override;
     void createSessionAsync(std::string, std::string,
-                            std::function<void(const std::shared_ptr<SessionPrx>&)>,
+                            std::function<void(const SessionPrxPtr&)>,
                             std::function<void(std::exception_ptr)>, const ::Ice::Current&) override;
     void createSessionFromSecureConnectionAsync(
-        std::function<void(const std::shared_ptr<SessionPrx>&)>,
+        std::function<void(const SessionPrxPtr&)>,
         std::function<void(std::exception_ptr)>, const ::Ice::Current&) override;
     void refreshSessionAsync(std::function<void()>,
                              std::function<void(std::exception_ptr)>,
@@ -116,10 +116,10 @@ private:
     const std::shared_ptr<Instance> _instance;
     const int _sessionTraceLevel;
     const int _rejectTraceLevel;
-    const std::shared_ptr<PermissionsVerifierPrx> _verifier;
-    const std::shared_ptr<SessionManagerPrx> _sessionManager;
-    const std::shared_ptr<SSLPermissionsVerifierPrx> _sslVerifier;
-    const std::shared_ptr<SSLSessionManagerPrx> _sslSessionManager;
+    const PermissionsVerifierPrxPtr _verifier;
+    const SessionManagerPrxPtr _sessionManager;
+    const SSLPermissionsVerifierPrxPtr _sslVerifier;
+    const SSLSessionManagerPrxPtr _sslSessionManager;
 
     std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>> _routersByConnection;
     mutable std::map<std::shared_ptr<Ice::Connection>, std::shared_ptr<RouterI>>::const_iterator _routersByConnectionHint;

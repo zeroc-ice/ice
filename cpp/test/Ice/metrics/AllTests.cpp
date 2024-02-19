@@ -1411,6 +1411,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 #endif
     }
     //test(obsv->dispatchObserver->getFailedCount() > 0);
+
     test(obsv->invocationObserver->getFailedCount() > 0);
     if(!collocated)
     {
@@ -1421,6 +1422,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
         test(obsv->connectionObserver->received > 0 && obsv->connectionObserver->sent > 0);
     }
+
     //test(obsv->dispatchObserver->userExceptionCount > 0);
     test(obsv->invocationObserver->userExceptionCount > 0);
     if(!collocated)

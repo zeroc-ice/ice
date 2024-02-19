@@ -14,7 +14,7 @@ using namespace IceGrid;
 ServerAdapterI::ServerAdapterI(const shared_ptr<NodeI>& node,
                                ServerI* server,
                                const string& serverName,
-                               const shared_ptr<AdapterPrx>& proxy,
+                               const AdapterPrxPtr& proxy,
                                const string& id,
                                bool enabled) :
     _node(node),
@@ -32,7 +32,7 @@ ServerAdapterI::~ServerAdapterI()
 }
 
 void
-ServerAdapterI::activateAsync(function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrxPtr&)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {
@@ -54,7 +54,7 @@ ServerAdapterI::activateAsync(function<void(const shared_ptr<Ice::ObjectPrx>&)> 
             //
             if(!_enabled || !_server->isAdapterActivatable(_id))
             {
-                response(nullptr);
+                response(nullopt);
                 return;
             }
         }
@@ -104,7 +104,7 @@ ServerAdapterI::activateAsync(function<void(const shared_ptr<Ice::ObjectPrx>&)> 
     }
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 ServerAdapterI::getDirectProxy(const Ice::Current&) const
 {
     lock_guard lock(_mutex);
@@ -124,7 +124,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
 }
 
 void
-ServerAdapterI::setDirectProxy(shared_ptr<Ice::ObjectPrx> prx, const Ice::Current&)
+ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
@@ -182,7 +182,7 @@ ServerAdapterI::setDirectProxy(shared_ptr<Ice::ObjectPrx> prx, const Ice::Curren
         out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
         if(_proxy)
         {
-            out << ": " << _node->getCommunicator()->proxyToString(_proxy);
+            out << ": " << _proxy;
         }
     }
 }
@@ -212,7 +212,7 @@ void
 ServerAdapterI::clear()
 {
     lock_guard lock(_mutex);
-    _proxy = nullptr;
+    _proxy = nullopt;
     _activateAfterDeactivating = false;
 }
 
@@ -232,7 +232,7 @@ ServerAdapterI::activationFailed(const std::string& reason)
     lock_guard lock(_mutex);
     for(const auto& response : _activateCB)
     {
-        response(nullptr);
+        response(nullopt);
     }
     _activateCB.clear();
 }
@@ -260,7 +260,7 @@ ServerAdapterI::activationCompleted()
     _activateCB.clear();
 }
 
-shared_ptr<AdapterPrx>
+AdapterPrxPtr
 ServerAdapterI::getProxy() const
 {
     return _this;

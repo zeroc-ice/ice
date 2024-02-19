@@ -20,7 +20,7 @@ public:
 
     MasterDatabaseObserverI(const shared_ptr<ReplicaSessionManager::Thread>& thread,
                             const shared_ptr<Database>& database,
-                            const shared_ptr<ReplicaSessionPrx>& session) :
+                            const ReplicaSessionPrxPtr& session) :
         _thread(thread),
         _database(database),
         _session(session)
@@ -142,7 +142,7 @@ public:
         string failure;
         try
         {
-            _database->setAdapterDirectProxy(id, "", nullptr, getSerials(current.ctx, serial));
+            _database->setAdapterDirectProxy(id, "", nullopt, getSerials(current.ctx, serial));
         }
         catch(const AdapterExistsException&)
         {
@@ -272,7 +272,7 @@ private:
 
     const shared_ptr<ReplicaSessionManager::Thread> _thread;
     const shared_ptr<Database> _database;
-    const shared_ptr<ReplicaSessionPrx> _session;
+    const ReplicaSessionPrxPtr _session;
 };
 
 };
@@ -282,7 +282,7 @@ ReplicaSessionManager::create(const string& name,
                               const shared_ptr<InternalReplicaInfo>& info,
                               const shared_ptr<Database>& database,
                               const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-                              const shared_ptr<InternalRegistryPrx>& internalRegistry)
+                              const InternalRegistryPrxPtr& internalRegistry)
 {
     {
         lock_guard lock(_mutex);
@@ -303,7 +303,7 @@ ReplicaSessionManager::create(const string& name,
 }
 
 void
-ReplicaSessionManager::create(const std::shared_ptr<InternalRegistryPrx>& replica)
+ReplicaSessionManager::create(const InternalRegistryPrxPtr& replica)
 {
     {
         unique_lock lock(_mutex);
@@ -399,10 +399,10 @@ ReplicaSessionManager::registerAllWellKnownObjects()
     }
 }
 
-shared_ptr<InternalRegistryPrx>
+InternalRegistryPrxPtr
 ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
 {
-    vector<future<shared_ptr<Ice::ObjectPrx>>> results;
+    vector<future<Ice::ObjectPrxPtr>> results;
     for(const auto& obj : findAllQueryObjects(true))
     {
         results.push_back(obj->findObjectByIdAsync(id));
@@ -419,11 +419,11 @@ ReplicaSessionManager::findInternalRegistryForReplica(const Ice::Identity& id)
         }
     }
 
-    return nullptr;
+    return nullopt;
 }
 
 bool
-ReplicaSessionManager::keepAlive(const shared_ptr<ReplicaSessionPrx>& session)
+ReplicaSessionManager::keepAlive(const ReplicaSessionPrxPtr& session)
 {
     try
     {
@@ -447,10 +447,10 @@ ReplicaSessionManager::keepAlive(const shared_ptr<ReplicaSessionPrx>& session)
     }
 }
 
-shared_ptr<ReplicaSessionPrx>
-ReplicaSessionManager::createSession(shared_ptr<InternalRegistryPrx>& registry, chrono::seconds& timeout)
+ReplicaSessionPrxPtr
+ReplicaSessionManager::createSession(InternalRegistryPrxPtr& registry, chrono::seconds& timeout)
 {
-    shared_ptr<ReplicaSessionPrx> session;
+    ReplicaSessionPrxPtr session;
     string exceptionMsg = "";
     try
     {
@@ -460,7 +460,7 @@ ReplicaSessionManager::createSession(shared_ptr<InternalRegistryPrx>& registry, 
             out << "trying to establish session with master replica";
         }
 
-        set<shared_ptr<InternalRegistryPrx>> used;
+        set<InternalRegistryPrxPtr> used;
         if(!registry->ice_getEndpoints().empty())
         {
             try
@@ -477,7 +477,7 @@ ReplicaSessionManager::createSession(shared_ptr<InternalRegistryPrx>& registry, 
 
         if(!session)
         {
-            vector<future<shared_ptr<Ice::ObjectPrx>>> results;
+            vector<future<Ice::ObjectPrxPtr>> results;
             for(const auto& obj : findAllQueryObjects(false))
             {
                 results.push_back(obj->findObjectByIdAsync(registry->ice_getIdentity()));
@@ -490,7 +490,7 @@ ReplicaSessionManager::createSession(shared_ptr<InternalRegistryPrx>& registry, 
                     break;
                 }
 
-                shared_ptr<InternalRegistryPrx> newRegistry;
+                InternalRegistryPrxPtr newRegistry;
                 try
                 {
                     auto obj = result.get();
@@ -580,10 +580,10 @@ ReplicaSessionManager::createSession(shared_ptr<InternalRegistryPrx>& registry, 
     return session;
 }
 
-shared_ptr<ReplicaSessionPrx>
-ReplicaSessionManager::createSessionImpl(const shared_ptr<InternalRegistryPrx>& registry, chrono::seconds& timeout)
+ReplicaSessionPrxPtr
+ReplicaSessionManager::createSessionImpl(const InternalRegistryPrxPtr& registry, chrono::seconds& timeout)
 {
-    shared_ptr<ReplicaSessionPrx> session;
+    ReplicaSessionPrxPtr session;
     try
     {
         session = registry->registerReplica(_info, _internalRegistry);
@@ -617,7 +617,7 @@ ReplicaSessionManager::createSessionImpl(const shared_ptr<InternalRegistryPrx>& 
 }
 
 void
-ReplicaSessionManager::destroySession(const shared_ptr<ReplicaSessionPrx>& session)
+ReplicaSessionManager::destroySession(const ReplicaSessionPrxPtr& session)
 {
     if(session)
     {
@@ -650,6 +650,6 @@ ReplicaSessionManager::destroySession(const shared_ptr<ReplicaSessionPrx>& sessi
         catch(const Ice::LocalException&)
         {
         }
-        _observer = nullptr;
+        _observer = nullopt;
     }
 }

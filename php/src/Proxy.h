@@ -14,10 +14,10 @@ namespace IcePHP
 
 bool proxyInit(void);
 
-bool createProxy(zval*, Ice::ObjectPrxPtr, CommunicatorInfoPtr);
-bool createProxy(zval*, Ice::ObjectPrxPtr, ProxyInfoPtr, CommunicatorInfoPtr);
-bool fetchProxy(zval*, Ice::ObjectPrxPtr&, ProxyInfoPtr&);
-bool fetchProxy(zval*, Ice::ObjectPrxPtr&, ProxyInfoPtr&, CommunicatorInfoPtr&);
+bool createProxy(zval*, Ice::ObjectPrx, CommunicatorInfoPtr);
+bool createProxy(zval*, Ice::ObjectPrx, ProxyInfoPtr, CommunicatorInfoPtr);
+bool fetchProxy(zval*, std::optional<Ice::ObjectPrx>&, ProxyInfoPtr&);
+bool fetchProxy(zval*, std::optional<Ice::ObjectPrx>&, ProxyInfoPtr&, CommunicatorInfoPtr&);
 extern zend_class_entry* proxyClassEntry;
 
 } // End of namespace IcePHP

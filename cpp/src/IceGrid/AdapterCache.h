@@ -26,7 +26,7 @@ namespace IceGrid
     struct LocatorAdapterInfo
     {
         std::string id;
-        std::shared_ptr<AdapterPrx> proxy;
+        AdapterPrxPtr proxy;
         std::chrono::seconds activationTimeout;
         std::chrono::seconds deactivationTimeout;
     };
@@ -42,7 +42,7 @@ namespace IceGrid
     private:
 
         AdapterInfoSeq _adapters;
-        std::vector<std::optional<std::future<std::shared_ptr<Ice::ObjectPrx>>>> _results;
+        std::vector<std::optional<std::future<Ice::ObjectPrxPtr>>> _results;
     };
 
     class AdapterEntry
@@ -58,7 +58,7 @@ namespace IceGrid
         virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
         virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const = 0;
         virtual std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const = 0;
-        virtual std::shared_ptr<AdapterPrx> getProxy(const std::string&, bool) const = 0;
+        virtual AdapterPrxPtr getProxy(const std::string&, bool) const = 0;
 
         virtual bool canRemove();
 
@@ -87,7 +87,7 @@ namespace IceGrid
         float getLeastLoadedNodeLoad(LoadSample) const override;
         AdapterInfoSeq getAdapterInfoNoEndpoints() const override;
         std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const override;
-        std::shared_ptr<AdapterPrx> getProxy(const std::string&, bool) const override;
+        AdapterPrxPtr getProxy(const std::string&, bool) const override;
 
         void getLocatorAdapterInfo(LocatorAdapterInfoSeq&) const;
         const std::string& getReplicaGroupId() const { return _replicaGroupId; }
@@ -117,7 +117,7 @@ namespace IceGrid
         virtual float getLeastLoadedNodeLoad(LoadSample) const;
         virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const;
         virtual std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const;
-        virtual std::shared_ptr<AdapterPrx> getProxy(const std::string&, bool) const { return nullptr; }
+        virtual AdapterPrxPtr getProxy(const std::string&, bool) const { return std::nullopt ; }
 
         void addReplica(const std::string&, const std::shared_ptr<ServerAdapterEntry>&);
         bool removeReplica(const std::string&);

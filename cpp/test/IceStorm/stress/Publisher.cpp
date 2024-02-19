@@ -79,7 +79,7 @@ Publisher::run(int argc, char** argv)
     auto topic = manager->retrieve("fed1");
 
     auto twowayProxy = uncheckedCast<EventPrx>(topic->getPublisher()->ice_twoway());
-    shared_ptr<EventPrx> proxy;
+    EventPrxPtr proxy;
     if(oneway)
     {
         proxy = twowayProxy->ice_oneway();

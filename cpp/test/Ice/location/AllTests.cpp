@@ -48,7 +48,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     auto anotherLocator = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("anotherLocator"));
     base = base->ice_locator(anotherLocator);
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
-    communicator->setDefaultLocator(nullptr);
+    communicator->setDefaultLocator(nullopt);
     base = communicator->stringToProxy("test @ TestAdapter");
     test(!base->ice_getLocator());
     base = base->ice_locator(anotherLocator);
@@ -69,7 +69,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     communicator->setDefaultRouter(router);
     base = communicator->stringToProxy("test @ TestAdapter");
     test(Ice::proxyIdentityEqual(base->ice_getRouter(), communicator->getDefaultRouter()));
-    communicator->setDefaultRouter(0);
+    communicator->setDefaultRouter(nullopt);
     base = communicator->stringToProxy("test @ TestAdapter");
     test(!base->ice_getRouter());
     cout << "ok" << endl;
@@ -513,7 +513,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ic->stringToProxy("test3")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
         count += 3;
         test(count == locator->getRequestCount());
-        registry->setAdapterDirectProxy("TestAdapter5", 0);
+        registry->setAdapterDirectProxy("TestAdapter5", nullopt);
         registry->addObject(communicator->stringToProxy("test3:" + helper->getTestEndpoint(99)));
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
         ic->stringToProxy("test3")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.

@@ -3402,19 +3402,20 @@ IcePy::ProxyInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool o
         sizePos = os->startSize();
     }
 
-    if(p == Py_None)
+    std::optional<Ice::ObjectPrx> proxy;
+
+    if(p != Py_None)
     {
-        shared_ptr<Ice::ObjectPrx> proxy;
-        os->write(proxy);
+        if(checkProxy(p))
+        {
+            proxy = getProxy(p);
+        }
+        else
+        {
+            assert(false); // validate() should have caught this.
+        }
     }
-    else if(checkProxy(p))
-    {
-        os->write(getProxy(p));
-    }
-    else
-    {
-        assert(false); // validate() should have caught this.
-    }
+    os->write(proxy);
 
     if(optional)
     {
@@ -3431,7 +3432,7 @@ IcePy::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb
         is->skip(4);
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    std::optional<Ice::ObjectPrx> proxy;
     is->read(proxy);
 
     if(!proxy)
@@ -3446,7 +3447,7 @@ IcePy::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb
         throw AbortMarshaling();
     }
 
-    PyObjectHandle p = createProxy(proxy, proxy->ice_getCommunicator(), pythonType);
+    PyObjectHandle p = createProxy(proxy.value(), proxy->ice_getCommunicator(), pythonType);
     cb->unmarshaled(p.get(), target, closure);
 }
 

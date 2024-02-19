@@ -685,7 +685,7 @@ adapterAdd(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->add(wrapper, ident);
@@ -696,7 +696,7 @@ adapterAdd(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, (*self->adapter)->getCommunicator());
+    return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
 #ifdef WIN32
@@ -733,7 +733,7 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->addFacet(wrapper, ident, facet);
@@ -744,7 +744,7 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, (*self->adapter)->getCommunicator());
+    return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
 #ifdef WIN32
@@ -766,7 +766,7 @@ adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->addWithUUID(wrapper);
@@ -777,7 +777,7 @@ adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, (*self->adapter)->getCommunicator());
+    return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
 #ifdef WIN32
@@ -806,7 +806,7 @@ adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->addFacetWithUUID(wrapper, facet);
@@ -817,7 +817,7 @@ adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, (*self->adapter)->getCommunicator());
+    return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
 #ifdef WIN32
@@ -1201,7 +1201,7 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> prx = getProxy(proxy);
+    Ice::ObjectPrx prx = getProxy(proxy);
 
     assert(self->adapter);
     shared_ptr<Ice::Object> obj;
@@ -1405,7 +1405,7 @@ adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->createProxy(ident);
@@ -1416,7 +1416,7 @@ adapterCreateProxy(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, (*self->adapter)->getCommunicator());
+    return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
 #ifdef WIN32
@@ -1439,7 +1439,7 @@ adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->createDirectProxy(ident);
@@ -1450,7 +1450,7 @@ adapterCreateDirectProxy(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, (*self->adapter)->getCommunicator());
+    return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
 #ifdef WIN32
@@ -1473,7 +1473,7 @@ adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
     }
 
     assert(self->adapter);
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     try
     {
         proxy = (*self->adapter)->createIndirectProxy(ident);
@@ -1484,7 +1484,7 @@ adapterCreateIndirectProxy(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    return createProxy(proxy, (*self->adapter)->getCommunicator());
+    return createProxy(proxy.value(), (*self->adapter)->getCommunicator());
 }
 
 #ifdef WIN32
@@ -1499,13 +1499,13 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     if(!getProxyArg(p, "setLocator", "loc", proxy, "Ice.LocatorPrx"))
     {
         return 0;
     }
 
-    shared_ptr<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
+    optional<Ice::LocatorPrx> locator = Ice::uncheckedCast<Ice::LocatorPrx>(proxy);
 
     assert(self->adapter);
     try
@@ -1530,7 +1530,7 @@ static PyObject*
 adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
-    shared_ptr<Ice::LocatorPrx> locator;
+    optional<Ice::LocatorPrx> locator;
     try
     {
         locator = (*self->adapter)->getLocator();
@@ -1549,7 +1549,7 @@ adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
 
     PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
     assert(locatorProxyType);
-    return createProxy(locator, (*self->adapter)->getCommunicator(), locatorProxyType);
+    return createProxy(locator.value(), (*self->adapter)->getCommunicator(), locatorProxyType);
 }
 
 #ifdef WIN32

@@ -14,9 +14,9 @@ public:
 
     RemoteCommunicatorI();
 
-    virtual std::shared_ptr<Test::RemoteObjectAdapterPrx> createObjectAdapter(std::string, std::string,
+    virtual Test::RemoteObjectAdapterPrxPtr createObjectAdapter(std::string, std::string,
                                                                               const Ice::Current&);
-    virtual void deactivateObjectAdapter(std::shared_ptr<Test::RemoteObjectAdapterPrx>, const Ice::Current&);
+    virtual void deactivateObjectAdapter(Test::RemoteObjectAdapterPrxPtr, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

@@ -32,7 +32,7 @@ BlobjectI::flushBatch()
 {
     assert(_batchProxy);
     _batchProxy->ice_flushBatchRequests();
-    _batchProxy = 0;
+    _batchProxy = nullopt;
 }
 
 void

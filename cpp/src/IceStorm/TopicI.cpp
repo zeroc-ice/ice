@@ -106,21 +106,21 @@ public:
         return _impl->getName();
     }
 
-    shared_ptr<Ice::ObjectPrx> getPublisher(const Ice::Current&) const override
+    Ice::ObjectPrxPtr getPublisher(const Ice::Current&) const override
     {
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
         return _impl->getPublisher();
     }
 
-    shared_ptr<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) const override
+    Ice::ObjectPrxPtr getNonReplicatedPublisher(const Ice::Current&) const override
     {
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
         return _impl->getNonReplicatedPublisher();
     }
 
-    shared_ptr<Ice::ObjectPrx> subscribeAndGetPublisher(QoS qos, shared_ptr<Ice::ObjectPrx> obj,
+    Ice::ObjectPrxPtr subscribeAndGetPublisher(QoS qos, Ice::ObjectPrxPtr obj,
                                                         const Ice::Current& current) override
     {
         while(true)
@@ -152,7 +152,7 @@ public:
         }
     }
 
-    void unsubscribe(shared_ptr<Ice::ObjectPrx> subscriber, const Ice::Current& current) override
+    void unsubscribe(Ice::ObjectPrxPtr subscriber, const Ice::Current& current) override
     {
         while(true)
         {
@@ -184,7 +184,7 @@ public:
         }
     }
 
-    shared_ptr<TopicLinkPrx> getLinkProxy(const Ice::Current&) override
+    TopicLinkPrxPtr getLinkProxy(const Ice::Current&) override
     {
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
@@ -202,7 +202,7 @@ public:
         _impl->reap(ids);
     }
 
-    void link(shared_ptr<TopicPrx> topic, int cost, const Ice::Current& current) override
+    void link(TopicPrxPtr topic, int cost, const Ice::Current& current) override
     {
         while(true)
         {
@@ -212,7 +212,7 @@ public:
             {
                 try
                 {
-                    master->link(std::move(topic), cost);
+                    master->link(topic, cost);
                 }
                 catch(const Ice::ConnectFailedException&)
                 {
@@ -228,13 +228,13 @@ public:
             else
             {
                 FinishUpdateHelper unlock(_instance->node());
-                _impl->link(std::move(topic), cost);
+                _impl->link(topic, cost);
             }
             break;
         }
     }
 
-    void unlink(shared_ptr<TopicPrx> topic, const Ice::Current& current) override
+    void unlink(TopicPrxPtr topic, const Ice::Current& current) override
     {
         while(true)
         {
@@ -312,15 +312,15 @@ public:
 
 private:
 
-    shared_ptr<TopicPrx> getMasterFor(const Ice::Current& cur, int64_t& generation, const char* file, int line) const
+    TopicPrxPtr getMasterFor(const Ice::Current& cur, int64_t& generation, const char* file, int line) const
     {
         auto node = _instance->node();
-        shared_ptr<Ice::ObjectPrx> master;
+        Ice::ObjectPrxPtr master;
         if(node)
         {
             master = _instance->node()->startUpdate(generation, file, line);
         }
-        return master ? Ice::uncheckedCast<TopicPrx>(master->ice_identity(cur.id)) : nullptr;
+        return master ? make_optional<TopicPrx>(master->ice_identity(cur.id)) : nullopt;
     }
 
     const shared_ptr<TopicImpl> _impl;
@@ -366,9 +366,9 @@ TopicImpl::create(shared_ptr<PersistentInstance> instance,
     }
 
     auto publisher = make_shared<PublisherI>(topicImpl, instance);
-    topicImpl->_publisherPrx = instance->publishAdapter()->add(publisher, pubid);
+    topicImpl->_publisherPrxPtr = instance->publishAdapter()->add(publisher, pubid);
     auto topicLink = make_shared<TopicLinkI>(topicImpl, instance);
-    topicImpl->_linkPrx = Ice::uncheckedCast<TopicLinkPrx>(instance->publishAdapter()->add(topicLink, linkid));
+    topicImpl->_linkPrxPtr = Ice::uncheckedCast<TopicLinkPrx>(instance->publishAdapter()->add(topicLink, linkid));
 
     return topicImpl;
 }
@@ -442,29 +442,29 @@ TopicImpl::getName() const
     return _name;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 TopicImpl::getPublisher() const
 {
     // Immutable
     if(_instance->publisherReplicaProxy())
     {
-        return _instance->publisherReplicaProxy()->ice_identity(_publisherPrx->ice_getIdentity());
+        return _instance->publisherReplicaProxy()->ice_identity(_publisherPrxPtr->ice_getIdentity());
     }
-    return _publisherPrx;
+    return _publisherPrxPtr;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 TopicImpl::getNonReplicatedPublisher() const
 {
     // If there is an adapter id configured then we're using icegrid
     // so create an indirect proxy, otherwise create a direct proxy.
-    if(!_publisherPrx->ice_getAdapterId().empty())
+    if(!_publisherPrxPtr->ice_getAdapterId().empty())
     {
-        return _instance->publishAdapter()->createIndirectProxy(_publisherPrx->ice_getIdentity());
+        return _instance->publishAdapter()->createIndirectProxy(_publisherPrxPtr->ice_getIdentity());
     }
     else
     {
-        return _instance->publishAdapter()->createDirectProxy(_publisherPrx->ice_getIdentity());
+        return _instance->publishAdapter()->createDirectProxy(_publisherPrxPtr->ice_getIdentity());
     }
 }
 
@@ -486,8 +486,8 @@ trace(Ice::Trace& out, const shared_ptr<PersistentInstance>& instance, const vec
 }
 }
 
-shared_ptr<Ice::ObjectPrx>
-TopicImpl::subscribeAndGetPublisher(QoS qos, shared_ptr<Ice::ObjectPrx> obj)
+Ice::ObjectPrxPtr
+TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrxPtr obj)
 {
     if(!obj)
     {
@@ -569,7 +569,7 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, shared_ptr<Ice::ObjectPrx> obj)
 }
 
 void
-TopicImpl::unsubscribe(const shared_ptr<Ice::ObjectPrx>& subscriber)
+TopicImpl::unsubscribe(const Ice::ObjectPrxPtr& subscriber)
 {
     auto traceLevels = _instance->traceLevels();
     if(!subscriber)
@@ -602,20 +602,20 @@ TopicImpl::unsubscribe(const shared_ptr<Ice::ObjectPrx>& subscriber)
     removeSubscribers(ids);
 }
 
-shared_ptr<TopicLinkPrx>
+TopicLinkPrxPtr
 TopicImpl::getLinkProxy()
 {
     // immutable
     if(_instance->publisherReplicaProxy())
     {
         return Ice::uncheckedCast<TopicLinkPrx>(_instance->publisherReplicaProxy()->ice_identity(
-                                               _linkPrx->ice_getIdentity()));
+                                               _linkPrxPtr->ice_getIdentity()));
     }
-    return _linkPrx;
+    return _linkPrxPtr;
 }
 
 void
-TopicImpl::link(const shared_ptr<TopicPrx>& topic, int cost)
+TopicImpl::link(const TopicPrxPtr& topic, int cost)
 {
     auto internal = Ice::uncheckedCast<TopicInternalPrx>(topic);
     auto link = internal->getLinkProxy();
@@ -676,7 +676,7 @@ TopicImpl::link(const shared_ptr<TopicPrx>& topic, int cost)
 }
 
 void
-TopicImpl::unlink(const shared_ptr<TopicPrx>& topic)
+TopicImpl::unlink(const TopicPrxPtr& topic)
 {
     lock_guard<mutex> lg(_subscribersMutex);
 
@@ -902,11 +902,11 @@ TopicImpl::id() const
     return _id;
 }
 
-shared_ptr<TopicPrx>
+TopicPrxPtr
 TopicImpl::proxy() const
 {
     // immutable
-    shared_ptr<Ice::ObjectPrx> prx;
+    Ice::ObjectPrxPtr prx;
     if(_instance->topicReplicaProxy())
     {
         prx = _instance->topicReplicaProxy()->ice_identity(_id);
@@ -921,7 +921,7 @@ TopicImpl::proxy() const
 void
 TopicImpl::publish(bool forwarded, const EventDataSeq& events)
 {
-    shared_ptr<TopicInternalPrx> masterInternal;
+    TopicInternalPrxPtr masterInternal;
     int64_t generation = -1;
     Ice::IdentitySeq reap;
     {
@@ -1221,8 +1221,8 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
         throw; // will become UnknownException in caller
     }
 
-    _instance->publishAdapter()->remove(_linkPrx->ice_getIdentity());
-    _instance->publishAdapter()->remove(_publisherPrx->ice_getIdentity());
+    _instance->publishAdapter()->remove(_linkPrxPtr->ice_getIdentity());
+    _instance->publishAdapter()->remove(_publisherPrxPtr->ice_getIdentity());
     _instance->topicReaper()->add(_name);
 
     // Destroy each of the subscribers.

@@ -13,6 +13,7 @@
 
 #include <limits>
 #include <memory>
+#include <optional>
 
 using namespace std;
 using namespace IcePHP;
@@ -2608,7 +2609,7 @@ IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool opt
         sizePos = os->startSize();
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    std::optional<Ice::ObjectPrx> proxy;
     if(Z_TYPE_P(zv) == IS_NULL)
     {
         os->write(proxy);
@@ -2652,7 +2653,7 @@ IcePHP::ProxyInfo::unmarshal(
         is->skip(4);
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    std::optional<Ice::ObjectPrx> proxy;
     is->read(proxy);
 
     if(!proxy)
@@ -2668,7 +2669,7 @@ IcePHP::ProxyInfo::unmarshal(
         throw AbortMarshaling();
     }
 
-    if(!createProxy(&zv, proxy, dynamic_pointer_cast<ProxyInfo>(shared_from_this()), comm))
+    if(!createProxy(&zv, proxy.value(), dynamic_pointer_cast<ProxyInfo>(shared_from_this()), comm))
     {
         throw AbortMarshaling();
     }
@@ -2690,7 +2691,7 @@ IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHist
     }
     else
     {
-        shared_ptr<Ice::ObjectPrx> proxy;
+        optional<Ice::ObjectPrx> proxy;
         ProxyInfoPtr info;
         if(!fetchProxy(zv, proxy, info))
         {

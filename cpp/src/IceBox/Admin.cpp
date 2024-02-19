@@ -100,9 +100,9 @@ run(const Ice::StringSeq& args)
         return 1;
     }
 
-    Ice::ObjectPrxPtr base = communicator->propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
+    optional<Ice::ObjectPrx> base = communicator->propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
-    if(base == 0)
+    if (!base)
     {
         //
         // The old deprecated way to retrieve the service manager proxy
@@ -141,10 +141,10 @@ run(const Ice::StringSeq& args)
         base = communicator->stringToProxy(managerProxy);
     }
 
-    IceBox::ServiceManagerPrxPtr manager = Ice::checkedCast<IceBox::ServiceManagerPrx>(base);
+    IceBox::ServiceManagerPrxPtr manager = Ice::checkedCast<IceBox::ServiceManagerPrx>(base.value());
     if(!manager)
     {
-        consoleErr << args[0] << ": `" << base << "' is not an IceBox::ServiceManager" << endl;
+        consoleErr << args[0] << ": `" << base.value() << "' is not an IceBox::ServiceManager" << endl;
         return 1;
     }
 

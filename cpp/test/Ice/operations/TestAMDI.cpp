@@ -169,10 +169,10 @@ MyDerivedClassI::opMyEnumAsync(Test::MyEnum p1,
 }
 
 void
-MyDerivedClassI::opMyClassAsync(shared_ptr<Test::MyClassPrx> p1,
-                                function<void(const shared_ptr<Test::MyClassPrx>&,
-                                               const shared_ptr<Test::MyClassPrx>&,
-                                               const shared_ptr<Test::MyClassPrx>&)> response,
+MyDerivedClassI::opMyClassAsync(Test::MyClassPrxPtr p1,
+                                function<void(const Test::MyClassPrxPtr&,
+                                               const Test::MyClassPrxPtr&,
+                                               const Test::MyClassPrxPtr&)> response,
                                 function<void(exception_ptr)>,
                                 const Ice::Current& current)
 {

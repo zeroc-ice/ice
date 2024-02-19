@@ -185,8 +185,8 @@ InitialI::opOneOptionalAsync(optional<::std::shared_ptr<::Test::OneOptional>> p1
 }
 
 void
-InitialI::opMyInterfaceProxyAsync(optional<::std::shared_ptr<MyInterfacePrx>> p1,
-                                       ::std::function<void(const optional<::std::shared_ptr<MyInterfacePrx>>&, const optional<::std::shared_ptr<MyInterfacePrx>>&)> response,
+InitialI::opMyInterfaceProxyAsync(optional<::MyInterfacePrxPtr> p1,
+                                       ::std::function<void(const optional<::MyInterfacePrxPtr>&, const optional<::MyInterfacePrxPtr>&)> response,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);

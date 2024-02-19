@@ -37,7 +37,7 @@ public:
     {
     }
 
-    shared_ptr<TopicPrx> create(string id, const Ice::Current&) override
+    TopicPrxPtr create(string id, const Ice::Current&) override
     {
         while(true)
         {
@@ -68,7 +68,7 @@ public:
         }
     }
 
-    shared_ptr<TopicPrx> retrieve(string id, const Ice::Current&) override
+    TopicPrxPtr retrieve(string id, const Ice::Current&) override
     {
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
@@ -82,7 +82,7 @@ public:
         return _impl->retrieveAll();
     }
 
-    shared_ptr<NodePrx> getReplicaNode(const Ice::Current&) const override
+    NodePrxPtr getReplicaNode(const Ice::Current&) const override
     {
         // This doesn't require the replication to be running.
         return _instance->nodeProxy();
@@ -90,7 +90,7 @@ public:
 
 private:
 
-    shared_ptr<TopicManagerPrx> getMaster(int64_t& generation, const char* file, int line) const
+    TopicManagerPrxPtr getMaster(int64_t& generation, const char* file, int line) const
     {
         auto node = _instance->node();
         if(node)
@@ -99,7 +99,7 @@ private:
         }
         else
         {
-            return nullptr;
+            return nullopt;
         }
     }
 
@@ -292,7 +292,7 @@ TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance) :
     }
 }
 
-shared_ptr<TopicPrx>
+TopicPrxPtr
 TopicManagerImpl::create(const string& name)
 {
     lock_guard<recursive_mutex> lg(_mutex);
@@ -333,7 +333,7 @@ TopicManagerImpl::create(const string& name)
     return installTopic(name, id, true);
 }
 
-shared_ptr<TopicPrx>
+TopicPrxPtr
 TopicManagerImpl::retrieve(const string& name)
 {
     lock_guard<recursive_mutex> lg(_mutex);
@@ -616,7 +616,7 @@ TopicManagerImpl::getLastLogUpdate() const
 }
 
 void
-TopicManagerImpl::sync(const shared_ptr<Ice::ObjectPrx>& master)
+TopicManagerImpl::sync(const Ice::ObjectPrxPtr& master)
 {
     auto sync = Ice::uncheckedCast<TopicManagerSyncPrx>(master);
 
@@ -673,13 +673,13 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
     _instance->observers()->init(slaves, llu, content);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 TopicManagerImpl::getObserver() const
 {
     return _observer;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 TopicManagerImpl::getSync() const
 {
     return _sync;
@@ -744,7 +744,7 @@ TopicManagerImpl::updateSubscriberObservers()
     }
 }
 
-shared_ptr<TopicPrx>
+TopicPrxPtr
 TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool create,
                                const IceStorm::SubscriberRecordSeq& subscribers)
 {

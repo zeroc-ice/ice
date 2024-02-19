@@ -46,7 +46,7 @@ public:
                                                                  const Ice::Identity&,
                                                                  const std::string&);
 
-    ICESTORM_SERVICE_API virtual std::shared_ptr<IceStorm::TopicManagerPrx> getTopicManager() const = 0;
+    ICESTORM_SERVICE_API virtual IceStorm::TopicManagerPrxPtr getTopicManager() const = 0;
 };
 
 };
