@@ -129,7 +129,9 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
     if(_connections.empty())
     {
         _connections.insert(connection);
-        _instance->timer()->scheduleRepeated(shared_from_this(), _config.timeout / 2);
+        _instance->timer()->scheduleRepeated(
+            shared_from_this(),
+            chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
     }
     else
     {
@@ -298,7 +300,9 @@ IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
     _connection = connection;
     if(_config.timeout != chrono::seconds::zero())
     {
-        _timer->scheduleRepeated(shared_from_this(), _config.timeout / 2);
+        _timer->scheduleRepeated(
+            shared_from_this(),
+            chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
     }
 }
 

@@ -640,7 +640,8 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
     //
     if(acm.heartbeat == ACMHeartbeat::HeartbeatAlways ||
        (acm.heartbeat != ACMHeartbeat::HeartbeatOff &&
-        _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
+        _writeStream.b.empty() &&
+        now >= (_acmLastActivity + chrono::duration_cast<chrono::nanoseconds>(acm.timeout) / 4)))
     {
         if(acm.heartbeat != ACMHeartbeat::HeartbeatOnDispatch || _dispatchCount > 0)
         {
