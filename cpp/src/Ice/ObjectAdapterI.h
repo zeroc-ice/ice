@@ -64,9 +64,9 @@ public:
     std::shared_ptr<ServantLocator> removeServantLocator(const std::string&) final;
     std::shared_ptr<ServantLocator> findServantLocator(const std::string&) const final;
 
-    std::optional<ObjectPrx> createProxy(const Identity&) const final;
-    std::optional<ObjectPrx> createDirectProxy(const Identity&) const final;
-    std::optional<ObjectPrx> createIndirectProxy(const Identity&) const final;
+    ObjectPrx createProxy(const Identity&) const final;
+    ObjectPrx createDirectProxy(const Identity&) const final;
+    ObjectPrx createIndirectProxy(const Identity&) const final;
 
     void setLocator(const std::optional<LocatorPrx>&) final;
     std::optional<LocatorPrx> getLocator() const noexcept;
@@ -105,9 +105,9 @@ private:
     void initialize(std::optional<RouterPrx>);
     friend class IceInternal::ObjectAdapterFactory;
 
-    std::optional<ObjectPrx> newProxy(const Identity&, const std::string&) const;
-    std::optional<ObjectPrx> newDirectProxy(const Identity&, const std::string&) const;
-    std::optional<ObjectPrx> newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
+    ObjectPrx newProxy(const Identity&, const std::string&) const;
+    ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
+    ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
     void checkForDeactivation() const;
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
     std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();

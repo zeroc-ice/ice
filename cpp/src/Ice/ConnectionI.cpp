@@ -1279,21 +1279,16 @@ Ice::ConnectionI::getEndpoint() const noexcept
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
-optional<ObjectPrx>
+ObjectPrx
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
+    // TODO: merge my other PR code
+
     // Create a reference and return a reverse proxy for this reference.
     ReferencePtr ref =
         _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this());
 
-    if (ref)
-    {
-        return ObjectPrx::_fromReference(std::move(ref));
-    }
-    else
-    {
-        return std::nullopt;
-    }
+    return ObjectPrx::_fromReference(std::move(ref));
 }
 
 void

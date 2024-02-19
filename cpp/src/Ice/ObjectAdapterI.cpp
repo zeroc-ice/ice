@@ -385,7 +385,7 @@ Ice::ObjectAdapterI::addFacet(const shared_ptr<Object>& object, const Identity& 
 
     _servantManager->addServant(object, ident, facet);
 
-    return newProxy(ident, facet).value();
+    return newProxy(ident, facet);
 }
 
 ObjectPrx
@@ -530,7 +530,7 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
     return _servantManager->findServantLocator(prefix);
 }
 
-optional<ObjectPrx>
+ObjectPrx
 Ice::ObjectAdapterI::createProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
@@ -541,7 +541,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident) const
     return newProxy(ident, "");
 }
 
-optional<ObjectPrx>
+ObjectPrx
 Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
@@ -552,7 +552,7 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
     return newDirectProxy(ident, "");
 }
 
-optional<ObjectPrx>
+ObjectPrx
 Ice::ObjectAdapterI::createIndirectProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
@@ -1075,7 +1075,7 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
     }
 }
 
-std::optional<ObjectPrx>
+ObjectPrx
 Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 {
     if(_id.empty())
@@ -1092,43 +1092,20 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
     }
 }
 
-std::optional<ObjectPrx>
+ObjectPrx
 Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) const
 {
-    //
-    // Create a reference and return a proxy for this reference.
-    //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, _publishedEndpoints);
-
-    if (ref)
-    {
-        return ObjectPrx::_fromReference(std::move(ref));
-    }
-    else
-    {
-        return std::nullopt;
-    }
+    return ObjectPrx::_fromReference(
+        _instance->referenceFactory()->create(ident, facet, _reference, _publishedEndpoints));
 }
 
-std::optional<ObjectPrx>
+ObjectPrx
 Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet, const string& id) const
 {
     //
     // Create an indirect reference with the given adapter id.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, id);
-
-    //
-    // Return a proxy for the reference.
-    //
-    if (ref)
-    {
-        return ObjectPrx::_fromReference(std::move(ref));
-    }
-    else
-    {
-        return std::nullopt;
-    }
+    return ObjectPrx::_fromReference(_instance->referenceFactory()->create(ident, facet, _reference, id));
 }
 
 void
