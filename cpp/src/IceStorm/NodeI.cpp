@@ -812,7 +812,6 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
 }
 
 void
-NodeI::ready(int j, string gn, shared_ptr<Ice::ObjectPrx> coordinator, int max, int64_t generation,
 NodeI::ready(int j, string gn, Ice::ObjectPrxPtr coordinator, int max, int64_t generation,
              const Ice::Current&)
 {

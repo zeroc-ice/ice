@@ -189,7 +189,7 @@ struct StreamableTraits<bool>
  * \headerfile Ice/Ice.h
  */
 template<>
-struct StreamableTraits<uint8_t>
+struct StreamableTraits<std::uint8_t>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
     static const int minWireSize = 1;
@@ -202,7 +202,7 @@ struct StreamableTraits<uint8_t>
  * \headerfile Ice/Ice.h
  */
 template<>
-struct StreamableTraits<int16_t>
+struct StreamableTraits<std::int16_t>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
     static const int minWireSize = 2;
@@ -215,7 +215,7 @@ struct StreamableTraits<int16_t>
  * \headerfile Ice/Ice.h
  */
 template<>
-struct StreamableTraits<int32_t>
+struct StreamableTraits<std::int32_t>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
     static const int minWireSize = 4;

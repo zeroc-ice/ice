@@ -11,6 +11,7 @@
 // Some include files we need almost everywhere
 //
 #include <cerrno>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <string>
