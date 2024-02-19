@@ -31,7 +31,7 @@
                 <!-- For Homebrew on macOS with Apple Silicon   -->
                 <When Condition="Exists('/opt/homebrew/bin/slice2cs')">
                     <PropertyGroup>
-                        <IceToolsPath>/opt/homebrew/bin/slice2cs</IceToolsPath>
+                        <IceToolsPath>/opt/homebrew/bin</IceToolsPath>
                     </PropertyGroup>
                 </When>
             </Choose>
