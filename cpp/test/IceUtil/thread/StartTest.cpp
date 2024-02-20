@@ -60,6 +60,6 @@ StartTest::run()
             auto thread = make_shared<StartTestThread>();
             thread->start().detach();
         }
-        ThreadControl::sleep(Time::milliSeconds(5));
+        this_thread::sleep_for(chrono::milliseconds(5));
     }
 }

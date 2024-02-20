@@ -5,7 +5,6 @@
 #include <TestI.h>
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Time.h>
 
 using namespace std;
 using namespace Ice;
@@ -22,7 +21,7 @@ public:
     virtual void
     run()
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(_timeout));
+        this_thread::sleep_for(chrono::milliseconds(_timeout));
         _adapter->activate();
     }
 
@@ -45,7 +44,7 @@ TimeoutI::sendData(Test::ByteSeq, const Ice::Current&)
 void
 TimeoutI::sleep(Ice::Int to, const Ice::Current&)
 {
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(to));
+    this_thread::sleep_for(chrono::milliseconds(to));
 }
 
 ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)

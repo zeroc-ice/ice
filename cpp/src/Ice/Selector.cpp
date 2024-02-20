@@ -9,12 +9,14 @@
 #include <Ice/LocalException.h>
 
 #include <IceUtil/Thread.h>
-#include <IceUtil/Time.h>
 
 #ifdef ICE_USE_CFSTREAM
 #   include <CoreFoundation/CoreFoundation.h>
 #   include <CoreFoundation/CFStream.h>
 #endif
+
+#include <thread>
+#include <chrono>
 
 using namespace std;
 using namespace IceInternal;
@@ -693,7 +695,7 @@ Selector::select(int timeout)
             Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
             Ice::Error out(_instance->initializationData().logger);
             out << "selector failed:\n" << ex;
-            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5)); // Sleep 5s to avoid looping
+            std::this_thread::sleep_for(5s); // Sleep 5s to avoid looping
         }
         else if(_count == 0 && timeout < 0)
         {
@@ -702,7 +704,7 @@ Selector::select(int timeout)
                 spuriousWakeup = 0;
                 _instance->initializationData().logger->warning("spurious selector wakeup");
             }
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+            std::this_thread::sleep_for(1ms);
             continue;
         }
         break;

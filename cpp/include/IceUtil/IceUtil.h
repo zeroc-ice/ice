@@ -21,7 +21,6 @@
 #include <IceUtil/StringConverter.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/ThreadException.h>
-#include <IceUtil/Time.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/UUID.h>
 

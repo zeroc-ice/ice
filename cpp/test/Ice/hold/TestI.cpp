@@ -115,7 +115,7 @@ HoldI::waitForHold(const Ice::Current& current)
 Ice::Int
 HoldI::set(Ice::Int value, Ice::Int delay, const Ice::Current&)
 {
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
+    this_thread::sleep_for(chrono::milliseconds(delay));
 
     lock_guard lock(_mutex);
     Ice::Int tmp = _last;

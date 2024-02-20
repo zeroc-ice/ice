@@ -12,7 +12,6 @@
 #include <Ice/Base64.h>
 #include <Ice/LocalException.h>
 #include <Ice/StringConverter.h>
-#include <IceUtil/Time.h>
 
 using namespace std;
 using namespace Ice;

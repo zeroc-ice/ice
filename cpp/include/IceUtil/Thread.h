@@ -75,7 +75,6 @@ public:
 #endif
     ID id() const;
 
-    static void sleep(const Time&);
     static void yield();
 
 private:

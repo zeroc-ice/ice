@@ -110,7 +110,7 @@ ServerLocator::findObjectByIdAsync(::Ice::Identity id,
     ++const_cast<int&>(_requestCount);
     // We add a small delay to make sure locator request queuing gets tested when
     // running the test on a fast machine
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+    this_thread::sleep_for(chrono::milliseconds(1));
     response(_registry->getObject(id));
 }
 
@@ -130,7 +130,7 @@ ServerLocator::findAdapterByIdAsync(string id,
 
     // We add a small delay to make sure locator request queuing gets tested when
     // running the test on a fast machine
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+    this_thread::sleep_for(chrono::milliseconds(1));
     response(_registry->getAdapter(id));
 }
 

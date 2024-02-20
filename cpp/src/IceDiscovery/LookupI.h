@@ -9,11 +9,11 @@
 #include <IceDiscovery/LocatorI.h>
 
 #include <IceUtil/Timer.h>
-#include <IceUtil/Time.h>
 #include <Ice/Properties.h>
 #include <Ice/Comparable.h>
 
 #include <set>
+#include <chrono>
 
 namespace IceDiscovery
 {
@@ -121,8 +121,8 @@ private:
     // also sent the request to multiple interfaces.
     //
     std::set<std::shared_ptr<Ice::ObjectPrx>, Ice::TargetCompare<std::shared_ptr<Ice::ObjectPrx>, std::less>> _proxies;
-    IceUtil::Time _start;
-    IceUtil::Time _latency;
+    std::chrono::steady_clock::time_point _start;
+    std::chrono::nanoseconds _latency;
 };
 using AdapterRequestPtr = std::shared_ptr<AdapterRequest>;
 
@@ -169,7 +169,7 @@ private:
     LocatorRegistryIPtr _registry;
     LookupPrxPtr _lookup;
     std::vector<std::pair<LookupPrxPtr, LookupReplyPrxPtr> > _lookups;
-    const IceUtil::Time _timeout;
+    const std::chrono::milliseconds _timeout;
     const int _retryCount;
     const int _latencyMultiplier;
     const std::string _domainId;

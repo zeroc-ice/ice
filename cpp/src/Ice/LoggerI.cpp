@@ -2,8 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Time.h>
 #include <Ice/LoggerI.h>
+#include <Ice/TimeUtil.h>
+
 #include <IceUtil/StringUtil.h>
 
 #include <Ice/LocalException.h>
@@ -25,7 +26,7 @@ mutex outputMutex;
 // Timeout in milliseconds after which rename will be attempted
 // in case of failures renaming files. That is set to 5 minutes.
 //
-const IceUtil::Time retryTimeout = IceUtil::Time::seconds(5 * 60);
+const chrono::minutes retryTimeout = chrono::minutes(5);
 
 }
 
@@ -74,7 +75,7 @@ Ice::LoggerI::print(const string& message)
 void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
-    string s = "-- " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix;
+    string s = "-- " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix;
     if(!category.empty())
     {
         s += category + ": ";
@@ -87,13 +88,13 @@ Ice::LoggerI::trace(const string& category, const string& message)
 void
 Ice::LoggerI::warning(const string& message)
 {
-    write("-! " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix + "warning: " + message, true);
+    write("-! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "warning: " + message, true);
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
-    write("!! " + IceUtil::Time::now().toDateTime() + " " + _formattedPrefix + "error: " + message, true);
+    write("!! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "error: " + message, true);
 }
 
 string
@@ -134,7 +135,7 @@ Ice::LoggerI::write(const string& message, bool indent)
             // but we do not archive empty files or truncate messages.
             //
             size_t sz = static_cast<size_t>(_out.tellp());
-            if(sz > 0 && sz + message.size() >= _sizeMax && _nextRetry <= IceUtil::Time::now())
+            if(sz > 0 && sz + message.size() >= _sizeMax && _nextRetry <= chrono::steady_clock::now())
             {
                 string basename = _file;
                 string ext;
@@ -149,7 +150,7 @@ Ice::LoggerI::write(const string& message, bool indent)
 
                 int id = 0;
                 string archive;
-                string date = IceUtil::Time::now().toString("%Y%m%d-%H%M%S");
+                string date = timePointToString(chrono::system_clock::now(), "%Y%m%d-%H%M%S");
                 while(true)
                 {
                     ostringstream oss;
@@ -177,7 +178,7 @@ Ice::LoggerI::write(const string& message, bool indent)
 
                 if(err)
                 {
-                    _nextRetry = IceUtil::Time::now() + retryTimeout;
+                    _nextRetry = chrono::steady_clock::now() + retryTimeout;
 
                     //
                     // We temporarily set the maximum size to 0 to ensure there isn't more rename attempts
@@ -192,7 +193,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                 }
                 else
                 {
-                    _nextRetry = IceUtil::Time();
+                    _nextRetry = chrono::steady_clock::time_point();
                 }
 
                 if(!_out.is_open())

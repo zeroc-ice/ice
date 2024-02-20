@@ -1045,7 +1045,7 @@ allTests(Test::TestHelper* helper)
                 {
                     throw;
                 }
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+                this_thread::sleep_for(chrono::milliseconds(100));
             }
             catch(const Ice::LocalException& ex)
             {

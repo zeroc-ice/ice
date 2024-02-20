@@ -187,7 +187,7 @@ IceInternal::LocatorTable::getAdapterEndpoints(const string& adapter, int ttl, v
 
     lock_guard lock(_mutex);
 
-    map<string, pair<IceUtil::Time, vector<EndpointIPtr> > >::iterator p = _adapterEndpointsMap.find(adapter);
+    auto p = _adapterEndpointsMap.find(adapter);
 
     if(p != _adapterEndpointsMap.end())
     {
@@ -202,16 +202,16 @@ IceInternal::LocatorTable::addAdapterEndpoints(const string& adapter, const vect
 {
     lock_guard lock(_mutex);
 
-    map<string, pair<IceUtil::Time, vector<EndpointIPtr> > >::iterator p = _adapterEndpointsMap.find(adapter);
+    auto p = _adapterEndpointsMap.find(adapter);
 
     if(p != _adapterEndpointsMap.end())
     {
-        p->second = make_pair(IceUtil::Time::now(IceUtil::Time::Monotonic), endpoints);
+        p->second = make_pair(chrono::steady_clock::now(), endpoints);
     }
     else
     {
         _adapterEndpointsMap.insert(
-            make_pair(adapter, make_pair(IceUtil::Time::now(IceUtil::Time::Monotonic), endpoints)));
+            make_pair(adapter, make_pair(chrono::steady_clock::now(), endpoints)));
     }
 }
 
@@ -220,7 +220,7 @@ IceInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
 {
     lock_guard lock(_mutex);
 
-    map<string, pair<IceUtil::Time, vector<EndpointIPtr> > >::iterator p = _adapterEndpointsMap.find(adapter);
+    auto p = _adapterEndpointsMap.find(adapter);
     if(p == _adapterEndpointsMap.end())
     {
         return vector<EndpointIPtr>();
@@ -243,8 +243,7 @@ IceInternal::LocatorTable::getObjectReference(const Identity& id, int ttl, Refer
 
     lock_guard lock(_mutex);
 
-    map<Identity, pair<IceUtil::Time, ReferencePtr> >::iterator p = _objectMap.find(id);
-
+    auto p = _objectMap.find(id);
     if(p != _objectMap.end())
     {
         ref = p->second.second;
@@ -258,15 +257,15 @@ IceInternal::LocatorTable::addObjectReference(const Identity& id, const Referenc
 {
     lock_guard lock(_mutex);
 
-    map<Identity, pair<IceUtil::Time, ReferencePtr> >::iterator p = _objectMap.find(id);
+    auto p = _objectMap.find(id);
 
     if(p != _objectMap.end())
     {
-        p->second = make_pair(IceUtil::Time::now(IceUtil::Time::Monotonic), ref);
+        p->second = make_pair(chrono::steady_clock::now(), ref);
     }
     else
     {
-        _objectMap.insert(make_pair(id, make_pair(IceUtil::Time::now(IceUtil::Time::Monotonic), ref)));
+        _objectMap.insert(make_pair(id, make_pair(chrono::steady_clock::now(), ref)));
     }
 }
 
@@ -275,7 +274,7 @@ IceInternal::LocatorTable::removeObjectReference(const Identity& id)
 {
     lock_guard lock(_mutex);
 
-    map<Identity, pair<IceUtil::Time, ReferencePtr> >::iterator p = _objectMap.find(id);
+    auto p = _objectMap.find(id);
     if(p == _objectMap.end())
     {
         return 0;
@@ -287,7 +286,7 @@ IceInternal::LocatorTable::removeObjectReference(const Identity& id)
 }
 
 bool
-IceInternal::LocatorTable::checkTTL(const IceUtil::Time& time, int ttl) const
+IceInternal::LocatorTable::checkTTL(const chrono::steady_clock::time_point& time, int ttl) const
 {
     assert(ttl != 0);
     if (ttl < 0) // TTL = infinite
@@ -296,7 +295,7 @@ IceInternal::LocatorTable::checkTTL(const IceUtil::Time& time, int ttl) const
     }
     else
     {
-        return IceUtil::Time::now(IceUtil::Time::Monotonic) - time <= IceUtil::Time::seconds(ttl);
+        return chrono::steady_clock::now() - time <= chrono::seconds(ttl);
     }
 }
 

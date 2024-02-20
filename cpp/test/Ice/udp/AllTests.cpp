@@ -6,6 +6,8 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <chrono>
+
 using namespace std;
 using namespace Ice;
 using namespace Test;
@@ -28,23 +30,14 @@ public:
          _replies = 0;
     }
 
-    bool
-    waitReply(int expectedReplies, const IceUtil::Time& timeout)
+    template<class Rep, class Period> bool
+    waitReply(int expectedReplies, const chrono::duration<Rep, Period>& timeout)
     {
         unique_lock lock(_mutex);
-        IceUtil::Time end = IceUtil::Time::now() + timeout;
-        while(_replies < expectedReplies)
-        {
-            IceUtil::Time delay = end - IceUtil::Time::now();
-            if(delay > IceUtil::Time::seconds(0))
-            {
-                _condition.wait_for(lock, chrono::milliseconds(delay.toMilliSeconds()));
-            }
-            else
-            {
-                break;
-            }
-        }
+        _condition.wait_until(
+            lock,
+            chrono::steady_clock::now() + timeout,
+            [this, expectedReplies] { return _replies == expectedReplies; });
         return _replies == expectedReplies;
     }
 
@@ -78,7 +71,7 @@ allTests(Test::TestHelper* helper)
         obj->ping(reply);
         obj->ping(reply);
         obj->ping(reply);
-        ret = replyI->waitReply(3, IceUtil::Time::seconds(2));
+        ret = replyI->waitReply(3, chrono::seconds(2));
         if(ret)
         {
             break; // Success
@@ -107,7 +100,7 @@ allTests(Test::TestHelper* helper)
                 seq.resize(seq.size() * 2 + 10);
                 replyI->reset();
                 obj->sendByteSeq(seq, reply);
-                replyI->waitReply(1, IceUtil::Time::seconds(10));
+                replyI->waitReply(1, chrono::seconds(10));
             }
         }
         catch(const DatagramLimitException&)
@@ -121,7 +114,7 @@ allTests(Test::TestHelper* helper)
         {
             replyI->reset();
             obj->sendByteSeq(seq, reply);
-            test(!replyI->waitReply(1, IceUtil::Time::milliSeconds(500)));
+            test(!replyI->waitReply(1, chrono::milliseconds(500)));
         }
         catch(const Ice::LocalException& ex)
         {
@@ -172,7 +165,7 @@ allTests(Test::TestHelper* helper)
             }
             throw;
         }
-        ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
+        ret = replyI->waitReply(5, chrono::seconds(2));
         if(ret)
         {
             break; // Success
@@ -199,7 +192,7 @@ allTests(Test::TestHelper* helper)
         obj->pingBiDir(reply->ice_getIdentity());
         obj->pingBiDir(reply->ice_getIdentity());
         obj->pingBiDir(reply->ice_getIdentity());
-        ret = replyI->waitReply(3, IceUtil::Time::seconds(2));
+        ret = replyI->waitReply(3, chrono::seconds(2));
         if(ret)
         {
             break; // Success
@@ -226,7 +219,7 @@ allTests(Test::TestHelper* helper)
 //     {
 //         replyI->reset();
 //         objMcast->pingBiDir(reply->ice_getIdentity());
-//         ret = replyI->waitReply(5, IceUtil::Time::seconds(2));
+//         ret = replyI->waitReply(5, chrono::seconds(2));
 //         if(ret)
 //         {
 //             break; // Success

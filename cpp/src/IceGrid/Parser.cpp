@@ -6,6 +6,7 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/Options.h>
 #include <Ice/Ice.h>
+#include <Ice/TimeUtil.h>
 #include <IceXML/Parser.h>
 #include <IceGrid/Parser.h>
 #include <IceGrid/Util.h>
@@ -288,7 +289,8 @@ void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
         prefix += ": ";
     }
 
-    string timestamp = IceUtil::Time::microSeconds(logMessage.timestamp).toDateTime();
+    string timestamp = IceInternal::timePointToDateTimeString(
+        chrono::system_clock::time_point(chrono::microseconds(logMessage.timestamp)));
 
     switch(logMessage.type)
     {

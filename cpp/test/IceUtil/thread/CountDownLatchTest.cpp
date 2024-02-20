@@ -79,7 +79,7 @@ CountDownLatchTest::run()
     //
     // Sleep a little bit, and check count
     //
-    ThreadControl::sleep(Time::seconds(1));
+    this_thread::sleep_for(chrono::seconds(1));
     test(latch.getCount() == fullCount);
 
     //
@@ -97,7 +97,7 @@ CountDownLatchTest::run()
     //
     do
     {
-        ThreadControl::sleep(Time::milliSeconds(100));
+        this_thread::sleep_for(chrono::milliseconds(100));
 
         for(i = 0; i < wave1Count; i++)
         {

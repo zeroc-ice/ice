@@ -12,7 +12,6 @@
 #endif
 
 #include <IceUtil/Thread.h>
-#include <IceUtil/Time.h>
 #include <IceUtil/ThreadException.h>
 #include <Ice/ConsoleUtil.h>
 #include <climits>
@@ -87,17 +86,6 @@ IceUtil::ThreadControl::ID
 IceUtil::ThreadControl::id() const
 {
     return _id;
-}
-
-void
-IceUtil::ThreadControl::sleep(const Time& timeout)
-{
-    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
-    if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
-    {
-        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
-    }
-    Sleep(static_cast<long>(timeout.toMilliSeconds()));
 }
 
 void
@@ -334,21 +322,6 @@ IceUtil::ThreadControl::ID
 IceUtil::ThreadControl::id() const
 {
     return _thread;
-}
-
-void
-IceUtil::ThreadControl::sleep(const Time& timeout)
-{
-    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
-    if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
-    {
-        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
-    }
-    struct timeval tv = timeout;
-    struct timespec ts;
-    ts.tv_sec = tv.tv_sec;
-    ts.tv_nsec = tv.tv_usec * 1000L;
-    nanosleep(&ts, 0);
 }
 
 void

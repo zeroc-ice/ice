@@ -8,7 +8,6 @@
 #include <IceSSL/Util.h>
 #include <Ice/StringUtil.h>
 #include <Ice/StringConverter.h>
-#include <IceUtil/Time.h>
 
 #include <wincrypt.h>
 
@@ -146,9 +145,7 @@ filetimeToTime(FILETIME ftime)
     *dest++ = ftime.dwLowDateTime;
     *dest = ftime.dwHighDateTime;
 
-    IceUtil::Time time = IceUtil::Time::milliSeconds((value / TICKS_PER_MSECOND) - MSECS_TO_EPOCH);
-
-    return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
+    return chrono::system_clock::time_point(chrono::milliseconds((value / TICKS_PER_MSECOND) - MSECS_TO_EPOCH));
 }
 
 string
