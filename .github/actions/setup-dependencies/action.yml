@@ -73,7 +73,7 @@ runs:
       # ———— MATLAB ———— #
     - name: Setup MATLAB
       uses: matlab-actions/setup-matlab@v2
-      when: matrix.language == 'matlab'
+      if: matrix.language == 'matlab'
 
     - name: Set MATLAB_HOME
       run: |
