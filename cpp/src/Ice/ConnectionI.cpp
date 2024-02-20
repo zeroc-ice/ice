@@ -1280,7 +1280,7 @@ Ice::ConnectionI::getEndpoint() const noexcept
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
-optional<ObjectPrx>
+ObjectPrx
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
     checkIdentity(ident, __FILE__, __LINE__);

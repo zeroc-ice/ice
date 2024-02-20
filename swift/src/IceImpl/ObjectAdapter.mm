@@ -99,14 +99,7 @@
     try
     {
         auto prx = self.objectAdapter->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
-        if (prx)
-        {
-           return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx.value()];
-        }
-        else
-        {
-            return nil;
-        }
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -120,14 +113,7 @@
     try
     {
         auto prx = self.objectAdapter->createDirectProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
-        if (prx)
-        {
-           return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx.value()];
-        }
-        else
-        {
-            return nil;
-        }
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -141,14 +127,7 @@
     try
     {
         auto prx = self.objectAdapter->createIndirectProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
-        if (prx)
-        {
-           return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx.value()];
-        }
-        else
-        {
-            return nil;
-        }
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {

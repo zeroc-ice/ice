@@ -19,8 +19,8 @@ public:
 
     WellKnownObjectsManager(const std::shared_ptr<Database>&);
 
-    void add(const Ice::ObjectPrxPtr&, const std::string&);
-    void addEndpoint(const std::string&, const Ice::ObjectPrxPtr&);
+    void add(const Ice::ObjectPrx&, const std::string&);
+    void addEndpoint(const std::string&, const Ice::ObjectPrx&);
     void finish();
 
     void registerAll();

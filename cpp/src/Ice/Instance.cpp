@@ -608,7 +608,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         }
     }
     setServerProcessProxy(adapter, adminIdentity);
-    return adapter->createProxy(adminIdentity).value();
+    return adapter->createProxy(adminIdentity);
 }
 
 std::optional<ObjectPrx>
@@ -702,7 +702,7 @@ IceInternal::Instance::addAllAdminFacets()
 void
 IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
-    ObjectPrx admin = adminAdapter->createProxy(adminIdentity).value();
+    ObjectPrx admin = adminAdapter->createProxy(adminIdentity);
     optional<LocatorPrx> locator = adminAdapter->getLocator();
     const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
     if(locator && serverId != "")
