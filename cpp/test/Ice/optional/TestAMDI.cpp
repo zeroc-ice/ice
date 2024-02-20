@@ -105,8 +105,8 @@ InitialI::opIntAsync(optional<int> p1,
 }
 
 void
-InitialI::opLongAsync(optional<long long int> p1,
-                           ::std::function<void(const optional<long long int>&, const optional<long long int>&)> response,
+InitialI::opLongAsync(optional<int64_t> p1,
+                           ::std::function<void(const optional<int64_t>&, const optional<int64_t>&)> response,
                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
@@ -185,8 +185,8 @@ InitialI::opOneOptionalAsync(optional<::std::shared_ptr<::Test::OneOptional>> p1
 }
 
 void
-InitialI::opMyInterfaceProxyAsync(optional<::std::shared_ptr<MyInterfacePrx>> p1,
-                                       ::std::function<void(const optional<::std::shared_ptr<MyInterfacePrx>>&, const optional<::std::shared_ptr<MyInterfacePrx>>&)> response,
+InitialI::opMyInterfaceProxyAsync(optional<::MyInterfacePrxPtr> p1,
+                                       ::std::function<void(const optional<::MyInterfacePrxPtr>&, const optional<::MyInterfacePrxPtr>&)> response,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
@@ -225,8 +225,8 @@ InitialI::opIntSeqAsync(optional<::std::pair<const int*, const int*>> p1,
 }
 
 void
-InitialI::opLongSeqAsync(optional<::std::pair<const long long int*, const long long int*>> p1,
-                              ::std::function<void(const optional<::std::pair<const long long int*, const long long int*>>&, const optional<::std::pair<const long long int*, const long long int*>>&)> response,
+InitialI::opLongSeqAsync(optional<::std::pair<const int64_t*, const int64_t*>> p1,
+                              ::std::function<void(const optional<::std::pair<const int64_t*, const int64_t*>>&, const optional<::std::pair<const int64_t*, const int64_t*>>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);

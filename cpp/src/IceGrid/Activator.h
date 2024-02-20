@@ -46,7 +46,7 @@ public:
                  uid_t, gid_t,
 #endif
                  const Ice::StringSeq&, const Ice::StringSeq&, const std::shared_ptr<ServerI>&);
-    void deactivate(const std::string&, const std::shared_ptr<Ice::ProcessPrx>&);
+    void deactivate(const std::string&, const Ice::ProcessPrxPtr&);
     void kill(const std::string&);
     void sendSignal(const std::string&, const std::string&);
 

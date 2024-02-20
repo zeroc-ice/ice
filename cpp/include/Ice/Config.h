@@ -11,6 +11,7 @@
 // Some include files we need almost everywhere
 //
 #include <cerrno>
+#include <cstdint>
 #include <cstdio>
 #include <cstring>
 #include <string>
@@ -50,10 +51,6 @@ namespace Ice
 typedef unsigned char Byte;
 /** The mapping for the Slice short type. */
 typedef short Short;
-/** The mapping for the Slice int type. */
-typedef int Int;
-/** The mapping for the Slice long type. */
-typedef long long int Long;
 /** The mapping for the Slice float type. */
 typedef float Float;
 /** The mapping for the Slice double type. */

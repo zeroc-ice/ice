@@ -24,7 +24,7 @@ class StreamConnector final : public IceInternal::Connector
 {
 public:
 
-    StreamConnector(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&);
+    StreamConnector(const InstancePtr&, const std::string&, std::int32_t, std::int32_t, const std::string&);
     ~StreamConnector();
     IceInternal::TransceiverPtr connect() final;
 
@@ -40,8 +40,8 @@ private:
 
     const InstancePtr _instance;
     const std::string _host;
-    const Ice::Int _port;
-    const Ice::Int _timeout;
+    const std::int32_t _port;
+    const std::int32_t _timeout;
     const std::string _connectionId;
 };
 

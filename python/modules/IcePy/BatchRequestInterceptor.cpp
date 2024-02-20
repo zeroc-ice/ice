@@ -55,7 +55,7 @@ batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
     assert(self->request);
     if(!self->size)
     {
-        Ice::Int size;
+        int32_t size;
         try
         {
             size = self->request->getSize();
@@ -107,10 +107,11 @@ batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
     assert(self->request);
     if(!self->proxy)
     {
-        shared_ptr<Ice::ObjectPrx> proxy;
+        optional<Ice::ObjectPrx> proxy;
         try
         {
             proxy = self->request->getProxy();
+            assert(proxy);
         }
         catch(const Ice::Exception& ex)
         {
@@ -118,7 +119,7 @@ batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
             return 0;
         }
 
-        self->proxy = createProxy(proxy, proxy->ice_getCommunicator());
+        self->proxy = createProxy(proxy.value(), proxy->ice_getCommunicator());
     }
     Py_INCREF(self->proxy);
     return self->proxy;

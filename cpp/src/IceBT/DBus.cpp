@@ -679,13 +679,13 @@ private:
         }
         case Type::KindUint64:
         {
-            unsigned long long v;
+            uint64_t v;
             ::dbus_message_iter_get_basic(_iter, &v);
             return make_shared<Uint64Value>(v);
         }
         case Type::KindInt64:
         {
-            long long v;
+            int64_t v;
             ::dbus_message_iter_get_basic(_iter, &v);
             return make_shared<Int64Value>(v);
         }

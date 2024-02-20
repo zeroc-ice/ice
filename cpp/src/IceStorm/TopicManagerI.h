@@ -30,8 +30,8 @@ public:
     static std::shared_ptr<TopicManagerImpl> create(const std::shared_ptr<PersistentInstance>&);
 
     // TopicManager methods.
-    std::shared_ptr<TopicPrx> create(const std::string&);
-    std::shared_ptr<TopicPrx> retrieve(const std::string&);
+    TopicPrxPtr create(const std::string&);
+    TopicPrxPtr retrieve(const std::string&);
     TopicDict retrieveAll();
 
     // Observer methods.
@@ -47,10 +47,10 @@ public:
 
     // Replica methods.
     IceStormElection::LogUpdate getLastLogUpdate() const override;
-    void sync(const std::shared_ptr<Ice::ObjectPrx>&) override;
+    void sync(const Ice::ObjectPrxPtr&) override;
     void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const IceStormElection::LogUpdate&) override;
-    std::shared_ptr<Ice::ObjectPrx> getObserver() const override;
-    std::shared_ptr<Ice::ObjectPrx> getSync() const override;
+    Ice::ObjectPrxPtr getObserver() const override;
+    Ice::ObjectPrxPtr getSync() const override;
 
     void reap();
 
@@ -65,7 +65,7 @@ private:
     void updateTopicObservers() override;
     void updateSubscriberObservers() override;
 
-    std::shared_ptr<TopicPrx> installTopic(const std::string&, const Ice::Identity&, bool,
+    TopicPrxPtr installTopic(const std::string&, const Ice::Identity&, bool,
                                            const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
 
     const std::shared_ptr<PersistentInstance> _instance;
@@ -73,8 +73,8 @@ private:
     std::map<std::string, std::shared_ptr<TopicImpl>> _topics;
 
     std::shared_ptr<Ice::Object> _managerImpl;
-    std::shared_ptr<Ice::ObjectPrx> _observer;
-    std::shared_ptr<Ice::ObjectPrx> _sync;
+    Ice::ObjectPrxPtr _observer;
+    Ice::ObjectPrxPtr _sync;
 
     LLUMap _lluMap;
     SubscriberMap _subscriberMap;

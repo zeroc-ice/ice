@@ -9,6 +9,7 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/Plugin.h>
 #include <Ice/Exception.h>
+#include "Proxy.h"
 
 namespace Ice
 {
@@ -74,11 +75,17 @@ operator<<(LoggerOutputBase& out, const T& val)
     return LoggerOutputInserter<T, IsException<T>::value>::insert(out, val);
 }
 
-template<typename T, typename ::std::enable_if<::std::is_base_of<::Ice::ObjectPrx, T>::value>::type* = nullptr>
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
 inline LoggerOutputBase&
-operator<<(LoggerOutputBase& os, const ::std::shared_ptr<T>& p)
+operator<<(LoggerOutputBase& os, const ::std::optional<Prx>& p)
 {
     return os << (p ? p->ice_toString() : "");
+}
+
+inline LoggerOutputBase&
+operator<<(LoggerOutputBase& os, const ObjectPrx& p)
+{
+    return os << p.ice_toString();
 }
 
 inline LoggerOutputBase&

@@ -40,14 +40,14 @@ using IdentityObjectInfoMap = IceDB::Dbi<Ice::Identity,
 using StringIdentityMap = IceDB::Dbi<std::string, Ice::Identity, IceDB::IceContext, Ice::OutputStream>;
 using StringAdapterInfoMap = IceDB::Dbi<std::string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream>;
 using StringStringMap = IceDB::Dbi<std::string, std::string, IceDB::IceContext, Ice::OutputStream>;
-using StringLongMap = IceDB::Dbi<std::string, Ice::Long, IceDB::IceContext, Ice::OutputStream>;
+using StringLongMap = IceDB::Dbi<std::string, std::int64_t, IceDB::IceContext, Ice::OutputStream>;
 
 class Database final
 {
 public:
 
     static std::shared_ptr<Database>
-    create(const std::shared_ptr<Ice::ObjectAdapter>&, const std::shared_ptr<IceStorm::TopicManagerPrx>&,
+    create(const std::shared_ptr<Ice::ObjectAdapter>&, const IceStorm::TopicManagerPrxPtr&,
            const std::string&, const std::shared_ptr<TraceLevels>&, const RegistryInfo&, bool);
 
     std::string getInstanceName() const;
@@ -63,21 +63,21 @@ public:
     int lock(AdminSessionI*, const std::string&);
     void unlock(AdminSessionI*);
 
-    void syncApplications(const ApplicationInfoSeq&, long long);
-    void syncAdapters(const AdapterInfoSeq&, long long);
-    void syncObjects(const ObjectInfoSeq&, long long);
+    void syncApplications(const ApplicationInfoSeq&, std::int64_t);
+    void syncAdapters(const AdapterInfoSeq&, std::int64_t);
+    void syncObjects(const ObjectInfoSeq&, std::int64_t);
 
-    ApplicationInfoSeq getApplications(long long&);
-    AdapterInfoSeq getAdapters(long long&);
-    ObjectInfoSeq getObjects(long long&);
+    ApplicationInfoSeq getApplications(std::int64_t&);
+    AdapterInfoSeq getAdapters(std::int64_t&);
+    ObjectInfoSeq getObjects(std::int64_t&);
 
     StringLongDict getSerials() const;
 
-    void addApplication(const ApplicationInfo&, AdminSessionI*, long long = 0);
-    void updateApplication(const ApplicationUpdateInfo&, bool, AdminSessionI*, long long = 0);
+    void addApplication(const ApplicationInfo&, AdminSessionI*, std::int64_t = 0);
+    void updateApplication(const ApplicationUpdateInfo&, bool, AdminSessionI*, std::int64_t = 0);
     void syncApplicationDescriptor(const ApplicationDescriptor&, bool, AdminSessionI*);
     void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, AdminSessionI*);
-    void removeApplication(const std::string&, AdminSessionI*, long long = 0);
+    void removeApplication(const std::string&, AdminSessionI*, std::int64_t = 0);
     ApplicationInfo getApplicationInfo(const std::string&);
     Ice::StringSeq getAllApplications(const std::string& = std::string());
     void waitForApplicationUpdate(const std::string&, int, std::function<void()>,
@@ -95,14 +95,14 @@ public:
     AllocatableObjectCache& getAllocatableObjectCache();
     std::shared_ptr<AllocatableObjectEntry> getAllocatableObject(const Ice::Identity&) const;
 
-    void setAdapterDirectProxy(const std::string&, const std::string&, const std::shared_ptr<Ice::ObjectPrx>&,
-                               long long = 0);
-    std::shared_ptr<Ice::ObjectPrx> getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&,
+    void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrxPtr&,
+                               std::int64_t = 0);
+    Ice::ObjectPrxPtr getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&,
                                                           const std::shared_ptr<Ice::Connection>&,
                                                           const Ice::Context&);
 
     void removeAdapter(const std::string&);
-    std::shared_ptr<AdapterPrx> getAdapterProxy(const std::string&, const std::string&, bool);
+    AdapterPrxPtr getAdapterProxy(const std::string&, const std::string&, bool);
     void getLocatorAdapterInfo(const std::string&, const std::shared_ptr<Ice::Connection>&, const Ice::Context&,
                                LocatorAdapterInfoSeq&, int&, bool&, bool&,
                                const std::set<std::string>& = std::set<std::string>());
@@ -110,7 +110,7 @@ public:
     bool addAdapterSyncCallback(const std::string&, const std::shared_ptr<SynchronizationCallback>&,
                                 const std::set<std::string>& = std::set<std::string>());
 
-    std::vector<std::pair<std::string, std::shared_ptr<AdapterPrx>>> getAdapters(const std::string&, int&, bool&);
+    std::vector<std::pair<std::string, AdapterPrxPtr>> getAdapters(const std::string&, int&, bool&);
     AdapterInfoSeq getAdapterInfo(const std::string&);
     AdapterInfoSeq getFilteredAdapterInfo(const std::string&, const std::shared_ptr<Ice::Connection>&, const Ice::Context&);
     std::string getAdapterServer(const std::string&) const;
@@ -119,17 +119,17 @@ public:
     Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
     void addObject(const ObjectInfo&);
-    void addOrUpdateObject(const ObjectInfo&, long long = 0);
-    void removeObject(const Ice::Identity&, long long = 0);
-    void updateObject(const std::shared_ptr<Ice::ObjectPrx>&);
+    void addOrUpdateObject(const ObjectInfo&, std::int64_t = 0);
+    void removeObject(const Ice::Identity&, std::int64_t = 0);
+    void updateObject(const Ice::ObjectPrxPtr&);
     int addOrUpdateRegistryWellKnownObjects(const ObjectInfoSeq&);
     int removeRegistryWellKnownObjects(const ObjectInfoSeq&);
 
-    std::shared_ptr<Ice::ObjectPrx> getObjectProxy(const Ice::Identity&);
-    std::shared_ptr<Ice::ObjectPrx> getObjectByType(const std::string&,
+    Ice::ObjectPrxPtr getObjectProxy(const Ice::Identity&);
+    Ice::ObjectPrxPtr getObjectByType(const std::string&,
                                                     const std::shared_ptr<Ice::Connection>& = nullptr,
                                                     const Ice::Context& = Ice::Context());
-    std::shared_ptr<Ice::ObjectPrx> getObjectByTypeOnLeastLoadedNode(const std::string&, LoadSample,
+    Ice::ObjectPrxPtr getObjectByTypeOnLeastLoadedNode(const std::string&, LoadSample,
                                                                      const std::shared_ptr<Ice::Connection>& = nullptr,
                                                                      const Ice::Context& = Ice::Context());
     Ice::ObjectProxySeq getObjectsByType(const std::string&,
@@ -145,7 +145,7 @@ public:
 
 private:
 
-    Database(const std::shared_ptr<Ice::ObjectAdapter>&, const std::shared_ptr<IceStorm::TopicManagerPrx>&,
+    Database(const std::shared_ptr<Ice::ObjectAdapter>&, const IceStorm::TopicManagerPrxPtr&,
              const std::string&, const std::shared_ptr<TraceLevels>&, const RegistryInfo&, bool);
 
     void checkForAddition(const ApplicationHelper&, const IceDB::ReadWriteTxn&);
@@ -164,11 +164,11 @@ private:
 
     void checkUpdate(const ApplicationHelper&, const ApplicationHelper&, const std::string&, int, bool);
 
-    long long saveApplication(const ApplicationInfo&, const IceDB::ReadWriteTxn&, long long = 0);
-    long long removeApplication(const std::string&, const IceDB::ReadWriteTxn&, long long = 0);
+    std::int64_t saveApplication(const ApplicationInfo&, const IceDB::ReadWriteTxn&, std::int64_t = 0);
+    std::int64_t removeApplication(const std::string&, const IceDB::ReadWriteTxn&, std::int64_t = 0);
 
     void finishApplicationUpdate(const ApplicationUpdateInfo&, const ApplicationInfo&, const ApplicationHelper&,
-                                 const ApplicationHelper&, AdminSessionI*, bool, long long = 0);
+                                 const ApplicationHelper&, AdminSessionI*, bool, std::int64_t = 0);
 
     void checkSessionLock(AdminSessionI*);
 
@@ -176,8 +176,8 @@ private:
     void startUpdating(const std::string&, const std::string&, int);
     void finishUpdating(const std::string&);
 
-    long long getSerial(const IceDB::Txn&, const std::string&);
-    long long updateSerial(const IceDB::ReadWriteTxn&, const std::string&, long long = 0);
+    std::int64_t getSerial(const IceDB::Txn&, const std::string&);
+    std::int64_t updateSerial(const IceDB::ReadWriteTxn&, const std::string&, std::int64_t = 0);
 
     void addAdapter(const IceDB::ReadWriteTxn&, const AdapterInfo&);
     void deleteAdapter(const IceDB::ReadWriteTxn&, const AdapterInfo&);
@@ -195,7 +195,7 @@ private:
 
     const std::shared_ptr<Ice::Communicator> _communicator;
     const std::shared_ptr<Ice::ObjectAdapter> _internalAdapter;
-    const std::shared_ptr<IceStorm::TopicManagerPrx> _topicManager;
+    const IceStorm::TopicManagerPrxPtr _topicManager;
     const std::string _instanceName;
     const std::shared_ptr<TraceLevels> _traceLevels;
     const bool _master;

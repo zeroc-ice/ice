@@ -48,7 +48,7 @@ TestIntfI::pingBiDir(Ice::Identity id, const Ice::Current& current)
         {
             Test::ByteSeq seq;
             seq.resize(32 * 1024);
-            Ice::uncheckedCast<Test::TestIntfPrx>(current.con->createProxy(id))->sendByteSeq(seq, 0);
+            Ice::uncheckedCast<Test::TestIntfPrx>(current.con->createProxy(id))->sendByteSeq(seq, nullopt);
         }
         catch(const DatagramLimitException&)
         {

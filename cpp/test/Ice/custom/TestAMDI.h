@@ -116,9 +116,9 @@ public:
                       std::function<void(const ::Test::EList&, const ::Test::EList&)>,
                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opDPrxSeqAsync(std::deque<std::shared_ptr<::Test::DPrx>>,
-                        std::function<void(const std::deque<std::shared_ptr<::Test::DPrx>>&,
-                                            const std::deque<std::shared_ptr<::Test::DPrx>>&)>,
+    void opDPrxSeqAsync(std::deque<::Test::DPrxPtr>,
+                        std::function<void(const std::deque<::Test::DPrxPtr>&,
+                                            const std::deque<::Test::DPrxPtr>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opDPrxListAsync(::Test::DPrxList,
@@ -151,14 +151,14 @@ public:
                               std::function<void(const ::Test::IntStringDict&, const ::Test::IntStringDict&)>,
                               std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opVarDictAsync(::Test::CustomMap<std::string, ::Ice::Int>,
-                        std::function<void(const ::Test::CustomMap< ::Ice::Long, ::Ice::Long>&,
-                                            const ::Test::CustomMap<std::string, ::Ice::Int>&)>,
+    void opVarDictAsync(::Test::CustomMap<std::string, ::std::int32_t>,
+                        std::function<void(const ::Test::CustomMap< std::int64_t, std::int64_t>&,
+                                            const ::Test::CustomMap<std::string, ::std::int32_t>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opCustomIntStringDictAsync(std::map< ::Ice::Int, ::Util::string_view>,
-                                    std::function<void(const std::map< ::Ice::Int, ::Util::string_view>&,
-                                                        const std::map< ::Ice::Int, ::Util::string_view>&)>,
+    void opCustomIntStringDictAsync(std::map< ::std::int32_t, ::Util::string_view>,
+                                    std::function<void(const std::map< ::std::int32_t, ::Util::string_view>&,
+                                                        const std::map< ::std::int32_t, ::Util::string_view>&)>,
                                     std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opShortBufferAsync(::Test::ShortBuffer,

@@ -49,7 +49,7 @@ IceDiscovery::Request::exception()
     //
     if(++_failureCount == _lookupCount)
     {
-        finished(0);
+        finished(nullopt);
         return true;
     }
     return false;
@@ -196,14 +196,14 @@ LookupI::destroy()
     lock_guard lock(_mutex);
     for(map<Identity, ObjectRequestPtr>::const_iterator p = _objectRequests.begin(); p != _objectRequests.end(); ++p)
     {
-        p->second->finished(0);
+        p->second->finished(nullopt);
         _timer->cancel(p->second);
     }
     _objectRequests.clear();
 
     for(map<string, AdapterRequestPtr>::const_iterator p = _adapterRequests.begin(); p != _adapterRequests.end(); ++p)
     {
-        p->second->finished(0);
+        p->second->finished(nullopt);
         _timer->cancel(p->second);
     }
     _adapterRequests.clear();
@@ -313,7 +313,7 @@ LookupI::findObject(const ObjectCB& cb, const Ice::Identity& id)
         }
         catch(const Ice::LocalException&)
         {
-            p->second->finished(nullptr);
+            p->second->finished(nullopt);
             _objectRequests.erase(p);
         }
     }
@@ -340,7 +340,7 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
         }
         catch(const Ice::LocalException&)
         {
-            p->second->finished(nullptr);
+            p->second->finished(nullopt);
             _adapterRequests.erase(p);
         }
     }
@@ -398,7 +398,7 @@ LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
         }
     }
 
-    request->finished(0);
+    request->finished(nullopt);
     _objectRequests.erase(p);
     _timer->cancel(request);
 }
@@ -457,7 +457,7 @@ LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
         }
     }
 
-    request->finished(0);
+    request->finished(nullopt);
     _adapterRequests.erase(p);
     _timer->cancel(request);
 }
@@ -498,13 +498,13 @@ LookupReplyI::LookupReplyI(const LookupIPtr& lookup) : _lookup(lookup)
 }
 
 void
-LookupReplyI::foundObjectById(Identity id, shared_ptr<ObjectPrx> proxy, const Current& current)
+LookupReplyI::foundObjectById(Identity id, ObjectPrxPtr proxy, const Current& current)
 {
     _lookup->foundObject(id, current.id.name, proxy);
 }
 
 void
-LookupReplyI::foundAdapterById(string adapterId, shared_ptr<ObjectPrx> proxy, bool isReplicaGroup,
+LookupReplyI::foundAdapterById(string adapterId, ObjectPrxPtr proxy, bool isReplicaGroup,
                                const Current& current)
 {
     _lookup->foundAdapter(adapterId, current.id.name, proxy, isReplicaGroup);

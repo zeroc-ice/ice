@@ -7,6 +7,8 @@
 
 #include <Ice/ValueF.h>
 #include <Ice/SlicedDataF.h>
+#include "InputStream.h"
+#include "OutputStream.h"
 
 namespace Ice
 {

@@ -348,8 +348,15 @@ ZEND_METHOD(Ice_Communicator, stringToProxy)
 
     try
     {
-        shared_ptr<Ice::ObjectPrx> prx = _this->getCommunicator()->stringToProxy(s);
-        if(!createProxy(return_value, prx, _this))
+        auto prx = _this->getCommunicator()->stringToProxy(s);
+        if (prx)
+        {
+            if(!createProxy(return_value, prx.value(), _this))
+            {
+                RETURN_NULL();
+            }
+        }
+        else
         {
             RETURN_NULL();
         }
@@ -381,7 +388,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
         string str;
         if(zv)
         {
-            shared_ptr<Ice::ObjectPrx> prx;
+            optional<Ice::ObjectPrx> prx;
             ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info))
             {
@@ -418,8 +425,15 @@ ZEND_METHOD(Ice_Communicator, propertyToProxy)
 
     try
     {
-        shared_ptr<Ice::ObjectPrx> prx = _this->getCommunicator()->propertyToProxy(s);
-        if(!createProxy(return_value, prx, _this))
+        auto prx = _this->getCommunicator()->propertyToProxy(s);
+        if (prx)
+        {
+            if(!createProxy(return_value, prx.value(), _this))
+            {
+                RETURN_NULL();
+            }
+        }
+        else
         {
             RETURN_NULL();
         }
@@ -456,7 +470,7 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
     {
         if(zv)
         {
-            shared_ptr<Ice::ObjectPrx> prx;
+            optional<Ice::ObjectPrx> prx;
             ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info))
             {
@@ -615,7 +629,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
 
     try
     {
-        shared_ptr<Ice::RouterPrx> router = _this->getCommunicator()->getDefaultRouter();
+        auto router = _this->getCommunicator()->getDefaultRouter();
         if(router)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Router");
@@ -624,7 +638,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
                 runtimeError("no definition for Ice::Router");
                 RETURN_NULL();
             }
-            if(!createProxy(return_value, router, info, _this))
+            if(!createProxy(return_value, router.value(), info, _this))
             {
                 RETURN_NULL();
             }
@@ -656,7 +670,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
         RETURN_NULL();
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info))
     {
@@ -665,7 +679,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
 
     try
     {
-        shared_ptr<Ice::RouterPrx> router;
+        optional<Ice::RouterPrx> router;
         if(proxy)
         {
             if(!info || !info->isA("::Ice::Router"))
@@ -696,7 +710,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
 
     try
     {
-        shared_ptr<Ice::LocatorPrx> locator = _this->getCommunicator()->getDefaultLocator();
+        auto locator = _this->getCommunicator()->getDefaultLocator();
         if (locator)
         {
             ProxyInfoPtr info = getProxyInfo("::Ice::Locator");
@@ -705,7 +719,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
                 runtimeError("no definition for Ice::Locator");
                 RETURN_NULL();
             }
-            if(!createProxy(return_value, locator, info, _this))
+            if(!createProxy(return_value, locator.value(), info, _this))
             {
                 RETURN_NULL();
             }
@@ -737,7 +751,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
         RETURN_NULL();
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info))
     {
@@ -746,7 +760,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
 
     try
     {
-        shared_ptr<Ice::LocatorPrx> locator;
+        optional<Ice::LocatorPrx> locator;
         if(proxy)
         {
             if(!info || !info->isA("::Ice::Locator"))

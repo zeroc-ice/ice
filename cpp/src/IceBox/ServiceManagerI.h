@@ -39,7 +39,7 @@ public:
     bool start();
     void stop();
 
-    void observerCompleted(const std::shared_ptr<ServiceObserverPrx>&, std::exception_ptr);
+    void observerCompleted(const ServiceObserverPrxPtr&, std::exception_ptr);
 
 private:
 
@@ -69,8 +69,8 @@ private:
 
     void servicesStarted(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
     void servicesStopped(const std::vector<std::string>&, const std::set<ServiceObserverPrxPtr>&);
-    std::function<void(std::exception_ptr)> makeObserverCompletedCallback(const std::shared_ptr<ServiceObserverPrx>&);
-    void observerRemoved(const std::shared_ptr<ServiceObserverPrx>&, std::exception_ptr);
+    std::function<void(std::exception_ptr)> makeObserverCompletedCallback(const ServiceObserverPrxPtr&);
+    void observerRemoved(const ServiceObserverPrxPtr&, std::exception_ptr);
 
     Ice::PropertiesPtr createServiceProperties(const std::string&);
     void destroyServiceCommunicator(const std::string&, const Ice::CommunicatorPtr&);

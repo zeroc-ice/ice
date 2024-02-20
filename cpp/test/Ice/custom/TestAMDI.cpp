@@ -215,9 +215,9 @@ TestIntfI::opEListAsync(Test::EList in,
 }
 
 void
-TestIntfI::opDPrxSeqAsync(std::deque<std::shared_ptr<Test::DPrx>> in,
-                          std::function<void(const std::deque<std::shared_ptr<Test::DPrx>>&,
-                                             const std::deque<std::shared_ptr<Test::DPrx>>&)> response,
+TestIntfI::opDPrxSeqAsync(std::deque<Test::DPrxPtr> in,
+                          std::function<void(const std::deque<Test::DPrxPtr>&,
+                                             const std::deque<Test::DPrxPtr>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
@@ -282,13 +282,13 @@ TestIntfI::opIntStringDictAsync(Test::IntStringDict in,
 }
 
 void
-TestIntfI::opVarDictAsync(Test::CustomMap<std::string, Ice::Int> in,
-                          std::function<void(const Test::CustomMap<Ice::Long, Ice::Long>&,
-                                              const Test::CustomMap<std::string, Ice::Int>&)> response,
+TestIntfI::opVarDictAsync(Test::CustomMap<std::string, int32_t> in,
+                          std::function<void(const Test::CustomMap<int64_t, int64_t>&,
+                                              const Test::CustomMap<std::string, int32_t>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
-    Test::CustomMap<Ice::Long, Ice::Long> result;
-    for(Ice::Long i = 0; i < 1000; ++i)
+    Test::CustomMap<int64_t, int64_t> result;
+    for(int64_t i = 0; i < 1000; ++i)
     {
         result[i] = i*i;
     }
@@ -296,9 +296,9 @@ TestIntfI::opVarDictAsync(Test::CustomMap<std::string, Ice::Int> in,
 }
 
 void
-TestIntfI::opCustomIntStringDictAsync(std::map<Ice::Int, ::Util::string_view> in,
-                                      std::function<void(const std::map<Ice::Int, ::Util::string_view>&,
-                                                          const std::map<Ice::Int, ::Util::string_view>&)> response,
+TestIntfI::opCustomIntStringDictAsync(std::map<int32_t, ::Util::string_view> in,
+                                      std::function<void(const std::map<int32_t, ::Util::string_view>&,
+                                                          const std::map<int32_t, ::Util::string_view>&)> response,
                                       std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);

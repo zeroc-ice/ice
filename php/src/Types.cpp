@@ -13,6 +13,7 @@
 
 #include <limits>
 #include <memory>
+#include <optional>
 
 using namespace std;
 using namespace IcePHP;
@@ -772,7 +773,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
         assert(Z_TYPE_P(zv) == IS_LONG);
         long val = static_cast<long>(Z_LVAL_P(zv));
         assert(val >= INT_MIN && val <= INT_MAX); // validate() should have caught this.
-        os->write(static_cast<Ice::Int>(val));
+        os->write(static_cast<int32_t>(val));
         break;
     }
     case PrimitiveInfo::KindLong:
@@ -789,7 +790,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
             string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
             IceUtilInternal::stringToInt64(sval, val);
         }
-        os->write(static_cast<Ice::Long>(val));
+        os->write(static_cast<int64_t>(val));
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -882,18 +883,18 @@ IcePHP::PrimitiveInfo::unmarshal(
     }
     case PrimitiveInfo::KindInt:
     {
-        Ice::Int val;
+        int32_t val;
         is->read(val);
         ZVAL_LONG(&zv, val);
         break;
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long val;
+        int64_t val;
         is->read(val);
 
         // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-        if(sizeof(Ice::Long) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
+        if(sizeof(int64_t) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
         {
             string str = IceUtilInternal::int64ToString(val);
             ZVAL_STRINGL(&zv, str.c_str(), static_cast<int>(str.length()));
@@ -960,7 +961,7 @@ IcePHP::EnumInfo::EnumInfo(const string& ident, zval* en) :
 
         val = zend_hash_get_current_data_ex(arr, &pos);
         assert(Z_TYPE_P(val) == IS_LONG);
-        Ice::Int value = static_cast<Ice::Int>(Z_LVAL_P(val));
+        int32_t value = static_cast<int32_t>(Z_LVAL_P(val));
         zend_hash_move_forward_ex(arr, &pos);
 
         if(value > maxValue)
@@ -968,7 +969,7 @@ IcePHP::EnumInfo::EnumInfo(const string& ident, zval* en) :
             const_cast<int&>(maxValue) = value;
         }
 
-        const_cast<map<Ice::Int, string>&>(enumerators)[value] = name;
+        const_cast<map<int32_t, string>&>(enumerators)[value] = name;
     }
 }
 
@@ -983,7 +984,7 @@ IcePHP::EnumInfo::validate(zval* zv, bool)
 {
     if(Z_TYPE_P(zv) == IS_LONG)
     {
-        const Ice::Int l = static_cast<Ice::Int>(Z_LVAL_P(zv));
+        const int32_t l = static_cast<int32_t>(Z_LVAL_P(zv));
         return l >= 0 && enumerators.find(l) != enumerators.end();
     }
     return false;
@@ -1011,7 +1012,7 @@ void
 IcePHP::EnumInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool)
 {
     assert(Z_TYPE_P(zv) == IS_LONG); // validate() should have caught this.
-    const Ice::Int val = static_cast<Ice::Int>(Z_LVAL_P(zv));
+    const int32_t val = static_cast<int32_t>(Z_LVAL_P(zv));
     assert(val >= 0 && enumerators.find(val) != enumerators.end()); // validate() should have caught this.
 
     os->writeEnum(val, maxValue);
@@ -1029,7 +1030,7 @@ IcePHP::EnumInfo::unmarshal(
     zval zv;
     AutoDestroy destroy(&zv);
 
-    const Ice::Int val = is->readEnum(maxValue);
+    const int32_t val = is->readEnum(maxValue);
 
     if(enumerators.find(val) == enumerators.end())
     {
@@ -1049,8 +1050,8 @@ IcePHP::EnumInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHisto
         out << "<invalid value - expected " << id << ">";
         return;
     }
-    const Ice::Int val = static_cast<Ice::Int>(Z_LVAL_P(zv));
-    map<Ice::Int, string>::const_iterator p = enumerators.find(val);
+    const int32_t val = static_cast<int32_t>(Z_LVAL_P(zv));
+    map<int32_t, string>::const_iterator p = enumerators.find(val);
     assert(p != enumerators.end());
     out << p->second;
 }
@@ -1425,14 +1426,14 @@ IcePHP::SequenceInfo::usesClasses() const
 void
 IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap, bool optional)
 {
-    Ice::Int sz = 0;
+    int32_t sz = 0;
     HashTable* arr = 0;
 
     if(Z_TYPE_P(zv) != IS_NULL)
     {
         assert(Z_TYPE_P(zv) == IS_ARRAY); // validate() should have caught this.
         arr = Z_ARRVAL_P(zv);
-        sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
+        sz = static_cast<int32_t>(zend_hash_num_elements(arr));
     }
 
     Ice::OutputStream::size_type sizePos = 0;
@@ -1513,8 +1514,8 @@ IcePHP::SequenceInfo::unmarshal(
     array_init(&zv);
     AutoDestroy destroy(&zv);
 
-    Ice::Int sz = is->readSize();
-    for(Ice::Int i = 0; i < sz; ++i)
+    int32_t sz = is->readSize();
+    for(int32_t i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
 
@@ -1589,7 +1590,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
 {
     HashTable* arr = Z_ARRVAL_P(zv);
 
-    Ice::Int sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
+    int32_t sz = static_cast<int32_t>(zend_hash_num_elements(arr));
     assert(sz > 0);
 
     switch(pi->kind)
@@ -1597,7 +1598,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     case PrimitiveInfo::KindBool:
     {
         Ice::BoolSeq seq(sz);
-        Ice::Int i = 0;
+        int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
@@ -1614,7 +1615,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     case PrimitiveInfo::KindByte:
     {
         Ice::ByteSeq seq(sz);
-        Ice::Int i = 0;
+        int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
@@ -1634,7 +1635,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     case PrimitiveInfo::KindShort:
     {
         Ice::ShortSeq seq(sz);
-        Ice::Int i = 0;
+        int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
@@ -1654,7 +1655,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     case PrimitiveInfo::KindInt:
     {
         Ice::IntSeq seq(sz);
-        Ice::Int i = 0;
+        int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
@@ -1664,7 +1665,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             }
             long l = static_cast<long>(Z_LVAL_P(val));
             assert(l >= INT_MIN && l <= INT_MAX);
-            seq[i++] = static_cast<Ice::Int>(l);
+            seq[i++] = static_cast<int32_t>(l);
         }
         ZEND_HASH_FOREACH_END();
 
@@ -1674,7 +1675,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     case PrimitiveInfo::KindLong:
     {
         Ice::LongSeq seq(sz);
-        Ice::Int i = 0;
+        int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
@@ -1704,7 +1705,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     case PrimitiveInfo::KindFloat:
     {
         Ice::FloatSeq seq(sz);
-        Ice::Int i = 0;
+        int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
@@ -1735,7 +1736,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     case PrimitiveInfo::KindDouble:
     {
         Ice::DoubleSeq seq(sz);
-        Ice::Int i = 0;
+        int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
@@ -1766,7 +1767,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     case PrimitiveInfo::KindString:
     {
         Ice::StringSeq seq(sz);
-        Ice::Int i = 0;
+        int32_t i = 0;
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
@@ -1839,9 +1840,9 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindInt:
     {
-        pair<const Ice::Int*, const Ice::Int*> pr;
+        pair<const int32_t*, const int32_t*> pr;
         is->read(pr);
-        for (const Ice::Int* p = pr.first; p != pr.second; ++p)
+        for (const int32_t* p = pr.first; p != pr.second; ++p)
         {
             add_next_index_long(&zv, *p);
         }
@@ -1849,14 +1850,15 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindLong:
     {
-        pair<const Ice::Long*, const Ice::Long*> pr;
+        pair<const int64_t*, const int64_t*> pr;
         is->read(pr);
-        Ice::Int i = 0;
-        for (const Ice::Long* p = pr.first; p != pr.second; ++p, ++i)
+        int32_t i = 0;
+        for (const int64_t* p = pr.first; p != pr.second; ++p, ++i)
         {
             zval val;
             // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-            if(sizeof(Ice::Long) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
+            // TODO: can we remove this now
+            if(sizeof(int64_t) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
             {
                 string str = IceUtilInternal::int64ToString(*p);
                 ZVAL_STRINGL(&val, str.c_str(), static_cast<int>(str.length()));
@@ -1873,7 +1875,7 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     {
         pair<const Ice::Float*, const Ice::Float*> pr;
         is->read(pr);
-        Ice::Int i = 0;
+        int32_t i = 0;
         for(const Ice::Float* p = pr.first; p != pr.second; ++p, ++i)
         {
             zval val;
@@ -1886,7 +1888,7 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     {
         pair<const Ice::Double*, const Ice::Double*> pr;
         is->read(pr);
-        Ice::Int i = 0;
+        int32_t i = 0;
         for(const Ice::Double* p = pr.first; p != pr.second; ++p, ++i)
         {
             zval val;
@@ -1899,7 +1901,7 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     {
         Ice::StringSeq seq;
         is->read(seq, true);
-        Ice::Int i = 0;
+        int32_t i = 0;
         for (const auto& p : seq)
         {
             zval val;
@@ -1963,14 +1965,14 @@ IcePHP::DictionaryInfo::usesClasses() const
 void
 IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap, bool optional)
 {
-    Ice::Int sz = 0;
+    int32_t sz = 0;
     HashTable* arr = 0;
 
     if(Z_TYPE_P(zv) != IS_NULL)
     {
         assert(Z_TYPE_P(zv) == IS_ARRAY); // validate() should have caught this.
         arr = Z_ARRVAL_P(zv);
-        sz = static_cast<Ice::Int>(zend_hash_num_elements(arr));
+        sz = static_cast<int32_t>(zend_hash_num_elements(arr));
     }
 
     Ice::OutputStream::size_type sizePos = 0;
@@ -2123,8 +2125,8 @@ IcePHP::DictionaryInfo::unmarshal(
 #endif
     AutoDestroy destroy(&zv);
 
-    Ice::Int sz = is->readSize();
-    for(Ice::Int i = 0; i < sz; ++i)
+    int32_t sz = is->readSize();
+    for(int32_t i = 0; i < sz; ++i)
     {
         // A dictionary key cannot be a class (or contain one), so the key must be available immediately.
         KeyCallbackPtr keyCB = make_shared<KeyCallback>();
@@ -2268,10 +2270,10 @@ IcePHP::ClassInfo::ClassInfo(const string& ident) :
 }
 
 void
-IcePHP::ClassInfo::define(const string& n, Ice::Int compact, bool pres, bool intf, zval* b, zval* m)
+IcePHP::ClassInfo::define(const string& n, int32_t compact, bool pres, bool intf, zval* b, zval* m)
 {
     const_cast<string&>(name) = n;
-    const_cast<Ice::Int&>(compactId) = static_cast<Ice::Int>(compact);
+    const_cast<int32_t&>(compactId) = static_cast<int32_t>(compact);
     const_cast<bool&>(preserve) = pres;
     const_cast<bool&>(interface) = intf;
 
@@ -2607,7 +2609,7 @@ IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool opt
         sizePos = os->startSize();
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    std::optional<Ice::ObjectPrx> proxy;
     if(Z_TYPE_P(zv) == IS_NULL)
     {
         os->write(proxy);
@@ -2651,7 +2653,7 @@ IcePHP::ProxyInfo::unmarshal(
         is->skip(4);
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    std::optional<Ice::ObjectPrx> proxy;
     is->read(proxy);
 
     if(!proxy)
@@ -2667,7 +2669,7 @@ IcePHP::ProxyInfo::unmarshal(
         throw AbortMarshaling();
     }
 
-    if(!createProxy(&zv, proxy, dynamic_pointer_cast<ProxyInfo>(shared_from_this()), comm))
+    if(!createProxy(&zv, proxy.value(), dynamic_pointer_cast<ProxyInfo>(shared_from_this()), comm))
     {
         throw AbortMarshaling();
     }
@@ -2689,7 +2691,7 @@ IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHist
     }
     else
     {
-        shared_ptr<Ice::ObjectPrx> proxy;
+        optional<Ice::ObjectPrx> proxy;
         ProxyInfoPtr info;
         if(!fetchProxy(zv, proxy, info))
         {
@@ -3521,7 +3523,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
         addClassInfoById(type);
     }
 
-    type->define(name, static_cast<Ice::Int>(compactId), preserve ? true : false, interface ? true : false, base, members);
+    type->define(name, static_cast<int32_t>(compactId), preserve ? true : false, interface ? true : false, base, members);
 
     if(!interface)
     {

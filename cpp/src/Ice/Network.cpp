@@ -1390,8 +1390,8 @@ IceInternal::setTcpBufSize(SOCKET fd, const ProtocolInstancePtr& instance)
 #else
     const int dfltBufSize = 0;
 #endif
-    Int rcvSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
-    Int sndSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+    int32_t rcvSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+    int32_t sndSize = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
 
     setTcpBufSize(fd, rcvSize, sndSize, instance);
 }

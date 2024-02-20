@@ -44,8 +44,8 @@ public:
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
 
-    virtual void opShortIntLongAsync(short, int, long long int,
-                                     ::std::function<void(long long int, short, int, long long int)>,
+    virtual void opShortIntLongAsync(short, int, std::int64_t,
+                                     ::std::function<void(std::int64_t, short, int, std::int64_t)>,
                                      ::std::function<void(std::exception_ptr)>,
                                      const Ice::Current&);
 
@@ -64,10 +64,10 @@ public:
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void opMyClassAsync(std::shared_ptr<Test::MyClassPrx>,
-                                std::function<void(const std::shared_ptr<Test::MyClassPrx>&,
-                                                    const std::shared_ptr<Test::MyClassPrx>&,
-                                                    const std::shared_ptr<Test::MyClassPrx>&)>,
+    virtual void opMyClassAsync(Test::MyClassPrxPtr,
+                                std::function<void(const Test::MyClassPrxPtr&,
+                                                    const Test::MyClassPrxPtr&,
+                                                    const Test::MyClassPrxPtr&)>,
                                 ::std::function<void(std::exception_ptr)>,
                                 const Ice::Current&);
 
@@ -308,13 +308,13 @@ public:
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void opInt1Async(Ice::Int,
-                             ::std::function<void(Ice::Int)>,
+    virtual void opInt1Async(std::int32_t,
+                             ::std::function<void(std::int32_t)>,
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
 
-    virtual void opLong1Async(Ice::Long,
-                              ::std::function<void(Ice::Long)>,
+    virtual void opLong1Async(std::int64_t,
+                              ::std::function<void(std::int64_t)>,
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);
 

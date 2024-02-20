@@ -131,8 +131,8 @@ MyDerivedClassI::opBoolAsync(bool p1,
 void
 MyDerivedClassI::opShortIntLongAsync(short p1,
                                      int p2,
-                                     long long int p3,
-                                     function<void(long long int, short, int, long long int)> response,
+                                     int64_t p3,
+                                     function<void(int64_t, short, int, int64_t)> response,
                                      function<void(exception_ptr)>,
                                      const Ice::Current&)
 {
@@ -169,10 +169,10 @@ MyDerivedClassI::opMyEnumAsync(Test::MyEnum p1,
 }
 
 void
-MyDerivedClassI::opMyClassAsync(shared_ptr<Test::MyClassPrx> p1,
-                                function<void(const shared_ptr<Test::MyClassPrx>&,
-                                               const shared_ptr<Test::MyClassPrx>&,
-                                               const shared_ptr<Test::MyClassPrx>&)> response,
+MyDerivedClassI::opMyClassAsync(Test::MyClassPrxPtr p1,
+                                function<void(const Test::MyClassPrxPtr&,
+                                               const Test::MyClassPrxPtr&,
+                                               const Test::MyClassPrxPtr&)> response,
                                 function<void(exception_ptr)>,
                                 const Ice::Current& current)
 {
@@ -787,8 +787,8 @@ MyDerivedClassI::opShort1Async(Ice::Short s,
 }
 
 void
-MyDerivedClassI::opInt1Async(Ice::Int i,
-                             function<void(Ice::Int)> response,
+MyDerivedClassI::opInt1Async(int32_t i,
+                             function<void(int32_t)> response,
                              function<void(exception_ptr)>,
                              const Ice::Current&)
 {
@@ -796,8 +796,8 @@ MyDerivedClassI::opInt1Async(Ice::Int i,
 }
 
 void
-MyDerivedClassI::opLong1Async(Ice::Long l,
-                              function<void(Ice::Long)> response,
+MyDerivedClassI::opLong1Async(int64_t l,
+                              function<void(int64_t)> response,
                               function<void(exception_ptr)>,
                               const Ice::Current&)
 {

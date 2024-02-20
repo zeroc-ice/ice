@@ -52,7 +52,7 @@ Client::run(int argc, char** argv)
         // Create topics
         //
         cerr << "creating topics and links..." << flush;
-        shared_ptr<TopicPrx> linkTo;
+        TopicPrxPtr linkTo;
         for(int i = 0; i < 10; ++i)
         {
             ostringstream topicName;

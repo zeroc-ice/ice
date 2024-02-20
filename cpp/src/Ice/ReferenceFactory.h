@@ -45,11 +45,11 @@ public:
     //
     ReferencePtr create(const ::Ice::Identity&, Ice::InputStream*);
 
-    ReferenceFactoryPtr setDefaultRouter(const ::Ice::RouterPrxPtr&);
-    ::Ice::RouterPrxPtr getDefaultRouter() const;
+    ReferenceFactoryPtr setDefaultRouter(const std::optional<Ice::RouterPrx>&);
+    std::optional<Ice::RouterPrx> getDefaultRouter() const;
 
-    ReferenceFactoryPtr setDefaultLocator(const ::Ice::LocatorPrxPtr&);
-    ::Ice::LocatorPrxPtr getDefaultLocator() const;
+    ReferenceFactoryPtr setDefaultLocator(const std::optional<Ice::LocatorPrx>&);
+    std::optional<Ice::LocatorPrx> getDefaultLocator() const;
 
 private:
 
@@ -60,8 +60,8 @@ private:
 
     const InstancePtr _instance;
     const ::Ice::CommunicatorPtr _communicator;
-    ::Ice::RouterPrxPtr _defaultRouter;
-    ::Ice::LocatorPrxPtr _defaultLocator;
+    std::optional<Ice::RouterPrx> _defaultRouter;
+    std::optional<Ice::LocatorPrx> _defaultLocator;
 };
 
 }

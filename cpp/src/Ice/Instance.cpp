@@ -43,6 +43,9 @@
 #include <IceUtil/StringUtil.h>
 #include <Ice/UUID.h>
 
+#include "Ice/ProxyFunctions.h"
+#include "CheckIdentity.h"
+
 #include <stdio.h>
 #include <list>
 #include <mutex>
@@ -529,7 +532,7 @@ IceInternal::Instance::serverACM() const
     return _serverACM;
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
     ObjectAdapterPtr adapter = adminAdapter;
@@ -542,10 +545,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if(adminIdentity.name.empty())
-    {
-        throw Ice::IllegalIdentityException(__FILE__, __LINE__, adminIdentity);
-    }
+    checkIdentity(adminIdentity, __FILE__, __LINE__);
 
     if(_adminAdapter)
     {
@@ -561,7 +561,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     {
         if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt);
         }
         else
         {
@@ -597,7 +597,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     return adapter->createProxy(adminIdentity);
 }
 
-Ice::ObjectPrxPtr
+std::optional<ObjectPrx>
 IceInternal::Instance::getAdmin()
 {
     unique_lock lock(_mutex);
@@ -616,11 +616,11 @@ IceInternal::Instance::getAdmin()
         ObjectAdapterPtr adapter;
         if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt);
         }
         else
         {
-            return 0;
+            return nullopt;
         }
 
         Identity adminIdentity;
@@ -657,7 +657,7 @@ IceInternal::Instance::getAdmin()
     }
     else
     {
-        return 0;
+        return nullopt;
     }
 }
 
@@ -688,12 +688,12 @@ IceInternal::Instance::addAllAdminFacets()
 void
 IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
-    ObjectPrxPtr admin = adminAdapter->createProxy(adminIdentity);
-    LocatorPrxPtr locator = adminAdapter->getLocator();
+    ObjectPrx admin = adminAdapter->createProxy(adminIdentity);
+    optional<LocatorPrx> locator = adminAdapter->getLocator();
     const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
     if(locator && serverId != "")
     {
-        ProcessPrxPtr process = Ice::uncheckedCast<ProcessPrx>(admin->ice_facet("Process"));
+        ProcessPrx process = Ice::uncheckedCast<ProcessPrx>(admin, "Process");
         try
         {
             //
@@ -847,7 +847,7 @@ IceInternal::Instance::findAllAdminFacets()
 }
 
 void
-IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocator)
+IceInternal::Instance::setDefaultLocator(const optional<LocatorPrx>& defaultLocator)
 {
     lock_guard lock(_mutex);
 
@@ -860,7 +860,7 @@ IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocato
 }
 
 void
-IceInternal::Instance::setDefaultRouter(const Ice::RouterPrxPtr& defaultRouter)
+IceInternal::Instance::setDefaultRouter(const optional<RouterPrx>& defaultRouter)
 {
     lock_guard lock(_mutex);
 
@@ -1084,7 +1084,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #endif
             if(!logfile.empty())
             {
-                Int sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
+                int32_t sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
                 if(sz < 0)
                 {
                     sz = 0;
@@ -1122,7 +1122,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         {
             static const int defaultMessageSizeMax = 1024;
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
@@ -1144,7 +1144,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
             if(num < 1)
             {
                 const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num);
@@ -1162,7 +1162,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         {
             static const int defaultValue = 100;
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
             {
                 const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
@@ -1473,7 +1473,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if(!_referenceFactory->getDefaultRouter())
     {
-        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_proxyFactory->propertyToProxy("Ice.Default.Router"));
+        optional<RouterPrx> router = Ice::uncheckedCast<RouterPrx>(_proxyFactory->propertyToProxy("Ice.Default.Router"));
         if(router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1482,7 +1482,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if(!_referenceFactory->getDefaultLocator())
     {
-        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
+        optional<LocatorPrx> locator = Ice::uncheckedCast<LocatorPrx>(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
         if(locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);
@@ -1822,7 +1822,7 @@ IceInternal::ProcessI::shutdown(const Current&)
 }
 
 void
-IceInternal::ProcessI::writeMessage(string message, Int fd, const Current&)
+IceInternal::ProcessI::writeMessage(string message, int32_t fd, const Current&)
 {
     switch(fd)
     {

@@ -20,7 +20,5 @@ Glacier2::ServerBlobject::ice_invokeAsync(pair<const Byte*, const Byte*> inParam
                                           const Current& current)
 {
     auto proxy = _reverseConnection->createProxy(current.id);
-    assert(proxy);
-
     invoke(proxy, inParams, std::move(response), std::move(error), current);
 }

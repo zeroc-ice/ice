@@ -15,7 +15,7 @@ HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapte
 }
 
 void
-HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
+HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
 {
     class PutOnHold : public IceUtil::TimerTask
     {
@@ -112,19 +112,19 @@ HoldI::waitForHold(const Ice::Current& current)
     }
 }
 
-Ice::Int
-HoldI::set(Ice::Int value, Ice::Int delay, const Ice::Current&)
+int32_t
+HoldI::set(int32_t value, int32_t delay, const Ice::Current&)
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
 
     lock_guard lock(_mutex);
-    Ice::Int tmp = _last;
+    int32_t tmp = _last;
     _last = value;
     return tmp;
 }
 
 void
-HoldI::setOneway(Ice::Int value, Ice::Int expected, const Ice::Current&)
+HoldI::setOneway(int32_t value, int32_t expected, const Ice::Current&)
 {
     lock_guard lock(_mutex);
     test(_last == expected);

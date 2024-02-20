@@ -7,7 +7,6 @@
 
 #include "Config.h"
 #include <memory>
-#include "ProxyF.h"
 
 namespace Ice
 {
@@ -16,7 +15,6 @@ class Router;
 class RouterPrx;
 
 using RouterPtr = ::std::shared_ptr<Router>;
-using RouterPrxPtr = ::std::shared_ptr<RouterPrx>;
 
 }
 

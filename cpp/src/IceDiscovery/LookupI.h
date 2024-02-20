@@ -79,9 +79,9 @@ protected:
     std::vector<CB> _callbacks;
 };
 
-typedef std::pair<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>,
+typedef std::pair<std::function<void(const ::Ice::ObjectPrxPtr&)>,
                   std::function<void(std::exception_ptr)>> ObjectCB;
-typedef std::pair<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>,
+typedef std::pair<std::function<void(const ::Ice::ObjectPrxPtr&)>,
                   std::function<void(std::exception_ptr)>> AdapterCB;
 
 class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>, public std::enable_shared_from_this<ObjectRequest>
@@ -120,7 +120,7 @@ private:
     // the same proxy if it's accessible through multiple network interfaces and if we
     // also sent the request to multiple interfaces.
     //
-    std::set<std::shared_ptr<Ice::ObjectPrx>, Ice::TargetCompare<std::shared_ptr<Ice::ObjectPrx>, std::less>> _proxies;
+    std::set<Ice::ObjectPrxPtr, Ice::TargetCompare<Ice::ObjectPrxPtr, std::less>> _proxies;
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };
@@ -189,8 +189,8 @@ public:
 
     LookupReplyI(const LookupIPtr&);
 
-    virtual void foundObjectById(Ice::Identity, std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&);
-    virtual void foundAdapterById(std::string, std::shared_ptr<Ice::ObjectPrx>, bool, const Ice::Current&);
+    virtual void foundObjectById(Ice::Identity, Ice::ObjectPrxPtr, const Ice::Current&);
+    virtual void foundAdapterById(std::string, Ice::ObjectPrxPtr, bool, const Ice::Current&);
 
 private:
 

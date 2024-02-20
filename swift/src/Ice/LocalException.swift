@@ -556,20 +556,8 @@ open class ProxyParseException: LocalException {
     }
 }
 
-/// This exception is raised if an illegal identity is encountered.
+/// This exception is raised if an identity with an empty name is encountered.
 open class IllegalIdentityException: LocalException {
-    /// The illegal identity.
-    public var id: Identity = .init()
-
-    public required init() {
-        super.init()
-    }
-
-    public init(id: Identity, file: Swift.String = #file, line: Swift.Int = #line) {
-        self.id = id
-        super.init(file: file, line: line)
-    }
-
     /// Returns the Slice type ID of this exception.
     ///
     /// - returns: `Swift.String` - the Slice type ID of this exception.

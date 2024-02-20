@@ -21,7 +21,7 @@ FileCache::FileCache(const shared_ptr<Ice::Communicator>& com) :
 {
 }
 
-long long
+int64_t
 FileCache::getOffsetFromEnd(const string& file, int originalCount)
 {
     ifstream is(IceUtilInternal::streamFilename(file).c_str()); // file is a UTF-8 string
@@ -122,7 +122,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 }
 
 bool
-FileCache::read(const string& file, long long offset, int size, long long& newOffset, Ice::StringSeq& lines)
+FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset, Ice::StringSeq& lines)
 {
     assert(size > 0);
 

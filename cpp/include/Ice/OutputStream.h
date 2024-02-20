@@ -209,7 +209,7 @@ public:
         _currentEncaps->encoding = encoding;
         _currentEncaps->start = b.size();
 
-        write(Int(0)); // Placeholder for the encapsulation length.
+        write(std::int32_t(0)); // Placeholder for the encapsulation length.
         write(_currentEncaps->encoding);
     }
 
@@ -221,7 +221,7 @@ public:
         assert(_currentEncaps);
 
         // Size includes size and version.
-        const Int sz = static_cast<Int>(b.size() - _currentEncaps->start);
+        const std::int32_t sz = static_cast<std::int32_t>(b.size() - _currentEncaps->start);
         write(sz, &(*(b.begin() + _currentEncaps->start)));
 
         Encaps* oldEncaps = _currentEncaps;
@@ -243,7 +243,7 @@ public:
     void writeEmptyEncapsulation(const EncodingVersion& encoding)
     {
         IceInternal::checkSupportedEncoding(encoding);
-        write(Int(6)); // Size
+        write(std::int32_t(6)); // Size
         write(encoding);
     }
 
@@ -252,7 +252,7 @@ public:
      * @param v The start of the buffer.
      * @param sz The number of bytes to copy.
      */
-    void writeEncapsulation(const Byte* v, Int sz)
+    void writeEncapsulation(const Byte* v, std::int32_t sz)
     {
         if(sz < 6)
         {
@@ -308,7 +308,7 @@ public:
      * Writes a size value.
      * @param v A non-negative integer.
      */
-    void writeSize(Int v) // Inlined for performance reasons.
+    void writeSize(std::int32_t v) // Inlined for performance reasons.
     {
         assert(v >= 0);
         if(v > 254)
@@ -328,7 +328,7 @@ public:
      * @param v A non-negative integer representing the size.
      * @param dest The buffer destination for the size.
      */
-    void rewriteSize(Int v, Container::iterator dest)
+    void rewriteSize(std::int32_t v, Container::iterator dest)
     {
         assert(v >= 0);
         if(v > 254)
@@ -351,7 +351,7 @@ public:
     size_type startSize()
     {
         size_type position = b.size();
-        write(Int(0));
+        write(std::int32_t(0));
         return position;
     }
 
@@ -362,7 +362,7 @@ public:
      */
     void endSize(size_type position)
     {
-        rewrite(static_cast<Int>(b.size() - position) - 4, position);
+        rewrite(static_cast<std::int32_t>(b.size() - position) - 4, position);
     }
 
     /**
@@ -400,7 +400,7 @@ public:
      * @param tag The tag ID.
      * @param v The data value to be written (if any).
      */
-    template<typename T> void write(Int tag, const std::optional<T>& v)
+    template<typename T> void write(std::int32_t tag, const std::optional<T>& v)
     {
         if(!v)
         {
@@ -440,7 +440,7 @@ public:
      */
     template<typename T> void write(const T* begin, const T* end)
     {
-        writeSize(static_cast<Int>(end - begin));
+        writeSize(static_cast<std::int32_t>(end - begin));
         for(const T* p = begin; p != end; ++p)
         {
             write(*p);
@@ -512,7 +512,7 @@ public:
      * @return True if the current encoding version supports optional values, false otherwise.
      * If true, the data associated with the optional value must be written next.
      */
-    bool writeOptional(Int tag, OptionalFormat format)
+    bool writeOptional(std::int32_t tag, OptionalFormat format)
     {
         assert(_currentEncaps);
         if(_currentEncaps->encoder)
@@ -580,10 +580,10 @@ public:
      * Writes an int to the stream.
      * @param v The int to write.
      */
-    void write(Int v) // Inlined for performance reasons.
+    void write(std::int32_t v) // Inlined for performance reasons.
     {
         Container::size_type position = b.size();
-        resize(position + sizeof(Int));
+        resize(position + sizeof(std::int32_t));
         write(v, &b[position]);
     }
 
@@ -593,10 +593,10 @@ public:
      * @param v The integer value to be written.
      * @param dest The buffer destination for the integer value.
      */
-    void write(Int v, Container::iterator dest)
+    void write(std::int32_t v, Container::iterator dest)
     {
 #ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Int) - 1;
+        const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(std::) - 1;
         *dest++ = *src--;
         *dest++ = *src--;
         *dest++ = *src--;
@@ -615,20 +615,20 @@ public:
      * @param begin The beginning of the sequence.
      * @param end The end of the sequence.
      */
-    void write(const Int* begin, const Int* end);
+    void write(const std::int32_t* begin, const std::int32_t* end);
 
     /**
      * Writes a long to the stream.
      * @param v The long to write.
      */
-    void write(Long v);
+    void write(std::int64_t v);
 
     /**
      * Writes a long sequence to the stream.
      * @param begin The beginning of the sequence.
      * @param end The end of the sequence.
      */
-    void write(const Long* begin, const Long* end);
+    void write(const std::int64_t* begin, const std::int64_t* end);
 
     /**
      * Writes a float to the stream.
@@ -664,7 +664,7 @@ public:
      */
     void write(const std::string& v, bool convert = true)
     {
-        Int sz = static_cast<Int>(v.size());
+        std::int32_t sz = static_cast<std::int32_t>(v.size());
         if(convert && sz > 0)
         {
             writeConverted(v.data(), static_cast<size_t>(sz));
@@ -690,7 +690,7 @@ public:
      */
     void write(const char* vdata, size_t vsize, bool convert = true)
     {
-        Int sz = static_cast<Int>(vsize);
+        std::int32_t sz = static_cast<std::int32_t>(vsize);
         if(convert && sz > 0)
         {
             writeConverted(vdata, vsize);
@@ -744,16 +744,28 @@ public:
      * Writes a proxy to the stream.
      * @param v The proxy to be written.
      */
-    void writeProxy(const ::std::shared_ptr<ObjectPrx>& v);
+    void writeProxy(const ObjectPrx& v);
+
+    /**
+     * Writes a null proxy to the stream.
+     */
+    void writeNullProxy();
 
     /**
      * Writes a proxy to the stream.
-     * @param v The proxy to be written.
+     * @param v The proxy to be write.
      */
-    template<typename T, typename ::std::enable_if<::std::is_base_of<ObjectPrx, T>::value>::type* = nullptr>
-    void write(const ::std::shared_ptr<T>& v)
+    template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+    void write(const std::optional<Prx>& v)
     {
-        writeProxy(::std::static_pointer_cast<ObjectPrx>(v));
+        if (v)
+        {
+            writeProxy(v.value());
+        }
+        else
+        {
+            writeNullProxy();
+        }
     }
 
     /**
@@ -772,7 +784,7 @@ public:
      * @param v The enumerator to be written.
      * @param maxValue The maximum value of all enumerators in this enumeration.
      */
-    void writeEnum(Int v, Int maxValue);
+    void writeEnum(std::int32_t v, std::int32_t maxValue);
 
     /**
      * Writes an exception to the stream.
@@ -795,7 +807,7 @@ public:
      * @param v The value to be written.
      * @param pos The buffer position for the value.
      */
-    void rewrite(Int v, size_type pos)
+    void rewrite(std::int32_t v, size_type pos)
     {
         write(v, b.begin() + pos);
     }
@@ -818,7 +830,7 @@ public:
     void initialize(IceInternal::Instance*, const EncodingVersion&);
 
     // Optionals
-    bool writeOptImpl(Int, OptionalFormat);
+    bool writeOptImpl(std::int32_t, OptionalFormat);
     /// \endcond
 
 private:
@@ -866,7 +878,7 @@ private:
         virtual void startSlice(const std::string&, int, bool) = 0;
         virtual void endSlice() = 0;
 
-        virtual bool writeOptional(Int, OptionalFormat)
+        virtual bool writeOptional(std::int32_t, OptionalFormat)
         {
             return false;
         }
@@ -881,13 +893,13 @@ private:
         {
         }
 
-        Int registerTypeId(const std::string&);
+        std::int32_t registerTypeId(const std::string&);
 
         OutputStream* _stream;
         Encaps* _encaps;
 
-        typedef std::map<std::shared_ptr<Value>, Int> PtrToIndexMap;
-        typedef std::map<std::string, Int> TypeIdMap;
+        typedef std::map<std::shared_ptr<Value>, std::int32_t> PtrToIndexMap;
+        typedef std::map<std::string, std::int32_t> TypeIdMap;
 
         // Encapsulation attributes for value marshaling.
         PtrToIndexMap _marshaledMap;
@@ -896,7 +908,7 @@ private:
 
         // Encapsulation attributes for value marshaling.
         TypeIdMap _typeIdMap;
-        Int _typeIdIndex;
+        std::int32_t _typeIdIndex;
     };
 
     class ICE_API EncapsEncoder10 : public EncapsEncoder
@@ -920,7 +932,7 @@ private:
 
     private:
 
-        Int registerValue(const std::shared_ptr<Value>&);
+        std::int32_t registerValue(const std::shared_ptr<Value>&);
 
         // Instance attributes
         SliceType _sliceType;
@@ -929,7 +941,7 @@ private:
         Container::size_type _writeSlice; // Position of the slice data members
 
         // Encapsulation attributes for value marshaling.
-        Int _valueIdIndex;
+        std::int32_t _valueIdIndex;
         PtrToIndexMap _toBeMarshaledMap;
     };
 
@@ -950,7 +962,7 @@ private:
         virtual void startSlice(const std::string&, int, bool);
         virtual void endSlice();
 
-        virtual bool writeOptional(Int, OptionalFormat);
+        virtual bool writeOptional(std::int32_t, OptionalFormat);
 
     private:
 
@@ -992,7 +1004,7 @@ private:
         InstanceData _preAllocatedInstanceData;
         InstanceData* _current;
 
-        Int _valueIdIndex; // The ID of the next value to marhsal
+        std::int32_t _valueIdIndex; // The ID of the next value to marhsal
     };
 
     class Encaps : private ::IceUtil::noncopyable

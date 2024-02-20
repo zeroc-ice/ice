@@ -26,7 +26,7 @@ IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const LargeFileI
 }
 
 FileInfoSeq
-IcePatch2::FileServerI::getFileInfoSeq(Int node0, const Current& c) const
+IcePatch2::FileServerI::getFileInfoSeq(int32_t node0, const Current& c) const
 {
    LargeFileInfoSeq largeFiles = getLargeFileInfoSeq(node0, c);
    FileInfoSeq files;
@@ -36,7 +36,7 @@ IcePatch2::FileServerI::getFileInfoSeq(Int node0, const Current& c) const
 }
 
 LargeFileInfoSeq
-IcePatch2::FileServerI::getLargeFileInfoSeq(Int node0, const Current&) const
+IcePatch2::FileServerI::getLargeFileInfoSeq(int32_t node0, const Current&) const
 {
     if(node0 < 0 || node0 > 255)
     {
@@ -68,8 +68,8 @@ IcePatch2::FileServerI::getChecksum(const Current&) const
 void
 IcePatch2::FileServerI::getFileCompressedAsync(
     string pa,
-    Int pos,
-    Int num,
+    int32_t pos,
+    int32_t num,
     function<void(const pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)> response,
     function<void(exception_ptr)> exception,
     const Current&) const
@@ -96,8 +96,8 @@ IcePatch2::FileServerI::getFileCompressedAsync(
 void
 IcePatch2::FileServerI::getLargeFileCompressedAsync(
     string pa,
-    Long pos,
-    Int num,
+    int64_t pos,
+    int32_t num,
     function<void(const pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)> response,
     function<void(exception_ptr)> exception,
     const Current&) const
@@ -125,8 +125,8 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
 void
 IcePatch2::FileServerI::getFileCompressedInternal(
     std::string pa,
-    Ice::Long pos,
-    Ice::Int num,
+    int64_t pos,
+    int32_t num,
     vector<Byte>& buffer,
     bool largeFile) const
 {
@@ -168,7 +168,7 @@ IcePatch2::FileServerI::getFileCompressedInternal(
         if(buf.st_size > 0x7FFFFFFF)
         {
             ostringstream os;
-            os << "cannot encode size `" << buf.st_size << "' for file `" << path << "' as Ice::Int" << endl;
+            os << "cannot encode size `" << buf.st_size << "' for file `" << path << "' as int32_t" << endl;
             throw FileAccessException(os.str());
         }
     }

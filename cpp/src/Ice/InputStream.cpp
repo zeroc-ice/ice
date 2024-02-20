@@ -19,6 +19,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
 #include <Ice/StringConverter.h>
+#include "ReferenceFactory.h"
 #include <iterator>
 
 #ifndef ICE_UNALIGNED
@@ -286,30 +287,30 @@ Ice::InputStream::resetEncapsulation()
     _preAllocatedEncaps.reset();
 }
 
-Int
+int32_t
 Ice::InputStream::getEncapsulationSize()
 {
     assert(_currentEncaps);
-    return _currentEncaps->sz - static_cast<Int>(sizeof(Int)) - 2;
+    return _currentEncaps->sz - static_cast<int32_t>(sizeof(int32_t)) - 2;
 }
 
 EncodingVersion
 Ice::InputStream::skipEncapsulation()
 {
-    Int sz;
+    int32_t sz;
     read(sz);
     if(sz < 6)
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    if(i - sizeof(Int) + sz > b.end())
+    if(i - sizeof(int32_t) + sz > b.end())
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     EncodingVersion encoding;
     read(encoding.major);
     read(encoding.minor);
-    i += static_cast<size_t>(sz) - sizeof(Int) - 2;
+    i += static_cast<size_t>(sz) - sizeof(int32_t) - 2;
     return encoding;
 }
 
@@ -335,10 +336,10 @@ Ice::InputStream::readPendingValues()
     }
 }
 
-Int
+int32_t
 Ice::InputStream::readAndCheckSeqSize(int minSize)
 {
-    Int sz = readSize();
+    int32_t sz = readSize();
 
     if(sz == 0)
     {
@@ -386,7 +387,7 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
 }
 
 void
-Ice::InputStream::readBlob(vector<Byte>& v, Int sz)
+Ice::InputStream::readBlob(vector<Byte>& v, int32_t sz)
 {
     if(sz > 0)
     {
@@ -422,7 +423,7 @@ Ice::InputStream::read(std::vector<Ice::Byte>& v)
 void
 Ice::InputStream::read(pair<const Byte*, const Byte*>& v)
 {
-    Int sz = readAndCheckSeqSize(1);
+    int32_t sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         v.first = i;
@@ -438,7 +439,7 @@ Ice::InputStream::read(pair<const Byte*, const Byte*>& v)
 void
 Ice::InputStream::read(vector<bool>& v)
 {
-    Int sz = readAndCheckSeqSize(1);
+    int32_t sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         v.resize(static_cast<size_t>(sz));
@@ -457,7 +458,7 @@ namespace
 template<size_t boolSize>
 struct ReadBoolHelper
 {
-    static bool* read(pair<const bool*, const bool*>& v, Int sz, InputStream::Container::iterator& i)
+    static bool* read(pair<const bool*, const bool*>& v, int32_t sz, InputStream::Container::iterator& i)
     {
         bool* array = new bool[static_cast<size_t>(sz)];
         for(int idx = 0; idx < sz; ++idx)
@@ -473,7 +474,7 @@ struct ReadBoolHelper
 template<>
 struct ReadBoolHelper<1>
 {
-    static bool* read(pair<const bool*, const bool*>& v, Int sz, InputStream::Container::iterator& i)
+    static bool* read(pair<const bool*, const bool*>& v, int32_t sz, InputStream::Container::iterator& i)
     {
         v.first = reinterpret_cast<bool*>(i);
         v.second = reinterpret_cast<bool*>(i) + sz;
@@ -486,7 +487,7 @@ struct ReadBoolHelper<1>
 void
 Ice::InputStream::read(pair<const bool*, const bool*>& v)
 {
-    Int sz = readAndCheckSeqSize(1);
+    int32_t sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         auto boolArray = ReadBoolHelper<sizeof(bool)>::read(v, sz, i);
@@ -525,7 +526,7 @@ Ice::InputStream::read(Short& v)
 void
 Ice::InputStream::read(vector<Short>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
     if(sz > 0)
     {
         Container::iterator begin = i;
@@ -553,7 +554,7 @@ Ice::InputStream::read(vector<Short>& v)
 void
 Ice::InputStream::read(pair<const short*, const short*>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
     if(sz > 0)
     {
 #ifdef ICE_UNALIGNED
@@ -589,24 +590,24 @@ Ice::InputStream::read(pair<const short*, const short*>& v)
 }
 
 void
-Ice::InputStream::read(vector<Int>& v)
+Ice::InputStream::read(vector<int32_t>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Int)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(int32_t)));
     if(sz > 0)
     {
         Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(Int));
+        i += sz * static_cast<int>(sizeof(int32_t));
         v.resize(static_cast<size_t>(sz));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Int) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(int32_t) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
-            dest += 2 * sizeof(Int);
+            dest += 2 * sizeof(int32_t);
         }
 #else
         copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -619,15 +620,15 @@ Ice::InputStream::read(vector<Int>& v)
 }
 
 void
-Ice::InputStream::read(pair<const Int*, const Int*>& v)
+Ice::InputStream::read(pair<const int32_t*, const int32_t*>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Int)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(int32_t)));
     if(sz > 0)
     {
 #ifdef ICE_UNALIGNED
-        v.first = reinterpret_cast<Int*>(i);
-        i += sz * static_cast<int>(sizeof(Int));
-        v.second = reinterpret_cast<Int*>(i);
+        v.first = reinterpret_cast<int32_t*>(i);
+        i += sz * static_cast<int>(sizeof(int32_t));
+        v.second = reinterpret_cast<int32_t*>(i);
 #else
 
         auto result = new int[static_cast<size_t>(sz)];
@@ -636,17 +637,17 @@ Ice::InputStream::read(pair<const Int*, const Int*>& v)
         v.second = result + sz;
 
         Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(Int));
+        i += sz * static_cast<int>(sizeof(int32_t));
 #  ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Int) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(int32_t) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
-            dest += 2 * sizeof(Int);
+            dest += 2 * sizeof(int32_t);
         }
 #  else
         copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
@@ -660,16 +661,16 @@ Ice::InputStream::read(pair<const Int*, const Int*>& v)
 }
 
 void
-Ice::InputStream::read(Long& v)
+Ice::InputStream::read(int64_t& v)
 {
-    if(b.end() - i < static_cast<int>(sizeof(Long)))
+    if(b.end() - i < static_cast<int>(sizeof(int64_t)))
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
-    i += sizeof(Long);
+    i += sizeof(int64_t);
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Long) - 1;
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(int64_t) - 1;
     *dest-- = *src++;
     *dest-- = *src++;
     *dest-- = *src++;
@@ -692,17 +693,17 @@ Ice::InputStream::read(Long& v)
 }
 
 void
-Ice::InputStream::read(vector<Long>& v)
+Ice::InputStream::read(vector<int64_t>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(int64_t)));
     if(sz > 0)
     {
         Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(Long));
+        i += sz * static_cast<int>(sizeof(int64_t));
         v.resize(static_cast<size_t>(sz));
 #ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Long) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(int64_t) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -713,7 +714,7 @@ Ice::InputStream::read(vector<Long>& v)
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
-            dest += 2 * sizeof(Long);
+            dest += 2 * sizeof(int64_t);
         }
 #else
         copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -726,27 +727,27 @@ Ice::InputStream::read(vector<Long>& v)
 }
 
 void
-Ice::InputStream::read(pair<const Long*, const Long*>& v)
+Ice::InputStream::read(pair<const int64_t*, const int64_t*>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(int64_t)));
     if(sz > 0)
     {
 #ifdef ICE_UNALIGNED
-        v.first = reinterpret_cast<Long*>(i);
-        i += sz * static_cast<int>(sizeof(Long));
-        v.second = reinterpret_cast<Long*>(i);
+        v.first = reinterpret_cast<int64_t*>(i);
+        i += sz * static_cast<int>(sizeof(int64_t));
+        v.second = reinterpret_cast<int64_t*>(i);
 #else
 
-        auto result = new long long[static_cast<size_t>(sz)];
+        auto result = new int64_t[static_cast<size_t>(sz)];
         _deleters.push_back([result] { delete[] result; });
         v.first = result;
         v.second = result + sz;
 
         Container::iterator begin = i;
-        i += sz * static_cast<int>(sizeof(Long));
+        i += sz * static_cast<int>(sizeof(int64_t));
 #  ifdef ICE_BIG_ENDIAN
         const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Long) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(int64_t) - 1;
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest-- = *src++;
@@ -757,7 +758,7 @@ Ice::InputStream::read(pair<const Long*, const Long*>& v)
             *dest-- = *src++;
             *dest-- = *src++;
             *dest-- = *src++;
-            dest += 2 * sizeof(Long);
+            dest += 2 * sizeof(int64_t);
         }
 #  else
         copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
@@ -797,7 +798,7 @@ Ice::InputStream::read(Float& v)
 void
 Ice::InputStream::read(vector<Float>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
     if(sz > 0)
     {
         Container::iterator begin = i;
@@ -827,7 +828,7 @@ Ice::InputStream::read(vector<Float>& v)
 void
 Ice::InputStream::read(pair<const Float*, const Float*>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
     if(sz > 0)
     {
 #ifdef ICE_UNALIGNED
@@ -900,7 +901,7 @@ Ice::InputStream::read(Double& v)
 void
 Ice::InputStream::read(vector<Double>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
     if(sz > 0)
     {
         Container::iterator begin = i;
@@ -934,7 +935,7 @@ Ice::InputStream::read(vector<Double>& v)
 void
 Ice::InputStream::read(pair<const Double*, const Double*>& v)
 {
-    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
+    int32_t sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
     if(sz > 0)
     {
 #ifdef ICE_UNALIGNED
@@ -979,7 +980,7 @@ Ice::InputStream::read(pair<const Double*, const Double*>& v)
 void
 Ice::InputStream::read(std::string& v, bool convert)
 {
-    Int sz = readSize();
+    int32_t sz = readSize();
     if(sz > 0)
     {
         if(b.end() - i < sz)
@@ -1095,7 +1096,7 @@ Ice::InputStream::readConverted(string& v, int sz)
 void
 Ice::InputStream::read(vector<string>& v, bool convert)
 {
-    Int sz = readAndCheckSeqSize(1);
+    int32_t sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         v.resize(static_cast<size_t>(sz));
@@ -1113,7 +1114,7 @@ Ice::InputStream::read(vector<string>& v, bool convert)
 void
 Ice::InputStream::read(wstring& v)
 {
-    Int sz = readSize();
+    int32_t sz = readSize();
     if(sz > 0)
     {
         if(b.end() - i < sz)
@@ -1165,19 +1166,28 @@ Ice::InputStream::read(vector<wstring>& v)
     }
 }
 
-shared_ptr<ObjectPrx>
-Ice::InputStream::readProxy()
+ReferencePtr
+Ice::InputStream::readReference()
 {
     if(!_instance)
     {
         throw MarshalException(__FILE__, __LINE__, "cannot unmarshal a proxy without a communicator");
     }
 
-    return _instance->proxyFactory()->streamToProxy(this);
+    Identity ident;
+    read(ident);
+    if (ident.name.empty())
+    {
+        return nullptr;
+    }
+    else
+    {
+        return _instance->referenceFactory()->create(ident, this);
+    }
 }
 
-Int
-Ice::InputStream::readEnum(Int maxValue)
+int32_t
+Ice::InputStream::readEnum(int32_t maxValue)
 {
     if(getEncoding() == Encoding_1_0)
     {
@@ -1195,7 +1205,7 @@ Ice::InputStream::readEnum(Int maxValue)
         }
         else
         {
-            Int value;
+            int32_t value;
             read(value);
             return value;
         }
@@ -1214,7 +1224,7 @@ Ice::InputStream::throwException(UserExceptionFactory factory)
 }
 
 bool
-Ice::InputStream::readOptImpl(Int readTag, OptionalFormat expectedFormat)
+Ice::InputStream::readOptImpl(int32_t readTag, OptionalFormat expectedFormat)
 {
     if(getEncoding() == Encoding_1_0)
     {
@@ -1237,7 +1247,7 @@ Ice::InputStream::readOptImpl(Int readTag, OptionalFormat expectedFormat)
         }
 
         OptionalFormat format = static_cast<OptionalFormat>(v & 0x07); // First 3 bits.
-        Int tag = static_cast<Int>(v >> 3);
+        int32_t tag = static_cast<int32_t>(v >> 3);
         if(tag == 30)
         {
             tag = readSize();
@@ -1303,7 +1313,7 @@ Ice::InputStream::skipOptional(OptionalFormat type)
         }
         case OptionalFormat::FSize:
         {
-            Int sz;
+            int32_t sz;
             read(sz);
             if(sz < 0)
             {
@@ -1341,7 +1351,7 @@ Ice::InputStream::skipOptionals()
         }
 
         OptionalFormat format = static_cast<OptionalFormat>(v & 0x07); // Read first 3 bits.
-        if(static_cast<Int>(v >> 3) == 30)
+        if(static_cast<int32_t>(v >> 3) == 30)
         {
             skipSize();
         }
@@ -1486,7 +1496,7 @@ Ice::InputStream::initEncaps()
     {
         _currentEncaps = &_preAllocatedEncaps;
         _currentEncaps->encoding = _encoding;
-        _currentEncaps->sz = static_cast<Ice::Int>(b.size());
+        _currentEncaps->sz = static_cast<int32_t>(b.size());
     }
 
     if(!_currentEncaps->decoder) // Lazy initialization.
@@ -1513,7 +1523,7 @@ Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
 {
     if(isIndex)
     {
-        Int index = _stream->readSize();
+        int32_t index = _stream->readSize();
         TypeIdMap::const_iterator k = _typeIdMap.find(index);
         if(k == _typeIdMap.end())
         {
@@ -1575,7 +1585,7 @@ Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
 }
 
 void
-Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, void* patchAddr)
+Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, PatchFunc patchFunc, void* patchAddr)
 {
     assert(index > 0);
 
@@ -1622,7 +1632,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, v
 }
 
 void
-Ice::InputStream::EncapsDecoder::unmarshal(Int index, const shared_ptr<Ice::Value>& v)
+Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const shared_ptr<Ice::Value>& v)
 {
     //
     // Add the object to the map of unmarshaled instances, this must
@@ -1701,7 +1711,7 @@ Ice::InputStream::EncapsDecoder10::read(PatchFunc patchFunc, void* patchAddr)
     //
     // Object references are encoded as a negative integer in 1.0.
     //
-    Int index;
+    int32_t index;
     _stream->read(index);
     if(index > 0)
     {
@@ -1828,7 +1838,7 @@ Ice::InputStream::EncapsDecoder10::endInstance(bool)
     if(_sliceType == ValueSlice)
     {
         startSlice();
-        Int sz = _stream->readSize(); // For compatibility with the old AFM.
+        int32_t sz = _stream->readSize(); // For compatibility with the old AFM.
         if(sz != 0)
         {
             throw MarshalException(__FILE__, __LINE__, "invalid Object slice");
@@ -1887,17 +1897,17 @@ Ice::InputStream::EncapsDecoder10::skipSlice()
 {
     _stream->traceSkipSlice(_typeId, _sliceType);
     assert(_sliceSize >= 4);
-    _stream->skip(static_cast<size_t>(_sliceSize) - sizeof(Int));
+    _stream->skip(static_cast<size_t>(_sliceSize) - sizeof(int32_t));
 }
 
 void
 Ice::InputStream::EncapsDecoder10::readPendingValues()
 {
-    Int num;
+    int32_t num;
     do
     {
         num = _stream->readSize();
-        for(Int k = num; k > 0; --k)
+        for(int32_t k = num; k > 0; --k)
         {
             readInstance();
         }
@@ -1917,7 +1927,7 @@ Ice::InputStream::EncapsDecoder10::readPendingValues()
 void
 Ice::InputStream::EncapsDecoder10::readInstance()
 {
-    Int index;
+    int32_t index;
     _stream->read(index);
 
     if(index <= 0)
@@ -2004,7 +2014,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
 void
 Ice::InputStream::EncapsDecoder11::read(PatchFunc patchFunc, void* patchAddr)
 {
-    Int index = _stream->readSize();
+    int32_t index = _stream->readSize();
     if(index < 0)
     {
         throw MarshalException(__FILE__, __LINE__, "invalid object id");
@@ -2239,7 +2249,7 @@ Ice::InputStream::EncapsDecoder11::endSlice()
         for(p = _current->indirectPatchList.begin(); p != _current->indirectPatchList.end(); ++p)
         {
             assert(p->index >= 0);
-            if(p->index >= static_cast<Int>(indirectionTable.size()))
+            if(p->index >= static_cast<int32_t>(indirectionTable.size()))
             {
                 throw MarshalException(__FILE__, __LINE__, "indirection out of range");
             }
@@ -2259,7 +2269,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     if(_current->sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
         assert(_current->sliceSize >= 4);
-        _stream->skip(static_cast<size_t>(_current->sliceSize) - sizeof(Int));
+        _stream->skip(static_cast<size_t>(_current->sliceSize) - sizeof(int32_t));
     }
     else
     {
@@ -2321,7 +2331,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
 }
 
 bool
-Ice::InputStream::EncapsDecoder11::readOptional(Ice::Int readTag, Ice::OptionalFormat expectedFormat)
+Ice::InputStream::EncapsDecoder11::readOptional(int32_t readTag, Ice::OptionalFormat expectedFormat)
 {
     if(!_current)
     {
@@ -2334,8 +2344,8 @@ Ice::InputStream::EncapsDecoder11::readOptional(Ice::Int readTag, Ice::OptionalF
     return false;
 }
 
-Int
-Ice::InputStream::EncapsDecoder11::readInstance(Int index, PatchFunc patchFunc, void* patchAddr)
+int32_t
+Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFunc, void* patchAddr)
 {
     assert(index > 0);
 

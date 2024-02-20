@@ -499,10 +499,9 @@ Ice.ProxyParseException = class extends Ice.LocalException
  **/
 Ice.IllegalIdentityException = class extends Ice.LocalException
 {
-    constructor(id = new Ice.Identity(), _cause = "")
+    constructor(_cause = "")
     {
         super(_cause);
-        this.id = id;
     }
 
     static get _parent()

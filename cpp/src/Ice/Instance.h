@@ -106,8 +106,8 @@ public:
     const ACMConfig& clientACM() const;
     const ACMConfig& serverACM() const;
 
-    Ice::ObjectPrxPtr createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
-    Ice::ObjectPrxPtr getAdmin();
+    Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
+    std::optional<Ice::ObjectPrx> getAdmin();
     void addAdminFacet(const std::shared_ptr<Ice::Object>&, const std::string&);
     std::shared_ptr<Ice::Object> removeAdminFacet(const std::string&);
     std::shared_ptr<Ice::Object> findAdminFacet(const std::string&);
@@ -118,8 +118,8 @@ public:
         return _implicitContext;
     }
 
-    void setDefaultLocator(const Ice::LocatorPrxPtr&);
-    void setDefaultRouter(const Ice::RouterPrxPtr&);
+    void setDefaultLocator(const std::optional<Ice::LocatorPrx>&);
+    void setDefaultRouter(const std::optional<Ice::RouterPrx>&);
 
     void setLogger(const Ice::LoggerPtr&);
     void setThreadHook(std::function<void()>, std::function<void()>);
@@ -205,7 +205,7 @@ public:
     ProcessI(const Ice::CommunicatorPtr&);
 
     virtual void shutdown(const Ice::Current&);
-    virtual void writeMessage(std::string, Ice::Int, const Ice::Current&);
+    virtual void writeMessage(std::string, std::int32_t, const Ice::Current&);
 
 private:
 

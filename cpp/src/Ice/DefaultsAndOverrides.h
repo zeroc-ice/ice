@@ -35,11 +35,11 @@ public:
     Ice::FormatType defaultFormat;
 
     bool overrideTimeout;
-    Ice::Int overrideTimeoutValue;
+    std::int32_t overrideTimeoutValue;
     bool overrideConnectTimeout;
-    Ice::Int overrideConnectTimeoutValue;
+    std::int32_t overrideConnectTimeoutValue;
     bool overrideCloseTimeout;
-    Ice::Int overrideCloseTimeoutValue;
+    std::int32_t overrideCloseTimeoutValue;
     bool overrideCompress;
     bool overrideCompressValue;
     bool overrideSecure;

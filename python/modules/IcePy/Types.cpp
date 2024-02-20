@@ -34,7 +34,7 @@ static ClassInfoMap _classInfoMap;
 typedef map<string, ValueInfoPtr> ValueInfoMap;
 static ValueInfoMap _valueInfoMap;
 
-typedef map<Ice::Int, ValueInfoPtr> CompactIdMap;
+typedef map<int32_t, ValueInfoPtr> CompactIdMap;
 static CompactIdMap _compactIdMap;
 
 typedef map<string, ProxyInfoPtr> ProxyInfoMap;
@@ -851,12 +851,12 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         long val = PyLong_AsLong(p);
         assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= INT_MIN && val <= INT_MAX); // validate() should have caught this.
-        os->write(static_cast<Ice::Int>(val));
+        os->write(static_cast<int32_t>(val));
         break;
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long val = PyLong_AsLongLong(p);
+        int64_t val = PyLong_AsLongLong(p);
         assert(!PyErr_Occurred()); // validate() should have caught this.
         os->write(val);
         break;
@@ -933,7 +933,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindInt:
     {
-        Ice::Int val;
+        int32_t val;
         is->read(val);
         PyObjectHandle p = PyLong_FromLong(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -941,7 +941,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long val;
+        int64_t val;
         is->read(val);
         PyObjectHandle p = PyLong_FromLongLong(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -1006,7 +1006,7 @@ IcePy::EnumInfo::EnumInfo(const string& ident, PyObject* t, PyObject* e) :
     while(PyDict_Next(e, &pos, &key, &value))
     {
         assert(PyLong_Check(key));
-        const Ice::Int val = static_cast<Ice::Int>(PyLong_AsLong(key));
+        const int32_t val = static_cast<int32_t>(PyLong_AsLong(key));
         assert(enumerators.find(val) == enumerators.end());
 
         Py_INCREF(value);
@@ -1015,7 +1015,7 @@ IcePy::EnumInfo::EnumInfo(const string& ident, PyObject* t, PyObject* e) :
 
         if(val > maxValue)
         {
-            const_cast<Ice::Int&>(maxValue) = val;
+            const_cast<int32_t&>(maxValue) = val;
         }
     }
 }
@@ -1056,7 +1056,7 @@ IcePy::EnumInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool /*
     //
     // Validate value.
     //
-    const Ice::Int val = valueForEnumerator(p);
+    const int32_t val = valueForEnumerator(p);
     if(val < 0)
     {
         assert(PyErr_Occurred());
@@ -1070,7 +1070,7 @@ void
 IcePy::EnumInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target,
                            void* closure, bool, const Ice::StringSeq*)
 {
-    Ice::Int val = is->readEnum(maxValue);
+    int32_t val = is->readEnum(maxValue);
 
     PyObjectHandle p = enumeratorForValue(val);
     if(!p.get())
@@ -1107,7 +1107,7 @@ IcePy::EnumInfo::destroy()
     const_cast<EnumeratorMap&>(enumerators).clear();
 }
 
-Ice::Int
+int32_t
 IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
 {
     assert(PyObject_IsInstance(p, pythonType) == 1);
@@ -1123,7 +1123,7 @@ IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
         PyErr_Format(PyExc_ValueError, STRCAST("value for enum %s is not an int"), id.c_str());
         return -1;
     }
-    const Ice::Int val = static_cast<Ice::Int>(PyLong_AsLong(v.get()));
+    const int32_t val = static_cast<int32_t>(PyLong_AsLong(v.get()));
     if(enumerators.find(val) == enumerators.end())
     {
         PyErr_Format(PyExc_ValueError, STRCAST("illegal value %d for enum %s"), val, id.c_str());
@@ -1134,7 +1134,7 @@ IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
 }
 
 PyObject*
-IcePy::EnumInfo::enumeratorForValue(Ice::Int v) const
+IcePy::EnumInfo::enumeratorForValue(int32_t v) const
 {
     EnumeratorMap::const_iterator p = enumerators.find(v);
     if(p == enumerators.end())
@@ -1546,7 +1546,7 @@ IcePy::SequenceInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* obje
                 }
             }
 
-            const Ice::Int isz = static_cast<Ice::Int>(sz);
+            const int32_t isz = static_cast<int32_t>(sz);
             os->writeSize(isz == 0 ? 1 : isz * elementType->wireSize() + (isz > 254 ? 5 : 1));
         }
     }
@@ -1647,7 +1647,7 @@ IcePy::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
         return;
     }
 
-    Ice::Int sz = is->readSize();
+    int32_t sz = is->readSize();
     PyObjectHandle result = sm->createContainer(sz);
 
     if(!result.get())
@@ -1656,7 +1656,7 @@ IcePy::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
         throw AbortMarshaling();
     }
 
-    for(Ice::Int i = 0; i < sz; ++i)
+    for(int32_t i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(static_cast<Py_ssize_t>(i));
         elementType->unmarshal(is, sm, result.get(), cl, false);
@@ -1825,14 +1825,14 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
                 case PrimitiveInfo::KindInt:
                 {
-                    os->write(reinterpret_cast<const Ice::Int*>(b),
-                              reinterpret_cast<const Ice::Int*>(b + sz));
+                    os->write(reinterpret_cast<const int32_t*>(b),
+                              reinterpret_cast<const int32_t*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindLong:
                 {
-                    os->write(reinterpret_cast<const Ice::Long*>(b),
-                              reinterpret_cast<const Ice::Long*>(b + sz));
+                    os->write(reinterpret_cast<const int64_t*>(b),
+                              reinterpret_cast<const int64_t*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindFloat:
@@ -1978,7 +1978,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                              static_cast<int>(i));
                 throw AbortMarshaling();
             }
-            seq[static_cast<size_t>(i)] = static_cast<Ice::Int>(val);
+            seq[static_cast<size_t>(i)] = static_cast<int32_t>(val);
         }
         os->write(seq);
         break;
@@ -1996,7 +1996,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 throw AbortMarshaling();
             }
 
-            Ice::Long val = PyLong_AsLongLong(item);
+            int64_t val = PyLong_AsLongLong(item);
 
             if(PyErr_Occurred())
             {
@@ -2246,7 +2246,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindInt:
     {
-        pair<const Ice::Int*, const Ice::Int*> p;
+        pair<const int32_t*, const int32_t*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)
@@ -2277,7 +2277,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindLong:
     {
-        pair<const Ice::Long*, const Ice::Long*> p;
+        pair<const int64_t*, const int64_t*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)
@@ -2768,7 +2768,7 @@ IcePy::DictionaryInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* ob
         throw AbortMarshaling();
     }
 
-    const Ice::Int sz = p == Py_None ? 0 : static_cast<Ice::Int>(PyDict_Size(p));
+    const int32_t sz = p == Py_None ? 0 : static_cast<int32_t>(PyDict_Size(p));
 
     Ice::OutputStream::size_type sizePos = 0;
     if(optional)
@@ -2844,8 +2844,8 @@ IcePy::DictionaryInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPt
     KeyCallbackPtr keyCB = make_shared<KeyCallback>();
     keyCB->key = 0;
 
-    Ice::Int sz = is->readSize();
-    for(Ice::Int i = 0; i < sz; ++i)
+    int32_t sz = is->readSize();
+    for(int32_t i = 0; i < sz; ++i)
     {
         //
         // A dictionary key cannot be a class (or contain one), so the key must be
@@ -3402,19 +3402,20 @@ IcePy::ProxyInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool o
         sizePos = os->startSize();
     }
 
-    if(p == Py_None)
+    std::optional<Ice::ObjectPrx> proxy;
+
+    if(p != Py_None)
     {
-        shared_ptr<Ice::ObjectPrx> proxy;
-        os->write(proxy);
+        if(checkProxy(p))
+        {
+            proxy = getProxy(p);
+        }
+        else
+        {
+            assert(false); // validate() should have caught this.
+        }
     }
-    else if(checkProxy(p))
-    {
-        os->write(getProxy(p));
-    }
-    else
-    {
-        assert(false); // validate() should have caught this.
-    }
+    os->write(proxy);
 
     if(optional)
     {
@@ -3431,7 +3432,7 @@ IcePy::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb
         is->skip(4);
     }
 
-    shared_ptr<Ice::ObjectPrx> proxy;
+    std::optional<Ice::ObjectPrx> proxy;
     is->read(proxy);
 
     if(!proxy)
@@ -3446,7 +3447,7 @@ IcePy::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb
         throw AbortMarshaling();
     }
 
-    PyObjectHandle p = createProxy(proxy, proxy->ice_getCommunicator(), pythonType);
+    PyObjectHandle p = createProxy(proxy.value(), proxy->ice_getCommunicator(), pythonType);
     cb->unmarshaled(p.get(), target, closure);
 }
 
@@ -4105,7 +4106,7 @@ IcePy::ExceptionReader::getSlicedData() const
 // IdResolver
 //
 string
-IcePy::resolveCompactId(Ice::Int id)
+IcePy::resolveCompactId(int32_t id)
 {
     CompactIdMap::iterator p = _compactIdMap.find(id);
     if(p != _compactIdMap.end())

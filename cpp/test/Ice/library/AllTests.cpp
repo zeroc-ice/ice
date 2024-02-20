@@ -6,7 +6,7 @@
 #include <Test.h>
 
 ICE_DECLSPEC_IMPORT void
-consume(const Ice::ObjectPtr&, const Ice::ObjectPrxPtr&);
+consume(const Ice::ObjectPtr&, const Ice::ObjectPrx&);
 
 #if defined(_MSC_VER)
 #   pragma comment(lib, ICE_LIBNAME("consumer"))
@@ -33,6 +33,6 @@ ICE_DECLSPEC_EXPORT
 void allTests(const Ice::ObjectAdapterPtr& oa)
 {
     Test::MyInterfacePtr servant = std::make_shared<TestI>();
-    Test::MyInterfacePrxPtr proxy = Ice::uncheckedCast<Test::MyInterfacePrx>(oa->addWithUUID(servant));
+    Test::MyInterfacePrx proxy = Ice::uncheckedCast<Test::MyInterfacePrx>(oa->addWithUUID(servant));
     consume(servant, proxy);
 }

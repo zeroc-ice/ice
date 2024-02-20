@@ -23,8 +23,8 @@ public:
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
 
-    virtual Ice::Int timeout() const;
-    virtual EndpointIPtr timeout(Ice::Int) const;
+    virtual std::int32_t timeout() const;
+    virtual EndpointIPtr timeout(std::int32_t) const;
     virtual const std::string& connectionId() const;
     virtual EndpointIPtr connectionId(const ::std::string&) const;
     virtual bool compress() const;
@@ -41,7 +41,7 @@ public:
     virtual std::vector<EndpointIPtr> expandIfWildcard() const;
     virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
     virtual bool equivalent(const EndpointIPtr&) const;
-    virtual Ice::Int hash() const;
+    virtual std::int32_t hash() const;
     virtual std::string options() const;
 
     virtual bool operator==(const Ice::Endpoint&) const;

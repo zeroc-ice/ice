@@ -71,15 +71,15 @@ class StreamEndpointI final : public IceInternal::IPEndpointI
 {
 public:
 
-    StreamEndpointI(const InstancePtr&, const std::string&, Ice::Int, const IceInternal::Address&, Ice::Int,
+    StreamEndpointI(const InstancePtr&, const std::string&, std::int32_t, const IceInternal::Address&, std::int32_t,
                     const std::string&, bool);
     StreamEndpointI(const InstancePtr&);
     StreamEndpointI(const InstancePtr&, Ice::InputStream*);
 
     Ice::EndpointInfoPtr getInfo() const noexcept final;
 
-    Ice::Int timeout() const final;
-    IceInternal::EndpointIPtr timeout(Ice::Int) const final;
+    std::int32_t timeout() const final;
+    IceInternal::EndpointIPtr timeout(std::int32_t) const final;
     bool compress() const final;
     IceInternal::EndpointIPtr compress(bool) const final;
     bool datagram() const final;
@@ -108,7 +108,7 @@ public:
 protected:
 
     void streamWriteImpl(Ice::OutputStream*) const final;
-    void hashInit(Ice::Int&) const final;
+    void hashInit(std::int32_t&) const final;
     bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
     IceInternal::ConnectorPtr createConnector(const IceInternal::Address&,
@@ -122,7 +122,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
-    const Ice::Int _timeout;
+    const std::int32_t _timeout;
     const bool _compress;
 };
 

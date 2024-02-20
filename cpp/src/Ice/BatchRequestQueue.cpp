@@ -6,6 +6,7 @@
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
 #include <Ice/Reference.h>
+#include "Ice/Proxy.h"
 
 using namespace std;
 using namespace Ice;
@@ -20,7 +21,7 @@ class BatchRequestI : public Ice::BatchRequest
 {
 public:
 
-    BatchRequestI(BatchRequestQueue& queue, const Ice::ObjectPrxPtr& proxy, const string& operation, int size) :
+    BatchRequestI(BatchRequestQueue& queue, const Ice::ObjectPrx& proxy, const string& operation, int size) :
         _queue(queue), _proxy(proxy), _operation(operation), _size(size)
     {
     }
@@ -43,7 +44,7 @@ public:
         return _operation;
     }
 
-    virtual const Ice::ObjectPrxPtr&
+    virtual const Ice::ObjectPrx&
     getProxy() const
     {
         return _proxy;
@@ -52,7 +53,7 @@ public:
 private:
 
     BatchRequestQueue& _queue;
-    const Ice::ObjectPrxPtr& _proxy;
+    const Ice::ObjectPrx& _proxy;
     const std::string& _operation;
     const int _size;
 };
@@ -98,7 +99,7 @@ BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 
 void
 BatchRequestQueue::finishBatchRequest(OutputStream* os,
-                                      const Ice::ObjectPrxPtr& proxy,
+                                      const Ice::ObjectPrx& proxy,
                                       const std::string& operation)
 {
     //
@@ -215,7 +216,7 @@ BatchRequestQueue::isEmpty()
 }
 
 void
-BatchRequestQueue::enqueueBatchRequest(const Ice::ObjectPrxPtr& proxy)
+BatchRequestQueue::enqueueBatchRequest(const Ice::ObjectPrx& proxy)
 {
     assert(_batchMarker < _batchStream.b.size());
     bool compress;

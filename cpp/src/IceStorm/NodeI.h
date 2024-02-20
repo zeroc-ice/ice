@@ -24,8 +24,8 @@ class NodeI final : public Node, public std::enable_shared_from_this<NodeI>
 {
 public:
 
-    NodeI(const std::shared_ptr<IceStorm::Instance>&, std::shared_ptr<Replica>, std::shared_ptr<Ice::ObjectPrx>,
-          int, const std::map<int, std::shared_ptr<NodePrx>>&);
+    NodeI(const std::shared_ptr<IceStorm::Instance>&, std::shared_ptr<Replica>, Ice::ObjectPrxPtr,
+          int, const std::map<int, NodePrxPtr>&);
 
     void start();
 
@@ -34,23 +34,23 @@ public:
     void merge(const std::set<int>&);
     void mergeContinue();
     void invitation(int, std::string, const Ice::Current&) override;
-    void ready(int, std::string, std::shared_ptr<Ice::ObjectPrx>, int, Ice::Long, const Ice::Current&) override;
-    void accept(int, std::string, Ice::IntSeq, std::shared_ptr<Ice::ObjectPrx>, LogUpdate, int,
+    void ready(int, std::string, Ice::ObjectPrxPtr, int, std::int64_t, const Ice::Current&) override;
+    void accept(int, std::string, Ice::IntSeq, Ice::ObjectPrxPtr, LogUpdate, int,
                 const Ice::Current&) override;
     bool areYouCoordinator(const Ice::Current&) const override;
     bool areYouThere(std::string, int, const Ice::Current&) const override;
-    std::shared_ptr<Ice::ObjectPrx> sync(const Ice::Current&) const override;
+    Ice::ObjectPrxPtr sync(const Ice::Current&) const override;
     NodeInfoSeq nodes(const Ice::Current&) const override;
     QueryInfo query(const Ice::Current&) const override;
-    void recovery(Ice::Long = -1);
+    void recovery(std::int64_t = -1);
 
     void destroy();
 
     // Notify the node that we're about to start an update.
-    void checkObserverInit(Ice::Long);
-    std::shared_ptr<Ice::ObjectPrx> startUpdate(Ice::Long&, const char*, int);
-    std::shared_ptr<Ice::ObjectPrx> startCachedRead(Ice::Long&, const char*, int);
-    void startObserverUpdate(Ice::Long, const char*, int);
+    void checkObserverInit(std::int64_t);
+    Ice::ObjectPrxPtr startUpdate(std::int64_t&, const char*, int);
+    Ice::ObjectPrxPtr startCachedRead(std::int64_t&, const char*, int);
+    void startObserverUpdate(std::int64_t, const char*, int);
     bool updateMaster(const char*, int);
 
     // The node has completed the update.
@@ -64,11 +64,11 @@ private:
     const std::shared_ptr<IceStorm::TraceLevels> _traceLevels;
     const std::shared_ptr<IceStormElection::Observers> _observers;
     const std::shared_ptr<Replica> _replica; // The replica.
-    const std::shared_ptr<Ice::ObjectPrx> _replicaProxy; // A proxy to the individual replica.
+    const Ice::ObjectPrxPtr _replicaProxy; // A proxy to the individual replica.
 
     const int _id; // My node id.
-    const std::map<int, std::shared_ptr<NodePrx>> _nodes; // The nodes indexed by their id.
-    const std::map<int, std::shared_ptr<NodePrx>> _nodesOneway; // The nodes indexed by their id (as oneway proxies).
+    const std::map<int, NodePrxPtr> _nodes; // The nodes indexed by their id.
+    const std::map<int, NodePrxPtr> _nodesOneway; // The nodes indexed by their id (as oneway proxies).
 
     const std::chrono::seconds _masterTimeout;
     const std::chrono::seconds _electionTimeout;
@@ -85,9 +85,9 @@ private:
     std::set<int> _invitesAccepted; // The accepted invitations.
 
     unsigned int _max; // The highest group count I've seen.
-    Ice::Long _generation; // The current generation (or -1 if not set).
+    std::int64_t _generation; // The current generation (or -1 if not set).
 
-    std::shared_ptr<Ice::ObjectPrx> _coordinatorProxy;
+    Ice::ObjectPrxPtr _coordinatorProxy;
     bool _destroy;
 
     IceUtil::TimerTaskPtr _mergeTask;
@@ -142,20 +142,20 @@ public:
         }
     }
 
-    std::shared_ptr<Ice::ObjectPrx>
+    Ice::ObjectPrxPtr
     getMaster() const
     {
         return _master;
     }
 
-    Ice::Long
+    std::int64_t
     generation() const
     {
         return _generation;
     }
 
     bool
-    observerPrecondition(Ice::Long generation) const
+    observerPrecondition(std::int64_t generation) const
     {
         return generation == _generation && _master;
     }
@@ -163,15 +163,15 @@ public:
 private:
 
     const std::shared_ptr<NodeI> _node;
-    std::shared_ptr<Ice::ObjectPrx> _master;
-    Ice::Long _generation;
+    Ice::ObjectPrxPtr _master;
+    std::int64_t _generation;
 };
 
 class ObserverUpdateHelper
 {
 public:
 
-    ObserverUpdateHelper(std::shared_ptr<NodeI> node, Ice::Long generation, const char* file, int line) :
+    ObserverUpdateHelper(std::shared_ptr<NodeI> node, std::int64_t generation, const char* file, int line) :
         _node(std::move(node))
     {
         if(_node)

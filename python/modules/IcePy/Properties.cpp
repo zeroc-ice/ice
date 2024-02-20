@@ -257,7 +257,7 @@ propertiesGetPropertyAsInt(PropertiesObject* self, PyObject* args)
     }
 
     assert(self->properties);
-    Ice::Int value;
+    int32_t value;
     try
     {
         value = (*self->properties)->getPropertyAsInt(key);
@@ -291,7 +291,7 @@ propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
     }
 
     assert(self->properties);
-    Ice::Int value;
+    int32_t value;
     try
     {
         value = (*self->properties)->getPropertyAsIntWithDefault(key, def);

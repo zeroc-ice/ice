@@ -30,8 +30,8 @@ Client::run(int argc, char** argv)
     properties->setProperty("IceSSL.KeychainPassword", "password");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     cout << "testing proxy hash algorithm collisions... " << flush;
-    map<Ice::Int, Ice::ObjectPrxPtr> seenProxy;
-    map<Ice::Int, Ice::EndpointPtr> seenEndpoint;
+    map<int32_t, Ice::ObjectPrxPtr> seenProxy;
+    map<int32_t, Ice::EndpointPtr> seenEndpoint;
     unsigned int proxyCollisions = 0;
     unsigned int i = 0;
     unsigned int maxCollisions = 10;

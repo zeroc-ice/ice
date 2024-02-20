@@ -104,7 +104,7 @@ convertException(const std::exception& exc)
         }
         catch(const Ice::IllegalIdentityException& e)
         {
-            return [factory illegalIdentityException:toNSString(e.id.name) category:toNSString(e.id.category) file:toNSString(e.ice_file()) line:e.ice_line()];
+            return [factory illegalIdentityException:toNSString(e.ice_file()) line:e.ice_line()];
         }
         catch(const Ice::IllegalServantException& e)
         {

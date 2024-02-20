@@ -43,7 +43,7 @@ TimeoutI::sendData(Test::ByteSeq, const Ice::Current&)
 }
 
 void
-TimeoutI::sleep(Ice::Int to, const Ice::Current&)
+TimeoutI::sleep(int32_t to, const Ice::Current&)
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(to));
 }
@@ -53,7 +53,7 @@ ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapte
 }
 
 void
-ControllerI::holdAdapter(Ice::Int to, const Ice::Current&)
+ControllerI::holdAdapter(int32_t to, const Ice::Current&)
 {
     _adapter->hold();
 

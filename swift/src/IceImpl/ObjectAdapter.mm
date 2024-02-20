@@ -140,7 +140,11 @@
 {
     try
     {
-        auto l = locator ? [locator prx] : nullptr;
+        std::optional<Ice::ObjectPrx> l;
+        if (locator)
+        {
+            l = [locator prx];
+        }
         self.objectAdapter->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
@@ -160,7 +164,14 @@
 -(nullable ICEObjectPrx*) getLocator
 {
     auto prx = self.objectAdapter->getLocator();
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
+    if (prx)
+    {
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx.value()];
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 -(NSArray<ICEEndpoint*>*) getEndpoints

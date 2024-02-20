@@ -23,12 +23,12 @@ public:
     virtual int opWithResultAndUE(const Ice::Current&);
     virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
     virtual void opBatch(const Ice::Current&);
-    virtual Ice::Int opBatchCount(const Ice::Current&);
-    virtual void opWithArgs(Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&,
-                            Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, const Ice::Current&);
-    virtual bool waitForBatch(Ice::Int, const Ice::Current&);
+    virtual std::int32_t opBatchCount(const Ice::Current&);
+    virtual void opWithArgs(std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&,
+                            std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, const Ice::Current&);
+    virtual bool waitForBatch(std::int32_t, const Ice::Current&);
     virtual void close(Test::CloseMode, const Ice::Current&);
-    virtual void sleep(Ice::Int, const Ice::Current&);
+    virtual void sleep(std::int32_t, const Ice::Current&);
     virtual void startDispatchAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
                                     const Ice::Current&);
     virtual void finishDispatch(const Ice::Current&);
@@ -67,7 +67,7 @@ class TestIntfII : public virtual Test::Outer::Inner::TestIntf
 {
 public:
 
-    Ice::Int op(Ice::Int, Ice::Int&, const Ice::Current&);
+    std::int32_t op(std::int32_t, std::int32_t&, const Ice::Current&);
 };
 
 #endif

@@ -17,7 +17,7 @@ class TcpConnector final : public Connector
 {
 public:
 
-    TcpConnector(const ProtocolInstancePtr&, const Address&, const NetworkProxyPtr&, const Address&, Ice::Int,
+    TcpConnector(const ProtocolInstancePtr&, const Address&, const NetworkProxyPtr&, const Address&, std::int32_t,
                  const std::string&);
     ~TcpConnector();
     TransceiverPtr connect() final;
@@ -34,7 +34,7 @@ private:
     const Address _addr;
     const NetworkProxyPtr _proxy;
     const Address _sourceAddr;
-    const Ice::Int _timeout;
+    const std::int32_t _timeout;
     const std::string _connectionId;
 };
 

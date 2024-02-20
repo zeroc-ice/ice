@@ -77,6 +77,7 @@ public:
             add("service", &SubscriberHelper::getService);
 
             add("identity", &SubscriberHelper::getIdentity);
+
             add("facet", &SubscriberHelper::getProxy, &Ice::ObjectPrx::ice_getFacet);
             add("encoding", &SubscriberHelper::getProxy, &Ice::ObjectPrx::ice_getEncodingVersion);
             add("mode", &SubscriberHelper::getMode);
@@ -89,8 +90,8 @@ public:
     };
     static Attributes attributes;
 
-    SubscriberHelper(const string& svc, const string& topic, const shared_ptr<Ice::ObjectPrx>& proxy,
-                     const IceStorm::QoS& qos, shared_ptr<IceStorm::TopicPrx> link, SubscriberState state) :
+    SubscriberHelper(const string& svc, const string& topic, const Ice::ObjectPrxPtr& proxy,
+                     const IceStorm::QoS& qos, IceStorm::TopicPrxPtr link, SubscriberState state) :
         _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(std::move(link)), _state(state)
     {
     }
@@ -175,7 +176,7 @@ public:
         return _id;
     }
 
-    const shared_ptr<Ice::ObjectPrx>&
+    const Ice::ObjectPrxPtr&
     getProxy() const
     {
         return _proxy;
@@ -208,9 +209,9 @@ private:
 
     const string& _service;
     const string& _topic;
-    const shared_ptr<Ice::ObjectPrx>& _proxy;
+    const Ice::ObjectPrxPtr& _proxy;
     const IceStorm::QoS& _qos;
-    const shared_ptr<IceStorm::TopicPrx> _link;
+    const IceStorm::TopicPrxPtr _link;
     const SubscriberState _state;
     mutable string _id;
 };
@@ -348,9 +349,9 @@ TopicManagerObserverI::getTopicObserver(const string& service, const string& top
 shared_ptr<SubscriberObserver>
 TopicManagerObserverI::getSubscriberObserver(const string& svc,
                                              const string& topic,
-                                             const shared_ptr<Ice::ObjectPrx>& proxy,
+                                             const Ice::ObjectPrxPtr& proxy,
                                              const IceStorm::QoS& qos,
-                                             const shared_ptr<IceStorm::TopicPrx>& link,
+                                             const IceStorm::TopicPrxPtr& link,
                                              SubscriberState state,
                                              const shared_ptr<SubscriberObserver>& old)
 {

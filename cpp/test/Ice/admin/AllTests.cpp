@@ -256,7 +256,7 @@ allTests(Test::TestHelper* helper)
         }
 
         Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("");
-        test(com->createAdmin(adapter, id));
+        com->createAdmin(adapter, id);
         test(com->getAdmin());
 
         testFacets(com);
@@ -295,7 +295,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         proc->shutdown();
         com->waitForShutdown();
         com->destroy();
@@ -312,7 +312,7 @@ allTests(Test::TestHelper* helper)
         props["Prop3"] = "3";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         //
         // Test: PropertiesAdmin::getProperty()
         //
@@ -394,7 +394,7 @@ allTests(Test::TestHelper* helper)
         com->print("print");
 
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::LoggerAdminPrx> logger = Ice::checkedCast<Ice::LoggerAdminPrx>(obj, "Logger");
+        Ice::LoggerAdminPrxPtr logger = Ice::checkedCast<Ice::LoggerAdminPrx>(obj, "Logger");
         test(logger);
 
         string prefix;
@@ -567,7 +567,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         tf->op();
         com->destroy();
     }
@@ -585,9 +585,9 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Properties";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         test(!proc);
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         test(!tf);
         com->destroy();
     }
@@ -602,9 +602,9 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Process";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         test(!tf);
         com->destroy();
     }
@@ -619,9 +619,9 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "TestFacet";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         test(!proc);
         com->destroy();
     }
@@ -636,11 +636,11 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Properties TestFacet";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(pa->getProperty("Ice.Admin.InstanceName") == "Test");
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         tf->op();
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         test(!proc);
         com->destroy();
     }
@@ -655,11 +655,11 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "TestFacet, Process";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         tf->op();
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         proc->shutdown();
         com->waitForShutdown();
         com->destroy();

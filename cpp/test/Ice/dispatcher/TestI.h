@@ -16,7 +16,7 @@ class TestIntfI : public virtual Test::TestIntf
 public:
 
     virtual void op(const Ice::Current&);
-    virtual void sleep(Ice::Int, const Ice::Current&);
+    virtual void sleep(std::int32_t, const Ice::Current&);
     virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };

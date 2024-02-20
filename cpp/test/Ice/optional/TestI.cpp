@@ -33,7 +33,7 @@ InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 }
 
 void
-InitialI::opOptionalException(optional<Int> a,
+InitialI::opOptionalException(optional<int32_t> a,
                               optional<string> b,
                               optional<OneOptionalPtr> o,
                               const Ice::Current&)
@@ -46,7 +46,7 @@ InitialI::opOptionalException(optional<Int> a,
 }
 
 void
-InitialI::opDerivedException(optional<Int> a,
+InitialI::opDerivedException(optional<int32_t> a,
                              optional<string> b,
                              optional<OneOptionalPtr> o,
                              const Ice::Current&)
@@ -63,7 +63,7 @@ InitialI::opDerivedException(optional<Int> a,
 }
 
 void
-InitialI::opRequiredException(optional<Int> a,
+InitialI::opRequiredException(optional<int32_t> a,
                               optional<string> b,
                               optional<OneOptionalPtr> o,
                               const Ice::Current&)
@@ -104,15 +104,15 @@ InitialI::opShort(optional<Short> p1, optional<Short>& p3, const Current&)
     return p1;
 }
 
-optional<Int>
-InitialI::opInt(optional<Int> p1, optional<Int>& p3, const Current&)
+optional<int32_t>
+InitialI::opInt(optional<int32_t> p1, optional<int32_t>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-optional<Long>
-InitialI::opLong(optional<Long> p1, optional<Long>& p3, const Current&)
+optional<int64_t>
+InitialI::opLong(optional<int64_t> p1, optional<int64_t>& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -224,7 +224,7 @@ InitialI::opShortSeq(optional<pair<const Short*, const Short*> > p1, optional<Te
 }
 
 optional<Test::IntSeq>
-InitialI::opIntSeq(optional<pair<const Int*, const Int*> > p1, optional<Test::IntSeq>& p3, const Current&)
+InitialI::opIntSeq(optional<pair<const int32_t*, const int32_t*> > p1, optional<Test::IntSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -234,7 +234,7 @@ InitialI::opIntSeq(optional<pair<const Int*, const Int*> > p1, optional<Test::In
 }
 
 optional<Test::LongSeq>
-InitialI::opLongSeq(optional<pair<const Long*, const Long*> > p1, optional<Test::LongSeq>& p3, const Current&)
+InitialI::opLongSeq(optional<pair<const int64_t*, const int64_t*> > p1, optional<Test::LongSeq>& p3, const Current&)
 {
     if(p1)
     {

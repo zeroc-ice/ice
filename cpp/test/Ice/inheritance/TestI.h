@@ -32,7 +32,7 @@ class IAI : public virtual Test::MA::IA
 {
 public:
 
-    virtual std::shared_ptr<Test::MA::IAPrx> iaop(std::shared_ptr<Test::MA::IAPrx>, const Ice::Current&);
+    virtual Test::MA::IAPrxPtr iaop(Test::MA::IAPrxPtr, const Ice::Current&);
 };
 
 class IB1I : public virtual Test::MB::IB1,
@@ -40,21 +40,21 @@ class IB1I : public virtual Test::MB::IB1,
 {
 public:
 
-    virtual std::shared_ptr<Test::MB::IB1Prx> ib1op(std::shared_ptr<Test::MB::IB1Prx>, const Ice::Current&);
+    virtual Test::MB::IB1PrxPtr ib1op(Test::MB::IB1PrxPtr, const Ice::Current&);
 };
 
 class IB2I : public virtual Test::MB::IB2, public virtual IAI
 {
 public:
 
-    virtual std::shared_ptr<Test::MB::IB2Prx> ib2op(std::shared_ptr<Test::MB::IB2Prx>, const Ice::Current&);
+    virtual Test::MB::IB2PrxPtr ib2op(Test::MB::IB2PrxPtr, const Ice::Current&);
 };
 
 class ICI : public virtual Test::MA::IC, public virtual IB1I, public virtual IB2I
 {
 public:
 
-    virtual std::shared_ptr<Test::MA::ICPrx> icop(std::shared_ptr<Test::MA::ICPrx>, const Ice::Current&);
+    virtual Test::MA::ICPrxPtr icop(Test::MA::ICPrxPtr, const Ice::Current&);
 };
 
 #endif

@@ -123,7 +123,7 @@ AttackClient::run(int argc, char** argv)
     // Stop using router and communicate with backend and router directly
     // to shut things down.
     //
-    communicator->setDefaultRouter(nullptr);
+    communicator->setDefaultRouter(nullopt);
     try
     {
         auto backend = checkedCast<BackendPrx>(communicator->stringToProxy("dummy:tcp -p 12010"));

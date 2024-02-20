@@ -45,19 +45,19 @@ public:
         return _identities;
     }
 
-    std::shared_ptr<StringSetPrx>
+    StringSetPrxPtr
     categoriesPrx() const
     {
         return _categoriesPrx;
     }
 
-    std::shared_ptr<StringSetPrx>
+    StringSetPrxPtr
     adapterIdsPrx() const
     {
         return _adapterIdsPrx;
     }
 
-    std::shared_ptr<IdentitySetPrx>
+    IdentitySetPrxPtr
     identitiesPrx() const
     {
         return _identitiesPrx;
@@ -68,9 +68,9 @@ public:
 
 private:
 
-    std::shared_ptr<StringSetPrx> _categoriesPrx;
-    std::shared_ptr<StringSetPrx> _adapterIdsPrx;
-    std::shared_ptr<IdentitySetPrx> _identitiesPrx;
+    StringSetPrxPtr _categoriesPrx;
+    StringSetPrxPtr _adapterIdsPrx;
+    IdentitySetPrxPtr _identitiesPrx;
 
     const std::shared_ptr<StringSetI> _categories;
     const std::shared_ptr<StringSetI> _adapters;

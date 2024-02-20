@@ -278,9 +278,16 @@ protected:
         }
 
         static const std::string
-        toString(const Ice::ObjectPrxPtr& p)
+        toString(const Ice::ObjectPrx& p)
         {
             return p->ice_toString();
+        }
+
+        template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
+        static const std::string
+        toString(const std::optional<Prx>& p)
+        {
+            return p ? toString(p.value()) : "";
         }
 
         static const std::string&
@@ -378,7 +385,7 @@ public:
     virtual void
     detach()
     {
-        ::Ice::Long lifetime = _previousDelay + _watch.stop();
+        std::int64_t lifetime = _previousDelay + _watch.stop();
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             (*p)->detach(lifetime);

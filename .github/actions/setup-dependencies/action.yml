@@ -88,17 +88,17 @@ runs:
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
-    - name: Setup Windows Cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          **/bin/x64
-          **/lib/x64
-          **/msbuild/**/x64
-          **/include/generated
+    # - name: Setup Windows Cache
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: |
+    #       **/bin/x64
+    #       **/lib/x64
+    #       **/msbuild/**/x64
+    #       **/include/generated
 
-        key: ci-${{ runner.os }}-${{matrix.name || matrix.language }}-${{ github.sha }}
-        restore-keys: |
-          ci-${{ runner.os }}-${{matrix.name || matrix.language }}-
-          ci-${{ runner.os }}-
-      if: runner.os == 'Windows'
+    #     key: ci-${{ runner.os }}-${{matrix.name || matrix.language }}-${{ github.sha }}
+    #     restore-keys: |
+    #       ci-${{ runner.os }}-${{matrix.name || matrix.language }}-
+    #       ci-${{ runner.os }}-
+    #   if: runner.os == 'Windows'

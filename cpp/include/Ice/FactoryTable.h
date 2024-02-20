@@ -27,7 +27,7 @@ public:
      * @param id The compact ID.
      * @return The fully-scoped Slice type ID, or an empty string if the compact ID is unknown.
      */
-    virtual ::std::string resolve(Ice::Int id) const = 0;
+    virtual ::std::string resolve(std::int32_t id) const = 0;
 };
 using CompactIdResolverPtr = ::std::shared_ptr<CompactIdResolver>;
 

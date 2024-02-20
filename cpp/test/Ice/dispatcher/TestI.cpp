@@ -17,7 +17,7 @@ TestIntfI::op(const Ice::Current&)
 }
 
 void
-TestIntfI::sleep(Ice::Int to, const Ice::Current&)
+TestIntfI::sleep(int32_t to, const Ice::Current&)
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(to));
 }

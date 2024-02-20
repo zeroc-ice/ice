@@ -73,8 +73,8 @@ class ExceptionFactory: ICEExceptionFactory {
         return ProxyParseException(str: str, file: file, line: line)
     }
 
-    static func illegalIdentityException(_ name: String, category: String, file: String, line: Int) -> Error {
-        return IllegalIdentityException(id: Identity(name: name, category: category), file: file, line: line)
+    static func illegalIdentityException(_ file: String, line: Int) -> Error {
+        return IllegalIdentityException(file: file, line: line)
     }
 
     static func illegalServantException(_ reason: String, file: String, line: Int) -> Error {

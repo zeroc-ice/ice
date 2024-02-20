@@ -102,7 +102,7 @@ printRequestHeader(ostream& s, InputStream& stream)
         }
     }
 
-    Int sz = stream.readSize();
+    int32_t sz = stream.readSize();
     s << "\ncontext = ";
     while(sz--)
     {
@@ -181,7 +181,7 @@ printHeader(ostream& s, InputStream& stream)
         }
     }
 
-    Int size;
+    int32_t size;
     stream.read(size);
     s << "\nmessage size = " << size;
 
@@ -191,7 +191,7 @@ printHeader(ostream& s, InputStream& stream)
 static void
 printRequest(ostream& s, InputStream& stream)
 {
-    Int requestId;
+    int32_t requestId;
     stream.read(requestId);
     s << "\nrequest id = " << requestId;
     if(requestId == 0)
@@ -219,7 +219,7 @@ printBatchRequest(ostream& s, InputStream& stream)
 static void
 printReply(ostream& s, InputStream& stream)
 {
-    Int requestId;
+    int32_t requestId;
     stream.read(requestId);
     s << "\nrequest id = " << requestId;
 

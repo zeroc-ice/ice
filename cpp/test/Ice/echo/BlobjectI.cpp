@@ -32,7 +32,7 @@ BlobjectI::flushBatch()
 {
     assert(_batchProxy);
     _batchProxy->ice_flushBatchRequests();
-    _batchProxy = 0;
+    _batchProxy = nullopt;
 }
 
 void
@@ -53,7 +53,7 @@ BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
         }
         if(_batchProxy)
         {
-            obj = _batchProxy;
+            obj = _batchProxy.value();
         }
 
         if(!current.facet.empty())

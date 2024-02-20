@@ -22,6 +22,7 @@
 #include <Ice/ReferenceFactory.h> // For createProxy().
 #include <Ice/ProxyFactory.h> // For createProxy().
 #include <Ice/BatchRequestQueue.h>
+#include "CheckIdentity.h"
 
 #ifdef ICE_HAS_BZIP2
 #  include <bzlib.h>
@@ -65,8 +66,8 @@ public:
         function<void (ConnectionIPtr)> connectionStartCompleted,
         const vector<ConnectionI::OutgoingMessage>& sentCBs,
         Byte compress,
-        Int requestId,
-        Int invokeNum,
+        int32_t requestId,
+        int32_t invokeNum,
         const ServantManagerPtr& servantManager,
         const ObjectAdapterPtr& adapter,
         const OutgoingAsyncBasePtr& outAsync,
@@ -101,8 +102,8 @@ private:
     const function<void(Ice::ConnectionIPtr)> _connectionStartCompleted;
     const vector<ConnectionI::OutgoingMessage> _sentCBs;
     const Byte _compress;
-    const Int _requestId;
-    const Int _invokeNum;
+    const int32_t _requestId;
+    const int32_t _invokeNum;
     const ServantManagerPtr _servantManager;
     const ObjectAdapterPtr _adapter;
     const OutgoingAsyncBasePtr _outAsync;
@@ -649,7 +650,7 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
         }
     }
 
-    if(static_cast<Int>(_readStream.b.size()) > headerSize || !_writeStream.b.empty())
+    if(static_cast<int32_t>(_readStream.b.size()) > headerSize || !_writeStream.b.empty())
     {
         //
         // If writing or reading, nothing to do, the connection
@@ -711,7 +712,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     // This will throw if the request is canceled.
     //
     out->cancelable(shared_from_this());
-    Int requestId = 0;
+    int32_t requestId = 0;
     if(response)
     {
         //
@@ -729,18 +730,18 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
         //
         const Byte* p = reinterpret_cast<const Byte*>(&requestId);
 #ifdef ICE_BIG_ENDIAN
-        reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+        reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
 #else
-        copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+        copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
 #endif
     }
     else if(batchRequestNum > 0)
     {
         const Byte* p = reinterpret_cast<const Byte*>(&batchRequestNum);
 #ifdef ICE_BIG_ENDIAN
-        reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+        reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
 #else
-        copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+        copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
 #endif
     }
 
@@ -765,12 +766,12 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
         // Add to the async requests map.
         //
         _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
-                                                   pair<const Int, OutgoingAsyncBasePtr>(requestId, out));
+                                                   pair<const int32_t, OutgoingAsyncBasePtr>(requestId, out));
     }
     return status;
 }
 
-BatchRequestQueuePtr
+const BatchRequestQueuePtr&
 Ice::ConnectionI::getBatchRequestQueue() const
 {
     return _batchRequestQueue;
@@ -1096,7 +1097,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
             }
         }
 
-        for(map<Int, OutgoingAsyncBasePtr>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
+        for(map<int32_t, OutgoingAsyncBasePtr>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
         {
             if(p->second.get() == outAsync.get())
             {
@@ -1124,7 +1125,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
 }
 
 void
-Ice::ConnectionI::sendResponse(Int, OutputStream* os, Byte compressFlag, bool /*amd*/)
+Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, Byte compressFlag, bool /*amd*/)
 {
     std::unique_lock lock(_mutex);
     assert(_state > StateNotValidated);
@@ -1197,13 +1198,13 @@ Ice::ConnectionI::sendNoResponse()
 }
 
 bool
-Ice::ConnectionI::systemException(Int, std::exception_ptr, bool /*amd*/)
+Ice::ConnectionI::systemException(int32_t, std::exception_ptr, bool /*amd*/)
 {
     return false; // System exceptions aren't marshalled.
 }
 
 void
-Ice::ConnectionI::invokeException(Ice::Int, exception_ptr ex, int invokeNum, bool /*amd*/)
+Ice::ConnectionI::invokeException(int32_t, exception_ptr ex, int invokeNum, bool /*amd*/)
 {
     //
     // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
@@ -1280,11 +1281,11 @@ Ice::ConnectionI::getEndpoint() const noexcept
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
-    // Create a reference and return a reverse proxy for this reference.
-    return _instance->proxyFactory()->referenceToProxy(
+    checkIdentity(ident, __FILE__, __LINE__);
+    return ObjectPrx::_fromReference(
         _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this()));
 }
 
@@ -1408,8 +1409,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     function<void(ConnectionIPtr)> connectionStartCompleted;
     vector<OutgoingMessage> sentCBs;
     Byte compress = 0;
-    Int requestId = 0;
-    Int invokeNum = 0;
+    int32_t requestId = 0;
+    int32_t invokeNum = 0;
     ServantManagerPtr servantManager;
     ObjectAdapterPtr adapter;
     OutgoingAsyncBasePtr outAsync;
@@ -1498,7 +1499,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
                     _readStream.i = _readStream.b.begin();
                     const Byte* m;
-                    _readStream.readBlob(m, static_cast<Int>(sizeof(magic)));
+                    _readStream.readBlob(m, static_cast<int32_t>(sizeof(magic)));
                     if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
                     {
                         throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
@@ -1514,14 +1515,14 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     _readStream.read(messageType);
                     Byte compressByte;
                     _readStream.read(compressByte);
-                    Int size;
+                    int32_t size;
                     _readStream.read(size);
                     if(size < headerSize)
                     {
                         throw IllegalMessageSizeException(__FILE__, __LINE__);
                     }
 
-                    if(size > static_cast<Int>(_messageSizeMax))
+                    if(size > static_cast<int32_t>(_messageSizeMax))
                     {
                         Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(size), _messageSizeMax);
                     }
@@ -1724,7 +1725,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 void
 ConnectionI::dispatch(function<void(ConnectionIPtr)> connectionStartCompleted, const vector<OutgoingMessage>& sentCBs,
-                      Byte compress, Int requestId, Int invokeNum, const ServantManagerPtr& servantManager,
+                      Byte compress, int32_t requestId, int32_t invokeNum, const ServantManagerPtr& servantManager,
                       const ObjectAdapterPtr& adapter, const OutgoingAsyncBasePtr& outAsync,
                       const HeartbeatCallback& heartbeatCallback, InputStream& stream)
 {
@@ -2011,7 +2012,7 @@ Ice::ConnectionI::finish(bool close)
         _sendStreams.clear();
     }
 
-    for(map<Int, OutgoingAsyncBasePtr>::const_iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
+    for(map<int32_t, OutgoingAsyncBasePtr>::const_iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
     {
         if(q->second->exception(_exception))
         {
@@ -2089,7 +2090,7 @@ Ice::ConnectionI::type() const noexcept
     return _type; // No mutex lock, _type is immutable.
 }
 
-Ice::Int
+int32_t
 Ice::ConnectionI::timeout() const noexcept
 {
     return _endpoint->timeout(); // No mutex lock, _endpoint is immutable.
@@ -2107,7 +2108,7 @@ Ice::ConnectionI::getInfo() const
 }
 
 void
-Ice::ConnectionI::setBufferSize(Ice::Int rcvSize, Ice::Int sndSize)
+Ice::ConnectionI::setBufferSize(int32_t rcvSize, int32_t sndSize)
 {
     std::lock_guard lock(_mutex);
     if(_state >= StateClosed)
@@ -2702,7 +2703,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
             }
             Byte compress;
             _readStream.read(compress); // Ignore compression status for validate connection.
-            Int size;
+            int32_t size;
             _readStream.read(size);
             if(size != headerSize)
             {
@@ -2829,12 +2830,12 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
                 //
                 // No compression, just fill in the message size.
                 //
-                Int sz = static_cast<Int>(message->stream->b.size());
+                int32_t sz = static_cast<int32_t>(message->stream->b.size());
                 const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
-                reverse_copy(p, p + sizeof(Int), message->stream->b.begin() + 10);
+                reverse_copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
 #else
-                copy(p, p + sizeof(Int), message->stream->b.begin() + 10);
+                copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
 #endif
                 message->stream->i = message->stream->b.begin();
                 traceSend(*message->stream, _logger, _traceLevels);
@@ -2969,12 +2970,12 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         // No compression, just fill in the message size.
         //
-        Int sz = static_cast<Int>(message.stream->b.size());
+        int32_t sz = static_cast<int32_t>(message.stream->b.size());
         const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
-        reverse_copy(p, p + sizeof(Int), message.stream->b.begin() + 10);
+        reverse_copy(p, p + sizeof(int32_t), message.stream->b.begin() + 10);
 #else
-        copy(p, p + sizeof(Int), message.stream->b.begin() + 10);
+        copy(p, p + sizeof(int32_t), message.stream->b.begin() + 10);
 #endif
         message.stream->i = message.stream->b.begin();
 
@@ -3090,8 +3091,8 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     //
     unsigned int uncompressedLen = static_cast<unsigned int>(uncompressed.b.size() - headerSize);
     unsigned int compressedLen = static_cast<unsigned int>(uncompressedLen * 1.01 + 600);
-    compressed.b.resize(headerSize + sizeof(Int) + compressedLen);
-    int bzError = BZ2_bzBuffToBuffCompress(reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(Int),
+    compressed.b.resize(headerSize + sizeof(int32_t) + compressedLen);
+    int bzError = BZ2_bzBuffToBuffCompress(reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t),
                                            &compressedLen,
                                            reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
                                            uncompressedLen,
@@ -3100,31 +3101,31 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     {
         throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
     }
-    compressed.b.resize(headerSize + sizeof(Int) + compressedLen);
+    compressed.b.resize(headerSize + sizeof(int32_t) + compressedLen);
 
     //
     // Write the size of the compressed stream into the header of the
     // uncompressed stream. Since the header will be copied, this size
     // will also be in the header of the compressed stream.
     //
-    Int compressedSize = static_cast<Int>(compressed.b.size());
+    int32_t compressedSize = static_cast<int32_t>(compressed.b.size());
     p = reinterpret_cast<const Byte*>(&compressedSize);
 #ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(Int), uncompressed.b.begin() + 10);
+    reverse_copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
 #else
-    copy(p, p + sizeof(Int), uncompressed.b.begin() + 10);
+    copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
 #endif
 
     //
     // Add the size of the uncompressed stream before the message body
     // of the compressed stream.
     //
-    Int uncompressedSize = static_cast<Int>(uncompressed.b.size());
+    int32_t uncompressedSize = static_cast<int32_t>(uncompressed.b.size());
     p = reinterpret_cast<const Byte*>(&uncompressedSize);
 #ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(Int), compressed.b.begin() + headerSize);
+    reverse_copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
 #else
-    copy(p, p + sizeof(Int), compressed.b.begin() + headerSize);
+    copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
 #endif
 
     //
@@ -3136,7 +3137,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
 void
 Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompressed)
 {
-    Int uncompressedSize;
+    int32_t uncompressedSize;
     compressed.i = compressed.b.begin() + headerSize;
     compressed.read(uncompressedSize);
     if(uncompressedSize <= headerSize)
@@ -3144,17 +3145,17 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
         throw IllegalMessageSizeException(__FILE__, __LINE__);
     }
 
-    if(uncompressedSize > static_cast<Int>(_messageSizeMax))
+    if(uncompressedSize > static_cast<int32_t>(_messageSizeMax))
     {
         Ex::throwMemoryLimitException(__FILE__, __LINE__, static_cast<size_t>(uncompressedSize), _messageSizeMax);
     }
     uncompressed.resize(static_cast<size_t>(uncompressedSize));
 
     unsigned int uncompressedLen = static_cast<unsigned int>(uncompressedSize - headerSize);
-    unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(Int));
+    unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(int32_t));
     int bzError = BZ2_bzBuffToBuffDecompress(reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
                                              &uncompressedLen,
-                                             reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(Int),
+                                             reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t),
                                              compressedLen,
                                              0, 0);
     if(bzError != BZ_OK)
@@ -3167,7 +3168,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 #endif
 
 SocketOperation
-Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& requestId, Byte& compress,
+Ice::ConnectionI::parseMessage(InputStream& stream, int32_t& invokeNum, int32_t& requestId, Byte& compress,
                                ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter,
                                OutgoingAsyncBasePtr& outAsync, HeartbeatCallback& heartbeatCallback,
                                int& dispatchCount)
@@ -3284,7 +3285,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
 
                 stream.read(requestId);
 
-                map<Int, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.end();
+                map<int32_t, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.end();
 
                 if(_asyncRequestsHint != _asyncRequests.end())
                 {
@@ -3389,7 +3390,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
 }
 
 void
-Ice::ConnectionI::invokeAll(InputStream& stream, Int invokeNum, Int requestId, Byte compress,
+Ice::ConnectionI::invokeAll(InputStream& stream, int32_t invokeNum, int32_t requestId, Byte compress,
                             const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter)
 {
     //

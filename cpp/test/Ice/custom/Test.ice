@@ -85,7 +85,7 @@ sequence<CList> CListSeq;
 
 interface D {}
 sequence<D*> DPrxSeq;
-["cpp:type:std::list< ::Test::DPrx>", "cpp11:type:std::list<std::shared_ptr<DPrx>>"] sequence<D*> DPrxList;
+["cpp:type:std::list< ::Test::DPrx>", "cpp11:type:std::list<DPrxPtr>"] sequence<D*> DPrxList;
 
 ["cpp:type:std::list< ::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
 sequence<DPrxList> DPrxListSeq;
@@ -107,7 +107,7 @@ sequence<ClassOtherStruct> ClassOtherStructSeq;
 }
 sequence<ClassStruct> ClassStructSeq;
 
-["cpp:type:Test::CustomMap<Ice::Int, std::string>"] dictionary<int, string> IntStringDict;
+["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
 dictionary<long, long> LongLongDict;
 dictionary<string, int> StringIntDict;
 
@@ -118,8 +118,8 @@ class DictClass
 
 ["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Short>"] sequence<short> ShortBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Int>"] sequence<int> IntBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Long>"] sequence<long> LongBuffer;
+["cpp:type:Test::CustomBuffer<std::int32_t>"] sequence<int> IntBuffer;
+["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Float>"] sequence<float> FloatBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Double>"] sequence<double> DoubleBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Byte>"] sequence<byte> ByteBuffer;
@@ -210,9 +210,9 @@ interface TestIntf
 
     EList opEList(EList inSeq, out EList outSeq);
 
-    ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq
-    opDPrxSeq(["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq inSeq,
-              out ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<std::shared_ptr<::Test::DPrx>>"] DPrxSeq outSeq);
+    ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq
+    opDPrxSeq(["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq inSeq,
+              out ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq outSeq);
 
     DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 
@@ -230,14 +230,14 @@ interface TestIntf
 
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
-    ["cpp:type:::Test::CustomMap< ::Ice::Long, ::Ice::Long>"] LongLongDict
-    opVarDict(["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict idict,
-              out ["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict odict);
+    ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict
+    opVarDict(["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict idict,
+              out ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict odict);
 
-    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict
+    ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict
     opCustomIntStringDict(
-        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict idict,
-        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] IntStringDict odict);
+        ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict idict,
+        out ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict odict);
 
     ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 
