@@ -1176,7 +1176,14 @@ Ice::InputStream::readReference()
 
     Identity ident;
     read(ident);
-    return _instance->referenceFactory()->create(ident, this);
+    if (ident.name.empty())
+    {
+        return nullptr;
+    }
+    else
+    {
+        return _instance->referenceFactory()->create(ident, this);
+    }
 }
 
 int32_t

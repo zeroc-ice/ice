@@ -297,17 +297,10 @@ export namespace Ice
     }
 
     /**
-     * This exception is raised if an illegal identity is encountered.
+     * This exception is raised if an identity with an empty name is encountered.
      */
     class IllegalIdentityException extends LocalException
     {
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param id The illegal identity.
-         * @param ice_cause The error that cause this exception.
-         */
-        constructor(id?:Identity, ice_cause?:string|Error);
-        id:Identity;
     }
 
     /**

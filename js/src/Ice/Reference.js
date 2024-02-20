@@ -181,7 +181,7 @@ class ReferenceFactory
             //
             if(ident.category.length > 0)
             {
-                throw new Ice.IllegalIdentityException(ident);
+                throw new Ice.IllegalIdentityException();
             }
             //
             // Treat a stringified proxy containing two double

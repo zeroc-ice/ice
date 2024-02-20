@@ -210,7 +210,6 @@ allTests(Test::TestHelper* helper)
             }
             catch(const Ice::IllegalIdentityException& ex)
             {
-                test(ex.id.name == "");
                 if(printException)
                 {
                     Ice::Print printer(communicator->getLogger());

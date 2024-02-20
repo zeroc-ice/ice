@@ -87,7 +87,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
 {
     if(str.empty())
     {
-        return 0;
+        return nullptr;
     }
 
     const string delim = " \t\r\n";
@@ -133,36 +133,28 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         throw ProxyParseException(__FILE__, __LINE__, "no identity in `" + s + "'");
     }
 
-    //
-    // Parsing the identity may raise IdentityParseException.
-    //
-    Identity ident = Ice::stringToIdentity(idstr);
-
-    if(ident.name.empty())
+    if (idstr.empty())
     {
-        //
-        // An identity with an empty name and a non-empty
-        // category is illegal.
-        //
-        if(!ident.category.empty())
-        {
-            throw IllegalIdentityException(__FILE__, __LINE__, ident);
-        }
         //
         // Treat a stringified proxy containing two double
         // quotes ("") the same as an empty string, i.e.,
         // a null proxy, but only if nothing follows the
         // quotes.
         //
-        else if(s.find_first_not_of(delim, end) != string::npos)
+        if(s.find_first_not_of(delim, end) != string::npos)
         {
             throw ProxyParseException(__FILE__, __LINE__, "invalid characters after identity in `" + s + "'");
         }
         else
         {
-            return 0;
+            return nullptr;
         }
     }
+
+    //
+    // Parsing the identity may raise IdentityParseException.
+    //
+    Identity ident = Ice::stringToIdentity(idstr);
 
     string facet;
     Reference::Mode mode = Reference::ModeTwoway;
@@ -533,11 +525,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
     // Don't read the identity here. Operations calling this
     // constructor read the identity, and pass it as a parameter.
     //
-
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
+    assert(!ident.name.empty());
 
     //
     // For compatibility with the old FacetPath.

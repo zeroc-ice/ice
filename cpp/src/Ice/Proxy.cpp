@@ -13,6 +13,7 @@
 #include "ReferenceFactory.h"
 #include "RequestHandlerCache.h"
 #include "ConnectionI.h"
+#include "CheckIdentity.h"
 
 using namespace std;
 using namespace Ice;
@@ -80,10 +81,7 @@ Ice::ObjectPrx::ice_getIdentity() const
 ObjectPrx
 Ice::ObjectPrx::ice_identity(const Identity& newIdentity) const
 {
-    if (newIdentity.name.empty())
-    {
-        throw IllegalIdentityException(__FILE__, __LINE__);
-    }
+    checkIdentity(newIdentity, __FILE__, __LINE__);
     if (newIdentity == _reference->getIdentity())
     {
         return *this;
