@@ -206,6 +206,10 @@ OutgoingAsyncBase::invokeResponse()
                 handleInvokeException(current_exception(), this);
             }
         }
+        catch (std::exception_ptr eptr)
+        {
+            rethrow_exception(eptr);
+        }
     }
     catch(const std::exception& ex)
     {
