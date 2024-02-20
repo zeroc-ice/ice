@@ -4,6 +4,7 @@
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
+#include <IceUtil/Time.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Communicator.h>
 #include <Ice/ObjectAdapter.h>
