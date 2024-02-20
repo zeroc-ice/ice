@@ -272,7 +272,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     {
         Ice::Short s;
-        Ice::Int i;
+        int32_t i;
         int64_t l;
         int64_t r;
 
@@ -282,17 +282,17 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         test(l == 12);
         test(r == 12);
 
-        r = p->opShortIntLong(numeric_limits<Ice::Short>::min(), numeric_limits<Ice::Int>::min(),
+        r = p->opShortIntLong(numeric_limits<Ice::Short>::min(), numeric_limits<int32_t>::min(),
                               numeric_limits<int64_t>::min(), s, i, l);
         test(s == numeric_limits<Ice::Short>::min());
-        test(i == numeric_limits<Ice::Int>::min());
+        test(i == numeric_limits<int32_t>::min());
         test(l == numeric_limits<int64_t>::min());
         test(r == numeric_limits<int64_t>::min());
 
-        r = p->opShortIntLong(numeric_limits<Ice::Short>::max(), numeric_limits<Ice::Int>::max(),
+        r = p->opShortIntLong(numeric_limits<Ice::Short>::max(), numeric_limits<int32_t>::max(),
                               numeric_limits<int64_t>::max(), s, i, l);
         test(s == numeric_limits<Ice::Short>::max());
-        test(i == numeric_limits<Ice::Int>::max());
+        test(i == numeric_limits<int32_t>::max());
         test(l == numeric_limits<int64_t>::max());
         test(r == numeric_limits<int64_t>::max());
     }

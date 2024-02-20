@@ -34,8 +34,8 @@ createIceTCP(const CommunicatorPtr& c, const string&, const StringSeq&)
 
 }
 
-IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
-                                        const Address& sourceAddr, Int timeout, const string& connectionId,
+IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, const string& host, int32_t port,
+                                        const Address& sourceAddr, int32_t timeout, const string& connectionId,
                                         bool compress) :
     IPEndpointI(instance, host, port, sourceAddr, connectionId),
     _timeout(timeout),
@@ -55,7 +55,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance, Inp
     _timeout(-1),
     _compress(false)
 {
-    s->read(const_cast<Int&>(_timeout));
+    s->read(const_cast<int32_t&>(_timeout));
     s->read(const_cast<bool&>(_compress));
 }
 
@@ -75,14 +75,14 @@ IceInternal::TcpEndpointI::getInfo() const noexcept
     return info;
 }
 
-Int
+int32_t
 IceInternal::TcpEndpointI::timeout() const
 {
     return _timeout;
 }
 
 EndpointIPtr
-IceInternal::TcpEndpointI::timeout(Int timeout) const
+IceInternal::TcpEndpointI::timeout(int32_t timeout) const
 {
     if(timeout == _timeout)
     {
@@ -252,7 +252,7 @@ IceInternal::TcpEndpointI::operator<(const Endpoint& r) const
 }
 
 void
-IceInternal::TcpEndpointI::hashInit(Ice::Int& h) const
+IceInternal::TcpEndpointI::hashInit(int32_t& h) const
 {
     IPEndpointI::hashInit(h);
     hashAdd(h, _timeout);
@@ -287,12 +287,12 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
 
         if(argument == "infinite")
         {
-            const_cast<Int&>(_timeout) = -1;
+            const_cast<int32_t&>(_timeout) = -1;
         }
         else
         {
             istringstream t(argument);
-            if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
+            if(!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
             {
                 throw EndpointParseException(__FILE__, __LINE__, "invalid timeout value `" + argument +
                                              "' in endpoint " + endpoint);

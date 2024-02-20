@@ -67,14 +67,14 @@ stringToMajorMinor(const std::string& str, Ice::Byte& major, Ice::Byte& minor)
     }
 
     std::istringstream majStr(str.substr(0, pos));
-    Ice::Int majVersion;
+    int32_t majVersion;
     if(!(majStr >> majVersion) || !majStr.eof())
     {
         throw Ice::VersionParseException(__FILE__, __LINE__, "invalid major version value `" + str + "'");
     }
 
     std::istringstream minStr(str.substr(pos + 1, std::string::npos));
-    Ice::Int minVersion;
+    int32_t minVersion;
     if(!(minStr >> minVersion) || !minStr.eof())
     {
         throw Ice::VersionParseException(__FILE__, __LINE__, "invalid minor version value `" + str + "'");

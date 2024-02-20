@@ -55,7 +55,7 @@ batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
     assert(self->request);
     if(!self->size)
     {
-        Ice::Int size;
+        int32_t size;
         try
         {
             size = self->request->getSize();

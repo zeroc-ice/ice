@@ -55,7 +55,7 @@ public:
     std::vector<EndpointIPtr> expandIfWildcard() const override;
     std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const override;
     bool equivalent(const EndpointIPtr&) const override;
-    ::Ice::Int hash() const override;
+    ::std::int32_t hash() const override;
     std::string options() const override;
 
     bool operator==(const Ice::Endpoint&) const override;
@@ -63,7 +63,7 @@ public:
 
     virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
 
-    virtual void hashInit(Ice::Int&) const;
+    virtual void hashInit(std::int32_t&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
 
     using EndpointI::connectionId;
@@ -92,7 +92,7 @@ protected:
 private:
 
     mutable bool _hashInitialized;
-    mutable Ice::Int _hashValue;
+    mutable std::int32_t _hashValue;
     mutable std::mutex _hashMutex;
 };
 

@@ -428,7 +428,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocatorCacheTimeout)
 
     try
     {
-        Ice::Int timeout = _this->proxy->ice_getLocatorCacheTimeout();
+        int32_t timeout = _this->proxy->ice_getLocatorCacheTimeout();
         ZVAL_LONG(return_value, static_cast<long>(timeout));
     }
     catch(const IceUtil::Exception& ex)
@@ -477,7 +477,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locatorCacheTimeout)
 
     try
     {
-        if(!_this->clone(return_value, _this->proxy->ice_locatorCacheTimeout(static_cast<Ice::Int>(l))))
+        if(!_this->clone(return_value, _this->proxy->ice_locatorCacheTimeout(static_cast<int32_t>(l))))
         {
             RETURN_NULL();
         }
@@ -1238,7 +1238,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
             RETURN_NULL();
         }
         // TODO: range check?
-        if(!_this->clone(return_value, _this->proxy->ice_timeout(static_cast<Ice::Int>(l))))
+        if(!_this->clone(return_value, _this->proxy->ice_timeout(static_cast<int32_t>(l))))
         {
             RETURN_NULL();
         }
@@ -1296,7 +1296,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout)
             RETURN_NULL();
         }
         // TODO: range check?
-        if(!_this->clone(return_value, _this->proxy->ice_invocationTimeout(static_cast<Ice::Int>(l))))
+        if(!_this->clone(return_value, _this->proxy->ice_invocationTimeout(static_cast<int32_t>(l))))
         {
             RETURN_NULL();
         }

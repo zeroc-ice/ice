@@ -143,12 +143,12 @@ public:
     virtual Test::IntStringDict opIntStringDict(Test::IntStringDict, Test::IntStringDict&,
                                                 const Ice::Current&);
 
-    virtual Test::CustomMap<std::int64_t, std::int64_t> opVarDict(Test::CustomMap<std::string, Ice::Int>,
-                                                            Test::CustomMap<std::string, Ice::Int>&,
+    virtual Test::CustomMap<std::int64_t, std::int64_t> opVarDict(Test::CustomMap<std::string, std::int32_t>,
+                                                            Test::CustomMap<std::string, std::int32_t>&,
                                                             const Ice::Current&);
 
-    virtual Test::CustomMap<Ice::Int, std::string> opCustomIntStringDict(
-        std::map<Ice::Int, Util::string_view>, Test::CustomMap<Ice::Int, std::string>&, const Ice::Current&);
+    virtual Test::CustomMap<std::int32_t, std::string> opCustomIntStringDict(
+        std::map<std::int32_t, Util::string_view>, Test::CustomMap<std::int32_t, std::string>&, const Ice::Current&);
 
     Test::ShortBuffer opShortBuffer(Test::ShortBuffer, Test::ShortBuffer&, const Ice::Current&);
 

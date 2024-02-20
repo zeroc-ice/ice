@@ -877,7 +877,7 @@ ServerI::getState(const Ice::Current&) const
     return toServerState(_state);
 }
 
-Ice::Int
+int32_t
 ServerI::getPid(const Ice::Current&) const
 {
     return _node->getActivator()->getServerPid(_id);

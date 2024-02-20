@@ -41,7 +41,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(vector<string>& args) :
 IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, InputStream* s) : _type(type)
 {
     _rawEncoding = s->getEncoding();
-    Int sz = s->getEncapsulationSize();
+    int32_t sz = s->getEncapsulationSize();
     s->readBlob(const_cast<vector<Byte>&>(_rawBytes), sz);
 }
 
@@ -114,14 +114,14 @@ IceInternal::OpaqueEndpointI::protocol() const
     return opaqueEndpointProtocol;
 }
 
-Int
+int32_t
 IceInternal::OpaqueEndpointI::timeout() const
 {
     return -1;
 }
 
 EndpointIPtr
-IceInternal::OpaqueEndpointI::timeout(Int) const
+IceInternal::OpaqueEndpointI::timeout(int32_t) const
 {
     return const_cast<OpaqueEndpointI*>(this)->shared_from_this();
 }
@@ -205,10 +205,10 @@ IceInternal::OpaqueEndpointI::equivalent(const EndpointIPtr&) const
     return false;
 }
 
-Int
+int32_t
 IceInternal::OpaqueEndpointI::hash() const
 {
-    Int h = 5381;
+    int32_t h = 5381;
     hashAdd(h, type());
     hashAdd(h, _rawEncoding.major);
     hashAdd(h, _rawEncoding.minor);
@@ -336,7 +336,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
                                          endpoint);
         }
         istringstream p(argument);
-        Ice::Int t;
+        int32_t t;
         if(!(p >> t) || !p.eof())
         {
             throw EndpointParseException(__FILE__, __LINE__, "invalid type value `" + argument + "' in endpoint " +

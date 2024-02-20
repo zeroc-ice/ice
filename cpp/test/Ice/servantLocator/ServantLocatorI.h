@@ -32,7 +32,7 @@ private:
 
     const std::string _category;
     bool _deactivated;
-    Ice::Int _requestId;
+    std::int32_t _requestId;
 };
 
 };

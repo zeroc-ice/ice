@@ -566,14 +566,14 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::CustomMap<std::string, Ice::Int> idict;
+        Test::CustomMap<std::string, int32_t> idict;
 
         idict["ONE"] = 1;
         idict["TWO"] = 2;
         idict["THREE"] = 3;
         idict["MINUS ONE"] = -1;
 
-        Test::CustomMap<std::string, Ice::Int> out;
+        Test::CustomMap<std::string, int32_t> out;
         out["FIVE"] = 5;
 
         Test::CustomMap<int64_t, int64_t> ret = t->opVarDict(idict, out);
@@ -633,7 +633,7 @@ allTests(Test::TestHelper* helper)
         bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
         bs.shortBuf.setAndInit(new Ice::Short[10], 10);
-        bs.intBuf.setAndInit(new Ice::Int[10], 10);
+        bs.intBuf.setAndInit(new int32_t[10], 10);
         bs.longBuf.setAndInit(new int64_t[10], 10);
         bs.floatBuf.setAndInit(new Ice::Float[10], 10);
         bs.doubleBuf.setAndInit(new Ice::Double[10], 10);
@@ -1988,7 +1988,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::CustomMap<std::string, Ice::Int> idict;
+            Test::CustomMap<std::string, int32_t> idict;
 
             idict["ONE"] = 1;
             idict["TWO"] = 2;
@@ -2054,7 +2054,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::CustomMap<std::string, Ice::Int> idict;
+            Test::CustomMap<std::string, int32_t> idict;
 
             idict["ONE"] = 1;
             idict["TWO"] = 2;

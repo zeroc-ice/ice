@@ -703,7 +703,7 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
     assert(router);
     Ice::ConnectionPtr conn = router->ice_getCachedConnection();
     string category = router->getCategoryForClient();
-    Ice::Int acmTimeout = 0;
+    int32_t acmTimeout = 0;
     try
     {
         acmTimeout = router->getACMTimeout();
@@ -714,7 +714,7 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
 
     if(acmTimeout <= 0)
     {
-        acmTimeout = static_cast<Ice::Int>(router->getSessionTimeout());
+        acmTimeout = static_cast<int32_t>(router->getSessionTimeout());
     }
 
     //

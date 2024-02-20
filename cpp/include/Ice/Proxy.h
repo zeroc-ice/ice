@@ -648,7 +648,7 @@ public:
      * Obtains the locator cache timeout of this proxy.
      * @return The locator cache timeout value (in seconds).
      */
-    Ice::Int ice_getLocatorCacheTimeout() const;
+    std::int32_t ice_getLocatorCacheTimeout() const;
 
     /**
      * Determines whether this proxy caches connections.
@@ -704,7 +704,7 @@ public:
      * Obtains the invocation timeout of this proxy.
      * @return The invocation timeout value (in milliseconds).
      */
-    Ice::Int ice_getInvocationTimeout() const;
+    std::int32_t ice_getInvocationTimeout() const;
 
     /**
      * Determines whether this proxy uses twoway invocations.

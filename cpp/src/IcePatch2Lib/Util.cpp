@@ -48,14 +48,14 @@ IcePatch2Internal::toFileInfo(const LargeFileInfo& largeInfo)
     if(largeInfo.size > 0x7FFFFFFF)
     {
         ostringstream os;
-        os << "cannot encode size `" << largeInfo.size << "' for file `" << largeInfo.path << "' as Ice::Int" << endl;
+        os << "cannot encode size `" << largeInfo.size << "' for file `" << largeInfo.path << "' as int32_t" << endl;
         throw FileSizeRangeException(os.str());
     }
 
     FileInfo info;
     info.path = largeInfo.path;
     info.checksum = largeInfo.checksum;
-    info.size = static_cast<Ice::Int>(largeInfo.size),
+    info.size = static_cast<int32_t>(largeInfo.size),
     info.executable = largeInfo.executable;
 
     return info;
@@ -573,7 +573,7 @@ IcePatch2Internal::createDirectoryRecursive(const string& pa)
 }
 
 void
-IcePatch2Internal::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
+IcePatch2Internal::compressBytesToFile(const string& pa, const ByteSeq& bytes, int32_t pos)
 {
     const string path = simplify(pa);
 
@@ -661,7 +661,7 @@ IcePatch2Internal::decompressFile(const string& pa)
             throw runtime_error(reason);
         }
 
-        const Int numBZ2 = 64 * 1024;
+        const int32_t numBZ2 = 64 * 1024;
         Byte bytesBZ2[numBZ2];
 
         while(bzError != BZ_STREAM_END)

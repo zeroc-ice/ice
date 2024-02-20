@@ -940,7 +940,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
         {
             const int defaultMessageSizeMax = static_cast<int>(_instance->messageSizeMax() / 1024);
-            Int num = properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+            int32_t num = properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);

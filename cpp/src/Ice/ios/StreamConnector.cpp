@@ -129,8 +129,8 @@ IceObjC::StreamConnector::operator<(const IceInternal::Connector& r) const
 
 IceObjC::StreamConnector::StreamConnector(const InstancePtr& instance,
                                           const string& host,
-                                          Ice::Int port,
-                                          Ice::Int timeout,
+                                          int32_t port,
+                                          int32_t timeout,
                                           const string& connectionId) :
     _instance(instance),
     _host(host.empty() ? string("127.0.0.1") : host),

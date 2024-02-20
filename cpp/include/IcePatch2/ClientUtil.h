@@ -51,7 +51,7 @@ public:
     // otherwise.
     //
     virtual bool fileListStart() = 0;
-    virtual bool fileListProgress(Ice::Int) = 0;
+    virtual bool fileListProgress(std::int32_t) = 0;
     virtual bool fileListEnd() = 0;
 
     //
@@ -135,7 +135,7 @@ public:
     // Create a patcher with the given parameters. These parameters
     // are equivalent to the configuration properties described above.
     //
-    static PatcherPtr create(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
+    static PatcherPtr create(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, std::int32_t, std::int32_t);
 };
 
 }

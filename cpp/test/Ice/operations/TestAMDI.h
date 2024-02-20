@@ -308,8 +308,8 @@ public:
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void opInt1Async(Ice::Int,
-                             ::std::function<void(Ice::Int)>,
+    virtual void opInt1Async(std::int32_t,
+                             ::std::function<void(std::int32_t)>,
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
 

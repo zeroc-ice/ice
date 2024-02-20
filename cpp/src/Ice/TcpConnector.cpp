@@ -111,7 +111,7 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
 
 IceInternal::TcpConnector::TcpConnector(const ProtocolInstancePtr& instance, const Address& addr,
                                         const NetworkProxyPtr& proxy, const Address& sourceAddr,
-                                        Ice::Int timeout, const string& connectionId) :
+                                        int32_t timeout, const string& connectionId) :
     _instance(instance),
     _addr(addr),
     _proxy(proxy),

@@ -20,8 +20,8 @@ public:
 
     virtual std::string getProperty(const std::string&) noexcept;
     virtual std::string getPropertyWithDefault(const std::string&, const std::string&) noexcept;
-    virtual Ice::Int getPropertyAsInt(const std::string&) noexcept;
-    virtual Ice::Int getPropertyAsIntWithDefault(const std::string&, Ice::Int) noexcept;
+    virtual std::int32_t getPropertyAsInt(const std::string&) noexcept;
+    virtual std::int32_t getPropertyAsIntWithDefault(const std::string&, std::int32_t) noexcept;
     virtual Ice::StringSeq getPropertyAsList(const std::string&) noexcept;
     virtual Ice::StringSeq getPropertyAsListWithDefault(const std::string&, const Ice::StringSeq&) noexcept;
 

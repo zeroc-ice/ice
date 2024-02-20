@@ -585,7 +585,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
 
         if(_observer)
         {
-            _observer->queued(static_cast<Ice::Int>(events.size()));
+            _observer->queued(static_cast<int32_t>(events.size()));
         }
         flush();
         break;

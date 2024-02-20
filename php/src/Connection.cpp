@@ -200,7 +200,7 @@ ZEND_METHOD(Ice_Connection, setACM)
         RETURN_NULL();
     }
 
-    optional<Ice::Int> timeout;
+    optional<int32_t> timeout;
     optional<Ice::ACMClose> close;
     optional<Ice::ACMHeartbeat> heartbeat;
 
@@ -211,7 +211,7 @@ ZEND_METHOD(Ice_Connection, setACM)
             invalidArgument("value for 'timeout' argument must be Unset or an integer");
             RETURN_NULL();
         }
-        timeout = static_cast<Ice::Int>(Z_LVAL_P(t));
+        timeout = static_cast<int32_t>(Z_LVAL_P(t));
     }
 
     if(!isUnset(c))
@@ -310,7 +310,7 @@ ZEND_METHOD(Ice_Connection, timeout)
     assert(_this);
     try
     {
-        Ice::Int timeout = _this->timeout();
+        int32_t timeout = _this->timeout();
         ZVAL_LONG(return_value, static_cast<long>(timeout));
     }
     catch(const IceUtil::Exception& ex)

@@ -170,10 +170,10 @@ public:
 
     virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
 
-    virtual void sendResponse(Int, Ice::OutputStream*, Byte, bool);
+    virtual void sendResponse(std::int32_t, Ice::OutputStream*, Byte, bool);
     virtual void sendNoResponse();
-    virtual bool systemException(Int, std::exception_ptr, bool);
-    virtual void invokeException(Ice::Int, std::exception_ptr, int, bool);
+    virtual bool systemException(std::int32_t, std::exception_ptr, bool);
+    virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
 
     IceInternal::EndpointIPtr endpoint() const;
     IceInternal::ConnectorPtr connector() const;
@@ -201,18 +201,18 @@ public:
     void timedOut();
 
     virtual std::string type() const noexcept; // From Connection.
-    virtual Ice::Int timeout() const noexcept; // From Connection.
+    virtual std::int32_t timeout() const noexcept; // From Connection.
     virtual ConnectionInfoPtr getInfo() const; // From Connection
 
-    virtual void setBufferSize(Ice::Int rcvSize, Ice::Int sndSize); // From Connection
+    virtual void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize); // From Connection
 
     void exception(std::exception_ptr);
 
     void dispatch(std::function<void(ConnectionIPtr)>,
                   const std::vector<OutgoingMessage>&,
                   Byte,
-                  Int,
-                  Int,
+                  std::int32_t,
+                  std::int32_t,
                   const IceInternal::ServantManagerPtr&,
                   const ObjectAdapterPtr&,
                   const IceInternal::OutgoingAsyncBasePtr&,
@@ -266,11 +266,11 @@ private:
     void doUncompress(Ice::InputStream&, Ice::InputStream&);
 #endif
 
-    IceInternal::SocketOperation parseMessage(Ice::InputStream&, Int&, Int&, Byte&,
+    IceInternal::SocketOperation parseMessage(Ice::InputStream&, std::int32_t&, std::int32_t&, Byte&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
                                               IceInternal::OutgoingAsyncBasePtr&, HeartbeatCallback&, int&);
 
-    void invokeAll(Ice::InputStream&, Int, Int, Byte,
+    void invokeAll(Ice::InputStream&, std::int32_t, std::int32_t, Byte,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 
     void scheduleTimeout(IceInternal::SocketOperation status);
@@ -319,10 +319,10 @@ private:
 
     const int _compressionLevel;
 
-    Int _nextRequestId;
+    std::int32_t _nextRequestId;
 
-    std::map<Int, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
-    std::map<Int, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
+    std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
+    std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
 
     std::exception_ptr _exception;
 

@@ -40,7 +40,7 @@ public:
 
     ServerInfo getServerInfo(std::string, const Ice::Current&) const override;
     ServerState getServerState(std::string, const Ice::Current&) const override;
-    Ice::Int getServerPid(std::string, const Ice::Current&) const override;
+    std::int32_t getServerPid(std::string, const Ice::Current&) const override;
     std::string getServerAdminCategory(const Ice::Current&) const override;
     Ice::ObjectPrxPtr getServerAdmin(std::string, const Ice::Current&) const override;
     void startServerAsync(std::string, std::function<void()>, std::function<void(std::exception_ptr)>,

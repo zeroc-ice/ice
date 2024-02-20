@@ -29,8 +29,8 @@ public:
     Ice::Short type() const final;
     const std::string& protocol() const final;
 
-    Ice::Int timeout() const final;
-    EndpointIPtr timeout(Ice::Int) const final;
+    std::int32_t timeout() const final;
+    EndpointIPtr timeout(std::int32_t) const final;
     const std::string& connectionId() const final;
     EndpointIPtr connectionId(const ::std::string&) const final;
     bool compress() const final;
@@ -47,7 +47,7 @@ public:
     std::vector<EndpointIPtr> expandIfWildcard() const final;
     std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const final;
     bool equivalent(const EndpointIPtr&) const final;
-    ::Ice::Int hash() const final;
+    ::std::int32_t hash() const final;
     std::string options() const final;
 
     WSEndpointPtr endpoint(const EndpointIPtr&) const;

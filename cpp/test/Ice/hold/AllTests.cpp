@@ -96,7 +96,7 @@ allTests(Test::TestHelper* helper)
             completed = make_shared<promise<void>>();
             auto sent = make_shared<promise<bool>>();
             auto expected = value;
-            hold->setAsync(value + 1, static_cast<Ice::Int>(IceUtilInternal::random(5)),
+            hold->setAsync(value + 1, static_cast<int32_t>(IceUtilInternal::random(5)),
                 [cond, expected, completed](int val)
                 {
                     if(val != expected)
@@ -145,7 +145,7 @@ allTests(Test::TestHelper* helper)
             auto expected = value;
             holdSerialized->setAsync(
                 value + 1,
-                static_cast<Ice::Int>(IceUtilInternal::random(1)),
+                static_cast<int32_t>(IceUtilInternal::random(1)),
                 [cond, expected, completed](int val)
                 {
                     if(val != expected)

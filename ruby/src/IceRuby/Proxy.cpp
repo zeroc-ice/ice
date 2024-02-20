@@ -360,7 +360,7 @@ IceRuby_ObjectPrx_ice_getLocatorCacheTimeout(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        Ice::Int t = p->ice_getLocatorCacheTimeout();
+        int32_t t = p->ice_getLocatorCacheTimeout();
         return INT2FIX(t);
     }
     ICE_RUBY_CATCH
@@ -374,7 +374,7 @@ IceRuby_ObjectPrx_ice_getInvocationTimeout(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        Ice::Int t = p->ice_getInvocationTimeout();
+        int32_t t = p->ice_getInvocationTimeout();
         return INT2FIX(t);
     }
     ICE_RUBY_CATCH
@@ -405,7 +405,7 @@ IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
         {
             Ice::ObjectPrx p = getProxy(self);
             long t = getInteger(timeout);
-            return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
+            return createProxy(p->ice_locatorCacheTimeout(static_cast<int32_t>(t)), rb_class_of(self));
         }
         catch(const IceUtil::IllegalArgumentException& ex)
         {
@@ -426,7 +426,7 @@ IceRuby_ObjectPrx_ice_invocationTimeout(VALUE self, VALUE timeout)
         {
             Ice::ObjectPrx p = getProxy(self);
             long t = getInteger(timeout);
-            return createProxy(p->ice_invocationTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
+            return createProxy(p->ice_invocationTimeout(static_cast<int32_t>(t)), rb_class_of(self));
         }
         catch(const IceUtil::IllegalArgumentException& ex)
         {
@@ -845,7 +845,7 @@ IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
         try
         {
             Ice::ObjectPrx p = getProxy(self);
-            Ice::Int timeout = static_cast<Ice::Int>(getInteger(t));
+            int32_t timeout = static_cast<int32_t>(getInteger(t));
             return createProxy(p->ice_timeout(timeout), rb_class_of(self));
         }
         catch(const IceUtil::IllegalArgumentException& ex)

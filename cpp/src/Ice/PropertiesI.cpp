@@ -51,21 +51,21 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
     }
 }
 
-Int
+int32_t
 Ice::PropertiesI::getPropertyAsInt(const string& key) noexcept
 {
     return getPropertyAsIntWithDefault(key, 0);
 }
 
-Int
-Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value) noexcept
+int32_t
+Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, int32_t value) noexcept
 {
     lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
     {
-        Int val = value;
+        int32_t val = value;
         p->second.used = true;
         istringstream v(p->second.value);
         if(!(v >> value) || !v.eof())

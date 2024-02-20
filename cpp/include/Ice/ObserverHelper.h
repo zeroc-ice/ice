@@ -104,7 +104,7 @@ public:
         }
     }
 
-    void reply(Ice::Int size)
+    void reply(std::int32_t size)
     {
         if(_observer)
         {

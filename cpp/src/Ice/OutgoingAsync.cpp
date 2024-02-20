@@ -724,7 +724,7 @@ OutgoingAsync::response()
 
     if(_childObserver)
     {
-        _childObserver->reply(static_cast<Int>(_is.b.size() - headerSize - 4));
+        _childObserver->reply(static_cast<int32_t>(_is.b.size() - headerSize - 4));
         _childObserver.detach();
     }
 

@@ -138,14 +138,14 @@ IceInternal::WSEndpoint::streamWriteImpl(OutputStream* s) const
     s->write(_resource, false);
 }
 
-Int
+int32_t
 IceInternal::WSEndpoint::timeout() const
 {
     return _delegate->timeout();
 }
 
 EndpointIPtr
-IceInternal::WSEndpoint::timeout(Int timeout) const
+IceInternal::WSEndpoint::timeout(int32_t timeout) const
 {
     if(timeout == _delegate->timeout())
     {
@@ -317,7 +317,7 @@ IceInternal::WSEndpoint::equivalent(const EndpointIPtr& endpoint) const
     return _delegate->equivalent(wsEndpointI->_delegate);
 }
 
-Int
+int32_t
 IceInternal::WSEndpoint::hash() const
 {
     int h = _delegate->hash();

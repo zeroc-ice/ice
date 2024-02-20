@@ -17,10 +17,10 @@ public:
 
     FileServerI(const std::string&, const LargeFileInfoSeq&);
 
-    FileInfoSeq getFileInfoSeq(Ice::Int, const Ice::Current&) const;
+    FileInfoSeq getFileInfoSeq(std::int32_t, const Ice::Current&) const;
 
     LargeFileInfoSeq
-    getLargeFileInfoSeq(Ice::Int, const Ice::Current&) const;
+    getLargeFileInfoSeq(std::int32_t, const Ice::Current&) const;
 
     ByteSeqSeq getChecksumSeq(const Ice::Current&) const;
 
@@ -28,8 +28,8 @@ public:
 
     void getFileCompressedAsync(
         std::string,
-        Ice::Int,
-        Ice::Int,
+        std::int32_t,
+        std::int32_t,
         std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) const;
@@ -37,7 +37,7 @@ public:
     void getLargeFileCompressedAsync(
         std::string,
         std::int64_t,
-        Ice::Int,
+        std::int32_t,
         std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) const;
@@ -48,7 +48,7 @@ private:
     getFileCompressedInternal(
         std::string,
         std::int64_t,
-        Ice::Int,
+        std::int32_t,
         std::vector<Ice::Byte>&,
         bool) const;
 

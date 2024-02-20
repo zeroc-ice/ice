@@ -205,7 +205,7 @@ public:
     ProcessI(const Ice::CommunicatorPtr&);
 
     virtual void shutdown(const Ice::Current&);
-    virtual void writeMessage(std::string, Ice::Int, const Ice::Current&);
+    virtual void writeMessage(std::string, std::int32_t, const Ice::Current&);
 
 private:
 

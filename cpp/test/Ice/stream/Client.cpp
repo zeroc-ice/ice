@@ -210,10 +210,10 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Int)3);
+        out.write((int32_t)3);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Int v;
+        int32_t v;
         in.read(v);
         test(v == 3);
     }

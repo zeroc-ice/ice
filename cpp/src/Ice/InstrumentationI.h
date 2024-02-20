@@ -151,8 +151,8 @@ class ConnectionObserverI : public ObserverWithDelegateT<IceMX::ConnectionMetric
 {
 public:
 
-    virtual void sentBytes(Ice::Int);
-    virtual void receivedBytes(Ice::Int);
+    virtual void sentBytes(std::int32_t);
+    virtual void receivedBytes(std::int32_t);
 };
 
 class ThreadObserverI : public ObserverWithDelegateT<IceMX::ThreadMetrics, Ice::Instrumentation::ThreadObserver>
@@ -168,14 +168,14 @@ public:
 
     virtual void userException();
 
-    virtual void reply(Ice::Int);
+    virtual void reply(std::int32_t);
 };
 
 class RemoteObserverI : public ObserverWithDelegateT<IceMX::RemoteMetrics, Ice::Instrumentation::RemoteObserver>
 {
 public:
 
-    virtual void reply(Ice::Int);
+    virtual void reply(std::int32_t);
 };
 
 class CollocatedObserverI : public ObserverWithDelegateT<IceMX::CollocatedMetrics,
@@ -183,7 +183,7 @@ class CollocatedObserverI : public ObserverWithDelegateT<IceMX::CollocatedMetric
 {
 public:
 
-    virtual void reply(Ice::Int);
+    virtual void reply(std::int32_t);
 };
 
 class InvocationObserverI : public ObserverWithDelegateT<IceMX::InvocationMetrics,
@@ -196,10 +196,10 @@ public:
     virtual void userException();
 
     virtual Ice::Instrumentation::RemoteObserverPtr
-    getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, Ice::Int, Ice::Int);
+    getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, std::int32_t, std::int32_t);
 
     virtual Ice::Instrumentation::CollocatedObserverPtr
-    getCollocatedObserver(const Ice::ObjectAdapterPtr&, Ice::Int, Ice::Int);
+    getCollocatedObserver(const Ice::ObjectAdapterPtr&, std::int32_t, std::int32_t);
 };
 
 typedef ObserverWithDelegateT<IceMX::Metrics, Ice::Instrumentation::Observer> ObserverI;
@@ -231,7 +231,7 @@ public:
                                                                               const std::string&,
                                                                               const Ice::Context&);
 
-    virtual Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&, Ice::Int);
+    virtual Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&, std::int32_t);
 
     const IceInternal::MetricsAdminIPtr& getFacet() const;
 

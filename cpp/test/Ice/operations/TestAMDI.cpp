@@ -787,8 +787,8 @@ MyDerivedClassI::opShort1Async(Ice::Short s,
 }
 
 void
-MyDerivedClassI::opInt1Async(Ice::Int i,
-                             function<void(Ice::Int)> response,
+MyDerivedClassI::opInt1Async(int32_t i,
+                             function<void(int32_t)> response,
                              function<void(exception_ptr)>,
                              const Ice::Current&)
 {
