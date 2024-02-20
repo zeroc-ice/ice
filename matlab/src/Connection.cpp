@@ -201,8 +201,8 @@ Ice_Connection_createProxy(void* self, mxArray* id, void** r)
     {
         Ice::Identity ident;
         getIdentity(id, ident);
-        auto proxy = deref<Ice::Connection>(self)->createProxy(ident);
-        *r = new shared_ptr<Ice::ObjectPrx>(move(proxy));
+        Ice::ObjectPrx proxy = deref<Ice::Connection>(self)->createProxy(ident);
+        *r = createProxy(std::move(proxy));
     }
     catch(const std::exception& ex)
     {

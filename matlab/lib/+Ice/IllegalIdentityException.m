@@ -9,15 +9,8 @@
 % Generated from LocalException.ice by slice2matlab version 3.7.10
 
 classdef IllegalIdentityException < Ice.LocalException
-    properties
-        % id - The illegal identity.
-        id Ice.Identity
-    end
     methods
-        function obj = IllegalIdentityException(ice_exid, ice_exmsg, id)
-            if nargin <= 2
-                id = Ice.Identity();
-            end
+        function obj = IllegalIdentityException(ice_exid, ice_exmsg)
             if nargin == 0 || isempty(ice_exid)
                 ice_exid = 'Ice:IllegalIdentityException';
             end
@@ -25,7 +18,6 @@ classdef IllegalIdentityException < Ice.LocalException
                 ice_exmsg = 'Ice.IllegalIdentityException';
             end
             obj = obj@Ice.LocalException(ice_exid, ice_exmsg);
-            obj.id = id;
         end
         function id = ice_id(~)
             id = '::Ice::IllegalIdentityException';
