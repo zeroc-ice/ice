@@ -370,7 +370,7 @@ public:
         // stream. If I use an Int, it is always 4 bytes. For
         // readSize()/writeSize(), it could be 1 or 5 bytes.
         //
-        int32_t sz;
+        std::int32_t sz;
         read(sz);
         if(sz < 6)
         {
@@ -509,7 +509,7 @@ public:
      *
      * @return The size of the encapsulated data.
      */
-    int32_t getEncapsulationSize();
+    std::int32_t getEncapsulationSize();
 
     /**
      * Skips over an encapsulation.
@@ -559,14 +559,14 @@ public:
      *
      * @return The extracted size.
      */
-    int32_t readSize() // Inlined for performance reasons.
+    std::int32_t readSize() // Inlined for performance reasons.
     {
         Byte byte;
         read(byte);
         unsigned char val = static_cast<unsigned char>(byte);
         if(val == 255)
         {
-            int32_t v;
+            std::int32_t v;
             read(v);
             if(v < 0)
             {
@@ -586,7 +586,7 @@ public:
      * @param minSize The minimum size required by the sequence type.
      * @return The extracted size.
      */
-    int32_t readAndCheckSeqSize(int minSize);
+    std::int32_t readAndCheckSeqSize(int minSize);
 
     /**
      * Reads a blob of bytes from the stream.
@@ -594,7 +594,7 @@ public:
      * @param bytes The vector to hold a copy of the bytes from the marshaling buffer.
      * @param sz The number of bytes to read.
      */
-    void readBlob(std::vector<Byte>& bytes, int32_t sz);
+    void readBlob(std::vector<Byte>& bytes, std::int32_t sz);
 
     /**
      * Reads a blob of bytes from the stream.
@@ -971,7 +971,7 @@ public:
      * @param maxValue The maximum enumerator value in the definition.
      * @return The enumerator value.
      */
-    int32_t readEnum(std::int32_t maxValue);
+    std::int32_t readEnum(std::int32_t maxValue);
 
     /**
      * Extracts a user exception from the stream and throws it.
@@ -1150,7 +1150,7 @@ private:
         // Encapsulation attributes for object un-marshalling
         IndexToPtrMap _unmarshaledMap;
         TypeIdMap _typeIdMap;
-        int32_t _typeIdIndex;
+        std::int32_t _typeIdIndex;
         ValueList _valueList;
     };
 
@@ -1185,7 +1185,7 @@ private:
         bool _skipFirstSlice;
 
         // Slice attributes
-        int32_t _sliceSize;
+        std::int32_t _sliceSize;
         std::string _typeId;
     };
 
@@ -1213,12 +1213,12 @@ private:
 
     private:
 
-        int32_t readInstance(std::int32_t, PatchFunc, void*);
+        std::int32_t readInstance(std::int32_t, PatchFunc, void*);
         SlicedDataPtr readSlicedData();
 
         struct IndirectPatchEntry
         {
-            int32_t index;
+            std::int32_t index;
             PatchFunc patchFunc;
             void* patchAddr;
         };
@@ -1253,7 +1253,7 @@ private:
 
             // Slice attributes
             Byte sliceFlags;
-            int32_t sliceSize;
+            std::int32_t sliceSize;
             std::string typeId;
             int compactId;
             IndirectPatchList indirectPatchList;
@@ -1278,7 +1278,7 @@ private:
             _current->skipFirstSlice = false;
         }
 
-        int32_t _valueIdIndex; // The ID of the next value to unmarshal.
+        std::int32_t _valueIdIndex; // The ID of the next value to unmarshal.
     };
 
     class Encaps : private ::IceUtil::noncopyable
@@ -1304,7 +1304,7 @@ private:
         }
 
         Container::size_type start;
-        int32_t sz;
+        std::int32_t sz;
         EncodingVersion encoding;
 
         EncapsDecoder* decoder;

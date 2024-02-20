@@ -209,7 +209,7 @@ public:
         _currentEncaps->encoding = encoding;
         _currentEncaps->start = b.size();
 
-        write(int32_t(0)); // Placeholder for the encapsulation length.
+        write(std::int32_t(0)); // Placeholder for the encapsulation length.
         write(_currentEncaps->encoding);
     }
 
@@ -221,7 +221,7 @@ public:
         assert(_currentEncaps);
 
         // Size includes size and version.
-        const int32_t sz = static_cast<std::int32_t>(b.size() - _currentEncaps->start);
+        const std::int32_t sz = static_cast<std::int32_t>(b.size() - _currentEncaps->start);
         write(sz, &(*(b.begin() + _currentEncaps->start)));
 
         Encaps* oldEncaps = _currentEncaps;
@@ -243,7 +243,7 @@ public:
     void writeEmptyEncapsulation(const EncodingVersion& encoding)
     {
         IceInternal::checkSupportedEncoding(encoding);
-        write(int32_t(6)); // Size
+        write(std::int32_t(6)); // Size
         write(encoding);
     }
 
@@ -252,7 +252,7 @@ public:
      * @param v The start of the buffer.
      * @param sz The number of bytes to copy.
      */
-    void writeEncapsulation(const Byte* v, int32_t sz)
+    void writeEncapsulation(const Byte* v, std::int32_t sz)
     {
         if(sz < 6)
         {
@@ -351,7 +351,7 @@ public:
     size_type startSize()
     {
         size_type position = b.size();
-        write(int32_t(0));
+        write(std::int32_t(0));
         return position;
     }
 
@@ -664,7 +664,7 @@ public:
      */
     void write(const std::string& v, bool convert = true)
     {
-        int32_t sz = static_cast<std::int32_t>(v.size());
+        std::int32_t sz = static_cast<std::int32_t>(v.size());
         if(convert && sz > 0)
         {
             writeConverted(v.data(), static_cast<size_t>(sz));
@@ -690,7 +690,7 @@ public:
      */
     void write(const char* vdata, size_t vsize, bool convert = true)
     {
-        int32_t sz = static_cast<std::int32_t>(vsize);
+        std::int32_t sz = static_cast<std::int32_t>(vsize);
         if(convert && sz > 0)
         {
             writeConverted(vdata, vsize);
@@ -893,7 +893,7 @@ private:
         {
         }
 
-        int32_t registerTypeId(const std::string&);
+        std::int32_t registerTypeId(const std::string&);
 
         OutputStream* _stream;
         Encaps* _encaps;
@@ -908,7 +908,7 @@ private:
 
         // Encapsulation attributes for value marshaling.
         TypeIdMap _typeIdMap;
-        int32_t _typeIdIndex;
+        std::int32_t _typeIdIndex;
     };
 
     class ICE_API EncapsEncoder10 : public EncapsEncoder
@@ -932,7 +932,7 @@ private:
 
     private:
 
-        int32_t registerValue(const std::shared_ptr<Value>&);
+        std::int32_t registerValue(const std::shared_ptr<Value>&);
 
         // Instance attributes
         SliceType _sliceType;
@@ -941,7 +941,7 @@ private:
         Container::size_type _writeSlice; // Position of the slice data members
 
         // Encapsulation attributes for value marshaling.
-        int32_t _valueIdIndex;
+        std::int32_t _valueIdIndex;
         PtrToIndexMap _toBeMarshaledMap;
     };
 
@@ -1004,7 +1004,7 @@ private:
         InstanceData _preAllocatedInstanceData;
         InstanceData* _current;
 
-        int32_t _valueIdIndex; // The ID of the next value to marhsal
+        std::int32_t _valueIdIndex; // The ID of the next value to marhsal
     };
 
     class Encaps : private ::IceUtil::noncopyable

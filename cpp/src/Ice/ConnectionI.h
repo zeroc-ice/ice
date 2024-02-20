@@ -319,7 +319,7 @@ private:
 
     const int _compressionLevel;
 
-    int32_t _nextRequestId;
+    std::int32_t _nextRequestId;
 
     std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
     std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
