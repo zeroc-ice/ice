@@ -22,6 +22,7 @@
 #include <Ice/ReferenceFactory.h> // For createProxy().
 #include <Ice/ProxyFactory.h> // For createProxy().
 #include <Ice/BatchRequestQueue.h>
+#include "CheckIdentity.h"
 
 #ifdef ICE_HAS_BZIP2
 #  include <bzlib.h>
@@ -1282,13 +1283,9 @@ Ice::ConnectionI::getEndpoint() const noexcept
 ObjectPrx
 Ice::ConnectionI::createProxy(const Identity& ident) const
 {
-    // TODO: merge my other PR code
-
-    // Create a reference and return a reverse proxy for this reference.
-    ReferencePtr ref =
-        _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this());
-
-    return ObjectPrx::_fromReference(std::move(ref));
+    checkIdentity(ident, __FILE__, __LINE__);
+    return ObjectPrx::_fromReference(
+        _instance->referenceFactory()->create(ident, const_cast<ConnectionI*>(this)->shared_from_this()));
 }
 
 void

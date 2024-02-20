@@ -28,6 +28,7 @@
 #include <Ice/PropertyNames.h>
 #include <Ice/ConsoleUtil.h>
 #include "Ice/ProxyFunctions.h"
+#include "CheckIdentity.h"
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -43,13 +44,6 @@ using namespace IceInternal;
 
 namespace
 {
-inline void checkIdentity(const Identity& ident)
-{
-    if(ident.name.empty())
-    {
-        throw IllegalIdentityException(__FILE__, __LINE__, ident);
-    }
-}
 
 inline void checkServant(const shared_ptr<Object>& servant)
 {
@@ -381,7 +375,7 @@ Ice::ObjectAdapterI::addFacet(const shared_ptr<Object>& object, const Identity& 
 
     checkForDeactivation();
     checkServant(object);
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     _servantManager->addServant(object, ident, facet);
 
@@ -425,7 +419,7 @@ Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->removeServant(ident, facet);
 }
@@ -436,7 +430,7 @@ Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->removeAllFacets(ident);
 }
@@ -463,7 +457,7 @@ Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet) const
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->findServant(ident, facet);
 }
@@ -474,7 +468,7 @@ Ice::ObjectAdapterI::findAllFacets(const Identity& ident) const
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->findAllFacets(ident);
 }
@@ -536,7 +530,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident) const
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return newProxy(ident, "");
 }
@@ -547,7 +541,7 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return newDirectProxy(ident, "");
 }
@@ -558,7 +552,7 @@ Ice::ObjectAdapterI::createIndirectProxy(const Identity& ident) const
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return newIndirectProxy(ident, "", _id);
 }

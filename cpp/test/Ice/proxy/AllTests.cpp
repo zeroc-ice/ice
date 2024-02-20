@@ -318,6 +318,16 @@ allTests(Test::TestHelper* helper)
     id2 = Ice::stringToIdentity(idStr);
     test(id == id2);
 
+    try
+    {
+        // Ice APIs can't return all illegal identity.
+        id = Ice::stringToIdentity("");
+        assert(false);
+    }
+    catch (const Ice::IllegalIdentityException&)
+    {
+    }
+
     // Input string with various pitfalls
     id = Ice::stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
     test(id.name == "\xE2\x82\xAC\60\t0\\" && id.category.empty());

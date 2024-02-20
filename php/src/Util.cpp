@@ -462,17 +462,6 @@ convertLocalException(const Ice::LocalException& ex, zval* zex)
     {
         setStringMember(zex, "str", e.str);
     }
-    catch(const Ice::IllegalIdentityException& e)
-    {
-        zval id;
-        if(!createIdentity(&id, e.id))
-        {
-            zval_ptr_dtor(&id);
-            return false;
-        }
-        zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
-        zval_ptr_dtor(&id);
-    }
     catch(const Ice::RequestFailedException& e)
     {
         zval id;
