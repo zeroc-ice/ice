@@ -79,7 +79,7 @@ runs:
       run: |
         python3 -m pip install zeroc-ice
       shell: bash
-      if: matrix.name == 'xcodesdk'
+      if: matrix.name == 'matlab'
 
     - name: Set MATLAB_HOME
       run: |
