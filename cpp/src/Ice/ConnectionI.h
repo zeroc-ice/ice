@@ -181,7 +181,7 @@ public:
     virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
     virtual ObjectAdapterPtr getAdapter() const noexcept; // From Connection.
     virtual EndpointPtr getEndpoint() const noexcept; // From Connection.
-    virtual std::optional<ObjectPrx> createProxy(const Identity& ident) const; // From Connection.
+    virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
 
     void setAdapterAndServantManager(const ObjectAdapterPtr&, const IceInternal::ServantManagerPtr&);
 

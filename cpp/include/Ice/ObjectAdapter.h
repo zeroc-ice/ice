@@ -359,7 +359,7 @@ public:
      * @return A proxy for the object with the given identity.
      * @see Identity
      */
-    virtual std::optional<ObjectPrx> createProxy(const Identity& id) const = 0;
+    virtual ObjectPrx createProxy(const Identity& id) const = 0;
 
     /**
      * Create a direct proxy for the object with the given identity. The returned proxy contains this object adapter's
@@ -368,7 +368,7 @@ public:
      * @return A proxy for the object with the given identity.
      * @see Identity
      */
-    virtual std::optional<ObjectPrx> createDirectProxy(const Identity& id) const = 0;
+    virtual ObjectPrx createDirectProxy(const Identity& id) const = 0;
 
     /**
      * Create an indirect proxy for the object with the given identity. If this object adapter is configured with an
@@ -378,7 +378,7 @@ public:
      * @return A proxy for the object with the given identity.
      * @see Identity
      */
-    virtual std::optional<ObjectPrx> createIndirectProxy(const Identity& id) const = 0;
+    virtual ObjectPrx createIndirectProxy(const Identity& id) const = 0;
 
     /**
      * Set an Ice locator for this object adapter. By doing so, the object adapter will register itself with the

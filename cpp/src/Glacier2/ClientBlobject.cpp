@@ -113,7 +113,7 @@ Glacier2::ClientBlobject::ice_invokeAsync(pair<const Byte*, const Byte*> inParam
         throw ObjectNotExistException(__FILE__, __LINE__, current.id, "", "");
     }
 
-    invoke(proxy, inParams, std::move(response), std::move(error), current);
+    invoke(proxy.value(), inParams, std::move(response), std::move(error), current);
 }
 
 shared_ptr<StringSet>

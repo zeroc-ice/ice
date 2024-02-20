@@ -16,7 +16,7 @@ WellKnownObjectsManager::WellKnownObjectsManager(const shared_ptr<Database>& dat
 }
 
 void
-WellKnownObjectsManager::add(const Ice::ObjectPrxPtr& proxy, const string& type)
+WellKnownObjectsManager::add(const Ice::ObjectPrx& proxy, const string& type)
 {
     assert(!_initialized);
     ObjectInfo info = { proxy, type };
@@ -24,7 +24,7 @@ WellKnownObjectsManager::add(const Ice::ObjectPrxPtr& proxy, const string& type)
 }
 
 void
-WellKnownObjectsManager::addEndpoint(const string& name, const Ice::ObjectPrxPtr& proxy)
+WellKnownObjectsManager::addEndpoint(const string& name, const Ice::ObjectPrx& proxy)
 {
     _endpoints.insert(make_pair(name, proxy));
 }
