@@ -76,7 +76,7 @@ registerIceIAP(bool loadOnInitialize)
 }
 
 IceObjC::iAPEndpointI::iAPEndpointI(const ProtocolInstancePtr& instance, const string& m,
-                                    const string& o, const string& n, const string& p, Int ti,
+                                    const string& o, const string& n, const string& p, int32_t ti,
                                     const string& conId, bool co) :
     _instance(instance),
     _manufacturer(m),
@@ -157,14 +157,14 @@ IceObjC::iAPEndpointI::secure() const
     return _instance->secure();
 }
 
-Int
+int32_t
 IceObjC::iAPEndpointI::timeout() const
 {
     return _timeout;
 }
 
 EndpointIPtr
-IceObjC::iAPEndpointI::timeout(Int t) const
+IceObjC::iAPEndpointI::timeout(int32_t t) const
 {
     if(t == _timeout)
     {
@@ -536,10 +536,10 @@ IceObjC::iAPEndpointI::options() const
     return s.str();
 }
 
-Ice::Int
+int32_t
 IceObjC::iAPEndpointI::hash() const
 {
-    Ice::Int h = 5381;
+    int32_t h = 5381;
     hashAdd(h, _manufacturer);
     hashAdd(h, _modelNumber);
     hashAdd(h, _name);
