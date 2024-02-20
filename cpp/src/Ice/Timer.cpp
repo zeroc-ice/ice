@@ -12,6 +12,7 @@ using namespace IceInternal;
 
 TimerTask::~TimerTask()
 {
+    // Out of line to avoid weak vtable
 }
 
 Timer::Timer() :
@@ -31,8 +32,8 @@ Timer::destroy()
             return;
         }
         _destroyed = true;
-        _tokens.clear();
         _tasks.clear();
+        _tokens.clear();
         _condition.notify_one();
     }
 
@@ -118,6 +119,7 @@ void Timer::run()
                 }
 
                 _wakeUpTime = first.scheduledTime;
+                std::cerr << "now: " << (now.time_since_epoch().count()) << " wait_until: " << first.scheduledTime.time_since_epoch().count() << std::endl;
                 _condition.wait_until(lock, first.scheduledTime);
             }
 

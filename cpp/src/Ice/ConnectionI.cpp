@@ -654,7 +654,7 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
         //
         // If writing or reading, nothing to do, the connection
         // timeout will kick-in if writes or reads don't progress.
-        // This check is necessary because the actitivy timer is
+        // This check is necessary because the activity timer is
         // only set when a message is fully read/written.
         //
         return;
@@ -2067,6 +2067,7 @@ Ice::ConnectionI::getNativeInfo()
 void
 Ice::ConnectionI::timedOut()
 {
+    cerr << "timedOut" << endl;
     std::lock_guard lock(_mutex);
     if(_state <= StateNotValidated)
     {
@@ -3472,17 +3473,22 @@ Ice::ConnectionI::scheduleTimeout(SocketOperation status)
         {
             if(_readTimeoutScheduled)
             {
+                cerr << "canceling read timeout" << endl;
                 _timer->cancel(_readTimeout);
             }
+            cerr << "read timeout: " << timeout << endl;
             _timer->schedule(_readTimeout, chrono::milliseconds(timeout));
             _readTimeoutScheduled = true;
         }
+
         if(status & (IceInternal::SocketOperationWrite | IceInternal::SocketOperationConnect))
         {
             if(_writeTimeoutScheduled)
             {
+                cerr << "canceling write timeout" << endl;
                 _timer->cancel(_writeTimeout);
             }
+            cerr << "write timeout: " << timeout << endl;
             _timer->schedule(_writeTimeout, chrono::milliseconds(timeout));
             _writeTimeoutScheduled = true;
         }

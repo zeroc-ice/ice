@@ -53,19 +53,21 @@ public:
             throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
         }
 
-        auto now = std::chrono::steady_clock::now();
-        auto time = now + delay;
         if (delay < std::chrono::nanoseconds::zero())
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
         }
 
+        auto now = std::chrono::steady_clock::now();
+        auto time = now + delay;
         bool inserted = _tasks.insert(make_pair(task, time)).second;
         if (!inserted)
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
         }
         _tokens.insert({ time, std::nullopt, task });
+
+        std::cerr << "schedule timer: " << time.time_since_epoch().count() << " now: " << now.time_since_epoch().count() << std::endl;
 
         if(_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
         {
@@ -83,13 +85,12 @@ public:
             throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
         }
 
-        auto now = std::chrono::steady_clock::now();
-        auto time = now + delay;
         if(delay < std::chrono::nanoseconds::zero())
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
         }
 
+        auto time = std::chrono::steady_clock::now() + delay;
         bool inserted = _tasks.insert(make_pair(task, time)).second;
         if(!inserted)
         {
