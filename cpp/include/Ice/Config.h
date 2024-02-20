@@ -51,8 +51,6 @@ namespace Ice
 typedef unsigned char Byte;
 /** The mapping for the Slice short type. */
 typedef short Short;
-/** The mapping for the Slice int type. */
-// typedef int Int;
 /** The mapping for the Slice float type. */
 typedef float Float;
 /** The mapping for the Slice double type. */
