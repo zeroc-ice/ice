@@ -32,10 +32,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                                       const ReferencePtr& tmpl,
                                       const vector<EndpointIPtr>& endpoints)
 {
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
+    assert(!ident.name.empty());
 
     return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(),
                   endpoints, "", "");
@@ -47,10 +44,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                                       const ReferencePtr& tmpl,
                                       const string& adapterId)
 {
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
+    assert(!ident.name.empty());
 
     return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(),
                   vector<EndpointIPtr>(), adapterId, "");
@@ -59,10 +53,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::ConnectionIPtr& connection)
 {
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
+    assert(!ident.name.empty());
 
     //
     // Create new reference
