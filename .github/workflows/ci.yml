@@ -18,41 +18,44 @@ jobs:
     name: ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
     strategy:
       matrix:
-        language: [cpp]
+        language: [matlab]
         os: [macos-14, ubuntu-latest, windows-latest]
-        name: [""]
+        name: ["matlab"]
         make_flags: [""]
         test_flags: [""]
         include:
-          - os: macos-14
-            language: swift
-          - os: macos-14
-            language: python
-          - os: macos-14
-            language: php
-          - os: macos-14
-            language: ruby
-          - os: macos-14
-            language: cpp
-            name: "xcodesdk"
-            make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
-            test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
+          # - os: macos-14
+          #   language: swift
+          # - os: macos-14
+          #   language: python
+          # - os: macos-14
+          #   language: php
+          # - os: macos-14
+          #   language: ruby
+          # - os: macos-14
+          #   language: cpp
+          #   name: "xcodesdk"
+          #   make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
+          #   test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
 
-          - os: ubuntu-latest
-            language: csharp
-          - os: ubuntu-latest
-            language: java
-          - os: ubuntu-latest
-            language: php
-          - os: ubuntu-latest
-            language: ruby
-          - os: ubuntu-latest
-            language: python
-          - os: ubuntu-latest
-            language: js
+          # - os: ubuntu-latest
+          #   language: csharp
+          # - os: ubuntu-latest
+          #   language: java
+          # - os: ubuntu-latest
+          #   language: php
+          # - os: ubuntu-latest
+          #   language: ruby
+          # - os: ubuntu-latest
+          #   language: python
+          # - os: ubuntu-latest
+          #   language: js
 
+          # - os: windows-latest
+          #   language: python
           - os: windows-latest
-            language: python
+            language: matlab
+            name: "matlab"
 
       fail-fast: false
 

@@ -41,6 +41,7 @@ runs:
       shell: bash
       if: runner.os == 'Linux'
 
+      # ———— Windows ———— #
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
       with:
@@ -69,6 +70,11 @@ runs:
       shell: powershell
       if: runner.os == 'Windows'
 
+      # ———— MATLAB ———— #
+    - name: Setup MATLAB
+      uses: matlab-actions/setup-matlab@v2
+
+      # ———— Cache ———— #
     - name: Setup ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
