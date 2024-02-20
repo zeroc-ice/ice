@@ -73,6 +73,19 @@ runs:
       # ———— MATLAB ———— #
     - name: Setup MATLAB
       uses: matlab-actions/setup-matlab@v2
+      when: matrix.language == 'matlab'
+
+    - name: Set MATLAB_HOME
+      run: |
+        echo "MATLAB_HOME=/opt/hostedtoolcache/MATLAB/2023.2.999/x64" >> $GITHUB_ENV
+      shell: bash
+      if: matrix.language == 'matlab' && runner.os == 'Linux'
+
+    - name: Set MATLAB_HOME
+      run: |
+        echo "MATLAB_HOME=C:\Program Files\MATLAB\R2023b" >> $env:GITHUB_ENV
+      shell: powershell
+      if: matrix.language == 'matlab' && runner.os == 'Windows'
 
       # ———— Cache ———— #
     - name: Setup ccache
