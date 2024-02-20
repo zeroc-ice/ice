@@ -420,10 +420,6 @@ IceMatlab::convertException(const std::exception& exc)
         {
             params[idx++] = createStringFromUTF8(e.str);
         }
-        catch(const Ice::IllegalIdentityException& e)
-        {
-            params[idx++] = createIdentity(e.id);
-        }
         catch(const Ice::IllegalServantException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
