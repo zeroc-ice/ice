@@ -25,15 +25,8 @@
 {
     try
     {
-        auto cppPrx = self.connection->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
-        if (cppPrx)
-        {
-            return [[ICEObjectPrx alloc] initWithCppObjectPrx:cppPrx.value()];
-        }
-        else
-        {
-            return nil;
-        }
+        auto prx = self.connection->createProxy(Ice::Identity{fromNSString(name), fromNSString(category)});
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
