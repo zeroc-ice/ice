@@ -30,10 +30,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
     <TargetExt>.dll</TargetExt>
+    <TargetName>icethunk</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\..\..\lib\$(Platform)\$(Configuration)\</OutDir>
     <TargetExt>.dll</TargetExt>
+    <TargetName>icethunk</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
