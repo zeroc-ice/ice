@@ -25,7 +25,7 @@ ICEIMPL_API @protocol ICEExceptionFactory
 +(NSError*) versionParseException:(NSString*)str file:(NSString*)file line:(size_t)line;
 +(NSError*) identityParseException:(NSString*)str file:(NSString*)file line:(size_t)line;
 +(NSError*) proxyParseException:(NSString*)str file:(NSString*)file line:(size_t)line;
-+(NSError*) illegalIdentityException:(NSString*)name category:(NSString*)category file:(NSString*)file line:(size_t)line;
++(NSError*) illegalIdentityException:(NSString*)file line:(size_t)line;
 +(NSError*) illegalServantException:(NSString*)reason file:(NSString*)file line:(size_t)line;
 +(NSError*) dNSException:(int32_t)error host:(NSString*)host file:(NSString*)file line:(size_t)line;
 +(NSError*) operationInterruptedException:(NSString*)file line:(size_t)line;

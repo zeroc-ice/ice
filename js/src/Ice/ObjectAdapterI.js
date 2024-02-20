@@ -521,7 +521,7 @@ class ObjectAdapterI
     {
         if(ident.name === undefined || ident.name === null || ident.name.length === 0)
         {
-            throw new Ice.IllegalIdentityException(ident);
+            throw new Ice.IllegalIdentityException();
         }
 
         if(ident.category === undefined || ident.category === null)
