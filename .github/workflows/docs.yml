@@ -23,8 +23,8 @@ jobs:
       - name: Install awscli
         run: brew install awscli || true
 
-      - name: Install Doxygen and dot (a dependency of Doxygen for generating diagrams)
-        run: brew install doxygen dot || true
+      - name: Install Doxygen and graphviz (a dependency of Doxygen for generating diagrams)
+        run: brew install doxygen graphviz || true
 
       - name: Generate Doxygen Documentation for Slice
         working-directory: ./doxygen
