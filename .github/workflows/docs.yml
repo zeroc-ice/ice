@@ -19,6 +19,8 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
+        with:
+          cache: false
 
       - name: Install awscli
         run: brew install awscli || true
@@ -39,10 +41,10 @@ jobs:
 
       - name: Sync Documentation to S3
         run: |
-          aws s3 sync ./doxygen/slice s3://zeroc-ice-docs/api/ice/main/slice --delete
+          aws s3 sync --size-only ./doxygen/slice s3://zeroc-ice-docs/api/ice/main/slice --delete
           aws s3 cp ./doxygen/slice.tag s3://zeroc-ice-docs/api/ice/main/slice.tag
 
-          aws s3 sync ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
+          aws s3 sync --size-only ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
           aws s3 cp ./cpp/doxygen/icecpp.tag s3://zeroc-ice-docs/api/ice/main/icecpp.tag
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
