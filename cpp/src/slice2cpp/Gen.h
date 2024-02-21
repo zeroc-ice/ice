@@ -67,7 +67,7 @@ private:
 
     // Visitors
 
-    // Generates forward declarations for classes, proxies and structs. Also generates using for sequences and
+    // Generates forward declarations for classes, proxies and structs. Also generates using aliases for sequences and
     // dictionaries, enum definitions and constants.
     class ForwardDeclVisitor final : public ParserVisitor
     {
@@ -101,8 +101,8 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    // The second code-generation visitor. We need to generate the proxies early because fields (in structs, classes
-    // and exceptions) can use fields and these fields must see complete proxy types.
+    // Generates code for proxies. We need to generate this code before the code for structs, classes and exceptions
+    // because fields with a proxy type must see a complete type.
     class ProxyVisitor : public ParserVisitor
     {
     public:
@@ -126,11 +126,13 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class StructVisitor final : private ::IceUtil::noncopyable, public ParserVisitor
+    // Generates code for definitions with data members - structs, classes and exceptions.
+    class DataDefVisitor final : public ParserVisitor
     {
     public:
 
-        StructVisitor(::IceUtilInternal::Output&);
+        DataDefVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        DataDefVisitor(const DataDefVisitor&) = delete;
 
         bool visitModuleStart(const ModulePtr&) final;
         void visitModuleEnd(const ModulePtr&) final;
@@ -138,13 +140,22 @@ private:
         void visitStructEnd(const StructPtr&) final;
         void visitDataMember(const DataMemberPtr&) final;
 
-        // Otherwise we visit their data members.
-        bool visitClassDefStart(const ClassDefPtr&) final { return false; }
-        bool visitExceptionStart(const ExceptionPtr&) final { return false; }
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitClassDefEnd(const ClassDefPtr&) final;
 
     private:
 
+        bool emitBaseInitializers(const ClassDefPtr&);
+        void emitOneShotConstructor(const ClassDefPtr&);
+        void emitClassDataMember(const DataMemberPtr&);
+
         ::IceUtilInternal::Output& H;
+        ::IceUtilInternal::Output& C;
+
+        std::string _dllExport;
+        std::string _dllClassExport;
+        std::string _dllMemberExport;
+        bool _doneStaticSymbol;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
@@ -199,41 +210,12 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class ValueVisitor final : public ParserVisitor
-    {
-    public:
-
-        ValueVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-        ValueVisitor(const ValueVisitor&) = delete;
-
-        bool visitModuleStart(const ModulePtr&) final;
-        void visitModuleEnd(const ModulePtr&) final;
-        bool visitClassDefStart(const ClassDefPtr&) final;
-        void visitClassDefEnd(const ClassDefPtr&) final;
-
-    private:
-
-        bool emitBaseInitializers(const ClassDefPtr&);
-        void emitOneShotConstructor(const ClassDefPtr&);
-        void emitDataMember(const DataMemberPtr&);
-
-        ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
-
-        std::string _dllExport;
-        std::string _dllClassExport;
-        std::string _dllMemberExport;
-        bool _doneStaticSymbol;
-        int _useWstring;
-        std::list<int> _useWstringHist;
-    };
-
     // Generates StreamHelper template specializations for enums, structs, classes and exceptions.
     class StreamVisitor final : public ParserVisitor
     {
     public:
 
-        StreamVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        StreamVisitor(::IceUtilInternal::Output&);
         StreamVisitor(const StreamVisitor&) = delete;
 
         bool visitModuleStart(const ModulePtr&) final;
@@ -247,8 +229,6 @@ private:
     private:
 
         ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
-        std::string _dllExport;
     };
 
 private:

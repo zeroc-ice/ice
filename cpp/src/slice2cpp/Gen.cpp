@@ -828,13 +828,8 @@ Slice::Gen::generate(const UnitPtr& p)
         ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
 
-        // It's ok to use forward-declared classes as fields.
-        StructVisitor structVisitor(H);
-        p->visit(&structVisitor, false);
-
-        // Classes can use proxies and structs.
-        ValueVisitor valueVisitor(H, C, _dllExport);
-        p->visit(&valueVisitor, false);
+        DataDefVisitor dataDefVisitor(H, C, _dllExport);
+        p->visit(&dataDefVisitor, false);
 
         // Exceptions are not types.
         ExceptionVisitor exceptionVisitor(H, C, _dllExport);
@@ -844,7 +839,7 @@ Slice::Gen::generate(const UnitPtr& p)
         InterfaceVisitor interfaceVisitor(H, C, _dllExport);
         p->visit(&interfaceVisitor, false);
 
-        StreamVisitor streamVisitor(H, C, _dllExport);
+        StreamVisitor streamVisitor(H);
         p->visit(&streamVisitor, false);
     }
 }
@@ -2404,16 +2399,24 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "/// \\endcond";
 }
 
-Slice::Gen::StructVisitor::StructVisitor(Output& h) :
-    H(h), _useWstring(false)
+Slice::Gen::DataDefVisitor::DataDefVisitor(
+    IceUtilInternal::Output& h,
+    IceUtilInternal::Output& c,
+    const std::string& dllExport) :
+    H(h),
+    C(c),
+    _dllExport(dllExport),
+    _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
+    _doneStaticSymbol(false),
+    _useWstring(false)
 {
 }
 
 bool
-Slice::Gen::StructVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::DataDefVisitor::visitModuleStart(const ModulePtr& p)
 {
     // TODO: this most likely includes structs in included files, which is not what we want here.
-    if(!p->hasStructs())
+    if(!p->hasStructs() && !p->hasValueDefs())
     {
         return false;
     }
@@ -2424,7 +2427,7 @@ Slice::Gen::StructVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::StructVisitor::visitModuleEnd(const ModulePtr&)
+Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr&)
 {
     H << sp << nl << "using Ice::operator<;";
     H << nl << "using Ice::operator<=;";
@@ -2437,7 +2440,7 @@ Slice::Gen::StructVisitor::visitModuleEnd(const ModulePtr&)
 }
 
 bool
-Slice::Gen::StructVisitor::visitStructStart(const StructPtr& p)
+Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
@@ -2450,7 +2453,7 @@ Slice::Gen::StructVisitor::visitStructStart(const StructPtr& p)
 }
 
 void
-Slice::Gen::StructVisitor::visitStructEnd(const StructPtr& p)
+Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
 {
     H << sp;
     H << nl << "/**";
@@ -2463,9 +2466,12 @@ Slice::Gen::StructVisitor::visitStructEnd(const StructPtr& p)
 }
 
 void
-Slice::Gen::StructVisitor::visitDataMember(const DataMemberPtr& p)
+Slice::Gen::DataDefVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    // TODO: avoid duplication with class and exception visitors.
+    if (!dynamic_pointer_cast<Struct>(p->container()))
+    {
+        return;
+    }
 
     //
     // Use an empty scope to get full qualified names from calls to typeToString.
@@ -3365,43 +3371,8 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     C << nl << "/// \\endcond";
 }
 
-Slice::Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& h,
-                                         ::IceUtilInternal::Output& c,
-                                         const std::string& dllExport) :
-    H(h),
-    C(c),
-    _dllExport(dllExport),
-    _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
-    _doneStaticSymbol(false),
-    _useWstring(false)
-{
-}
-
 bool
-Slice::Gen::ValueVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if(!p->hasValueDefs())
-    {
-        return false;
-    }
-
-    _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-    string name = fixKwd(p->name());
-    H << sp << nl << "namespace " << name << nl << '{';
-    return true;
-}
-
-void
-Slice::Gen::ValueVisitor::visitModuleEnd(const ModulePtr&)
-{
-    H << sp;
-    H << nl << '}';
-
-    _useWstring = resetUseWstring(_useWstringHist);
-}
-
-bool
-Slice::Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
+Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
@@ -3471,7 +3442,7 @@ Slice::Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
@@ -3534,6 +3505,7 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     //
     // Emit data members. Access visibility may be specified by metadata.
+    // TODO: it would be nicer to use visitDataMember.
     //
     bool inProtected = false;
     bool generateFriend = false;
@@ -3573,7 +3545,7 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
             needSp = false;
         }
 
-        emitDataMember(*q);
+        emitClassDataMember(*q);
     }
 
     if(preserved && !basePreserved)
@@ -3628,7 +3600,7 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::ValueVisitor::emitBaseInitializers(const ClassDefPtr& p)
+Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
 {
     ClassDefPtr base = p->base();
     if (!base)
@@ -3662,7 +3634,7 @@ Slice::Gen::ValueVisitor::emitBaseInitializers(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ValueVisitor::emitOneShotConstructor(const ClassDefPtr& p)
+Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
     //
@@ -3741,7 +3713,7 @@ Slice::Gen::ValueVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ValueVisitor::emitDataMember(const DataMemberPtr& p)
+Slice::Gen::DataDefVisitor::emitClassDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
     int typeContext = _useWstring | TypeContextCpp11;
@@ -3779,10 +3751,8 @@ Slice::Gen::ValueVisitor::emitDataMember(const DataMemberPtr& p)
     H << ";";
 }
 
-Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dllExport) :
-    H(h),
-    C(c),
-    _dllExport(dllExport)
+Slice::Gen::StreamVisitor::StreamVisitor(Output& h) :
+    H(h)
 {
 }
 
@@ -3805,12 +3775,6 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         H << sp;
         H << nl << "/// \\cond STREAM";
         H << nl << "namespace Ice" << nl << '{' << sp;
-
-        if(m->hasContained(Contained::ContainedTypeStruct))
-        {
-            C << sp;
-            C << nl << "namespace Ice" << nl << '{';
-        }
     }
     return true;
 }
@@ -3825,10 +3789,6 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
         //
         H << nl << '}';
         H << nl << "/// \\endcond";
-        if(m->hasContained(Contained::ContainedTypeStruct))
-        {
-            C << nl << '}';
-        }
     }
 }
 
