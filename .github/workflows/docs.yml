@@ -28,7 +28,7 @@ jobs:
 
       - name: Generate Doxygen Documentation for Slice
         working-directory: ./doxygen
-        run: doxygen Doxyfile
+        run: doxygen
 
       - name: Upload Doxygen Documentation Artifact
         uses: actions/upload-artifact@v2
@@ -41,7 +41,7 @@ jobs:
         run: |
           make generate-srcs
           cd doxygen
-          doxygen Doxyfile
+          doxygen
 
       - name: Upload Doxygen Documentation Artifact
         uses: actions/upload-artifact@v2

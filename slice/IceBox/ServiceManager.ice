@@ -53,7 +53,7 @@ interface ServiceObserver
     void servicesStopped(Ice::StringSeq services);
 }
 
-/// Administers a set of {@link Service} instances.
+/// Administers a set of IceBox Service instances.
 /// @see Service
 interface ServiceManager
 {
