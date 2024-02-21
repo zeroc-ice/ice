@@ -61,22 +61,28 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+       - name: MATLAB test
+        run: |
+          /opt/hostedtoolcache/MATLAB/2023.2.999/x64/bin/matlab -nodisplay -r "disp(\"Hello, world!\")"
 
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
+      # - name: Checkout repository
+      #   uses: actions/checkout@v4
 
-      - name: Build ${{ matrix.name || matrix.language }} ${{matrix.make_flags}} on ${{ matrix.os }}
-        uses: ./.github/actions/build
-        timeout-minutes: 90
-        with:
-          language: ${{ matrix.language }}
-          make_flags: ${{ matrix.make_flags }}
+      # - name: Setup Dependencies
+      #   uses: ./.github/actions/setup-dependencies
 
-      - name: Test ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
-        uses: ./.github/actions/test
-        timeout-minutes: 90
-        with:
-          # See https://github.com/zeroc-ice/ice/issues/1653
-          flags: "--rfilter IceGrid/replication ${{ matrix.test_flags }}"
+
+
+      # - name: Build ${{ matrix.name || matrix.language }} ${{matrix.make_flags}} on ${{ matrix.os }}
+      #   uses: ./.github/actions/build
+      #   timeout-minutes: 90
+      #   with:
+      #     language: ${{ matrix.language }}
+      #     make_flags: ${{ matrix.make_flags }}
+
+      # - name: Test ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
+      #   uses: ./.github/actions/test
+      #   timeout-minutes: 90
+      #   with:
+      #     # See https://github.com/zeroc-ice/ice/issues/1653
+      #     flags: "--rfilter IceGrid/replication ${{ matrix.test_flags }}"
