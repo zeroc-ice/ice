@@ -5,10 +5,10 @@
 #include "Gen.h"
 #include "CPlusPlusUtil.h"
 
-#include <Slice/Util.h>
-#include <IceUtil/StringUtil.h>
-#include <Slice/FileTracker.h>
-#include <IceUtil/FileUtil.h>
+#include "Slice/Util.h"
+#include "IceUtil/StringUtil.h"
+#include "Slice/FileTracker.h"
+#include "IceUtil/FileUtil.h"
 
 #include <limits>
 #include <algorithm>
@@ -822,8 +822,11 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         normalizeMetaData(p, true);
 
-        ForwardDeclVisitor forwardDeclVisitor(H, C);
+        ForwardDeclVisitor forwardDeclVisitor(H);
         p->visit(&forwardDeclVisitor, false);
+
+        DefaultFactoryVisitor defaultFactoryVisitor(C);
+        p->visit(&defaultFactoryVisitor, false);
 
         ProxyVisitor proxyVisitor(H, C, _dllExport);
         p->visit(&proxyVisitor, false);
@@ -831,7 +834,6 @@ Slice::Gen::generate(const UnitPtr& p)
         DataDefVisitor dataDefVisitor(H, C, _dllExport);
         p->visit(&dataDefVisitor, false);
 
-        // Interfaces are not types either.
         InterfaceVisitor interfaceVisitor(H, C, _dllExport);
         p->visit(&interfaceVisitor, false);
 
@@ -1534,22 +1536,9 @@ Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
     return ext;
 }
 
-Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c) :
-    H(h), C(c), _useWstring(false)
+Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h) :
+    H(h), _useWstring(false)
 {
-}
-
-bool
-Slice::Gen::ForwardDeclVisitor::visitUnitStart(const UnitPtr&)
-{
-    C << sp << nl << "namespace" << nl << "{";
-    return true;
-}
-
-void
-Slice::Gen::ForwardDeclVisitor::visitUnitEnd(const UnitPtr&)
-{
-    C << sp << nl << "}";
 }
 
 bool
@@ -1578,25 +1567,6 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 bool
-Slice::Gen::ForwardDeclVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    C << sp;
-
-    C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init"
-      << "(\"" << p->scoped() << "\");";
-
-    if(p->compactId() >= 0)
-    {
-        string n = "iceC" + p->flattenedScope() + p->name() + "_compactIdInit ";
-        C << nl << "const ::IceInternal::CompactIdInit " << n << "(\"" << p->scoped() << "\", " << p->compactId()
-          << ");";
-    }
-
-    return true;
-}
-
-bool
 Slice::Gen::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
 {
     H << nl << "struct " << fixKwd(p->name()) << ';';
@@ -1609,66 +1579,6 @@ Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     H << nl << "class " << p->name() << "Prx;";
     // TODO: temporary PrxPtr
     H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << p->name() << "Prx>;";
-}
-
-bool
-Slice::Gen::ForwardDeclVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    OperationList allOps = p->allOperations();
-
-    C << sp;
-
-    StringList ids = p->ids();
-    C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ids[" << ids.size() << "] =";
-    C << sb;
-    for (StringList::const_iterator r = ids.begin(); r != ids.end();)
-    {
-        C << nl << '"' << *r << '"';
-        if (++r != ids.end())
-        {
-            C << ',';
-        }
-    }
-    C << eb << ';';
-
-    StringList allOpNames;
-    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto &c) { return c->name(); });
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
-    allOpNames.sort();
-    allOpNames.unique();
-
-    C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ops[] =";
-    C << sb;
-    for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-    {
-        C << nl << '"' << *q << '"';
-        if (++q != allOpNames.end())
-        {
-            C << ',';
-        }
-    }
-    C << eb << ';';
-
-    return true;
-}
-
-bool
-Slice::Gen::ForwardDeclVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    C << sp;
-    C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
-    return false;
-}
-
-void
-Slice::Gen::ForwardDeclVisitor::visitOperation(const OperationPtr& p)
-{
-    string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
-    C << nl << "const ::std::string " << flatName << " = \"" << p->name() << "\";";
 }
 
 void
@@ -1782,6 +1692,102 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring | TypeContextCpp11, p->typeMetaData(),
                        scope);
     H << ';';
+}
+
+Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) :
+    C(c)
+{
+}
+
+bool
+Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr&)
+{
+    C << sp << nl << "namespace" << nl << "{";
+    return true;
+}
+
+void
+Slice::Gen::DefaultFactoryVisitor::visitUnitEnd(const UnitPtr&)
+{
+    C << sp << nl << "}";
+}
+
+bool
+Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    C << sp;
+
+    C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << fixKwd(p->scoped()) << "> ";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init"
+      << "(\"" << p->scoped() << "\");";
+
+    if(p->compactId() >= 0)
+    {
+        string n = "iceC" + p->flattenedScope() + p->name() + "_compactIdInit ";
+        C << nl << "const ::IceInternal::CompactIdInit " << n << "(\"" << p->scoped() << "\", " << p->compactId()
+          << ");";
+    }
+    return false;
+}
+
+bool
+Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    C << sp;
+    C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
+    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
+    return false;
+}
+
+bool
+Slice::Gen::DefaultFactoryVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    OperationList allOps = p->allOperations();
+
+    C << sp;
+
+    StringList ids = p->ids();
+    C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ids[" << ids.size() << "] =";
+    C << sb;
+    for (StringList::const_iterator r = ids.begin(); r != ids.end();)
+    {
+        C << nl << '"' << *r << '"';
+        if (++r != ids.end())
+        {
+            C << ',';
+        }
+    }
+    C << eb << ';';
+
+    StringList allOpNames;
+    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto &c) { return c->name(); });
+    allOpNames.push_back("ice_id");
+    allOpNames.push_back("ice_ids");
+    allOpNames.push_back("ice_isA");
+    allOpNames.push_back("ice_ping");
+    allOpNames.sort();
+    allOpNames.unique();
+
+    C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ops[] =";
+    C << sb;
+    for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
+    {
+        C << nl << '"' << *q << '"';
+        if (++q != allOpNames.end())
+        {
+            C << ',';
+        }
+    }
+    C << eb << ';';
+
+    return true;
+}
+
+void
+Slice::Gen::DefaultFactoryVisitor::visitOperation(const OperationPtr& p)
+{
+    string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
+    C << nl << "const ::std::string " << flatName << " = \"" << p->name() << "\";";
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
@@ -2468,43 +2474,11 @@ void
 Slice::Gen::DataDefVisitor::visitDataMember(const DataMemberPtr& p)
 {
     auto container = p->container();
-    if (!dynamic_pointer_cast<Struct>(container) && !dynamic_pointer_cast<Exception>(container))
+    if (dynamic_pointer_cast<Struct>(container) || dynamic_pointer_cast<Exception>(container))
     {
-        return;
+        emitDataMember(p);
     }
-
-    //
-    // Use an empty scope to get full qualified names from calls to typeToString.
-    //
-    const string scope = "";
-    string name = fixKwd(p->name());
-    writeDocSummary(H, p);
-    H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), _useWstring | TypeContextCpp11)
-      << ' ' << name;
-
-    string defaultValue = p->defaultValue();
-    if(!defaultValue.empty())
-    {
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-        if(p->optional() && builtin->kind() == Builtin::KindString)
-        {
-            //
-            // = "<string literal>" doesn't work for optional<std::string>
-            //
-            H << '{';
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
-                               p->getMetaData(), scope);
-            H << '}';
-        }
-        else
-        {
-            H << " = ";
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
-                               p->getMetaData(), scope);
-        }
-    }
-
-    H << ';';
+    // else don't do anything - visitClassXxx already calls emitDataMember explicitly.
 }
 
 bool
@@ -2922,7 +2896,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     //
     // Emit data members. Access visibility may be specified by metadata.
-    // TODO: it would be nicer to use visitDataMember.
     //
     bool inProtected = false;
     bool generateFriend = false;
@@ -2962,7 +2935,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
             needSp = false;
         }
 
-        emitClassDataMember(*q);
+        emitDataMember(*q);
     }
 
     if(preserved && !basePreserved)
@@ -3130,7 +3103,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::emitClassDataMember(const DataMemberPtr& p)
+Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
     int typeContext = _useWstring | TypeContextCpp11;

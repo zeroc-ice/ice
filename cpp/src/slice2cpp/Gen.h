@@ -5,8 +5,8 @@
 #ifndef GEN_H
 #define GEN_H
 
-#include <Slice/Parser.h>
-#include <IceUtil/OutputUtil.h>
+#include "Slice/Parser.h"
+#include "IceUtil/OutputUtil.h"
 
 namespace Slice
 {
@@ -65,7 +65,7 @@ private:
     std::string _dllExport;
     std::string _dir;
 
-    // Visitors
+    // Visitors, in code-generation order.
 
     // Generates forward declarations for classes, proxies and structs. Also generates using aliases for sequences and
     // dictionaries, enum definitions and constants.
@@ -73,48 +73,63 @@ private:
     {
     public:
 
-        ForwardDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&);
+        ForwardDeclVisitor(::IceUtilInternal::Output&);
         ForwardDeclVisitor(const ForwardDeclVisitor&) = delete;
 
-        bool visitUnitStart(const UnitPtr&) final;
-        void visitUnitEnd(const UnitPtr&) final;
         bool visitModuleStart(const ModulePtr&) final;
         void visitModuleEnd(const ModulePtr&) final;
         void visitClassDecl(const ClassDeclPtr&) final;
-        bool visitClassDefStart(const ClassDefPtr&) final; // TODO: move
-        bool visitStructStart(const StructPtr&) final;
         void visitInterfaceDecl(const InterfaceDeclPtr&) final;
-        bool visitInterfaceDefStart(const InterfaceDefPtr&) final; // TODO: move
-        bool visitExceptionStart(const ExceptionPtr&) final;
-        void visitOperation(const OperationPtr&) final;
-        void visitSequence(const SequencePtr&);
-        void visitDictionary(const DictionaryPtr&);
-        void visitEnum(const EnumPtr&);
-        void visitConst(const ConstPtr&);
+        bool visitStructStart(const StructPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
 
     private:
 
         ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C; // TODO: probably not needed
 
         int _useWstring;
         std::list<int> _useWstringHist;
     };
 
+    // Generates the code that registers the default class and exception factories.
+    class DefaultFactoryVisitor final : public ParserVisitor
+    {
+    public:
+
+        DefaultFactoryVisitor(::IceUtilInternal::Output&);
+        DefaultFactoryVisitor(const DefaultFactoryVisitor&) = delete;
+
+        bool visitUnitStart(const UnitPtr&) final;
+        void visitUnitEnd(const UnitPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+
+        // TODO: temporary - move to InterfaceVisitor.
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+
+    private:
+
+        ::IceUtilInternal::Output& C;
+    };
+
     // Generates code for proxies. We need to generate this code before the code for structs, classes and exceptions
-    // because fields with a proxy type must see a complete type.
-    class ProxyVisitor : public ParserVisitor
+    // because a data member with a proxy type (e.g., std::optional<GreeterPrx>) needs to see a complete type.
+    class ProxyVisitor final : public ParserVisitor
     {
     public:
 
         ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
         ProxyVisitor(const ProxyVisitor&) = delete;
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
 
     private:
 
@@ -148,7 +163,7 @@ private:
 
         bool emitBaseInitializers(const ClassDefPtr&);
         void emitOneShotConstructor(const ClassDefPtr&);
-        void emitClassDataMember(const DataMemberPtr&);
+        void emitDataMember(const DataMemberPtr&);
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
@@ -199,33 +214,33 @@ private:
         bool visitClassDefStart(const ClassDefPtr&) final;
         bool visitExceptionStart(const ExceptionPtr&) final;
         void visitExceptionEnd(const ExceptionPtr&) final;
-        void visitEnum(const EnumPtr&);
+        void visitEnum(const EnumPtr&) final;
 
     private:
 
         ::IceUtilInternal::Output& H;
     };
 
-    class MetaDataVisitor : public ParserVisitor
+    class MetaDataVisitor final : public ParserVisitor
     {
     public:
 
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitClassDecl(const ClassDeclPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual void visitExceptionEnd(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitStructEnd(const StructPtr&);
-        virtual void visitOperation(const OperationPtr&);
-        virtual void visitDataMember(const DataMemberPtr&);
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
-        virtual void visitEnum(const EnumPtr&);
-        virtual void visitConst(const ConstPtr&);
+        bool visitUnitStart(const UnitPtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        void visitClassDecl(const ClassDeclPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitClassDefEnd(const ClassDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitExceptionEnd(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitStructEnd(const StructPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
 
     private:
 
@@ -233,28 +248,28 @@ private:
                             bool = false);
     };
 
-    class NormalizeMetaDataVisitor : public ParserVisitor
+    class NormalizeMetaDataVisitor final : public ParserVisitor
     {
     public:
 
         NormalizeMetaDataVisitor(bool);
 
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitClassDecl(const ClassDeclPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual void visitExceptionEnd(const ExceptionPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitStructEnd(const StructPtr&);
-        virtual void visitOperation(const OperationPtr&);
-        virtual void visitDataMember(const DataMemberPtr&);
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
-        virtual void visitEnum(const EnumPtr&);
-        virtual void visitConst(const ConstPtr&);
+        bool visitUnitStart(const UnitPtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        void visitClassDecl(const ClassDeclPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitClassDefEnd(const ClassDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitExceptionEnd(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitStructEnd(const StructPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
 
     private:
 
