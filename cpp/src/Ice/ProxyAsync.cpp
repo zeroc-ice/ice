@@ -504,9 +504,10 @@ Ice::ObjectPrx::ice_invokeAsync(const string &operation,
     std::function<void(std::tuple<bool, vector<Byte>> &&)> r;
     if (response)
     {
-        r = [response = std::move(response)](std::tuple<bool, vector<Byte>> &&result)
+        r = [response = std::move(response)](std::tuple<bool, vector<Byte>>&& result)
         {
-            response(std::get<0>(result), std::move(std::get<1>(result)));
+            auto [success, outParams] = std::move(result);
+            response(success, std::move(outParams));
         };
     }
     auto outAsync = std::make_shared<Outgoing>(*this, std::move(r), std::move(ex), std::move(sent));
@@ -526,8 +527,9 @@ bool Ice::ObjectPrx::ice_invoke(const string &operation,
     auto outAsync = std::make_shared<Outgoing>(*this, true);
     outAsync->invoke(operation, mode, inParams, context);
     auto result = outAsync->getFuture().get();
-    outParams.swap(std::get<1>(result));
-    return std::get<0>(result);
+    auto [success, resultOutParams] = std::move(result);
+    outParams.swap(resultOutParams);
+    return success;
 }
 
 std::future<std::tuple<bool, vector<Byte>>>
@@ -558,9 +560,10 @@ Ice::ObjectPrx::ice_invokeAsync(const string &operation,
     ::std::function<void(Result &&)> r;
     if (response)
     {
-        r = [response = std::move(response)](Result &&result)
+        r = [response = std::move(response)](Result&& result)
         {
-            response(::std::get<0>(result), ::std::move(::std::get<1>(result)));
+            auto [success, outParams] = ::std::move(result);
+            response(success, std::move(outParams));
         };
     }
     auto outAsync = ::std::make_shared<Outgoing>(*this, std::move(r), std::move(ex), std::move(sent));
