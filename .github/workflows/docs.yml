@@ -1,0 +1,57 @@
+name: Generate documentation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "publish-api-referenc"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  ci:
+    name: Build Doxygen documentation
+
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Install Doxygen
+        run: brew install doxygen
+
+      - name: Generate Doxygen Documentation for Slice
+        working-directory: ./slice
+        run: doxygen Doxyfile
+
+      - name: Upload Doxygen Documentation Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: docs-slice
+          path: ./doxygen/slice
+
+      - name: Generate Doxygen Documentation for C++
+        working-directory: ./cpp
+        run: |
+          make generate-srcs
+          cd doxygen
+          doxygen Doxyfile
+
+      - name: Upload Doxygen Documentation Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: docs-cpp
+          path: ./cpp/doxygen/cpp
+
+      - name: Sync Documentation to S3
+        uses: actions/aws/cli@v1
+        with:
+          args: s3 sync ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        # if: github.ref == 'refs/heads/main'
