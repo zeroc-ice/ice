@@ -169,7 +169,7 @@ extern "C"
 mxArray*
 Ice_ObjectPrx_unref(void* self)
 {
-    delete reinterpret_cast<shared_ptr<Ice::ObjectPrx>*>(self);
+    delete reinterpret_cast<Ice::ObjectPrx*>(self);
     return 0;
 }
 
@@ -179,8 +179,7 @@ Ice_ObjectPrx_equals(void* self, void* other)
     assert(other); // Wrapper only calls this function for non-nil arguments.
     try
     {
-        return createResultValue(createBool(Ice::targetEqualTo(deref<Ice::ObjectPrx>(self),
-                                                               deref<Ice::ObjectPrx>(other))));
+        return createResultValue(createBool(restoreProxy(self) == restoreProxy(other)));
     }
     catch(const std::exception& ex)
     {
@@ -203,16 +202,9 @@ Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int star
         getEncodingVersion(encoding, ev);
 
         Ice::InputStream in(deref<Ice::Communicator>(communicator), ev, p);
-        shared_ptr<Ice::ObjectPrx> proxy;
+        std::optional<Ice::ObjectPrx> proxy;
         in.read(proxy);
-        if(proxy)
-        {
-            *r = createShared<Ice::ObjectPrx>(proxy);
-        }
-        else
-        {
-            *r = 0;
-        }
+        *r = createProxy(std::move(proxy));
     }
     catch(const std::exception& ex)
     {
@@ -229,11 +221,7 @@ Ice_ObjectPrx_write(void* proxy, void* communicator, mxArray* encoding)
     //
     try
     {
-        shared_ptr<Ice::ObjectPrx> prx;
-        if(proxy)
-        {
-            prx = deref<Ice::ObjectPrx>(proxy);
-        }
+        optional<Ice::ObjectPrx> prx = restoreNullableProxy(proxy);
 
         assert(communicator);
         auto comm = deref<Ice::Communicator>(communicator);
@@ -270,7 +258,7 @@ Ice_ObjectPrx_ice_invoke(void* self, const char* op, int m, mxArray* inParams, u
     {
         Ice::Context ctx;
         getStringMap(context, ctx);
-        auto ok = deref<Ice::ObjectPrx>(self)->ice_invoke(op, mode, params, v, ctx);
+        auto ok = restoreProxy(self)->ice_invoke(op, mode, params, v, ctx);
         mxArray* results = 0;
         if(!v.empty())
         {
@@ -299,7 +287,7 @@ Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, int m, mxArray* inParams,
 
     try
     {
-        auto ok = deref<Ice::ObjectPrx>(self)->ice_invoke(op, mode, params, v);
+        auto ok = restoreProxy(self)->ice_invoke(op, mode, params, v);
         mxArray* results = 0;
         if(!v.empty())
         {
@@ -318,7 +306,7 @@ mxArray*
 Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, int m, mxArray* inParams, unsigned int size,
                               mxArray* context, void** future)
 {
-    const auto proxy = deref<Ice::ObjectPrx>(self);
+    const auto proxy = restoreProxy(self);
     pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
     if(!mxIsEmpty(inParams))
     {
@@ -363,7 +351,7 @@ Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, int m, mxArray* inPara
 mxArray*
 Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size, void** future)
 {
-    const auto proxy = deref<Ice::ObjectPrx>(self);
+    const auto proxy = restoreProxy(self);
     pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
     if(!mxIsEmpty(inParams))
     {
@@ -406,13 +394,13 @@ Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, int m, mxArray* inPa
 mxArray*
 Ice_ObjectPrx_ice_toString(void* self)
 {
-    return createResultValue(createStringFromUTF8(deref<Ice::ObjectPrx>(self)->ice_toString()));
+    return createResultValue(createStringFromUTF8(restoreProxy(self)->ice_toString()));
 }
 
 mxArray*
 Ice_ObjectPrx_ice_getIdentity(void* self)
 {
-    return createResultValue(createIdentity(deref<Ice::ObjectPrx>(self)->ice_getIdentity()));
+    return createResultValue(createIdentity(restoreProxy(self)->ice_getIdentity()));
 }
 
 mxArray*
@@ -422,9 +410,9 @@ Ice_ObjectPrx_ice_identity(void* self, void** r, mxArray* id)
     {
         Ice::Identity ident;
         getIdentity(id, ident);
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_identity(ident);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -436,7 +424,7 @@ Ice_ObjectPrx_ice_identity(void* self, void** r, mxArray* id)
 mxArray*
 Ice_ObjectPrx_ice_getContext(void* self)
 {
-    return createResultValue(createStringMap(deref<Ice::ObjectPrx>(self)->ice_getContext()));
+    return createResultValue(createStringMap(restoreProxy(self)->ice_getContext()));
 }
 
 mxArray*
@@ -446,9 +434,9 @@ Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
     {
         Ice::Context ctx;
         getStringMap(c, ctx);
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_context(ctx);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -460,7 +448,7 @@ Ice_ObjectPrx_ice_context(void* self, void** r, mxArray* c)
 mxArray*
 Ice_ObjectPrx_ice_getFacet(void* self)
 {
-    return createResultValue(createStringFromUTF8(deref<Ice::ObjectPrx>(self)->ice_getFacet()));
+    return createResultValue(createStringFromUTF8(restoreProxy(self)->ice_getFacet()));
 }
 
 mxArray*
@@ -468,9 +456,9 @@ Ice_ObjectPrx_ice_facet(void* self, void** r, const char* f)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_facet(f);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -482,7 +470,7 @@ Ice_ObjectPrx_ice_facet(void* self, void** r, const char* f)
 mxArray*
 Ice_ObjectPrx_ice_getAdapterId(void* self)
 {
-    return createResultValue(createStringFromUTF8(deref<Ice::ObjectPrx>(self)->ice_getAdapterId()));
+    return createResultValue(createStringFromUTF8(restoreProxy(self)->ice_getAdapterId()));
 }
 
 mxArray*
@@ -490,9 +478,9 @@ Ice_ObjectPrx_ice_adapterId(void* self, void** r, const char* id)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_adapterId(id);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -506,7 +494,7 @@ Ice_ObjectPrx_ice_getNumEndpoints(void* self)
 {
     try
     {
-        return createResultValue(createInt(static_cast<int>(deref<Ice::ObjectPrx>(self)->ice_getEndpoints().size())));
+        return createResultValue(createInt(static_cast<int>(restoreProxy(self)->ice_getEndpoints().size())));
     }
     catch(const std::exception& ex)
     {
@@ -519,7 +507,7 @@ Ice_ObjectPrx_ice_getEndpoint(void* self, unsigned int idx, void** r)
 {
     try
     {
-        auto endpoints = deref<Ice::ObjectPrx>(self)->ice_getEndpoints();
+        auto endpoints = restoreProxy(self)->ice_getEndpoints();
         if(idx > endpoints.size())
         {
             throw std::invalid_argument("index outside range");
@@ -575,9 +563,9 @@ Ice_ObjectPrx_ice_endpoints(void* self, void** r, void* arr)
         vector<shared_ptr<Ice::Endpoint>>* v = reinterpret_cast<vector<shared_ptr<Ice::Endpoint>>*>(arr);
         vector<shared_ptr<Ice::Endpoint>> tmp = *v;
         delete v;
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_endpoints(tmp);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -589,7 +577,7 @@ Ice_ObjectPrx_ice_endpoints(void* self, void** r, void* arr)
 mxArray*
 Ice_ObjectPrx_ice_getLocatorCacheTimeout(void* self)
 {
-    return createResultValue(createInt(deref<Ice::ObjectPrx>(self)->ice_getLocatorCacheTimeout()));
+    return createResultValue(createInt(restoreProxy(self)->ice_getLocatorCacheTimeout()));
 }
 
 mxArray*
@@ -597,9 +585,9 @@ Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, void** r, int t)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_locatorCacheTimeout(t);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -611,7 +599,7 @@ Ice_ObjectPrx_ice_locatorCacheTimeout(void* self, void** r, int t)
 mxArray*
 Ice_ObjectPrx_ice_getInvocationTimeout(void* self)
 {
-    return createResultValue(createInt(deref<Ice::ObjectPrx>(self)->ice_getInvocationTimeout()));
+    return createResultValue(createInt(restoreProxy(self)->ice_getInvocationTimeout()));
 }
 
 mxArray*
@@ -619,9 +607,9 @@ Ice_ObjectPrx_ice_invocationTimeout(void* self, void** r, int t)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_invocationTimeout(t);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -633,7 +621,7 @@ Ice_ObjectPrx_ice_invocationTimeout(void* self, void** r, int t)
 mxArray*
 Ice_ObjectPrx_ice_getConnectionId(void* self)
 {
-    auto s = deref<Ice::ObjectPrx>(self)->ice_getConnectionId();
+    auto s = restoreProxy(self)->ice_getConnectionId();
     return createResultValue(createStringFromUTF8(s));
 }
 
@@ -642,9 +630,9 @@ Ice_ObjectPrx_ice_connectionId(void* self, void** r, const char* id)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_connectionId(id);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -656,7 +644,7 @@ Ice_ObjectPrx_ice_connectionId(void* self, void** r, const char* id)
 mxArray*
 Ice_ObjectPrx_ice_isConnectionCached(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isConnectionCached()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isConnectionCached()));
 }
 
 mxArray*
@@ -664,9 +652,9 @@ Ice_ObjectPrx_ice_connectionCached(void* self, void** r, unsigned char v)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_connectionCached(v == 1);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -680,7 +668,7 @@ Ice_ObjectPrx_ice_getEndpointSelection(void* self)
 {
     try
     {
-        return createResultValue(createInt(static_cast<int>(deref<Ice::ObjectPrx>(self)->ice_getEndpointSelection())));
+        return createResultValue(createInt(static_cast<int>(restoreProxy(self)->ice_getEndpointSelection())));
     }
     catch(const std::exception& ex)
     {
@@ -693,10 +681,10 @@ Ice_ObjectPrx_ice_endpointSelection(void* self, void** r, mxArray* type)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_endpointSelection(
             static_cast<Ice::EndpointSelectionType>(getEnumerator(type, "Ice.EndpointSelectionType")));
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -708,7 +696,7 @@ Ice_ObjectPrx_ice_endpointSelection(void* self, void** r, mxArray* type)
 mxArray*
 Ice_ObjectPrx_ice_getEncodingVersion(void* self)
 {
-    return createResultValue(createEncodingVersion(deref<Ice::ObjectPrx>(self)->ice_getEncodingVersion()));
+    return createResultValue(createEncodingVersion(restoreProxy(self)->ice_getEncodingVersion()));
 }
 
 mxArray*
@@ -718,9 +706,9 @@ Ice_ObjectPrx_ice_encodingVersion(void* self, void** r, mxArray* v)
     {
         Ice::EncodingVersion ev;
         getEncodingVersion(v, ev);
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_encodingVersion(ev);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -732,8 +720,8 @@ Ice_ObjectPrx_ice_encodingVersion(void* self, void** r, mxArray* v)
 mxArray*
 Ice_ObjectPrx_ice_getRouter(void* self, void** r)
 {
-    auto router = deref<Ice::ObjectPrx>(self)->ice_getRouter();
-    *r = router ? new shared_ptr<Ice::ObjectPrx>(move(router)) : 0;
+    auto router = restoreProxy(self)->ice_getRouter();
+    *r = createProxy(std::move(router));
     return 0;
 }
 
@@ -742,14 +730,10 @@ Ice_ObjectPrx_ice_router(void* self, void** r, void* rtr)
 {
     try
     {
-        shared_ptr<Ice::ObjectPrx> router;
-        if(rtr)
-        {
-            router = deref<Ice::ObjectPrx>(rtr);
-        }
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        optional<Ice::ObjectPrx> router = restoreNullableProxy(rtr);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(router));
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -761,8 +745,8 @@ Ice_ObjectPrx_ice_router(void* self, void** r, void* rtr)
 mxArray*
 Ice_ObjectPrx_ice_getLocator(void* self, void** r)
 {
-    auto locator = deref<Ice::ObjectPrx>(self)->ice_getLocator();
-    *r = locator ? new shared_ptr<Ice::ObjectPrx>(move(locator)) : 0;
+    auto locator = restoreProxy(self)->ice_getLocator();
+    *r = createProxy(std::move(locator));
     return 0;
 }
 
@@ -771,14 +755,10 @@ Ice_ObjectPrx_ice_locator(void* self, void** r, void* loc)
 {
     try
     {
-        shared_ptr<Ice::ObjectPrx> locator;
-        if(loc)
-        {
-            locator = deref<Ice::ObjectPrx>(loc);
-        }
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        optional<Ice::ObjectPrx> locator = restoreNullableProxy(loc);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -790,7 +770,7 @@ Ice_ObjectPrx_ice_locator(void* self, void** r, void* loc)
 mxArray*
 Ice_ObjectPrx_ice_isSecure(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isSecure()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isSecure()));
 }
 
 mxArray*
@@ -798,9 +778,9 @@ Ice_ObjectPrx_ice_secure(void* self, void** r, unsigned char b)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_secure(b == 1);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -812,7 +792,7 @@ Ice_ObjectPrx_ice_secure(void* self, void** r, unsigned char b)
 mxArray*
 Ice_ObjectPrx_ice_isPreferSecure(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isPreferSecure()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isPreferSecure()));
 }
 
 mxArray*
@@ -820,9 +800,9 @@ Ice_ObjectPrx_ice_preferSecure(void* self, void** r, unsigned char b)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_preferSecure(b == 1);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -834,7 +814,7 @@ Ice_ObjectPrx_ice_preferSecure(void* self, void** r, unsigned char b)
 mxArray*
 Ice_ObjectPrx_ice_isTwoway(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isTwoway()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isTwoway()));
 }
 
 mxArray*
@@ -842,9 +822,9 @@ Ice_ObjectPrx_ice_twoway(void* self, void** r)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_twoway();
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -856,7 +836,7 @@ Ice_ObjectPrx_ice_twoway(void* self, void** r)
 mxArray*
 Ice_ObjectPrx_ice_isOneway(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isOneway()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isOneway()));
 }
 
 mxArray*
@@ -864,9 +844,9 @@ Ice_ObjectPrx_ice_oneway(void* self, void** r)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_oneway();
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -878,7 +858,7 @@ Ice_ObjectPrx_ice_oneway(void* self, void** r)
 mxArray*
 Ice_ObjectPrx_ice_isBatchOneway(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isBatchOneway()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isBatchOneway()));
 }
 
 mxArray*
@@ -886,9 +866,9 @@ Ice_ObjectPrx_ice_batchOneway(void* self, void** r)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_batchOneway();
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -900,7 +880,7 @@ Ice_ObjectPrx_ice_batchOneway(void* self, void** r)
 mxArray*
 Ice_ObjectPrx_ice_isDatagram(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isDatagram()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isDatagram()));
 }
 
 mxArray*
@@ -908,9 +888,9 @@ Ice_ObjectPrx_ice_datagram(void* self, void** r)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_datagram();
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -922,7 +902,7 @@ Ice_ObjectPrx_ice_datagram(void* self, void** r)
 mxArray*
 Ice_ObjectPrx_ice_isBatchDatagram(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isBatchDatagram()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isBatchDatagram()));
 }
 
 mxArray*
@@ -930,9 +910,9 @@ Ice_ObjectPrx_ice_batchDatagram(void* self, void** r)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_batchDatagram();
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -946,9 +926,9 @@ Ice_ObjectPrx_ice_compress(void* self, void** r, unsigned char b)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_compress(b == 1);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -960,7 +940,7 @@ Ice_ObjectPrx_ice_compress(void* self, void** r, unsigned char b)
 mxArray*
 Ice_ObjectPrx_ice_getCompress(void* self)
 {
-    auto v = deref<Ice::ObjectPrx>(self)->ice_getCompress();
+    auto v = restoreProxy(self)->ice_getCompress();
     if(v.has_value())
     {
         return createResultValue(createOptionalValue(true, createBool(v.value())));
@@ -976,9 +956,9 @@ Ice_ObjectPrx_ice_timeout(void* self, void** r, int t)
 {
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_timeout(t);
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -990,7 +970,7 @@ Ice_ObjectPrx_ice_timeout(void* self, void** r, int t)
 mxArray*
 Ice_ObjectPrx_ice_getTimeout(void* self)
 {
-    auto v = deref<Ice::ObjectPrx>(self)->ice_getTimeout();
+    auto v = restoreProxy(self)->ice_getTimeout();
     if(v.has_value())
     {
         return createResultValue(createOptionalValue(true, createInt(v.value())));
@@ -1007,9 +987,9 @@ Ice_ObjectPrx_ice_fixed(void* self, void** r, void* connection)
     assert(connection); // Wrapper only calls this function for non-nil arguments.
     try
     {
-        auto proxy = deref<Ice::ObjectPrx>(self);
+        auto proxy = restoreProxy(self);
         auto newProxy = proxy->ice_fixed(deref<Ice::Connection>(connection));
-        *r = newProxy == proxy ? 0 : new shared_ptr<Ice::ObjectPrx>(move(newProxy));
+        *r = newProxy == proxy ? nullptr : new Ice::ObjectPrx(std::move(newProxy));
     }
     catch(const std::exception& ex)
     {
@@ -1021,7 +1001,7 @@ Ice_ObjectPrx_ice_fixed(void* self, void** r, void* connection)
 mxArray*
 Ice_ObjectPrx_ice_isFixed(void* self)
 {
-    return createResultValue(createBool(deref<Ice::ObjectPrx>(self)->ice_isFixed()));
+    return createResultValue(createBool(restoreProxy(self)->ice_isFixed()));
 }
 
 mxArray*
@@ -1030,7 +1010,7 @@ Ice_ObjectPrx_ice_getConnection(void* self, void** r)
     *r = 0;
     try
     {
-        auto conn = deref<Ice::ObjectPrx>(self)->ice_getConnection();
+        auto conn = restoreProxy(self)->ice_getConnection();
         if(conn)
         {
             *r = new shared_ptr<Ice::Connection>(move(conn));
@@ -1051,7 +1031,7 @@ Ice_ObjectPrx_ice_getConnectionAsync(void* self, void** future)
 
     try
     {
-        function<void()> token = deref<Ice::ObjectPrx>(self)->ice_getConnectionAsync(
+        function<void()> token = restoreProxy(self)->ice_getConnectionAsync(
             [f](shared_ptr<Ice::Connection> con)
             {
                 f->finished(con);
@@ -1077,7 +1057,7 @@ Ice_ObjectPrx_ice_getCachedConnection(void* self, void** r)
     *r = 0;
     try
     {
-        auto conn = deref<Ice::ObjectPrx>(self)->ice_getCachedConnection();
+        auto conn = restoreProxy(self)->ice_getCachedConnection();
         if(conn)
         {
             *r = new shared_ptr<Ice::Connection>(move(conn));
@@ -1095,7 +1075,7 @@ Ice_ObjectPrx_ice_flushBatchRequests(void* self)
 {
     try
     {
-        deref<Ice::ObjectPrx>(self)->ice_flushBatchRequests();
+        restoreProxy(self)->ice_flushBatchRequests();
     }
     catch(const std::exception& ex)
     {
@@ -1112,7 +1092,7 @@ Ice_ObjectPrx_ice_flushBatchRequestsAsync(void* self, void** future)
 
     try
     {
-        function<void()> token = deref<Ice::ObjectPrx>(self)->ice_flushBatchRequestsAsync(
+        function<void()> token = restoreProxy(self)->ice_flushBatchRequestsAsync(
             [f](exception_ptr e)
             {
                 f->exception(e);
@@ -1134,7 +1114,7 @@ Ice_ObjectPrx_ice_flushBatchRequestsAsync(void* self, void** future)
 mxArray*
 Ice_ObjectPrx_clone(void* self, void** r)
 {
-    *r = new shared_ptr<Ice::ObjectPrx>(deref<Ice::ObjectPrx>(self));
+    *r = createProxy(restoreProxy(self));
     return 0;
 }
 
