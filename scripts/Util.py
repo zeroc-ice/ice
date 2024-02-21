@@ -2943,7 +2943,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
         try:
             for r in run("xcrun simctl list runtimes").split("\n"):
-                m = re.search("iOS .* \\(.*\\) - (.*)", r)
+                m = re.search(r"iOS .* \(.*\) - (.*)", r)
                 if m:
                     self.runtimeID = m.group(1)
         except Exception:
@@ -4520,7 +4520,7 @@ class SwiftMapping(Mapping):
             current.config.buildConfig,
             current.config.buildPlatform,
         )
-        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
         testDriver = os.path.join(targetBuildDir, "TestDriver.app")
         if not os.path.exists(testDriver):
