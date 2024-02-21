@@ -27,7 +27,7 @@ jobs:
         run: brew install doxygen
 
       - name: Generate Doxygen Documentation for Slice
-        working-directory: ./slice
+        working-directory: ./doxygen
         run: doxygen Doxyfile
 
       - name: Upload Doxygen Documentation Artifact
