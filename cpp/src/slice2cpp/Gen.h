@@ -177,29 +177,6 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class ObjectVisitor : public ParserVisitor
-    {
-    public:
-
-        ObjectVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-    protected:
-
-        bool emitBaseInitializers(const ClassDefPtr&);
-        void emitOneShotConstructor(const ClassDefPtr&);
-        void emitDataMember(const DataMemberPtr&);
-
-        ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
-
-        std::string _dllExport;
-        std::string _dllClassExport;
-        std::string _dllMemberExport;
-        bool _doneStaticSymbol;
-        int _useWstring;
-        std::list<int> _useWstringHist;
-    };
-
     class InterfaceVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
@@ -222,31 +199,50 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class ValueVisitor : private ::IceUtil::noncopyable, public ObjectVisitor
+    class ValueVisitor final : public ParserVisitor
     {
     public:
 
         ValueVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ValueVisitor(const ValueVisitor&) = delete;
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual void visitClassDefEnd(const ClassDefPtr&);
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitClassDefEnd(const ClassDefPtr&) final;
+
+    private:
+
+        bool emitBaseInitializers(const ClassDefPtr&);
+        void emitOneShotConstructor(const ClassDefPtr&);
+        void emitDataMember(const DataMemberPtr&);
+
+        ::IceUtilInternal::Output& H;
+        ::IceUtilInternal::Output& C;
+
+        std::string _dllExport;
+        std::string _dllClassExport;
+        std::string _dllMemberExport;
+        bool _doneStaticSymbol;
+        int _useWstring;
+        std::list<int> _useWstringHist;
     };
 
-    class StreamVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    // Generates StreamHelper template specializations for enums, structs, classes and exceptions.
+    class StreamVisitor final : public ParserVisitor
     {
     public:
 
         StreamVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        StreamVisitor(const StreamVisitor&) = delete;
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
-        virtual void visitExceptionEnd(const ExceptionPtr&);
-        virtual void visitEnum(const EnumPtr&);
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitExceptionEnd(const ExceptionPtr&) final;
+        void visitEnum(const EnumPtr&);
 
     private:
 

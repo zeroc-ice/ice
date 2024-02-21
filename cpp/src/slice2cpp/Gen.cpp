@@ -2845,57 +2845,6 @@ Slice::Gen::ExceptionVisitor::visitDataMember(const DataMemberPtr& p)
     H << ';';
 }
 
-Slice::Gen::ObjectVisitor::ObjectVisitor(::IceUtilInternal::Output& h,
-                                         ::IceUtilInternal::Output& c,
-                                         const std::string& dllExport) :
-    H(h),
-    C(c),
-    _dllExport(dllExport),
-    _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
-    _doneStaticSymbol(false),
-    _useWstring(false)
-{
-}
-
-void
-Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
-{
-    string name = fixKwd(p->name());
-    int typeContext = _useWstring | TypeContextCpp11;
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(container);
-    //
-    // Use empty scope to get full qualified names in types used with future declarations.
-    //
-    string scope = "";
-
-    writeDocSummary(H, p);
-    H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), typeContext) << ' ' << name;
-
-    string defaultValue = p->defaultValue();
-    if(!defaultValue.empty())
-    {
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-        if(p->optional() && builtin && builtin->kind() == Builtin::KindString)
-        {
-            //
-            // = "<string literal>" doesn't work for optional<std::string>
-            //
-            H << '{';
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
-                               p->getMetaData(), scope);
-            H << '}';
-        }
-        else
-        {
-            H << " = ";
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
-                               p->getMetaData(), scope);
-        }
-    }
-    H << ";";
-}
-
 Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceUtilInternal::Output& h,
                                                          ::IceUtilInternal::Output& c,
                                                          const std::string& dllExport) :
@@ -3417,9 +3366,14 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 }
 
 Slice::Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& h,
-                                                 ::IceUtilInternal::Output& c,
-                                                 const std::string& dllExport) :
-    ObjectVisitor(h, c, dllExport)
+                                         ::IceUtilInternal::Output& c,
+                                         const std::string& dllExport) :
+    H(h),
+    C(c),
+    _dllExport(dllExport),
+    _dllClassExport(toDllClassExport(dllExport)), _dllMemberExport(toDllMemberExport(dllExport)),
+    _doneStaticSymbol(false),
+    _useWstring(false)
 {
 }
 
@@ -3674,7 +3628,7 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::ObjectVisitor::emitBaseInitializers(const ClassDefPtr& p)
+Slice::Gen::ValueVisitor::emitBaseInitializers(const ClassDefPtr& p)
 {
     ClassDefPtr base = p->base();
     if (!base)
@@ -3708,7 +3662,7 @@ Slice::Gen::ObjectVisitor::emitBaseInitializers(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
+Slice::Gen::ValueVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
     //
@@ -3786,6 +3740,45 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     }
 }
 
+void
+Slice::Gen::ValueVisitor::emitDataMember(const DataMemberPtr& p)
+{
+    string name = fixKwd(p->name());
+    int typeContext = _useWstring | TypeContextCpp11;
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(container);
+    //
+    // Use empty scope to get full qualified names in types used with future declarations.
+    //
+    string scope = "";
+
+    writeDocSummary(H, p);
+    H << nl << typeToString(p->type(), p->optional(), scope, p->getMetaData(), typeContext) << ' ' << name;
+
+    string defaultValue = p->defaultValue();
+    if(!defaultValue.empty())
+    {
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+        if(p->optional() && builtin && builtin->kind() == Builtin::KindString)
+        {
+            //
+            // = "<string literal>" doesn't work for optional<std::string>
+            //
+            H << '{';
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
+                               p->getMetaData(), scope);
+            H << '}';
+        }
+        else
+        {
+            H << " = ";
+            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
+                               p->getMetaData(), scope);
+        }
+    }
+    H << ";";
+}
+
 Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dllExport) :
     H(h),
     C(c),
@@ -3860,7 +3853,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
-    writeStreamHelpers(H,c, c->dataMembers(), c->hasBaseDataMembers(), true, true);
+    writeStreamHelpers(H, c, c->dataMembers(), c->hasBaseDataMembers(), true, true);
     return false;
 }
 
@@ -3873,7 +3866,7 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr&)
 void
 Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    writeStreamHelpers(H,p, p->dataMembers(), p->hasBaseDataMembers(), true, true);
+    writeStreamHelpers(H, p, p->dataMembers(), p->hasBaseDataMembers(), true, true);
 }
 
 void
