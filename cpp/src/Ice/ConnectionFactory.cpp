@@ -91,7 +91,7 @@ public:
         {
             Error out(_instance->initializationData().logger);
             out << "acceptor creation failed:\n" << ex << '\n' << _factory->toString();
-            _instance->timer()->schedule(shared_from_this(), IceUtil::Time::seconds(1));
+            _instance->timer()->schedule(shared_from_this(), chrono::seconds(1));
         }
     }
 
@@ -1558,7 +1558,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
         if(!_acceptorStopped)
         {
             _instance->timer()->schedule(make_shared<StartAcceptor>(shared_from_this(), _instance),
-                                         IceUtil::Time::seconds(1));
+                                         chrono::seconds(1));
         }
         return;
     }

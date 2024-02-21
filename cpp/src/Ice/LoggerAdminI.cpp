@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <IceUtil/Thread.h>
+#include <IceUtil/Time.h>
 #include <Ice/LoggerAdminI.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>

@@ -5,7 +5,6 @@
 #ifndef ICE_CONNECTION_I_H
 #define ICE_CONNECTION_I_H
 
-#include <IceUtil/Time.h>
 #include <IceUtil/StopWatch.h>
 #include <IceUtil/Timer.h>
 
@@ -35,6 +34,7 @@
 #include <condition_variable>
 #include <deque>
 #include <mutex>
+#include <chrono>
 
 #ifndef ICE_HAS_BZIP2
 #   define ICE_HAS_BZIP2
@@ -144,7 +144,7 @@ public:
 
     void updateObserver();
 
-    void monitor(const IceUtil::Time&, const IceInternal::ACMConfig&);
+    void monitor(const std::chrono::steady_clock::time_point&, const IceInternal::ACMConfig&);
 
     IceInternal::AsyncStatus sendAsyncRequest(const IceInternal::OutgoingAsyncBasePtr&, bool, bool, int);
 
@@ -315,7 +315,7 @@ private:
     const bool _warn;
     const bool _warnUdp;
 
-    IceUtil::Time _acmLastActivity;
+    std::chrono::steady_clock::time_point _acmLastActivity;
 
     const int _compressionLevel;
 

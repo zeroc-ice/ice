@@ -5,6 +5,7 @@
 #ifndef ICE_LOGGER_I_H
 #define ICE_LOGGER_I_H
 
+#include <IceUtil/Time.h>
 #include <Ice/Logger.h>
 #include <Ice/StringConverter.h>
 #include <fstream>

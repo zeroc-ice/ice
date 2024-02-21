@@ -61,7 +61,7 @@ HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
     {
         try
         {
-            _timer->schedule(make_shared<PutOnHold>(_adapter), IceUtil::Time::milliSeconds(milliSeconds));
+            _timer->schedule(make_shared<PutOnHold>(_adapter), chrono::milliseconds(milliSeconds));
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
@@ -105,7 +105,7 @@ HoldI::waitForHold(const Ice::Current& current)
 
     try
     {
-        _timer->schedule(make_shared<WaitForHold>(current.adapter), IceUtil::Time());
+        _timer->schedule(make_shared<WaitForHold>(current.adapter), chrono::seconds::zero());
     }
     catch(const IceUtil::IllegalArgumentException&)
     {

@@ -5,13 +5,14 @@
 #ifndef ICE_UTIL_TIMER_H
 #define ICE_UTIL_TIMER_H
 
-#include <IceUtil/Thread.h>
-#include <IceUtil/Time.h>
+#include <IceUtil/Exception.h>
 
 #include <set>
 #include <map>
 #include <mutex>
+#include <chrono>
 #include <functional>
+#include <optional>
 
 namespace IceUtil
 {
@@ -19,10 +20,6 @@ namespace IceUtil
 class Timer;
 using TimerPtr = std::shared_ptr<Timer>;
 
-//
-// Extend the TimerTask class and override the runTimerTask() method to execute
-// code at a specific time or repeatedly.
-//
 class ICE_API TimerTask
 {
 public:
@@ -33,41 +30,88 @@ public:
 };
 using TimerTaskPtr = std::shared_ptr<TimerTask>;
 
-//
-// The timer class is used to schedule tasks for one-time execution or
-// repeated execution. Tasks are executed by the dedicated timer thread
-// sequentially.
-//
-class ICE_API Timer : public Thread
+// The timer class is used to schedule tasks for one-time execution or repeated execution. Tasks are executed by a
+// dedicated timer thread sequentially.
+class ICE_API Timer
 {
 public:
 
-    //
-    // Construct a timer and starts its execution thread.
-    //
-    static TimerPtr create();
+    Timer();
+    virtual ~Timer() = default;
 
-    //
-    // Construct a timer and starts its execution thread with the priority.
-    //
-    static TimerPtr create(int priority);
-
-    //
     // Destroy the timer and detach its execution thread if the calling thread
     // is the timer thread, join the timer execution thread otherwise.
-    //
     void destroy();
 
-    //
     // Schedule a task for execution after a given delay.
-    //
-    void schedule(const TimerTaskPtr&, const IceUtil::Time&);
+    template<class Rep, class Period>
+    void schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
+    {
+        std::lock_guard lock(_mutex);
+        if (_destroyed)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
+        }
 
-    //
-    // Schedule a task for repeated execution with the given delay
-    // between each execution.
-    //
-    void scheduleRepeated(const TimerTaskPtr&, const IceUtil::Time&);
+        if (delay < std::chrono::nanoseconds::zero())
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "invalid negative delay");
+        }
+
+        auto now = std::chrono::steady_clock::now();
+        auto time = now + delay;
+        if (delay > std::chrono::nanoseconds::zero() && time < now)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "delay too large, resulting in overflow");
+        }
+
+        bool inserted = _tasks.insert(make_pair(task, time)).second;
+        if (!inserted)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
+        }
+        _tokens.insert({ time, std::nullopt, task });
+
+        if(_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
+        {
+            _condition.notify_one();
+        }
+    }
+
+    // Schedule a task for repeated execution with the given delay between each execution.
+    template<class Rep, class Period>
+    void scheduleRepeated(TimerTaskPtr task, const std::chrono::duration<Rep, Period>& delay)
+    {
+        std::lock_guard lock(_mutex);
+        if(_destroyed)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
+        }
+
+        if (delay < std::chrono::nanoseconds::zero())
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "invalid negative delay");
+        }
+
+        auto now = std::chrono::steady_clock::now();
+        auto time = now + delay;
+        if (delay > std::chrono::nanoseconds::zero() && time < now)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "delay too large, resulting in overflow");
+        }
+
+        bool inserted = _tasks.insert(make_pair(task, time)).second;
+        if(!inserted)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
+        }
+        _tokens.insert({ time, std::chrono::duration_cast<std::chrono::nanoseconds>(delay), task });
+
+        if(_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
+        {
+            _condition.notify_one();
+        }
+    }
 
     //
     // Cancel a task. Returns true if the task has not yet run or if
@@ -79,63 +123,39 @@ public:
 
 protected:
 
-    //
-    // Construct a timer and starts its execution thread.
-    //
-    Timer();
+    virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
 
-    virtual void run();
-    virtual void runTimerTask(const TimerTaskPtr&);
+private:
 
     struct Token
     {
-        IceUtil::Time scheduledTime;
-        IceUtil::Time delay;
+        std::chrono::steady_clock::time_point scheduledTime;
+        std::optional<std::chrono::nanoseconds> delay;
         TimerTaskPtr task;
-
-        inline Token(const IceUtil::Time&, const IceUtil::Time&, const TimerTaskPtr&);
-        inline bool operator<(const Token& r) const;
-    };
-
-    std::mutex _mutex;
-    std::condition_variable _conditionVariable;
-    bool _destroyed;
-    std::set<Token> _tokens;
-
-    class TimerTaskCompare
-    {
-    public:
-
-        bool operator()(const TimerTaskPtr& lhs, const TimerTaskPtr& rhs) const
+        bool operator<(const Token& other) const
         {
-            return lhs.get() < rhs.get();
+            if (scheduledTime < other.scheduledTime)
+            {
+                return true;
+            }
+            else if (scheduledTime > other.scheduledTime)
+            {
+                return false;
+            }
+            return task < other.task;
         }
     };
-    std::map<TimerTaskPtr, IceUtil::Time, TimerTaskCompare> _tasks;
-    IceUtil::Time _wakeUpTime;
-    IceUtil::ThreadPtr _thread;
+
+    void run();
+
+    std::mutex _mutex;
+    std::condition_variable _condition;
+    std::set<Token> _tokens;
+    std::map<TimerTaskPtr, std::chrono::steady_clock::time_point> _tasks;
+    bool _destroyed;
+    std::chrono::steady_clock::time_point _wakeUpTime;
+    std::thread _worker;
 };
-
-inline
-Timer::Token::Token(const IceUtil::Time& st, const IceUtil::Time& d, const TimerTaskPtr& t) :
-    scheduledTime(st), delay(d), task(t)
-{
-}
-
-inline bool
-Timer::Token::operator<(const Timer::Token& r) const
-{
-    if(scheduledTime < r.scheduledTime)
-    {
-        return true;
-    }
-    else if(scheduledTime > r.scheduledTime)
-    {
-        return false;
-    }
-
-    return task.get() < r.task.get();
-}
 
 }
 

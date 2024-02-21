@@ -31,7 +31,7 @@ AllocationRequest::pending()
     {
         try
         {
-            _session->getTimer()->schedule(shared_from_this(), IceUtil::Time::milliSeconds(_timeout));
+            _session->getTimer()->schedule(shared_from_this(), chrono::milliseconds(_timeout));
         }
         catch(const IceUtil::Exception&)
         {
