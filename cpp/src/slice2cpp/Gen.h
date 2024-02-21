@@ -11,7 +11,7 @@
 namespace Slice
 {
 
-class Gen : private ::IceUtil::noncopyable
+class Gen
 {
 public:
 
@@ -22,9 +22,10 @@ public:
         const std::string&,
         const std::vector<std::string>&,
         const std::string&,
-        const std::string&,
-        bool);
+        const std::string&);
     ~Gen();
+
+    Gen(const Gen&) = delete;
 
     void generate(const UnitPtr&);
     void closeOutput();
@@ -63,26 +64,56 @@ private:
     std::vector<std::string> _includePaths;
     std::string _dllExport;
     std::string _dir;
-    bool _implCpp11;
 
     // Visitors
 
-    class DeclVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    // Generates forward declarations for classes, proxies and structs. Also generates using for sequences and
+    // dictionaries, enum definitions and constants.
+    class ForwardDeclVisitor final : public ParserVisitor
     {
     public:
 
-        DeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ForwardDeclVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&);
+        ForwardDeclVisitor(const ForwardDeclVisitor&) = delete;
 
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
+        bool visitUnitStart(const UnitPtr&) final;
+        void visitUnitEnd(const UnitPtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        void visitClassDecl(const ClassDeclPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final; // TODO: move
+        bool visitStructStart(const StructPtr&) final;
+        void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final; // TODO: move
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+        void visitSequence(const SequencePtr&);
+        void visitDictionary(const DictionaryPtr&);
+        void visitEnum(const EnumPtr&);
+        void visitConst(const ConstPtr&);
+
+    private:
+
+        ::IceUtilInternal::Output& H;
+        ::IceUtilInternal::Output& C; // TODO: probably not needed
+
+        int _useWstring;
+        std::list<int> _useWstringHist;
+    };
+
+    // The second code-generation visitor. We need to generate the proxies early because fields (in structs, classes
+    // and exceptions) can use fields and these fields must see complete proxy types.
+    class ProxyVisitor : public ParserVisitor
+    {
+    public:
+
+        ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        ProxyVisitor(const ProxyVisitor&) = delete;
+
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitClassDecl(const ClassDeclPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-        virtual bool visitStructStart(const StructPtr&);
-        virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
         virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
         virtual void visitOperation(const OperationPtr&);
 
     private:
@@ -91,24 +122,6 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
-    };
-
-    class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-        TypesVisitor(::IceUtilInternal::Output&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
-        virtual void visitEnum(const EnumPtr&);
-        virtual void visitConst(const ConstPtr&);
-
-    private:
-
-        ::IceUtilInternal::Output& H;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
@@ -160,28 +173,6 @@ private:
         std::string _dllClassExport;
         std::string _dllMemberExport;
         bool _doneStaticSymbol;
-        int _useWstring;
-        std::list<int> _useWstringHist;
-    };
-
-    class ProxyVisitor : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-        ProxyVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
-
-    private:
-
-        ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
-
-        std::string _dllExport;
         int _useWstring;
         std::list<int> _useWstringHist;
     };
@@ -262,48 +253,6 @@ private:
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
         std::string _dllExport;
-    };
-
-    class CompatibilityVisitor : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-        CompatibilityVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitClassDecl(const ClassDeclPtr&);
-        virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
-
-    private:
-
-        ::IceUtilInternal::Output& H;
-        std::string _dllExport;
-    };
-
-    class ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-        ImplVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-
-    private:
-
-        ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
-
-        std::string _dllExport;
-        int _useWstring;
-        std::list<int> _useWstringHist;
-
-        //
-        // Get the default value returned for a type
-        //
-        std::string defaultValue(const TypePtr&, const std::string&, const StringList&) const;
     };
 
 private:
