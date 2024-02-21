@@ -532,7 +532,7 @@ public:
     }
 
     bool
-    check(const shared_ptr<ObjectPrx>& prx) const override
+    check(const ObjectPrxPtr& prx) const override
     {
         EndpointSeq endpoints = prx->ice_getEndpoints();
         if(endpoints.size() == 0)
@@ -797,7 +797,7 @@ parseProperty(const shared_ptr<Ice::Communicator>& communicator, const string& p
 // Helper function for checking a rule set.
 //
 static bool
-match(const vector<ProxyRule*>& rules, const shared_ptr<ObjectPrx>& proxy)
+match(const vector<ProxyRule*>& rules, const ObjectPrxPtr& proxy)
 {
     for(vector<ProxyRule*>::const_iterator i = rules.begin(); i != rules.end(); ++i)
     {
@@ -832,14 +832,14 @@ public:
     }
 
     bool
-    check(const shared_ptr<ObjectPrx>& p) const override
+    check(const ObjectPrxPtr& p) const override
     {
         string s = p->ice_toString();
         bool result = (s.size() > _count);
         if(_traceLevel >= 1)
         {
             Trace out(_communicator->getLogger(), "Glacier2");
-            out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ")
+            out << p << (result ? " exceeds " : " meets ")
                 << "proxy size restriction\n";
         }
         return result;
@@ -921,7 +921,7 @@ Glacier2::ProxyVerifier::~ProxyVerifier()
 }
 
 bool
-Glacier2::ProxyVerifier::verify(const shared_ptr<ObjectPrx>& proxy)
+Glacier2::ProxyVerifier::verify(const ObjectPrxPtr& proxy)
 {
     //
     // No rules have been defined so we accept all.
@@ -963,11 +963,11 @@ Glacier2::ProxyVerifier::verify(const shared_ptr<ObjectPrx>& proxy)
         Trace out(_communicator->getLogger(), "Glacier2");
         if(result)
         {
-            out << "accepted proxy " << _communicator->proxyToString(proxy) << '\n';
+            out << "accepted proxy " << proxy << '\n';
         }
         else
         {
-            out << "rejected proxy " << _communicator->proxyToString(proxy) << '\n';
+            out << "rejected proxy " << proxy << '\n';
         }
     }
     return result;

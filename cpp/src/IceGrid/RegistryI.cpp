@@ -56,7 +56,7 @@ public:
     }
 
     void
-    findLocator(string instanceName, shared_ptr<IceLocatorDiscovery::LookupReplyPrx> reply,
+    findLocator(string instanceName, IceLocatorDiscovery::LookupReplyPrxPtr reply,
                 const Ice::Current&) override
     {
         if(!instanceName.empty() && instanceName != _instanceName)
@@ -80,7 +80,7 @@ public:
         }
     }
 
-    shared_ptr<Ice::LocatorPrx>
+    Ice::LocatorPrxPtr
     getLocator(const Ice::Current&)
     {
         return _wellKnownObjects->getLocator();
@@ -101,7 +101,7 @@ public:
     {
     }
 
-    shared_ptr<Ice::LocatorPrx>
+    Ice::LocatorPrxPtr
     getLocator(const Ice::Current&) override
     {
         return _wellKnownObjects->getLocator();
@@ -308,7 +308,7 @@ RegistryI::startImpl()
     }
     else if(_master)
     {
-        _communicator->setDefaultLocator(nullptr); // Clear the default locator in case it's set.
+        _communicator->setDefaultLocator(nullopt); // Clear the default locator in case it's set.
     }
 
     //
@@ -418,22 +418,19 @@ RegistryI::startImpl()
         id.category = _instanceName;
         id.name = (_initFromReplica == "Master") ? "Registry" : "Registry-" + _initFromReplica;
 
-        shared_ptr<ObjectPrx> proxy;
+        ObjectPrxPtr proxy;
         try
         {
             proxy = _database->getObjectProxy(id);
             id.name = "Query";
             auto query = uncheckedCast<IceGrid::QueryPrx>(proxy->ice_identity(id));
-            if(query)
+            id.name = "InternalRegistry-" + _initFromReplica;
+            try
             {
-                id.name = "InternalRegistry-" + _initFromReplica;
-                try
-                {
-                    proxy = query->findObjectById(id);
-                }
-                catch(const Ice::Exception&)
-                {
-                }
+                proxy = query->findObjectById(id);
+            }
+            catch (const Ice::Exception &)
+            {
             }
         }
         catch(const ObjectNotRegisteredException&)
@@ -468,7 +465,7 @@ RegistryI::startImpl()
 
         try
         {
-            long long serial;
+            int64_t serial;
             auto registry = checkedCast<IceGrid::InternalRegistryPrx>(proxy);
             ApplicationInfoSeq applications = registry->getApplications(serial);
             _database->syncApplications(applications, serial);
@@ -668,8 +665,8 @@ RegistryI::setupLocatorRegistry()
     _serverAdapter->add(make_shared<LocatorRegistryI>(_database, dynReg, _master, *_session), locatorRegId);
 }
 
-shared_ptr<IceGrid::LocatorPrx>
-RegistryI::setupLocator(const shared_ptr<RegistryPrx>& registry, const shared_ptr<QueryPrx>& query)
+IceGrid::LocatorPrxPtr
+RegistryI::setupLocator(const RegistryPrxPtr& registry, const QueryPrxPtr& query)
 {
     auto locator = make_shared<LocatorI>(_communicator, _database, _wellKnownObjects, registry, query);
     Identity locatorId;
@@ -684,14 +681,14 @@ RegistryI::setupLocator(const shared_ptr<RegistryPrx>& registry, const shared_pt
     return uncheckedCast<LocatorPrx>(_registryAdapter->addWithUUID(locator));
 }
 
-shared_ptr<QueryPrx>
+QueryPrxPtr
 RegistryI::setupQuery()
 {
     Identity queryId = { "Query", _instanceName };
     return uncheckedCast<QueryPrx>(_clientAdapter->add(make_shared<QueryI>(_communicator, _database), std::move(queryId)));
 }
 
-shared_ptr<RegistryPrx>
+RegistryPrxPtr
 RegistryI::setupRegistry()
 {
     Identity registryId = { "Registry", _instanceName };
@@ -705,7 +702,7 @@ RegistryI::setupRegistry()
     return proxy;
 }
 
-shared_ptr<InternalRegistryPrx>
+InternalRegistryPrxPtr
 RegistryI::setupInternalRegistry()
 {
     assert(_reaper);
@@ -769,7 +766,7 @@ RegistryI::setupUserAccountMapper()
 }
 
 shared_ptr<ObjectAdapter>
-RegistryI::setupClientSessionFactory(const shared_ptr<IceGrid::LocatorPrx>& locator)
+RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrxPtr& locator)
 {
     auto properties = _communicator->getProperties();
 
@@ -815,7 +812,7 @@ shared_ptr<ObjectAdapter>
 RegistryI::setupAdminSessionFactory(const shared_ptr<Object>& serverAdminRouter,
                                     const shared_ptr<Object>& nodeAdminRouter,
                                     const shared_ptr<Object>& replicaAdminRouter,
-                                    const shared_ptr<IceGrid::LocatorPrx>& locator)
+                                    const IceGrid::LocatorPrxPtr& locator)
 {
     auto properties = _communicator->getProperties();
 
@@ -917,7 +914,7 @@ RegistryI::stop()
     _database = nullptr;
 }
 
-shared_ptr<SessionPrx>
+SessionPrxPtr
 RegistryI::createSession(string user, string password, const Current& current)
 {
     if(!_master)
@@ -962,14 +959,14 @@ RegistryI::createSession(string user, string password, const Current& current)
         throw PermissionDeniedException("internal server error");
     }
 
-    auto session = _clientSessionFactory->createSessionServant(user, nullptr);
+    auto session = _clientSessionFactory->createSessionServant(user, nullopt);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session), _sessionTimeout,
                  current.con);
     return uncheckedCast<SessionPrx>(proxy);
 }
 
-shared_ptr<AdminSessionPrx>
+AdminSessionPrxPtr
 RegistryI::createAdminSession(string user, string password, const Current& current)
 {
     assert(_reaper && _adminSessionFactory);
@@ -1016,7 +1013,7 @@ RegistryI::createAdminSession(string user, string password, const Current& curre
     return uncheckedCast<AdminSessionPrx>(proxy);
 }
 
-shared_ptr<SessionPrx>
+SessionPrxPtr
 RegistryI::createSessionFromSecureConnection(const Current& current)
 {
     if(!_master)
@@ -1063,14 +1060,14 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
         throw PermissionDeniedException("internal server error");
     }
 
-    auto session = _clientSessionFactory->createSessionServant(userDN, 0);
+    auto session = _clientSessionFactory->createSessionServant(userDN, nullopt);
     auto proxy = session->_register(_servantManager, current.con);
     _reaper->add(make_shared<SessionReapableWithHeartbeat<SessionI>>(_traceLevels->logger, session), _sessionTimeout,
                  current.con);
     return uncheckedCast<SessionPrx>(proxy);
 }
 
-shared_ptr<AdminSessionPrx>
+AdminSessionPrxPtr
 RegistryI::createAdminSessionFromSecureConnection(const Current& current)
 {
     assert(_reaper && _adminSessionFactory);
@@ -1155,26 +1152,26 @@ RegistryI::shutdown()
     _clientAdapter->deactivate();
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 RegistryI::createAdminCallbackProxy(const Identity& id) const
 {
     return _serverAdapter->createProxy(id);
 }
 
-shared_ptr<Ice::LocatorPrx>
+Ice::LocatorPrxPtr
 RegistryI::getLocator()
 {
     return _wellKnownObjects->getLocator();
 }
 
-shared_ptr<Glacier2::PermissionsVerifierPrx>
-RegistryI::getPermissionsVerifier(const shared_ptr<IceGrid::LocatorPrx>& locator,
+Glacier2::PermissionsVerifierPrxPtr
+RegistryI::getPermissionsVerifier(const IceGrid::LocatorPrxPtr& locator,
                                   const string& verifierProperty)
 {
     //
     // Get the permissions verifier
     //
-    shared_ptr<ObjectPrx> verifier;
+    ObjectPrxPtr verifier;
 
     try
     {
@@ -1185,15 +1182,15 @@ RegistryI::getPermissionsVerifier(const shared_ptr<IceGrid::LocatorPrx>& locator
         Error out(_communicator->getLogger());
         out << "permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
             << "' is invalid:\n" << ex;
-        return nullptr;
+        return nullopt;
     }
 
     if(!verifier)
     {
-        return nullptr;
+        return nullopt;
     }
 
-    shared_ptr<Glacier2::PermissionsVerifierPrx> verifierPrx;
+    Glacier2::PermissionsVerifierPrxPtr verifierPrx;
     try
     {
         //
@@ -1208,7 +1205,7 @@ RegistryI::getPermissionsVerifier(const shared_ptr<IceGrid::LocatorPrx>& locator
             Error out(_communicator->getLogger());
             out << "permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
                 << "' is invalid";
-            return nullptr;
+            return nullopt;
         }
     }
     catch(const LocalException& ex)
@@ -1224,14 +1221,14 @@ RegistryI::getPermissionsVerifier(const shared_ptr<IceGrid::LocatorPrx>& locator
     return verifierPrx;
 }
 
-shared_ptr<Glacier2::SSLPermissionsVerifierPrx>
-RegistryI::getSSLPermissionsVerifier(const shared_ptr<IceGrid::LocatorPrx>& locator, const string& verifierProperty)
+Glacier2::SSLPermissionsVerifierPrxPtr
+RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrxPtr& locator, const string& verifierProperty)
 {
     //
     // Get the permissions verifier, or create a default one if no
     // verifier is specified.
     //
-    shared_ptr<ObjectPrx> verifier;
+    ObjectPrxPtr verifier;
     try
     {
         verifier = _communicator->propertyToProxy(verifierProperty);
@@ -1241,15 +1238,15 @@ RegistryI::getSSLPermissionsVerifier(const shared_ptr<IceGrid::LocatorPrx>& loca
         Error out(_communicator->getLogger());
         out << "ssl permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
             << "' is invalid:\n" << ex;
-        return nullptr;
+        return nullopt;
     }
 
     if(!verifier)
     {
-        return nullptr;
+        return nullopt;
     }
 
-    shared_ptr<Glacier2::SSLPermissionsVerifierPrx> verifierPrx;
+    Glacier2::SSLPermissionsVerifierPrxPtr verifierPrx;
     try
     {
         //
@@ -1264,7 +1261,7 @@ RegistryI::getSSLPermissionsVerifier(const shared_ptr<IceGrid::LocatorPrx>& loca
             Error out(_communicator->getLogger());
             out << "ssl permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
                 << "' is invalid";
-            return nullptr;
+            return nullopt;
         }
     }
     catch(const LocalException& ex)
@@ -1320,7 +1317,7 @@ RegistryI::getSSLInfo(const shared_ptr<Connection>& connection, string& userDN)
 }
 
 NodePrxSeq
-RegistryI::registerReplicas(const shared_ptr<InternalRegistryPrx>& internalRegistry, const NodePrxSeq& dbNodes)
+RegistryI::registerReplicas(const InternalRegistryPrxPtr& internalRegistry, const NodePrxSeq& dbNodes)
 {
     //
     // Get proxies for slaves that we we connected with on last
@@ -1334,11 +1331,11 @@ RegistryI::registerReplicas(const shared_ptr<InternalRegistryPrx>& internalRegis
     // version <= 3.5.0 also kept the internal proxy in the database
     // instead of the public proxy.
     //
-    map<shared_ptr<InternalRegistryPrx>, shared_ptr<RegistryPrx>> replicas;
+    map<InternalRegistryPrxPtr, RegistryPrxPtr> replicas;
 
     for(const auto& p : _database->getObjectsByType(InternalRegistry::ice_staticId()))
     {
-        replicas.insert({ uncheckedCast<InternalRegistryPrx>(p), nullptr });
+        replicas.insert({ uncheckedCast<InternalRegistryPrx>(p), nullopt });
     }
 
     for(const auto& p : _database->getObjectsByType(Registry::ice_staticId()))
@@ -1367,9 +1364,9 @@ RegistryI::registerReplicas(const shared_ptr<InternalRegistryPrx>& internalRegis
         replicas.insert({uncheckedCast<InternalRegistryPrx>(prx), uncheckedCast<RegistryPrx>(p)});
     }
 
-    set<shared_ptr<NodePrx>> nodes;
+    set<NodePrxPtr> nodes;
     nodes.insert(dbNodes.begin(), dbNodes.end());
-    map<shared_ptr<InternalRegistryPrx>, future<void>> results;
+    map<InternalRegistryPrxPtr, future<void>> results;
     for(const auto& registryPrx : replicas)
     {
         if(registryPrx.first->ice_getIdentity() != internalRegistry->ice_getIdentity())
@@ -1417,7 +1414,7 @@ RegistryI::registerReplicas(const shared_ptr<InternalRegistryPrx>& internalRegis
             // Clear the proxy from the database if we can't
             // contact the replica.
             //
-            shared_ptr<RegistryPrx> registry;
+            RegistryPrxPtr registry;
             for(const auto& r : replicas)
             {
                 if(r.first->ice_getIdentity() == replica->ice_getIdentity())
@@ -1463,7 +1460,7 @@ RegistryI::registerReplicas(const shared_ptr<InternalRegistryPrx>& internalRegis
 }
 
 void
-RegistryI::registerNodes(const shared_ptr<InternalRegistryPrx>&, const NodePrxSeq& nodes)
+RegistryI::registerNodes(const InternalRegistryPrxPtr&, const NodePrxSeq& nodes)
 {
     const string prefix("Node-");
 

@@ -188,7 +188,7 @@ IceInternal::IPEndpointI::equivalent(const EndpointIPtr& endpoint) const
     return ipEndpointI->type() == type() && ipEndpointI->_host == _host && ipEndpointI->_port == _port;
 }
 
-Ice::Int
+int32_t
 IceInternal::IPEndpointI::hash() const
 {
     lock_guard lock(_hashMutex);
@@ -366,7 +366,7 @@ IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const Net
 }
 
 void
-IceInternal::IPEndpointI::hashInit(Ice::Int& h) const
+IceInternal::IPEndpointI::hashInit(int32_t& h) const
 {
     hashAdd(h, _host);
     hashAdd(h, _port);
@@ -442,7 +442,7 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
                                               endpoint);
         }
         istringstream p(argument);
-        if(!(p >> const_cast<Ice::Int&>(_port)) || !p.eof())
+        if(!(p >> const_cast<int32_t&>(_port)) || !p.eof())
         {
             throw Ice::EndpointParseException(__FILE__, __LINE__, "invalid port value `" + argument + "' in endpoint " +
                                               endpoint);
@@ -500,7 +500,7 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, Input
     _hashInitialized(false)
 {
     s->read(const_cast<string&>(_host), false);
-    s->read(const_cast<Ice::Int&>(_port));
+    s->read(const_cast<int32_t&>(_port));
 }
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :

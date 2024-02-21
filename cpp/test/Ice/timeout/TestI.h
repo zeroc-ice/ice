@@ -13,7 +13,7 @@ public:
 
     virtual void op(const Ice::Current&);
     virtual void sendData(Test::ByteSeq, const Ice::Current&);
-    virtual void sleep(Ice::Int, const Ice::Current&);
+    virtual void sleep(std::int32_t, const Ice::Current&);
 };
 
 class ControllerI : public virtual Test::Controller
@@ -22,7 +22,7 @@ public:
 
     ControllerI(const Ice::ObjectAdapterPtr&);
 
-    virtual void holdAdapter(Ice::Int, const Ice::Current&);
+    virtual void holdAdapter(std::int32_t, const Ice::Current&);
     virtual void resumeAdapter(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 

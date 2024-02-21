@@ -43,7 +43,7 @@ CallbackClient::run(int argc, char** argv)
     auto batchOneway = twoway->ice_batchOneway();
 
     communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
-    auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+    auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router.value());
     adapter->activate();
 
     string category = router->getCategoryForClient();
@@ -191,7 +191,7 @@ CallbackClient::run(int argc, char** argv)
             test(false);
         }
 
-        communicator->setDefaultRouter(0);
+        communicator->setDefaultRouter(nullopt);
         auto processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
         auto process = checkedCast<Ice::ProcessPrx>(processBase);
         process->shutdown();

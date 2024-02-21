@@ -265,6 +265,32 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
+            Console.Out.Write("testing certificate without password... ");
+            Console.Out.Flush();
+            {
+                initData = createClientProps(defaultProperties, "password_less_client", "password_less_cacert");
+                initData.properties.setProperty("IceSSL.Password", "");
+                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+
+                Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                test(fact != null);
+                d = createServerProps(defaultProperties, "password_less_server", "password_less_cacert");
+                d["IceSSL.Password"] = "";
+                Test.ServerPrx server = fact.createServer(d);
+                try
+                {
+                    server.ice_ping();
+                }
+                catch(Ice.LocalException ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    test(false);
+                }
+                fact.destroyServer(server);
+                comm.destroy();
+            }
+            Console.Out.WriteLine("ok");
+
             Console.Out.Write("testing certificate verification... ");
             Console.Out.Flush();
             {

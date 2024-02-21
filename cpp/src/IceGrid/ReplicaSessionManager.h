@@ -23,27 +23,27 @@ public:
     {
     public:
 
-        Thread(ReplicaSessionManager& manager, const std::shared_ptr<InternalRegistryPrx>& master,
+        Thread(ReplicaSessionManager& manager, const InternalRegistryPrxPtr& master,
                const std::shared_ptr<Ice::Logger>& logger) :
             SessionKeepAliveThread<ReplicaSessionPrx>(master, logger),
             _manager(manager)
         {
         }
 
-        std::shared_ptr<ReplicaSessionPrx>
-        createSession(std::shared_ptr<InternalRegistryPrx>& master, std::chrono::seconds& timeout) override
+        ReplicaSessionPrxPtr
+        createSession(InternalRegistryPrxPtr& master, std::chrono::seconds& timeout) override
         {
             return _manager.createSession(master, timeout);
         }
 
         void
-        destroySession(const std::shared_ptr<ReplicaSessionPrx>& session) override
+        destroySession(const ReplicaSessionPrxPtr& session) override
         {
             _manager.destroySession(session);
         }
 
         bool
-        keepAlive(const std::shared_ptr<ReplicaSessionPrx>& session) override
+        keepAlive(const ReplicaSessionPrxPtr& session) override
         {
             return _manager.keepAlive(session);
         }
@@ -58,16 +58,16 @@ public:
     using SessionManager::SessionManager;
 
     void create(const std::string&, const std::shared_ptr<InternalReplicaInfo>&, const std::shared_ptr<Database>&,
-                const std::shared_ptr<WellKnownObjectsManager>&, const std::shared_ptr<InternalRegistryPrx>&);
-    void create(const std::shared_ptr<InternalRegistryPrx>&);
+                const std::shared_ptr<WellKnownObjectsManager>&, const InternalRegistryPrxPtr&);
+    void create(const InternalRegistryPrxPtr&);
 
     NodePrxSeq getNodes(const NodePrxSeq&) const;
     void destroy();
 
     void registerAllWellKnownObjects();
-    std::shared_ptr<ReplicaSessionPrx> getSession() const { return _thread ? _thread->getSession() : nullptr; }
+    ReplicaSessionPrxPtr getSession() const { return _thread ? _thread->getSession() : std::nullopt; }
 
-    std::shared_ptr<InternalRegistryPrx> findInternalRegistryForReplica(const Ice::Identity&);
+    InternalRegistryPrxPtr findInternalRegistryForReplica(const Ice::Identity&);
 
 private:
 
@@ -79,17 +79,17 @@ private:
         return !_communicator;
     }
 
-    std::shared_ptr<ReplicaSessionPrx> createSession(std::shared_ptr<InternalRegistryPrx>&, std::chrono::seconds&);
-    std::shared_ptr<ReplicaSessionPrx> createSessionImpl(const std::shared_ptr<InternalRegistryPrx>&, std::chrono::seconds&);
-    void destroySession(const std::shared_ptr<ReplicaSessionPrx>&);
-    bool keepAlive(const std::shared_ptr<ReplicaSessionPrx>&);
+    ReplicaSessionPrxPtr createSession(InternalRegistryPrxPtr&, std::chrono::seconds&);
+    ReplicaSessionPrxPtr createSessionImpl(const InternalRegistryPrxPtr&, std::chrono::seconds&);
+    void destroySession(const ReplicaSessionPrxPtr&);
+    bool keepAlive(const ReplicaSessionPrxPtr&);
 
     std::shared_ptr<Thread> _thread;
     std::string _name;
     std::shared_ptr<InternalReplicaInfo> _info;
-    std::shared_ptr<RegistryPrx> _registry;
-    std::shared_ptr<InternalRegistryPrx> _internalRegistry;
-    std::shared_ptr<DatabaseObserverPrx> _observer;
+    RegistryPrxPtr _registry;
+    InternalRegistryPrxPtr _internalRegistry;
+    DatabaseObserverPrxPtr _observer;
     std::shared_ptr<Database> _database;
     std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
     std::shared_ptr<TraceLevels> _traceLevels;

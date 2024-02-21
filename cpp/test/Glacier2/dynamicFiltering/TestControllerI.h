@@ -12,12 +12,12 @@
 
 struct SessionTuple
 {
-    std::shared_ptr<Glacier2::SessionPrx> session;
-    std::shared_ptr<Glacier2::SessionControlPrx> sessionControl;
+    Glacier2::SessionPrxPtr session;
+    Glacier2::SessionControlPrxPtr sessionControl;
     bool configured = false;
 
     SessionTuple() = default;
-    SessionTuple(std::shared_ptr<Glacier2::SessionPrx> s, std::shared_ptr<Glacier2::SessionControlPrx> control):
+    SessionTuple(Glacier2::SessionPrxPtr s, Glacier2::SessionControlPrxPtr control):
         session(std::move(s)),
         sessionControl(std::move(control)),
         configured(false)
@@ -60,7 +60,7 @@ class TestControllerI final : public Test::TestController
 public:
     TestControllerI(const std::string&);
 
-    void step(std::shared_ptr<Glacier2::SessionPrx> currentSession, Test::TestToken currentState,
+    void step(Glacier2::SessionPrxPtr currentSession, Test::TestToken currentState,
               Test::TestToken& newState, const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
@@ -70,7 +70,7 @@ public:
     //
     void addSession(SessionTuple&&);
 
-    void notifyDestroy(const std::shared_ptr<Glacier2::SessionControlPrx>&);
+    void notifyDestroy(const Glacier2::SessionControlPrxPtr&);
 
 private:
 

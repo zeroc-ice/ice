@@ -22,7 +22,7 @@ bool compareObjectEntryCI(const shared_ptr<ObjectEntry>& lhs, const shared_ptr<O
     return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
 }
 
-bool compareObjectLoadCI(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
+bool compareObjectLoadCI(const pair<Ice::ObjectPrxPtr, float>& lhs, const pair<Ice::ObjectPrxPtr, float>& rhs)
 {
     return lhs.second < rhs.second;
 }
@@ -176,7 +176,7 @@ ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application, cons
 {
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 ObjectEntry::getProxy() const
 {
     return _info.proxy;

@@ -566,22 +566,22 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::CustomMap<std::string, Ice::Int> idict;
+        Test::CustomMap<std::string, int32_t> idict;
 
         idict["ONE"] = 1;
         idict["TWO"] = 2;
         idict["THREE"] = 3;
         idict["MINUS ONE"] = -1;
 
-        Test::CustomMap<std::string, Ice::Int> out;
+        Test::CustomMap<std::string, int32_t> out;
         out["FIVE"] = 5;
 
-        Test::CustomMap<Ice::Long, Ice::Long> ret = t->opVarDict(idict, out);
+        Test::CustomMap<int64_t, int64_t> ret = t->opVarDict(idict, out);
 
         test(out == idict);
 
         test(ret.size() == 1000);
-        for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        for(Test::CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
         {
             test(i->second == i->first * i->first);
         }
@@ -633,8 +633,8 @@ allTests(Test::TestHelper* helper)
         bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
         bs.shortBuf.setAndInit(new Ice::Short[10], 10);
-        bs.intBuf.setAndInit(new Ice::Int[10], 10);
-        bs.longBuf.setAndInit(new Ice::Long[10], 10);
+        bs.intBuf.setAndInit(new int32_t[10], 10);
+        bs.longBuf.setAndInit(new int64_t[10], 10);
         bs.floatBuf.setAndInit(new Ice::Float[10], 10);
         bs.doubleBuf.setAndInit(new Ice::Double[10], 10);
 
@@ -1822,7 +1822,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opDPrxSeqAsync(in,
-                          [&](deque<shared_ptr<Test::DPrx>> ret, deque<shared_ptr<Test::DPrx>> out)
+                          [&](deque<Test::DPrxPtr> ret, deque<Test::DPrxPtr> out)
                           {
                               test(ret.size() == in.size());
                               auto op = out.begin();
@@ -1853,7 +1853,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opDPrxListAsync(in,
-                           [&](list<shared_ptr<Test::DPrx>> ret, list<shared_ptr<Test::DPrx>> out)
+                           [&](list<Test::DPrxPtr> ret, list<Test::DPrxPtr> out)
                            {
                                test(ret.size() == in.size());
                               auto op = out.begin();
@@ -1988,7 +1988,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::CustomMap<std::string, Ice::Int> idict;
+            Test::CustomMap<std::string, int32_t> idict;
 
             idict["ONE"] = 1;
             idict["TWO"] = 2;
@@ -2054,7 +2054,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::CustomMap<std::string, Ice::Int> idict;
+            Test::CustomMap<std::string, int32_t> idict;
 
             idict["ONE"] = 1;
             idict["TWO"] = 2;
@@ -2064,7 +2064,7 @@ allTests(Test::TestHelper* helper)
             promise<bool> done;
 
             t->opVarDictAsync(idict,
-                              [&](Test::CustomMap<long long, long long> ret, Test::CustomMap<string, int> out)
+                              [&](Test::CustomMap<int64_t, int64_t> ret, Test::CustomMap<string, int> out)
                               {
                                   test(out == idict);
                                   for(auto i: ret)

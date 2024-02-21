@@ -170,7 +170,7 @@ NodeEntry::setSession(const shared_ptr<NodeSessionI>& session)
         // so we won't need anymore to try to register it with this
         // registry.
         //
-        _proxy = nullptr;
+        _proxy = nullopt;
     }
     else
     {
@@ -207,7 +207,7 @@ NodeEntry::setSession(const shared_ptr<NodeSessionI>& session)
     }
 }
 
-shared_ptr<NodePrx>
+NodePrxPtr
 NodeEntry::getProxy() const
 {
     unique_lock lock(_mutex);
@@ -291,7 +291,7 @@ NodeEntry::getSession() const
     return _session;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 NodeEntry::getAdminProxy() const
 {
     auto prx = getProxy();
@@ -314,7 +314,7 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry, const ServerInfo& se
 {
     try
     {
-        shared_ptr<NodePrx> node;
+        NodePrxPtr node;
         chrono::seconds sessionTimeout;
         shared_ptr<InternalServerDescriptor> desc;
         {
@@ -364,7 +364,7 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry, const ServerInfo& se
         }
 
         auto response = [traceLevels = _cache.getTraceLevels(), entry, name = _name, sessionTimeout]
-            (shared_ptr<ServerPrx> serverPrx, AdapterPrxDict adapters, int at, int dt)
+            (ServerPrxPtr serverPrx, AdapterPrxDict adapters, int at, int dt)
             {
                 if(traceLevels && traceLevels->server > 1)
                 {
@@ -432,7 +432,7 @@ NodeEntry::destroyServer(const shared_ptr<ServerEntry>& entry, const ServerInfo&
 {
     try
     {
-        shared_ptr<NodePrx> node;
+        NodePrxPtr node;
         {
             unique_lock lock(_mutex);
             checkSession(lock);
@@ -597,7 +597,7 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
                                         {
                                             self->finishedRegistration(ex);
                                         });
-        _proxy = nullptr; // Registration with the proxy is only attempted once.
+        _proxy = nullopt; // Registration with the proxy is only attempted once.
 
     }
 
@@ -611,7 +611,7 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
 }
 
 void
-NodeEntry::setProxy(const shared_ptr<NodePrx>& node)
+NodeEntry::setProxy(const NodePrxPtr& node)
 {
     lock_guard lock(_mutex);
 

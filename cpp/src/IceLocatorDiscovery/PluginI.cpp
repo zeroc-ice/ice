@@ -133,26 +133,26 @@ public:
 
     virtual void
     findObjectByIdAsync(::Ice::Identity,
-                        function<void(const shared_ptr<::Ice::ObjectPrx>&)> response,
+                        function<void(const ::Ice::ObjectPrxPtr&)> response,
                         function<void(exception_ptr)>,
                         const Ice::Current&) const
     {
-        response(nullptr);
+        response(nullopt);
     }
 
     virtual void
     findAdapterByIdAsync(string,
-                         function<void(const shared_ptr<::Ice::ObjectPrx>&)> response,
+                         function<void(const ::Ice::ObjectPrxPtr&)> response,
                          function<void(exception_ptr)>,
                          const Ice::Current&) const
     {
-        response(nullptr);
+        response(nullopt);
     }
 
     virtual Ice::LocatorRegistryPrxPtr
     getRegistry(const Ice::Current&) const
     {
-        return nullptr;
+        return nullopt;
     }
 };
 
@@ -265,12 +265,12 @@ PluginI::initialize()
     _locatorAdapter = _communicator->createObjectAdapter(_name + ".Locator");
 
     // We don't want those adapters to be registered with the locator so clear their locator.
-    _replyAdapter->setLocator(0);
-    _locatorAdapter->setLocator(0);
+    _replyAdapter->setLocator(nullopt);
+    _locatorAdapter->setLocator(nullopt);
 
     Ice::ObjectPrxPtr lookupPrx = _communicator->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
     // No collocation optimization for the multicast proxy!
-    lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullptr);
+    lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(nullopt);
 
     auto voidLocator = Ice::uncheckedCast<Ice::LocatorPrx>(_locatorAdapter->addWithUUID(make_shared<VoidLocatorI>()));
 
@@ -482,7 +482,7 @@ LocatorI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
                           function<void(exception_ptr)> exceptionCB,
                           const Ice::Current& current)
 {
-    invoke(nullptr, make_shared<Request>(this, current.operation, current.mode, inParams, current.ctx,
+    invoke(nullopt, make_shared<Request>(this, current.operation, current.mode, inParams, current.ctx,
                                          make_pair(std::move(responseCB), std::move(exceptionCB))));
 }
 
@@ -500,7 +500,7 @@ LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& wa
     //
     // Find a locator
     //
-    invoke(nullptr, nullptr);
+    invoke(nullopt, nullptr);
 
     //
     // Wait for responses
@@ -672,7 +672,7 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
     }
     else
     {
-        _locator = 0;
+        _locator = nullopt;
 
         if(request)
         {

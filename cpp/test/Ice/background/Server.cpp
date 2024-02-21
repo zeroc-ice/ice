@@ -30,7 +30,7 @@ public:
 
     virtual void
     findAdapterByIdAsync(string,
-                         function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                         function<void(const Ice::ObjectPrxPtr&)> response,
                          function<void(exception_ptr)>,
                          const Ice::Current& current) const
     {
@@ -41,7 +41,7 @@ public:
 
     virtual void
     findObjectByIdAsync(Ice::Identity id,
-                        function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                        function<void(const Ice::ObjectPrxPtr&)> response,
                         function<void(exception_ptr)>,
                         const Ice::Current& current) const
     {
@@ -53,7 +53,7 @@ public:
     virtual Ice::LocatorRegistryPrxPtr
     getRegistry(const Ice::Current&) const
     {
-        return nullptr;
+        return nullopt;
     }
 
     LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller)
@@ -74,14 +74,14 @@ public:
     {
         hasRoutingTable = true;
         _controller->checkCallPause(current);
-        return nullptr;
+        return nullopt;
     }
 
     virtual Ice::ObjectPrxPtr
     getServerProxy(const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
-        return nullptr;
+        return nullopt;
     }
 
     virtual Ice::ObjectProxySeq

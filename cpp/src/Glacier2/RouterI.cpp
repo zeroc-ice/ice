@@ -14,7 +14,7 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection> connection,
-                           const string& userId, shared_ptr<SessionPrx> session,
+                           const string& userId, SessionPrxPtr session,
                            const Identity& controlId, shared_ptr<FilterManager> filters,
                            const Context& context) :
     _instance(std::move(instance)),
@@ -35,7 +35,7 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
     //
     if(_instance->properties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
     {
-        const_cast<shared_ptr<ObjectPrx>&>(_clientProxy) =
+        const_cast<ObjectPrxPtr&>(_clientProxy) =
             _instance->clientObjectAdapter()->createProxy(stringToIdentity("dummy"));
     }
 
@@ -51,7 +51,7 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
             ident.category.push_back(static_cast<char>(dist(gen)));
         }
 
-        const_cast<shared_ptr<ObjectPrx>&>(_serverProxy) = _instance->serverObjectAdapter()->createProxy(ident);
+        const_cast<ObjectPrxPtr&>(_serverProxy) = _instance->serverObjectAdapter()->createProxy(ident);
 
         shared_ptr<ServerBlobject>& serverBlobject = const_cast<shared_ptr<ServerBlobject>&>(_serverBlobject);
         serverBlobject = make_shared<ServerBlobject>(_instance, _connection);
@@ -107,7 +107,7 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
     _routingTable->destroy();
 }
 
-shared_ptr<ObjectPrx>
+ObjectPrxPtr
 Glacier2::RouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current&) const
 {
     // No mutex lock necessary, _clientProxy is immutable and is never destroyed.
@@ -115,7 +115,7 @@ Glacier2::RouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current
     return _clientProxy;
 }
 
-shared_ptr<ObjectPrx>
+ObjectPrxPtr
 Glacier2::RouterI::getServerProxy(const Current&) const
 {
     // No mutex lock necessary, _serverProxy is immutable and is never destroyed.
@@ -137,14 +137,14 @@ Glacier2::RouterI::getCategoryForClient(const Current&) const
 
 void
 Glacier2::RouterI::createSessionAsync(string, string,
-                            function<void(const shared_ptr<SessionPrx>& returnValue)>,
+                            function<void(const SessionPrxPtr& returnValue)>,
                             function<void(exception_ptr)>, const Current&)
 {
     assert(false); // Must not be called in this router implementation.
 }
 
 void
-Glacier2::RouterI::createSessionFromSecureConnectionAsync(function<void(const shared_ptr<SessionPrx>& returnValue)>,
+Glacier2::RouterI::createSessionFromSecureConnectionAsync(function<void(const SessionPrxPtr& returnValue)>,
                                                           function<void(exception_ptr)>, const Current&)
 {
     assert(false); // Must not be called in this router implementation.
@@ -162,14 +162,14 @@ Glacier2::RouterI::destroySession(const Current&)
     assert(false); // Must not be called in this router implementation.
 }
 
-Long
+int64_t
 Glacier2::RouterI::getSessionTimeout(const Current&) const
 {
     assert(false); // Must not be called in this router implementation.
     return 0;
 }
 
-Int
+int32_t
 Glacier2::RouterI::getACMTimeout(const Current&) const
 {
     assert(false); // Must not be called in this router implementation.
@@ -198,7 +198,7 @@ Glacier2::RouterI::getServerBlobject() const
     return _serverBlobject;
 }
 
-shared_ptr<SessionPrx>
+SessionPrxPtr
 Glacier2::RouterI::getSession() const
 {
     return _session; // No mutex lock necessary, _session is immutable.

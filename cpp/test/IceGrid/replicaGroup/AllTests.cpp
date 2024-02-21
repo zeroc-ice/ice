@@ -15,7 +15,7 @@ using namespace Test;
 using namespace IceGrid;
 
 void
-instantiateServer(const shared_ptr<AdminPrx>& admin, const string& templ, const string& node,
+instantiateServer(const AdminPrxPtr& admin, const string& templ, const string& node,
                   const map<string, string>& params,
                   const string& application = string("Test"), bool startServer = true)
 {
@@ -62,7 +62,7 @@ instantiateServer(const shared_ptr<AdminPrx>& admin, const string& templ, const 
 }
 
 void
-removeServer(const shared_ptr<AdminPrx>& admin, const string& id)
+removeServer(const AdminPrxPtr& admin, const string& id)
 {
     try
     {

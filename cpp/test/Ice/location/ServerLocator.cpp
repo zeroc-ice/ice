@@ -14,7 +14,7 @@ ServerLocatorRegistry::ServerLocatorRegistry()
 }
 
 void
-ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, ::shared_ptr<::Ice::ObjectPrx> object,
+ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, ::Ice::ObjectPrxPtr object,
                                                   function<void()> response,
                                                   function<void(exception_ptr)>,
                                                   const ::Ice::Current&)
@@ -31,7 +31,7 @@ ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, ::shared_ptr<:
 }
 
 void
-ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, string replicaGroup, shared_ptr<Ice::ObjectPrx> object,
+ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, string replicaGroup, Ice::ObjectPrxPtr object,
                                                             function<void()> response,
                                                             function<void(exception_ptr)>,
                                                             const ::Ice::Current&)
@@ -51,7 +51,7 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, stri
 
 void
 ServerLocatorRegistry::setServerProcessProxyAsync(string,
-                                                  shared_ptr<Ice::ProcessPrx>,
+                                                  Ice::ProcessPrxPtr,
                                                   function<void()> response,
                                                   function<void(exception_ptr)>,
                                                   const ::Ice::Current&)
@@ -60,7 +60,7 @@ ServerLocatorRegistry::setServerProcessProxyAsync(string,
 }
 
 void
-ServerLocatorRegistry::addObject(shared_ptr<Ice::ObjectPrx> object, const ::Ice::Current&)
+ServerLocatorRegistry::addObject(Ice::ObjectPrxPtr object, const ::Ice::Current&)
 {
     addObject(object);
 }
@@ -103,7 +103,7 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 
 void
 ServerLocator::findObjectByIdAsync(::Ice::Identity id,
-                                   function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                                   function<void(const Ice::ObjectPrxPtr&)> response,
                                    function<void(exception_ptr)>,
                                    const ::Ice::Current&) const
 {
@@ -116,7 +116,7 @@ ServerLocator::findObjectByIdAsync(::Ice::Identity id,
 
 void
 ServerLocator::findAdapterByIdAsync(string id,
-                                    function<void(const shared_ptr<Ice::ObjectPrx>&)> response,
+                                    function<void(const Ice::ObjectPrxPtr&)> response,
                                     function<void(exception_ptr)>,
                                     const ::Ice::Current& current) const
 {

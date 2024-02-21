@@ -104,7 +104,7 @@ public:
         }
     }
 
-    void reply(Ice::Int size)
+    void reply(std::int32_t size)
     {
         if(_observer)
         {
@@ -117,13 +117,11 @@ class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::
 {
 public:
 
-    InvocationObserver(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context&);
+    InvocationObserver(const Ice::ObjectPrx&, const std::string&, const Ice::Context&);
     InvocationObserver(Instance*, const std::string&);
-    InvocationObserver()
-    {
-    }
+    InvocationObserver() = default;
 
-    void attach(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context&);
+    void attach(const Ice::ObjectPrx&, const std::string&, const Ice::Context&);
     void attach(Instance*, const std::string&);
 
     void retried()

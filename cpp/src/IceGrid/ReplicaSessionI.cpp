@@ -27,7 +27,7 @@ shared_ptr<ReplicaSessionI>
 ReplicaSessionI::create(const shared_ptr<Database>& database,
                         const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
                         const shared_ptr<InternalReplicaInfo>& info,
-                        const shared_ptr<InternalRegistryPrx>& proxy,
+                        const InternalRegistryPrxPtr& proxy,
                         chrono::seconds timeout)
 {
 
@@ -63,7 +63,7 @@ ReplicaSessionI::create(const shared_ptr<Database>& database,
 ReplicaSessionI::ReplicaSessionI(const shared_ptr<Database>& database,
                                  const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
                                  const shared_ptr<InternalReplicaInfo>& info,
-                                 const shared_ptr<InternalRegistryPrx>& proxy,
+                                 const InternalRegistryPrxPtr& proxy,
                                  chrono::seconds timeout) :
     _database(database),
     _wellKnownObjects(wellKnownObjects),
@@ -101,7 +101,7 @@ ReplicaSessionI::getTimeout(const Ice::Current&) const
 }
 
 void
-ReplicaSessionI::setDatabaseObserver(shared_ptr<DatabaseObserverPrx> observer,
+ReplicaSessionI::setDatabaseObserver(DatabaseObserverPrxPtr observer,
                                      optional<StringLongDict> slaveSerials,
                                      const Ice::Current&)
 {
@@ -125,7 +125,7 @@ ReplicaSessionI::setDatabaseObserver(shared_ptr<DatabaseObserverPrx> observer,
         bool error = false;
         for(StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
         {
-            Ice::Long serial = masterSerials[p->first];
+            int64_t serial = masterSerials[p->first];
             if(serial < p->second)
             {
                 error = true;
@@ -138,7 +138,7 @@ ReplicaSessionI::setDatabaseObserver(shared_ptr<DatabaseObserverPrx> observer,
             os << "database from replica `" << _info->name << "' contains earlier updates:\n";
             for(StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
             {
-                Ice::Long serial = masterSerials[p->first];
+                int64_t serial = masterSerials[p->first];
                 os << "database `" << p->first << "': ";
                 os << "master serial = " << serial << ", replica serial = " << p->second << '\n';
             }
@@ -219,7 +219,7 @@ ReplicaSessionI::registerWellKnownObjects(ObjectInfoSeq objects, const Ice::Curr
 void
 ReplicaSessionI::setAdapterDirectProxy(string adapterId,
                                        string replicaGroupId,
-                                       shared_ptr<Ice::ObjectPrx> proxy,
+                                       Ice::ObjectPrxPtr proxy,
                                        const Ice::Current&)
 {
     if(_database->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
@@ -262,7 +262,7 @@ ReplicaSessionI::shutdown()
     destroyImpl(true);
 }
 
-const shared_ptr<InternalRegistryPrx>&
+const InternalRegistryPrxPtr&
 ReplicaSessionI::getInternalRegistry() const
 {
     return _internalRegistry;
@@ -274,19 +274,19 @@ ReplicaSessionI::getInfo() const
     return _info;
 }
 
-shared_ptr<ReplicaSessionPrx>
+ReplicaSessionPrxPtr
 ReplicaSessionI::getProxy() const
 {
     return _proxy;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 ReplicaSessionI::getEndpoint(const std::string& name)
 {
     lock_guard lock(_mutex);
     if(_destroy)
     {
-        return nullptr;
+        return nullopt;
     }
     return _replicaEndpoints[name];
 }

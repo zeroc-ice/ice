@@ -12,6 +12,7 @@
 #include <Ice/Connection.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
+#include "Ice/ProxyFunctions.h"
 
 #include <set>
 
@@ -30,18 +31,18 @@ public:
 
     LoggerAdminI(const PropertiesPtr&);
 
-    virtual void attachRemoteLogger(shared_ptr<RemoteLoggerPrx>, LogMessageTypeSeq,
-                                    StringSeq, Int, const Current&);
+    virtual void attachRemoteLogger(optional<RemoteLoggerPrx>, LogMessageTypeSeq,
+                                    StringSeq, int32_t, const Current&);
 
-    virtual bool detachRemoteLogger(shared_ptr<RemoteLoggerPrx>, const Current&);
+    virtual bool detachRemoteLogger(optional<RemoteLoggerPrx>, const Current&);
 
-    virtual LogMessageSeq getLog(LogMessageTypeSeq, StringSeq, Int, string&, const Current&);
+    virtual LogMessageSeq getLog(LogMessageTypeSeq, StringSeq, int32_t, string&, const Current&);
 
     void destroy();
 
-    vector<RemoteLoggerPrxPtr> log(const LogMessage&);
+    vector<RemoteLoggerPrx> log(const LogMessage&);
 
-    void deadRemoteLogger(const RemoteLoggerPrxPtr&, const LoggerPtr&, exception_ptr, const string&);
+    void deadRemoteLogger(const RemoteLoggerPrx&, const LoggerPtr&, exception_ptr, const string&);
 
     int getTraceLevel() const
     {
@@ -50,7 +51,7 @@ public:
 
 private:
 
-    bool removeRemoteLogger(const RemoteLoggerPrxPtr&);
+    bool removeRemoteLogger(const RemoteLoggerPrx&);
 
     std::mutex _mutex;
     list<LogMessage> _queue;
@@ -65,13 +66,8 @@ private:
 
     struct ObjectIdentityCompare
     {
-        bool operator()(const RemoteLoggerPrxPtr& lhs, const RemoteLoggerPrxPtr& rhs) const
+        bool operator()(const RemoteLoggerPrx& lhs, const RemoteLoggerPrx& rhs) const
         {
-            //
-            // Caller should make sure that proxies are never null
-            //
-            assert(lhs != 0 && rhs != 0);
-
             return lhs->ice_getIdentity() < rhs->ice_getIdentity();
         }
     };
@@ -88,7 +84,7 @@ private:
         const set<string> traceCategories;
     };
 
-    typedef map<RemoteLoggerPrxPtr, Filters, ObjectIdentityCompare> RemoteLoggerMap;
+    typedef map<RemoteLoggerPrx, Filters, ObjectIdentityCompare> RemoteLoggerMap;
 
     struct GetRemoteLoggerMapKey
     {
@@ -109,13 +105,13 @@ class Job
 {
 public:
 
-    Job(const vector<RemoteLoggerPrxPtr>& r, const LogMessage& l) :
+    Job(const vector<RemoteLoggerPrx>& r, const LogMessage& l) :
         remoteLoggers(r),
         logMessage(l)
     {
     }
 
-    const vector<RemoteLoggerPrxPtr> remoteLoggers;
+    const vector<RemoteLoggerPrx> remoteLoggers;
     const LogMessage logMessage;
 };
 using JobPtr = std::shared_ptr<Job>;
@@ -182,7 +178,7 @@ private:
 //
 void
 filterLogMessages(LogMessageSeq& logMessages, const set<LogMessageType>& messageTypes,
-                  const set<string>& traceCategories, Int messageMax)
+                  const set<string>& traceCategories, int32_t messageMax)
 {
     assert(!logMessages.empty() && messageMax != 0);
 
@@ -236,16 +232,11 @@ filterLogMessages(LogMessageSeq& logMessages, const set<LogMessageType>& message
 //
 // Change this proxy's communicator, while keeping its invocation timeout
 //
-RemoteLoggerPrxPtr
-changeCommunicator(const RemoteLoggerPrxPtr& prx, const CommunicatorPtr& communicator)
+RemoteLoggerPrx
+changeCommunicator(const RemoteLoggerPrx& prx, const CommunicatorPtr& communicator)
 {
-    if(prx == 0)
-    {
-        return 0;
-    }
-
-    RemoteLoggerPrxPtr result = Ice::uncheckedCast<RemoteLoggerPrx>(communicator->stringToProxy(prx->ice_toString()));
-
+    optional<RemoteLoggerPrx> result = Ice::uncheckedCast<RemoteLoggerPrx>(communicator->stringToProxy(prx->ice_toString()));
+    assert(result);
     return result->ice_invocationTimeout(prx->ice_getInvocationTimeout());
 }
 
@@ -312,10 +303,10 @@ LoggerAdminI::LoggerAdminI(const PropertiesPtr& props) :
 }
 
 void
-LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
+LoggerAdminI::attachRemoteLogger(optional<RemoteLoggerPrx> prx,
                                  LogMessageTypeSeq messageTypes,
                                  StringSeq categories,
-                                 Int messageMax,
+                                 int32_t messageMax,
                                  const Current& current)
 {
     if(!prx)
@@ -330,7 +321,7 @@ LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
     LoggerAdminLoggerIPtr logger = dynamic_pointer_cast<LoggerAdminLoggerI>(current.adapter->getCommunicator()->getLogger());
     assert(logger);
 
-    RemoteLoggerPrxPtr remoteLogger = prx->ice_twoway();
+    RemoteLoggerPrx remoteLogger = prx->ice_twoway();
 
     Filters filters(messageTypes, categories);
     LogMessageSeq initLogMessages;
@@ -401,9 +392,9 @@ LoggerAdminI::attachRemoteLogger(shared_ptr<RemoteLoggerPrx> prx,
 }
 
 bool
-LoggerAdminI::detachRemoteLogger(shared_ptr<RemoteLoggerPrx> remoteLogger, const Current& current)
+LoggerAdminI::detachRemoteLogger(std::optional<RemoteLoggerPrx> remoteLogger, const Current& current)
 {
-    if(remoteLogger == 0)
+    if (!remoteLogger)
     {
         return false;
     }
@@ -411,18 +402,18 @@ LoggerAdminI::detachRemoteLogger(shared_ptr<RemoteLoggerPrx> remoteLogger, const
     //
     // No need to convert the proxy as we only use its identity
     //
-    bool found = removeRemoteLogger(remoteLogger);
+    bool found = removeRemoteLogger(remoteLogger.value());
 
     if(_traceLevel > 0)
     {
         Trace trace(current.adapter->getCommunicator()->getLogger(), traceCategory);
         if(found)
         {
-            trace << "detached `" << remoteLogger << "'";
+            trace << "detached `" << remoteLogger.value() << "'";
         }
         else
         {
-            trace << "cannot detach `" << remoteLogger << "': not found";
+            trace << "cannot detach `" << remoteLogger.value() << "': not found";
         }
     }
 
@@ -431,7 +422,7 @@ LoggerAdminI::detachRemoteLogger(shared_ptr<RemoteLoggerPrx> remoteLogger, const
 
 LogMessageSeq
 LoggerAdminI::getLog(LogMessageTypeSeq messageTypes, StringSeq categories,
-                     Int messageMax, string& prefix, const Current& current)
+                     int32_t messageMax, string& prefix, const Current& current)
 {
     LogMessageSeq logMessages;
     {
@@ -479,10 +470,10 @@ LoggerAdminI::destroy()
     }
 }
 
-vector<RemoteLoggerPrxPtr>
+vector<RemoteLoggerPrx>
 LoggerAdminI::log(const LogMessage& logMessage)
 {
-    vector<RemoteLoggerPrxPtr> remoteLoggers;
+    vector<RemoteLoggerPrx> remoteLoggers;
 
     lock_guard lock(_mutex);
 
@@ -568,7 +559,7 @@ LoggerAdminI::log(const LogMessage& logMessage)
 }
 
 void
-LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger,
+LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrx& remoteLogger,
                                const LoggerPtr& logger,
                                std::exception_ptr ex,
                                const string& operation)
@@ -594,7 +585,7 @@ LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger,
 }
 
 bool
-LoggerAdminI::removeRemoteLogger(const RemoteLoggerPrxPtr& remoteLogger)
+LoggerAdminI::removeRemoteLogger(const RemoteLoggerPrx& remoteLogger)
 {
     lock_guard lock(_mutex);
     return _remoteLoggerMap.erase(remoteLogger) > 0;
@@ -703,7 +694,7 @@ LoggerAdminLoggerI::getFacet() const
 void
 LoggerAdminLoggerI::log(const LogMessage& logMessage)
 {
-    const vector<RemoteLoggerPrxPtr> remoteLoggers = _loggerAdmin->log(logMessage);
+    const vector<RemoteLoggerPrx> remoteLoggers = _loggerAdmin->log(logMessage);
 
     if(!remoteLoggers.empty())
     {
@@ -771,7 +762,7 @@ LoggerAdminLoggerI::run()
         _jobQueue.pop_front();
         lock.unlock();
 
-        for(vector<RemoteLoggerPrxPtr>::const_iterator p = job->remoteLoggers.begin(); p != job->remoteLoggers.end(); ++p)
+        for(vector<RemoteLoggerPrx>::const_iterator p = job->remoteLoggers.begin(); p != job->remoteLoggers.end(); ++p)
         {
             if(_loggerAdmin->getTraceLevel() > 1)
             {
@@ -781,7 +772,7 @@ LoggerAdminLoggerI::run()
 
             try
             {
-                RemoteLoggerPrxPtr remoteLogger = *p;
+                RemoteLoggerPrx remoteLogger = *p;
                 auto self = shared_from_this();
                 remoteLogger->logAsync(job->logMessage,
                     [self, remoteLogger]()

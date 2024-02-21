@@ -71,14 +71,14 @@ IceSSL::EndpointI::protocol() const
     return _delegate->protocol();
 }
 
-Int
+int32_t
 IceSSL::EndpointI::timeout() const
 {
     return _delegate->timeout();
 }
 
 IceInternal::EndpointIPtr
-IceSSL::EndpointI::timeout(Int timeout) const
+IceSSL::EndpointI::timeout(int32_t timeout) const
 {
     if(timeout == _delegate->timeout())
     {
@@ -246,7 +246,7 @@ IceSSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
     return _delegate->equivalent(endpointI->_delegate);
 }
 
-Ice::Int
+int32_t
 IceSSL::EndpointI::hash() const
 {
     return _delegate->hash();

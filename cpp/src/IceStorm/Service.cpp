@@ -43,7 +43,7 @@ public:
                const Ice::Identity&,
                const std::string&);
 
-    std::shared_ptr<IceStorm::TopicManagerPrx> getTopicManager() const override;
+    IceStorm::TopicManagerPrxPtr getTopicManager() const override;
 
     void start(const std::string&, const std::shared_ptr<Ice::Communicator>&, const Ice::StringSeq&) override;
     void stop() override;
@@ -57,7 +57,7 @@ private:
 
     std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
     std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
-    std::shared_ptr<IceStorm::TopicManagerPrx> _managerProxy;
+    IceStorm::TopicManagerPrxPtr _managerProxy;
     std::shared_ptr<IceStorm::Instance> _instance;
 };
 
@@ -65,11 +65,11 @@ class FinderI final : public IceStorm::Finder
 {
 public:
 
-    FinderI(shared_ptr<TopicManagerPrx> topicManager) : _topicManager(std::move(topicManager))
+    FinderI(TopicManagerPrxPtr topicManager) : _topicManager(std::move(topicManager))
     {
     }
 
-    shared_ptr<TopicManagerPrx>
+    TopicManagerPrxPtr
     getTopicManager(const Ice::Current&) override
     {
         return _topicManager;
@@ -77,7 +77,7 @@ public:
 
 private:
 
-    const shared_ptr<TopicManagerPrx> _topicManager;
+    const TopicManagerPrxPtr _topicManager;
 };
 
 }
@@ -179,7 +179,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
     else
     {
         // Here we want to create a map of id -> election node proxies.
-        map<int, shared_ptr<NodePrx>> nodes;
+        map<int, NodePrxPtr> nodes;
 
         string topicManagerAdapterId = properties->getProperty(name + ".TopicManager.AdapterId");
 
@@ -417,7 +417,7 @@ ServiceI::start(const shared_ptr<Communicator>& communicator,
     }
 }
 
-shared_ptr<TopicManagerPrx>
+TopicManagerPrxPtr
 ServiceI::getTopicManager() const
 {
     return _managerProxy;

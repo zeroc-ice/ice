@@ -24,10 +24,10 @@ class ResponseHandler : public EnableSharedFromThis<ResponseHandler>
 {
 public:
 
-    virtual void sendResponse(Ice::Int, Ice::OutputStream*, Ice::Byte, bool) = 0;
+    virtual void sendResponse(std::int32_t, Ice::OutputStream*, Ice::Byte, bool) = 0;
     virtual void sendNoResponse() = 0;
-    virtual bool systemException(Ice::Int, std::exception_ptr, bool) = 0;
-    virtual void invokeException(Ice::Int, std::exception_ptr, int, bool) = 0;
+    virtual bool systemException(std::int32_t, std::exception_ptr, bool) = 0;
+    virtual void invokeException(std::int32_t, std::exception_ptr, int, bool) = 0;
 };
 
 }

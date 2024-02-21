@@ -13,7 +13,7 @@ class breakI : public _cpp_and::_cpp_break
 {
 public:
 
-    virtual void caseAsync(::Ice::Int,
+    virtual void caseAsync(::int32_t,
                            function<void(int)> response,
                            function<void(exception_ptr)>,
                            const ::Ice::Current&)
@@ -40,7 +40,7 @@ class switchI: public _cpp_and::_cpp_switch
 {
 public:
 
-    virtual void foo(shared_ptr<_cpp_and::charPrx>, Ice::Int&, const ::Ice::Current&)
+    virtual void foo(_cpp_and::charPrxPtr, int32_t&, const ::Ice::Current&)
     {
     }
 };
@@ -60,7 +60,7 @@ public:
     {
     }
 
-    virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
+    virtual void foo(const _cpp_and::charPrx&, int32_t&, const ::Ice::Current&)
     {
     }
 };
@@ -79,10 +79,10 @@ public:
               const ::std::shared_ptr<::Ice::Value>&,
               const _cpp_and::breakPrxPtr&,
               const _cpp_and::charPrxPtr&,
-              const ::std::shared_ptr<::Ice::ObjectPrx>&,
+              const ::Ice::ObjectPrxPtr&,
               const _cpp_and::doPrxPtr&,
-              ::Ice::Int, ::Ice::Int,
-              ::Ice::Int, ::Ice::Int,
+              ::int32_t, ::int32_t,
+              ::int32_t, ::int32_t,
               const ::Ice::Current&)
     {
         return _cpp_and::_cpp_auto();

@@ -2,25 +2,18 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Proxy.h>
-#include <Ice/Comparable.h>
-#include <Ice/ProxyFactory.h>
-#include <Ice/ReferenceFactory.h>
-#include <Ice/Object.h>
-#include <Ice/ObjectAdapterFactory.h>
-#include <Ice/OutgoingAsync.h>
-#include <Ice/Reference.h>
-#include <Ice/CollocatedRequestHandler.h>
-#include <Ice/EndpointI.h>
-#include <Ice/Instance.h>
-#include <Ice/RouterInfo.h>
-#include <Ice/LocatorInfo.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/LocalException.h>
-#include <Ice/ConnectionI.h> // To convert from ConnectionIPtr to ConnectionPtr in ice_getConnection().
-#include <Ice/ImplicitContextI.h>
+#include "Ice/Proxy.h"
+#include "Ice/Comparable.h"
+#include "Reference.h"
+#include "EndpointI.h"
+#include "RouterInfo.h"
+#include "LocatorInfo.h"
+#include "Ice/LocalException.h"
+#include "Instance.h"
+#include "ReferenceFactory.h"
 #include "RequestHandlerCache.h"
+#include "ConnectionI.h"
+#include "CheckIdentity.h"
 
 using namespace std;
 using namespace Ice;
@@ -36,191 +29,32 @@ const Context noExplicitContext;
 namespace
 {
 
-const string ice_ping_name = "ice_ping";
-const string ice_ids_name = "ice_ids";
-const string ice_id_name = "ice_id";
-const string ice_isA_name = "ice_isA";
-const string ice_invoke_name = "ice_invoke";
-const string ice_getConnection_name = "ice_getConnection";
-const string ice_flushBatchRequests_name = "ice_flushBatchRequests";
-
-}
-
-ProxyFlushBatchAsync::ProxyFlushBatchAsync(const ObjectPrxPtr& proxy) : ProxyOutgoingAsyncBase(proxy)
+inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, const string& proxyString)
 {
-}
-
-AsyncStatus
-ProxyFlushBatchAsync::invokeRemote(const ConnectionIPtr& connection, bool compress, bool)
-{
-    if(_batchRequestNum == 0)
+    if (!communicator)
     {
-        if(sent())
-        {
-            return static_cast<AsyncStatus>(AsyncStatusSent | AsyncStatusInvokeSentCallback);
-        }
-        else
-        {
-            return AsyncStatusSent;
-        }
+        throw std::invalid_argument("communicator cannot be null");
     }
-    _cachedConnection = connection;
-    return connection->sendAsyncRequest(shared_from_this(), compress, false, _batchRequestNum);
-}
 
-AsyncStatus
-ProxyFlushBatchAsync::invokeCollocated(CollocatedRequestHandler* handler)
-{
-    if(_batchRequestNum == 0)
+    ReferencePtr ref = getInstance(communicator)->referenceFactory()->create(proxyString, "");
+    if (!ref)
     {
-        if(sent())
-        {
-            return static_cast<AsyncStatus>(AsyncStatusSent | AsyncStatusInvokeSentCallback);
-        }
-        else
-        {
-            return AsyncStatusSent;
-        }
+        throw std::invalid_argument("invalid proxy string");
     }
-    return handler->invokeAsyncRequest(this, _batchRequestNum, false);
-}
-
-void
-ProxyFlushBatchAsync::invoke(const string& operation)
-{
-    checkSupportedProtocol(getCompatibleProtocol(_proxy->_getReference()->getProtocol()));
-    _observer.attach(_proxy, operation, ::Ice::noExplicitContext);
-    bool compress; // Ignore for proxy flushBatchRequests
-    _batchRequestNum = _proxy->_getBatchRequestQueue()->swap(&_os, compress);
-    invokeImpl(true); // userThread = true
-}
-
-ProxyGetConnection::ProxyGetConnection(const ObjectPrxPtr& prx) : ProxyOutgoingAsyncBase(prx)
-{
-}
-
-AsyncStatus
-ProxyGetConnection::invokeRemote(const ConnectionIPtr& connection, bool, bool)
-{
-    _cachedConnection = connection;
-    if(responseImpl(true, true))
-    {
-        invokeResponseAsync();
-    }
-    return AsyncStatusSent;
-}
-
-AsyncStatus
-ProxyGetConnection::invokeCollocated(CollocatedRequestHandler*)
-{
-    if(responseImpl(true, true))
-    {
-        invokeResponseAsync();
-    }
-    return AsyncStatusSent;
-}
-
-Ice::ConnectionPtr
-ProxyGetConnection::getConnection() const
-{
-    return _cachedConnection;
-}
-
-void
-ProxyGetConnection::invoke(const string& operation)
-{
-    _observer.attach(_proxy, operation, ::Ice::noExplicitContext);
-    invokeImpl(true); // userThread = true
-}
-
-namespace Ice
-{
-
-bool
-operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
-{
-    return targetLess(lhs._getReference(), rhs._getReference());
-}
-
-bool
-operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
-{
-    return targetEqualTo(lhs._getReference(), rhs._getReference());
+    return ref;
 }
 
 }
 
-Ice::ObjectPrx::ObjectPrx(const ReferencePtr& ref) noexcept :
-    _reference(ref),
-    _requestHandlerCache(make_shared<RequestHandlerCache>(ref)),
-    _batchRequestQueue(ref->isBatch() ? ref->getBatchRequestQueue() : nullptr)
+Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, const string& proxyString) :
+    ObjectPrx(createReference(communicator, proxyString))
 {
 }
 
-Ice::ObjectPrx::ObjectPrx(const ObjectPrx& other) noexcept :
-    std::enable_shared_from_this<ObjectPrx>(),
-    _reference(other._reference),
-    _requestHandlerCache(other._requestHandlerCache),
-    _batchRequestQueue(_reference->isBatch() ? _reference->getBatchRequestQueue() : nullptr)
+Ice::ObjectPrx::ObjectPrx(ReferencePtr&& ref) :
+    _reference(std::move(ref)),
+    _requestHandlerCache(make_shared<RequestHandlerCache>(_reference))
 {
-}
-
-void
-Ice::ObjectPrx::_iceI_isA(const shared_ptr<IceInternal::OutgoingAsyncT<bool>>& outAsync,
-                          const string& typeId,
-                          const Context& ctx)
-{
-    _checkTwowayOnly(ice_isA_name);
-    outAsync->invoke(ice_isA_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx,
-                     [&](Ice::OutputStream* os)
-                     {
-                         os->write(typeId, false);
-                     },
-                     nullptr);
-}
-
-void
-Ice::ObjectPrx::_iceI_ping(const shared_ptr<IceInternal::OutgoingAsyncT<void>>& outAsync, const Context& ctx)
-{
-    outAsync->invoke(ice_ping_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr);
-}
-
-void
-Ice::ObjectPrx::_iceI_ids(const shared_ptr<IceInternal::OutgoingAsyncT<vector<string>>>& outAsync, const Context& ctx)
-{
-    _checkTwowayOnly(ice_ids_name);
-    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
-                     [](Ice::InputStream* stream)
-                     {
-                         vector<string> v;
-                         stream->read(v, false); // no conversion
-                         return v;
-                     });
-}
-
-void
-Ice::ObjectPrx::_iceI_id(const shared_ptr<IceInternal::OutgoingAsyncT<string>>& outAsync, const Context& ctx)
-{
-    _checkTwowayOnly(ice_id_name);
-    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
-                     [](Ice::InputStream* stream)
-                     {
-                         string v;
-                         stream->read(v, false); // no conversion
-                         return v;
-                     });
-}
-
-void
-Ice::ObjectPrx::_iceI_getConnection(const shared_ptr<IceInternal::ProxyGetConnection>& outAsync)
-{
-    outAsync->invoke(ice_getConnection_name);
-}
-
-void
-Ice::ObjectPrx::_iceI_flushBatchRequests(const shared_ptr<IceInternal::ProxyFlushBatchAsync>& outAsync)
-{
-    outAsync->invoke(ice_flushBatchRequests_name);
 }
 
 void
@@ -244,20 +78,17 @@ Ice::ObjectPrx::ice_getIdentity() const
     return _reference->getIdentity();
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectPrx::ice_identity(const Identity& newIdentity) const
 {
-    if(newIdentity.name.empty())
+    checkIdentity(newIdentity, __FILE__, __LINE__);
+    if (newIdentity == _reference->getIdentity())
     {
-        throw IllegalIdentityException(__FILE__, __LINE__);
-    }
-    if(newIdentity == _reference->getIdentity())
-    {
-        return const_pointer_cast<ObjectPrx>(shared_from_this());
+        return *this;
     }
     else
     {
-        return make_shared<ObjectPrx>(_reference->changeIdentity(newIdentity));
+        return ObjectPrx(_reference->changeIdentity(newIdentity));
     }
 }
 
@@ -273,16 +104,16 @@ Ice::ObjectPrx::ice_getFacet() const
     return _reference->getFacet();
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectPrx::ice_facet(const string& newFacet) const
 {
     if(newFacet == _reference->getFacet())
     {
-        return const_pointer_cast<ObjectPrx>(shared_from_this());
+        return *this;
     }
     else
     {
-        return make_shared<ObjectPrx>(_reference->changeFacet(newFacet));
+        return ObjectPrx(_reference->changeFacet(newFacet));
     }
 }
 
@@ -304,7 +135,7 @@ Ice::ObjectPrx::ice_getEndpoints() const
     return retSeq;
 }
 
-Int
+int32_t
 Ice::ObjectPrx::ice_getLocatorCacheTimeout() const
 {
     return _reference->getLocatorCacheTimeout();
@@ -340,18 +171,18 @@ Ice::ObjectPrx::ice_isPreferSecure() const
     return _reference->getPreferSecure();
 }
 
-RouterPrxPtr
+optional<RouterPrx>
 Ice::ObjectPrx::ice_getRouter() const
 {
-    RouterInfoPtr ri = _reference->getRouterInfo();
-    return ri ? ri->getRouter() : nullptr;
+    RouterInfoPtr routerInfo = _reference->getRouterInfo();
+    return routerInfo ? make_optional(routerInfo->getRouter()) : nullopt;
 }
 
-LocatorPrxPtr
+optional<LocatorPrx>
 Ice::ObjectPrx::ice_getLocator() const
 {
-    LocatorInfoPtr ri = _reference->getLocatorInfo();
-    return ri ? ri->getLocator() : nullptr;
+    LocatorInfoPtr locatorInfo = _reference->getLocatorInfo();
+    return locatorInfo ? make_optional(locatorInfo->getLocator()) : nullopt;
 }
 
 bool
@@ -360,7 +191,7 @@ Ice::ObjectPrx::ice_isCollocationOptimized() const
     return _reference->getCollocationOptimized();
 }
 
-Int
+int32_t
 Ice::ObjectPrx::ice_getInvocationTimeout() const
 {
     return _reference->getInvocationTimeout();
@@ -443,7 +274,7 @@ Ice::ObjectPrx::ice_toString() const
     return _reference->toString();
 }
 
-Int
+int32_t
 Ice::ObjectPrx::_hash() const
 {
     return _reference->hash();
@@ -644,7 +475,7 @@ Ice::ObjectPrx::_fixed(const ::Ice::ConnectionPtr& connection) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_invocationTimeout(Int newTimeout) const
+Ice::ObjectPrx::_invocationTimeout(int32_t newTimeout) const
 {
     if (newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
     {
@@ -663,10 +494,10 @@ Ice::ObjectPrx::_invocationTimeout(Int newTimeout) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_locator(const LocatorPrxPtr& locator) const
+Ice::ObjectPrx::_locator(const std::optional<LocatorPrx>& locator) const
 {
     ReferencePtr ref = _reference->changeLocator(locator);
-    if (targetEqualTo(ref, _reference))
+    if (*ref == *_reference)
     {
         return _reference;
     }
@@ -677,7 +508,7 @@ Ice::ObjectPrx::_locator(const LocatorPrxPtr& locator) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_locatorCacheTimeout(Int newTimeout) const
+Ice::ObjectPrx::_locatorCacheTimeout(int32_t newTimeout) const
 {
     if (newTimeout < -1)
     {
@@ -722,10 +553,10 @@ Ice::ObjectPrx::_preferSecure(bool b) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_router(const RouterPrxPtr& router) const
+Ice::ObjectPrx::_router(const std::optional<RouterPrx>& router) const
 {
     ReferencePtr ref = _reference->changeRouter(router);
-    if (targetEqualTo(ref, _reference))
+    if (*ref == *_reference)
     {
         return _reference;
     }
@@ -782,73 +613,50 @@ Ice::ObjectPrx::_twoway() const
     }
 }
 
-bool
-Ice::proxyIdentityLess(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
+// TODO: move the code below to ProxyFunctions.cpp
+namespace Ice
 {
-    if(!lhs && !rhs)
-    {
-        return false;
-    }
-    else if(!lhs && rhs)
-    {
-        return true;
-    }
-    else if(lhs && !rhs)
-    {
-        return false;
-    }
-    else
-    {
-        return lhs->ice_getIdentity() < rhs->ice_getIdentity();
-    }
+
+bool
+operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return targetLess(lhs._getReference(), rhs._getReference());
 }
 
 bool
-Ice::proxyIdentityEqual(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
+operator==(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    if(!lhs && !rhs)
-    {
-        return true;
-    }
-    else if(!lhs && rhs)
-    {
-        return false;
-    }
-    else if(lhs && !rhs)
-    {
-        return false;
-    }
-    else
-    {
-        return lhs->ice_getIdentity() == rhs->ice_getIdentity();
-    }
+    return targetEqualTo(lhs._getReference(), rhs._getReference());
+}
+
 }
 
 bool
-Ice::proxyIdentityAndFacetLess(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
+Ice::proxyIdentityLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
 {
-    if(!lhs && !rhs)
-    {
-        return false;
-    }
-    else if(!lhs && rhs)
-    {
-        return true;
-    }
-    else if(lhs && !rhs)
-    {
-        return false;
-    }
-    else
+    return lhs && rhs ? lhs->ice_getIdentity() < rhs->ice_getIdentity() :
+        std::less<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+}
+
+bool
+Ice::proxyIdentityEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
+{
+   return lhs && rhs ? lhs->ice_getIdentity() == rhs->ice_getIdentity() :
+        std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));}
+
+bool
+Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
+{
+    if (lhs && rhs)
     {
         Identity lhsIdentity = lhs->ice_getIdentity();
         Identity rhsIdentity = rhs->ice_getIdentity();
 
-        if(lhsIdentity < rhsIdentity)
+        if (lhsIdentity < rhsIdentity)
         {
             return true;
         }
-        else if(rhsIdentity < lhsIdentity)
+        else if (rhsIdentity < lhsIdentity)
         {
             return false;
         }
@@ -856,50 +664,47 @@ Ice::proxyIdentityAndFacetLess(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
         string lhsFacet = lhs->ice_getFacet();
         string rhsFacet = rhs->ice_getFacet();
 
-        if(lhsFacet < rhsFacet)
+        if (lhsFacet < rhsFacet)
         {
             return true;
         }
-        else if(rhsFacet < lhsFacet)
+        else if (rhsFacet < lhsFacet)
         {
             return false;
         }
 
         return false;
     }
+    else
+    {
+        return std::less<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+    }
 }
 
 bool
-Ice::proxyIdentityAndFacetEqual(const ObjectPrxPtr& lhs, const ObjectPrxPtr& rhs)
+Ice::proxyIdentityAndFacetEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs)
 {
-    if(!lhs && !rhs)
-    {
-        return true;
-    }
-    else if(!lhs && rhs)
-    {
-        return false;
-    }
-    else if(lhs && !rhs)
-    {
-        return false;
-    }
-    else
+
+    if (lhs && rhs)
     {
         Identity lhsIdentity = lhs->ice_getIdentity();
         Identity rhsIdentity = rhs->ice_getIdentity();
 
-        if(lhsIdentity == rhsIdentity)
+        if (lhsIdentity == rhsIdentity)
         {
             string lhsFacet = lhs->ice_getFacet();
             string rhsFacet = rhs->ice_getFacet();
 
-            if(lhsFacet == rhsFacet)
+            if (lhsFacet == rhsFacet)
             {
                 return true;
             }
         }
 
         return false;
+    }
+    else
+    {
+        return std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
     }
 }

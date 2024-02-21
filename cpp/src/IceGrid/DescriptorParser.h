@@ -15,7 +15,7 @@ ApplicationDescriptor parseDescriptor(const std::string&,
                                              const Ice::StringSeq&,
                                              const std::map<std::string, std::string>&,
                                              const std::shared_ptr<Ice::Communicator>&,
-                                             const std::shared_ptr<IceGrid::AdminPrx>&);
+                                             const IceGrid::AdminPrxPtr&);
 
 ApplicationDescriptor parseDescriptor(const std::string&, const std::shared_ptr<Ice::Communicator>&);
 

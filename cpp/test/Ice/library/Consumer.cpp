@@ -12,7 +12,7 @@
 using namespace std;
 
 ICE_DECLSPEC_EXPORT void
-consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
+consume(const Ice::ObjectPtr& o, const Ice::ObjectPrx& p)
 {
     cout << "testing dynamic cast across libraries... " << flush;
 
@@ -25,7 +25,7 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
     Test::MyInterfacePtr servant = dynamic_pointer_cast<Test::MyInterface>(o);
     test(servant);
 
-    auto proxy = dynamic_pointer_cast<Test::MyInterfacePrx>(p);
+    auto proxy = dynamic_cast<const Test::MyInterfacePrx*>(&p);
     test(proxy);
 
     proxy->op(false);

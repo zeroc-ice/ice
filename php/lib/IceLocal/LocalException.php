@@ -586,7 +586,6 @@ namespace Ice
     {
         public function __construct($id=null)
         {
-            $this->id = is_null($id) ? new \Ice\Identity : $id;
         }
 
         public function ice_id()
@@ -599,13 +598,9 @@ namespace Ice
             global $Ice__t_IllegalIdentityException;
             return IcePHP_stringifyException($this, $Ice__t_IllegalIdentityException);
         }
-
-        public $id;
     }
-    global $Ice__t_Identity;
 
-    $Ice__t_IllegalIdentityException = IcePHP_defineException('::Ice::IllegalIdentityException', '\\Ice\\IllegalIdentityException', false, null, array(
-        array('id', $Ice__t_Identity, false, 0)));
+    $Ice__t_IllegalIdentityException = IcePHP_defineException('::Ice::IllegalIdentityException', '\\Ice\\IllegalIdentityException', false, null, null);
 }
 
 namespace Ice

@@ -12,6 +12,7 @@ using namespace IceInternal;
 
 TimerTask::~TimerTask()
 {
+    // Out of line to avoid weak vtable
 }
 
 Timer::Timer() :
@@ -24,7 +25,6 @@ Timer::Timer() :
 void
 Timer::destroy()
 {
-    std::map<TimerTaskPtr, std::chrono::steady_clock::time_point> tasks;
     {
         std::lock_guard lock(_mutex);
         if(_destroyed)
@@ -32,13 +32,10 @@ Timer::destroy()
             return;
         }
         _destroyed = true;
+        _tasks.clear();
         _tokens.clear();
-        tasks = std::move(_tasks);
         _condition.notify_one();
     }
-
-    // Clear all tasks outside the synchronization block to avoid deadlocks.
-    tasks.clear();
 
     if (std::this_thread::get_id() == _worker.get_id())
     {
@@ -122,7 +119,7 @@ void Timer::run()
                 }
 
                 _wakeUpTime = first.scheduledTime;
-                _condition.wait_until(lock, first.scheduledTime);
+                _condition.wait_for(lock, first.scheduledTime - now);
             }
 
             if (_destroyed)

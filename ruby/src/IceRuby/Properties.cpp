@@ -121,7 +121,7 @@ IceRuby_Properties_getPropertyAsInt(VALUE self, VALUE key)
     {
         Ice::PropertiesPtr p = getProperties(self);
         string k = getString(key);
-        Ice::Int v = p->getPropertyAsInt(k);
+        int32_t v = p->getPropertyAsInt(k);
         return INT2FIX(v);
     }
     ICE_RUBY_CATCH
@@ -136,8 +136,8 @@ IceRuby_Properties_getPropertyAsIntWithDefault(VALUE self, VALUE key, VALUE def)
     {
         Ice::PropertiesPtr p = getProperties(self);
         string k = getString(key);
-        Ice::Int d = static_cast<Ice::Int>(getInteger(def));
-        Ice::Int v = p->getPropertyAsIntWithDefault(k, d);
+        int32_t d = static_cast<int32_t>(getInteger(def));
+        int32_t v = p->getPropertyAsIntWithDefault(k, d);
         return INT2FIX(v);
     }
     ICE_RUBY_CATCH

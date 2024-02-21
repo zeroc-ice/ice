@@ -313,29 +313,29 @@ TestIntfI::opIntStringDict(Test::IntStringDict data, Test::IntStringDict& copy, 
     return data;
 }
 
-Test::CustomMap<Ice::Long, Ice::Long>
-TestIntfI::opVarDict(Test::CustomMap<std::string, Ice::Int> data,
-                     Test::CustomMap<std::string, Ice::Int>& copy, const Ice::Current&)
+Test::CustomMap<int64_t, int64_t>
+TestIntfI::opVarDict(Test::CustomMap<std::string, int32_t> data,
+                     Test::CustomMap<std::string, int32_t>& copy, const Ice::Current&)
 {
     copy = data;
 
-    Test::CustomMap<Ice::Long, Ice::Long> result;
-    for(Ice::Long i = 0; i < 1000; ++i)
+    Test::CustomMap<int64_t, int64_t> result;
+    for(int64_t i = 0; i < 1000; ++i)
     {
         result[i] = i*i;
     }
     return result;
 }
 
-Test::CustomMap<Ice::Int, std::string>
+Test::CustomMap<int32_t, std::string>
 TestIntfI::opCustomIntStringDict(
-    std::map<Ice::Int, Util::string_view> data,
-    Test::CustomMap<Ice::Int, std::string>& copy,
+    std::map<int32_t, Util::string_view> data,
+    Test::CustomMap<int32_t, std::string>& copy,
     const Ice::Current&)
 {
     copy.clear();
 
-    for(std::map<Ice::Int, Util::string_view>::const_iterator p = data.begin();
+    for(std::map<int32_t, Util::string_view>::const_iterator p = data.begin();
         p != data.end(); ++p)
     {
         copy[p->first] = p->second.to_string();

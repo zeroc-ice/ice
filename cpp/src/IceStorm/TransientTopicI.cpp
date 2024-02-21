@@ -136,22 +136,22 @@ TransientTopicImpl::getName(const Ice::Current&) const
     return _name;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 TransientTopicImpl::getPublisher(const Ice::Current&) const
 {
     // Immutable
     return _publisherPrx;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&) const
 {
     // Immutable
     return _publisherPrx;
 }
 
-shared_ptr<Ice::ObjectPrx>
-TransientTopicImpl::subscribeAndGetPublisher(QoS qos, shared_ptr<Ice::ObjectPrx> obj, const Ice::Current&)
+Ice::ObjectPrxPtr
+TransientTopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrxPtr obj, const Ice::Current&)
 {
     if(!obj)
     {
@@ -208,7 +208,7 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, shared_ptr<Ice::ObjectPrx>
 }
 
 void
-TransientTopicImpl::unsubscribe(shared_ptr<Ice::ObjectPrx> subscriber, const Ice::Current&)
+TransientTopicImpl::unsubscribe(Ice::ObjectPrxPtr subscriber, const Ice::Current&)
 {
     auto traceLevels = _instance->traceLevels();
     if(!subscriber)
@@ -246,7 +246,7 @@ TransientTopicImpl::unsubscribe(shared_ptr<Ice::ObjectPrx> subscriber, const Ice
     }
 }
 
-shared_ptr<TopicLinkPrx>
+TopicLinkPrxPtr
 TransientTopicImpl::getLinkProxy(const Ice::Current&)
 {
     // immutable
@@ -254,7 +254,7 @@ TransientTopicImpl::getLinkProxy(const Ice::Current&)
 }
 
 void
-TransientTopicImpl::link(shared_ptr<TopicPrx> topic, int cost, const Ice::Current&)
+TransientTopicImpl::link(TopicPrxPtr topic, int cost, const Ice::Current&)
 {
     auto internal = Ice::uncheckedCast<TopicInternalPrx>(topic);
     auto link = internal->getLinkProxy();
@@ -289,7 +289,7 @@ TransientTopicImpl::link(shared_ptr<TopicPrx> topic, int cost, const Ice::Curren
 }
 
 void
-TransientTopicImpl::unlink(shared_ptr<TopicPrx> topic, const Ice::Current&)
+TransientTopicImpl::unlink(TopicPrxPtr topic, const Ice::Current&)
 {
     lock_guard<mutex> lg(_mutex);
 

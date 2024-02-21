@@ -1774,6 +1774,8 @@ Slice::Gen::DeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     H << nl << "class " << fixKwd(p->name()) << ';';
     H << nl << "class " << p->name() << "Prx;";
+    // TODO: temporary PrxPtr
+    H << sp << nl << "using " << p->name() << "PrxPtr = ::std::optional<" << p->name() << "Prx>;";
 }
 
 bool
@@ -2488,6 +2490,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     const string prx = fixKwd(p->name() + "Prx");
     const string scoped = fixKwd(p->scoped() + "Prx");
+    InterfaceList bases = p->allBases();
 
     H << sp;
     H << nl << "/**";
@@ -2495,24 +2498,77 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
     H << nl << "static const ::std::string& ice_staticId();";
+
+    if (!bases.empty())
+    {
+        // -Wextra wants to initialize all the virtual base classes _in the right order_, which is not practical, and
+        // is useless here.
+        H << sp;
+        H.zeroIndent();
+        H << nl << "#if defined(__GNUC__)";
+        H << nl << "#   pragma GCC diagnostic push";
+        H << nl << "#   pragma GCC diagnostic ignored \"-Wextra\" // initialize all virtual bases in correct order";
+        H << nl << "#endif";
+        H.restoreIndent();
+    }
+
+    // TODO: generate doc-comments.
     H << sp;
     H << nl << "explicit " << prx << "(const ::Ice::ObjectPrx& other) : ::Ice::ObjectPrx(other)";
-    H << nl << "{";
-    H << nl << "}";
+    H << sb << eb;
+    H << sp;
 
+    // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
+
+    H << nl << prx << "(const " << prx << "& other) noexcept : ::Ice::ObjectPrx(other)";
+    H << sb << eb;
+    H << sp;
+    H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(::std::move(other))";
+    H << sb << eb;
+    H << sp;
+    H << nl << prx << "(const ::std::shared_ptr<::Ice::Communicator>& communicator, const ::std::string& proxyString) :";
+    H.inc();
+    H << nl << "::Ice::ObjectPrx(communicator, proxyString)";
+    H.dec();
+    H << sb << eb;
+    H << sp;
+    H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
+    H << sb;
+    H << nl << "::Ice::ObjectPrx::operator=(rhs);";
+    H << nl << "return *this;";
+    H << eb;
+    H << sp;
+    H << nl << prx << "& operator=(" << prx << "&& rhs) noexcept";
+    H << sb;
+    H << nl << "::Ice::ObjectPrx::operator=(::std::move(rhs));";
+    H << nl << "return *this;";
+    H << eb;
     H << sp;
     H << nl << "/// \\cond INTERNAL";
-    H << nl << prx << "(const ::IceInternal::ReferencePtr& ref) : ::Ice::ObjectPrx(ref)";
-    H << nl << "{";
-    H << nl << "}";
-    H << nl << "/// \\endcond";
+    H << nl << "static " << prx <<
+        " _fromReference(::IceInternal::ReferencePtr ref) { return " << prx << "(::std::move(ref)); }";
     H.dec();
     H << sp << nl << "protected:";
     H.inc();
     H << sp;
-    H << nl << "/// \\cond INTERNAL";
     H << nl << prx << "() = default;";
+    H << sp;
+    H << nl << "explicit " << prx << "(::IceInternal::ReferencePtr&& ref) : ::Ice::ObjectPrx(::std::move(ref))";
+    H << sb << eb;
     H << nl << "/// \\endcond";
+
+    if (!bases.empty())
+    {
+        // -Wextra wants to initialize all the virtual base classes _in the right order_, which is not practical, and
+        // is useless here.
+        H << sp;
+        H.zeroIndent();
+        H << nl << "#if defined(__GNUC__)";
+        H << nl << "#   pragma GCC diagnostic pop";
+        H << nl << "#endif";
+        H.restoreIndent();
+    }
+
     H << eb << ';';
 
     C << sp;
@@ -2641,11 +2697,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, OpDocAllParams, true, StringList(), postParams, comment->returns());
     }
     H << nl << deprecateSymbol << retS << ' ' << fixKwd(name)
-        << spar << paramsDecl << contextDecl << epar << ";";
+        << spar << paramsDecl << contextDecl << epar << " const;";
 
     C << sp;
     C << nl << retSImpl << nl
-        << scoped << fixKwd(name) << spar << paramsImplDecl << "const ::Ice::Context& context" << epar;
+        << scoped << fixKwd(name) << spar << paramsImplDecl << "const ::Ice::Context& context" << epar << " const";
     C << sb;
     C << nl;
     if (futureOutParams.size() == 1)
@@ -2700,12 +2756,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 
     H << nl << deprecateSymbol << "::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
-        << contextDecl << epar << ";";
+        << contextDecl << epar << "const;";
 
     C << sp;
     C << nl << "::std::future<" << futureTAbsolute << ">";
     C << nl;
-    C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar;
+    C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar << " const";
 
     C << sb;
     C << nl << "return _makePromiseOutgoing<" << futureT << ", ::std::promise>" << spar;
@@ -2759,7 +2815,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << "::std::function<void" << spar << lambdaOutParams << epar << "> " << responseParam << ",";
     H << nl << "::std::function<void(::std::exception_ptr)> " << exParam << " = nullptr,";
     H << nl << "::std::function<void(bool)> " << sentParam << " = nullptr,";
-    H << nl << contextDecl << ");";
+    H << nl << contextDecl << ") const;";
 
     H.restoreIndent();
 
@@ -2783,7 +2839,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << "::std::function<void " << spar << lambdaOutParams << epar << "> response,";
     C << nl << "::std::function<void(::std::exception_ptr)> ex,";
     C << nl << "::std::function<void(bool)> sent,";
-    C << nl << "const ::Ice::Context& context)";
+    C << nl << "const ::Ice::Context& context) const";
     C.restoreIndent();
 
     if(lambdaCustomOut)
@@ -2830,7 +2886,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << eb << ";";
         C << eb;
         C << nl << "auto outAsync = ::std::make_shared<::IceInternal::CustomLambdaOutgoing>(";
-        C << "shared_from_this(), read, ex, sent);";
+        C << "*this, read, ex, sent);";
         C << sp;
 
         C << nl << "outAsync->invoke(" << flatName << ", ";
@@ -2897,7 +2953,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>&";
     H << inParamsS;
     H << ("const " + getUnqualified("::Ice::Context&", interfaceScope));
-    H << epar << ";";
+    H << epar << " const;";
     H << nl << "/// \\endcond";
 
     C << sp;
@@ -2905,7 +2961,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "void" << nl << scoped << "_iceI_" << name << spar;
     C << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>& outAsync";
     C << inParamsImplDecl << ("const " + getUnqualified("::Ice::Context&", interfaceScope) + " context");
-    C << epar;
+    C << epar << " const";
     C << sb;
     if(p->returnsData())
     {
@@ -4072,9 +4128,6 @@ Slice::Gen::CompatibilityVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     string scoped = fixKwd(p->scoped());
 
     H << sp << nl << "using " << p->name() << "Ptr = ::std::shared_ptr<" << name << ">;";
-
-    // TODO: remove and update code that relies on these PrxPtr
-    H << sp << nl << "using " << p->name() << "PrxPtr = ::std::shared_ptr<" << p->name() << "Prx>;";
 }
 
 Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c, const string& dllExport) :

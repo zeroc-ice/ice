@@ -108,7 +108,7 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
     return _connectionId < p->_connectionId;
 }
 
-IceBT::ConnectorI::ConnectorI(const InstancePtr& instance, const string& addr, const string& uuid, Int timeout,
+IceBT::ConnectorI::ConnectorI(const InstancePtr& instance, const string& addr, const string& uuid, int32_t timeout,
                               const string& connectionId) :
     _instance(instance),
     _addr(addr),

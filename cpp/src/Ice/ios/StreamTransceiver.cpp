@@ -458,7 +458,7 @@ IceObjC::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
                                               CFReadStreamRef readStream,
                                               CFWriteStreamRef writeStream,
                                               const string& host,
-                                              Ice::Int port) :
+                                              int32_t port) :
     StreamNativeInfo(INVALID_SOCKET),
     _instance(instance),
     _host(host),

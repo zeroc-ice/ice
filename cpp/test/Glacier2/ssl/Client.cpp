@@ -59,7 +59,7 @@ Client::run(int argc, char** argv)
     // Switch to using the SSL router. First, clear the router. Then
     // set a new SSL based router.
     //
-    communicator->setDefaultRouter(nullptr);
+    communicator->setDefaultRouter(nullopt);
     router = uncheckedCast<Glacier2::RouterPrx>(
         communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(1, "ssl")));
     communicator->setDefaultRouter(router);
@@ -93,7 +93,7 @@ Client::run(int argc, char** argv)
     }
     cout << "ok" << endl;
 
-    communicator->setDefaultRouter(nullptr);
+    communicator->setDefaultRouter(nullopt);
     auto process = checkedCast<Ice::ProcessPrx>(
         communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(2, "tcp")));
     process->shutdown();

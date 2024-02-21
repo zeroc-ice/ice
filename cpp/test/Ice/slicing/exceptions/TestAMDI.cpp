@@ -284,7 +284,7 @@ TestI::knownPreservedAsKnownPreservedAsync(function<void()>, function<void(excep
 }
 
 void
-TestI::relayKnownPreservedAsBaseAsync(shared_ptr<RelayPrx> r,
+TestI::relayKnownPreservedAsBaseAsync(RelayPrxPtr r,
                                       function<void()>, function<void(exception_ptr)> error,
                                       const ::Ice::Current& c)
 {
@@ -301,7 +301,7 @@ TestI::relayKnownPreservedAsBaseAsync(shared_ptr<RelayPrx> r,
 }
 
 void
-TestI::relayKnownPreservedAsKnownPreservedAsync(shared_ptr<RelayPrx> r,
+TestI::relayKnownPreservedAsKnownPreservedAsync(RelayPrxPtr r,
                                                 function<void()>, function<void(exception_ptr)> error,
                                                 const ::Ice::Current& c)
 {
@@ -357,7 +357,7 @@ TestI::unknownPreservedAsKnownPreservedAsync(function<void()>, function<void(exc
 }
 
 void
-TestI::relayUnknownPreservedAsBaseAsync(shared_ptr<RelayPrx> r,
+TestI::relayUnknownPreservedAsBaseAsync(RelayPrxPtr r,
                                         function<void()>, function<void(exception_ptr)> error,
                                         const ::Ice::Current& c)
 {
@@ -374,7 +374,7 @@ TestI::relayUnknownPreservedAsBaseAsync(shared_ptr<RelayPrx> r,
 }
 
 void
-TestI::relayUnknownPreservedAsKnownPreservedAsync(shared_ptr<RelayPrx> r,
+TestI::relayUnknownPreservedAsKnownPreservedAsync(RelayPrxPtr r,
                                                   function<void()>, function<void(exception_ptr)> error,
                                                   const ::Ice::Current& c)
 {

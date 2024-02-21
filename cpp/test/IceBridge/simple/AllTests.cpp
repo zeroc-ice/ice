@@ -248,7 +248,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing bridge shutdown... " << flush;
     auto admin = communicator->stringToProxy("IceBridge/admin:" + helper->getTestEndpoint(2, "tcp"));
-    auto process = Ice::checkedCast<Ice::ProcessPrx>(admin->ice_facet("Process"));
+    auto process = Ice::checkedCast<Ice::ProcessPrx>(admin, "Process");
     process->shutdown();
     cout << "ok" << endl;
 }

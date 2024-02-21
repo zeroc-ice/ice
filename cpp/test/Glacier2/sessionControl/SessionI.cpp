@@ -9,8 +9,8 @@
 using namespace std;
 using namespace Test;
 
-shared_ptr<Glacier2::SessionPrx>
-SessionManagerI::create(string userId, shared_ptr<Glacier2::SessionControlPrx> sessionControl,
+Glacier2::SessionPrxPtr
+SessionManagerI::create(string userId, Glacier2::SessionControlPrxPtr sessionControl,
                         const Ice::Current& current)
 {
     if(userId == "rejectme")
@@ -24,7 +24,7 @@ SessionManagerI::create(string userId, shared_ptr<Glacier2::SessionControlPrx> s
     return Ice::uncheckedCast<Glacier2::SessionPrx>(current.adapter->addWithUUID(make_shared<SessionI>(sessionControl)));
 }
 
-SessionI::SessionI(shared_ptr<Glacier2::SessionControlPrx> sessionControl) :
+SessionI::SessionI(Glacier2::SessionControlPrxPtr sessionControl) :
     _sessionControl(std::move(sessionControl))
 {
     assert(_sessionControl);

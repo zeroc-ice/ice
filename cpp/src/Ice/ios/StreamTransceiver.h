@@ -40,7 +40,7 @@ class StreamTransceiver : public IceInternal::Transceiver, public IceInternal::S
 
 public:
 
-    StreamTransceiver(const InstancePtr&, CFReadStreamRef, CFWriteStreamRef, const std::string&, Ice::Int);
+    StreamTransceiver(const InstancePtr&, CFReadStreamRef, CFWriteStreamRef, const std::string&, std::int32_t);
     StreamTransceiver(const InstancePtr&, CFReadStreamRef, CFWriteStreamRef, SOCKET);
 
     virtual ~StreamTransceiver();
@@ -72,7 +72,7 @@ private:
 
     const InstancePtr _instance;
     const std::string _host;
-    const Ice::Int _port;
+    const std::int32_t _port;
     IceInternal::UniqueRef<CFReadStreamRef> _readStream;
     IceInternal::UniqueRef<CFWriteStreamRef> _writeStream;
     bool _readStreamRegistered;

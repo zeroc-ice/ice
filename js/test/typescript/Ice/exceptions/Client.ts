@@ -77,7 +77,6 @@ export class Client extends TestHelper
             catch(ex)
             {
                 test(ex instanceof Ice.IllegalIdentityException, ex);
-                test(ex.id.name === "");
             }
 
             try

@@ -39,10 +39,10 @@ public:
 
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
-    virtual void sendResponse(Ice::Int, Ice::OutputStream*, Ice::Byte, bool);
+    virtual void sendResponse(std::int32_t, Ice::OutputStream*, Ice::Byte, bool);
     virtual void sendNoResponse();
-    virtual bool systemException(Ice::Int, std::exception_ptr, bool);
-    virtual void invokeException(Ice::Int, std::exception_ptr, int, bool);
+    virtual bool systemException(std::int32_t, std::exception_ptr, bool);
+    virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
 
     virtual Ice::ConnectionIPtr getConnection();
     virtual Ice::ConnectionIPtr waitForConnection();
@@ -51,7 +51,7 @@ public:
 
     bool sentAsync(OutgoingAsyncBase*);
 
-    void invokeAll(Ice::OutputStream*, Ice::Int, Ice::Int);
+    void invokeAll(Ice::OutputStream*, std::int32_t, std::int32_t);
 
     std::shared_ptr<CollocatedRequestHandler> shared_from_this()
     {
@@ -60,7 +60,7 @@ public:
 
 private:
 
-    void handleException(Ice::Int, std::exception_ptr, bool);
+    void handleException(std::int32_t, std::exception_ptr, bool);
 
     const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
     const bool _dispatcher;
@@ -68,8 +68,8 @@ private:
     const TraceLevelsPtr _traceLevels;
 
     int _requestId;
-    std::map<OutgoingAsyncBasePtr, Ice::Int> _sendAsyncRequests;
-    std::map<Ice::Int, OutgoingAsyncBasePtr> _asyncRequests;
+    std::map<OutgoingAsyncBasePtr, std::int32_t> _sendAsyncRequests;
+    std::map<std::int32_t, OutgoingAsyncBasePtr> _asyncRequests;
 
     std::mutex _mutex;
 };

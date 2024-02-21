@@ -58,17 +58,17 @@ public:
     virtual void waitForShutdown() noexcept;
     virtual bool isShutdown() const noexcept;
 
-    virtual ObjectPrxPtr stringToProxy(const std::string&) const;
-    virtual std::string proxyToString(const ObjectPrxPtr&) const;
+    virtual std::optional<ObjectPrx> stringToProxy(const std::string&) const;
+    virtual std::string proxyToString(const std::optional<ObjectPrx>&) const;
 
-    virtual ObjectPrxPtr propertyToProxy(const std::string&) const;
-    virtual PropertyDict proxyToProperty(const ObjectPrxPtr&, const std::string&) const;
+    virtual std::optional<ObjectPrx> propertyToProxy(const std::string&) const;
+    virtual PropertyDict proxyToProperty(const std::optional<ObjectPrx>&, const std::string&) const;
 
     virtual std::string identityToString(const Identity&) const;
 
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
-    virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrxPtr&);
+    virtual ObjectAdapterPtr createObjectAdapterWithRouter(const std::string&, const RouterPrx&);
 
     virtual ImplicitContextPtr getImplicitContext() const noexcept;
 
@@ -76,11 +76,11 @@ public:
     virtual LoggerPtr getLogger() const noexcept;
     virtual Ice::Instrumentation::CommunicatorObserverPtr getObserver() const noexcept;
 
-    virtual RouterPrxPtr getDefaultRouter() const;
-    virtual void setDefaultRouter(const RouterPrxPtr&);
+    virtual std::optional<RouterPrx> getDefaultRouter() const;
+    virtual void setDefaultRouter(const std::optional<RouterPrx>&);
 
-    virtual LocatorPrxPtr getDefaultLocator() const;
-    virtual void setDefaultLocator(const LocatorPrxPtr&);
+    virtual std::optional<LocatorPrx> getDefaultLocator() const;
+    virtual void setDefaultLocator(const std::optional<LocatorPrx>&);
 
     virtual PluginManagerPtr getPluginManager() const;
 
@@ -98,8 +98,8 @@ public:
                             ::std::function<void(::std::exception_ptr)>,
                             ::std::function<void(bool)> = nullptr);
 
-    virtual ObjectPrxPtr createAdmin(const ObjectAdapterPtr&, const Identity&);
-    virtual ObjectPrxPtr getAdmin() const;
+    virtual ObjectPrx createAdmin(const ObjectAdapterPtr&, const Identity&);
+    virtual std::optional<ObjectPrx> getAdmin() const;
     virtual void addAdminFacet(const std::shared_ptr<Object>&, const std::string&);
     virtual std::shared_ptr<Object> removeAdminFacet(const std::string&);
     virtual std::shared_ptr<Object> findAdminFacet(const std::string&);
@@ -117,9 +117,9 @@ private:
     //
     void finishSetup(int&, const char*[]);
 
-    friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, Int);
-    friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, Int);
-    friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
+    friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
+    friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
+    friend ICE_API CommunicatorPtr initialize(const InitializationData&, std::int32_t);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
     friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
     const ::IceInternal::InstancePtr _instance;

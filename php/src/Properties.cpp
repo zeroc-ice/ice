@@ -152,7 +152,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
     string propName(name, nameLen);
     try
     {
-        Ice::Int val = _this->getPropertyAsInt(propName);
+        int32_t val = _this->getPropertyAsInt(propName);
         RETURN_LONG(static_cast<long>(val));
     }
     catch(const IceUtil::Exception& ex)
@@ -185,7 +185,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     try
     {
         // TODO: Range check
-        Ice::Int val = _this->getPropertyAsIntWithDefault(propName, static_cast<Ice::Int>(def));
+        int32_t val = _this->getPropertyAsIntWithDefault(propName, static_cast<int32_t>(def));
         RETURN_LONG(val);
     }
     catch(const IceUtil::Exception& ex)

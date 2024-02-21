@@ -209,7 +209,7 @@ using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
 //
 // Enum information.
 //
-using EnumeratorMap = std::map<Ice::Int, PyObjectHandle>;
+using EnumeratorMap = std::map<std::int32_t, PyObjectHandle>;
 
 class EnumInfo final : public TypeInfo
 {
@@ -233,12 +233,12 @@ public:
 
     virtual void destroy();
 
-    Ice::Int valueForEnumerator(PyObject*) const;
-    PyObject* enumeratorForValue(Ice::Int) const;
+    std::int32_t valueForEnumerator(PyObject*) const;
+    PyObject* enumeratorForValue(std::int32_t) const;
 
     const std::string id;
     PyObject* pythonType; // Borrowed reference - the enclosing Python module owns the reference.
-    const Ice::Int maxValue;
+    const std::int32_t maxValue;
     const EnumeratorMap enumerators;
 };
 using EnumInfoPtr = std::shared_ptr<EnumInfo>;
@@ -524,7 +524,7 @@ public:
     void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     const std::string id;
-    const Ice::Int compactId;
+    const std::int32_t compactId;
     const bool preserve;
     const bool interface;
     const ValueInfoPtr base;
@@ -716,7 +716,7 @@ private:
     Ice::SlicedDataPtr _slicedData;
 };
 
-std::string resolveCompactId(Ice::Int id);
+std::string resolveCompactId(std::int32_t id);
 
 ClassInfoPtr lookupClassInfo(const std::string&);
 ValueInfoPtr lookupValueInfo(const std::string&);

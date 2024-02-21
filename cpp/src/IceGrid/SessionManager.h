@@ -43,7 +43,7 @@ class SessionKeepAliveThread
 
 public:
 
-    SessionKeepAliveThread(const std::shared_ptr<InternalRegistryPrx>& registry,
+    SessionKeepAliveThread(const InternalRegistryPrxPtr& registry,
                            const std::shared_ptr<Ice::Logger>& logger) :
         _registry(registry),
         _logger(logger),
@@ -62,8 +62,8 @@ public:
     run()
     {
         using namespace std::chrono_literals;
-        std::shared_ptr<TPrx> session;
-        std::shared_ptr<InternalRegistryPrx> registry;
+        std::optional<TPrx> session;
+        InternalRegistryPrxPtr registry;
         std::chrono::seconds timeout = 10s;
         Action action = Connect;
 
@@ -153,7 +153,7 @@ public:
                 case Disconnect:
                     assert(session);
                     destroySession(session);
-                    session = nullptr;
+                    session = std::nullopt;
                     break;
                 case KeepAlive:
                     assert(session);
@@ -301,7 +301,7 @@ public:
         return _state == Destroyed;
     }
 
-    std::shared_ptr<TPrx>
+    std::optional<TPrx>
     getSession()
     {
         std::lock_guard<std::mutex> lock(_mutex);
@@ -309,28 +309,28 @@ public:
     }
 
     void
-    setRegistry(const std::shared_ptr<InternalRegistryPrx>& registry)
+    setRegistry(const InternalRegistryPrxPtr& registry)
     {
         std::lock_guard<std::mutex> lock(_mutex);
         _registry = registry;
     }
 
-    std::shared_ptr<InternalRegistryPrx>
+    InternalRegistryPrxPtr
     getRegistry() const
     {
         std::lock_guard<std::mutex> lock(_mutex);
         return _registry;
     }
 
-    virtual std::shared_ptr<TPrx> createSession(std::shared_ptr<InternalRegistryPrx>&, std::chrono::seconds&) = 0;
-    virtual void destroySession(const std::shared_ptr<TPrx>&) = 0;
-    virtual bool keepAlive(const std::shared_ptr<TPrx>&) = 0;
+    virtual std::optional<TPrx> createSession(InternalRegistryPrxPtr&, std::chrono::seconds&) = 0;
+    virtual void destroySession(const std::optional<TPrx>&) = 0;
+    virtual bool keepAlive(const std::optional<TPrx>&) = 0;
 
 protected:
 
-    std::shared_ptr<InternalRegistryPrx> _registry;
+    InternalRegistryPrxPtr _registry;
     std::shared_ptr<Ice::Logger> _logger;
-    std::shared_ptr<TPrx> _session;
+    std::optional<TPrx> _session;
     State _state;
     Action _nextAction;
 
@@ -350,12 +350,12 @@ public:
 
 protected:
 
-    std::vector<std::shared_ptr<IceGrid::QueryPrx>> findAllQueryObjects(bool);
+    std::vector<IceGrid::QueryPrxPtr> findAllQueryObjects(bool);
 
     std::shared_ptr<Ice::Communicator> _communicator;
     std::string _instanceName;
-    std::shared_ptr<InternalRegistryPrx> _master;
-    std::vector<std::shared_ptr<IceGrid::QueryPrx>> _queryObjects;
+    InternalRegistryPrxPtr _master;
+    std::vector<IceGrid::QueryPrxPtr> _queryObjects;
 
     std::mutex _mutex;
     std::condition_variable _condVar;

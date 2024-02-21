@@ -6,15 +6,15 @@
 #define ICE_PROXY_F_H
 
 #include "Config.h"
-#include <memory>
+#include <optional>
 
 namespace Ice
 {
 
 class ObjectPrx;
-/// \cond INTERNAL
-using ObjectPrxPtr = ::std::shared_ptr<ObjectPrx>;
-/// \endcond
+
+// TODO: remove
+using ObjectPrxPtr = std::optional<ObjectPrx>;
 
 }
 

@@ -139,7 +139,7 @@ CallbackReceiverI::answerConcurrentCallbacks(unsigned int num)
 }
 
 void
-CallbackI::initiateCallbackAsync(shared_ptr<CallbackReceiverPrx> proxy,
+CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy,
                                  function<void()> response,
                                  function<void(exception_ptr)> error,
                                  const Current& current)
@@ -156,7 +156,7 @@ CallbackI::initiateCallbackAsync(shared_ptr<CallbackReceiverPrx> proxy,
 }
 
 void
-CallbackI::initiateCallbackExAsync(shared_ptr<CallbackReceiverPrx> proxy,
+CallbackI::initiateCallbackExAsync(CallbackReceiverPrxPtr proxy,
                                    function<void()> response,
                                    function<void(exception_ptr)> error,
                                    const Current& current)
@@ -173,7 +173,7 @@ CallbackI::initiateCallbackExAsync(shared_ptr<CallbackReceiverPrx> proxy,
 }
 
 void
-CallbackI::initiateConcurrentCallbackAsync(int number, shared_ptr<CallbackReceiverPrx> proxy,
+CallbackI::initiateConcurrentCallbackAsync(int number, CallbackReceiverPrxPtr proxy,
                                            function<void(int)> response,
                                            function<void(exception_ptr)> error,
                                            const Current& current)
@@ -182,7 +182,7 @@ CallbackI::initiateConcurrentCallbackAsync(int number, shared_ptr<CallbackReceiv
 }
 
 void
-CallbackI::initiateWaitCallbackAsync(shared_ptr<CallbackReceiverPrx> proxy,
+CallbackI::initiateWaitCallbackAsync(CallbackReceiverPrxPtr proxy,
                                    function<void()> response,
                                    function<void(exception_ptr)> error,
                                    const Current& current)
@@ -191,7 +191,7 @@ CallbackI::initiateWaitCallbackAsync(shared_ptr<CallbackReceiverPrx> proxy,
 }
 
 void
-CallbackI::initiateCallbackWithPayloadAsync(shared_ptr<CallbackReceiverPrx> proxy,
+CallbackI::initiateCallbackWithPayloadAsync(CallbackReceiverPrxPtr proxy,
                                             function<void()> response,
                                             function<void(exception_ptr)> error,
                                             const Current& current)

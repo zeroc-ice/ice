@@ -16,8 +16,8 @@ namespace IceRuby
 {
 
 void initProxy(VALUE);
-VALUE createProxy(std::shared_ptr<Ice::ObjectPrx>, VALUE = Qnil);
-std::shared_ptr<Ice::ObjectPrx> getProxy(VALUE);
+VALUE createProxy(Ice::ObjectPrx, VALUE = Qnil);
+Ice::ObjectPrx getProxy(VALUE);
 bool checkProxy(VALUE);
 
 }

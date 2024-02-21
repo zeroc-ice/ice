@@ -27,7 +27,7 @@ TestI::idempotentAbort(const Ice::Current&)
     _exit(0);
 }
 
-Ice::Int
+int32_t
 TestI::pid(const Ice::Current&)
 {
 #ifdef _MSC_VER

@@ -22,13 +22,13 @@ public:
                                                       const Ice::Identity&);
 
     std::string getName(const Ice::Current&) const override;
-    std::shared_ptr<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) const override;
-    std::shared_ptr<Ice::ObjectPrx> getPublisher(const Ice::Current&) const override;
-    std::shared_ptr<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&) override;
-    void unsubscribe(std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&) override;
-    std::shared_ptr<TopicLinkPrx> getLinkProxy(const Ice::Current&) override;
-    void link(std::shared_ptr<TopicPrx>, int, const Ice::Current&) override;
-    void unlink(std::shared_ptr<TopicPrx>, const Ice::Current&) override;
+    Ice::ObjectPrxPtr getNonReplicatedPublisher(const Ice::Current&) const override;
+    Ice::ObjectPrxPtr getPublisher(const Ice::Current&) const override;
+    Ice::ObjectPrxPtr subscribeAndGetPublisher(QoS, Ice::ObjectPrxPtr, const Ice::Current&) override;
+    void unsubscribe(Ice::ObjectPrxPtr, const Ice::Current&) override;
+    TopicLinkPrxPtr getLinkProxy(const Ice::Current&) override;
+    void link(TopicPrxPtr, int, const Ice::Current&) override;
+    void unlink(TopicPrxPtr, const Ice::Current&) override;
     LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const override;
     Ice::IdentitySeq getSubscribers(const Ice::Current&) const override;
     void destroy(const Ice::Current&) override;
@@ -52,8 +52,8 @@ private:
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
 
-    std::shared_ptr<Ice::ObjectPrx> _publisherPrx;
-    std::shared_ptr<TopicLinkPrx> _linkPrx;
+    Ice::ObjectPrxPtr _publisherPrx;
+    TopicLinkPrxPtr _linkPrx;
 
     //
     // We keep a vector of subscribers since the optimized behaviour

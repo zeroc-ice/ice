@@ -12,6 +12,7 @@
 #include <Ice/PluginManagerI.h>
 #include <Ice/StringUtil.h>
 #include <Ice/StringConverter.h>
+#include "CheckIdentity.h"
 
 #include <mutex>
 
@@ -515,12 +516,14 @@ Ice::stringToIdentity(const string& s)
         }
     }
 
+    checkIdentity(ident, __FILE__, __LINE__);
     return ident;
 }
 
 string
 Ice::identityToString(const Identity& ident, ToStringMode toStringMode)
 {
+    checkIdentity(ident, __FILE__, __LINE__);
     if(ident.category.empty())
     {
         return escapeString(ident.name, "/", toStringMode);

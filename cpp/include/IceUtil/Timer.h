@@ -53,13 +53,13 @@ public:
             throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
         }
 
-        auto now = std::chrono::steady_clock::now();
-        auto time = now + delay;
         if (delay < std::chrono::nanoseconds::zero())
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
         }
 
+        auto now = std::chrono::steady_clock::now();
+        auto time = now + delay;
         bool inserted = _tasks.insert(make_pair(task, time)).second;
         if (!inserted)
         {
@@ -83,13 +83,12 @@ public:
             throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
         }
 
-        auto now = std::chrono::steady_clock::now();
-        auto time = now + delay;
         if(delay < std::chrono::nanoseconds::zero())
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
         }
 
+        auto time = std::chrono::steady_clock::now() + delay;
         bool inserted = _tasks.insert(make_pair(task, time)).second;
         if(!inserted)
         {

@@ -20,7 +20,7 @@ public:
     }
 
     virtual void
-    enqueue(const Ice::BatchRequest& request, Ice::Int count, Ice::Int size)
+    enqueue(const Ice::BatchRequest& request, int32_t count, int32_t size)
     {
         test(request.getOperation() == "opByteSOneway" || request.getOperation() == "ice_ping");
         test(request.getProxy()->ice_isBatchOneway());

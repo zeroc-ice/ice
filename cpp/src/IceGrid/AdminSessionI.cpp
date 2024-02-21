@@ -23,7 +23,7 @@ class SubscriberForwarderI : public Ice::BlobjectArrayAsync
 {
 public:
 
-    SubscriberForwarderI(const std::shared_ptr<Ice::ObjectPrx>& proxy) :
+    SubscriberForwarderI(const Ice::ObjectPrxPtr& proxy) :
         _proxy(proxy)
     {
     }
@@ -45,15 +45,15 @@ public:
 
 private:
 
-    const shared_ptr<Ice::ObjectPrx> _proxy;
+    const Ice::ObjectPrxPtr _proxy;
 };
 
 }
 
 FileIteratorI::FileIteratorI(const shared_ptr<AdminSessionI>& session,
-                             const shared_ptr<FileReaderPrx>& reader,
+                             const FileReaderPrxPtr& reader,
                              const string& filename,
-                             long long offset,
+                             int64_t offset,
                              int messageSizeMax) :
     _session(session),
     _reader(reader),
@@ -91,7 +91,7 @@ AdminSessionI::AdminSessionI(const string& id, const shared_ptr<Database>& db, c
 {
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 AdminSessionI::_register(const shared_ptr<SessionServantManager>& servantManager,
                          const shared_ptr<Ice::Connection>& con)
 {
@@ -122,24 +122,24 @@ AdminSessionI::_register(const shared_ptr<SessionServantManager>& servantManager
     return session;
 }
 
-shared_ptr<AdminPrx>
+AdminPrxPtr
 AdminSessionI::getAdmin(const Ice::Current&) const
 {
     return _admin;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 AdminSessionI::getAdminCallbackTemplate(const Ice::Current&) const
 {
     return _adminCallbackTemplate;
 }
 
 void
-AdminSessionI::setObservers(shared_ptr<RegistryObserverPrx> registryObserver,
-                            shared_ptr<NodeObserverPrx> nodeObserver,
-                            shared_ptr<ApplicationObserverPrx> appObserver,
-                            shared_ptr<AdapterObserverPrx> adapterObserver,
-                            shared_ptr<ObjectObserverPrx> objectObserver,
+AdminSessionI::setObservers(RegistryObserverPrxPtr registryObserver,
+                            NodeObserverPrxPtr nodeObserver,
+                            ApplicationObserverPrxPtr appObserver,
+                            AdapterObserverPrxPtr adapterObserver,
+                            ObjectObserverPrxPtr objectObserver,
                             const Ice::Current& current)
 {
     lock_guard lock(_mutex);
@@ -159,7 +159,7 @@ AdminSessionI::setObservers(shared_ptr<RegistryObserverPrx> registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::RegistryObserver, nullptr);
+        setupObserverSubscription(TopicName::RegistryObserver, nullopt);
     }
 
     if(nodeObserver)
@@ -169,7 +169,7 @@ AdminSessionI::setObservers(shared_ptr<RegistryObserverPrx> registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::NodeObserver, nullptr);
+        setupObserverSubscription(TopicName::NodeObserver, nullopt);
     }
 
     if(appObserver)
@@ -179,7 +179,7 @@ AdminSessionI::setObservers(shared_ptr<RegistryObserverPrx> registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::ApplicationObserver, nullptr);
+        setupObserverSubscription(TopicName::ApplicationObserver, nullopt);
     }
 
     if(adapterObserver)
@@ -189,7 +189,7 @@ AdminSessionI::setObservers(shared_ptr<RegistryObserverPrx> registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::AdapterObserver, nullptr);
+        setupObserverSubscription(TopicName::AdapterObserver, nullopt);
     }
 
     if(objectObserver)
@@ -199,7 +199,7 @@ AdminSessionI::setObservers(shared_ptr<RegistryObserverPrx> registryObserver,
     }
     else
     {
-        setupObserverSubscription(TopicName::ObjectObserver, nullptr);
+        setupObserverSubscription(TopicName::ObjectObserver, nullopt);
     }
 }
 
@@ -258,7 +258,7 @@ AdminSessionI::getReplicaName(const Ice::Current&) const
     return _replicaName;
 }
 
-shared_ptr<FileIteratorPrx>
+FileIteratorPrxPtr
 AdminSessionI::openServerLog(string id, string path, int nLines, const Ice::Current& current)
 {
     try
@@ -271,7 +271,7 @@ AdminSessionI::openServerLog(string id, string path, int nLines, const Ice::Curr
     }
 }
 
-shared_ptr<FileIteratorPrx>
+FileIteratorPrxPtr
 AdminSessionI::openServerStdOut(string id, int nLines, const Ice::Current& current)
 {
     try
@@ -284,7 +284,7 @@ AdminSessionI::openServerStdOut(string id, int nLines, const Ice::Current& curre
     }
 }
 
-shared_ptr<FileIteratorPrx>
+FileIteratorPrxPtr
 AdminSessionI::openServerStdErr(string id, int nLines, const Ice::Current& current)
 {
     try
@@ -297,22 +297,22 @@ AdminSessionI::openServerStdErr(string id, int nLines, const Ice::Current& curre
     }
 }
 
-shared_ptr<FileIteratorPrx>
+FileIteratorPrxPtr
 AdminSessionI::openNodeStdOut(string name, int nLines, const Ice::Current& current)
 {
     return addFileIterator(_database->getNode(std::move(name))->getProxy(), "stdout", nLines, current);
 }
 
-shared_ptr<FileIteratorPrx>
+FileIteratorPrxPtr
 AdminSessionI::openNodeStdErr(string name, int nLines, const Ice::Current& current)
 {
     return addFileIterator(_database->getNode(std::move(name))->getProxy(), "stderr", nLines, current);
 }
 
-shared_ptr<FileIteratorPrx>
+FileIteratorPrxPtr
 AdminSessionI::openRegistryStdOut(string name, int nLines, const Ice::Current& current)
 {
-    shared_ptr<FileReaderPrx> reader;
+    FileReaderPrxPtr reader;
     if(name == _replicaName)
     {
         reader = _database->getReplicaCache().getInternalRegistry();
@@ -324,10 +324,10 @@ AdminSessionI::openRegistryStdOut(string name, int nLines, const Ice::Current& c
     return addFileIterator(reader, "stdout", nLines, current);
 }
 
-shared_ptr<FileIteratorPrx>
+FileIteratorPrxPtr
 AdminSessionI::openRegistryStdErr(string name, int nLines, const Ice::Current& current)
 {
-    shared_ptr<FileReaderPrx> reader;
+    FileReaderPrxPtr reader;
     if(name == _replicaName)
     {
         reader = _database->getReplicaCache().getInternalRegistry();
@@ -346,7 +346,7 @@ AdminSessionI::destroy(const Ice::Current&)
 }
 
 void
-AdminSessionI::setupObserverSubscription(TopicName name, const shared_ptr<Ice::ObjectPrx>& observer, bool forwarder)
+AdminSessionI::setupObserverSubscription(TopicName name, const Ice::ObjectPrxPtr& observer, bool forwarder)
 {
     if(_observers.find(name) != _observers.end() && _observers[name].first != observer)
     {
@@ -373,24 +373,24 @@ AdminSessionI::setupObserverSubscription(TopicName name, const shared_ptr<Ice::O
     }
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 AdminSessionI::addForwarder(const Ice::Identity& id, const Ice::Current& current)
 {
     if(id.name.empty())
     {
-        return nullptr;
+        return nullopt;
     }
     return addForwarder(current.con->createProxy(id)->ice_encodingVersion(current.encoding));
 }
 
-shared_ptr<Ice::ObjectPrx>
-AdminSessionI::addForwarder(const shared_ptr<Ice::ObjectPrx>& prx)
+Ice::ObjectPrxPtr
+AdminSessionI::addForwarder(const Ice::ObjectPrxPtr& prx)
 {
     return _registry->getRegistryAdapter()->addWithUUID(make_shared<SubscriberForwarderI>(prx));
 }
 
-shared_ptr<FileIteratorPrx>
-AdminSessionI::addFileIterator(const shared_ptr<FileReaderPrx>& reader, const string& filename, int nLines,
+FileIteratorPrxPtr
+AdminSessionI::addFileIterator(const FileReaderPrxPtr& reader, const string& filename, int nLines,
                                const Ice::Current& current)
 {
     lock_guard lock(_mutex);
@@ -404,7 +404,7 @@ AdminSessionI::addFileIterator(const shared_ptr<FileReaderPrx>& reader, const st
     // Always call getOffsetFromEnd even if nLines < 0. This allows to
     // throw right away if the file doesn't exit.
     //
-    long long offset;
+    int64_t offset;
     try
     {
         offset = reader->getOffsetFromEnd(filename, nLines);
@@ -450,11 +450,11 @@ AdminSessionI::destroyImpl(bool shutdown)
         //
         // Unsubscribe from the topics.
         //
-        setupObserverSubscription(TopicName::RegistryObserver, nullptr);
-        setupObserverSubscription(TopicName::NodeObserver, nullptr);
-        setupObserverSubscription(TopicName::ApplicationObserver, nullptr);
-        setupObserverSubscription(TopicName::AdapterObserver, nullptr);
-        setupObserverSubscription(TopicName::ObjectObserver, nullptr);
+        setupObserverSubscription(TopicName::RegistryObserver, nullopt);
+        setupObserverSubscription(TopicName::NodeObserver, nullopt);
+        setupObserverSubscription(TopicName::ApplicationObserver, nullopt);
+        setupObserverSubscription(TopicName::AdapterObserver, nullopt);
+        setupObserverSubscription(TopicName::ObjectObserver, nullopt);
     }
 }
 
@@ -476,8 +476,8 @@ AdminSessionFactory::AdminSessionFactory(const shared_ptr<SessionServantManager>
     }
 }
 
-shared_ptr<Glacier2::SessionPrx>
-AdminSessionFactory::createGlacier2Session(const string& sessionId, const shared_ptr<Glacier2::SessionControlPrx>& ctl)
+Glacier2::SessionPrxPtr
+AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacier2::SessionControlPrxPtr& ctl)
 {
     assert(_servantManager);
 
@@ -526,8 +526,8 @@ AdminSessionManagerI::AdminSessionManagerI(const shared_ptr<AdminSessionFactory>
 {
 }
 
-shared_ptr<Glacier2::SessionPrx>
-AdminSessionManagerI::create(string userId, shared_ptr<Glacier2::SessionControlPrx> ctl,
+Glacier2::SessionPrxPtr
+AdminSessionManagerI::create(string userId, Glacier2::SessionControlPrxPtr ctl,
                              const Ice::Current&)
 {
     return _factory->createGlacier2Session(std::move(userId), std::move(ctl));
@@ -537,9 +537,9 @@ AdminSSLSessionManagerI::AdminSSLSessionManagerI(const shared_ptr<AdminSessionFa
 {
 }
 
-shared_ptr<Glacier2::SessionPrx>
+Glacier2::SessionPrxPtr
 AdminSSLSessionManagerI::create(Glacier2::SSLInfo info,
-                                shared_ptr<Glacier2::SessionControlPrx> ctl,
+                                Glacier2::SessionControlPrxPtr ctl,
                                 const Ice::Current&)
 {
     string userDN;

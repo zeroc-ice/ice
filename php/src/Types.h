@@ -218,8 +218,8 @@ public:
     void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
 
     const std::string id;
-    const std::map<Ice::Int, std::string> enumerators;
-    const Ice::Int maxValue;
+    const std::map<std::int32_t, std::string> enumerators;
+    const std::int32_t maxValue;
 
 };
 using EnumInfoPtr = std::shared_ptr<EnumInfo>;
@@ -402,7 +402,7 @@ public:
 
     ClassInfo(const std::string&);
 
-    void define(const std::string&, Ice::Int, bool, bool, zval*, zval*);
+    void define(const std::string&, std::int32_t, bool, bool, zval*, zval*);
 
     std::string getId() const final;
 
@@ -430,7 +430,7 @@ public:
 
     const std::string id;
     const std::string name; // PHP class name
-    const Ice::Int compactId;
+    const std::int32_t compactId;
     const bool preserve;
     const bool interface;
     ClassInfoPtr base;

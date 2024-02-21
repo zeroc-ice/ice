@@ -23,7 +23,7 @@ public:
 
     static std::shared_ptr<Subscriber> create(const std::shared_ptr<Instance>&, const IceStorm::SubscriberRecord&);
 
-    std::shared_ptr<Ice::ObjectPrx> proxy() const; // Get the per subscriber object.
+    Ice::ObjectPrxPtr proxy() const; // Get the per subscriber object.
     Ice::Identity id() const; // Return the id of the subscriber.
     IceStorm::SubscriberRecord record() const; // Get the subscriber record.
 
@@ -57,15 +57,15 @@ protected:
 
     void setState(SubscriberState);
 
-    Subscriber(std::shared_ptr<Instance>, IceStorm::SubscriberRecord, std::shared_ptr<Ice::ObjectPrx>, int, int);
+    Subscriber(std::shared_ptr<Instance>, IceStorm::SubscriberRecord, Ice::ObjectPrxPtr, int, int);
 
     // Immutable
     const std::shared_ptr<Instance> _instance;
     const IceStorm::SubscriberRecord _rec; // The subscriber record.
     const int _retryCount; // The retryCount.
     const int _maxOutstanding; // The maximum number of oustanding events.
-    const std::shared_ptr<Ice::ObjectPrx> _proxy; // The per subscriber object proxy, if any.
-    const std::shared_ptr<Ice::ObjectPrx> _proxyReplica; // The replicated per subscriber object proxy, if any.
+    const Ice::ObjectPrxPtr _proxy; // The per subscriber object proxy, if any.
+    const Ice::ObjectPrxPtr _proxyReplica; // The replicated per subscriber object proxy, if any.
 
     mutable std::recursive_mutex _mutex;
     std::condition_variable_any _condVar;
