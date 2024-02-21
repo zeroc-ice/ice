@@ -2193,9 +2193,6 @@ Slice::Gen::ExceptionVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    //
-    // Use local static so that ice_staticId() is usable during static construction.
-    //
     C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
@@ -2505,7 +2502,8 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "return "<< fixKwd(p->name()) << "::ice_staticId();";
+    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "return typeId;";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);
@@ -3157,10 +3155,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    //
-    // Use local static so that ice_staticId() is usable during static construction.
-    //
-    C << nl << "static const ::std::string typeId = \"" << scoped << "\";";
+    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
     return true;
@@ -3691,9 +3686,6 @@ Slice::Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << sp;
     C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    //
-    // Use local static so that ice_staticId() is usable during static construction.
-    //
     C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
