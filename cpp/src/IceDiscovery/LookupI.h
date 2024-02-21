@@ -9,7 +9,6 @@
 #include <IceDiscovery/LocatorI.h>
 
 #include <IceUtil/Timer.h>
-#include <IceUtil/Time.h>
 #include <Ice/Properties.h>
 #include <Ice/Comparable.h>
 

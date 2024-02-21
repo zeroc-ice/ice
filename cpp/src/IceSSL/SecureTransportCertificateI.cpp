@@ -7,7 +7,6 @@
 // SecCertificateCopyNormalizedSubjectContent
 //
 #include <IceUtil/DisableWarnings.h>
-#include <IceUtil/Time.h>
 
 #include <IceSSL/PluginI.h>
 #include <IceSSL/SecureTransport.h>
