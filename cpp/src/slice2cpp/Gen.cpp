@@ -262,15 +262,11 @@ throwUserExceptionLambda(IceUtilInternal::Output& C, ExceptionList throws, const
 }
 
 string
-resultStructName(const string& name, const string& scope = "", bool marshaledResult = false)
+marshaledResultStructName(const string& name)
 {
     assert(!name.empty());
     string stName = IceUtilInternal::toUpper(name.substr(0, 1)) + name.substr(1);
-    stName += marshaledResult ? "MarshaledResult" : "Result";
-    if(!scope.empty())
-    {
-        stName = scope + "::" + stName;
-    }
+    stName += "MarshaledResult";
     return stName;
 }
 
@@ -559,71 +555,6 @@ writeOpDocSummary(Output& out, const OperationPtr& op, const CommentPtr& doc, Op
     }
 
     out << nl << " */";
-}
-
-void
-emitOpNameResult(IceUtilInternal::Output& H, const OperationPtr& p, int useWstring)
-{
-    string name = p->name();
-
-    InterfaceDefPtr interface = p->interface();
-    string interfaceScope = fixKwd(interface->scope());
-
-    TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), interfaceScope, p->getMetaData(),
-                                     useWstring | TypeContextCpp11);
-
-    ParamDeclList outParams = p->outParameters();
-
-    if((outParams.size() > 1) || (ret && outParams.size() > 0))
-    {
-        //
-        // Generate OpNameResult struct
-        //
-        string returnValueS = "returnValue";
-
-        for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            if((*q)->name() == "returnValue")
-            {
-                returnValueS = "_returnValue";
-            }
-        }
-
-        H << sp;
-        H << nl << "/**";
-        H << nl << " * Encapsulates the results of a call to " << fixKwd(name) << ".";
-        H << nl << " */";
-        H << nl << "struct " << resultStructName(name);
-        H << sb;
-        CommentPtr comment = p->parseComment(false);
-        map<string, StringList> paramComments;
-        if(comment)
-        {
-            paramComments = comment->parameters();
-        }
-        if(ret)
-        {
-            if(comment && !comment->returns().empty())
-            {
-                H << nl << "/** " << getDocSentence(comment->returns()) << " */";
-            }
-            H << nl << retS << " " << returnValueS << ";";
-        }
-        for(ParamDeclList::iterator q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            string typeString = typeToString((*q)->type(), (*q)->optional(), interfaceScope, (*q)->getMetaData(),
-                                             useWstring | TypeContextCpp11);
-
-            map<string, StringList>::iterator r = paramComments.find((*q)->name());
-            if(r != paramComments.end())
-            {
-                H << nl << "/** " << getDocSentence(r->second) << " */";
-            }
-            H << nl << typeString << " " << fixKwd((*q)->name()) << ";";
-        }
-        H << eb << ";";
-    }
 }
 
 // Returns the client-side result type for an operation - can be void, a single type, or a tuple.
@@ -3361,7 +3292,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     else if(p->hasMarshaledResult())
     {
-        retS = resultStructName(name, "", true);
+        retS = marshaledResultStructName(name);
     }
     else
     {
@@ -3404,7 +3335,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     {
         if(p->hasMarshaledResult())
         {
-            string resultName = resultStructName(name, "", true);
+            string resultName = marshaledResultStructName(name);
             params.push_back("::std::function<void(const " + resultName + "&)> " + responsecbParam);
             args.push_back("inA->response<" + resultName + ">()");
         }
@@ -3419,11 +3350,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     params.push_back(currentDecl);
     args.push_back("current");
 
-    emitOpNameResult(H, p, _useWstring);
-
     if(p->hasMarshaledResult())
     {
-        string resultName = resultStructName(name, "", true);
+        string resultName = marshaledResultStructName(name);
         H << sp;
         H << nl << "/**";
         H << nl << " * Marshaled result structure for operation " << (amd ? name + "Async" : fixKwd(name)) << ".";
@@ -4266,7 +4195,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         TypePtr ret = op->returnType();
         string retS = op->hasMarshaledResult() ?
-            scoped + "::" + resultStructName(opName, "", true) :
+            scoped + "::" + marshaledResultStructName(opName) :
             returnTypeToString(ret, op->returnIsOptional(), "", op->getMetaData(), _useWstring | TypeContextCpp11);
 
         ParamDeclList params = op->parameters();
@@ -4299,7 +4228,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if(op->hasMarshaledResult())
             {
-                responseParams = "const " + scoped + "::" + resultStructName(opName, "", true) + "&";
+                responseParams = "const " + scoped + "::" + marshaledResultStructName(opName) + "&";
             }
             else
             {
@@ -4349,7 +4278,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
              C << nl << opName << "_response";
             if(op->hasMarshaledResult())
             {
-                C << "(" << scoped + "::" + resultStructName(opName, "", true);
+                C << "(" << scoped + "::" + marshaledResultStructName(opName);
             }
             C << spar;
             if(ret)
@@ -4447,7 +4376,7 @@ Slice::Gen::ImplVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 if(ret || !outParams.empty())
                 {
-                    C << nl << "return " << scoped << "::" << resultStructName(opName, "", true) << "(";
+                    C << nl << "return " << scoped << "::" << marshaledResultStructName(opName) << "(";
                     if(ret)
                     {
                         C << defaultValue(ret, scope, op->getMetaData());
