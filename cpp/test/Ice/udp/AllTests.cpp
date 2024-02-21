@@ -34,9 +34,9 @@ public:
     waitReply(int expectedReplies, const chrono::duration<Rep, Period>& timeout)
     {
         unique_lock lock(_mutex);
-        _condition.wait_until(
+        _condition.wait_for(
             lock,
-            chrono::steady_clock::now() + timeout,
+            timeout,
             [this, expectedReplies] { return _replies == expectedReplies; });
         return _replies == expectedReplies;
     }
