@@ -39,12 +39,17 @@ jobs:
           cd doxygen
           doxygen
 
+      # This will perform a full sync of the documentation to S3 every time the workflow is run since
+      # the timestamps will always be different. Using --size-only is not sufficient since the
+      # documentation may be updated without changing the size of the files. S3 does not offer a hash based sync.
+      #
+      # Additionally, we do not cache the doxygen output since it does not remove files old files.
       - name: Sync Documentation to S3
         run: |
-          aws s3 sync --size-only ./doxygen/slice s3://zeroc-ice-docs/api/ice/main/slice --delete
+          aws s3 sync ./doxygen/slice s3://zeroc-ice-docs/api/ice/main/slice --delete
           aws s3 cp ./doxygen/slice.tag s3://zeroc-ice-docs/api/ice/main/slice.tag
 
-          aws s3 sync --size-only ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
+          aws s3 sync ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
           aws s3 cp ./cpp/doxygen/icecpp.tag s3://zeroc-ice-docs/api/ice/main/icecpp.tag
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
