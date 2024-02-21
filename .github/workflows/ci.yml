@@ -70,7 +70,7 @@ jobs:
       - name: MATLAB test
         run: |
           echo 'disp("Hello, world!")' > hello.m
-          /opt/hostedtoolcache/MATLAB/2023.2.999/x64/bin/matlab -nodisplay -r "hello"
+          /opt/hostedtoolcache/MATLAB/2023.2.999/x64/bin/matlab -nodisplay -nodesktop -nosplash -r "hello"
         if: runner.os == 'Linux'
 
       # - name: Build ${{ matrix.name || matrix.language }} ${{matrix.make_flags}} on ${{ matrix.os }}
