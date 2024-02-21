@@ -138,10 +138,11 @@ private:
         void visitModuleEnd(const ModulePtr&) final;
         bool visitStructStart(const StructPtr&) final;
         void visitStructEnd(const StructPtr&) final;
-        void visitDataMember(const DataMemberPtr&) final;
-
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        void visitExceptionEnd(const ExceptionPtr&) final;
         bool visitClassDefStart(const ClassDefPtr&) final;
         void visitClassDefEnd(const ClassDefPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
 
     private:
 
@@ -160,45 +161,19 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class ExceptionVisitor final : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-        ExceptionVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-        bool visitModuleStart(const ModulePtr&) final;
-        void visitModuleEnd(const ModulePtr&) final;
-        bool visitExceptionStart(const ExceptionPtr&) final;
-        void visitExceptionEnd(const ExceptionPtr&) final;
-        void visitDataMember(const DataMemberPtr&) final;
-
-        // Otherwise we visit their data members.
-        bool visitClassDefStart(const ClassDefPtr&) final { return false; }
-        bool visitStructStart(const StructPtr&) final { return false; }
-
-    private:
-
-        ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
-
-        std::string _dllExport;
-        std::string _dllClassExport;
-        std::string _dllMemberExport;
-        bool _doneStaticSymbol;
-        int _useWstring;
-        std::list<int> _useWstringHist;
-    };
-
-    class InterfaceVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+    // Generates the server-side classes that applications use to implement Ice objects.
+    class InterfaceVisitor final : public ParserVisitor
     {
     public:
 
         InterfaceVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
+        InterfaceVisitor(const InterfaceVisitor&) = delete;
 
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-        virtual void visitInterfaceDefEnd(const InterfaceDefPtr&);
-        virtual void visitOperation(const OperationPtr&);
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+        void visitOperation(const OperationPtr&) final;
 
     private:
 
@@ -210,7 +185,7 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    // Generates StreamHelper template specializations for enums, structs, classes and exceptions.
+    // Generates internal StreamHelper template specializations for enums, structs, classes and exceptions.
     class StreamVisitor final : public ParserVisitor
     {
     public:
@@ -230,8 +205,6 @@ private:
 
         ::IceUtilInternal::Output& H;
     };
-
-private:
 
     class MetaDataVisitor : public ParserVisitor
     {
