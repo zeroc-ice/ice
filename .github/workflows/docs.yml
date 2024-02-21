@@ -20,6 +20,9 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
+      - name: Install awscli
+        run: brew install awscli
+
       - name: Install Doxygen
         run: brew install doxygen
 
@@ -47,9 +50,8 @@ jobs:
           path: ./cpp/doxygen/cpp
 
       - name: Sync Documentation to S3
-        uses: actions/aws/cli@v1
-        with:
-          args: s3 sync ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
+        run: |
+          aws s3 sync ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
