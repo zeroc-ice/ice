@@ -3475,7 +3475,7 @@ Ice::ConnectionI::scheduleTimeout(SocketOperation status)
             {
                 _timer->cancel(_readTimeout);
             }
-            cerr << "read timeout " << timeout << endl;
+
             _timer->schedule(_readTimeout, chrono::milliseconds(timeout));
             _readTimeoutScheduled = true;
         }
@@ -3486,7 +3486,7 @@ Ice::ConnectionI::scheduleTimeout(SocketOperation status)
             {
                 _timer->cancel(_writeTimeout);
             }
-            cerr << "write timeout " << timeout << endl;
+
             _timer->schedule(_writeTimeout, chrono::milliseconds(timeout));
             _writeTimeoutScheduled = true;
         }

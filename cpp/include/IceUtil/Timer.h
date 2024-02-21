@@ -55,11 +55,16 @@ public:
 
         if (delay < std::chrono::nanoseconds::zero())
         {
-            throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
+            throw IllegalArgumentException(__FILE__, __LINE__, "invalid negative delay");
         }
 
         auto now = std::chrono::steady_clock::now();
         auto time = now + delay;
+        if (delay > std::chrono::nanoseconds::zero() && time < now)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "delay too large, resulting in overflow");
+        }
+
         bool inserted = _tasks.insert(make_pair(task, time)).second;
         if (!inserted)
         {
@@ -88,7 +93,13 @@ public:
             throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
         }
 
-        auto time = std::chrono::steady_clock::now() + delay;
+        auto now = std::chrono::steady_clock::now();
+        auto time = now + delay;
+        if (delay > std::chrono::nanoseconds::zero() && time < now)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "delay too large, resulting in overflow");
+        }
+
         bool inserted = _tasks.insert(make_pair(task, time)).second;
         if(!inserted)
         {
