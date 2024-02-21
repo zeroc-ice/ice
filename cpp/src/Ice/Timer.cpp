@@ -119,7 +119,7 @@ void Timer::run()
                 }
 
                 _wakeUpTime = first.scheduledTime;
-                _condition.wait_until(lock, first.scheduledTime);
+                _condition.wait_for(lock, first.scheduledTime - now);
             }
 
             if (_destroyed)

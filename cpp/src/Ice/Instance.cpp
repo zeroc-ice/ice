@@ -184,12 +184,12 @@ private:
 //
 // Timer specialization which supports the thread observer
 //
-class Timer : public IceUtil::Timer
+class Timer final : public IceUtil::Timer
 {
 public:
 
     Timer() :
-        _hasObserver(0)
+        _hasObserver(false)
     {
     }
 
@@ -244,7 +244,9 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
                 threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
                                              Instrumentation::ThreadState::ThreadStateIdle);
             }
+            throw;
         }
+
         if(threadObserver)
         {
             threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
