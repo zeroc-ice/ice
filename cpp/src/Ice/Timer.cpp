@@ -119,7 +119,6 @@ void Timer::run()
                 }
 
                 _wakeUpTime = first.scheduledTime;
-                std::cerr << "now: " << (now.time_since_epoch().count()) << " wait_until: " << first.scheduledTime.time_since_epoch().count() << std::endl;
                 _condition.wait_until(lock, first.scheduledTime);
             }
 

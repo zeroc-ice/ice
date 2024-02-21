@@ -67,8 +67,6 @@ public:
         }
         _tokens.insert({ time, std::nullopt, task });
 
-        std::cerr << "schedule timer: " << time.time_since_epoch().count() << " now: " << now.time_since_epoch().count() << std::endl;
-
         if(_wakeUpTime == std::chrono::steady_clock::time_point() || time < _wakeUpTime)
         {
             _condition.notify_one();
