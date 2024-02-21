@@ -67,6 +67,11 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
+      - name: Run commands
+        uses: matlab-actions/run-command@v2
+        with:
+          command: disp("Hello world\n");
+
       - name: MATLAB test
         run: |
           echo 'frpintf("Hello world\n");' > hello.m
