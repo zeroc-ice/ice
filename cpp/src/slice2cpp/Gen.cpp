@@ -2687,7 +2687,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 
     H << nl << deprecateSymbol << "::std::future<" << futureT << "> " << name << "Async" << spar << inParamsDecl
-        << contextDecl << epar << "const;";
+        << contextDecl << epar << " const;";
 
     C << sp;
     C << nl << "::std::future<" << futureTAbsolute << ">";
