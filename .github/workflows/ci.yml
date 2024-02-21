@@ -61,17 +61,17 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-       - name: MATLAB test
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: MATLAB test
         run: |
-          /opt/hostedtoolcache/MATLAB/2023.2.999/x64/bin/matlab -nodisplay -r "disp(\"Hello, world!\")"
-
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
-
-      # - name: Setup Dependencies
-      #   uses: ./.github/actions/setup-dependencies
-
-
+          echo 'disp("Hello, world!")' > hello.m
+          /opt/hostedtoolcache/MATLAB/2023.2.999/x64/bin/matlab -nodisplay -r "hello"
+        if: runner.os == 'Linux'
 
       # - name: Build ${{ matrix.name || matrix.language }} ${{matrix.make_flags}} on ${{ matrix.os }}
       #   uses: ./.github/actions/build
