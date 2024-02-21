@@ -40,10 +40,10 @@ jobs:
       - name: Sync Documentation to S3
         run: |
           aws s3 sync ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
-          aws s3 sync ./cpp/doxygen/icecpp.tag s3://zeroc-ice-docs/api/ice/main/icecpp.tag
+          aws s3 cp ./cpp/doxygen/icecpp.tag s3://zeroc-ice-docs/api/ice/main/icecpp.tag
 
           aws s3 sync ./cpp/doxygen/slice s3://zeroc-ice-docs/api/ice/main/slice --delete
-          aws s3 sync ./cpp/doxygen/slice.tag s3://zeroc-ice-docs/api/ice/main/slice.tag
+          aws s3 cp ./cpp/doxygen/slice.tag s3://zeroc-ice-docs/api/ice/main/slice.tag
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
