@@ -25,6 +25,11 @@ runs:
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'php' || inputs.language == 'js' || inputs.language == 'ruby')
 
+    - name: Build Ice for Python
+      run: make -j3 V=1 -C python
+      shell: bash
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'matlab' || matrix.name == 'xcodesdk')
+
     - name: Build ${{ matrix.name || matrix.language }}
       working-directory: ./${{ inputs.language }}
       run: |
@@ -38,6 +43,12 @@ runs:
       working-directory: ./cpp
       shell: powershell
       if: (runner.os == 'Windows') && (inputs.language != 'cpp')
+
+    - name: Build Ice for Python
+      run: msbuild /m /p:Platform=x64 msbuild/ice.proj
+      working-directory: ./python
+      shell: powershell
+      if: runner.os == 'Windows' && inputs.language == 'matlab'
 
     - name: Build ${{ matrix.name || matrix.language }}
       run: msbuild /m /p:Platform=x64 msbuild/ice.proj

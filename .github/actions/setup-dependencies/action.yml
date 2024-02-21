@@ -25,7 +25,6 @@ runs:
       run: |
         # We should consider removing the dependency on ice-xcode-builder
         brew install zeroc-ice/tap/ice-builder-xcode
-        CFLAGS='-Wno-implicit-function-declaration' python3 -m pip install zeroc-ice
       shell: bash
       if: (runner.os == 'macOS') && (matrix.name == 'xcodesdk')
 
@@ -74,12 +73,6 @@ runs:
     - name: Setup MATLAB
       uses: matlab-actions/setup-matlab@v2
       if: matrix.language == 'matlab'
-
-    - name: Install MATLAB test dependencies
-      run: |
-        python3 -m pip install zeroc-ice
-      shell: bash
-      if: matrix.name == 'matlab'
 
     - name: Set MATLAB_HOME
       run: |
