@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-dependencies
 
       - name: Install awscli
-        run: brew install awscli
+        run: brew install awscli || true
 
       - name: Install Doxygen
         run: brew install doxygen
