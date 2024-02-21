@@ -24,6 +24,7 @@ Timer::Timer() :
 void
 Timer::destroy()
 {
+    std::map<TimerTaskPtr, std::chrono::steady_clock::time_point> tasks;
     {
         std::lock_guard lock(_mutex);
         if(_destroyed)
@@ -32,9 +33,12 @@ Timer::destroy()
         }
         _destroyed = true;
         _tokens.clear();
-        _tasks.clear();
+        tasks = std::move(_tasks);
         _condition.notify_one();
     }
+
+    // Clear all tasks outside the synchronization block to avoid deadlocks.
+    tasks.clear();
 
     if (std::this_thread::get_id() == _worker.get_id())
     {

@@ -242,6 +242,7 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
                 threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
                                              Instrumentation::ThreadState::ThreadStateIdle);
             }
+            throw;
         }
         if(threadObserver)
         {

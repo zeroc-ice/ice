@@ -751,6 +751,7 @@ Ice::ObjectPrx::_secure(bool b) const
 ReferencePtr
 Ice::ObjectPrx::_timeout(int t) const
 {
+    cerr << "change timeout: " << t << endl;
     if (t < 1 && t != -1)
     {
         ostringstream s;

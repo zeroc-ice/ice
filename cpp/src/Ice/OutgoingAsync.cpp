@@ -411,6 +411,7 @@ ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
     if(_proxy->_getReference()->getInvocationTimeout() == -2 && _cachedConnection)
     {
         const int timeout = _cachedConnection->timeout();
+        cerr << "ProxyOutgoingAsyncBase::cancelable timeout: " << timeout << endl;
         if(timeout > 0)
         {
             _instance->timer()->schedule(shared_from_this(), chrono::milliseconds(timeout));
@@ -502,6 +503,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
         if(userThread)
         {
             int invocationTimeout = _proxy->_getReference()->getInvocationTimeout();
+            cerr << "invocationTimeout: " << invocationTimeout << endl;
             if(invocationTimeout > 0)
             {
                 _instance->timer()->schedule(shared_from_this(), chrono::milliseconds(invocationTimeout));
