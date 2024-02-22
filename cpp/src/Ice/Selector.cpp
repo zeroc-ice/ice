@@ -135,7 +135,7 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
                 Ice::SocketException ex(__FILE__, __LINE__, err);
                 Ice::Error out(_instance->initializationData().logger);
                 out << "couldn't dequeue packet from completion port:\n" << ex;
-                this_thread::sleep_for(chrono::seconds(5)); // Sleep 5s to avoid looping
+                this_thread::sleep_for(5s); // Sleep 5s to avoid looping
             }
         }
         AsyncInfo* info = static_cast<AsyncInfo*>(ol);
@@ -994,7 +994,7 @@ public:
         // mostly to prevent spurious crashes with testing. This bug is very unlikely
         // to be hit otherwise.
         //
-        this_thread::sleep_for(chrono::milliseconds(100));
+        this_thread::sleep_for(100ms);
 #endif
     }
 
