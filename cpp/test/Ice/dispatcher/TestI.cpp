@@ -8,6 +8,9 @@
 #include <TestHelper.h>
 #include <IceUtil/Thread.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 void
@@ -19,7 +22,7 @@ TestIntfI::op(const Ice::Current&)
 void
 TestIntfI::sleep(int32_t to, const Ice::Current&)
 {
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(to));
+    this_thread::sleep_for(chrono::milliseconds(to));
 }
 
 void

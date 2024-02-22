@@ -3,7 +3,6 @@
 //
 
 #include <IceUtil/Thread.h>
-#include <IceUtil/Time.h>
 #include <Ice/LoggerAdminI.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
@@ -621,7 +620,12 @@ LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props,
 void
 LoggerAdminLoggerI::print(const string& message)
 {
-   LogMessage logMessage = { LogMessageType::PrintMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
+    LogMessage logMessage = {
+        LogMessageType::PrintMessage,
+        chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+        "",
+        message
+    };
 
     _localLogger->print(message);
     log(logMessage);
@@ -630,7 +634,12 @@ LoggerAdminLoggerI::print(const string& message)
 void
 LoggerAdminLoggerI::trace(const string& category, const string& message)
 {
-    LogMessage logMessage = { LogMessageType::TraceMessage, IceUtil::Time::now().toMicroSeconds(), category, message };
+    LogMessage logMessage = {
+        LogMessageType::TraceMessage,
+        chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+        category,
+        message
+    };
 
     _localLogger->trace(category, message);
     log(logMessage);
@@ -639,7 +648,12 @@ LoggerAdminLoggerI::trace(const string& category, const string& message)
 void
 LoggerAdminLoggerI::warning(const string& message)
 {
-    LogMessage logMessage = { LogMessageType::WarningMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
+    LogMessage logMessage = {
+        LogMessageType::WarningMessage,
+        chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+        "",
+        message
+    };
 
     _localLogger->warning(message);
     log(logMessage);
@@ -648,7 +662,12 @@ LoggerAdminLoggerI::warning(const string& message)
 void
 LoggerAdminLoggerI::error(const string& message)
 {
-    LogMessage logMessage = { LogMessageType::ErrorMessage, IceUtil::Time::now().toMicroSeconds(), "", message };
+    LogMessage logMessage = {
+        LogMessageType::ErrorMessage,
+        chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
+        "",
+        message
+    };
 
     _localLogger->error(message);
     log(logMessage);

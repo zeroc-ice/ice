@@ -12,7 +12,6 @@
 #endif
 
 #include <IceUtil/Thread.h>
-#include <IceUtil/Time.h>
 #include <IceUtil/ThreadException.h>
 #include <Ice/ConsoleUtil.h>
 #include <climits>
@@ -90,17 +89,6 @@ IceUtil::ThreadControl::id() const
 }
 
 void
-IceUtil::ThreadControl::sleep(const Time& timeout)
-{
-    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
-    if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
-    {
-        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
-    }
-    Sleep(static_cast<long>(timeout.toMilliSeconds()));
-}
-
-void
 IceUtil::ThreadControl::yield()
 {
     //
@@ -149,13 +137,6 @@ WINAPI startHook(void* arg)
         // completed.
         //
         thread = *rawThread;
-
-        //
-        // Initialize the random number generator in each thread on
-        // Windows (the rand() seed is thread specific).
-        //
-        unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
-        srand(seed ^ thread->getThreadControl().id());
 
         //
         // See the comment in IceUtil::Thread::start() for details.
@@ -334,21 +315,6 @@ IceUtil::ThreadControl::ID
 IceUtil::ThreadControl::id() const
 {
     return _thread;
-}
-
-void
-IceUtil::ThreadControl::sleep(const Time& timeout)
-{
-    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
-    if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
-    {
-        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
-    }
-    struct timeval tv = timeout;
-    struct timespec ts;
-    ts.tv_sec = tv.tv_sec;
-    ts.tv_nsec = tv.tv_usec * 1000L;
-    nanosleep(&ts, 0);
 }
 
 void

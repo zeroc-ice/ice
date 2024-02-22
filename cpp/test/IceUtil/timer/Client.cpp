@@ -8,6 +8,7 @@
 
 #include <chrono>
 #include <vector>
+#include <thread>
 
 using namespace IceUtil;
 using namespace std;
@@ -194,7 +195,7 @@ Client::run(int, char*[])
             timer->schedule(task, chrono::seconds(1));
             test(!task->hasRun() && timer->cancel(task) && !task->hasRun());
             test(!timer->cancel(task));
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1100));
+            this_thread::sleep_for(chrono::milliseconds(1100));
             test(!task->hasRun());
         }
 
@@ -233,13 +234,13 @@ Client::run(int, char*[])
         {
             TestTaskPtr task = make_shared<TestTask>();
             timer->scheduleRepeated(task, chrono::milliseconds(20));
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(chrono::milliseconds(500));
             test(task->hasRun());
             test(task->getCount() > 1);
             test(task->getCount() < 26);
             test(timer->cancel(task));
             int count = task->getCount();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
             test(count == task->getCount() || count + 1 == task->getCount());
         }
 

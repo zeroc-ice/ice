@@ -231,39 +231,6 @@ main(int argc, char* argv[])
         cout << "ok" << endl;
     }
 
-#ifdef TEST_PERF
-    {
-        // The only performance-critical code is the UnicodeWstringConverter
-        // that is used whenever we marshal/unmarshal wstrings.
-
-        const long iterations = 5000000;
-        const wstring ws = L"abcdefghijklmnopqrstuvwxyz+\u20ac\u20ac\U00010437";
-        const string ns = wstringToString(ws);
-        test(stringToWstring(ns) == ws);
-
-        cout << "testing performance with " << iterations << " iterations... ";
-
-        IceUtil::Time toU8 = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        for(long i = 0; i < iterations; ++i)
-        {
-            test(wstringToString(ws) == ns);
-        }
-        IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        toU8 = now - toU8;
-
-        IceUtil::Time fromU8 = now;
-        for(long i = 0; i < iterations; ++i)
-        {
-            test(stringToWstring(ns) == ws);
-        }
-        fromU8 = IceUtil::Time::now(IceUtil::Time::Monotonic) - fromU8;
-
-        cout << "toUTF8 = " << toU8 * 1000 << " ms; fromUTF8 = "
-             << fromU8 * 1000 << " ms ok" << endl;
-    }
-
-#endif
-
     {
         cout << "testing error handling... ";
 

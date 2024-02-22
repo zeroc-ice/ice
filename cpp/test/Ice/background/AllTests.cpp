@@ -10,6 +10,9 @@
 #include <PluginI.h>
 #include <Configuration.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace Test;
 
@@ -84,7 +87,7 @@ public:
                     _background->ice_twoway()->ice_ping();
                 }
                 _background->opAsync();
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+                this_thread::sleep_for(chrono::milliseconds(1));
             }
             catch(const Ice::LocalException&)
             {
@@ -391,7 +394,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
 
         configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
         configuration->connectException(0);
         try
         {
@@ -585,7 +588,7 @@ initializeTests(const ConfigurationPtr& configuration,
 
         configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
         configuration->initializeException(0);
         try
         {
@@ -612,7 +615,7 @@ initializeTests(const ConfigurationPtr& configuration,
 
         ctl->initializeException(true);
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
         ctl->initializeException(false);
         try
         {
@@ -1429,7 +1432,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             test(false);
         }
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
         configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
         try
         {
@@ -1440,11 +1443,11 @@ readWriteTests(const ConfigurationPtr& configuration,
         }
         configuration->writeException(0);
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
 
         background->ice_ping();
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
 
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
     }

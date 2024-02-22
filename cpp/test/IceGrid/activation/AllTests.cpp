@@ -7,6 +7,8 @@
 #include <IceUtil/Thread.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
 #include <chrono>
 
 using namespace std;
@@ -20,7 +22,7 @@ void waitForServerState(
     int nRetry = 0;
     while(admin->getServerState(server) != state && nRetry < 15)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+        this_thread::sleep_for(chrono::milliseconds(500));
         ++nRetry;
     }
     if(admin->getServerState(server) != state)
@@ -113,14 +115,14 @@ allTests(Test::TestHelper* helper)
     int nRetry = 0;
     while(!admin->pingNode("node-1") && nRetry < 15)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+        this_thread::sleep_for(chrono::milliseconds(200));
         ++nRetry;
     }
 
     nRetry = 0;
     while(!admin->pingNode("node-2") && nRetry < 15)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+        this_thread::sleep_for(chrono::milliseconds(200));
         ++nRetry;
     }
 
@@ -278,7 +280,7 @@ allTests(Test::TestHelper* helper)
         {
             // The notification of the server being disabled is asynchronous and might
             // not be visible to the Query interface immediately.
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         try
@@ -314,7 +316,7 @@ allTests(Test::TestHelper* helper)
         {
             // The notification of the server being disabled is asynchronous and might
             // not be visible to the Query interface immediately.
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         test(admin->getServerState("server-always") == IceGrid::ServerState::Active);
@@ -342,7 +344,7 @@ allTests(Test::TestHelper* helper)
         {
             // The notification of the server being disabled is asynchronous and might
             // not be visible to the Query interface immediately.
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
@@ -369,7 +371,7 @@ allTests(Test::TestHelper* helper)
         {
             // The notification of the server being disabled is asynchronous and might
             // not be visible to the Query interface immediately.
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
     }
     catch(const Ice::LocalException& ex)
@@ -700,7 +702,7 @@ allTests(Test::TestHelper* helper)
         nRetry = 0;
         while(!admin->isServerEnabled("server2") && nRetry < 15)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(chrono::milliseconds(500));
             ++nRetry;
             try
             {
@@ -737,7 +739,7 @@ allTests(Test::TestHelper* helper)
                admin->getServerState("server2-always") != IceGrid::ServerState::Active) &&
               nRetry < 15)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(chrono::milliseconds(500));
             ++nRetry;
         }
         test(

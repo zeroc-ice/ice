@@ -6,7 +6,6 @@
 #define ICE_UTIL_THREAD_EXCEPTION_H
 
 #include <IceUtil/Exception.h>
-#include <IceUtil/Time.h>
 
 namespace IceUtil
 {
@@ -49,19 +48,6 @@ public:
 
     BadThreadControlException(const char*, int);
     virtual std::string ice_id() const;
-};
-
-class ICE_API InvalidTimeoutException : public ExceptionHelper<InvalidTimeoutException>
-{
-public:
-
-    InvalidTimeoutException(const char*, int, const Time&);
-    virtual std::string ice_id() const;
-    virtual void ice_print(std::ostream&) const;
-
-private:
-
-    Time _timeout;
 };
 
 }

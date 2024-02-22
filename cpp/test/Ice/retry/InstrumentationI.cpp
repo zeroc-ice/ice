@@ -5,6 +5,8 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
 #include <mutex>
 
 using namespace std;
@@ -141,7 +143,7 @@ testEqual(int& value, int expected)
                 break;
             }
         }
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
     }
     if(value != expected)
     {

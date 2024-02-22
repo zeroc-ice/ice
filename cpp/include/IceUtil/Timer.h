@@ -83,7 +83,7 @@ public:
     void scheduleRepeated(TimerTaskPtr task, const std::chrono::duration<Rep, Period>& delay)
     {
         std::lock_guard lock(_mutex);
-        if(_destroyed)
+        if (_destroyed)
         {
             throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
         }

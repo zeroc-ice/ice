@@ -7,6 +7,9 @@
 #include <TestI.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace Ice;
 using namespace Test;
@@ -26,7 +29,7 @@ void
 TestI::deactivate(const Current& current)
 {
     current.adapter->deactivate();
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+    this_thread::sleep_for(chrono::milliseconds(100));
 }
 
 string

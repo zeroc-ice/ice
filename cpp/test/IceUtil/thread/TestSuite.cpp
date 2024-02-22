@@ -7,7 +7,6 @@
 #include <CountDownLatchTest.h>
 #include <CreateTest.h>
 #include <StartTest.h>
-#include <SleepTest.h>
 
 using namespace std;
 
@@ -18,6 +17,5 @@ initializeTestSuite()
 {
     allTests.push_back(make_shared<CountDownLatchTest>());
     allTests.push_back(make_shared<StartTest>());
-    allTests.push_back(make_shared<SleepTest>());
     allTests.push_back(make_shared<CreateTest>());
 }

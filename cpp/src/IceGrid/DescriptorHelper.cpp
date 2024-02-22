@@ -3,13 +3,14 @@
 //
 
 #include <Ice/Ice.h>
-#include <IceUtil/Time.h>
+#include <Ice/TimeUtil.h>
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/Util.h>
 
 #include <iterator>
 
 using namespace std;
+using namespace IceInternal;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace IceGrid;
@@ -2935,9 +2936,11 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
     out << sb;
     out << nl << "uuid = `" << info.uuid << "'";
     out << nl << "revision = `" << info.revision << "'";
-    out << nl << "creation time = `" << IceUtil::Time::milliSeconds(info.createTime).toDateTime() << "'";
+    out << nl << "creation time = `" << timePointToDateTimeString(
+        chrono::system_clock::time_point(chrono::milliseconds(info.createTime))) << "'";
     out << nl << "created by = `" << info.createUser << "'";
-    out << nl << "update time = `" << IceUtil::Time::milliSeconds(info.updateTime).toDateTime() << "'";
+    out << nl << "update time = `" << timePointToDateTimeString(
+        chrono::system_clock::time_point(chrono::milliseconds(info.updateTime))) << "'";
     out << nl << "updated by = `" << info.updateUser << "'";
 
     if(!_instance.description.empty())
