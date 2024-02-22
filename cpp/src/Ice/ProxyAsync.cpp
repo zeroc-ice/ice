@@ -99,8 +99,7 @@ public:
     }
 };
 
-template<typename P>
-class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvoke<P>
+class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvoke<std::shared_ptr<Ice::Connection>>
 {
 public:
 
@@ -125,8 +124,7 @@ public:
     }
 };
 
-template<typename P>
-class ProxyFlushBatchPromise : public ProxyFlushBatchAsync, public PromiseInvoke<P>
+class ProxyFlushBatchPromise : public ProxyFlushBatchAsync, public PromiseInvoke<void>
 {
 public:
 
@@ -212,8 +210,8 @@ public:
     }
 };
 
-template<typename P, typename R>
-class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvoke<P>
+template<typename R>
+class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvoke<R>
 {
 public:
 
@@ -354,7 +352,7 @@ Ice::ObjectPrx::ice_isAAsync(
 std::future<bool>
 Ice::ObjectPrx::ice_isAAsync(const string& typeId, const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<bool, std::promise>(false, this, &ObjectPrx::_iceI_isA, typeId, context);
+    return _makePromiseOutgoing<bool>(false, this, &ObjectPrx::_iceI_isA, typeId, context);
 }
 
 void
@@ -391,7 +389,7 @@ Ice::ObjectPrx::ice_pingAsync(
 std::future<void>
 Ice::ObjectPrx::ice_pingAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<void, std::promise>(false, this, &ObjectPrx::_iceI_ping, context);
+    return _makePromiseOutgoing<void>(false, this, &ObjectPrx::_iceI_ping, context);
 }
 
 void
@@ -420,7 +418,7 @@ Ice::ObjectPrx::ice_idsAsync(
 std::future<vector<string>>
 Ice::ObjectPrx::ice_idsAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<vector<string>, std::promise>(false, this, &ObjectPrx::_iceI_ids, context);
+    return _makePromiseOutgoing<vector<string>>(false, this, &ObjectPrx::_iceI_ids, context);
 }
 
 void
@@ -455,7 +453,7 @@ Ice::ObjectPrx::ice_idAsync(std::function<void(string)> response,
 std::future<string>
 Ice::ObjectPrx::ice_idAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<string, std::promise>(false, this, &ObjectPrx::_iceI_id, context);
+    return _makePromiseOutgoing<string>(false, this, &ObjectPrx::_iceI_id, context);
 }
 
 void
@@ -520,8 +518,7 @@ bool Ice::ObjectPrx::ice_invoke(const string &operation,
                                 vector<Ice::Byte> &outParams,
                                 const Ice::Context &context) const
 {
-    using Outgoing = InvokePromiseOutgoing<
-        std::promise<std::tuple<bool, vector<Byte>>>, std::tuple<bool, vector<Byte>>>;
+    using Outgoing = InvokePromiseOutgoing<std::tuple<bool, vector<Byte>>>;
     auto outAsync = std::make_shared<Outgoing>(*this, true);
     outAsync->invoke(operation, mode, inParams, context);
     auto result = outAsync->getFuture().get();
@@ -537,7 +534,7 @@ Ice::ObjectPrx::ice_invokeAsync(const string &operation,
                                 const Ice::Context &context) const
 {
     using Outgoing =
-        ::IceInternal::InvokePromiseOutgoing<std::promise<::std::tuple<bool, vector<Byte>>>, ::std::tuple<bool, vector<Byte>>>;
+        ::IceInternal::InvokePromiseOutgoing<::std::tuple<bool, vector<Byte>>>;
     auto outAsync = ::std::make_shared<Outgoing>(*this, false);
     outAsync->invoke(operation, mode, inParams, context);
     return outAsync->getFuture();
@@ -590,8 +587,7 @@ Ice::ObjectPrx::ice_getConnectionAsync(std::function<void(std::shared_ptr<Ice::C
 
 std::future<std::shared_ptr<Ice::Connection>> Ice::ObjectPrx::ice_getConnectionAsync() const
 {
-    using PromiseOutgoing = ProxyGetConnectionPromise<std::promise<std::shared_ptr<Ice::Connection>>>;
-    auto outAsync = std::make_shared<PromiseOutgoing>(*this);
+    auto outAsync = std::make_shared<ProxyGetConnectionPromise>(*this);
     _iceI_getConnection(outAsync);
     return outAsync->getFuture();
 }
@@ -633,8 +629,7 @@ std::future<void> Ice::ObjectPrx::ice_flushBatchRequestsAsync() const
 {
     if (_reference->isBatch())
     {
-        using PromiseOutgoing = ProxyFlushBatchPromise<std::promise<void>>;
-        auto outAsync = std::make_shared<PromiseOutgoing>(*this);
+        auto outAsync = std::make_shared<ProxyFlushBatchPromise>(*this);
         _iceI_flushBatchRequests(outAsync);
         return outAsync->getFuture();
     }

@@ -2135,7 +2135,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar << " const";
 
     C << sb;
-    C << nl << "return _makePromiseOutgoing<" << futureT << ", ::std::promise>" << spar;
+    C << nl << "return _makePromiseOutgoing<" << futureT << ">" << spar;
     C << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {

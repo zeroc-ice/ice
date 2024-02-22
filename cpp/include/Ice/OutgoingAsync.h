@@ -268,20 +268,16 @@ protected:
     std::function<void(bool)> _response;
 };
 
-template<typename Promise>
+template<typename R>
 class PromiseInvoke : public virtual OutgoingAsyncCompletionCallback
 {
 public:
 
-    auto
-    getFuture() -> decltype(std::declval<Promise>().get_future())
-    {
-        return _promise.get_future();
-    }
+    std::future<R> getFuture() { return _promise.get_future(); }
 
 protected:
 
-    Promise _promise;
+    std::promise<R> _promise;
     std::function<void(bool)> _response;
 
 private:
@@ -495,8 +491,8 @@ public:
     }
 };
 
-template<typename P, typename R>
-class PromiseOutgoing : public OutgoingAsyncT<R>, public PromiseInvoke<P>
+template<typename R>
+class PromiseOutgoing : public OutgoingAsyncT<R>, public PromiseInvoke<R>
 {
 public:
 
@@ -521,8 +517,8 @@ public:
     }
 };
 
-template<typename P>
-class PromiseOutgoing<P, void> : public OutgoingAsyncT<void>, public PromiseInvoke<P>
+template<>
+class PromiseOutgoing<void> : public OutgoingAsyncT<void>, public PromiseInvoke<void>
 {
 public:
 
@@ -556,7 +552,7 @@ public:
     {
         if(done)
         {
-            PromiseInvoke<P>::_promise.set_value();
+            PromiseInvoke<void>::_promise.set_value();
         }
         return false;
     }

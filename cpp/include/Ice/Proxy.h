@@ -38,7 +38,7 @@ class ProxyGetConnection;
 class ProxyFlushBatchAsync;
 
 template<typename T> class OutgoingAsyncT;
-template<typename P, typename R> class PromiseOutgoing;
+template<typename R> class PromiseOutgoing;
 template<typename R> class LambdaOutgoing;
 
 }
@@ -842,11 +842,10 @@ protected:
     // The constructor used by _fromReference.
     explicit ObjectPrx(IceInternal::ReferencePtr&&);
 
-    template<typename R, template<typename> class P = ::std::promise, typename Obj, typename Fn, typename... Args>
-    auto _makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args) const
-        -> decltype(std::declval<P<R>>().get_future())
+    template<typename R, typename Obj, typename Fn, typename... Args>
+    ::std::future<R> _makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args) const
     {
-        auto outAsync = ::std::make_shared<::IceInternal::PromiseOutgoing<P<R>, R>>(*this, sync);
+        auto outAsync = ::std::make_shared<::IceInternal::PromiseOutgoing<R>>(*this, sync);
         (obj->*fn)(outAsync, std::forward<Args>(args)...);
         return outAsync->getFuture();
     }
