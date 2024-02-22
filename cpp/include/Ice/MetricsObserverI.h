@@ -385,10 +385,10 @@ public:
     virtual void
     detach()
     {
-        std::int64_t lifetime = _previousDelay + _watch.stop();
+        std::chrono::microseconds lifetime = _previousDelay + _watch.stop();
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            (*p)->detach(lifetime);
+            (*p)->detach(lifetime.count());
         }
     }
 
@@ -429,7 +429,7 @@ public:
         {
             if(find(_objects.begin(), _objects.end(), *p) == _objects.end())
             {
-                (*p)->detach(_previousDelay);
+                (*p)->detach(_previousDelay.count());
             }
         }
     }
@@ -474,7 +474,7 @@ private:
 
     EntrySeqType _objects;
     IceUtilInternal::StopWatch _watch;
-    IceUtil::Int64 _previousDelay;
+    std::chrono::microseconds _previousDelay;
 };
 
 template<typename ObserverImplType>

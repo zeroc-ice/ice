@@ -6,6 +6,9 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace Test;
 namespace
@@ -219,14 +222,9 @@ public:
     waitForClosed()
     {
         unique_lock lock(_mutex);
-        IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        while(!_closed)
+        if (!_conditionVariable.wait_for(lock, chrono::seconds(30), [this] { return _closed; }))
         {
-            _conditionVariable.wait_for(lock, chrono::seconds(30));
-            if(IceUtil::Time::now(IceUtil::Time::Monotonic) - now > IceUtil::Time::seconds(30))
-            {
-                test(false); // Waited for more than 30s for close, something's wrong.
-            }
+            test(false); // Waited for more than 30s for close, something's wrong.
         }
     }
 
@@ -404,7 +402,7 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
+        this_thread::sleep_for(chrono::milliseconds(3000)); // Idle for 3 seconds
 
         lock_guard lock(_mutex);
         test(_heartbeat == 0);
@@ -429,7 +427,7 @@ public:
         // the close is graceful or forceful.
         //
         adapter->hold();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(5000)); // Idle for 5 seconds
+        this_thread::sleep_for(chrono::milliseconds(5000)); // Idle for 5 seconds
 
         {
             lock_guard lock(_mutex);
@@ -475,7 +473,7 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000));
+        this_thread::sleep_for(chrono::milliseconds(3000));
 
         lock_guard lock(_mutex);
         test(_heartbeat >= 3);
@@ -496,7 +494,7 @@ public:
         for(int i = 0; i < 10; ++i)
         {
             proxy->ice_ping();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
+            this_thread::sleep_for(chrono::milliseconds(300));
         }
 
         lock_guard lock(_mutex);

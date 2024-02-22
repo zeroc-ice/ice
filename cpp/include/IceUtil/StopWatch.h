@@ -5,7 +5,9 @@
 #ifndef ICE_UTIL_STOPWATCH_H
 #define ICE_UTIL_STOPWATCH_H
 
-#include <IceUtil/Time.h>
+#include <IceUtil/Config.h>
+
+#include <chrono>
 
 namespace IceUtilInternal
 {
@@ -18,30 +20,32 @@ public:
 
     void start()
     {
-        _s = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        _start = std::chrono::steady_clock::now();
     }
 
-    IceUtil::Int64 stop()
+    std::chrono::microseconds stop()
     {
         assert(isStarted());
-        IceUtil::Int64 d = (IceUtil::Time::now(IceUtil::Time::Monotonic) - _s).toMicroSeconds();
-        _s = IceUtil::Time();
-        return d;
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - _start);
+        _start = std::chrono::steady_clock::time_point();
+        return duration;
     }
 
     bool isStarted() const
     {
-        return _s != IceUtil::Time();
+        return _start != std::chrono::steady_clock::time_point();
     }
 
-    IceUtil::Int64 delay()
+    std::chrono::microseconds delay()
     {
-        return (IceUtil::Time::now(IceUtil::Time::Monotonic) - _s).toMicroSeconds();
+        return std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::steady_clock::now() - _start);
     }
 
 private:
 
-    IceUtil::Time _s;
+    std::chrono::steady_clock::time_point _start;
 };
 
 } // End namespace IceUtilInternal

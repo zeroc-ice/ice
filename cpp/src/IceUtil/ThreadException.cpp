@@ -60,23 +60,3 @@ IceUtil::BadThreadControlException::ice_id() const
 {
     return "::IceUtil::BadThreadControlException";
 }
-
-IceUtil::InvalidTimeoutException::InvalidTimeoutException(const char* file, int line,
-                                                          const IceUtil::Time& timeout) :
-    ExceptionHelper<InvalidTimeoutException>(file, line),
-    _timeout(timeout)
-{
-}
-
-string
-IceUtil::InvalidTimeoutException::ice_id() const
-{
-    return "::IceUtil::InvalidTimeoutException";
-}
-
-void
-IceUtil::InvalidTimeoutException::ice_print(ostream& os) const
-{
-    Exception::ice_print(os);
-    os << ":\ninvalid timeout: " << _timeout << " seconds";
-}

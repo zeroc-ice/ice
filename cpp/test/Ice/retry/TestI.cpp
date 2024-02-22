@@ -3,8 +3,13 @@
 //
 
 #include <Ice/Ice.h>
+#include <IceUtil/Thread.h>
+
 #include <TestI.h>
 #include <SystemFailure.h>
+
+#include <thread>
+using namespace std;
 
 RetryI::RetryI() : _counter(0)
 {
@@ -60,7 +65,7 @@ RetryI::opSystemException(const Ice::Current&)
 void
 RetryI::sleep(int delay, const Ice::Current&)
 {
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
+    this_thread::sleep_for(chrono::milliseconds(delay));
 }
 
 void

@@ -7,6 +7,8 @@
 #include <InstrumentationI.h>
 #include <Test.h>
 
+#include <thread>
+
 using namespace std;
 using namespace Test;
 
@@ -79,7 +81,7 @@ getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, int64_t exp
         // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
         // to the operation is sent and getMetricsView can be dispatched before the metric is really
         // updated.
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        this_thread::sleep_for(chrono::milliseconds(100));
         s = dynamic_pointer_cast<IceMX::ConnectionMetrics>(metrics->getMetricsView("View", timestamp)["Connection"][0]);
     }
     return s;
@@ -151,7 +153,7 @@ waitForCurrent(const IceMX::MetricsAdminPrxPtr& metrics, const string& viewName,
         {
             break;
         }
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+        this_thread::sleep_for(chrono::milliseconds(50));
     }
 }
 
@@ -162,7 +164,7 @@ waitForCurrent(const ObserverIPtr& observer, int value)
     {
         if(observer->getCurrent() != value)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(50));
+            this_thread::sleep_for(chrono::milliseconds(50));
         }
         else
         {
@@ -634,7 +636,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             {
                 break;
             }
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+            this_thread::sleep_for(chrono::milliseconds(10));
         }
         test(cm1->failures == 2 && sm1->failures >= 2);
 

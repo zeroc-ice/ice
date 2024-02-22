@@ -7,6 +7,9 @@
 #include <TestI.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter) :
@@ -61,7 +64,7 @@ HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
     {
         try
         {
-            _timer->schedule(make_shared<PutOnHold>(_adapter), IceUtil::Time::milliSeconds(milliSeconds));
+            _timer->schedule(make_shared<PutOnHold>(_adapter), chrono::milliseconds(milliSeconds));
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
@@ -105,7 +108,7 @@ HoldI::waitForHold(const Ice::Current& current)
 
     try
     {
-        _timer->schedule(make_shared<WaitForHold>(current.adapter), IceUtil::Time());
+        _timer->schedule(make_shared<WaitForHold>(current.adapter), chrono::seconds::zero());
     }
     catch(const IceUtil::IllegalArgumentException&)
     {
@@ -115,7 +118,7 @@ HoldI::waitForHold(const Ice::Current& current)
 int32_t
 HoldI::set(int32_t value, int32_t delay, const Ice::Current&)
 {
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
+    this_thread::sleep_for(chrono::milliseconds(delay));
 
     lock_guard lock(_mutex);
     int32_t tmp = _last;

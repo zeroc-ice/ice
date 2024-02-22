@@ -5,6 +5,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/TimeUtil.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Activator.h>
@@ -430,7 +431,7 @@ TimedServerCommand::startTimer()
     _timerTask = make_shared<CommandTimeoutTimerTask>(shared_from_this());
     try
     {
-        _timer->schedule(_timerTask, IceUtil::Time::seconds(_timeout.count()));
+        _timer->schedule(_timerTask, _timeout);
     }
     catch(const std::exception&)
     {
@@ -2285,7 +2286,9 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             {
                 throw runtime_error("couldn't create configuration file: " + configFilePath);
             }
-            configfile << "# Configuration file (" << IceUtil::Time::now().toDateTime() << ")" << endl << endl;
+            configfile
+                << "# Configuration file ("
+                << IceInternal::timePointToDateTimeString(chrono::system_clock::now()) << ")" << endl << endl;
             for(const auto& propertyDescriptor : prop.second)
             {
                 if(propertyDescriptor.value.empty() && propertyDescriptor.name.find('#') == 0)
@@ -2864,7 +2867,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             _timerTask = make_shared<DelayedStart>(shared_from_this(), _node->getTraceLevels());
             try
             {
-                _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+                _node->getTimer()->schedule(_timerTask, chrono::milliseconds(500));
             }
             catch(const IceUtil::Exception&)
             {
@@ -2891,11 +2894,11 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
                 if(now - *_failureTime < _disableOnFailure)
                 {
                     auto delay = duration_cast<milliseconds>(_disableOnFailure - (now - *_failureTime));
-                    _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds((delay + 500ms).count()));
+                    _node->getTimer()->schedule(_timerTask, delay + 500ms);
                 }
                 else
                 {
-                    _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+                    _node->getTimer()->schedule(_timerTask, chrono::milliseconds(500));
                 }
             }
             catch(const IceUtil::Exception&)

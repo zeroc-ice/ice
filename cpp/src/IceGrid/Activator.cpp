@@ -4,6 +4,7 @@
 
 #include <Ice/ArgVector.h>
 #include <IceUtil/FileUtil.h>
+#include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/Admin.h>
@@ -13,6 +14,9 @@
 #include <IceGrid/ServerI.h>
 
 #include <IcePatch2Lib/Util.h>
+
+#include <thread>
+#include <chrono>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1456,7 +1460,7 @@ Activator::waitPid(pid_t processPid)
                 if(errno == ECHILD && nRetry < 10)
                 {
                     // Wait 1ms, 11ms, 21ms, etc.
-                    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1));
+                    this_thread::sleep_for(chrono::milliseconds(nRetry * 10 + 1));
                     ++nRetry;
                     continue;
                 }

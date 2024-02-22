@@ -63,7 +63,8 @@ IceDiscovery::Request::getRequestId() const
 
 AdapterRequest::AdapterRequest(const LookupIPtr& lookup, const std::string& adapterId, int retryCount) :
     RequestT<std::string, AdapterCB>(lookup, adapterId, retryCount),
-    _start(IceUtil::Time::now())
+    _start(chrono::steady_clock::now()),
+    _latency(chrono::nanoseconds::zero())
 {
 }
 
@@ -78,9 +79,10 @@ AdapterRequest::response(const Ice::ObjectPrxPtr& proxy, bool isReplicaGroup)
 {
     if(isReplicaGroup)
     {
-        if(_latency == IceUtil::Time())
+        if(_latency == chrono::nanoseconds::zero())
         {
-            _latency = (IceUtil::Time::now() - _start) * _lookup->latencyMultiplier();
+            _latency = chrono::duration_cast<chrono::nanoseconds>(chrono::steady_clock::now() - _start) *
+                _lookup->latencyMultiplier();
             _lookup->timer()->cancel(shared_from_this());
             _lookup->timer()->schedule(shared_from_this(), _latency);
         }
@@ -165,7 +167,7 @@ ObjectRequest::runTimerTask()
 LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrxPtr& lookup, const Ice::PropertiesPtr& properties) :
     _registry(registry),
     _lookup(lookup),
-    _timeout(IceUtil::Time::milliSeconds(properties->getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300))),
+    _timeout(chrono::milliseconds(properties->getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300))),
     _retryCount(properties->getPropertyAsIntWithDefault("IceDiscovery.RetryCount", 3)),
     _latencyMultiplier(properties->getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1)),
     _domainId(properties->getProperty("IceDiscovery.DomainId")),

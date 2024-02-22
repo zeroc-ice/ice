@@ -4,7 +4,6 @@
 
 #include <IceUtil/UUID.h>
 #include <IceUtil/Random.h>
-#include <IceUtil/Time.h>
 #include <IceUtil/Thread.h>
 #include <TestHelper.h>
 
@@ -132,7 +131,7 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
 
     vector<ThreadControl> threads;
 
-    Time start = Time::now();
+    auto start = chrono::steady_clock::now();
     for(int i = 0; i < threadCount; i++)
     {
         ThreadPtr t = make_shared<InsertThread<T, GenerateFunc>>(i, itemSet, func, howMany / threadCount, verbose);
@@ -142,14 +141,14 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
     {
         p->join();
     }
-    Time finish = Time::now();
+    auto finish = chrono::steady_clock::now();
 
     cout << "ok" << endl;
 
     if(verbose)
     {
         cout << "Each " << name << " took an average of "
-             << (double) ((finish - start).toMicroSeconds()) / howMany
+             << (double) (chrono::duration_cast<chrono::microseconds>(finish - start).count()) / howMany
              << " micro seconds to generate and insert into a set."
              << endl;
     }

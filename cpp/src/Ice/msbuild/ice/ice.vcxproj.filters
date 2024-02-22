@@ -240,9 +240,6 @@
     <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\Time.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\UtilException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -607,6 +604,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ProxyAsync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\TimeUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

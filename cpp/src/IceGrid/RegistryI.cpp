@@ -781,7 +781,7 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrxPtr& locator)
     }
 
     assert(_reaper);
-    _timer = IceUtil::Timer::create();  // Used for session allocation timeout.
+    _timer = make_shared<IceUtil::Timer>();  // Used for session allocation timeout.
     _clientSessionFactory = make_shared<ClientSessionFactory>(servantManager, _database, _timer, _reaper);
 
     if(servantManager && _master) // Slaves don't support client session manager objects.

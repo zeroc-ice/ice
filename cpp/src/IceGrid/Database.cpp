@@ -784,7 +784,8 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, bool n
         previous = make_unique<ApplicationHelper>(_communicator, oldApp.descriptor);
         helper = make_unique<ApplicationHelper>(_communicator, newDesc, true);
 
-        update.updateTime = IceUtil::Time::now().toMilliSeconds();
+        update.updateTime = chrono::duration_cast<chrono::milliseconds>(
+            chrono::system_clock::now().time_since_epoch()).count();
         update.updateUser = _lockUserId;
         update.revision = oldApp.revision + 1;
         update.descriptor = helper->diff(*previous);
@@ -830,7 +831,8 @@ Database::instantiateServer(const string& application,
         previous = make_unique<ApplicationHelper>(_communicator, oldApp.descriptor);
         helper = make_unique<ApplicationHelper>(_communicator, previous->instantiateServer(node, instance), true);
 
-        update.updateTime = IceUtil::Time::now().toMilliSeconds();
+        update.updateTime = chrono::duration_cast<chrono::milliseconds>(
+            chrono::system_clock::now().time_since_epoch()).count();
         update.updateUser = _lockUserId;
         update.revision = oldApp.revision + 1;
         update.descriptor = helper->diff(*previous);
@@ -2658,7 +2660,8 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
 
                 reload(previous, helper, entries, info.uuid, info.revision, noRestart);
 
-                newUpdate.updateTime = IceUtil::Time::now().toMilliSeconds();
+                newUpdate.updateTime = chrono::duration_cast<chrono::milliseconds>(
+                    chrono::system_clock::now().time_since_epoch()).count();
                 newUpdate.updateUser = _lockUserId;
                 newUpdate.revision = info.revision;
                 newUpdate.descriptor = helper.diff(previous);

@@ -14,7 +14,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::ACMConfig::ACMConfig(bool server) :
-    timeout(IceUtil::Time::seconds(60)),
+    timeout(chrono::seconds(60)),
     heartbeat(ACMHeartbeat::HeartbeatOnDispatch),
     close(server ? ACMClose::CloseOnInvocation : ACMClose::CloseOnInvocationAndIdle)
 {
@@ -35,10 +35,10 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
         timeoutProperty = prefix + ".Timeout";
     }
 
-    int timeoutVal = p->getPropertyAsIntWithDefault(timeoutProperty, static_cast<int>(dflt.timeout.toSeconds()));
+    int timeoutVal = p->getPropertyAsIntWithDefault(timeoutProperty, static_cast<int>(dflt.timeout.count()));
     if(timeoutVal >= 0)
     {
-        timeout = IceUtil::Time::seconds(timeoutVal);
+        timeout = chrono::seconds(timeoutVal);
     }
     else
     {
@@ -105,7 +105,7 @@ IceInternal::FactoryACMMonitor::destroy()
     if(!_connections.empty())
     {
         _instance->timer()->cancel(shared_from_this());
-        _instance->timer()->schedule(shared_from_this(), IceUtil::Time());
+        _instance->timer()->schedule(shared_from_this(), chrono::seconds::zero());
     }
 
     _instance = 0;
@@ -120,7 +120,7 @@ IceInternal::FactoryACMMonitor::destroy()
 void
 IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
 {
-    if(_config.timeout == IceUtil::Time())
+    if(_config.timeout == chrono::seconds::zero())
     {
         return;
     }
@@ -129,7 +129,9 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
     if(_connections.empty())
     {
         _connections.insert(connection);
-        _instance->timer()->scheduleRepeated(shared_from_this(), _config.timeout / 2);
+        _instance->timer()->scheduleRepeated(
+            shared_from_this(),
+            chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
     }
     else
     {
@@ -140,7 +142,7 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
 void
 IceInternal::FactoryACMMonitor::remove(const ConnectionIPtr& connection)
 {
-    if(_config.timeout == IceUtil::Time())
+    if(_config.timeout == chrono::seconds::zero())
     {
         return;
     }
@@ -168,7 +170,7 @@ IceInternal::FactoryACMMonitor::acm(const optional<int>& timeout,
     ACMConfig config(_config);
     if(timeout)
     {
-        config.timeout = IceUtil::Time::seconds(*timeout);
+        config.timeout = chrono::seconds(*timeout);
     }
     if(close)
     {
@@ -185,7 +187,7 @@ Ice::ACM
 IceInternal::FactoryACMMonitor::getACM()
 {
     Ice::ACM acm;
-    acm.timeout = static_cast<int>(_config.timeout.toSeconds());
+    acm.timeout = static_cast<int>(_config.timeout.count());
     acm.close = _config.close;
     acm.heartbeat = _config.heartbeat;
     return acm;
@@ -234,7 +236,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
     // Monitor connections outside the thread synchronization, so
     // that connections can be added or removed during monitoring.
     //
-    IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
+    auto now = chrono::steady_clock::now();
     for(set<ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
     {
         try
@@ -296,9 +298,11 @@ IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
     lock_guard lock(_mutex);
     assert(!_connection && connection);
     _connection = connection;
-    if(_config.timeout != IceUtil::Time())
+    if(_config.timeout != chrono::seconds::zero())
     {
-        _timer->scheduleRepeated(shared_from_this(), _config.timeout / 2);
+        _timer->scheduleRepeated(
+            shared_from_this(),
+            chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
     }
 }
 
@@ -310,7 +314,7 @@ IceInternal::ConnectionACMMonitor::remove(ICE_MAYBE_UNUSED const ConnectionIPtr&
 #endif
     lock_guard lock(_mutex);
     assert(_connection == connection);
-    if(_config.timeout != IceUtil::Time())
+    if(_config.timeout != chrono::seconds::zero())
     {
         _timer->cancel(shared_from_this());
     }
@@ -335,7 +339,7 @@ Ice::ACM
 IceInternal::ConnectionACMMonitor::getACM()
 {
     Ice::ACM acm;
-    acm.timeout = static_cast<int>(_config.timeout.toSeconds());
+    acm.timeout = static_cast<int>(_config.timeout.count());
     acm.close = _config.close;
     acm.heartbeat = _config.heartbeat;
     return acm;
@@ -356,7 +360,7 @@ IceInternal::ConnectionACMMonitor::runTimerTask()
 
     try
     {
-        connection->monitor(IceUtil::Time::now(IceUtil::Time::Monotonic), _config);
+        connection->monitor(chrono::steady_clock::now(), _config);
     }
     catch(const exception& ex)
     {

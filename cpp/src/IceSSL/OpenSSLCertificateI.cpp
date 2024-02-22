@@ -195,10 +195,7 @@ ASMUtcTimeToTime(const ASN1_UTCTIME* s)
 #endif
         tzone = mktime(&localTime) - mktime(&gmTime);
     }
-
-    IceUtil::Time time = IceUtil::Time::seconds(mktime(&tm) - IceUtil::Int64(offset) * 60 + tzone);
-
-    return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
+    return chrono::system_clock::time_point(chrono::seconds(mktime(&tm) - IceUtil::Int64(offset) * 60 + tzone));
 }
 
 class OpenSSLX509ExtensionI : public IceSSL::X509Extension
