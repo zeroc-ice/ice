@@ -8,8 +8,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
 
-#include <IceUtil/Thread.h>
-
 #ifdef ICE_USE_CFSTREAM
 #   include <CoreFoundation/CoreFoundation.h>
 #   include <CoreFoundation/CFStream.h>

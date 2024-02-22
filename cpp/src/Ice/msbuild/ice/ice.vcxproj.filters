@@ -483,9 +483,6 @@
     <ClCompile Include="..\..\TcpTransceiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Thread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ThreadPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

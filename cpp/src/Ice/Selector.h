@@ -25,7 +25,6 @@
 #include <condition_variable>
 
 #if defined(ICE_USE_CFSTREAM)
-#   include <IceUtil/Thread.h>
 #   include <set>
 
 struct __CFRunLoop;

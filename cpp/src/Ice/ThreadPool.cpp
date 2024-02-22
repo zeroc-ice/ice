@@ -84,21 +84,20 @@ class JoinThreadWorkItem final : public ThreadPoolWorkItem
 {
 public:
 
-    JoinThreadWorkItem(const IceUtil::ThreadPtr& thread) :
+    JoinThreadWorkItem(const ThreadPool::EventHandlerThreadPtr& thread) :
         _thread(thread)
     {
     }
 
     void execute(ThreadPoolCurrent&) final
     {
-        // No call to ioCompleted, this shouldn't block (and we don't want to cause
-        // a new thread to be started).
-        _thread->getThreadControl().join();
+        // No call to ioCompleted, this shouldn't block (and we don't want to cause a new thread to be started).
+        _thread->join();
     }
 
 private:
 
-    IceUtil::ThreadPtr _thread;
+    ThreadPool::EventHandlerThreadPtr _thread;
 };
 
 //
@@ -428,15 +427,8 @@ IceInternal::ThreadPool::initialize()
         for(int i = 0 ; i < _size ; ++i)
         {
             auto thread = make_shared<EventHandlerThread>(shared_from_this(), nextThreadId());
-            if(_hasPriority)
-            {
-                thread->start(_stackSize, _priority);
-            }
-            else
-            {
-                thread->start(_stackSize);
-            }
-            _threads.insert(thread);
+            thread->start();
+            _threads.insert(std::move(thread));
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -476,9 +468,9 @@ void
 IceInternal::ThreadPool::updateObservers()
 {
     lock_guard lock(_mutex);
-    for(set<EventHandlerThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    for (auto& p : _threads)
     {
-        (*p)->updateObserver();
+        p->updateObserver();
     }
 }
 
@@ -661,7 +653,7 @@ IceInternal::ThreadPool::joinWithAllThreads()
     //
     for(set<EventHandlerThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
     {
-        (*p)->getThreadControl().join();
+        (*p)->join();
     }
     _selector.destroy();
 }
@@ -1001,15 +993,8 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
                 try
                 {
                     auto thread = make_shared<EventHandlerThread>(shared_from_this(), nextThreadId());
-                    if(_hasPriority)
-                    {
-                        thread->start(_stackSize, _priority);
-                    }
-                    else
-                    {
-                        thread->start(_stackSize);
-                    }
-                    _threads.insert(thread);
+                    thread->start();
+                    _threads.insert(std::move(thread));
                 }
                 catch(const IceUtil::Exception& ex)
                 {
@@ -1201,7 +1186,7 @@ IceInternal::ThreadPool::nextThreadId()
 }
 
 IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool, const string& name) :
-    IceUtil::Thread(name),
+    _name(name),
     _pool(pool),
     _state(ThreadState::ThreadStateIdle)
 {
@@ -1215,7 +1200,7 @@ IceInternal::ThreadPool::EventHandlerThread::updateObserver()
     const CommunicatorObserverPtr& obsv = _pool->_instance->initializationData().observer;
     if(obsv)
     {
-        _observer.attach(obsv->getThreadObserver(_pool->_prefix, name(), _state, _observer.get()));
+        _observer.attach(obsv->getThreadObserver(_pool->_prefix, _name, _state, _observer.get()));
     }
 }
 
@@ -1231,6 +1216,13 @@ IceInternal::ThreadPool::EventHandlerThread::setState(Ice::Instrumentation::Thre
         }
     }
     _state = s;
+}
+
+void
+IceInternal::ThreadPool::EventHandlerThread::start()
+{
+    assert(_thread.get_id() == thread::id()); // Not started yet
+    _thread = thread(&EventHandlerThread::run, this);
 }
 
 void
@@ -1256,7 +1248,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 
     try
     {
-        _pool->run(dynamic_pointer_cast<EventHandlerThread>(shared_from_this()));
+        _pool->run(shared_from_this());
     }
     catch(const exception& ex)
     {
@@ -1290,6 +1282,15 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     }
 
     _pool = 0; // Break cyclic dependency.
+}
+
+void
+IceInternal::ThreadPool::EventHandlerThread::join()
+{
+    if (_thread.joinable())
+    {
+        _thread.join();
+    }
 }
 
 ThreadPoolCurrent::ThreadPoolCurrent(const InstancePtr& instance,

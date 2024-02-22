@@ -3,7 +3,6 @@
 //
 
 #include <IceBT/DBus.h>
-#include <IceUtil/Thread.h>
 
 #include <dbus/dbus.h>
 

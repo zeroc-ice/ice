@@ -4,7 +4,6 @@
 
 #include <TestI.h>
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
 
 #include <thread>
 #include <chrono>

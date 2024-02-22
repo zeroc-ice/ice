@@ -5,7 +5,6 @@
 #ifndef TEST_AMD_I_H
 #define TEST_AMD_I_H
 
-#include <IceUtil/Thread.h>
 #include <TestAMD.h>
 
 class MyDerivedClassI : public Test::MyDerivedClass

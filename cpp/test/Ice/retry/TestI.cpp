@@ -3,7 +3,6 @@
 //
 
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
 
 #include <TestI.h>
 #include <SystemFailure.h>

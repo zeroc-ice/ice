@@ -6,7 +6,6 @@
 #include <Ice/Ice.h>
 #include <Dispatcher.h>
 #include <TestHelper.h>
-#include <IceUtil/Thread.h>
 
 #include <thread>
 #include <chrono>
