@@ -19,7 +19,7 @@ void
 Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    IceUtil::TimerPtr timer = IceUtil::Timer::create();
+    IceUtil::TimerPtr timer = make_shared<IceUtil::Timer>();
 
     communicator->getProperties()->setProperty("TestAdapter1.Endpoints", getTestEndpoint());
     communicator->getProperties()->setProperty("TestAdapter1.ThreadPool.Size", "5");

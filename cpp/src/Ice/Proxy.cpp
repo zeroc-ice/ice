@@ -263,6 +263,13 @@ Ice::ObjectPrx::ice_getCommunicator() const
     return _reference->getCommunicator();
 }
 
+const string&
+Ice::ObjectPrx::ice_staticId()
+{
+    static const string typeId = "::Ice::Object";
+    return typeId;
+}
+
 string
 Ice::ObjectPrx::ice_toString() const
 {

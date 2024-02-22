@@ -8,8 +8,6 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/Exception.h>
-#include <Ice/OutgoingAsyncF.h>
 #include <Ice/Properties.h>
 
 namespace Ice

@@ -3,6 +3,7 @@
 //
 
 #include <Ice/Ice.h>
+#include <IceUtil/Time.h>
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/Util.h>
 
