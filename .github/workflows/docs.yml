@@ -20,7 +20,7 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
         with:
-          cache: false
+          cache: use_ccache
 
       - name: Install awscli
         run: brew install awscli || true
