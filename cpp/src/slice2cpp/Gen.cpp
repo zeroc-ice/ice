@@ -3310,7 +3310,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         emitAllOperationsArray(p);
 
         C << sp;
-        C << nl << "::std::pair<const ::std::string*, const ::std::string*> r = "
+        C << nl << "::std::pair<const ::std::string_view*, const ::std::string_view*> r = "
           << "::std::equal_range(allOperations, allOperations" << " + " << allOpNames.size()
           << ", current.operation);";
         C << nl << "if(r.first == r.second)";
@@ -3654,7 +3654,7 @@ Slice::Gen::InterfaceVisitor::emitAllOperationsArray(const InterfaceDefPtr& p)
     allOpNames.sort();
     allOpNames.unique();
 
-    C << nl << "static const ::std::string allOperations[] =";
+    C << nl << "static constexpr ::std::string_view allOperations[] =";
     C << sb;
     for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
     {
