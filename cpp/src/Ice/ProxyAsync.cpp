@@ -334,7 +334,7 @@ ProxyGetConnection::invoke(const string& operation)
 bool
 Ice::ObjectPrx::ice_isA(const string& typeId, const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<bool>(true, this, &ObjectPrx::_iceI_isA, typeId, context).get();
+    return makePromiseOutgoing<bool>(true, this, &ObjectPrx::_iceI_isA, typeId, context).get();
 }
 
 std::function<void()>
@@ -345,14 +345,14 @@ Ice::ObjectPrx::ice_isAAsync(
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    return _makeLambdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this,
+    return makeLambdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this,
                                      &ObjectPrx::_iceI_isA, typeId, context);
 }
 
 std::future<bool>
 Ice::ObjectPrx::ice_isAAsync(const string& typeId, const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<bool>(false, this, &ObjectPrx::_iceI_isA, typeId, context);
+    return makePromiseOutgoing<bool>(false, this, &ObjectPrx::_iceI_isA, typeId, context);
 }
 
 void
@@ -372,7 +372,7 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<OutgoingAsyncT<bool>>& outAsync,
 void
 Ice::ObjectPrx::ice_ping(const Ice::Context& context) const
 {
-    _makePromiseOutgoing<void>(true, this, &ObjectPrx::_iceI_ping, context).get();
+    makePromiseOutgoing<void>(true, this, &ObjectPrx::_iceI_ping, context).get();
 }
 
 std::function<void()>
@@ -382,14 +382,14 @@ Ice::ObjectPrx::ice_pingAsync(
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    return _makeLambdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this,
+    return makeLambdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this,
                                      &ObjectPrx::_iceI_ping, context);
 }
 
 std::future<void>
 Ice::ObjectPrx::ice_pingAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<void>(false, this, &ObjectPrx::_iceI_ping, context);
+    return makePromiseOutgoing<void>(false, this, &ObjectPrx::_iceI_ping, context);
 }
 
 void
@@ -401,7 +401,7 @@ Ice::ObjectPrx::_iceI_ping(const shared_ptr<OutgoingAsyncT<void>>& outAsync, con
 vector<string>
 Ice::ObjectPrx::ice_ids(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<vector<string>>(true, this, &ObjectPrx::_iceI_ids, context).get();
+    return makePromiseOutgoing<vector<string>>(true, this, &ObjectPrx::_iceI_ids, context).get();
 }
 
 std::function<void()>
@@ -411,14 +411,14 @@ Ice::ObjectPrx::ice_idsAsync(
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    return _makeLambdaOutgoing<vector<string>>(std::move(response), std::move(ex), std::move(sent),
+    return makeLambdaOutgoing<vector<string>>(std::move(response), std::move(ex), std::move(sent),
                                                          this, &ObjectPrx::_iceI_ids, context);
 }
 
 std::future<vector<string>>
 Ice::ObjectPrx::ice_idsAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<vector<string>>(false, this, &ObjectPrx::_iceI_ids, context);
+    return makePromiseOutgoing<vector<string>>(false, this, &ObjectPrx::_iceI_ids, context);
 }
 
 void
@@ -437,7 +437,7 @@ Ice::ObjectPrx::_iceI_ids(const shared_ptr<OutgoingAsyncT<vector<string>>>& outA
 string
 Ice::ObjectPrx::ice_id(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<string>(true, this, &ObjectPrx::_iceI_id, context).get();
+    return makePromiseOutgoing<string>(true, this, &ObjectPrx::_iceI_id, context).get();
 }
 
 std::function<void()>
@@ -446,14 +446,14 @@ Ice::ObjectPrx::ice_idAsync(std::function<void(string)> response,
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    return _makeLambdaOutgoing<string>(std::move(response), std::move(ex), std::move(sent), this,
+    return makeLambdaOutgoing<string>(std::move(response), std::move(ex), std::move(sent), this,
                                             &ObjectPrx::_iceI_id, context);
 }
 
 std::future<string>
 Ice::ObjectPrx::ice_idAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<string>(false, this, &ObjectPrx::_iceI_id, context);
+    return makePromiseOutgoing<string>(false, this, &ObjectPrx::_iceI_id, context);
 }
 
 void

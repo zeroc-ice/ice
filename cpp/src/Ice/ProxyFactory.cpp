@@ -16,7 +16,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LocalException.h>
-#include <Ice/OutgoingAsync.h>
 
 using namespace std;
 using namespace Ice;

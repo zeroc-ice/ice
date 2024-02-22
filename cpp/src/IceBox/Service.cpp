@@ -9,7 +9,6 @@
 #include <IceUtil/PushDisableWarnings.h>
 #include <Ice/LocalException.h>
 #include <Ice/ValueFactory.h>
-#include <Ice/OutgoingAsync.h>
 #include <Ice/InputStream.h>
 #include <Ice/OutputStream.h>
 #include <Ice/LocalException.h>

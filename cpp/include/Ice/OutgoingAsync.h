@@ -220,7 +220,7 @@ public:
     {
         _os.writeEmptyEncapsulation(_encoding);
     }
-    void writeParamEncaps(const ::Ice::Byte* encaps, ::std::int32_t size)
+    void writeParamEncaps(const ::Ice::Byte* encaps, std::int32_t size)
     {
         if(size == 0)
         {
@@ -239,16 +239,11 @@ protected:
     bool _synchronous;
 };
 
-}
-
-namespace IceInternal
-{
-
 class ICE_API LambdaInvoke : public virtual OutgoingAsyncCompletionCallback
 {
 public:
 
-    LambdaInvoke(std::function<void(::std::exception_ptr)> exception, std::function<void(bool)> sent) :
+    LambdaInvoke(std::function<void(std::exception_ptr)> exception, std::function<void(bool)> sent) :
         _exception(std::move(exception)), _sent(std::move(sent))
     {
     }
@@ -263,7 +258,7 @@ protected:
     virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const override;
     virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const override;
 
-    std::function<void(::std::exception_ptr)> _exception;
+    std::function<void(std::exception_ptr)> _exception;
     std::function<void(bool)> _sent;
     std::function<void(bool)> _response;
 };
@@ -386,7 +381,7 @@ public:
 
     LambdaOutgoing(const Ice::ObjectPrx& proxy,
                    std::function<void(R)> response,
-                   std::function<void(::std::exception_ptr)> ex,
+                   std::function<void(std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
         OutgoingAsyncT<R>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
@@ -422,7 +417,7 @@ public:
 
     LambdaOutgoing(const Ice::ObjectPrx& proxy,
                    std::function<void()> response,
-                   std::function<void(::std::exception_ptr)> ex,
+                   std::function<void(std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
         OutgoingAsyncT<void>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
@@ -458,7 +453,7 @@ public:
 
     CustomLambdaOutgoing(const Ice::ObjectPrx& proxy,
                          std::function<void(Ice::InputStream*)> read,
-                         std::function<void(::std::exception_ptr)> ex,
+                         std::function<void(std::exception_ptr)> ex,
                          std::function<void(bool)> sent) :
         OutgoingAsync(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
     {
@@ -557,6 +552,22 @@ public:
         return false;
     }
 };
+
+template<typename R, typename Obj, typename Fn, typename... Args>
+inline std::future<R> makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args)
+{
+    auto outAsync = std::make_shared<PromiseOutgoing<R>>(*obj, sync);
+    (obj->*fn)(outAsync, std::forward<Args>(args)...);
+    return outAsync->getFuture();
+}
+
+template<typename R, typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
+inline std::function<void()> makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
+{
+    auto outAsync = std::make_shared<LambdaOutgoing<R>>(*obj, std::move(r), std::move(e), std::move(s));
+    (obj->*fn)(outAsync, std::forward<Args>(args)...);
+    return [outAsync]() { outAsync->cancel(); };
+}
 
 }
 

@@ -18,7 +18,6 @@
 #include <Ice/EndpointI.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
-#include <Ice/OutgoingAsync.h>
 #include <Ice/CommunicatorI.h>
 #include <IceUtil/Random.h>
 #include <iterator>
