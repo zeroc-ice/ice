@@ -17,13 +17,13 @@ runs:
     # Linux / macOS
     - name: Build C++ Dependencies
       working-directory: ./cpp
-      run: make ${{ inputs.make_flags }} -j3 V=1 srcs
+      run: make -j3 V=1 srcs
       shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language != 'cpp' && inputs.language != 'xcodesdk')
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language != 'cpp' || matrix.name == 'xcodesdk')
 
     - name: Build C++ Tests for Scripting Languages
       working-directory: ./cpp
-      run: make ${{ inputs.make_flags }} -j3 V=1 tests
+      run: make -j3 V=1 tests
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'php' || inputs.language == 'js' || inputs.language == 'ruby')
 
