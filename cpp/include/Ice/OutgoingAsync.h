@@ -389,7 +389,7 @@ public:
                    std::function<void(R)> response,
                    std::function<void(std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
-        OutgoingAsyncT<R>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
+        OutgoingAsyncT<R>(std::move(proxy), false), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, response = std::move(response)](bool ok)
         {
@@ -425,7 +425,7 @@ public:
                    std::function<void()> response,
                    std::function<void(std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
-        OutgoingAsyncT<void>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
+        OutgoingAsyncT<void>(std::move(proxy), false), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, response = std::move(response)](bool ok)
         {
@@ -461,7 +461,7 @@ public:
                          std::function<void(Ice::InputStream*)> read,
                          std::function<void(std::exception_ptr)> ex,
                          std::function<void(bool)> sent) :
-        OutgoingAsync(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
+        OutgoingAsync(std::move(proxy), false), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [this, read = std::move(read)](bool ok)
         {
