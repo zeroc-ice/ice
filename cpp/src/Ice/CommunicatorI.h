@@ -17,7 +17,7 @@ namespace IceInternal
 
 //
 // Class for handling Ice::Communicator::flushBatchRequests
-// TOOD: move to .cpp file
+//  This class needs to be in a public header as it's used by several other classes.
 //
 class CommunicatorFlushBatchAsync : public OutgoingAsyncBase
 {

@@ -7,7 +7,6 @@
 
 #include <IceUtil/Timer.h>
 #include <Ice/RetryQueueF.h>
-#include <Ice/OutgoingAsyncF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/RequestHandler.h> // For CancellationHandler
 
@@ -15,6 +14,12 @@
 
 namespace IceInternal
 {
+
+class OutgoingAsyncBase;
+class ProxyOutgoingAsyncBase;
+
+using OutgoingAsyncBasePtr = std::shared_ptr<OutgoingAsyncBase>;
+using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
 
 class RetryTask : public IceUtil::TimerTask,
                   public CancellationHandler,

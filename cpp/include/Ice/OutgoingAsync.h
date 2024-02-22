@@ -6,7 +6,6 @@
 #define ICE_OUTGOING_ASYNC_H
 
 #include <IceUtil/Timer.h>
-#include <Ice/OutgoingAsyncF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ObjectAdapterF.h>
@@ -23,6 +22,7 @@
 namespace IceInternal
 {
 
+class OutgoingAsyncBase;
 class RetryException;
 class CollocatedRequestHandler;
 
@@ -136,6 +136,8 @@ protected:
     static const unsigned char Sent;
 };
 
+using OutgoingAsyncBasePtr = ::std::shared_ptr<OutgoingAsyncBase>;
+
 //
 // Base class for proxy based invocations. This class handles the
 // retry for proxy invocations. It also ensures the child observer is
@@ -164,7 +166,7 @@ public:
 
 protected:
 
-    ProxyOutgoingAsyncBase(const Ice::ObjectPrx&);
+    ProxyOutgoingAsyncBase(Ice::ObjectPrx);
     ~ProxyOutgoingAsyncBase();
 
     void invokeImpl(bool);
@@ -184,6 +186,8 @@ private:
     bool _sent;
 };
 
+using ProxyOutgoingAsyncBasePtr = ::std::shared_ptr<ProxyOutgoingAsyncBase>;
+
 //
 // Class for handling Slice operation invocations
 //
@@ -191,7 +195,7 @@ class ICE_API OutgoingAsync : public ProxyOutgoingAsyncBase
 {
 public:
 
-    OutgoingAsync(const Ice::ObjectPrx&, bool);
+    OutgoingAsync(Ice::ObjectPrx, bool);
 
     void prepare(const std::string&, Ice::OperationMode, const Ice::Context&);
 
@@ -238,6 +242,8 @@ protected:
     std::function<void(const ::Ice::UserException&)> _userException;
     bool _synchronous;
 };
+
+using OutgoingAsyncPtr = ::std::shared_ptr<OutgoingAsync>;
 
 class ICE_API LambdaInvoke : public virtual OutgoingAsyncCompletionCallback
 {
@@ -379,7 +385,7 @@ class LambdaOutgoing : public OutgoingAsyncT<R>, public LambdaInvoke
 {
 public:
 
-    LambdaOutgoing(const Ice::ObjectPrx& proxy,
+    LambdaOutgoing(Ice::ObjectPrx proxy,
                    std::function<void(R)> response,
                    std::function<void(std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
@@ -415,7 +421,7 @@ class LambdaOutgoing<void> : public OutgoingAsyncT<void>, public LambdaInvoke
 {
 public:
 
-    LambdaOutgoing(const Ice::ObjectPrx& proxy,
+    LambdaOutgoing(Ice::ObjectPrx proxy,
                    std::function<void()> response,
                    std::function<void(std::exception_ptr)> ex,
                    std::function<void(bool)> sent) :
@@ -451,7 +457,7 @@ class CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
 {
 public:
 
-    CustomLambdaOutgoing(const Ice::ObjectPrx& proxy,
+    CustomLambdaOutgoing(Ice::ObjectPrx proxy,
                          std::function<void(Ice::InputStream*)> read,
                          std::function<void(std::exception_ptr)> ex,
                          std::function<void(bool)> sent) :
@@ -491,8 +497,8 @@ class PromiseOutgoing : public OutgoingAsyncT<R>, public PromiseInvoke<R>
 {
 public:
 
-    PromiseOutgoing(const Ice::ObjectPrx& proxy, bool sync) :
-        OutgoingAsyncT<R>(proxy, sync)
+    PromiseOutgoing(Ice::ObjectPrx proxy, bool sync) :
+        OutgoingAsyncT<R>(std::move(proxy), sync)
     {
         this->_response = [this](bool ok)
         {
@@ -517,8 +523,8 @@ class PromiseOutgoing<void> : public OutgoingAsyncT<void>, public PromiseInvoke<
 {
 public:
 
-    PromiseOutgoing(const Ice::ObjectPrx& proxy, bool sync) :
-        OutgoingAsyncT<void>(proxy, sync)
+    PromiseOutgoing(Ice::ObjectPrx proxy, bool sync) :
+        OutgoingAsyncT<void>(std::move(proxy), sync)
     {
         this->_response = [&](bool ok)
         {

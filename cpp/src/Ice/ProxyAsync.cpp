@@ -53,7 +53,7 @@ class ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyFlushBatchAsync(const Ice::ObjectPrx&);
+    ProxyFlushBatchAsync(Ice::ObjectPrx);
 
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
@@ -72,7 +72,7 @@ class ProxyGetConnection :  public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyGetConnection(const Ice::ObjectPrx&);
+    ProxyGetConnection(Ice::ObjectPrx);
 
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
@@ -86,11 +86,11 @@ class ProxyGetConnectionLambda : public ProxyGetConnection, public LambdaInvoke
 {
 public:
 
-    ProxyGetConnectionLambda(const ObjectPrx& proxy,
+    ProxyGetConnectionLambda(ObjectPrx proxy,
                              std::function<void(std::shared_ptr<Ice::Connection>)> response,
                              std::function<void(std::exception_ptr)> ex,
                              std::function<void(bool)> sent) :
-        ProxyGetConnection(proxy), LambdaInvoke(std::move(ex), std::move(sent))
+        ProxyGetConnection(std::move(proxy)), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [&, response = std::move(response)](bool)
         {
@@ -103,7 +103,7 @@ class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvok
 {
 public:
 
-    ProxyGetConnectionPromise(const ObjectPrx& proxy) : ProxyGetConnection(proxy)
+    ProxyGetConnectionPromise(ObjectPrx proxy) : ProxyGetConnection(std::move(proxy))
     {
         this->_response = [&](bool)
         {
@@ -116,10 +116,10 @@ class ProxyFlushBatchLambda : public ProxyFlushBatchAsync, public LambdaInvoke
 {
 public:
 
-    ProxyFlushBatchLambda(const ObjectPrx& proxy,
+    ProxyFlushBatchLambda(ObjectPrx proxy,
                           std::function<void(std::exception_ptr)> ex,
                           std::function<void(bool)> sent) :
-        ProxyFlushBatchAsync(proxy), LambdaInvoke(std::move(ex), std::move(sent))
+        ProxyFlushBatchAsync(std::move(proxy)), LambdaInvoke(std::move(ex), std::move(sent))
     {
     }
 };
@@ -187,11 +187,11 @@ class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
 {
 public:
 
-    InvokeLambdaOutgoing(const Ice::ObjectPrx& proxy,
+    InvokeLambdaOutgoing(Ice::ObjectPrx proxy,
                          std::function<void(R)> response,
                          std::function<void(std::exception_ptr)> ex,
                          std::function<void(bool)> sent) :
-        InvokeOutgoingAsyncT<R>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
+        InvokeOutgoingAsyncT<R>(std::move(proxy), false), LambdaInvoke(std::move(ex), std::move(sent))
     {
         if(response)
         {
@@ -199,7 +199,7 @@ public:
             {
                 if(this->_is.b.empty())
                 {
-                    response(R { ok, { 0, 0 }});
+                    response(R { ok, {} });
                 }
                 else
                 {
@@ -215,8 +215,8 @@ class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvo
 {
 public:
 
-    InvokePromiseOutgoing(const Ice::ObjectPrx& proxy, bool synchronous) :
-        InvokeOutgoingAsyncT<R>(proxy, false)
+    InvokePromiseOutgoing(Ice::ObjectPrx proxy, bool synchronous) :
+        InvokeOutgoingAsyncT<R>(std::move(proxy), false)
     {
         this->_synchronous = synchronous;
         this->_response = [this](bool ok)
@@ -244,7 +244,7 @@ public:
 
 }
 
-ProxyFlushBatchAsync::ProxyFlushBatchAsync(const ObjectPrx& proxy) : ProxyOutgoingAsyncBase(proxy)
+ProxyFlushBatchAsync::ProxyFlushBatchAsync(ObjectPrx proxy) : ProxyOutgoingAsyncBase(std::move(proxy))
 {
 }
 
@@ -293,7 +293,7 @@ ProxyFlushBatchAsync::invoke(const string& operation)
     invokeImpl(true); // userThread = true
 }
 
-ProxyGetConnection::ProxyGetConnection(const ObjectPrx& prx) : ProxyOutgoingAsyncBase(prx)
+ProxyGetConnection::ProxyGetConnection(ObjectPrx proxy) : ProxyOutgoingAsyncBase(std::move(proxy))
 {
 }
 
