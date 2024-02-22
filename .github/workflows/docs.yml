@@ -3,7 +3,7 @@ name: Generate documentation
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "publish-api-reference"]
+    branches: ["main"]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
@@ -56,4 +56,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_DOC_BUCKET: ${{ secrets.AWS_S3_DOC_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        # if: github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request'
