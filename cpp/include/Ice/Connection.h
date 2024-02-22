@@ -304,10 +304,7 @@ public:
      * @param compress Specifies whether or not the queued batch requests should be compressed before being sent over
      * the wire.
      */
-    virtual void flushBatchRequests(CompressBatch compress)
-    {
-        flushBatchRequestsAsync(compress).get();
-    }
+    ICE_MEMBER(ICE_API) void flushBatchRequests(CompressBatch compress);
 
     /**
      * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
@@ -330,23 +327,7 @@ public:
      * the wire.
      * @return The future object for the invocation.
      */
-    template<template<typename> class P = ::std::promise>
-    auto flushBatchRequestsAsync(CompressBatch compress)
-        -> decltype(::std::declval<P<void>>().get_future())
-    {
-        using Promise = P<void>;
-        auto promise = ::std::make_shared<Promise>();
-        flushBatchRequestsAsync(compress,
-                                [promise](::std::exception_ptr ex)
-                                {
-                                    promise->set_exception(::std::move(ex));
-                                },
-                                [promise](bool)
-                                {
-                                    promise->set_value();
-                                });
-        return promise->get_future();
-    }
+    ICE_MEMBER(ICE_API) std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
     /**
      * Set a close callback on the connection. The callback is called by the connection when it's closed. The callback
@@ -366,10 +347,7 @@ public:
     /**
      * Send a heartbeat message.
      */
-    virtual void heartbeat()
-    {
-        heartbeatAsync().get();
-    }
+    ICE_MEMBER(ICE_API) void heartbeat();
 
     /**
      * Send a heartbeat message.
@@ -385,28 +363,13 @@ public:
      * Send a heartbeat message.
      * @return The future object for the invocation.
      */
-    template<template<typename> class P = ::std::promise>
-    auto heartbeatAsync()
-        -> decltype(::std::declval<P<void>>().get_future())
-    {
-        using Promise = P<void>;
-        auto promise = ::std::make_shared<Promise>();
-        heartbeatAsync([promise](::std::exception_ptr ex)
-                       {
-                           promise->set_exception(::std::move(ex));
-                       },
-                       [promise](bool)
-                       {
-                           promise->set_value();
-                       });
-        return promise->get_future();
-    }
+    ICE_MEMBER(ICE_API) std::future<void> heartbeatAsync();
 
     /**
      * Set the active connection management parameters.
      * @param timeout The timeout value in seconds, must be &gt;= 0.
      * @param close The close condition
-     * @param heartbeat The hertbeat condition
+     * @param heartbeat The heartbeat condition
      */
     virtual void setACM(const std::optional<int>& timeout, const std::optional<ACMClose>& close, const std::optional<ACMHeartbeat>& heartbeat) = 0;
 
@@ -481,7 +444,7 @@ public:
 
     /**
      * One-shot constructor to initialize all data members.
-     * @param underlying The information of the underyling transport or null if there's no underlying transport.
+     * @param underlying The information of the underlying transport or null if there's no underlying transport.
      * @param incoming Whether or not the connection is an incoming or outgoing connection.
      * @param adapterName The name of the adapter associated with the connection.
      * @param connectionId The connection id.
@@ -540,7 +503,7 @@ public:
 
     /**
      * One-shot constructor to initialize all data members.
-     * @param underlying The information of the underyling transport or null if there's no underlying transport.
+     * @param underlying The information of the underlying transport or null if there's no underlying transport.
      * @param incoming Whether or not the connection is an incoming or outgoing connection.
      * @param adapterName The name of the adapter associated with the connection.
      * @param connectionId The connection id.
