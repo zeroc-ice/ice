@@ -53,6 +53,8 @@ jobs:
 
           - os: windows-latest
             language: python
+          - os: windows-latest
+            language: matlab
 
       fail-fast: false
 
@@ -77,3 +79,4 @@ jobs:
         with:
           # See https://github.com/zeroc-ice/ice/issues/1653
           flags: "--rfilter IceGrid/replication ${{ matrix.test_flags }}"
+        if: ${{ matrix.language != 'matlab' }}
