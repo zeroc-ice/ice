@@ -949,7 +949,7 @@ Ice::OutputStream::EncapsEncoder10::endInstance()
         //
         // Write the Object slice.
         //
-        startSlice(Object::ice_staticId(), -1, true);
+        startSlice(Value::ice_staticId(), -1, true);
         _stream->writeSize(0); // For compatibility with the old AFM.
         endSlice();
     }

@@ -1739,27 +1739,6 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
     return false;
 }
 
-bool
-Slice::Gen::DefaultFactoryVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    C << sp;
-
-    StringList ids = p->ids();
-    C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ids[" << ids.size() << "] =";
-    C << sb;
-    for (StringList::const_iterator r = ids.begin(); r != ids.end();)
-    {
-        C << nl << '"' << *r << '"';
-        if (++r != ids.end())
-        {
-            C << ',';
-        }
-    }
-    C << eb << ';';
-
-    return true;
-}
-
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
@@ -3221,19 +3200,27 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
       << " current) const override;";
         H << sp;
     H << nl << "/**";
-    H << nl << " * Obtains the Slice type ID corresponding to this class.";
+    H << nl << " * Obtains the Slice type ID corresponding to this interface.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
     H << nl << "static const ::std::string& ice_staticId();";
-
-    string flatName = "iceC" + p->flattenedScope() + p->name() + "_ids";
 
     C << sp;
     C << nl << "::std::vector<::std::string>" << nl << scoped.substr(2) << "::ice_ids(const "
       << getUnqualified("::Ice::Current&", scope) << ") const";
     C << sb;
-    C << nl << "return ::std::vector<::std::string>(&" << flatName << "[0], &" << flatName << '[' << ids.size()
-      << "]);";
+
+    // These type IDs are sorted alphabetically.
+    C << nl << "static const ::std::vector<::std::string> allTypeIds = ";
+    C.spar("{ ");
+    for (auto typeId : p->ids())
+    {
+        C << '"' + typeId + '"';
+    }
+    C.epar(" }");
+    C << ";";
+
+    C << nl << "return allTypeIds;";
     C << eb;
 
     C << sp;
@@ -3291,17 +3278,14 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << sb;
 
         C << sp;
-        C << nl << "static constexpr ::std::string_view allOperations[] =";
-        C << sb;
-        for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
+        C << nl << "static constexpr ::std::string_view allOperations[] = ";
+        C.spar("{ ");
+        for (auto opName : allOpNames)
         {
-            C << nl << '"' << *q << '"';
-            if (++q != allOpNames.end())
-            {
-                C << ',';
-            }
+            C << '"' + opName + '"';
         }
-        C << eb << ';';
+        C.epar(" }");
+        C << ";";
 
         C << sp;
         C << nl << "::std::pair<const ::std::string_view*, const ::std::string_view*> r = "
