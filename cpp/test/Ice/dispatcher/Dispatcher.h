@@ -30,7 +30,7 @@ private:
     std::function<void()> _call;
 };
 
-class Dispatcher : public IceUtil::Thread
+class Dispatcher
 {
 public:
 

@@ -1081,7 +1081,10 @@ public:
             _services.clear();
         }
 
-        _thread->getThreadControl().join();
+        if (_thread.joinable())
+        {
+            _thread.join();
+        }
     }
 
     void connect(bool system)
@@ -1109,8 +1112,7 @@ public:
         ::dbus_bus_add_match(_connection, "type='signal'", 0);
         //::dbus_bus_add_match(_connection, "type='method_call'", 0);
 
-        _thread = make_shared<HelperThread>(this);
-        _thread->start();
+        _thread = std::thread(&ConnectionI::run, this);
     }
 
     DBusConnection* connection()
@@ -1178,29 +1180,8 @@ private:
         }
     }
 
-    class HelperThread : public IceUtil::Thread
-    {
-    public:
-
-        HelperThread(ConnectionI* con) :
-            _con(con)
-        {
-        }
-
-        void run()
-        {
-            _con->run();
-        }
-
-    private:
-
-        ConnectionI* _con;
-    };
-
-    friend class HelperThread;
-
     DBusConnection* _connection;
-    IceUtil::ThreadPtr _thread;
+    std::thread _thread;
     std::mutex _mutex;
     bool _closed;
     vector<FilterPtr> _filters;

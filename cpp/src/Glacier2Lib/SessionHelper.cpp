@@ -24,9 +24,14 @@ public:
     {
     }
 
-    IceUtil::ThreadPtr add(const SessionHelper* session, const IceUtil::ThreadPtr& thread)
+    void add(const SessionHelper* session, thread&& thread)
     {
-        return _factory->addThread(session, thread);
+        _factory->addThread(session, std::move(thread));
+    }
+
+    thread pop(const SessionHelper* session)
+    {
+        return _factory->popThread(session);
     }
 
 private:
@@ -87,10 +92,6 @@ public:
     bool isConnected() const;
     Ice::ObjectAdapterPtr objectAdapter();
 
-    friend class DestroyInternal;
-    friend class DestroyCommunicator;
-    friend class ConnectThread;
-    friend class DispatchCallThread;
     friend class Glacier2::SessionFactoryHelper;
 
 private:
@@ -124,86 +125,6 @@ private:
 };
 using SessionHelperIPtr = std::shared_ptr<SessionHelperI>;
 
-class DestroyInternal : public IceUtil::Thread
-{
-
-public:
-
-    static IceUtil::ThreadPtr create(
-        const SessionHelperIPtr& session,
-        const Glacier2::SessionCallbackPtr& callback,
-        const Glacier2::SessionThreadCallbackPtr& threadCB)
-    {
-        auto thread = shared_ptr<DestroyInternal>(new DestroyInternal(session, callback));
-        thread->_previous = threadCB->add(session.get(), thread);
-        return thread;
-    }
-
-    virtual void run()
-    {
-        _session->destroyInternal(_disconnected);
-        _session = nullptr;
-
-        //
-        // Join the connect thread to free resources.
-        //
-        if(_previous)
-        {
-            _previous->getThreadControl().join();
-        }
-    }
-
-private:
-
-    DestroyInternal(const SessionHelperIPtr& session,
-                    const Glacier2::SessionCallbackPtr& callback) :
-        _session(session),
-        _disconnected(make_shared<Disconnected>(session, callback))
-    {
-    }
-
-    SessionHelperIPtr _session;
-    IceUtil::ThreadPtr _previous;
-    const Ice::DispatcherCallPtr _disconnected;
-};
-
-class DestroyCommunicator : public IceUtil::Thread
-{
-
-public:
-
-    static IceUtil::ThreadPtr create(const SessionHelperIPtr& session, const Glacier2::SessionThreadCallbackPtr& threadCB)
-    {
-        auto thread = shared_ptr<DestroyCommunicator>(new DestroyCommunicator(session));
-        thread->_previous = threadCB->add(session.get(), thread);
-        return thread;
-    }
-
-    virtual void run()
-    {
-        _session->destroyCommunicator();
-        _session = nullptr;
-
-        //
-        // Join the connect thread to free resources.
-        //
-        if(_previous)
-        {
-            _previous->getThreadControl().join();
-        }
-    }
-
-private:
-
-    DestroyCommunicator(const SessionHelperIPtr& session) :
-        _session(session)
-    {
-    }
-
-    SessionHelperIPtr _session;
-    IceUtil::ThreadPtr _previous;
-};
-
 }
 
 SessionHelperI::SessionHelperI(const Glacier2::SessionThreadCallbackPtr& threadCB,
@@ -231,28 +152,41 @@ SessionHelperI::destroy()
     }
     _destroy = true;
 
-    IceUtil::ThreadPtr destroyThread;
-    if(!_connected)
+    // Run destroy in a thread because it can block.
+    if (!_connected)
     {
-        //
-        // In this case a connecting session is being destroyed.
-        // We destroy the communicator to trigger the immediate
+        // In this case a connecting session is being destroyed. We destroy the communicator to trigger the immediate
         // failure of the connection establishment.
-        //
-        destroyThread = DestroyCommunicator::create(shared_from_this(), _threadCB);
+
+        auto destroyThread = std::thread(
+            [session = shared_from_this(), previous = _threadCB->pop(this)]() mutable
+            {
+                session->destroyCommunicator();
+
+                // Join the connect thread to free resources.
+                if (previous.joinable())
+                {
+                    previous.join();
+                }
+            });
+        _threadCB->add(this, std::move(destroyThread));
     }
     else
     {
-        destroyThread = DestroyInternal::create(shared_from_this(), _callback, _threadCB);
-        _connected = false;
-        _session = nullopt;
+        auto destroyThread = std::thread(
+            [session = shared_from_this(), previous = _threadCB->pop(this)]() mutable
+            {
+                session->destroyInternal(make_shared<Disconnected>(session, session->_callback));
+
+                // Join the connect thread to free resources.
+                if (previous.joinable())
+                {
+                    previous.join();
+                }
+            });
+        _threadCB->add(this, std::move(destroyThread));
     }
     _threadCB = nullptr;
-
-    //
-    // Run destroy in a thread because it can block.
-    //
-    destroyThread->start();
 }
 
 Ice::CommunicatorPtr
@@ -533,130 +467,86 @@ private:
     const Glacier2::SessionHelperPtr _session;
 };
 
-class ConnectThread : public IceUtil::Thread
-{
-
-public:
-
-    ConnectThread(const Glacier2::SessionCallbackPtr& callback, const SessionHelperIPtr& session,
-                  const ConnectStrategyPtr& factory, const string& finder) :
-        _callback(callback),
-        _session(session),
-        _factory(factory),
-        _finder(finder)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        Ice::CommunicatorPtr communicator;
-        try
-        {
-            lock_guard lock(_session->_mutex);
-            communicator = Ice::initialize(_session->_initData);
-            _session->_communicator = communicator;
-        }
-        catch(const Ice::LocalException&)
-        {
-            {
-                lock_guard lock(_session->_mutex);
-                _session->_destroy = true;
-            }
-            _session->dispatchCallback(make_shared<ConnectFailed>(_callback, _session, current_exception()), nullptr);
-            return;
-        }
-
-        try
-        {
-            if(!communicator->getDefaultRouter())
-            {
-                Ice::RouterFinderPrxPtr finder;
-                try
-                {
-                    finder = Ice::uncheckedCast<Ice::RouterFinderPrx>(communicator->stringToProxy(_finder));
-                    communicator->setDefaultRouter(finder->getRouter());
-                }
-                catch(const Ice::CommunicatorDestroyedException&)
-                {
-                    _session->dispatchCallback(make_shared<ConnectFailed>(_callback, _session, current_exception()), 0);
-                    return;
-                }
-                catch(const Ice::Exception&)
-                {
-                    //
-                    // In case of error getting router identity from RouterFinder use
-                    // default identity.
-                    //
-                    Ice::Identity ident;
-                    ident.category = "Glacier2";
-                    ident.name = "router";
-                    communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(finder->ice_identity(ident)));
-                }
-            }
-            _session->dispatchCallbackAndWait(make_shared<CreatedCommunicator>(_callback, _session), nullptr);
-            auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter());
-            Glacier2::SessionPrxPtr session = _factory->connect(routerPrx);
-            _session->connected(routerPrx, session);
-        }
-        catch(const Ice::Exception&)
-        {
-            try
-            {
-                _session->connectFailed();
-            }
-            catch(...)
-            {
-            }
-
-            _session->dispatchCallback(make_shared<ConnectFailed>(_callback, _session, current_exception()), nullptr);
-        }
-        _session = nullptr;
-    }
-
-private:
-
-    const Glacier2::SessionCallbackPtr _callback;
-    SessionHelperIPtr _session;
-    const ConnectStrategyPtr _factory;
-    const string _finder;
-};
-
-class DispatchCallThread : public IceUtil::Thread
-{
-
-public:
-
-    DispatchCallThread(const SessionHelperIPtr& session, const Ice::DispatcherCallPtr& call,
-                       const Ice::ConnectionPtr& conn) :
-        _session(session),
-        _call(call),
-        _conn(conn)
-    {
-    }
-
-    virtual void run()
-    {
-        _session->dispatchCallback(_call, _conn);
-        _session = nullptr;
-    }
-
-private:
-
-    SessionHelperIPtr _session;
-    const Ice::DispatcherCallPtr _call;
-    const Ice::ConnectionPtr _conn;
-};
-
 }
 
 void
 SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
 {
+    promise<void> startPromise;
+
     assert(!_destroy);
-    auto thread = make_shared<ConnectThread>(_callback, shared_from_this(), factory, _finder);
-    _threadCB->add(this, thread);
-    thread->start();
+    auto thread = std::thread(
+        [session = shared_from_this(),
+         callback = _callback,
+         factory = std::move(factory),
+         startFuture = startPromise.get_future()]()
+        {
+            startFuture.wait(); // Wait for the thread to be registered with the thread callback.
+
+            Ice::CommunicatorPtr communicator;
+            try
+            {
+                lock_guard lock(session->_mutex);
+                communicator = Ice::initialize(session->_initData);
+                session->_communicator = communicator;
+            }
+            catch(const Ice::LocalException&)
+            {
+                {
+                    lock_guard lock(session->_mutex);
+                    session->_destroy = true;
+                }
+                session->dispatchCallback(make_shared<ConnectFailed>(callback, session, current_exception()), nullptr);
+                return;
+            }
+
+            try
+            {
+                if(!communicator->getDefaultRouter())
+                {
+                    Ice::RouterFinderPrxPtr finder;
+                    try
+                    {
+                        finder = Ice::uncheckedCast<Ice::RouterFinderPrx>(communicator->stringToProxy(session->_finder));
+                        communicator->setDefaultRouter(finder->getRouter());
+                    }
+                    catch(const Ice::CommunicatorDestroyedException&)
+                    {
+                        session->dispatchCallback(make_shared<ConnectFailed>(callback, session, current_exception()), 0);
+                        return;
+                    }
+                    catch(const Ice::Exception&)
+                    {
+                        //
+                        // In case of error getting router identity from RouterFinder use
+                        // default identity.
+                        //
+                        Ice::Identity ident;
+                        ident.category = "Glacier2";
+                        ident.name = "router";
+                        communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(finder->ice_identity(ident)));
+                    }
+                }
+                session->dispatchCallbackAndWait(make_shared<CreatedCommunicator>(callback, session), nullptr);
+                auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter());
+                Glacier2::SessionPrxPtr sessionPrx = factory->connect(routerPrx);
+                session->connected(routerPrx, sessionPrx);
+            }
+            catch(const Ice::Exception&)
+            {
+                try
+                {
+                    session->connectFailed();
+                }
+                catch(...)
+                {
+                }
+
+                session->dispatchCallback(make_shared<ConnectFailed>(session->_callback, session, current_exception()), nullptr);
+            }
+        });
+    _threadCB->add(this, std::move(thread));
+    startPromise.set_value();
 }
 
 namespace
@@ -899,36 +789,45 @@ Glacier2::SessionFactoryHelper::~SessionFactoryHelper()
     }
 }
 
-IceUtil::ThreadPtr
-Glacier2::SessionFactoryHelper::addThread(const SessionHelper* session, const IceUtil::ThreadPtr& thread)
+void
+Glacier2::SessionFactoryHelper::addThread(const SessionHelper* session, thread&& newThread)
 {
-    //
-    // A SessionHelper can only ever have one thread running. Therefore any
-    // currently registered thread for the same session must be finished, so
-    // we just replace it. Caller must join returned thread.
-    //
+    // A SessionHelper can only ever have one thread running. Therefore any currently registered thread for the same
+    // session must be finished, before calling this method.
     lock_guard lock(_mutex);
-    IceUtil::ThreadPtr previous;
-    map<const SessionHelper*, IceUtil::ThreadPtr>::iterator p = _threads.find(session);
-    if(p != _threads.end())
+    assert(_threads.find(session) == _threads.end());
+    _threads.emplace(make_pair(session, std::move(newThread)));
+}
+
+thread
+Glacier2::SessionFactoryHelper::popThread(const SessionHelper* session)
+{
+    // A SessionHelper can only ever have one thread running. Therefore any currently registered thread for the same
+    // session must be finished, before calling this method.
+    lock_guard lock(_mutex);
+    auto p = _threads.find(session);
+    if (p == _threads.end())
     {
-        previous = p->second;
-        p->second = thread;
+        return thread();
     }
     else
     {
-        _threads.emplace(make_pair(session, thread));
+        auto thread = std::move(p->second);
+        _threads.erase(p);
+        return thread;
     }
-    return previous;
 }
 
 void
 Glacier2::SessionFactoryHelper::destroy()
 {
     lock_guard lock(_mutex);
-    for(map<const SessionHelper*, IceUtil::ThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    for(auto& p : _threads)
     {
-        p->second->getThreadControl().join();
+        if (p.second.joinable())
+        {
+            p.second.join();
+        }
     }
     _threads.clear();
 }

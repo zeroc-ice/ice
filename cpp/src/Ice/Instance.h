@@ -177,6 +177,7 @@ private:
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
     EndpointHostResolverPtr _endpointHostResolver;
+    std::thread _endpointHostResolverThread;
     RetryQueuePtr _retryQueue;
     std::vector<int> _retryIntervals;
     TimerPtr _timer;

@@ -5,6 +5,7 @@
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
 #include <TestHelper.h>
+
 #include <functional>
 #include <iterator>
 
@@ -46,25 +47,6 @@ MyDerivedClassI::ice_id(const Ice::Current& current) const
     return Test::MyDerivedClass::ice_id(current);
 }
 
-class Thread_opVoid : public IceUtil::Thread
-{
-public:
-
-    Thread_opVoid(function<void()> response) :
-        _response(std::move(response))
-    {
-    }
-
-    virtual void run()
-    {
-        _response();
-    }
-
-private:
-
-    function<void()> _response;
-};
-
 void
 MyDerivedClassI::shutdownAsync(function<void()> response,
                                function<void(exception_ptr)>,
@@ -72,10 +54,10 @@ MyDerivedClassI::shutdownAsync(function<void()> response,
 {
     {
         lock_guard lock(_opVoidMutex);
-        if(_opVoidThread)
+        if(_opVoidThread.get_id() != thread::id())
         {
-            _opVoidThread->getThreadControl().join();
-            _opVoidThread = 0;
+            _opVoidThread.join();
+            _opVoidThread = thread();
         }
     }
 
@@ -98,14 +80,13 @@ MyDerivedClassI::opVoidAsync(function<void()> response,
     test(current.mode == OperationMode::Normal);
 
     lock_guard lock(_opVoidMutex);
-    if(_opVoidThread)
+    if(_opVoidThread.get_id() != thread::id())
     {
-        _opVoidThread->getThreadControl().join();
-        _opVoidThread = 0;
+        _opVoidThread.join();
+        _opVoidThread = thread();
     }
 
-    _opVoidThread = make_shared<Thread_opVoid>(response);
-    _opVoidThread->start();
+    _opVoidThread = std::thread(response);
 }
 
 void

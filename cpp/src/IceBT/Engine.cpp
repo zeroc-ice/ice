@@ -7,7 +7,6 @@
 #include <IceBT/Util.h>
 #include <Ice/LocalException.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Thread.h>
 #include <IceUtil/UUID.h>
 
 using namespace std;
@@ -565,9 +564,10 @@ public:
         //
         // Start a thread to establish the connection.
         //
-        IceUtil::ThreadPtr t = make_shared<ConnectThread>(shared_from_this(), addr, uuid, cb);
-        _connectThreads.push_back(t);
-        t->start();
+        _connectThreads.emplace_back(thread([self = shared_from_this(), addr, uuid, cb]
+            {
+                self->runConnectThread(this_thread::get_id(), addr, uuid, cb);
+            }));
     }
 
     void startDiscovery(const string& addr, function<void(const string&, const PropertyMap&)> cb)
@@ -678,16 +678,16 @@ public:
         //
         // Wait for any active connect threads to finish.
         //
-        vector<IceUtil::ThreadPtr> v;
+        vector<thread> connectThreads;
 
         {
             lock_guard lock(_mutex);
-            v.swap(_connectThreads);
+            connectThreads.swap(_connectThreads);
         }
 
-        for(vector<IceUtil::ThreadPtr>::iterator p = v.begin(); p != v.end(); ++p)
+        for (auto& t : connectThreads)
         {
-            (*p)->getThreadControl().join();
+            t.join();
         }
 
         if(_dbusConnection)
@@ -1098,7 +1098,7 @@ public:
         }
     }
 
-    void runConnectThread(const IceUtil::ThreadPtr& thread, const string& addr, const string& uuid,
+    void runConnectThread(const thread::id& threadId, const string& addr, const string& uuid,
                           const ConnectCallbackPtr& cb)
     {
         //
@@ -1227,7 +1227,11 @@ public:
         {
             lock_guard lock(_mutex);
 
-            vector<IceUtil::ThreadPtr>::iterator p = find(_connectThreads.begin(), _connectThreads.end(), thread);
+            auto p = find_if(_connectThreads.begin(), _connectThreads.end(), [threadId](const thread& t)
+                {
+                    return t.get_id() == threadId;
+                });
+
             if(p != _connectThreads.end()) // May be missing if destroy() was called.
             {
                 _connectThreads.erase(p);
@@ -1235,39 +1239,13 @@ public:
         }
     }
 
-    class ConnectThread : public IceUtil::Thread
-    {
-    public:
-
-        ConnectThread(const BluetoothServicePtr& mo, const string& addr, const string& uuid,
-                      const ConnectCallbackPtr& cb) :
-            _mo(mo),
-            _addr(addr),
-            _uuid(uuid),
-            _cb(cb)
-        {
-        }
-
-        virtual void run()
-        {
-            _mo->runConnectThread(shared_from_this(), _addr, _uuid, _cb);
-        }
-
-    private:
-
-        BluetoothServicePtr _mo;
-        string _addr;
-        string _uuid;
-        ConnectCallbackPtr _cb;
-    };
-
     mutable std::mutex _mutex;
     DBus::ConnectionPtr _dbusConnection;
 
     AdapterMap _adapters;
     RemoteDeviceMap _remoteDevices;
     string _defaultAdapterAddress;
-    vector<IceUtil::ThreadPtr> _connectThreads;
+    vector<thread> _connectThreads;
 
     bool _discovering;
     vector<function<void(const string&, const PropertyMap&)>> _discoveryCallbacks;

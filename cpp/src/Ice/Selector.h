@@ -258,7 +258,7 @@ private:
     friend class EventHandlerWrapper;
 
     InstancePtr _instance;
-    IceUtil::ThreadPtr _thread;
+    std::thread _thread;
     CFRunLoopRef _runLoop;
     IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
     bool _destroyed;

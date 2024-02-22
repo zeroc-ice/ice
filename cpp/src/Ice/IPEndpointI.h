@@ -96,7 +96,7 @@ private:
     mutable std::mutex _hashMutex;
 };
 
-class ICE_API EndpointHostResolver final : public IceUtil::Thread
+class ICE_API EndpointHostResolver final
 {
 public:
 
@@ -111,7 +111,7 @@ public:
         std::function<void(std::exception_ptr)>);
     void destroy();
 
-    void run() final;
+    void run();
     void updateObserver();
 
 private:

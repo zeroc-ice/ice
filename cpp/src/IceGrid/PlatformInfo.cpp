@@ -66,27 +66,6 @@ getLocalizedPerfName(int idx, const shared_ptr<Ice::Logger>& logger)
     return string(&localized[0]);
 }
 
-class UpdateUtilizationAverageThread : public IceUtil::Thread
-{
-public:
-
-    UpdateUtilizationAverageThread(PlatformInfo& platform) :
-        IceUtil::Thread("IceGrid update utilization average thread"),
-        _platform(platform)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        _platform.runUpdateLoadInfo();
-    }
-
-private:
-
-    PlatformInfo& _platform;
-};
-
 typedef BOOL (WINAPI *LPFN_GLPI)(PSYSTEM_LOGICAL_PROCESSOR_INFORMATION, PDWORD);
 
 int

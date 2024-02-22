@@ -1435,7 +1435,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         }
         else if(_state == StateHolding)
         {
-            IceUtil::ThreadControl::yield();
+            this_thread::yield();
             return;
         }
 

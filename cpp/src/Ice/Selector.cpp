@@ -975,34 +975,6 @@ void eventHandlerSocketCallback(CFSocketRef, CFSocketCallBackType callbackType, 
     }
 }
 
-class SelectorHelperThread : public IceUtil::Thread
-{
-public:
-
-    SelectorHelperThread(Selector& selector) : _selector(selector)
-    {
-    }
-
-    virtual void run()
-    {
-        _selector.run();
-
-#if TARGET_IPHONE_SIMULATOR != 0
-        //
-        // Workaround for CFSocket bug where the CFSocketManager thread crashes if an
-        // invalidated socket is being processed for reads/writes. We add this sleep
-        // mostly to prevent spurious crashes with testing. This bug is very unlikely
-        // to be hit otherwise.
-        //
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-#endif
-    }
-
-private:
-
-    Selector& _selector;
-};
-
 CFOptionFlags
 toCFCallbacks(SocketOperation op)
 {
@@ -1206,8 +1178,20 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
     _source.reset(CFRunLoopSourceCreate(0, 0, &ctx));
     _runLoop = 0;
 
-    _thread = make_shared<SelectorHelperThread>(*this);
-    _thread->start();
+    _thread = std::thread([this]
+    {
+        run();
+
+#if TARGET_IPHONE_SIMULATOR != 0
+        //
+        // Workaround for CFSocket bug where the CFSocketManager thread crashes if an
+        // invalidated socket is being processed for reads/writes. We add this sleep
+        // mostly to prevent spurious crashes with testing. This bug is very unlikely
+        // to be hit otherwise.
+        //
+        this_thread::sleep_for(chrono::milliseconds(100));
+#endif
+    });
 
     unique_lock lock(_mutex);
     _conditionVariable.wait(lock, [this] { return _runLoop != 0; });
@@ -1216,6 +1200,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
 void
 Selector::destroy()
 {
+    thread t;
     {
         unique_lock lock(_mutex);
 
@@ -1233,10 +1218,13 @@ Selector::destroy()
             CFRunLoopWakeUp(_runLoop);
             _conditionVariable.wait(lock);
         }
+        t = std::move(_thread);
     }
 
-    _thread->getThreadControl().join();
-    _thread = 0;
+    if (t.joinable())
+    {
+        t.join();
+    }
 
     lock_guard lock(_mutex);
     _source.reset(0);

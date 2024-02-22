@@ -30,7 +30,7 @@ using namespace Test;
 namespace
 {
 
-class PerThreadContextInvokeThread : public IceUtil::Thread
+class PerThreadContextInvokeThread final
 {
 public:
 
@@ -39,8 +39,7 @@ public:
     {
     }
 
-    virtual void
-    run()
+    void run()
     {
         Ice::Context ctx = _proxy->ice_getCommunicator()->getImplicitContext()->getContext();
         test(ctx.empty());
@@ -1782,9 +1781,9 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
                 if(impls[i] == "PerThread")
                 {
-                    IceUtil::ThreadPtr thread = make_shared<PerThreadContextInvokeThread>(q->ice_context(Ice::Context()));
-                    thread->start();
-                    thread->getThreadControl().join();
+                    auto invoker = make_shared<PerThreadContextInvokeThread>(q->ice_context(Ice::Context()));
+                    auto invokerThread = std::thread([invoker] { invoker->run(); });
+                    invokerThread.join();
                 }
 
                 ic->getImplicitContext()->setContext(Ice::Context()); // Clear the context to avoid leak report.

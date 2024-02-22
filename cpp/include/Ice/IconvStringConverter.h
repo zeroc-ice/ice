@@ -14,10 +14,11 @@
 
 #include <Ice/StringConverter.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/ThreadException.h>
 #include <IceUtil/UndefSysMacros.h>
 
 #include <algorithm>
+#include <memory>
+
 #include <iconv.h>
 #include <langinfo.h>
 
@@ -89,8 +90,6 @@ public:
 
     IconvStringConverter(const std::string&);
 
-    virtual ~IconvStringConverter();
-
     virtual Ice::Byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
 
     virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, std::basic_string<charT>&) const;
@@ -126,30 +125,6 @@ IconvStringConverter<charT>::IconvStringConverter(const std::string& internalCod
     {
         throw Ice::IconvInitializationException(__FILE__, __LINE__, sce.reason());
     }
-
-    //
-    // Create thread-specific key
-    //
-    int rs = pthread_key_create(&_key, &cleanupKey);
-
-    if(rs != 0)
-    {
-        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rs);
-    }
-}
-
-template<typename charT>
-IconvStringConverter<charT>::~IconvStringConverter()
-{
-    void* val = pthread_getspecific(_key);
-    if(val != 0)
-    {
-        cleanupKey(val);
-    }
-    if(pthread_key_delete(_key) != 0)
-    {
-        assert(0);
-    }
 }
 
 template<typename charT> std::pair<iconv_t, iconv_t>
@@ -181,20 +156,15 @@ IconvStringConverter<charT>::createDescriptors() const
 template<typename charT> std::pair<iconv_t, iconv_t>
 IconvStringConverter<charT>::getDescriptors() const
 {
-    void* val = pthread_getspecific(_key);
-    if(val != 0)
+    static thread_local std::unique_ptr<std::pair<iconv_t, iconv_t>> descriptors;
+    if(descriptors)
     {
-        return *static_cast<std::pair<iconv_t, iconv_t>*>(val);
+        return *descriptors;
     }
     else
     {
-        std::pair<iconv_t, iconv_t> cdp = createDescriptors();
-        int rs = pthread_setspecific(_key, new std::pair<iconv_t, iconv_t>(cdp));
-        if(rs != 0)
-        {
-            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rs);
-        }
-        return cdp;
+        descriptors.reset(new std::pair<iconv_t, iconv_t>(createDescriptors()));
+        return *descriptors;
     }
 }
 
