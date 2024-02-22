@@ -20,7 +20,7 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
         with:
-          cache: use_ccache
+          use_ccache: false
 
       - name: Install awscli
         run: brew install awscli || true
@@ -46,13 +46,14 @@ jobs:
       # Additionally, we do not cache the doxygen output since it does not remove files old files.
       - name: Sync Documentation to S3
         run: |
-          aws s3 sync ./doxygen/slice s3://zeroc-ice-docs/api/ice/main/slice --delete
-          aws s3 cp ./doxygen/slice.tag s3://zeroc-ice-docs/api/ice/main/slice.tag
+          aws s3 sync ./doxygen/slice s3://${AWS_S3_DOC_BUCKET}/api/ice/main/slice --delete
+          aws s3 cp ./doxygen/slice.tag s3://${AWS_S3_DOC_BUCKET}/api/ice/main/slice.tag
 
-          aws s3 sync ./cpp/doxygen/cpp s3://zeroc-ice-docs/api/ice/main/cpp --delete
-          aws s3 cp ./cpp/doxygen/icecpp.tag s3://zeroc-ice-docs/api/ice/main/icecpp.tag
+          aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_DOC_BUCKET}/api/ice/main/cpp --delete
+          aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_DOC_BUCKET}/api/ice/main/icecpp.tag
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_DOC_BUCKET: ${{ secrets.AWS_S3_DOC_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
         # if: github.ref == 'refs/heads/main'
