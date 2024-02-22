@@ -3,7 +3,7 @@ name: Build and test
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "matlab-ci"]
+    branches: ["main"]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: ["main"]
@@ -18,44 +18,43 @@ jobs:
     name: ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
     strategy:
       matrix:
-        language: [matlab]
-        os: [ubuntu-latest, windows-latest]
-        name: ["matlab"]
-        # language: [cpp]
-        # os: [macos-14, ubuntu-latest, windows-latest]
-        # name: [""]
-        # make_flags: [""]
-        # test_flags: [""]
-        # include:
-        #   - os: macos-14
-        #     language: swift
-        #   - os: macos-14
-        #     language: python
-        #   - os: macos-14
-        #     language: php
-        #   - os: macos-14
-        #     language: ruby
-        #   - os: macos-14
-        #     language: cpp
-        #     name: "xcodesdk"
-        #     make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
-        #     test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
+        language: [cpp]
+        os: [macos-14, ubuntu-latest, windows-latest]
+        name: [""]
+        make_flags: [""]
+        test_flags: [""]
+        include:
+          - os: macos-14
+            language: swift
+          - os: macos-14
+            language: python
+          - os: macos-14
+            language: php
+          - os: macos-14
+            language: ruby
+          - os: macos-14
+            language: cpp
+            name: "xcodesdk"
+            make_flags: "CONFIGS=xcodesdk PLATFORMS='iphonesimulator'"
+            test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
 
-        #   - os: ubuntu-latest
-        #     language: csharp
-        #   - os: ubuntu-latest
-        #     language: java
-        #   - os: ubuntu-latest
-        #     language: php
-        #   - os: ubuntu-latest
-        #     language: ruby
-        #   - os: ubuntu-latest
-        #     language: python
-        #   - os: ubuntu-latest
-        #     language: js
+          - os: ubuntu-latest
+            language: csharp
+          - os: ubuntu-latest
+            language: java
+          - os: ubuntu-latest
+            language: php
+          - os: ubuntu-latest
+            language: ruby
+          - os: ubuntu-latest
+            language: python
+          - os: ubuntu-latest
+            language: js
 
-        #   - os: windows-latest
-        #     language: python
+          - os: windows-latest
+            language: python
+          - os: windows-latest
+            language: matlab
 
       fail-fast: false
 
@@ -67,27 +66,17 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
-      - name: Run commands
-        uses: matlab-actions/run-command@v2
+      - name: Build ${{ matrix.name || matrix.language }} ${{matrix.make_flags}} on ${{ matrix.os }}
+        uses: ./.github/actions/build
+        timeout-minutes: 90
         with:
-          command: disp("Hello world\n");
+          language: ${{ matrix.language }}
+          make_flags: ${{ matrix.make_flags }}
 
-      - name: MATLAB test
-        run: |
-          echo 'frpintf("Hello world\n");' > hello.m
-          /opt/hostedtoolcache/MATLAB/2023.2.999/x64/bin/matlab -batch "hello"
-        if: runner.os == 'Linux'
-
-      # - name: Build ${{ matrix.name || matrix.language }} ${{matrix.make_flags}} on ${{ matrix.os }}
-      #   uses: ./.github/actions/build
-      #   timeout-minutes: 90
-      #   with:
-      #     language: ${{ matrix.language }}
-      #     make_flags: ${{ matrix.make_flags }}
-
-      # - name: Test ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
-      #   uses: ./.github/actions/test
-      #   timeout-minutes: 90
-      #   with:
-      #     # See https://github.com/zeroc-ice/ice/issues/1653
-      #     flags: "--rfilter IceGrid/replication ${{ matrix.test_flags }}"
+      - name: Test ${{ matrix.name || matrix.language }} on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 90
+        with:
+          # See https://github.com/zeroc-ice/ice/issues/1653
+          flags: "--rfilter IceGrid/replication ${{ matrix.test_flags }}"
+        if: ${{ matrix.language != 'matlab' }}
