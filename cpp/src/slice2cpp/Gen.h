@@ -192,6 +192,8 @@ private:
 
     private:
 
+        void emitAllOperationsArray(const InterfaceDefPtr&);
+
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
 

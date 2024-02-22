@@ -1742,8 +1742,6 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::DefaultFactoryVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    OperationList allOps = p->allOperations();
-
     C << sp;
 
     StringList ids = p->ids();
@@ -1753,27 +1751,6 @@ Slice::Gen::DefaultFactoryVisitor::visitInterfaceDefStart(const InterfaceDefPtr&
     {
         C << nl << '"' << *r << '"';
         if (++r != ids.end())
-        {
-            C << ',';
-        }
-    }
-    C << eb << ';';
-
-    StringList allOpNames;
-    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto &c) { return c->name(); });
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
-    allOpNames.sort();
-    allOpNames.unique();
-
-    C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ops[] =";
-    C << sb;
-    for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-    {
-        C << nl << '"' << *q << '"';
-        if (++q != allOpNames.end())
         {
             C << ',';
         }
@@ -3317,8 +3294,6 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         allOpNames.sort();
         allOpNames.unique();
 
-        string flatName = "iceC" + p->flattenedScope() + p->name() + "_ops";
-
         H << sp;
         H << nl << "/// \\cond INTERNAL";
         H << nl << "virtual bool _iceDispatch(::IceInternal::Incoming&, const "
@@ -3332,8 +3307,11 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
           << getUnqualified("::Ice::Current&", scope) << " current)";
         C << sb;
 
+        emitAllOperationsArray(p);
+
+        C << sp;
         C << nl << "::std::pair<const ::std::string*, const ::std::string*> r = "
-          << "::std::equal_range(" << flatName << ", " << flatName << " + " << allOpNames.size()
+          << "::std::equal_range(allOperations, allOperations" << " + " << allOpNames.size()
           << ", current.operation);";
         C << nl << "if(r.first == r.second)";
         C << sb;
@@ -3341,7 +3319,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
           << "(__FILE__, __LINE__, current.id, current.facet, current.operation);";
         C << eb;
         C << sp;
-        C << nl << "switch(r.first - " << flatName << ')';
+        C << nl << "switch(r.first - allOperations)";
         C << sb;
         int i = 0;
         for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
@@ -3659,6 +3637,34 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     C << eb;
     C << nl << "/// \\endcond";
+}
+
+void
+Slice::Gen::InterfaceVisitor::emitAllOperationsArray(const InterfaceDefPtr& p)
+{
+    C << sp;
+
+    OperationList allOps = p->allOperations();
+    StringList allOpNames;
+    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto &c) { return c->name(); });
+    allOpNames.push_back("ice_id");
+    allOpNames.push_back("ice_ids");
+    allOpNames.push_back("ice_isA");
+    allOpNames.push_back("ice_ping");
+    allOpNames.sort();
+    allOpNames.unique();
+
+    C << nl << "static const ::std::string allOperations[] =";
+    C << sb;
+    for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
+    {
+        C << nl << '"' << *q << '"';
+        if (++q != allOpNames.end())
+        {
+            C << ',';
+        }
+    }
+    C << eb << ';';
 }
 
 Slice::Gen::StreamVisitor::StreamVisitor(Output& h) :
