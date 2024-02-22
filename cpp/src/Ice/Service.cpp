@@ -1445,7 +1445,7 @@ ServiceStatusManager::stopUpdate()
     {
         lock_guard lock(_mutex);
 
-        if(_thread.get_id() != thread::id()
+        if (_thread.get_id() != thread::id())
         {
             _stopped = true;
             _conditionVariable.notify_one();

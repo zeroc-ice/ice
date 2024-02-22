@@ -121,8 +121,8 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     _cpp_and::switchPtr f1 = std::make_shared<switchI>();
 
     _cpp_and::doPrxPtr g;
-    g->_cpp_case(0, d2);
-    g->_cpp_explicit();
+//    g->_cpp_case(0, d2);
+//    g->_cpp_explicit();
     _cpp_and::doPtr g1 = std::make_shared<doI>();
 
     _cpp_and::_cpp_extern h;

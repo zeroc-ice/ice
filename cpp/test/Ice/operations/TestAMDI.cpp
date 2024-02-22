@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <iterator>
+#include <thread>
 
 using namespace Ice;
 using namespace Test;
