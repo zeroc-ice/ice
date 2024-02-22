@@ -139,13 +139,6 @@ WINAPI startHook(void* arg)
         thread = *rawThread;
 
         //
-        // Initialize the random number generator in each thread on
-        // Windows (the rand() seed is thread specific).
-        //
-        unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
-        srand(seed ^ thread->getThreadControl().id());
-
-        //
         // See the comment in IceUtil::Thread::start() for details.
         //
         delete rawThread;

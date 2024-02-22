@@ -9,7 +9,6 @@
 #include "RequestHandlerF.h"
 #include "EndpointF.h"
 #include "EndpointSelectionType.h"
-#include "Object.h" // TODO: remove this dependency
 #include "Ice/BuiltinSequences.h"
 #include "ReferenceF.h"
 #include "BatchRequestQueueF.h"
@@ -337,18 +336,6 @@ public:
     ObjectPrx& operator=(ObjectPrx&& rhs) noexcept = default;
 
     /**
-     * Obtains the communicator that created this proxy.
-     * @return The communicator that created this proxy.
-     */
-    std::shared_ptr<Ice::Communicator> ice_getCommunicator() const;
-
-    /**
-     * Obtains a stringified version of this proxy.
-     * @return A stringified proxy.
-     */
-    std::string ice_toString() const;
-
-    /**
      * Tests whether this object supports a specific Slice interface.
      * @param typeId The type ID of the Slice interface to test against.
      * @param context The context map for the invocation.
@@ -486,15 +473,6 @@ public:
     /// \endcond
 
     /**
-     * Returns the Slice type ID associated with this type.
-     * @return The Slice type ID.
-     */
-    static const std::string& ice_staticId()
-    {
-        return Ice::Object::ice_staticId();
-    }
-
-    /**
      * Invokes an operation dynamically.
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
@@ -521,7 +499,7 @@ public:
      * @param context The context map for the invocation.
      * @return The future object for the invocation.
      */
-    std::future<Ice::Object::Ice_invokeResult>
+    std::future<std::tuple<bool, std::vector<Ice::Byte>>>
     ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
                     const std::vector<Byte>& inParams,
@@ -574,7 +552,7 @@ public:
      * @param context The context map for the invocation.
      * @return The future object for the invocation.
      */
-    std::future<Ice::Object::Ice_invokeResult>
+    std::future<std::tuple<bool, std::vector<Ice::Byte>>>
     ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
                     const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
@@ -601,6 +579,66 @@ public:
                     const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
+     * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
+     * it first attempts to create a connection.
+     * @return The connection for this proxy.
+     */
+    std::shared_ptr<Ice::Connection> ice_getConnection() const;
+
+    /**
+     * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
+     * it first attempts to create a connection.
+     * @param response The response callback.
+     * @param ex The exception callback.
+     * @param sent The sent callback.
+     * @return A function that can be called to cancel the invocation locally.
+     */
+    std::function<void()>
+    ice_getConnectionAsync(std::function<void(std::shared_ptr<Ice::Connection>)> response,
+                           std::function<void(std::exception_ptr)> ex = nullptr,
+                           std::function<void(bool)> sent = nullptr) const;
+
+    /**
+     * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
+     * it first attempts to create a connection.
+     * @return The future object for the invocation.
+     */
+    std::future<std::shared_ptr<Ice::Connection>> ice_getConnectionAsync() const;
+
+    /// \cond INTERNAL
+    void _iceI_getConnection(const std::shared_ptr<::IceInternal::ProxyGetConnection>&) const;
+    /// \endcond
+
+    /**
+     * Obtains the cached Connection for this proxy. If the proxy does not yet have an established
+     * connection, it does not attempt to create a connection.
+     * @return The cached connection for this proxy, or nil if the proxy does not have
+     * an established connection.
+     */
+    std::shared_ptr<Ice::Connection> ice_getCachedConnection() const;
+
+    /**
+     * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+     */
+    void ice_flushBatchRequests() const;
+
+    /**
+     * Flushes asynchronously any pending batched requests for this communicator.
+     * @param ex The exception callback.
+     * @param sent The sent callback.
+     * @return A function that can be called to cancel the invocation locally.
+     */
+    std::function<void()>
+    ice_flushBatchRequestsAsync(std::function<void(std::exception_ptr)> ex,
+                                std::function<void(bool)> sent = nullptr) const;
+
+    /**
+     * Flushes asynchronously any pending batched requests for this communicator.
+     * @return The future object for the invocation.
+     */
+    std::future<void> ice_flushBatchRequestsAsync() const;
+
+        /**
      * Obtains the identity embedded in this proxy.
      * @return The identity of the target object.
      */
@@ -763,64 +801,22 @@ public:
     bool ice_isFixed() const;
 
     /**
-     * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
-     * it first attempts to create a connection.
-     * @return The connection for this proxy.
+     * Returns the Slice type ID associated with this type.
+     * @return The Slice type ID.
      */
-    std::shared_ptr<Ice::Connection> ice_getConnection() const;
+    static const std::string& ice_staticId();
 
     /**
-     * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
-     * it first attempts to create a connection.
-     * @param response The response callback.
-     * @param ex The exception callback.
-     * @param sent The sent callback.
-     * @return A function that can be called to cancel the invocation locally.
+     * Obtains the communicator that created this proxy.
+     * @return The communicator that created this proxy.
      */
-    std::function<void()>
-    ice_getConnectionAsync(std::function<void(std::shared_ptr<Ice::Connection>)> response,
-                           std::function<void(std::exception_ptr)> ex = nullptr,
-                           std::function<void(bool)> sent = nullptr) const;
+    std::shared_ptr<Ice::Communicator> ice_getCommunicator() const;
 
     /**
-     * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
-     * it first attempts to create a connection.
-     * @return The future object for the invocation.
+     * Obtains a stringified version of this proxy.
+     * @return A stringified proxy.
      */
-    std::future<std::shared_ptr<Ice::Connection>> ice_getConnectionAsync() const;
-
-    /// \cond INTERNAL
-    void _iceI_getConnection(const std::shared_ptr<::IceInternal::ProxyGetConnection>&) const;
-    /// \endcond
-
-    /**
-     * Obtains the cached Connection for this proxy. If the proxy does not yet have an established
-     * connection, it does not attempt to create a connection.
-     * @return The cached connection for this proxy, or nil if the proxy does not have
-     * an established connection.
-     */
-    std::shared_ptr<Ice::Connection> ice_getCachedConnection() const;
-
-    /**
-     * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
-     */
-    void ice_flushBatchRequests() const;
-
-    /**
-     * Flushes asynchronously any pending batched requests for this communicator.
-     * @param ex The exception callback.
-     * @param sent The sent callback.
-     * @return A function that can be called to cancel the invocation locally.
-     */
-    std::function<void()>
-    ice_flushBatchRequestsAsync(std::function<void(std::exception_ptr)> ex,
-                                std::function<void(bool)> sent = nullptr) const;
-
-    /**
-     * Flushes asynchronously any pending batched requests for this communicator.
-     * @return The future object for the invocation.
-     */
-    std::future<void> ice_flushBatchRequestsAsync() const;
+    std::string ice_toString() const;
 
     /// \cond INTERNAL
     void _iceI_flushBatchRequests(const std::shared_ptr<::IceInternal::ProxyFlushBatchAsync>&) const;

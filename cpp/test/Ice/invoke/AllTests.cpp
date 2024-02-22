@@ -137,10 +137,23 @@ allTests(Test::TestHelper* helper)
     //
     {
         Ice::ByteSeq inEncaps;
-        test(batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get().returnValue);
-        test(batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get().returnValue);
-        test(batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get().returnValue);
-        test(batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get().returnValue);
+        {
+            auto [success, _ ] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
+            test(success);
+        }
+        {
+            auto [success, _ ] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
+            test(success);
+        }
+        {
+            auto [success, _ ] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
+            test(success);
+        }
+        {
+            auto [success, _ ] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
+            test(success);
+        }
+
         batchOneway->ice_flushBatchRequests();
     }
 
@@ -171,7 +184,8 @@ allTests(Test::TestHelper* helper)
     {
         Ice::ByteSeq inEncaps, outEncaps;
         auto completed = oneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps);
-        test(completed.get().returnValue);
+        auto [success, outParams] = completed.get();
+        test(success);
     }
 
     {
@@ -215,10 +229,10 @@ allTests(Test::TestHelper* helper)
         out.endEncapsulation();
         out.finished(inEncaps);
 
-        auto result = cl->ice_invokeAsync("opString", Ice::OperationMode::Normal, inEncaps).get();
-        test(result.returnValue);
+        auto [success, outParams] = cl->ice_invokeAsync("opString", Ice::OperationMode::Normal, inEncaps).get();
+        test(success);
 
-        Ice::InputStream in(communicator, result.outParams);
+        Ice::InputStream in(communicator, outParams);
         in.startEncapsulation();
         string s;
         in.read(s);
@@ -280,10 +294,10 @@ allTests(Test::TestHelper* helper)
 
         auto inPair = make_pair(inEncaps.data(), inEncaps.data() + inEncaps.size());
 
-        auto result = cl->ice_invokeAsync("opString", Ice::OperationMode::Normal, inPair).get();
-        test(result.returnValue);
+        auto [success, outParams] = cl->ice_invokeAsync("opString", Ice::OperationMode::Normal, inPair).get();
+        test(success);
 
-        Ice::InputStream in(communicator, result.outParams);
+        Ice::InputStream in(communicator, outParams);
         in.startEncapsulation();
         string s;
         in.read(s);
@@ -335,10 +349,10 @@ allTests(Test::TestHelper* helper)
     //
     {
         Ice::ByteSeq inEncaps;
-        auto result = cl->ice_invokeAsync("opException", Ice::OperationMode::Normal, inEncaps).get();
-        test(!result.returnValue);
+        auto [success, outParams] = cl->ice_invokeAsync("opException", Ice::OperationMode::Normal, inEncaps).get();
+        test(!success);
 
-        Ice::InputStream in(communicator, result.outParams);
+        Ice::InputStream in(communicator, outParams);
         in.startEncapsulation();
         try
         {
