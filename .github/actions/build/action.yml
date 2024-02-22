@@ -16,17 +16,20 @@ runs:
   steps:
     # Linux / macOS
     - name: Build C++ Dependencies
-      run: make ${{ inputs.make_flags }} -j3 V=1 -C cpp srcs
+      working-directory: ./cpp
+      run: make ${{ inputs.make_flags }} -j3 V=1 srcs
       shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language != 'cpp')
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language != 'cpp' && inputs.language != 'xcodesdk')
 
     - name: Build C++ Tests for Scripting Languages
-      run: make ${{ inputs.make_flags }} -j3 V=1 -C cpp tests
+      working-directory: ./cpp
+      run: make ${{ inputs.make_flags }} -j3 V=1 tests
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'php' || inputs.language == 'js' || inputs.language == 'ruby')
 
     - name: Build Ice for Python
-      run: make -j3 V=1 -C python
+      working-directory: ./python
+      run: make -j3 V=1
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'matlab' || matrix.name == 'xcodesdk')
 
