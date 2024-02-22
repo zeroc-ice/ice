@@ -86,13 +86,13 @@ runs:
 
     - name: Set MATLAB_HOME
       run: |
-        echo "MATLAB_HOME=/opt/hostedtoolcache/MATLAB/2023.2.999/x64" >> $GITHUB_ENV
+        echo "MATLAB_HOME=/usr/local/MATLAB/R2023b/bin" >> $GITHUB_ENV
       shell: bash
       if: matrix.language == 'matlab' && runner.os == 'Linux'
 
     - name: Set MATLAB_HOME
       run: |
-        echo "MATLAB_HOME=D:\hostedtoolcache\windows\MATLAB\2023.2.999\x64" >> $env:GITHUB_ENV
+        echo "MATLAB_HOME=C:\Program Files\MATLAB\R2023b\bin" >> $env:GITHUB_ENV
       shell: powershell
       if: matrix.language == 'matlab' && runner.os == 'Windows'
 
