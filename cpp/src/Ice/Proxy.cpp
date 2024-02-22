@@ -62,7 +62,7 @@ Ice::ObjectPrx::_checkTwowayOnly(string_view name) const
 {
     if (!ice_isTwoway())
     {
-        throw Ice::TwowayOnlyException(__FILE__, __LINE__, name);
+        throw Ice::TwowayOnlyException(__FILE__, __LINE__, string(name));
     }
 }
 
