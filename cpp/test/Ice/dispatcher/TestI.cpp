@@ -8,6 +8,9 @@
 #include <TestHelper.h>
 #include <IceUtil/Thread.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 void

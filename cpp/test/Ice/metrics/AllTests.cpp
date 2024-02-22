@@ -7,6 +7,8 @@
 #include <InstrumentationI.h>
 #include <Test.h>
 
+#include <thread>
+
 using namespace std;
 using namespace Test;
 

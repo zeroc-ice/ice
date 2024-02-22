@@ -8,6 +8,9 @@
 #include <CountDownLatchTest.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace IceUtil;
 using namespace IceUtilInternal;

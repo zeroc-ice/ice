@@ -7,6 +7,9 @@
 #include <TestI.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter) :

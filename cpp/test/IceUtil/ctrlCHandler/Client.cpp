@@ -6,6 +6,9 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Thread.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace IceUtil;
 using namespace std;
 

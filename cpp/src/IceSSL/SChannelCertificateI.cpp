@@ -8,7 +8,6 @@
 #include <IceSSL/Util.h>
 #include <Ice/StringUtil.h>
 #include <Ice/StringConverter.h>
-#include <IceUtil/Time.h>
 
 #include <wincrypt.h>
 

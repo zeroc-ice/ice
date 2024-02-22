@@ -7,6 +7,9 @@
 #include <IceUtil/IceUtil.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
+#include <chrono>
 #include <list>
 
 using namespace std;

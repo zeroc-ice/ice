@@ -405,7 +405,6 @@ getX509Date(SecCertificateRef cert, CFTypeRef key)
         CFNumberGetValue(date, kCFNumberDoubleType, &seconds);
     }
 
-
     return chrono::system_clock::time_point(chrono::seconds(static_cast<long long>(kCFAbsoluteTimeIntervalSince1970 + seconds)));
 }
 

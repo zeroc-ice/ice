@@ -620,7 +620,7 @@ LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props,
 void
 LoggerAdminLoggerI::print(const string& message)
 {
-    LogMessage logMessage = { 
+    LogMessage logMessage = {
         LogMessageType::PrintMessage,
         chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
         "",
@@ -648,7 +648,7 @@ LoggerAdminLoggerI::trace(const string& category, const string& message)
 void
 LoggerAdminLoggerI::warning(const string& message)
 {
-    LogMessage logMessage = { 
+    LogMessage logMessage = {
         LogMessageType::WarningMessage,
         chrono::duration_cast<chrono::microseconds>(chrono::system_clock::now().time_since_epoch()).count(),
         "",

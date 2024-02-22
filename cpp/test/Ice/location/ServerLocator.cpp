@@ -7,6 +7,9 @@
 #include <TestHelper.h>
 #include <ServerLocator.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 ServerLocatorRegistry::ServerLocatorRegistry()

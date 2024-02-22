@@ -7,6 +7,9 @@
 #include <TestI.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 class Server : public Test::TestHelper

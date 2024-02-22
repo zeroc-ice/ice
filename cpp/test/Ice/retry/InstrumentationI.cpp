@@ -5,6 +5,8 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
 #include <mutex>
 
 using namespace std;

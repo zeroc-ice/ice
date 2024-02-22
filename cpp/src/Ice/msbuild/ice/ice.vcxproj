@@ -499,7 +499,6 @@
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
     <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\Time.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UtilException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UUID.cpp" />
     <ClCompile Include="..\..\Acceptor.cpp" />

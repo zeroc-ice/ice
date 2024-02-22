@@ -8,6 +8,9 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace Test;
 using namespace IceGrid;

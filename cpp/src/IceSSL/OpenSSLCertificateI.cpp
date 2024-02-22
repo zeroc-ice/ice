@@ -7,7 +7,6 @@
 #include <IceSSL/CertificateI.h>
 #include <IceSSL/OpenSSLUtil.h>
 #include <IceSSL/RFC2253.h>
-#include <IceUtil/Time.h>
 
 #include <mutex>
 

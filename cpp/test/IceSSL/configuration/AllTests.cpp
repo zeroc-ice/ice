@@ -6,6 +6,9 @@
 #include <IceSSL/IceSSL.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
+#include <chrono>
 #include <fstream>
 #include <algorithm>
 
