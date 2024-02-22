@@ -367,6 +367,18 @@ public:
     {
     }
 
+     /**
+     * One-shot constructor to initialize all data members.
+     * The file and line number are required for all local exceptions.
+     * @param file The file name in which the exception was raised, typically __FILE__.
+     * @param line The line number at which the exception was raised, typically __LINE__.
+     * @param operation The name of the operation that was invoked.
+     */
+    TwowayOnlyException(const char* file, int line, ::std::string_view operation) : LocalExceptionHelper<TwowayOnlyException, LocalException>(file, line),
+        operation(operation)
+    {
+    }
+
     /**
      * Obtains a tuple containing all of the exception's data members.
      * @return The data members in a tuple.

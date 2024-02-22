@@ -109,7 +109,6 @@ private:
 
         // TODO: temporary - move to InterfaceVisitor.
         bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-        void visitOperation(const OperationPtr&) final;
 
     private:
 

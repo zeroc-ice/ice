@@ -58,7 +58,7 @@ Ice::ObjectPrx::ObjectPrx(ReferencePtr&& ref) :
 }
 
 void
-Ice::ObjectPrx::_checkTwowayOnly(const string& name) const
+Ice::ObjectPrx::_checkTwowayOnly(string_view name) const
 {
     if (!ice_isTwoway())
     {

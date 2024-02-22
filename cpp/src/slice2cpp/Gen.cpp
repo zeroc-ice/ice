@@ -1760,13 +1760,6 @@ Slice::Gen::DefaultFactoryVisitor::visitInterfaceDefStart(const InterfaceDefPtr&
     return true;
 }
 
-void
-Slice::Gen::DefaultFactoryVisitor::visitOperation(const OperationPtr& p)
-{
-    string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
-    C << nl << "const ::std::string " << flatName << " = \"" << p->name() << "\";";
-}
-
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
@@ -1932,8 +1925,6 @@ void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
     string name = p->name();
-    string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
-
     InterfaceDefPtr interface = p->interface();
     string interfaceScope = fixKwd(interface->scope());
 
@@ -2196,9 +2187,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // "Custom" implementation in .cpp file
         //
         C << sb;
+
+        // TODO: switch to string_view and constexpr.
+        C << nl << "static const ::std::string operationName = \"" << name << "\";";
+        C << sp;
+
         if(p->returnsData())
         {
-            C << nl << "_checkTwowayOnly(" << flatName << ");";
+            C << nl << "_checkTwowayOnly(operationName);";
         }
 
         C << nl << "::std::function<void(::Ice::InputStream*)> read;";
@@ -2237,7 +2233,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "*this, read, ex, sent);";
         C << sp;
 
-        C << nl << "outAsync->invoke(" << flatName << ", ";
+        C << nl << "outAsync->invoke(operationName, ";
         C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context,";
         C.inc();
         C << nl;
@@ -2311,11 +2307,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << inParamsImplDecl << ("const " + getUnqualified("::Ice::Context&", interfaceScope) + " context");
     C << epar << " const";
     C << sb;
+    // TODO: switch to string_view and constexpr.
+    C << nl << "static const ::std::string operationName = \"" << name << "\";";
+    C << sp;
     if(p->returnsData())
     {
-        C << nl << "_checkTwowayOnly(" << flatName << ");";
+        C << nl << "_checkTwowayOnly(operationName);";
     }
-    C << nl << "outAsync->invoke(" << flatName << ", ";
+    C << nl << "outAsync->invoke(operationName, ";
     C << getUnqualified(operationModeToString(p->sendMode(), true), interfaceScope) << ", "
       << getUnqualified(opFormatTypeToString(p, true), interfaceScope) << ", context,";
     C.inc();
