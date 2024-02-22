@@ -42,9 +42,10 @@ Ice::Request::~Request()
 }
 
 bool
-Ice::Object::ice_isA(string s, const Current&) const
+Ice::Object::ice_isA(string s, const Current& current) const
 {
-    return s == object_ids[0];
+    vector<string> allIds = ice_ids(current); // sorted type IDs
+    return ::std::binary_search(allIds.begin(), allIds.end(), s);
 }
 
 void
