@@ -2960,6 +2960,9 @@ public class InputStream
             if(_current.slices != null)
             {
                 _current.slices.clear();
+            }
+            if (_current.indirectionTables != null)
+            {
                 _current.indirectionTables.clear();
             }
             _current = _current.previous;
@@ -3126,44 +3129,48 @@ public class InputStream
             }
 
             //
-            // Preserve this slice.
+            // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
             //
-            SliceInfo info = new SliceInfo();
-            info.typeId = _current.typeId;
-            info.compactId = _current.compactId;
-            info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-            info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
-            Buffer buffer = _stream.getBuffer();
-            final int end = buffer.b.position();
-            int dataEnd = end;
-            if(info.hasOptionalMembers)
+            if (_current.sliceType == SliceType.ValueSlice)
             {
-                //
-                // Don't include the optional member end marker. It will be re-written by
-                // endSlice when the sliced data is re-written.
-                //
-                --dataEnd;
-            }
-            info.bytes = new byte[dataEnd - start];
-            buffer.position(start);
-            buffer.b.get(info.bytes);
-            buffer.position(end);
+                SliceInfo info = new SliceInfo();
+                info.typeId = _current.typeId;
+                info.compactId = _current.compactId;
+                info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+                info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
+                Buffer buffer = _stream.getBuffer();
+                final int end = buffer.b.position();
+                int dataEnd = end;
+                if(info.hasOptionalMembers)
+                {
+                    //
+                    // Don't include the optional member end marker. It will be re-written by
+                    // endSlice when the sliced data is re-written.
+                    //
+                    --dataEnd;
+                }
+                info.bytes = new byte[dataEnd - start];
+                buffer.position(start);
+                buffer.b.get(info.bytes);
+                buffer.position(end);
 
-            if(_current.slices == null) // Lazy initialization
+                if(_current.slices == null) // Lazy initialization
+                {
+                    _current.slices = new java.util.ArrayList<>();
+                }
+                _current.slices.add(info);
+            }
+
+            if(_current.indirectionTables == null) // Lazy initialization
             {
-                _current.slices = new java.util.ArrayList<>();
                 _current.indirectionTables = new java.util.ArrayList<>();
             }
 
             //
             // Read the indirect instance table. We read the instances or their
-            // IDs if the instance is a reference to an already unmarhsaled
+            // IDs if the instance is a reference to an already unmarshaled
             // instance.
             //
-            // The SliceInfo object sequence is initialized only if
-            // readSlicedData is called.
-            //
-
             if((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
             {
                 int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
@@ -3177,8 +3184,6 @@ public class InputStream
             {
                 _current.indirectionTables.add(null);
             }
-
-            _current.slices.add(info);
         }
 
         @Override

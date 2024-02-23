@@ -1603,36 +1603,38 @@ private class EncapsDecoder11: EncapsDecoder {
         }
 
         //
-        // Preserve this slice.
+        // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
         //
-        let hasOptionalMembers = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)
-        let isLastSlice = current.sliceFlags.contains(.FLAG_IS_LAST_SLICE)
-        var dataEnd = stream.pos
+        if (current.sliceType == .ValueSlice)
+        {
+            let hasOptionalMembers = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)
+            let isLastSlice = current.sliceFlags.contains(.FLAG_IS_LAST_SLICE)
+            var dataEnd = stream.pos
 
-        if hasOptionalMembers {
-            //
-            // Don't include the optional member end marker. It will be re-written by
-            // endSlice when the sliced data is re-written.
-            //
-            dataEnd -= 1
+            if hasOptionalMembers {
+                //
+                // Don't include the optional member end marker. It will be re-written by
+                // endSlice when the sliced data is re-written.
+                //
+                dataEnd -= 1
+            }
+
+            let bytes = stream.data.subdata(in: start ..< dataEnd) // copy
+
+            let info = SliceInfo(typeId: current.typeId,
+                                compactId: current.compactId,
+                                bytes: bytes,
+                                instances: [],
+                                hasOptionalMembers: hasOptionalMembers,
+                                isLastSlice: isLastSlice)
+
+            current.slices.append(info)
         }
-
-        let bytes = stream.data.subdata(in: start ..< dataEnd) // copy
-
-        let info = SliceInfo(typeId: current.typeId,
-                             compactId: current.compactId,
-                             bytes: bytes,
-                             instances: [],
-                             hasOptionalMembers: hasOptionalMembers,
-                             isLastSlice: isLastSlice)
 
         //
         // Read the indirect instance table. We read the instances or their
-        // IDs if the instance is a reference to an already unmarhsaled
+        // IDs if the instance is a reference to an already unmarhshaled
         // instance.
-        //
-        // The SliceInfo object sequence is initialized only if
-        // readSlicedData is called.
         //
         if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
             var indirectionTable = try [Int32](repeating: 0, count: Int(stream.readAndCheckSeqSize(minSize: 1)))
@@ -1644,8 +1646,6 @@ private class EncapsDecoder11: EncapsDecoder {
         } else {
             current.indirectionTables.append([])
         }
-
-        current.slices.append(info)
     }
 
     func readOptional(tag: Int32, format: OptionalFormat) throws -> Bool {
