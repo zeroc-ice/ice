@@ -1941,7 +1941,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         futureOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring | TypeContextCpp11 ));
 
-        // TODO: we need TypeContextInParam to be the view-type behavior.
+        // TODO: we need TypeContextInParam to get the view-type behavior.
         lambdaOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring | TypeContextInParam | TypeContextCpp11));
 
         outParamsHasOpt |= p->returnIsOptional();

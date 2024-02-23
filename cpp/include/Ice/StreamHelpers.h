@@ -320,7 +320,7 @@ struct StreamableTraits<std::wstring_view>
  * \headerfile Ice/Ice.h
  */
 template<>
-struct StreamableTraits<std::vector<bool> >
+struct StreamableTraits<std::vector<bool>>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
     static const int minWireSize = 1;
