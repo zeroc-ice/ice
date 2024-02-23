@@ -784,7 +784,7 @@ public:
      * Reads a short from the stream.
      * @param v The extracted short.
      */
-    void read(int16_t& v);
+    void read(std::int16_t& v);
 
     /**
      * Reads a sequence of shorts from the stream.
