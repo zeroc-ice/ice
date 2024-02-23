@@ -1194,7 +1194,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 
-
         string implicitContextKind = _initData.properties->getPropertyWithDefault("Ice.ImplicitContext", "None");
         if(implicitContextKind == "Shared")
         {
