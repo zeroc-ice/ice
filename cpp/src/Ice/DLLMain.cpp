@@ -28,10 +28,6 @@ ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
     {
         Ice::Service::setModuleHandle(hDLL);
     }
-    else if(reason == DLL_THREAD_DETACH)
-    {
-        Ice::ImplicitContextI::cleanupThread();
-    }
 
     //
     // During DETACH, we must call _CRT_INIT last.
