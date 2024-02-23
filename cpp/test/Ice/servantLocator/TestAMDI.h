@@ -58,13 +58,13 @@ public:
 
     virtual void impossibleExceptionAsync(
         bool,
-        std::function<void(const std::string&)>,
+        std::function<void(std::string_view)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&);
 
     virtual void intfUserExceptionAsync(
         bool,
-        std::function<void(const std::string&)>,
+        std::function<void(std::string_view)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&);
 

@@ -70,10 +70,6 @@ public:
                                   MyByteSeq&,
                                   const Ice::Current&);
 
-    virtual std::string opString(Util::string_view,
-                                 std::string&,
-                                 const Ice::Current&);
-
     virtual std::deque< ::std::string> opStringSeq(std::deque< ::std::string>,
                                                    std::deque< ::std::string>&,
                                                    const Ice::Current&);
@@ -146,9 +142,6 @@ public:
     virtual Test::CustomMap<std::int64_t, std::int64_t> opVarDict(Test::CustomMap<std::string, std::int32_t>,
                                                             Test::CustomMap<std::string, std::int32_t>&,
                                                             const Ice::Current&);
-
-    virtual Test::CustomMap<std::int32_t, std::string> opCustomIntStringDict(
-        std::map<std::int32_t, Util::string_view>, Test::CustomMap<std::int32_t, std::string>&, const Ice::Current&);
 
     Test::ShortBuffer opShortBuffer(Test::ShortBuffer, Test::ShortBuffer&, const Ice::Current&);
 

@@ -199,9 +199,6 @@ class InitialI(Test.Initial):
     def supportsCsharpSerializable(self, current=None):
         return Ice.Future.completed(False)
 
-    def supportsCppStringView(self, current=None):
-        return Ice.Future.completed(False)
-
     def supportsNullOptional(self, current=None):
         return Ice.Future.completed(True)
 

@@ -777,7 +777,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #else
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
 #endif
-            server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
+            server->checkCert(clientCert->getSubjectDN().toString(), clientCert->getIssuerDN().toString());
 
             //
             // Validate that we can get the connection info. Validate
@@ -860,7 +860,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #else
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
 #endif
-            server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
+            server->checkCert(clientCert->getSubjectDN().toString(), clientCert->getIssuerDN().toString());
         }
         catch(const LocalException& ex)
         {

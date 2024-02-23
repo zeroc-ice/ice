@@ -15,7 +15,7 @@ class WstringClassI : public virtual WstringClass
 public:
 
     void opStringAsync(std::wstring,
-                       std::function<void(const std::wstring&, const std::wstring&)>,
+                       std::function<void(std::wstring_view, std::wstring_view)>,
                        std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opStructAsync(::Test1::WstringStruct,
@@ -37,7 +37,7 @@ class WstringClassI : public virtual WstringClass
 public:
 
     void opStringAsync(std::wstring,
-                       std::function<void(const std::wstring&, const std::wstring&)>,
+                       std::function<void(std::wstring_view, std::wstring_view)>,
                        std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opStructAsync(::Test2::WstringStruct,

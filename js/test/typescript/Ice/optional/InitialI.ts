@@ -325,11 +325,6 @@ export class InitialI extends Test.Initial
         return false;
     }
 
-    supportsCppStringView(current:Ice.Current):boolean
-    {
-        return false;
-    }
-
     supportsNullOptional(current:Ice.Current):boolean
     {
         return true;

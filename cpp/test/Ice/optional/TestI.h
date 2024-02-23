@@ -62,10 +62,6 @@ public:
                                                        std::optional<::std::string>&,
                                                        const ::Ice::Current&);
 
-    virtual std::optional<::std::string> opCustomString(std::optional<Util::string_view>,
-                                                               std::optional<::std::string>&,
-                                                               const ::Ice::Current&);
-
     virtual std::optional<Test::MyEnum> opMyEnum(std::optional<Test::MyEnum>,
                                                       std::optional<Test::MyEnum>&,
                                                       const ::Ice::Current&);
@@ -169,11 +165,6 @@ public:
         std::optional<::Test::IntOneOptionalDict>&,
         const ::Ice::Current&);
 
-    virtual std::optional<::Test::IntStringDict> opCustomIntStringDict(
-        std::optional<std::map<int, Util::string_view> >,
-        std::optional<::Test::IntStringDict>&,
-        const ::Ice::Current&);
-
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
 
     virtual void sendOptionalClass(bool, std::optional<Test::OneOptionalPtr>, const Ice::Current&);
@@ -205,8 +196,6 @@ public:
     virtual bool supportsJavaSerializable(const Ice::Current&);
 
     virtual bool supportsCsharpSerializable(const Ice::Current&);
-
-    virtual bool supportsCppStringView(const Ice::Current&);
 
     virtual bool supportsNullOptional(const Ice::Current&);
 };

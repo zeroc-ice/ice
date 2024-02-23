@@ -551,13 +551,13 @@ public:
     }
 
     /**
-     * Writes a byte sequence to the stream.
+     * Writes a boolean sequence to the stream.
      * @param v The sequence to be written.
      */
     void write(const std::vector<bool>& v);
 
     /**
-     * Writes a byte sequence to the stream.
+     * Writes a boolean sequence to the stream.
      * @param begin The beginning of the sequence.
      * @param end The end of the sequence.
      */
@@ -662,6 +662,14 @@ public:
      * @param convert Determines whether the string is processed by the narrow string converter,
      * if one has been configured. The default behavior is to convert the strings.
      */
+    void write(const std::string& v, bool convert = true) { write(std::string_view(v), convert); }
+
+    /**
+     * Writes a string view to the stream.
+     * @param v The string view to write.
+     * @param convert Determines whether the string view is processed by the narrow string converter,
+     * if one has been configured. The default behavior is to convert the strings.
+     */
     void write(std::string_view v, bool convert = true)
     {
         std::int32_t sz = static_cast<std::int32_t>(v.size());
@@ -731,7 +739,13 @@ public:
      * Writes a wide string to the stream.
      * @param v The wide string to write.
      */
-    void write(const std::wstring& v);
+    void write(const std::wstring& v) { write(std::wstring_view(v)); }
+
+    /**
+     * Writes a wide string view to the stream.
+     * @param v The wide string view to write.
+     */
+    void write(std::wstring_view v);
 
     /**
      * Writes a wide string sequence to the stream.

@@ -139,16 +139,6 @@ InitialI::opString(optional<string> p1, optional<string>& p3, const Current&)
     return p1;
 }
 
-optional<string>
-InitialI::opCustomString(optional<Util::string_view> p1, optional<string>& p3, const Current&)
-{
-    if(p1)
-    {
-        p3 = p1->to_string();
-    }
-    return p3;
-}
-
 optional<MyEnum>
 InitialI::opMyEnum(optional<MyEnum> p1, optional<MyEnum>& p3, const Current&)
 {
@@ -359,22 +349,6 @@ InitialI::opIntOneOptionalDict(optional<IntOneOptionalDict> p1, optional<IntOneO
     return p3;
 }
 
-optional<IntStringDict>
-InitialI::opCustomIntStringDict(optional<std::map<int, Util::string_view> > p1,
-                                optional<IntStringDict>& p3, const Current&)
-{
-    if(p1)
-    {
-        p3 = IntStringDict();
-        for(std::map<int, Util::string_view>::const_iterator p = p1->begin();
-            p != p1->end(); ++p)
-        {
-            (*p3)[p->first] = p->second.to_string();
-        }
-    }
-    return p3;
-}
-
 void
 InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 {
@@ -464,12 +438,6 @@ InitialI::supportsJavaSerializable(const Ice::Current&)
 
 bool
 InitialI::supportsCsharpSerializable(const Ice::Current&)
-{
-    return true;
-}
-
-bool
-InitialI::supportsCppStringView(const Ice::Current&)
 {
     return true;
 }

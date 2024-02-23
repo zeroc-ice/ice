@@ -390,11 +390,6 @@ namespace Ice
                 return false;
             }
 
-            public override bool supportsCppStringView(Ice.Current current)
-            {
-                return false;
-            }
-
             public override bool supportsNullOptional(Ice.Current current)
             {
                 return true;

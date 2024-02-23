@@ -665,7 +665,7 @@ Ice::OutputStream::write(const string* begin, const string* end, bool convert)
 }
 
 void
-Ice::OutputStream::write(const wstring& v)
+Ice::OutputStream::write(wstring_view v)
 {
     if(v.empty())
     {
