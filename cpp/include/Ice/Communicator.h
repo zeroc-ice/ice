@@ -317,10 +317,7 @@ public:
      * @param compress Specifies whether or not the queued batch requests should be compressed before being sent over
      * the wire.
      */
-    virtual void flushBatchRequests(CompressBatch compress)
-    {
-        flushBatchRequestsAsync(compress).get();
-    }
+    ICE_MEMBER(ICE_API) void flushBatchRequests(CompressBatch compress);
 
     /**
      * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
@@ -345,23 +342,7 @@ public:
      * the wire.
      * @return The future object for the invocation.
      */
-    template<template<typename> class P = ::std::promise>
-    auto flushBatchRequestsAsync(CompressBatch compress)
-        -> decltype(::std::declval<P<void>>().get_future())
-    {
-        using Promise = P<void>;
-        auto promise = ::std::make_shared<Promise>();
-        flushBatchRequestsAsync(compress,
-                                [promise](::std::exception_ptr ex)
-                                {
-                                    promise->set_exception(::std::move(ex));
-                                },
-                                [promise](bool)
-                                {
-                                    promise->set_value();
-                                });
-        return promise->get_future();
-    }
+    ICE_MEMBER(ICE_API) std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
     /**
      * Add the Admin object with all its facets to the provided object adapter. If <code>Ice.Admin.ServerId</code> is

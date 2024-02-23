@@ -20,7 +20,7 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
-#include <Ice/OutgoingAsync.h>
+#include "Ice/OutgoingAsync.h"
 #include <Ice/EventHandler.h>
 #include <Ice/RequestHandler.h>
 #include <Ice/ResponseHandler.h>

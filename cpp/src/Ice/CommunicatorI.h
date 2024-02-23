@@ -8,7 +8,7 @@
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
-#include <Ice/OutgoingAsync.h>
+#include "Ice/OutgoingAsync.h"
 
 #include <functional>
 
@@ -16,7 +16,8 @@ namespace IceInternal
 {
 
 //
-// Class for handling Ice::Communicator::begin_flushBatchRequests
+// Class for handling Ice::Communicator::flushBatchRequests
+// This class needs to be in a public header as it's used by several other classes.
 //
 class CommunicatorFlushBatchAsync : public OutgoingAsyncBase
 {

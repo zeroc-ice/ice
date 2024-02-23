@@ -362,8 +362,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      * @param operation The name of the operation that was invoked.
      */
-    TwowayOnlyException(const char* file, int line, const ::std::string& operation) : LocalExceptionHelper<TwowayOnlyException, LocalException>(file, line),
-        operation(operation)
+    TwowayOnlyException(const char* file, int line, ::std::string operation) : LocalExceptionHelper<TwowayOnlyException, LocalException>(file, line),
+        operation(std::move(operation))
     {
     }
 

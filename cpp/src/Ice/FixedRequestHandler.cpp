@@ -7,7 +7,7 @@
 #include <Ice/Reference.h>
 #include <Ice/ConnectionI.h>
 #include <Ice/RouterInfo.h>
-#include <Ice/OutgoingAsync.h>
+#include "Ice/OutgoingAsync.h"
 
 using namespace std;
 using namespace Ice;

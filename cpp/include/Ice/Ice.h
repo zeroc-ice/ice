@@ -9,14 +9,12 @@
 #include <Ice/Config.h>
 #include <Ice/Comparable.h>
 #include <Ice/StreamHelpers.h>
-#include <Ice/OutgoingAsync.h>
 #include <Ice/Proxy.h>
 #include <Ice/Current.h>
 #include <Ice/LocalException.h>
 #include <optional>
 #include <Ice/Object.h>
 #include <Ice/SlicedData.h>
-#include <Ice/OutgoingAsync.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/FactoryTableInit.h>
