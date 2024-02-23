@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Identity.h>
-#include <Ice/Version.h>
+#include <Ice/Ice.h>
 #include <IceSSL/IceSSL.h>
 
 #if defined(__GNUC__)
