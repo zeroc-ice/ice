@@ -113,7 +113,7 @@ private:
         DescriptorHolder(const DescriptorHolder& other) = delete;
         DescriptorHolder& operator=(const DescriptorHolder& other) = delete;
 
-
+        DescriptorHolder(DescriptorHolder&& other) noexcept = delete;
 
         DescriptorHolder& operator=(DescriptorHolder&& other)
         {
