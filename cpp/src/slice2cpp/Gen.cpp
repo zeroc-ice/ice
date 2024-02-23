@@ -1742,57 +1742,6 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
     return false;
 }
 
-bool
-Slice::Gen::DefaultFactoryVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    OperationList allOps = p->allOperations();
-
-    C << sp;
-
-    StringList ids = p->ids();
-    C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ids[" << ids.size() << "] =";
-    C << sb;
-    for (StringList::const_iterator r = ids.begin(); r != ids.end();)
-    {
-        C << nl << '"' << *r << '"';
-        if (++r != ids.end())
-        {
-            C << ',';
-        }
-    }
-    C << eb << ';';
-
-    StringList allOpNames;
-    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const auto &c) { return c->name(); });
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
-    allOpNames.sort();
-    allOpNames.unique();
-
-    C << nl << "const ::std::string iceC" << p->flattenedScope() << p->name() << "_ops[] =";
-    C << sb;
-    for (StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
-    {
-        C << nl << '"' << *q << '"';
-        if (++q != allOpNames.end())
-        {
-            C << ',';
-        }
-    }
-    C << eb << ';';
-
-    return true;
-}
-
-void
-Slice::Gen::DefaultFactoryVisitor::visitOperation(const OperationPtr& p)
-{
-    string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
-    C << nl << "const ::std::string " << flatName << " = \"" << p->name() << "\";";
-}
-
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
     H(h), C(c), _dllExport(dllExport), _useWstring(false)
 {
@@ -1958,8 +1907,6 @@ void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
     string name = p->name();
-    string flatName = "iceC" + p->flattenedScope() + p->name() + "_name";
-
     InterfaceDefPtr interface = p->interface();
     string interfaceScope = fixKwd(interface->scope());
 
@@ -2222,9 +2169,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // "Custom" implementation in .cpp file
         //
         C << sb;
+
+        // TODO: switch to string_view and constexpr.
+        C << nl << "static const ::std::string operationName = \"" << name << "\";";
+        C << sp;
+
         if(p->returnsData())
         {
-            C << nl << "_checkTwowayOnly(" << flatName << ");";
+            C << nl << "_checkTwowayOnly(operationName);";
         }
 
         C << nl << "::std::function<void(::Ice::InputStream*)> read;";
@@ -2263,7 +2215,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "*this, read, ex, sent);";
         C << sp;
 
-        C << nl << "outAsync->invoke(" << flatName << ", ";
+        C << nl << "outAsync->invoke(operationName, ";
         C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context,";
         C.inc();
         C << nl;
@@ -2337,11 +2289,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << inParamsImplDecl << ("const " + getUnqualified("::Ice::Context&", interfaceScope) + " context");
     C << epar << " const";
     C << sb;
+    // TODO: switch to string_view and constexpr.
+    C << nl << "static const ::std::string operationName = \"" << name << "\";";
+    C << sp;
     if(p->returnsData())
     {
-        C << nl << "_checkTwowayOnly(" << flatName << ");";
+        C << nl << "_checkTwowayOnly(operationName);";
     }
-    C << nl << "outAsync->invoke(" << flatName << ", ";
+    C << nl << "outAsync->invoke(operationName, ";
     C << getUnqualified(operationModeToString(p->sendMode(), true), interfaceScope) << ", "
       << getUnqualified(opFormatTypeToString(p, true), interfaceScope) << ", context,";
     C.inc();
@@ -3231,15 +3186,6 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     H << sp;
     H << nl << "/**";
-    H << nl << " * Determines whether this object supports an interface with the given Slice type ID.";
-    H << nl << " * @param id The fully-scoped Slice type ID.";
-    H << nl << " * @param current The Current object for the invocation.";
-    H << nl << " * @return True if this object supports the interface, false, otherwise.";
-    H << nl << " */";
-    H << nl << "bool ice_isA(::std::string id, const " << getUnqualified("::Ice::Current&", scope)
-      << " current) const override;";
-        H << sp;
-    H << nl << "/**";
     H << nl << " * Obtains a list of the Slice type IDs representing the interfaces supported by this object.";
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return A list of fully-scoped type IDs.";
@@ -3257,26 +3203,27 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
       << " current) const override;";
         H << sp;
     H << nl << "/**";
-    H << nl << " * Obtains the Slice type ID corresponding to this class.";
+    H << nl << " * Obtains the Slice type ID corresponding to this interface.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
     H << nl << "static const ::std::string& ice_staticId();";
-
-    string flatName = "iceC" + p->flattenedScope() + p->name() + "_ids";
-
-    C << sp;
-    C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(::std::string s, const "
-      << getUnqualified("::Ice::Current&", scope) << ") const";
-    C << sb;
-    C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", s);";
-    C << eb;
 
     C << sp;
     C << nl << "::std::vector<::std::string>" << nl << scoped.substr(2) << "::ice_ids(const "
       << getUnqualified("::Ice::Current&", scope) << ") const";
     C << sb;
-    C << nl << "return ::std::vector<::std::string>(&" << flatName << "[0], &" << flatName << '[' << ids.size()
-      << "]);";
+
+    // These type IDs are sorted alphabetically.
+    C << nl << "static const ::std::vector<::std::string> allTypeIds = ";
+    C.spar("{ ");
+    for (const auto& typeId : p->ids())
+    {
+        C << '"' + typeId + '"';
+    }
+    C.epar(" }");
+    C << ";";
+
+    C << nl << "return allTypeIds;";
     C << eb;
 
     C << sp;
@@ -3320,8 +3267,6 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         allOpNames.sort();
         allOpNames.unique();
 
-        string flatName = "iceC" + p->flattenedScope() + p->name() + "_ops";
-
         H << sp;
         H << nl << "/// \\cond INTERNAL";
         H << nl << "virtual bool _iceDispatch(::IceInternal::Incoming&, const "
@@ -3335,8 +3280,19 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
           << getUnqualified("::Ice::Current&", scope) << " current)";
         C << sb;
 
-        C << nl << "::std::pair<const ::std::string*, const ::std::string*> r = "
-          << "::std::equal_range(" << flatName << ", " << flatName << " + " << allOpNames.size()
+        C << sp;
+        C << nl << "static constexpr ::std::string_view allOperations[] = ";
+        C.spar("{ ");
+        for (const auto& opName : allOpNames)
+        {
+            C << '"' + opName + '"';
+        }
+        C.epar(" }");
+        C << ";";
+
+        C << sp;
+        C << nl << "::std::pair<const ::std::string_view*, const ::std::string_view*> r = "
+          << "::std::equal_range(allOperations, allOperations" << " + " << allOpNames.size()
           << ", current.operation);";
         C << nl << "if(r.first == r.second)";
         C << sb;
@@ -3344,7 +3300,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
           << "(__FILE__, __LINE__, current.id, current.facet, current.operation);";
         C << eb;
         C << sp;
-        C << nl << "switch(r.first - " << flatName << ')';
+        C << nl << "switch(r.first - allOperations)";
         C << sb;
         int i = 0;
         for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)

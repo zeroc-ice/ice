@@ -107,10 +107,6 @@ private:
         bool visitClassDefStart(const ClassDefPtr&) final;
         bool visitExceptionStart(const ExceptionPtr&) final;
 
-        // TODO: temporary - move to InterfaceVisitor.
-        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-        void visitOperation(const OperationPtr&) final;
-
     private:
 
         ::IceUtilInternal::Output& C;

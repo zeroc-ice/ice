@@ -824,7 +824,7 @@ public:
     const ::IceInternal::ReferencePtr& _getReference() const { return _reference; }
     const ::IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const { return _requestHandlerCache; }
 
-    void _checkTwowayOnly(const std::string&) const;
+    void _checkTwowayOnly(std::string_view) const;
 
     int _hash() const;
 

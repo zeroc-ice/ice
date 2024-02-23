@@ -18,33 +18,16 @@ namespace Ice
 const Current emptyCurrent = Current();
 }
 
-namespace
-{
-
-const string object_ids[] =
-{
-    "::Ice::Object"
-};
-
-const string object_all[] =
-{
-    "ice_id",
-    "ice_ids",
-    "ice_isA",
-    "ice_ping"
-};
-
-}
-
 Ice::Request::~Request()
 {
     // Out of line to avoid weak vtable
 }
 
 bool
-Ice::Object::ice_isA(string s, const Current&) const
+Ice::Object::ice_isA(string s, const Current& current) const
 {
-    return s == object_ids[0];
+    vector<string> allTypeIds = ice_ids(current); // sorted type IDs
+    return ::std::binary_search(allTypeIds.begin(), allTypeIds.end(), s);
 }
 
 void
@@ -56,19 +39,21 @@ Ice::Object::ice_ping(const Current&) const
 vector<string>
 Ice::Object::ice_ids(const Current&) const
 {
-    return vector<string>(&object_ids[0], &object_ids[1]);
+    static const vector<string> allTypeIds = { "::Ice::Object" };
+    return allTypeIds;
 }
 
 string
 Ice::Object::ice_id(const Current&) const
 {
-    return object_ids[0];
+    return ice_staticId();
 }
 
 const string&
 Ice::Object::ice_staticId()
 {
-    return object_ids[0];
+    static const ::std::string typeId = "::Ice::Object";
+    return typeId;
 }
 
 bool
@@ -152,14 +137,22 @@ Ice::Object::ice_dispatch(Request& request, std::function<bool()> r, std::functi
 bool
 Ice::Object::_iceDispatch(Incoming& in, const Current& current)
 {
-    pair<const string*, const string*> r = equal_range(object_all, object_all + sizeof(object_all) / sizeof(string), current.operation);
+    static constexpr string_view allOperations[] =
+    {
+        "ice_id",
+        "ice_ids",
+        "ice_isA",
+        "ice_ping"
+    };
+
+    pair<const string_view*, const string_view*> r = equal_range(allOperations, allOperations + 4, current.operation);
 
     if(r.first == r.second)
     {
         throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
 
-    switch(r.first - object_all)
+    switch(r.first - allOperations)
     {
         case 0:
         {
