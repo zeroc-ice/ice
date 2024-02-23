@@ -1308,12 +1308,17 @@ IceInternal::Instance::getImplicitContext() const
     {
         case ImplicitContextKind::PerThread:
         {
-            thread_local ImplicitContextPtr perThreadImplicitContext;
-            if (!perThreadImplicitContext)
+            static thread_local std::map<const IceInternal::Instance*, ImplicitContextPtr> perThreadImplicitContextMap;
+            auto it = perThreadImplicitContextMap.find(this);
+            if (it == perThreadImplicitContextMap.end())
             {
-                perThreadImplicitContext = std::make_shared<ImplicitContext>();
+                auto r = perThreadImplicitContextMap.emplace(make_pair(this, std::make_shared<ImplicitContext>()));
+                return r.first->second;
             }
-            return perThreadImplicitContext;
+            else
+            {
+                return it->second;
+            }
         }
 
         default:
