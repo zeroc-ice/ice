@@ -88,7 +88,6 @@ runs:
       run: |
         # echo "MATLAB_HOME=/usr/local/MATLAB/R2023b" >> $GITHUB_ENV
         echo "MATLAB_HOME=/opt/hostedtoolcache/MATLAB/2023.2.999/x64" >> $GITHUB_ENV
-
       shell: bash
       if: matrix.language == 'matlab' && runner.os == 'Linux'
 
