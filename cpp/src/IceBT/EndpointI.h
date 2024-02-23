@@ -26,7 +26,7 @@ public:
     EndpointI(const InstancePtr&, Ice::InputStream*);
 
     void streamWriteImpl(Ice::OutputStream*) const final;
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     const std::string& protocol() const final;
     std::int32_t timeout() const final;
     IceInternal::EndpointIPtr timeout(std::int32_t) const final;
@@ -82,7 +82,7 @@ public:
     EndpointInfoI(const EndpointIPtr&);
     ~EndpointInfoI();
 
-    Ice::Short type() const noexcept final;
+    std::int16_t type() const noexcept final;
     bool datagram() const noexcept final;
     bool secure() const noexcept final;
 
@@ -98,7 +98,7 @@ public:
     EndpointFactoryI(const InstancePtr&);
     ~EndpointFactoryI();
 
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     std::string protocol() const final;
     IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
     IceInternal::EndpointIPtr read(Ice::InputStream*) const final;

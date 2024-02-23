@@ -115,7 +115,7 @@ class DictClass
 }
 
 ["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Short>"] sequence<short> ShortBuffer;
+["cpp:type:Test::CustomBuffer<std::int16_t>"] sequence<short> ShortBuffer;
 ["cpp:type:Test::CustomBuffer<std::int32_t>"] sequence<int> IntBuffer;
 ["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Float>"] sequence<float> FloatBuffer;

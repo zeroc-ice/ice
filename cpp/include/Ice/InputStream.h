@@ -784,13 +784,13 @@ public:
      * Reads a short from the stream.
      * @param v The extracted short.
      */
-    void read(Short& v);
+    void read(int16_t& v);
 
     /**
      * Reads a sequence of shorts from the stream.
      * @param v A vector to hold a copy of the short values.
      */
-    void read(std::vector<Short>& v);
+    void read(std::vector<std::int16_t>& v);
 
     /**
      * Reads a sequence of boolean values from the stream.

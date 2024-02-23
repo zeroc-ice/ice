@@ -97,8 +97,8 @@ InitialI::opBool(optional<bool> p1, optional<bool>& p3, const Current&)
     return p1;
 }
 
-optional<Short>
-InitialI::opShort(optional<Short> p1, optional<Short>& p3, const Current&)
+optional<int16_t>
+InitialI::opShort(optional<int16_t> p1, optional<int16_t>& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -213,7 +213,7 @@ InitialI::opBoolSeq(optional<pair<const bool*, const bool*> > p1, optional<Test:
 }
 
 optional<Test::ShortSeq>
-InitialI::opShortSeq(optional<pair<const Short*, const Short*> > p1, optional<Test::ShortSeq>& p3,
+InitialI::opShortSeq(optional<pair<const int16_t*, const int16_t*> > p1, optional<Test::ShortSeq>& p3,
                      const Current&)
 {
     if(p1)

@@ -133,7 +133,7 @@ IceObjC::iAPEndpointI::getInfo() const noexcept
     return info;
 }
 
-Short
+int16_t
 IceObjC::iAPEndpointI::type() const
 {
     return _instance->type();
@@ -650,7 +650,7 @@ IceObjC::iAPEndpointFactory::~iAPEndpointFactory()
 {
 }
 
-Short
+int16_t
 IceObjC::iAPEndpointFactory::type() const
 {
     return _instance->type();

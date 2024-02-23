@@ -303,8 +303,8 @@ public:
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);
 
-    virtual void opShort1Async(Ice::Short,
-                               ::std::function<void(Ice::Short)>,
+    virtual void opShort1Async(std::int16_t,
+                               ::std::function<void(std::int16_t)>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 

@@ -462,7 +462,7 @@ IceInternal::UdpEndpointFactory::~UdpEndpointFactory()
 {
 }
 
-Short
+int16_t
 IceInternal::UdpEndpointFactory::type() const
 {
     return _instance->type();

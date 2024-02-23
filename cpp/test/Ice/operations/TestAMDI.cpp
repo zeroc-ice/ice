@@ -778,8 +778,8 @@ MyDerivedClassI::opByte1Async(Ice::Byte b,
 }
 
 void
-MyDerivedClassI::opShort1Async(Ice::Short s,
-                               function<void(Ice::Short)> response,
+MyDerivedClassI::opShort1Async(int16_t s,
+                               function<void(int16_t)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {

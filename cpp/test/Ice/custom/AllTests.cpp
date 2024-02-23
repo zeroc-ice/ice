@@ -613,7 +613,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing alternate custom sequences... " << flush;
     {
         Test::ShortBuffer inS;
-        inS.setAndInit(new Ice::Short[3], 3);
+        inS.setAndInit(new int16_t[3], 3);
         Test::ShortBuffer outS;
         Test::ShortBuffer ret = t->opShortBuffer(inS, outS);
 
@@ -632,7 +632,7 @@ allTests(Test::TestHelper* helper)
         Test::BufferStruct bs;
         bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
-        bs.shortBuf.setAndInit(new Ice::Short[10], 10);
+        bs.shortBuf.setAndInit(new int16_t[10], 10);
         bs.intBuf.setAndInit(new int32_t[10], 10);
         bs.longBuf.setAndInit(new int64_t[10], 10);
         bs.floatBuf.setAndInit(new Ice::Float[10], 10);

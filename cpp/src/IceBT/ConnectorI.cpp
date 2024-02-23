@@ -29,7 +29,7 @@ IceBT::ConnectorI::connect()
     return make_shared<TransceiverI>(_instance, _addr, _uuid);
 }
 
-Short
+int16_t
 IceBT::ConnectorI::type() const
 {
     return _instance->type();

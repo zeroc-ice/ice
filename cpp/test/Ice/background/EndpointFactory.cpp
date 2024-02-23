@@ -18,10 +18,10 @@ EndpointFactory::EndpointFactory(const IceInternal::EndpointFactoryPtr& factory)
 {
 }
 
-Ice::Short
+int16_t
 EndpointFactory::type() const
 {
-    return (Ice::Short)(EndpointI::TYPE_BASE + _factory->type());
+    return (int16_t)(EndpointI::TYPE_BASE + _factory->type());
 }
 
 string

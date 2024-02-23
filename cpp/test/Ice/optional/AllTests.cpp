@@ -350,7 +350,7 @@ allTests(Test::TestHelper* helper, bool)
     MultiOptionalPtr mo1 = make_shared<MultiOptional>();
     mo1->a = static_cast<Ice::Byte>(15);
     mo1->b = true;
-    mo1->c = static_cast<Ice::Short>(19);
+    mo1->c = static_cast<int16_t>(19);
     mo1->d = 78;
     mo1->e = 99;
     mo1->f = 5.5f;
@@ -1006,12 +1006,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Short> p1;
-        optional<Ice::Short> p3;
-        optional<Ice::Short> p2 = initial->opShort(p1, p3);
+        optional<int16_t> p1;
+        optional<int16_t> p3;
+        optional<int16_t> p2 = initial->opShort(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Short sval = 56;
+        const int16_t sval = 56;
 
         p1 = sval;
         p2 = initial->opShort(p1, p3);
@@ -1484,12 +1484,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Short*, const Ice::Short*> > p1;
+        optional<std::pair<const int16_t*, const int16_t*> > p1;
         optional<ShortSeq> p3;
         optional<ShortSeq> p2 = initial->opShortSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Short> bs(100);
+        vector<int16_t> bs(100);
         fill(bs.begin(), bs.end(), 56);
         p1 = toArrayRange(bs);
         p2 = initial->opShortSeq(p1, p3);

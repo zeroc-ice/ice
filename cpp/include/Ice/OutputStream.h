@@ -567,14 +567,14 @@ public:
      * Writes a short to the stream.
      * @param v The short to write.
      */
-    void write(Short v);
+    void write(std::int16_t v);
 
     /**
      * Writes a short sequence to the stream.
      * @param begin The beginning of the sequence.
      * @param end The end of the sequence.
      */
-    void write(const Short* begin, const Short* end);
+    void write(const std::int16_t* begin, const std::int16_t* end);
 
     /**
      * Writes an int to the stream.
