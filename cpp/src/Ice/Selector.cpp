@@ -1187,7 +1187,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
         // mostly to prevent spurious crashes with testing. This bug is very unlikely
         // to be hit otherwise.
         //
-        this_thread::sleep_for(chrono::milliseconds(100));
+        this_thread::sleep_for(100ms);
 #endif
     });
 
