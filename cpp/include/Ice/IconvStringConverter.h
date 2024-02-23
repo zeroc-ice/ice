@@ -96,13 +96,54 @@ public:
 
 private:
 
+    struct DescriptorHolder
+    {
+        std::pair<iconv_t, iconv_t> descriptor;
+
+        DescriptorHolder() :
+            descriptor(iconv_t(0), iconv_t(0))
+        {
+        }
+
+        DescriptorHolder(std::pair<iconv_t, iconv_t> desc) :
+            descriptor(desc)
+        {
+        }
+
+        DescriptorHolder(const DescriptorHolder& other) = delete;
+        DescriptorHolder& operator=(const DescriptorHolder& other) = delete;
+
+
+
+        DescriptorHolder& operator=(DescriptorHolder&& other)
+        {
+            if (this != &other)
+            {
+                descriptor = std::move(other.descriptor);
+                other.descriptor = std::make_pair(iconv_t(0), iconv_t(0));
+            }
+            return *this;
+        }
+
+        explicit operator bool() const noexcept
+        {
+            return descriptor.first != iconv_t(0) && descriptor.second != iconv_t(0);
+        }
+
+        ~DescriptorHolder()
+        {
+            if (descriptor.first != iconv_t(0) && descriptor.second != iconv_t(0))
+            {
+                close(descriptor);
+            }
+        }
+    };
+
     std::pair<iconv_t, iconv_t> createDescriptors() const;
     std::pair<iconv_t, iconv_t> getDescriptors() const;
 
-    static void cleanupKey(void*);
     static void close(std::pair<iconv_t, iconv_t>);
 
-    mutable pthread_key_t _key;
     const std::string _internalCode;
 };
 
@@ -156,25 +197,12 @@ IconvStringConverter<charT>::createDescriptors() const
 template<typename charT> std::pair<iconv_t, iconv_t>
 IconvStringConverter<charT>::getDescriptors() const
 {
-    static thread_local std::unique_ptr<std::pair<iconv_t, iconv_t>> descriptors;
-    if(descriptors)
+    static thread_local DescriptorHolder descriptorHolder;
+    if (!descriptorHolder)
     {
-        return *descriptors;
+        descriptorHolder = DescriptorHolder(createDescriptors());
     }
-    else
-    {
-        descriptors.reset(new std::pair<iconv_t, iconv_t>(createDescriptors()));
-        return *descriptors;
-    }
-}
-
-template<typename charT> /*static*/ void
-IconvStringConverter<charT>::cleanupKey(void* val)
-{
-    std::pair<iconv_t, iconv_t>* cdp = static_cast<std::pair<iconv_t, iconv_t>*>(val);
-
-    close(*cdp);
-    delete cdp;
+    return descriptorHolder.descriptor;
 }
 
 template<typename charT> /*static*/ void

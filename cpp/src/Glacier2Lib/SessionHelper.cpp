@@ -29,9 +29,9 @@ public:
         _factory->addThread(session, std::move(thread));
     }
 
-    thread pop(const SessionHelper* session)
+    thread remove(const SessionHelper* session)
     {
-        return _factory->popThread(session);
+        return _factory->removeThread(session);
     }
 
 private:
@@ -159,7 +159,7 @@ SessionHelperI::destroy()
         // failure of the connection establishment.
 
         auto destroyThread = std::thread(
-            [session = shared_from_this(), previous = _threadCB->pop(this)]() mutable
+            [session = shared_from_this(), previous = _threadCB->remove(this)]() mutable
             {
                 session->destroyCommunicator();
 
@@ -174,7 +174,7 @@ SessionHelperI::destroy()
     else
     {
         auto destroyThread = std::thread(
-            [session = shared_from_this(), previous = _threadCB->pop(this)]() mutable
+            [session = shared_from_this(), previous = _threadCB->remove(this)]() mutable
             {
                 session->destroyInternal(make_shared<Disconnected>(session, session->_callback));
 
@@ -800,10 +800,8 @@ Glacier2::SessionFactoryHelper::addThread(const SessionHelper* session, thread&&
 }
 
 thread
-Glacier2::SessionFactoryHelper::popThread(const SessionHelper* session)
+Glacier2::SessionFactoryHelper::removeThread(const SessionHelper* session)
 {
-    // A SessionHelper can only ever have one thread running. Therefore any currently registered thread for the same
-    // session must be finished, before calling this method.
     lock_guard lock(_mutex);
     auto p = _threads.find(session);
     if (p == _threads.end())

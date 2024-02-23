@@ -55,7 +55,7 @@ MyDerivedClassI::shutdownAsync(function<void()> response,
 {
     {
         lock_guard lock(_opVoidMutex);
-        if(_opVoidThread.get_id() != thread::id())
+        if(_opVoidThread.joinable())
         {
             _opVoidThread.join();
             _opVoidThread = thread();
@@ -81,7 +81,7 @@ MyDerivedClassI::opVoidAsync(function<void()> response,
     test(current.mode == OperationMode::Normal);
 
     lock_guard lock(_opVoidMutex);
-    if(_opVoidThread.get_id() != thread::id())
+    if(_opVoidThread.joinable())
     {
         _opVoidThread.join();
         _opVoidThread = thread();

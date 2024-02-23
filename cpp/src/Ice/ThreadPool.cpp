@@ -1221,7 +1221,9 @@ IceInternal::ThreadPool::EventHandlerThread::setState(Ice::Instrumentation::Thre
 void
 IceInternal::ThreadPool::EventHandlerThread::start()
 {
-    assert(_thread.get_id() == thread::id()); // Not started yet
+    assert(!_thread.joinable()); // Not started yet
+    // It is safe to use this pointer here, because the thread pool keeps a refernce to all threads and join them
+    // before exiting.
     _thread = thread(&EventHandlerThread::run, this);
 }
 

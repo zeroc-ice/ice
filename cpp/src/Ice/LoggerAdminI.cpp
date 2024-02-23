@@ -682,11 +682,11 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 {
     const vector<RemoteLoggerPrx> remoteLoggers = _loggerAdmin->log(logMessage);
 
-    if(!remoteLoggers.empty())
+    if (!remoteLoggers.empty())
     {
         lock_guard lock(_mutex);
 
-        if(_sendLogThread.get_id() == thread::id())
+        if (!_sendLogThread.joinable())
         {
             _sendLogThread = std::thread(&LoggerAdminLoggerI::run, this);
         }
@@ -699,21 +699,21 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 void
 LoggerAdminLoggerI::destroy()
 {
-    std::thread sendLogThreadControl;
+    std::thread sendLogThread;
     {
         lock_guard lock(_mutex);
 
         if(_sendLogThread.joinable())
         {
-            sendLogThreadControl = std::move(_sendLogThread);
+            sendLogThread = std::move(_sendLogThread);
             _destroyed = true;
             _conditionVariable.notify_all();
         }
     }
 
-    if(sendLogThreadControl.joinable())
+    if(sendLogThread.joinable())
     {
-        sendLogThreadControl.join();
+        sendLogThread.join();
     }
 
      // destroy sendLogCommunicator
