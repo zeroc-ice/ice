@@ -6,7 +6,7 @@
 #include <TestAMDI.h>
 
 void
-TestIntfI::opDoubleArrayAsync(std::pair<const Ice::Double*, const Ice::Double*> in,
+TestIntfI::opDoubleArrayAsync(std::pair<const double*, const double*> in,
                               std::function<void(const Test::DoubleSeq&, const Test::DoubleSeq&)> response,
                               std::function<void(std::exception_ptr)>, const Ice::Current&)
 {

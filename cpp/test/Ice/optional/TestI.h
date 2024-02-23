@@ -50,12 +50,12 @@ public:
                                                    std::optional<std::int64_t>&,
                                                    const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Float> opFloat(std::optional<::Ice::Float>,
-                                                     std::optional<::Ice::Float>&,
+    virtual std::optional<float> opFloat(std::optional<float>,
+                                                     std::optional<float>&,
                                                      const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Double> opDouble(std::optional<::Ice::Double>,
-                                                       std::optional<::Ice::Double>&,
+    virtual std::optional<double> opDouble(std::optional<double>,
+                                                       std::optional<double>&,
                                                        const ::Ice::Current&);
 
     virtual std::optional<::std::string> opString(std::optional<::std::string>,
@@ -116,12 +116,12 @@ public:
         const ::Ice::Current&);
 
     virtual std::optional<::Test::FloatSeq> opFloatSeq(
-        std::optional<::std::pair<const ::Ice::Float*, const ::Ice::Float*> >,
+        std::optional<::std::pair<const float*, const float*> >,
         std::optional<::Test::FloatSeq>&,
         const ::Ice::Current&);
 
     virtual std::optional<::Test::DoubleSeq> opDoubleSeq(
-        std::optional<::std::pair<const ::Ice::Double*, const ::Ice::Double*> >,
+        std::optional<::std::pair<const double*, const double*> >,
         std::optional<::Test::DoubleSeq>&,
         const ::Ice::Current&);
 

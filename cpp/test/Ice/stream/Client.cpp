@@ -230,20 +230,20 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Float)5.0);
+        out.write((float)5.0);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Float v;
+        float v;
         in.read(v);
         test(v == 5.0);
     }
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Double)6.0);
+        out.write((double)6.0);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Double v;
+        double v;
         in.read(v);
         test(v == 6.0);
     }

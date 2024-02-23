@@ -98,11 +98,11 @@ MyDerivedClassI::opShortIntLong(Ice::Short p1,
     return p3;
 }
 
-Ice::Double
-MyDerivedClassI::opFloatDouble(Ice::Float p1,
-                               Ice::Double p2,
-                               Ice::Float& p3,
-                               Ice::Double& p4,
+double
+MyDerivedClassI::opFloatDouble(float p1,
+                               double p2,
+                               float& p3,
+                               double& p4,
                                const Ice::Current&)
 {
     p3 = p1;
@@ -632,9 +632,9 @@ MyDerivedClassI::opContext(const Ice::Current& c)
 }
 
 void
-MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, Test::DoubleS p2, const Ice::Current&)
+MyDerivedClassI::opDoubleMarshaling(double p1, Test::DoubleS p2, const Ice::Current&)
 {
-    Ice::Double d = 1278312346.0 / 13.0;
+    double d = 1278312346.0 / 13.0;
     test(p1 == d);
     for(unsigned int i = 0; i < p2.size(); ++i)
     {
@@ -683,14 +683,14 @@ MyDerivedClassI::opLong1(int64_t l, const Ice::Current&)
     return l;
 }
 
-Ice::Float
-MyDerivedClassI::opFloat1(Ice::Float f, const Ice::Current&)
+float
+MyDerivedClassI::opFloat1(float f, const Ice::Current&)
 {
     return f;
 }
 
-Ice::Double
-MyDerivedClassI::opDouble1(Ice::Double d, const Ice::Current&)
+double
+MyDerivedClassI::opDouble1(double d, const Ice::Current&)
 {
     return d;
 }

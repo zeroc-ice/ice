@@ -83,12 +83,12 @@ allTests(Test::TestHelper* helper)
         in[2] = 0.375;
         in[3] = 4 / 3;
         in[4] = -5.725;
-        Ice::Double inArray[5];
+        double inArray[5];
         for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
-        pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+        pair<const double*, const double*> inPair(inArray, inArray + 5);
 
         Test::DoubleSeq out;
         Test::DoubleSeq ret = t->opDoubleArray(inPair, out);
@@ -635,8 +635,8 @@ allTests(Test::TestHelper* helper)
         bs.shortBuf.setAndInit(new Ice::Short[10], 10);
         bs.intBuf.setAndInit(new int32_t[10], 10);
         bs.longBuf.setAndInit(new int64_t[10], 10);
-        bs.floatBuf.setAndInit(new Ice::Float[10], 10);
-        bs.doubleBuf.setAndInit(new Ice::Double[10], 10);
+        bs.floatBuf.setAndInit(new float[10], 10);
+        bs.doubleBuf.setAndInit(new double[10], 10);
 
         Test::BufferStruct rs = t->opBufferStruct(bs);
         test(rs == bs);
@@ -671,12 +671,12 @@ allTests(Test::TestHelper* helper)
             in[2] = 0.375;
             in[3] = 4 / 3;
             in[4] = -5.725;
-            Ice::Double inArray[5];
+            double inArray[5];
             for(size_t i = 0; i < 5; ++i)
             {
                 inArray[i] = in[i];
             }
-            pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+            pair<const double*, const double*> inPair(inArray, inArray + 5);
             auto r = t->opDoubleArrayAsync(inPair).get();
             test(std::get<1>(r) == in);
             test(std::get<0>(r) == in);
@@ -1165,18 +1165,18 @@ allTests(Test::TestHelper* helper)
         in[2] = 0.375;
         in[3] = 4 / 3;
         in[4] = -5.725;
-        Ice::Double inArray[5];
+        double inArray[5];
         for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
-        pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+        pair<const double*, const double*> inPair(inArray, inArray + 5);
 
         promise<bool> done;
 
         t->opDoubleArrayAsync(inPair,
-                              [&](pair<const Ice::Double*, const Ice::Double*> ret,
-                                  pair<const Ice::Double*, const Ice::Double*> out)
+                              [&](pair<const double*, const double*> ret,
+                                  pair<const double*, const double*> out)
                               {
                                   test(arrayRangeEquals<double>(out, inPair));
                                   test(arrayRangeEquals<double>(ret, inPair));

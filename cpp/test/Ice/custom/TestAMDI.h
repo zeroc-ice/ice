@@ -10,7 +10,7 @@
 class TestIntfI : public virtual Test::TestIntf
 {
 public:
-    void opDoubleArrayAsync(std::pair<const ::Ice::Double*, const ::Ice::Double*>,
+    void opDoubleArrayAsync(std::pair<const double*, const double*>,
                             std::function<void(const ::Test::DoubleSeq&, const ::Test::DoubleSeq&)>,
                             std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 

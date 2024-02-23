@@ -859,13 +859,13 @@ public:
      * Reads a float from the stream.
      * @param v The extracted float.
      */
-    void read(Float& v);
+    void read(float& v);
 
     /**
      * Reads a sequence of floats from the stream.
      * @param v A vector to hold a copy of the float values.
      */
-    void read(std::vector<Float>& v);
+    void read(std::vector<float>& v);
 
     /**
      * Reads a sequence of floats from the stream.
@@ -877,13 +877,13 @@ public:
      * Reads a double from the stream.
      * @param v The extracted double.
      */
-    void read(Double& v);
+    void read(double& v);
 
     /**
      * Reads a sequence of doubles from the stream.
      * @param v A vector to hold a copy of the double values.
      */
-    void read(std::vector<Double>& v);
+    void read(std::vector<double>& v);
 
     /**
      * Reads a sequence of doubles from the stream.

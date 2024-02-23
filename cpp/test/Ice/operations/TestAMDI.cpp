@@ -727,13 +727,13 @@ MyDerivedClassI::opContextAsync(function<void(const Ice::Context&)> response,
 }
 
 void
-MyDerivedClassI::opDoubleMarshalingAsync(Ice::Double p1,
+MyDerivedClassI::opDoubleMarshalingAsync(double p1,
                                          Test::DoubleS p2,
                                          function<void()> response,
                                          function<void(exception_ptr)>,
                                          const Ice::Current&)
 {
-    Ice::Double d = 1278312346.0 / 13.0;
+    double d = 1278312346.0 / 13.0;
     test(p1 == d);
     for(unsigned int i = 0; i < p2.size(); ++i)
     {
@@ -805,8 +805,8 @@ MyDerivedClassI::opLong1Async(int64_t l,
 }
 
 void
-MyDerivedClassI::opFloat1Async(Ice::Float f,
-                               function<void(Ice::Float)> response,
+MyDerivedClassI::opFloat1Async(float f,
+                               function<void(float)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {
@@ -814,8 +814,8 @@ MyDerivedClassI::opFloat1Async(Ice::Float f,
 }
 
 void
-MyDerivedClassI::opDouble1Async(Ice::Double d,
-                                function<void(Ice::Double)> response,
+MyDerivedClassI::opDouble1Async(double d,
+                                function<void(double)> response,
                                 function<void(exception_ptr)>,
                                 const Ice::Current&)
 {

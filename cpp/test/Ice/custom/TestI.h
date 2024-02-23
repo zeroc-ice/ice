@@ -11,7 +11,7 @@ class TestIntfI : public virtual Test::TestIntf
 {
 public:
 
-    virtual Test::DoubleSeq opDoubleArray(std::pair<const Ice::Double*, const Ice::Double*>,
+    virtual Test::DoubleSeq opDoubleArray(std::pair<const double*, const double*>,
                                           Test::DoubleSeq&,
                                           const Ice::Current&);
 
