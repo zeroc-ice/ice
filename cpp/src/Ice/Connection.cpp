@@ -36,12 +36,12 @@ Ice::Connection::flushBatchRequests(CompressBatch compress)
 std::future<void>
 Ice::Connection::flushBatchRequestsAsync(CompressBatch compress)
 {
-    auto promise = ::std::make_shared<std::promise<void>>();
+    auto promise = std::make_shared<std::promise<void>>();
     flushBatchRequestsAsync(
         compress,
-        [promise](::std::exception_ptr ex)
+        [promise](std::exception_ptr ex)
         {
-            promise->set_exception(::std::move(ex));
+            promise->set_exception(ex);
         },
         [promise](bool)
         {
@@ -59,9 +59,9 @@ Ice::Connection::heartbeat()
 std::future<void>
 Ice::Connection::heartbeatAsync()
 {
-    auto promise = ::std::make_shared<std::promise<void>>();
-    heartbeatAsync([promise](::std::exception_ptr ex)
-                   { promise->set_exception(::std::move(ex)); },
+    auto promise = std::make_shared<std::promise<void>>();
+    heartbeatAsync([promise](std::exception_ptr ex)
+                   { promise->set_exception(ex); },
                    [promise](bool)
                    {
                        promise->set_value();
