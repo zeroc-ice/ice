@@ -729,7 +729,6 @@ Slice::Gen::generate(const UnitPtr& p)
         C << _include << '/';
     }
     C << _base << "." << _headerExtension << ">";
-    C << "\n#include <IceUtil/PushDisableWarnings.h>";
 
     H << "\n#include <IceUtil/PushDisableWarnings.h>";
 
@@ -737,8 +736,6 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         H << "\n#include <Ice/Ice.h>";
     }
-
-    C << "\n#include <IceUtil/PopDisableWarnings.h>";
 
     StringList includes = p->includeFiles();
 
@@ -795,6 +792,12 @@ Slice::Gen::generate(const UnitPtr& p)
             }
         }
         dc->setMetaData(globalMetaData);
+    }
+
+    if(!dc->hasMetaDataDirective("cpp:no-default-include"))
+    {
+        // We need OutgoingAsync.h only to implement proxies, but for simplicity, we include it all the time.
+        C << "\n#include <Ice/OutgoingAsync.h>";
     }
 
     //
@@ -2038,7 +2041,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "auto _result = ";
     }
 
-    C << "_makePromiseOutgoing<" << futureT << ">";
+    C << "::IceInternal::makePromiseOutgoing<" << futureT << ">";
 
     C << spar << "true, this" << "&" + interface->name() + "Prx::_iceI_" + name;
     for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
@@ -2082,7 +2085,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar << " const";
 
     C << sb;
-    C << nl << "return _makePromiseOutgoing<" << futureT << ", ::std::promise>" << spar;
+    C << nl << "return ::IceInternal::makePromiseOutgoing<" << futureT << ">" << spar;
     C << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
     {
@@ -2251,7 +2254,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << epar << ";" << eb << ";";
         }
 
-        C << nl << "return _makeLambdaOutgoing<" << futureT << ">" << spar;
+        C << nl << "return ::IceInternal::makeLambdaOutgoing<" << futureT << ">" << spar;
 
         C << "std::move(" + (futureOutParams.size() > 1 ? string("_responseCb") : "response") + ")"
           << "std::move(ex)"

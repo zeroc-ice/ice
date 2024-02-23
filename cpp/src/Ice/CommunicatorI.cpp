@@ -15,7 +15,7 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/Router.h>
-#include <Ice/OutgoingAsync.h>
+#include "Ice/OutgoingAsync.h"
 #include <Ice/UUID.h>
 
 using namespace std;

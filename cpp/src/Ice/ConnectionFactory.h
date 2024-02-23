@@ -37,6 +37,9 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
+class CommunicatorFlushBatchAsync;
+using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+
 template<typename T> class ThreadPoolMessage;
 
 class OutgoingConnectionFactory final : public std::enable_shared_from_this<OutgoingConnectionFactory>

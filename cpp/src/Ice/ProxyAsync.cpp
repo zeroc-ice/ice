@@ -53,7 +53,7 @@ class ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyFlushBatchAsync(const Ice::ObjectPrx&);
+    ProxyFlushBatchAsync(Ice::ObjectPrx);
 
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
@@ -72,7 +72,7 @@ class ProxyGetConnection :  public ProxyOutgoingAsyncBase
 {
 public:
 
-    ProxyGetConnection(const Ice::ObjectPrx&);
+    ProxyGetConnection(Ice::ObjectPrx);
 
     virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
@@ -86,11 +86,11 @@ class ProxyGetConnectionLambda : public ProxyGetConnection, public LambdaInvoke
 {
 public:
 
-    ProxyGetConnectionLambda(const ObjectPrx& proxy,
+    ProxyGetConnectionLambda(ObjectPrx proxy,
                              std::function<void(std::shared_ptr<Ice::Connection>)> response,
                              std::function<void(std::exception_ptr)> ex,
                              std::function<void(bool)> sent) :
-        ProxyGetConnection(proxy), LambdaInvoke(std::move(ex), std::move(sent))
+        ProxyGetConnection(std::move(proxy)), LambdaInvoke(std::move(ex), std::move(sent))
     {
         _response = [&, response = std::move(response)](bool)
         {
@@ -99,12 +99,11 @@ public:
     }
 };
 
-template<typename P>
-class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvoke<P>
+class ProxyGetConnectionPromise : public ProxyGetConnection, public PromiseInvoke<std::shared_ptr<Ice::Connection>>
 {
 public:
 
-    ProxyGetConnectionPromise(const ObjectPrx& proxy) : ProxyGetConnection(proxy)
+    ProxyGetConnectionPromise(ObjectPrx proxy) : ProxyGetConnection(std::move(proxy))
     {
         this->_response = [&](bool)
         {
@@ -117,16 +116,15 @@ class ProxyFlushBatchLambda : public ProxyFlushBatchAsync, public LambdaInvoke
 {
 public:
 
-    ProxyFlushBatchLambda(const ObjectPrx& proxy,
+    ProxyFlushBatchLambda(ObjectPrx proxy,
                           std::function<void(std::exception_ptr)> ex,
                           std::function<void(bool)> sent) :
-        ProxyFlushBatchAsync(proxy), LambdaInvoke(std::move(ex), std::move(sent))
+        ProxyFlushBatchAsync(std::move(proxy)), LambdaInvoke(std::move(ex), std::move(sent))
     {
     }
 };
 
-template<typename P>
-class ProxyFlushBatchPromise : public ProxyFlushBatchAsync, public PromiseInvoke<P>
+class ProxyFlushBatchPromise : public ProxyFlushBatchAsync, public PromiseInvoke<void>
 {
 public:
 
@@ -189,11 +187,11 @@ class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
 {
 public:
 
-    InvokeLambdaOutgoing(const Ice::ObjectPrx& proxy,
+    InvokeLambdaOutgoing(Ice::ObjectPrx proxy,
                          std::function<void(R)> response,
                          std::function<void(std::exception_ptr)> ex,
                          std::function<void(bool)> sent) :
-        InvokeOutgoingAsyncT<R>(proxy, false), LambdaInvoke(std::move(ex), std::move(sent))
+        InvokeOutgoingAsyncT<R>(std::move(proxy), false), LambdaInvoke(std::move(ex), std::move(sent))
     {
         if(response)
         {
@@ -201,7 +199,7 @@ public:
             {
                 if(this->_is.b.empty())
                 {
-                    response(R { ok, { 0, 0 }});
+                    response(R { ok, {} });
                 }
                 else
                 {
@@ -212,13 +210,13 @@ public:
     }
 };
 
-template<typename P, typename R>
-class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvoke<P>
+template<typename R>
+class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvoke<R>
 {
 public:
 
-    InvokePromiseOutgoing(const Ice::ObjectPrx& proxy, bool synchronous) :
-        InvokeOutgoingAsyncT<R>(proxy, false)
+    InvokePromiseOutgoing(Ice::ObjectPrx proxy, bool synchronous) :
+        InvokeOutgoingAsyncT<R>(std::move(proxy), false)
     {
         this->_synchronous = synchronous;
         this->_response = [this](bool ok)
@@ -246,7 +244,7 @@ public:
 
 }
 
-ProxyFlushBatchAsync::ProxyFlushBatchAsync(const ObjectPrx& proxy) : ProxyOutgoingAsyncBase(proxy)
+ProxyFlushBatchAsync::ProxyFlushBatchAsync(ObjectPrx proxy) : ProxyOutgoingAsyncBase(std::move(proxy))
 {
 }
 
@@ -295,7 +293,7 @@ ProxyFlushBatchAsync::invoke(const string& operation)
     invokeImpl(true); // userThread = true
 }
 
-ProxyGetConnection::ProxyGetConnection(const ObjectPrx& prx) : ProxyOutgoingAsyncBase(prx)
+ProxyGetConnection::ProxyGetConnection(ObjectPrx proxy) : ProxyOutgoingAsyncBase(std::move(proxy))
 {
 }
 
@@ -336,7 +334,7 @@ ProxyGetConnection::invoke(const string& operation)
 bool
 Ice::ObjectPrx::ice_isA(const string& typeId, const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<bool>(true, this, &ObjectPrx::_iceI_isA, typeId, context).get();
+    return makePromiseOutgoing<bool>(true, this, &ObjectPrx::_iceI_isA, typeId, context).get();
 }
 
 std::function<void()>
@@ -347,14 +345,14 @@ Ice::ObjectPrx::ice_isAAsync(
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    return _makeLambdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this,
+    return makeLambdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this,
                                      &ObjectPrx::_iceI_isA, typeId, context);
 }
 
 std::future<bool>
 Ice::ObjectPrx::ice_isAAsync(const string& typeId, const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<bool, std::promise>(false, this, &ObjectPrx::_iceI_isA, typeId, context);
+    return makePromiseOutgoing<bool>(false, this, &ObjectPrx::_iceI_isA, typeId, context);
 }
 
 void
@@ -374,7 +372,7 @@ Ice::ObjectPrx::_iceI_isA(const shared_ptr<OutgoingAsyncT<bool>>& outAsync,
 void
 Ice::ObjectPrx::ice_ping(const Ice::Context& context) const
 {
-    _makePromiseOutgoing<void>(true, this, &ObjectPrx::_iceI_ping, context).get();
+    makePromiseOutgoing<void>(true, this, &ObjectPrx::_iceI_ping, context).get();
 }
 
 std::function<void()>
@@ -384,14 +382,14 @@ Ice::ObjectPrx::ice_pingAsync(
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    return _makeLambdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this,
+    return makeLambdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this,
                                      &ObjectPrx::_iceI_ping, context);
 }
 
 std::future<void>
 Ice::ObjectPrx::ice_pingAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<void, std::promise>(false, this, &ObjectPrx::_iceI_ping, context);
+    return makePromiseOutgoing<void>(false, this, &ObjectPrx::_iceI_ping, context);
 }
 
 void
@@ -403,7 +401,7 @@ Ice::ObjectPrx::_iceI_ping(const shared_ptr<OutgoingAsyncT<void>>& outAsync, con
 vector<string>
 Ice::ObjectPrx::ice_ids(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<vector<string>>(true, this, &ObjectPrx::_iceI_ids, context).get();
+    return makePromiseOutgoing<vector<string>>(true, this, &ObjectPrx::_iceI_ids, context).get();
 }
 
 std::function<void()>
@@ -413,14 +411,14 @@ Ice::ObjectPrx::ice_idsAsync(
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    return _makeLambdaOutgoing<vector<string>>(std::move(response), std::move(ex), std::move(sent),
+    return makeLambdaOutgoing<vector<string>>(std::move(response), std::move(ex), std::move(sent),
                                                          this, &ObjectPrx::_iceI_ids, context);
 }
 
 std::future<vector<string>>
 Ice::ObjectPrx::ice_idsAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<vector<string>, std::promise>(false, this, &ObjectPrx::_iceI_ids, context);
+    return makePromiseOutgoing<vector<string>>(false, this, &ObjectPrx::_iceI_ids, context);
 }
 
 void
@@ -439,7 +437,7 @@ Ice::ObjectPrx::_iceI_ids(const shared_ptr<OutgoingAsyncT<vector<string>>>& outA
 string
 Ice::ObjectPrx::ice_id(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<string>(true, this, &ObjectPrx::_iceI_id, context).get();
+    return makePromiseOutgoing<string>(true, this, &ObjectPrx::_iceI_id, context).get();
 }
 
 std::function<void()>
@@ -448,14 +446,14 @@ Ice::ObjectPrx::ice_idAsync(std::function<void(string)> response,
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    return _makeLambdaOutgoing<string>(std::move(response), std::move(ex), std::move(sent), this,
+    return makeLambdaOutgoing<string>(std::move(response), std::move(ex), std::move(sent), this,
                                             &ObjectPrx::_iceI_id, context);
 }
 
 std::future<string>
 Ice::ObjectPrx::ice_idAsync(const Ice::Context& context) const
 {
-    return _makePromiseOutgoing<string, std::promise>(false, this, &ObjectPrx::_iceI_id, context);
+    return makePromiseOutgoing<string>(false, this, &ObjectPrx::_iceI_id, context);
 }
 
 void
@@ -520,8 +518,7 @@ bool Ice::ObjectPrx::ice_invoke(const string &operation,
                                 vector<Ice::Byte> &outParams,
                                 const Ice::Context &context) const
 {
-    using Outgoing = InvokePromiseOutgoing<
-        std::promise<std::tuple<bool, vector<Byte>>>, std::tuple<bool, vector<Byte>>>;
+    using Outgoing = InvokePromiseOutgoing<std::tuple<bool, vector<Byte>>>;
     auto outAsync = std::make_shared<Outgoing>(*this, true);
     outAsync->invoke(operation, mode, inParams, context);
     auto result = outAsync->getFuture().get();
@@ -537,7 +534,7 @@ Ice::ObjectPrx::ice_invokeAsync(const string &operation,
                                 const Ice::Context &context) const
 {
     using Outgoing =
-        ::IceInternal::InvokePromiseOutgoing<std::promise<::std::tuple<bool, vector<Byte>>>, ::std::tuple<bool, vector<Byte>>>;
+        ::IceInternal::InvokePromiseOutgoing<::std::tuple<bool, vector<Byte>>>;
     auto outAsync = ::std::make_shared<Outgoing>(*this, false);
     outAsync->invoke(operation, mode, inParams, context);
     return outAsync->getFuture();
@@ -590,8 +587,7 @@ Ice::ObjectPrx::ice_getConnectionAsync(std::function<void(std::shared_ptr<Ice::C
 
 std::future<std::shared_ptr<Ice::Connection>> Ice::ObjectPrx::ice_getConnectionAsync() const
 {
-    using PromiseOutgoing = ProxyGetConnectionPromise<std::promise<std::shared_ptr<Ice::Connection>>>;
-    auto outAsync = std::make_shared<PromiseOutgoing>(*this);
+    auto outAsync = std::make_shared<ProxyGetConnectionPromise>(*this);
     _iceI_getConnection(outAsync);
     return outAsync->getFuture();
 }
@@ -633,8 +629,7 @@ std::future<void> Ice::ObjectPrx::ice_flushBatchRequestsAsync() const
 {
     if (_reference->isBatch())
     {
-        using PromiseOutgoing = ProxyFlushBatchPromise<std::promise<void>>;
-        auto outAsync = std::make_shared<PromiseOutgoing>(*this);
+        auto outAsync = std::make_shared<ProxyFlushBatchPromise>(*this);
         _iceI_flushBatchRequests(outAsync);
         return outAsync->getFuture();
     }
