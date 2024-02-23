@@ -16,14 +16,22 @@ runs:
   steps:
     # Linux / macOS
     - name: Build C++ Dependencies
-      run: make ${{ inputs.make_flags }} -j3 V=1 -C cpp srcs
+      working-directory: ./cpp
+      run: make -j3 V=1 srcs
       shell: bash
-      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language != 'cpp')
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language != 'cpp' || matrix.name == 'xcodesdk')
 
     - name: Build C++ Tests for Scripting Languages
-      run: make ${{ inputs.make_flags }} -j3 V=1 -C cpp tests
+      working-directory: ./cpp
+      run: make -j3 V=1 tests
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'php' || inputs.language == 'js' || inputs.language == 'ruby')
+
+    - name: Build Ice for Python
+      working-directory: ./python
+      run: make -j3 V=1
+      shell: bash
+      if: (runner.os == 'macOS' || runner.os == 'Linux') && (inputs.language == 'matlab' || matrix.name == 'xcodesdk')
 
     - name: Build ${{ matrix.name || matrix.language }}
       working-directory: ./${{ inputs.language }}
@@ -38,6 +46,12 @@ runs:
       working-directory: ./cpp
       shell: powershell
       if: (runner.os == 'Windows') && (inputs.language != 'cpp')
+
+    - name: Build Ice for Python
+      run: msbuild /m /p:Platform=x64 msbuild/ice.proj
+      working-directory: ./python
+      shell: powershell
+      if: runner.os == 'Windows' && inputs.language == 'matlab'
 
     - name: Build ${{ matrix.name || matrix.language }}
       run: msbuild /m /p:Platform=x64 msbuild/ice.proj

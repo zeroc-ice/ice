@@ -21,8 +21,6 @@
 #include <Ice/Properties.h>
 #include <Ice/Proxy.h>
 
-#include <IceUtil/Time.h>
-
 #include "PythonUtil.h"
 
 using namespace std;

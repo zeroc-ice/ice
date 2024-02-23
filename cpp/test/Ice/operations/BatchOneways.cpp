@@ -6,6 +6,9 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 namespace
@@ -102,7 +105,7 @@ batchOneways(const Test::MyClassPrxPtr& p)
     while(count < 27) // 3 * 9 requests auto-flushed.
     {
         count += p->opByteSOnewayCallCount();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
     }
 
     if(batch->ice_getConnection() &&

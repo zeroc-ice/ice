@@ -13,6 +13,8 @@
 
 #include <IceUtil/StringUtil.h>
 
+#include <chrono>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -504,7 +506,8 @@ MetricsAdminI::getMetricsView(string viewName, int64_t& timestamp, const Current
 {
     lock_guard lock(_mutex);
     MetricsViewIPtr view = getMetricsView(viewName);
-    timestamp = IceUtil::Time::now().toMilliSeconds();
+    timestamp = chrono::duration_cast<chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     if(view)
     {
         return view->getMetrics();

@@ -5,6 +5,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/TimeUtil.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Activator.h>
@@ -2285,7 +2286,9 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             {
                 throw runtime_error("couldn't create configuration file: " + configFilePath);
             }
-            configfile << "# Configuration file (" << IceUtil::Time::now().toDateTime() << ")" << endl << endl;
+            configfile
+                << "# Configuration file ("
+                << IceInternal::timePointToDateTimeString(chrono::system_clock::now()) << ")" << endl << endl;
             for(const auto& propertyDescriptor : prop.second)
             {
                 if(propertyDescriptor.value.empty() && propertyDescriptor.name.find('#') == 0)

@@ -8,6 +8,9 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace Test;
 using namespace IceGrid;
@@ -1150,7 +1153,7 @@ allTests(Test::TestHelper* helper)
             catch(const NodeNotExistException&)
             {
             }
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(chrono::milliseconds(500));
             ++retry;
         }
         test(admin->pingNode("node-1"));
@@ -1235,11 +1238,11 @@ allTests(Test::TestHelper* helper)
             }
             catch(const DeploymentException&)
             {
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+                this_thread::sleep_for(chrono::milliseconds(200));
             }
         }
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+        this_thread::sleep_for(chrono::seconds(1));
 
         update = ApplicationUpdateDescriptor();
         update.name = "TestApp";

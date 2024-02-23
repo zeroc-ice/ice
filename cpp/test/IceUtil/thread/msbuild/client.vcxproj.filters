@@ -22,9 +22,6 @@
     <ClCompile Include="..\CreateTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SleepTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\StartTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

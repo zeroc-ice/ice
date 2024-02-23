@@ -5,7 +5,6 @@
 #ifndef ICE_LOCATOR_INFO_H
 #define ICE_LOCATOR_INFO_H
 
-#include <IceUtil/Time.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/LocatorF.h>
 #include <Ice/ReferenceF.h>
@@ -65,10 +64,10 @@ public:
 
 private:
 
-    bool checkTTL(const IceUtil::Time&, int) const;
+    bool checkTTL(const std::chrono::steady_clock::time_point&, int) const;
 
-    std::map<std::string, std::pair<IceUtil::Time, std::vector<EndpointIPtr> > > _adapterEndpointsMap;
-    std::map<Ice::Identity, std::pair<IceUtil::Time, ReferencePtr> > _objectMap;
+    std::map<std::string, std::pair<std::chrono::steady_clock::time_point, std::vector<EndpointIPtr> > > _adapterEndpointsMap;
+    std::map<Ice::Identity, std::pair<std::chrono::steady_clock::time_point, ReferencePtr> > _objectMap;
     std::mutex _mutex;
 };
 

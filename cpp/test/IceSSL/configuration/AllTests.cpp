@@ -6,6 +6,9 @@
 #include <IceSSL/IceSSL.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
+#include <chrono>
 #include <fstream>
 #include <algorithm>
 
@@ -4031,7 +4034,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                         if(++retryCount < retryMax)
                         {
                             cout << "retrying... " << flush;
-                            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryDelay));
+                            this_thread::sleep_for(chrono::milliseconds(retryDelay));
                             continue;
                         }
                     }
@@ -4073,7 +4076,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                         if(++retryCount < retryMax)
                         {
                             cout << "retrying... " << flush;
-                            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryDelay));
+                            this_thread::sleep_for(chrono::milliseconds(retryDelay));
                             continue;
                         }
                     }

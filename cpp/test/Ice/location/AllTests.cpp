@@ -7,6 +7,9 @@
 #include <IceUtil/IceUtil.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
+#include <chrono>
 #include <list>
 
 using namespace std;
@@ -248,7 +251,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     test(++count == locator->getRequestCount());
     basencc->ice_locatorCacheTimeout(2)->ice_ping(); // 2s timeout.
     test(count == locator->getRequestCount());
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
+    this_thread::sleep_for(chrono::milliseconds(1300));
     basencc->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(++count == locator->getRequestCount());
 
@@ -257,7 +260,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     test(count == locator->getRequestCount());
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(2)->ice_ping(); // 2s timeout
     test(count == locator->getRequestCount());
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
+    this_thread::sleep_for(chrono::milliseconds(1300));
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
     count += 2;
     test(count == locator->getRequestCount());
@@ -518,7 +521,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
         ic->stringToProxy("test3")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
         test(count == locator->getRequestCount());
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1200));
+        this_thread::sleep_for(chrono::milliseconds(1200));
 
         // The following request should trigger the background updates but still use the cached endpoints
         // and therefore succeed.
@@ -530,7 +533,7 @@ allTests(Test::TestHelper* helper, const string& ref)
             while(true)
             {
                 ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+                this_thread::sleep_for(chrono::milliseconds(10));
             }
         }
         catch(const Ice::LocalException&)
@@ -542,7 +545,7 @@ allTests(Test::TestHelper* helper, const string& ref)
             while(true)
             {
                 ic->stringToProxy("test3")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+                this_thread::sleep_for(chrono::milliseconds(10));
             }
         }
         catch(const Ice::LocalException&)

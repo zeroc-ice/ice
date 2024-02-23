@@ -3,6 +3,7 @@
 //
 
 #include <Ice/Instance.h>
+#include <Ice/TimeUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/RouterInfo.h>
@@ -137,7 +138,7 @@ public:
 
             if(notDestroyedCount > 0)
             {
-                consoleErr << "!! " << IceUtil::Time::now().toDateTime() << " error: ";
+                consoleErr << "!! " << timePointToDateTimeString(chrono::system_clock::now()) << " error: ";
                 if(notDestroyedCount == 1)
                 {
                     consoleErr << "communicator ";

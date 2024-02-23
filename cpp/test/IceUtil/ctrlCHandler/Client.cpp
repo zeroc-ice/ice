@@ -5,7 +5,9 @@
 #include <TestHelper.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Thread.h>
-#include <IceUtil/Time.h>
+
+#include <thread>
+#include <chrono>
 
 using namespace IceUtil;
 using namespace std;
@@ -28,14 +30,14 @@ Client::run(int, char**)
     {
         cout << "First ignore CTRL+C and the like for 10 seconds (try it!)" << endl;
         CtrlCHandler handler;
-        ThreadControl::sleep(Time::seconds(10));
+        this_thread::sleep_for(chrono::seconds(10));
 
         cout << "Then handling them for another 30 seconds (try it)" << endl;
         handler.setCallback(callback);
-        ThreadControl::sleep(Time::seconds(10));
+        this_thread::sleep_for(chrono::seconds(10));
     }
     cout << "And another 10 seconds after ~CtrlCHandler" << endl;
-    ThreadControl::sleep(Time::seconds(10));
+    this_thread::sleep_for(chrono::seconds(10));
     cout << "ok" << endl;
 }
 

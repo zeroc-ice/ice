@@ -5,7 +5,6 @@
 #ifndef ICE_LOGGER_I_H
 #define ICE_LOGGER_I_H
 
-#include <IceUtil/Time.h>
 #include <Ice/Logger.h>
 #include <Ice/StringConverter.h>
 #include <fstream>
@@ -44,7 +43,7 @@ private:
     // In case of a log file rename failure is set to the time in milliseconds
     // after which rename could be attempted again. Otherwise is set to zero.
     //
-    IceUtil::Time _nextRetry;
+    std::chrono::steady_clock::time_point _nextRetry;
 };
 using LoggerIPtr = std::shared_ptr<LoggerI>;
 
