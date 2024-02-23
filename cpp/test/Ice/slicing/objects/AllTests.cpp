@@ -124,7 +124,7 @@ void breakCycles(shared_ptr<Ice::Value> o)
     }
 }
 
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
+class CallbackBase
 {
 public:
 
@@ -139,7 +139,8 @@ public:
 
     void check()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        unique_lock lock(_mutex);
+        _condition.wait(lock, [this] { return _called; });
         while(!_called)
         {
             wait();
@@ -151,15 +152,17 @@ protected:
 
     void called()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        unique_lock lock(_mutex);
         assert(!_called);
         _called = true;
-        notify();
+        _condition.notify_one();
     }
 
 private:
 
     bool _called;
+    mutex _mutex;
+    condition_variable _condition;
 };
 
 class Callback : public CallbackBase
@@ -1796,7 +1799,7 @@ allTests(Test::TestHelper* helper)
 
             test(r);
 
-            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, r);
+            D3Ptr p3 = dynamic_pointer_cast<D3>(r);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
@@ -1844,7 +1847,7 @@ allTests(Test::TestHelper* helper)
 
             auto r = test->returnTest3Async(d3, b2).get();
             test(r);
-            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, r);
+            D3Ptr p3 = dynamic_pointer_cast<D3>(r);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
@@ -1898,7 +1901,7 @@ allTests(Test::TestHelper* helper)
             test(r);
             test(r->sb == "D3.sb");
             test(r->pb == r);
-            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, r);
+            D3Ptr p3 = dynamic_pointer_cast<D3>(r);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
@@ -1948,7 +1951,7 @@ allTests(Test::TestHelper* helper)
             test(r);
             test(r->sb == "D3.sb");
             test(r->pb == r);
-            D3Ptr p3 = ICE_DYNAMIC_CAST(D3, r);
+            D3Ptr p3 = dynamic_pointer_cast<D3>(r);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);

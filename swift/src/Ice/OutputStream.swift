@@ -101,11 +101,9 @@ public class OutputStream {
     }
 
     /// Marks the start of a user exception.
-    ///
-    /// - parameter data: `Ice.SlicedData` Preserved slices for this exception, or nil.
-    public func startException(data: SlicedData?) {
+    public func startException() {
         precondition(encaps.encoder != nil)
-        encaps.encoder.startInstance(type: .ExceptionSlice, data: data)
+        encaps.encoder.startInstance(type: .ExceptionSlice, data: nil)
     }
 
     /// Marks the end of a user exception.
@@ -520,6 +518,8 @@ public extension OutputStream {
     /// - parameter _: `UserException` - The user exception to write.
     func write(_ v: UserException) {
         initEncaps()
+        // Exceptions are always encoded with the sliced format.
+        self.encaps.format = FormatType.SlicedFormat;
         encaps.encoder.writeException(v: v)
     }
 

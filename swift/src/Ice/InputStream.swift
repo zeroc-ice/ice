@@ -312,13 +312,11 @@ public class InputStream {
 
     /// Marks the end of a class instance.
     ///
-    /// - parameter preserve: `Bool` - True if unknown slices should be preserved, false otherwise.
-    ///
     /// - returns: `Ice.SlicedData` - A SlicedData object containing the preserved slices for unknown types.
     @discardableResult
-    public func endValue(preserve: Bool) throws -> SlicedData? {
+    public func endValue() throws -> SlicedData? {
         precondition(encaps.decoder != nil)
-        return try encaps.decoder.endInstance(preserve: preserve)
+        return try encaps.decoder.endInstance()
     }
 
     /// Marks the start of a user exception.
@@ -329,14 +327,11 @@ public class InputStream {
 
     /// Marks the end of a user exception.
     ///
-    /// - parameter preserve: `Bool` - True if unknown slices should be preserved, false otherwise.
-    ///
     /// - returns: `Ice.SlicedData?` - A `SlicedData` object containing the preserved slices for unknown
     ///   types.
-    @discardableResult
-    public func endException(preserve: Bool) throws -> SlicedData? {
+    public func endException() throws {
         precondition(encaps.decoder != nil)
-        return try encaps.decoder.endInstance(preserve: preserve)
+        _ = try encaps.decoder.endInstance()
     }
 
     func initEncaps() {
@@ -903,7 +898,7 @@ private protocol EncapsDecoder: AnyObject {
     func throwException() throws
 
     func startInstance(type: SliceType)
-    func endInstance(preserve: Bool) throws -> SlicedData?
+    func endInstance() throws -> SlicedData?
     func startSlice() throws -> String
     func endSlice() throws
     func skipSlice() throws
@@ -1199,7 +1194,7 @@ private class EncapsDecoder10: EncapsDecoder {
         skipFirstSlice = true
     }
 
-    func endInstance(preserve _: Bool) throws -> SlicedData? {
+    func endInstance() throws -> SlicedData? {
         //
         // Read the Ice::Value slice.
         //
@@ -1477,11 +1472,8 @@ private class EncapsDecoder11: EncapsDecoder {
         current.skipFirstSlice = true
     }
 
-    func endInstance(preserve: Bool) throws -> SlicedData? {
-        var slicedData: SlicedData?
-        if preserve {
-            slicedData = try readSlicedData()
-        }
+    func endInstance() throws -> SlicedData? {
+        let slicedData = try readSlicedData()
 
         current.slices.removeAll()
         current.indirectionTables.removeAll()

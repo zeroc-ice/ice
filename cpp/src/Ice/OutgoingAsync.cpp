@@ -967,7 +967,7 @@ LambdaInvoke::handleException(std::exception_ptr)
 bool
 LambdaInvoke::handleResponse(bool)
 {
-    return _response != nullptr;
+    return (_response) != nullptr;
 }
 
 void
