@@ -88,6 +88,9 @@ mutex staticMutex;
 bool oneOfDone = false;
 std::list<IceInternal::Instance*>* instanceList = 0;
 
+static thread_local std::map<const IceInternal::Instance*, ImplicitContextIPtr> perThreadImplicitContextMap;
+std::mutex perThreadImplicitContextMutex;
+
 #ifndef _WIN32
 struct sigaction oldAction;
 #endif
@@ -913,7 +916,6 @@ IceInternal::Instance::Instance(const InitializationData& initData) :
     _classGraphDepthMax(0),
     _toStringMode(ToStringMode::Unicode),
     _acceptClassCycles(false),
-    _implicitContext(nullptr),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
     _adminEnabled(false)
@@ -1192,8 +1194,28 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 
-        const_cast<ImplicitContextIPtr&>(_implicitContext) =
-            ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
+
+        string implicitContextKind = _initData.properties->getPropertyWithDefault("Ice.ImplicitContext", "None");
+        if(implicitContextKind == "Shared")
+        {
+            _implicitContextKind = ImplicitContextKind::Shared;
+            _sharedImplicitContext = std::make_shared<ImplicitContextI>();
+        }
+        else if(implicitContextKind == "PerThread")
+        {
+            _implicitContextKind = ImplicitContextKind::PerThread;
+        }
+        else if (implicitContextKind == "None")
+        {
+            _implicitContextKind = ImplicitContextKind::None;
+        }
+        else
+        {
+            throw Ice::InitializationException(
+                __FILE__,
+                __LINE__,
+                "'" + implicitContextKind + "' is not a valid value for Ice.ImplicitContext");
+        }
 
         _routerManager = make_shared<RouterManager>();
 
@@ -1280,6 +1302,29 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         destroy();
         throw;
+    }
+}
+
+const Ice::ImplicitContextIPtr&
+IceInternal::Instance::getImplicitContext() const
+{
+    if(_implicitContextKind == ImplicitContextKind::PerThread)
+    {
+        lock_guard lock(perThreadImplicitContextMutex);
+        auto it = perThreadImplicitContextMap.find(this);
+        if (it == perThreadImplicitContextMap.end())
+        {
+            auto r = perThreadImplicitContextMap.emplace(make_pair(this, std::make_shared<ImplicitContextI>()));
+            return r.first->second;
+        }
+        else
+        {
+            return it->second;
+        }
+    }
+    else
+    {
+        return _sharedImplicitContext;
     }
 }
 

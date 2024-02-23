@@ -113,10 +113,7 @@ public:
     std::shared_ptr<Ice::Object> findAdminFacet(const std::string&);
     Ice::FacetMap findAllAdminFacets();
 
-    const Ice::ImplicitContextIPtr& getImplicitContext() const
-    {
-        return _implicitContext;
-    }
+    const Ice::ImplicitContextIPtr& getImplicitContext() const;
 
     void setDefaultLocator(const std::optional<Ice::LocatorPrx>&);
     void setDefaultRouter(const std::optional<Ice::RouterPrx>&);
@@ -196,6 +193,16 @@ private:
     std::mutex _setBufSizeWarnMutex;
     mutable std::recursive_mutex _mutex;
     std::condition_variable_any _conditionVariable;
+
+    enum ImplicitContextKind
+    {
+        None,
+        PerThread,
+        Shared
+    };
+    ImplicitContextKind _implicitContextKind;
+    // Only set when _implicitContextKind == Shared.
+    Ice::ImplicitContextIPtr _sharedImplicitContext;
 };
 
 class ProcessI : public Ice::Process
