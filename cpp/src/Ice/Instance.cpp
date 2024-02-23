@@ -88,8 +88,6 @@ mutex staticMutex;
 bool oneOfDone = false;
 std::list<IceInternal::Instance*>* instanceList = 0;
 
-static thread_local std::map<const IceInternal::Instance*, ImplicitContextPtr> perThreadImplicitContextMap;
-
 #ifndef _WIN32
 struct sigaction oldAction;
 #endif
