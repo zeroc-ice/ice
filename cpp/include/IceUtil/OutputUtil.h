@@ -9,6 +9,7 @@
 #include <fstream>
 #include <stack>
 #include <vector>
+#include <string_view>
 
 namespace IceUtilInternal
 {
@@ -98,6 +99,9 @@ public:
 
     void spar(char = '('); // Start a paramater list.
     void epar(char = ')'); // End a paramater list.
+
+    void spar(std::string_view); // Start a paramater list.
+    void epar(std::string_view); // End a paramater list.
 
 private:
 

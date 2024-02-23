@@ -15,7 +15,6 @@
 #include <Ice/ACM.h>
 #include <Ice/ObjectAdapterI.h> // For getThreadPool() and getServantManager().
 #include <Ice/EndpointI.h>
-#include <Ice/OutgoingAsync.h>
 #include <Ice/Incoming.h>
 #include <Ice/LocalException.h>
 #include <Ice/RequestHandler.h> // For RetryException
