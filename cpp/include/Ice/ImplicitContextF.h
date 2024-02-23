@@ -5,14 +5,7 @@
 #ifndef __Ice_ImplicitContextF_h__
 #define __Ice_ImplicitContextF_h__
 
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <IceUtil/UndefSysMacros.h>
+#include <memory>
 
 namespace Ice
 {

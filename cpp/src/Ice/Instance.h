@@ -28,7 +28,7 @@
 #include <Ice/NetworkF.h>
 #include <Ice/NetworkProxyF.h>
 #include <Ice/Initialize.h>
-#include <Ice/ImplicitContextI.h>
+#include <Ice/ImplicitContext.h>
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
 #include <list>
@@ -113,7 +113,7 @@ public:
     std::shared_ptr<Ice::Object> findAdminFacet(const std::string&);
     Ice::FacetMap findAllAdminFacets();
 
-    const Ice::ImplicitContextIPtr& getImplicitContext() const;
+    const Ice::ImplicitContextPtr& getImplicitContext() const;
 
     void setDefaultLocator(const std::optional<Ice::LocatorPrx>&);
     void setDefaultRouter(const std::optional<Ice::RouterPrx>&);
@@ -180,7 +180,7 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
-    const Ice::ImplicitContextIPtr _implicitContext;
+    const Ice::ImplicitContextPtr _implicitContext;
     Ice::StringConverterPtr _stringConverter;
     Ice::WstringConverterPtr _wstringConverter;
     bool _adminEnabled;
@@ -202,7 +202,7 @@ private:
     };
     ImplicitContextKind _implicitContextKind;
     // Only set when _implicitContextKind == Shared.
-    Ice::ImplicitContextIPtr _sharedImplicitContext;
+    Ice::ImplicitContextPtr _sharedImplicitContext;
 };
 
 class ProcessI : public Ice::Process

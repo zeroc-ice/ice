@@ -88,8 +88,7 @@ mutex staticMutex;
 bool oneOfDone = false;
 std::list<IceInternal::Instance*>* instanceList = 0;
 
-static thread_local std::map<const IceInternal::Instance*, ImplicitContextIPtr> perThreadImplicitContextMap;
-std::mutex perThreadImplicitContextMutex;
+static thread_local std::map<const IceInternal::Instance*, ImplicitContextPtr> perThreadImplicitContextMap;
 
 #ifndef _WIN32
 struct sigaction oldAction;
@@ -1198,7 +1197,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         if(implicitContextKind == "Shared")
         {
             _implicitContextKind = ImplicitContextKind::Shared;
-            _sharedImplicitContext = std::make_shared<ImplicitContextI>();
+            _sharedImplicitContext = std::make_shared<ImplicitContext>();
         }
         else if(implicitContextKind == "PerThread")
         {
@@ -1304,26 +1303,25 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
     }
 }
 
-const Ice::ImplicitContextIPtr&
+const Ice::ImplicitContextPtr&
 IceInternal::Instance::getImplicitContext() const
 {
-    if(_implicitContextKind == ImplicitContextKind::PerThread)
+    switch (_implicitContextKind)
     {
-        lock_guard lock(perThreadImplicitContextMutex);
-        auto it = perThreadImplicitContextMap.find(this);
-        if (it == perThreadImplicitContextMap.end())
+        case ImplicitContextKind::PerThread:
         {
-            auto r = perThreadImplicitContextMap.emplace(make_pair(this, std::make_shared<ImplicitContextI>()));
-            return r.first->second;
+            thread_local ImplicitContextPtr perThreadImplicitContext;
+            if (!perThreadImplicitContext)
+            {
+                perThreadImplicitContext = std::make_shared<ImplicitContext>();
+            }
+            return perThreadImplicitContext;
         }
-        else
+
+        default:
         {
-            return it->second;
+            return _sharedImplicitContext;
         }
-    }
-    else
-    {
-        return _sharedImplicitContext;
     }
 }
 
