@@ -662,7 +662,7 @@ public:
      * @param convert Determines whether the string is processed by the narrow string converter,
      * if one has been configured. The default behavior is to convert the strings.
      */
-    void write(const std::string& v, bool convert = true)
+    void write(std::string_view v, bool convert = true)
     {
         std::int32_t sz = static_cast<std::int32_t>(v.size());
         if(convert && sz > 0)

@@ -152,7 +152,7 @@ MyDerivedClassI::opFloatDoubleAsync(float p1,
 void
 MyDerivedClassI::opStringAsync(string p1,
                                string p2,
-                               function<void(const string&, const string&)> response,
+                               function<void(string_view, string_view)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {
@@ -824,7 +824,7 @@ MyDerivedClassI::opDouble1Async(Ice::Double d,
 
 void
 MyDerivedClassI::opString1Async(string s,
-                                function<void(const string&)> response,
+                                function<void(string_view)> response,
                                 function<void(exception_ptr)>,
                                 const Ice::Current&)
 {

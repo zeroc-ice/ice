@@ -809,7 +809,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "::std::int64_t",
         "float",
         "double",
-        "const ::std::string&",
+        "const ::std::string&", // this not used anywhere, see below
         "const ::std::shared_ptr<::Ice::Value>&",
         "const ::std::optional<::Ice::ObjectPrx>&",
         "const ::std::shared_ptr<::Ice::Value>&"
@@ -827,7 +827,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
+            return stringTypeToString(type, metaData, typeCtx) + "_view";
         }
         else
         {

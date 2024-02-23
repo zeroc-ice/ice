@@ -280,7 +280,33 @@ struct StreamableTraits< ::std::string>
  * \headerfile Ice/Ice.h
  */
 template<>
+struct StreamableTraits< ::std::string_view>
+{
+    static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
+    static const int minWireSize = 1;
+    static const bool fixedLength = false;
+};
+
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
+template<>
 struct StreamableTraits< ::std::wstring>
+{
+    static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
+    static const int minWireSize = 1;
+    static const bool fixedLength = false;
+};
+
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
+template<>
+struct StreamableTraits< ::std::wstring_view>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryBuiltin;
     static const int minWireSize = 1;
