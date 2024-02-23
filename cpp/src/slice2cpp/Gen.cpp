@@ -3213,7 +3213,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // These type IDs are sorted alphabetically.
     C << nl << "static const ::std::vector<::std::string> allTypeIds = ";
     C.spar("{ ");
-    for (auto typeId : p->ids())
+    for (const auto& typeId : p->ids())
     {
         C << '"' + typeId + '"';
     }
@@ -3280,7 +3280,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << sp;
         C << nl << "static constexpr ::std::string_view allOperations[] = ";
         C.spar("{ ");
-        for (auto opName : allOpNames)
+        for (const auto& opName : allOpNames)
         {
             C << '"' + opName + '"';
         }
