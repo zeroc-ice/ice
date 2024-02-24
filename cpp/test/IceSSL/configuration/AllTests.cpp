@@ -824,8 +824,8 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(Ice::targetEqualTo(caCert, info->certs[1]));
             test(Ice::targetEqualTo(serverCert, info->certs[0]));
 
-            test(!(Ice::targetEqualTo(serverCert, info->certs[1])));
-            test(!(Ice::targetEqualTo(caCert, info->certs[0])));
+            test(!Ice::targetEqualTo(serverCert, info->certs[1]));
+            test(!Ice::targetEqualTo(caCert, info->certs[0]));
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(info->certs[0]->checkValidity() && info->certs[1]->checkValidity());

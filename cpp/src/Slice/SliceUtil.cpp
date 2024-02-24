@@ -520,3 +520,19 @@ Slice::checkIdentifier(const string& id)
 
     return isValid;
 }
+
+bool
+Slice::isProxyType(const TypePtr& type)
+{
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+    if (builtin && builtin->kind() == Builtin::KindObjectProxy)
+    {
+        return true;
+    }
+
+    if (dynamic_pointer_cast<InterfaceDecl>(type))
+    {
+        return true;
+    }
+    return false;
+}
