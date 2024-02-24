@@ -24,9 +24,9 @@ typedef int StreamHelperCategory;
 
 /** For types with no specialized trait. */
 const StreamHelperCategory StreamHelperCategoryUnknown = 0;
-/** For built-in types encoded by value. */
+/** For built-in types usually passed by value. */
 const StreamHelperCategory StreamHelperCategoryBuiltinValue = 1;
-/** For built-in types encoded by const reference. */
+/** For built-in types usually passed by reference. */
 const StreamHelperCategory StreamHelperCategoryBuiltin = 2;
 /** For struct types. */
 const StreamHelperCategory StreamHelperCategoryStruct = 3;
@@ -360,7 +360,7 @@ template<typename T, StreamHelperCategory st>
 struct StreamHelper;
 
 /**
- * Helper for built-ins encoded as values, delegates read/write to the stream.
+ * Helper for smaller built-in type that are typically passed by value.
  * \headerfile Ice/Ice.h
  */
 template<typename T>
@@ -380,7 +380,39 @@ struct StreamHelper<T, StreamHelperCategoryBuiltinValue>
 };
 
 /**
- * Helper for built-ins encoded as const&, delegates read/write to the stream.
+ * Helper to marshal a std::string_view as a Slice string.
+ * \headerfile Ice/Ice.h
+ */
+template<>
+struct StreamHelper<std::string_view, StreamHelperCategoryBuiltinValue>
+{
+    template<class S> static inline void
+    write(S* stream, std::string_view v)
+    {
+        stream->write(v);
+    }
+
+    // No read: we marshal string views but unmarshal strings.
+};
+
+/**
+ * Helper to marshal a std::wstring_view as a Slice string.
+ * \headerfile Ice/Ice.h
+ */
+template<>
+struct StreamHelper<std::wstring_view, StreamHelperCategoryBuiltinValue>
+{
+    template<class S> static inline void
+    write(S* stream, std::wstring_view v)
+    {
+        stream->write(v);
+    }
+
+    // No read: we marshal wstring views but unmarshal wstrings.
+};
+
+/**
+ * Helper for larger built-in types that are typically not passed by value.
  * \headerfile Ice/Ice.h
  */
 template<typename T>
