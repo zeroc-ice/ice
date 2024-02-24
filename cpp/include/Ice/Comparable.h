@@ -6,7 +6,6 @@
 #define ICE_COMPARABLE_H
 
 #include <functional>
-#include <memory>
 
 namespace Ice
 {
@@ -18,7 +17,7 @@ namespace Ice
  * @return True if the contents are equal, false otherwise.
  */
 template<typename T, typename U>
-inline bool targetEqualTo(const std::shared_ptr<T>& lhs, const std::shared_ptr<U>& rhs)
+inline bool targetEqualTo(const T& lhs, const U& rhs)
 {
     if(lhs && rhs)
     {
@@ -37,7 +36,7 @@ inline bool targetEqualTo(const std::shared_ptr<T>& lhs, const std::shared_ptr<U
  * @return True if the left-hand side compares less than the right-hand side, false otherwise.
  */
 template<typename T, typename U>
-inline bool targetLess(const std::shared_ptr<T>& lhs, const std::shared_ptr<U>& rhs)
+inline bool targetLess(const T& lhs, const U& rhs)
 {
     if(lhs && rhs)
     {
@@ -56,7 +55,7 @@ inline bool targetLess(const std::shared_ptr<T>& lhs, const std::shared_ptr<U>& 
  * @return True if the left-hand side compares greater than the right-hand side, false otherwise.
  */
 template<typename T, typename U>
-inline bool targetGreater(const std::shared_ptr<T>& lhs, const std::shared_ptr<U>& rhs)
+inline bool targetGreater(const T& lhs, const U& rhs)
 {
     return targetLess(rhs, lhs);
 }
@@ -68,7 +67,7 @@ inline bool targetGreater(const std::shared_ptr<T>& lhs, const std::shared_ptr<U
  * @return True if the left-hand side compares less than or equal to the right-hand side, false otherwise.
  */
 template<typename T, typename U>
-inline bool targetLessEqual(const std::shared_ptr<T>& lhs, const std::shared_ptr<U>& rhs)
+inline bool targetLessEqual(const T& lhs, const U& rhs)
 {
     return !targetGreater(lhs, rhs);
 }
@@ -80,7 +79,7 @@ inline bool targetLessEqual(const std::shared_ptr<T>& lhs, const std::shared_ptr
  * @return True if the left-hand side compares greater than or equal to the right-hand side, false otherwise.
  */
 template<typename T, typename U>
-inline bool targetGreaterEqual(const std::shared_ptr<T>& lhs, const std::shared_ptr<U>& rhs)
+inline bool targetGreaterEqual(const T& lhs, const U& rhs)
 {
     return !targetLess(lhs, rhs);
 }
@@ -92,7 +91,7 @@ inline bool targetGreaterEqual(const std::shared_ptr<T>& lhs, const std::shared_
  * @return True if the contents are not equal, false otherwise.
  */
 template<typename T, typename U>
-inline bool targetNotEqualTo(const std::shared_ptr<T>& lhs, const std::shared_ptr<U>& rhs)
+inline bool targetNotEqualTo(const T& lhs, const U& rhs)
 {
     return !targetEqualTo(lhs, rhs);
 }

@@ -21,8 +21,6 @@
 #   endif
 #endif
 
-#define ICE_TARGET_EQUAL_TO(A,B) Ice::targetEqualTo(A, B)
-
 #if defined(__APPLE__)
 #   define ICE_USE_SECURE_TRANSPORT 1
 #   if defined(__APPLE__) && TARGET_OS_IPHONE != 0
@@ -787,12 +785,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
 #if defined(_WIN32) && defined(ICE_USE_OPENSSL)
             IceSSL::CertificatePtr serverCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(ICE_TARGET_EQUAL_TO(IceSSL::OpenSSL::Certificate::decode(serverCert->encode()), serverCert));
+            test(Ice::targetEqualTo(IceSSL::OpenSSL::Certificate::decode(serverCert->encode()), serverCert));
 #else
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(ICE_TARGET_EQUAL_TO(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
+            test(Ice::targetEqualTo(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
 #endif
-            test(ICE_TARGET_EQUAL_TO(serverCert, serverCert));
+            test(Ice::targetEqualTo(serverCert, serverCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(serverCert->checkValidity());
 
@@ -806,7 +804,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
             IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load(defaultDir + "/cacert2.pem");
 #endif
-            test(ICE_TARGET_EQUAL_TO(caCert, caCert));
+            test(Ice::targetEqualTo(caCert, caCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(caCert->checkValidity());
 
@@ -823,11 +821,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(info->verified);
             test(getTrustError(info) == IceSSL::TrustError::NoError);
 
-            test(ICE_TARGET_EQUAL_TO(caCert, info->certs[1]));
-            test(ICE_TARGET_EQUAL_TO(serverCert, info->certs[0]));
+            test(Ice::targetEqualTo(caCert, info->certs[1]));
+            test(Ice::targetEqualTo(serverCert, info->certs[0]));
 
-            test(!(ICE_TARGET_EQUAL_TO(serverCert, info->certs[1])));
-            test(!(ICE_TARGET_EQUAL_TO(caCert, info->certs[0])));
+            test(!(Ice::targetEqualTo(serverCert, info->certs[1])));
+            test(!(Ice::targetEqualTo(caCert, info->certs[0])));
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(info->certs[0]->checkValidity() && info->certs[1]->checkValidity());
