@@ -336,6 +336,11 @@ interface Initial
 
     bool supportsCppStringView();
 
+    // TODO: remove.
+    // This test actually uses this flag only for tagged classes (to be removed), not tagged proxies.
+    // For tagged proxies: in IceRPC and from Ice 3.8 on, we don't distinguish between a not-set tagged
+    // proxy and a tagged proxy set to nullopt. We encode as not-set in both cases, and decode successfully both to
+    // nulltopt.
     bool supportsNullOptional();
 }
 

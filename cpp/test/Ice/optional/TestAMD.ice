@@ -337,6 +337,7 @@ interface Initial
 
     bool supportsCppStringView();
 
+    // TODO: remove. See Test.ice comment.
     bool supportsNullOptional();
 }
 

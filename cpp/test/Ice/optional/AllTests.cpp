@@ -1334,6 +1334,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
+        // TODO: remove this testing for tagged classes alongside the tagged class support.
         optional<OneOptionalPtr> p1;
         optional<OneOptionalPtr> p3;
         optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
