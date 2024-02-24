@@ -56,6 +56,20 @@ prependA(const std::string&);
 bool
 checkIdentifier(const std::string&);
 
+inline bool isProxyType(const TypePtr& type)
+{
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+    if (builtin && builtin->kind() == Builtin::KindObjectProxy)
+    {
+        return true;
+    }
+
+    if (dynamic_pointer_cast<InterfaceDecl>(type))
+    {
+        return true;
+    }
+    return false;
 }
 
+}
 #endif

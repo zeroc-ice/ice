@@ -489,7 +489,7 @@ public:
      * Writes a list of optional data values.
      */
     template<typename T>
-    void writeAll(std::initializer_list<int> tags, const std::optional<T>& v)
+    void writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v)
     {
         write(*(tags.begin() + tags.size() - 1), v);
     }
@@ -498,7 +498,7 @@ public:
      * Writes a list of optional data values.
      */
     template<typename T, typename... Te>
-    void writeAll(std::initializer_list<int> tags, const std::optional<T>& v, const std::optional<Te>&... ve)
+    void writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v, const std::optional<Te>&... ve)
     {
         size_t index = tags.size() - sizeof...(ve) - 1;
         write(*(tags.begin() + index), v);
