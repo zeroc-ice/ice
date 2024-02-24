@@ -396,24 +396,46 @@ public:
     }
 
     /**
-     * Writes an optional data value to the stream.
+     * Writes an optional data value to the stream. For all types except proxies.
      * @param tag The tag ID.
      * @param v The data value to be written (if any).
      */
-    template<typename T> void write(std::int32_t tag, const std::optional<T>& v)
+    template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void write(std::int32_t tag, const std::optional<T>& v)
     {
-        if(!v)
+        if (!v)
         {
             return; // Optional not set
         }
 
-        if(writeOptional(tag, StreamOptionalHelper<T,
-                                              StreamableTraits<T>::helper,
-                                              StreamableTraits<T>::fixedLength>::optionalFormat))
+        if (writeOptional(tag, StreamOptionalHelper<T,
+                                                    StreamableTraits<T>::helper,
+                                                    StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,
                                  StreamableTraits<T>::fixedLength>::write(this, *v);
+        }
+    }
+
+    /**
+     * Writes an optional proxy to the stream.
+     * @param tag The tag ID.
+     * @param v The proxy to be written (if any).
+     */
+    template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void write(std::int32_t tag, const std::optional<T>& v)
+    {
+        if (!v)
+        {
+            return; // Optional not set
+        }
+
+        if (writeOptional(tag, OptionalFormat::FSize))
+        {
+            size_type pos = startSize();
+            writeProxy(*v);
+            endSize(pos);
         }
     }
 

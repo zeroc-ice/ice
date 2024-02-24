@@ -9,7 +9,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/Object.h>
 #include <Ice/ValueF.h>
-#include <Ice/ProxyF.h>
+#include "ProxyF.h"
 #include <Ice/LoggerF.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/Buffer.h>
@@ -629,11 +629,12 @@ public:
     }
 
     /**
-     * Reads an optional data value from the stream.
+     * Reads an optional data value from the stream. For all types except proxies.
      * @param tag The tag ID.
      * @param v Holds the extracted data (if any).
      */
-    template<typename T> void read(std::int32_t tag, std::optional<T>& v)
+    template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void read(std::int32_t tag, std::optional<T>& v)
     {
         if(readOptional(tag, StreamOptionalHelper<T,
                                              StreamableTraits<T>::helper,
@@ -643,6 +644,26 @@ public:
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,
                                  StreamableTraits<T>::fixedLength>::read(this, *v);
+        }
+        else
+        {
+            v = std::nullopt;
+        }
+    }
+
+    /**
+     * Reads an optional proxy from the stream.
+     * @param tag The tag ID.
+     * @param v The proxy unmarshaled by this function. If nullopt, the proxy was not present in the stream or
+     * was set to nullopt (set to nullopt is supported for backward compatibility with Ice 3.7 and earlier releases).
+     */
+    template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void read(std::int32_t tag, std::optional<T>& v)
+    {
+        if (readOptional(tag, OptionalFormat::FSize))
+        {
+            skip(4); // the fixed-length size on 4 bytes
+            read(v); // can be nullopt
         }
         else
         {

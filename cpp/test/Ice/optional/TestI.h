@@ -86,8 +86,8 @@ public:
                                                                   std::optional<Test::OneOptionalPtr>&,
                                                                   const ::Ice::Current&);
 
-    virtual std::optional<Test::MyInterfacePrxPtr> opMyInterfaceProxy(std::optional<Test::MyInterfacePrxPtr>,
-                                                                          std::optional<Test::MyInterfacePrxPtr>&,
+    virtual std::optional<Test::MyInterfacePrx> opMyInterfaceProxy(std::optional<Test::MyInterfacePrx>,
+                                                                          std::optional<Test::MyInterfacePrx>&,
                                                                           const ::Ice::Current&);
 
     virtual std::optional<::Test::ByteSeq> opByteSeq(

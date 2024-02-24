@@ -41,7 +41,15 @@ string toTemplateArg(const string& arg)
 string
 toOptional(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
-    return "::std::optional<" + typeToString(type, scope, metaData, typeCtx) + '>';
+    if (isProxyType(type))
+    {
+        // We map optional proxies like regular proxies, as optional<XxxPrx>.
+        return typeToString(type, scope, metaData, typeCtx);
+    }
+    else
+    {
+        return "::std::optional<" + typeToString(type, scope, metaData, typeCtx) + '>';
+    }
 }
 
 string
