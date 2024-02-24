@@ -3,8 +3,6 @@
 //
 
 #include <Ice/ImplicitContext.h>
-#include <Ice/OutputStream.h>
-#include <Ice/Object.h>
 
 using namespace std;
 using namespace Ice;
@@ -24,18 +22,17 @@ ImplicitContext::setContext(const Context& newContext)
 }
 
 bool
-ImplicitContext::containsKey(const string& k) const
+ImplicitContext::containsKey(const string& key) const
 {
     lock_guard lock(_mutex);
-    Context::const_iterator p = _context.find(k);
-    return p != _context.end();
+    return _context.find(key) != _context.end();
 }
 
 string
-ImplicitContext::get(const string& k) const
+ImplicitContext::get(const string& key) const
 {
     lock_guard lock(_mutex);
-    Context::const_iterator p = _context.find(k);
+    Context::const_iterator p = _context.find(key);
     if(p == _context.end())
     {
         return "";
@@ -44,21 +41,21 @@ ImplicitContext::get(const string& k) const
 }
 
 string
-ImplicitContext::put(const string& k, const string& v)
+ImplicitContext::put(const string& key, const string& value)
 {
     lock_guard lock(_mutex);
-    string& val = _context[k];
+    string& val = _context[key];
 
     string oldVal = val;
-    val = v;
+    val = value;
     return oldVal;
 }
 
 string
-ImplicitContext::remove(const string& k)
+ImplicitContext::remove(const string& key)
 {
     lock_guard lock(_mutex);
-    Context::iterator p = _context.find(k);
+    Context::iterator p = _context.find(key);
     if(p == _context.end())
     {
         return "";
@@ -72,42 +69,42 @@ ImplicitContext::remove(const string& k)
 }
 
 void
-ImplicitContext::write(const Context& proxyCtx, ::Ice::OutputStream* s) const
+ImplicitContext::write(const Context& contex, ::Ice::OutputStream* os) const
 {
     unique_lock lock(_mutex);
-    if(proxyCtx.size() == 0)
+    if(contex.size() == 0)
     {
-        s->write(_context);
+        os->write(_context);
     }
     else if(_context.size() == 0)
     {
         lock.unlock();
-        s->write(proxyCtx);
+        os->write(contex);
     }
     else
     {
-        Context combined = proxyCtx;
+        Context combined = contex;
         combined.insert(_context.begin(), _context.end());
         lock.unlock();
-        s->write(combined);
+        os->write(combined);
     }
 }
 
 void
-ImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
+ImplicitContext::combine(const Context& context, Context& combined) const
 {
     lock_guard lock(_mutex);
-    if(proxyCtx.size() == 0)
+    if(context.size() == 0)
     {
-        ctx = _context;
+        combined = _context;
     }
     else if(_context.size() == 0)
     {
-        ctx = proxyCtx;
+        combined = context;
     }
     else
     {
-        ctx = proxyCtx;
-        ctx.insert(_context.begin(), _context.end());
+        combined = context;
+        combined.insert(_context.begin(), _context.end());
     }
 }
