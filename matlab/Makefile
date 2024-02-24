@@ -131,8 +131,6 @@ clean::
 	rm -rf $(lang_srcdir)/toolbox/toolbox.prj
 	rm -rf $(lang_srcdir)/toolbox/info.xml
 
-all:: $(icetoolbox_file)
-
 toolbox:: $(icetoolbox_file)
 
 endif
