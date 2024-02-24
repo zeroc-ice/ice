@@ -290,7 +290,7 @@ allTests(Test::TestHelper* helper)
         Ice::InputStream in(communicator, data);
         SmallStruct s2;
         in.read(s2);
-        test(targetEqualTo(s2.p, s.p));
+        test(s2.p == s.p);
         s2.p = s.p; // otherwise the s2 == s below will fail
 
         test(s2 == s);
@@ -638,7 +638,7 @@ allTests(Test::TestHelper* helper)
 
         for(SmallStructS::size_type j = 0; j < arr2.size(); ++j)
         {
-            test(targetEqualTo(arr[j].p, arr2[j].p));
+            test(arr[j].p == arr2[j].p);
             arr2[j].p = arr[j].p;
             test(arr[j] == arr2[j]);
         }

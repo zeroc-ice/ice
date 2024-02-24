@@ -381,7 +381,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         test(rso.p == nullopt);
         test(rso.e == MyEnum::enum2);
         test(rso.s.s == "def");
-        test(Ice::targetEqualTo(so.p, p));
+        test(so.p == p);
         test(so.e == MyEnum::enum3);
         test(so.s.s == "a new string");
         so.p->opVoid();

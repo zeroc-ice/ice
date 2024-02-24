@@ -237,10 +237,10 @@ allTests(Test::TestHelper* helper)
     test(b1->ice_toString() == "test -t -p 6.5 -e 1.0");
 
     b1 = communicator->stringToProxy("test:tcp --sourceAddress \"::1\"");
-    test(Ice::targetEqualTo(b1, communicator->stringToProxy(b1->ice_toString())));
+    test(b1 == communicator->stringToProxy(b1->ice_toString()));
 
     b1 = communicator->stringToProxy("test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
-    test(Ice::targetEqualTo(b1, communicator->stringToProxy(b1->ice_toString())));
+    test(b1 == communicator->stringToProxy(b1->ice_toString()));
 
     try
     {
@@ -400,7 +400,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing proxyToString... " << flush;
     b1 = communicator->stringToProxy(ref);
     Ice::ObjectPrxPtr b2 = communicator->stringToProxy(communicator->proxyToString(b1));
-    test(Ice::targetEqualTo(b1, b2));
+    test(b1 == b2);
 
     if(b1->ice_getConnection()) // not colloc-optimized target
     {
@@ -697,12 +697,6 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing proxy comparison... " << flush;
-
-    test(Ice::targetEqualTo(communicator->stringToProxy("foo"), communicator->stringToProxy("foo")));
-    test(Ice::targetNotEqualTo(communicator->stringToProxy("foo"), communicator->stringToProxy("foo2")));
-    test(Ice::targetLess(communicator->stringToProxy("foo"), communicator->stringToProxy("foo2")));
-    test(Ice::targetGreaterEqual(communicator->stringToProxy("foo2"), communicator->stringToProxy("foo")));
-
     Ice::ObjectPrxPtr compObj = communicator->stringToProxy("foo");
 
     test(compObj->ice_facet("facet") == compObj->ice_facet("facet"));
@@ -806,15 +800,15 @@ allTests(Test::TestHelper* helper)
 
     auto compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
     auto compObj2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
-    test(Ice::targetNotEqualTo(compObj1, compObj2));
-    test(Ice::targetLess(compObj1, compObj2));
-    test(Ice::targetGreaterEqual(compObj2, compObj1));
+    test(compObj1 != compObj2);
+    test(compObj1 < compObj2);
+    test(compObj2 > compObj1);
 
     compObj1 = communicator->stringToProxy("foo@MyAdapter1");
     compObj2 = communicator->stringToProxy("foo@MyAdapter2");
-    test(Ice::targetNotEqualTo(compObj1, compObj2));
-    test(Ice::targetLess(compObj1, compObj2));
-    test(Ice::targetGreaterEqual(compObj2, compObj1));
+    test(compObj1 != compObj2);
+    test(compObj1 < compObj2);
+    test(compObj2 > compObj1);
 
     test(compObj1->ice_locatorCacheTimeout(20) == compObj1->ice_locatorCacheTimeout(20));
     test(compObj1->ice_locatorCacheTimeout(10) != compObj1->ice_locatorCacheTimeout(20));
@@ -828,9 +822,9 @@ allTests(Test::TestHelper* helper)
 
     compObj1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 1000");
     compObj2 = communicator->stringToProxy("foo@MyAdapter1");
-    test(Ice::targetNotEqualTo(compObj1, compObj2));
-    test(Ice::targetLess(compObj1, compObj2));
-    test(Ice::targetGreaterEqual(compObj2, compObj1));
+    test(compObj1 != compObj2);
+    test(compObj1 < compObj2);
+    test(compObj2 > compObj1);
 
     Ice::EndpointSeq endpts1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
     Ice::EndpointSeq endpts2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")->ice_getEndpoints();
@@ -853,14 +847,10 @@ allTests(Test::TestHelper* helper)
         Ice::ConnectionPtr baseConnection2 = base->ice_connectionId("base2")->ice_getConnection();
         compObj1 = compObj1->ice_fixed(baseConnection);
         compObj2 = compObj2->ice_fixed(baseConnection2);
-        test(Ice::targetNotEqualTo(compObj1, compObj2));
-        if(Ice::targetLess(compObj1, compObj2))
+        test(compObj1 != compObj2);
+        if(compObj1 < compObj2)
         {
-            test(Ice::targetGreaterEqual(compObj2, compObj1));
-        }
-        else
-        {
-            test(Ice::targetGreaterEqual(compObj1, compObj2));
+            test(compObj2 > compObj1);
         }
     }
 
@@ -872,9 +862,9 @@ allTests(Test::TestHelper* helper)
 
     auto derived = Ice::checkedCast<Test::MyDerivedClassPrx>(cl);
     test(derived);
-    test(Ice::targetEqualTo(cl, base));
-    test(Ice::targetEqualTo(derived, base));
-    test(Ice::targetEqualTo(cl, derived));
+    test(cl == base);
+    test(derived == base);
+    test(cl == derived);
 
     auto loc = Ice::checkedCast<Ice::LocatorPrx>(base);
     test(loc == nullopt);
@@ -886,8 +876,8 @@ allTests(Test::TestHelper* helper)
     auto obj = Ice::checkedCast<Ice::ObjectPrx>(derived);
     test(cl2);
     test(obj);
-    test(Ice::targetEqualTo(cl2, obj));
-    test(Ice::targetEqualTo(cl2, derived));
+    test(cl2 == obj);
+    test(cl2 == derived);
     cout << "ok" << endl;
 
     cout << "testing checked cast with context... " << flush;

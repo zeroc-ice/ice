@@ -95,11 +95,11 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     cout << "testing checked cast... " << flush;
     RetryPrxPtr retry1 = Ice::checkedCast<RetryPrx>(base1);
     test(retry1);
-    test(Ice::targetEqualTo(retry1, base1));
+    test(retry1 == base1);
 
     RetryPrxPtr retry2 = Ice::checkedCast<RetryPrx>(base2);
     test(retry2);
-    test(Ice::targetEqualTo(retry2, base2));
+    test(retry2 == base2);
     cout << "ok" << endl;
 
     cout << "calling regular operation with first proxy... " << flush;

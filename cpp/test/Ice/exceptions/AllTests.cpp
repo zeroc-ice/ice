@@ -303,7 +303,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     ThrowerPrxPtr thrower = Ice::checkedCast<ThrowerPrx>(base);
     test(thrower);
-    test(Ice::targetEqualTo(thrower, base));
+    test(thrower == base);
     cout << "ok" << endl;
 
     cout << "catching exact types... " << flush;

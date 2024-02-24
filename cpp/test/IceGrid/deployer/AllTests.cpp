@@ -476,14 +476,14 @@ allTests(Test::TestHelper* helper)
     test(query->findObjectById(replicated14)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.4"));
 
     Ice::LocatorPrxPtr locator = comm->getDefaultLocator();
-    test(Ice::targetEqualTo(query->findObjectById(encoding10_oneway), locator->findObjectById(encoding10_oneway)));
-    test(Ice::targetEqualTo(query->findObjectById(encoding10_secure), locator->findObjectById(encoding10_secure)));
-    test(Ice::targetEqualTo(query->findObjectById(oaoptions), locator->findObjectById(oaoptions)));
-    test(Ice::targetEqualTo(query->findObjectById(comoptions), locator->findObjectById(comoptions)));
-    test(Ice::targetEqualTo(query->findObjectById(options34), locator->findObjectById(options34)));
-    test(Ice::targetEqualTo(query->findObjectById(simpleServer), locator->findObjectById(simpleServer)));
-    test(Ice::targetEqualTo(query->findObjectById(replicated15), locator->findObjectById(replicated15)));
-    test(Ice::targetEqualTo(query->findObjectById(replicated14), locator->findObjectById(replicated14)));
+    test(query->findObjectById(encoding10_oneway) == locator->findObjectById(encoding10_oneway));
+    test(query->findObjectById(encoding10_secure) == locator->findObjectById(encoding10_secure));
+    test(query->findObjectById(oaoptions) == locator->findObjectById(oaoptions));
+    test(query->findObjectById(comoptions) == locator->findObjectById(comoptions));
+    test(query->findObjectById(options34) == locator->findObjectById(options34));
+    test(query->findObjectById(simpleServer) == locator->findObjectById(simpleServer));
+    test(query->findObjectById(replicated15) == locator->findObjectById(replicated15));
+    test(query->findObjectById(replicated14) == locator->findObjectById(replicated14));
 
     cout << "ok" << endl;
 

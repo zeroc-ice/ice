@@ -233,13 +233,13 @@ createAdminSession(const Ice::LocatorPrxPtr& locator, string replica)
 bool
 isObjectInfoEqual(const ObjectInfo& info1, const ObjectInfo& info2)
 {
-    return (info1.type == info2.type) && Ice::targetEqualTo(info1.proxy, info2.proxy);
+    return (info1.type == info2.type) && (info1.proxy == info2.proxy);
 }
 
 bool
 isAdapterInfoEqual(const AdapterInfo& adpt1, const AdapterInfo& adpt2)
 {
-    return (adpt1.id == adpt2.id) && (adpt1.replicaGroupId == adpt2.replicaGroupId) && Ice::targetEqualTo(adpt1.proxy, adpt2.proxy);
+    return (adpt1.id == adpt2.id) && (adpt1.replicaGroupId == adpt2.replicaGroupId) && (adpt1.proxy == adpt2.proxy);
 }
 
 }
@@ -404,7 +404,7 @@ allTests(Test::TestHelper* helper)
         auto objs2 = query->findAllObjectsByType("::IceGrid::Registry");
         for(vector<Ice::ObjectPrxPtr>::size_type i = 0; i < objs1.size(); i++)
         {
-            test(Ice::targetEqualTo(objs1[i], objs2[i]));
+            test(objs1[i] == objs2[i]);
         }
     }
     cout << "ok" << endl;
