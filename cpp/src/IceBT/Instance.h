@@ -16,7 +16,7 @@ class Instance : public IceInternal::ProtocolInstance
 {
 public:
 
-    Instance(const EnginePtr&, Ice::Short, const std::string&);
+    Instance(const EnginePtr&, std::int16_t, const std::string&);
     virtual ~Instance();
 
     EnginePtr engine() const

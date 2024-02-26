@@ -1815,7 +1815,7 @@ IceInternal::Instance::updateThreadObservers()
 }
 
 BufSizeWarnInfo
-IceInternal::Instance::getBufSizeWarn(Short type)
+IceInternal::Instance::getBufSizeWarn(int16_t type)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 
@@ -1823,10 +1823,10 @@ IceInternal::Instance::getBufSizeWarn(Short type)
 }
 
 BufSizeWarnInfo
-IceInternal::Instance::getBufSizeWarnInternal(Short type)
+IceInternal::Instance::getBufSizeWarnInternal(int16_t type)
 {
     BufSizeWarnInfo info;
-    map<Short, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
+    map<int16_t, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
     if(p == _setBufSizeWarn.end())
     {
         info.sndWarn = false;
@@ -1843,7 +1843,7 @@ IceInternal::Instance::getBufSizeWarnInternal(Short type)
 }
 
 void
-IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
+IceInternal::Instance::setSndBufSizeWarn(int16_t type, int size)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 
@@ -1854,7 +1854,7 @@ IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 }
 
 void
-IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
+IceInternal::Instance::setRcvBufSizeWarn(int16_t type, int size)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 

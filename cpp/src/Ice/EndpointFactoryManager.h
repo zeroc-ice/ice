@@ -30,7 +30,7 @@ public:
     EndpointFactoryManager(const InstancePtr&);
     void initialize() const;
     void add(const EndpointFactoryPtr&);
-    EndpointFactoryPtr get(::Ice::Short) const;
+    EndpointFactoryPtr get(std::int16_t) const;
     EndpointIPtr create(const std::string&, bool) const;
     EndpointIPtr read(Ice::InputStream*) const;
 

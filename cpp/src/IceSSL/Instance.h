@@ -16,7 +16,7 @@ class ICESSL_API Instance final : public IceInternal::ProtocolInstance
 {
 public:
 
-    Instance(const SSLEnginePtr&, Ice::Short, const std::string&);
+    Instance(const SSLEnginePtr&, std::int16_t, const std::string&);
 
     SSLEnginePtr engine() const
     {

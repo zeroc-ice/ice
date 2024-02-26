@@ -564,17 +564,17 @@ public:
     void write(const bool* begin, const bool* end);
 
     /**
-     * Writes a short to the stream.
-     * @param v The short to write.
+     * Marshals an int16_t as a Slice short.
+     * @param v The int16_t to marshal.
      */
-    void write(Short v);
+    void write(std::int16_t v);
 
     /**
-     * Writes a short sequence to the stream.
+     * Marshals an int16_t sequence as a Slice short sequence.
      * @param begin The beginning of the sequence.
      * @param end The end of the sequence.
      */
-    void write(const Short* begin, const Short* end);
+    void write(const std::int16_t* begin, const std::int16_t* end);
 
     /**
      * Writes an int to the stream.

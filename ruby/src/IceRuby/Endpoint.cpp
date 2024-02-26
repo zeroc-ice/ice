@@ -192,7 +192,7 @@ IceRuby_EndpointInfo_type(VALUE self)
         Ice::EndpointInfoPtr* p = reinterpret_cast<Ice::EndpointInfoPtr*>(DATA_PTR(self));
         assert(p);
 
-        Ice::Short type = (*p)->type();
+        int16_t type = (*p)->type();
         return INT2FIX(type);
     }
     ICE_RUBY_CATCH

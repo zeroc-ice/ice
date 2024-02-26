@@ -22,7 +22,7 @@ public:
     ~TcpConnector();
     TransceiverPtr connect() final;
 
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     std::string toString() const final;
 
     bool operator==(const Connector&) const final;

@@ -124,9 +124,9 @@ public:
     const Ice::StringConverterPtr& getStringConverter() const { return _stringConverter; }
     const Ice::WstringConverterPtr& getWstringConverter() const { return _wstringConverter; }
 
-    BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
-    void setSndBufSizeWarn(Ice::Short type, int size);
-    void setRcvBufSizeWarn(Ice::Short type, int size);
+    BufSizeWarnInfo getBufSizeWarn(std::int16_t type);
+    void setSndBufSizeWarn(std::int16_t type, int size);
+    void setRcvBufSizeWarn(std::int16_t type, int size);
 
 private:
 
@@ -143,7 +143,7 @@ private:
     void addAllAdminFacets();
     void setServerProcessProxy(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
 
-    BufSizeWarnInfo getBufSizeWarnInternal(Ice::Short type);
+    BufSizeWarnInfo getBufSizeWarnInternal(std::int16_t type);
 
     enum State
     {
@@ -189,7 +189,7 @@ private:
     Ice::Identity _adminIdentity;
     std::set<std::string> _adminFacetFilter;
     IceInternal::MetricsAdminIPtr _metricsAdmin;
-    std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
+    std::map<std::int16_t, BufSizeWarnInfo> _setBufSizeWarn;
     std::mutex _setBufSizeWarnMutex;
     mutable std::recursive_mutex _mutex;
     std::condition_variable_any _conditionVariable;

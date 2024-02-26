@@ -781,19 +781,20 @@ public:
     void read(std::pair<const bool*, const bool*>& v);
 
     /**
-     * Reads a short from the stream.
-     * @param v The extracted short.
+     * Unmarshals a Slice short into an int16_t.
+     * @param v The extracted int16_t.
      */
-    void read(Short& v);
+    void read(std::int16_t& v);
 
     /**
-     * Reads a sequence of shorts from the stream.
-     * @param v A vector to hold a copy of the short values.
+     * Unmarshals a sequence of Slice shorts into a vector of int16_t.
+     * @param v A vector to hold a copy of the int16_t values.
      */
-    void read(std::vector<Short>& v);
+    void read(std::vector<std::int16_t>& v);
 
     /**
-     * Reads a sequence of boolean values from the stream.
+     * Unmarshals a sequence of Slice shorts into a pair of int16_t pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const short*, const short*>& v);

@@ -59,7 +59,7 @@ IceSSL::EndpointI::getInfo() const noexcept
     return info;
 }
 
-Ice::Short
+int16_t
 IceSSL::EndpointI::type() const
 {
     return _delegate->type();
@@ -317,7 +317,7 @@ IceSSL::EndpointI::checkOption(const string& /*option*/, const string& /*argumen
     return false;
 }
 
-IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, Short type) :
+IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, int16_t type) :
     IceInternal::EndpointFactoryWithUnderlying(instance, type), _sslInstance(instance)
 {
 }
@@ -329,7 +329,7 @@ IceSSL::EndpointFactoryI::destroy()
 }
 
 IceInternal::EndpointFactoryPtr
-IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, Short underlying) const
+IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, int16_t underlying) const
 {
     return make_shared<EndpointFactoryI>(make_shared<Instance>(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
 }

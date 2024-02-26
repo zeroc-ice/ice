@@ -126,7 +126,7 @@ public:
         called();
     }
 
-    void opShortIntLong(int64_t r, Ice::Short s, int32_t i, int64_t l)
+    void opShortIntLong(int64_t r, int16_t s, int32_t i, int64_t l)
     {
         test(s == 10);
         test(i == 11);

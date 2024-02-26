@@ -50,7 +50,7 @@ IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
 }
 
 EndpointFactoryPtr
-IceInternal::EndpointFactoryManager::get(Short type) const
+IceInternal::EndpointFactoryManager::get(int16_t type) const
 {
     lock_guard lock(_mutex); // TODO: Necessary?
 
@@ -157,7 +157,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
 EndpointIPtr
 IceInternal::EndpointFactoryManager::read(InputStream* s) const
 {
-    Short type;
+    int16_t type;
     s->read(type);
 
     EndpointFactoryPtr factory = get(type);

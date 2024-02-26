@@ -24,7 +24,7 @@ IceInternal::IPEndpointInfoI::~IPEndpointInfoI()
 {
 }
 
-Ice::Short
+int16_t
 IceInternal::IPEndpointInfoI::type() const noexcept
 {
     return _endpoint->type();
@@ -50,7 +50,7 @@ IceInternal::IPEndpointI::getInfo() const noexcept
     return info;
 }
 
-Ice::Short
+int16_t
 IceInternal::IPEndpointI::type() const
 {
     return _instance->type();

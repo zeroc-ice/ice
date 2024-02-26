@@ -18,7 +18,7 @@ IceInternal::UdpConnector::connect()
     return make_shared<UdpTransceiver>(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
 }
 
-Short
+int16_t
 IceInternal::UdpConnector::type() const
 {
     return _instance->type();

@@ -38,8 +38,8 @@ public:
     virtual std::optional<bool> opBool(std::optional<bool>, std::optional<bool>&,
                                            const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Short> opShort(std::optional<::Ice::Short>,
-                                                     std::optional<::Ice::Short>&,
+    virtual std::optional<::std::int16_t> opShort(std::optional<::std::int16_t>,
+                                                     std::optional<::std::int16_t>&,
                                                      const ::Ice::Current&);
 
     virtual std::optional<::std::int32_t> opInt(std::optional<::std::int32_t>,
@@ -101,7 +101,7 @@ public:
         const ::Ice::Current&);
 
     virtual std::optional<::Test::ShortSeq> opShortSeq(
-        std::optional<::std::pair<const ::Ice::Short*, const ::Ice::Short*> >,
+        std::optional<::std::pair<const ::std::int16_t*, const ::std::int16_t*> >,
         std::optional<::Test::ShortSeq>&,
         const ::Ice::Current&);
 
