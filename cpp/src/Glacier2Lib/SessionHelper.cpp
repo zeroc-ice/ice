@@ -5,7 +5,6 @@
 #include <Glacier2/SessionHelper.h>
 
 #include <IceUtil/IceUtil.h>
-#include <IceUtil/CountDownLatch.h>
 #include <Ice/Ice.h>
 
 #include <algorithm> // required by max
@@ -683,48 +682,21 @@ SessionHelperI::dispatchCallback(const Ice::DispatcherCallPtr& call, const Ice::
     }
 }
 
-namespace
-{
-
-class DispatcherCallWait : public Ice::DispatcherCall
-{
-
-public:
-
-    DispatcherCallWait(IceUtilInternal::CountDownLatch& cdl, const Ice::DispatcherCallPtr& call) :
-        _cdl(cdl),
-        _call(call)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        _call->run();
-        _cdl.countDown();
-    }
-
-private:
-
-    IceUtilInternal::CountDownLatch& _cdl;
-    const Ice::DispatcherCallPtr _call;
-};
-
-}
-
 void
 SessionHelperI::dispatchCallbackAndWait(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& conn)
 {
     if(_initData.dispatcher)
     {
-        IceUtilInternal::CountDownLatch cdl(1);
-        auto callWait = make_shared<DispatcherCallWait>(cdl, call);
-        _initData.dispatcher([callWait]()
+        promise<void> dispatchPromise;
+
+        _initData.dispatcher(
+            [&dispatchPromise, call = std::move(call)]()
             {
-                callWait->run();
+                call->run();
+                dispatchPromise.set_value();
             },
             conn);
-        cdl.await();
+        dispatchPromise.get_future().wait();
     }
     else
     {
