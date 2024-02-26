@@ -140,7 +140,8 @@ DistinguishedName::match(const string& other) const
 // This always produces the same output as the input DN -- the type of
 // escaping is not changed.
 //
-DistinguishedName::operator string() const
+std::string
+DistinguishedName::toString() const
 {
     ostringstream os;
     bool first = true;

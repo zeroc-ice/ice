@@ -68,10 +68,6 @@ public:
                           std::function<void(const MyByteSeq&, const MyByteSeq&)>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opStringAsync(Util::string_view,
-                       std::function<void(const Util::string_view&, const Util::string_view&)>,
-                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
     void opStringSeqAsync(std::deque<std::string>,
                           std::function<void(const std::deque<std::string>&, const std::deque<std::string>&)>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
@@ -155,11 +151,6 @@ public:
                         std::function<void(const ::Test::CustomMap< std::int64_t, std::int64_t>&,
                                             const ::Test::CustomMap<std::string, ::std::int32_t>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opCustomIntStringDictAsync(std::map< ::std::int32_t, ::Util::string_view>,
-                                    std::function<void(const std::map< ::std::int32_t, ::Util::string_view>&,
-                                                        const std::map< ::std::int32_t, ::Util::string_view>&)>,
-                                    std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opShortBufferAsync(::Test::ShortBuffer,
                             std::function<void(const ::Test::ShortBuffer&, const ::Test::ShortBuffer&)>,

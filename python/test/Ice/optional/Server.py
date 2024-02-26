@@ -181,9 +181,6 @@ class InitialI(Test.Initial):
     def supportsCsharpSerializable(self, current=None):
         return True
 
-    def supportsCppStringView(self, current=None):
-        return False
-
     def supportsNullOptional(self, current=None):
         return True
 

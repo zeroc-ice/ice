@@ -324,8 +324,6 @@ allTests(Test::TestHelper* helper, bool)
     test(initial);
 
     test(targetEqualTo(initial, base));
-
-    bool supportsCppStringView = initial->supportsCppStringView();
     cout << "ok" << endl;
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
@@ -1186,39 +1184,6 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        if(supportsCppStringView)
-        {
-            optional<Util::string_view> p1;
-            optional<string> p3;
-            optional<string> p2 = initial->opCustomString(p1, p3);
-            test(!p2 && !p3);
-
-            const string sval = "test";
-
-            p1 = Util::string_view(sval);
-            p2 = initial->opString(sval, p3);
-            test(p2 == sval && p3 == sval);
-
-            Ice::OutputStream out(communicator);
-            out.startEncapsulation();
-            out.write(2, p1);
-            out.endEncapsulation();
-            out.finished(inEncaps);
-            initial->ice_invoke("opCustomString", Ice::OperationMode::Normal, inEncaps, outEncaps);
-            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-            in.startEncapsulation();
-            in.read(1, p2);
-            in.read(3, p3);
-            in.endEncapsulation();
-            test(p2 == sval && p3 == sval);
-
-            Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-            in2.startEncapsulation();
-            in2.endEncapsulation();
-        }
-    }
-
-    {
         optional<Test::MyEnum> p1;
         optional<Test::MyEnum> p3;
         optional<Test::MyEnum> p2 = initial->opMyEnum(p1, p3);
@@ -1777,45 +1742,6 @@ allTests(Test::TestHelper* helper, bool)
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();
         in2.endEncapsulation();
-    }
-
-    {
-        if(supportsCppStringView)
-        {
-            optional<std::map<int, Util::string_view> > p1;
-            optional<IntStringDict> p3;
-            optional<IntStringDict> p2 = initial->opCustomIntStringDict(p1, p3);
-            test(!p2 && !p3);
-
-            map<int, Util::string_view> ss;
-            ss.insert(make_pair<int, Util::string_view>(5, "testing"));
-            p1 = ss;
-            p2 = initial->opCustomIntStringDict(p1, p3);
-            test(p2 && p3);
-            test(p2 == p3);
-            test(p2->size() == p1->size());
-            test((*p2)[5] == ss[5].to_string());
-
-            Ice::OutputStream out(communicator);
-            out.startEncapsulation();
-            out.write(2, p1);
-            out.endEncapsulation();
-            out.finished(inEncaps);
-            initial->ice_invoke("opCustomIntStringDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
-            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-            in.startEncapsulation();
-            in.read(1, p2);
-            in.read(3, p3);
-            in.endEncapsulation();
-            test(p2 && p3);
-            test(p2 == p3);
-            test(p2->size() == p1->size());
-            test((*p2)[5] == ss[5].to_string());
-
-            Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-            in2.startEncapsulation();
-            in2.endEncapsulation();
-        }
     }
 
     cout << "ok" << endl;

@@ -55,7 +55,7 @@ public:
                                     const Ice::Current&);
 
     virtual void opStringAsync(std::string, std::string,
-                               ::std::function<void(const ::std::string&, const ::std::string&)>,
+                               ::std::function<void(::std::string_view, ::std::string_view)>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
@@ -329,7 +329,7 @@ public:
                                 const Ice::Current&);
 
     virtual void opString1Async(std::string,
-                                ::std::function<void(const ::std::string&)>,
+                                ::std::function<void(::std::string_view)>,
                                 ::std::function<void(std::exception_ptr)>,
                                 const Ice::Current&);
 

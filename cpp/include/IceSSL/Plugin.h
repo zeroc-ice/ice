@@ -269,7 +269,13 @@ public:
      * Encodes the DN in RFC2253 format.
      * @return An encoded string.
      */
-    operator std::string() const;
+    std::string toString() const;
+
+    /**
+     * Encodes the DN in RFC2253 format.
+     * @return An encoded string.
+     */
+    operator std::string() const { return toString();}
 
 protected:
 

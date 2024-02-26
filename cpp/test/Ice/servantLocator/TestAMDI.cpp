@@ -74,7 +74,7 @@ TestAMDI::unknownExceptionWithServantExceptionAsync(function<void()>,
 
 void
 TestAMDI::impossibleExceptionAsync(bool _cpp_throw,
-                                   function<void(const string&)> response,
+                                   function<void(string_view)> response,
                                    function<void(exception_ptr)> error,
                                    const Current&)
 {
@@ -101,7 +101,7 @@ TestAMDI::impossibleExceptionAsync(bool _cpp_throw,
 
 void
 TestAMDI::intfUserExceptionAsync(bool _cpp_throw,
-                                 function<void(const string&)> response,
+                                 function<void(string_view)> response,
                                  function<void(exception_ptr)> error,
                                  const Current&)
 {
