@@ -50,10 +50,6 @@ namespace Ice
 
 /** The mapping for the Slice byte type. */
 typedef unsigned char Byte;
-/** The mapping for the Slice float type. */
-typedef float Float;
-/** The mapping for the Slice double type. */
-typedef double Double;
 
 }
 

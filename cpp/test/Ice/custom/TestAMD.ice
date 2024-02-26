@@ -118,8 +118,8 @@ class DictClass
 ["cpp:type:Test::CustomBuffer<std::int16_t>"] sequence<short> ShortBuffer;
 ["cpp:type:Test::CustomBuffer<std::int32_t>"] sequence<int> IntBuffer;
 ["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Float>"] sequence<float> FloatBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Double>"] sequence<double> DoubleBuffer;
+["cpp:type:Test::CustomBuffer<float>"] sequence<float> FloatBuffer;
+["cpp:type:Test::CustomBuffer<double>"] sequence<double> DoubleBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Byte>"] sequence<byte> ByteBuffer;
 struct BufferStruct
 {

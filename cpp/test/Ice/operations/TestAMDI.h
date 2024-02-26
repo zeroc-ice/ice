@@ -281,7 +281,7 @@ public:
                                 ::std::function<void(std::exception_ptr)>,
                                 const Ice::Current&);
 
-    virtual void opDoubleMarshalingAsync(Ice::Double, Test::DoubleS,
+    virtual void opDoubleMarshalingAsync(double, Test::DoubleS,
                                          ::std::function<void()>,
                                          ::std::function<void(std::exception_ptr)>,
                                          const Ice::Current&);
@@ -318,13 +318,13 @@ public:
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);
 
-    virtual void opFloat1Async(Ice::Float,
-                               ::std::function<void(Ice::Float)>,
+    virtual void opFloat1Async(float,
+                               ::std::function<void(float)>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
 
-    virtual void opDouble1Async(Ice::Double,
-                                ::std::function<void(Ice::Double)>,
+    virtual void opDouble1Async(double,
+                                ::std::function<void(double)>,
                                 ::std::function<void(std::exception_ptr)>,
                                 const Ice::Current&);
 

@@ -1094,12 +1094,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Float> p1;
-        optional<Ice::Float> p3;
-        optional<Ice::Float> p2 = initial->opFloat(p1, p3);
+        optional<float> p1;
+        optional<float> p3;
+        optional<float> p2 = initial->opFloat(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Float fval = 1.0f;
+        const float fval = 1.0f;
 
         p1 = fval;
         p2 = initial->opFloat(p1, p3);
@@ -1124,12 +1124,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Double> p1;
-        optional<Ice::Double> p3;
-        optional<Ice::Double> p2 = initial->opDouble(p1, p3);
+        optional<double> p1;
+        optional<double> p3;
+        optional<double> p2 = initial->opDouble(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Double dval = 1.0;
+        const double dval = 1.0;
 
         p1 = dval;
         p2 = initial->opDouble(p1, p3);
@@ -1542,12 +1542,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Float*, const Ice::Float*> > p1;
+        optional<std::pair<const float*, const float*> > p1;
         optional<FloatSeq> p3;
         optional<FloatSeq> p2 = initial->opFloatSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Float> bs(100);
+        vector<float> bs(100);
         fill(bs.begin(), bs.end(), 1.0f);
         p1 = toArrayRange(bs);
         p2 = initial->opFloatSeq(p1, p3);
@@ -1573,12 +1573,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Double*, const Ice::Double*> > p1;
+        optional<std::pair<const double*, const double*> > p1;
         optional<DoubleSeq> p3;
         optional<DoubleSeq> p2 = initial->opDoubleSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Double> bs(100);
+        vector<double> bs(100);
         fill(bs.begin(), bs.end(), 1.0);
         p1 = toArrayRange(bs);
         p2 = initial->opDoubleSeq(p1, p3);

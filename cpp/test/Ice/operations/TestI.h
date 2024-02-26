@@ -45,10 +45,10 @@ public:
                                      std::int64_t&,
                                      const Ice::Current&);
 
-    virtual Ice::Double opFloatDouble(Ice::Float,
-                                      Ice::Double,
-                                      Ice::Float&,
-                                      Ice::Double&,
+    virtual double opFloatDouble(float,
+                                      double,
+                                      float&,
+                                      double&,
                                       const Ice::Current&);
 
     virtual std::string opString(std::string,
@@ -254,7 +254,7 @@ public:
 
     virtual Ice::Context opContext(const Ice::Current&);
 
-    virtual void opDoubleMarshaling(Ice::Double, Test::DoubleS, const Ice::Current&);
+    virtual void opDoubleMarshaling(double, Test::DoubleS, const Ice::Current&);
 
     virtual void opIdempotent(const Ice::Current&);
 
@@ -270,9 +270,9 @@ public:
 
     virtual std::int64_t opLong1(std::int64_t, const Ice::Current&);
 
-    virtual Ice::Float opFloat1(Ice::Float, const Ice::Current&);
+    virtual float opFloat1(float, const Ice::Current&);
 
-    virtual Ice::Double opDouble1(Ice::Double, const Ice::Current&);
+    virtual double opDouble1(double, const Ice::Current&);
 
     virtual std::string opString1(std::string, const Ice::Current&);
 

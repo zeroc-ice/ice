@@ -6,7 +6,7 @@
 #include <TestI.h>
 
 Test::DoubleSeq
-TestIntfI::opDoubleArray(std::pair<const Ice::Double*, const Ice::Double*> inSeq,
+TestIntfI::opDoubleArray(std::pair<const double*, const double*> inSeq,
                          Test::DoubleSeq& outSeq,
                          const Ice::Current&)
 {
