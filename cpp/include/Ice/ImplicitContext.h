@@ -34,7 +34,7 @@ namespace Ice
  * null replaced by the empty-string.
  * \headerfile Ice/Ice.h
  */
-class ICE_CLASS(ICE_API) ImplicitContext final
+class ICE_API ImplicitContext final
 {
 public:
 

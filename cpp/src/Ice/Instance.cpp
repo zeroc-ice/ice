@@ -1325,9 +1325,10 @@ IceInternal::Instance::getImplicitContext() const
             assert(_sharedImplicitContext);
             return _sharedImplicitContext;
         }
-        case ImplicitContextKind::None:
+        default:
         {
             assert(_sharedImplicitContext == nullptr);
+            assert(_implicitContextKind == ImplicitContextKind::None);
             return _sharedImplicitContext;
         }
     }
