@@ -1320,9 +1320,14 @@ IceInternal::Instance::getImplicitContext() const
                 return it->second;
             }
         }
-
-        default:
+        case ImplicitContextKind::Shared:
         {
+            assert(_sharedImplicitContext);
+            return _sharedImplicitContext;
+        }
+        case ImplicitContextKind::None:
+        {
+            assert(_sharedImplicitContext == nullptr);
             return _sharedImplicitContext;
         }
     }
