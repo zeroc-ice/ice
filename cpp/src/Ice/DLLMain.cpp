@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/ImplicitContextI.h>
 #include <Ice/Service.h>
 
 extern "C" BOOL WINAPI _CRT_INIT(HINSTANCE, DWORD, LPVOID);
@@ -27,10 +26,6 @@ ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
     if(reason == DLL_PROCESS_ATTACH)
     {
         Ice::Service::setModuleHandle(hDLL);
-    }
-    else if(reason == DLL_THREAD_DETACH)
-    {
-        Ice::ImplicitContextI::cleanupThread();
     }
 
     //
