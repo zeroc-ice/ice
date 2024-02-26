@@ -14,10 +14,11 @@
 
 #include <Ice/StringConverter.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/ThreadException.h>
 #include <IceUtil/UndefSysMacros.h>
 
 #include <algorithm>
+#include <memory>
+
 #include <iconv.h>
 #include <langinfo.h>
 
@@ -89,21 +90,60 @@ public:
 
     IconvStringConverter(const std::string&);
 
-    virtual ~IconvStringConverter();
-
     virtual Ice::Byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
 
     virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, std::basic_string<charT>&) const;
 
 private:
 
-    std::pair<iconv_t, iconv_t> createDescriptors() const;
+    struct DescriptorHolder
+    {
+        std::pair<iconv_t, iconv_t> descriptor;
+
+        DescriptorHolder(const std::string& internalCode) :
+            descriptor(iconv_t(-1), iconv_t(-1))
+        {
+            const char* externalCode = "UTF-8";
+
+            descriptor.first = iconv_open(internalCode.c_str(), externalCode);
+            if(descriptor.first == iconv_t(-1))
+            {
+                std::ostringstream os;
+                os << "iconv cannot convert from " << externalCode << " to " << internalCode;
+                throw Ice::IllegalConversionException(__FILE__, __LINE__, os.str());
+            }
+
+            descriptor.second = iconv_open(externalCode, internalCode.c_str());
+            if(descriptor.second == iconv_t(-1))
+            {
+                iconv_close(descriptor.first);
+                std::ostringstream os;
+                os << "iconv cannot convert from " << internalCode << " to " << externalCode;
+                throw Ice::IllegalConversionException(__FILE__, __LINE__, os.str());
+            }
+        }
+
+        ~DescriptorHolder()
+        {
+#ifndef NDEBUG
+            int rs = iconv_close(descriptor.first);
+            assert(rs == 0);
+
+            rs = iconv_close(descriptor.second);
+            assert(rs == 0);
+#else
+            iconv_close(descriptor.first);
+            iconv_close(descriptor.second);
+#endif
+        }
+
+        // Non-copyable
+        DescriptorHolder(const DescriptorHolder&) = delete;
+        DescriptorHolder& operator=(const DescriptorHolder&) = delete;
+    };
+
     std::pair<iconv_t, iconv_t> getDescriptors() const;
 
-    static void cleanupKey(void*);
-    static void close(std::pair<iconv_t, iconv_t>);
-
-    mutable pthread_key_t _key;
     const std::string _internalCode;
 };
 
@@ -120,106 +160,19 @@ IconvStringConverter<charT>::IconvStringConverter(const std::string& internalCod
     //
     try
     {
-        close(createDescriptors());
+        const DescriptorHolder descriptorHolder(internalCode);
     }
     catch(const Ice::IllegalConversionException& sce)
     {
         throw Ice::IconvInitializationException(__FILE__, __LINE__, sce.reason());
     }
-
-    //
-    // Create thread-specific key
-    //
-    int rs = pthread_key_create(&_key, &cleanupKey);
-
-    if(rs != 0)
-    {
-        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rs);
-    }
-}
-
-template<typename charT>
-IconvStringConverter<charT>::~IconvStringConverter()
-{
-    void* val = pthread_getspecific(_key);
-    if(val != 0)
-    {
-        cleanupKey(val);
-    }
-    if(pthread_key_delete(_key) != 0)
-    {
-        assert(0);
-    }
-}
-
-template<typename charT> std::pair<iconv_t, iconv_t>
-IconvStringConverter<charT>::createDescriptors() const
-{
-    std::pair<iconv_t, iconv_t> cdp;
-
-    const char* externalCode = "UTF-8";
-
-    cdp.first = iconv_open(_internalCode.c_str(), externalCode);
-    if(cdp.first == iconv_t(-1))
-    {
-        std::ostringstream os;
-        os << "iconv cannot convert from " << externalCode << " to " << _internalCode;
-        throw Ice::IllegalConversionException(__FILE__, __LINE__, os.str());
-    }
-
-    cdp.second = iconv_open(externalCode, _internalCode.c_str());
-    if(cdp.second == iconv_t(-1))
-    {
-        iconv_close(cdp.first);
-        std::ostringstream os;
-        os << "iconv cannot convert from " << _internalCode << " to " << externalCode;
-        throw Ice::IllegalConversionException(__FILE__, __LINE__, os.str());
-    }
-    return cdp;
 }
 
 template<typename charT> std::pair<iconv_t, iconv_t>
 IconvStringConverter<charT>::getDescriptors() const
 {
-    void* val = pthread_getspecific(_key);
-    if(val != 0)
-    {
-        return *static_cast<std::pair<iconv_t, iconv_t>*>(val);
-    }
-    else
-    {
-        std::pair<iconv_t, iconv_t> cdp = createDescriptors();
-        int rs = pthread_setspecific(_key, new std::pair<iconv_t, iconv_t>(cdp));
-        if(rs != 0)
-        {
-            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rs);
-        }
-        return cdp;
-    }
-}
-
-template<typename charT> /*static*/ void
-IconvStringConverter<charT>::cleanupKey(void* val)
-{
-    std::pair<iconv_t, iconv_t>* cdp = static_cast<std::pair<iconv_t, iconv_t>*>(val);
-
-    close(*cdp);
-    delete cdp;
-}
-
-template<typename charT> /*static*/ void
-IconvStringConverter<charT>::close(std::pair<iconv_t, iconv_t> cdp)
-{
-#ifndef NDEBUG
-    int rs = iconv_close(cdp.first);
-    assert(rs == 0);
-
-    rs = iconv_close(cdp.second);
-    assert(rs == 0);
-#else
-    iconv_close(cdp.first);
-    iconv_close(cdp.second);
-#endif
+    static const thread_local DescriptorHolder descriptorHolder(_internalCode);
+    return descriptorHolder.descriptor;
 }
 
 template<typename charT> Ice::Byte*

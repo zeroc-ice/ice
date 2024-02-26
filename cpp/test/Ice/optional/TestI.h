@@ -38,8 +38,8 @@ public:
     virtual std::optional<bool> opBool(std::optional<bool>, std::optional<bool>&,
                                            const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Short> opShort(std::optional<::Ice::Short>,
-                                                     std::optional<::Ice::Short>&,
+    virtual std::optional<::std::int16_t> opShort(std::optional<::std::int16_t>,
+                                                     std::optional<::std::int16_t>&,
                                                      const ::Ice::Current&);
 
     virtual std::optional<::std::int32_t> opInt(std::optional<::std::int32_t>,
@@ -50,21 +50,17 @@ public:
                                                    std::optional<std::int64_t>&,
                                                    const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Float> opFloat(std::optional<::Ice::Float>,
-                                                     std::optional<::Ice::Float>&,
+    virtual std::optional<float> opFloat(std::optional<float>,
+                                                     std::optional<float>&,
                                                      const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Double> opDouble(std::optional<::Ice::Double>,
-                                                       std::optional<::Ice::Double>&,
+    virtual std::optional<double> opDouble(std::optional<double>,
+                                                       std::optional<double>&,
                                                        const ::Ice::Current&);
 
     virtual std::optional<::std::string> opString(std::optional<::std::string>,
                                                        std::optional<::std::string>&,
                                                        const ::Ice::Current&);
-
-    virtual std::optional<::std::string> opCustomString(std::optional<Util::string_view>,
-                                                               std::optional<::std::string>&,
-                                                               const ::Ice::Current&);
 
     virtual std::optional<Test::MyEnum> opMyEnum(std::optional<Test::MyEnum>,
                                                       std::optional<Test::MyEnum>&,
@@ -101,7 +97,7 @@ public:
         const ::Ice::Current&);
 
     virtual std::optional<::Test::ShortSeq> opShortSeq(
-        std::optional<::std::pair<const ::Ice::Short*, const ::Ice::Short*> >,
+        std::optional<::std::pair<const ::std::int16_t*, const ::std::int16_t*> >,
         std::optional<::Test::ShortSeq>&,
         const ::Ice::Current&);
 
@@ -116,12 +112,12 @@ public:
         const ::Ice::Current&);
 
     virtual std::optional<::Test::FloatSeq> opFloatSeq(
-        std::optional<::std::pair<const ::Ice::Float*, const ::Ice::Float*> >,
+        std::optional<::std::pair<const float*, const float*> >,
         std::optional<::Test::FloatSeq>&,
         const ::Ice::Current&);
 
     virtual std::optional<::Test::DoubleSeq> opDoubleSeq(
-        std::optional<::std::pair<const ::Ice::Double*, const ::Ice::Double*> >,
+        std::optional<::std::pair<const double*, const double*> >,
         std::optional<::Test::DoubleSeq>&,
         const ::Ice::Current&);
 
@@ -169,11 +165,6 @@ public:
         std::optional<::Test::IntOneOptionalDict>&,
         const ::Ice::Current&);
 
-    virtual std::optional<::Test::IntStringDict> opCustomIntStringDict(
-        std::optional<std::map<int, Util::string_view> >,
-        std::optional<::Test::IntStringDict>&,
-        const ::Ice::Current&);
-
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
 
     virtual void sendOptionalClass(bool, std::optional<Test::OneOptionalPtr>, const Ice::Current&);
@@ -205,8 +196,6 @@ public:
     virtual bool supportsJavaSerializable(const Ice::Current&);
 
     virtual bool supportsCsharpSerializable(const Ice::Current&);
-
-    virtual bool supportsCppStringView(const Ice::Current&);
 
     virtual bool supportsNullOptional(const Ice::Current&);
 };

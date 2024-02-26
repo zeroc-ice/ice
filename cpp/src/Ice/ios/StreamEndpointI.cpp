@@ -55,7 +55,7 @@ toCFString(const string& s)
 }
 #endif
 
-IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const string& protocol, bool secure) :
+IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, int16_t type, const string& protocol, bool secure) :
     ProtocolInstance(com, type, protocol, secure),
     _communicator(com),
     _proxySettings(0)
@@ -426,7 +426,7 @@ IceObjC::StreamEndpointFactory::StreamEndpointFactory(const InstancePtr& instanc
 {
 }
 
-Short
+int16_t
 IceObjC::StreamEndpointFactory::type() const
 {
     return _instance->type();

@@ -5,8 +5,6 @@
 #ifndef GLACIER2_SESSION_HELPER_H
 #define GLACIER2_SESSION_HELPER_H
 
-#include <IceUtil/Thread.h>
-
 #include <Ice/Initialize.h>
 #include <Ice/Properties.h>
 #include <Ice/Communicator.h>
@@ -18,6 +16,7 @@
 
 #include <map>
 #include <string>
+#include <thread>
 #include <mutex>
 
 namespace Glacier2
@@ -273,7 +272,8 @@ public:
 
 private:
 
-    IceUtil::ThreadPtr addThread(const SessionHelper*, const IceUtil::ThreadPtr&);
+    void addThread(const SessionHelper*, std::thread&&);
+    std::thread removeThread(const SessionHelper*);
 
     Ice::InitializationData createInitData();
     std::string getRouterFinderStr();
@@ -291,7 +291,7 @@ private:
     SessionCallbackPtr _callback;
     std::map<std::string, std::string> _context;
     bool _useCallbacks;
-    std::map<const SessionHelper*, IceUtil::ThreadPtr> _threads;
+    std::map<const SessionHelper*, std::thread> _threads;
 };
 using SessionFactoryHelperPtr = std::shared_ptr<SessionFactoryHelper>;
 

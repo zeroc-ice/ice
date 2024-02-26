@@ -27,7 +27,7 @@ public:
     void streamWriteImpl(Ice::OutputStream*) const final;
 
     Ice::EndpointInfoPtr getInfo() const noexcept final;
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     const std::string& protocol() const final;
     bool datagram() const final;
     bool secure() const final;
@@ -80,7 +80,7 @@ public:
 
     ~iAPEndpointFactory();
 
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     std::string protocol() const final;
     IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
     IceInternal::EndpointIPtr read(Ice::InputStream*) const final;

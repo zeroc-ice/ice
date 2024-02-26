@@ -6,7 +6,7 @@
 #include <TestAMDI.h>
 
 void
-TestIntfI::opDoubleArrayAsync(std::pair<const Ice::Double*, const Ice::Double*> in,
+TestIntfI::opDoubleArrayAsync(std::pair<const double*, const double*> in,
                               std::function<void(const Test::DoubleSeq&, const Test::DoubleSeq&)> response,
                               std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
@@ -118,14 +118,6 @@ void
 TestIntfI::opMyByteSeqAsync(MyByteSeq in,
                             std::function<void(const MyByteSeq&, const MyByteSeq&)> response,
                             std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opStringAsync(Util::string_view in,
-                         std::function<void(const Util::string_view&, const Util::string_view&)> response,
-                         std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
 }
@@ -293,15 +285,6 @@ TestIntfI::opVarDictAsync(Test::CustomMap<std::string, int32_t> in,
         result[i] = i*i;
     }
     response(result, in);
-}
-
-void
-TestIntfI::opCustomIntStringDictAsync(std::map<int32_t, ::Util::string_view> in,
-                                      std::function<void(const std::map<int32_t, ::Util::string_view>&,
-                                                          const std::map<int32_t, ::Util::string_view>&)> response,
-                                      std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
 }
 
 void

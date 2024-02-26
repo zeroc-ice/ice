@@ -29,7 +29,7 @@ public:
     virtual ~EndpointFactory();
 
     virtual void initialize();
-    virtual Ice::Short type() const = 0;
+    virtual std::int16_t type() const = 0;
     virtual std::string protocol() const = 0;
     virtual EndpointIPtr create(std::vector<std::string>&, bool) const = 0;
     virtual EndpointIPtr read(Ice::InputStream*) const = 0;
@@ -46,10 +46,10 @@ class ICE_API EndpointFactoryWithUnderlying : public EndpointFactory
 {
 public:
 
-    EndpointFactoryWithUnderlying(const ProtocolInstancePtr&, Ice::Short);
+    EndpointFactoryWithUnderlying(const ProtocolInstancePtr&, std::int16_t);
 
     virtual void initialize();
-    virtual Ice::Short type() const;
+    virtual std::int16_t type() const;
     virtual std::string protocol() const;
     virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
     virtual EndpointIPtr read(Ice::InputStream*) const;
@@ -57,7 +57,7 @@ public:
 
     virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
 
-    virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, Ice::Short) const = 0;
+    virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const = 0;
 
 protected:
 
@@ -65,7 +65,7 @@ protected:
     virtual EndpointIPtr readWithUnderlying(const EndpointIPtr&, Ice::InputStream*) const = 0;
 
     ProtocolInstancePtr _instance;
-    const Ice::Short _type;
+    const std::int16_t _type;
     EndpointFactoryPtr _underlying;
 };
 
@@ -79,10 +79,10 @@ class ICE_API UnderlyingEndpointFactory : public EndpointFactory
 {
 public:
 
-    UnderlyingEndpointFactory(const ProtocolInstancePtr&, Ice::Short, Ice::Short);
+    UnderlyingEndpointFactory(const ProtocolInstancePtr&, std::int16_t, std::int16_t);
 
     virtual void initialize();
-    virtual Ice::Short type() const;
+    virtual std::int16_t type() const;
     virtual std::string protocol() const;
     virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
     virtual EndpointIPtr read(Ice::InputStream*) const;
@@ -93,8 +93,8 @@ public:
 private:
 
     ProtocolInstancePtr _instance;
-    const Ice::Short _type;
-    const Ice::Short _underlying;
+    const std::int16_t _type;
+    const std::int16_t _underlying;
     EndpointFactoryPtr _factory;
 };
 

@@ -529,7 +529,6 @@
     <ClCompile Include="..\..\FactoryTableInit.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IconvStringConverter.cpp" />
-    <ClCompile Include="..\..\ImplicitContextI.cpp" />
     <ClCompile Include="..\..\Incoming.cpp" />
     <ClCompile Include="..\..\IncomingAsync.cpp" />
     <ClCompile Include="..\..\Initialize.cpp" />
@@ -581,7 +580,6 @@
     <ClCompile Include="..\..\TcpConnector.cpp" />
     <ClCompile Include="..\..\TcpEndpointI.cpp" />
     <ClCompile Include="..\..\TcpTransceiver.cpp" />
-    <ClCompile Include="..\..\Thread.cpp" />
     <ClCompile Include="..\..\ThreadPool.cpp" />
     <ClCompile Include="..\..\Timer.cpp" />
     <ClCompile Include="..\..\TraceLevels.cpp" />

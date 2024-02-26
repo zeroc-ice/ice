@@ -19,10 +19,10 @@ Connector::connect()
     return make_shared<Transceiver>(_connector->connect());
 }
 
-Ice::Short
+int16_t
 Connector::type() const
 {
-    return (Ice::Short)(EndpointI::TYPE_BASE + _connector->type());
+    return (int16_t)(EndpointI::TYPE_BASE + _connector->type());
 }
 
 string

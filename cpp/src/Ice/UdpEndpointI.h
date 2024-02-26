@@ -72,7 +72,7 @@ public:
     UdpEndpointFactory(const ProtocolInstancePtr&);
     ~UdpEndpointFactory();
 
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     std::string protocol() const final;
     EndpointIPtr create(std::vector<std::string>&, bool) const final;
     EndpointIPtr read(Ice::InputStream*) const final;

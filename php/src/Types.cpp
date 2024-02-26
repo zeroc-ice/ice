@@ -765,7 +765,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
         assert(Z_TYPE_P(zv) == IS_LONG);
         long val = static_cast<long>(Z_LVAL_P(zv));
         assert(val >= SHRT_MIN && val <= SHRT_MAX); // validate() should have caught this.
-        os->write(static_cast<Ice::Short>(val));
+        os->write(static_cast<int16_t>(val));
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -795,7 +795,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
     }
     case PrimitiveInfo::KindFloat:
     {
-        Ice::Double val = 0;
+        double val = 0;
         if(Z_TYPE_P(zv) == IS_DOUBLE)
         {
             val = Z_DVAL_P(zv);
@@ -808,12 +808,12 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
         {
             assert(false); // validate() should have caught this.
         }
-        os->write(static_cast<Ice::Float>(val));
+        os->write(static_cast<float>(val));
         break;
     }
     case PrimitiveInfo::KindDouble:
     {
-        Ice::Double val = 0;
+        double val = 0;
         if(Z_TYPE_P(zv) == IS_DOUBLE)
         {
             val = Z_DVAL_P(zv);
@@ -876,7 +876,7 @@ IcePHP::PrimitiveInfo::unmarshal(
     }
     case PrimitiveInfo::KindShort:
     {
-        Ice::Short val;
+        int16_t val;
         is->read(val);
         ZVAL_LONG(&zv, val);
         break;
@@ -907,14 +907,14 @@ IcePHP::PrimitiveInfo::unmarshal(
     }
     case PrimitiveInfo::KindFloat:
     {
-        Ice::Float val;
+        float val;
         is->read(val);
         ZVAL_DOUBLE(&zv, val);
         break;
     }
     case PrimitiveInfo::KindDouble:
     {
-        Ice::Double val;
+        double val;
         is->read(val);
         ZVAL_DOUBLE(&zv, val);
         break;
@@ -1645,7 +1645,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             }
             long l = static_cast<long>(Z_LVAL_P(val));
             assert(l >= SHRT_MIN && l <= SHRT_MAX);
-            seq[i++] = static_cast<Ice::Short>(l);
+            seq[i++] = static_cast<int16_t>(l);
         }
         ZEND_HASH_FOREACH_END();
 
@@ -1726,7 +1726,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             {
                 assert(false); // validate() should have caught this.
             }
-            seq[i++] = static_cast<Ice::Float>(d);
+            seq[i++] = static_cast<float>(d);
         }
         ZEND_HASH_FOREACH_END();
 
@@ -1830,9 +1830,9 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindShort:
     {
-        pair<const Ice::Short*, const Ice::Short*> pr;
+        pair<const int16_t*, const int16_t*> pr;
         is->read(pr);
-        for (const Ice::Short* p = pr.first; p != pr.second; ++p)
+        for (const int16_t* p = pr.first; p != pr.second; ++p)
         {
             add_next_index_long(&zv, *p);
         }
@@ -1873,10 +1873,10 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindFloat:
     {
-        pair<const Ice::Float*, const Ice::Float*> pr;
+        pair<const float*, const float*> pr;
         is->read(pr);
         int32_t i = 0;
-        for(const Ice::Float* p = pr.first; p != pr.second; ++p, ++i)
+        for(const float* p = pr.first; p != pr.second; ++p, ++i)
         {
             zval val;
             ZVAL_DOUBLE(&val, *p);
@@ -1886,10 +1886,10 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindDouble:
     {
-        pair<const Ice::Double*, const Ice::Double*> pr;
+        pair<const double*, const double*> pr;
         is->read(pr);
         int32_t i = 0;
-        for(const Ice::Double* p = pr.first; p != pr.second; ++p, ++i)
+        for(const double* p = pr.first; p != pr.second; ++p, ++i)
         {
             zval val;
             ZVAL_DOUBLE(&val, *p);

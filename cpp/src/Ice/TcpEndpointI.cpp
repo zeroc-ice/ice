@@ -339,7 +339,7 @@ IceInternal::TcpEndpointFactory::~TcpEndpointFactory()
 {
 }
 
-Short
+int16_t
 IceInternal::TcpEndpointFactory::type() const
 {
     return _instance->type();

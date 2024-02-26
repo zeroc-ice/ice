@@ -564,7 +564,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
         long i = getInteger(p);
         if(i >= SHRT_MIN && i <= SHRT_MAX)
         {
-            os->write(static_cast<Ice::Short>(i));
+            os->write(static_cast<int16_t>(i));
             break;
         }
         throw RubyException(rb_eTypeError, "value is out of range for a short");
@@ -647,7 +647,7 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
     }
     case PrimitiveInfo::KindShort:
     {
-        Ice::Short sh;
+        int16_t sh;
         is->read(sh);
         val = callRuby(rb_int2inum, sh);
         break;
@@ -668,14 +668,14 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
     }
     case PrimitiveInfo::KindFloat:
     {
-        Ice::Float f;
+        float f;
         is->read(f);
         val = callRuby(rb_float_new, f);
         break;
     }
     case PrimitiveInfo::KindDouble:
     {
-        Ice::Double d;
+        double d;
         is->read(d);
         val = callRuby(rb_float_new, d);
         break;
@@ -1451,7 +1451,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             {
                 throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<short>", i);
             }
-            seq[static_cast<size_t>(i)] = static_cast<Ice::Short>(val);
+            seq[static_cast<size_t>(i)] = static_cast<int16_t>(val);
         }
         os->write(seq);
         break;
@@ -1495,7 +1495,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 throw RubyException(rb_eTypeError, "unable to convert array element %ld to a float", i);
             }
             assert(TYPE(v) == T_FLOAT);
-            seq[static_cast<size_t>(i)] = static_cast<Ice::Float>(RFLOAT_VALUE(v));
+            seq[static_cast<size_t>(i)] = static_cast<float>(RFLOAT_VALUE(v));
         }
         os->write(seq);
         break;
@@ -1575,7 +1575,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
     }
     case PrimitiveInfo::KindShort:
     {
-        pair<const Ice::Short*, const Ice::Short*> p;
+        pair<const int16_t*, const int16_t*> p;
         is->read(p);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
@@ -1623,7 +1623,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
     }
     case PrimitiveInfo::KindFloat:
     {
-        pair<const Ice::Float*, const Ice::Float*> p;
+        pair<const float*, const float*> p;
         is->read(p);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);
@@ -1639,7 +1639,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
     }
     case PrimitiveInfo::KindDouble:
     {
-        pair<const Ice::Double*, const Ice::Double*> p;
+        pair<const double*, const double*> p;
         is->read(p);
         long sz = static_cast<long>(p.second - p.first);
         result = createArray(sz);

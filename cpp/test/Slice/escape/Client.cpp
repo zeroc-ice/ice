@@ -121,8 +121,18 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     _cpp_and::switchPtr f1 = std::make_shared<switchI>();
 
     _cpp_and::doPrxPtr g;
+
+// Work-around for:
+// error: array subscript -6 is outside array bounds of ‘int (* [1152921504606846975])(...)’ [-Werror=array-bounds]
+#if defined(NDEBUG) && defined(__GNUC__)
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     g->_cpp_case(0, d2);
     g->_cpp_explicit();
+#if defined(NDEBUG) && defined(__GNUC__)
+#   pragma GCC diagnostic pop
+#endif
     _cpp_and::doPtr g1 = std::make_shared<doI>();
 
     _cpp_and::_cpp_extern h;

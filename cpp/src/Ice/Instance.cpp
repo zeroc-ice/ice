@@ -913,7 +913,6 @@ IceInternal::Instance::Instance(const InitializationData& initData) :
     _classGraphDepthMax(0),
     _toStringMode(ToStringMode::Unicode),
     _acceptClassCycles(false),
-    _implicitContext(nullptr),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
     _adminEnabled(false)
@@ -1192,8 +1191,27 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 
-        const_cast<ImplicitContextIPtr&>(_implicitContext) =
-            ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
+        string implicitContextKind = _initData.properties->getPropertyWithDefault("Ice.ImplicitContext", "None");
+        if(implicitContextKind == "Shared")
+        {
+            _implicitContextKind = ImplicitContextKind::Shared;
+            _sharedImplicitContext = std::make_shared<ImplicitContext>();
+        }
+        else if(implicitContextKind == "PerThread")
+        {
+            _implicitContextKind = ImplicitContextKind::PerThread;
+        }
+        else if (implicitContextKind == "None")
+        {
+            _implicitContextKind = ImplicitContextKind::None;
+        }
+        else
+        {
+            throw Ice::InitializationException(
+                __FILE__,
+                __LINE__,
+                "'" + implicitContextKind + "' is not a valid value for Ice.ImplicitContext");
+        }
 
         _routerManager = make_shared<RouterManager>();
 
@@ -1283,6 +1301,39 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
     }
 }
 
+const Ice::ImplicitContextPtr&
+IceInternal::Instance::getImplicitContext() const
+{
+    switch (_implicitContextKind)
+    {
+        case ImplicitContextKind::PerThread:
+        {
+            static thread_local std::map<const IceInternal::Instance*, ImplicitContextPtr> perThreadImplicitContextMap;
+            auto it = perThreadImplicitContextMap.find(this);
+            if (it == perThreadImplicitContextMap.end())
+            {
+                auto r = perThreadImplicitContextMap.emplace(make_pair(this, std::make_shared<ImplicitContext>()));
+                return r.first->second;
+            }
+            else
+            {
+                return it->second;
+            }
+        }
+        case ImplicitContextKind::Shared:
+        {
+            assert(_sharedImplicitContext);
+            return _sharedImplicitContext;
+        }
+        default:
+        {
+            assert(_sharedImplicitContext == nullptr);
+            assert(_implicitContextKind == ImplicitContextKind::None);
+            return _sharedImplicitContext;
+        }
+    }
+}
+
 IceInternal::Instance::~Instance()
 {
     assert(_state == StateDestroyed);
@@ -1294,6 +1345,7 @@ IceInternal::Instance::~Instance()
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
     assert(!_endpointHostResolver);
+    assert(!_endpointHostResolverThread.joinable());
     assert(!_retryQueue);
     assert(!_timer);
     assert(!_routerManager);
@@ -1450,16 +1502,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     try
     {
         _endpointHostResolver = make_shared<EndpointHostResolver>(shared_from_this());
-        bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
-        int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
-        if(hasPriority)
-        {
-            _endpointHostResolver->start(0, priority);
-        }
-        else
-        {
-            _endpointHostResolver->start();
-        }
+        _endpointHostResolverThread = std::thread([this] { _endpointHostResolver->run(); });
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1649,9 +1692,9 @@ IceInternal::Instance::destroy()
     {
         _serverThreadPool->joinWithAllThreads();
     }
-    if(_endpointHostResolver)
+    if(_endpointHostResolverThread.joinable())
     {
-        _endpointHostResolver->getThreadControl().join();
+        _endpointHostResolverThread.join();
     }
 
     if(_routerManager)
@@ -1764,7 +1807,7 @@ IceInternal::Instance::updateThreadObservers()
 }
 
 BufSizeWarnInfo
-IceInternal::Instance::getBufSizeWarn(Short type)
+IceInternal::Instance::getBufSizeWarn(int16_t type)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 
@@ -1772,10 +1815,10 @@ IceInternal::Instance::getBufSizeWarn(Short type)
 }
 
 BufSizeWarnInfo
-IceInternal::Instance::getBufSizeWarnInternal(Short type)
+IceInternal::Instance::getBufSizeWarnInternal(int16_t type)
 {
     BufSizeWarnInfo info;
-    map<Short, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
+    map<int16_t, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
     if(p == _setBufSizeWarn.end())
     {
         info.sndWarn = false;
@@ -1792,7 +1835,7 @@ IceInternal::Instance::getBufSizeWarnInternal(Short type)
 }
 
 void
-IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
+IceInternal::Instance::setSndBufSizeWarn(int16_t type, int size)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 
@@ -1803,7 +1846,7 @@ IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 }
 
 void
-IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
+IceInternal::Instance::setRcvBufSizeWarn(int16_t type, int size)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 

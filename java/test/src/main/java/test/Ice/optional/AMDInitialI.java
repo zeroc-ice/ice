@@ -628,12 +628,6 @@ public final class AMDInitialI implements Initial
     }
 
     @Override
-    public CompletionStage<Boolean> supportsCppStringViewAsync(Current current)
-    {
-        return CompletableFuture.completedFuture(false);
-    }
-
-    @Override
     public CompletionStage<Boolean> supportsNullOptionalAsync(Current current)
     {
         //

@@ -43,7 +43,7 @@ IceInternal::EndpointFactoryPlugin::destroy()
 }
 
 IceInternal::EndpointFactoryWithUnderlying::EndpointFactoryWithUnderlying(const ProtocolInstancePtr& instance,
-                                                                          Short type) :
+                                                                          int16_t type) :
     _instance(instance), _type(type)
 {
 }
@@ -63,7 +63,7 @@ IceInternal::EndpointFactoryWithUnderlying::initialize()
     }
 }
 
-Short
+int16_t
 IceInternal::EndpointFactoryWithUnderlying::type() const
 {
     return _instance->type();
@@ -112,8 +112,8 @@ IceInternal::EndpointFactoryWithUnderlying::clone(const ProtocolInstancePtr& ins
 }
 
 IceInternal::UnderlyingEndpointFactory::UnderlyingEndpointFactory(const ProtocolInstancePtr& instance,
-                                                                  Short type,
-                                                                  Short underlying) :
+                                                                  int16_t type,
+                                                                  int16_t underlying) :
     _instance(instance), _type(type), _underlying(underlying)
 {
 }
@@ -138,7 +138,7 @@ IceInternal::UnderlyingEndpointFactory::initialize()
     }
 }
 
-Short
+int16_t
 IceInternal::UnderlyingEndpointFactory::type() const
 {
     return _instance->type();

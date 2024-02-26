@@ -9,7 +9,7 @@
 #include <Ice/Instance.h>
 #include <Ice/LocalException.h>
 #include <Ice/ReplyStatus.h>
-#include <Ice/ImplicitContextI.h>
+#include <Ice/ImplicitContext.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/RetryQueue.h>
 #include <Ice/ConnectionFactory.h>
@@ -693,15 +693,15 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
         //
         // Implicit context
         //
-        const ImplicitContextIPtr& implicitContext = ref->getInstance()->getImplicitContext();
+        const ImplicitContextPtr& implicitContext = ref->getInstance()->getImplicitContext();
         const Context& prxContext = ref->getContext()->getValue();
-        if(implicitContext == 0)
+        if(implicitContext)
         {
-            _os.write(prxContext);
+            implicitContext->write(prxContext, &_os);
         }
         else
         {
-            implicitContext->write(prxContext, &_os);
+            _os.write(prxContext);
         }
     }
 }

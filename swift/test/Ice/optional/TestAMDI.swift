@@ -250,10 +250,6 @@ class InitialI: Initial {
         return Promise.value(false)
     }
 
-    func supportsCppStringViewAsync(current _: Current) -> Promise<Bool> {
-        return Promise.value(false)
-    }
-
     func supportsNullOptionalAsync(current _: Current) -> Promise<Bool> {
         return Promise.value(false)
     }

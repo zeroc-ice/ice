@@ -8,11 +8,12 @@
 using namespace std;
 
 shared_ptr<Dispatcher> instance;
+std::thread dispatcherThread;
 
 shared_ptr<Dispatcher> Dispatcher::create()
 {
     auto dispatcher = shared_ptr<Dispatcher>(new Dispatcher());
-    dispatcher->start();
+    dispatcherThread = std::thread([dispatcher] { dispatcher->run(); });
     instance = dispatcher;
     return dispatcher;
 }
@@ -25,20 +26,23 @@ Dispatcher::Dispatcher()
 void
 Dispatcher::terminate()
 {
+    std::thread thread;
     {
         lock_guard lock(_mutex);
         _terminated = true;
         _conditionVariable.notify_one();
+        thread = std::move(dispatcherThread);
     }
 
-    instance->getThreadControl().join();
+    assert(thread.joinable());
+    thread.join();
     instance = nullptr;
 }
 
 bool
 Dispatcher::isDispatcherThread()
 {
-    return IceUtil::ThreadControl() == instance->getThreadControl();
+    return this_thread::get_id() == dispatcherThread.get_id();
 }
 
 void

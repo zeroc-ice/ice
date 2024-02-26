@@ -4,7 +4,6 @@
 
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StringUtil.h>
-#include <IceUtil/Thread.h>
 #include <Ice/ArgVector.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/ConsoleUtil.h>
@@ -107,30 +106,9 @@ private:
 
     void run();
 
-    class StatusThread : public IceUtil::Thread
-    {
-    public:
-
-        StatusThread(ServiceStatusManager* manager) :
-            IceUtil::Thread("Ice service status manager thread"),
-            _manager(manager)
-        {
-        }
-
-        virtual void run()
-        {
-            _manager->run();
-        }
-
-    private:
-
-        ServiceStatusManager* _manager;
-    };
-    friend class StatusThread;
-
     SERVICE_STATUS_HANDLE _handle;
     SERVICE_STATUS _status;
-    IceUtil::ThreadPtr _thread;
+    std::thread _thread;
     bool _stopped;
     std::mutex _mutex;
     std::condition_variable _conditionVariable;
@@ -1455,31 +1433,26 @@ ServiceStatusManager::startUpdate(DWORD state)
 
     _stopped = false;
 
-    _thread = make_shared<StatusThread>(this);
-    _thread->start();
+    _thread = std::thread(&ServiceStatusManager::run, this);
 }
 
 void
 ServiceStatusManager::stopUpdate()
 {
-    IceUtil::ThreadPtr thread;
+    std::thread thread;
 
     {
         lock_guard lock(_mutex);
 
-        if(_thread)
+        if (_thread.joinable())
         {
             _stopped = true;
             _conditionVariable.notify_one();
-            thread = _thread;
-            _thread = 0;
+            thread = std::move(_thread);
         }
     }
 
-    if(thread)
-    {
-        thread->getThreadControl().join();
-    }
+    thread.join();
 }
 
 void

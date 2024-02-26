@@ -84,10 +84,10 @@ MyDerivedClassI::opBool(bool p1,
 }
 
 int64_t
-MyDerivedClassI::opShortIntLong(Ice::Short p1,
+MyDerivedClassI::opShortIntLong(int16_t p1,
                                 int32_t p2,
                                 int64_t p3,
-                                Ice::Short& p4,
+                                int16_t& p4,
                                 int32_t& p5,
                                 int64_t& p6,
                                 const Ice::Current&)
@@ -98,11 +98,11 @@ MyDerivedClassI::opShortIntLong(Ice::Short p1,
     return p3;
 }
 
-Ice::Double
-MyDerivedClassI::opFloatDouble(Ice::Float p1,
-                               Ice::Double p2,
-                               Ice::Float& p3,
-                               Ice::Double& p4,
+double
+MyDerivedClassI::opFloatDouble(float p1,
+                               double p2,
+                               float& p3,
+                               double& p4,
                                const Ice::Current&)
 {
     p3 = p1;
@@ -632,9 +632,9 @@ MyDerivedClassI::opContext(const Ice::Current& c)
 }
 
 void
-MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, Test::DoubleS p2, const Ice::Current&)
+MyDerivedClassI::opDoubleMarshaling(double p1, Test::DoubleS p2, const Ice::Current&)
 {
-    Ice::Double d = 1278312346.0 / 13.0;
+    double d = 1278312346.0 / 13.0;
     test(p1 == d);
     for(unsigned int i = 0; i < p2.size(); ++i)
     {
@@ -665,8 +665,8 @@ MyDerivedClassI::opByte1(Ice::Byte b, const Ice::Current&)
     return b;
 }
 
-Ice::Short
-MyDerivedClassI::opShort1(Ice::Short s, const Ice::Current&)
+int16_t
+MyDerivedClassI::opShort1(int16_t s, const Ice::Current&)
 {
     return s;
 }
@@ -683,14 +683,14 @@ MyDerivedClassI::opLong1(int64_t l, const Ice::Current&)
     return l;
 }
 
-Ice::Float
-MyDerivedClassI::opFloat1(Ice::Float f, const Ice::Current&)
+float
+MyDerivedClassI::opFloat1(float f, const Ice::Current&)
 {
     return f;
 }
 
-Ice::Double
-MyDerivedClassI::opDouble1(Ice::Double d, const Ice::Current&)
+double
+MyDerivedClassI::opDouble1(double d, const Ice::Current&)
 {
     return d;
 }

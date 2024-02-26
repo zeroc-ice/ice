@@ -4,35 +4,12 @@
 
 #include <TestI.h>
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
 
 #include <thread>
 #include <chrono>
 
 using namespace std;
 using namespace Ice;
-
-class ActivateAdapterThread : public IceUtil::Thread
-{
-public:
-
-    ActivateAdapterThread(const ObjectAdapterPtr& adapter, int timeout) :
-        _adapter(adapter), _timeout(timeout)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        this_thread::sleep_for(chrono::milliseconds(_timeout));
-        _adapter->activate();
-    }
-
-private:
-
-    ObjectAdapterPtr _adapter;
-    int _timeout;
-};
 
 void
 TimeoutI::op(const Ice::Current&)
@@ -61,9 +38,11 @@ ControllerI::holdAdapter(int32_t to, const Ice::Current&)
 
     if(to >= 0)
     {
-        IceUtil::ThreadPtr thread = make_shared<ActivateAdapterThread>(_adapter, to);
-        IceUtil::ThreadControl threadControl = thread->start();
-        threadControl.detach();
+        std::thread activateThread([this, to] {
+            this_thread::sleep_for(chrono::milliseconds(to));
+            _adapter->activate();
+        });
+        activateThread.detach();
     }
 }
 

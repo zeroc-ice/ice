@@ -34,7 +34,7 @@ IceObjC::StreamConnector::connect()
     return make_shared<StreamTransceiver>(_instance, readStream.release(), writeStream.release(), _host, _port);
 }
 
-Short
+int16_t
 IceObjC::StreamConnector::type() const
 {
     return _instance->type();

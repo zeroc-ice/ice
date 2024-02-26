@@ -843,7 +843,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         long val = PyLong_AsLong(p);
         assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= SHRT_MIN && val <= SHRT_MAX); // validate() should have caught this.
-        os->write(static_cast<Ice::Short>(val));
+        os->write(static_cast<int16_t>(val));
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -925,7 +925,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindShort:
     {
-        Ice::Short val;
+        int16_t val;
         is->read(val);
         PyObjectHandle p = PyLong_FromLong(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -949,7 +949,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindFloat:
     {
-        Ice::Float val;
+        float val;
         is->read(val);
         PyObjectHandle p = PyFloat_FromDouble(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -957,7 +957,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindDouble:
     {
-        Ice::Double val;
+        double val;
         is->read(val);
         PyObjectHandle p = PyFloat_FromDouble(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -1819,8 +1819,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
                 case PrimitiveInfo::KindShort:
                 {
-                    os->write(reinterpret_cast<const Ice::Short*>(b),
-                              reinterpret_cast<const Ice::Short*>(b + sz));
+                    os->write(reinterpret_cast<const int16_t*>(b),
+                              reinterpret_cast<const int16_t*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindInt:
@@ -1837,14 +1837,14 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
                 case PrimitiveInfo::KindFloat:
                 {
-                    os->write(reinterpret_cast<const Ice::Float*>(b),
-                              reinterpret_cast<const Ice::Float*>(b + sz));
+                    os->write(reinterpret_cast<const float*>(b),
+                              reinterpret_cast<const float*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindDouble:
                 {
-                    os->write(reinterpret_cast<const Ice::Double*>(b),
-                              reinterpret_cast<const Ice::Double*>(b + sz));
+                    os->write(reinterpret_cast<const double*>(b),
+                              reinterpret_cast<const double*>(b + sz));
                     break;
                 }
                 default:
@@ -1952,7 +1952,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                              static_cast<int>(i));
                 throw AbortMarshaling();
             }
-            seq[static_cast<size_t>(i)] = static_cast<Ice::Short>(val);
+            seq[static_cast<size_t>(i)] = static_cast<int16_t>(val);
         }
         os->write(seq);
         break;
@@ -2214,7 +2214,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindShort:
     {
-        pair<const Ice::Short*, const Ice::Short*> p;
+        pair<const int16_t*, const int16_t*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)
@@ -2309,7 +2309,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindFloat:
     {
-        pair<const Ice::Float*, const Ice::Float*> p;
+        pair<const float*, const float*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)
@@ -2341,7 +2341,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindDouble:
     {
-        pair<const Ice::Double*, const Ice::Double*> p;
+        pair<const double*, const double*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)

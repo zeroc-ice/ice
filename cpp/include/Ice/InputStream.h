@@ -802,19 +802,20 @@ public:
     void read(std::pair<const bool*, const bool*>& v);
 
     /**
-     * Reads a short from the stream.
-     * @param v The extracted short.
+     * Unmarshals a Slice short into an int16_t.
+     * @param v The extracted int16_t.
      */
-    void read(Short& v);
+    void read(std::int16_t& v);
 
     /**
-     * Reads a sequence of shorts from the stream.
-     * @param v A vector to hold a copy of the short values.
+     * Unmarshals a sequence of Slice shorts into a vector of int16_t.
+     * @param v A vector to hold a copy of the int16_t values.
      */
-    void read(std::vector<Short>& v);
+    void read(std::vector<std::int16_t>& v);
 
     /**
-     * Reads a sequence of boolean values from the stream.
+     * Unmarshals a sequence of Slice shorts into a pair of int16_t pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const short*, const short*>& v);
@@ -877,37 +878,39 @@ public:
     void read(std::pair<const std::int64_t*, const std::int64_t*>& v);
 
     /**
-     * Reads a float from the stream.
+     * Unmarshals a Slice float into a float.
      * @param v The extracted float.
      */
-    void read(Float& v);
+    void read(float& v);
 
     /**
-     * Reads a sequence of floats from the stream.
-     * @param v A vector to hold a copy of the float values.
+     * Unmarshals a sequence of Slice floats into a vector of float.
+     * @param v An output vector filled by this function.
      */
-    void read(std::vector<Float>& v);
+    void read(std::vector<float>& v);
 
     /**
-     * Reads a sequence of floats from the stream.
+     * Unmarshals a sequence of Slice floats into a pair of float pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const float*, const float*>& v);
 
     /**
-     * Reads a double from the stream.
+     * Unmarshals a Slice double into a double.
      * @param v The extracted double.
      */
-    void read(Double& v);
+    void read(double& v);
 
     /**
-     * Reads a sequence of doubles from the stream.
-     * @param v A vector to hold a copy of the double values.
+     * Unmarshals a sequence of Slice doubles into a vector of double.
+     * @param v An output vector filled by this function.
      */
-    void read(std::vector<Double>& v);
+    void read(std::vector<double>& v);
 
     /**
-     * Reads a sequence of doubles from the stream.
+     * Unmarshals a sequence of Slice doubles into a pair of double pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const double*, const double*>& v);

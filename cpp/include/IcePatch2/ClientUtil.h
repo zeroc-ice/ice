@@ -6,7 +6,6 @@
 #define ICE_PATCH2_CLIENT_UTIL_H
 
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
 #include <IcePatch2/FileServer.h>
 
 #include <stdio.h>

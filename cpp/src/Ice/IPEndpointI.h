@@ -6,7 +6,6 @@
 #define ICE_IP_ENDPOINT_I_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Thread.h>
 #include <Ice/IPEndpointIF.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Network.h>
@@ -26,7 +25,7 @@ public:
     IPEndpointInfoI(const EndpointIPtr&);
     virtual ~IPEndpointInfoI();
 
-    virtual Ice::Short type() const noexcept;
+    virtual std::int16_t type() const noexcept;
     virtual bool datagram() const noexcept;
     virtual bool secure() const noexcept;
 
@@ -42,7 +41,7 @@ public:
     void streamWriteImpl(Ice::OutputStream*) const override;
 
     Ice::EndpointInfoPtr getInfo() const noexcept override;
-    Ice::Short type() const override;
+    std::int16_t type() const override;
     const std::string& protocol() const override;
     bool secure() const override;
 
@@ -96,7 +95,7 @@ private:
     mutable std::mutex _hashMutex;
 };
 
-class ICE_API EndpointHostResolver final : public IceUtil::Thread
+class ICE_API EndpointHostResolver final
 {
 public:
 
@@ -111,7 +110,7 @@ public:
         std::function<void(std::exception_ptr)>);
     void destroy();
 
-    void run() final;
+    void run();
     void updateObserver();
 
 private:

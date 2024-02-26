@@ -58,7 +58,7 @@ TestPluginI::initialize()
 {
     IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(_communicator);
 
-    for(Ice::Short s = 0; s < 100; ++s)
+    for(int16_t s = 0; s < 100; ++s)
     {
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
         if(factory)
@@ -66,7 +66,7 @@ TestPluginI::initialize()
             facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
-    for(Ice::Short s = 1000; s < 1010; ++s)
+    for(int16_t s = 1000; s < 1010; ++s)
     {
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
         if(factory)
@@ -74,7 +74,7 @@ TestPluginI::initialize()
             facade->addEndpointFactory(make_shared<EndpointFactory>(factory));
         }
     }
-    for(Ice::Short s = 10000; s < 10010; ++s)
+    for(int16_t s = 10000; s < 10010; ++s)
     {
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
         if(factory)
