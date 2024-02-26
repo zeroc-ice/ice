@@ -60,12 +60,12 @@ inline PyObject* incTrue()
 //
 // Create a string object.
 //
-inline PyObject* createString(const std::string& str)
+inline PyObject* createString(std::string_view str)
 {
     //
     // PyUnicode_FromStringAndSize interprets the argument as UTF-8.
     //
-    return PyUnicode_FromStringAndSize(str.c_str(), static_cast<Py_ssize_t>(str.size()));
+    return PyUnicode_FromStringAndSize(str.data(), static_cast<Py_ssize_t>(str.size()));
 }
 
 //

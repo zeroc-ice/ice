@@ -1819,7 +1819,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this interface.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "static const ::std::string& ice_staticId();";
+    H << nl << "static ::std::string_view ice_staticId();";
 
     if (!bases.empty())
     {
@@ -1894,9 +1894,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << eb << ';';
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
 
@@ -2598,11 +2598,11 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains the Slice type ID of this exception.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId();";
 
-    C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << sp << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
 
@@ -2786,7 +2786,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this value.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId();";
     return true;
 }
 
@@ -2846,9 +2846,9 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
 
@@ -3206,7 +3206,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID corresponding to this interface.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "static const ::std::string& ice_staticId();";
+    H << nl << "static ::std::string_view ice_staticId();";
 
     C << sp;
     C << nl << "::std::vector<::std::string>" << nl << scoped.substr(2) << "::ice_ids(const "
@@ -3230,13 +3230,13 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id(const " << getUnqualified("::Ice::Current&", scope)
       << ") const";
     C << sb;
-    C << nl << "return ice_staticId();";
+    C << nl << "return ::std::string{ice_staticId()};";
     C << eb;
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
     return true;

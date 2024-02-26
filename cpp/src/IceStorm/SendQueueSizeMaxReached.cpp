@@ -10,9 +10,9 @@ IceStorm::SendQueueSizeMaxReached::~SendQueueSizeMaxReached()
 {
 }
 
-const ::std::string&
+std::string_view
 IceStorm::SendQueueSizeMaxReached::ice_staticId()
 {
-    static const ::std::string typeId = "::IceStorm::SendQueueSizeMaxReached";
+    static constexpr std::string_view typeId = "::IceStorm::SendQueueSizeMaxReached";
     return typeId;
 }

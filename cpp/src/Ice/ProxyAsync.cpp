@@ -332,14 +332,14 @@ ProxyGetConnection::invoke(const string& operation)
 }
 
 bool
-Ice::ObjectPrx::ice_isA(const string& typeId, const Ice::Context& context) const
+Ice::ObjectPrx::ice_isA(string_view typeId, const Ice::Context& context) const
 {
     return makePromiseOutgoing<bool>(true, this, &ObjectPrx::_iceI_isA, typeId, context).get();
 }
 
 std::function<void()>
 Ice::ObjectPrx::ice_isAAsync(
-    const string& typeId,
+    string_view typeId,
     std::function<void(bool)> response,
     std::function<void(std::exception_ptr)> ex,
     std::function<void(bool)> sent,
@@ -350,14 +350,14 @@ Ice::ObjectPrx::ice_isAAsync(
 }
 
 std::future<bool>
-Ice::ObjectPrx::ice_isAAsync(const string& typeId, const Ice::Context& context) const
+Ice::ObjectPrx::ice_isAAsync(string_view typeId, const Ice::Context& context) const
 {
     return makePromiseOutgoing<bool>(false, this, &ObjectPrx::_iceI_isA, typeId, context);
 }
 
 void
 Ice::ObjectPrx::_iceI_isA(const shared_ptr<OutgoingAsyncT<bool>>& outAsync,
-                          const string& typeId,
+                          string_view typeId,
                           const Context& ctx) const
 {
     _checkTwowayOnly(ice_isA_name);

@@ -34,16 +34,16 @@ using namespace IceUtilInternal;
 
 static VALUE _typeInfoClass, _exceptionInfoClass, _unsetTypeClass;
 
-typedef map<string, ClassInfoPtr> ClassInfoMap;
+typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
 
 typedef map<int32_t, ClassInfoPtr> CompactIdMap;
 static CompactIdMap _compactIdMap;
 
-typedef map<string, ProxyInfoPtr> ProxyInfoMap;
+typedef map<string, ProxyInfoPtr, std::less<>> ProxyInfoMap;
 static ProxyInfoMap _proxyInfoMap;
 
-typedef map<string, ExceptionInfoPtr> ExceptionInfoMap;
+typedef map<string, ExceptionInfoPtr, std::less<>> ExceptionInfoMap;
 static ExceptionInfoMap _exceptionInfoMap;
 
 string
@@ -145,7 +145,7 @@ addProxyInfo(const string& id, const ProxyInfoPtr& info)
 // lookupProxyInfo()
 //
 static IceRuby::ProxyInfoPtr
-lookupProxyInfo(const string& id)
+lookupProxyInfo(string_view id)
 {
     ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
     if(p != _proxyInfoMap.end())
@@ -3167,7 +3167,7 @@ IceRuby_stringifyException(VALUE /*self*/, VALUE exc)
 // lookupClassInfo()
 //
 IceRuby::ClassInfoPtr
-IceRuby::lookupClassInfo(const string& id)
+IceRuby::lookupClassInfo(string_view id)
 {
     ClassInfoMap::iterator p = _classInfoMap.find(id);
     if(p != _classInfoMap.end())
@@ -3181,7 +3181,7 @@ IceRuby::lookupClassInfo(const string& id)
 // lookupExceptionInfo()
 //
 IceRuby::ExceptionInfoPtr
-IceRuby::lookupExceptionInfo(const string& id)
+IceRuby::lookupExceptionInfo(string_view id)
 {
     ExceptionInfoMap::iterator p = _exceptionInfoMap.find(id);
     if(p != _exceptionInfoMap.end())

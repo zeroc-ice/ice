@@ -27,7 +27,7 @@ class ICE_API CompactIdInit
 {
 public:
 
-    CompactIdInit(const char*, int);
+    CompactIdInit(std::string_view, int);
     ~CompactIdInit();
 
 private:
@@ -40,7 +40,7 @@ class DefaultUserExceptionFactoryInit
 {
 public:
 
-    DefaultUserExceptionFactoryInit(const char* tId) : typeId(tId)
+    DefaultUserExceptionFactoryInit(std::string_view tId) : typeId(tId)
     {
         factoryTable->addExceptionFactory(typeId, defaultUserExceptionFactory<E>);
     }
@@ -58,7 +58,7 @@ class DefaultValueFactoryInit
 {
 public:
 
-    DefaultValueFactoryInit(const char* tId) : typeId(tId)
+    DefaultValueFactoryInit(std::string_view tId) : typeId(tId)
     {
         factoryTable->addValueFactory(typeId, defaultValueFactory<O>);
     }

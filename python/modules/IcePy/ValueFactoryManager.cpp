@@ -2,6 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+// PY_SSIZE_T_CLEAN is required for s#. Should we move it somewhere else, as it's always recommended to define it
+// See https://docs.python.org/3/c-api/arg.html
+#define PY_SSIZE_T_CLEAN
 #include <ValueFactoryManager.h>
 #include <Thread.h>
 #include <Types.h>
@@ -25,7 +28,7 @@ namespace
 {
 
 ValueInfoPtr
-getValueInfo(const string& id)
+getValueInfo(string_view id)
 {
     return id == Ice::Value::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(id);
 }
@@ -65,21 +68,21 @@ IcePy::ValueFactoryManager::~ValueFactoryManager()
 }
 
 void
-IcePy::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
+IcePy::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 {
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
 }
 
 void
-IcePy::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
+IcePy::ValueFactoryManager::add(Ice::ValueFactoryPtr f, string_view id)
 {
     std::lock_guard lock(_mutex);
 
-    if(id.empty())
+    if (id.empty())
     {
-        if(_defaultFactory->getDelegate())
+        if (_defaultFactory->getDelegate())
         {
-            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
+            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
         }
 
         _defaultFactory->setDelegate(f);
@@ -87,23 +90,23 @@ IcePy::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
     else
     {
         FactoryMap::iterator p = _factories.find(id);
-        if(p != _factories.end())
+        if (p != _factories.end())
         {
-            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
+            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
         }
 
-        _factories.insert(FactoryMap::value_type(id, f));
+        _factories.insert(FactoryMap::value_type(string{id}, std::move(f)));
     }
 }
 
 Ice::ValueFactoryFunc
-IcePy::ValueFactoryManager::find(const string& id) const noexcept
+IcePy::ValueFactoryManager::find(string_view id) const noexcept
 {
     Ice::ValueFactoryPtr factory = findCore(id);
 
     if (factory)
     {
-        return [factory](const string& type) -> shared_ptr<Ice::Value>
+        return [factory](string_view type) -> shared_ptr<Ice::Value>
         {
             return factory->create(type);
         };
@@ -115,11 +118,11 @@ IcePy::ValueFactoryManager::find(const string& id) const noexcept
 }
 
 void
-IcePy::ValueFactoryManager::add(PyObject* valueFactory, PyObject* objectFactory, const string& id)
+IcePy::ValueFactoryManager::add(PyObject* valueFactory, string_view id)
 {
     try
     {
-        add(make_shared<FactoryWrapper>(valueFactory, objectFactory), id);
+        add(make_shared<FactoryWrapper>(valueFactory), id);
     }
     catch(const Ice::Exception& ex)
     {
@@ -128,7 +131,7 @@ IcePy::ValueFactoryManager::add(PyObject* valueFactory, PyObject* objectFactory,
 }
 
 PyObject*
-IcePy::ValueFactoryManager::findValueFactory(const string& id) const
+IcePy::ValueFactoryManager::findValueFactory(string_view id) const
 {
     Ice::ValueFactoryPtr factory = findCore(id);
     if (factory)
@@ -189,7 +192,7 @@ IcePy::ValueFactoryManager::destroy()
 }
 
 Ice::ValueFactoryPtr
-IcePy::ValueFactoryManager::findCore(const string& id) const noexcept
+IcePy::ValueFactoryManager::findCore(string_view id) const noexcept
 {
     std::lock_guard lock(_mutex);
 
@@ -210,23 +213,20 @@ IcePy::ValueFactoryManager::findCore(const string& id) const noexcept
     return nullptr;
 }
 
-IcePy::FactoryWrapper::FactoryWrapper(PyObject* valueFactory, PyObject* objectFactory) :
-    _valueFactory(valueFactory),
-    _objectFactory(objectFactory)
+IcePy::FactoryWrapper::FactoryWrapper(PyObject* valueFactory) :
+    _valueFactory(valueFactory)
 {
     Py_INCREF(_valueFactory);
-    Py_INCREF(_objectFactory);
     assert(_valueFactory != Py_None); // This should always be present.
 }
 
 IcePy::FactoryWrapper::~FactoryWrapper()
 {
     Py_DECREF(_valueFactory);
-    Py_DECREF(_objectFactory);
 }
 
 shared_ptr<Ice::Value>
-IcePy::FactoryWrapper::create(const string& id)
+IcePy::FactoryWrapper::create(string_view id)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -240,7 +240,7 @@ IcePy::FactoryWrapper::create(const string& id)
         return 0;
     }
 
-    PyObjectHandle obj = PyObject_CallFunction(_valueFactory, STRCAST("s"), id.c_str());
+    PyObjectHandle obj = PyObject_CallFunction(_valueFactory, "s#", id.data(), static_cast<Py_ssize_t>(id.size()));
 
     if(!obj.get())
     {
@@ -266,15 +266,10 @@ IcePy::FactoryWrapper::getValueFactory() const
 void
 IcePy::FactoryWrapper::destroy()
 {
-    if(_objectFactory != Py_None)
-    {
-        PyObjectHandle obj = PyObject_CallMethod(_objectFactory, STRCAST("destroy"), 0);
-        PyErr_Clear(); // Ignore errors.
-    }
 }
 
 shared_ptr<Ice::Value>
-IcePy::DefaultValueFactory::create(const string& id)
+IcePy::DefaultValueFactory::create(std::string_view id)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -398,7 +393,7 @@ valueFactoryManagerAdd(ValueFactoryManagerObject* self, PyObject* args)
         return 0;
     }
 
-    (*self->vfm)->add(factory, Py_None, id);
+    (*self->vfm)->add(factory, id);
     if(PyErr_Occurred())
     {
         return 0;

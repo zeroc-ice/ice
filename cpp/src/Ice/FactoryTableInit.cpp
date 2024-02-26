@@ -56,7 +56,7 @@ IceInternal::FactoryTableInit::~FactoryTableInit()
     }
 }
 
-IceInternal::CompactIdInit::CompactIdInit(const char* typeId, int compactId) :
+IceInternal::CompactIdInit::CompactIdInit(string_view typeId, int compactId) :
     _compactId(compactId)
 {
     assert(_compactId >= 0);

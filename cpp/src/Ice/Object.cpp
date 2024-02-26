@@ -46,13 +46,13 @@ Ice::Object::ice_ids(const Current&) const
 string
 Ice::Object::ice_id(const Current&) const
 {
-    return ice_staticId();
+    return string{ice_staticId()};
 }
 
-const string&
+string_view
 Ice::Object::ice_staticId()
 {
-    static const ::std::string typeId = "::Ice::Object";
+    static constexpr std::string_view typeId = "::Ice::Object";
     return typeId;
 }
 

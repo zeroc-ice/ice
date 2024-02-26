@@ -259,7 +259,7 @@ public:
     }
 
     shared_ptr<Ice::Value>
-    create(const string& typeId)
+    create(string_view typeId)
     {
         if(!_enabled)
         {
@@ -307,7 +307,7 @@ allTests(Test::TestHelper* helper, bool)
     Ice::CommunicatorPtr communicator = helper->communicator();
     auto factory = make_shared<FactoryI>();
 
-    communicator->getValueFactoryManager()->add([factory](const string& typeId)
+    communicator->getValueFactoryManager()->add([factory](string_view typeId)
                                                 {
                                                     return factory->create(typeId);
                                                 },

@@ -41,13 +41,13 @@ Ice::Value::_iceRead(Ice::InputStream* is)
 string
 Ice::Value::ice_id() const
 {
-    return ice_staticId();
+    return string{ice_staticId()};
 }
 
-const string&
+string_view
 Ice::Value::ice_staticId()
 {
-    static const ::std::string typeId = "::Ice::Object";
+    static constexpr string_view typeId = "::Ice::Object";
     return typeId;
 }
 

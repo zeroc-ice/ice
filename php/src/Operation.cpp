@@ -573,7 +573,7 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const Ice::Byt
 
     try
     {
-        is.throwException([this](const string& id)
+        is.throwException([this](string_view id)
             {
                 ExceptionInfoPtr info = getExceptionInfo(id);
                 if(info)

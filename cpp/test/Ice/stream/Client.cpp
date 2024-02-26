@@ -107,22 +107,22 @@ public:
         clear();
     }
 
-    shared_ptr<Ice::Value> create(const string& type)
+    shared_ptr<Ice::Value> create(string_view type)
     {
         return _factory(type);
     }
 
-    void setFactory(function<shared_ptr<Ice::Value>(const string&)> f)
+    void setFactory(function<shared_ptr<Ice::Value>(string_view)> f)
     {
         _factory = f;
     }
 
     void clear()
     {
-        _factory = [](const string&) { return make_shared<MyClass>(); };
+        _factory = [](string_view) { return make_shared<MyClass>(); };
     }
 
-    function<shared_ptr<Ice::Value>(const string&)> _factory;
+    function<shared_ptr<Ice::Value>(string_view)> _factory;
 };
 
 void
@@ -130,7 +130,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     MyClassFactoryWrapper factoryWrapper;
-    function<shared_ptr<Ice::Value>(const string&)> f =
+    function<shared_ptr<Ice::Value>(string_view)> f =
         std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
     communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
 
@@ -822,7 +822,7 @@ allTests(Test::TestHelper* helper)
         out.writePendingValues();
         out.finished(data);
         test(writer->called);
-        factoryWrapper.setFactory([](const string&) { return make_shared<TestObjectReader>(); });
+        factoryWrapper.setFactory([](string_view) { return make_shared<TestObjectReader>(); });
         Ice::InputStream in(communicator, data);
         shared_ptr<Ice::Value> p;
         in.read(&patchObject, &p);
