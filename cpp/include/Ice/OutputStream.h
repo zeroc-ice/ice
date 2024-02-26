@@ -631,26 +631,26 @@ public:
     void write(const std::int64_t* begin, const std::int64_t* end);
 
     /**
-     * Writes a float to the stream.
+     * Marshals a float as a Slice float.
      * @param v The float to write.
      */
     void write(float v);
 
     /**
-     * Writes a float sequence to the stream.
+     * Marshals a float sequence as a Slice float sequence.
      * @param begin The beginning of the sequence.
      * @param end The end of the sequence.
      */
     void write(const float* begin, const float* end);
 
     /**
-     * Writes a double to the stream.
+     * Marshals a double as a Slice double.
      * @param v The double to write.
      */
     void write(double v);
 
     /**
-     * Writes a double sequence to the stream.
+     * Marshals a double sequence as a Slice double sequence.
      * @param begin The beginning of the sequence.
      * @param end The end of the sequence.
      */

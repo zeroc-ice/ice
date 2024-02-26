@@ -857,37 +857,39 @@ public:
     void read(std::pair<const std::int64_t*, const std::int64_t*>& v);
 
     /**
-     * Reads a float from the stream.
+     * Unmarshals a Slice float into a float.
      * @param v The extracted float.
      */
     void read(float& v);
 
     /**
-     * Reads a sequence of floats from the stream.
-     * @param v A vector to hold a copy of the float values.
+     * Unmarshals a sequence of Slice floats into a vector of float.
+     * @param v An output vector filled by this function.
      */
     void read(std::vector<float>& v);
 
     /**
-     * Reads a sequence of floats from the stream.
+     * Unmarshals a sequence of Slice floats into a pair of float pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const float*, const float*>& v);
 
     /**
-     * Reads a double from the stream.
+     * Unmarshals a Slice double into a double.
      * @param v The extracted double.
      */
     void read(double& v);
 
     /**
-     * Reads a sequence of doubles from the stream.
-     * @param v A vector to hold a copy of the double values.
+     * Unmarshals a sequence of Slice doubles into a vector of double.
+     * @param v An output vector filled by this function.
      */
     void read(std::vector<double>& v);
 
     /**
-     * Reads a sequence of doubles from the stream.
+     * Unmarshals a sequence of Slice doubles into a pair of double pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const double*, const double*>& v);
