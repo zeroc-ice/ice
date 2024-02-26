@@ -7,7 +7,6 @@
 
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/OutgoingAsyncF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ConnectionIF.h>
 
@@ -20,6 +19,12 @@ class LocalException;
 
 namespace IceInternal
 {
+
+class OutgoingAsyncBase;
+class ProxyOutgoingAsyncBase;
+
+using OutgoingAsyncBasePtr = std::shared_ptr<OutgoingAsyncBase>;
+using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
 
 //
 // An exception wrapper, which is used to notify that the request

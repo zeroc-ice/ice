@@ -8,7 +8,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/OutgoingAsync.h>
+#include "Ice/OutgoingAsync.h"
 
 #include <Ice/TraceUtil.h>
 

@@ -17,7 +17,6 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/OutgoingAsyncF.h>
 #include <Ice/Exception.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Proxy.h>
@@ -25,6 +24,14 @@
 
 #include <list>
 #include <mutex>
+
+namespace IceInternal
+{
+
+class CommunicatorFlushBatchAsync;
+using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+
+}
 
 namespace Ice
 {

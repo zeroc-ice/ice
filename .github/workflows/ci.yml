@@ -50,6 +50,8 @@ jobs:
             language: python
           - os: ubuntu-latest
             language: js
+          - os: ubuntu-latest
+            language: matlab
 
           - os: windows-latest
             language: python

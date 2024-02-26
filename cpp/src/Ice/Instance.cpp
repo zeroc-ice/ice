@@ -913,7 +913,6 @@ IceInternal::Instance::Instance(const InitializationData& initData) :
     _classGraphDepthMax(0),
     _toStringMode(ToStringMode::Unicode),
     _acceptClassCycles(false),
-    _implicitContext(nullptr),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
     _adminEnabled(false)
@@ -1192,8 +1191,27 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 
-        const_cast<ImplicitContextIPtr&>(_implicitContext) =
-            ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
+        string implicitContextKind = _initData.properties->getPropertyWithDefault("Ice.ImplicitContext", "None");
+        if(implicitContextKind == "Shared")
+        {
+            _implicitContextKind = ImplicitContextKind::Shared;
+            _sharedImplicitContext = std::make_shared<ImplicitContext>();
+        }
+        else if(implicitContextKind == "PerThread")
+        {
+            _implicitContextKind = ImplicitContextKind::PerThread;
+        }
+        else if (implicitContextKind == "None")
+        {
+            _implicitContextKind = ImplicitContextKind::None;
+        }
+        else
+        {
+            throw Ice::InitializationException(
+                __FILE__,
+                __LINE__,
+                "'" + implicitContextKind + "' is not a valid value for Ice.ImplicitContext");
+        }
 
         _routerManager = make_shared<RouterManager>();
 
@@ -1280,6 +1298,39 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         destroy();
         throw;
+    }
+}
+
+const Ice::ImplicitContextPtr&
+IceInternal::Instance::getImplicitContext() const
+{
+    switch (_implicitContextKind)
+    {
+        case ImplicitContextKind::PerThread:
+        {
+            static thread_local std::map<const IceInternal::Instance*, ImplicitContextPtr> perThreadImplicitContextMap;
+            auto it = perThreadImplicitContextMap.find(this);
+            if (it == perThreadImplicitContextMap.end())
+            {
+                auto r = perThreadImplicitContextMap.emplace(make_pair(this, std::make_shared<ImplicitContext>()));
+                return r.first->second;
+            }
+            else
+            {
+                return it->second;
+            }
+        }
+        case ImplicitContextKind::Shared:
+        {
+            assert(_sharedImplicitContext);
+            return _sharedImplicitContext;
+        }
+        default:
+        {
+            assert(_sharedImplicitContext == nullptr);
+            assert(_implicitContextKind == ImplicitContextKind::None);
+            return _sharedImplicitContext;
+        }
     }
 }
 

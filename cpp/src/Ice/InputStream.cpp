@@ -1950,7 +1950,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         // For the 1.0 encoding, the type ID for the base Object class
         // marks the last slice.
         //
-        if(_typeId == Object::ice_staticId())
+        if(_typeId == Value::ice_staticId())
         {
             throw NoValueFactoryException(__FILE__, __LINE__, "", mostDerivedId);
         }
@@ -2424,7 +2424,7 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFu
             // We pass the "::Ice::Object" ID to indicate that this is the
             // last chance to preserve the object.
             //
-            v = newInstance(Object::ice_staticId());
+            v = newInstance(Value::ice_staticId());
             if(!v)
             {
                 v = make_shared<UnknownSlicedValue>(mostDerivedId);

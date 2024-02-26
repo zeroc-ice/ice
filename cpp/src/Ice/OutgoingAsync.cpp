@@ -2,14 +2,14 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/OutgoingAsync.h>
+#include "Ice/OutgoingAsync.h"
 #include <Ice/ConnectionI.h>
 #include <Ice/CollocatedRequestHandler.h>
 #include <Ice/Reference.h>
 #include <Ice/Instance.h>
 #include <Ice/LocalException.h>
 #include <Ice/ReplyStatus.h>
-#include <Ice/ImplicitContextI.h>
+#include <Ice/ImplicitContext.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/RetryQueue.h>
 #include <Ice/ConnectionFactory.h>
@@ -481,9 +481,9 @@ ProxyOutgoingAsyncBase::abort(std::exception_ptr ex)
     }
 }
 
-ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(const ObjectPrx& proxy) :
+ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(ObjectPrx proxy) :
     OutgoingAsyncBase(proxy->_getReference()->getInstance()),
-    _proxy(proxy),
+    _proxy(std::move(proxy)),
     _mode(OperationMode::Normal),
     _cnt(0),
     _sent(false)
@@ -633,9 +633,9 @@ ProxyOutgoingAsyncBase::runTimerTask()
     }
 }
 
-OutgoingAsync::OutgoingAsync(const ObjectPrx& proxy, bool synchronous) :
-    ProxyOutgoingAsyncBase(proxy),
-    _encoding(getCompatibleEncoding(proxy->_getReference()->getEncoding())),
+OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous) :
+    ProxyOutgoingAsyncBase(std::move(proxy)),
+    _encoding(getCompatibleEncoding(_proxy->_getReference()->getEncoding())),
     _synchronous(synchronous)
 {
 }
@@ -693,15 +693,15 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
         //
         // Implicit context
         //
-        const ImplicitContextIPtr& implicitContext = ref->getInstance()->getImplicitContext();
+        const ImplicitContextPtr& implicitContext = ref->getInstance()->getImplicitContext();
         const Context& prxContext = ref->getContext()->getValue();
-        if(implicitContext == 0)
+        if(implicitContext)
         {
-            _os.write(prxContext);
+            implicitContext->write(prxContext, &_os);
         }
         else
         {
-            implicitContext->write(prxContext, &_os);
+            _os.write(prxContext);
         }
     }
 }

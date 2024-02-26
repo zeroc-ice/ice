@@ -529,7 +529,6 @@
     <ClCompile Include="..\..\FactoryTableInit.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IconvStringConverter.cpp" />
-    <ClCompile Include="..\..\ImplicitContextI.cpp" />
     <ClCompile Include="..\..\Incoming.cpp" />
     <ClCompile Include="..\..\IncomingAsync.cpp" />
     <ClCompile Include="..\..\Initialize.cpp" />
