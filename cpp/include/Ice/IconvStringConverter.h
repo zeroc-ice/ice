@@ -168,7 +168,6 @@ IconvStringConverter<charT>::IconvStringConverter(const std::string& internalCod
     }
 }
 
-
 template<typename charT> std::pair<iconv_t, iconv_t>
 IconvStringConverter<charT>::getDescriptors() const
 {
