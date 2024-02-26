@@ -30,7 +30,7 @@ IcePatch2::PatcherFeedback::~PatcherFeedback()
 namespace
 {
 
-class Decompressor : public IceUtil::Thread
+class Decompressor
 {
 public:
 
@@ -775,17 +775,9 @@ bool
 PatcherI::updateFiles(const LargeFileInfoSeq& files)
 {
     auto decompressor = make_shared<Decompressor>(_dataDir);
-#if defined(__hppa)
-    //
-    // The thread stack size is only 64KB only HP-UX and that's not
-    // enough for this thread.
-    //
-    decompressor->start(256 * 1024); // 256KB
-#else
-    decompressor->start();
-#endif
     bool result;
 
+    thread decompressorThread = std::thread([decompressor] { decompressor->run(); });
     try
     {
         result = updateFilesInternal(files, decompressor);
@@ -793,13 +785,19 @@ PatcherI::updateFiles(const LargeFileInfoSeq& files)
     catch(...)
     {
         decompressor->destroy();
-        decompressor->getThreadControl().join();
+        if (decompressorThread.joinable())
+        {
+            decompressorThread.join();
+        }
         decompressor->log(_log);
         throw;
     }
 
     decompressor->destroy();
-    decompressor->getThreadControl().join();
+    if (decompressorThread.joinable())
+    {
+        decompressorThread.join();
+    }
     decompressor->log(_log);
     decompressor->exception();
 

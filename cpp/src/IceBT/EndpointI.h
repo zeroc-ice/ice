@@ -11,7 +11,6 @@
 #include <IceBT/EndpointInfo.h>
 #include <IceBT/Engine.h>
 #include <IceBT/InstanceF.h>
-#include <IceUtil/Thread.h>
 
 namespace IceBT
 {

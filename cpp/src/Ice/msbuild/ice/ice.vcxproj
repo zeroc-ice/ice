@@ -580,7 +580,6 @@
     <ClCompile Include="..\..\TcpConnector.cpp" />
     <ClCompile Include="..\..\TcpEndpointI.cpp" />
     <ClCompile Include="..\..\TcpTransceiver.cpp" />
-    <ClCompile Include="..\..\Thread.cpp" />
     <ClCompile Include="..\..\ThreadPool.cpp" />
     <ClCompile Include="..\..\Timer.cpp" />
     <ClCompile Include="..\..\TraceLevels.cpp" />

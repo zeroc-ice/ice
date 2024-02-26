@@ -1345,6 +1345,7 @@ IceInternal::Instance::~Instance()
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
     assert(!_endpointHostResolver);
+    assert(!_endpointHostResolverThread.joinable());
     assert(!_retryQueue);
     assert(!_timer);
     assert(!_routerManager);
@@ -1501,16 +1502,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     try
     {
         _endpointHostResolver = make_shared<EndpointHostResolver>(shared_from_this());
-        bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
-        int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
-        if(hasPriority)
-        {
-            _endpointHostResolver->start(0, priority);
-        }
-        else
-        {
-            _endpointHostResolver->start();
-        }
+        _endpointHostResolverThread = std::thread([this] { _endpointHostResolver->run(); });
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1700,9 +1692,9 @@ IceInternal::Instance::destroy()
     {
         _serverThreadPool->joinWithAllThreads();
     }
-    if(_endpointHostResolver)
+    if(_endpointHostResolverThread.joinable())
     {
-        _endpointHostResolver->getThreadControl().join();
+        _endpointHostResolverThread.join();
     }
 
     if(_routerManager)

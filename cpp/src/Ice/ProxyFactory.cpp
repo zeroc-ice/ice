@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Thread.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>

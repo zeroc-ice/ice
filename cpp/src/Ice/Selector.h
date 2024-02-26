@@ -25,7 +25,6 @@
 #include <condition_variable>
 
 #if defined(ICE_USE_CFSTREAM)
-#   include <IceUtil/Thread.h>
 #   include <set>
 
 struct __CFRunLoop;
@@ -258,7 +257,7 @@ private:
     friend class EventHandlerWrapper;
 
     InstancePtr _instance;
-    IceUtil::ThreadPtr _thread;
+    std::thread _thread;
     CFRunLoopRef _runLoop;
     IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
     bool _destroyed;

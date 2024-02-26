@@ -5,7 +5,6 @@
 #ifndef TEST_AMD_I_H
 #define TEST_AMD_I_H
 
-#include <IceUtil/Thread.h>
 #include <TestAMD.h>
 
 class MyDerivedClassI : public Test::MyDerivedClass
@@ -399,7 +398,8 @@ public:
                                const Ice::Current&);
 
 private:
-    IceUtil::ThreadPtr _opVoidThread;
+
+    std::thread _opVoidThread;
     std::mutex _opVoidMutex;
 
     std::mutex _mutex;

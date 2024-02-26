@@ -504,7 +504,6 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, Input
 }
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
-    IceUtil::Thread("Ice.HostResolver"),
     _instance(instance),
     _protocol(instance->protocolSupport()),
     _preferIPv6(instance->preferIPv6()),
@@ -677,7 +676,7 @@ IceInternal::EndpointHostResolver::updateObserver()
     {
         _observer.attach(observer->getThreadObserver(
             "Communicator",
-            name(),
+            "Ice.HostResolver",
             ThreadState::ThreadStateIdle,
             _observer.get()));
     }

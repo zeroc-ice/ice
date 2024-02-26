@@ -4,7 +4,6 @@
 
 #include <IceUtil/UUID.h>
 #include <IceUtil/Random.h>
-#include <IceUtil/Thread.h>
 #include <TestHelper.h>
 
 #include <mutex>
@@ -26,7 +25,7 @@ inline void usage(const char* myName)
     cerr << "Usage: " << myName << " [number of UUIDs to generate] [number of threads]" << endl;
 }
 
-template<typename T, typename GenerateFunc> class InsertThread : public Thread
+template<typename T, typename GenerateFunc> class InsertThread
 {
 public:
 
@@ -129,17 +128,20 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
 
     set<T> itemSet;
 
-    vector<ThreadControl> threads;
+    vector<thread> threads;
 
     auto start = chrono::steady_clock::now();
     for(int i = 0; i < threadCount; i++)
     {
-        ThreadPtr t = make_shared<InsertThread<T, GenerateFunc>>(i, itemSet, func, howMany / threadCount, verbose);
-        threads.push_back(t->start());
+        auto inserter = make_shared<InsertThread<T, GenerateFunc>>(i, itemSet, func, howMany / threadCount, verbose);
+        threads.emplace_back(thread([inserter] { inserter->run(); }));
     }
-    for(vector<ThreadControl>::iterator p = threads.begin(); p != threads.end(); ++p)
+    for (auto& p : threads)
     {
-        p->join();
+        if (p.joinable())
+        {
+            p.join();
+        }
     }
     auto finish = chrono::steady_clock::now();
 
