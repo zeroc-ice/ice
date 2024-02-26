@@ -54,7 +54,7 @@ allTests(Test::TestHelper* helper)
 
     Test::TestIntfPrxPtr t = Ice::checkedCast<Test::TestIntfPrx>(base);
     test(t);
-    test(Ice::targetEqualTo(t, base));
+    test(t == base);
     cout << "ok" << endl;
 
     cout << "testing ice_id and ice_ids with string converter... " << flush;
@@ -469,8 +469,8 @@ allTests(Test::TestHelper* helper)
 
         for(auto i: in)
         {
-            test(Ice::targetEqualTo(*op++, i));
-            test(Ice::targetEqualTo(*rp++, i));
+            test(*op++ == i);
+            test(*rp++ == i);
         }
     }
 
@@ -489,8 +489,8 @@ allTests(Test::TestHelper* helper)
 
         for(auto i: in)
         {
-            test(Ice::targetEqualTo(*op++, i));
-            test(Ice::targetEqualTo(*rp++, i));
+            test(*op++ == i);
+            test(*rp++ == i);
         }
     }
 
@@ -1005,8 +1005,8 @@ allTests(Test::TestHelper* helper)
 
             for(auto i: in)
             {
-                test(Ice::targetEqualTo(*op++, i));
-                test(Ice::targetEqualTo(*rp++, i));
+                test(*op++ == i);
+                test(*rp++ == i);
             }
         }
 
@@ -1028,8 +1028,8 @@ allTests(Test::TestHelper* helper)
 
             for(auto i: in)
             {
-                test(Ice::targetEqualTo(*op++, i));
-                test(Ice::targetEqualTo(*rp++, i));
+                test(*op++ == i);
+                test(*rp++ == i);
             }
         }
 
@@ -1766,8 +1766,8 @@ allTests(Test::TestHelper* helper)
                               auto rp = ret.begin();
                               for(auto i: in)
                               {
-                                  test(Ice::targetEqualTo(*op++, i));
-                                  test(Ice::targetEqualTo(*rp++, i));
+                                  test(*op++ == i);
+                                  test(*rp++ == i);
                               }
                               done.set_value(true);
                           },
@@ -1797,8 +1797,8 @@ allTests(Test::TestHelper* helper)
                               auto rp = ret.begin();
                               for(auto i: in)
                               {
-                                  test(Ice::targetEqualTo(*op++, i));
-                                  test(Ice::targetEqualTo(*rp++, i));
+                                  test(*op++ == i);
+                                  test(*rp++ == i);
                               }
                               done.set_value(true);
                           },

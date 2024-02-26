@@ -22,7 +22,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
-    test(Ice::targetEqualTo(obj, base));
+    test(obj == base);
     cout << "ok" << endl;
 
     {

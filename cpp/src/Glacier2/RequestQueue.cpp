@@ -106,7 +106,7 @@ Glacier2::Request::override(const shared_ptr<Request>& other) const
     //
     // We cannot override if the proxies differ.
     //
-    return Ice::targetEqualTo(_proxy, other->_proxy);
+    return _proxy == other->_proxy;
 }
 
 void

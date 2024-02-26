@@ -396,24 +396,46 @@ public:
     }
 
     /**
-     * Writes an optional data value to the stream.
+     * Writes an optional data value to the stream. For all types except proxies.
      * @param tag The tag ID.
      * @param v The data value to be written (if any).
      */
-    template<typename T> void write(std::int32_t tag, const std::optional<T>& v)
+    template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void write(std::int32_t tag, const std::optional<T>& v)
     {
-        if(!v)
+        if (!v)
         {
             return; // Optional not set
         }
 
-        if(writeOptional(tag, StreamOptionalHelper<T,
-                                              StreamableTraits<T>::helper,
-                                              StreamableTraits<T>::fixedLength>::optionalFormat))
+        if (writeOptional(tag, StreamOptionalHelper<T,
+                                                    StreamableTraits<T>::helper,
+                                                    StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,
                                  StreamableTraits<T>::fixedLength>::write(this, *v);
+        }
+    }
+
+    /**
+     * Writes an optional proxy to the stream.
+     * @param tag The tag ID.
+     * @param v The proxy to be written (if any).
+     */
+    template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void write(std::int32_t tag, const std::optional<T>& v)
+    {
+        if (!v)
+        {
+            return; // Optional not set
+        }
+
+        if (writeOptional(tag, OptionalFormat::FSize))
+        {
+            size_type pos = startSize();
+            writeProxy(*v);
+            endSize(pos);
         }
     }
 
@@ -489,7 +511,7 @@ public:
      * Writes a list of optional data values.
      */
     template<typename T>
-    void writeAll(std::initializer_list<int> tags, const std::optional<T>& v)
+    void writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v)
     {
         write(*(tags.begin() + tags.size() - 1), v);
     }
@@ -498,7 +520,7 @@ public:
      * Writes a list of optional data values.
      */
     template<typename T, typename... Te>
-    void writeAll(std::initializer_list<int> tags, const std::optional<T>& v, const std::optional<Te>&... ve)
+    void writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v, const std::optional<Te>&... ve)
     {
         size_t index = tags.size() - sizeof...(ve) - 1;
         write(*(tags.begin() + index), v);

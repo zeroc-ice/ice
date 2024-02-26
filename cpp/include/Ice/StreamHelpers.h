@@ -854,14 +854,8 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStructClass, fixedLength> : S
 {
 };
 
-/**
- * Optional proxies are encoded like variable size structs, using the FSize encoding.
- * \headerfile Ice/Ice.h
- */
-template<typename T>
-struct StreamOptionalHelper<T, StreamHelperCategoryProxy, false> : StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
-{
-};
+// InputStream and OutputStream have special logic for optional (tagged) proxies that does not rely on the
+// StreamOptional helpers.
 
 /**
  * Helper to read/write optional sequences or dictionaries.

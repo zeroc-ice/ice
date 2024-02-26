@@ -174,8 +174,8 @@ InitialI::opOneOptional(optional<OneOptionalPtr> p1, optional<OneOptionalPtr>& p
     return p1;
 }
 
-optional<MyInterfacePrxPtr>
-InitialI::opMyInterfaceProxy(optional<MyInterfacePrxPtr> p1, optional<MyInterfacePrxPtr>& p3, const Current&)
+optional<MyInterfacePrx>
+InitialI::opMyInterfaceProxy(optional<MyInterfacePrx> p1, optional<MyInterfacePrx>& p3, const Current&)
 {
     p3 = p1;
     return p1;

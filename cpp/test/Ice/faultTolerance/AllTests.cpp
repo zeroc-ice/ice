@@ -27,7 +27,7 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
-    test(Ice::targetEqualTo(obj, base));
+    test(obj == base);
     cout << "ok" << endl;
 
     int oldPid = 0;

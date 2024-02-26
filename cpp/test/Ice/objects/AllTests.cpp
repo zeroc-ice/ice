@@ -95,7 +95,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
     test(initial);
-    test(Ice::targetEqualTo(initial, base));
+    test(initial == base);
     cout << "ok" << endl;
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;

@@ -322,8 +322,7 @@ allTests(Test::TestHelper* helper, bool)
     cout << "testing checked cast... " << flush;
     InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
     test(initial);
-
-    test(targetEqualTo(initial, base));
+    test(initial == base);
     cout << "ok" << endl;
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
@@ -515,7 +514,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->g == mo1->g);
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
-    test(targetEqualTo(mo5->j.value(), mo1->j.value()));
+    test(mo5->j == mo1->j);
     test(mo5->k == mo5->k);
     test(mo5->bs == mo1->bs);
     test(mo5->ss == mo1->ss);
@@ -533,7 +532,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->mips.value().size() == mo1->mips.value().size());
     for(size_t i = 0; i< mo5->mips.value().size(); ++i)
     {
-        test(targetEqualTo(mo5->mips.value()[i], mo1->mips.value()[i]));
+        test(mo5->mips.value()[i] == mo1->mips.value()[i]);
     }
 
     test(mo5->ied == mo1->ied);
@@ -544,7 +543,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->imipd.value().size() == mo1->imipd.value().size());
     for(auto& v : mo5->imipd.value())
     {
-        test(targetEqualTo(mo1->imipd.value()[v.first], v.second));
+        test(mo1->imipd.value()[v.first] == v.second);
     }
 
     test(mo5->bos == mo1->bos);
@@ -579,7 +578,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->g);
     test(mo7->h == mo1->h);
     test(!mo7->i);
-    test(targetEqualTo(mo7->j.value(), mo1->j.value()));
+    test(mo7->j == mo1->j);
     test(!mo7->k);
     test(mo7->bs == mo1->bs);
     test(!mo7->ss);
@@ -648,7 +647,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo8->mips.value().size() == mo1->mips.value().size());
     for(size_t i = 0; i< mo8->mips.value().size(); ++i)
     {
-        test(targetEqualTo(mo8->mips.value()[i], mo1->mips.value()[i]));
+        test(mo8->mips.value()[i] == mo1->mips.value()[i]);
     }
 
     test(mo8->ied == mo1->ied);
@@ -1299,6 +1298,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
+        // TODO: remove this testing for tagged classes alongside the tagged class support.
         optional<OneOptionalPtr> p1;
         optional<OneOptionalPtr> p3;
         optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
@@ -1333,15 +1333,15 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<MyInterfacePrxPtr> p1;
-        optional<MyInterfacePrxPtr> p3;
-        optional<MyInterfacePrxPtr> p2 = initial->opMyInterfaceProxy(p1, p3);
+        optional<MyInterfacePrx> p1;
+        optional<MyInterfacePrx> p3;
+        optional<MyInterfacePrx> p2 = initial->opMyInterfaceProxy(p1, p3);
         test(!p2 && !p3);
 
         p1 = Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test"));
         p2 = initial->opMyInterfaceProxy(p1, p3);
 
-        test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
+        test(p2.value() == p1.value() && p3.value() == p1.value());
 
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
@@ -1355,7 +1355,7 @@ allTests(Test::TestHelper* helper, bool)
         in.read(3, p3);
         in.endEncapsulation();
 
-        test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
+        test(p2.value() == p1.value() && p3.value() == p1.value());
 
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();

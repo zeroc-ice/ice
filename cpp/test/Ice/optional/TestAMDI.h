@@ -84,8 +84,8 @@ public:
                                     ::std::function<void(const std::optional<::std::shared_ptr<::Test::OneOptional>>&, const std::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opMyInterfaceProxyAsync(std::optional<::Test::MyInterfacePrxPtr>,
-                                         ::std::function<void(const std::optional<::Test::MyInterfacePrxPtr>&, const std::optional<::Test::MyInterfacePrxPtr>&)>,
+    virtual void opMyInterfaceProxyAsync(std::optional<::Test::MyInterfacePrx>,
+                                         ::std::function<void(const std::optional<::Test::MyInterfacePrx>&, const std::optional<::Test::MyInterfacePrx>&)>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opByteSeqAsync(std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>,

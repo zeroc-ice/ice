@@ -39,22 +39,17 @@ string toTemplateArg(const string& arg)
 }
 
 string
-toOptional(const string& s, int typeCtx)
+toOptional(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
-    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
-    string result = "std::optional";
-    result += '<';
-    if(cpp11)
+    if (isProxyType(type))
     {
-        result += s;
+        // We map optional proxies like regular proxies, as optional<XxxPrx>.
+        return typeToString(type, scope, metaData, typeCtx);
     }
     else
     {
-        result += toTemplateArg(s);
+        return "::std::optional<" + typeToString(type, scope, metaData, typeCtx) + '>';
     }
-
-    result += '>';
-    return result;
 }
 
 string
@@ -168,11 +163,7 @@ void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& scope, const string& fixedName,
                        const StringList& metaData, int typeCtx, bool endArg)
 {
-    string s = typeToString(type, scope, metaData, typeCtx);
-    if(optional)
-    {
-        s = toOptional(s, typeCtx);
-    }
+    string s = typeToString(type, optional, scope, metaData, typeCtx);
     out << nl << s << ' ' << fixedName << ';';
 
     if((typeCtx & TypeContextCpp11) || !(typeCtx & TypeContextInParam) || !endArg)
@@ -212,7 +203,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
         {
             if(optional)
             {
-                str = toOptional(str, typeCtx);
+                str = "::std::optional<" + str + '>';
             }
             out << nl << str << ' ' << fixedName << "_tmp_;";
         }
@@ -774,7 +765,7 @@ Slice::typeToString(const TypePtr& type, bool optional, const string& scope, con
 {
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx);
+        return toOptional(type, scope, metaData, typeCtx);
     }
     else
     {
@@ -793,7 +784,7 @@ Slice::returnTypeToString(const TypePtr& type, bool optional, const string& scop
 
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx);
+        return toOptional(type, scope, metaData, typeCtx);
     }
 
     return typeToString(type, scope, metaData, typeCtx);
@@ -824,7 +815,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 
     if(optional)
     {
-        return "const " + toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx) + '&';
+        return "const " + toOptional(type, scope, metaData, typeCtx) + '&';
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -931,7 +922,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
 
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx) + '&';
+        return toOptional(type, scope, metaData, typeCtx) + '&';
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
