@@ -327,9 +327,6 @@
     <ClCompile Include="..\..\IconvStringConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ImplicitContextI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Incoming.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

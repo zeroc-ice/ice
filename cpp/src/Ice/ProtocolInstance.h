@@ -25,7 +25,7 @@ public:
 
     virtual ~ProtocolInstance();
 
-    ProtocolInstance(const Ice::CommunicatorPtr&, Ice::Short, const std::string&, bool);
+    ProtocolInstance(const Ice::CommunicatorPtr&, std::int16_t, const std::string&, bool);
 
     int traceLevel() const
     {
@@ -44,7 +44,7 @@ public:
         return _protocol;
     }
 
-    Ice::Short type() const
+    std::int16_t type() const
     {
         return _type;
     }
@@ -59,10 +59,10 @@ public:
         return _secure;
     }
 
-    IceInternal::EndpointFactoryPtr getEndpointFactory(Ice::Short) const;
-    BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
-    void setSndBufSizeWarn(Ice::Short type, int size);
-    void setRcvBufSizeWarn(Ice::Short type, int size);
+    IceInternal::EndpointFactoryPtr getEndpointFactory(std::int16_t) const;
+    BufSizeWarnInfo getBufSizeWarn(std::int16_t type);
+    void setSndBufSizeWarn(std::int16_t type, int size);
+    void setRcvBufSizeWarn(std::int16_t type, int size);
     bool preferIPv6() const;
     ProtocolSupport protocolSupport() const;
     const std::string& defaultHost() const;
@@ -82,14 +82,14 @@ public:
 
 protected:
 
-    ProtocolInstance(const InstancePtr&, Ice::Short, const std::string&, bool);
+    ProtocolInstance(const InstancePtr&, std::int16_t, const std::string&, bool);
     friend class Instance;
     const InstancePtr _instance;
     const int _traceLevel;
     const std::string _traceCategory;
     const Ice::PropertiesPtr _properties;
     const std::string _protocol;
-    const Ice::Short _type;
+    const std::int16_t _type;
     const bool _secure;
 };
 

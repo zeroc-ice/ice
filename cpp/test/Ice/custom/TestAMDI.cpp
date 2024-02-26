@@ -123,14 +123,6 @@ TestIntfI::opMyByteSeqAsync(MyByteSeq in,
 }
 
 void
-TestIntfI::opStringAsync(Util::string_view in,
-                         std::function<void(const Util::string_view&, const Util::string_view&)> response,
-                         std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
 TestIntfI::opStringSeqAsync(std::deque<std::string> in,
                             std::function<void(const std::deque<std::string>&, const std::deque<std::string>&)> response,
                             std::function<void(std::exception_ptr)>, const Ice::Current&)
@@ -293,15 +285,6 @@ TestIntfI::opVarDictAsync(Test::CustomMap<std::string, int32_t> in,
         result[i] = i*i;
     }
     response(result, in);
-}
-
-void
-TestIntfI::opCustomIntStringDictAsync(std::map<int32_t, ::Util::string_view> in,
-                                      std::function<void(const std::map<int32_t, ::Util::string_view>&,
-                                                          const std::map<int32_t, ::Util::string_view>&)> response,
-                                      std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
 }
 
 void

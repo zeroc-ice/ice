@@ -52,7 +52,7 @@ endpointInfoType(EndpointInfoObject* self, PyObject* /*args*/)
     assert(self->endpointInfo);
     try
     {
-        Ice::Short type = (*self->endpointInfo)->type();
+        int16_t type = (*self->endpointInfo)->type();
         return PyLong_FromLong(type);
     }
     catch(const Ice::Exception& ex)

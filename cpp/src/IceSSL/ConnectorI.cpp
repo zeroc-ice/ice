@@ -32,7 +32,7 @@ IceSSL::ConnectorI::connect()
     return _instance->engine()->createTransceiver(_instance, _delegate->connect(), _host, false);
 }
 
-Short
+int16_t
 IceSSL::ConnectorI::type() const
 {
     return _delegate->type();

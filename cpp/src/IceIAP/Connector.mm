@@ -32,7 +32,7 @@ IceObjC::iAPConnector::connect()
     return transceiver;
 }
 
-Short
+int16_t
 IceObjC::iAPConnector::type() const
 {
     return _instance->type();

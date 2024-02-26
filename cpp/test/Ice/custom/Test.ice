@@ -5,7 +5,7 @@
 #pragma once
 
 [["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h", "cpp:include:CustomMap.h",
-  "cpp:include:CustomBuffer.h", "cpp:include:StringView.h"]]
+  "cpp:include:CustomBuffer.h"]]
 
 module Test
 {
@@ -117,7 +117,7 @@ class DictClass
 }
 
 ["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Short>"] sequence<short> ShortBuffer;
+["cpp:type:Test::CustomBuffer<std::int16_t>"] sequence<short> ShortBuffer;
 ["cpp:type:Test::CustomBuffer<std::int32_t>"] sequence<int> IntBuffer;
 ["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
 ["cpp:type:Test::CustomBuffer<float>"] sequence<float> FloatBuffer;
@@ -177,10 +177,6 @@ interface TestIntf
     ["cpp:type:MyByteSeq"] ByteSeq
     opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, out ["cpp:type:MyByteSeq"] ByteSeq outSeq);
 
-    ["cpp:view-type:Util::string_view"] string
-    opString(["cpp:view-type:Util::string_view"] string inString,
-             out ["cpp:view-type:Util::string_view"] string outString);
-
     ["cpp:type:std::deque<std::string>"] StringSeq
     opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq,
                 out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
@@ -233,11 +229,6 @@ interface TestIntf
     ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict
     opVarDict(["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict idict,
               out ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict odict);
-
-    ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict
-    opCustomIntStringDict(
-        ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict idict,
-        out ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] IntStringDict odict);
 
     ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 

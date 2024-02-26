@@ -143,7 +143,7 @@ public:
         ctx.insert(_context.begin(), _context.end());
         auto self = static_pointer_cast<UserPasswordCreateSession>(shared_from_this());
         _sessionRouter->_verifier->checkPermissionsAsync(_user, _password,
-                                                         [self](bool ok, const string& reason)
+                                                         [self](bool ok, string reason)
                                                          {
                                                              self->checkPermissionsResponse(ok, reason);
                                                          },

@@ -72,6 +72,23 @@
         "typeinfo": "cpp",
         "unordered_map": "cpp",
         "variant": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "bit": "cpp",
+        "*.tcc": "cpp",
+        "chrono": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "memory": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp",
+        "random": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp",
+        "cinttypes": "cpp"
     }
 }

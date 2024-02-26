@@ -604,12 +604,6 @@ public final class InitialI implements Initial
     }
 
     @Override
-    public boolean supportsCppStringView(Current current)
-    {
-        return false;
-    }
-
-    @Override
     public boolean supportsNullOptional(Current current)
     {
         //

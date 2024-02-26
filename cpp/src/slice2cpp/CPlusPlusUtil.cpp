@@ -63,15 +63,20 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
     string strType = findMetaData(metaData, typeCtx);
     if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
     {
+        // TODO: if we're still using TypeContextAMIPrivateEnd, we should give it a better name.
+        // TODO: should be something like the following line but doesn't work currently
+        // return (typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd)) ? "::std::wstring_view" : "::std::wstring";
         return "::std::wstring";
     }
     else if(strType != "" && strType != "string")
     {
+        // The user provided a type name, we use it as-is.
         return strType;
     }
     else
     {
         return "::std::string";
+        // return (typeCtx & TypeContextInParam) ? "::std::string_view" : "::std::string";
     }
 }
 
@@ -682,7 +687,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::std::int64_t",
         "float",
         "double",
-        "::std::string",
+        "****", // string or wstring, see below
         "::std::shared_ptr<::Ice::Value>",
         "::std::optional<::Ice::ObjectPrx>",
         "::std::shared_ptr<::Ice::Value>"
@@ -809,7 +814,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "::std::int64_t",
         "float",
         "double",
-        "const ::std::string&",
+        "****", // string_view or wstring_view, see below
         "const ::std::shared_ptr<::Ice::Value>&",
         "const ::std::optional<::Ice::ObjectPrx>&",
         "const ::std::shared_ptr<::Ice::Value>&"
@@ -827,7 +832,8 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
+            // TODO: temporary, stringTypeToString should return the correct string.
+            return stringTypeToString(type, metaData, typeCtx) + "_view";
         }
         else
         {
@@ -917,7 +923,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "::std::int64_t&",
         "float&",
         "double&",
-        "::std::string&",
+        "****", // string& or wstring&, see below
         "::std::shared_ptr<::Ice::Value>&",
         "::std::optional<::Ice::ObjectPrx>&",
         "::std::shared_ptr<::Ice::Value>&"

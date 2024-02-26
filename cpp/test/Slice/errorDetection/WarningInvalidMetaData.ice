@@ -34,7 +34,7 @@ interface I
     ["cpp:type:std::list< ::std::string>"]
     void op1();
 
-    ["cpp:view-type:std::experimental::string_view"]
+    ["cpp:view-type:std::string_view"]
     void op2();
 
     ["cpp:array"]

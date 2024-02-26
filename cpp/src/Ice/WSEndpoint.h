@@ -26,7 +26,7 @@ public:
     void streamWriteImpl(Ice::OutputStream*) const final;
 
     Ice::EndpointInfoPtr getInfo() const noexcept final;
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     const std::string& protocol() const final;
 
     std::int32_t timeout() const final;
@@ -73,9 +73,9 @@ class ICE_API WSEndpointFactory final : public EndpointFactoryWithUnderlying
 {
 public:
 
-    WSEndpointFactory(const ProtocolInstancePtr&, Ice::Short);
+    WSEndpointFactory(const ProtocolInstancePtr&, std::int16_t);
 
-    EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, Ice::Short) const final;
+    EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const final;
 
 protected:
 

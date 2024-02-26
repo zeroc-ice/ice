@@ -63,17 +63,6 @@ allTests(Test::TestHelper* helper)
     test(t->ice_ids()[1] == Test::TestIntfPrx::ice_staticId());
     cout << "ok" << endl;
 
-    cout << "testing alternate strings... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-        string out;
-        string ret = t->opString(in, out);
-
-        test(ret == out);
-        test(ret == in);
-    }
-    cout << "ok" << endl;
-
     cout << "testing alternate sequences... " << flush;
 
     {
@@ -587,33 +576,12 @@ allTests(Test::TestHelper* helper)
         }
     }
 
-    {
-        std::map<int, Util::string_view> idict;
-
-        idict[1] = "ONE";
-        idict[2] = "TWO";
-        idict[3] = "THREE";
-        idict[-1] = "MINUS ONE";
-
-        Test::IntStringDict out;
-        out[5] = "FIVE";
-
-        Test::IntStringDict ret = t->opCustomIntStringDict(idict, out);
-        test(out.size() == idict.size());
-        test(out == ret);
-        for(std::map<int, Util::string_view>::const_iterator p = idict.begin();
-            p != idict.end(); ++p)
-        {
-            test(out[p->first] == p->second.to_string());
-        }
-    }
-
     cout << "ok" << endl;
 
     cout << "testing alternate custom sequences... " << flush;
     {
         Test::ShortBuffer inS;
-        inS.setAndInit(new Ice::Short[3], 3);
+        inS.setAndInit(new int16_t[3], 3);
         Test::ShortBuffer outS;
         Test::ShortBuffer ret = t->opShortBuffer(inS, outS);
 
@@ -632,7 +600,7 @@ allTests(Test::TestHelper* helper)
         Test::BufferStruct bs;
         bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
-        bs.shortBuf.setAndInit(new Ice::Short[10], 10);
+        bs.shortBuf.setAndInit(new int16_t[10], 10);
         bs.intBuf.setAndInit(new int32_t[10], 10);
         bs.longBuf.setAndInit(new int64_t[10], 10);
         bs.floatBuf.setAndInit(new float[10], 10);
@@ -650,15 +618,6 @@ allTests(Test::TestHelper* helper)
         Test::BufferStruct rs2;
         is.read(rs2);
         test(rs == rs2);
-    }
-    cout << "ok" << endl;
-
-    cout << "testing alternate strings with AMI... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-        auto r = t->opStringAsync(in).get();
-        test(std::get<0>(r) == std::get<1>(r));
-        test(std::get<0>(r) == in);
     }
     cout << "ok" << endl;
 
@@ -1131,28 +1090,6 @@ allTests(Test::TestHelper* helper)
             test(r.size() == in.size());
             test(r == in);
         }
-    }
-    cout << "ok" << endl;
-
-    cout << "testing alternate strings with AMI callbacks... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-
-        promise<bool> done;
-
-        t->opStringAsync(in,
-            [&](Util::string_view ret, Util::string_view out)
-            {
-                test(out == ret);
-                test(in == out);
-                done.set_value(true);
-            },
-            [&](std::exception_ptr)
-            {
-                done.set_value(false);
-            });
-
-        test(done.get_future().get());
     }
     cout << "ok" << endl;
 
@@ -2003,26 +1940,6 @@ allTests(Test::TestHelper* helper)
                 test(i.second == i.first * i.first);
             }
         }
-
-        {
-            std::map<int, Util::string_view> idict;
-
-            idict[1] = "ONE";
-            idict[2] = "TWO";
-            idict[3] = "THREE";
-            idict[-1] = "MINUS ONE";
-
-            auto r = t->opCustomIntStringDictAsync(idict).get();
-            test(std::get<1>(r).size() == idict.size());
-
-            test(std::get<1>(r) == std::get<0>(r));
-
-            for(auto i: idict)
-            {
-                test(std::get<1>(r)[i.first] == i.second);
-            }
-        }
-
     }
     cout << "ok" << endl;
 
@@ -2081,36 +1998,6 @@ allTests(Test::TestHelper* helper)
 
             test(done.get_future().get());
         }
-
-        {
-            std::map<int, Util::string_view> idict;
-
-            idict[1] = "ONE";
-            idict[2] = "TWO";
-            idict[3] = "THREE";
-            idict[-1] = "MINUS ONE";
-
-            promise<bool> done;
-
-            t->opCustomIntStringDictAsync(idict,
-                                          [&](map<int, Util::string_view> ret, map<int, Util::string_view> out)
-                                          {
-                                              test(ret == out);
-                                              for(auto i: idict)
-                                              {
-                                                  test(ret[i.first] == i.second);
-                                              }
-
-                                              done.set_value(true);
-                                           },
-                                           [&](std::exception_ptr)
-                                           {
-                                              done.set_value(false);
-                                           });
-
-            test(done.get_future().get());
-        }
-
     }
     cout << "ok" << endl;
 
