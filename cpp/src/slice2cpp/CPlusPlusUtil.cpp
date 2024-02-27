@@ -1090,7 +1090,7 @@ Slice::writeStreamHelpers(Output& out,
                           DataMemberList dataMembers,
                           bool hasBaseDataMembers)
 {
-    // If c is a C++11 class/exception whose base class contains data members (recursively), then we need to generate
+    // If c is a class/exception whose base class contains data members (recursively), then we need to generate
     // a StreamWriter even if its implementation is empty. This is because our default marshaling uses ice_tuple() which
     // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
     // is not an issue for structs.
@@ -1132,8 +1132,8 @@ Slice::writeStreamHelpers(Output& out,
     //
     // Generate StreamWriter
     //
-    // Only generate StreamWriter specializations if we are generating for C++98 or
-    // we are generating for C++11 with optional data members and no base class data members
+    // Only generate StreamWriter specializations if we are generating optional data members and no
+    // base class data members
     //
     if(!optionalMembers.empty() || hasBaseDataMembers)
     {

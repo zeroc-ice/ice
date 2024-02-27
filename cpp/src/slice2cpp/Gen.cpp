@@ -109,7 +109,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, 0);
                 out << "\"";
             }
-            else // C++98 narrow strings
+            else // narrow strings
             {
                 out << "\"" << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", Octal, 0) << "\"";
             }
