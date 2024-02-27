@@ -1084,8 +1084,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "consumer", "..\test\Ice\lib
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "alltests", "..\test\Ice\library\msbuild\alltests\alltests.vcxproj", "{A9537443-BB6C-4324-B1B9-B9492CAE1CD5}"
 	ProjectSection(ProjectDependencies) = postProject
-		{73C0E333-6476-4B7E-A52D-AB5E9CA36906} = {73C0E333-6476-4B7E-A52D-AB5E9CA36906}
 		{2454F754-3A55-4875-9D8E-57B63673C231} = {2454F754-3A55-4875-9D8E-57B63673C231}
+		{73C0E333-6476-4B7E-A52D-AB5E9CA36906} = {73C0E333-6476-4B7E-A52D-AB5E9CA36906}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Ice\library\msbuild\client\client.vcxproj", "{28347243-F75F-4B28-89F9-7EA84478D9C9}"
@@ -1118,8 +1118,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scope", "scope", "{C167C995-BD18-4BF1-828E-66F7FA0A6BE6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "..\test\Ice\scope\msbuild\client\client.vcxproj", "{A19DC61B-84AE-4983-9B4C-4F4A338178C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "server", "..\test\Ice\scope\msbuild\server\server.vcxproj", "{0DDD44E0-E425-47BE-8DAA-06CA0E8704D2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C7223CC8-0AAA-470B-ACB3-12B9DE75525C} = {C7223CC8-0AAA-470B-ACB3-12B9DE75525C}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "persistent", "persistent", "{372EA6E7-43FD-49F2-A7CB-FC863BAD9E14}"
 EndProject
