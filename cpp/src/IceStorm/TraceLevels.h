@@ -8,6 +8,8 @@
 #include <Ice/LoggerF.h>
 #include <Ice/PropertiesF.h>
 
+#include <string>
+
 namespace IceStorm
 {
 
@@ -15,7 +17,7 @@ class TraceLevels
 {
 public:
 
-    TraceLevels(const ::std::string name, const std::shared_ptr<Ice::Properties>&, std::shared_ptr<Ice::Logger>);
+    TraceLevels(const std::string name, const Ice::PropertiesPtr&, Ice::LoggerPtr);
 
     const int topicMgr;
     const char* topicMgrCat;
@@ -32,7 +34,7 @@ public:
     const int replication;
     const char* replicationCat;
 
-    const std::shared_ptr<Ice::Logger> logger;
+    const Ice::LoggerPtr logger;
 };
 
 } // End namespace IceStorm
