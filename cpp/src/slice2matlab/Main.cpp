@@ -283,7 +283,14 @@ openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
         path += "+" + lookupKwd(v[i]);
         if(!IceUtilInternal::directoryExists(path))
         {
-            if(IceUtilInternal::mkdir(path, 0777) != 0)
+            int err = IceUtilInternal::mkdir(path, 0777);
+            // If slice2matlab is run concurrently, it's possible that another instance of slice2matlab has already
+            // created the directory.
+            if (err == 0 || (errno == EEXIST && IceUtilInternal::directoryExists(path)))
+            {
+                // Directory successfully created or already exists.
+            }
+            else
             {
                 ostringstream os;
                 os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
