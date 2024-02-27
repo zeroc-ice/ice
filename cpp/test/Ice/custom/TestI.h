@@ -27,8 +27,6 @@ public:
                                                Test::VariableList&,
                                                const Ice::Current&);
 
-    virtual Test::BoolSeq opBoolRange(Test::BoolSeq, Test::BoolSeq&, const Ice::Current&);
-
     virtual Test::ByteList opByteRange(Test::ByteList, Test::ByteList&, const Ice::Current&);
 
     virtual Test::VariableList

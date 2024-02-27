@@ -130,19 +130,6 @@ interface TestIntf
 
     ["cpp:array"] VariableList opVariableArray(["cpp:array"] VariableList inSeq, out ["cpp:array"] VariableList outSeq);
 
-    ["cpp:range"] BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out ["cpp:range"] BoolSeq outSeq);
-
-    ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
-
-    ["cpp:range"] VariableList opVariableRange(["cpp:range"] VariableList inSeq, out ["cpp:range"] VariableList outSeq);
-
-    ["cpp:range:::Test::ByteList"] ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq,
-                                                            out ["cpp:range:::Test::ByteList"] ByteList outSeq);
-
-    ["cpp:range:std::deque< ::Test::Variable>"] VariableList
-    opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq,
-                        out ["cpp:range:std::deque< ::Test::Variable>"] VariableList outSeq);
-
     ["cpp:type:std::deque<bool>"] BoolSeq
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
 
@@ -151,8 +138,6 @@ interface TestIntf
     BoolDequeList opBoolDequeList(BoolDequeList inSeq, out BoolDequeList outSeq);
     ["cpp:array"] BoolDequeList opBoolDequeListArray(["cpp:array"] BoolDequeList inSeq,
                                                 out ["cpp:array"] BoolDequeList outSeq);
-    ["cpp:range"] BoolDequeList opBoolDequeListRange(["cpp:range"] BoolDequeList inSeq,
-                                                out ["cpp:range"] BoolDequeList outSeq);
 
     ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq
     opByteSeq(["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq inSeq,
@@ -205,8 +190,6 @@ interface TestIntf
     CList opCList(CList inSeq, out CList outSeq);
 
     void opOutArrayByteSeq(ByteSeq org, out ["cpp:array"] ByteSeq copy);
-
-    void opOutRangeByteSeq(ByteSeq org, out ["cpp:range"] ByteSeq copy);
 
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 

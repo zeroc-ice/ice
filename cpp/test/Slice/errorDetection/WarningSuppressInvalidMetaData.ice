@@ -42,7 +42,6 @@ interface I
     ["cpp:array"]
     void op3();
 
-    ["cpp:range"]
     void op4();
 }
 

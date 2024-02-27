@@ -41,13 +41,6 @@ TestIntfI::opVariableArray(std::pair<const Test::Variable*, const Test::Variable
     return outSeq;
 }
 
-Test::BoolSeq
-TestIntfI::opBoolRange(Test::BoolSeq inSeq, Test::BoolSeq& outSeq, const Ice::Current&)
-{
-    outSeq.swap(inSeq);
-    return outSeq;
-}
-
 Test::ByteList
 TestIntfI::opByteRange(Test::ByteList inSeq, Test::ByteList& outSeq, const Ice::Current&)
 {

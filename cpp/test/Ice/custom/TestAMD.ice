@@ -128,17 +128,6 @@ struct BufferStruct
 
     VariableList opVariableArray(["cpp:array"] VariableList inSeq, out VariableList outSeq);
 
-    BoolSeq opBoolRange(["cpp:range"] BoolSeq inSeq, out BoolSeq outSeq);
-
-    ["cpp:range"] ByteList opByteRange(["cpp:range"] ByteList inSeq, out ["cpp:range"] ByteList outSeq);
-
-    VariableList opVariableRange(["cpp:range"] VariableList inSeq, out VariableList outSeq);
-
-    ByteList opByteRangeType(["cpp:range:::Test::ByteList"] ByteList inSeq, out ByteList outSeq);
-
-    VariableList
-    opVariableRangeType(["cpp:range:std::deque< ::Test::Variable>"] VariableList inSeq, out VariableList outSeq);
-
     ["cpp:type:std::deque<bool>"] BoolSeq
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
 
@@ -195,8 +184,6 @@ struct BufferStruct
     CList opCList(CList inSeq, out CList outSeq);
 
     void opOutArrayByteSeq(ByteSeq org, out ["cpp:array"] ByteSeq copy);
-
-    void opOutRangeByteSeq(ByteSeq org, out ["cpp:range"] ByteSeq copy);
 
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
