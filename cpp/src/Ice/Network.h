@@ -18,6 +18,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/EndpointTypes.h>
+#include <Ice/EndpointSelectionType.h>
 
 #if defined(_WIN32)
 #   include <winsock2.h>

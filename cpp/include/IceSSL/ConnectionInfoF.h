@@ -2,42 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __IceSSL_ConnectionInfoF_h__
-#define __IceSSL_ConnectionInfoF_h__
+#ifndef ICESSL_CONNECTIONINFO_F_H
+#define ICESSL_CONNECTIONINFO_F_H
 
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <IceUtil/UndefSysMacros.h>
-
-#ifndef ICESSL_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICESSL_API /**/
-#   elif defined(ICESSL_API_EXPORTS)
-#       define ICESSL_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICESSL_API ICE_DECLSPEC_IMPORT
-#   endif
-#endif
+#include <memory>
 
 namespace IceSSL
 {
 
 class ConnectionInfo;
+using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
 
 }
-
-/// \cond INTERNAL
-namespace IceSSL
-{
-
-using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
-
-}
-/// \endcond
 
 #endif

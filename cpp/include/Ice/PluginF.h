@@ -2,54 +2,20 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_PluginF_h__
-#define __Ice_PluginF_h__
+#ifndef ICE_PLUGIN_F_H
+#define ICE_PLUGIN_F_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <IceUtil/UndefSysMacros.h>
-
-#ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
-#endif
+#include <memory>
 
 namespace Ice
 {
 
 class Plugin;
+using PluginPtr = std::shared_ptr<Plugin>;
+
 class PluginManager;
+using PluginManagerPtr = std::shared_ptr<PluginManager>;
 
 }
 
-/// \cond STREAM
-namespace Ice
-{
-
-}
-/// \endcond
-
-/// \cond INTERNAL
-namespace Ice
-{
-
-using PluginPtr = ::std::shared_ptr<Plugin>;
-
-using PluginManagerPtr = ::std::shared_ptr<PluginManager>;
-
-}
-/// \endcond
-
-#include <IceUtil/PopDisableWarnings.h>
 #endif

@@ -11,7 +11,7 @@ namespace Ice
 {
 
 class ObjectAdapter;
-using ObjectAdapterPtr = ::std::shared_ptr<ObjectAdapter>;
+using ObjectAdapterPtr = std::shared_ptr<ObjectAdapter>;
 
 }
 

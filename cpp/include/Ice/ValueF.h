@@ -5,14 +5,13 @@
 #ifndef ICE_VALUE_F_H
 #define ICE_VALUE_F_H
 
-#include <Ice/Config.h>
+#include <memory>
+
 namespace Ice
 {
-    class Value;
 
-/// \cond INTERNAL
-using ValuePtr = ::std::shared_ptr<Value>;
-/// \endcond
+class Value;
+using ValuePtr = std::shared_ptr<Value>;
 
 }
 
