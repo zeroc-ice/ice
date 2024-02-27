@@ -1965,20 +1965,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         if(futureOutParams.size() > 1)
         {
-            C << nl << "auto _responseCb = [response](" << futureT << "&& _result)";
+            C << nl << "auto _responseCb = [_response = ::std::move(" << responseParam << ")]("
+                << futureT << "&& _result)";
             C << sb;
-            C << nl << responseParam << spar;
-
-            if(ret)
-            {
-                C << condMove(isMovable(ret), "::std::get<0>(_result)");
-            }
-            int index = ret ? 1 : 0;
-            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
-            {
-                C << condMove(isMovable((*q)->type()), "::std::get<" + std::to_string(index++) + ">(_result)");
-            }
-            C << epar << ";" << eb << ";";
+            C << nl << "::std::apply(::std::move(_response), ::std::move(_result));";
+            C << eb << ";";
         }
 
         C << nl << "return ::IceInternal::makeLambdaOutgoing<" << futureT << ">" << spar;
