@@ -28,7 +28,6 @@ const int TypeContextAMIPrivateEnd = 4;
 const int TypeContextAMICallPrivateEnd = 8;
 const int TypeContextUseWstring = 16;
 const int TypeContextTuple = 32;
-const int TypeContextCpp11 = 64;
 
 bool isMovable(const TypePtr&);
 
@@ -54,7 +53,6 @@ void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const 
 void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
                        int = 0, const std::string& = "");
 
-std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
 void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
 void writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, bool);
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);

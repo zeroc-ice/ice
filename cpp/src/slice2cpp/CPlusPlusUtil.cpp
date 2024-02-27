@@ -138,43 +138,10 @@ dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const Str
 
 void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& scope, const string& fixedName,
-                       const StringList& metaData, int typeCtx, bool endArg)
+                       const StringList& metaData, int typeCtx)
 {
     string s = typeToString(type, optional, scope, metaData, typeCtx);
     out << nl << s << ' ' << fixedName << ';';
-
-    if((typeCtx & TypeContextCpp11) || !(typeCtx & TypeContextInParam) || !endArg)
-    {
-        return; // We're done.
-    }
-
-    //
-    // If using a array we need to allocate the array as well now to ensure they are always in the same scope.
-    //
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
-    {
-        string seqType = findMetaData(metaData, typeCtx);
-        if(seqType.empty())
-        {
-            seqType = findMetaData(seq->getMetaData(), typeCtx);
-        }
-
-        string str;
-        if(seqType == "%array")
-        {
-            str = typeToString(seq, scope, metaData, TypeContextAMIPrivateEnd);
-        }
-
-        if(!str.empty())
-        {
-            if(optional)
-            {
-                str = "::std::optional<" + str + '>';
-            }
-            out << nl << str << ' ' << fixedName << "_tmp_;";
-        }
-    }
 }
 
 void
@@ -269,8 +236,6 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     {
         stream = marshal ? "ostr" : "istr";
     }
-
-    assert(typeCtx & TypeContextCpp11);
 
     bool tuple = (typeCtx & TypeContextTuple) != 0;
 
@@ -569,8 +534,6 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
 string
 Slice::typeToString(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
-    assert(typeCtx & TypeContextCpp11);
-
     static const char* builtinTable[] =
     {
         "::std::uint8_t",
@@ -679,8 +642,6 @@ string
 Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
                          int typeCtx)
 {
-    assert(typeCtx & TypeContextCpp11);
-
     static const char* InputBuiltinTable[] =
     {
         "::std::uint8_t",
@@ -767,8 +728,6 @@ string
 Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
                           int typeCtx)
 {
-    assert(typeCtx & TypeContextCpp11);
-
     static const char* outputBuiltinTable[] =
     {
         "::std::uint8_t&",
@@ -1048,48 +1007,14 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), clScope, fixKwd(prefix + (*p)->name()),
-                               (*p)->getMetaData(), typeCtx, getEndArg((*p)->type(), (*p)->getMetaData(),
-                                                                       (*p)->name()) != (*p)->name());
+                               (*p)->getMetaData(), typeCtx);
     }
 
     if(op && op->returnType())
     {
         writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), clScope, returnValueS, op->getMetaData(),
-                               typeCtx, getEndArg(op->returnType(), op->getMetaData(), returnValueS) != returnValueS);
+                               typeCtx);
     }
-}
-
-string
-Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& arg)
-{
-    string endArg = arg;
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
-    {
-        string seqType = findMetaData(metaData, TypeContextInParam);
-        if(seqType.empty())
-        {
-            seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
-        }
-
-        if(seqType == "%array")
-        {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if(builtin &&
-               builtin->kind() != Builtin::KindByte &&
-               builtin->kind() != Builtin::KindString &&
-               builtin->kind() != Builtin::KindObject &&
-               builtin->kind() != Builtin::KindObjectProxy)
-            {
-                endArg += "_tmp_";
-            }
-            else if(!builtin || builtin->kind() != Builtin::KindByte)
-            {
-                endArg += "_tmp_";
-            }
-        }
-    }
-    return endArg;
 }
 
 void
@@ -1372,7 +1297,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             else
             {
                 string ss = str.substr(prefix.size());
-                if(ss == "unscoped" && (typeCtx & TypeContextCpp11))
+                if(ss == "unscoped")
                 {
                     return "%unscoped";
                 }
