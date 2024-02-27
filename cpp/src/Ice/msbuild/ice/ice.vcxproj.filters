@@ -237,9 +237,6 @@
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\UtilException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

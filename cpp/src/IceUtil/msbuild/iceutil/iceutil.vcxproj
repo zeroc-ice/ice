@@ -90,7 +90,6 @@
     <ClCompile Include="..\..\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\OutputUtil.cpp" />
     <ClCompile Include="..\..\StringConverter.cpp" />
-    <ClCompile Include="..\..\ThreadException.cpp" />
     <ClCompile Include="..\..\UtilException.cpp" />
     <ClCompile Include="..\..\FileUtil.cpp" />
     <ClCompile Include="..\..\InputUtil.cpp" />
@@ -118,7 +117,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\ThreadException.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h" />
