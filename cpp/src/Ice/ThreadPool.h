@@ -6,7 +6,6 @@
 #define ICE_THREAD_POOL_H
 
 #include <Ice/Config.h>
-#include <Ice/Dispatcher.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
@@ -37,7 +36,6 @@ using ThreadPoolWorkItemPtr = std::shared_ptr<ThreadPoolWorkItem>;
 
 class DispatchWorkItem :
     public ThreadPoolWorkItem,
-    public Ice::DispatcherCall,
     public std::enable_shared_from_this<DispatchWorkItem>
 {
 public:
@@ -50,6 +48,8 @@ public:
     {
         return _connection;
     }
+
+    virtual void run() = 0;
 
 private:
 
