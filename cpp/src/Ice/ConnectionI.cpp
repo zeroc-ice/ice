@@ -37,7 +37,7 @@ namespace
 
 const ::std::string flushBatchRequests_name = "flushBatchRequests";
 
-class TimeoutCallback final : public IceUtil::TimerTask
+class TimeoutCallback : public IceUtil::TimerTask
 {
 public:
 
@@ -45,7 +45,8 @@ public:
     {
     }
 
-    void runTimerTask() final
+    void
+    runTimerTask()
     {
         _connection->timedOut();
     }
@@ -55,7 +56,7 @@ private:
     Ice::ConnectionI* _connection;
 };
 
-class DispatchCall final : public DispatchWorkItem
+class DispatchCall : public DispatchWorkItem
 {
 public:
 
@@ -87,7 +88,8 @@ public:
         _stream.swap(stream);
     }
 
-    void run() final
+    virtual void
+    run()
     {
         _connection->dispatch(_connectionStartCompleted, _sentCBs, _compress, _requestId, _invokeNum, _servantManager, _adapter,
                               _outAsync, _heartbeatCallback, _stream);
@@ -108,7 +110,7 @@ private:
     InputStream _stream;
 };
 
-class FinishCall final : public DispatchWorkItem
+class FinishCall : public DispatchWorkItem
 {
 public:
 
@@ -117,7 +119,8 @@ public:
     {
     }
 
-    void run() final
+    virtual void
+    run()
     {
         _connection->finish(_close);
     }

@@ -24,6 +24,7 @@
 #include <Ice/EventHandler.h>
 #include <Ice/RequestHandler.h>
 #include <Ice/ResponseHandler.h>
+#include <Ice/Dispatcher.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/BatchRequestQueueF.h>
 #include <Ice/ACM.h>

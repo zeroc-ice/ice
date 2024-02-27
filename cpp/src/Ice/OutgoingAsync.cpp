@@ -51,7 +51,7 @@ OutgoingAsyncBase::response()
 void
 OutgoingAsyncBase::invokeSentAsync()
 {
-    class AsynchronousSent final : public DispatchWorkItem
+    class AsynchronousSent : public DispatchWorkItem
     {
     public:
 
@@ -60,7 +60,8 @@ OutgoingAsyncBase::invokeSentAsync()
         {
         }
 
-        void run()
+        virtual void
+        run()
         {
             _outAsync->invokeSent();
         }
@@ -87,7 +88,7 @@ OutgoingAsyncBase::invokeSentAsync()
 void
 OutgoingAsyncBase::invokeExceptionAsync()
 {
-    class AsynchronousException final : public DispatchWorkItem
+    class AsynchronousException : public DispatchWorkItem
     {
     public:
 
@@ -96,7 +97,8 @@ OutgoingAsyncBase::invokeExceptionAsync()
         {
         }
 
-        void run()
+        virtual void
+        run()
         {
             _outAsync->invokeException();
         }
@@ -115,7 +117,7 @@ OutgoingAsyncBase::invokeExceptionAsync()
 void
 OutgoingAsyncBase::invokeResponseAsync()
 {
-    class AsynchronousResponse final : public DispatchWorkItem
+    class AsynchronousResponse : public DispatchWorkItem
     {
     public:
 
@@ -124,7 +126,8 @@ OutgoingAsyncBase::invokeResponseAsync()
         {
         }
 
-        void run()
+        virtual void
+        run()
         {
             _outAsync->invokeResponse();
         }

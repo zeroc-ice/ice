@@ -19,7 +19,7 @@ using namespace IceInternal;
 namespace
 {
 
-class InvokeAllAsync final : public DispatchWorkItem
+class InvokeAllAsync : public DispatchWorkItem
 {
 public:
 
@@ -32,7 +32,8 @@ public:
     {
     }
 
-    void run() final
+    virtual void
+    run()
     {
         if(_handler->sentAsync(_outAsync.get()))
         {

@@ -8,6 +8,7 @@
 #include <Config.h>
 #include <Util.h>
 #include <Ice/CommunicatorF.h>
+#include <Ice/Dispatcher.h>
 
 namespace IcePy
 {

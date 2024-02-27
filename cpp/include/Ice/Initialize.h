@@ -11,6 +11,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/InstrumentationF.h>
+#include <Ice/Dispatcher.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Version.h>

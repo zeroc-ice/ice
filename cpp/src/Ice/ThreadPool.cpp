@@ -133,6 +133,16 @@ prefixToDispatchQueueLabel(const std::string& prefix)
 #endif
 }
 
+Ice::DispatcherCall::~DispatcherCall()
+{
+    // Out of line to avoid weak vtable
+}
+
+Ice::Dispatcher::~Dispatcher()
+{
+    // Out of line to avoid weak vtable
+}
+
 IceInternal::DispatchWorkItem::DispatchWorkItem()
 {
 }
