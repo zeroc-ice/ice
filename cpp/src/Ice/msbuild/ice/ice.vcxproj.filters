@@ -285,9 +285,6 @@
     <ClCompile Include="..\..\ConnectRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\CountDownLatch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -102,7 +102,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\IceUtil\Config.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\CountDownLatch.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h" />
@@ -119,7 +118,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Thread.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ThreadException.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h" />

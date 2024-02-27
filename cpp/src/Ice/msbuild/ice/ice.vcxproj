@@ -515,7 +515,6 @@
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
-    <ClCompile Include="..\..\CountDownLatch.cpp" />
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp" />
     <ClCompile Include="..\..\DispatchInterceptor.cpp" />
     <ClCompile Include="..\..\DLLMain.cpp" />

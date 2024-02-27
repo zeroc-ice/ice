@@ -56,9 +56,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\IceUtil\CountDownLatch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
