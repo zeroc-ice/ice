@@ -241,19 +241,6 @@ private:
     std::string _path;
 };
 
-/**
- * This exception indicates an IceUtil::Optional is not set.
- * Used only by the Slice to C++98 mapping.
- * \headerfile Ice/Ice.h
- */
-class ICE_API OptionalNotSetException : public ExceptionHelper<OptionalNotSetException>
-{
-public:
-
-    OptionalNotSetException(const char*, int);
-    virtual std::string ice_id() const;
-};
-
 }
 
 namespace IceUtilInternal

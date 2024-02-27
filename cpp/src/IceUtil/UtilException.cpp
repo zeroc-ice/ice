@@ -712,18 +712,3 @@ IceUtil::FileLockException::error() const
 {
     return _error;
 }
-
-IceUtil::OptionalNotSetException::OptionalNotSetException(const char* file, int line) :
-    ExceptionHelper<OptionalNotSetException>(file, line)
-{
-    if(IceUtilInternal::nullHandleAbort)
-    {
-        abort();
-    }
-}
-
-string
-IceUtil::OptionalNotSetException::ice_id() const
-{
-    return "::IceUtil::OptionalNotSetException";
-}
