@@ -85,7 +85,7 @@ const string userException_ids[] =
 
 }
 
-const std::string&
+std::string_view
 Ice::UserException::ice_staticId()
 {
     return userException_ids[0];
@@ -151,7 +151,7 @@ const string localException_ids[] =
 
 }
 
-const std::string&
+std::string_view
 Ice::LocalException::ice_staticId()
 {
     return localException_ids[0];
@@ -182,7 +182,7 @@ const string systemException_ids[] =
 
 }
 
-const std::string&
+std::string_view
 Ice::SystemException::ice_staticId()
 {
     return systemException_ids[0];

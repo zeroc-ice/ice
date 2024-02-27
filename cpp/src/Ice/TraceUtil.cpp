@@ -378,15 +378,17 @@ mutex slicingMutex;
 }
 
 void
-IceInternal::traceSlicing(const char* kind, const string& typeId, const char* slicingCat, const LoggerPtr& logger)
+IceInternal::traceSlicing(const char* kind, string_view typeId, const char* slicingCat, const LoggerPtr& logger)
 {
     lock_guard lock(slicingMutex);
-    static set<string> slicingIds;
-    if(slicingIds.insert(typeId).second)
+    static set<string, std::less<>> slicingIds;
+    if (slicingIds.find(typeId) == slicingIds.end())
     {
+        string newTypeId(typeId);
+        slicingIds.insert(newTypeId);
         string s("unknown ");
         s += kind;
-        s += " type `" + typeId + "'";
+        s += " type `" + newTypeId + "'";
         logger->trace(slicingCat, s);
     }
 }

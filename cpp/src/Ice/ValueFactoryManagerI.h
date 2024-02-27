@@ -19,13 +19,13 @@ public:
 
     ValueFactoryManagerI();
 
-    void add(Ice::ValueFactoryFunc, const std::string&) final;
-    void add(const Ice::ValueFactoryPtr&, const std::string&) final;
-    Ice::ValueFactoryFunc find(const std::string&) const noexcept final;
+    void add(Ice::ValueFactoryFunc, std::string_view) final;
+    void add(Ice::ValueFactoryPtr, std::string_view) final;
+    Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
 private:
 
-    using FactoryFuncMap = std::map<std::string, Ice::ValueFactoryFunc>;
+    using FactoryFuncMap = std::map<std::string, Ice::ValueFactoryFunc, std::less<>>;
 
     FactoryFuncMap _factoryFuncMap;
     mutable FactoryFuncMap::iterator _factoryFuncMapHint;

@@ -68,7 +68,7 @@ std::string getString(VALUE);
 //
 // Create a Ruby string. May raise RubyException.
 //
-VALUE createString(const std::string&);
+VALUE createString(std::string_view);
 
 //
 // Convert a Ruby value into a long. May raise RubyException.

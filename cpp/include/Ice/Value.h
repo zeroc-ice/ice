@@ -60,7 +60,7 @@ public:
      * Obtains the Slice type ID of this type.
      * @return The return value is always "::Ice::Object".
      */
-    static const std::string& ice_staticId();
+    static std::string_view ice_staticId();
 
     /**
      * Returns a shallow copy of the object.
@@ -109,10 +109,7 @@ public:
         return std::static_pointer_cast<T>(_iceCloneImpl());
     }
 
-    virtual std::string ice_id() const override
-    {
-        return T::ice_staticId();
-    }
+    std::string ice_id() const override { return std::string{T::ice_staticId()}; }
 
 protected:
 

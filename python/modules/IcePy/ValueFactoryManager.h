@@ -17,14 +17,14 @@ extern PyTypeObject ValueFactoryManagerType;
 
 bool initValueFactoryManager(PyObject*);
 
-class FactoryWrapper : public Ice::ValueFactory
+class FactoryWrapper final : public Ice::ValueFactory
 {
 public:
 
-    FactoryWrapper(PyObject*, PyObject*);
+    FactoryWrapper(PyObject*);
     ~FactoryWrapper();
 
-    virtual std::shared_ptr<Ice::Value> create(const std::string&);
+    std::shared_ptr<Ice::Value> create(std::string_view) final;
 
     PyObject* getValueFactory() const;
     void destroy();
@@ -32,16 +32,15 @@ public:
 protected:
 
     PyObject* _valueFactory;
-    PyObject* _objectFactory;
 };
 
 using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
 
-class DefaultValueFactory : public Ice::ValueFactory
+class DefaultValueFactory final : public Ice::ValueFactory
 {
 public:
 
-    virtual std::shared_ptr<Ice::Value> create(const std::string&);
+    std::shared_ptr<Ice::Value> create(std::string_view) final;
 
     void setDelegate(const Ice::ValueFactoryPtr&);
     Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
@@ -65,12 +64,12 @@ public:
 
     ~ValueFactoryManager();
 
-    void add(Ice::ValueFactoryFunc, const std::string&) final;
-    void add(const Ice::ValueFactoryPtr&, const std::string&) final;
-    Ice::ValueFactoryFunc find(const std::string&) const noexcept final;
+    void add(Ice::ValueFactoryFunc, std::string_view) final;
+    void add(Ice::ValueFactoryPtr, std::string_view) final;
+    Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
-    void add(PyObject*, PyObject*, const std::string&);
-    PyObject* findValueFactory(const std::string&) const;
+    void add(PyObject*, std::string_view);
+    PyObject* findValueFactory(std::string_view) const;
 
     PyObject* getObject() const;
 
@@ -78,10 +77,10 @@ public:
 
 private:
 
-    typedef std::map<std::string, Ice::ValueFactoryPtr> FactoryMap;
+    typedef std::map<std::string, Ice::ValueFactoryPtr, std::less<>> FactoryMap;
 
     ValueFactoryManager();
-    Ice::ValueFactoryPtr findCore(const std::string&) const noexcept;
+    Ice::ValueFactoryPtr findCore(std::string_view) const noexcept;
 
     PyObject* _self;
     FactoryMap _factories;

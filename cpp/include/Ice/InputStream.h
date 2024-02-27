@@ -33,7 +33,7 @@ patchValue(void* addr, const std::shared_ptr<Value>& v)
     *ptr = ::std::dynamic_pointer_cast<T>(v);
     if(v && !(*ptr))
     {
-        IceInternal::Ex::throwUOE(T::ice_staticId(), v);
+        IceInternal::Ex::throwUOE(std::string{T::ice_staticId()}, v);
     }
 }
 /// \endcond
@@ -526,7 +526,7 @@ public:
     std::string startSlice()
     {
         assert(_currentEncaps && _currentEncaps->decoder);
-        return _currentEncaps->decoder->startSlice();
+        return std::string{_currentEncaps->decoder->startSlice()};
     }
 
     /**
@@ -1098,7 +1098,7 @@ private:
     class Encaps;
     enum SliceType { NoSlice, ValueSlice, ExceptionSlice };
 
-    void traceSkipSlice(const std::string&, SliceType) const;
+    void traceSkipSlice(std::string_view, SliceType) const;
 
     ValueFactoryManagerPtr valueFactoryManager() const;
 
@@ -1119,7 +1119,7 @@ private:
 
         virtual void startInstance(SliceType) = 0;
         virtual SlicedDataPtr endInstance(bool) = 0;
-        virtual const std::string& startSlice() = 0;
+        virtual std::string_view startSlice() = 0;
         virtual void endSlice() = 0;
         virtual void skipSlice() = 0;
 
@@ -1142,7 +1142,7 @@ private:
         }
 
         std::string readTypeId(bool);
-        std::shared_ptr<Value> newInstance(const std::string&);
+        std::shared_ptr<Value> newInstance(std::string_view);
 
         void addPatchEntry(std::int32_t, PatchFunc, void*);
         void unmarshal(std::int32_t, const std::shared_ptr<Value>&);
@@ -1194,7 +1194,7 @@ private:
 
         virtual void startInstance(SliceType);
         virtual SlicedDataPtr endInstance(bool);
-        virtual const std::string& startSlice();
+        virtual std::string_view startSlice();
         virtual void endSlice();
         virtual void skipSlice();
 
@@ -1229,7 +1229,7 @@ private:
 
         virtual void startInstance(SliceType);
         virtual SlicedDataPtr endInstance(bool);
-        virtual const std::string& startSlice();
+        virtual std::string_view startSlice();
         virtual void endSlice();
         virtual void skipSlice();
 

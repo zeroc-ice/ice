@@ -10,9 +10,9 @@ IceGrid::SynchronizationException::~SynchronizationException()
 {
 }
 
-const ::std::string&
+std::string_view
 IceGrid::SynchronizationException::ice_staticId()
 {
-    static const ::std::string typeId = "::IceGrid::SynchronizationException";
+    static constexpr std::string_view typeId = "::IceGrid::SynchronizationException";
     return typeId;
 }

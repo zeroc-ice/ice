@@ -885,7 +885,7 @@ Ice::OutputStream::EncapsEncoder::~EncapsEncoder()
 }
 
 int32_t
-Ice::OutputStream::EncapsEncoder::registerTypeId(const string& typeId)
+Ice::OutputStream::EncapsEncoder::registerTypeId(string_view typeId)
 {
     TypeIdMap::const_iterator p = _typeIdMap.find(typeId);
     if(p != _typeIdMap.end())
@@ -894,7 +894,7 @@ Ice::OutputStream::EncapsEncoder::registerTypeId(const string& typeId)
     }
     else
     {
-        _typeIdMap.insert(make_pair(typeId, ++_typeIdIndex));
+        _typeIdMap.insert(make_pair(string{typeId}, ++_typeIdIndex));
         return -1;
     }
 }
@@ -957,7 +957,7 @@ Ice::OutputStream::EncapsEncoder10::endInstance()
 }
 
 void
-Ice::OutputStream::EncapsEncoder10::startSlice(const string& typeId, int, bool /*last*/)
+Ice::OutputStream::EncapsEncoder10::startSlice(string_view typeId, int, bool /*last*/)
 {
     //
     // For instance slices, encode a boolean to indicate how the type ID
@@ -1144,7 +1144,7 @@ Ice::OutputStream::EncapsEncoder11::endInstance()
 }
 
 void
-Ice::OutputStream::EncapsEncoder11::startSlice(const string& typeId, int compactId, bool last)
+Ice::OutputStream::EncapsEncoder11::startSlice(string_view typeId, int compactId, bool last)
 {
     assert(_current->indirectionTable.empty() && _current->indirectionMap.empty());
 

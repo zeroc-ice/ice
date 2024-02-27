@@ -277,12 +277,12 @@ IceRuby::getString(VALUE val)
 }
 
 VALUE
-IceRuby::createString(const string& str)
+IceRuby::createString(string_view str)
 {
 #ifdef HAVE_RUBY_ENCODING_H
-    return callRuby(rb_enc_str_new, str.c_str(), static_cast<long>(str.size()), rb_utf8_encoding());
+    return callRuby(rb_enc_str_new, str.data(), static_cast<long>(str.size()), rb_utf8_encoding());
 #else
-    return callRuby(rb_str_new, str.c_str(), static_cast<long>(str.size()));
+    return callRuby(rb_str_new, str.data(), static_cast<long>(str.size()));
 #endif
 }
 

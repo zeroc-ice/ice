@@ -1436,7 +1436,7 @@ Ice::InputStream::postUnmarshal(const shared_ptr<Value>& v) const
 }
 
 void
-Ice::InputStream::traceSkipSlice(const string& typeId, SliceType sliceType) const
+Ice::InputStream::traceSkipSlice(string_view typeId, SliceType sliceType) const
 {
     if(_traceSlicing && logger())
     {
@@ -1541,12 +1541,12 @@ Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
 }
 
 shared_ptr<Ice::Value>
-Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
+Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
 {
     shared_ptr<Value> v;
 
     // Try to find a factory registered for the specific type.
-    function<shared_ptr<Value>(const string&)> userFactory;
+    function<shared_ptr<Value>(string_view)> userFactory;
     if(_valueFactoryManager)
     {
         userFactory = _valueFactoryManager->find(typeId);
@@ -1574,7 +1574,7 @@ Ice::InputStream::EncapsDecoder::newInstance(const string& typeId)
     //
     if(!v)
     {
-        function<shared_ptr<Value>(const string&)> of = IceInternal::factoryTable->getValueFactory(typeId);
+        function<shared_ptr<Value>(string_view)> of = IceInternal::factoryTable->getValueFactory(typeId);
         if(of)
         {
             v = of(typeId);
@@ -1849,7 +1849,7 @@ Ice::InputStream::EncapsDecoder10::endInstance(bool)
     return 0;
 }
 
-const std::string&
+string_view
 Ice::InputStream::EncapsDecoder10::startSlice()
 {
     //
@@ -2146,7 +2146,7 @@ Ice::InputStream::EncapsDecoder11::endInstance(bool preserve)
     return slicedData;
 }
 
-const std::string&
+string_view
 Ice::InputStream::EncapsDecoder11::startSlice()
 {
     //

@@ -281,7 +281,7 @@ public:
      * @param compactId The compact ID corresponding to the type, or -1 if no compact ID is used.
      * @param last True if this is the last slice, false otherwise.
      */
-    void startSlice(const std::string& typeId, int compactId, bool last)
+    void startSlice(std::string_view typeId, int compactId, bool last)
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->startSlice(typeId, compactId, last);
@@ -911,7 +911,7 @@ private:
 
         virtual void startInstance(SliceType, const SlicedDataPtr&) = 0;
         virtual void endInstance() = 0;
-        virtual void startSlice(const std::string&, int, bool) = 0;
+        virtual void startSlice(std::string_view, int, bool) = 0;
         virtual void endSlice() = 0;
 
         virtual bool writeOptional(std::int32_t, OptionalFormat)
@@ -929,13 +929,13 @@ private:
         {
         }
 
-        std::int32_t registerTypeId(const std::string&);
+        std::int32_t registerTypeId(std::string_view);
 
         OutputStream* _stream;
         Encaps* _encaps;
 
         typedef std::map<std::shared_ptr<Value>, std::int32_t> PtrToIndexMap;
-        typedef std::map<std::string, std::int32_t> TypeIdMap;
+        typedef std::map<std::string, std::int32_t, std::less<>> TypeIdMap;
 
         // Encapsulation attributes for value marshaling.
         PtrToIndexMap _marshaledMap;
@@ -961,7 +961,7 @@ private:
 
         virtual void startInstance(SliceType, const SlicedDataPtr&);
         virtual void endInstance();
-        virtual void startSlice(const std::string&, int, bool);
+        virtual void startSlice(std::string_view, int, bool);
         virtual void endSlice();
 
         virtual void writePendingValues();
@@ -995,7 +995,7 @@ private:
 
         virtual void startInstance(SliceType, const SlicedDataPtr&);
         virtual void endInstance();
-        virtual void startSlice(const std::string&, int, bool);
+        virtual void startSlice(std::string_view, int, bool);
         virtual void endSlice();
 
         virtual bool writeOptional(std::int32_t, OptionalFormat);

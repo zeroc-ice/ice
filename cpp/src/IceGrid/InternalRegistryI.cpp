@@ -185,7 +185,7 @@ NodePrxSeq
 InternalRegistryI::getNodes(const Ice::Current&) const
 {
     NodePrxSeq nodes;
-    Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(Node::ice_staticId());
+    Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(string{Node::ice_staticId()});
     for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
         nodes.push_back(Ice::uncheckedCast<NodePrx>(*p));
@@ -197,7 +197,7 @@ InternalRegistryPrxSeq
 InternalRegistryI::getReplicas(const Ice::Current&) const
 {
     InternalRegistryPrxSeq replicas;
-    Ice::ObjectProxySeq proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
+    Ice::ObjectProxySeq proxies = _database->getObjectsByType(string{InternalRegistry::ice_staticId()});
     for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
         replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(*p));

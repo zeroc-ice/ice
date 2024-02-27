@@ -275,12 +275,12 @@ run(const Ice::StringSeq& args)
 
             if(!serverVersion.empty())
             {
-                communicator->getValueFactoryManager()->add([serverVersion](const string&)
+                communicator->getValueFactoryManager()->add([serverVersion](string_view)
                     {
                         return make_shared<ServerDescriptorI>(serverVersion);
                     }, IceGrid::ServerDescriptor::ice_staticId());
 
-                communicator->getValueFactoryManager()->add([serverVersion](const string&)
+                communicator->getValueFactoryManager()->add([serverVersion](string_view)
                     {
                         return make_shared<IceBoxDescriptorI>(serverVersion);
                     }, IceGrid::IceBoxDescriptor::ice_staticId());
