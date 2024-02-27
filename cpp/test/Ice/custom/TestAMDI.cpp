@@ -241,15 +241,6 @@ TestIntfI::opCListAsync(Test::CList in,
 }
 
 void
-TestIntfI::opClassStructAsync(Test::ClassStruct in1, Test::ClassStructSeq in2,
-                              std::function<void(const Test::ClassStruct&,
-                                                  const Test::ClassStruct&, const Test::ClassStructSeq&)> response,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in1, in1, in2);
-}
-
-void
 TestIntfI::opOutArrayByteSeqAsync(Test::ByteSeq in,
                                   std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
                                   std::function<void(std::exception_ptr)>, const Ice::Current&)

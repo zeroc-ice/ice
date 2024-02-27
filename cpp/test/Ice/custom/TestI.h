@@ -126,12 +126,6 @@ public:
                                                 std::list< ::Test::CPtr>&,
                                                 const Ice::Current&);
 
-    virtual Test::ClassStruct opClassStruct(Test::ClassStruct,
-                                            Test::ClassStructSeq,
-                                            Test::ClassStruct& out,
-                                            Test::ClassStructSeq& outSeq,
-                                            const Ice::Current&);
-
     virtual void opOutArrayByteSeq(Test::ByteSeq, Test::ByteSeq&, const Ice::Current&);
 
     virtual void opOutRangeByteSeq(Test::ByteSeq, Test::ByteSeq&, const Ice::Current&);

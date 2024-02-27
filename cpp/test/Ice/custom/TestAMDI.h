@@ -130,11 +130,6 @@ public:
                       std::function<void(const ::Test::CList&, const ::Test::CList&)>,
                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opClassStructAsync(::Test::ClassStruct, ::Test::ClassStructSeq,
-                            std::function<void(const ::Test::ClassStruct&,
-                                                const ::Test::ClassStruct&, const ::Test::ClassStructSeq&)>,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
     void opOutArrayByteSeqAsync(::Test::ByteSeq,
                                 std::function<void(const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
                                 std::function<void(std::exception_ptr)>, const Ice::Current&) override;

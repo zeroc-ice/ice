@@ -46,11 +46,6 @@ interface I
     void op4();
 }
 
-["cpp:class", "cpp:comparable"]
-class C
-{
-}
-
 ["cpp:const", "cpp:ice_print"]
 struct S
 {

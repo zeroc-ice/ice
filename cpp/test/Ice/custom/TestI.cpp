@@ -273,18 +273,6 @@ TestIntfI::opCList(std::list< ::Test::CPtr> inSeq,
     return inSeq;
 }
 
-Test::ClassStruct
-TestIntfI::opClassStruct(Test::ClassStruct inS,
-                         Test::ClassStructSeq inSeq,
-                         Test::ClassStruct& out,
-                         Test::ClassStructSeq& outSeq,
-                         const Ice::Current&)
-{
-    outSeq = std::move(inSeq);
-    out = inS;
-    return inS;
-}
-
 void
 TestIntfI::opOutArrayByteSeq(Test::ByteSeq data, Test::ByteSeq& copy, const Ice::Current&)
 {

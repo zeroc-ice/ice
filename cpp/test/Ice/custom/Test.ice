@@ -45,7 +45,7 @@ sequence<Fixed> FixedSeq;
 sequence<FixedList> FixedListSeq;
 ["cpp:type:std::list< ::Test::FixedSeq>"] sequence<FixedSeq> FixedSeqList;
 
-["cpp:comparable"] struct Variable
+struct Variable
 {
     string s;
     BoolList bl;
@@ -77,7 +77,7 @@ sequence<EList> EListSeq;
 
 class C {}
 sequence<C> CSeq;
-["cpp:type:std::list< ::Test::CPtr>", "cpp11:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
+["cpp:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
 
 ["cpp:type:std::list< ::Test::CList>"] sequence<CList> CListList;
 sequence<CList> CListSeq;
@@ -85,27 +85,13 @@ sequence<CList> CListSeq;
 
 interface D {}
 sequence<D*> DPrxSeq;
-["cpp:type:std::list< ::Test::DPrx>", "cpp11:type:std::list<DPrxPtr>"] sequence<D*> DPrxList;
+["cpp:type:std::list<DPrxPtr>"] sequence<D*> DPrxList;
 
 ["cpp:type:std::list< ::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
 sequence<DPrxList> DPrxListSeq;
 ["cpp:type:std::list< ::Test::DPrxSeq>"] sequence<DPrxSeq> DPrxSeqList;
 
 sequence<double> DoubleSeq;
-
-["cpp:class"] struct ClassOtherStruct
-{
-    int x;
-}
-sequence<ClassOtherStruct> ClassOtherStructSeq;
-
-["cpp:class", "cpp:comparable"] struct ClassStruct
-{
-    ClassOtherStructSeq otherSeq;
-    ClassOtherStruct other;
-    int y;
-}
-sequence<ClassStruct> ClassStructSeq;
 
 ["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
 dictionary<long, long> LongLongDict;
@@ -123,7 +109,7 @@ class DictClass
 ["cpp:type:Test::CustomBuffer<float>"] sequence<float> FloatBuffer;
 ["cpp:type:Test::CustomBuffer<double>"] sequence<double> DoubleBuffer;
 ["cpp:type:Test::CustomBuffer<Ice::Byte>"] sequence<byte> ByteBuffer;
-["cpp:comparable"] struct BufferStruct
+struct BufferStruct
 {
     ByteBuffer byteBuf;
     BoolBuffer boolBuf;
@@ -206,19 +192,17 @@ interface TestIntf
 
     EList opEList(EList inSeq, out EList outSeq);
 
-    ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq
-    opDPrxSeq(["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq inSeq,
-              out ["cpp:type:std::deque< ::Test::DPrx>", "cpp11:type:std::deque<::Test::DPrxPtr>"] DPrxSeq outSeq);
+    ["cpp:type:std::deque<::Test::DPrxPtr>"] DPrxSeq
+    opDPrxSeq(["cpp:type:std::deque<::Test::DPrxPtr>"] DPrxSeq inSeq,
+              out ["cpp:type:std::deque<::Test::DPrxPtr>"] DPrxSeq outSeq);
 
     DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 
-    ["cpp:type:std::deque< ::Test::CPtr>", "cpp11:type:std::deque<std::shared_ptr<Test::C>>"] CSeq
-    opCSeq(["cpp:type:std::deque< ::Test::CPtr>", "cpp11:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
-           out ["cpp:type:std::deque< ::Test::CPtr>", "cpp11:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
+    ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq
+    opCSeq(["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
+           out ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
 
     CList opCList(CList inSeq, out CList outSeq);
-
-    ClassStruct opClassStruct(ClassStruct inS, ClassStructSeq inSeq, out ClassStruct outS, out ClassStructSeq outSeq);
 
     void opOutArrayByteSeq(ByteSeq org, out ["cpp:array"] ByteSeq copy);
 
