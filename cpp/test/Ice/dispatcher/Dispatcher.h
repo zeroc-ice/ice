@@ -5,7 +5,6 @@
 #ifndef DISPATCHER_I_H
 #define DISPATCHER_I_H
 
-#include <Ice/Dispatcher.h>
 #include <Ice/Connection.h>
 
 #include <deque>
