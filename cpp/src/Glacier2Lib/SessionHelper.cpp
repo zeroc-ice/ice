@@ -423,9 +423,9 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     session->_destroy = true;
                 }
                 session->dispatchCallback(
-                    [callback, session]()
+                    [callback, session, ex = current_exception()]()
                     {
-                        callback->connectFailed(session, current_exception());
+                        callback->connectFailed(session, ex);
                     },
                     nullptr);
                 return;
@@ -444,9 +444,9 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     catch(const Ice::CommunicatorDestroyedException&)
                     {
                         session->dispatchCallback(
-                            [callback, session]()
+                            [callback, session, ex = current_exception()]()
                             {
-                                callback->connectFailed(session, current_exception());
+                                callback->connectFailed(session, ex);
                             },
                             nullptr);
                         return;
@@ -485,9 +485,9 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                 }
 
                 session->dispatchCallback(
-                    [callback, session]()
+                    [session, ex = current_exception()]()
                     {
-                        callback->connectFailed(session, current_exception());
+                        session->_callback->connectFailed(session, ex);
                     },
                     nullptr);
             }
