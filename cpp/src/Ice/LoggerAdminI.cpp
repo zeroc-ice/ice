@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Thread.h>
 #include <Ice/LoggerAdminI.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
@@ -151,23 +150,10 @@ private:
     std::condition_variable _conditionVariable;
 
     bool _destroyed;
-    IceUtil::ThreadPtr _sendLogThread;
+    std::thread _sendLogThread;
     std::deque<JobPtr> _jobQueue;
 };
 using LoggerAdminLoggerIPtr = std::shared_ptr<LoggerAdminLoggerI>;
-
-class SendLogThread final : public IceUtil::Thread
-{
-public:
-
-    SendLogThread(const LoggerAdminLoggerIPtr&);
-
-    void run() final;
-
-private:
-
-    LoggerAdminLoggerIPtr _logger;
-};
 
 //
 // Helper functions
@@ -696,14 +682,13 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 {
     const vector<RemoteLoggerPrx> remoteLoggers = _loggerAdmin->log(logMessage);
 
-    if(!remoteLoggers.empty())
+    if (!remoteLoggers.empty())
     {
         lock_guard lock(_mutex);
 
-        if(!_sendLogThread)
+        if (!_sendLogThread.joinable())
         {
-            _sendLogThread = make_shared<SendLogThread>(shared_from_this());
-            _sendLogThread->start();
+            _sendLogThread = std::thread(&LoggerAdminLoggerI::run, this);
         }
 
         _jobQueue.push_back(make_shared<Job>(remoteLoggers, logMessage));
@@ -714,24 +699,21 @@ LoggerAdminLoggerI::log(const LogMessage& logMessage)
 void
 LoggerAdminLoggerI::destroy()
 {
-    IceUtil::ThreadControl sendLogThreadControl;
-    bool joinThread = false;
+    std::thread sendLogThread;
     {
         lock_guard lock(_mutex);
 
-        if(_sendLogThread)
+        if(_sendLogThread.joinable())
         {
-            joinThread = true;
-            sendLogThreadControl = _sendLogThread->getThreadControl();
-            _sendLogThread = 0;
+            sendLogThread = std::move(_sendLogThread);
             _destroyed = true;
             _conditionVariable.notify_all();
         }
     }
 
-    if(joinThread)
+    if(sendLogThread.joinable())
     {
-        sendLogThreadControl.join();
+        sendLogThread.join();
     }
 
      // destroy sendLogCommunicator
@@ -813,21 +795,6 @@ LoggerAdminLoggerI::run()
     }
 }
 
-//
-// SendLogThread
-//
-
-SendLogThread::SendLogThread(const LoggerAdminLoggerIPtr& logger) :
-    IceUtil::Thread("Ice.SendLogThread"),
-    _logger(logger)
-{
-}
-
-void
-SendLogThread::run()
-{
-    _logger->run();
-}
 }
 
 //

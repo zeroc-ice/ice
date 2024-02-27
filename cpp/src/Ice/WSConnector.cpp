@@ -17,7 +17,7 @@ IceInternal::WSConnector::connect()
     return make_shared<WSTransceiver>(_instance, _delegate->connect(), _host, _resource);
 }
 
-Short
+int16_t
 IceInternal::WSConnector::type() const
 {
     return _delegate->type();

@@ -38,7 +38,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(vector<string>& args) :
     }
 }
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, InputStream* s) : _type(type)
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(int16_t type, InputStream* s) : _type(type)
 {
     _rawEncoding = s->getEncoding();
     int32_t sz = s->getEncapsulationSize();
@@ -52,9 +52,9 @@ class OpaqueEndpointInfoI : public Ice::OpaqueEndpointInfo
 {
 public:
 
-    OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes);
+    OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes);
 
-    virtual Ice::Short
+    virtual int16_t
     type() const noexcept
     {
         return _type;
@@ -74,14 +74,14 @@ public:
 
 private:
 
-    Ice::Short _type;
+    int16_t _type;
 };
 
 }
 //
 // COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
 //
-OpaqueEndpointInfoI::OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncodingP,
+OpaqueEndpointInfoI::OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncodingP,
                                          const Ice::ByteSeq& rawBytesP) :
     Ice::OpaqueEndpointInfo(nullptr, -1, false, rawEncodingP, rawBytesP),
     _type(type)
@@ -102,7 +102,7 @@ IceInternal::OpaqueEndpointI::getInfo() const noexcept
     return make_shared<OpaqueEndpointInfoI>(_type, _rawEncoding, _rawBytes);
 }
 
-Short
+int16_t
 IceInternal::OpaqueEndpointI::type() const
 {
     return _type;
@@ -347,7 +347,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
             throw EndpointParseException(__FILE__, __LINE__, "type value `" + argument + "' out of range in endpoint " +
                                          endpoint);
         }
-        _type = static_cast<Ice::Short>(t);
+        _type = static_cast<int16_t>(t);
         return true;
     }
 

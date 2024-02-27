@@ -1584,7 +1584,7 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const I
 
     try
     {
-        is.throwException([](const string& id)
+        is.throwException([](string_view id)
             {
                 ExceptionInfoPtr info = lookupExceptionInfo(id);
                 if (info)

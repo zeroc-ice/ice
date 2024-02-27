@@ -26,7 +26,7 @@ IceInternal::TcpConnector::connect()
     return make_shared<TcpTransceiver>(_instance, make_shared<StreamSocket>(_instance, _proxy, _addr, _sourceAddr));
 }
 
-Short
+int16_t
 IceInternal::TcpConnector::type() const
 {
     return _instance->type();

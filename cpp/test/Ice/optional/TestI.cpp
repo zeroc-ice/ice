@@ -97,8 +97,8 @@ InitialI::opBool(optional<bool> p1, optional<bool>& p3, const Current&)
     return p1;
 }
 
-optional<Short>
-InitialI::opShort(optional<Short> p1, optional<Short>& p3, const Current&)
+optional<int16_t>
+InitialI::opShort(optional<int16_t> p1, optional<int16_t>& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -118,15 +118,15 @@ InitialI::opLong(optional<int64_t> p1, optional<int64_t>& p3, const Current&)
     return p1;
 }
 
-optional<Float>
-InitialI::opFloat(optional<Float> p1, optional<Float>& p3, const Current&)
+optional<float>
+InitialI::opFloat(optional<float> p1, optional<float>& p3, const Current&)
 {
     p3 = p1;
     return p1;
 }
 
-optional<Double>
-InitialI::opDouble(optional<Double> p1, optional<Double>& p3, const Current&)
+optional<double>
+InitialI::opDouble(optional<double> p1, optional<double>& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -137,16 +137,6 @@ InitialI::opString(optional<string> p1, optional<string>& p3, const Current&)
 {
     p3 = p1;
     return p1;
-}
-
-optional<string>
-InitialI::opCustomString(optional<Util::string_view> p1, optional<string>& p3, const Current&)
-{
-    if(p1)
-    {
-        p3 = p1->to_string();
-    }
-    return p3;
 }
 
 optional<MyEnum>
@@ -184,8 +174,8 @@ InitialI::opOneOptional(optional<OneOptionalPtr> p1, optional<OneOptionalPtr>& p
     return p1;
 }
 
-optional<MyInterfacePrxPtr>
-InitialI::opMyInterfaceProxy(optional<MyInterfacePrxPtr> p1, optional<MyInterfacePrxPtr>& p3, const Current&)
+optional<MyInterfacePrx>
+InitialI::opMyInterfaceProxy(optional<MyInterfacePrx> p1, optional<MyInterfacePrx>& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -213,7 +203,7 @@ InitialI::opBoolSeq(optional<pair<const bool*, const bool*> > p1, optional<Test:
 }
 
 optional<Test::ShortSeq>
-InitialI::opShortSeq(optional<pair<const Short*, const Short*> > p1, optional<Test::ShortSeq>& p3,
+InitialI::opShortSeq(optional<pair<const int16_t*, const int16_t*> > p1, optional<Test::ShortSeq>& p3,
                      const Current&)
 {
     if(p1)
@@ -244,7 +234,7 @@ InitialI::opLongSeq(optional<pair<const int64_t*, const int64_t*> > p1, optional
 }
 
 optional<Test::FloatSeq>
-InitialI::opFloatSeq(optional<pair<const Float*, const Float*> > p1, optional<Test::FloatSeq>& p3,
+InitialI::opFloatSeq(optional<pair<const float*, const float*> > p1, optional<Test::FloatSeq>& p3,
                      const Current&)
 {
     if(p1)
@@ -255,7 +245,7 @@ InitialI::opFloatSeq(optional<pair<const Float*, const Float*> > p1, optional<Te
 }
 
 optional<Test::DoubleSeq>
-InitialI::opDoubleSeq(optional<pair<const Double*, const Double*> > p1, optional<Test::DoubleSeq>& p3,
+InitialI::opDoubleSeq(optional<pair<const double*, const double*> > p1, optional<Test::DoubleSeq>& p3,
                       const Current&)
 {
     if(p1)
@@ -359,22 +349,6 @@ InitialI::opIntOneOptionalDict(optional<IntOneOptionalDict> p1, optional<IntOneO
     return p3;
 }
 
-optional<IntStringDict>
-InitialI::opCustomIntStringDict(optional<std::map<int, Util::string_view> > p1,
-                                optional<IntStringDict>& p3, const Current&)
-{
-    if(p1)
-    {
-        p3 = IntStringDict();
-        for(std::map<int, Util::string_view>::const_iterator p = p1->begin();
-            p != p1->end(); ++p)
-        {
-            (*p3)[p->first] = p->second.to_string();
-        }
-    }
-    return p3;
-}
-
 void
 InitialI::opClassAndUnknownOptional(APtr, const Ice::Current&)
 {
@@ -464,12 +438,6 @@ InitialI::supportsJavaSerializable(const Ice::Current&)
 
 bool
 InitialI::supportsCsharpSerializable(const Ice::Current&)
-{
-    return true;
-}
-
-bool
-InitialI::supportsCppStringView(const Ice::Current&)
 {
     return true;
 }

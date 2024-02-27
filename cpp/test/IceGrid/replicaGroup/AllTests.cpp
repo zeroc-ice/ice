@@ -5,7 +5,6 @@
 #include <Ice/Ice.h>
 #include <Ice/BuiltinSequences.h>
 #include <IceGrid/IceGrid.h>
-#include <IceUtil/Thread.h>
 #include <TestHelper.h>
 #include <Test.h>
 

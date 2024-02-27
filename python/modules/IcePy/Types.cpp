@@ -28,19 +28,19 @@ using namespace IcePy;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-typedef map<string, ClassInfoPtr> ClassInfoMap;
+typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
 
-typedef map<string, ValueInfoPtr> ValueInfoMap;
+typedef map<string, ValueInfoPtr, std::less<>> ValueInfoMap;
 static ValueInfoMap _valueInfoMap;
 
 typedef map<int32_t, ValueInfoPtr> CompactIdMap;
 static CompactIdMap _compactIdMap;
 
-typedef map<string, ProxyInfoPtr> ProxyInfoMap;
+typedef map<string, ProxyInfoPtr, std::less<>> ProxyInfoMap;
 static ProxyInfoMap _proxyInfoMap;
 
-typedef map<string, ExceptionInfoPtr> ExceptionInfoMap;
+typedef map<string, ExceptionInfoPtr, std::less<>> ExceptionInfoMap;
 static ExceptionInfoMap _exceptionInfoMap;
 
 namespace
@@ -193,7 +193,7 @@ unsetRepr(PyObject* /*v*/)
 // addClassInfo()
 //
 static void
-addClassInfo(const string& id, const ClassInfoPtr& info)
+addClassInfo(string_view id, const ClassInfoPtr& info)
 {
     //
     // Do not assert. An application may load statically-
@@ -213,7 +213,7 @@ addClassInfo(const string& id, const ClassInfoPtr& info)
 // addValueInfo()
 //
 static void
-addValueInfo(const string& id, const ValueInfoPtr& info)
+addValueInfo(string_view id, const ValueInfoPtr& info)
 {
     //
     // Do not assert. An application may load statically-
@@ -233,7 +233,7 @@ addValueInfo(const string& id, const ValueInfoPtr& info)
 // addProxyInfo()
 //
 static void
-addProxyInfo(const string& id, const ProxyInfoPtr& info)
+addProxyInfo(string_view id, const ProxyInfoPtr& info)
 {
     //
     // Do not assert. An application may load statically-
@@ -253,7 +253,7 @@ addProxyInfo(const string& id, const ProxyInfoPtr& info)
 // lookupProxyInfo()
 //
 static IcePy::ProxyInfoPtr
-lookupProxyInfo(const string& id)
+lookupProxyInfo(string_view id)
 {
     ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
     if(p != _proxyInfoMap.end())
@@ -267,7 +267,7 @@ lookupProxyInfo(const string& id)
 // addExceptionInfo()
 //
 static void
-addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
+addExceptionInfo(string_view id, const ExceptionInfoPtr& info)
 {
     //
     // Do not assert. An application may load statically-
@@ -843,7 +843,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         long val = PyLong_AsLong(p);
         assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= SHRT_MIN && val <= SHRT_MAX); // validate() should have caught this.
-        os->write(static_cast<Ice::Short>(val));
+        os->write(static_cast<int16_t>(val));
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -925,7 +925,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindShort:
     {
-        Ice::Short val;
+        int16_t val;
         is->read(val);
         PyObjectHandle p = PyLong_FromLong(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -949,7 +949,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindFloat:
     {
-        Ice::Float val;
+        float val;
         is->read(val);
         PyObjectHandle p = PyFloat_FromDouble(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -957,7 +957,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindDouble:
     {
-        Ice::Double val;
+        double val;
         is->read(val);
         PyObjectHandle p = PyFloat_FromDouble(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -994,8 +994,8 @@ IcePy::PrimitiveInfo::print(PyObject* value, IceUtilInternal::Output& out, Print
 //
 // EnumInfo implementation.
 //
-IcePy::EnumInfo::EnumInfo(const string& ident, PyObject* t, PyObject* e) :
-    id(ident), pythonType(t), maxValue(0)
+IcePy::EnumInfo::EnumInfo(string ident, PyObject* t, PyObject* e) :
+    id(std::move(ident)), pythonType(t), maxValue(0)
 {
     assert(PyType_Check(t));
     assert(PyDict_Check(e));
@@ -1234,8 +1234,8 @@ convertDataMembers(PyObject* members, DataMemberList& reqMembers, DataMemberList
 //
 // StructInfo implementation.
 //
-IcePy::StructInfo::StructInfo(const string& ident, PyObject* t, PyObject* m) :
-    id(ident), pythonType(t)
+IcePy::StructInfo::StructInfo(string ident, PyObject* t, PyObject* m) :
+    id(std::move(ident)), pythonType(t)
 {
     assert(PyType_Check(t));
     assert(PyTuple_Check(m));
@@ -1441,8 +1441,8 @@ IcePy::StructInfo::instantiate(PyObject* pythonType)
 //
 // SequenceInfo implementation.
 //
-IcePy::SequenceInfo::SequenceInfo(const string& ident, PyObject* m, PyObject* t) :
-    id(ident)
+IcePy::SequenceInfo::SequenceInfo(string ident, PyObject* m, PyObject* t) :
+    id(std::move(ident))
 {
     assert(PyTuple_Check(m));
 
@@ -1819,8 +1819,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
                 case PrimitiveInfo::KindShort:
                 {
-                    os->write(reinterpret_cast<const Ice::Short*>(b),
-                              reinterpret_cast<const Ice::Short*>(b + sz));
+                    os->write(reinterpret_cast<const int16_t*>(b),
+                              reinterpret_cast<const int16_t*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindInt:
@@ -1837,14 +1837,14 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
                 case PrimitiveInfo::KindFloat:
                 {
-                    os->write(reinterpret_cast<const Ice::Float*>(b),
-                              reinterpret_cast<const Ice::Float*>(b + sz));
+                    os->write(reinterpret_cast<const float*>(b),
+                              reinterpret_cast<const float*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindDouble:
                 {
-                    os->write(reinterpret_cast<const Ice::Double*>(b),
-                              reinterpret_cast<const Ice::Double*>(b + sz));
+                    os->write(reinterpret_cast<const double*>(b),
+                              reinterpret_cast<const double*>(b + sz));
                     break;
                 }
                 default:
@@ -1952,7 +1952,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                              static_cast<int>(i));
                 throw AbortMarshaling();
             }
-            seq[static_cast<size_t>(i)] = static_cast<Ice::Short>(val);
+            seq[static_cast<size_t>(i)] = static_cast<int16_t>(val);
         }
         os->write(seq);
         break;
@@ -2214,7 +2214,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindShort:
     {
-        pair<const Ice::Short*, const Ice::Short*> p;
+        pair<const int16_t*, const int16_t*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)
@@ -2309,7 +2309,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindFloat:
     {
-        pair<const Ice::Float*, const Ice::Float*> p;
+        pair<const float*, const float*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)
@@ -2341,7 +2341,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindDouble:
     {
-        pair<const Ice::Double*, const Ice::Double*> p;
+        pair<const double*, const double*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)
@@ -2557,8 +2557,8 @@ IcePy::SequenceInfo::SequenceMapping::setItem(PyObject* cont, int i, PyObject* v
 //
 // CustomInfo implementation.
 //
-IcePy::CustomInfo::CustomInfo(const string& ident, PyObject* t) :
-    id(ident), pythonType(t)
+IcePy::CustomInfo::CustomInfo(string ident, PyObject* t) :
+    id(std::move(ident)), pythonType(t)
 {
     assert(PyType_Check(t));
 }
@@ -2712,8 +2712,8 @@ IcePy::CustomInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObj
 //
 // DictionaryInfo implementation.
 //
-IcePy::DictionaryInfo::DictionaryInfo(const string& ident, PyObject* kt, PyObject* vt) :
-    id(ident)
+IcePy::DictionaryInfo::DictionaryInfo(string ident, PyObject* kt, PyObject* vt) :
+    id(std::move(ident))
 {
     const_cast<TypeInfoPtr&>(keyType) = getType(kt);
     const_cast<TypeInfoPtr&>(valueType) = getType(vt);
@@ -2943,8 +2943,8 @@ IcePy::DictionaryInfo::destroy()
 //
 // ClassInfo implementation.
 //
-IcePy::ClassInfo::ClassInfo(const string& ident) :
-    id(ident), defined(false)
+IcePy::ClassInfo::ClassInfo(string ident) :
+    id(std::move(ident)), defined(false)
 {
 }
 
@@ -3090,8 +3090,8 @@ IcePy::ClassInfo::destroy()
 //
 // ValueInfo implementation.
 //
-IcePy::ValueInfo::ValueInfo(const string& ident) :
-    id(ident), compactId(-1), preserve(false), interface(false), defined(false)
+IcePy::ValueInfo::ValueInfo(string ident) :
+    id(std::move(ident)), compactId(-1), preserve(false), interface(false), defined(false)
 {
 }
 
@@ -3346,8 +3346,8 @@ IcePy::ValueInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, Pr
 //
 // ProxyInfo implementation.
 //
-IcePy::ProxyInfo::ProxyInfo(const string& ident) :
-    id(ident)
+IcePy::ProxyInfo::ProxyInfo(string ident) :
+    id(std::move(ident))
 {
 }
 
@@ -4120,7 +4120,7 @@ IcePy::resolveCompactId(int32_t id)
 // lookupClassInfo()
 //
 IcePy::ClassInfoPtr
-IcePy::lookupClassInfo(const string& id)
+IcePy::lookupClassInfo(string_view id)
 {
     ClassInfoMap::iterator p = _classInfoMap.find(id);
     if(p != _classInfoMap.end())
@@ -4131,10 +4131,10 @@ IcePy::lookupClassInfo(const string& id)
 }
 
 //
-// lookupClassInfo()
+// lookupValueInfo()
 //
 IcePy::ValueInfoPtr
-IcePy::lookupValueInfo(const string& id)
+IcePy::lookupValueInfo(string_view id)
 {
     ValueInfoMap::iterator p = _valueInfoMap.find(id);
     if(p != _valueInfoMap.end())
@@ -4148,7 +4148,7 @@ IcePy::lookupValueInfo(const string& id)
 // lookupExceptionInfo()
 //
 IcePy::ExceptionInfoPtr
-IcePy::lookupExceptionInfo(const string& id)
+IcePy::lookupExceptionInfo(std::string_view id)
 {
     ExceptionInfoMap::iterator p = _exceptionInfoMap.find(id);
     if(p != _exceptionInfoMap.end())

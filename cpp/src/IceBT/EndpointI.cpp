@@ -74,7 +74,7 @@ IceBT::EndpointI::streamWriteImpl(OutputStream* s) const
     s->write(_compress);
 }
 
-Ice::Short
+int16_t
 IceBT::EndpointI::type() const
 {
     return _instance->type();
@@ -611,7 +611,7 @@ IceBT::EndpointInfoI::~EndpointInfoI()
 {
 }
 
-Ice::Short
+int16_t
 IceBT::EndpointInfoI::type() const noexcept
 {
     return _endpoint->type();
@@ -637,7 +637,7 @@ IceBT::EndpointFactoryI::~EndpointFactoryI()
 {
 }
 
-Short
+int16_t
 IceBT::EndpointFactoryI::type() const
 {
     return _instance->type();

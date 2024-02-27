@@ -101,7 +101,7 @@ private:
 };
 
 #if TARGET_OS_IPHONE != 0
-class FinishCall : public DispatchWorkItem
+class FinishCall final : public DispatchWorkItem
 {
 public:
 
@@ -109,8 +109,7 @@ public:
     {
     }
 
-    virtual void
-    run()
+    void run() final
     {
         _factory->finish();
     }
@@ -1434,7 +1433,7 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
         }
         else if(_state == StateHolding)
         {
-            IceUtil::ThreadControl::yield();
+            this_thread::yield();
             return;
         }
 

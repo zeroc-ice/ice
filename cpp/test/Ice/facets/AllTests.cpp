@@ -160,7 +160,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing non-facets A, B, C, and D... " << flush;
     d = Ice::checkedCast<DPrx>(db);
     test(d);
-    test(Ice::targetEqualTo(d, db));
+    test(d == db);
     test(d->callA() == "A");
     test(d->callB() == "B");
     test(d->callC() == "C");

@@ -39,22 +39,17 @@ string toTemplateArg(const string& arg)
 }
 
 string
-toOptional(const string& s, int typeCtx)
+toOptional(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
-    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
-    string result = "std::optional";
-    result += '<';
-    if(cpp11)
+    if (isProxyType(type))
     {
-        result += s;
+        // We map optional proxies like regular proxies, as optional<XxxPrx>.
+        return typeToString(type, scope, metaData, typeCtx);
     }
     else
     {
-        result += toTemplateArg(s);
+        return "::std::optional<" + typeToString(type, scope, metaData, typeCtx) + '>';
     }
-
-    result += '>';
-    return result;
 }
 
 string
@@ -63,15 +58,20 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
     string strType = findMetaData(metaData, typeCtx);
     if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
     {
+        // TODO: if we're still using TypeContextAMIPrivateEnd, we should give it a better name.
+        // TODO: should be something like the following line but doesn't work currently
+        // return (typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd)) ? "::std::wstring_view" : "::std::wstring";
         return "::std::wstring";
     }
     else if(strType != "" && strType != "string")
     {
+        // The user provided a type name, we use it as-is.
         return strType;
     }
     else
     {
         return "::std::string";
+        // return (typeCtx & TypeContextInParam) ? "::std::string_view" : "::std::string";
     }
 }
 
@@ -111,29 +111,6 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
                                     typeCtx | (inWstringModule(seq) ? TypeContextUseWstring : 0));
             return "::std::pair<const " + s + "*, const " + s + "*>";
         }
-        else if(seqType.find("%range") == 0)
-        {
-            string s;
-            if(seqType.find("%range:") == 0)
-            {
-                s = seqType.substr(strlen("%range:"));
-            }
-            else
-            {
-                s = getUnqualified(fixKwd(seq->scoped()), scope);
-            }
-
-            if(typeCtx & TypeContextAMIPrivateEnd)
-            {
-                return s;
-            }
-
-            if(s[0] == ':')
-            {
-                s = " " + s;
-            }
-            return "::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>";
-        }
         else
         {
             return seqType;
@@ -163,11 +140,7 @@ void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& scope, const string& fixedName,
                        const StringList& metaData, int typeCtx, bool endArg)
 {
-    string s = typeToString(type, scope, metaData, typeCtx);
-    if(optional)
-    {
-        s = toOptional(s, typeCtx);
-    }
+    string s = typeToString(type, optional, scope, metaData, typeCtx);
     out << nl << s << ' ' << fixedName << ';';
 
     if((typeCtx & TypeContextCpp11) || !(typeCtx & TypeContextInParam) || !endArg)
@@ -176,8 +149,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
     }
 
     //
-    // If using a range or array we need to allocate the range container, or
-    // array as well now to ensure they are always in the same scope.
+    // If using a array we need to allocate the array as well now to ensure they are always in the same scope.
     //
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if(seq)
@@ -193,21 +165,12 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
         {
             str = typeToString(seq, scope, metaData, TypeContextAMIPrivateEnd);
         }
-        else if(seqType.find("%range") == 0)
-        {
-            StringList md;
-            if(seqType.find("%range:") == 0)
-            {
-                md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
-            }
-            str = typeToString(seq, scope, md, 0);
-        }
 
         if(!str.empty())
         {
             if(optional)
             {
-                str = toOptional(str, typeCtx);
+                str = "::std::optional<" + str + '>';
             }
             out << nl << str << ' ' << fixedName << "_tmp_;";
         }
@@ -287,23 +250,6 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
                     out << nl << paramName << ".first" << " = " << paramName << ".second" << " = 0;";
                     out << eb;
                 }
-            }
-        }
-        else if(seqType.find("%range") == 0)
-        {
-            if(optional)
-            {
-                out << nl << "if(" << escapedParamName << ")";
-                out << sb;
-                out << nl << paramName << ".emplace();";
-                out << nl << paramName << "->first = (*" << escapedParamName << ").begin();";
-                out << nl << paramName << "->second = (*" << escapedParamName << ").end();";
-                out << eb;
-            }
-            else
-            {
-                out << nl << paramName << ".first = " << escapedParamName << ".begin();";
-                out << nl << paramName << ".second = " << escapedParamName << ".end();";
             }
         }
     }
@@ -682,7 +628,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         "::std::int64_t",
         "float",
         "double",
-        "::std::string",
+        "****", // string or wstring, see below
         "::std::shared_ptr<::Ice::Value>",
         "::std::optional<::Ice::ObjectPrx>",
         "::std::shared_ptr<::Ice::Value>"
@@ -724,17 +670,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
-        //
-        // C++11 mapping doesn't accept cpp:class metadata
-        //
-        if(!cpp11 && findMetaData(st->getMetaData()) == "%class")
-        {
-            return getUnqualified(fixKwd(st->scoped() + "Ptr"), scope);
-        }
-        else
-        {
-            return getUnqualified(fixKwd(st->scoped()), scope);
-        }
+        return getUnqualified(fixKwd(st->scoped()), scope);
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
@@ -769,7 +705,7 @@ Slice::typeToString(const TypePtr& type, bool optional, const string& scope, con
 {
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx);
+        return toOptional(type, scope, metaData, typeCtx);
     }
     else
     {
@@ -788,7 +724,7 @@ Slice::returnTypeToString(const TypePtr& type, bool optional, const string& scop
 
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx);
+        return toOptional(type, scope, metaData, typeCtx);
     }
 
     return typeToString(type, scope, metaData, typeCtx);
@@ -809,7 +745,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "::std::int64_t",
         "float",
         "double",
-        "const ::std::string&",
+        "****", // string_view or wstring_view, see below
         "const ::std::shared_ptr<::Ice::Value>&",
         "const ::std::optional<::Ice::ObjectPrx>&",
         "const ::std::shared_ptr<::Ice::Value>&"
@@ -819,7 +755,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 
     if(optional)
     {
-        return "const " + toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx) + '&';
+        return "const " + toOptional(type, scope, metaData, typeCtx) + '&';
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -827,7 +763,8 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
+            // TODO: temporary, stringTypeToString should return the correct string.
+            return stringTypeToString(type, metaData, typeCtx) + "_view";
         }
         else
         {
@@ -858,21 +795,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
-        if(cpp11)
-        {
-            return "const " + getUnqualified(fixKwd(st->scoped()), scope) + "&";
-        }
-        else
-        {
-            if(findMetaData(st->getMetaData()) == "%class")
-            {
-                return "const " + getUnqualified(fixKwd(st->scoped() + "Ptr"), scope) + "&";
-            }
-            else
-            {
-                return "const " + getUnqualified(fixKwd(st->scoped()), scope) + "&";
-            }
-        }
+        return "const " + getUnqualified(fixKwd(st->scoped()), scope) + "&";
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
@@ -917,7 +840,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         "::std::int64_t&",
         "float&",
         "double&",
-        "::std::string&",
+        "****", // string& or wstring&, see below
         "::std::shared_ptr<::Ice::Value>&",
         "::std::optional<::Ice::ObjectPrx>&",
         "::std::shared_ptr<::Ice::Value>&"
@@ -925,7 +848,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
 
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx) + '&';
+        return toOptional(type, scope, metaData, typeCtx) + '&';
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -964,14 +887,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if(st)
     {
-        if(!cpp11 && findMetaData(st->getMetaData()) == "%class")
-        {
-            return getUnqualified(fixKwd(st->scoped() + "Ptr&"), scope);
-        }
-        else
-        {
-            return getUnqualified(fixKwd(st->scoped()), scope) + "&";
-        }
+        return getUnqualified(fixKwd(st->scoped()), scope) + "&";
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
@@ -1170,12 +1086,6 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
                 writeParamEndCode(out, seq, optional, param, metaData, obj);
                 return;
             }
-            else if(seqType.find("%range") == 0)
-            {
-                out << nl << func << objPrefix << param << "_tmp_);";
-                writeParamEndCode(out, seq, optional, param, metaData, obj);
-                return;
-            }
         }
     }
 
@@ -1249,15 +1159,6 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
             {
                 endArg += "_tmp_";
             }
-        }
-        else if(seqType.find("%range") == 0)
-        {
-            StringList md;
-            if(seqType.find("%range:") == 0)
-            {
-                md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
-            }
-            endArg += "_tmp_";
         }
     }
     return endArg;
@@ -1335,7 +1236,6 @@ Slice::writeStreamHelpers(Output& out,
                           const ContainedPtr& c,
                           DataMemberList dataMembers,
                           bool hasBaseDataMembers,
-                          bool checkClassMetaData,
                           bool cpp11)
 {
     // If c is a C++11 class/exception whose base class contains data members (recursively), then we need to generate
@@ -1374,9 +1274,8 @@ Slice::writeStreamHelpers(Output& out,
     optionalMembers.sort(SortFn::compare);
 
     string scoped = c->scoped();
-    bool classMetaData = checkClassMetaData ? (findMetaData(c->getMetaData(), false) == "%class") : false;
-    string fullName = classMetaData ? fixKwd(scoped + "Ptr") : fixKwd(scoped);
-    string holder = classMetaData ? "v->" : "v.";
+    string fullName = fixKwd(scoped);
+    string holder = "v.";
 
     //
     // Generate StreamWriter
@@ -1538,12 +1437,11 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             // is returned.
             // If the form is cpp:view-type:<...> the data after the
             // cpp:view-type: is returned
-            // If the form is cpp:range[:<...>], cpp:array or cpp:class,
-            // the return value is % followed by the string after cpp:.
+            // If the form is cpp:array, the return value is % followed by the string after cpp:.
             //
             // The priority of the metadata is as follows:
-            // 1: array, range (C++98 only), view-type for "view" parameters
-            // 2: class (C++98 only), scoped (C++98 only), unscoped (C++11 only)
+            // 1: array view-type for "view" parameters
+            // 2: unscoped
             //
 
             if(pos != string::npos)
@@ -1555,10 +1453,6 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                     if(ss.find("view-type:") == 0)
                     {
                         return str.substr(pos + 1);
-                    }
-                    else if(ss.find("range:") == 0 && !(typeCtx & TypeContextCpp11))
-                    {
-                        return string("%") + str.substr(prefix.size());
                     }
                 }
 
@@ -1574,26 +1468,14 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                 {
                     return "%array";
                 }
-                else if(ss == "range" && !(typeCtx & TypeContextCpp11))
-                {
-                    return "%range";
-                }
             }
             //
-            // Otherwise if the data is "class", "scoped" or "unscoped" it is returned.
+            // Otherwise if the data is "unscoped" it is returned.
             //
             else
             {
                 string ss = str.substr(prefix.size());
-                if(ss == "class" && !(typeCtx & TypeContextCpp11))
-                {
-                    return "%class";
-                }
-                else if(ss == "scoped" && !(typeCtx & TypeContextCpp11))
-                {
-                    return "%scoped";
-                }
-                else if(ss == "unscoped" && (typeCtx & TypeContextCpp11))
+                if(ss == "unscoped" && (typeCtx & TypeContextCpp11))
                 {
                     return "%unscoped";
                 }

@@ -19,8 +19,6 @@
 #endif
 #include <IceUtil/Exception.h>
 #include <IceUtil/StringConverter.h>
-#include <IceUtil/Thread.h>
-#include <IceUtil/ThreadException.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/UUID.h>
 

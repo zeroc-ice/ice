@@ -26,8 +26,7 @@ namespace
 
     typedef Test::TestHelper* (*CREATE_HELPER_ENTRY_POINT)();
 
-    class ControllerHelperI : public Test::ControllerHelper,
-                              public IceUtil::Thread
+    class ControllerHelperI : public Test::ControllerHelper
     {
     public:
 
@@ -76,6 +75,7 @@ namespace
 
         id<ControllerView> _controller;
         std::shared_ptr<ControllerHelperI> _helper;
+        std::thread _helperThread;
     };
 
     class ProcessControllerI : public ProcessController
@@ -295,7 +295,8 @@ ControllerHelperI::getOutput() const
 
 ProcessI::ProcessI(id<ControllerView> controller, std::shared_ptr<ControllerHelperI> helper) :
     _controller(controller),
-    _helper(helper)
+    _helper(helper),
+    _helperThread([helper] { helper->run(); })
 {
 }
 
@@ -320,7 +321,7 @@ ProcessI::terminate(const Ice::Current& current)
 {
     _helper->shutdown();
     current.adapter->remove(current.id);
-    _helper->getThreadControl().join();
+    _helperThread.join();
     return _helper->getOutput();
 }
 
@@ -338,12 +339,6 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     newArgs.insert(newArgs.begin(), testSuite + ' ' + exe);
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
     auto helper = make_shared<ControllerHelperI>(_controller, prefix + '/' + exe + ".bundle", newArgs);
-
-    //
-    // Use a 768KB thread stack size for the objects test. This is necessary when running the
-    // test on arm64 devices with a debug Ice libraries which require lots of stack space.
-    //
-    helper->start(768 * 1024);
     return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper)));
 }
 

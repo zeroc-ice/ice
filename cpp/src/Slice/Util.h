@@ -56,6 +56,7 @@ prependA(const std::string&);
 bool
 checkIdentifier(const std::string&);
 
-}
+bool isProxyType(const TypePtr& type);
 
+}
 #endif

@@ -64,10 +64,6 @@ public:
                                ::std::function<void(const std::optional<::std::string>&, const std::optional<::std::string>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opCustomStringAsync(std::optional<Util::string_view>,
-                                     ::std::function<void(const std::optional<Util::string_view>&, const std::optional<Util::string_view>&)>,
-                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
     virtual void opMyEnumAsync(std::optional<::Test::MyEnum>,
                                ::std::function<void(const std::optional<::Test::MyEnum>&, const std::optional<::Test::MyEnum>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
@@ -88,8 +84,8 @@ public:
                                     ::std::function<void(const std::optional<::std::shared_ptr<::Test::OneOptional>>&, const std::optional<::std::shared_ptr<::Test::OneOptional>>&)>,
                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opMyInterfaceProxyAsync(std::optional<::Test::MyInterfacePrxPtr>,
-                                         ::std::function<void(const std::optional<::Test::MyInterfacePrxPtr>&, const std::optional<::Test::MyInterfacePrxPtr>&)>,
+    virtual void opMyInterfaceProxyAsync(std::optional<::Test::MyInterfacePrx>,
+                                         ::std::function<void(const std::optional<::Test::MyInterfacePrx>&, const std::optional<::Test::MyInterfacePrx>&)>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opByteSeqAsync(std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>,
@@ -160,10 +156,6 @@ public:
                                            ::std::function<void(const std::optional<::Test::IntOneOptionalDict>&, const std::optional<::Test::IntOneOptionalDict>&)>,
                                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opCustomIntStringDictAsync(std::optional<::std::map< int, ::Util::string_view>>,
-                                            ::std::function<void(const std::optional<::std::map< int, ::Util::string_view>>&, const std::optional<::std::map< int, ::Util::string_view>>&)>,
-                                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
     virtual void opClassAndUnknownOptionalAsync(::std::shared_ptr<::Test::A>,
                                                 ::std::function<void()>,
                                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
@@ -227,9 +219,6 @@ public:
 
     virtual void supportsCsharpSerializableAsync(::std::function<void(bool)>,
                                                  ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
-    virtual void supportsCppStringViewAsync(::std::function<void(bool)>,
-                                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void supportsNullOptionalAsync(::std::function<void(bool)>,
                                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;

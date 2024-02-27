@@ -16,11 +16,11 @@ class OpaqueEndpointI : public EndpointI, public std::enable_shared_from_this<Op
 public:
 
     OpaqueEndpointI(std::vector<std::string>&);
-    OpaqueEndpointI(Ice::Short, Ice::InputStream*);
+    OpaqueEndpointI(std::int16_t, Ice::InputStream*);
 
     virtual void streamWrite(Ice::OutputStream*) const;
     virtual Ice::EndpointInfoPtr getInfo() const noexcept;
-    virtual Ice::Short type() const;
+    virtual std::int16_t type() const;
     virtual const std::string& protocol() const;
 
     virtual std::int32_t timeout() const;
@@ -59,7 +59,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
-    Ice::Short _type;
+    std::int16_t _type;
     Ice::EncodingVersion _rawEncoding; // The encoding used for _rawBytes
     const std::vector<Ice::Byte> _rawBytes;
 };

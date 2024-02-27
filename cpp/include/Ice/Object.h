@@ -99,7 +99,7 @@ public:
      * Obtains the Slice type ID of this type.
      * @return The return value is always "::Ice::Object".
      */
-    static const std::string& ice_staticId();
+    static std::string_view ice_staticId();
 
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation

@@ -19,13 +19,11 @@
 using namespace std;
 using namespace Test;
 
-template<typename T>
-function<shared_ptr<T>(string)> makeFactory()
+template <typename T>
+function<shared_ptr<T>(string_view)>
+makeFactory()
 {
-    return [](string)
-        {
-            return make_shared<T>();
-        };
+    return [](string_view) { return make_shared<T>(); };
 }
 
 class Client : public Test::TestHelper

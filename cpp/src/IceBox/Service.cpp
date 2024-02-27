@@ -26,10 +26,10 @@ IceBox::FailureException::~FailureException()
 {
 }
 
-const ::std::string&
+std::string_view
 IceBox::FailureException::ice_staticId()
 {
-    static const ::std::string typeId = "::IceBox::FailureException";
+    static constexpr std::string_view typeId = "::IceBox::FailureException";
     return typeId;
 }
 

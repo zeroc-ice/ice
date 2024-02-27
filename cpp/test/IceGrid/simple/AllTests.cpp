@@ -28,7 +28,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
-    test(Ice::targetEqualTo(obj, base));
+    test(obj == base);
     cout << "ok" << endl;
 
     cout << "pinging server... " << flush;
@@ -236,10 +236,10 @@ allTestsWithDeploy(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
-    test(Ice::targetEqualTo(obj, base));
+    test(obj == base);
     TestIntfPrxPtr obj2 = Ice::checkedCast<TestIntfPrx>(base2);
     test(obj2);
-    test(Ice::targetEqualTo(obj2, base2));
+    test(obj2 == base2);
     cout << "ok" << endl;
 
     cout << "pinging server... " << flush;

@@ -72,7 +72,7 @@ TestControllerI::step(Glacier2::SessionPrxPtr currentSession, TestToken currentS
             lock_guard lock(_mutex);
             for(const auto& p : _sessions)
             {
-                if(targetEqualTo(p.session, currentSession))
+                if(p.session == currentSession)
                 {
                     session = p;
                     break;
@@ -167,7 +167,7 @@ TestControllerI::notifyDestroy(const Glacier2::SessionControlPrxPtr& control)
     lock_guard lock(_mutex);
     for(auto i = _sessions.begin(); i != _sessions.end(); ++i)
     {
-        if(targetEqualTo(i->sessionControl, control))
+        if(i->sessionControl == control)
         {
             _sessions.erase(i);
             break;

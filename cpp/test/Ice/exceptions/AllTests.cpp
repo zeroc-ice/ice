@@ -272,23 +272,13 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing value factory registration exception... " << flush;
     {
-        communicator->getValueFactoryManager()->add(
-            [](const std::string&)
-            {
-                return nullptr;
-            },
-            "x");
+        communicator->getValueFactoryManager()->add([](string_view) { return nullptr; }, "x");
         try
         {
-            communicator->getValueFactoryManager()->add(
-                [](const std::string&)
-                {
-                    return nullptr;
-                },
-                "x");
+            communicator->getValueFactoryManager()->add([](string_view) { return nullptr; }, "x");
             test(false);
         }
-        catch(const Ice::AlreadyRegisteredException&)
+        catch (const Ice::AlreadyRegisteredException&)
         {
         }
     }
@@ -303,7 +293,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     ThrowerPrxPtr thrower = Ice::checkedCast<ThrowerPrx>(base);
     test(thrower);
-    test(Ice::targetEqualTo(thrower, base));
+    test(thrower == base);
     cout << "ok" << endl;
 
     cout << "catching exact types... " << flush;

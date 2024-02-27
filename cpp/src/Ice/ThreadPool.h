@@ -5,10 +5,7 @@
 #ifndef ICE_THREAD_POOL_H
 #define ICE_THREAD_POOL_H
 
-#include <IceUtil/Thread.h>
-
 #include <Ice/Config.h>
-#include <Ice/Dispatcher.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/LoggerF.h>
@@ -39,7 +36,6 @@ using ThreadPoolWorkItemPtr = std::shared_ptr<ThreadPoolWorkItem>;
 
 class DispatchWorkItem :
     public ThreadPoolWorkItem,
-    public Ice::DispatcherCall,
     public std::enable_shared_from_this<DispatchWorkItem>
 {
 public:
@@ -53,6 +49,8 @@ public:
         return _connection;
     }
 
+    virtual void run() = 0;
+
 private:
 
     virtual void execute(ThreadPoolCurrent&);
@@ -63,25 +61,29 @@ using DispatchWorkItemPtr = std::shared_ptr<DispatchWorkItem>;
 
 class ThreadPool : public std::enable_shared_from_this<ThreadPool>
 {
-    class EventHandlerThread : public IceUtil::Thread
+public:
+
+    class EventHandlerThread final : public std::enable_shared_from_this<EventHandlerThread>
     {
     public:
 
         EventHandlerThread(const ThreadPoolPtr&, const std::string&);
-        virtual void run();
+        void start();
+        void run();
+        void join();
 
         void updateObserver();
         void setState(Ice::Instrumentation::ThreadState);
 
     private:
 
+        std::string _name;
         ThreadPoolPtr _pool;
         ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
         Ice::Instrumentation::ThreadState _state;
+        std::thread _thread;
     };
     using EventHandlerThreadPtr = std::shared_ptr<EventHandlerThread>;
-
-public:
 
     static ThreadPoolPtr create(const InstancePtr&, const std::string&, int);
 

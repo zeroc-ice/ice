@@ -54,24 +54,13 @@ allTests(Test::TestHelper* helper)
 
     Test::TestIntfPrxPtr t = Ice::checkedCast<Test::TestIntfPrx>(base);
     test(t);
-    test(Ice::targetEqualTo(t, base));
+    test(t == base);
     cout << "ok" << endl;
 
     cout << "testing ice_id and ice_ids with string converter... " << flush;
     test(t->ice_id() == Test::TestIntfPrx::ice_staticId());
     test(t->ice_ids()[0] == Ice::ObjectPrx::ice_staticId());
     test(t->ice_ids()[1] == Test::TestIntfPrx::ice_staticId());
-    cout << "ok" << endl;
-
-    cout << "testing alternate strings... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-        string out;
-        string ret = t->opString(in, out);
-
-        test(ret == out);
-        test(ret == in);
-    }
     cout << "ok" << endl;
 
     cout << "testing alternate sequences... " << flush;
@@ -83,12 +72,12 @@ allTests(Test::TestHelper* helper)
         in[2] = 0.375;
         in[3] = 4 / 3;
         in[4] = -5.725;
-        Ice::Double inArray[5];
+        double inArray[5];
         for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
-        pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+        pair<const double*, const double*> inPair(inArray, inArray + 5);
 
         Test::DoubleSeq out;
         Test::DoubleSeq ret = t->opDoubleArray(inPair, out);
@@ -155,89 +144,6 @@ allTests(Test::TestHelper* helper)
         Test::VariableList out;
         Test::VariableList ret = t->opVariableArray(inPair, out);
 
-        test(out == in);
-        test(ret == in);
-    }
-
-    {
-        Test::BoolSeq in(5);
-        in[0] = false;
-        in[1] = true;
-        in[2] = true;
-        in[3] = false;
-        in[4] = true;
-        Test::BoolSeq out;
-        Test::BoolSeq ret = t->opBoolRange(in, out);
-        test(out == in);
-        test(ret == in);
-    }
-
-    {
-        Test::ByteList in;
-        in.push_back('1');
-        in.push_back('2');
-        in.push_back('3');
-        in.push_back('4');
-        in.push_back('5');
-        Test::ByteList out;
-        Test::ByteList ret = t->opByteRange(in, out);
-        test(out == in);
-        test(ret == in);
-    }
-
-    {
-        Test::VariableList in;
-        Test::Variable v;
-        v.s = "THESE";
-        in.push_back(v);
-        v.s = "ARE";
-        in.push_back(v);
-        v.s = "FIVE";
-        in.push_back(v);
-        v.s = "SHORT";
-        in.push_back(v);
-        v.s = "STRINGS.";
-        in.push_back(v);
-        Test::VariableList out;
-        Test::VariableList ret = t->opVariableRange(in, out);
-        test(out == in);
-        test(ret == in);
-    }
-
-    {
-        Test::ByteList in;
-        in.push_back('1');
-        in.push_back('2');
-        in.push_back('3');
-        in.push_back('4');
-        in.push_back('5');
-        Test::ByteList out;
-        Test::ByteList ret = t->opByteRangeType(in, out);
-        test(out == in);
-        test(ret == in);
-    }
-
-    {
-        Test::VariableList in;
-        deque<Test::Variable> inSeq;
-        Test::Variable v;
-        v.s = "THESE";
-        in.push_back(v);
-        inSeq.push_back(v);
-        v.s = "ARE";
-        in.push_back(v);
-        inSeq.push_back(v);
-        v.s = "FIVE";
-        in.push_back(v);
-        inSeq.push_back(v);
-        v.s = "SHORT";
-        in.push_back(v);
-        inSeq.push_back(v);
-        v.s = "STRINGS.";
-        in.push_back(v);
-        inSeq.push_back(v);
-        Test::VariableList out;
-        Test::VariableList ret = t->opVariableRangeType(in, out);
         test(out == in);
         test(ret == in);
     }
@@ -480,8 +386,8 @@ allTests(Test::TestHelper* helper)
 
         for(auto i: in)
         {
-            test(Ice::targetEqualTo(*op++, i));
-            test(Ice::targetEqualTo(*rp++, i));
+            test(*op++ == i);
+            test(*rp++ == i);
         }
     }
 
@@ -500,8 +406,8 @@ allTests(Test::TestHelper* helper)
 
         for(auto i: in)
         {
-            test(Ice::targetEqualTo(*op++, i));
-            test(Ice::targetEqualTo(*rp++, i));
+            test(*op++ == i);
+            test(*rp++ == i);
         }
     }
 
@@ -587,33 +493,12 @@ allTests(Test::TestHelper* helper)
         }
     }
 
-    {
-        std::map<int, Util::string_view> idict;
-
-        idict[1] = "ONE";
-        idict[2] = "TWO";
-        idict[3] = "THREE";
-        idict[-1] = "MINUS ONE";
-
-        Test::IntStringDict out;
-        out[5] = "FIVE";
-
-        Test::IntStringDict ret = t->opCustomIntStringDict(idict, out);
-        test(out.size() == idict.size());
-        test(out == ret);
-        for(std::map<int, Util::string_view>::const_iterator p = idict.begin();
-            p != idict.end(); ++p)
-        {
-            test(out[p->first] == p->second.to_string());
-        }
-    }
-
     cout << "ok" << endl;
 
     cout << "testing alternate custom sequences... " << flush;
     {
         Test::ShortBuffer inS;
-        inS.setAndInit(new Ice::Short[3], 3);
+        inS.setAndInit(new int16_t[3], 3);
         Test::ShortBuffer outS;
         Test::ShortBuffer ret = t->opShortBuffer(inS, outS);
 
@@ -632,11 +517,11 @@ allTests(Test::TestHelper* helper)
         Test::BufferStruct bs;
         bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
-        bs.shortBuf.setAndInit(new Ice::Short[10], 10);
+        bs.shortBuf.setAndInit(new int16_t[10], 10);
         bs.intBuf.setAndInit(new int32_t[10], 10);
         bs.longBuf.setAndInit(new int64_t[10], 10);
-        bs.floatBuf.setAndInit(new Ice::Float[10], 10);
-        bs.doubleBuf.setAndInit(new Ice::Double[10], 10);
+        bs.floatBuf.setAndInit(new float[10], 10);
+        bs.doubleBuf.setAndInit(new double[10], 10);
 
         Test::BufferStruct rs = t->opBufferStruct(bs);
         test(rs == bs);
@@ -653,15 +538,6 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    cout << "testing alternate strings with AMI... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-        auto r = t->opStringAsync(in).get();
-        test(std::get<0>(r) == std::get<1>(r));
-        test(std::get<0>(r) == in);
-    }
-    cout << "ok" << endl;
-
     cout << "testing alternate sequences with AMI... " << flush;
     {
         {
@@ -671,12 +547,12 @@ allTests(Test::TestHelper* helper)
             in[2] = 0.375;
             in[3] = 4 / 3;
             in[4] = -5.725;
-            Ice::Double inArray[5];
+            double inArray[5];
             for(size_t i = 0; i < 5; ++i)
             {
                 inArray[i] = in[i];
             }
-            pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+            pair<const double*, const double*> inPair(inArray, inArray + 5);
             auto r = t->opDoubleArrayAsync(inPair).get();
             test(std::get<1>(r) == in);
             test(std::get<0>(r) == in);
@@ -737,86 +613,6 @@ allTests(Test::TestHelper* helper)
             pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
 
             auto r = t->opVariableArrayAsync(inPair).get();
-            test(std::get<1>(r) == in);
-            test(std::get<0>(r) == in);
-        }
-
-        {
-            Test::BoolSeq in(5);
-            in[0] = false;
-            in[1] = true;
-            in[2] = true;
-            in[3] = false;
-            in[4] = true;
-            auto r = t->opBoolRangeAsync(in).get();
-            test(std::get<1>(r) == in);
-            test(std::get<0>(r) == in);
-        }
-
-        {
-            Test::ByteList in;
-            in.push_back('1');
-            in.push_back('2');
-            in.push_back('3');
-            in.push_back('4');
-            in.push_back('5');
-
-            auto r = t->opByteRangeAsync(in).get();
-            test(std::get<1>(r) == in);
-            test(std::get<0>(r) == in);
-        }
-
-        {
-            Test::VariableList in;
-            Test::Variable v;
-            v.s = "THESE";
-            in.push_back(v);
-            v.s = "ARE";
-            in.push_back(v);
-            v.s = "FIVE";
-            in.push_back(v);
-            v.s = "SHORT";
-            in.push_back(v);
-            v.s = "STRINGS.";
-            in.push_back(v);
-            auto r = t->opVariableRangeAsync(in).get();
-            test(std::get<1>(r) == in);
-            test(std::get<0>(r) == in);
-        }
-
-        {
-            Test::ByteList in;
-            in.push_back('1');
-            in.push_back('2');
-            in.push_back('3');
-            in.push_back('4');
-            in.push_back('5');
-            auto r = t->opByteRangeTypeAsync(in).get();
-            test(std::get<1>(r) == in);
-            test(std::get<0>(r) == in);
-        }
-
-        {
-            Test::VariableList in;
-            deque<Test::Variable> inSeq;
-            Test::Variable v;
-            v.s = "THESE";
-            in.push_back(v);
-            inSeq.push_back(v);
-            v.s = "ARE";
-            in.push_back(v);
-            inSeq.push_back(v);
-            v.s = "FIVE";
-            in.push_back(v);
-            inSeq.push_back(v);
-            v.s = "SHORT";
-            in.push_back(v);
-            inSeq.push_back(v);
-            v.s = "STRINGS.";
-            in.push_back(v);
-            inSeq.push_back(v);
-
-            auto r = t->opVariableRangeTypeAsync(in).get();
             test(std::get<1>(r) == in);
             test(std::get<0>(r) == in);
         }
@@ -1046,8 +842,8 @@ allTests(Test::TestHelper* helper)
 
             for(auto i: in)
             {
-                test(Ice::targetEqualTo(*op++, i));
-                test(Ice::targetEqualTo(*rp++, i));
+                test(*op++ == i);
+                test(*rp++ == i);
             }
         }
 
@@ -1069,8 +865,8 @@ allTests(Test::TestHelper* helper)
 
             for(auto i: in)
             {
-                test(Ice::targetEqualTo(*op++, i));
-                test(Ice::targetEqualTo(*rp++, i));
+                test(*op++ == i);
+                test(*rp++ == i);
             }
         }
 
@@ -1119,40 +915,6 @@ allTests(Test::TestHelper* helper)
             test(r.size() == in.size());
             test(r == in);
         }
-
-        {
-            Test::ByteSeq in;
-            in.push_back('1');
-            in.push_back('2');
-            in.push_back('3');
-            in.push_back('4');
-
-            auto r = t->opOutRangeByteSeqAsync(in).get();
-            test(r.size() == in.size());
-            test(r == in);
-        }
-    }
-    cout << "ok" << endl;
-
-    cout << "testing alternate strings with AMI callbacks... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-
-        promise<bool> done;
-
-        t->opStringAsync(in,
-            [&](Util::string_view ret, Util::string_view out)
-            {
-                test(out == ret);
-                test(in == out);
-                done.set_value(true);
-            },
-            [&](std::exception_ptr)
-            {
-                done.set_value(false);
-            });
-
-        test(done.get_future().get());
     }
     cout << "ok" << endl;
 
@@ -1165,18 +927,18 @@ allTests(Test::TestHelper* helper)
         in[2] = 0.375;
         in[3] = 4 / 3;
         in[4] = -5.725;
-        Ice::Double inArray[5];
+        double inArray[5];
         for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
-        pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+        pair<const double*, const double*> inPair(inArray, inArray + 5);
 
         promise<bool> done;
 
         t->opDoubleArrayAsync(inPair,
-                              [&](pair<const Ice::Double*, const Ice::Double*> ret,
-                                  pair<const Ice::Double*, const Ice::Double*> out)
+                              [&](pair<const double*, const double*> ret,
+                                  pair<const double*, const double*> out)
                               {
                                   test(arrayRangeEquals<double>(out, inPair));
                                   test(arrayRangeEquals<double>(ret, inPair));
@@ -1278,148 +1040,6 @@ allTests(Test::TestHelper* helper)
                                 {
                                     done.set_value(false);
                                 });
-
-        test(done.get_future().get());
-    }
-
-    {
-        Test::BoolSeq in(5);
-        in[0] = false;
-        in[1] = true;
-        in[2] = true;
-        in[3] = false;
-        in[4] = true;
-
-        promise<bool> done;
-
-        t->opBoolRangeAsync(in,
-                            [&](Test::BoolSeq ret, Test::BoolSeq out)
-                            {
-                                   test(ret == in);
-                                   test(out == in);
-                                   done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
-
-        test(done.get_future().get());
-    }
-
-    {
-        Test::ByteList in;
-        in.push_back('1');
-        in.push_back('2');
-        in.push_back('3');
-        in.push_back('4');
-        in.push_back('5');
-
-        promise<bool> done;
-
-        t->opByteRangeAsync(in,
-                            [&](Test::ByteList ret, Test::ByteList out)
-                            {
-                                test(ret == in);
-                                test(out == in);
-                                done.set_value(true);
-                            },
-                            [&](std::exception_ptr)
-                            {
-                                done.set_value(false);
-                            });
-
-        test(done.get_future().get());
-    }
-
-    {
-        Test::VariableList in;
-        Test::Variable v;
-        v.s = "THESE";
-        in.push_back(v);
-        v.s = "ARE";
-        in.push_back(v);
-        v.s = "FIVE";
-        in.push_back(v);
-        v.s = "SHORT";
-        in.push_back(v);
-        v.s = "STRINGS.";
-        in.push_back(v);
-
-        promise<bool> done;
-
-        t->opVariableRangeAsync(in,
-                                [&](Test::VariableList ret, Test::VariableList out)
-                                {
-                                    test(ret == in);
-                                    test(out == in);
-                                    done.set_value(true);
-                                },
-                                [&](std::exception_ptr)
-                                {
-                                    done.set_value(false);
-                                });
-
-        test(done.get_future().get());
-    }
-
-    {
-        Test::ByteList in;
-        in.push_back('1');
-        in.push_back('2');
-        in.push_back('3');
-        in.push_back('4');
-        in.push_back('5');
-
-        promise<bool> done;
-
-        t->opByteRangeTypeAsync(in,
-                                [&](Test::ByteList ret, Test::ByteList out)
-                                {
-                                    test(ret == in);
-                                    test(out == in);
-                                    done.set_value(true);
-                                },
-                                [&](std::exception_ptr)
-                                {
-                                    done.set_value(false);
-                                });
-
-        test(done.get_future().get());
-    }
-
-    {
-        Test::VariableList in;
-        deque<Test::Variable> inSeq;
-        Test::Variable v;
-        v.s = "THESE";
-        in.push_back(v);
-        inSeq.push_back(v);
-        v.s = "ARE";
-        in.push_back(v);
-        inSeq.push_back(v);
-        v.s = "FIVE";
-        in.push_back(v);
-        inSeq.push_back(v);
-        v.s = "SHORT";
-        in.push_back(v);
-        inSeq.push_back(v);
-        v.s = "STRINGS.";
-        in.push_back(v);
-        inSeq.push_back(v);
-        promise<bool> done;
-
-        t->opVariableRangeTypeAsync(in,
-                                    [&](Test::VariableList ret, Test::VariableList out)
-                                    {
-                                        test(ret == in);
-                                        test(out == in);
-                                        done.set_value(true);
-                                    },
-                                    [&](std::exception_ptr)
-                                    {
-                                        done.set_value(false);
-                                    });
 
         test(done.get_future().get());
     }
@@ -1829,8 +1449,8 @@ allTests(Test::TestHelper* helper)
                               auto rp = ret.begin();
                               for(auto i: in)
                               {
-                                  test(Ice::targetEqualTo(*op++, i));
-                                  test(Ice::targetEqualTo(*rp++, i));
+                                  test(*op++ == i);
+                                  test(*rp++ == i);
                               }
                               done.set_value(true);
                           },
@@ -1860,8 +1480,8 @@ allTests(Test::TestHelper* helper)
                               auto rp = ret.begin();
                               for(auto i: in)
                               {
-                                  test(Ice::targetEqualTo(*op++, i));
-                                  test(Ice::targetEqualTo(*rp++, i));
+                                  test(*op++ == i);
+                                  test(*rp++ == i);
                               }
                               done.set_value(true);
                           },
@@ -1947,29 +1567,6 @@ allTests(Test::TestHelper* helper)
         test(done.get_future().get());
     }
 
-    {
-        Test::ByteSeq in;
-        in.push_back('1');
-        in.push_back('2');
-        in.push_back('3');
-        in.push_back('4');
-
-        promise<bool> done;
-
-        t->opOutRangeByteSeqAsync(in,
-                                  [&](Test::ByteSeq out)
-                                  {
-                                      test(out == in);
-                                      done.set_value(true);
-                                  },
-                                  [&](std::exception_ptr)
-                                  {
-                                      done.set_value(false);
-                                  });
-
-        test(done.get_future().get());
-    }
-
     cout << "ok" << endl;
 
     cout << "testing alternate dictionaries with new AMI... " << flush;
@@ -2003,26 +1600,6 @@ allTests(Test::TestHelper* helper)
                 test(i.second == i.first * i.first);
             }
         }
-
-        {
-            std::map<int, Util::string_view> idict;
-
-            idict[1] = "ONE";
-            idict[2] = "TWO";
-            idict[3] = "THREE";
-            idict[-1] = "MINUS ONE";
-
-            auto r = t->opCustomIntStringDictAsync(idict).get();
-            test(std::get<1>(r).size() == idict.size());
-
-            test(std::get<1>(r) == std::get<0>(r));
-
-            for(auto i: idict)
-            {
-                test(std::get<1>(r)[i.first] == i.second);
-            }
-        }
-
     }
     cout << "ok" << endl;
 
@@ -2081,36 +1658,6 @@ allTests(Test::TestHelper* helper)
 
             test(done.get_future().get());
         }
-
-        {
-            std::map<int, Util::string_view> idict;
-
-            idict[1] = "ONE";
-            idict[2] = "TWO";
-            idict[3] = "THREE";
-            idict[-1] = "MINUS ONE";
-
-            promise<bool> done;
-
-            t->opCustomIntStringDictAsync(idict,
-                                          [&](map<int, Util::string_view> ret, map<int, Util::string_view> out)
-                                          {
-                                              test(ret == out);
-                                              for(auto i: idict)
-                                              {
-                                                  test(ret[i.first] == i.second);
-                                              }
-
-                                              done.set_value(true);
-                                           },
-                                           [&](std::exception_ptr)
-                                           {
-                                              done.set_value(false);
-                                           });
-
-            test(done.get_future().get());
-        }
-
     }
     cout << "ok" << endl;
 

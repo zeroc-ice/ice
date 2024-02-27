@@ -36,7 +36,7 @@ public:
     //
     // Return the endpoint type.
     //
-    virtual Ice::Short type() const = 0;
+    virtual std::int16_t type() const = 0;
 
     //
     // Return the protocol name
@@ -160,7 +160,7 @@ public:
         T::timeout = _endpoint->timeout();
     }
 
-    virtual Ice::Short
+    virtual std::int16_t
     type() const noexcept
     {
         return _endpoint->type();

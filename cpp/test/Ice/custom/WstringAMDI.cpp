@@ -6,7 +6,7 @@
 
 void
 Test1::WstringClassI::opStringAsync(std::wstring in,
-                                    std::function<void(const std::wstring&, const std::wstring&)> response,
+                                    std::function<void(std::wstring_view, std::wstring_view)> response,
                                     std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
@@ -31,7 +31,7 @@ Test1::WstringClassI::throwExceptAsync(std::wstring in,
 
 void
 Test2::WstringClassI::opStringAsync(std::wstring in,
-                                    std::function<void(const std::wstring&, const std::wstring&)> response,
+                                    std::function<void(std::wstring_view, std::wstring_view)> response,
                                     std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);

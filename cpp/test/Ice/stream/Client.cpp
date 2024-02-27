@@ -3,7 +3,7 @@
 //
 
 #ifdef _MSC_VER
-#   pragma warning(disable:4244) // '=': conversion from 'int' to 'Ice::Short', possible loss of data
+#   pragma warning(disable:4244) // '=': conversion from 'int' to 'int16_t', possible loss of data
 #endif
 
 #include <Ice/Ice.h>
@@ -107,22 +107,22 @@ public:
         clear();
     }
 
-    shared_ptr<Ice::Value> create(const string& type)
+    shared_ptr<Ice::Value> create(string_view type)
     {
         return _factory(type);
     }
 
-    void setFactory(function<shared_ptr<Ice::Value>(const string&)> f)
+    void setFactory(function<shared_ptr<Ice::Value>(string_view)> f)
     {
         _factory = f;
     }
 
     void clear()
     {
-        _factory = [](const string&) { return make_shared<MyClass>(); };
+        _factory = [](string_view) { return make_shared<MyClass>(); };
     }
 
-    function<shared_ptr<Ice::Value>(const string&)> _factory;
+    function<shared_ptr<Ice::Value>(string_view)> _factory;
 };
 
 void
@@ -130,7 +130,7 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     MyClassFactoryWrapper factoryWrapper;
-    function<shared_ptr<Ice::Value>(const string&)> f =
+    function<shared_ptr<Ice::Value>(string_view)> f =
         std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
     communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
 
@@ -200,10 +200,10 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Short)2);
+        out.write((int16_t)2);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Short v;
+        int16_t v;
         in.read(v);
         test(v == 2);
     }
@@ -230,20 +230,20 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Float)5.0);
+        out.write((float)5.0);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Float v;
+        float v;
         in.read(v);
         test(v == 5.0);
     }
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Double)6.0);
+        out.write((double)6.0);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Double v;
+        double v;
         in.read(v);
         test(v == 6.0);
     }
@@ -290,7 +290,7 @@ allTests(Test::TestHelper* helper)
         Ice::InputStream in(communicator, data);
         SmallStruct s2;
         in.read(s2);
-        test(targetEqualTo(s2.p, s.p));
+        test(s2.p == s.p);
         s2.p = s.p; // otherwise the s2 == s below will fail
 
         test(s2 == s);
@@ -301,7 +301,7 @@ allTests(Test::TestHelper* helper)
         OptionalClassPtr o = std::make_shared<OptionalClass>();
         o->bo = false;
         o->by = 5;
-        o->sh = static_cast<Ice::Short>(4);
+        o->sh = static_cast<int16_t>(4);
         o->i = 3;
         out.write(o);
         out.writePendingValues();
@@ -329,7 +329,7 @@ allTests(Test::TestHelper* helper)
         OptionalClassPtr o = std::make_shared<OptionalClass>();
         o->bo = false;
         o->by = 5;
-        o->sh = static_cast<Ice::Short>(4);
+        o->sh = static_cast<int16_t>(4);
         o->i = 3;
         out.write(o);
         out.writePendingValues();
@@ -638,7 +638,7 @@ allTests(Test::TestHelper* helper)
 
         for(SmallStructS::size_type j = 0; j < arr2.size(); ++j)
         {
-            test(targetEqualTo(arr[j].p, arr2[j].p));
+            test(arr[j].p == arr2[j].p);
             arr2[j].p = arr[j].p;
             test(arr[j] == arr2[j]);
         }
@@ -822,7 +822,7 @@ allTests(Test::TestHelper* helper)
         out.writePendingValues();
         out.finished(data);
         test(writer->called);
-        factoryWrapper.setFactory([](const string&) { return make_shared<TestObjectReader>(); });
+        factoryWrapper.setFactory([](string_view) { return make_shared<TestObjectReader>(); });
         Ice::InputStream in(communicator, data);
         shared_ptr<Ice::Value> p;
         in.read(&patchObject, &p);

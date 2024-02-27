@@ -499,7 +499,6 @@
     <ClCompile Include="..\..\..\IceUtil\Random.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringConverter.cpp" />
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp" />
-    <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UtilException.cpp" />
     <ClCompile Include="..\..\..\IceUtil\UUID.cpp" />
     <ClCompile Include="..\..\Acceptor.cpp" />
@@ -515,7 +514,6 @@
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
-    <ClCompile Include="..\..\CountDownLatch.cpp" />
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp" />
     <ClCompile Include="..\..\DispatchInterceptor.cpp" />
     <ClCompile Include="..\..\DLLMain.cpp" />
@@ -529,7 +527,6 @@
     <ClCompile Include="..\..\FactoryTableInit.cpp" />
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IconvStringConverter.cpp" />
-    <ClCompile Include="..\..\ImplicitContextI.cpp" />
     <ClCompile Include="..\..\Incoming.cpp" />
     <ClCompile Include="..\..\IncomingAsync.cpp" />
     <ClCompile Include="..\..\Initialize.cpp" />
@@ -581,7 +578,6 @@
     <ClCompile Include="..\..\TcpConnector.cpp" />
     <ClCompile Include="..\..\TcpEndpointI.cpp" />
     <ClCompile Include="..\..\TcpTransceiver.cpp" />
-    <ClCompile Include="..\..\Thread.cpp" />
     <ClCompile Include="..\..\ThreadPool.cpp" />
     <ClCompile Include="..\..\Timer.cpp" />
     <ClCompile Include="..\..\TraceLevels.cpp" />

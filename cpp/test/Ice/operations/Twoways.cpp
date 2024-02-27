@@ -30,7 +30,7 @@ using namespace Test;
 namespace
 {
 
-class PerThreadContextInvokeThread : public IceUtil::Thread
+class PerThreadContextInvokeThread final
 {
 public:
 
@@ -39,8 +39,7 @@ public:
     {
     }
 
-    virtual void
-    run()
+    void run()
     {
         Ice::Context ctx = _proxy->ice_getCommunicator()->getImplicitContext()->getContext();
         test(ctx.empty());
@@ -271,7 +270,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     }
 
     {
-        Ice::Short s;
+        int16_t s;
         int32_t i;
         int64_t l;
         int64_t r;
@@ -282,40 +281,40 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         test(l == 12);
         test(r == 12);
 
-        r = p->opShortIntLong(numeric_limits<Ice::Short>::min(), numeric_limits<int32_t>::min(),
+        r = p->opShortIntLong(numeric_limits<int16_t>::min(), numeric_limits<int32_t>::min(),
                               numeric_limits<int64_t>::min(), s, i, l);
-        test(s == numeric_limits<Ice::Short>::min());
+        test(s == numeric_limits<int16_t>::min());
         test(i == numeric_limits<int32_t>::min());
         test(l == numeric_limits<int64_t>::min());
         test(r == numeric_limits<int64_t>::min());
 
-        r = p->opShortIntLong(numeric_limits<Ice::Short>::max(), numeric_limits<int32_t>::max(),
+        r = p->opShortIntLong(numeric_limits<int16_t>::max(), numeric_limits<int32_t>::max(),
                               numeric_limits<int64_t>::max(), s, i, l);
-        test(s == numeric_limits<Ice::Short>::max());
+        test(s == numeric_limits<int16_t>::max());
         test(i == numeric_limits<int32_t>::max());
         test(l == numeric_limits<int64_t>::max());
         test(r == numeric_limits<int64_t>::max());
     }
 
     {
-        Ice::Float f;
-        Ice::Double d;
-        Ice::Double r;
+        float f;
+        double d;
+        double r;
 
-        r = p->opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10), f, d);
-        test(f == Ice::Float(3.14));
-        test(d == Ice::Double(1.1E10));
-        test(r == Ice::Double(1.1E10));
+        r = p->opFloatDouble(float(3.14), double(1.1E10), f, d);
+        test(f == float(3.14));
+        test(d == double(1.1E10));
+        test(r == double(1.1E10));
 
-        r = p->opFloatDouble(numeric_limits<Ice::Float>::min(), numeric_limits<Ice::Double>::min(), f, d);
-        test(f == numeric_limits<Ice::Float>::min());
-        test(d == numeric_limits<Ice::Double>::min());
-        test(r == numeric_limits<Ice::Double>::min());
+        r = p->opFloatDouble(numeric_limits<float>::min(), numeric_limits<double>::min(), f, d);
+        test(f == numeric_limits<float>::min());
+        test(d == numeric_limits<double>::min());
+        test(r == numeric_limits<double>::min());
 
-        r = p->opFloatDouble(numeric_limits<Ice::Float>::max(), numeric_limits<Ice::Double>::max(), f, d);
-        test(f == numeric_limits<Ice::Float>::max());
-        test(d == numeric_limits<Ice::Double>::max());
-        test(r == numeric_limits<Ice::Double>::max());
+        r = p->opFloatDouble(numeric_limits<float>::max(), numeric_limits<double>::max(), f, d);
+        test(f == numeric_limits<float>::max());
+        test(d == numeric_limits<double>::max());
+        test(r == numeric_limits<double>::max());
     }
 
     {
@@ -381,7 +380,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         test(rso.p == nullopt);
         test(rso.e == MyEnum::enum2);
         test(rso.s.s == "def");
-        test(Ice::targetEqualTo(so.p, p));
+        test(so.p == p);
         test(so.e == MyEnum::enum3);
         test(so.s.s == "a new string");
         so.p->opVoid();
@@ -496,12 +495,12 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::FloatS fsi;
         Test::DoubleS dsi;
 
-        fsi.push_back(Ice::Float(3.14));
-        fsi.push_back(Ice::Float(1.11));
+        fsi.push_back(float(3.14));
+        fsi.push_back(float(1.11));
 
-        dsi.push_back(Ice::Double(1.1E10));
-        dsi.push_back(Ice::Double(1.2E10));
-        dsi.push_back(Ice::Double(1.3E10));
+        dsi.push_back(double(1.1E10));
+        dsi.push_back(double(1.2E10));
+        dsi.push_back(double(1.3E10));
 
         Test::FloatS fso;
         Test::DoubleS dso;
@@ -509,18 +508,18 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
         rso = p->opFloatDoubleS(fsi, dsi, fso, dso);
         test(fso.size() == 2);
-        test(fso[0] == ::Ice::Float(3.14));
-        test(fso[1] == ::Ice::Float(1.11));
+        test(fso[0] == float(3.14));
+        test(fso[1] == float(1.11));
         test(dso.size() == 3);
-        test(dso[0] == ::Ice::Double(1.3E10));
-        test(dso[1] == ::Ice::Double(1.2E10));
-        test(dso[2] == ::Ice::Double(1.1E10));
+        test(dso[0] == double(1.3E10));
+        test(dso[1] == double(1.2E10));
+        test(dso[2] == double(1.1E10));
         test(rso.size() == 5);
-        test(rso[0] == ::Ice::Double(1.1E10));
-        test(rso[1] == ::Ice::Double(1.2E10));
-        test(rso[2] == ::Ice::Double(1.3E10));
-        test(::Ice::Float(rso[3]) == ::Ice::Float(3.14));
-        test(::Ice::Float(rso[4]) == ::Ice::Float(1.11));
+        test(rso[0] == double(1.1E10));
+        test(rso[1] == double(1.2E10));
+        test(rso[2] == double(1.3E10));
+        test(float(rso[3]) == float(3.14));
+        test(float(rso[4]) == float(1.11));
     }
 
     {
@@ -685,12 +684,12 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::DoubleSS dsi;
         dsi.resize(1);
 
-        fsi[0].push_back(Ice::Float(3.14));
-        fsi[1].push_back(Ice::Float(1.11));
+        fsi[0].push_back(float(3.14));
+        fsi[1].push_back(float(1.11));
 
-        dsi[0].push_back(Ice::Double(1.1E10));
-        dsi[0].push_back(Ice::Double(1.2E10));
-        dsi[0].push_back(Ice::Double(1.3E10));
+        dsi[0].push_back(double(1.1E10));
+        dsi[0].push_back(double(1.2E10));
+        dsi[0].push_back(double(1.3E10));
 
         Test::FloatSS fso;
         Test::DoubleSS dso;
@@ -699,24 +698,24 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         rso = p->opFloatDoubleSS(fsi, dsi, fso, dso);
         test(fso.size() == 3);
         test(fso[0].size() == 1);
-        test(fso[0][0] == ::Ice::Float(3.14));
+        test(fso[0][0] == float(3.14));
         test(fso[1].size() == 1);
-        test(fso[1][0] == ::Ice::Float(1.11));
+        test(fso[1][0] == float(1.11));
         test(fso[2].size() == 0);
         test(dso.size() == 1);
         test(dso[0].size() == 3);
-        test(dso[0][0] == ::Ice::Double(1.1E10));
-        test(dso[0][1] == ::Ice::Double(1.2E10));
-        test(dso[0][2] == ::Ice::Double(1.3E10));
+        test(dso[0][0] == double(1.1E10));
+        test(dso[0][1] == double(1.2E10));
+        test(dso[0][2] == double(1.3E10));
         test(rso.size() == 2);
         test(rso[0].size() == 3);
-        test(rso[0][0] == ::Ice::Double(1.1E10));
-        test(rso[0][1] == ::Ice::Double(1.2E10));
-        test(rso[0][2] == ::Ice::Double(1.3E10));
+        test(rso[0][0] == double(1.1E10));
+        test(rso[0][1] == double(1.2E10));
+        test(rso[0][2] == double(1.3E10));
         test(rso[1].size() == 3);
-        test(rso[1][0] == ::Ice::Double(1.1E10));
-        test(rso[1][1] == ::Ice::Double(1.2E10));
-        test(rso[1][2] == ::Ice::Double(1.3E10));
+        test(rso[1][0] == double(1.1E10));
+        test(rso[1][1] == double(1.2E10));
+        test(rso[1][2] == double(1.3E10));
     }
 
     {
@@ -851,22 +850,22 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     {
         Test::LongFloatD di1;
-        di1[999999110] = Ice::Float(-1.1);
-        di1[999999111] = Ice::Float(123123.2);
+        di1[999999110] = float(-1.1);
+        di1[999999111] = float(123123.2);
         Test::LongFloatD di2;
-        di2[999999110] = Ice::Float(-1.1);
-        di2[999999120] = Ice::Float(-100.4);
-        di2[999999130] = Ice::Float(0.5);
+        di2[999999110] = float(-1.1);
+        di2[999999120] = float(-100.4);
+        di2[999999130] = float(0.5);
 
         Test::LongFloatD _do;
         Test::LongFloatD ro = p->opLongFloatD(di1, di2, _do);
 
         test(_do == di1);
         test(ro.size() == 4);
-        test(ro[999999110] == Ice::Float(-1.1));
-        test(ro[999999120] == Ice::Float(-100.4));
-        test(ro[999999111] == Ice::Float(123123.2));
-        test(ro[999999130] == Ice::Float(0.5));
+        test(ro[999999110] == float(-1.1));
+        test(ro[999999120] == float(-100.4));
+        test(ro[999999111] == float(123123.2));
+        test(ro[999999130] == float(0.5));
     }
 
     {
@@ -1059,14 +1058,14 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         dsi2.resize(1);
 
         Test::LongFloatD di1;
-        di1[999999110] = Ice::Float(-1.1);
-        di1[999999111] = Ice::Float(123123.2);
+        di1[999999110] = float(-1.1);
+        di1[999999111] = float(123123.2);
         Test::LongFloatD di2;
-        di2[999999110] = Ice::Float(-1.1);
-        di2[999999120] = Ice::Float(-100.4);
-        di2[999999130] = Ice::Float(0.5);
+        di2[999999110] = float(-1.1);
+        di2[999999120] = float(-100.4);
+        di2[999999130] = float(0.5);
         Test::LongFloatD di3;
-        di3[999999140] = Ice::Float(3.14);
+        di3[999999140] = float(3.14);
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -1079,23 +1078,23 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
             test(ro.size() == 2);
             test(ro[0].size() == 3);
-            test(ro[0][999999110] == Ice::Float(-1.1));
-            test(ro[0][999999120] == Ice::Float(-100.4));
-            test(ro[0][999999130] == Ice::Float(0.5));
+            test(ro[0][999999110] == float(-1.1));
+            test(ro[0][999999120] == float(-100.4));
+            test(ro[0][999999130] == float(0.5));
             test(ro[1].size() == 2);
-            test(ro[1][999999110] == Ice::Float(-1.1));
-            test(ro[1][999999111] == Ice::Float(123123.2));
+            test(ro[1][999999110] == float(-1.1));
+            test(ro[1][999999111] == float(123123.2));
 
             test(_do.size() == 3);
             test(_do[0].size() == 1);
-            test(_do[0][999999140] == Ice::Float(3.14));
+            test(_do[0][999999140] == float(3.14));
             test(_do[1].size() == 2);
-            test(_do[1][999999110] == Ice::Float(-1.1));
-            test(_do[1][999999111] == Ice::Float(123123.2));
+            test(_do[1][999999110] == float(-1.1));
+            test(_do[1][999999111] == float(123123.2));
             test(_do[2].size() == 3);
-            test(_do[2][999999110] == Ice::Float(-1.1));
-            test(_do[2][999999120] == Ice::Float(-100.4));
-            test(_do[2][999999130] == Ice::Float(0.5));
+            test(_do[2][999999110] == float(-1.1));
+            test(_do[2][999999120] == float(-100.4));
+            test(_do[2][999999130] == float(0.5));
         }
         catch(const Ice::OperationNotExistException&)
         {
@@ -1515,13 +1514,13 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::FloatS si2;
         Test::FloatS si3;
 
-        si1.push_back(Ice::Float(-1.1));
-        si1.push_back(Ice::Float(123123.2));
-        si1.push_back(Ice::Float(100.0));
-        si2.push_back(Ice::Float(42.24));
-        si2.push_back(Ice::Float(-1.61));
-        si3.push_back(Ice::Float(-3.14));
-        si3.push_back(Ice::Float(3.14));
+        si1.push_back(float(-1.1));
+        si1.push_back(float(123123.2));
+        si1.push_back(float(100.0));
+        si2.push_back(float(42.24));
+        si2.push_back(float(-1.61));
+        si3.push_back(float(-3.14));
+        si3.push_back(float(3.14));
 
         sdi1["abc"] = si1;
         sdi1["ABC"] = si2;
@@ -1535,15 +1534,15 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do == sdi2);
             test(ro.size() == 3);
             test(ro["abc"].size() == 3);
-            test(ro["abc"][0] == Ice::Float(-1.1));
-            test(ro["abc"][1] == Ice::Float(123123.2));
-            test(ro["abc"][2] == Ice::Float(100.0));
+            test(ro["abc"][0] == float(-1.1));
+            test(ro["abc"][1] == float(123123.2));
+            test(ro["abc"][2] == float(100.0));
             test(ro["ABC"].size() == 2);
-            test(ro["ABC"][0] == Ice::Float(42.24));
-            test(ro["ABC"][1] == Ice::Float(-1.61));
+            test(ro["ABC"][0] == float(42.24));
+            test(ro["ABC"][1] == float(-1.61));
             test(ro["aBc"].size() == 2);
-            test(ro["aBc"][0] == Ice::Float(-3.14));
-            test(ro["aBc"][1] == Ice::Float(3.14));
+            test(ro["aBc"][0] == float(-3.14));
+            test(ro["aBc"][1] == float(3.14));
         }
         catch(const Ice::OperationNotExistException&)
         {
@@ -1558,13 +1557,13 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::DoubleS si2;
         Test::DoubleS si3;
 
-        si1.push_back(Ice::Double(1.1E10));
-        si1.push_back(Ice::Double(1.2E10));
-        si1.push_back(Ice::Double(1.3E10));
-        si2.push_back(Ice::Double(1.4E10));
-        si2.push_back(Ice::Double(1.5E10));
-        si3.push_back(Ice::Double(1.6E10));
-        si3.push_back(Ice::Double(1.7E10));
+        si1.push_back(double(1.1E10));
+        si1.push_back(double(1.2E10));
+        si1.push_back(double(1.3E10));
+        si2.push_back(double(1.4E10));
+        si2.push_back(double(1.5E10));
+        si3.push_back(double(1.6E10));
+        si3.push_back(double(1.7E10));
 
         sdi1["Hello!!"] = si1;
         sdi1["Goodbye"] = si2;
@@ -1578,15 +1577,15 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             test(_do == sdi2);
             test(ro.size() == 3);
             test(ro["Hello!!"].size() == 3);
-            test(ro["Hello!!"][0] == Ice::Double(1.1E10));
-            test(ro["Hello!!"][1] == Ice::Double(1.2E10));
-            test(ro["Hello!!"][2] == Ice::Double(1.3E10));
+            test(ro["Hello!!"][0] == double(1.1E10));
+            test(ro["Hello!!"][1] == double(1.2E10));
+            test(ro["Hello!!"][2] == double(1.3E10));
             test(ro["Goodbye"].size() == 2);
-            test(ro["Goodbye"][0] == Ice::Double(1.4E10));
-            test(ro["Goodbye"][1] == Ice::Double(1.5E10));
+            test(ro["Goodbye"][0] == double(1.4E10));
+            test(ro["Goodbye"][1] == double(1.5E10));
             test(ro[""].size() == 2);
-            test(ro[""][0] == Ice::Double(1.6E10));
-            test(ro[""][1] == Ice::Double(1.7E10));
+            test(ro[""][0] == double(1.6E10));
+            test(ro[""][1] == double(1.7E10));
         }
         catch(const Ice::OperationNotExistException&)
         {
@@ -1782,9 +1781,9 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
                 if(impls[i] == "PerThread")
                 {
-                    IceUtil::ThreadPtr thread = make_shared<PerThreadContextInvokeThread>(q->ice_context(Ice::Context()));
-                    thread->start();
-                    thread->getThreadControl().join();
+                    auto invoker = make_shared<PerThreadContextInvokeThread>(q->ice_context(Ice::Context()));
+                    auto invokerThread = std::thread([invoker] { invoker->run(); });
+                    invokerThread.join();
                 }
 
                 ic->getImplicitContext()->setContext(Ice::Context()); // Clear the context to avoid leak report.
@@ -1794,7 +1793,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     }
 
     {
-        Ice::Double d = 1278312346.0 / 13.0;
+        double d = 1278312346.0 / 13.0;
         Test::DoubleS ds(5, d);
         p->opDoubleMarshaling(d, ds);
     }

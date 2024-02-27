@@ -6,7 +6,7 @@
 #include <TestI.h>
 
 Test::DoubleSeq
-TestIntfI::opDoubleArray(std::pair<const Ice::Double*, const Ice::Double*> inSeq,
+TestIntfI::opDoubleArray(std::pair<const double*, const double*> inSeq,
                          Test::DoubleSeq& outSeq,
                          const Ice::Current&)
 {
@@ -38,13 +38,6 @@ TestIntfI::opVariableArray(std::pair<const Test::Variable*, const Test::Variable
                            const Ice::Current&)
 {
     Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
-    return outSeq;
-}
-
-Test::BoolSeq
-TestIntfI::opBoolRange(Test::BoolSeq inSeq, Test::BoolSeq& outSeq, const Ice::Current&)
-{
-    outSeq.swap(inSeq);
     return outSeq;
 }
 
@@ -145,15 +138,6 @@ TestIntfI::opMyByteSeq(MyByteSeq inSeq,
 {
     outSeq = inSeq;
     return inSeq;
-}
-
-std::string
-TestIntfI::opString(Util::string_view inString,
-                    std::string& outString,
-                    const Ice::Current&)
-{
-    outString = inString.to_string();
-    return outString;
 }
 
 std::deque< ::std::string>
@@ -282,18 +266,6 @@ TestIntfI::opCList(std::list< ::Test::CPtr> inSeq,
     return inSeq;
 }
 
-Test::ClassStruct
-TestIntfI::opClassStruct(Test::ClassStruct inS,
-                         Test::ClassStructSeq inSeq,
-                         Test::ClassStruct& out,
-                         Test::ClassStructSeq& outSeq,
-                         const Ice::Current&)
-{
-    outSeq = std::move(inSeq);
-    out = inS;
-    return inS;
-}
-
 void
 TestIntfI::opOutArrayByteSeq(Test::ByteSeq data, Test::ByteSeq& copy, const Ice::Current&)
 {
@@ -325,23 +297,6 @@ TestIntfI::opVarDict(Test::CustomMap<std::string, int32_t> data,
         result[i] = i*i;
     }
     return result;
-}
-
-Test::CustomMap<int32_t, std::string>
-TestIntfI::opCustomIntStringDict(
-    std::map<int32_t, Util::string_view> data,
-    Test::CustomMap<int32_t, std::string>& copy,
-    const Ice::Current&)
-{
-    copy.clear();
-
-    for(std::map<int32_t, Util::string_view>::const_iterator p = data.begin();
-        p != data.end(); ++p)
-    {
-        copy[p->first] = p->second.to_string();
-    }
-
-    return copy;
 }
 
 Test::ShortBuffer

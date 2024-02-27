@@ -22,7 +22,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
     test(initial);
-    test(Ice::targetEqualTo(initial, base));
+    test(initial == base);
     cout << "ok" << endl;
 
     cout << "getting proxies for interface hierarchy... " << flush;
@@ -30,11 +30,11 @@ allTests(Test::TestHelper* helper)
     MB::IB1PrxPtr ib1 = initial->ib1op();
     MB::IB2PrxPtr ib2 = initial->ib2op();
     MA::ICPrxPtr ic = initial->icop();
-    test(!Ice::targetEqualTo(ia, ib1));
-    test(!Ice::targetEqualTo(ia, ib2));
-    test(!Ice::targetEqualTo(ia, ic));
-    test(!Ice::targetEqualTo(ib1, ic));
-    test(!Ice::targetEqualTo(ib2, ic));
+    test(ia != ib1);
+    test(ia != ib2);
+    test(ia != ic);
+    test(ib1 != ic);
+    test(ib2 != ic);
     cout << "ok" << endl;
 
     cout << "invoking proxy operations on interface hierarchy... " << flush;
@@ -44,111 +44,111 @@ allTests(Test::TestHelper* helper)
     MA::ICPrxPtr ico;
 
     iao = ia->iaop(ia);
-    test(Ice::targetEqualTo(iao, ia));
+    test(iao == ia);
 
     iao = ia->iaop(ib1);
-    test(Ice::targetEqualTo(iao, ib1));
+    test(iao == ib1);
 
     iao = ia->iaop(ib2);
-    test(Ice::targetEqualTo(iao, ib2));
+    test(iao == ib2);
 
     iao = ia->iaop(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
 
     iao = ib1->iaop(ia);
-    test(Ice::targetEqualTo(iao, ia));
+    test(iao == ia);
 
     iao = ib1->iaop(ib1);
-    test(Ice::targetEqualTo(iao, ib1));
+    test(iao == ib1);
 
     iao = ib1->iaop(ib2);
-    test(Ice::targetEqualTo(iao, ib2));
+    test(iao == ib2);
 
     iao = ib1->iaop(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
 
     iao = ib2->iaop(ia);
-    test(Ice::targetEqualTo(iao, ia));
+    test(iao == ia);
 
     iao = ib2->iaop(ib1);
-    test(Ice::targetEqualTo(iao, ib1));
+    test(iao == ib1);
 
     iao = ib2->iaop(ib2);
-    test(Ice::targetEqualTo(iao, ib2));
+    test(iao == ib2);
 
     iao = ib2->iaop(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
 
     iao = ic->iaop(ia);
-    test(Ice::targetEqualTo(iao, ia));
+    test(iao == ia);
 
     iao = ic->iaop(ib1);
-    test(Ice::targetEqualTo(iao, ib1));
+    test(iao == ib1);
 
     iao = ic->iaop(ib2);
-    test(Ice::targetEqualTo(iao, ib2));
+    test(iao == ib2);
 
     iao = ic->iaop(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
 
     iao = ib1->ib1op(ib1);
-    test(Ice::targetEqualTo(iao, ib1));
+    test(iao == ib1);
 
     ib1o = ib1->ib1op(ib1);
-    test(Ice::targetEqualTo(ib1o, ib1));
+    test(ib1o == ib1);
 
     iao = ib1->ib1op(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
 
     ib1o = ib1->ib1op(ic);
-    test(Ice::targetEqualTo(ib1o, ic));
+    test(ib1o == ic);
 
     iao = ic->ib1op(ib1);
-    test(Ice::targetEqualTo(iao, ib1));
+    test(iao == ib1);
 
     ib1o = ic->ib1op(ib1);
-    test(Ice::targetEqualTo(ib1o, ib1));
+    test(ib1o == ib1);
 
     iao = ic->ib1op(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
     ib1o = ic->ib1op(ic);
-    test(Ice::targetEqualTo(ib1o, ic));
+    test(ib1o == ic);
 
     iao = ib2->ib2op(ib2);
-    test(Ice::targetEqualTo(iao, ib2));
+    test(iao == ib2);
 
     ib2o = ib2->ib2op(ib2);
-    test(Ice::targetEqualTo(ib2o, ib2));
+    test(ib2o == ib2);
 
     iao = ib2->ib2op(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
 
     ib2o = ib2->ib2op(ic);
-    test(Ice::targetEqualTo(ib2o, ic));
+    test(ib2o == ic);
 
     iao = ic->ib2op(ib2);
-    test(Ice::targetEqualTo(iao, ib2));
+    test(iao == ib2);
 
     ib2o = ic->ib2op(ib2);
-    test(Ice::targetEqualTo(ib2o, ib2));
+    test(ib2o == ib2);
 
     iao = ic->ib2op(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
 
     ib2o = ic->ib2op(ic);
-    test(Ice::targetEqualTo(ib2o, ic));
+    test(ib2o == ic);
 
     iao = ic->icop(ic);
-    test(Ice::targetEqualTo(iao, ic));
+    test(iao == ic);
 
     ib1o = ic->icop(ic);
-    test(Ice::targetEqualTo(ib1o, ic));
+    test(ib1o == ic);
 
     ib2o = ic->icop(ic);
-    test(Ice::targetEqualTo(ib2o, ic));
+    test(ib2o == ic);
 
     ico = ic->icop(ic);
-    test(Ice::targetEqualTo(ico, ic));
+    test(ico == ic);
 
     cout << "ok" << endl;
 

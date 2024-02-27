@@ -630,7 +630,7 @@ IceUtilInternal::Options::parse(const StringVector& args)
         else if(!args[i].empty() && args[i][0] == '-')
         {
             //
-            // Short option.
+            // int16_t option.
             //
             for(string::size_type p = 1; p < args[i].size(); ++p)
             {

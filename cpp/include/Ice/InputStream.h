@@ -9,7 +9,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/Object.h>
 #include <Ice/ValueF.h>
-#include <Ice/ProxyF.h>
+#include "ProxyF.h"
 #include <Ice/LoggerF.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/Buffer.h>
@@ -33,7 +33,7 @@ patchValue(void* addr, const std::shared_ptr<Value>& v)
     *ptr = ::std::dynamic_pointer_cast<T>(v);
     if(v && !(*ptr))
     {
-        IceInternal::Ex::throwUOE(T::ice_staticId(), v);
+        IceInternal::Ex::throwUOE(std::string{T::ice_staticId()}, v);
     }
 }
 /// \endcond
@@ -526,7 +526,7 @@ public:
     std::string startSlice()
     {
         assert(_currentEncaps && _currentEncaps->decoder);
-        return _currentEncaps->decoder->startSlice();
+        return std::string{_currentEncaps->decoder->startSlice()};
     }
 
     /**
@@ -629,11 +629,12 @@ public:
     }
 
     /**
-     * Reads an optional data value from the stream.
+     * Reads an optional data value from the stream. For all types except proxies.
      * @param tag The tag ID.
      * @param v Holds the extracted data (if any).
      */
-    template<typename T> void read(std::int32_t tag, std::optional<T>& v)
+    template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void read(std::int32_t tag, std::optional<T>& v)
     {
         if(readOptional(tag, StreamOptionalHelper<T,
                                              StreamableTraits<T>::helper,
@@ -643,6 +644,26 @@ public:
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,
                                  StreamableTraits<T>::fixedLength>::read(this, *v);
+        }
+        else
+        {
+            v = std::nullopt;
+        }
+    }
+
+    /**
+     * Reads an optional proxy from the stream.
+     * @param tag The tag ID.
+     * @param v The proxy unmarshaled by this function. If nullopt, the proxy was not present in the stream or
+     * was set to nullopt (set to nullopt is supported for backward compatibility with Ice 3.7 and earlier releases).
+     */
+    template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void read(std::int32_t tag, std::optional<T>& v)
+    {
+        if (readOptional(tag, OptionalFormat::FSize))
+        {
+            skip(4); // the fixed-length size on 4 bytes
+            read(v); // can be nullopt
         }
         else
         {
@@ -692,7 +713,7 @@ public:
      * Reads a list of optional data values.
      */
     template<typename T>
-    void readAll(std::initializer_list<int> tags, std::optional<T>& v)
+    void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v)
     {
         read(*(tags.begin() + tags.size() - 1), v);
     }
@@ -701,7 +722,7 @@ public:
      * Reads a list of optional data values.
      */
     template<typename T, typename... Te>
-    void readAll(std::initializer_list<int> tags, std::optional<T>& v, std::optional<Te>&... ve)
+    void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v, std::optional<Te>&... ve)
     {
         size_t index = tags.size() - sizeof...(ve) - 1;
         read(*(tags.begin() + index), v);
@@ -781,19 +802,20 @@ public:
     void read(std::pair<const bool*, const bool*>& v);
 
     /**
-     * Reads a short from the stream.
-     * @param v The extracted short.
+     * Unmarshals a Slice short into an int16_t.
+     * @param v The extracted int16_t.
      */
-    void read(Short& v);
+    void read(std::int16_t& v);
 
     /**
-     * Reads a sequence of shorts from the stream.
-     * @param v A vector to hold a copy of the short values.
+     * Unmarshals a sequence of Slice shorts into a vector of int16_t.
+     * @param v A vector to hold a copy of the int16_t values.
      */
-    void read(std::vector<Short>& v);
+    void read(std::vector<std::int16_t>& v);
 
     /**
-     * Reads a sequence of boolean values from the stream.
+     * Unmarshals a sequence of Slice shorts into a pair of int16_t pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const short*, const short*>& v);
@@ -856,37 +878,39 @@ public:
     void read(std::pair<const std::int64_t*, const std::int64_t*>& v);
 
     /**
-     * Reads a float from the stream.
+     * Unmarshals a Slice float into a float.
      * @param v The extracted float.
      */
-    void read(Float& v);
+    void read(float& v);
 
     /**
-     * Reads a sequence of floats from the stream.
-     * @param v A vector to hold a copy of the float values.
+     * Unmarshals a sequence of Slice floats into a vector of float.
+     * @param v An output vector filled by this function.
      */
-    void read(std::vector<Float>& v);
+    void read(std::vector<float>& v);
 
     /**
-     * Reads a sequence of floats from the stream.
+     * Unmarshals a sequence of Slice floats into a pair of float pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const float*, const float*>& v);
 
     /**
-     * Reads a double from the stream.
+     * Unmarshals a Slice double into a double.
      * @param v The extracted double.
      */
-    void read(Double& v);
+    void read(double& v);
 
     /**
-     * Reads a sequence of doubles from the stream.
-     * @param v A vector to hold a copy of the double values.
+     * Unmarshals a sequence of Slice doubles into a vector of double.
+     * @param v An output vector filled by this function.
      */
-    void read(std::vector<Double>& v);
+    void read(std::vector<double>& v);
 
     /**
-     * Reads a sequence of doubles from the stream.
+     * Unmarshals a sequence of Slice doubles into a pair of double pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const double*, const double*>& v);
@@ -1074,7 +1098,7 @@ private:
     class Encaps;
     enum SliceType { NoSlice, ValueSlice, ExceptionSlice };
 
-    void traceSkipSlice(const std::string&, SliceType) const;
+    void traceSkipSlice(std::string_view, SliceType) const;
 
     ValueFactoryManagerPtr valueFactoryManager() const;
 
@@ -1095,7 +1119,7 @@ private:
 
         virtual void startInstance(SliceType) = 0;
         virtual SlicedDataPtr endInstance(bool) = 0;
-        virtual const std::string& startSlice() = 0;
+        virtual std::string_view startSlice() = 0;
         virtual void endSlice() = 0;
         virtual void skipSlice() = 0;
 
@@ -1118,7 +1142,7 @@ private:
         }
 
         std::string readTypeId(bool);
-        std::shared_ptr<Value> newInstance(const std::string&);
+        std::shared_ptr<Value> newInstance(std::string_view);
 
         void addPatchEntry(std::int32_t, PatchFunc, void*);
         void unmarshal(std::int32_t, const std::shared_ptr<Value>&);
@@ -1170,7 +1194,7 @@ private:
 
         virtual void startInstance(SliceType);
         virtual SlicedDataPtr endInstance(bool);
-        virtual const std::string& startSlice();
+        virtual std::string_view startSlice();
         virtual void endSlice();
         virtual void skipSlice();
 
@@ -1205,7 +1229,7 @@ private:
 
         virtual void startInstance(SliceType);
         virtual SlicedDataPtr endInstance(bool);
-        virtual const std::string& startSlice();
+        virtual std::string_view startSlice();
         virtual void endSlice();
         virtual void skipSlice();
 

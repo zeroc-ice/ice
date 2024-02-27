@@ -244,38 +244,7 @@ private:
                             bool = false);
     };
 
-    class NormalizeMetaDataVisitor final : public ParserVisitor
-    {
-    public:
-
-        NormalizeMetaDataVisitor(bool);
-
-        bool visitUnitStart(const UnitPtr&) final;
-        bool visitModuleStart(const ModulePtr&) final;
-        void visitModuleEnd(const ModulePtr&) final;
-        void visitClassDecl(const ClassDeclPtr&) final;
-        bool visitClassDefStart(const ClassDefPtr&) final;
-        void visitClassDefEnd(const ClassDefPtr&) final;
-        bool visitExceptionStart(const ExceptionPtr&) final;
-        void visitExceptionEnd(const ExceptionPtr&) final;
-        bool visitStructStart(const StructPtr&) final;
-        void visitStructEnd(const StructPtr&) final;
-        void visitOperation(const OperationPtr&) final;
-        void visitDataMember(const DataMemberPtr&) final;
-        void visitSequence(const SequencePtr&) final;
-        void visitDictionary(const DictionaryPtr&) final;
-        void visitEnum(const EnumPtr&) final;
-        void visitConst(const ConstPtr&) final;
-
-    private:
-
-        StringList normalize(const StringList&);
-
-        bool _cpp11;
-    };
-
     static void validateMetaData(const UnitPtr&);
-    static void normalizeMetaData(const UnitPtr&, bool);
 };
 
 }

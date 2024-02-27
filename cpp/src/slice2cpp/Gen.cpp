@@ -143,8 +143,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(enumerator);
 
-                bool unscoped = (cpp11 && findMetaData(ep->getMetaData(), TypeContextCpp11) == "%unscoped") ||
-                    (!cpp11 && findMetaData(ep->getMetaData()) != "%scoped");
+                bool unscoped = (cpp11 && findMetaData(ep->getMetaData(), TypeContextCpp11) == "%unscoped");
 
                 if(unscoped)
                 {
@@ -823,8 +822,6 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     {
-        normalizeMetaData(p, true);
-
         ForwardDeclVisitor forwardDeclVisitor(H);
         p->visit(&forwardDeclVisitor, false);
 
@@ -895,7 +892,6 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
 
     //
     // Validate file metadata in the top-level file and all included files.
-    // Note that these metadata can only be cpp:, never cpp98: or cpp11:
     //
     StringList files = p->allFiles();
 
@@ -1070,8 +1066,7 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
         for(StringList::const_iterator q = metaData.begin(); q != metaData.end();)
         {
             string s = *q++;
-            if(s.find("cpp:type:") == 0 || s.find("cpp:view-type:") == 0 ||
-               s.find("cpp:range") == 0 || s == "cpp:array")
+            if(s.find("cpp:type:") == 0 || s.find("cpp:view-type:") == 0 || s == "cpp:array")
             {
                 dc->warning(InvalidMetaData, p->file(), p->line(),
                             "ignoring invalid metadata `" + s + "' for operation with void return type");
@@ -1134,8 +1129,6 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                                       const string& file, const string& line, bool operation)
 {
     static const string cppPrefix = "cpp:";
-    static const string cpp11Prefix = "cpp11:";
-    static const string cpp98Prefix  = "cpp98:";
 
     const UnitPtr ut = cont->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
@@ -1145,23 +1138,18 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
     {
         string s = *p++;
 
-        string prefix;
-        bool cpp98 = false;
-        bool cpp11 = false;
+        // Issue friendly warning for cpp11 and cpp98 metadata what were removed as Slice does not issue warnings
+        // for unknown "top-level" metadata.
+        if (s.find("cpp11:") == 0 || s.find("cpp98:") == 0)
+        {
+            dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
+            newMetaData.remove(s);
+            continue;
+        }
 
-        if(s.find(cppPrefix) == 0)
+        if(s.find(cppPrefix) != 0)
         {
-            prefix = cppPrefix;
-        }
-        else if(s.find(cpp98Prefix) == 0)
-        {
-            prefix = cpp98Prefix;
-            cpp98 = true;
-        }
-        else if(s.find(cpp11Prefix) == 0)
-        {
-            prefix = cpp11Prefix;
-            cpp11 = true;
+            continue;
         }
 
         if(operation && (s == "cpp:const" || s == "cpp:noexcept"))
@@ -1169,320 +1157,59 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             continue;
         }
 
-        if(!prefix.empty())
+        string ss = s.substr(cppPrefix.size());
+        if(ss == "type:wstring" || ss == "type:string")
         {
-            string ss = s.substr(prefix.size());
-            if(ss == "type:wstring" || ss == "type:string")
-            {
-                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(cont);
-                ModulePtr module = dynamic_pointer_cast<Module>(cont);
-                ClassDefPtr clss = dynamic_pointer_cast<ClassDef>(cont);
-                InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(cont);
-                StructPtr strct = dynamic_pointer_cast<Struct>(cont);
-                ExceptionPtr exception = dynamic_pointer_cast<Exception>(cont);
-                if((builtin && builtin->kind() == Builtin::KindString) || module || clss || strct || interface || exception)
-                {
-                    continue;
-                }
-            }
-            if(dynamic_pointer_cast<Builtin>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
-            {
-                if(dynamic_pointer_cast<Builtin>(cont)->kind() == Builtin::KindString)
-                {
-                    continue;
-                }
-            }
-            if(dynamic_pointer_cast<Sequence>(cont))
-            {
-                if(ss.find("type:") == 0 || ss.find("view-type:") == 0 || ss == "array" || ss.find("range") == 0)
-                {
-                    continue;
-                }
-            }
-            if(dynamic_pointer_cast<Dictionary>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(cont);
+            ModulePtr module = dynamic_pointer_cast<Module>(cont);
+            ClassDefPtr clss = dynamic_pointer_cast<ClassDef>(cont);
+            InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(cont);
+            StructPtr strct = dynamic_pointer_cast<Struct>(cont);
+            ExceptionPtr exception = dynamic_pointer_cast<Exception>(cont);
+            if((builtin && builtin->kind() == Builtin::KindString) || module || clss || strct || interface || exception)
             {
                 continue;
             }
-            if(!cpp11 && dynamic_pointer_cast<Struct>(cont) && (ss == "class" || ss == "comparable"))
+        }
+        if(dynamic_pointer_cast<Builtin>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
+        {
+            if(dynamic_pointer_cast<Builtin>(cont)->kind() == Builtin::KindString)
             {
                 continue;
             }
-
-            if(dynamic_pointer_cast<Exception>(cont) && ss == "ice_print")
+        }
+        if(dynamic_pointer_cast<Sequence>(cont))
+        {
+            if(ss.find("type:") == 0 || ss.find("view-type:") == 0 || ss == "array")
             {
                 continue;
             }
-            if(!cpp11 && dynamic_pointer_cast<Enum>(cont) && ss == "scoped")
-            {
-                continue;
-            }
-            if(!cpp98 && dynamic_pointer_cast<Enum>(cont) && ss == "unscoped")
-            {
-                continue;
-            }
-
-            {
-                ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(cont);
-                if(cl && ss.find("type:") == 0)
-                {
-                    continue;
-                }
-            }
-
-            dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
-            newMetaData.remove(s);
+        }
+        if(dynamic_pointer_cast<Dictionary>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
+        {
+            continue;
+        }
+        if(dynamic_pointer_cast<Exception>(cont) && ss == "ice_print")
+        {
+            continue;
+        }
+        if(dynamic_pointer_cast<Enum>(cont) && ss == "unscoped")
+        {
             continue;
         }
 
-        if(s.find("delegate") == 0)
         {
-            dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
-            newMetaData.remove(s);
-            continue;
+            ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(cont);
+            if(cl && ss.find("type:") == 0)
+            {
+                continue;
+            }
         }
+
+        dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + "'");
+        newMetaData.remove(s);
     }
     return newMetaData;
-}
-
-void
-Slice::Gen::normalizeMetaData(const UnitPtr& u, bool cpp11)
-{
-    NormalizeMetaDataVisitor visitor(cpp11);
-    u->visit(&visitor, false);
-}
-
-Slice::Gen::NormalizeMetaDataVisitor::NormalizeMetaDataVisitor(bool cpp11) :
-    _cpp11(cpp11)
-{
-}
-
-bool
-Slice::Gen::NormalizeMetaDataVisitor::visitUnitStart(const UnitPtr&)
-{
-    return true;
-}
-
-bool
-Slice::Gen::NormalizeMetaDataVisitor::visitModuleStart(const ModulePtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-    return true;
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitModuleEnd(const ModulePtr&)
-{
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-}
-
-bool
-Slice::Gen::NormalizeMetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-    return true;
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-}
-
-bool
-Slice::Gen::NormalizeMetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-    return true;
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
-{
-}
-
-bool
-Slice::Gen::NormalizeMetaDataVisitor::visitStructStart(const StructPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-    return true;
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitStructEnd(const StructPtr&)
-{
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitOperation(const OperationPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-
-    ParamDeclList params = p->parameters();
-    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
-    {
-        (*q)->setMetaData(normalize((*q)->getMetaData()));
-    }
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitDataMember(const DataMemberPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitSequence(const SequencePtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitEnum(const EnumPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-}
-
-void
-Slice::Gen::NormalizeMetaDataVisitor::visitConst(const ConstPtr& p)
-{
-    p->setMetaData(normalize(p->getMetaData()));
-}
-
-StringList
-Slice::Gen::NormalizeMetaDataVisitor::normalize(const StringList& metaData)
-{
-    //
-    // if _cpp11: transform "cpp:" into "cpp-all:" and "cpp"
-    //            + transform "cpp11:" into "cpp:" in front
-    //
-    // if !_cpp11: remove "cpp:", transform "cpp-all:" into "cpp"
-    //             + transform "cpp98:" into "cpp:" in front
-
-    //
-    // Note: file metadata like header-ext exists only in cpp:
-    // form and are not processed at all
-    //
-
-    StringList result;
-
-    static const string cppPrefixTable[] =
-    {
-        "array",
-        "class",
-        "comparable",
-        "const",
-        "ice_print",
-        "range",
-        "scoped",
-        "type:",
-        "unscoped",
-        "view-type:",
-        ""
-    };
-
-    static const string cppPrefix = "cpp:";
-    static const string cppAllPrefix = "cpp-all:";
-
-    //
-    // First look for the higher priority cpp98/cpp11, that go to the
-    // front of result
-    //
-
-    static const string cpp11Prefix = "cpp11:";
-    static const string cpp98Prefix = "cpp98:";
-
-    const string altCppPrefix = _cpp11 ? cpp11Prefix : cpp98Prefix;
-
-    for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
-    {
-        string s = *p;
-
-        unsigned int i = 0;
-        bool found = false;
-        while(!found)
-        {
-            string m = cppPrefixTable[i++];
-            if(m.empty())
-            {
-                break;
-            }
-            if(s.find(altCppPrefix + m) == 0)
-            {
-                found = true;
-            }
-        }
-
-        if(found)
-        {
-            s.replace(0, altCppPrefix.length(), cppPrefix);
-            result.push_back(s);
-        }
-    }
-
-    //
-    // Then look for the lower-priority "cpp:" / "cpp-all:", pushed back later
-    //
-
-    const string prefix = _cpp11 ? cppPrefix : cppAllPrefix;
-
-    for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
-    {
-        string s = *p;
-
-        unsigned int i = 0;
-        bool foundPrefix = false;
-        bool foundOld = false;
-        while(!foundPrefix && !foundOld)
-        {
-            string m = cppPrefixTable[i++];
-            if(m.empty())
-            {
-                break; // while
-            }
-            if(s.find(prefix + m) == 0)
-            {
-                foundPrefix = true;
-            }
-            else if(!_cpp11 && s.find(cppPrefix + m) == 0)
-            {
-                //
-                // We want to filter-out "cpp:" when !_cpp11
-                //
-                foundOld = true;
-            }
-        }
-
-        if(foundPrefix)
-        {
-            if(_cpp11)
-            {
-                result.push_back(s);
-                s.replace(0, prefix.length(), cppAllPrefix);
-                result.push_back(s);
-            }
-            else
-            {
-                s.replace(0, prefix.length(), cppPrefix);
-                result.push_back(s);
-            }
-        }
-        else if(_cpp11 || !foundOld)
-        {
-            result.push_back(s);
-        }
-    }
-
-    return result;
 }
 
 int
@@ -1819,7 +1546,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this interface.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "static const ::std::string& ice_staticId();";
+    H << nl << "static ::std::string_view ice_staticId();";
 
     if (!bases.empty())
     {
@@ -1894,9 +1621,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << eb << ';';
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
 
@@ -1939,11 +1666,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         // Use empty scope to get full qualified names in types used with future declarations.
         //
-        futureOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring |
-                                               TypeContextCpp11));
+        futureOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring | TypeContextCpp11 ));
 
-        lambdaOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring |
-                                               TypeContextInParam | TypeContextCpp11));
+        // TODO: we need TypeContextInParam to get the view-type behavior.
+        lambdaOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring | TypeContextInParam | TypeContextCpp11));
 
         outParamsHasOpt |= p->returnIsOptional();
     }
@@ -2185,6 +1911,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "read = [response](::Ice::InputStream* istr)";
         C << sb;
         C << nl << "istr->startEncapsulation();";
+        // TODO: we need TypeContextInParam to get the view-type behavior.
         writeAllocateCode(C, outParams, p, true, interfaceScope, _useWstring | TypeContextInParam | TypeContextCpp11);
         writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextInParam | TypeContextCpp11);
 
@@ -2238,20 +1965,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         if(futureOutParams.size() > 1)
         {
-            C << nl << "auto _responseCb = [response](" << futureT << "&& _result)";
+            C << nl << "auto _responseCb = [_response = ::std::move(" << responseParam << ")]("
+                << futureT << "&& _result)";
             C << sb;
-            C << nl << responseParam << spar;
-
-            if(ret)
-            {
-                C << condMove(isMovable(ret), "::std::get<0>(_result)");
-            }
-            int index = ret ? 1 : 0;
-            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
-            {
-                C << condMove(isMovable((*q)->type()), "::std::get<" + std::to_string(index++) + ">(_result)");
-            }
-            C << epar << ";" << eb << ";";
+            C << nl << "::std::apply(::std::move(_response), ::std::move(_result));";
+            C << eb << ";";
         }
 
         C << nl << "return ::IceInternal::makeLambdaOutgoing<" << futureT << ">" << spar;
@@ -2311,7 +2029,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         // Generate a read method if there are more than one ret/out parameter. If there's
         // only one, we rely on the default read method from LambdaOutgoing
-        // except if the unique ret/out is optional or is an array/range.
+        // except if the unique ret/out is optional or is an array.
         //
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", interfaceScope) << " istr)";
         C << sb;
@@ -2598,11 +2316,11 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << " * Obtains the Slice type ID of this exception.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId();";
 
-    C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << sp << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
 
@@ -2786,7 +2504,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * Obtains the Slice type ID of this value.";
     H << nl << " * @return The fully-scoped type ID.";
     H << nl << " */";
-    H << nl << _dllMemberExport << "static const ::std::string& ice_staticId();";
+    H << nl << _dllMemberExport << "static ::std::string_view ice_staticId();";
     return true;
 }
 
@@ -2846,9 +2564,9 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
 
@@ -3206,7 +2924,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << " * Obtains the Slice type ID corresponding to this interface.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "static const ::std::string& ice_staticId();";
+    H << nl << "static ::std::string_view ice_staticId();";
 
     C << sp;
     C << nl << "::std::vector<::std::string>" << nl << scoped.substr(2) << "::ice_ids(const "
@@ -3230,13 +2948,13 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     C << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id(const " << getUnqualified("::Ice::Current&", scope)
       << ") const";
     C << sb;
-    C << nl << "return ice_staticId();";
+    C << nl << "return ::std::string{ice_staticId()};";
     C << eb;
 
     C << sp;
-    C << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_staticId()";
+    C << nl << "::std::string_view" << nl << scoped.substr(2) << "::ice_staticId()";
     C << sb;
-    C << nl << "static const ::std::string typeId = \"" << p->scoped() << "\";";
+    C << nl << "static constexpr ::std::string_view typeId = \"" << p->scoped() << "\";";
     C << nl << "return typeId;";
     C << eb;
     return true;
@@ -3397,6 +3115,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 
         if(!isOutParam)
         {
+            // TODO: We need the TypeContextInParam for the view types.
             params.push_back(typeToString(type, (*q)->optional(), interfaceScope, (*q)->getMetaData(),
                                           typeCtx | TypeContextInParam) + " " + paramName);
             args.push_back(condMove(isMovable(type) && !isOutParam, paramPrefix + (*q)->name()));
@@ -3674,7 +3393,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, p, p->dataMembers(), false, false, true);
+    writeStreamHelpers(H, p, p->dataMembers(), false, true);
 
     return false;
 }
@@ -3682,7 +3401,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
-    writeStreamHelpers(H, c, c->dataMembers(), c->hasBaseDataMembers(), true, true);
+    writeStreamHelpers(H, c, c->dataMembers(), c->hasBaseDataMembers(), true);
     return false;
 }
 
@@ -3695,7 +3414,7 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr&)
 void
 Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    writeStreamHelpers(H, p, p->dataMembers(), p->hasBaseDataMembers(), true, true);
+    writeStreamHelpers(H, p, p->dataMembers(), p->hasBaseDataMembers(), true);
 }
 
 void

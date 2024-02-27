@@ -23,10 +23,7 @@ public:
 
     using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
 
-    virtual std::string ice_id() const override
-    {
-        return T::ice_staticId();
-    }
+    std::string ice_id() const override { return std::string{T::ice_staticId()}; }
 };
 
 /**
@@ -39,10 +36,7 @@ public:
 
     using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
 
-    virtual std::string ice_id() const override
-    {
-        return T::ice_staticId();
-    }
+    std::string ice_id() const override { return std::string{T::ice_staticId()}; }
 
 protected:
 

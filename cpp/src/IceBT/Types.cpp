@@ -21,9 +21,9 @@ IceBT::BluetoothException::~BluetoothException()
 {
 }
 
-const ::std::string&
+std::string_view
 IceBT::BluetoothException::ice_staticId()
 {
-    static const ::std::string typeId = "::IceBT::BluetoothException";
+    static constexpr std::string_view typeId = "::IceBT::BluetoothException";
     return typeId;
 }

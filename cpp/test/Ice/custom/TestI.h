@@ -11,7 +11,7 @@ class TestIntfI : public virtual Test::TestIntf
 {
 public:
 
-    virtual Test::DoubleSeq opDoubleArray(std::pair<const Ice::Double*, const Ice::Double*>,
+    virtual Test::DoubleSeq opDoubleArray(std::pair<const double*, const double*>,
                                           Test::DoubleSeq&,
                                           const Ice::Current&);
 
@@ -26,8 +26,6 @@ public:
     virtual Test::VariableList opVariableArray(std::pair<const Test::Variable*, const Test::Variable*>,
                                                Test::VariableList&,
                                                const Ice::Current&);
-
-    virtual Test::BoolSeq opBoolRange(Test::BoolSeq, Test::BoolSeq&, const Ice::Current&);
 
     virtual Test::ByteList opByteRange(Test::ByteList, Test::ByteList&, const Ice::Current&);
 
@@ -69,10 +67,6 @@ public:
     virtual MyByteSeq opMyByteSeq(MyByteSeq,
                                   MyByteSeq&,
                                   const Ice::Current&);
-
-    virtual std::string opString(Util::string_view,
-                                 std::string&,
-                                 const Ice::Current&);
 
     virtual std::deque< ::std::string> opStringSeq(std::deque< ::std::string>,
                                                    std::deque< ::std::string>&,
@@ -130,12 +124,6 @@ public:
                                                 std::list< ::Test::CPtr>&,
                                                 const Ice::Current&);
 
-    virtual Test::ClassStruct opClassStruct(Test::ClassStruct,
-                                            Test::ClassStructSeq,
-                                            Test::ClassStruct& out,
-                                            Test::ClassStructSeq& outSeq,
-                                            const Ice::Current&);
-
     virtual void opOutArrayByteSeq(Test::ByteSeq, Test::ByteSeq&, const Ice::Current&);
 
     virtual void opOutRangeByteSeq(Test::ByteSeq, Test::ByteSeq&, const Ice::Current&);
@@ -146,9 +134,6 @@ public:
     virtual Test::CustomMap<std::int64_t, std::int64_t> opVarDict(Test::CustomMap<std::string, std::int32_t>,
                                                             Test::CustomMap<std::string, std::int32_t>&,
                                                             const Ice::Current&);
-
-    virtual Test::CustomMap<std::int32_t, std::string> opCustomIntStringDict(
-        std::map<std::int32_t, Util::string_view>, Test::CustomMap<std::int32_t, std::string>&, const Ice::Current&);
 
     Test::ShortBuffer opShortBuffer(Test::ShortBuffer, Test::ShortBuffer&, const Ice::Current&);
 

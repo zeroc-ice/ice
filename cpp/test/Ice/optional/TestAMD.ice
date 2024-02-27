@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["cpp:include:list", "cpp:include:CustomMap.h", "cpp:include:StringView.h"]]
+[["cpp:include:list", "cpp:include:CustomMap.h"]]
 
 module Test
 {
@@ -37,11 +37,6 @@ struct FixedStruct
 struct VarStruct
 {
     string m;
-}
-
-["cpp:class"] struct ClassVarStruct
-{
-    int a;
 }
 
 sequence<byte> ByteSeq;
@@ -164,7 +159,6 @@ class OptionalWithCustom
 {
     optional(1) SmallStructList l;
     ["protected"] optional(2) SmallStructList lp;
-    optional(3) ClassVarStruct s;
 }
 
 class E
@@ -235,10 +229,6 @@ interface Initial
 
     optional(1) string opString(optional(2) string p1, out optional(3) string p3);
 
-    ["cpp:view-type:Util::string_view"] optional(1) string
-    opCustomString(["cpp:view-type:Util::string_view"] optional(2) string p1,
-                   out ["cpp:view-type:Util::string_view"] optional(3) string p3);
-
     optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
 
     optional(1) SmallStruct opSmallStruct(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
@@ -273,9 +263,7 @@ interface Initial
     ["cpp:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:array"] optional(2) DoubleSeq p1,
                                                     out ["cpp:array"] optional(3) DoubleSeq p3);
 
-    ["cpp:range"] optional(1) StringSeq opStringSeq(["cpp:range"] optional(2) StringSeq p1,
-                                                    out ["cpp:range"] optional(3) StringSeq p3);
-
+    optional(1) StringSeq opStringSeq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
     ["cpp:array"] optional(1) SmallStructSeq opSmallStructSeq(["cpp:array"] optional(2) SmallStructSeq p1,
                                                               out ["cpp:array"] optional(3) SmallStructSeq p3);
 
@@ -288,8 +276,7 @@ interface Initial
     ["cpp:array"] optional(1) FixedStructList opFixedStructList(["cpp:array"] optional(2) FixedStructList p1,
                                                                 out ["cpp:array"] optional(3) FixedStructList p3);
 
-    ["cpp:range"] optional(1) VarStructSeq opVarStructSeq(["cpp:range"] optional(2) VarStructSeq p1,
-                                                          out ["cpp:range"] optional(3) VarStructSeq p3);
+    optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
     optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
 
@@ -298,11 +285,6 @@ interface Initial
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
     optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1, out optional(3) IntOneOptionalDict p3);
-
-    ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] optional(1) IntStringDict
-    opCustomIntStringDict(
-        ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] optional(2) IntStringDict p1,
-        out ["cpp:view-type:::std::map<std::int32_t, ::Util::string_view>", "cpp:type:::Test::CustomMap<std::int32_t, std::string>"] optional(3) IntStringDict p3);
 
     void opClassAndUnknownOptional(A p);
 
@@ -335,8 +317,7 @@ interface Initial
 
     bool supportsCsharpSerializable();
 
-    bool supportsCppStringView();
-
+    // TODO: remove. See Test.ice comment.
     bool supportsNullOptional();
 }
 

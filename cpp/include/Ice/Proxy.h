@@ -340,7 +340,7 @@ public:
      * @return true if the target object has the interface
      * specified by id or derives from the interface specified by id.
      */
-    bool ice_isA(const std::string& typeId, const Ice::Context& context = Ice::noExplicitContext) const;
+    bool ice_isA(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
      * Tests whether this object supports a specific Slice interface.
@@ -352,7 +352,7 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     std::function<void()>
-    ice_isAAsync(const std::string& typeId,
+    ice_isAAsync(std::string_view  typeId,
                  std::function<void(bool)> response,
                  std::function<void(std::exception_ptr)> ex = nullptr,
                  std::function<void(bool)> sent = nullptr,
@@ -365,11 +365,11 @@ public:
      * @return The future object for the invocation.
      */
     std::future<bool>
-    ice_isAAsync(const std::string& typeId, const Ice::Context& context = Ice::noExplicitContext) const;
+    ice_isAAsync(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
     /// \cond INTERNAL
     void
-    _iceI_isA(const std::shared_ptr<IceInternal::OutgoingAsyncT<bool>>&, const std::string&, const Ice::Context&) const;
+    _iceI_isA(const std::shared_ptr<IceInternal::OutgoingAsyncT<bool>>&, std::string_view, const Ice::Context&) const;
     /// \endcond
 
     /**
@@ -802,7 +802,7 @@ public:
      * Returns the Slice type ID associated with this type.
      * @return The Slice type ID.
      */
-    static const std::string& ice_staticId();
+    static std::string_view ice_staticId();
 
     /**
      * Obtains the communicator that created this proxy.

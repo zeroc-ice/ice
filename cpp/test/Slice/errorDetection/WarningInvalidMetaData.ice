@@ -34,19 +34,11 @@ interface I
     ["cpp:type:std::list< ::std::string>"]
     void op1();
 
-    ["cpp:view-type:std::experimental::string_view"]
+    ["cpp:view-type:std::string_view"]
     void op2();
 
     ["cpp:array"]
     void op3();
-
-    ["cpp:range"]
-    void op4();
-}
-
-["cpp:class", "cpp:comparable"]
-class C
-{
 }
 
 ["cpp:const", "cpp:ice_print"]
@@ -57,6 +49,11 @@ struct S
 
 ["cpp:virtual"]
 exception E
+{
+}
+
+["cpp98:foo", "cpp11:bar"] // The cpp98 and cpp11 attributes were removed in 3.8. We issue a friendly warning.
+class P
 {
 }
 

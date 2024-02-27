@@ -10,7 +10,7 @@
 class TestIntfI : public virtual Test::TestIntf
 {
 public:
-    void opDoubleArrayAsync(std::pair<const ::Ice::Double*, const ::Ice::Double*>,
+    void opDoubleArrayAsync(std::pair<const double*, const double*>,
                             std::function<void(const ::Test::DoubleSeq&, const ::Test::DoubleSeq&)>,
                             std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
@@ -26,27 +26,6 @@ public:
     void opVariableArrayAsync(std::pair<const ::Test::Variable*, const ::Test::Variable*>,
                               std::function<void(const ::Test::VariableList&, const ::Test::VariableList&)>,
                               std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opBoolRangeAsync(Test::BoolSeq,
-                          std::function<void(const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opByteRangeAsync(Test::ByteList,
-                          std::function<void(const Test::ByteList&, const Test::ByteList&)>,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opVariableRangeAsync(Test::VariableList,
-                              std::function<void(const ::Test::VariableList&, const ::Test::VariableList&)>,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opByteRangeTypeAsync(Test::ByteList,
-                              std::function<void(const ::Test::ByteList&, const ::Test::ByteList&)>,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opVariableRangeTypeAsync(Test::VariableList,
-                                  std::function<void(const ::Test::VariableList&,
-                                                      const ::Test::VariableList&)>,
-                                  std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opBoolSeqAsync(std::deque<bool>,
                         std::function<void(const std::deque<bool>&, const std::deque<bool>&)>,
@@ -67,10 +46,6 @@ public:
     void opMyByteSeqAsync(MyByteSeq,
                           std::function<void(const MyByteSeq&, const MyByteSeq&)>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opStringAsync(Util::string_view,
-                       std::function<void(const Util::string_view&, const Util::string_view&)>,
-                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opStringSeqAsync(std::deque<std::string>,
                           std::function<void(const std::deque<std::string>&, const std::deque<std::string>&)>,
@@ -134,17 +109,8 @@ public:
                       std::function<void(const ::Test::CList&, const ::Test::CList&)>,
                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opClassStructAsync(::Test::ClassStruct, ::Test::ClassStructSeq,
-                            std::function<void(const ::Test::ClassStruct&,
-                                                const ::Test::ClassStruct&, const ::Test::ClassStructSeq&)>,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
     void opOutArrayByteSeqAsync(::Test::ByteSeq,
                                 std::function<void(const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opOutRangeByteSeqAsync(::Test::ByteSeq,
-                                std::function<void(const Test::ByteSeq&)>,
                                 std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opIntStringDictAsync(::Test::IntStringDict,
@@ -155,11 +121,6 @@ public:
                         std::function<void(const ::Test::CustomMap< std::int64_t, std::int64_t>&,
                                             const ::Test::CustomMap<std::string, ::std::int32_t>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opCustomIntStringDictAsync(std::map< ::std::int32_t, ::Util::string_view>,
-                                    std::function<void(const std::map< ::std::int32_t, ::Util::string_view>&,
-                                                        const std::map< ::std::int32_t, ::Util::string_view>&)>,
-                                    std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opShortBufferAsync(::Test::ShortBuffer,
                             std::function<void(const ::Test::ShortBuffer&, const ::Test::ShortBuffer&)>,

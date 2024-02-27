@@ -555,8 +555,8 @@ private:
     Ice::SlicedDataPtr _slicedData;
 };
 
-ClassInfoPtr lookupClassInfo(const std::string&);
-ExceptionInfoPtr lookupExceptionInfo(const std::string&);
+ClassInfoPtr lookupClassInfo(std::string_view);
+ExceptionInfoPtr lookupExceptionInfo(std::string_view);
 
 extern VALUE Unset;
 

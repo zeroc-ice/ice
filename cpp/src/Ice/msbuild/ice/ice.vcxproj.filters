@@ -237,9 +237,6 @@
     <ClCompile Include="..\..\..\IceUtil\StringUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IceUtil\ThreadException.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IceUtil\UtilException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -285,9 +282,6 @@
     <ClCompile Include="..\..\ConnectRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\CountDownLatch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -325,9 +319,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\IconvStringConverter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ImplicitContextI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Incoming.cpp">
@@ -481,9 +472,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\TcpTransceiver.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ThreadPool.cpp">

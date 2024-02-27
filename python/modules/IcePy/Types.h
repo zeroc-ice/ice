@@ -215,7 +215,7 @@ class EnumInfo final : public TypeInfo
 {
 public:
 
-    EnumInfo(const std::string&, PyObject*, PyObject*);
+    EnumInfo(std::string, PyObject*, PyObject*);
 
     std::string getId() const final;
 
@@ -265,7 +265,7 @@ class StructInfo : public TypeInfo
 {
 public:
 
-    StructInfo(const std::string&, PyObject*, PyObject*);
+    StructInfo(std::string, PyObject*, PyObject*);
 
     virtual std::string getId() const;
 
@@ -306,7 +306,7 @@ class SequenceInfo : public TypeInfo
 {
 public:
 
-    SequenceInfo(const std::string&, PyObject*, PyObject*);
+    SequenceInfo(std::string, PyObject*, PyObject*);
 
     virtual std::string getId() const;
 
@@ -382,7 +382,7 @@ class CustomInfo : public TypeInfo
 {
 public:
 
-    CustomInfo(const std::string&, PyObject*);
+    CustomInfo(std::string, PyObject*);
 
     virtual std::string getId() const;
 
@@ -412,7 +412,7 @@ class DictionaryInfo : public TypeInfo, public std::enable_shared_from_this<Dict
 {
 public:
 
-    DictionaryInfo(const std::string&, PyObject*, PyObject*);
+    DictionaryInfo(std::string, PyObject*, PyObject*);
 
     virtual std::string getId() const;
 
@@ -459,7 +459,7 @@ class ClassInfo final : public TypeInfo, public std::enable_shared_from_this<Cla
 {
 public:
 
-    ClassInfo(const std::string&);
+    ClassInfo(std::string);
     void init();
 
     void define(PyObject*, PyObject*, PyObject*);
@@ -498,7 +498,7 @@ class ValueInfo final : public TypeInfo, public std::enable_shared_from_this<Val
 {
 public:
 
-    ValueInfo(const std::string&);
+    ValueInfo(std::string);
     void init();
 
     void define(PyObject*, int, bool, bool, PyObject*, PyObject*);
@@ -542,7 +542,7 @@ class ProxyInfo final : public TypeInfo, public std::enable_shared_from_this<Pro
 {
 public:
 
-    ProxyInfo(const std::string&);
+    ProxyInfo(std::string);
     void init();
 
     void define(PyObject*);
@@ -718,9 +718,9 @@ private:
 
 std::string resolveCompactId(std::int32_t id);
 
-ClassInfoPtr lookupClassInfo(const std::string&);
-ValueInfoPtr lookupValueInfo(const std::string&);
-ExceptionInfoPtr lookupExceptionInfo(const std::string&);
+ClassInfoPtr lookupClassInfo(std::string_view);
+ValueInfoPtr lookupValueInfo(std::string_view);
+ExceptionInfoPtr lookupExceptionInfo(std::string_view);
 
 extern PyObject* Unset;
 

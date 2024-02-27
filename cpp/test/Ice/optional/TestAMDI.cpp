@@ -137,14 +137,6 @@ InitialI::opStringAsync(optional<::std::string> p1,
 }
 
 void
-InitialI::opCustomStringAsync(optional<Util::string_view> p1,
-                                   ::std::function<void(const optional<Util::string_view>&, const optional<Util::string_view>&)> response,
-                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
 InitialI::opMyEnumAsync(optional<::Test::MyEnum> p1,
                              ::std::function<void(const optional<::Test::MyEnum>&, const optional<::Test::MyEnum>&)> response,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
@@ -185,8 +177,8 @@ InitialI::opOneOptionalAsync(optional<::std::shared_ptr<::Test::OneOptional>> p1
 }
 
 void
-InitialI::opMyInterfaceProxyAsync(optional<::MyInterfacePrxPtr> p1,
-                                       ::std::function<void(const optional<::MyInterfacePrxPtr>&, const optional<::MyInterfacePrxPtr>&)> response,
+InitialI::opMyInterfaceProxyAsync(optional<::MyInterfacePrx> p1,
+                                       ::std::function<void(const optional<::MyInterfacePrx>&, const optional<::MyInterfacePrx>&)> response,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
@@ -329,14 +321,6 @@ InitialI::opIntOneOptionalDictAsync(optional<::Test::IntOneOptionalDict> p1,
 }
 
 void
-InitialI::opCustomIntStringDictAsync(optional<::std::map< int, ::Util::string_view>> p1,
-                                     ::std::function<void(const optional<::std::map< int, ::Util::string_view>>&, const optional<::std::map< int, ::Util::string_view>>&)> response,
-                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
 InitialI::opClassAndUnknownOptionalAsync(::std::shared_ptr<::Test::A>,
                                          ::std::function<void()> response,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
@@ -460,13 +444,6 @@ InitialI::supportsJavaSerializableAsync(::std::function<void(bool)> response,
 void
 InitialI::supportsCsharpSerializableAsync(::std::function<void(bool)> response,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(true);
-}
-
-void
-InitialI::supportsCppStringViewAsync(::std::function<void(bool)> response,
-                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(true);
 }

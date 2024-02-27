@@ -55,7 +55,7 @@ private:
     condition_variable _condition;
 };
 
-class OpThread : public IceUtil::Thread
+class OpThread final
 {
 public:
 
@@ -65,8 +65,7 @@ public:
     {
     }
 
-    void
-    run()
+    void run()
     {
         int count = 0;
         while(true)
@@ -376,10 +375,11 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
     }
 
-    OpThreadPtr thread1 = make_shared<OpThread>(background);
-    thread1->start();
-    OpThreadPtr thread2 = make_shared<OpThread>(background);
-    thread2->start();
+    auto opThread1 = make_shared<OpThread>(background);
+    auto worker1 = std::thread([opThread1] { opThread1->run(); });
+
+    OpThreadPtr opThread2 = make_shared<OpThread>(background);
+    auto worker2 = std::thread([opThread2] { opThread2->run(); });
 
     for(int i = 0; i < 5; i++)
     {
@@ -405,11 +405,11 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
     }
 
-    thread1->destroy();
-    thread2->destroy();
+    opThread1->destroy();
+    opThread2->destroy();
 
-    thread1->getThreadControl().join();
-    thread2->getThreadControl().join();
+    worker1.join();
+    worker2.join();
 }
 
 void
@@ -568,10 +568,10 @@ initializeTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = make_shared<OpThread>(background);
-    thread1->start();
-    OpThreadPtr thread2 = make_shared<OpThread>(background);
-    thread2->start();
+    auto opThread1 = make_shared<OpThread>(background);
+    thread worker1 = thread([opThread1] { opThread1->run(); });
+    auto opThread2 = make_shared<OpThread>(background);
+    thread worker2 = thread([opThread2] { opThread2->run(); });
 
     for(int i = 0; i < 5; i++)
     {
@@ -655,11 +655,11 @@ initializeTests(const ConfigurationPtr& configuration,
         }
     }
 
-    thread1->destroy();
-    thread2->destroy();
+    opThread1->destroy();
+    opThread2->destroy();
 
-    thread1->getThreadControl().join();
-    thread2->getThreadControl().join();
+    worker1.join();
+    worker2.join();
 }
 
 void
@@ -1416,10 +1416,10 @@ readWriteTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = make_shared<OpThread>(background);
-    thread1->start();
-    OpThreadPtr thread2 = make_shared<OpThread>(background);
-    thread2->start();
+    auto opThread1 = make_shared<OpThread>(background);
+    auto worker1 = thread([opThread1] { opThread1->run(); });
+    auto opThread2 = make_shared<OpThread>(background);
+    auto worker2 = thread([opThread2] { opThread2->run(); });
 
     for(int i = 0; i < 5; i++)
     {
@@ -1452,9 +1452,9 @@ readWriteTests(const ConfigurationPtr& configuration,
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
     }
 
-    thread1->destroy();
-    thread2->destroy();
+    opThread1->destroy();
+    opThread2->destroy();
 
-    thread1->getThreadControl().join();
-    thread2->getThreadControl().join();
+    worker1.join();
+    worker2.join();
 }

@@ -219,10 +219,6 @@ class InitialI: Initial {
         return false
     }
 
-    func supportsCppStringView(current _: Ice.Current) throws -> Bool {
-        return false
-    }
-
     func supportsNullOptional(current _: Ice.Current) throws -> Bool {
         return false
     }

@@ -6,7 +6,7 @@
 #include <TestAMDI.h>
 
 void
-TestIntfI::opDoubleArrayAsync(std::pair<const Ice::Double*, const Ice::Double*> in,
+TestIntfI::opDoubleArrayAsync(std::pair<const double*, const double*> in,
                               std::function<void(const Test::DoubleSeq&, const Test::DoubleSeq&)> response,
                               std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
@@ -39,47 +39,6 @@ TestIntfI::opVariableArrayAsync(std::pair<const Test::Variable*, const Test::Var
 {
     Test::VariableList out(in.first, in.second);
     response(out, out);
-}
-
-void
-TestIntfI::opBoolRangeAsync(Test::BoolSeq in,
-                            std::function<void(const Test::BoolSeq&, const Test::BoolSeq&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opByteRangeAsync(Test::ByteList in,
-                            std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opVariableRangeAsync(Test::VariableList in,
-                                std::function<void(const Test::VariableList&, const Test::VariableList&)> response,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opByteRangeTypeAsync(Test::ByteList in,
-                                std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opVariableRangeTypeAsync(Test::VariableList in,
-                                    std::function<void(const Test::VariableList&,
-                                                        const Test::VariableList&)> response,
-                                    std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
 }
 
 void
@@ -118,14 +77,6 @@ void
 TestIntfI::opMyByteSeqAsync(MyByteSeq in,
                             std::function<void(const MyByteSeq&, const MyByteSeq&)> response,
                             std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opStringAsync(Util::string_view in,
-                         std::function<void(const Util::string_view&, const Util::string_view&)> response,
-                         std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
 }
@@ -249,28 +200,11 @@ TestIntfI::opCListAsync(Test::CList in,
 }
 
 void
-TestIntfI::opClassStructAsync(Test::ClassStruct in1, Test::ClassStructSeq in2,
-                              std::function<void(const Test::ClassStruct&,
-                                                  const Test::ClassStruct&, const Test::ClassStructSeq&)> response,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in1, in1, in2);
-}
-
-void
 TestIntfI::opOutArrayByteSeqAsync(Test::ByteSeq in,
                                   std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
                                   std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(std::make_pair(in.data(), in.data() + in.size()));
-}
-
-void
-TestIntfI::opOutRangeByteSeqAsync(Test::ByteSeq in,
-                                  std::function<void(const Test::ByteSeq&)> response,
-                                  std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in);
 }
 
 void
@@ -293,15 +227,6 @@ TestIntfI::opVarDictAsync(Test::CustomMap<std::string, int32_t> in,
         result[i] = i*i;
     }
     response(result, in);
-}
-
-void
-TestIntfI::opCustomIntStringDictAsync(std::map<int32_t, ::Util::string_view> in,
-                                      std::function<void(const std::map<int32_t, ::Util::string_view>&,
-                                                          const std::map<int32_t, ::Util::string_view>&)> response,
-                                      std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
 }
 
 void
