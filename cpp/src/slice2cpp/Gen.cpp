@@ -2238,9 +2238,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         if(futureOutParams.size() > 1)
         {
-            C << nl << "auto _responseCb = [response](" << futureT << "&& _result)";
+            C << nl << "auto _responseCb = [_response = ::std::move(" << responseParam << ")]("
+                << futureT << "&& _result)";
             C << sb;
-            C << nl << "::std::apply(" << responseParam << ", ::std::move(_result));";
+            C << nl << "::std::apply(::std::move(_response), ::std::move(_result));";
             C << eb << ";";
         }
 
