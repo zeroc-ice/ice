@@ -701,7 +701,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
             }
 
             int err = IceUtilInternal::mkdir(path, 0777);
-            // If slice2java is run concurrently, it's possible that another instance of slice2matlab has already
+            // If slice2java is run concurrently, it's possible that another instance of slice2java has already
             // created the directory.
             if (err == EEXIST && IceUtilInternal::directoryExists(path))
             {
