@@ -270,7 +270,8 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         stream = marshal ? "ostr" : "istr";
     }
 
-    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+    assert(typeCtx & TypeContextCpp11);
+
     bool tuple = (typeCtx & TypeContextTuple) != 0;
 
     //
@@ -294,60 +295,40 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
 
     if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsOptional()))
     {
-        if(cpp11)
+        out << nl;
+        if(marshal)
         {
-            out << nl;
-            if(marshal)
-            {
-                out << stream << "->writeAll";
-            }
-            else
-            {
-                out << stream << "->readAll";
-            }
-            out << spar;
-            for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
-            {
-                if (tuple)
-                {
-                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
-                    out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
-                }
-                else
-                {
-                    out << objPrefix + fixKwd(prefix + (*p)->name());
-                }
-            }
-            if(op && op->returnType() && !op->returnIsOptional())
-            {
-                if (tuple)
-                {
-                    out << "::std::get<0>(" + obj + ")";
-                }
-                else
-                {
-                    out << objPrefix + returnValueS;
-                }
-            }
-            out << epar << ";";
+            out << stream << "->writeAll";
         }
         else
         {
-            for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+            out << stream << "->readAll";
+        }
+        out << spar;
+        for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+        {
+            if (tuple)
             {
-                writeMarshalUnmarshalCode(out, (*p)->type(), false, 0, fixKwd(prefix + (*p)->name()), marshal,
-                                          (*p)->getMetaData(), typeCtx, customStream, true, obj);
+                auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
             }
-
-            if(op && op->returnType())
+            else
             {
-                if(!op->returnIsOptional())
-                {
-                    writeMarshalUnmarshalCode(out, op->returnType(), false, 0, returnValueS, marshal, op->getMetaData(),
-                                              typeCtx, customStream, true, obj);
-                }
+                out << objPrefix + fixKwd(prefix + (*p)->name());
             }
         }
+        if(op && op->returnType() && !op->returnIsOptional())
+        {
+            if (tuple)
+            {
+                out << "::std::get<0>(" + obj + ")";
+            }
+            else
+            {
+                out << objPrefix + returnValueS;
+            }
+        }
+        out << epar << ";";
     }
 
     if(!optionals.empty() || (op && op->returnType() && op->returnIsOptional()))
@@ -365,77 +346,52 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         };
         optionals.sort(SortFn::compare);
 
-        if(cpp11)
+        out << nl;
+        if(marshal)
         {
-            out << nl;
-            if(marshal)
-            {
-                out << stream << "->writeAll";
-            }
-            else
-            {
-                out << stream << "->readAll";
-            }
-            out << spar;
+            out << stream << "->writeAll";
+        }
+        else
+        {
+            out << stream << "->readAll";
+        }
+        out << spar;
 
+        {
+            //
+            // Tags
+            //
+            ostringstream os;
+            os << '{';
+            bool checkReturnType = op && op->returnIsOptional();
+            bool insertComma = false;
+            for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
             {
-                //
-                // Tags
-                //
-                ostringstream os;
-                os << '{';
-                bool checkReturnType = op && op->returnIsOptional();
-                bool insertComma = false;
-                for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
-                {
-                    if(checkReturnType && op->returnTag() < (*p)->tag())
-                    {
-                        os << (insertComma ? ", " : "") << op->returnTag();
-                        checkReturnType = false;
-                        insertComma = true;
-                    }
-                    os << (insertComma ? ", " : "") << (*p)->tag();
-                    insertComma = true;
-                }
-                if(checkReturnType)
+                if(checkReturnType && op->returnTag() < (*p)->tag())
                 {
                     os << (insertComma ? ", " : "") << op->returnTag();
+                    checkReturnType = false;
+                    insertComma = true;
                 }
-                os << '}';
-                out << os.str();
+                os << (insertComma ? ", " : "") << (*p)->tag();
+                insertComma = true;
             }
-
+            if(checkReturnType)
             {
-                //
-                // Parameters
-                //
-                bool checkReturnType = op && op->returnIsOptional();
-                for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
-                {
-                    if(checkReturnType && op->returnTag() < (*p)->tag())
-                    {
-                        if (tuple)
-                        {
-                            out << "::std::get<0>(" + obj + ")";
-                        }
-                        else
-                        {
-                            out << objPrefix + returnValueS;
-                        }
-                        checkReturnType = false;
-                    }
+                os << (insertComma ? ", " : "") << op->returnTag();
+            }
+            os << '}';
+            out << os.str();
+        }
 
-                    if (tuple)
-                    {
-                        auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
-                        out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
-                    }
-                    else
-                    {
-                        out << objPrefix + fixKwd(prefix + (*p)->name());
-                    }
-                }
-                if(checkReturnType)
+        {
+            //
+            // Parameters
+            //
+            bool checkReturnType = op && op->returnIsOptional();
+            for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+            {
+                if(checkReturnType && op->returnTag() < (*p)->tag())
                 {
                     if (tuple)
                     {
@@ -445,36 +401,32 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                     {
                         out << objPrefix + returnValueS;
                     }
-                }
-            }
-            out << epar << ";";
-        }
-        else
-        {
-
-            //
-            // Marshal optional parameters.
-            //
-
-            bool checkReturnType = op && op->returnIsOptional();
-            for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
-            {
-                if(checkReturnType && op->returnTag() < (*p)->tag())
-                {
-                    writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
-                                              op->getMetaData(), typeCtx, customStream, true, obj);
-
                     checkReturnType = false;
                 }
-                writeMarshalUnmarshalCode(out, (*p)->type(), true, (*p)->tag(), fixKwd(prefix + (*p)->name()), marshal,
-                                          (*p)->getMetaData(), typeCtx, customStream, true, obj);
+
+                if (tuple)
+                {
+                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                    out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
+                }
+                else
+                {
+                    out << objPrefix + fixKwd(prefix + (*p)->name());
+                }
             }
             if(checkReturnType)
             {
-                writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
-                                          op->getMetaData(), typeCtx, customStream, true, obj);
+                if (tuple)
+                {
+                    out << "::std::get<0>(" + obj + ")";
+                }
+                else
+                {
+                    out << objPrefix + returnValueS;
+                }
             }
         }
+        out << epar << ";";
     }
 }
 }
@@ -617,7 +569,7 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
 string
 Slice::typeToString(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
-    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+    assert(typeCtx & TypeContextCpp11);
 
     static const char* builtinTable[] =
     {
@@ -657,14 +609,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
-        if(cpp11)
-        {
-            return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
-        }
-        else
-        {
-            return getUnqualified(cl->scoped() + "Ptr", scope);
-        }
+        return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -734,7 +679,7 @@ string
 Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
                          int typeCtx)
 {
-    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+    assert(typeCtx & TypeContextCpp11);
 
     static const char* InputBuiltinTable[] =
     {
@@ -782,14 +727,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
-        if(cpp11)
-        {
-            return "const ::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
-        }
-        else
-        {
-            return "const " + getUnqualified(fixKwd(cl->scoped() + "Ptr&"), scope);
-        }
+        return "const ::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -829,7 +767,7 @@ string
 Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
                           int typeCtx)
 {
-    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+    assert(typeCtx & TypeContextCpp11);
 
     static const char* outputBuiltinTable[] =
     {
@@ -874,14 +812,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if(cl)
     {
-        if(cpp11)
-        {
-            return "::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
-        }
-        else
-        {
-            return getUnqualified(fixKwd(cl->scoped() + "Ptr&"), scope);
-        }
+        return "::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -918,24 +849,23 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
 }
 
 string
-Slice::operationModeToString(Operation::Mode mode, bool cpp11)
+Slice::operationModeToString(Operation::Mode mode)
 {
-    string prefix = cpp11 ? "::Ice::OperationMode::" : "::Ice::";
     switch(mode)
     {
         case Operation::Normal:
         {
-            return prefix + "Normal";
+            return "::Ice::OperationMode::Normal";
         }
 
         case Operation::Nonmutating:
         {
-            return prefix + "Nonmutating";
+            return "::Ice::OperationMode::Nonmutating";
         }
 
         case Operation::Idempotent:
         {
-            return prefix + "Idempotent";
+            return "::Ice::OperationMode::Idempotent";
         }
         default:
         {
@@ -947,18 +877,16 @@ Slice::operationModeToString(Operation::Mode mode, bool cpp11)
 }
 
 string
-Slice::opFormatTypeToString(const OperationPtr& op, bool cpp11)
+Slice::opFormatTypeToString(const OperationPtr& op)
 {
-    string prefix = cpp11 ? "::Ice::FormatType::" : "::Ice::";
-
     switch(op->format())
     {
     case DefaultFormat:
-        return prefix + "DefaultFormat";
+        return "::Ice::FormatType::DefaultFormat";
     case CompactFormat:
-        return prefix + "CompactFormat";
+        return "::Ice::FormatType::CompactFormat";
     case SlicedFormat:
-        return prefix + "SlicedFormat";
+        return "::Ice::FormatType::SlicedFormat";
 
     default:
         assert(false);
@@ -1235,14 +1163,13 @@ void
 Slice::writeStreamHelpers(Output& out,
                           const ContainedPtr& c,
                           DataMemberList dataMembers,
-                          bool hasBaseDataMembers,
-                          bool cpp11)
+                          bool hasBaseDataMembers)
 {
     // If c is a C++11 class/exception whose base class contains data members (recursively), then we need to generate
     // a StreamWriter even if its implementation is empty. This is because our default marshaling uses ice_tuple() which
     // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
     // is not an issue for structs.
-    if(dataMembers.empty() && !(cpp11 && hasBaseDataMembers))
+    if(dataMembers.empty() && !hasBaseDataMembers)
     {
         return;
     }
@@ -1283,10 +1210,10 @@ Slice::writeStreamHelpers(Output& out,
     // Only generate StreamWriter specializations if we are generating for C++98 or
     // we are generating for C++11 with optional data members and no base class data members
     //
-    if(!cpp11 || !optionalMembers.empty() || hasBaseDataMembers)
+    if(!optionalMembers.empty() || hasBaseDataMembers)
     {
         out << nl << "template<typename S>";
-        out << nl << "struct StreamWriter" << (cpp11 ? "<" : "< ") << fullName << ", S>";
+        out << nl << "struct StreamWriter<" << fullName << ", S>";
         out << sb;
         if(requiredMembers.empty() && optionalMembers.empty())
         {
@@ -1299,23 +1226,8 @@ Slice::writeStreamHelpers(Output& out,
 
         out << sb;
 
-        if(cpp11)
-        {
-            writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
-            writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
-        }
-        else
-        {
-            for(DataMemberList::const_iterator q = requiredMembers.begin(); q != requiredMembers.end(); ++q)
-            {
-                writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
-            }
-
-            for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
-            {
-                writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
-            }
-        }
+        writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
+        writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
 
         out << eb;
         out << eb << ";" << nl;
@@ -1325,7 +1237,7 @@ Slice::writeStreamHelpers(Output& out,
     // Generate StreamReader
     //
     out << nl << "template<typename S>";
-    out << nl << "struct StreamReader" << (cpp11 ? "<" : "< ") << fullName << ", S>";
+    out << nl << "struct StreamReader<" << fullName << ", S>";
     out << sb;
     if (requiredMembers.empty() && optionalMembers.empty())
     {
@@ -1338,23 +1250,8 @@ Slice::writeStreamHelpers(Output& out,
 
     out << sb;
 
-    if(cpp11)
-    {
-        writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
-        writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, false);
-    }
-    else
-    {
-        for(DataMemberList::const_iterator q = requiredMembers.begin(); q != requiredMembers.end(); ++q)
-        {
-            writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
-        }
-
-        for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
-        {
-            writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
-        }
-    }
+    writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
+    writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, false);
 
     out << eb;
     out << eb << ";" << nl;

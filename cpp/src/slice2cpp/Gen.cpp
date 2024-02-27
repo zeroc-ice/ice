@@ -100,14 +100,14 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     }
     else
     {
-        bool cpp11 = (typeContext & TypeContextCpp11) == TypeContextCpp11;
+        assert(typeContext & TypeContextCpp11);
         BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
         if(bp && bp->kind() == Builtin::KindString)
         {
             if ((typeContext & TypeContextUseWstring) || findMetaData(metaData) == "wstring") // wide strings
             {
                 out << "L\"";
-                out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, cpp11 ? 0 : 0x9F + 1);
+                out << toStringLiteral(value, "\a\b\f\n\r\t\v", "?", UCN, 0);
                 out << "\"";
             }
             else // C++98 narrow strings
@@ -117,14 +117,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
         }
         else if(bp && bp->kind() == Builtin::KindLong)
         {
-            if(cpp11)
-            {
-                out << value << "LL";
-            }
-            else
-            {
-                out << "ICE_INT64(" << value << ")";
-            }
+            out << value << "LL";
         }
         else if(bp && bp->kind() == Builtin::KindFloat)
         {
@@ -143,7 +136,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(enumerator);
 
-                bool unscoped = (cpp11 && findMetaData(ep->getMetaData(), TypeContextCpp11) == "%unscoped");
+                bool unscoped = findMetaData(ep->getMetaData(), TypeContextCpp11) == "%unscoped";
 
                 if(unscoped)
                 {
@@ -151,14 +144,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
                 }
                 else
                 {
-                    if(cpp11)
-                    {
-                        out << getUnqualified(fixKwd(enumerator->scoped()), scope);
-                    }
-                    else
-                    {
-                        out << getUnqualified(fixKwd(ep->scope() + ep->name() + enumerator->name()), scope);
-                    }
+                    out << getUnqualified(fixKwd(enumerator->scoped()), scope);
                 }
             }
             else if(!ep)
@@ -1943,7 +1929,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << sp;
 
         C << nl << "outAsync->invoke(operationName, ";
-        C << operationModeToString(p->sendMode(), true) << ", " << opFormatTypeToString(p, true) << ", context,";
+        C << operationModeToString(p->sendMode()) << ", " << opFormatTypeToString(p) << ", context,";
         C.inc();
         C << nl;
 
@@ -2024,8 +2010,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "_checkTwowayOnly(operationName);";
     }
     C << nl << "outAsync->invoke(operationName, ";
-    C << getUnqualified(operationModeToString(p->sendMode(), true), interfaceScope) << ", "
-      << getUnqualified(opFormatTypeToString(p, true), interfaceScope) << ", context,";
+    C << getUnqualified(operationModeToString(p->sendMode()), interfaceScope) << ", "
+      << getUnqualified(opFormatTypeToString(p), interfaceScope) << ", context,";
     C.inc();
     C << nl;
 
@@ -3208,7 +3194,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "MarshaledResult(current)";
         C.dec();
         C << sb;
-        C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p, true) << ");";
+        C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, outParams, p, true, TypeContextCpp11, "ostr");
         if(p->returnsClasses(false))
         {
@@ -3257,7 +3243,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     C << "_iceD_" << name << "(::IceInternal::Incoming& inS, const "
       << getUnqualified("::Ice::Current&", interfaceScope) << " current)" << isConst;
     C << sb;
-    C << nl << "_iceCheckMode(" << getUnqualified(operationModeToString(p->mode(), true), interfaceScope)
+    C << nl << "_iceCheckMode(" << getUnqualified(operationModeToString(p->mode()), interfaceScope)
       << ", current.mode);";
 
     if(!inParams.empty())
@@ -3277,7 +3263,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     if(p->format() != DefaultFormat)
     {
-        C << nl << "inS.setFormat(" << opFormatTypeToString(p, true) << ");";
+        C << nl << "inS.setFormat(" << opFormatTypeToString(p) << ");";
     }
 
     if(!amd)
@@ -3402,7 +3388,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     H << nl << "static const bool fixedLength = " << (p->isVariableLength() ? "false" : "true") << ";";
     H << eb << ";" << nl;
 
-    writeStreamHelpers(H, p, p->dataMembers(), false, true);
+    writeStreamHelpers(H, p, p->dataMembers(), false);
 
     return false;
 }
@@ -3410,7 +3396,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 bool
 Slice::Gen::StreamVisitor::visitClassDefStart(const ClassDefPtr& c)
 {
-    writeStreamHelpers(H, c, c->dataMembers(), c->hasBaseDataMembers(), true);
+    writeStreamHelpers(H, c, c->dataMembers(), c->hasBaseDataMembers());
     return false;
 }
 
@@ -3423,7 +3409,7 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr&)
 void
 Slice::Gen::StreamVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    writeStreamHelpers(H, p, p->dataMembers(), p->hasBaseDataMembers(), true);
+    writeStreamHelpers(H, p, p->dataMembers(), p->hasBaseDataMembers());
 }
 
 void

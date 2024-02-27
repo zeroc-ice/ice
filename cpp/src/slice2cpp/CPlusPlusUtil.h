@@ -38,8 +38,8 @@ std::string typeToString(const TypePtr&, bool, const std::string& = "", const St
 std::string returnTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
 std::string inputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
 std::string outputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
-std::string operationModeToString(Operation::Mode, bool = false);
-std::string opFormatTypeToString(const OperationPtr&, bool);
+std::string operationModeToString(Operation::Mode);
+std::string opFormatTypeToString(const OperationPtr&);
 
 std::string fixKwd(const std::string&);
 
@@ -58,7 +58,7 @@ std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
 void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
 void writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, bool);
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
-void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool, bool);
+void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool);
 void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, int);
 
 bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);
