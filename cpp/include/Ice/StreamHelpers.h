@@ -30,20 +30,18 @@ const StreamHelperCategory StreamHelperCategoryBuiltinValue = 1;
 const StreamHelperCategory StreamHelperCategoryBuiltin = 2;
 /** For struct types. */
 const StreamHelperCategory StreamHelperCategoryStruct = 3;
-/** For struct types with cpp:class metadata. */
-const StreamHelperCategory StreamHelperCategoryStructClass = 4;
 /** For enum types. */
-const StreamHelperCategory StreamHelperCategoryEnum = 5;
+const StreamHelperCategory StreamHelperCategoryEnum = 4;
 /** For sequence types. */
-const StreamHelperCategory StreamHelperCategorySequence = 6;
+const StreamHelperCategory StreamHelperCategorySequence = 5;
 /** For dictionary types. */
-const StreamHelperCategory StreamHelperCategoryDictionary = 7;
+const StreamHelperCategory StreamHelperCategoryDictionary = 6;
 /** For proxy types. */
-const StreamHelperCategory StreamHelperCategoryProxy = 8;
+const StreamHelperCategory StreamHelperCategoryProxy = 7;
 /** For class types. */
-const StreamHelperCategory StreamHelperCategoryClass = 9;
+const StreamHelperCategory StreamHelperCategoryClass = 8;
 /** For exception types. */
-const StreamHelperCategory StreamHelperCategoryUserException = 10;
+const StreamHelperCategory StreamHelperCategoryUserException = 9;
 
 /**
  * The optional format.
@@ -432,7 +430,7 @@ struct StreamHelper<T, StreamHelperCategoryBuiltin>
 };
 
 //
-// "helpers" for the StreamHelper<T, StreamHelperCategoryStruct[Class]> below
+// "helpers" for the StreamHelper<T, StreamHelperCategoryStruct> below
 // slice2cpp generates specializations as needed
 //
 
@@ -478,27 +476,6 @@ struct StreamHelper<T, StreamHelperCategoryStruct>
     template<class S> static inline void
     read(S* stream, T& v)
     {
-        StreamReader<T, S>::read(stream, v);
-    }
-};
-
-/**
- * Helper for class structs.
- * \headerfile Ice/Ice.h
- */
-template<typename T>
-struct StreamHelper<T, StreamHelperCategoryStructClass>
-{
-    template<class S> static inline void
-    write(S* stream, const T& v)
-    {
-        StreamWriter<T, S>::write(stream, v);
-    }
-
-    template<class S> static inline void
-    read(S* stream, T& v)
-    {
-        v = new typename T::element_type;
         StreamReader<T, S>::read(stream, v);
     }
 };
@@ -843,15 +820,6 @@ struct StreamOptionalHelper<T, StreamHelperCategoryStruct, false>
         stream->skip(4);
         stream->read(v);
     }
-};
-
-/**
- * Class structs are encoded like structs.
- * \headerfile Ice/Ice.h
- */
-template<typename T, bool fixedLength>
-struct StreamOptionalHelper<T, StreamHelperCategoryStructClass, fixedLength> : StreamOptionalHelper<T, StreamHelperCategoryStruct, fixedLength>
-{
 };
 
 // InputStream and OutputStream have special logic for optional (tagged) proxies that does not rely on the

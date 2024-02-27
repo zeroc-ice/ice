@@ -19,7 +19,7 @@ enum MyEnum
 interface MyInterface;
 class MyClass;
 
-["cpp:comparable"] struct SmallStruct
+struct SmallStruct
 {
     bool bo;
     byte by;
@@ -33,7 +33,7 @@ class MyClass;
     MyInterface* p;
 }
 
-["cpp:class"] struct ClassStruct
+struct ClassStruct
 {
     int i;
 }
@@ -104,7 +104,7 @@ module Sub
         nestedEnum3
     }
 
-    ["cpp:comparable"] struct NestedStruct
+    struct NestedStruct
     {
         bool bo;
         byte by;
@@ -115,11 +115,6 @@ module Sub
         double d;
         string str;
         NestedEnum e;
-    }
-
-    ["cpp:class"] struct NestedClassStruct
-    {
-        int i;
     }
 
     exception NestedException
@@ -140,7 +135,7 @@ module Sub2
         nestedEnum6
     }
 
-    ["cpp:comparable"] struct NestedStruct2
+    struct NestedStruct2
     {
         bool bo;
         byte by;
@@ -151,11 +146,6 @@ module Sub2
         double d;
         string str;
         NestedEnum2 e;
-    }
-
-    ["cpp:class"] struct NestedClassStruct2
-    {
-        int i;
     }
 
     exception NestedException2

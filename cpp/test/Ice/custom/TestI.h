@@ -27,8 +27,6 @@ public:
                                                Test::VariableList&,
                                                const Ice::Current&);
 
-    virtual Test::BoolSeq opBoolRange(Test::BoolSeq, Test::BoolSeq&, const Ice::Current&);
-
     virtual Test::ByteList opByteRange(Test::ByteList, Test::ByteList&, const Ice::Current&);
 
     virtual Test::VariableList
@@ -125,12 +123,6 @@ public:
     virtual std::list< ::Test::CPtr> opCList(std::list< ::Test::CPtr>,
                                                 std::list< ::Test::CPtr>&,
                                                 const Ice::Current&);
-
-    virtual Test::ClassStruct opClassStruct(Test::ClassStruct,
-                                            Test::ClassStructSeq,
-                                            Test::ClassStruct& out,
-                                            Test::ClassStructSeq& outSeq,
-                                            const Ice::Current&);
 
     virtual void opOutArrayByteSeq(Test::ByteSeq, Test::ByteSeq&, const Ice::Current&);
 

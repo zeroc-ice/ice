@@ -42,13 +42,7 @@ interface I
     ["cpp:array"]
     void op3();
 
-    ["cpp:range"]
     void op4();
-}
-
-["cpp:class", "cpp:comparable"]
-class C
-{
 }
 
 ["cpp:const", "cpp:ice_print"]

@@ -12,9 +12,8 @@ WarningInvalidMetaData.ice: warning: ignoring invalid file metadata `cpp:include
 WarningInvalidMetaData.ice:35: warning: ignoring invalid metadata `cpp:type:std::list< ::std::string>' for operation with void return type
 WarningInvalidMetaData.ice:38: warning: ignoring invalid metadata `cpp:view-type:std::string_view' for operation with void return type
 WarningInvalidMetaData.ice:41: warning: ignoring invalid metadata `cpp:array' for operation with void return type
-WarningInvalidMetaData.ice:44: warning: ignoring invalid metadata `cpp:range' for operation with void return type
-WarningInvalidMetaData.ice:49: warning: ignoring invalid metadata `cpp:class'
-WarningInvalidMetaData.ice:49: warning: ignoring invalid metadata `cpp:comparable'
-WarningInvalidMetaData.ice:54: warning: ignoring invalid metadata `cpp:const'
-WarningInvalidMetaData.ice:54: warning: ignoring invalid metadata `cpp:ice_print'
-WarningInvalidMetaData.ice:60: warning: ignoring invalid metadata `cpp:virtual'
+WarningInvalidMetaData.ice:46: warning: ignoring invalid metadata `cpp:const'
+WarningInvalidMetaData.ice:46: warning: ignoring invalid metadata `cpp:ice_print'
+WarningInvalidMetaData.ice:52: warning: ignoring invalid metadata `cpp:virtual'
+WarningInvalidMetaData.ice:57: warning: ignoring invalid metadata `cpp98:foo'
+WarningInvalidMetaData.ice:57: warning: ignoring invalid metadata `cpp11:bar'

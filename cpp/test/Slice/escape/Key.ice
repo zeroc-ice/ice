@@ -17,7 +17,7 @@ struct auto
     int default;
 }
 
-["cpp:class"] struct delete
+struct delete
 {
     string else;
 }

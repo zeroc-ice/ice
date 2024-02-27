@@ -27,27 +27,6 @@ public:
                               std::function<void(const ::Test::VariableList&, const ::Test::VariableList&)>,
                               std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opBoolRangeAsync(Test::BoolSeq,
-                          std::function<void(const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opByteRangeAsync(Test::ByteList,
-                          std::function<void(const Test::ByteList&, const Test::ByteList&)>,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opVariableRangeAsync(Test::VariableList,
-                              std::function<void(const ::Test::VariableList&, const ::Test::VariableList&)>,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opByteRangeTypeAsync(Test::ByteList,
-                              std::function<void(const ::Test::ByteList&, const ::Test::ByteList&)>,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opVariableRangeTypeAsync(Test::VariableList,
-                                  std::function<void(const ::Test::VariableList&,
-                                                      const ::Test::VariableList&)>,
-                                  std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
     void opBoolSeqAsync(std::deque<bool>,
                         std::function<void(const std::deque<bool>&, const std::deque<bool>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
@@ -130,17 +109,8 @@ public:
                       std::function<void(const ::Test::CList&, const ::Test::CList&)>,
                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opClassStructAsync(::Test::ClassStruct, ::Test::ClassStructSeq,
-                            std::function<void(const ::Test::ClassStruct&,
-                                                const ::Test::ClassStruct&, const ::Test::ClassStructSeq&)>,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
     void opOutArrayByteSeqAsync(::Test::ByteSeq,
                                 std::function<void(const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void opOutRangeByteSeqAsync(::Test::ByteSeq,
-                                std::function<void(const Test::ByteSeq&)>,
                                 std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opIntStringDictAsync(::Test::IntStringDict,

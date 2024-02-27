@@ -42,47 +42,6 @@ TestIntfI::opVariableArrayAsync(std::pair<const Test::Variable*, const Test::Var
 }
 
 void
-TestIntfI::opBoolRangeAsync(Test::BoolSeq in,
-                            std::function<void(const Test::BoolSeq&, const Test::BoolSeq&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opByteRangeAsync(Test::ByteList in,
-                            std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opVariableRangeAsync(Test::VariableList in,
-                                std::function<void(const Test::VariableList&, const Test::VariableList&)> response,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opByteRangeTypeAsync(Test::ByteList in,
-                                std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
-TestIntfI::opVariableRangeTypeAsync(Test::VariableList in,
-                                    std::function<void(const Test::VariableList&,
-                                                        const Test::VariableList&)> response,
-                                    std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in, in);
-}
-
-void
 TestIntfI::opBoolSeqAsync(std::deque<bool> in,
                           std::function<void(const std::deque<bool>&, const std::deque<bool>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
@@ -241,28 +200,11 @@ TestIntfI::opCListAsync(Test::CList in,
 }
 
 void
-TestIntfI::opClassStructAsync(Test::ClassStruct in1, Test::ClassStructSeq in2,
-                              std::function<void(const Test::ClassStruct&,
-                                                  const Test::ClassStruct&, const Test::ClassStructSeq&)> response,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in1, in1, in2);
-}
-
-void
 TestIntfI::opOutArrayByteSeqAsync(Test::ByteSeq in,
                                   std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
                                   std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(std::make_pair(in.data(), in.data() + in.size()));
-}
-
-void
-TestIntfI::opOutRangeByteSeqAsync(Test::ByteSeq in,
-                                  std::function<void(const Test::ByteSeq&)> response,
-                                  std::function<void(std::exception_ptr)>, const Ice::Current&)
-{
-    response(in);
 }
 
 void
