@@ -11,7 +11,7 @@ using namespace std;
 using namespace Ice;
 using namespace Ice::Instrumentation;
 
-IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrx& proxy, const string& op, const Context& ctx)
+IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrx& proxy, string_view op, const Context& ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->_getReference()->getInstance()->initializationData().observer;
     if(!obsv)
@@ -21,7 +21,7 @@ IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrx& proxy,
     attach(obsv->getInvocationObserver(proxy, op, ctx));
 }
 
-IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* instance, const string& op)
+IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* instance, string_view op)
 {
     const CommunicatorObserverPtr& obsv = instance->initializationData().observer;
     if(!obsv)
@@ -33,7 +33,7 @@ IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* insta
 }
 
 void
-IceInternal::InvocationObserver::attach(const Ice::ObjectPrx& proxy, const string& op, const Context& ctx)
+IceInternal::InvocationObserver::attach(const Ice::ObjectPrx& proxy, string_view op, const Context& ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->_getReference()->getInstance()->initializationData().observer;
     if(!obsv)
@@ -44,7 +44,7 @@ IceInternal::InvocationObserver::attach(const Ice::ObjectPrx& proxy, const strin
 }
 
 void
-IceInternal::InvocationObserver::attach(IceInternal::Instance* instance, const string& op)
+IceInternal::InvocationObserver::attach(IceInternal::Instance* instance, string_view op)
 {
     const CommunicatorObserverPtr& obsv = instance->initializationData().observer;
     if(!obsv)

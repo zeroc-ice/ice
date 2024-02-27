@@ -638,7 +638,7 @@ OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous) :
 }
 
 void
-OutgoingAsync::prepare(const string& operation, OperationMode mode, const Context& context)
+OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context& context)
 {
     checkSupportedProtocol(getCompatibleProtocol(_proxy._getReference()->getProtocol()));
 
@@ -886,7 +886,7 @@ OutgoingAsync::abort(std::exception_ptr ex)
 }
 
 void
-OutgoingAsync::invoke(const string& operation)
+OutgoingAsync::invoke(string_view operation)
 {
     if (_proxy._getReference()->isBatch())
     {
@@ -908,7 +908,7 @@ OutgoingAsync::invoke(const string& operation)
 }
 
 void
-OutgoingAsync::invoke(const string& operation,
+OutgoingAsync::invoke(string_view operation,
                       Ice::OperationMode mode,
                       Ice::FormatType format,
                       const Ice::Context& context,

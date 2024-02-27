@@ -41,7 +41,7 @@ public:
 
     vector<RemoteLoggerPrx> log(const LogMessage&);
 
-    void deadRemoteLogger(const RemoteLoggerPrx&, const LoggerPtr&, exception_ptr, const string&);
+    void deadRemoteLogger(const RemoteLoggerPrx&, const LoggerPtr&, exception_ptr, std::string_view);
 
     int getTraceLevel() const
     {
@@ -548,7 +548,7 @@ void
 LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrx& remoteLogger,
                                const LoggerPtr& logger,
                                std::exception_ptr ex,
-                               const string& operation)
+                               string_view operation)
 {
     //
     // No need to convert remoteLogger as we only use its identity
