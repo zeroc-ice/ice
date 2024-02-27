@@ -17,5 +17,6 @@ IndentPPDirectives: AfterHash
 NamespaceIndentation: All
 PackConstructorInitializers: CurrentLine
 PointerAlignment: Left
+SortIncludes: Never
 TabWidth: 4
 UseTab: Never
