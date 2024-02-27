@@ -117,7 +117,6 @@ html {
     --menu-focus-background: var(--primary-color);
     --menu-selected-background: rgba(0,0,0,.05);
 
-
     --header-background: var(--page-background-color);
     --header-foreground: var(--page-foreground-color);
 
@@ -206,7 +205,7 @@ html {
         --code-background: #2a2c2f;
 
         --tablehead-background: #2a2c2f;
-    
+
         --blockquote-background: #222325;
         --blockquote-foreground: #7e8c92;
 
@@ -536,7 +535,6 @@ a.anchor {
     padding: 0 var(--spacing-large);
 }
 
-
 /*
  Search box
  */
@@ -831,7 +829,6 @@ html.dark-mode iframe#MSearchResults {
     background: var(--primary-color);
 }
 
-
 #nav-tree a {
     color: var(--side-nav-foreground) !important;
     font-weight: normal;
@@ -890,7 +887,7 @@ div.header {
         flex-wrap: nowrap;
         align-items: flex-start;
     }
-    
+
     div.contents .textblock {
         min-width: 200px;
         flex-grow: 1;
@@ -982,21 +979,21 @@ html.dark-mode div.contents .dotgraph iframe
 h2.groupheader {
     border-bottom: 0px;
     color: var(--page-foreground-color);
-    box-shadow: 
-        100px 0 var(--page-background-color), 
+    box-shadow:
+        100px 0 var(--page-background-color),
         -100px 0 var(--page-background-color),
         100px 0.75px var(--separator-color),
         -100px 0.75px var(--separator-color),
-        500px 0 var(--page-background-color), 
+        500px 0 var(--page-background-color),
         -500px 0 var(--page-background-color),
         500px 0.75px var(--separator-color),
         -500px 0.75px var(--separator-color),
-        900px 0 var(--page-background-color), 
+        900px 0 var(--page-background-color),
         -900px 0 var(--page-background-color),
         900px 0.75px var(--separator-color),
         -900px 0.75px var(--separator-color),
         1400px 0 var(--page-background-color),
-        -1400px 0 var(--page-background-color), 
+        -1400px 0 var(--page-background-color),
         1400px 0.75px var(--separator-color),
         -1400px 0.75px var(--separator-color),
         1900px 0 var(--page-background-color),
@@ -1133,7 +1130,6 @@ div.toc li a.aboveActive {
     color: var(--page-secondary-foreground-color) !important;
 }
 
-
 @media screen and (max-width: 999px) {
     div.contents .toc {
         max-height: 45vh;
@@ -1167,8 +1163,8 @@ div.toc li a.aboveActive {
 
     div.contents .toc.interactive > h3::before {
         content: "";
-        width: 0; 
-        height: 0; 
+        width: 0;
+        height: 0;
         border-left: 4px solid transparent;
         border-right: 4px solid transparent;
         border-top: 5px solid var(--primary-color);
@@ -1584,7 +1580,6 @@ dl.reflist {
     padding: 0;
 }
 
-
 dl.reflist dt, dl.reflist dd {
     box-shadow: none;
     text-shadow: none;
@@ -1593,7 +1588,6 @@ dl.reflist dt, dl.reflist dd {
     padding: 12px;
 }
 
-
 dl.reflist dt {
     font-weight: 500;
     border-radius: 0;
@@ -1601,7 +1595,6 @@ dl.reflist dt {
     border-bottom: 1px solid var(--separator-color);
     color: var(--page-foreground-color)
 }
-
 
 dl.reflist dd {
     background: none;
@@ -1864,8 +1857,8 @@ table.memberdecls img[src="closed.png"],
 table.memberdecls img[src="open.png"],
 div.dynheader img[src="open.png"],
 div.dynheader img[src="closed.png"] {
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
     border-top: 5px solid var(--primary-color);
@@ -1883,7 +1876,7 @@ table.memberdecls img {
 table.memberdecls img[src="closed.png"],
 div.dynheader img[src="closed.png"] {
     transform: rotate(-90deg);
-    
+
 }
 
 .compoundTemplParams {
@@ -1926,7 +1919,7 @@ div.dynheader img[src="closed.png"] {
         margin-bottom: calc(0px - var(--page-font-size));
     }
 
-    table.memberdecls .memItemRight, 
+    table.memberdecls .memItemRight,
     table.memberdecls .mdescRight,
     table.memberdecls .memTemplItemRight {
         border-top: 0;
@@ -1967,7 +1960,6 @@ div.dynheader img[src="closed.png"] {
         }
     }
 }
-
 
 /*
  Horizontal Rule
@@ -2112,8 +2104,8 @@ html.dark-mode .iconfopen, html.dark-mode .iconfclosed {
     background-color: transparent;
 }
 
-/* 
- Class Index Doxygen 1.8 
+/*
+ Class Index Doxygen 1.8
 */
 
 table.classindex {
@@ -2258,7 +2250,7 @@ div.contents .toc::-webkit-scrollbar-thumb,
     background-color: transparent;
     border: var(--webkit-scrollbar-padding) solid transparent;
     border-radius: calc(var(--webkit-scrollbar-padding) + var(--webkit-scrollbar-padding));
-    background-clip: padding-box;  
+    background-clip: padding-box;
 }
 
 #nav-tree:hover::-webkit-scrollbar-thumb,
@@ -2506,7 +2498,7 @@ h2:hover a.anchorlink, h1:hover a.anchorlink, h3:hover a.anchorlink, h4:hover a.
     cursor: pointer;
     box-shadow: 0 1px 0 0 var(--separator-color);
     position: relative;
-    
+
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -2561,7 +2553,6 @@ h2:hover a.anchorlink, h1:hover a.anchorlink, h3:hover a.anchorlink, h4:hover a.
     box-sizing: border-box;
     height: 3px;
 }
-
 
 /*
  Navigation Buttons
@@ -2635,12 +2626,10 @@ h2:hover a.anchorlink, h1:hover a.anchorlink, h3:hover a.anchorlink, h4:hover a.
     padding-right: var(--spacing-large);
 }
 
-
 .section_buttons tr td.markdownTableBodyRight a::after {
     content: '〉';
     padding-left: var(--spacing-large);
 }
-
 
 .section_buttons tr td.markdownTableBodyLeft a:hover::before {
     color: var(--page-foreground-color) !important;
