@@ -236,14 +236,14 @@ openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
             int err = IceUtilInternal::mkdir(path, 0777);
             // If slice2matlab is run concurrently, it's possible that another instance of slice2matlab has already
             // created the directory.
-            if (err == EEXIST && IceUtilInternal::directoryExists(path))
+            if (err == 0 || (errno == EEXIST && IceUtilInternal::directoryExists(path)))
             {
-                // Directory already exists, ignore the error
+                // Directory successfully created or already exists.
             }
-            else if(err != 0)
+            else
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(err);
+                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
