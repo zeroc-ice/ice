@@ -132,19 +132,6 @@ protected:
 };
 
 /**
- * This exception indicates an attempt to dereference a null IceUtil::Handle or
- * IceInternal::Handle.
- * \headerfile Ice/Ice.h
- */
-class ICE_API NullHandleException : public ExceptionHelper<NullHandleException>
-{
-public:
-
-    NullHandleException(const char*, int);
-    virtual std::string ice_id() const;
-};
-
-/**
  * This exception indicates that a function was called with an illegal parameter
  * value. It is used only by the Slice to C++98 mapping; std::invalid_argument is
  * used by the Slice to C++11 mapping.

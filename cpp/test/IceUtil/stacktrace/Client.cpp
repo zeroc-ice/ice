@@ -52,7 +52,7 @@ public:
     void fifth()
     {
         _idx++;
-        throw IceUtil::NullHandleException(__FILE__, __LINE__);
+        throw IceUtil::IllegalConversionException(__FILE__, __LINE__);
     }
 
 private:

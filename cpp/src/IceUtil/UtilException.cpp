@@ -590,21 +590,6 @@ IceUtil::operator<<(ostream& out, const IceUtil::Exception& ex)
     return out;
 }
 
-IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
-    ExceptionHelper<NullHandleException>(file, line)
-{
-    if(IceUtilInternal::nullHandleAbort)
-    {
-        abort();
-    }
-}
-
-string
-IceUtil::NullHandleException::ice_id() const
-{
-    return "::IceUtil::NullHandleException";
-}
-
 IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line) :
     ExceptionHelper<IllegalArgumentException>(file, line)
 {

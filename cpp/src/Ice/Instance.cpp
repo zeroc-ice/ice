@@ -959,11 +959,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     }
                 }
 
-                if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
-                {
-                    IceUtilInternal::nullHandleAbort = true;
-                }
-
 #ifdef NDEBUG
                 if(_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0)
                 {
