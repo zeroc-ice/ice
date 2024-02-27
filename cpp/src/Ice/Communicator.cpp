@@ -4,9 +4,7 @@
 
 #include <Ice/Communicator.h>
 
-Ice::Communicator::~Communicator()
-{
-}
+Ice::Communicator::~Communicator() {}
 
 void
 Ice::Communicator::flushBatchRequests(CompressBatch compress)
@@ -19,14 +17,7 @@ Ice::Communicator::flushBatchRequestsAsync(CompressBatch compress)
 {
     auto promise = std::make_shared<std::promise<void>>();
     flushBatchRequestsAsync(
-        compress,
-        [promise](std::exception_ptr ex)
-        {
-            promise->set_exception(ex);
-        },
-        [promise](bool)
-        {
-            promise->set_value();
-        });
+        compress, [promise](std::exception_ptr ex) { promise->set_exception(ex); },
+        [promise](bool) { promise->set_value(); });
     return promise->get_future();
 }

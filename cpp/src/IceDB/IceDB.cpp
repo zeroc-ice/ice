@@ -10,11 +10,7 @@
 using namespace IceDB;
 using namespace std;
 
-LMDBException::LMDBException(const char* file, int line, int err) :
-    IceUtil::Exception(file, line),
-    _error(err)
-{
-}
+LMDBException::LMDBException(const char* file, int line, int err) : IceUtil::Exception(file, line), _error(err) {}
 
 string
 LMDBException::ice_id() const
@@ -47,9 +43,9 @@ LMDBException::error() const
     return _error;
 }
 
-KeyTooLongException::KeyTooLongException(const char* file, int line, size_t size) :
-    IceUtil::Exception(file, line),
-    _size(size)
+KeyTooLongException::KeyTooLongException(const char* file, int line, size_t size)
+    : IceUtil::Exception(file, line),
+      _size(size)
 {
 }
 
@@ -64,7 +60,7 @@ KeyTooLongException::ice_print(ostream& out) const
 {
     IceUtil::Exception::ice_print(out);
     out << ": ";
-    if(_size > 0)
+    if (_size > 0)
     {
         out << "Key size = " << _size << ", ";
     }
@@ -83,9 +79,7 @@ KeyTooLongException::ice_throw() const
     throw *this;
 }
 
-BadEnvException::BadEnvException(const char* file, int line, size_t size) :
-    IceUtil::Exception(file, line),
-    _size(size)
+BadEnvException::BadEnvException(const char* file, int line, size_t size) : IceUtil::Exception(file, line), _size(size)
 {
 }
 
@@ -118,21 +112,21 @@ BadEnvException::ice_throw() const
 Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxReaders)
 {
     int rc = mdb_env_create(&_menv);
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
 
-    if(maxDbs != 0)
+    if (maxDbs != 0)
     {
         rc = mdb_env_set_maxdbs(_menv, maxDbs);
-        if(rc != MDB_SUCCESS)
+        if (rc != MDB_SUCCESS)
         {
             throw LMDBException(__FILE__, __LINE__, rc);
         }
     }
 
-    if(mapSize != 0)
+    if (mapSize != 0)
     {
         // Make sure the map size is a multiple of the page size
         size_t pageSize;
@@ -145,48 +139,45 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
         pageSize = static_cast<size_t>(sz == -1 ? 4096 : sz);
 #endif
         size_t remainder = mapSize % pageSize;
-        if(remainder != 0)
+        if (remainder != 0)
         {
             mapSize = mapSize + pageSize - remainder;
         }
         rc = mdb_env_set_mapsize(_menv, mapSize);
-        if(rc != MDB_SUCCESS)
+        if (rc != MDB_SUCCESS)
         {
             throw LMDBException(__FILE__, __LINE__, rc);
         }
     }
 
-    if(maxReaders != 0)
+    if (maxReaders != 0)
     {
         rc = mdb_env_set_maxreaders(_menv, maxReaders);
-        if(rc != MDB_SUCCESS)
+        if (rc != MDB_SUCCESS)
         {
             throw LMDBException(__FILE__, __LINE__, rc);
         }
     }
 
     rc = mdb_env_open(_menv, path.c_str(), 0, 0644);
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
 
     size_t envMaxKeySize = static_cast<size_t>(mdb_env_get_maxkeysize(_menv));
-    if(maxKeySize > envMaxKeySize)
+    if (maxKeySize > envMaxKeySize)
     {
         throw BadEnvException(__FILE__, __LINE__, envMaxKeySize);
     }
 }
 
-Env::~Env()
-{
-    close();
-}
+Env::~Env() { close(); }
 
 void
 Env::close()
 {
-    if(_menv != 0)
+    if (_menv != 0)
     {
         mdb_env_close(_menv);
         _menv = 0;
@@ -199,28 +190,23 @@ Env::menv() const
     return _menv;
 }
 
-Txn::Txn(const Env& env, unsigned int flags) :
-    _mtxn(0),
-    _readOnly(flags == MDB_RDONLY)
+Txn::Txn(const Env& env, unsigned int flags) : _mtxn(0), _readOnly(flags == MDB_RDONLY)
 {
     const int rc = mdb_txn_begin(env.menv(), 0, flags, &_mtxn);
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
 }
 
-Txn::~Txn()
-{
-    rollback();
-}
+Txn::~Txn() { rollback(); }
 
 void
 Txn::commit()
 {
     const int rc = mdb_txn_commit(_mtxn);
     _mtxn = 0;
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
@@ -229,7 +215,7 @@ Txn::commit()
 void
 Txn::rollback()
 {
-    if(_mtxn != 0)
+    if (_mtxn != 0)
     {
         mdb_txn_abort(_mtxn);
         _mtxn = 0;
@@ -242,14 +228,9 @@ Txn::mtxn() const
     return _mtxn;
 }
 
-ReadOnlyTxn::~ReadOnlyTxn()
-{
-}
+ReadOnlyTxn::~ReadOnlyTxn() {}
 
-ReadOnlyTxn::ReadOnlyTxn(const Env& env) :
-    Txn(env, MDB_RDONLY)
-{
-}
+ReadOnlyTxn::ReadOnlyTxn(const Env& env) : Txn(env, MDB_RDONLY) {}
 
 void
 ReadOnlyTxn::reset()
@@ -261,42 +242,34 @@ void
 ReadOnlyTxn::renew()
 {
     const int rc = mdb_txn_renew(_mtxn);
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
 }
 
-ReadWriteTxn::~ReadWriteTxn()
-{
-}
+ReadWriteTxn::~ReadWriteTxn() {}
 
-ReadWriteTxn::ReadWriteTxn(const Env& env) :
-    Txn(env, 0)
-{
-}
+ReadWriteTxn::ReadWriteTxn(const Env& env) : Txn(env, 0) {}
 
 DbiBase::DbiBase(const Txn& txn, const std::string& name, unsigned int flags, MDB_cmp_func* cmp)
 {
     int rc = mdb_dbi_open(txn.mtxn(), name.c_str(), flags, &_mdbi);
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
-    if(cmp != 0)
+    if (cmp != 0)
     {
         rc = mdb_set_compare(txn.mtxn(), _mdbi, cmp);
-        if(rc != MDB_SUCCESS)
+        if (rc != MDB_SUCCESS)
         {
             throw LMDBException(__FILE__, __LINE__, rc);
         }
     }
 }
 
-DbiBase::DbiBase() :
-    _mdbi(0)
-{
-}
+DbiBase::DbiBase() : _mdbi(0) {}
 
 void
 DbiBase::clear(const ReadWriteTxn& txn)
@@ -320,7 +293,7 @@ DbiBase::get(const Txn& txn, MDB_val* key, MDB_val* data) const
     assert(key->mv_size <= maxKeySize);
 
     const int rc = mdb_get(txn.mtxn(), _mdbi, key, data);
-    if(rc != MDB_SUCCESS && rc != MDB_NOTFOUND)
+    if (rc != MDB_SUCCESS && rc != MDB_NOTFOUND)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
@@ -333,7 +306,7 @@ DbiBase::put(const ReadWriteTxn& txn, MDB_val* key, MDB_val* data, unsigned int 
     assert(key->mv_size <= maxKeySize);
 
     const int rc = mdb_put(txn.mtxn(), _mdbi, key, data, flags);
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
@@ -359,11 +332,10 @@ DbiBase::del(const ReadWriteTxn& txn, MDB_val* key, MDB_val* data)
     return rc == MDB_SUCCESS;
 }
 
-CursorBase::CursorBase(MDB_dbi dbi, const Txn& txn) :
-    _readOnly(txn.isReadOnly())
+CursorBase::CursorBase(MDB_dbi dbi, const Txn& txn) : _readOnly(txn.isReadOnly())
 {
     const int rc = mdb_cursor_open(txn.mtxn(), dbi, &_mcursor);
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
@@ -371,7 +343,7 @@ CursorBase::CursorBase(MDB_dbi dbi, const Txn& txn) :
 
 CursorBase::~CursorBase()
 {
-    if(_readOnly)
+    if (_readOnly)
     {
         close();
     }
@@ -380,7 +352,7 @@ CursorBase::~CursorBase()
 void
 CursorBase::close()
 {
-    if(_mcursor != 0)
+    if (_mcursor != 0)
     {
         mdb_cursor_close(_mcursor);
         _mcursor = 0;
@@ -397,7 +369,7 @@ bool
 CursorBase::get(MDB_val* key, MDB_val* data, MDB_cursor_op op)
 {
     const int rc = mdb_cursor_get(_mcursor, key, data, op);
-    if(rc != MDB_SUCCESS && rc != MDB_NOTFOUND)
+    if (rc != MDB_SUCCESS && rc != MDB_NOTFOUND)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
@@ -447,7 +419,7 @@ CursorBase::renew(const ReadOnlyTxn& txn)
 {
     assert(_readOnly);
     const int rc = mdb_cursor_renew(txn.mtxn(), CursorBase::_mcursor);
-    if(rc != MDB_SUCCESS)
+    if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }

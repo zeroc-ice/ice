@@ -57,9 +57,7 @@ MetricsI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
-{
-}
+ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
 
 void
 ControllerI::hold(const Ice::Current&)

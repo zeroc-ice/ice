@@ -10,11 +10,11 @@
 namespace IceInternal
 {
 
-class DynamicLibrary;
-using DynamicLibraryPtr = std::shared_ptr<DynamicLibrary>;
+    class DynamicLibrary;
+    using DynamicLibraryPtr = std::shared_ptr<DynamicLibrary>;
 
-class DynamicLibraryList;
-using DynamicLibraryListPtr = std::shared_ptr<DynamicLibraryList>;
+    class DynamicLibraryList;
+    using DynamicLibraryListPtr = std::shared_ptr<DynamicLibraryList>;
 
 }
 #endif

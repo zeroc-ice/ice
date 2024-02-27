@@ -11,12 +11,12 @@
 namespace IcePy
 {
 
-extern PyTypeObject ConnectionInfoType;
+    extern PyTypeObject ConnectionInfoType;
 
-bool initConnectionInfo(PyObject*);
+    bool initConnectionInfo(PyObject*);
 
-PyObject* createConnectionInfo(const Ice::ConnectionInfoPtr&);
-Ice::ConnectionInfoPtr getConnectionInfo(PyObject*);
+    PyObject* createConnectionInfo(const Ice::ConnectionInfoPtr&);
+    Ice::ConnectionInfoPtr getConnectionInfo(PyObject*);
 
 }
 

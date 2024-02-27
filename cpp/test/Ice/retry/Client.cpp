@@ -13,7 +13,6 @@ using namespace Test;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -47,8 +46,7 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder ich2 = Ice::initialize(initData);
 
     RetryPrxPtr allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
-    RetryPrxPtr retry = allTests(ich1.communicator(),
-                                 ich2.communicator(),
+    RetryPrxPtr retry = allTests(ich1.communicator(), ich2.communicator(),
                                  "retry:" + TestHelper::getTestEndpoint(ich1->getProperties()));
     retry->shutdown();
 }

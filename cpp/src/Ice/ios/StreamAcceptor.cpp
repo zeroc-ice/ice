@@ -6,19 +6,19 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#include "StreamTransceiver.h"
-#include "StreamEndpointI.h"
-#include "StreamAcceptor.h"
+#    include "StreamTransceiver.h"
+#    include "StreamEndpointI.h"
+#    include "StreamAcceptor.h"
 
-#include <IceUtil/StringUtil.h>
+#    include <IceUtil/StringUtil.h>
 
-#include <Ice/Instance.h>
-#include <Ice/UniqueRef.h>
-#include <Ice/Network.h>
-#include <Ice/Exception.h>
-#include <Ice/Properties.h>
+#    include <Ice/Instance.h>
+#    include <Ice/UniqueRef.h>
+#    include <Ice/Network.h>
+#    include <Ice/Exception.h>
+#    include <Ice/Properties.h>
 
-#include <CoreFoundation/CoreFoundation.h>
+#    include <CoreFoundation/CoreFoundation.h>
 
 using namespace std;
 using namespace Ice;
@@ -33,7 +33,7 @@ IceObjC::StreamAcceptor::getNativeInfo()
 void
 IceObjC::StreamAcceptor::close()
 {
-    if(_fd != INVALID_SOCKET)
+    if (_fd != INVALID_SOCKET)
     {
         closeSocketNoThrow(_fd);
         _fd = INVALID_SOCKET;
@@ -48,7 +48,7 @@ IceObjC::StreamAcceptor::listen()
         const_cast<Address&>(_addr) = doBind(_fd, _addr);
         doListen(_fd, _backlog);
     }
-    catch(...)
+    catch (...)
     {
         _fd = INVALID_SOCKET;
         throw;
@@ -76,9 +76,9 @@ IceObjC::StreamAcceptor::accept()
         _instance->setupStreams(readStream.get(), writeStream.get(), true, "");
         return make_shared<StreamTransceiver>(_instance, readStream.release(), writeStream.release(), fd);
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
-        if(fd != INVALID_SOCKET)
+        if (fd != INVALID_SOCKET)
         {
             closeSocketNoThrow(fd);
         }
@@ -104,7 +104,7 @@ IceObjC::StreamAcceptor::toDetailedString() const
     ostringstream os;
     os << "local address = " << toString();
     vector<string> intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
-    if(!intfs.empty())
+    if (!intfs.empty())
     {
         os << "\nlocal interfaces = ";
         os << IceUtilInternal::joinString(intfs, ", ");
@@ -121,16 +121,16 @@ IceObjC::StreamAcceptor::effectivePort() const
 IceObjC::StreamAcceptor::StreamAcceptor(const StreamEndpointIPtr& endpoint,
                                         const InstancePtr& instance,
                                         const string& host,
-                                        int port) :
-    _endpoint(endpoint),
-    _instance(instance),
-    _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true))
+                                        int port)
+    : _endpoint(endpoint),
+      _instance(instance),
+      _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true))
 {
-#ifdef SOMAXCONN
+#    ifdef SOMAXCONN
     _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
-#else
+#    else
     _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
-#endif
+#    endif
 
     try
     {
@@ -139,16 +139,13 @@ IceObjC::StreamAcceptor::StreamAcceptor(const StreamEndpointIPtr& endpoint,
         setTcpBufSize(_fd, _instance);
         setReuseAddress(_fd, true);
     }
-    catch(...)
+    catch (...)
     {
         _fd = INVALID_SOCKET;
         throw;
     }
 }
 
-IceObjC::StreamAcceptor::~StreamAcceptor()
-{
-    assert(_fd == INVALID_SOCKET);
-}
+IceObjC::StreamAcceptor::~StreamAcceptor() { assert(_fd == INVALID_SOCKET); }
 
 #endif

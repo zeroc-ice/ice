@@ -10,11 +10,10 @@
 using namespace std;
 using namespace Test;
 
-ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
-                               const Ice::InitializationData& initData) :
-    _registry(registry),
-    _initData(initData),
-    _nextPort(1)
+ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry, const Ice::InitializationData& initData)
+    : _registry(registry),
+      _initData(initData),
+      _nextPort(1)
 {
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
     _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
@@ -25,7 +24,7 @@ ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
 void
 ServerManagerI::startServer(const Ice::Current&)
 {
-    for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
+    for (::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
         (*i)->waitForShutdown();
         (*i)->destroy();
@@ -48,7 +47,7 @@ ServerManagerI::startServer(const Ice::Current&)
     // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
     //
     int nRetry = 10;
-    while(--nRetry > 0)
+    while (--nRetry > 0)
     {
         Ice::ObjectAdapterPtr adapter;
         Ice::ObjectAdapterPtr adapter2;
@@ -77,20 +76,20 @@ ServerManagerI::startServer(const Ice::Current&)
             adapter2->activate();
             break;
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
-            if(nRetry == 0)
+            if (nRetry == 0)
             {
                 throw;
             }
 
             // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
             // browser clients if the driver uses ports in the same range as this test, ICE-8148)
-            if(adapter)
+            if (adapter)
             {
                 adapter->destroy();
             }
-            if(adapter2)
+            if (adapter2)
             {
                 adapter2->destroy();
             }
@@ -101,7 +100,7 @@ ServerManagerI::startServer(const Ice::Current&)
 void
 ServerManagerI::shutdown(const Ice::Current& current)
 {
-    for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
+    for (::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
     {
         (*i)->destroy();
     }
@@ -110,8 +109,10 @@ ServerManagerI::shutdown(const Ice::Current& current)
 
 TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
              const Ice::ObjectAdapterPtr& adapter2,
-             const ServerLocatorRegistryPtr& registry) :
-    _adapter1(adapter), _adapter2(adapter2), _registry(registry)
+             const ServerLocatorRegistryPtr& registry)
+    : _adapter1(adapter),
+      _adapter2(adapter2),
+      _registry(registry)
 {
     _registry->addObject(_adapter1->add(make_shared<HelloI>(), Ice::stringToIdentity("hello")));
 }
@@ -142,7 +143,7 @@ TestI::migrateHello(const Ice::Current&)
     {
         _registry->addObject(_adapter2->add(_adapter1->remove(id), id));
     }
-    catch(const Ice::NotRegisteredException&)
+    catch (const Ice::NotRegisteredException&)
     {
         _registry->addObject(_adapter1->add(_adapter2->remove(id), id));
     }

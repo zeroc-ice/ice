@@ -10,9 +10,9 @@ namespace Ice
 {
     class Value;
 
-/// \cond INTERNAL
-using ValuePtr = ::std::shared_ptr<Value>;
-/// \endcond
+    /// \cond INTERNAL
+    using ValuePtr = ::std::shared_ptr<Value>;
+    /// \endcond
 
 }
 

@@ -12,665 +12,597 @@ using namespace Test;
 namespace
 {
 
-void breakCycles(Ice::ValuePtr);
+    void breakCycles(Ice::ValuePtr);
 
-template<typename T>
-void breakCycles(const vector<shared_ptr<T>>& s)
-{
-    for(auto e : s)
+    template <typename T> void breakCycles(const vector<shared_ptr<T>>& s)
     {
-        breakCycles(e);
-    }
-}
-
-template<typename K, typename V>
-void breakCycles(const map<K, shared_ptr<V>>& d)
-{
-    for(auto e : d)
-    {
-        breakCycles(e.second);
-    }
-}
-
-void breakCycles(shared_ptr<Ice::Value> o)
-{
-    if(dynamic_pointer_cast<D1>(o))
-    {
-        auto d1 = dynamic_pointer_cast<D1>(o);
-        auto tmp = d1->pd1;
-        d1->pd1 = nullptr;
-        if(tmp != d1)
+        for (auto e : s)
         {
-            breakCycles(tmp);
+            breakCycles(e);
         }
     }
-    if(dynamic_pointer_cast<D3>(o))
+
+    template <typename K, typename V> void breakCycles(const map<K, shared_ptr<V>>& d)
     {
-        auto d3 = dynamic_pointer_cast<D3>(o);
-        d3->pd3 = nullptr;
-    }
-    if(dynamic_pointer_cast<B>(o))
-    {
-        auto b = dynamic_pointer_cast<B>(o);
-        if(b->pb)
+        for (auto e : d)
         {
-            b->pb->pb = nullptr;
-        }
-        b->pb = nullptr;
-    }
-    if(dynamic_pointer_cast<PDerived>(o))
-    {
-        auto p = dynamic_pointer_cast<PDerived>(o);
-        p->pb = nullptr;
-    }
-    if(dynamic_pointer_cast<CompactPDerived>(o))
-    {
-        auto p = dynamic_pointer_cast<CompactPDerived>(o);
-        p->pb = nullptr;
-    }
-    if(dynamic_pointer_cast<PCDerived>(o))
-    {
-        auto p = dynamic_pointer_cast<PCDerived>(o);
-        auto seq(p->pbs);
-        p->pbs.clear();
-        breakCycles(seq);
-    }
-    if(dynamic_pointer_cast<CompactPCDerived>(o))
-    {
-        auto p = dynamic_pointer_cast<CompactPCDerived>(o);
-        auto seq(p->pbs);
-        p->pbs.clear();
-        breakCycles(seq);
-    }
-    if(dynamic_pointer_cast<PCDerived3>(o))
-    {
-        auto p = dynamic_pointer_cast<PCDerived3>(o);
-        p->pcd3 = nullptr;
-    }
-    if(dynamic_pointer_cast<PNode>(o))
-    {
-        auto curr = dynamic_pointer_cast<PNode>(o);
-        while(curr && o != curr->next)
-        {
-            auto next = curr->next;
-            curr->next = nullptr;
-            curr = next;
+            breakCycles(e.second);
         }
     }
-    if(dynamic_pointer_cast<SS1>(o))
+
+    void breakCycles(shared_ptr<Ice::Value> o)
     {
-        auto s = dynamic_pointer_cast<SS1>(o);
-        breakCycles(s->s);
-    }
-    if(dynamic_pointer_cast<SS2>(o))
-    {
-        auto s = dynamic_pointer_cast<SS2>(o);
-        breakCycles(s->s);
-    }
-    if(dynamic_pointer_cast<Forward>(o))
-    {
-        auto f = dynamic_pointer_cast<Forward>(o);
-        f->h = nullptr;
-    }
-}
-
-class CallbackBase
-{
-public:
-
-    CallbackBase() :
-        _called(false)
-    {
-    }
-
-    virtual ~CallbackBase()
-    {
-    }
-
-    void check()
-    {
-        unique_lock lock(_mutex);
-        _condition.wait(lock, [this] { return _called; });
-        _called = false;
-    }
-
-protected:
-
-    void called()
-    {
-        lock_guard lock(_mutex);
-        assert(!_called);
-        _called = true;
-        _condition.notify_one();
-    }
-
-private:
-
-    bool _called;
-    mutex _mutex;
-    condition_variable _condition;
-};
-
-class Callback : public CallbackBase
-{
-public:
-
-    void
-    response_SBaseAsObject(const ::Ice::ValuePtr& o)
-    {
-        test(o);
-        test(o->ice_id() == "::Test::SBase");
-        SBasePtr sb = dynamic_pointer_cast<SBase>(o);
-        test(sb);
-        test(sb->sb == "SBase.sb");
-        called();
-    }
-
-    void
-    response_SBaseAsSBase(const SBasePtr& sb)
-    {
-        test(sb->sb == "SBase.sb");
-        breakCycles(sb);
-        called();
-    }
-
-    void
-    response_SBSKnownDerivedAsSBase(const SBasePtr& sb)
-    {
-        SBSKnownDerivedPtr sbskd = dynamic_pointer_cast<SBSKnownDerived>(sb);
-        test(sbskd);
-        test(sbskd->sbskd == "SBSKnownDerived.sbskd");
-        breakCycles(sbskd);
-        called();
-    }
-
-    void
-    response_SBSKnownDerivedAsSBSKnownDerived(const SBSKnownDerivedPtr& sbskd)
-    {
-        test(sbskd->sbskd == "SBSKnownDerived.sbskd");
-        breakCycles(sbskd);
-        called();
-    }
-
-    void
-    response_SBSUnknownDerivedAsSBase(const SBasePtr& sb)
-    {
-        test(sb->sb == "SBSUnknownDerived.sb");
-        breakCycles(sb);
-        called();
-    }
-
-    void
-    response_SBSUnknownDerivedAsSBaseCompact(const SBasePtr&)
-    {
-        test(false);
-    }
-
-    void
-    exception_SBSUnknownDerivedAsSBaseCompact(const Ice::Exception& exc)
-    {
-        test(exc.ice_id() == "::Ice::NoValueFactoryException");
-        called();
-    }
-
-    void
-    response_SUnknownAsObject10(const Ice::ValuePtr&)
-    {
-        test(false);
-    }
-
-    void
-    exception_SUnknownAsObject10(const Ice::Exception& exc)
-    {
-        test(exc.ice_id() == "::Ice::NoValueFactoryException");
-        called();
-    }
-
-    void
-    response_SUnknownAsObject11(const Ice::ValuePtr& o)
-    {
-        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
-        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
-        called();
-        dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
-    }
-
-    void
-    exception_SUnknownAsObject11(const Ice::Exception&)
-    {
-        test(false);
-    }
-
-    void
-    response_oneElementCycle(const BPtr& b)
-    {
-        test(b);
-        test(b->ice_id() == "::Test::B");
-        test(b->sb == "B1.sb");
-        test(b->pb == b);
-        breakCycles(b);
-        called();
-    }
-
-    void
-    response_twoElementCycle(const BPtr& b1)
-    {
-        test(b1);
-        test(b1->ice_id() == "::Test::B");
-        test(b1->sb == "B1.sb");
-
-        BPtr b2 = b1->pb;
-        test(b2);
-        test(b2->ice_id() == "::Test::B");
-        test(b2->sb == "B2.sb");
-        test(b2->pb == b1);
-        breakCycles(b1);
-        called();
-    }
-
-    void
-    response_D1AsB(const BPtr& b1)
-    {
-        test(b1);
-        test(b1->ice_id() == "::Test::D1");
-        test(b1->sb == "D1.sb");
-        test(b1->pb);
-        test(b1->pb != b1);
-        D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
-        test(d1);
-        test(d1->sd1 == "D1.sd1");
-        test(d1->pd1);
-        test(d1->pd1 != b1);
-        test(b1->pb == d1->pd1);
-
-        BPtr b2 = b1->pb;
-        test(b2);
-        test(b2->pb == b1);
-        test(b2->sb == "D2.sb");
-        test(b2->ice_id() == "::Test::B");
-        breakCycles(b1);
-        called();
-    }
-
-    void
-    response_D1AsD1(const D1Ptr& d1)
-    {
-        test(d1);
-        test(d1->ice_id() == "::Test::D1");
-        test(d1->sb == "D1.sb");
-        test(d1->pb);
-        test(d1->pb != d1);
-
-        BPtr b2 = d1->pb;
-        test(b2);
-        test(b2->ice_id() == "::Test::B");
-        test(b2->sb == "D2.sb");
-        test(b2->pb == d1);
-        breakCycles(d1);
-        called();
-    }
-
-    void
-    response_D2AsB(const BPtr& b2)
-    {
-        test(b2);
-        test(b2->ice_id() == "::Test::B");
-        test(b2->sb == "D2.sb");
-        test(b2->pb);
-        test(b2->pb != b2);
-
-        BPtr b1 = b2->pb;
-        test(b1);
-        test(b1->ice_id() == "::Test::D1");
-        test(b1->sb == "D1.sb");
-        test(b1->pb == b2);
-        D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
-        test(d1);
-        test(d1->sd1 == "D1.sd1");
-        test(d1->pd1 == b2);
-        breakCycles(b2);
-        called();
-    }
-
-    void
-    response_paramTest1(const BPtr& b1, const BPtr& b2)
-    {
-        test(b1);
-        test(b1->ice_id() == "::Test::D1");
-        test(b1->sb == "D1.sb");
-        test(b1->pb == b2);
-        D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
-        test(d1);
-        test(d1->sd1 == "D1.sd1");
-        test(d1->pd1 == b2);
-
-        test(b2);
-        test(b2->ice_id() == "::Test::B");      // No factory, must be sliced
-        test(b2->sb == "D2.sb");
-        test(b2->pb == b1);
-        breakCycles(b1);
-        breakCycles(b2);
-        called();
-    }
-
-    void
-    response_returnTest1(const BPtr& r, const BPtr& p1, const BPtr&)
-    {
-        test(r == p1);
-        breakCycles(r);
-        called();
-    }
-
-    void
-    response_returnTest2(const BPtr& r, const BPtr& p1, const BPtr&)
-    {
-        test(r == p1);
-        breakCycles(r);
-        called();
-    }
-
-    void
-    response_returnTest3(const BPtr& b)
-    {
-        rb = b;
-        called();
-    }
-
-    void
-    response_paramTest3(const BPtr& ret, const BPtr& p1, const BPtr& p2)
-    {
-        test(p1);
-        test(p1->sb == "D2.sb (p1 1)");
-        test(p1->pb == 0);
-        test(p1->ice_id() == "::Test::B");
-
-        test(p2);
-        test(p2->sb == "D2.sb (p2 1)");
-        test(p2->pb == 0);
-        test(p2->ice_id() == "::Test::B");
-
-        test(ret);
-        test(ret->sb == "D1.sb (p2 2)");
-        test(ret->pb == 0);
-        test(ret->ice_id() == "::Test::D1");
-        called();
-
-        breakCycles(ret);
-        breakCycles(p1);
-        breakCycles(p2);
-    }
-
-    void
-    response_paramTest4(const BPtr& ret, const BPtr& b)
-    {
-        test(b);
-        test(b->sb == "D4.sb (1)");
-        test(b->pb == 0);
-        test(b->ice_id() == "::Test::B");
-
-        test(ret);
-        test(ret->sb == "B.sb (2)");
-        test(ret->pb == 0);
-        test(ret->ice_id() == "::Test::B");
-        called();
-
-        breakCycles(ret);
-        breakCycles(b);
-    }
-
-    void
-    response_sequenceTest(const SS3& ss)
-    {
-        rss3 = ss;
-        called();
-    }
-
-    void
-    response_dictionaryTest(const BDict& r, const BDict& bout)
-    {
-        rbdict = r;
-        obdict = bout;
-        called();
-    }
-
-    void
-    exception_throwBaseAsBase(const ::Ice::Exception& ex)
-    {
-        test(ex.ice_id() == "::Test::BaseException");
-        const BaseException& e = dynamic_cast<const BaseException&>(ex);
-        test(e.sbe == "sbe");
-        test(e.pb);
-        test(e.pb->sb == "sb");
-        test(e.pb->pb == e.pb);
-        called();
-        breakCycles(e.pb);
-    }
-
-    void
-    exception_throwDerivedAsBase(const ::Ice::Exception& ex)
-    {
-        test(ex.ice_id() == "::Test::DerivedException");
-        const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
-        test(e.sbe == "sbe");
-        test(e.pb);
-        test(e.pb->sb == "sb1");
-        test(e.pb->pb == e.pb);
-        test(e.sde == "sde1");
-        test(e.pd1);
-        test(e.pd1->sb == "sb2");
-        test(e.pd1->pb == e.pd1);
-        test(e.pd1->sd1 == "sd2");
-        test(e.pd1->pd1 == e.pd1);
-        called();
-    }
-
-    void
-    exception_throwDerivedAsDerived(const ::Ice::Exception& ex)
-    {
-        test(ex.ice_id() == "::Test::DerivedException");
-        const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
-        test(e.sbe == "sbe");
-        test(e.pb);
-        test(e.pb->sb == "sb1");
-        test(e.pb->pb == e.pb);
-        test(e.sde == "sde1");
-        test(e.pd1);
-        test(e.pd1->sb == "sb2");
-        test(e.pd1->pb == e.pd1);
-        test(e.pd1->sd1 == "sd2");
-        test(e.pd1->pd1 == e.pd1);
-        called();
-    }
-
-    void
-    exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
-    {
-        test(ex.ice_id() == "::Test::BaseException");
-        const BaseException& e = dynamic_cast<const BaseException&>(ex);
-        test(e.sbe == "sbe");
-        test(e.pb);
-        test(e.pb->sb == "sb d2");
-        test(e.pb->pb == e.pb);
-        called();
-        breakCycles(e.pb);
-    }
-
-    void
-    response_preserved1(const PBasePtr& r)
-    {
-        PDerivedPtr pd = dynamic_pointer_cast<PDerived>(r);
-        test(pd);
-        test(pd->pi == 3);
-        test(pd->ps == "preserved");
-        test(pd->pb == pd);
-        called();
-
-        breakCycles(r);
-    }
-
-    void
-    response_preserved2(const PBasePtr& r)
-    {
-        PCUnknownPtr p2 = dynamic_pointer_cast<PCUnknown>(r);
-        test(!p2);
-        test(r->pi == 3);
-        called();
-
-        breakCycles(r);
-    }
-
-    void
-    response_preserved3(const PBasePtr& r)
-    {
-        //
-        // Encoding 1.0
-        //
-        PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
-        test(!p2);
-        test(r->pi == 3);
-        called();
-
-        breakCycles(r);
-    }
-
-    void
-    response_preserved4(const PBasePtr& r)
-    {
-        //
-        // Encoding > 1.0
-        //
-        PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
-        test(p2);
-        test(p2->pi == 3);
-        test(p2->pbs[0] == p2);
-        called();
-
-        breakCycles(r);
-    }
-
-    void
-    response_preserved5(const PBasePtr& r)
-    {
-        PCDerived3Ptr p3 = dynamic_pointer_cast<PCDerived3>(r);
-        test(p3);
-        test(p3->pi == 3);
-        for(int i = 0; i < 300; ++i)
+        if (dynamic_pointer_cast<D1>(o))
         {
-            PCDerived2Ptr p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[static_cast<size_t>(i)]);
-            test(p2->pi == i);
-            test(p2->pbs.size() == 1);
-            test(!p2->pbs[0]);
-            test(p2->pcd2 == i);
+            auto d1 = dynamic_pointer_cast<D1>(o);
+            auto tmp = d1->pd1;
+            d1->pd1 = nullptr;
+            if (tmp != d1)
+            {
+                breakCycles(tmp);
+            }
         }
-        test(p3->pcd2 == p3->pi);
-        test(p3->pcd3 == p3->pbs[10]);
-        called();
-
-        breakCycles(r);
+        if (dynamic_pointer_cast<D3>(o))
+        {
+            auto d3 = dynamic_pointer_cast<D3>(o);
+            d3->pd3 = nullptr;
+        }
+        if (dynamic_pointer_cast<B>(o))
+        {
+            auto b = dynamic_pointer_cast<B>(o);
+            if (b->pb)
+            {
+                b->pb->pb = nullptr;
+            }
+            b->pb = nullptr;
+        }
+        if (dynamic_pointer_cast<PDerived>(o))
+        {
+            auto p = dynamic_pointer_cast<PDerived>(o);
+            p->pb = nullptr;
+        }
+        if (dynamic_pointer_cast<CompactPDerived>(o))
+        {
+            auto p = dynamic_pointer_cast<CompactPDerived>(o);
+            p->pb = nullptr;
+        }
+        if (dynamic_pointer_cast<PCDerived>(o))
+        {
+            auto p = dynamic_pointer_cast<PCDerived>(o);
+            auto seq(p->pbs);
+            p->pbs.clear();
+            breakCycles(seq);
+        }
+        if (dynamic_pointer_cast<CompactPCDerived>(o))
+        {
+            auto p = dynamic_pointer_cast<CompactPCDerived>(o);
+            auto seq(p->pbs);
+            p->pbs.clear();
+            breakCycles(seq);
+        }
+        if (dynamic_pointer_cast<PCDerived3>(o))
+        {
+            auto p = dynamic_pointer_cast<PCDerived3>(o);
+            p->pcd3 = nullptr;
+        }
+        if (dynamic_pointer_cast<PNode>(o))
+        {
+            auto curr = dynamic_pointer_cast<PNode>(o);
+            while (curr && o != curr->next)
+            {
+                auto next = curr->next;
+                curr->next = nullptr;
+                curr = next;
+            }
+        }
+        if (dynamic_pointer_cast<SS1>(o))
+        {
+            auto s = dynamic_pointer_cast<SS1>(o);
+            breakCycles(s->s);
+        }
+        if (dynamic_pointer_cast<SS2>(o))
+        {
+            auto s = dynamic_pointer_cast<SS2>(o);
+            breakCycles(s->s);
+        }
+        if (dynamic_pointer_cast<Forward>(o))
+        {
+            auto f = dynamic_pointer_cast<Forward>(o);
+            f->h = nullptr;
+        }
     }
 
-    void
-    response_compactPreserved1(const PBasePtr& r)
+    class CallbackBase
     {
-        //
-        // Encoding 1.0
-        //
-        CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
-        test(!p2);
-        test(r->pi == 3);
-        called();
+    public:
+        CallbackBase() : _called(false) {}
 
-        breakCycles(r);
-    }
+        virtual ~CallbackBase() {}
 
-    void
-    response_compactPreserved2(const PBasePtr& r)
+        void check()
+        {
+            unique_lock lock(_mutex);
+            _condition.wait(lock, [this] { return _called; });
+            _called = false;
+        }
+
+    protected:
+        void called()
+        {
+            lock_guard lock(_mutex);
+            assert(!_called);
+            _called = true;
+            _condition.notify_one();
+        }
+
+    private:
+        bool _called;
+        mutex _mutex;
+        condition_variable _condition;
+    };
+
+    class Callback : public CallbackBase
     {
-        //
-        // Encoding > 1.0
-        //
-        CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
-        test(p2);
-        test(p2->pi == 3);
-        test(p2->pbs[0] == p2);
-        called();
+    public:
+        void response_SBaseAsObject(const ::Ice::ValuePtr& o)
+        {
+            test(o);
+            test(o->ice_id() == "::Test::SBase");
+            SBasePtr sb = dynamic_pointer_cast<SBase>(o);
+            test(sb);
+            test(sb->sb == "SBase.sb");
+            called();
+        }
 
-        breakCycles(r);
-    }
+        void response_SBaseAsSBase(const SBasePtr& sb)
+        {
+            test(sb->sb == "SBase.sb");
+            breakCycles(sb);
+            called();
+        }
 
-    void
-    response()
+        void response_SBSKnownDerivedAsSBase(const SBasePtr& sb)
+        {
+            SBSKnownDerivedPtr sbskd = dynamic_pointer_cast<SBSKnownDerived>(sb);
+            test(sbskd);
+            test(sbskd->sbskd == "SBSKnownDerived.sbskd");
+            breakCycles(sbskd);
+            called();
+        }
+
+        void response_SBSKnownDerivedAsSBSKnownDerived(const SBSKnownDerivedPtr& sbskd)
+        {
+            test(sbskd->sbskd == "SBSKnownDerived.sbskd");
+            breakCycles(sbskd);
+            called();
+        }
+
+        void response_SBSUnknownDerivedAsSBase(const SBasePtr& sb)
+        {
+            test(sb->sb == "SBSUnknownDerived.sb");
+            breakCycles(sb);
+            called();
+        }
+
+        void response_SBSUnknownDerivedAsSBaseCompact(const SBasePtr&) { test(false); }
+
+        void exception_SBSUnknownDerivedAsSBaseCompact(const Ice::Exception& exc)
+        {
+            test(exc.ice_id() == "::Ice::NoValueFactoryException");
+            called();
+        }
+
+        void response_SUnknownAsObject10(const Ice::ValuePtr&) { test(false); }
+
+        void exception_SUnknownAsObject10(const Ice::Exception& exc)
+        {
+            test(exc.ice_id() == "::Ice::NoValueFactoryException");
+            called();
+        }
+
+        void response_SUnknownAsObject11(const Ice::ValuePtr& o)
+        {
+            test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
+            test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
+            called();
+            dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
+        }
+
+        void exception_SUnknownAsObject11(const Ice::Exception&) { test(false); }
+
+        void response_oneElementCycle(const BPtr& b)
+        {
+            test(b);
+            test(b->ice_id() == "::Test::B");
+            test(b->sb == "B1.sb");
+            test(b->pb == b);
+            breakCycles(b);
+            called();
+        }
+
+        void response_twoElementCycle(const BPtr& b1)
+        {
+            test(b1);
+            test(b1->ice_id() == "::Test::B");
+            test(b1->sb == "B1.sb");
+
+            BPtr b2 = b1->pb;
+            test(b2);
+            test(b2->ice_id() == "::Test::B");
+            test(b2->sb == "B2.sb");
+            test(b2->pb == b1);
+            breakCycles(b1);
+            called();
+        }
+
+        void response_D1AsB(const BPtr& b1)
+        {
+            test(b1);
+            test(b1->ice_id() == "::Test::D1");
+            test(b1->sb == "D1.sb");
+            test(b1->pb);
+            test(b1->pb != b1);
+            D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
+            test(d1);
+            test(d1->sd1 == "D1.sd1");
+            test(d1->pd1);
+            test(d1->pd1 != b1);
+            test(b1->pb == d1->pd1);
+
+            BPtr b2 = b1->pb;
+            test(b2);
+            test(b2->pb == b1);
+            test(b2->sb == "D2.sb");
+            test(b2->ice_id() == "::Test::B");
+            breakCycles(b1);
+            called();
+        }
+
+        void response_D1AsD1(const D1Ptr& d1)
+        {
+            test(d1);
+            test(d1->ice_id() == "::Test::D1");
+            test(d1->sb == "D1.sb");
+            test(d1->pb);
+            test(d1->pb != d1);
+
+            BPtr b2 = d1->pb;
+            test(b2);
+            test(b2->ice_id() == "::Test::B");
+            test(b2->sb == "D2.sb");
+            test(b2->pb == d1);
+            breakCycles(d1);
+            called();
+        }
+
+        void response_D2AsB(const BPtr& b2)
+        {
+            test(b2);
+            test(b2->ice_id() == "::Test::B");
+            test(b2->sb == "D2.sb");
+            test(b2->pb);
+            test(b2->pb != b2);
+
+            BPtr b1 = b2->pb;
+            test(b1);
+            test(b1->ice_id() == "::Test::D1");
+            test(b1->sb == "D1.sb");
+            test(b1->pb == b2);
+            D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
+            test(d1);
+            test(d1->sd1 == "D1.sd1");
+            test(d1->pd1 == b2);
+            breakCycles(b2);
+            called();
+        }
+
+        void response_paramTest1(const BPtr& b1, const BPtr& b2)
+        {
+            test(b1);
+            test(b1->ice_id() == "::Test::D1");
+            test(b1->sb == "D1.sb");
+            test(b1->pb == b2);
+            D1Ptr d1 = dynamic_pointer_cast<D1>(b1);
+            test(d1);
+            test(d1->sd1 == "D1.sd1");
+            test(d1->pd1 == b2);
+
+            test(b2);
+            test(b2->ice_id() == "::Test::B"); // No factory, must be sliced
+            test(b2->sb == "D2.sb");
+            test(b2->pb == b1);
+            breakCycles(b1);
+            breakCycles(b2);
+            called();
+        }
+
+        void response_returnTest1(const BPtr& r, const BPtr& p1, const BPtr&)
+        {
+            test(r == p1);
+            breakCycles(r);
+            called();
+        }
+
+        void response_returnTest2(const BPtr& r, const BPtr& p1, const BPtr&)
+        {
+            test(r == p1);
+            breakCycles(r);
+            called();
+        }
+
+        void response_returnTest3(const BPtr& b)
+        {
+            rb = b;
+            called();
+        }
+
+        void response_paramTest3(const BPtr& ret, const BPtr& p1, const BPtr& p2)
+        {
+            test(p1);
+            test(p1->sb == "D2.sb (p1 1)");
+            test(p1->pb == 0);
+            test(p1->ice_id() == "::Test::B");
+
+            test(p2);
+            test(p2->sb == "D2.sb (p2 1)");
+            test(p2->pb == 0);
+            test(p2->ice_id() == "::Test::B");
+
+            test(ret);
+            test(ret->sb == "D1.sb (p2 2)");
+            test(ret->pb == 0);
+            test(ret->ice_id() == "::Test::D1");
+            called();
+
+            breakCycles(ret);
+            breakCycles(p1);
+            breakCycles(p2);
+        }
+
+        void response_paramTest4(const BPtr& ret, const BPtr& b)
+        {
+            test(b);
+            test(b->sb == "D4.sb (1)");
+            test(b->pb == 0);
+            test(b->ice_id() == "::Test::B");
+
+            test(ret);
+            test(ret->sb == "B.sb (2)");
+            test(ret->pb == 0);
+            test(ret->ice_id() == "::Test::B");
+            called();
+
+            breakCycles(ret);
+            breakCycles(b);
+        }
+
+        void response_sequenceTest(const SS3& ss)
+        {
+            rss3 = ss;
+            called();
+        }
+
+        void response_dictionaryTest(const BDict& r, const BDict& bout)
+        {
+            rbdict = r;
+            obdict = bout;
+            called();
+        }
+
+        void exception_throwBaseAsBase(const ::Ice::Exception& ex)
+        {
+            test(ex.ice_id() == "::Test::BaseException");
+            const BaseException& e = dynamic_cast<const BaseException&>(ex);
+            test(e.sbe == "sbe");
+            test(e.pb);
+            test(e.pb->sb == "sb");
+            test(e.pb->pb == e.pb);
+            called();
+            breakCycles(e.pb);
+        }
+
+        void exception_throwDerivedAsBase(const ::Ice::Exception& ex)
+        {
+            test(ex.ice_id() == "::Test::DerivedException");
+            const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
+            test(e.sbe == "sbe");
+            test(e.pb);
+            test(e.pb->sb == "sb1");
+            test(e.pb->pb == e.pb);
+            test(e.sde == "sde1");
+            test(e.pd1);
+            test(e.pd1->sb == "sb2");
+            test(e.pd1->pb == e.pd1);
+            test(e.pd1->sd1 == "sd2");
+            test(e.pd1->pd1 == e.pd1);
+            called();
+        }
+
+        void exception_throwDerivedAsDerived(const ::Ice::Exception& ex)
+        {
+            test(ex.ice_id() == "::Test::DerivedException");
+            const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
+            test(e.sbe == "sbe");
+            test(e.pb);
+            test(e.pb->sb == "sb1");
+            test(e.pb->pb == e.pb);
+            test(e.sde == "sde1");
+            test(e.pd1);
+            test(e.pd1->sb == "sb2");
+            test(e.pd1->pb == e.pd1);
+            test(e.pd1->sd1 == "sd2");
+            test(e.pd1->pd1 == e.pd1);
+            called();
+        }
+
+        void exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
+        {
+            test(ex.ice_id() == "::Test::BaseException");
+            const BaseException& e = dynamic_cast<const BaseException&>(ex);
+            test(e.sbe == "sbe");
+            test(e.pb);
+            test(e.pb->sb == "sb d2");
+            test(e.pb->pb == e.pb);
+            called();
+            breakCycles(e.pb);
+        }
+
+        void response_preserved1(const PBasePtr& r)
+        {
+            PDerivedPtr pd = dynamic_pointer_cast<PDerived>(r);
+            test(pd);
+            test(pd->pi == 3);
+            test(pd->ps == "preserved");
+            test(pd->pb == pd);
+            called();
+
+            breakCycles(r);
+        }
+
+        void response_preserved2(const PBasePtr& r)
+        {
+            PCUnknownPtr p2 = dynamic_pointer_cast<PCUnknown>(r);
+            test(!p2);
+            test(r->pi == 3);
+            called();
+
+            breakCycles(r);
+        }
+
+        void response_preserved3(const PBasePtr& r)
+        {
+            //
+            // Encoding 1.0
+            //
+            PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
+            test(!p2);
+            test(r->pi == 3);
+            called();
+
+            breakCycles(r);
+        }
+
+        void response_preserved4(const PBasePtr& r)
+        {
+            //
+            // Encoding > 1.0
+            //
+            PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
+            test(p2);
+            test(p2->pi == 3);
+            test(p2->pbs[0] == p2);
+            called();
+
+            breakCycles(r);
+        }
+
+        void response_preserved5(const PBasePtr& r)
+        {
+            PCDerived3Ptr p3 = dynamic_pointer_cast<PCDerived3>(r);
+            test(p3);
+            test(p3->pi == 3);
+            for (int i = 0; i < 300; ++i)
+            {
+                PCDerived2Ptr p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[static_cast<size_t>(i)]);
+                test(p2->pi == i);
+                test(p2->pbs.size() == 1);
+                test(!p2->pbs[0]);
+                test(p2->pcd2 == i);
+            }
+            test(p3->pcd2 == p3->pi);
+            test(p3->pcd3 == p3->pbs[10]);
+            called();
+
+            breakCycles(r);
+        }
+
+        void response_compactPreserved1(const PBasePtr& r)
+        {
+            //
+            // Encoding 1.0
+            //
+            CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
+            test(!p2);
+            test(r->pi == 3);
+            called();
+
+            breakCycles(r);
+        }
+
+        void response_compactPreserved2(const PBasePtr& r)
+        {
+            //
+            // Encoding > 1.0
+            //
+            CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
+            test(p2);
+            test(p2->pi == 3);
+            test(p2->pbs[0] == p2);
+            called();
+
+            breakCycles(r);
+        }
+
+        void response() { test(false); }
+
+        void exception(const ::Ice::Exception& ex)
+        {
+            if (!dynamic_cast<const Ice::OperationNotExistException*>(&ex))
+            {
+                test(false);
+            }
+            else
+            {
+                called();
+            }
+        }
+
+        BPtr rb;
+        SS3 rss3;
+        BDict rbdict;
+        BDict obdict;
+    };
+    using CallbackPtr = std::shared_ptr<Callback>;
+
+    class PNodeI : public virtual PNode
     {
-        test(false);
-    }
+    public:
+        PNodeI() { ++counter; }
 
-    void
-    exception(const ::Ice::Exception& ex)
+        virtual ~PNodeI() { --counter; }
+
+        static int counter;
+    };
+
+    int PNodeI::counter = 0;
+
+    void testUOO(const TestIntfPrxPtr& test)
     {
-        if(!dynamic_cast<const Ice::OperationNotExistException*>(&ex))
+        Ice::ValuePtr o;
+        try
+        {
+            o = test->SUnknownAsObject();
+            test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
+            test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
+            test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
+            test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData());
+            test->checkSUnknown(o);
+            dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
+        }
+        catch (const Ice::NoValueFactoryException&)
+        {
+            test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
+        }
+        catch (const std::exception& ex)
+        {
+            cout << ex.what() << endl;
+            test(false);
+        }
+        catch (...)
         {
             test(false);
         }
-        else
-        {
-            called();
-        }
     }
-
-    BPtr rb;
-    SS3 rss3;
-    BDict rbdict;
-    BDict obdict;
-};
-using CallbackPtr = std::shared_ptr<Callback>;
-
-class PNodeI : public virtual PNode
-{
-public:
-
-    PNodeI()
-    {
-        ++counter;
-    }
-
-    virtual ~PNodeI()
-    {
-        --counter;
-    }
-
-    static int counter;
-};
-
-int PNodeI::counter = 0;
-
-void
-testUOO(const TestIntfPrxPtr& test)
-{
-    Ice::ValuePtr o;
-    try
-    {
-        o = test->SUnknownAsObject();
-        test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
-        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
-        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
-        test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData());
-        test->checkSUnknown(o);
-        dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
-    }
-    catch(const Ice::NoValueFactoryException&)
-    {
-        test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
-    }
-    catch(const std::exception& ex)
-    {
-        cout << ex.what() << endl;
-        test(false);
-    }
-    catch(...)
-    {
-        test(false);
-    }
-}
 
 }
 
@@ -690,12 +622,12 @@ allTests(Test::TestHelper* helper)
             test(o);
             test(o->ice_id() == "::Test::SBase");
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             cerr << ex.what() << endl;
             test(false);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -717,7 +649,7 @@ allTests(Test::TestHelper* helper)
             test(sb);
             test(sb->sb == "SBase.sb");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -732,7 +664,7 @@ allTests(Test::TestHelper* helper)
             sb = test->SBaseAsSBase();
             test(sb->sb == "SBase.sb");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -746,7 +678,7 @@ allTests(Test::TestHelper* helper)
             auto sb = test->SBaseAsSBaseAsync().get();
             test(sb->sb == "SBase.sb");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -761,7 +693,7 @@ allTests(Test::TestHelper* helper)
             sb = test->SBSKnownDerivedAsSBase();
             test(sb->sb == "SBSKnownDerived.sb");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -783,7 +715,7 @@ allTests(Test::TestHelper* helper)
             test(sbskd);
             test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -798,7 +730,7 @@ allTests(Test::TestHelper* helper)
             sbskd = test->SBSKnownDerivedAsSBSKnownDerived();
             test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -813,7 +745,7 @@ allTests(Test::TestHelper* helper)
             SBSKnownDerivedPtr sbskd = test->SBSKnownDerivedAsSBSKnownDerived();
             test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -828,12 +760,12 @@ allTests(Test::TestHelper* helper)
             sb = test->SBSUnknownDerivedAsSBase();
             test(sb->sb == "SBSUnknownDerived.sb");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
     }
-    if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+    if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
     {
         try
         {
@@ -843,10 +775,10 @@ allTests(Test::TestHelper* helper)
             SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
             test(sb->sb == "SBSUnknownDerived.sb");
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -862,14 +794,14 @@ allTests(Test::TestHelper* helper)
             SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
             test(false);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
-        catch(const Ice::NoValueFactoryException&)
+        catch (const Ice::NoValueFactoryException&)
         {
             // Expected.
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -884,12 +816,12 @@ allTests(Test::TestHelper* helper)
             SBasePtr sb = f.get();
             test(sb->sb == "SBSUnknownDerived.sb");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
     }
-    if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+    if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
     {
         //
         // This test succeeds for the 1.0 encoding.
@@ -900,7 +832,7 @@ allTests(Test::TestHelper* helper)
             SBasePtr sb = f.get();
             test(sb->sb == "SBSUnknownDerived.sb");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -917,10 +849,10 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const Ice::NoValueFactoryException&)
+        catch (const Ice::NoValueFactoryException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -937,7 +869,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 auto f = test->SUnknownAsObjectAsync();
                 try
@@ -945,10 +877,10 @@ allTests(Test::TestHelper* helper)
                     f.get();
                     test(false);
                 }
-                catch(const Ice::NoValueFactoryException&)
+                catch (const Ice::NoValueFactoryException&)
                 {
                 }
-                catch(...)
+                catch (...)
                 {
                     test(false);
                 }
@@ -963,13 +895,13 @@ allTests(Test::TestHelper* helper)
                     test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_id() == "::Test::SUnknown");
                     dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_getSlicedData()->clear();
                 }
-                catch(...)
+                catch (...)
                 {
                     test(false);
                 }
             }
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -988,7 +920,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(b);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1008,7 +940,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(b);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1033,7 +965,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(b2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1059,7 +991,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(b2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1092,7 +1024,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(b1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1125,7 +1057,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(b1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1152,7 +1084,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(d1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1179,7 +1111,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(d1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1210,7 +1142,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(b2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1241,7 +1173,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(b2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1266,14 +1198,14 @@ allTests(Test::TestHelper* helper)
             test(d1->pd1 == b2);
 
             test(b2);
-            test(b2->ice_id() == "::Test::B");  // No factory, must be sliced
+            test(b2->ice_id() == "::Test::B"); // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
 
             breakCycles(b1);
             breakCycles(b2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1299,14 +1231,14 @@ allTests(Test::TestHelper* helper)
             test(d1->pd1 == b2);
 
             test(b2);
-            test(b2->ice_id() == "::Test::B");  // No factory, must be sliced
+            test(b2->ice_id() == "::Test::B"); // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
 
             breakCycles(b1);
             breakCycles(b2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1331,14 +1263,14 @@ allTests(Test::TestHelper* helper)
             test(d1->pd1 == b2);
 
             test(b2);
-            test(b2->ice_id() == "::Test::B");  // No factory, must be sliced
+            test(b2->ice_id() == "::Test::B"); // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
 
             breakCycles(b1);
             breakCycles(b2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1358,7 +1290,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(p1);
             breakCycles(p2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1376,7 +1308,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(std::get<0>(result));
             breakCycles(std::get<1>(result));
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1396,7 +1328,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(p1);
             breakCycles(p2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1414,7 +1346,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(std::get<0>(result));
             breakCycles(std::get<1>(result));
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1449,7 +1381,7 @@ allTests(Test::TestHelper* helper)
             BPtr b2 = b1->pb;
             test(b2);
             test(b2->sb == "D3.sb");
-            test(b2->ice_id() == "::Test::B");  // Sliced by server
+            test(b2->ice_id() == "::Test::B"); // Sliced by server
             test(b2->pb == b1);
             D3Ptr p3 = dynamic_pointer_cast<D3>(b2);
             test(!p3);
@@ -1463,7 +1395,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(d1);
             breakCycles(d3);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1499,7 +1431,7 @@ allTests(Test::TestHelper* helper)
             BPtr b2 = b1->pb;
             test(b2);
             test(b2->sb == "D3.sb");
-            test(b2->ice_id() == "::Test::B");  // Sliced by server
+            test(b2->ice_id() == "::Test::B"); // Sliced by server
             test(b2->pb == b1);
             D3Ptr p3 = dynamic_pointer_cast<D3>(b2);
             test(!p3);
@@ -1513,7 +1445,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(d1);
             breakCycles(d3);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1539,7 +1471,7 @@ allTests(Test::TestHelper* helper)
 
             test(b1);
             test(b1->sb == "D3.sb");
-            test(b1->ice_id() == "::Test::B");  // Sliced by server
+            test(b1->ice_id() == "::Test::B"); // Sliced by server
 
             D3Ptr p1 = dynamic_pointer_cast<D3>(b1);
             test(!p1);
@@ -1564,7 +1496,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(d1);
             breakCycles(d3);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1591,7 +1523,7 @@ allTests(Test::TestHelper* helper)
 
             test(b1);
             test(b1->sb == "D3.sb");
-            test(b1->ice_id() == "::Test::B");  // Sliced by server
+            test(b1->ice_id() == "::Test::B"); // Sliced by server
             D3Ptr p1 = dynamic_pointer_cast<D3>(b1);
             test(!p1);
 
@@ -1614,7 +1546,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(d1);
             breakCycles(d3);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1648,7 +1580,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(p1);
             breakCycles(p2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1684,7 +1616,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(p1);
             breakCycles(p2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1711,7 +1643,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(ret);
             breakCycles(b);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1740,7 +1672,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(ret);
             breakCycles(b);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1776,7 +1708,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(b1);
             breakCycles(d3);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1811,15 +1743,14 @@ allTests(Test::TestHelper* helper)
             breakCycles(d3);
             breakCycles(r);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
     }
     cout << "ok" << endl;
 
-    cout << "param ptr slicing, instance marshaled in unknown derived as derived... "
-         << flush;
+    cout << "param ptr slicing, instance marshaled in unknown derived as derived... " << flush;
     {
         try
         {
@@ -1851,15 +1782,14 @@ allTests(Test::TestHelper* helper)
             breakCycles(d12);
             breakCycles(r);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
     }
     cout << "ok" << endl;
 
-    cout << "param ptr slicing, instance marshaled in unknown derived as derived (AMI)... "
-         << flush;
+    cout << "param ptr slicing, instance marshaled in unknown derived as derived (AMI)... " << flush;
     {
         try
         {
@@ -1891,7 +1821,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(d12);
             breakCycles(r);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1984,7 +1914,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(ss.c1);
             breakCycles(ss.c2);
         }
-        catch(const ::Ice::Exception&)
+        catch (const ::Ice::Exception&)
         {
             test(false);
         }
@@ -2076,7 +2006,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(ss.c1);
             breakCycles(ss.c2);
         }
-        catch(const ::Ice::Exception&)
+        catch (const ::Ice::Exception&)
         {
             test(false);
         }
@@ -2091,7 +2021,7 @@ allTests(Test::TestHelper* helper)
             BDict bout;
             BDict r;
             int i;
-            for(i = 0; i < 10; ++i)
+            for (i = 0; i < 10; ++i)
             {
                 ostringstream s;
                 s << "D1." << i;
@@ -2105,7 +2035,7 @@ allTests(Test::TestHelper* helper)
             r = test->dictionaryTest(bin, bout);
 
             test(bout.size() == 10);
-            for(i = 0; i < 10; ++i)
+            for (i = 0; i < 10; ++i)
             {
                 BPtr b = bout.find(i * 10)->second;
                 test(b);
@@ -2119,7 +2049,7 @@ allTests(Test::TestHelper* helper)
             }
 
             test(r.size() == 10);
-            for(i = 0; i < 10; ++i)
+            for (i = 0; i < 10; ++i)
             {
                 BPtr b = r.find(i * 20)->second;
                 test(b);
@@ -2137,7 +2067,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(bout);
             breakCycles(r);
         }
-        catch(const ::Ice::Exception&)
+        catch (const ::Ice::Exception&)
         {
             test(false);
         }
@@ -2152,7 +2082,7 @@ allTests(Test::TestHelper* helper)
             BDict bout;
             BDict r;
             int i;
-            for(i = 0; i < 10; ++i)
+            for (i = 0; i < 10; ++i)
             {
                 ostringstream s;
                 s << "D1." << i;
@@ -2168,7 +2098,7 @@ allTests(Test::TestHelper* helper)
             bout = std::get<1>(result);
 
             test(bout.size() == 10);
-            for(i = 0; i < 10; ++i)
+            for (i = 0; i < 10; ++i)
             {
                 BPtr b = bout.find(i * 10)->second;
                 test(b);
@@ -2182,7 +2112,7 @@ allTests(Test::TestHelper* helper)
             }
 
             test(r.size() == 10);
-            for(i = 0; i < 10; ++i)
+            for (i = 0; i < 10; ++i)
             {
                 BPtr b = r.find(i * 20)->second;
                 test(b);
@@ -2200,7 +2130,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(bout);
             breakCycles(r);
         }
-        catch(const ::Ice::Exception&)
+        catch (const ::Ice::Exception&)
         {
             test(false);
         }
@@ -2214,7 +2144,7 @@ allTests(Test::TestHelper* helper)
             test->throwBaseAsBase();
             test(false);
         }
-        catch(const BaseException& e)
+        catch (const BaseException& e)
         {
             test(e.ice_id() == "::Test::BaseException");
             test(e.sbe == "sbe");
@@ -2223,7 +2153,7 @@ allTests(Test::TestHelper* helper)
             test(e.pb->pb == e.pb);
             breakCycles(e.pb);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2237,7 +2167,7 @@ allTests(Test::TestHelper* helper)
             test->throwBaseAsBaseAsync().get();
             test(false);
         }
-        catch(const BaseException& ex)
+        catch (const BaseException& ex)
         {
             test(ex.ice_id() == "::Test::BaseException");
             test(ex.sbe == "sbe");
@@ -2246,7 +2176,7 @@ allTests(Test::TestHelper* helper)
             test(ex.pb->pb == ex.pb);
             breakCycles(ex.pb);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2260,7 +2190,7 @@ allTests(Test::TestHelper* helper)
             test->throwDerivedAsBase();
             test(false);
         }
-        catch(const DerivedException& e)
+        catch (const DerivedException& e)
         {
             test(e.ice_id() == "::Test::DerivedException");
             test(e.sbe == "sbe");
@@ -2276,7 +2206,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(e.pb);
             breakCycles(e.pd1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2290,7 +2220,7 @@ allTests(Test::TestHelper* helper)
             test->throwDerivedAsBaseAsync().get();
             test(false);
         }
-        catch(const DerivedException& ex)
+        catch (const DerivedException& ex)
         {
             test(ex.ice_id() == "::Test::DerivedException");
             test(ex.sbe == "sbe");
@@ -2306,7 +2236,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(ex.pb);
             breakCycles(ex.pd1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2320,7 +2250,7 @@ allTests(Test::TestHelper* helper)
             test->throwDerivedAsDerived();
             test(false);
         }
-        catch(const DerivedException& e)
+        catch (const DerivedException& e)
         {
             test(e.ice_id() == "::Test::DerivedException");
             test(e.sbe == "sbe");
@@ -2336,7 +2266,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(e.pb);
             breakCycles(e.pd1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2350,7 +2280,7 @@ allTests(Test::TestHelper* helper)
             test->throwDerivedAsDerivedAsync().get();
             test(false);
         }
-        catch(const DerivedException& e)
+        catch (const DerivedException& e)
         {
             test(e.ice_id() == "::Test::DerivedException");
             test(e.sbe == "sbe");
@@ -2366,7 +2296,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(e.pb);
             breakCycles(e.pd1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2380,7 +2310,7 @@ allTests(Test::TestHelper* helper)
             test->throwUnknownDerivedAsBase();
             test(false);
         }
-        catch(const BaseException& e)
+        catch (const BaseException& e)
         {
             test(e.ice_id() == "::Test::BaseException");
             test(e.sbe == "sbe");
@@ -2389,7 +2319,7 @@ allTests(Test::TestHelper* helper)
             test(e.pb->pb == e.pb);
             breakCycles(e.pb);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2403,7 +2333,7 @@ allTests(Test::TestHelper* helper)
             test->throwUnknownDerivedAsBaseAsync().get();
             test(false);
         }
-        catch(const BaseException& e)
+        catch (const BaseException& e)
         {
             test(e.ice_id() == "::Test::BaseException");
             test(e.sbe == "sbe");
@@ -2412,7 +2342,7 @@ allTests(Test::TestHelper* helper)
             test(e.pb->pb == e.pb);
             breakCycles(e.pb);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2439,7 +2369,7 @@ allTests(Test::TestHelper* helper)
         breakCycles(r);
         breakCycles(pd);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
 
@@ -2458,7 +2388,7 @@ allTests(Test::TestHelper* helper)
 
         breakCycles(r);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
 
@@ -2473,7 +2403,7 @@ allTests(Test::TestHelper* helper)
         pcd->pbs.push_back(pcd);
         PBasePtr r = test->exchangePBase(pcd);
         PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
             test(r->pi == 3);
@@ -2488,7 +2418,7 @@ allTests(Test::TestHelper* helper)
         breakCycles(r);
         breakCycles(pcd);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
 
@@ -2503,7 +2433,7 @@ allTests(Test::TestHelper* helper)
         pcd->pbs.push_back(pcd);
         PBasePtr r = test->exchangePBase(pcd);
         CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
             test(r->pi == 3);
@@ -2518,7 +2448,7 @@ allTests(Test::TestHelper* helper)
         breakCycles(r);
         breakCycles(pcd);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
 
@@ -2534,7 +2464,7 @@ allTests(Test::TestHelper* helper)
         // Sending more than 254 objects exercises the encoding for object ids.
         //
         int i;
-        for(i = 0; i < 300; ++i)
+        for (i = 0; i < 300; ++i)
         {
             PCDerived2Ptr p2 = std::make_shared<PCDerived2>();
             p2->pi = i;
@@ -2547,7 +2477,7 @@ allTests(Test::TestHelper* helper)
 
         PBasePtr r = test->exchangePBase(pcd);
         PCDerived3Ptr p3 = dynamic_pointer_cast<PCDerived3>(r);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p3);
             test(dynamic_pointer_cast<Preserved>(r));
@@ -2557,7 +2487,7 @@ allTests(Test::TestHelper* helper)
         {
             test(p3);
             test(p3->pi == 3);
-            for(i = 0; i < 300; ++i)
+            for (i = 0; i < 300; ++i)
             {
                 PCDerived2Ptr p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[static_cast<size_t>(i)]);
                 test(p2->pi == i);
@@ -2572,7 +2502,7 @@ allTests(Test::TestHelper* helper)
         breakCycles(r);
         breakCycles(pcd);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
 
@@ -2585,7 +2515,7 @@ allTests(Test::TestHelper* helper)
         //
         PreservedPtr p = test->PBSUnknownAsPreserved();
         test->checkPBSUnknown(p);
-        if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
+        if (test->ice_getEncodingVersion() != Ice::Encoding_1_0)
         {
             Ice::SlicedDataPtr slicedData = p->ice_getSlicedData();
             test(slicedData);
@@ -2600,7 +2530,7 @@ allTests(Test::TestHelper* helper)
 
         breakCycles(p);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
 
@@ -2626,7 +2556,7 @@ allTests(Test::TestHelper* helper)
             test(r->pb == r);
             breakCycles(r);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2649,7 +2579,7 @@ allTests(Test::TestHelper* helper)
 
             breakCycles(r);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -2663,7 +2593,7 @@ allTests(Test::TestHelper* helper)
         PCDerivedPtr pcd = std::make_shared<PCDerived>();
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             auto r = test->exchangePBaseAsync(pcd).get();
             auto p2 = dynamic_pointer_cast<PCDerived>(r);
@@ -2694,7 +2624,7 @@ allTests(Test::TestHelper* helper)
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
 
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             auto r = test->exchangePBaseAsync(pcd).get();
             auto p2 = dynamic_pointer_cast<CompactPCDerived>(r);
@@ -2726,7 +2656,7 @@ allTests(Test::TestHelper* helper)
         //
         // Sending more than 254 objects exercises the encoding for object ids.
         //
-        for(int i = 0; i < 300; ++i)
+        for (int i = 0; i < 300; ++i)
         {
             PCDerived2Ptr p2 = std::make_shared<PCDerived2>();
             p2->pi = i;
@@ -2737,7 +2667,7 @@ allTests(Test::TestHelper* helper)
         pcd->pcd2 = pcd->pi;
         pcd->pcd3 = pcd->pbs[10];
 
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if (test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             auto r = test->exchangePBaseAsync(pcd).get();
             auto p2 = dynamic_pointer_cast<PCDerived>(r);
@@ -2752,7 +2682,7 @@ allTests(Test::TestHelper* helper)
             auto p3 = dynamic_pointer_cast<PCDerived3>(r);
             test(p3);
             test(p3->pi == 3);
-            for(int i = 0; i < 300; ++i)
+            for (int i = 0; i < 300; ++i)
             {
                 auto p2 = dynamic_pointer_cast<PCDerived2>(p3->pbs[static_cast<size_t>(i)]);
                 test(p2->pi == i);

@@ -10,7 +10,6 @@
 class MyByteSeq
 {
 public:
-
     typedef Ice::Byte* iterator;
     typedef Ice::Byte* const_iterator;
 
@@ -29,7 +28,6 @@ public:
     bool operator==(const MyByteSeq&) const;
 
 private:
-
     size_t _size;
     Ice::Byte* _data;
 };

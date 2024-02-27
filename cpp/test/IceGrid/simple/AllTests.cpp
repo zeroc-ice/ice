@@ -38,7 +38,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing locator finder... " << flush;
 
     auto finder = Ice::checkedCast<Ice::LocatorFinderPrx>(
-        communicator->getDefaultLocator()->ice_identity(Ice::Identity{ "LocatorFinder", "Ice" }));
+        communicator->getDefaultLocator()->ice_identity(Ice::Identity{"LocatorFinder", "Ice"}));
     test(finder->getLocator());
     cout << "ok" << endl;
 
@@ -48,9 +48,8 @@ allTests(Test::TestHelper* helper)
         cout << "testing discovery... " << flush;
         {
             // Add test well-known object
-            IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
-                communicator->stringToProxy(
-                    communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
+            IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(communicator->stringToProxy(
+                communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
             test(registry);
 
             IceGrid::AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
@@ -105,14 +104,14 @@ allTests(Test::TestHelper* helper)
             {
                 com->stringToProxy("test @ TestAdapter")->ice_ping();
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
             try
             {
                 com->stringToProxy("test")->ice_ping();
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
             test(!com->getDefaultLocator()->getRegistry());
@@ -121,7 +120,7 @@ allTests(Test::TestHelper* helper)
             {
                 test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
             }
-            catch(const Ice::OperationNotExistException&)
+            catch (const Ice::OperationNotExistException&)
             {
             }
 
@@ -132,7 +131,7 @@ allTests(Test::TestHelper* helper)
             com->destroy();
 
             string multicast;
-            if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+            if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
             {
                 multicast = "\"ff15::1\"";
             }
@@ -157,7 +156,7 @@ allTests(Test::TestHelper* helper)
                 com->stringToProxy("test @ TestAdapter")->ice_ping();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
             com->destroy();
@@ -176,7 +175,7 @@ allTests(Test::TestHelper* helper)
                 com->stringToProxy("test @ TestAdapter")->ice_ping();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
             com->destroy();
@@ -188,15 +187,15 @@ allTests(Test::TestHelper* helper)
                                              "IceLocatorDiscovery:createIceLocatorDiscovery");
             {
                 string intf = initData.properties->getProperty("IceLocatorDiscovery.Interface");
-                if(!intf.empty())
+                if (!intf.empty())
                 {
                     intf = " --interface \"" + intf + "\"";
                 }
                 ostringstream port;
                 port << TestHelper::getTestPort(initData.properties, 99);
                 initData.properties->setProperty("IceLocatorDiscovery.Lookup",
-                                                 "udp -h " + multicast + " --interface unknown:" +
-                                                 "udp -h " + multicast + " -p " + port.str() + intf);
+                                                 "udp -h " + multicast + " --interface unknown:" + "udp -h " +
+                                                     multicast + " -p " + port.str() + intf);
             }
             com = Ice::initialize(initData);
             test(com->getDefaultLocator());
@@ -204,7 +203,7 @@ allTests(Test::TestHelper* helper)
             {
                 com->stringToProxy("test @ TestAdapter")->ice_ping();
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
                 test(false);
             }
@@ -212,7 +211,7 @@ allTests(Test::TestHelper* helper)
         }
         cout << "ok" << endl;
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
         com->destroy();
         cout << "failed (is a firewall enabled?)" << endl;
@@ -257,7 +256,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
         base10->ice_ping();
         test(false);
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
     }
     try
@@ -265,7 +264,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
         base102->ice_ping();
         test(false);
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
     }
     base10 = base10->ice_encodingVersion(Ice::Encoding_1_0);
@@ -320,7 +319,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
         obj = Ice::checkedCast<TestIntfPrx>(base);
         test(false);
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
     }
     try
@@ -328,7 +327,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
         obj2 = Ice::checkedCast<TestIntfPrx>(base2);
         test(false);
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
     }
 
@@ -338,7 +337,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     {
         obj = Ice::checkedCast<TestIntfPrx>(base);
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
         test(false);
     }
@@ -346,7 +345,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     {
         obj2 = Ice::checkedCast<TestIntfPrx>(base2);
     }
-    catch(const Ice::NoEndpointException&)
+    catch (const Ice::NoEndpointException&)
     {
         test(false);
     }

@@ -11,10 +11,11 @@
 class CallbackReceiverI final : public Test::CallbackReceiver
 {
 public:
-
     void callback(const Ice::Current&) override;
     void callbackEx(const Ice::Current&) override;
-    void concurrentCallbackAsync(int, std::function<void(int)>, std::function<void(std::exception_ptr)>,
+    void concurrentCallbackAsync(int,
+                                 std::function<void(int)>,
+                                 std::function<void(std::exception_ptr)>,
                                  const ::Ice::Current&) override;
 
     void waitCallback(const ::Ice::Current&) override;
@@ -27,7 +28,6 @@ public:
     void answerConcurrentCallbacks(unsigned int);
 
 private:
-
     int _callback = 0;
     bool _waitCallback = false;
     bool _callbackWithPayload = false;
@@ -41,25 +41,30 @@ private:
 class CallbackI final : public ::Test::Callback
 {
 public:
-
     void initiateCallbackAsync(Test::CallbackReceiverPrxPtr,
-                               std::function<void()>, std::function<void(std::exception_ptr)>,
+                               std::function<void()>,
+                               std::function<void(std::exception_ptr)>,
                                const Ice::Current&) override;
 
     void initiateCallbackExAsync(Test::CallbackReceiverPrxPtr,
-                                 std::function<void()>, std::function<void(std::exception_ptr)>,
+                                 std::function<void()>,
+                                 std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) override;
 
-    void initiateConcurrentCallbackAsync(int, Test::CallbackReceiverPrxPtr,
-                                         std::function<void(int)>, std::function<void(std::exception_ptr)>,
+    void initiateConcurrentCallbackAsync(int,
+                                         Test::CallbackReceiverPrxPtr,
+                                         std::function<void(int)>,
+                                         std::function<void(std::exception_ptr)>,
                                          const Ice::Current&) override;
 
     void initiateWaitCallbackAsync(Test::CallbackReceiverPrxPtr,
-                                   std::function<void()>, std::function<void(std::exception_ptr)>,
+                                   std::function<void()>,
+                                   std::function<void(std::exception_ptr)>,
                                    const Ice::Current&) override;
 
     void initiateCallbackWithPayloadAsync(Test::CallbackReceiverPrxPtr,
-                                          std::function<void()>, std::function<void(std::exception_ptr)>,
+                                          std::function<void()>,
+                                          std::function<void(std::exception_ptr)>,
                                           const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;

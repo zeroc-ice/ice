@@ -13,7 +13,6 @@ using namespace Test;
 class Client final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -24,8 +23,8 @@ Client::run(int argc, char** argv)
     properties->setProperty("Ice.Warn.Connections", "0");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    auto router = uncheckedCast<Glacier2::RouterPrx>(
-        communicator->stringToProxy("Glacier2/router:" + getTestEndpoint("tcp")));
+    auto router =
+        uncheckedCast<Glacier2::RouterPrx>(communicator->stringToProxy("Glacier2/router:" + getTestEndpoint("tcp")));
     communicator->setDefaultRouter(router);
 
     //
@@ -38,7 +37,7 @@ Client::run(int argc, char** argv)
         session->ice_ping();
         router->destroySession();
     }
-    catch(const Glacier2::PermissionDeniedException&)
+    catch (const Glacier2::PermissionDeniedException&)
     {
         test(false);
     }
@@ -47,10 +46,10 @@ Client::run(int argc, char** argv)
     cout << "creating ssl session with tcp connection... ";
     try
     {
-        auto  session = router->createSessionFromSecureConnection();
+        auto session = router->createSessionFromSecureConnection();
         test(false);
     }
-    catch(const Glacier2::PermissionDeniedException&)
+    catch (const Glacier2::PermissionDeniedException&)
     {
     }
     cout << "ok" << endl;
@@ -60,8 +59,8 @@ Client::run(int argc, char** argv)
     // set a new SSL based router.
     //
     communicator->setDefaultRouter(nullopt);
-    router = uncheckedCast<Glacier2::RouterPrx>(
-        communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(1, "ssl")));
+    router =
+        uncheckedCast<Glacier2::RouterPrx>(communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(1, "ssl")));
     communicator->setDefaultRouter(router);
 
     //
@@ -74,7 +73,7 @@ Client::run(int argc, char** argv)
         session->ice_ping();
         router->destroySession();
     }
-    catch(const Glacier2::PermissionDeniedException&)
+    catch (const Glacier2::PermissionDeniedException&)
     {
         test(false);
     }
@@ -87,7 +86,7 @@ Client::run(int argc, char** argv)
         session->ice_ping();
         router->destroySession();
     }
-    catch(const Glacier2::PermissionDeniedException&)
+    catch (const Glacier2::PermissionDeniedException&)
     {
         test(false);
     }

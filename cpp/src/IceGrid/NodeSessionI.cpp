@@ -14,61 +14,52 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-class PatcherFeedbackI : public PatcherFeedback, public std::enable_shared_from_this<PatcherFeedback>
-{
-public:
-
-    PatcherFeedbackI(
-        const string& node,
-        const shared_ptr<NodeSessionI>& session,
-        const Ice::Identity id,
-        const shared_ptr<PatcherFeedbackAggregator>& aggregator) :
-        _node(node),
-        _session(session),
-        _id(id),
-        _aggregator(aggregator)
+    class PatcherFeedbackI : public PatcherFeedback, public std::enable_shared_from_this<PatcherFeedback>
     {
-    }
+    public:
+        PatcherFeedbackI(const string& node,
+                         const shared_ptr<NodeSessionI>& session,
+                         const Ice::Identity id,
+                         const shared_ptr<PatcherFeedbackAggregator>& aggregator)
+            : _node(node),
+              _session(session),
+              _id(id),
+              _aggregator(aggregator)
+        {
+        }
 
-    void finished(const Ice::Current&)
-    {
-        _aggregator->finished(_node);
-        _session->removeFeedback(shared_from_this(), _id);
-    }
+        void finished(const Ice::Current&)
+        {
+            _aggregator->finished(_node);
+            _session->removeFeedback(shared_from_this(), _id);
+        }
 
-    virtual void failed(string reason, const Ice::Current & = Ice::Current())
-    {
-        _aggregator->failed(_node, std::move(reason));
-        _session->removeFeedback(shared_from_this(), _id);
-    }
+        virtual void failed(string reason, const Ice::Current& = Ice::Current())
+        {
+            _aggregator->failed(_node, std::move(reason));
+            _session->removeFeedback(shared_from_this(), _id);
+        }
 
-private:
-
-    const std::string _node;
-    const shared_ptr<NodeSessionI> _session;
-    const Ice::Identity _id;
-    const shared_ptr<PatcherFeedbackAggregator> _aggregator;
-};
+    private:
+        const std::string _node;
+        const shared_ptr<NodeSessionI> _session;
+        const Ice::Identity _id;
+        const shared_ptr<PatcherFeedbackAggregator> _aggregator;
+    };
 
 }
 
 PatcherFeedbackAggregator::PatcherFeedbackAggregator(
-    Ice::Identity id,
-    const shared_ptr<TraceLevels>& traceLevels,
-    const string& type,
-    const string& name,
-    int nodeCount) :
-    _id(id),
-    _traceLevels(traceLevels),
-    _type(type),
-    _name(name),
-    _count(nodeCount)
+    Ice::Identity id, const shared_ptr<TraceLevels>& traceLevels, const string& type, const string& name, int nodeCount)
+    : _id(id),
+      _traceLevels(traceLevels),
+      _type(type),
+      _name(name),
+      _count(nodeCount)
 {
 }
 
-PatcherFeedbackAggregator::~PatcherFeedbackAggregator()
-{
-}
+PatcherFeedbackAggregator::~PatcherFeedbackAggregator() {}
 
 void
 PatcherFeedbackAggregator::finished(const string& node)
@@ -145,23 +136,23 @@ NodeSessionI::create(const shared_ptr<Database>& database,
     {
         database->getNode(info->name, true)->setSession(nodeSession);
 
-        ObjectInfo objInfo = { node, string{Node::ice_staticId()} };
+        ObjectInfo objInfo = {node, string{Node::ice_staticId()}};
         database->addInternalObject(objInfo, true); // Add or update previous node proxy.
 
-        nodeSession->_proxy = Ice::uncheckedCast<NodeSessionPrx>(
-            database->getInternalAdapter()->addWithUUID(nodeSession));
+        nodeSession->_proxy =
+            Ice::uncheckedCast<NodeSessionPrx>(database->getInternalAdapter()->addWithUUID(nodeSession));
     }
-    catch(const NodeActiveException&)
+    catch (const NodeActiveException&)
     {
         throw;
     }
-    catch(const std::exception&)
+    catch (const std::exception&)
     {
         try
         {
             database->removeInternalObject(node->ice_getIdentity());
         }
-        catch(const ObjectNotRegisteredException&)
+        catch (const ObjectNotRegisteredException&)
         {
         }
 
@@ -177,15 +168,15 @@ NodeSessionI::NodeSessionI(const shared_ptr<Database>& database,
                            const NodePrxPtr& node,
                            const shared_ptr<InternalNodeInfo>& info,
                            std::chrono::seconds timeout,
-                           const LoadInfo& load) :
-    _database(database),
-    _traceLevels(database->getTraceLevels()),
-    _node(node),
-    _info(info),
-    _timeout(timeout),
-    _timestamp(chrono::steady_clock::now()),
-    _load(load),
-    _destroy(false)
+                           const LoadInfo& load)
+    : _database(database),
+      _traceLevels(database->getTraceLevels()),
+      _node(node),
+      _info(info),
+      _timeout(timeout),
+      _timestamp(chrono::steady_clock::now()),
+      _load(load),
+      _destroy(false)
 {
 }
 
@@ -194,7 +185,7 @@ NodeSessionI::keepAlive(LoadInfo load, const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
-    if(_destroy)
+    if (_destroy)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -202,7 +193,7 @@ NodeSessionI::keepAlive(LoadInfo load, const Ice::Current&)
     _timestamp = chrono::steady_clock::now();
     _load = std::move(load);
 
-    if(_traceLevels->node > 2)
+    if (_traceLevels->node > 2)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
         out << "node `" << _info->name << "' keep alive ";
@@ -215,11 +206,11 @@ NodeSessionI::setReplicaObserver(ReplicaObserverPrxPtr observer, const Ice::Curr
 {
     lock_guard lock(_mutex);
 
-    if(_destroy)
+    if (_destroy)
     {
         return;
     }
-    else if(_replicaObserver) // This might happen on activation of the node.
+    else if (_replicaObserver) // This might happen on activation of the node.
     {
         assert(_replicaObserver == observer);
         return;
@@ -238,8 +229,8 @@ NodeSessionI::getTimeout(const Ice::Current&) const
 NodeObserverPrxPtr
 NodeSessionI::getObserver(const Ice::Current&) const
 {
-    return dynamic_pointer_cast<NodeObserverTopic>(
-        _database->getObserverTopic(TopicName::NodeObserver))->getPublisher();
+    return dynamic_pointer_cast<NodeObserverTopic>(_database->getObserverTopic(TopicName::NodeObserver))
+        ->getPublisher();
 }
 
 void
@@ -257,7 +248,7 @@ NodeSessionI::loadServersAsync(function<void()> response, function<void(exceptio
     // Get the server proxies to load them on the node.
     //
     auto servers = _database->getNode(_info->name)->getServers();
-    for(const auto& server : servers)
+    for (const auto& server : servers)
     {
         server->sync();
         server->waitForSyncNoThrow(1s); // Don't wait too long.
@@ -267,9 +258,9 @@ NodeSessionI::loadServersAsync(function<void()> response, function<void(exceptio
 Ice::StringSeq
 NodeSessionI::getServers(const Ice::Current&) const
 {
-    auto servers =  _database->getNode(_info->name)->getServers();
+    auto servers = _database->getNode(_info->name)->getServers();
     Ice::StringSeq names;
-    for(const auto& server : servers)
+    for (const auto& server : servers)
     {
         names.push_back(server->getId());
     }
@@ -277,11 +268,14 @@ NodeSessionI::getServers(const Ice::Current&) const
 }
 
 void
-NodeSessionI::waitForApplicationUpdateAsync(std::string application, int revision,
-                                            function<void()> response, function<void(exception_ptr)> exception,
-                                             const Ice::Current&) const
+NodeSessionI::waitForApplicationUpdateAsync(std::string application,
+                                            int revision,
+                                            function<void()> response,
+                                            function<void(exception_ptr)> exception,
+                                            const Ice::Current&) const
 {
-    _database->waitForApplicationUpdate(std::move(application), std::move(revision), std::move(response), std::move(exception));
+    _database->waitForApplicationUpdate(std::move(application), std::move(revision), std::move(response),
+                                        std::move(exception));
 }
 
 void
@@ -294,7 +288,7 @@ chrono::steady_clock::time_point
 NodeSessionI::timestamp() const
 {
     lock_guard lock(_mutex);
-    if(_destroy)
+    if (_destroy)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -308,12 +302,11 @@ NodeSessionI::shutdown()
 }
 
 void
-NodeSessionI::patch(
-    const shared_ptr<PatcherFeedbackAggregator>& aggregator,
-    const string& application,
-    const string& server,
-    const shared_ptr<InternalDistributionDescriptor>& dist,
-    bool shutdown)
+NodeSessionI::patch(const shared_ptr<PatcherFeedbackAggregator>& aggregator,
+                    const string& application,
+                    const string& server,
+                    const shared_ptr<InternalDistributionDescriptor>& dist,
+                    bool shutdown)
 {
     Ice::Identity id;
     id.category = _database->getInstanceName();
@@ -377,7 +370,7 @@ NodeSessionI::destroyImpl(bool shutdown)
 {
     {
         lock_guard lock(_mutex);
-        if(_destroy)
+        if (_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
@@ -385,7 +378,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     }
 
     ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
-    for(const auto& server : servers)
+    for (const auto& server : servers)
     {
         server->unsync();
     }
@@ -394,7 +387,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     // If the registry isn't being shutdown we remove the node
     // internal proxy from the database.
     //
-    if(!shutdown)
+    if (!shutdown)
     {
         _database->removeInternalObject(_node->ice_getIdentity());
     }
@@ -402,13 +395,12 @@ NodeSessionI::destroyImpl(bool shutdown)
     //
     // Next we notify the observer.
     //
-    static_pointer_cast<NodeObserverTopic>(
-        _database->getObserverTopic(TopicName::NodeObserver))->nodeDown(_info->name);
+    static_pointer_cast<NodeObserverTopic>(_database->getObserverTopic(TopicName::NodeObserver))->nodeDown(_info->name);
 
     //
     // Unsubscribe the node replica observer.
     //
-    if(_replicaObserver)
+    if (_replicaObserver)
     {
         _database->getReplicaCache().unsubscribe(_replicaObserver);
         _replicaObserver = nullopt;
@@ -421,21 +413,20 @@ NodeSessionI::destroyImpl(bool shutdown)
     //
     _database->getNode(_info->name)->setSession(nullptr);
 
-    if(!shutdown)
+    if (!shutdown)
     {
         try
         {
             _database->getInternalAdapter()->remove(_proxy->ice_getIdentity());
         }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDeactivatedException&)
         {
         }
     }
 }
 
-void NodeSessionI::removeFeedback(
-    const shared_ptr<PatcherFeedback>& feedback,
-    const Ice::Identity& id)
+void
+NodeSessionI::removeFeedback(const shared_ptr<PatcherFeedback>& feedback, const Ice::Identity& id)
 {
     try
     {

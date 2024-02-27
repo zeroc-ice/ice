@@ -17,7 +17,7 @@ IceInternal::FactoryTable::addExceptionFactory(string_view t, Ice::UserException
     lock_guard lock(_mutex);
     assert(f);
     EFTable::iterator i = _eft.find(t);
-    if(i == _eft.end())
+    if (i == _eft.end())
     {
         _eft[string{t}] = EFPair(f, 1);
     }
@@ -49,9 +49,9 @@ IceInternal::FactoryTable::removeExceptionFactory(string_view t)
 {
     lock_guard lock(_mutex);
     EFTable::iterator i = _eft.find(t);
-    if(i != _eft.end())
+    if (i != _eft.end())
     {
-        if(--i->second.second == 0)
+        if (--i->second.second == 0)
         {
             _eft.erase(i);
         }
@@ -67,7 +67,7 @@ IceInternal::FactoryTable::addValueFactory(string_view t, ::Ice::ValueFactoryFun
     lock_guard lock(_mutex);
     assert(f);
     VFTable::iterator i = _vft.find(t);
-    if(i == _vft.end())
+    if (i == _vft.end())
     {
         _vft[string{t}] = VFPair(f, 1);
     }
@@ -99,9 +99,9 @@ IceInternal::FactoryTable::removeValueFactory(string_view t)
 {
     lock_guard lock(_mutex);
     VFTable::iterator i = _vft.find(t);
-    if(i != _vft.end())
+    if (i != _vft.end())
     {
-        if(--i->second.second == 0)
+        if (--i->second.second == 0)
         {
             _vft.erase(i);
         }
@@ -117,7 +117,7 @@ IceInternal::FactoryTable::addTypeId(int compactId, string_view typeId)
     lock_guard lock(_mutex);
     assert(!typeId.empty() && compactId >= 0);
     TypeIdTable::iterator i = _typeIdTable.find(compactId);
-    if(i == _typeIdTable.end())
+    if (i == _typeIdTable.end())
     {
         _typeIdTable[compactId] = TypeIdPair(string{typeId}, 1);
     }
@@ -143,9 +143,9 @@ IceInternal::FactoryTable::removeTypeId(int compactId)
 {
     lock_guard lock(_mutex);
     TypeIdTable::iterator i = _typeIdTable.find(compactId);
-    if(i != _typeIdTable.end())
+    if (i != _typeIdTable.end())
     {
-        if(--i->second.second == 0)
+        if (--i->second.second == 0)
         {
             _typeIdTable.erase(i);
         }

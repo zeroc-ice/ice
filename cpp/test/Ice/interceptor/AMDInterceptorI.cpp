@@ -9,10 +9,7 @@
 
 using namespace std;
 
-AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) :
-    InterceptorI(servant)
-{
-}
+AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) : InterceptorI(servant) {}
 
 bool
 AMDInterceptorI::dispatch(Ice::Request& request)
@@ -20,17 +17,17 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
 
     Ice::Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
-    if(p != current.ctx.end())
+    if (p != current.ctx.end())
     {
-        if(p->second == "user")
+        if (p->second == "user")
         {
             throw Test::InvalidInputException();
         }
-        else if(p->second == "notExist")
+        else if (p->second == "notExist")
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
-        else if(p->second == "system")
+        else if (p->second == "system")
         {
             throw MySystemException(__FILE__, __LINE__);
         }
@@ -38,30 +35,32 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 
     _lastOperation = current.operation;
 
-    if(_lastOperation == "amdAddWithRetry")
+    if (_lastOperation == "amdAddWithRetry")
     {
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
-            _lastStatus = _servant->ice_dispatch(request, nullptr, [](exception_ptr ex) {
-                try
-                {
-                    rethrow_exception(ex);
-                }
-                catch(const MyRetryException&)
-                {
-                }
-                catch(...)
-                {
-                    test(false);
-                }
-                return false;
-            });
+            _lastStatus = _servant->ice_dispatch(request, nullptr,
+                                                 [](exception_ptr ex)
+                                                 {
+                                                     try
+                                                     {
+                                                         rethrow_exception(ex);
+                                                     }
+                                                     catch (const MyRetryException&)
+                                                     {
+                                                     }
+                                                     catch (...)
+                                                     {
+                                                         test(false);
+                                                     }
+                                                     return false;
+                                                 });
             test(!_lastStatus);
         }
 
         current.ctx["retry"] = "no";
     }
-    else if(current.ctx.find("retry") != current.ctx.end() && current.ctx["retry"] == "yes")
+    else if (current.ctx.find("retry") != current.ctx.end() && current.ctx["retry"] == "yes")
     {
         //
         // Retry the dispatch to ensure that abandoning the result of the dispatch
@@ -71,23 +70,26 @@ AMDInterceptorI::dispatch(Ice::Request& request)
         _servant->ice_dispatch(request);
     }
 
-    _lastStatus = _servant->ice_dispatch(request, []() { return true; }, [this](exception_ptr ex) {
-        setException(ex);
-        return true;
-    });
+    _lastStatus = _servant->ice_dispatch(
+        request, []() { return true; },
+        [this](exception_ptr ex)
+        {
+            setException(ex);
+            return true;
+        });
 
     p = current.ctx.find("raiseAfterDispatch");
-    if(p != current.ctx.end())
+    if (p != current.ctx.end())
     {
-        if(p->second == "user")
+        if (p->second == "user")
         {
             throw Test::InvalidInputException();
         }
-        else if(p->second == "notExist")
+        else if (p->second == "notExist")
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
-        else if(p->second == "system")
+        else if (p->second == "system")
         {
             throw MySystemException(__FILE__, __LINE__);
         }

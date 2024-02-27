@@ -10,46 +10,31 @@ using namespace std;
 namespace
 {
 
-//
-// A no-op Logger, used when testing the Logger Admin
-//
+    //
+    // A no-op Logger, used when testing the Logger Admin
+    //
 
-class NullLogger : public Ice::Logger, public std::enable_shared_from_this<NullLogger>
-{
-public:
-
-    virtual void print(const string&)
+    class NullLogger : public Ice::Logger, public std::enable_shared_from_this<NullLogger>
     {
-    }
+    public:
+        virtual void print(const string&) {}
 
-    virtual void trace(const string&, const string&)
-    {
-    }
+        virtual void trace(const string&, const string&) {}
 
-    virtual void warning(const string&)
-    {
-    }
+        virtual void warning(const string&) {}
 
-    virtual void error(const string&)
-    {
-    }
+        virtual void error(const string&) {}
 
-    virtual string getPrefix()
-    {
-        return "NullLogger";
-    }
+        virtual string getPrefix() { return "NullLogger"; }
 
-    virtual Ice::LoggerPtr cloneWithPrefix(const string&)
-    {
-        return shared_from_this();
-    }
-};
+        virtual Ice::LoggerPtr cloneWithPrefix(const string&) { return shared_from_this(); }
+    };
 
 }
 
-RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator),
-    _removeCallback(nullptr)
+RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator)
+    : _communicator(communicator),
+      _removeCallback(nullptr)
 {
 }
 
@@ -64,9 +49,9 @@ RemoteCommunicatorI::getChanges(const Ice::Current&)
 {
     lock_guard lock(_mutex);
 
-    if(_removeCallback)
+    if (_removeCallback)
     {
-       return _changes;
+        return _changes;
     }
     else
     {
@@ -80,12 +65,11 @@ RemoteCommunicatorI::addUpdateCallback(const Ice::Current&)
     lock_guard lock(_mutex);
 
     Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
-    if(propFacet)
+    if (propFacet)
     {
         Ice::NativePropertiesAdminPtr admin = dynamic_pointer_cast<Ice::NativePropertiesAdmin>(propFacet);
         assert(admin);
-        _removeCallback =
-            admin->addUpdateCallback([this](const Ice::PropertyDict& changes) { updated(changes); });
+        _removeCallback = admin->addUpdateCallback([this](const Ice::PropertyDict& changes) { updated(changes); });
     }
 }
 
@@ -95,17 +79,16 @@ RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
     lock_guard lock(_mutex);
 
     Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
-    if(propFacet)
+    if (propFacet)
     {
         Ice::NativePropertiesAdminPtr admin = dynamic_pointer_cast<Ice::NativePropertiesAdmin>(propFacet);
         assert(admin);
-        if(_removeCallback)
+        if (_removeCallback)
         {
             _removeCallback();
             _removeCallback = nullptr;
         }
     }
-
 }
 
 void
@@ -114,8 +97,7 @@ RemoteCommunicatorI::print(std::string message, const Ice::Current&)
     _communicator->getLogger()->print(message);
 }
 void
-RemoteCommunicatorI::trace(std::string category,
-                           std::string message, const Ice::Current&)
+RemoteCommunicatorI::trace(std::string category, std::string message, const Ice::Current&)
 {
     _communicator->getLogger()->trace(category, message);
 }
@@ -167,12 +149,12 @@ RemoteCommunicatorFactoryI::createCommunicator(Ice::PropertyDict props, const Ic
     //
     Ice::InitializationData init;
     init.properties = Ice::createProperties();
-    for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    for (Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         init.properties->setProperty(p->first, p->second);
     }
 
-    if(init.properties->getPropertyAsInt("NullLogger") > 0)
+    if (init.properties->getPropertyAsInt("NullLogger") > 0)
     {
         init.logger = make_shared<NullLogger>();
     }

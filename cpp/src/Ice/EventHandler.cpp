@@ -9,20 +9,19 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::EventHandler::EventHandler() :
+IceInternal::EventHandler::EventHandler()
+    :
 #if defined(ICE_USE_IOCP)
-    _pending(SocketOperationNone),
-    _started(SocketOperationNone),
-    _completed(SocketOperationNone),
-    _finish(false),
+      _pending(SocketOperationNone),
+      _started(SocketOperationNone),
+      _completed(SocketOperationNone),
+      _finish(false),
 #else
-    _disabled(SocketOperationNone),
+      _disabled(SocketOperationNone),
 #endif
-    _ready(SocketOperationNone),
-    _registered(SocketOperationNone)
+      _ready(SocketOperationNone),
+      _registered(SocketOperationNone)
 {
 }
 
-IceInternal::EventHandler::~EventHandler()
-{
-}
+IceInternal::EventHandler::~EventHandler() {}

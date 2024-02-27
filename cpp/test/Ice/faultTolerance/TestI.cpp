@@ -5,9 +5,7 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI()
-{
-}
+TestI::TestI() {}
 
 void
 TestI::shutdown(const Ice::Current& current)

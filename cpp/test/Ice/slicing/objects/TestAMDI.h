@@ -10,7 +10,6 @@
 class TestI : public virtual ::Test::TestIntf
 {
 public:
-
     TestI();
     virtual void SBaseAsObjectAsync(std::function<void(const std::shared_ptr<Ice::Value>&)>,
                                     std::function<void(std::exception_ptr)>,
@@ -24,9 +23,10 @@ public:
                                              std::function<void(std::exception_ptr)>,
                                              const ::Ice::Current&);
 
-    virtual void SBSKnownDerivedAsSBSKnownDerivedAsync(std::function<void(const std::shared_ptr<Test::SBSKnownDerived>&)>,
-                                                       std::function<void(std::exception_ptr)>,
-                                                       const ::Ice::Current&);
+    virtual void
+    SBSKnownDerivedAsSBSKnownDerivedAsync(std::function<void(const std::shared_ptr<Test::SBSKnownDerived>&)>,
+                                          std::function<void(std::exception_ptr)>,
+                                          const ::Ice::Current&);
 
     virtual void SBSUnknownDerivedAsSBaseAsync(std::function<void(const std::shared_ptr<Test::SBase>&)>,
                                                std::function<void(std::exception_ptr)>,
@@ -65,38 +65,35 @@ public:
                             std::function<void(std::exception_ptr)>,
                             const ::Ice::Current&);
 
-    virtual void paramTest1Async(std::function<void(const std::shared_ptr<Test::B>&,
-                                                     const std::shared_ptr<Test::B>&)>,
+    virtual void paramTest1Async(std::function<void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const ::Ice::Current&);
 
-    virtual void paramTest2Async(std::function<void(const std::shared_ptr<Test::B>&,
-                                                     const std::shared_ptr<Test::B>&)>,
+    virtual void paramTest2Async(std::function<void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const ::Ice::Current&);
 
-    virtual void paramTest3Async(std::function<void(const std::shared_ptr<Test::B>&,
-                                                     const std::shared_ptr<Test::B>&,
-                                                     const std::shared_ptr<Test::B>&)>,
+    virtual void paramTest3Async(
+        std::function<
+            void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
+        std::function<void(std::exception_ptr)>,
+        const ::Ice::Current&);
+
+    virtual void paramTest4Async(std::function<void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const ::Ice::Current&);
 
-    virtual void paramTest4Async(std::function<void(const std::shared_ptr<Test::B>&,
-                                                     const std::shared_ptr<Test::B>&)>,
-                                 std::function<void(std::exception_ptr)>,
-                                 const ::Ice::Current&);
+    virtual void returnTest1Async(
+        std::function<
+            void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
+        std::function<void(std::exception_ptr)>,
+        const ::Ice::Current&);
 
-    virtual void returnTest1Async(std::function<void(const std::shared_ptr<Test::B>&,
-                                                      const std::shared_ptr<Test::B>&,
-                                                      const std::shared_ptr<Test::B>&)>,
-                                  std::function<void(std::exception_ptr)>,
-                                  const ::Ice::Current&);
-
-    virtual void returnTest2Async(std::function<void(const std::shared_ptr<Test::B>&,
-                                                      const std::shared_ptr<Test::B>&,
-                                                      const std::shared_ptr<Test::B>&)>,
-                                  std::function<void(std::exception_ptr)>,
-                                  const ::Ice::Current&);
+    virtual void returnTest2Async(
+        std::function<
+            void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
+        std::function<void(std::exception_ptr)>,
+        const ::Ice::Current&);
 
     virtual void returnTest3Async(std::shared_ptr<::Test::B>,
                                   std::shared_ptr<::Test::B>,
@@ -152,33 +149,27 @@ public:
                                     std::function<void(std::exception_ptr)>,
                                     const ::Ice::Current&);
 
-    virtual void throwBaseAsBaseAsync(std::function<void()>,
-                                      std::function<void(std::exception_ptr)>,
-                                      const ::Ice::Current&);
+    virtual void
+    throwBaseAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&);
 
-    virtual void throwDerivedAsBaseAsync(std::function<void()>,
-                                         std::function<void(std::exception_ptr)>,
-                                         const ::Ice::Current&);
+    virtual void
+    throwDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&);
 
-    virtual void throwDerivedAsDerivedAsync(std::function<void()>,
-                                            std::function<void(std::exception_ptr)>,
-                                            const ::Ice::Current&);
+    virtual void
+    throwDerivedAsDerivedAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&);
 
     virtual void throwUnknownDerivedAsBaseAsync(std::function<void()>,
                                                 std::function<void(std::exception_ptr)>,
                                                 const ::Ice::Current&);
 
-    virtual void throwPreservedExceptionAsync(std::function<void()>,
-                                              std::function<void(std::exception_ptr)>,
-                                              const ::Ice::Current&);
+    virtual void
+    throwPreservedExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&);
 
     virtual void useForwardAsync(std::function<void(const std::shared_ptr<::Test::Forward>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const ::Ice::Current&);
 
-    virtual void shutdownAsync(std::function<void()>,
-                               std::function<void(std::exception_ptr)>,
-                               const ::Ice::Current&);
+    virtual void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&);
 };
 
 #endif

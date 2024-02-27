@@ -12,73 +12,69 @@ using namespace Test;
 namespace
 {
 
-void
-testUOE(const Ice::CommunicatorPtr& communicator)
-{
-    string ref = "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties());
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    test(base);
-    UnexpectedObjectExceptionTestPrxPtr uoet = Ice::uncheckedCast<UnexpectedObjectExceptionTestPrx>(base);
-    test(uoet);
-    try
+    void testUOE(const Ice::CommunicatorPtr& communicator)
     {
-        uoet->op();
-        test(false);
+        string ref = "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties());
+        Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
+        test(base);
+        UnexpectedObjectExceptionTestPrxPtr uoet = Ice::uncheckedCast<UnexpectedObjectExceptionTestPrx>(base);
+        test(uoet);
+        try
+        {
+            uoet->op();
+            test(false);
+        }
+        catch (const Ice::UnexpectedObjectException& ex)
+        {
+            test(ex.type == "::Test::AlsoEmpty");
+            test(ex.expectedType == "::Test::Empty");
+        }
+        catch (const Ice::Exception& ex)
+        {
+            cout << ex << endl;
+            test(false);
+        }
+        catch (...)
+        {
+            test(false);
+        }
     }
-    catch(const Ice::UnexpectedObjectException& ex)
-    {
-        test(ex.type == "::Test::AlsoEmpty");
-        test(ex.expectedType == "::Test::Empty");
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cout << ex << endl;
-        test(false);
-    }
-    catch(...)
-    {
-        test(false);
-    }
-}
 
-void clear(const CPtr&);
+    void clear(const CPtr&);
 
-void
-clear(const BPtr& b)
-{
-    if(dynamic_pointer_cast<B>(b->theA))
+    void clear(const BPtr& b)
     {
-        auto tmp = b->theA;
-        b->theA = nullptr;
-        clear(dynamic_pointer_cast<B>(tmp));
+        if (dynamic_pointer_cast<B>(b->theA))
+        {
+            auto tmp = b->theA;
+            b->theA = nullptr;
+            clear(dynamic_pointer_cast<B>(tmp));
+        }
+        if (b->theB)
+        {
+            auto tmp = b->theB;
+            b->theB = nullptr;
+            clear(dynamic_pointer_cast<B>(tmp));
+        }
+        b->theC = nullptr;
     }
-    if(b->theB)
-    {
-        auto tmp = b->theB;
-        b->theB = nullptr;
-        clear(dynamic_pointer_cast<B>(tmp));
-    }
-    b->theC = nullptr;
-}
 
-void
-clear(const CPtr& c)
-{
-    clear(c->theB);
-    c->theB = nullptr;
-}
-
-void
-clear(const DPtr& d)
-{
-    if(dynamic_pointer_cast<B>(d->theA))
+    void clear(const CPtr& c)
     {
-        clear(dynamic_pointer_cast<B>(d->theA));
+        clear(c->theB);
+        c->theB = nullptr;
     }
-    d->theA = nullptr;
-    clear(d->theB);
-    d->theB = nullptr;
-}
+
+    void clear(const DPtr& d)
+    {
+        if (dynamic_pointer_cast<B>(d->theA))
+        {
+            clear(dynamic_pointer_cast<B>(d->theA));
+        }
+        d->theA = nullptr;
+        clear(d->theB);
+        d->theB = nullptr;
+    }
 
 }
 
@@ -276,10 +272,8 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "getting D1... " << flush;
-    D1Ptr d1 = make_shared<D1>(make_shared<A1>("a1"),
-                               make_shared<A1>("a2"),
-                               make_shared<A1>("a3"),
-                               make_shared<A1>("a4"));
+    D1Ptr d1 =
+        make_shared<D1>(make_shared<A1>("a1"), make_shared<A1>("a2"), make_shared<A1>("a3"), make_shared<A1>("a4"));
     d1 = initial->getD1(d1);
     test(d1->a1->name == "a1");
     test(d1->a2->name == "a2");
@@ -293,7 +287,7 @@ allTests(Test::TestHelper* helper)
         initial->throwEDerived();
         test(false);
     }
-    catch(const EDerived& ederived)
+    catch (const EDerived& ederived)
     {
         test(ederived.a1->name == "a1");
         test(ederived.a2->name == "a2");
@@ -308,7 +302,7 @@ allTests(Test::TestHelper* helper)
     {
         initial->setG(g);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
     cout << "ok" << endl;
@@ -335,26 +329,24 @@ allTests(Test::TestHelper* helper)
         // With debug, marshalling a graph of 2000 elements can cause a stack overflow on macOS
         const int maxDepth = 1500;
 #endif
-        for(; depth <= maxDepth; ++depth)
+        for (; depth <= maxDepth; ++depth)
         {
             p->v = make_shared<Recursive>();
             p = p->v;
-            if((depth < 10 && (depth % 10) == 0) ||
-               (depth < 1000 && (depth % 100) == 0) ||
-               (depth < 10000 && (depth % 1000) == 0) ||
-               (depth % 10000) == 0)
+            if ((depth < 10 && (depth % 10) == 0) || (depth < 1000 && (depth % 100) == 0) ||
+                (depth < 10000 && (depth % 1000) == 0) || (depth % 10000) == 0)
             {
                 initial->setRecursive(top);
             }
         }
         test(!initial->supportsClassGraphDepthMax());
     }
-    catch(const Ice::UnknownLocalException&)
+    catch (const Ice::UnknownLocalException&)
     {
         // Expected marshal exception from the server (max class graph depth reached)
         test(depth == 100); // The default is 100.
     }
-    catch(const Ice::UnknownException&)
+    catch (const Ice::UnknownException&)
     {
         // Expected stack overflow from the server (Java only)
     }
@@ -366,7 +358,7 @@ allTests(Test::TestHelper* helper)
     {
         test(initial->getCompact());
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
     cout << "ok" << endl;
@@ -404,14 +396,14 @@ allTests(Test::TestHelper* helper)
             {
                 p->throwDerived();
             }
-            catch(const BaseEx& ex)
+            catch (const BaseEx& ex)
             {
                 test(ex.ice_id() == "::Test::DerivedEx");
             }
         }
         cout << "ok" << endl;
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
     }
 
@@ -440,7 +432,6 @@ allTests(Test::TestHelper* helper)
 
         test(m1->v[k2]->data == "two");
         test(m2->v[k2]->data == "two");
-
     }
     cout << "ok" << endl;
 
@@ -452,14 +443,13 @@ allTests(Test::TestHelper* helper)
         test(f12->name == "F12");
 
         F2PrxPtr f22;
-        F2PrxPtr f21 = initial->opF2(Ice::uncheckedCast<F2Prx>(
-                                         communicator->stringToProxy("F21:" + helper->getTestEndpoint())),
-                                     f22);
+        F2PrxPtr f21 = initial->opF2(
+            Ice::uncheckedCast<F2Prx>(communicator->stringToProxy("F21:" + helper->getTestEndpoint())), f22);
         test(f21->ice_getIdentity().name == "F21");
         f21->op();
         test(f22->ice_getIdentity().name == "F22");
 
-        if(initial->hasF3())
+        if (initial->hasF3())
         {
             F3Ptr f32;
             F3Ptr f31 = initial->opF3(make_shared<F3>(f11, f21), f32);
@@ -482,7 +472,7 @@ allTests(Test::TestHelper* helper)
             initial->setCycle(rec);
             test(acceptsCycles);
         }
-        catch(const Ice::UnknownLocalException&)
+        catch (const Ice::UnknownLocalException&)
         {
             // expected when the remote server does not accept cycles
             // and throws a MarshalException

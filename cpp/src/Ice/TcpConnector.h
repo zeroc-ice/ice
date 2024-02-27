@@ -13,30 +13,32 @@
 namespace IceInternal
 {
 
-class TcpConnector final : public Connector
-{
-public:
+    class TcpConnector final : public Connector
+    {
+    public:
+        TcpConnector(const ProtocolInstancePtr&,
+                     const Address&,
+                     const NetworkProxyPtr&,
+                     const Address&,
+                     std::int32_t,
+                     const std::string&);
+        ~TcpConnector();
+        TransceiverPtr connect() final;
 
-    TcpConnector(const ProtocolInstancePtr&, const Address&, const NetworkProxyPtr&, const Address&, std::int32_t,
-                 const std::string&);
-    ~TcpConnector();
-    TransceiverPtr connect() final;
+        std::int16_t type() const final;
+        std::string toString() const final;
 
-    std::int16_t type() const final;
-    std::string toString() const final;
+        bool operator==(const Connector&) const final;
+        bool operator<(const Connector&) const final;
 
-    bool operator==(const Connector&) const final;
-    bool operator<(const Connector&) const final;
-
-private:
-
-    const ProtocolInstancePtr _instance;
-    const Address _addr;
-    const NetworkProxyPtr _proxy;
-    const Address _sourceAddr;
-    const std::int32_t _timeout;
-    const std::string _connectionId;
-};
+    private:
+        const ProtocolInstancePtr _instance;
+        const Address _addr;
+        const NetworkProxyPtr _proxy;
+        const Address _sourceAddr;
+        const std::int32_t _timeout;
+        const std::string _connectionId;
+    };
 
 }
 

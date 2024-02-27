@@ -8,10 +8,7 @@
 using namespace std;
 using namespace Test;
 
-SessionManagerI::SessionManagerI(const shared_ptr<TestControllerI>& controller):
-    _controller(controller)
-{
-}
+SessionManagerI::SessionManagerI(const shared_ptr<TestControllerI>& controller) : _controller(controller) {}
 
 Glacier2::SessionPrxPtr
 SessionManagerI::create(string, Glacier2::SessionControlPrxPtr sessionControl, const Ice::Current& current)
@@ -22,10 +19,9 @@ SessionManagerI::create(string, Glacier2::SessionControlPrxPtr sessionControl, c
     return newSession;
 }
 
-SessionI::SessionI(Glacier2::SessionControlPrxPtr sessionControl,
-                   shared_ptr<TestControllerI> controller) :
-    _sessionControl(std::move(sessionControl)),
-    _controller(std::move(controller))
+SessionI::SessionI(Glacier2::SessionControlPrxPtr sessionControl, shared_ptr<TestControllerI> controller)
+    : _sessionControl(std::move(sessionControl)),
+      _controller(std::move(controller))
 {
     assert(_sessionControl);
 }

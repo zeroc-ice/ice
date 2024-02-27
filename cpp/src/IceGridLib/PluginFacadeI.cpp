@@ -3,7 +3,7 @@
 //
 
 #ifndef ICEGRID_API_EXPORTS
-#   define ICEGRID_API_EXPORTS
+#    define ICEGRID_API_EXPORTS
 #endif
 
 #include <IceGrid/IceGrid.h>
@@ -13,13 +13,13 @@ using namespace IceGrid;
 namespace
 {
 
-std::shared_ptr<RegistryPluginFacade> pluginFacade;
+    std::shared_ptr<RegistryPluginFacade> pluginFacade;
 }
 
 namespace IceGrid
 {
 
-ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
+    ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
 
 };
 

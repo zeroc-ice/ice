@@ -15,19 +15,19 @@
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICESSL_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICESSL_API /**/
-#   elif defined(ICESSL_API_EXPORTS)
-#       define ICESSL_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICESSL_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICESSL_API /**/
+#    elif defined(ICESSL_API_EXPORTS)
+#        define ICESSL_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICESSL_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 namespace IceSSL
 {
 
-class ConnectionInfo;
+    class ConnectionInfo;
 
 }
 
@@ -35,7 +35,7 @@ class ConnectionInfo;
 namespace IceSSL
 {
 
-using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
+    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
 
 }
 /// \endcond

@@ -15,9 +15,7 @@ using namespace Test;
 
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0)
-{
-}
+MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0) {}
 
 bool
 MyDerivedClassI::ice_isA(string id, const Ice::Current& current) const
@@ -31,7 +29,6 @@ MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
     test(current.mode == OperationMode::Nonmutating);
     Test::MyDerivedClass::ice_ping(current);
-
 }
 
 std::vector<std::string>
@@ -49,13 +46,11 @@ MyDerivedClassI::ice_id(const Ice::Current& current) const
 }
 
 void
-MyDerivedClassI::shutdownAsync(function<void()> response,
-                               function<void(exception_ptr)>,
-                               const Ice::Current& current)
+MyDerivedClassI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     {
         lock_guard lock(_opVoidMutex);
-        if(_opVoidThread.joinable())
+        if (_opVoidThread.joinable())
         {
             _opVoidThread.join();
             _opVoidThread = thread();
@@ -68,20 +63,19 @@ MyDerivedClassI::shutdownAsync(function<void()> response,
 
 void
 MyDerivedClassI::supportsCompressAsync(std::function<void(bool)> response,
-                                       std::function<void(std::exception_ptr)>, const Ice::Current&)
+                                       std::function<void(std::exception_ptr)>,
+                                       const Ice::Current&)
 {
     response(true);
 }
 
 void
-MyDerivedClassI::opVoidAsync(function<void()> response,
-                             function<void(exception_ptr)>,
-                             const Ice::Current& current)
+MyDerivedClassI::opVoidAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     test(current.mode == OperationMode::Normal);
 
     lock_guard lock(_opVoidMutex);
-    if(_opVoidThread.joinable())
+    if (_opVoidThread.joinable())
     {
         _opVoidThread.join();
         _opVoidThread = thread();
@@ -101,11 +95,8 @@ MyDerivedClassI::opByteAsync(Ice::Byte p1,
 }
 
 void
-MyDerivedClassI::opBoolAsync(bool p1,
-                             bool p2,
-                             function<void(bool, bool)> response,
-                             function<void(exception_ptr)>,
-                             const Ice::Current&)
+MyDerivedClassI::opBoolAsync(
+    bool p1, bool p2, function<void(bool, bool)> response, function<void(exception_ptr)>, const Ice::Current&)
 {
     response(p2, p1);
 }
@@ -151,16 +142,14 @@ MyDerivedClassI::opMyEnumAsync(Test::MyEnum p1,
 }
 
 void
-MyDerivedClassI::opMyClassAsync(Test::MyClassPrxPtr p1,
-                                function<void(const Test::MyClassPrxPtr&,
-                                               const Test::MyClassPrxPtr&,
-                                               const Test::MyClassPrxPtr&)> response,
-                                function<void(exception_ptr)>,
-                                const Ice::Current& current)
+MyDerivedClassI::opMyClassAsync(
+    Test::MyClassPrxPtr p1,
+    function<void(const Test::MyClassPrxPtr&, const Test::MyClassPrxPtr&, const Test::MyClassPrxPtr&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current& current)
 {
     auto p2 = p1;
-    auto p3 = uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(
-                                                  stringToIdentity("noSuchIdentity")));
+    auto p3 = uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(stringToIdentity("noSuchIdentity")));
     response(uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(current.id)), p2, p3);
 }
 
@@ -207,15 +196,13 @@ MyDerivedClassI::opBoolSAsync(Test::BoolS p1,
 }
 
 void
-MyDerivedClassI::opShortIntLongSAsync(Test::ShortS p1,
-                                      Test::IntS p2,
-                                      Test::LongS p3,
-                                      function<void(const Test::LongS&,
-                                                     const Test::ShortS&,
-                                                     const Test::IntS&,
-                                                     const Test::LongS&)> response,
-                                      function<void(exception_ptr)>,
-                                      const Ice::Current&)
+MyDerivedClassI::opShortIntLongSAsync(
+    Test::ShortS p1,
+    Test::IntS p2,
+    Test::LongS p3,
+    function<void(const Test::LongS&, const Test::ShortS&, const Test::IntS&, const Test::LongS&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::ShortS p4 = p1;
     Test::IntS p5;
@@ -227,13 +214,12 @@ MyDerivedClassI::opShortIntLongSAsync(Test::ShortS p1,
 }
 
 void
-MyDerivedClassI::opFloatDoubleSAsync(Test::FloatS p1,
-                                     Test::DoubleS p2,
-                                     function<void(const Test::DoubleS&,
-                                                    const Test::FloatS&,
-                                                    const Test::DoubleS&)> response,
-                                     function<void(exception_ptr)>,
-                                     const Ice::Current&)
+MyDerivedClassI::opFloatDoubleSAsync(
+    Test::FloatS p1,
+    Test::DoubleS p2,
+    function<void(const Test::DoubleS&, const Test::FloatS&, const Test::DoubleS&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::FloatS p3 = p1;
     Test::DoubleS p4;
@@ -290,15 +276,13 @@ MyDerivedClassI::opBoolSSAsync(Test::BoolSS p1,
 }
 
 void
-MyDerivedClassI::opShortIntLongSSAsync(Test::ShortSS p1,
-                                       Test::IntSS p2,
-                                       Test::LongSS p3,
-                                       function<void(const Test::LongSS&,
-                                                      const Test::ShortSS&,
-                                                      const Test::IntSS&,
-                                                      const Test::LongSS&)> response,
-                                       function<void(exception_ptr)>,
-                                       const Ice::Current&)
+MyDerivedClassI::opShortIntLongSSAsync(
+    Test::ShortSS p1,
+    Test::IntSS p2,
+    Test::LongSS p3,
+    function<void(const Test::LongSS&, const Test::ShortSS&, const Test::IntSS&, const Test::LongSS&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     auto p4 = p1;
     Test::IntSS p5;
@@ -310,13 +294,12 @@ MyDerivedClassI::opShortIntLongSSAsync(Test::ShortSS p1,
 }
 
 void
-MyDerivedClassI::opFloatDoubleSSAsync(Test::FloatSS p1,
-                                      Test::DoubleSS p2,
-                                      function<void(const Test::DoubleSS&,
-                                                     const Test::FloatSS&,
-                                                     const Test::DoubleSS&)> response,
-                                      function<void(exception_ptr)>,
-                                      const Ice::Current&)
+MyDerivedClassI::opFloatDoubleSSAsync(
+    Test::FloatSS p1,
+    Test::DoubleSS p2,
+    function<void(const Test::DoubleSS&, const Test::FloatSS&, const Test::DoubleSS&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::FloatSS p3 = p1;
     Test::DoubleSS p4;
@@ -343,7 +326,8 @@ MyDerivedClassI::opStringSSAsync(Test::StringSS p1,
 }
 
 void
-MyDerivedClassI::opStringSSSAsync(Test::StringSSS p1, Test::StringSSS p2,
+MyDerivedClassI::opStringSSSAsync(Test::StringSSS p1,
+                                  Test::StringSSS p2,
                                   function<void(const Test::StringSSS&, const Test::StringSSS&)> response,
                                   function<void(exception_ptr)>,
                                   const Ice::Current&)
@@ -357,7 +341,8 @@ MyDerivedClassI::opStringSSSAsync(Test::StringSSS p1, Test::StringSSS p2,
 }
 
 void
-MyDerivedClassI::opByteBoolDAsync(Test::ByteBoolD p1, Test::ByteBoolD p2,
+MyDerivedClassI::opByteBoolDAsync(Test::ByteBoolD p1,
+                                  Test::ByteBoolD p2,
                                   function<void(const Test::ByteBoolD&, const Test::ByteBoolD&)> response,
                                   function<void(exception_ptr)>,
                                   const Ice::Current&)
@@ -369,7 +354,8 @@ MyDerivedClassI::opByteBoolDAsync(Test::ByteBoolD p1, Test::ByteBoolD p2,
 }
 
 void
-MyDerivedClassI::opShortIntDAsync(Test::ShortIntD p1, Test::ShortIntD p2,
+MyDerivedClassI::opShortIntDAsync(Test::ShortIntD p1,
+                                  Test::ShortIntD p2,
                                   function<void(const Test::ShortIntD&, const Test::ShortIntD&)> response,
                                   function<void(exception_ptr)>,
                                   const Ice::Current&)
@@ -381,7 +367,8 @@ MyDerivedClassI::opShortIntDAsync(Test::ShortIntD p1, Test::ShortIntD p2,
 }
 
 void
-MyDerivedClassI::opLongFloatDAsync(Test::LongFloatD p1, Test::LongFloatD p2,
+MyDerivedClassI::opLongFloatDAsync(Test::LongFloatD p1,
+                                   Test::LongFloatD p2,
                                    function<void(const Test::LongFloatD&, const Test::LongFloatD&)> response,
                                    function<void(exception_ptr)>,
                                    const Ice::Current&)
@@ -393,7 +380,8 @@ MyDerivedClassI::opLongFloatDAsync(Test::LongFloatD p1, Test::LongFloatD p2,
 }
 
 void
-MyDerivedClassI::opStringStringDAsync(Test::StringStringD p1, Test::StringStringD p2,
+MyDerivedClassI::opStringStringDAsync(Test::StringStringD p1,
+                                      Test::StringStringD p2,
                                       function<void(const Test::StringStringD&, const Test::StringStringD&)> response,
                                       function<void(exception_ptr)>,
                                       const Ice::Current&)
@@ -405,7 +393,8 @@ MyDerivedClassI::opStringStringDAsync(Test::StringStringD p1, Test::StringString
 }
 
 void
-MyDerivedClassI::opStringMyEnumDAsync(Test::StringMyEnumD p1, Test::StringMyEnumD p2,
+MyDerivedClassI::opStringMyEnumDAsync(Test::StringMyEnumD p1,
+                                      Test::StringMyEnumD p2,
                                       function<void(const Test::StringMyEnumD&, const Test::StringMyEnumD&)> response,
                                       function<void(exception_ptr)>,
                                       const Ice::Current&)
@@ -417,7 +406,8 @@ MyDerivedClassI::opStringMyEnumDAsync(Test::StringMyEnumD p1, Test::StringMyEnum
 }
 
 void
-MyDerivedClassI::opMyEnumStringDAsync(Test::MyEnumStringD p1, Test::MyEnumStringD p2,
+MyDerivedClassI::opMyEnumStringDAsync(Test::MyEnumStringD p1,
+                                      Test::MyEnumStringD p2,
                                       function<void(const Test::MyEnumStringD&, const Test::MyEnumStringD&)> response,
                                       function<void(exception_ptr)>,
                                       const Ice::Current&)
@@ -429,11 +419,12 @@ MyDerivedClassI::opMyEnumStringDAsync(Test::MyEnumStringD p1, Test::MyEnumString
 }
 
 void
-MyDerivedClassI::opMyStructMyEnumDAsync(Test::MyStructMyEnumD p1, Test::MyStructMyEnumD p2,
-                                        function<void(const Test::MyStructMyEnumD&,
-                                                       const Test::MyStructMyEnumD&)> response,
-                                        function<void(exception_ptr)>,
-                                        const Ice::Current&)
+MyDerivedClassI::opMyStructMyEnumDAsync(
+    Test::MyStructMyEnumD p1,
+    Test::MyStructMyEnumD p2,
+    function<void(const Test::MyStructMyEnumD&, const Test::MyStructMyEnumD&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::MyStructMyEnumD p3 = p1;
     Test::MyStructMyEnumD r = p1;
@@ -487,11 +478,12 @@ MyDerivedClassI::opLongFloatDSAsync(Test::LongFloatDS p1,
 }
 
 void
-MyDerivedClassI::opStringStringDSAsync(Test::StringStringDS p1,
-                                       Test::StringStringDS p2,
-                                       function<void(const Test::StringStringDS&, const Test::StringStringDS&)> response,
-                                       function<void(exception_ptr)>,
-                                       const Ice::Current&)
+MyDerivedClassI::opStringStringDSAsync(
+    Test::StringStringDS p1,
+    Test::StringStringDS p2,
+    function<void(const Test::StringStringDS&, const Test::StringStringDS&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::StringStringDS p3 = p2;
     std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
@@ -502,11 +494,12 @@ MyDerivedClassI::opStringStringDSAsync(Test::StringStringDS p1,
 }
 
 void
-MyDerivedClassI::opStringMyEnumDSAsync(Test::StringMyEnumDS p1,
-                                       Test::StringMyEnumDS p2,
-                                       function<void(const Test::StringMyEnumDS&, const Test::StringMyEnumDS&)> response,
-                                       function<void(exception_ptr)>,
-                                       const Ice::Current&)
+MyDerivedClassI::opStringMyEnumDSAsync(
+    Test::StringMyEnumDS p1,
+    Test::StringMyEnumDS p2,
+    function<void(const Test::StringMyEnumDS&, const Test::StringMyEnumDS&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::StringMyEnumDS p3 = p2;
     std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
@@ -517,11 +510,12 @@ MyDerivedClassI::opStringMyEnumDSAsync(Test::StringMyEnumDS p1,
 }
 
 void
-MyDerivedClassI::opMyEnumStringDSAsync(Test::MyEnumStringDS p1,
-                                       Test::MyEnumStringDS p2,
-                                       function<void(const Test::MyEnumStringDS&, const Test::MyEnumStringDS&)> response,
-                                       function<void(exception_ptr)>,
-                                       const Ice::Current&)
+MyDerivedClassI::opMyEnumStringDSAsync(
+    Test::MyEnumStringDS p1,
+    Test::MyEnumStringDS p2,
+    function<void(const Test::MyEnumStringDS&, const Test::MyEnumStringDS&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::MyEnumStringDS p3 = p2;
     std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
@@ -532,12 +526,12 @@ MyDerivedClassI::opMyEnumStringDSAsync(Test::MyEnumStringDS p1,
 }
 
 void
-MyDerivedClassI::opMyStructMyEnumDSAsync(Test::MyStructMyEnumDS p1,
-                                         Test::MyStructMyEnumDS p2,
-                                         function<void(const Test::MyStructMyEnumDS&,
-                                                        const Test::MyStructMyEnumDS&)> response,
-                                         function<void(exception_ptr)>,
-                                         const Ice::Current&)
+MyDerivedClassI::opMyStructMyEnumDSAsync(
+    Test::MyStructMyEnumDS p1,
+    Test::MyStructMyEnumDS p2,
+    function<void(const Test::MyStructMyEnumDS&, const Test::MyStructMyEnumDS&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::MyStructMyEnumDS p3 = p2;
     std::copy(p1.begin(), p1.end(), std::back_inserter(p3));
@@ -626,12 +620,12 @@ MyDerivedClassI::opStringFloatSDAsync(Test::StringFloatSD p1,
 }
 
 void
-MyDerivedClassI::opStringDoubleSDAsync(Test::StringDoubleSD p1,
-                                       Test::StringDoubleSD p2,
-                                       function<void(const Test::StringDoubleSD&,
-                                                      const Test::StringDoubleSD&)> response,
-                                       function<void(exception_ptr)>,
-                                       const Ice::Current&)
+MyDerivedClassI::opStringDoubleSDAsync(
+    Test::StringDoubleSD p1,
+    Test::StringDoubleSD p2,
+    function<void(const Test::StringDoubleSD&, const Test::StringDoubleSD&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::StringDoubleSD p3 = p2;
     Test::StringDoubleSD r;
@@ -640,12 +634,12 @@ MyDerivedClassI::opStringDoubleSDAsync(Test::StringDoubleSD p1,
 }
 
 void
-MyDerivedClassI::opStringStringSDAsync(Test::StringStringSD p1,
-                                       Test::StringStringSD p2,
-                                       function<void(const Test::StringStringSD&,
-                                                      const Test::StringStringSD&)> response,
-                                       function<void(exception_ptr)>,
-                                       const Ice::Current&)
+MyDerivedClassI::opStringStringSDAsync(
+    Test::StringStringSD p1,
+    Test::StringStringSD p2,
+    function<void(const Test::StringStringSD&, const Test::StringStringSD&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::StringStringSD p3 = p2;
     Test::StringStringSD r;
@@ -654,12 +648,12 @@ MyDerivedClassI::opStringStringSDAsync(Test::StringStringSD p1,
 }
 
 void
-MyDerivedClassI::opMyEnumMyEnumSDAsync(Test::MyEnumMyEnumSD p1,
-                                       Test::MyEnumMyEnumSD p2,
-                                       function<void(const Test::MyEnumMyEnumSD&,
-                                                      const Test::MyEnumMyEnumSD&)> response,
-                                       function<void(exception_ptr)>,
-                                       const Ice::Current&)
+MyDerivedClassI::opMyEnumMyEnumSDAsync(
+    Test::MyEnumMyEnumSD p1,
+    Test::MyEnumMyEnumSD p2,
+    function<void(const Test::MyEnumMyEnumSD&, const Test::MyEnumMyEnumSD&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     Test::MyEnumMyEnumSD p3 = p2;
     Test::MyEnumMyEnumSD r;
@@ -709,15 +703,12 @@ MyDerivedClassI::opContextAsync(function<void(const Ice::Context&)> response,
 }
 
 void
-MyDerivedClassI::opDoubleMarshalingAsync(double p1,
-                                         Test::DoubleS p2,
-                                         function<void()> response,
-                                         function<void(exception_ptr)>,
-                                         const Ice::Current&)
+MyDerivedClassI::opDoubleMarshalingAsync(
+    double p1, Test::DoubleS p2, function<void()> response, function<void(exception_ptr)>, const Ice::Current&)
 {
     double d = 1278312346.0 / 13.0;
     test(p1 == d);
-    for(unsigned int i = 0; i < p2.size(); ++i)
+    for (unsigned int i = 0; i < p2.size(); ++i)
     {
         test(p2[i] == d);
     }
@@ -743,9 +734,7 @@ MyDerivedClassI::opNonmutatingAsync(function<void()> response,
 }
 
 void
-MyDerivedClassI::opDerivedAsync(function<void()> response,
-                                function<void(exception_ptr)>,
-                                const Ice::Current&)
+MyDerivedClassI::opDerivedAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&)
 {
     response();
 }

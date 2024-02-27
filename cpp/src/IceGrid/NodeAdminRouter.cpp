@@ -11,9 +11,9 @@ using namespace IceGrid;
 using namespace Ice;
 using namespace std;
 
-NodeServerAdminRouter::NodeServerAdminRouter(const shared_ptr<NodeI>& node) :
-    AdminRouter(node->getTraceLevels()),
-    _node(node)
+NodeServerAdminRouter::NodeServerAdminRouter(const shared_ptr<NodeI>& node)
+    : AdminRouter(node->getTraceLevels()),
+      _node(node)
 {
 }
 
@@ -28,9 +28,9 @@ NodeServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> 
     //
     Identity serverId = _node->createServerIdentity(current.id.name);
     auto server = dynamic_pointer_cast<ServerI>(_node->getAdapter()->find(serverId));
-    if(server == nullptr)
+    if (server == nullptr)
     {
-        if(_traceLevels->admin > 0)
+        if (_traceLevels->admin > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
             out << "could not find Admin proxy for server `" << current.id.name << "'";
@@ -44,9 +44,9 @@ NodeServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> 
     //
     auto target = server->getProcess();
 
-    if(target == nullopt)
+    if (target == nullopt)
     {
-        if(_traceLevels->admin > 0)
+        if (_traceLevels->admin > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
             out << "no Process proxy registered with server `" << current.id.name << "'";
@@ -58,7 +58,7 @@ NodeServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> 
     //
     // If this is a legacy Process proxy with no facet, we keep target as is
     //
-    if(current.facet != "Process")
+    if (current.facet != "Process")
     {
         //
         // Set the facet

@@ -5,6 +5,4 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-TestI::TestI()
-{
-}
+TestI::TestI() {}

@@ -29,7 +29,6 @@ makeFactory()
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

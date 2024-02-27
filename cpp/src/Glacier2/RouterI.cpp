@@ -7,46 +7,49 @@
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 
-#include<random>
+#include <random>
 
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection> connection,
-                           const string& userId, SessionPrxPtr session,
-                           const Identity& controlId, shared_ptr<FilterManager> filters,
-                           const Context& context) :
-    _instance(std::move(instance)),
-    _routingTable(make_shared<RoutingTable>(_instance->communicator(), _instance->proxyVerifier())),
-    _clientBlobject(make_shared<ClientBlobject>(_instance, std::move(filters), context, _routingTable)),
-    _clientBlobjectBuffered(_instance->clientRequestQueueThread()),
-    _serverBlobjectBuffered(_instance->serverRequestQueueThread()),
-    _connection(std::move(connection)),
-    _userId(userId),
-    _session(std::move(session)),
-    _controlId(controlId),
-    _context(context),
-    _timestamp(chrono::steady_clock::now())
+Glacier2::RouterI::RouterI(shared_ptr<Instance> instance,
+                           shared_ptr<Connection> connection,
+                           const string& userId,
+                           SessionPrxPtr session,
+                           const Identity& controlId,
+                           shared_ptr<FilterManager> filters,
+                           const Context& context)
+    : _instance(std::move(instance)),
+      _routingTable(make_shared<RoutingTable>(_instance->communicator(), _instance->proxyVerifier())),
+      _clientBlobject(make_shared<ClientBlobject>(_instance, std::move(filters), context, _routingTable)),
+      _clientBlobjectBuffered(_instance->clientRequestQueueThread()),
+      _serverBlobjectBuffered(_instance->serverRequestQueueThread()),
+      _connection(std::move(connection)),
+      _userId(userId),
+      _session(std::move(session)),
+      _controlId(controlId),
+      _context(context),
+      _timestamp(chrono::steady_clock::now())
 {
     //
     // If Glacier2 will be used with pre 3.2 clients, then the client proxy must be set.
     // Otherwise getClientProxy just needs to return a nil proxy.
     //
-    if(_instance->properties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
+    if (_instance->properties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
     {
         const_cast<ObjectPrxPtr&>(_clientProxy) =
             _instance->clientObjectAdapter()->createProxy(stringToIdentity("dummy"));
     }
 
-    if(_instance->serverObjectAdapter())
+    if (_instance->serverObjectAdapter())
     {
-        Identity ident = { "dummy", "" };
+        Identity ident = {"dummy", ""};
 
         random_device rd;
         mt19937 gen(rd());
-        uniform_int_distribution<> dist(33, 126);  // We use ASCII 33-126 (from ! to ~, w/o space).
-        for(unsigned int i = 0; i < 20; ++i)
+        uniform_int_distribution<> dist(33, 126); // We use ASCII 33-126 (from ! to ~, w/o space).
+        for (unsigned int i = 0; i < 20; ++i)
         {
             ident.category.push_back(static_cast<char>(dist(gen)));
         }
@@ -57,7 +60,7 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
         serverBlobject = make_shared<ServerBlobject>(_instance, _connection);
     }
 
-    if(_instance->getObserver())
+    if (_instance->getObserver())
     {
         updateObserver(_instance->getObserver());
     }
@@ -66,9 +69,9 @@ Glacier2::RouterI::RouterI(shared_ptr<Instance> instance, shared_ptr<Connection>
 void
 Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
 {
-    if(_session)
+    if (_session)
     {
-        if(_instance->serverObjectAdapter())
+        if (_instance->serverObjectAdapter())
         {
             try
             {
@@ -77,10 +80,10 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
                 //
                 _instance->serverObjectAdapter()->remove(_controlId);
             }
-            catch(const NotRegisteredException&)
+            catch (const NotRegisteredException&)
             {
             }
-            catch(const ObjectAdapterDeactivatedException&)
+            catch (const ObjectAdapterDeactivatedException&)
             {
                 //
                 // Expected if the router has been shutdown.
@@ -88,7 +91,7 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
             }
         }
 
-        if(_context.size() > 0)
+        if (_context.size() > 0)
         {
             _session->destroyAsync(nullptr, std::move(error), nullptr, _context);
         }
@@ -99,7 +102,7 @@ Glacier2::RouterI::destroy(function<void(exception_ptr)> error)
     }
 
     _clientBlobject->destroy();
-    if(_serverBlobject)
+    if (_serverBlobject)
     {
         _serverBlobject->destroy();
     }
@@ -136,16 +139,16 @@ Glacier2::RouterI::getCategoryForClient(const Current&) const
 }
 
 void
-Glacier2::RouterI::createSessionAsync(string, string,
-                            function<void(const SessionPrxPtr& returnValue)>,
-                            function<void(exception_ptr)>, const Current&)
+Glacier2::RouterI::createSessionAsync(
+    string, string, function<void(const SessionPrxPtr& returnValue)>, function<void(exception_ptr)>, const Current&)
 {
     assert(false); // Must not be called in this router implementation.
 }
 
 void
 Glacier2::RouterI::createSessionFromSecureConnectionAsync(function<void(const SessionPrxPtr& returnValue)>,
-                                                          function<void(exception_ptr)>, const Current&)
+                                                          function<void(exception_ptr)>,
+                                                          const Current&)
 {
     assert(false); // Must not be called in this router implementation.
 }
@@ -180,7 +183,7 @@ shared_ptr<ClientBlobject>
 Glacier2::RouterI::getClientBlobject() const
 {
     // Can only be called with the SessionRouterI mutex locked
-    if(!_clientBlobjectBuffered && _observer)
+    if (!_clientBlobjectBuffered && _observer)
     {
         _observer->forwarded(true);
     }
@@ -191,7 +194,7 @@ shared_ptr<ServerBlobject>
 Glacier2::RouterI::getServerBlobject() const
 {
     // Can only be called with the SessionRouterI mutex locked
-    if(!_serverBlobjectBuffered && _observer)
+    if (!_serverBlobjectBuffered && _observer)
     {
         _observer->forwarded(false);
     }
@@ -225,7 +228,7 @@ Glacier2::RouterI::updateObserver(const shared_ptr<Glacier2::Instrumentation::Ro
 
     _observer = _routingTable->updateObserver(observer, _userId, _connection);
     _clientBlobject->updateObserver(_observer);
-    if(_serverBlobject)
+    if (_serverBlobject)
     {
         _serverBlobject->updateObserver(_observer);
     }
@@ -237,7 +240,7 @@ Glacier2::RouterI::toString() const
     ostringstream out;
 
     out << "id = " << _userId << '\n';
-    if(_serverProxy)
+    if (_serverProxy)
     {
         out << "category = " << _serverProxy->ice_getIdentity().category << '\n';
     }

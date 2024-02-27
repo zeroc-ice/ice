@@ -10,7 +10,6 @@
 class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
-
     MyDerivedClassI();
     virtual Ice::ObjectPrxPtr echo(Ice::ObjectPrxPtr, const Ice::Current&);
     virtual bool ice_isA(std::string, const Ice::Current&) const;
@@ -18,7 +17,6 @@ public:
     virtual Ice::Context getContext(const Ice::Current&);
 
 private:
-
     mutable Ice::Context _ctx;
 };
 

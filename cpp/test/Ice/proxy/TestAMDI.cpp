@@ -8,35 +8,28 @@
 
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI()
-{
-}
+MyDerivedClassI::MyDerivedClassI() {}
 
 void
-MyDerivedClassI::echoAsync(
-    Ice::ObjectPrxPtr obj,
-    function<void(const Ice::ObjectPrxPtr&)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
+MyDerivedClassI::echoAsync(Ice::ObjectPrxPtr obj,
+                           function<void(const Ice::ObjectPrxPtr&)> response,
+                           function<void(exception_ptr)>,
+                           const Ice::Current&)
 {
     response(obj);
 }
 
 void
-MyDerivedClassI::shutdownAsync(
-    function<void()> response,
-    function<void(exception_ptr)>,
-    const Ice::Current& current)
+MyDerivedClassI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
     response();
 }
 
 void
-MyDerivedClassI::getContextAsync(
-    function<void(const Ice::Context&)> response,
-    function<void(exception_ptr)>,
-    const Ice::Current&)
+MyDerivedClassI::getContextAsync(function<void(const Ice::Context&)> response,
+                                 function<void(exception_ptr)>,
+                                 const Ice::Current&)
 {
     response(_ctx);
 }

@@ -66,7 +66,7 @@ TestAMDI::unknownExceptionWithServantExceptionAsync(function<void()>,
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -78,13 +78,13 @@ TestAMDI::impossibleExceptionAsync(bool _cpp_throw,
                                    function<void(exception_ptr)> error,
                                    const Current&)
 {
-    if(_cpp_throw)
+    if (_cpp_throw)
     {
         try
         {
             throw Test::TestImpossibleException();
         }
-        catch(...)
+        catch (...)
         {
             error(current_exception());
         }
@@ -105,13 +105,13 @@ TestAMDI::intfUserExceptionAsync(bool _cpp_throw,
                                  function<void(exception_ptr)> error,
                                  const Current&)
 {
-    if(_cpp_throw)
+    if (_cpp_throw)
     {
         try
         {
             throw Test::TestIntfUserException();
         }
-        catch(...)
+        catch (...)
         {
             error(current_exception());
         }
@@ -127,24 +127,20 @@ TestAMDI::intfUserExceptionAsync(bool _cpp_throw,
 }
 
 void
-TestAMDI::asyncResponseAsync(function<void()> response,
-                             function<void(exception_ptr)>,
-                             const Current&)
+TestAMDI::asyncResponseAsync(function<void()> response, function<void(exception_ptr)>, const Current&)
 {
     response();
     throw Ice::ObjectNotExistException(__FILE__, __LINE__);
 }
 
 void
-TestAMDI::asyncExceptionAsync(function<void()>,
-                              function<void(exception_ptr)> error,
-                              const Current&)
+TestAMDI::asyncExceptionAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
         throw Test::TestIntfUserException();
     }
-    catch(...)
+    catch (...)
     {
         error(current_exception());
     }
@@ -152,9 +148,7 @@ TestAMDI::asyncExceptionAsync(function<void()>,
 }
 
 void
-TestAMDI::shutdownAsync(function<void()> response,
-                        function<void(exception_ptr)>,
-                        const Current& current)
+TestAMDI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Current& current)
 {
     current.adapter->deactivate();
     response();

@@ -12,7 +12,7 @@ using namespace Test;
 
 namespace
 {
-const bool printException = false;
+    const bool printException = false;
 }
 
 class EmptyI : public virtual Empty
@@ -22,7 +22,6 @@ class EmptyI : public virtual Empty
 class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
-
     shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final { return nullptr; }
     void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final {}
     void deactivate(const string&) final {}
@@ -31,7 +30,7 @@ public:
 bool
 endsWith(const string& s, const string& findme)
 {
-    if(s.length() > findme.length())
+    if (s.length() > findme.length())
     {
         return 0 == s.compare(s.length() - findme.length(), findme.length(), findme);
     }
@@ -107,14 +106,13 @@ allTests(Test::TestHelper* helper)
             test(os.str() == "::Test::F data:'F'");
             test(ex.data == "F");
         }
-
     }
     cout << "ok" << endl;
 
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
         {
             ostr << "default -a *";
         }
@@ -125,8 +123,8 @@ allTests(Test::TestHelper* helper)
         localOAEndpoint = ostr.str();
     }
 
-    if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-       communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+        communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
     {
         cout << "testing object adapter registration exceptions... " << flush;
         {
@@ -136,9 +134,9 @@ allTests(Test::TestHelper* helper)
                 first = communicator->createObjectAdapter("TestAdapter0");
                 test(false);
             }
-            catch(const Ice::InitializationException& ex)
+            catch (const Ice::InitializationException& ex)
             {
-                if(printException)
+                if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
                     printer << ex;
@@ -153,9 +151,9 @@ allTests(Test::TestHelper* helper)
                 Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
                 test(false);
             }
-            catch(const Ice::AlreadyRegisteredException& ex)
+            catch (const Ice::AlreadyRegisteredException& ex)
             {
-                if(printException)
+                if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
                     printer << ex;
@@ -170,9 +168,9 @@ allTests(Test::TestHelper* helper)
                     communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
                 test(false);
             }
-            catch(const Ice::AlreadyRegisteredException& ex)
+            catch (const Ice::AlreadyRegisteredException& ex)
             {
-                if(printException)
+                if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
                     printer << ex;
@@ -195,9 +193,9 @@ allTests(Test::TestHelper* helper)
                 adapter->add(obj, Ice::stringToIdentity("x"));
                 test(false);
             }
-            catch(const Ice::AlreadyRegisteredException& ex)
+            catch (const Ice::AlreadyRegisteredException& ex)
             {
-                if(printException)
+                if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
                     printer << ex;
@@ -208,9 +206,9 @@ allTests(Test::TestHelper* helper)
             {
                 adapter->add(obj, Ice::stringToIdentity(""));
             }
-            catch(const Ice::IllegalIdentityException& ex)
+            catch (const Ice::IllegalIdentityException& ex)
             {
-                if(printException)
+                if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
                     printer << ex;
@@ -222,9 +220,9 @@ allTests(Test::TestHelper* helper)
                 obj = nullptr;
                 adapter->add(obj, Ice::stringToIdentity("x"));
             }
-            catch(const Ice::IllegalServantException& ex)
+            catch (const Ice::IllegalServantException& ex)
             {
-                if(printException)
+                if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
                     printer << ex;
@@ -237,9 +235,9 @@ allTests(Test::TestHelper* helper)
                 adapter->remove(Ice::stringToIdentity("x"));
                 test(false);
             }
-            catch(const Ice::NotRegisteredException& ex)
+            catch (const Ice::NotRegisteredException& ex)
             {
-                if(printException)
+                if (printException)
                 {
                     Ice::Print printer(communicator->getLogger());
                     printer << ex;
@@ -261,7 +259,7 @@ allTests(Test::TestHelper* helper)
                 adapter->addServantLocator(loc, "x");
                 test(false);
             }
-            catch(const Ice::AlreadyRegisteredException&)
+            catch (const Ice::AlreadyRegisteredException&)
             {
             }
 
@@ -303,16 +301,16 @@ allTests(Test::TestHelper* helper)
         thrower->throwAasA(1);
         test(false);
     }
-    catch(const A& ex)
+    catch (const A& ex)
     {
         test(ex.aMem == 1);
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cout << ex << endl;
         test(false);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -322,11 +320,11 @@ allTests(Test::TestHelper* helper)
         thrower->throwAorDasAorD(1);
         test(false);
     }
-    catch(const A& ex)
+    catch (const A& ex)
     {
         test(ex.aMem == 1);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -336,11 +334,11 @@ allTests(Test::TestHelper* helper)
         thrower->throwAorDasAorD(-1);
         test(false);
     }
-    catch(const D& ex)
+    catch (const D& ex)
     {
         test(ex.dMem == -1);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -350,12 +348,12 @@ allTests(Test::TestHelper* helper)
         thrower->throwBasB(1, 2);
         test(false);
     }
-    catch(const B& ex)
+    catch (const B& ex)
     {
         test(ex.aMem == 1);
         test(ex.bMem == 2);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -365,13 +363,13 @@ allTests(Test::TestHelper* helper)
         thrower->throwCasC(1, 2, 3);
         test(false);
     }
-    catch(const C& ex)
+    catch (const C& ex)
     {
         test(ex.aMem == 1);
         test(ex.bMem == 2);
         test(ex.cMem == 3);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -381,18 +379,18 @@ allTests(Test::TestHelper* helper)
         thrower->throwModA(1, 2);
         test(false);
     }
-    catch(const Mod::A& ex)
+    catch (const Mod::A& ex)
     {
         test(ex.aMem == 1);
         test(ex.a2Mem == 2);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
         //
         // This operation is not supported in Java.
         //
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -406,11 +404,11 @@ allTests(Test::TestHelper* helper)
         thrower->throwBasB(1, 2);
         test(false);
     }
-    catch(const A& ex)
+    catch (const A& ex)
     {
         test(ex.aMem == 1);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -420,12 +418,12 @@ allTests(Test::TestHelper* helper)
         thrower->throwCasC(1, 2, 3);
         test(false);
     }
-    catch(const B& ex)
+    catch (const B& ex)
     {
         test(ex.aMem == 1);
         test(ex.bMem == 2);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -435,17 +433,17 @@ allTests(Test::TestHelper* helper)
         thrower->throwModA(1, 2);
         test(false);
     }
-    catch(const A& ex)
+    catch (const A& ex)
     {
         test(ex.aMem == 1);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
         //
         // This operation is not supported in Java.
         //
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -459,12 +457,12 @@ allTests(Test::TestHelper* helper)
         thrower->throwBasA(1, 2);
         test(false);
     }
-    catch(const B& ex)
+    catch (const B& ex)
     {
         test(ex.aMem == 1);
         test(ex.bMem == 2);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -474,13 +472,13 @@ allTests(Test::TestHelper* helper)
         thrower->throwCasA(1, 2, 3);
         test(false);
     }
-    catch(const C& ex)
+    catch (const C& ex)
     {
         test(ex.aMem == 1);
         test(ex.bMem == 2);
         test(ex.cMem == 3);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -490,20 +488,20 @@ allTests(Test::TestHelper* helper)
         thrower->throwCasB(1, 2, 3);
         test(false);
     }
-    catch(const C& ex)
+    catch (const C& ex)
     {
         test(ex.aMem == 1);
         test(ex.bMem == 2);
         test(ex.cMem == 3);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
 
     cout << "ok" << endl;
 
-    if(thrower->supportsUndeclaredExceptions())
+    if (thrower->supportsUndeclaredExceptions())
     {
         cout << "catching unknown user exception... " << flush;
 
@@ -512,16 +510,16 @@ allTests(Test::TestHelper* helper)
             thrower->throwUndeclaredA(1);
             test(false);
         }
-        catch(const Ice::UnknownUserException&)
+        catch (const Ice::UnknownUserException&)
         {
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             cout << ex << endl;
             cout << ex.ice_stackTrace() << endl;
             test(false);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -531,10 +529,10 @@ allTests(Test::TestHelper* helper)
             thrower->throwUndeclaredB(1, 2);
             test(false);
         }
-        catch(const Ice::UnknownUserException&)
+        catch (const Ice::UnknownUserException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -544,10 +542,10 @@ allTests(Test::TestHelper* helper)
             thrower->throwUndeclaredC(1, 2, 3);
             test(false);
         }
-        catch(const Ice::UnknownUserException&)
+        catch (const Ice::UnknownUserException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -555,7 +553,7 @@ allTests(Test::TestHelper* helper)
         cout << "ok" << endl;
     }
 
-    if(thrower->ice_getConnection() && protocol != "bt")
+    if (thrower->ice_getConnection() && protocol != "bt")
     {
         cout << "testing memory limit marshal exception..." << flush;
         try
@@ -563,10 +561,10 @@ allTests(Test::TestHelper* helper)
             thrower->throwMemoryLimitException(Ice::ByteSeq());
             test(false);
         }
-        catch(const Ice::MemoryLimitException&)
+        catch (const Ice::MemoryLimitException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -576,14 +574,14 @@ allTests(Test::TestHelper* helper)
             thrower->throwMemoryLimitException(Ice::ByteSeq(20 * 1024)); // 20KB
             test(false);
         }
-        catch(const Ice::ConnectionLostException&)
+        catch (const Ice::ConnectionLostException&)
         {
         }
-        catch(const Ice::UnknownLocalException&)
+        catch (const Ice::UnknownLocalException&)
         {
             // Expected with JS bidir server
         }
-        catch(const Ice::LocalException& ex)
+        catch (const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -597,7 +595,7 @@ allTests(Test::TestHelper* helper)
             {
                 thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
             }
-            catch(const Ice::MemoryLimitException&)
+            catch (const Ice::MemoryLimitException&)
             {
             }
             ThrowerPrxPtr thrower3 =
@@ -607,11 +605,11 @@ allTests(Test::TestHelper* helper)
                 thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit
                 test(false);
             }
-            catch(const Ice::ConnectionLostException&)
+            catch (const Ice::ConnectionLostException&)
             {
             }
         }
-        catch(const Ice::ConnectionRefusedException&)
+        catch (const Ice::ConnectionRefusedException&)
         {
             // Expected with JS bidir server
         }
@@ -625,14 +623,14 @@ allTests(Test::TestHelper* helper)
     {
         ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
         thrower2->throwAasA(1);
-//      thrower2->ice_ping();
+        //      thrower2->ice_ping();
         test(false);
     }
-    catch(const Ice::ObjectNotExistException& ex)
+    catch (const Ice::ObjectNotExistException& ex)
     {
         test(ex.id == id);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -649,12 +647,12 @@ allTests(Test::TestHelper* helper)
             thrower2->ice_ping();
             test(false);
         }
-        catch(const Ice::FacetNotExistException& ex)
+        catch (const Ice::FacetNotExistException& ex)
         {
             test(ex.facet == "no such facet");
         }
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -669,11 +667,11 @@ allTests(Test::TestHelper* helper)
         thrower2->noSuchOperation();
         test(false);
     }
-    catch(const Ice::OperationNotExistException& ex)
+    catch (const Ice::OperationNotExistException& ex)
     {
         test(ex.operation == "noSuchOperation");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -687,10 +685,10 @@ allTests(Test::TestHelper* helper)
         thrower->throwLocalException();
         test(false);
     }
-    catch(const Ice::UnknownLocalException&)
+    catch (const Ice::UnknownLocalException&)
     {
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -699,13 +697,13 @@ allTests(Test::TestHelper* helper)
         thrower->throwLocalExceptionIdempotent();
         test(false);
     }
-    catch(const Ice::UnknownLocalException&)
+    catch (const Ice::UnknownLocalException&)
     {
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -719,10 +717,10 @@ allTests(Test::TestHelper* helper)
         thrower->throwNonIceException();
         test(false);
     }
-    catch(const Ice::UnknownException&)
+    catch (const Ice::UnknownException&)
     {
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -735,7 +733,7 @@ allTests(Test::TestHelper* helper)
     {
         thrower->throwAfterResponse();
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -745,10 +743,10 @@ allTests(Test::TestHelper* helper)
         thrower->throwAfterException();
         test(false);
     }
-    catch(const A&)
+    catch (const A&)
     {
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -763,15 +761,15 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const A& ex)
+        catch (const A& ex)
         {
             test(ex.aMem == 1);
         }
-        catch(const Ice::Exception&)
+        catch (const Ice::Exception&)
         {
             test(false);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -784,11 +782,11 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const A& ex)
+        catch (const A& ex)
         {
             test(ex.aMem == 1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -801,11 +799,11 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const D& ex)
+        catch (const D& ex)
         {
             test(ex.dMem == -1);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -817,12 +815,12 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const B& ex)
+        catch (const B& ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -834,13 +832,13 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const C& ex)
+        catch (const C& ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -851,17 +849,17 @@ allTests(Test::TestHelper* helper)
         {
             f.get();
         }
-        catch(const A& ex)
+        catch (const A& ex)
         {
             test(ex.aMem == 1);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
             //
             // This operation is not supported in Java.
             //
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -872,91 +870,43 @@ allTests(Test::TestHelper* helper)
     //
     {
         promise<bool> sent;
-        thrower->throwAasAAsync(1,
-            []()
-            {
-                test(false);
-            },
-            nullptr,
-            [&](bool value)
-            {
-                sent.set_value(value);
-            });
+        thrower->throwAasAAsync(
+            1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwAorDasAorDAsync(1,
-            []()
-            {
-                test(false);
-            },
-            nullptr,
-            [&](bool value)
-            {
-                sent.set_value(value);
-            });
+        thrower->throwAorDasAorDAsync(
+            1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwAorDasAorDAsync(-1,
-            []()
-            {
-                test(false);
-            },
-            nullptr,
-            [&](bool value)
-            {
-                sent.set_value(value);
-            });
+        thrower->throwAorDasAorDAsync(
+            -1, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwBasBAsync(1, 2,
-            []()
-            {
-                test(false);
-            },
-            nullptr,
-            [&](bool value)
-            {
-                sent.set_value(value);
-            });
+        thrower->throwBasBAsync(
+            1, 2, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwCasCAsync(1, 2, 3,
-            []()
-            {
-                test(false);
-            },
-            nullptr,
-            [&](bool value)
-            {
-                sent.set_value(value);
-            });
+        thrower->throwCasCAsync(
+            1, 2, 3, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
 
     {
         promise<bool> sent;
-        thrower->throwModAAsync(1, 2,
-            []()
-            {
-                test(false);
-            },
-            nullptr,
-            [&](bool value)
-            {
-                sent.set_value(value);
-            });
+        thrower->throwModAAsync(
+            1, 2, []() { test(false); }, nullptr, [&](bool value) { sent.set_value(value); });
         sent.get_future().get(); // Wait for sent
     }
     cout << "ok" << endl;
@@ -968,12 +918,12 @@ allTests(Test::TestHelper* helper)
         {
             f.get();
         }
-        catch(const B& ex)
+        catch (const B& ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -985,13 +935,13 @@ allTests(Test::TestHelper* helper)
         {
             f.get();
         }
-        catch(const C& ex)
+        catch (const C& ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1003,20 +953,20 @@ allTests(Test::TestHelper* helper)
         {
             f.get();
         }
-        catch(const C& ex)
+        catch (const C& ex)
         {
             test(ex.aMem == 1);
             test(ex.bMem == 2);
             test(ex.cMem == 3);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
     }
     cout << "ok" << endl;
 
-    if(thrower->supportsUndeclaredExceptions())
+    if (thrower->supportsUndeclaredExceptions())
     {
         cout << "catching unknown user exception with new AMI mapping... " << flush;
         {
@@ -1026,16 +976,16 @@ allTests(Test::TestHelper* helper)
                 f.get();
                 test(false);
             }
-            catch(const Ice::UnknownUserException&)
+            catch (const Ice::UnknownUserException&)
             {
             }
-            catch(const Ice::Exception& ex)
+            catch (const Ice::Exception& ex)
             {
                 cout << ex << endl;
                 cout << ex.ice_stackTrace() << endl;
                 test(false);
             }
-            catch(...)
+            catch (...)
             {
                 test(false);
             }
@@ -1048,10 +998,10 @@ allTests(Test::TestHelper* helper)
                 f.get();
                 test(false);
             }
-            catch(const Ice::UnknownUserException&)
+            catch (const Ice::UnknownUserException&)
             {
             }
-            catch(...)
+            catch (...)
             {
                 test(false);
             }
@@ -1063,10 +1013,10 @@ allTests(Test::TestHelper* helper)
             {
                 f.get();
             }
-            catch(const Ice::UnknownUserException&)
+            catch (const Ice::UnknownUserException&)
             {
             }
-            catch(...)
+            catch (...)
             {
                 test(false);
             }
@@ -1083,11 +1033,11 @@ allTests(Test::TestHelper* helper)
         {
             f.get();
         }
-        catch(const Ice::ObjectNotExistException& ex)
+        catch (const Ice::ObjectNotExistException& ex)
         {
             test(ex.id == id);
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1104,7 +1054,7 @@ allTests(Test::TestHelper* helper)
         {
             f.get();
         }
-        catch(const Ice::FacetNotExistException& ex)
+        catch (const Ice::FacetNotExistException& ex)
         {
             test(ex.facet == "no such facet");
         }
@@ -1121,11 +1071,11 @@ allTests(Test::TestHelper* helper)
         {
             f.get();
         }
-        catch(const Ice::OperationNotExistException& ex)
+        catch (const Ice::OperationNotExistException& ex)
         {
             test(ex.operation == "noSuchOperation");
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1141,10 +1091,10 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const Ice::UnknownLocalException&)
+        catch (const Ice::UnknownLocalException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1157,13 +1107,13 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const Ice::UnknownLocalException&)
+        catch (const Ice::UnknownLocalException&)
         {
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -1179,10 +1129,10 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }

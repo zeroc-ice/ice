@@ -12,7 +12,6 @@
 class RemoteCommunicatorI : public virtual Test::RemoteCommunicator
 {
 public:
-
     RemoteCommunicatorI(const Ice::CommunicatorPtr&);
 
     virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
@@ -33,7 +32,6 @@ public:
     virtual void updated(const Ice::PropertyDict&);
 
 private:
-
     Ice::CommunicatorPtr _communicator;
     Ice::PropertyDict _changes;
 
@@ -45,7 +43,6 @@ using RemoteCommunicatorIPtr = std::shared_ptr<RemoteCommunicatorI>;
 class RemoteCommunicatorFactoryI : public Test::RemoteCommunicatorFactory
 {
 public:
-
     virtual Test::RemoteCommunicatorPrxPtr createCommunicator(Ice::PropertyDict, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };
@@ -53,10 +50,7 @@ public:
 class TestFacetI : public Test::TestFacet
 {
 public:
-
-    virtual void op(const Ice::Current&)
-    {
-    }
+    virtual void op(const Ice::Current&) {}
 };
 
 #endif

@@ -12,20 +12,16 @@ using namespace std;
 class breakI : public _cpp_and::_cpp_break
 {
 public:
-
-    virtual void caseAsync(::int32_t,
-                           function<void(int)> response,
-                           function<void(exception_ptr)>,
-                           const ::Ice::Current&)
+    virtual void
+    caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const ::Ice::Current&)
     {
         response(0);
     }
 };
 
-class charI: public _cpp_and::_cpp_char
+class charI : public _cpp_and::_cpp_char
 {
 public:
-
 #ifndef NDEBUG
     virtual void _cpp_explicit(const ::Ice::Current& current)
 #else
@@ -36,33 +32,23 @@ public:
     }
 };
 
-class switchI: public _cpp_and::_cpp_switch
+class switchI : public _cpp_and::_cpp_switch
 {
 public:
-
-    virtual void foo(_cpp_and::charPrxPtr, int32_t&, const ::Ice::Current&)
-    {
-    }
+    virtual void foo(_cpp_and::charPrxPtr, int32_t&, const ::Ice::Current&) {}
 };
 
 class doI : public _cpp_and::_cpp_do
 {
 public:
-
-    virtual void caseAsync(int,
-                           ::std::function<void(int)>,
-                           ::std::function<void(::std::exception_ptr)>,
-                           const ::Ice::Current&)
+    virtual void
+    caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&)
     {
     }
 
-    virtual void _cpp_explicit(const ::Ice::Current&)
-    {
-    }
+    virtual void _cpp_explicit(const ::Ice::Current&) {}
 
-    virtual void foo(const _cpp_and::charPrx&, int32_t&, const ::Ice::Current&)
-    {
-    }
+    virtual void foo(const _cpp_and::charPrx&, int32_t&, const ::Ice::Current&) {}
 };
 
 /*
@@ -94,7 +80,8 @@ public:
 // This section of the test is present to ensure that the C++ types
 // are named correctly. It is not expected to run.
 //
-void testtypes(const Ice::CommunicatorPtr& communicator)
+void
+testtypes(const Ice::CommunicatorPtr& communicator)
 {
     _cpp_and::_cpp_continue a = _cpp_and::_cpp_continue::_cpp_asm;
     test(a == _cpp_and::_cpp_continue::_cpp_asm);
@@ -125,13 +112,13 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
 // Work-around for:
 // error: array subscript -6 is outside array bounds of ‘int (* [1152921504606846975])(...)’ [-Werror=array-bounds]
 #if defined(NDEBUG) && defined(__GNUC__)
-#   pragma GCC diagnostic push
-#   pragma GCC diagnostic ignored "-Warray-bounds"
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
     g->_cpp_case(0, d2);
     g->_cpp_explicit();
 #if defined(NDEBUG) && defined(__GNUC__)
-#   pragma GCC diagnostic pop
+#    pragma GCC diagnostic pop
 #endif
     _cpp_and::doPtr g1 = std::make_shared<doI>();
 
@@ -147,7 +134,7 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     // TODO: reenable once bug #1617 is fixed.
     // _cpp_and::friendPtr l = std::make_shared<friendI>();
 
-    const int m  = _cpp_and::_cpp_template;
+    const int m = _cpp_and::_cpp_template;
     test(m == _cpp_and::_cpp_template);
 
     test(_cpp_and::_cpp_xor_eq == 0);
@@ -156,7 +143,6 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

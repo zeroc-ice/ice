@@ -4,6 +4,4 @@
 
 #include "Ice/ServantLocator.h"
 
-Ice::ServantLocator::~ServantLocator()
-{
-}
+Ice::ServantLocator::~ServantLocator() {}

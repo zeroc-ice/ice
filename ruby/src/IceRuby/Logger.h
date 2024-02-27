@@ -11,12 +11,12 @@
 namespace IceRuby
 {
 
-bool initLogger(VALUE);
+    bool initLogger(VALUE);
 
-//
-// Create an object that delegates to a C++ implementation.
-//
-VALUE createLogger(const Ice::LoggerPtr&);
+    //
+    // Create an object that delegates to a C++ implementation.
+    //
+    VALUE createLogger(const Ice::LoggerPtr&);
 
 }
 

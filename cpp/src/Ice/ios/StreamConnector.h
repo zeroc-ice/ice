@@ -9,41 +9,39 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#include <Ice/TransceiverF.h>
-#include <Ice/Connector.h>
+#    include <Ice/TransceiverF.h>
+#    include <Ice/Connector.h>
 
 namespace IceObjC
 {
 
-class StreamEndpointI;
+    class StreamEndpointI;
 
-class Instance;
-using InstancePtr = std::shared_ptr<Instance>;
+    class Instance;
+    using InstancePtr = std::shared_ptr<Instance>;
 
-class StreamConnector final : public IceInternal::Connector
-{
-public:
+    class StreamConnector final : public IceInternal::Connector
+    {
+    public:
+        StreamConnector(const InstancePtr&, const std::string&, std::int32_t, std::int32_t, const std::string&);
+        ~StreamConnector();
+        IceInternal::TransceiverPtr connect() final;
 
-    StreamConnector(const InstancePtr&, const std::string&, std::int32_t, std::int32_t, const std::string&);
-    ~StreamConnector();
-    IceInternal::TransceiverPtr connect() final;
+        std::int16_t type() const final;
+        std::string toString() const final;
 
-    std::int16_t type() const final;
-    std::string toString() const final;
+        bool operator==(const IceInternal::Connector&) const final;
+        bool operator<(const IceInternal::Connector&) const final;
 
-    bool operator==(const IceInternal::Connector&) const final;
-    bool operator<(const IceInternal::Connector&) const final;
+    private:
+        friend class StreamEndpointI;
 
-private:
-
-    friend class StreamEndpointI;
-
-    const InstancePtr _instance;
-    const std::string _host;
-    const std::int32_t _port;
-    const std::int32_t _timeout;
-    const std::string _connectionId;
-};
+        const InstancePtr _instance;
+        const std::string _host;
+        const std::int32_t _port;
+        const std::int32_t _timeout;
+        const std::string _connectionId;
+    };
 
 }
 

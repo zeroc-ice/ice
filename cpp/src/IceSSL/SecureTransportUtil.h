@@ -7,36 +7,41 @@
 
 #ifdef __APPLE__
 
-#include <IceSSL/SecureTransport.h>
-#include <IceSSL/Util.h>
+#    include <IceSSL/SecureTransport.h>
+#    include <IceSSL/Util.h>
 
 namespace IceSSL
 {
 
-namespace SecureTransport
-{
+    namespace SecureTransport
+    {
 
-std::string sslErrorToString(CFErrorRef);
-std::string sslErrorToString(OSStatus);
+        std::string sslErrorToString(CFErrorRef);
+        std::string sslErrorToString(OSStatus);
 
-#  if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
-//
-// Retrieve a certificate property
-//
-CFDictionaryRef getCertificateProperty(SecCertificateRef, CFTypeRef);
-#  endif
+#    if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
+        //
+        // Retrieve a certificate property
+        //
+        CFDictionaryRef getCertificateProperty(SecCertificateRef, CFTypeRef);
+#    endif
 
-//
-// Read certificate from a file.
-//
-CFArrayRef loadCertificateChain(const std::string&, const std::string&, const std::string&, const std::string&,
-                                const std::string&, const PasswordPromptPtr&, int);
+        //
+        // Read certificate from a file.
+        //
+        CFArrayRef loadCertificateChain(const std::string&,
+                                        const std::string&,
+                                        const std::string&,
+                                        const std::string&,
+                                        const std::string&,
+                                        const PasswordPromptPtr&,
+                                        int);
 
-SecCertificateRef loadCertificate(const std::string&);
-CFArrayRef loadCACertificates(const std::string&);
-CFArrayRef findCertificateChain(const std::string&, const std::string&, const std::string&);
+        SecCertificateRef loadCertificate(const std::string&);
+        CFArrayRef loadCACertificates(const std::string&);
+        CFArrayRef findCertificateChain(const std::string&, const std::string&, const std::string&);
 
-} // SecureTransport namespace end
+    } // SecureTransport namespace end
 
 } // IceSSL namespace end
 

@@ -14,7 +14,7 @@ using namespace Ice::Instrumentation;
 IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrx& proxy, const string& op, const Context& ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->_getReference()->getInstance()->initializationData().observer;
-    if(!obsv)
+    if (!obsv)
     {
         return;
     }
@@ -24,7 +24,7 @@ IceInternal::InvocationObserver::InvocationObserver(const Ice::ObjectPrx& proxy,
 IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* instance, const string& op)
 {
     const CommunicatorObserverPtr& obsv = instance->initializationData().observer;
-    if(!obsv)
+    if (!obsv)
     {
         return;
     }
@@ -36,7 +36,7 @@ void
 IceInternal::InvocationObserver::attach(const Ice::ObjectPrx& proxy, const string& op, const Context& ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->_getReference()->getInstance()->initializationData().observer;
-    if(!obsv)
+    if (!obsv)
     {
         return;
     }
@@ -47,7 +47,7 @@ void
 IceInternal::InvocationObserver::attach(IceInternal::Instance* instance, const string& op)
 {
     const CommunicatorObserverPtr& obsv = instance->initializationData().observer;
-    if(!obsv)
+    if (!obsv)
     {
         return;
     }
@@ -55,7 +55,8 @@ IceInternal::InvocationObserver::attach(IceInternal::Instance* instance, const s
     attach(obsv->getInvocationObserver(nullopt, op, Ice::noExplicitContext));
 }
 
-std::string IceInternal::getExceptionId(std::exception_ptr eptr)
+std::string
+IceInternal::getExceptionId(std::exception_ptr eptr)
 {
     try
     {
@@ -67,7 +68,7 @@ std::string IceInternal::getExceptionId(std::exception_ptr eptr)
     }
     catch (const std::exception& ex)
     {
-       return ex.what();
+        return ex.what();
     }
     catch (...)
     {

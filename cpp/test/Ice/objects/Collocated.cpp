@@ -19,7 +19,6 @@ makeFactory()
 class Collocated : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

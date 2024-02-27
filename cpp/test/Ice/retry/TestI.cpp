@@ -10,16 +10,14 @@
 #include <thread>
 using namespace std;
 
-RetryI::RetryI() : _counter(0)
-{
-}
+RetryI::RetryI() : _counter(0) {}
 
 void
 RetryI::op(bool kill, const Ice::Current& current)
 {
-    if(kill)
+    if (kill)
     {
-        if(current.con)
+        if (current.con)
         {
             current.con->close(Ice::ConnectionClose::Forcefully);
         }
@@ -33,13 +31,13 @@ RetryI::op(bool kill, const Ice::Current& current)
 int
 RetryI::opIdempotent(int nRetry, const Ice::Current&)
 {
-    if(nRetry < 0)
+    if (nRetry < 0)
     {
         _counter = 0;
         return 0;
     }
 
-    if(nRetry > _counter)
+    if (nRetry > _counter)
     {
         ++_counter;
         throw Ice::ConnectionLostException(__FILE__, __LINE__);

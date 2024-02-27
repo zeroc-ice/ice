@@ -10,7 +10,6 @@
 class TestIntfI : public Test::TestIntf
 {
 public:
-
     virtual void ping(Test::PingReplyPrxPtr, const Ice::Current&);
     virtual void sendByteSeq(Test::ByteSeq, Test::PingReplyPrxPtr, const Ice::Current&);
     virtual void pingBiDir(Ice::Identity, const Ice::Current&);

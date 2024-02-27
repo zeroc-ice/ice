@@ -23,8 +23,8 @@ using namespace IceInternal;
 namespace
 {
 
-mutex globalMutex;
-Ice::LoggerPtr processLogger;
+    mutex globalMutex;
+    Ice::LoggerPtr processLogger;
 
 }
 
@@ -32,7 +32,7 @@ StringSeq
 Ice::argsToStringSeq(int argc, const char* const argv[])
 {
     StringSeq result;
-    for(int i = 0; i < argc; i++)
+    for (int i = 0; i < argc; i++)
     {
         result.push_back(argv[i]);
     }
@@ -50,7 +50,7 @@ Ice::argsToStringSeq(int /*argc*/, const wchar_t* const argv[])
     //
     const StringConverterPtr converter = getProcessStringConverter();
     StringSeq args;
-    for(int i = 0; argv[i] != 0; i++)
+    for (int i = 0; argv[i] != 0; i++)
     {
         args.push_back(wstringToString(argv[i], converter));
     }
@@ -69,11 +69,11 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const char* argv[])
     //
     const int argcOrig = argc;
     int i = 0;
-    while(i < argc)
+    while (i < argc)
     {
-        if(find(args.begin(), args.end(), argv[i]) == args.end())
+        if (find(args.begin(), args.end(), argv[i]) == args.end())
         {
-            for(int j = i; j < argc - 1; j++)
+            for (int j = i; j < argc - 1; j++)
             {
                 argv[j] = argv[j + 1];
             }
@@ -90,7 +90,7 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const char* argv[])
     // We can only do this if we've shifted the array, otherwise argv[argc]
     // may point to an invalid address.
     //
-    if(argv && argcOrig != argc)
+    if (argv && argcOrig != argc)
     {
         argv[argc] = 0;
     }
@@ -113,11 +113,11 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
     //
     const int argcOrig = argc;
     int i = 0;
-    while(i < argc)
+    while (i < argc)
     {
-        if(find(args.begin(), args.end(), wstringToString(argv[i], converter)) == args.end())
+        if (find(args.begin(), args.end(), wstringToString(argv[i], converter)) == args.end())
         {
-            for(int j = i; j < argc - 1; j++)
+            for (int j = i; j < argc - 1; j++)
             {
                 argv[j] = argv[j + 1];
             }
@@ -134,7 +134,7 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
     // We can only do this if we've shifted the array, otherwise argv[argc]
     // may point to an invalid address.
     //
-    if(argv && argcOrig != argc)
+    if (argv && argcOrig != argc)
     {
         argv[argc] = 0;
     }
@@ -177,7 +177,7 @@ Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator,
                                         function<void()> threadStart,
                                         function<void()> threadStop)
 {
-    if(communicator == nullptr)
+    if (communicator == nullptr)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "Communicator cannot be null");
     }
@@ -199,48 +199,48 @@ Ice::ThreadHookPlugin::destroy()
 namespace
 {
 
-inline void checkIceVersion(int version)
-{
+    inline void checkIceVersion(int version)
+    {
 #ifndef ICE_IGNORE_VERSION
 
-#   if ICE_INT_VERSION % 100 > 50
-    //
-    // Beta version: exact match required
-    //
-    if(ICE_INT_VERSION != version)
-    {
-        throw VersionMismatchException(__FILE__, __LINE__);
-    }
-#   else
+#    if ICE_INT_VERSION % 100 > 50
+        //
+        // Beta version: exact match required
+        //
+        if (ICE_INT_VERSION != version)
+        {
+            throw VersionMismatchException(__FILE__, __LINE__);
+        }
+#    else
 
-    //
-    // Major and minor version numbers must match.
-    //
-    if(ICE_INT_VERSION / 100 != version / 100)
-    {
-        throw VersionMismatchException(__FILE__, __LINE__);
-    }
+        //
+        // Major and minor version numbers must match.
+        //
+        if (ICE_INT_VERSION / 100 != version / 100)
+        {
+            throw VersionMismatchException(__FILE__, __LINE__);
+        }
 
-    //
-    // Reject beta caller
-    //
-    if(version % 100 > 50)
-    {
-        throw VersionMismatchException(__FILE__, __LINE__);
-    }
+        //
+        // Reject beta caller
+        //
+        if (version % 100 > 50)
+        {
+            throw VersionMismatchException(__FILE__, __LINE__);
+        }
 
-    //
-    // The caller's patch level cannot be greater than library's patch level. (Patch level changes are
-    // backward-compatible, but not forward-compatible.)
-    //
-    if(version % 100 > ICE_INT_VERSION % 100)
-    {
-        throw VersionMismatchException(__FILE__, __LINE__);
-    }
+        //
+        // The caller's patch level cannot be greater than library's patch level. (Patch level changes are
+        // backward-compatible, but not forward-compatible.)
+        //
+        if (version % 100 > ICE_INT_VERSION % 100)
+        {
+            throw VersionMismatchException(__FILE__, __LINE__);
+        }
 
-#   endif
+#    endif
 #endif
-}
+    }
 
 }
 
@@ -315,7 +315,7 @@ Ice::initialize(const InitializationData& initData, int version)
 
     CommunicatorIPtr communicator = CommunicatorI::create(initData);
     int argc = 0;
-    const char* argv[] = { 0 };
+    const char* argv[] = {0};
     communicator->finishSetup(argc, argv);
     return communicator;
 }
@@ -334,12 +334,12 @@ Ice::getProcessLogger()
 {
     lock_guard lock(globalMutex);
 
-    if(processLogger == nullptr)
+    if (processLogger == nullptr)
     {
-       //
-       // TODO: Would be nice to be able to use process name as prefix by default.
-       //
-       processLogger = make_shared<LoggerI>("", "", true);
+        //
+        // TODO: Would be nice to be able to use process name as prefix by default.
+        //
+        processLogger = make_shared<LoggerI>("", "", true);
     }
     return processLogger;
 }
@@ -362,19 +362,17 @@ Ice::registerPluginFactory(const std::string& name, PluginFactory factory, bool 
 // CommunicatorHolder
 //
 
-Ice::CommunicatorHolder::CommunicatorHolder()
-{
-}
+Ice::CommunicatorHolder::CommunicatorHolder() {}
 
-Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Communicator> communicator) :
-    _communicator(std::move(communicator))
+Ice::CommunicatorHolder::CommunicatorHolder(shared_ptr<Communicator> communicator)
+    : _communicator(std::move(communicator))
 {
 }
 
 Ice::CommunicatorHolder&
 Ice::CommunicatorHolder::operator=(shared_ptr<Communicator> communicator)
 {
-    if(_communicator)
+    if (_communicator)
     {
         _communicator->destroy();
     }
@@ -385,7 +383,7 @@ Ice::CommunicatorHolder::operator=(shared_ptr<Communicator> communicator)
 Ice::CommunicatorHolder&
 Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other) noexcept
 {
-    if(_communicator)
+    if (_communicator)
     {
         _communicator->destroy();
     }
@@ -395,16 +393,13 @@ Ice::CommunicatorHolder::operator=(CommunicatorHolder&& other) noexcept
 
 Ice::CommunicatorHolder::~CommunicatorHolder()
 {
-    if(_communicator)
+    if (_communicator)
     {
         _communicator->destroy();
     }
 }
 
-Ice::CommunicatorHolder::operator bool() const
-{
-    return _communicator != nullptr;
-}
+Ice::CommunicatorHolder::operator bool() const { return _communicator != nullptr; }
 
 const Ice::CommunicatorPtr&
 Ice::CommunicatorHolder::communicator() const
@@ -451,10 +446,10 @@ Ice::stringToIdentity(const string& s)
     //
     string::size_type slash = string::npos;
     string::size_type pos = 0;
-    while((pos = s.find('/', pos)) != string::npos)
+    while ((pos = s.find('/', pos)) != string::npos)
     {
         string::size_type escapes = 0;
-        while(static_cast<int>(pos - escapes) > 0 && s[pos - escapes - 1] == '\\')
+        while (static_cast<int>(pos - escapes) > 0 && s[pos - escapes - 1] == '\\')
         {
             escapes++;
         }
@@ -462,9 +457,9 @@ Ice::stringToIdentity(const string& s)
         //
         // We ignore escaped escapes
         //
-        if(escapes % 2 == 0)
+        if (escapes % 2 == 0)
         {
-            if(slash == string::npos)
+            if (slash == string::npos)
             {
                 slash = pos;
             }
@@ -479,13 +474,13 @@ Ice::stringToIdentity(const string& s)
         pos++;
     }
 
-    if(slash == string::npos)
+    if (slash == string::npos)
     {
         try
         {
             ident.name = unescapeString(s, 0, s.size(), "/");
         }
-        catch(const IceUtil::IllegalArgumentException& ex)
+        catch (const IceUtil::IllegalArgumentException& ex)
         {
             throw IdentityParseException(__FILE__, __LINE__, "invalid identity name `" + s + "': " + ex.reason());
         }
@@ -496,22 +491,22 @@ Ice::stringToIdentity(const string& s)
         {
             ident.category = unescapeString(s, 0, slash, "/");
         }
-        catch(const IceUtil::IllegalArgumentException& ex)
+        catch (const IceUtil::IllegalArgumentException& ex)
         {
-            throw IdentityParseException(__FILE__, __LINE__, "invalid category in identity `" + s + "': " +
-                                         ex.reason());
+            throw IdentityParseException(__FILE__, __LINE__,
+                                         "invalid category in identity `" + s + "': " + ex.reason());
         }
 
-        if(slash + 1 < s.size())
+        if (slash + 1 < s.size())
         {
             try
             {
                 ident.name = unescapeString(s, slash + 1, s.size(), "/");
             }
-            catch(const IceUtil::IllegalArgumentException& ex)
+            catch (const IceUtil::IllegalArgumentException& ex)
             {
-                throw IdentityParseException(__FILE__, __LINE__, "invalid name in identity `" + s + "': " +
-                                             ex.reason());
+                throw IdentityParseException(__FILE__, __LINE__,
+                                             "invalid name in identity `" + s + "': " + ex.reason());
             }
         }
     }
@@ -524,7 +519,7 @@ string
 Ice::identityToString(const Identity& ident, ToStringMode toStringMode)
 {
     checkIdentity(ident, __FILE__, __LINE__);
-    if(ident.category.empty())
+    if (ident.category.empty())
     {
         return escapeString(ident.name, "/", toStringMode);
     }

@@ -11,10 +11,10 @@
 namespace Ice
 {
 
-class Object;
-/// \cond INTERNAL
-using ObjectPtr = ::std::shared_ptr<Object>;
-/// \endcond
+    class Object;
+    /// \cond INTERNAL
+    using ObjectPtr = ::std::shared_ptr<Object>;
+    /// \endcond
 
 }
 

@@ -10,9 +10,8 @@
 class EndpointFactory : public IceInternal::EndpointFactory, public std::enable_shared_from_this<EndpointFactory>
 {
 public:
-
     EndpointFactory(const IceInternal::EndpointFactoryPtr&);
-    virtual ~EndpointFactory() { }
+    virtual ~EndpointFactory() {}
 
     virtual std::int16_t type() const;
     virtual ::std::string protocol() const;
@@ -23,7 +22,6 @@ public:
     virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
 
 protected:
-
     IceInternal::EndpointFactoryPtr _factory;
 };
 

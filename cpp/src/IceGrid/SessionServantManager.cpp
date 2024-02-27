@@ -20,17 +20,17 @@ SessionServantManager::SessionServantManager(const shared_ptr<Ice::ObjectAdapter
                                              const shared_ptr<Ice::Object>& nodeAdminRouter,
                                              const string& replicaAdminCategory,
                                              const shared_ptr<Ice::Object>& replicaAdminRouter,
-                                             const shared_ptr<AdminCallbackRouter>& adminCallbackRouter) :
-    _adapter(adapter),
-    _instanceName(instanceName),
-    _checkConnection(checkConnection),
-    _serverAdminCategory(serverAdminCategory),
-    _serverAdminRouter(serverAdminRouter),
-    _nodeAdminCategory(nodeAdminCategory),
-    _nodeAdminRouter(nodeAdminRouter),
-    _replicaAdminCategory(replicaAdminCategory),
-    _replicaAdminRouter(replicaAdminRouter),
-    _adminCallbackRouter(adminCallbackRouter)
+                                             const shared_ptr<AdminCallbackRouter>& adminCallbackRouter)
+    : _adapter(adapter),
+      _instanceName(instanceName),
+      _checkConnection(checkConnection),
+      _serverAdminCategory(serverAdminCategory),
+      _serverAdminRouter(serverAdminRouter),
+      _nodeAdminCategory(nodeAdminCategory),
+      _nodeAdminRouter(nodeAdminRouter),
+      _replicaAdminCategory(replicaAdminCategory),
+      _replicaAdminRouter(replicaAdminRouter),
+      _adminCallbackRouter(adminCallbackRouter)
 {
 }
 
@@ -42,15 +42,15 @@ SessionServantManager::locate(const Ice::Current& current, shared_ptr<void>&)
     shared_ptr<Ice::Object> servant;
     bool plainServant = false;
 
-    if(_serverAdminRouter && current.id.category == _serverAdminCategory)
+    if (_serverAdminRouter && current.id.category == _serverAdminCategory)
     {
         servant = _serverAdminRouter;
     }
-    else if(_nodeAdminRouter && current.id.category == _nodeAdminCategory)
+    else if (_nodeAdminRouter && current.id.category == _nodeAdminCategory)
     {
         servant = _nodeAdminRouter;
     }
-    else if(_replicaAdminRouter && current.id.category == _replicaAdminCategory)
+    else if (_replicaAdminRouter && current.id.category == _replicaAdminCategory)
     {
         servant = _replicaAdminRouter;
     }
@@ -59,7 +59,7 @@ SessionServantManager::locate(const Ice::Current& current, shared_ptr<void>&)
         plainServant = true;
 
         auto p = _servants.find(current.id);
-        if(p == _servants.end() || (_checkConnection && p->second.connection != current.con))
+        if (p == _servants.end() || (_checkConnection && p->second.connection != current.con))
         {
             servant = 0;
         }
@@ -69,8 +69,7 @@ SessionServantManager::locate(const Ice::Current& current, shared_ptr<void>&)
         }
     }
 
-    if(!plainServant && servant && _checkConnection &&
-       _adminConnections.find(current.con) == _adminConnections.end())
+    if (!plainServant && servant && _checkConnection && _adminConnections.find(current.con) == _adminConnections.end())
     {
         servant = 0;
     }
@@ -94,19 +93,20 @@ SessionServantManager::deactivate(const std::string&)
 
 Ice::ObjectPrxPtr
 SessionServantManager::addSession(const shared_ptr<Ice::Object>& session,
-                                  const shared_ptr<Ice::Connection>& con, const string& category)
+                                  const shared_ptr<Ice::Connection>& con,
+                                  const string& category)
 {
     lock_guard lock(_mutex);
-    _sessions.insert({ session, SessionInfo(con, category) });
+    _sessions.insert({session, SessionInfo(con, category)});
 
     //
     // Keep track of all the connections which have an admin session to allow access
     // to server admin objects.
     //
-    if(!category.empty() && con != 0)
+    if (!category.empty() && con != 0)
     {
         _adminConnections.insert(con);
-        if(_adminCallbackRouter != 0)
+        if (_adminCallbackRouter != 0)
         {
             _adminCallbackRouter->addMapping(category, con);
         }
@@ -138,7 +138,7 @@ SessionServantManager::setSessionControl(const shared_ptr<Ice::Object>& session,
     //
     // Allow invocations on server admin objects.
     //
-    if(!p->second.category.empty() && _serverAdminRouter)
+    if (!p->second.category.empty() && _serverAdminRouter)
     {
         Ice::StringSeq seq;
         seq.push_back(_serverAdminCategory);
@@ -151,9 +151,9 @@ SessionServantManager::getGlacier2IdentitySet(const shared_ptr<Ice::Object>& ses
 {
     lock_guard lock(_mutex);
     auto p = _sessions.find(session);
-    if(p != _sessions.end() && p->second.sessionControl)
+    if (p != _sessions.end() && p->second.sessionControl)
     {
-        if(!p->second.identitySet) // Cache the identity set proxy
+        if (!p->second.identitySet) // Cache the identity set proxy
         {
             p->second.identitySet = p->second.sessionControl->identities();
         }
@@ -170,9 +170,9 @@ SessionServantManager::getGlacier2AdapterIdSet(const shared_ptr<Ice::Object>& se
 {
     lock_guard lock(_mutex);
     auto p = _sessions.find(session);
-    if(p != _sessions.end() && p->second.sessionControl)
+    if (p != _sessions.end() && p->second.sessionControl)
     {
-        if(!p->second.adapterIdSet) // Cache the adapterId set proxy
+        if (!p->second.adapterIdSet) // Cache the adapterId set proxy
         {
             p->second.adapterIdSet = p->second.sessionControl->adapterIds();
         }
@@ -195,7 +195,7 @@ SessionServantManager::removeSession(const shared_ptr<Ice::Object>& session)
     //
     // Remove all the servants associated with the session.
     //
-    for(auto q = p->second.identities.cbegin(); q != p->second.identities.cend(); ++q)
+    for (auto q = p->second.identities.cbegin(); q != p->second.identities.cend(); ++q)
     {
         _servants.erase(*q);
     }
@@ -204,12 +204,12 @@ SessionServantManager::removeSession(const shared_ptr<Ice::Object>& session)
     // If this is an admin session, remove its connection from the admin connections.
     //
 
-    if(!p->second.category.empty() && p->second.connection)
+    if (!p->second.category.empty() && p->second.connection)
     {
         assert(_adminConnections.find(p->second.connection) != _adminConnections.end());
         _adminConnections.erase(_adminConnections.find(p->second.connection));
 
-        if(_adminCallbackRouter != nullptr)
+        if (_adminCallbackRouter != nullptr)
         {
             _adminCallbackRouter->removeMapping(p->second.category);
         }
@@ -243,13 +243,13 @@ SessionServantManager::remove(const Ice::Identity& id)
     //
     // Remove the identity from the Glacier2 identity set.
     //
-    if(q->second.identitySet)
+    if (q->second.identitySet)
     {
         try
         {
             q->second.identitySet->remove({id});
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
     }
@@ -278,13 +278,13 @@ SessionServantManager::addImpl(const shared_ptr<Ice::Object>& servant, const sha
     //
     // Add the identity to the Glacier2 identity set.
     //
-    if(p->second.identitySet)
+    if (p->second.identitySet)
     {
         try
         {
             p->second.identitySet->add({id});
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
     }

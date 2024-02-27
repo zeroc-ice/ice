@@ -14,36 +14,33 @@ using namespace std;
 namespace
 {
 
-class PingReplyI : public Test::PingReply
-{
-public:
-    PingReplyI() :
-        _received(false)
+    class PingReplyI : public Test::PingReply
     {
-    }
+    public:
+        PingReplyI() : _received(false) {}
 
-    virtual void reply(const Ice::Current&)
+        virtual void reply(const Ice::Current&) { _received = true; }
+
+        bool checkReceived() { return _received; }
+
+    private:
+        bool _received;
+    };
+
+    using PingReplyIPtr = std::shared_ptr<PingReplyI>;
+
+    enum ThrowType
     {
-        _received = true;
-    }
+        LocalException,
+        UserException,
+        StandardException,
+        OtherException
+    };
 
-    bool checkReceived()
+    ThrowType throwEx[] = {LocalException, UserException, StandardException, OtherException};
+    auto thrower = [](ThrowType t)
     {
-        return _received;
-    }
-
-private:
-    bool _received;
-};
-
-using PingReplyIPtr = std::shared_ptr<PingReplyI>;
-
-enum ThrowType { LocalException, UserException, StandardException, OtherException };
-
-ThrowType throwEx[] = { LocalException, UserException, StandardException, OtherException };
-auto thrower = [](ThrowType t)
-    {
-        switch(t)
+        switch (t)
         {
             case LocalException:
             {
@@ -100,35 +97,21 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<bool> promise;
-            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
-                [&](bool value)
-                {
-                    promise.set_value(value);
-                });
+            p->ice_isAAsync(Test::TestIntf::ice_staticId(), [&](bool value) { promise.set_value(value); });
             test(promise.get_future().get());
         }
         {
             promise<bool> promise;
-            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
-                [&](bool value)
-                {
-                    promise.set_value(value);
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->ice_isAAsync(
+                Test::TestIntf::ice_staticId(), [&](bool value) { promise.set_value(value); },
+                [&](exception_ptr ex) { promise.set_exception(ex); });
             test(promise.get_future().get());
         }
 
         {
             promise<bool> promise;
-            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
-                [&](bool value)
-                {
-                    promise.set_value(value);
-                },
-                nullptr, nullptr, ctx);
+            p->ice_isAAsync(
+                Test::TestIntf::ice_staticId(), [&](bool value) { promise.set_value(value); }, nullptr, nullptr, ctx);
             test(promise.get_future().get());
         }
 
@@ -137,34 +120,17 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<void> promise;
-            p->ice_pingAsync(
-                [&]()
-                {
-                    promise.set_value();
-                });
+            p->ice_pingAsync([&]() { promise.set_value(); });
             promise.get_future().get();
         }
         {
             promise<void> promise;
-            p->ice_pingAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->ice_pingAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
             promise.get_future().get();
         }
         {
             promise<void> promise;
-            p->ice_pingAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                nullptr, nullptr, ctx);
+            p->ice_pingAsync([&]() { promise.set_value(); }, nullptr, nullptr, ctx);
             promise.get_future().get();
         }
 
@@ -173,34 +139,18 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<string> promise;
-            p->ice_idAsync(
-                [&](const string& id)
-                {
-                    promise.set_value(id);
-                });
+            p->ice_idAsync([&](const string& id) { promise.set_value(id); });
             test(promise.get_future().get() == Test::TestIntf::ice_staticId());
         }
         {
             promise<string> promise;
-            p->ice_idAsync(
-                [&](const string& id)
-                {
-                    promise.set_value(id);
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->ice_idAsync([&](const string& id) { promise.set_value(id); },
+                           [&](exception_ptr ex) { promise.set_exception(ex); });
             test(promise.get_future().get() == Test::TestIntf::ice_staticId());
         }
         {
             promise<string> promise;
-            p->ice_idAsync(
-                [&](const string& id)
-                {
-                    promise.set_value(id);
-                },
-                nullptr, nullptr, ctx);
+            p->ice_idAsync([&](const string& id) { promise.set_value(id); }, nullptr, nullptr, ctx);
             test(promise.get_future().get() == Test::TestIntf::ice_staticId());
         }
 
@@ -209,62 +159,35 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<vector<string>> promise;
-            p->ice_idsAsync(
-                [&](const vector<string>& ids)
-                {
-                    promise.set_value(ids);
-                });
+            p->ice_idsAsync([&](const vector<string>& ids) { promise.set_value(ids); });
             test(promise.get_future().get().size() == 2);
         }
         {
             promise<vector<string>> promise;
-            p->ice_idsAsync(
-                [&](const vector<string>& ids)
-                {
-                    promise.set_value(ids);
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->ice_idsAsync([&](const vector<string>& ids) { promise.set_value(ids); },
+                            [&](exception_ptr ex) { promise.set_exception(ex); });
             test(promise.get_future().get().size() == 2);
         }
         {
             promise<vector<string>> promise;
-            p->ice_idsAsync(
-                [&](const vector<string>& ids)
-                {
-                    promise.set_value(ids);
-                },
-                nullptr, nullptr, ctx);
+            p->ice_idsAsync([&](const vector<string>& ids) { promise.set_value(ids); }, nullptr, nullptr, ctx);
             test(promise.get_future().get().size() == 2);
         }
 
-        if(!collocated)
+        if (!collocated)
         {
             {
                 p->ice_getConnectionAsync(nullptr);
             }
             {
                 promise<Ice::ConnectionPtr> promise;
-                p->ice_getConnectionAsync(
-                    [&](const Ice::ConnectionPtr& connection)
-                    {
-                        promise.set_value(connection);
-                    });
+                p->ice_getConnectionAsync([&](const Ice::ConnectionPtr& connection) { promise.set_value(connection); });
                 test(promise.get_future().get());
             }
             {
                 promise<Ice::ConnectionPtr> promise;
-                p->ice_getConnectionAsync(
-                    [&](const Ice::ConnectionPtr& connection)
-                    {
-                        promise.set_value(connection);
-                    },
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(ex);
-                    });
+                p->ice_getConnectionAsync([&](const Ice::ConnectionPtr& connection) { promise.set_value(connection); },
+                                          [&](exception_ptr ex) { promise.set_exception(ex); });
                 test(promise.get_future().get());
             }
         }
@@ -274,34 +197,17 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<void> promise;
-            p->opAsync(
-                [&]()
-                {
-                    promise.set_value();
-                });
+            p->opAsync([&]() { promise.set_value(); });
             promise.get_future().get();
         }
         {
             promise<void> promise;
-            p->opAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->opAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
             promise.get_future().get();
         }
         {
             promise<void> promise;
-            p->opAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                nullptr, nullptr, ctx);
+            p->opAsync([&]() { promise.set_value(); }, nullptr, nullptr, ctx);
             promise.get_future().get();
         }
 
@@ -310,11 +216,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<int> promise;
-            p->opWithResultAsync(
-                [&](int result)
-                {
-                    promise.set_value(result);
-                });
+            p->opWithResultAsync([&](int result) { promise.set_value(result); });
             test(promise.get_future().get() == 15);
         }
         {
@@ -322,14 +224,9 @@ allTests(Test::TestHelper* helper, bool collocated)
             class CopyCounter
             {
             public:
-                CopyCounter(int& count) : _count(count)
-                {
-                }
+                CopyCounter(int& count) : _count(count) {}
 
-                CopyCounter(const CopyCounter& o) : _count(o._count)
-                {
-                    _count++;
-                }
+                CopyCounter(const CopyCounter& o) : _count(o._count) { _count++; }
 
                 CopyCounter(CopyCounter&&) = default;
 
@@ -345,19 +242,12 @@ allTests(Test::TestHelper* helper, bool collocated)
             CopyCounter sentCopyCounter(sentCopyCount);
 
             promise<int> promise;
-            p->opWithResultAsync(
-                [&promise, responseCopyCounter](int result)
-                {
-                    promise.set_value(result);
-                },
-                [&promise, errorCopyCounter](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                },
-                [sentCopyCounter](bool)
-                {
-                    // no-op
-                });
+            p->opWithResultAsync([&promise, responseCopyCounter](int result) { promise.set_value(result); },
+                                 [&promise, errorCopyCounter](exception_ptr ex) { promise.set_exception(ex); },
+                                 [sentCopyCounter](bool)
+                                 {
+                                     // no-op
+                                 });
             test(promise.get_future().get() == 15);
             test(responseCopyCount == 1);
             test(errorCopyCount == 1);
@@ -365,12 +255,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<int> promise;
-            p->opWithResultAsync(
-                [&](int result)
-                {
-                    promise.set_value(result);
-                },
-                nullptr, nullptr, ctx);
+            p->opWithResultAsync([&](int result) { promise.set_value(result); }, nullptr, nullptr, ctx);
             test(promise.get_future().get() == 15);
         }
 
@@ -379,59 +264,41 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<void> promise;
-            p->opWithUEAsync(
-                nullptr,
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->opWithUEAsync(nullptr, [&](exception_ptr ex) { promise.set_exception(ex); });
 
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch (const Test::TestIntfException&)
+            {
+            }
+        }
+        {
+            promise<void> promise;
+            p->opWithUEAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
+
+            try
+            {
+                promise.get_future().get();
+                test(false);
+            }
+            catch (const Test::TestIntfException&)
             {
             }
         }
         {
             promise<void> promise;
             p->opWithUEAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+                nullptr, [&](exception_ptr ex) { promise.set_exception(ex); }, nullptr, ctx);
 
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
-            {
-            }
-        }
-        {
-            promise<void> promise;
-            p->opWithUEAsync(
-                nullptr,
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                },
-                nullptr, ctx);
-
-            try
-            {
-                promise.get_future().get();
-                test(false);
-            }
-            catch(const Test::TestIntfException&)
+            catch (const Test::TestIntfException&)
             {
             }
         }
@@ -441,68 +308,51 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<void> promise;
-            p->opWithResultAndUEAsync(
-                nullptr,
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->opWithResultAndUEAsync(nullptr, [&](exception_ptr ex) { promise.set_exception(ex); });
 
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch (const Test::TestIntfException&)
             {
             }
-            catch(const Ice::OperationNotExistException&)
+            catch (const Ice::OperationNotExistException&)
+            {
+            }
+        }
+        {
+            promise<void> promise;
+            p->opWithResultAndUEAsync([&](int) { promise.set_value(); },
+                                      [&](exception_ptr ex) { promise.set_exception(ex); });
+
+            try
+            {
+                promise.get_future().get();
+                test(false);
+            }
+            catch (const Test::TestIntfException&)
+            {
+            }
+            catch (const Ice::OperationNotExistException&)
             {
             }
         }
         {
             promise<void> promise;
             p->opWithResultAndUEAsync(
-                [&](int)
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+                nullptr, [&](exception_ptr ex) { promise.set_exception(ex); }, nullptr, ctx);
 
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch (const Test::TestIntfException&)
             {
             }
-            catch(const Ice::OperationNotExistException&)
-            {
-            }
-        }
-        {
-            promise<void> promise;
-            p->opWithResultAndUEAsync(
-                nullptr,
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                },
-                nullptr, ctx);
-
-            try
-            {
-                promise.get_future().get();
-                test(false);
-            }
-            catch(const Test::TestIntfException&)
-            {
-            }
-            catch(const Ice::OperationNotExistException&)
+            catch (const Ice::OperationNotExistException&)
             {
             }
         }
@@ -521,7 +371,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         test(p->ice_idsAsync().get().size() == 2);
         test(p->ice_idsAsync(ctx).get().size() == 2);
 
-        if(!collocated)
+        if (!collocated)
         {
             test(p->ice_getConnectionAsync().get());
         }
@@ -537,7 +387,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->opWithUEAsync().get();
             test(false);
         }
-        catch(const Test::TestIntfException&)
+        catch (const Test::TestIntfException&)
         {
         }
 
@@ -546,7 +396,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->opWithUEAsync(ctx).get();
             test(false);
         }
-        catch(const Test::TestIntfException&)
+        catch (const Test::TestIntfException&)
         {
         }
 
@@ -555,10 +405,10 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->opWithResultAndUEAsync().get();
             test(false);
         }
-        catch(const Test::TestIntfException&)
+        catch (const Test::TestIntfException&)
         {
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
 
@@ -567,10 +417,10 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->opWithResultAndUEAsync(ctx).get();
             test(false);
         }
-        catch(const Test::TestIntfException&)
+        catch (const Test::TestIntfException&)
         {
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
         }
     }
@@ -582,21 +432,13 @@ allTests(Test::TestHelper* helper, bool collocated)
 
         {
             promise<void> promise;
-            indirect->opAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            indirect->opAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
         }
@@ -605,18 +447,11 @@ allTests(Test::TestHelper* helper, bool collocated)
             try
             {
                 promise<int> promise;
-                p->ice_oneway()->opWithResultAsync(
-                    [&](int value)
-                    {
-                        promise.set_value(value);
-                    },
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(ex);
-                    });
+                p->ice_oneway()->opWithResultAsync([&](int value) { promise.set_value(value); },
+                                                   [&](exception_ptr ex) { promise.set_exception(ex); });
                 test(false);
             }
-            catch(const Ice::TwowayOnlyException&)
+            catch (const Ice::TwowayOnlyException&)
             {
             }
         }
@@ -624,7 +459,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         //
         // Check that CommunicatorDestroyedException is raised directly.
         //
-        if(p->ice_getConnection() && protocol != "bt")
+        if (p->ice_getConnection() && protocol != "bt")
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
@@ -636,18 +471,10 @@ allTests(Test::TestHelper* helper, bool collocated)
             try
             {
                 promise<void> promise;
-                p2->opAsync(
-                    [&]()
-                    {
-                        promise.set_value();
-                    },
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(ex);
-                    });
+                p2->opAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
                 test(false);
             }
-            catch(const Ice::CommunicatorDestroyedException&)
+            catch (const Ice::CommunicatorDestroyedException&)
             {
                 // Expected.
             }
@@ -664,7 +491,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             r.get();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -673,14 +500,14 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->ice_oneway()->opWithResultAsync().get();
             test(false);
         }
-        catch(const Ice::TwowayOnlyException&)
+        catch (const Ice::TwowayOnlyException&)
         {
         }
 
         //
         // Check that CommunicatorDestroyedException is raised directly.
         //
-        if(p->ice_getConnection())
+        if (p->ice_getConnection())
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
@@ -694,7 +521,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 p2->opAsync();
                 test(false);
             }
-            catch(const Ice::CommunicatorDestroyedException&)
+            catch (const Ice::CommunicatorDestroyedException&)
             {
                 // Expected.
             }
@@ -708,65 +535,43 @@ allTests(Test::TestHelper* helper, bool collocated)
 
         {
             promise<bool> promise;
-            i->ice_isAAsync(Test::TestIntf::ice_staticId(),
-                [&](bool value)
-                {
-                    promise.set_value(value);
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            i->ice_isAAsync(
+                Test::TestIntf::ice_staticId(), [&](bool value) { promise.set_value(value); },
+                [&](exception_ptr ex) { promise.set_exception(ex); });
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
         }
 
         {
             promise<void> promise;
-            i->opAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            i->opAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
 
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
         }
 
         {
             promise<void> promise;
-            i->opWithUEAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            i->opWithUEAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
 
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch (const Ice::NoEndpointException&)
             {
             }
         }
@@ -775,20 +580,13 @@ allTests(Test::TestHelper* helper, bool collocated)
         {
             promise<bool> promise;
             p->ice_isAAsync(
-                Test::TestIntf::ice_staticId(),
-                [&](bool value)
-                {
-                    promise.set_value(value);
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+                Test::TestIntf::ice_staticId(), [&](bool value) { promise.set_value(value); },
+                [&](exception_ptr ex) { promise.set_exception(ex); });
             try
             {
                 test(promise.get_future().get());
             }
-            catch(...)
+            catch (...)
             {
                 test(false);
             }
@@ -796,20 +594,12 @@ allTests(Test::TestHelper* helper, bool collocated)
 
         {
             promise<void> promise;
-            p->opAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->opAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
             try
             {
                 promise.get_future().get();
             }
-            catch(...)
+            catch (...)
             {
                 test(false);
             }
@@ -818,22 +608,14 @@ allTests(Test::TestHelper* helper, bool collocated)
         // If response is a user exception, it should be received.
         {
             promise<void> promise;
-            p->opWithUEAsync(
-                [&]()
-                {
-                    promise.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                });
+            p->opWithUEAsync([&]() { promise.set_value(); }, [&](exception_ptr ex) { promise.set_exception(ex); });
 
             try
             {
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch (const Test::TestIntfException&)
             {
             }
         }
@@ -846,19 +628,10 @@ allTests(Test::TestHelper* helper, bool collocated)
             promise<bool> response;
             promise<bool> sent;
 
-            p->ice_isAAsync("",
-                [&](bool value)
-                {
-                    response.set_value(value);
-                },
-                [&](exception_ptr ex)
-                {
-                    response.set_exception(ex);
-                },
-                [&](bool sentAsync)
-                {
-                    sent.set_value(sentAsync);
-                });
+            p->ice_isAAsync(
+                "", [&](bool value) { response.set_value(value); },
+                [&](exception_ptr ex) { response.set_exception(ex); },
+                [&](bool sentAsync) { sent.set_value(sentAsync); });
 
             sent.get_future().get();
             response.get_future().get();
@@ -868,19 +641,8 @@ allTests(Test::TestHelper* helper, bool collocated)
             promise<void> response;
             promise<bool> sent;
 
-            p->ice_pingAsync(
-                [&]()
-                {
-                    response.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    response.set_exception(ex);
-                },
-                [&](bool sentAsync)
-                {
-                    sent.set_value(sentAsync);
-                });
+            p->ice_pingAsync([&]() { response.set_value(); }, [&](exception_ptr ex) { response.set_exception(ex); },
+                             [&](bool sentAsync) { sent.set_value(sentAsync); });
 
             sent.get_future().get();
             response.get_future().get();
@@ -890,19 +652,9 @@ allTests(Test::TestHelper* helper, bool collocated)
             promise<string> response;
             promise<bool> sent;
 
-            p->ice_idAsync(
-                [&](string value)
-                {
-                    response.set_value(value);
-                },
-                [&](exception_ptr ex)
-                {
-                    response.set_exception(ex);
-                },
-                [&](bool sentAsync)
-                {
-                    sent.set_value(sentAsync);
-                });
+            p->ice_idAsync([&](string value) { response.set_value(value); },
+                           [&](exception_ptr ex) { response.set_exception(ex); },
+                           [&](bool sentAsync) { sent.set_value(sentAsync); });
 
             sent.get_future().get();
             response.get_future().get();
@@ -912,19 +664,9 @@ allTests(Test::TestHelper* helper, bool collocated)
             promise<vector<string>> response;
             promise<bool> sent;
 
-            p->ice_idsAsync(
-                [&](vector<string> value)
-                {
-                    response.set_value(value);
-                },
-                [&](exception_ptr ex)
-                {
-                    response.set_exception(ex);
-                },
-                [&](bool sentAsync)
-                {
-                    sent.set_value(sentAsync);
-                });
+            p->ice_idsAsync([&](vector<string> value) { response.set_value(value); },
+                            [&](exception_ptr ex) { response.set_exception(ex); },
+                            [&](bool sentAsync) { sent.set_value(sentAsync); });
 
             sent.get_future().get();
             response.get_future().get();
@@ -934,19 +676,8 @@ allTests(Test::TestHelper* helper, bool collocated)
             promise<void> response;
             promise<bool> sent;
 
-            p->opAsync(
-                [&]()
-                {
-                    response.set_value();
-                },
-                [&](exception_ptr ex)
-                {
-                    response.set_exception(ex);
-                },
-                [&](bool sentAsync)
-                {
-                    sent.set_value(sentAsync);
-                });
+            p->opAsync([&]() { response.set_value(); }, [&](exception_ptr ex) { response.set_exception(ex); },
+                       [&](bool sentAsync) { sent.set_value(sentAsync); });
 
             sent.get_future().get();
             response.get_future().get();
@@ -958,30 +689,22 @@ allTests(Test::TestHelper* helper, bool collocated)
         testController->holdAdapter();
         try
         {
-            while(true)
+            while (true)
             {
                 auto s = make_shared<promise<bool>>();
                 auto f = s->get_future();
                 p->opWithPayloadAsync(
-                    seq,
-                    [](){},
-                    [s](exception_ptr ex)
-                    {
-                        s->set_exception(ex);
-                    },
-                    [s](bool value)
-                    {
-                        s->set_value(value);
-                    });
+                    seq, []() {}, [s](exception_ptr ex) { s->set_exception(ex); },
+                    [s](bool value) { s->set_value(value); });
 
-                if(f.wait_for(chrono::seconds(0)) != future_status::ready || !f.get())
+                if (f.wait_for(chrono::seconds(0)) != future_status::ready || !f.get())
                 {
                     break;
                 }
                 futures.push_back(std::move(f));
             }
         }
-        catch(...)
+        catch (...)
         {
             testController->resumeAdapter();
             throw;
@@ -994,7 +717,7 @@ allTests(Test::TestHelper* helper, bool collocated)
     {
         auto q = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
 
-        for(int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i)
         {
             {
                 promise<void> promise;
@@ -1004,16 +727,13 @@ allTests(Test::TestHelper* helper, bool collocated)
                         promise.set_value();
                         thrower(throwEx[i]);
                     },
-                    [&](exception_ptr)
-                    {
-                        test(false);
-                    });
+                    [&](exception_ptr) { test(false); });
 
                 try
                 {
                     promise.get_future().get();
                 }
-                catch(const exception& ex)
+                catch (const exception& ex)
                 {
                     cerr << ex.what() << endl;
                     test(false);
@@ -1023,17 +743,17 @@ allTests(Test::TestHelper* helper, bool collocated)
             {
                 promise<void> promise;
                 p->opAsync(nullptr, nullptr,
-                    [&, i](bool)
-                    {
-                        promise.set_value();
-                        thrower(throwEx[i]);
-                    });
+                           [&, i](bool)
+                           {
+                               promise.set_value();
+                               thrower(throwEx[i]);
+                           });
 
                 try
                 {
                     promise.get_future().get();
                 }
-                catch(const exception&)
+                catch (const exception&)
                 {
                     test(false);
                 }
@@ -1051,22 +771,18 @@ allTests(Test::TestHelper* helper, bool collocated)
             b1->opBatch();
             auto id = this_thread::get_id();
             promise<void> promise;
-            b1->ice_flushBatchRequestsAsync(
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                },
-                [&](bool sentSynchronously)
-                {
-                    test((sentSynchronously && id == this_thread::get_id()) ||
-                         (!sentSynchronously && id != this_thread::get_id()));
-                    promise.set_value();
-                });
+            b1->ice_flushBatchRequestsAsync([&](exception_ptr ex) { promise.set_exception(ex); },
+                                            [&](bool sentSynchronously)
+                                            {
+                                                test((sentSynchronously && id == this_thread::get_id()) ||
+                                                     (!sentSynchronously && id != this_thread::get_id()));
+                                                promise.set_value();
+                                            });
             promise.get_future().get();
             test(p->waitForBatch(2));
         }
 
-        if(p->ice_getConnection() && protocol != "bt")
+        if (p->ice_getConnection() && protocol != "bt")
         {
             test(p->opBatchCount() == 0);
             auto b1 = p->ice_batchOneway();
@@ -1075,24 +791,20 @@ allTests(Test::TestHelper* helper, bool collocated)
 
             auto id = this_thread::get_id();
             promise<void> promise;
-            b1->ice_flushBatchRequestsAsync(
-                [&](exception_ptr ex)
-                {
-                    promise.set_exception(ex);
-                },
-                [&](bool sentSynchronously)
-                {
-                    test((sentSynchronously && id == this_thread::get_id()) ||
-                         (!sentSynchronously && id != this_thread::get_id()));
-                    promise.set_value();
-                });
+            b1->ice_flushBatchRequestsAsync([&](exception_ptr ex) { promise.set_exception(ex); },
+                                            [&](bool sentSynchronously)
+                                            {
+                                                test((sentSynchronously && id == this_thread::get_id()) ||
+                                                     (!sentSynchronously && id != this_thread::get_id()));
+                                                promise.set_value();
+                                            });
             promise.get_future().get();
             test(p->waitForBatch(1));
         }
     }
     cout << "ok" << endl;
 
-    if(p->ice_getConnection()) // No collocation optimization
+    if (p->ice_getConnection()) // No collocation optimization
     {
         cout << "testing batch requests with connection... " << flush;
         {
@@ -1107,15 +819,11 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise<void> promise;
 
                 b1->ice_getConnection()->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(ex);
-                    },
+                    Ice::CompressBatch::BasedOnProxy, [&](exception_ptr ex) { promise.set_exception(ex); },
                     [&](bool sentSynchronously)
                     {
                         test((sentSynchronously && id == this_thread::get_id()) ||
-                            (!sentSynchronously && id != this_thread::get_id()));
+                             (!sentSynchronously && id != this_thread::get_id()));
                         promise.set_value();
                     });
                 promise.get_future().get();
@@ -1127,21 +835,17 @@ allTests(Test::TestHelper* helper, bool collocated)
                 auto id = this_thread::get_id();
                 promise<void> promise;
                 p->ice_getConnection()->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(ex);
-                    },
+                    Ice::CompressBatch::BasedOnProxy, [&](exception_ptr ex) { promise.set_exception(ex); },
                     [&](bool sentSynchronously)
                     {
                         test((sentSynchronously && id == this_thread::get_id()) ||
-                            (!sentSynchronously && id != this_thread::get_id()));
+                             (!sentSynchronously && id != this_thread::get_id()));
                         promise.set_value();
                     });
                 promise.get_future().get();
             }
 
-            if(protocol != "bt")
+            if (protocol != "bt")
             {
                 test(p->opBatchCount() == 0);
                 auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
@@ -1151,22 +855,15 @@ allTests(Test::TestHelper* helper, bool collocated)
 
                 promise<void> promise;
                 b1->ice_getConnection()->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(std::move(ex));
-                    },
-                    [&](bool)
-                    {
-                        promise.set_value();
-                    });
+                    Ice::CompressBatch::BasedOnProxy, [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
+                    [&](bool) { promise.set_value(); });
 
                 try
                 {
                     promise.get_future().get();
                     test(false);
                 }
-                catch(const Ice::LocalException&)
+                catch (const Ice::LocalException&)
                 {
                 }
                 test(p->opBatchCount() == 0);
@@ -1203,11 +900,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(std::move(ex));
-                    },
+                    Ice::CompressBatch::BasedOnProxy, [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
                     [&](bool sentSynchronously)
                     {
                         test((sentSynchronously && id == this_thread::get_id()) ||
@@ -1218,7 +911,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 test(p->waitForBatch(2));
             }
 
-            if(protocol != "bt")
+            if (protocol != "bt")
             {
                 //
                 // Exception - 1 connection.
@@ -1232,11 +925,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(std::move(ex));
-                    },
+                    Ice::CompressBatch::BasedOnProxy, [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
                     [&](bool sentSynchronously)
                     {
                         test((sentSynchronously && id == this_thread::get_id()) ||
@@ -1247,7 +936,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 test(p->opBatchCount() == 0);
             }
 
-            if(protocol != "bt")
+            if (protocol != "bt")
             {
                 //
                 // 2 connections.
@@ -1255,9 +944,10 @@ allTests(Test::TestHelper* helper, bool collocated)
                 test(p->opBatchCount() == 0);
                 auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
                     p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                auto b2 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
+                auto b2 = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_connectionId("2")
+                                                                    ->ice_getConnection()
+                                                                    ->createProxy(p->ice_getIdentity())
+                                                                    ->ice_batchOneway());
                 b2->ice_getConnection(); // Ensure connection is established.
                 b1->opBatch();
                 b1->opBatch();
@@ -1267,11 +957,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(std::move(ex));
-                    },
+                    Ice::CompressBatch::BasedOnProxy, [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
                     [&](bool sentSynchronously)
                     {
                         test((sentSynchronously && id == this_thread::get_id()) ||
@@ -1282,7 +968,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 test(p->waitForBatch(4));
             }
 
-            if(protocol != "bt")
+            if (protocol != "bt")
             {
                 //
                 // 2 connections - 2 failures.
@@ -1292,9 +978,10 @@ allTests(Test::TestHelper* helper, bool collocated)
                 test(p->opBatchCount() == 0);
                 auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
                     p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                auto b2 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
+                auto b2 = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_connectionId("2")
+                                                                    ->ice_getConnection()
+                                                                    ->createProxy(p->ice_getIdentity())
+                                                                    ->ice_batchOneway());
 
                 b2->ice_getConnection(); // Ensure connection is established.
                 b1->opBatch();
@@ -1305,11 +992,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex)
-                    {
-                        promise.set_exception(std::move(ex));
-                    },
+                    Ice::CompressBatch::BasedOnProxy, [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
                     [&](bool sentSynchronously)
                     {
                         test((sentSynchronously && id == this_thread::get_id()) ||
@@ -1324,20 +1007,13 @@ allTests(Test::TestHelper* helper, bool collocated)
 
         cout << "testing cancel operations... " << flush;
         {
-            if(p->ice_getConnection())
+            if (p->ice_getConnection())
             {
                 testController->holdAdapter();
                 {
                     promise<void> promise;
-                    auto cancel = p->ice_pingAsync(
-                        [&]()
-                        {
-                            promise.set_value();
-                        },
-                        [&](exception_ptr ex)
-                        {
-                            promise.set_exception(ex);
-                        });
+                    auto cancel = p->ice_pingAsync([&]() { promise.set_value(); },
+                                                   [&](exception_ptr ex) { promise.set_exception(ex); });
                     cancel();
 
                     try
@@ -1345,10 +1021,10 @@ allTests(Test::TestHelper* helper, bool collocated)
                         promise.get_future().get();
                         test(false);
                     }
-                    catch(const Ice::InvocationCanceledException&)
+                    catch (const Ice::InvocationCanceledException&)
                     {
                     }
-                    catch(...)
+                    catch (...)
                     {
                         testController->resumeAdapter();
                         throw;
@@ -1357,15 +1033,8 @@ allTests(Test::TestHelper* helper, bool collocated)
 
                 {
                     promise<void> promise;
-                    auto cancel = p->ice_idAsync(
-                        [&](string)
-                        {
-                            promise.set_value();
-                        },
-                        [&](exception_ptr ex)
-                        {
-                            promise.set_exception(ex);
-                        });
+                    auto cancel = p->ice_idAsync([&](string) { promise.set_value(); },
+                                                 [&](exception_ptr ex) { promise.set_exception(ex); });
                     cancel();
 
                     try
@@ -1373,10 +1042,10 @@ allTests(Test::TestHelper* helper, bool collocated)
                         promise.get_future().get();
                         test(false);
                     }
-                    catch(const Ice::InvocationCanceledException&)
+                    catch (const Ice::InvocationCanceledException&)
                     {
                     }
-                    catch(...)
+                    catch (...)
                     {
                         testController->resumeAdapter();
                         throw;
@@ -1387,7 +1056,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         cout << "ok" << endl;
 
-        if(p->ice_getConnection() && protocol != "bt" && p->supportsAMD())
+        if (p->ice_getConnection() && protocol != "bt" && p->supportsAMD())
         {
             cout << "testing graceful close connection with wait... " << flush;
             {
@@ -1397,16 +1066,11 @@ allTests(Test::TestHelper* helper, bool collocated)
                 //
                 auto con = p->ice_getConnection();
                 auto sc = make_shared<promise<void>>();
-                con->setCloseCallback(
-                    [sc](Ice::ConnectionPtr)
-                    {
-                        sc->set_value();
-                    });
+                con->setCloseCallback([sc](Ice::ConnectionPtr) { sc->set_value(); });
                 auto fc = sc->get_future();
                 auto s = make_shared<promise<void>>();
-                p->sleepAsync(100,
-                              [s]() { s->set_value(); },
-                              [s](exception_ptr ex) { s->set_exception(ex); });
+                p->sleepAsync(
+                    100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
                 auto f = s->get_future();
                 // Blocks until the request completes.
                 con->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -1419,7 +1083,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 //
                 Ice::ByteSeq seq;
                 seq.resize(1024 * 10);
-                for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+                for (Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
                 {
                     *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
                 }
@@ -1432,34 +1096,32 @@ allTests(Test::TestHelper* helper, bool collocated)
 
                 int maxQueue = 2;
                 bool done = false;
-                while(!done && maxQueue < 5000)
+                while (!done && maxQueue < 5000)
                 {
                     done = true;
                     p->ice_ping();
                     vector<future<void>> results;
-                    for(int i = 0; i < maxQueue; ++i)
+                    for (int i = 0; i < maxQueue; ++i)
                     {
                         auto s = make_shared<promise<void>>();
-                        p->opWithPayloadAsync(seq,
-                                              [s]() { s->set_value(); },
-                                              [s](exception_ptr ex) { s->set_exception(ex); });
+                        p->opWithPayloadAsync(
+                            seq, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
                         results.push_back(s->get_future());
                     }
                     atomic_flag sent = ATOMIC_FLAG_INIT;
                     p->closeAsync(Test::CloseMode::GracefullyWithWait, nullptr, nullptr,
                                   [&sent](bool) { sent.test_and_set(); });
-                    if(!sent.test_and_set())
+                    if (!sent.test_and_set())
                     {
-                        for(int i = 0; i < maxQueue; i++)
+                        for (int i = 0; i < maxQueue; i++)
                         {
                             auto s = make_shared<promise<void>>();
                             atomic_flag sent2 = ATOMIC_FLAG_INIT;
-                            p->opWithPayloadAsync(seq,
-                                                  [s]() { s->set_value(); },
-                                                  [s](exception_ptr ex) { s->set_exception(ex); },
-                                                  [&sent2](bool) { sent2.test_and_set(); });
+                            p->opWithPayloadAsync(
+                                seq, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); },
+                                [&sent2](bool) { sent2.test_and_set(); });
                             results.push_back(s->get_future());
-                            if(sent2.test_and_set())
+                            if (sent2.test_and_set())
                             {
                                 done = false;
                                 maxQueue *= 2;
@@ -1473,13 +1135,13 @@ allTests(Test::TestHelper* helper, bool collocated)
                         done = false;
                     }
 
-                    for(vector<future<void>>::iterator r = results.begin(); r != results.end(); ++r)
+                    for (vector<future<void>>::iterator r = results.begin(); r != results.end(); ++r)
                     {
                         try
                         {
                             r->get();
                         }
-                        catch(const Ice::LocalException& ex)
+                        catch (const Ice::LocalException& ex)
                         {
                             cerr << ex << endl;
                             test(false);
@@ -1500,8 +1162,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 auto con = p->ice_getConnection();
                 auto s = make_shared<promise<void>>();
                 auto sent = make_shared<promise<void>>();
-                p->startDispatchAsync([s]() { s->set_value(); },
-                                      [s](exception_ptr ex) { s->set_exception(ex); },
+                p->startDispatchAsync([s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); },
                                       [sent](bool) { sent->set_value(); });
                 auto f = s->get_future();
                 sent->get_future().get(); // Ensure the request was sent before we close the connection.
@@ -1511,7 +1172,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     f.get();
                     test(false);
                 }
-                catch(const Ice::ConnectionManuallyClosedException& ex)
+                catch (const Ice::ConnectionManuallyClosedException& ex)
                 {
                     test(ex.graceful);
                 }
@@ -1523,24 +1184,19 @@ allTests(Test::TestHelper* helper, bool collocated)
                 //
                 con = p->ice_getConnection();
                 auto sc = make_shared<promise<void>>();
-                con->setCloseCallback(
-                    [sc](Ice::ConnectionPtr)
-                    {
-                        sc->set_value();
-                    });
+                con->setCloseCallback([sc](Ice::ConnectionPtr) { sc->set_value(); });
                 auto fc = sc->get_future();
                 s = make_shared<promise<void>>();
-                p->sleepAsync(100,
-                              [s]() { s->set_value(); },
-                              [s](exception_ptr ex) { s->set_exception(ex); });
+                p->sleepAsync(
+                    100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });
                 f = s->get_future();
                 p->close(Test::CloseMode::Gracefully); // Close is delayed until sleep completes.
-                fc.get(); // Ensure connection was closed.
+                fc.get();                              // Ensure connection was closed.
                 try
                 {
                     f.get();
                 }
-                catch(const Ice::LocalException&)
+                catch (const Ice::LocalException&)
                 {
                     test(false);
                 }
@@ -1557,8 +1213,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 auto con = p->ice_getConnection();
                 auto s = make_shared<promise<void>>();
                 auto sent = make_shared<promise<void>>();
-                p->startDispatchAsync([s]() { s->set_value(); },
-                                      [s](exception_ptr ex) { s->set_exception(ex); },
+                p->startDispatchAsync([s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); },
                                       [sent](bool) { sent->set_value(); });
                 auto f = s->get_future();
                 sent->get_future().get(); // Ensure the request was sent before we close the connection.
@@ -1568,7 +1223,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     f.get();
                     test(false);
                 }
-                catch(const Ice::ConnectionManuallyClosedException& ex)
+                catch (const Ice::ConnectionManuallyClosedException& ex)
                 {
                     test(!ex.graceful);
                 }
@@ -1584,7 +1239,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     p->close(Test::CloseMode::Forcefully);
                     test(false);
                 }
-                catch(const Ice::ConnectionLostException&)
+                catch (const Ice::ConnectionLostException&)
                 {
                     // Expected.
                 }
@@ -1600,24 +1255,25 @@ allTests(Test::TestHelper* helper, bool collocated)
             communicator->stringToProxy("test2:" + helper->getTestEndpoint()));
 
         promise<void> promise;
-        q->opAsync(1,
-                [&promise](int i, int j)
+        q->opAsync(
+            1,
+            [&promise](int i, int j)
+            {
+                test(i == j);
+                promise.set_value();
+            },
+            [](exception_ptr ex)
+            {
+                try
                 {
-                    test(i == j);
-                    promise.set_value();
-                },
-                [](exception_ptr ex)
+                    rethrow_exception(ex);
+                }
+                catch (const std::exception& exc)
                 {
-                    try
-                    {
-                        rethrow_exception(ex);
-                    }
-                    catch(const std::exception& exc)
-                    {
-                        cerr << exc.what() << endl;
-                    }
-                    test(false);
-                });
+                    cerr << exc.what() << endl;
+                }
+                test(false);
+            });
         promise.get_future().get();
 
         auto f = q->opAsync(1);
@@ -1628,7 +1284,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         cout << "ok" << endl;
     }
 
-    if(p->ice_getConnection())
+    if (p->ice_getConnection())
     {
         cout << "testing bidir... " << flush;
         auto adapter = communicator->createObjectAdapter("");

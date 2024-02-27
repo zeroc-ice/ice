@@ -15,11 +15,11 @@ invokeInternal(Ice::InputStream& in, vector<Ice::Byte>& outEncaps, const Ice::Cu
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
     Ice::OutputStream out(communicator);
     out.startEncapsulation();
-    if(current.operation == "opOneway")
+    if (current.operation == "opOneway")
     {
         return true;
     }
-    else if(current.operation == "opString")
+    else if (current.operation == "opString")
     {
         string s;
         in.startEncapsulation();
@@ -31,9 +31,9 @@ invokeInternal(Ice::InputStream& in, vector<Ice::Byte>& outEncaps, const Ice::Cu
         out.finished(outEncaps);
         return true;
     }
-    else if(current.operation == "opException")
+    else if (current.operation == "opException")
     {
-        if(current.ctx.find("raise") != current.ctx.end())
+        if (current.ctx.find("raise") != current.ctx.end())
         {
             throw Test::MyException();
         }
@@ -43,20 +43,20 @@ invokeInternal(Ice::InputStream& in, vector<Ice::Byte>& outEncaps, const Ice::Cu
         out.finished(outEncaps);
         return false;
     }
-    else if(current.operation == "shutdown")
+    else if (current.operation == "shutdown")
     {
         out.endEncapsulation();
         out.finished(outEncaps);
         communicator->shutdown();
         return true;
     }
-    else if(current.operation == "ice_isA")
+    else if (current.operation == "ice_isA")
     {
         string s;
         in.startEncapsulation();
         in.read(s);
         in.endEncapsulation();
-        if(s == "::Test::MyClass")
+        if (s == "::Test::MyClass")
         {
             out.write(true);
         }
@@ -86,7 +86,8 @@ BlobjectI::ice_invoke(vector<Ice::Byte> inEncaps, vector<Ice::Byte>& outEncaps, 
 }
 
 bool
-BlobjectArrayI::ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inEncaps, vector<Ice::Byte>& outEncaps,
+BlobjectArrayI::ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+                           vector<Ice::Byte>& outEncaps,
                            const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
@@ -114,8 +115,9 @@ BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> in
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);
     vector<Ice::Byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
-    pair<const Ice::Byte*, const Ice::Byte*> outPair(static_cast<const Ice::Byte*>(nullptr), static_cast<const Ice::Byte*>(nullptr));
-    if(outEncaps.size() != 0)
+    pair<const Ice::Byte*, const Ice::Byte*> outPair(static_cast<const Ice::Byte*>(nullptr),
+                                                     static_cast<const Ice::Byte*>(nullptr));
+    if (outEncaps.size() != 0)
     {
         outPair.first = &outEncaps[0];
         outPair.second = &outEncaps[0] + outEncaps.size();

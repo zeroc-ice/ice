@@ -9,32 +9,32 @@
 using namespace std;
 using namespace IceGrid;
 
-TraceLevels::TraceLevels(const shared_ptr<Ice::Communicator>& communicator, const string& prefix) :
-    admin(),
-    adminCat("Admin"),
-    application(),
-    applicationCat("Application"),
-    node(),
-    nodeCat("Node"),
-    replica(),
-    replicaCat("Replica"),
-    server(),
-    serverCat("Server"),
-    adapter(),
-    adapterCat("Adapter"),
-    object(),
-    objectCat("Object"),
-    activator(),
-    activatorCat("Activator"),
-    patch(),
-    patchCat("Patch"),
-    locator(),
-    locatorCat("Locator"),
-    session(),
-    sessionCat("Session"),
-    discovery(),
-    discoveryCat("Discovery"),
-    logger(communicator->getLogger())
+TraceLevels::TraceLevels(const shared_ptr<Ice::Communicator>& communicator, const string& prefix)
+    : admin(),
+      adminCat("Admin"),
+      application(),
+      applicationCat("Application"),
+      node(),
+      nodeCat("Node"),
+      replica(),
+      replicaCat("Replica"),
+      server(),
+      serverCat("Server"),
+      adapter(),
+      adapterCat("Adapter"),
+      object(),
+      objectCat("Object"),
+      activator(),
+      activatorCat("Activator"),
+      patch(),
+      patchCat("Patch"),
+      locator(),
+      locatorCat("Locator"),
+      session(),
+      sessionCat("Session"),
+      discovery(),
+      discoveryCat("Discovery"),
+      logger(communicator->getLogger())
 {
     auto properties = communicator->getProperties();
 

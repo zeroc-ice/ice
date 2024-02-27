@@ -10,14 +10,14 @@
 namespace IceInternal
 {
 
-class LocatorManager;
-using LocatorManagerPtr = std::shared_ptr<LocatorManager>;
+    class LocatorManager;
+    using LocatorManagerPtr = std::shared_ptr<LocatorManager>;
 
-class LocatorInfo;
-using LocatorInfoPtr = std::shared_ptr<LocatorInfo>;
+    class LocatorInfo;
+    using LocatorInfoPtr = std::shared_ptr<LocatorInfo>;
 
-class LocatorTable;
-using LocatorTablePtr = std::shared_ptr<LocatorTable>;
+    class LocatorTable;
+    using LocatorTablePtr = std::shared_ptr<LocatorTable>;
 
 }
 

@@ -12,35 +12,27 @@ using namespace Test;
 namespace
 {
 
-class CallbackI final : public Callback
-{
-public:
-
-    void
-    initiateCallback(CallbackReceiverPrxPtr proxy, const Ice::Current& current) override
+    class CallbackI final : public Callback
     {
-        proxy->callback(current.ctx);
-    }
+    public:
+        void initiateCallback(CallbackReceiverPrxPtr proxy, const Ice::Current& current) override
+        {
+            proxy->callback(current.ctx);
+        }
 
-    void
-    initiateCallbackEx(CallbackReceiverPrxPtr proxy, const Ice::Current& current) override
-    {
-        proxy->callbackEx(current.ctx);
-    }
+        void initiateCallbackEx(CallbackReceiverPrxPtr proxy, const Ice::Current& current) override
+        {
+            proxy->callbackEx(current.ctx);
+        }
 
-    void
-    shutdown(const Ice::Current& current) override
-    {
-        current.adapter->getCommunicator()->shutdown();
-    }
-};
+        void shutdown(const Ice::Current& current) override { current.adapter->getCommunicator()->shutdown(); }
+    };
 
 }
 
 class Server final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 

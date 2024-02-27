@@ -14,33 +14,31 @@ using namespace Test;
 namespace
 {
 
-Ice::IPEndpointInfoPtr
-getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
-{
-    for(Ice::EndpointInfoPtr p = info; p; p = p->underlying)
+    Ice::IPEndpointInfoPtr getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
     {
-        Ice::IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
-        if(ipInfo)
+        for (Ice::EndpointInfoPtr p = info; p; p = p->underlying)
         {
-            return ipInfo;
+            Ice::IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
+            if (ipInfo)
+            {
+                return ipInfo;
+            }
         }
+        return nullptr;
     }
-    return nullptr;
-}
 
-Ice::IPConnectionInfoPtr
-getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
-{
-    for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
+    Ice::IPConnectionInfoPtr getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
     {
-        Ice::IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
-        if(ipInfo)
+        for (Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
         {
-            return ipInfo;
+            Ice::IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
+            if (ipInfo)
+            {
+                return ipInfo;
+            }
         }
+        return nullptr;
     }
-    return nullptr;
-}
 
 }
 
@@ -73,7 +71,7 @@ TestI::getEndpointInfoAsContext(const Ice::Current& c)
     os << ipinfo->port;
     ctx["port"] = os.str();
 
-    if(dynamic_pointer_cast<Ice::UDPEndpointInfo>(ipinfo))
+    if (dynamic_pointer_cast<Ice::UDPEndpointInfo>(ipinfo))
     {
         Ice::UDPEndpointInfoPtr udp = dynamic_pointer_cast<Ice::UDPEndpointInfo>(ipinfo);
         ctx["mcastInterface"] = udp->mcastInterface;
@@ -104,9 +102,9 @@ TestI::getConnectionInfoAsContext(const Ice::Current& c)
     ctx["remotePort"] = os.str();
 
     Ice::WSConnectionInfoPtr wsinfo = dynamic_pointer_cast<Ice::WSConnectionInfo>(info);
-    if(wsinfo)
+    if (wsinfo)
     {
-        for(Ice::HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
+        for (Ice::HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
         {
             ctx["ws." + p->first] = p->second;
         }

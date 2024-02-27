@@ -19,14 +19,14 @@ IceBT::isValidDeviceAddress(const string& str)
     // Format is 01:23:45:67:89:0A
     //
 
-    if(str.size() != 17 || str[2] != ':' || str[5] != ':' || str[8] != ':' || str[11] != ':' || str[14] != ':')
+    if (str.size() != 17 || str[2] != ':' || str[5] != ':' || str[8] != ':' || str[11] != ':' || str[14] != ':')
     {
         return false;
     }
 
-    for(string::size_type i = 0; i < str.size(); i += 3)
+    for (string::size_type i = 0; i < str.size(); i += 3)
     {
-        if(!isxdigit(str[i]) || !isxdigit(str[i + 1]))
+        if (!isxdigit(str[i]) || !isxdigit(str[i + 1]))
         {
             return false;
         }
@@ -40,8 +40,8 @@ IceBT::parseDeviceAddress(const string& str, DeviceAddress& addr)
 {
     uint8_t b0, b1, b2, b3, b4, b5;
 
-    if(isValidDeviceAddress(str) &&
-       sscanf(str.c_str(), "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", &b5, &b4, &b3, &b2, &b1, &b0) == 6)
+    if (isValidDeviceAddress(str) &&
+        sscanf(str.c_str(), "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", &b5, &b4, &b3, &b2, &b1, &b0) == 6)
     {
         addr.b[0] = b0;
         addr.b[1] = b1;
@@ -92,66 +92,62 @@ IceBT::createAddr(const string& addr, int32_t channel)
 namespace
 {
 
-void
-fdToLocalAddress(SOCKET fd, SocketAddress& addr)
-{
-    socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
-    if(::getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
+    void fdToLocalAddress(SOCKET fd, SocketAddress& addr)
     {
-        IceInternal::closeSocketNoThrow(fd);
-        throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
-    }
-}
-
-bool
-fdToRemoteAddress(SOCKET fd, SocketAddress& addr)
-{
-    socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
-    if(::getpeername(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
-    {
-        if(IceInternal::notConnected())
-        {
-            return false;
-        }
-        else
+        socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
+        if (::getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
         {
             IceInternal::closeSocketNoThrow(fd);
             throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
         }
     }
 
-    return true;
-}
-
-string
-addressesToString(const SocketAddress& localAddr, const SocketAddress& remoteAddr, bool peerConnected)
-{
-    ostringstream s;
-    s << "local address = " << addrToString(localAddr);
-    if(peerConnected)
+    bool fdToRemoteAddress(SOCKET fd, SocketAddress& addr)
     {
-        s << "\nremote address = " << addrToString(remoteAddr);
-    }
-    else
-    {
-        s << "\nremote address = <not connected>";
-    }
-    return s.str();
-}
+        socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
+        if (::getpeername(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
+        {
+            if (IceInternal::notConnected())
+            {
+                return false;
+            }
+            else
+            {
+                IceInternal::closeSocketNoThrow(fd);
+                throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+            }
+        }
 
-void
-addrToAddressAndChannel(const SocketAddress& addr, string& address, int& channel)
-{
-    address = formatDeviceAddress(addr.rc_bdaddr);
-    channel = addr.rc_channel;
-}
+        return true;
+    }
+
+    string addressesToString(const SocketAddress& localAddr, const SocketAddress& remoteAddr, bool peerConnected)
+    {
+        ostringstream s;
+        s << "local address = " << addrToString(localAddr);
+        if (peerConnected)
+        {
+            s << "\nremote address = " << addrToString(remoteAddr);
+        }
+        else
+        {
+            s << "\nremote address = <not connected>";
+        }
+        return s.str();
+    }
+
+    void addrToAddressAndChannel(const SocketAddress& addr, string& address, int& channel)
+    {
+        address = formatDeviceAddress(addr.rc_bdaddr);
+        channel = addr.rc_channel;
+    }
 
 }
 
 string
 IceBT::fdToString(SOCKET fd)
 {
-    if(fd == INVALID_SOCKET)
+    if (fd == INVALID_SOCKET)
     {
         return "<closed>";
     }
@@ -166,10 +162,10 @@ IceBT::fdToString(SOCKET fd)
 }
 
 void
-IceBT::fdToAddressAndChannel(SOCKET fd, string& localAddress, int& localChannel, string& remoteAddress,
-                             int& remoteChannel)
+IceBT::fdToAddressAndChannel(
+    SOCKET fd, string& localAddress, int& localChannel, string& remoteAddress, int& remoteChannel)
 {
-    if(fd == INVALID_SOCKET)
+    if (fd == INVALID_SOCKET)
     {
         localAddress.clear();
         remoteAddress.clear();
@@ -183,7 +179,7 @@ IceBT::fdToAddressAndChannel(SOCKET fd, string& localAddress, int& localChannel,
     addrToAddressAndChannel(localAddr, localAddress, localChannel);
 
     SocketAddress remoteAddr;
-    if(fdToRemoteAddress(fd, remoteAddr))
+    if (fdToRemoteAddress(fd, remoteAddr))
     {
         addrToAddressAndChannel(remoteAddr, remoteAddress, remoteChannel);
     }
@@ -197,20 +193,20 @@ IceBT::fdToAddressAndChannel(SOCKET fd, string& localAddress, int& localChannel,
 int
 IceBT::compareAddress(const SocketAddress& addr1, const SocketAddress& addr2)
 {
-    if(addr1.rc_family < addr2.rc_family)
+    if (addr1.rc_family < addr2.rc_family)
     {
         return -1;
     }
-    else if(addr2.rc_family < addr1.rc_family)
+    else if (addr2.rc_family < addr1.rc_family)
     {
         return 1;
     }
 
-    if(addr1.rc_channel < addr2.rc_channel)
+    if (addr1.rc_channel < addr2.rc_channel)
     {
         return -1;
     }
-    else if(addr2.rc_channel < addr1.rc_channel)
+    else if (addr2.rc_channel < addr1.rc_channel)
     {
         return 1;
     }

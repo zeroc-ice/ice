@@ -26,10 +26,7 @@ BackgroundI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-BackgroundI::BackgroundI(const BackgroundControllerIPtr& controller) :
-    _controller(controller)
-{
-}
+BackgroundI::BackgroundI(const BackgroundControllerIPtr& controller) : _controller(controller) {}
 
 void
 BackgroundControllerI::pauseCall(string opName, const Ice::Current&)
@@ -108,8 +105,8 @@ BackgroundControllerI::buffered(bool enable, const Ice::Current&)
 }
 
 BackgroundControllerI::BackgroundControllerI(const Ice::ObjectAdapterPtr& adapter,
-                                             const ConfigurationPtr& configuration) :
-    _adapter(adapter),
-    _configuration(configuration)
+                                             const ConfigurationPtr& configuration)
+    : _adapter(adapter),
+      _configuration(configuration)
 {
 }

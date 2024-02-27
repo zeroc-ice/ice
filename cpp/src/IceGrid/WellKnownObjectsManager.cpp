@@ -10,8 +10,9 @@
 using namespace std;
 using namespace IceGrid;
 
-WellKnownObjectsManager::WellKnownObjectsManager(const shared_ptr<Database>& database) :
-    _database(database), _initialized(false)
+WellKnownObjectsManager::WellKnownObjectsManager(const shared_ptr<Database>& database)
+    : _database(database),
+      _initialized(false)
 {
 }
 
@@ -19,7 +20,7 @@ void
 WellKnownObjectsManager::add(const Ice::ObjectPrx& proxy, const string& type)
 {
     assert(!_initialized);
-    ObjectInfo info = { proxy, type };
+    ObjectInfo info = {proxy, type};
     _wellKnownObjects.push_back(std::move(info));
 }
 
@@ -39,7 +40,7 @@ WellKnownObjectsManager::finish()
 void
 WellKnownObjectsManager::registerAll(const ReplicaSessionPrxPtr& session)
 {
-    if(!initialized())
+    if (!initialized())
     {
         return;
     }
@@ -54,7 +55,7 @@ WellKnownObjectsManager::registerAll(const ReplicaSessionPrxPtr& session)
         session->setEndpoints(_endpoints);
         session->registerWellKnownObjects(_wellKnownObjects);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         // The session is already gone, ignore, this will be detected by the keep alive thread.
     }
@@ -63,7 +64,7 @@ WellKnownObjectsManager::registerAll(const ReplicaSessionPrxPtr& session)
 void
 WellKnownObjectsManager::registerAll()
 {
-    if(!initialized())
+    if (!initialized())
     {
         return;
     }
@@ -78,7 +79,7 @@ WellKnownObjectsManager::registerAll()
 void
 WellKnownObjectsManager::updateReplicatedWellKnownObjects()
 {
-    if(!initialized())
+    if (!initialized())
     {
         return;
     }
@@ -130,14 +131,14 @@ WellKnownObjectsManager::getEndpoints(const string& name)
 LocatorPrxPtr
 WellKnownObjectsManager::getLocator()
 {
-    Ice::Identity id = { "Locator", _database->getInstanceName() };
+    Ice::Identity id = {"Locator", _database->getInstanceName()};
     return Ice::uncheckedCast<LocatorPrx>(getWellKnownObjectReplicatedProxy(std::move(id), "Client"));
 }
 
 Ice::LocatorRegistryPrxPtr
 WellKnownObjectsManager::getLocatorRegistry()
 {
-    Ice::Identity id = { "LocatorRegistry", _database->getInstanceName() };
+    Ice::Identity id = {"LocatorRegistry", _database->getInstanceName()};
     return Ice::uncheckedCast<Ice::LocatorRegistryPrx>(getWellKnownObjectReplicatedProxy(std::move(id), "Server"));
 }
 
@@ -155,16 +156,16 @@ WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& 
         //
         Ice::EndpointSeq endpoints = proxy->ice_getEndpoints();
         Ice::EndpointSeq newEndpoints = registryEndpoints;
-        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
-            if(find(registryEndpoints.begin(), registryEndpoints.end(), *p) == registryEndpoints.end())
+            if (find(registryEndpoints.begin(), registryEndpoints.end(), *p) == registryEndpoints.end())
             {
                 newEndpoints.push_back(*p);
             }
         }
         return proxy->ice_endpoints(newEndpoints);
     }
-    catch(const ObjectNotRegisteredException&)
+    catch (const ObjectNotRegisteredException&)
     {
         //
         // If for some reasons the object isn't registered, we compute

@@ -11,7 +11,6 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -29,10 +28,10 @@ Server::run(int argc, char** argv)
         adpt->activate();
         communicator->getAdmin();
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         //
         // getAdmin might raise this if communicator is shutdown by

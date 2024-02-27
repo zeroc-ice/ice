@@ -16,38 +16,23 @@ using namespace Test;
 class ControllerI final : public Controller
 {
 public:
-
-    void stop(const Ice::Current& c) override
-    {
-        c.adapter->getCommunicator()->shutdown();
-    }
+    void stop(const Ice::Current& c) override { c.adapter->getCommunicator()->shutdown(); }
 };
 
 class SingleI final : public Single
 {
 public:
+    void event(int, const Current&) override { ++_nevents; }
 
-    void
-    event(int, const Current&) override
-    {
-        ++_nevents;
-    }
-
-    int
-    nevents() const
-    {
-        return _nevents;
-    }
+    int nevents() const { return _nevents; }
 
 private:
-
     atomic_int _nevents = 0;
 };
 
 class Subscriber final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -57,7 +42,7 @@ Subscriber::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
@@ -66,7 +51,7 @@ Subscriber::run(int argc, char** argv)
 
     auto base = communicator->stringToProxy(managerProxy);
     auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `" << managerProxy << "' is not running";
@@ -82,7 +67,7 @@ Subscriber::run(int argc, char** argv)
 
     IceStorm::QoS qos;
 
-    while(true)
+    while (true)
     {
         try
         {
@@ -91,13 +76,13 @@ Subscriber::run(int argc, char** argv)
         }
         // If we're already subscribed then we're done (previously we
         // got an UnknownException which succeeded).
-        catch(const IceStorm::AlreadySubscribed&)
+        catch (const IceStorm::AlreadySubscribed&)
         {
             break;
         }
         // This can happen if the replica group loses the majority
         // during subscription. In this case we retry.
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
         }
     }

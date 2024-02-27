@@ -3,7 +3,7 @@
 //
 
 #ifndef TEST_API_EXPORTS
-#   define TEST_API_EXPORTS
+#    define TEST_API_EXPORTS
 #endif
 
 #include <Acceptor.h>
@@ -69,8 +69,8 @@ Acceptor::toDetailedString() const
     return _acceptor->toDetailedString();
 }
 
-Acceptor::Acceptor(const EndpointIPtr& endpoint, const IceInternal::AcceptorPtr& acceptor) :
-    _endpoint(endpoint),
-    _acceptor(acceptor)
+Acceptor::Acceptor(const EndpointIPtr& endpoint, const IceInternal::AcceptorPtr& acceptor)
+    : _endpoint(endpoint),
+      _acceptor(acceptor)
 {
 }

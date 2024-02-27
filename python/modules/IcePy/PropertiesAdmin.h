@@ -11,11 +11,11 @@
 namespace IcePy
 {
 
-extern PyTypeObject NativePropertiesAdminType;
+    extern PyTypeObject NativePropertiesAdminType;
 
-bool initPropertiesAdmin(PyObject*);
+    bool initPropertiesAdmin(PyObject*);
 
-PyObject* createNativePropertiesAdmin(const Ice::NativePropertiesAdminPtr&);
+    PyObject* createNativePropertiesAdmin(const Ice::NativePropertiesAdminPtr&);
 
 }
 

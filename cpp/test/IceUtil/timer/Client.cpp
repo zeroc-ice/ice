@@ -13,12 +13,11 @@
 using namespace IceUtil;
 using namespace std;
 
-template<typename T>
-struct TargetLess
+template <typename T> struct TargetLess
 {
     bool operator()(const T& lhs, const T& rhs) const
     {
-        if(lhs && rhs)
+        if (lhs && rhs)
         {
             return *lhs < *rhs;
         }
@@ -32,19 +31,11 @@ struct TargetLess
 class TestTask : public IceUtil::TimerTask
 {
 public:
+    TestTask() : _count(0) {}
 
-    TestTask() : _count(0)
-    {
-    }
+    TestTask(const chrono::milliseconds& scheduledTime) : _scheduledTime(scheduledTime), _count(0) {}
 
-    TestTask(const chrono::milliseconds& scheduledTime) :
-        _scheduledTime(scheduledTime),
-        _count(0)
-    {
-    }
-
-    virtual void
-    runTimerTask()
+    virtual void runTimerTask()
     {
         lock_guard lock(_mutex);
         ++_count;
@@ -52,61 +43,47 @@ public:
         _condition.notify_all();
     }
 
-    virtual bool
-    operator<(const TestTask& r) const
-    {
-        return _scheduledTime < r._scheduledTime;
-    }
+    virtual bool operator<(const TestTask& r) const { return _scheduledTime < r._scheduledTime; }
 
-    virtual bool
-    hasRun() const
+    virtual bool hasRun() const
     {
         lock_guard lock(_mutex);
         return _run != chrono::steady_clock::time_point();
     }
 
-    int
-    getCount() const
+    int getCount() const
     {
         lock_guard lock(_mutex);
         return _count;
     }
 
-    virtual chrono::steady_clock::time_point
-    getRunTime() const
+    virtual chrono::steady_clock::time_point getRunTime() const
     {
         lock_guard lock(_mutex);
         return _run;
     }
 
-    chrono::milliseconds
-    getScheduledTime() const
-    {
-        return _scheduledTime;
-    }
+    chrono::milliseconds getScheduledTime() const { return _scheduledTime; }
 
-    virtual void
-    waitForRun()
+    virtual void waitForRun()
     {
         unique_lock lock(_mutex);
-        while(_run == chrono::steady_clock::time_point())
+        while (_run == chrono::steady_clock::time_point())
         {
-            if(_condition.wait_for(lock, chrono::seconds(10)) == cv_status::timeout)
+            if (_condition.wait_for(lock, chrono::seconds(10)) == cv_status::timeout)
             {
                 test(false); // Timeout.
             }
         }
     }
 
-    void
-    clear()
+    void clear()
     {
         _run = chrono::steady_clock::time_point();
         _count = 0;
     }
 
 private:
-
     chrono::steady_clock::time_point _run;
     chrono::milliseconds _scheduledTime;
     int _count;
@@ -118,13 +95,9 @@ using TestTaskPtr = std::shared_ptr<TestTask>;
 class DestroyTask : public IceUtil::TimerTask
 {
 public:
+    DestroyTask(const IceUtil::TimerPtr& timer) : _timer(timer), _run(false) {}
 
-    DestroyTask(const IceUtil::TimerPtr& timer) : _timer(timer), _run(false)
-    {
-    }
-
-    virtual void
-    runTimerTask()
+    virtual void runTimerTask()
     {
         lock_guard lock(_mutex);
         _timer->destroy();
@@ -132,13 +105,12 @@ public:
         _condition.notify_one();
     }
 
-    virtual void
-    waitForRun()
+    virtual void waitForRun()
     {
         unique_lock lock(_mutex);
-        while(!_run)
+        while (!_run)
         {
-            if(_condition.wait_for(lock, chrono::seconds(10)) == cv_status::timeout)
+            if (_condition.wait_for(lock, chrono::seconds(10)) == cv_status::timeout)
             {
                 test(false); // Timeout.
             }
@@ -146,7 +118,6 @@ public:
     }
 
 private:
-
     IceUtil::TimerPtr _timer;
     bool _run;
     mutable mutex _mutex;
@@ -157,9 +128,7 @@ using DestroyTaskPtr = std::shared_ptr<DestroyTask>;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int argc, char* argv[]);
-
 };
 
 void
@@ -181,7 +150,7 @@ Client::run(int, char*[])
             {
                 timer->schedule(task, chrono::seconds::zero());
             }
-            catch(const IceUtil::IllegalArgumentException&)
+            catch (const IceUtil::IllegalArgumentException&)
             {
                 // Expected.
             }
@@ -202,19 +171,19 @@ Client::run(int, char*[])
         {
             vector<TestTaskPtr> tasks;
             auto start = chrono::steady_clock::now() + chrono::milliseconds(500);
-            for(int i = 0; i < 20; ++i)
+            for (int i = 0; i < 20; ++i)
             {
                 tasks.push_back(make_shared<TestTask>(chrono::milliseconds(500 + i * 50)));
             }
 
             IceUtilInternal::shuffle(tasks.begin(), tasks.end());
             vector<TestTaskPtr>::const_iterator p;
-            for(p = tasks.begin(); p != tasks.end(); ++p)
+            for (p = tasks.begin(); p != tasks.end(); ++p)
             {
                 timer->schedule(*p, (*p)->getScheduledTime());
             }
 
-            for(p = tasks.begin(); p != tasks.end(); ++p)
+            for (p = tasks.begin(); p != tasks.end(); ++p)
             {
                 (*p)->waitForRun();
             }
@@ -222,9 +191,9 @@ Client::run(int, char*[])
             test(chrono::steady_clock::now() > start);
 
             sort(tasks.begin(), tasks.end(), TargetLess<shared_ptr<TestTask>>());
-            for(p = tasks.begin(); p + 1 != tasks.end(); ++p)
+            for (p = tasks.begin(); p + 1 != tasks.end(); ++p)
             {
-                if((*p)->getRunTime() > (*(p + 1))->getRunTime())
+                if ((*p)->getRunTime() > (*(p + 1))->getRunTime())
                 {
                     test(false);
                 }
@@ -259,7 +228,7 @@ Client::run(int, char*[])
             {
                 timer->schedule(destroyTask, chrono::seconds::zero());
             }
-            catch(const IceUtil::IllegalArgumentException&)
+            catch (const IceUtil::IllegalArgumentException&)
             {
                 // Expected;
             }
@@ -273,7 +242,7 @@ Client::run(int, char*[])
             {
                 timer->schedule(testTask, chrono::seconds::zero());
             }
-            catch(const IceUtil::IllegalArgumentException&)
+            catch (const IceUtil::IllegalArgumentException&)
             {
                 // Expected;
             }

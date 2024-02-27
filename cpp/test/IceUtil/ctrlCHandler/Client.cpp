@@ -11,7 +11,8 @@
 using namespace IceUtil;
 using namespace std;
 
-void callback(int signal)
+void
+callback(int signal)
 {
     cout << "Handling signal " << signal << endl;
 }
@@ -19,7 +20,6 @@ void callback(int signal)
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

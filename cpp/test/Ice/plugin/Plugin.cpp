@@ -10,337 +10,253 @@ using namespace std;
 namespace
 {
 
-class Plugin : public Ice::Plugin
-{
-
-public:
-
-    Plugin(const Ice::CommunicatorPtr& communicator) :
-         _communicator(communicator),
-         _initialized(false),
-         _destroyed(false)
+    class Plugin : public Ice::Plugin
     {
-    }
 
-    void
-    initialize()
+    public:
+        Plugin(const Ice::CommunicatorPtr& communicator)
+            : _communicator(communicator),
+              _initialized(false),
+              _destroyed(false)
+        {
+        }
+
+        void initialize() { _initialized = true; }
+
+        void destroy() { _destroyed = true; }
+
+        ~Plugin()
+        {
+            test(_initialized);
+            test(_destroyed);
+        }
+
+    private:
+        const Ice::CommunicatorPtr _communicator;
+        Ice::StringSeq _args;
+        bool _initialized;
+        bool _destroyed;
+    };
+
+    class PluginInitializeFailExeption : public std::exception
     {
-        _initialized = true;
-    }
 
-    void
-    destroy()
+    public:
+        PluginInitializeFailExeption() noexcept {}
+        virtual const char* what() const noexcept { return "PluginInitializeFailExeption"; }
+    };
+
+    class PluginInitializeFail : public Ice::Plugin
     {
-        _destroyed = true;
-    }
 
-    ~Plugin()
+    public:
+        PluginInitializeFail(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
+
+        void initialize() { throw PluginInitializeFailExeption(); }
+
+        void destroy() { test(false); }
+
+    private:
+        const Ice::CommunicatorPtr _communicator;
+    };
+
+    class BasePlugin;
+    using BasePluginPtr = std::shared_ptr<BasePlugin>;
+
+    class BasePlugin : public Ice::Plugin
     {
-        test(_initialized);
-        test(_destroyed);
-    }
 
-private:
+    public:
+        BasePlugin(const Ice::CommunicatorPtr& communicator)
+            : _communicator(communicator),
+              _initialized(false),
+              _destroyed(false)
+        {
+        }
 
-    const Ice::CommunicatorPtr _communicator;
-    Ice::StringSeq _args;
-    bool _initialized;
-    bool _destroyed;
-};
+        bool isInitialized() const { return _initialized; }
 
-class PluginInitializeFailExeption : public std::exception
-{
+        bool isDestroyed() const { return _destroyed; }
 
-public:
+    protected:
+        const Ice::CommunicatorPtr _communicator;
+        bool _initialized;
+        bool _destroyed;
+        BasePluginPtr _other;
+    };
 
-    PluginInitializeFailExeption() noexcept {}
-    virtual const char* what() const noexcept { return "PluginInitializeFailExeption"; }
-};
-
-class PluginInitializeFail : public Ice::Plugin
-{
-
-public:
-
-    PluginInitializeFail(const Ice::CommunicatorPtr& communicator) :
-         _communicator(communicator)
+    class PluginOne : public BasePlugin
     {
-    }
 
-    void
-    initialize()
+    public:
+        PluginOne(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
+
+        void initialize()
+        {
+            _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginTwo"));
+            test(!_other->isInitialized());
+            _initialized = true;
+        }
+
+        void destroy()
+        {
+            _destroyed = true;
+            test(_other->isDestroyed());
+            _other = 0;
+        }
+    };
+
+    class PluginTwo : public BasePlugin
     {
-        throw PluginInitializeFailExeption();
-    }
 
-    void
-    destroy()
+    public:
+        PluginTwo(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
+
+        void initialize()
+        {
+            _initialized = true;
+            _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginOne"));
+            test(_other->isInitialized());
+        }
+
+        void destroy()
+        {
+            _destroyed = true;
+            test(!_other->isDestroyed());
+            _other = 0;
+        }
+    };
+
+    class PluginThree : public BasePlugin
     {
-        test(false);
-    }
 
-private:
+    public:
+        PluginThree(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
 
-    const Ice::CommunicatorPtr _communicator;
-};
+        void initialize()
+        {
+            _initialized = true;
+            _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginTwo"));
+            test(_other->isInitialized());
+        }
 
-class BasePlugin;
-using BasePluginPtr = std::shared_ptr<BasePlugin>;
+        void destroy()
+        {
+            _destroyed = true;
+            test(!_other->isDestroyed());
+            _other = 0;
+        }
+    };
 
-class BasePlugin : public Ice::Plugin
-{
+    class BasePluginFail;
+    using BasePluginFailPtr = std::shared_ptr<BasePluginFail>;
 
-public:
-
-    BasePlugin(const Ice::CommunicatorPtr& communicator) :
-         _communicator(communicator),
-         _initialized(false),
-         _destroyed(false)
+    class BasePluginFail : public Ice::Plugin
     {
-    }
 
-    bool
-    isInitialized() const
+    public:
+        BasePluginFail(const Ice::CommunicatorPtr& communicator)
+            : _communicator(communicator),
+              _initialized(false),
+              _destroyed(false)
+        {
+        }
+
+        bool isInitialized() const { return _initialized; }
+
+        bool isDestroyed() const { return _destroyed; }
+
+    protected:
+        const Ice::CommunicatorPtr _communicator;
+        bool _initialized;
+        bool _destroyed;
+        BasePluginFailPtr _one;
+        BasePluginFailPtr _two;
+        BasePluginFailPtr _three;
+    };
+
+    class PluginOneFail : public BasePluginFail
     {
-        return _initialized;
-    }
 
-    bool
-    isDestroyed() const
+    public:
+        PluginOneFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
+
+        void initialize()
+        {
+            _two = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginTwoFail"));
+            test(!_two->isInitialized());
+            _three =
+                dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginThreeFail"));
+            test(!_three->isInitialized());
+            _initialized = true;
+        }
+
+        void destroy()
+        {
+            test(_two->isDestroyed());
+            //
+            // Not destroyed because initialize fails.
+            //
+            test(!_three->isDestroyed());
+            _destroyed = true;
+            _two = 0;
+            _three = 0;
+        }
+
+        ~PluginOneFail()
+        {
+            test(_initialized);
+            test(_destroyed);
+        }
+    };
+
+    class PluginTwoFail : public BasePluginFail
     {
-        return _destroyed;
-    }
 
-protected:
+    public:
+        PluginTwoFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 
-    const Ice::CommunicatorPtr _communicator;
-    bool _initialized;
-    bool _destroyed;
-    BasePluginPtr _other;
-};
+        void initialize()
+        {
+            _initialized = true;
+            _one = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginOneFail"));
+            test(_one->isInitialized());
+            _three =
+                dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginThreeFail"));
+            test(!_three->isInitialized());
+        }
 
-class PluginOne : public BasePlugin
-{
+        void destroy()
+        {
+            _destroyed = true;
+            test(!_one->isDestroyed());
+            _one = 0;
+            _three = 0;
+        }
 
-public:
+        ~PluginTwoFail()
+        {
+            test(_initialized);
+            test(_destroyed);
+        }
+    };
 
-    PluginOne(const Ice::CommunicatorPtr& communicator) :
-        BasePlugin(communicator)
+    class PluginThreeFail : public BasePluginFail
     {
-    }
 
-    void
-    initialize()
-    {
-        _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginTwo"));
-        test(!_other->isInitialized());
-        _initialized = true;
-    }
+    public:
+        PluginThreeFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 
-    void
-    destroy()
-    {
-        _destroyed = true;
-        test(_other->isDestroyed());
-        _other = 0;
-    }
-};
+        void initialize() { throw PluginInitializeFailExeption(); }
 
-class PluginTwo : public BasePlugin
-{
+        void destroy() { test(false); }
 
-public:
-
-    PluginTwo(const Ice::CommunicatorPtr& communicator) :
-         BasePlugin(communicator)
-    {
-    }
-
-    void
-    initialize()
-    {
-        _initialized = true;
-        _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginOne"));
-        test(_other->isInitialized());
-    }
-
-    void
-    destroy()
-    {
-        _destroyed = true;
-        test(!_other->isDestroyed());
-        _other = 0;
-    }
-};
-
-class PluginThree : public BasePlugin
-{
-
-public:
-
-    PluginThree(const Ice::CommunicatorPtr& communicator) :
-         BasePlugin(communicator)
-    {
-    }
-
-    void
-    initialize()
-    {
-        _initialized = true;
-        _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginTwo"));
-        test(_other->isInitialized());
-    }
-
-    void
-    destroy()
-    {
-        _destroyed = true;
-        test(!_other->isDestroyed());
-        _other = 0;
-    }
-};
-
-class BasePluginFail;
-using BasePluginFailPtr = std::shared_ptr<BasePluginFail>;
-
-class BasePluginFail : public Ice::Plugin
-{
-
-public:
-
-    BasePluginFail(const Ice::CommunicatorPtr& communicator) :
-         _communicator(communicator),
-         _initialized(false),
-         _destroyed(false)
-    {
-    }
-
-    bool
-    isInitialized() const
-    {
-        return _initialized;
-    }
-
-    bool
-    isDestroyed() const
-    {
-        return _destroyed;
-    }
-
-protected:
-
-    const Ice::CommunicatorPtr _communicator;
-    bool _initialized;
-    bool _destroyed;
-    BasePluginFailPtr _one;
-    BasePluginFailPtr _two;
-    BasePluginFailPtr _three;
-};
-
-class PluginOneFail : public BasePluginFail
-{
-
-public:
-
-    PluginOneFail(const Ice::CommunicatorPtr& communicator) :
-        BasePluginFail(communicator)
-    {
-    }
-
-    void
-    initialize()
-    {
-        _two = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginTwoFail"));
-        test(!_two->isInitialized());
-        _three = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginThreeFail"));
-        test(!_three->isInitialized());
-        _initialized = true;
-    }
-
-    void
-    destroy()
-    {
-        test(_two->isDestroyed());
-        //
-        // Not destroyed because initialize fails.
-        //
-        test(!_three->isDestroyed());
-        _destroyed = true;
-        _two = 0;
-        _three = 0;
-    }
-
-    ~PluginOneFail()
-    {
-        test(_initialized);
-        test(_destroyed);
-    }
-};
-
-class PluginTwoFail : public BasePluginFail
-{
-
-public:
-
-    PluginTwoFail(const Ice::CommunicatorPtr& communicator) :
-        BasePluginFail(communicator)
-    {
-    }
-
-    void
-    initialize()
-    {
-        _initialized = true;
-        _one = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginOneFail"));
-        test(_one->isInitialized());
-        _three = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginThreeFail"));
-        test(!_three->isInitialized());
-    }
-
-    void
-    destroy()
-    {
-        _destroyed = true;
-        test(!_one->isDestroyed());
-        _one = 0;
-        _three = 0;
-    }
-
-    ~PluginTwoFail()
-    {
-        test(_initialized);
-        test(_destroyed);
-    }
-};
-
-class PluginThreeFail : public BasePluginFail
-{
-
-public:
-
-    PluginThreeFail(const Ice::CommunicatorPtr& communicator) :
-         BasePluginFail(communicator)
-    {
-    }
-
-    void
-    initialize()
-    {
-        throw PluginInitializeFailExeption();
-    }
-
-    void
-    destroy()
-    {
-        test(false);
-    }
-
-    ~PluginThreeFail()
-    {
-        test(!_initialized);
-        test(!_destroyed);
-    }
-};
+        ~PluginThreeFail()
+        {
+            test(!_initialized);
+            test(!_destroyed);
+        }
+    };
 
 }
 

@@ -11,7 +11,6 @@
 class AMDInterceptorI : public InterceptorI
 {
 public:
-
     AMDInterceptorI(const Ice::ObjectPtr&);
 
     virtual bool dispatch(Ice::Request&);
@@ -22,7 +21,6 @@ public:
     void setException(std::exception_ptr);
 
 private:
-
     std::exception_ptr _exception;
 
     mutable std::mutex _mutex;

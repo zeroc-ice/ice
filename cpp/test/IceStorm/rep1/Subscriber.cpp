@@ -16,39 +16,36 @@ using namespace Test;
 class SingleI final : public Single
 {
 public:
-
-    SingleI(const shared_ptr<Communicator>& communicator, const string& name, int max) :
-        _communicator(communicator),
-        _name(name),
-        _max(max),
-        _count(0),
-        _last(0)
+    SingleI(const shared_ptr<Communicator>& communicator, const string& name, int max)
+        : _communicator(communicator),
+          _name(name),
+          _max(max),
+          _count(0),
+          _last(0)
     {
     }
 
-    void
-    event(int i, const Current&) override
+    void event(int i, const Current&) override
     {
-        if(_name == "twoway ordered" && i != _last)
+        if (_name == "twoway ordered" && i != _last)
         {
             cerr << endl << "received unordered event for `" << _name << "': " << i << " " << _last;
             test(false);
         }
         lock_guard<mutex> lg(_mutex);
         ++_last;
-        if(++_count == _max)
+        if (++_count == _max)
         {
             _condVar.notify_one();
         }
     }
 
-    void
-    waitForEvents()
+    void waitForEvents()
     {
         unique_lock<mutex> lock(_mutex);
-        while(_count < _max)
+        while (_count < _max)
         {
-            if(_condVar.wait_for(lock, 40s) == cv_status::timeout)
+            if (_condVar.wait_for(lock, 40s) == cv_status::timeout)
             {
                 test(false);
             }
@@ -56,7 +53,6 @@ public:
     }
 
 private:
-
     shared_ptr<Communicator> _communicator;
     const string _name;
     const int _max;
@@ -69,7 +65,6 @@ private:
 class Subscriber final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -86,7 +81,7 @@ Subscriber::run(int argc, char** argv)
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         ostringstream os;
         os << argv[0] << ": error: " << e.reason;
@@ -95,7 +90,7 @@ Subscriber::run(int argc, char** argv)
 
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
@@ -104,7 +99,7 @@ Subscriber::run(int argc, char** argv)
 
     auto base = communicator->stringToProxy(managerProxy);
     auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `" << managerProxy << "' is not running";
@@ -114,7 +109,7 @@ Subscriber::run(int argc, char** argv)
     auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
 
     TopicPrxPtr topic;
-    while(true)
+    while (true)
     {
         try
         {
@@ -123,11 +118,11 @@ Subscriber::run(int argc, char** argv)
         }
         // This can happen if the replica group loses the majority
         // during retrieve. In this case we retry.
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
             continue;
         }
-        catch(const IceStorm::NoSuchTopic& e)
+        catch (const IceStorm::NoSuchTopic& e)
         {
             ostringstream os;
             os << argv[0] << ": NoSuchTopic: " << e.name;
@@ -136,7 +131,7 @@ Subscriber::run(int argc, char** argv)
     }
 
     int events = 1000;
-    if(opts.isSet("events"))
+    if (opts.isSet("events"))
     {
         events = atoi(opts.optArg("events").c_str());
     }
@@ -145,7 +140,7 @@ Subscriber::run(int argc, char** argv)
     //
     shared_ptr<SingleI> sub;
     IceStorm::QoS qos;
-    if(opts.isSet("ordered"))
+    if (opts.isSet("ordered"))
     {
         sub = make_shared<SingleI>(communicator.communicator(), "twoway ordered", events);
         qos["reliability"] = "ordered";
@@ -157,7 +152,7 @@ Subscriber::run(int argc, char** argv)
 
     auto prx = adapter->addWithUUID(sub);
 
-    while(true)
+    while (true)
     {
         try
         {
@@ -166,13 +161,13 @@ Subscriber::run(int argc, char** argv)
         }
         // If we're already subscribed then we're done (previously we
         // got an UnknownException which succeeded).
-        catch(const IceStorm::AlreadySubscribed&)
+        catch (const IceStorm::AlreadySubscribed&)
         {
             break;
         }
         // This can happen if the replica group loses the majority
         // during subscription. In this case we retry.
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
         }
     }

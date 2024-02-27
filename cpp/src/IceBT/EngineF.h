@@ -10,11 +10,11 @@
 namespace IceBT
 {
 
-class Engine;
-using EnginePtr = std::shared_ptr<Engine>;
+    class Engine;
+    using EnginePtr = std::shared_ptr<Engine>;
 
-class BluetoothService;
-using BluetoothServicePtr = std::shared_ptr<BluetoothService>;
+    class BluetoothService;
+    using BluetoothServicePtr = std::shared_ptr<BluetoothService>;
 
 }
 

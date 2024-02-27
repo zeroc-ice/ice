@@ -27,7 +27,7 @@
 #endif
 
 #ifdef ICE_SWIFT
-#   include <dispatch/dispatch.h>
+#    include <dispatch/dispatch.h>
 #endif
 
 //
@@ -48,15 +48,15 @@ namespace IceInternal
 namespace Ice
 {
 
-/** The mapping for the Slice byte type. */
-typedef unsigned char Byte;
+    /** The mapping for the Slice byte type. */
+    typedef unsigned char Byte;
 
 }
 
 namespace IceInternal
 {
 
-ICE_API int getSystemErrno();
+    ICE_API int getSystemErrno();
 
 }
 

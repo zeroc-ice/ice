@@ -12,7 +12,6 @@
 class Transceiver final : public IceInternal::Transceiver
 {
 public:
-
     Transceiver(const IceInternal::TransceiverPtr&);
     IceInternal::NativeInfoPtr getNativeInfo() final;
 
@@ -37,7 +36,6 @@ public:
     IceInternal::TransceiverPtr delegate() const { return _transceiver; }
 
 private:
-
     friend class Connector;
     friend class Acceptor;
     friend class EndpointI;

@@ -13,7 +13,6 @@ using namespace Test;
 class CallbackServer final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 

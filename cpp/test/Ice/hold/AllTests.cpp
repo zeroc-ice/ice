@@ -13,34 +13,28 @@ using namespace Test;
 namespace
 {
 
-class Condition
-{
-public:
-
-    Condition(bool value) : _value(value)
+    class Condition
     {
-    }
+    public:
+        Condition(bool value) : _value(value) {}
 
-    void
-    set(bool value)
-    {
-        lock_guard lock(_mutex);
-        _value = value;
-    }
+        void set(bool value)
+        {
+            lock_guard lock(_mutex);
+            _value = value;
+        }
 
-    bool
-    value() const
-    {
-        lock_guard lock(_mutex);
-        return _value;
-    }
+        bool value() const
+        {
+            lock_guard lock(_mutex);
+            return _value;
+        }
 
-private:
-
-    bool _value;
-    mutable mutex _mutex;
-};
-using ConditionPtr = shared_ptr<Condition>;
+    private:
+        bool _value;
+        mutable mutex _mutex;
+    };
+    using ConditionPtr = shared_ptr<Condition>;
 
 }
 
@@ -68,19 +62,19 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "changing state between active and hold rapidly... " << flush;
-    for(int i = 0; i < 100; ++i)
+    for (int i = 0; i < 100; ++i)
     {
         hold->putOnHold(0);
     }
-    for(int i = 0; i < 100; ++i)
+    for (int i = 0; i < 100; ++i)
     {
         hold->ice_oneway()->putOnHold(0);
     }
-    for(int i = 0; i < 100; ++i)
+    for (int i = 0; i < 100; ++i)
     {
         holdSerialized->putOnHold(0);
     }
-    for(int i = 0; i < 100; ++i)
+    for (int i = 0; i < 100; ++i)
     {
         holdSerialized->ice_oneway()->putOnHold(0);
     }
@@ -91,36 +85,31 @@ allTests(Test::TestHelper* helper)
         ConditionPtr cond = make_shared<Condition>(true);
         int value = 0;
         shared_ptr<promise<void>> completed;
-        while(cond->value())
+        while (cond->value())
         {
             completed = make_shared<promise<void>>();
             auto sent = make_shared<promise<bool>>();
             auto expected = value;
-            hold->setAsync(value + 1, static_cast<int32_t>(IceUtilInternal::random(5)),
+            hold->setAsync(
+                value + 1, static_cast<int32_t>(IceUtilInternal::random(5)),
                 [cond, expected, completed](int val)
                 {
-                    if(val != expected)
+                    if (val != expected)
                     {
                         cond->set(false);
                     }
                     completed->set_value();
                 },
-                [completed](exception_ptr)
-                {
-                    completed->set_value();
-                },
-                [sent](bool sentSynchronously)
-                {
-                    sent->set_value(sentSynchronously);
-                });
+                [completed](exception_ptr) { completed->set_value(); },
+                [sent](bool sentSynchronously) { sent->set_value(sentSynchronously); });
 
             ++value;
-            if(value % 100 == 0)
+            if (value % 100 == 0)
             {
                 sent->get_future().get();
             }
 
-            if(value > 1000000)
+            if (value > 1000000)
             {
                 // Don't continue, it's possible that out-of-order dispatch doesn't occur
                 // after 100000 iterations and we don't want the test to last for too long
@@ -138,42 +127,35 @@ allTests(Test::TestHelper* helper)
         ConditionPtr cond = make_shared<Condition>(true);
         int value = 0;
         shared_ptr<promise<void>> completed;
-        while(value < 3000 && cond->value())
+        while (value < 3000 && cond->value())
         {
             completed = make_shared<promise<void>>();
             auto sent = make_shared<promise<bool>>();
             auto expected = value;
             holdSerialized->setAsync(
-                value + 1,
-                static_cast<int32_t>(IceUtilInternal::random(1)),
+                value + 1, static_cast<int32_t>(IceUtilInternal::random(1)),
                 [cond, expected, completed](int val)
                 {
-                    if(val != expected)
+                    if (val != expected)
                     {
                         cond->set(false);
                     }
                     completed->set_value();
                 },
-                [completed](exception_ptr)
-                {
-                    completed->set_value();
-                },
-                [sent](bool sentSynchronously)
-                {
-                    sent->set_value(sentSynchronously);
-                });
+                [completed](exception_ptr) { completed->set_value(); },
+                [sent](bool sentSynchronously) { sent->set_value(sentSynchronously); });
             ++value;
-            if(value % 100 == 0)
+            if (value % 100 == 0)
             {
                 sent->get_future().get();
             }
         }
         test(cond->value());
-        for(int i = 0; i < 10000; ++i)
+        for (int i = 0; i < 10000; ++i)
         {
             holdSerialized->ice_oneway()->setOneway(value + 1, value);
             ++value;
-            if((i % 100) == 0)
+            if ((i % 100) == 0)
             {
                 holdSerialized->ice_oneway()->putOnHold(1);
             }
@@ -189,20 +171,14 @@ allTests(Test::TestHelper* helper)
         auto holdSerializedOneway = holdSerialized->ice_oneway();
 
         shared_ptr<promise<void>> completed;
-        for(int i = 0; i < 10000; ++i)
+        for (int i = 0; i < 10000; ++i)
         {
             completed = make_shared<promise<void>>();
-            holdSerializedOneway->setOnewayAsync(value + 1, value,
-                nullptr,
-                [](exception_ptr)
-                {
-                },
-                [completed](bool /*sentSynchronously*/)
-                {
-                    completed->set_value();
-                });
+            holdSerializedOneway->setOnewayAsync(
+                value + 1, value, nullptr, [](exception_ptr) {},
+                [completed](bool /*sentSynchronously*/) { completed->set_value(); });
             ++value;
-            if((i % 100) == 0)
+            if ((i % 100) == 0)
             {
                 completed->get_future().get();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
@@ -217,10 +193,10 @@ allTests(Test::TestHelper* helper)
     {
         hold->waitForHold();
         hold->waitForHold();
-        for(int i = 0; i < 1000; ++i)
+        for (int i = 0; i < 1000; ++i)
         {
             hold->ice_oneway()->ice_ping();
-            if((i % 20) == 0)
+            if ((i % 20) == 0)
             {
                 hold->putOnHold(0);
             }

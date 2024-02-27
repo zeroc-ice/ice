@@ -16,43 +16,45 @@
 namespace IceBT
 {
 
-class AcceptorI final :
-    public IceInternal::Acceptor,
-    public IceInternal::NativeInfo,
-    public std::enable_shared_from_this<AcceptorI>
-{
-public:
+    class AcceptorI final : public IceInternal::Acceptor,
+                            public IceInternal::NativeInfo,
+                            public std::enable_shared_from_this<AcceptorI>
+    {
+    public:
+        AcceptorI(const EndpointIPtr&,
+                  const InstancePtr&,
+                  const std::string&,
+                  const std::string&,
+                  const std::string&,
+                  const std::string&,
+                  int);
+        ~AcceptorI();
+        IceInternal::NativeInfoPtr getNativeInfo() final;
 
-    AcceptorI(const EndpointIPtr&, const InstancePtr&, const std::string&, const std::string&, const std::string&,
-              const std::string&, int);
-    ~AcceptorI();
-    IceInternal::NativeInfoPtr getNativeInfo() final;
+        void close() final;
+        IceInternal::EndpointIPtr listen() final;
+        IceInternal::TransceiverPtr accept() final;
+        std::string protocol() const final;
+        std::string toString() const final;
+        std::string toDetailedString() const final;
 
-    void close() final;
-    IceInternal::EndpointIPtr listen() final;
-    IceInternal::TransceiverPtr accept() final;
-    std::string protocol() const final;
-    std::string toString() const final;
-    std::string toDetailedString() const final;
+        int effectiveChannel() const;
 
-    int effectiveChannel() const;
+        void newConnection(int);
 
-    void newConnection(int);
+    private:
+        EndpointIPtr _endpoint;
+        const InstancePtr _instance;
+        const std::string _adapterName;
+        const std::string _addr;
+        const std::string _uuid;
+        const std::string _name;
+        const int _channel;
+        std::string _path;
 
-private:
-
-    EndpointIPtr _endpoint;
-    const InstancePtr _instance;
-    const std::string _adapterName;
-    const std::string _addr;
-    const std::string _uuid;
-    const std::string _name;
-    const int _channel;
-    std::string _path;
-
-    std::mutex _mutex;
-    std::stack<IceInternal::TransceiverPtr> _transceivers;
-};
+        std::mutex _mutex;
+        std::stack<IceInternal::TransceiverPtr> _transceivers;
+    };
 
 }
 

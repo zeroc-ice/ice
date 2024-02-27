@@ -13,10 +13,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::ACMConfig::ACMConfig(bool server) :
-    timeout(chrono::seconds(60)),
-    heartbeat(ACMHeartbeat::HeartbeatOnDispatch),
-    close(server ? ACMClose::CloseOnInvocation : ACMClose::CloseOnInvocationAndIdle)
+IceInternal::ACMConfig::ACMConfig(bool server)
+    : timeout(chrono::seconds(60)),
+      heartbeat(ACMHeartbeat::HeartbeatOnDispatch),
+      close(server ? ACMClose::CloseOnInvocation : ACMClose::CloseOnInvocationAndIdle)
 {
 }
 
@@ -26,7 +26,7 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
                                   const ACMConfig& dflt)
 {
     string timeoutProperty;
-    if((prefix == "Ice.ACM.Client" || prefix == "Ice.ACM.Server") && p->getProperty(prefix + ".Timeout").empty())
+    if ((prefix == "Ice.ACM.Client" || prefix == "Ice.ACM.Server") && p->getProperty(prefix + ".Timeout").empty())
     {
         timeoutProperty = prefix; // Deprecated property.
     }
@@ -36,7 +36,7 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     }
 
     int timeoutVal = p->getPropertyAsIntWithDefault(timeoutProperty, static_cast<int>(dflt.timeout.count()));
-    if(timeoutVal >= 0)
+    if (timeoutVal >= 0)
     {
         timeout = chrono::seconds(timeoutVal);
     }
@@ -47,8 +47,7 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     }
 
     int hb = p->getPropertyAsIntWithDefault(prefix + ".Heartbeat", static_cast<int>(dflt.heartbeat));
-    if(hb >= static_cast<int>(ACMHeartbeat::HeartbeatOff) &&
-       hb <= static_cast<int>(ACMHeartbeat::HeartbeatAlways))
+    if (hb >= static_cast<int>(ACMHeartbeat::HeartbeatOff) && hb <= static_cast<int>(ACMHeartbeat::HeartbeatAlways))
     {
         heartbeat = static_cast<Ice::ACMHeartbeat>(hb);
     }
@@ -59,8 +58,7 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     }
 
     int cl = p->getPropertyAsIntWithDefault(prefix + ".Close", static_cast<int>(dflt.close));
-    if(cl >= static_cast<int>(ACMClose::CloseOff) &&
-       cl <= static_cast<int>(ACMClose::CloseOnIdleForceful))
+    if (cl >= static_cast<int>(ACMClose::CloseOff) && cl <= static_cast<int>(ACMClose::CloseOnIdleForceful))
     {
         close = static_cast<Ice::ACMClose>(cl);
     }
@@ -71,8 +69,9 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     }
 }
 
-IceInternal::FactoryACMMonitor::FactoryACMMonitor(const InstancePtr& instance, const ACMConfig& config) :
-    _instance(instance), _config(config)
+IceInternal::FactoryACMMonitor::FactoryACMMonitor(const InstancePtr& instance, const ACMConfig& config)
+    : _instance(instance),
+      _config(config)
 {
 }
 
@@ -88,7 +87,7 @@ void
 IceInternal::FactoryACMMonitor::destroy()
 {
     unique_lock lock(_mutex);
-    if(!_instance)
+    if (!_instance)
     {
         //
         // Ensure all the connections have been cleared, it's important to wait here
@@ -102,7 +101,7 @@ IceInternal::FactoryACMMonitor::destroy()
     // Cancel the scheduled timer task and schedule it again now to clear the
     // connection set from the timer thread.
     //
-    if(!_connections.empty())
+    if (!_connections.empty())
     {
         _instance->timer()->cancel(shared_from_this());
         _instance->timer()->schedule(shared_from_this(), chrono::seconds::zero());
@@ -120,18 +119,17 @@ IceInternal::FactoryACMMonitor::destroy()
 void
 IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
 {
-    if(_config.timeout == chrono::seconds::zero())
+    if (_config.timeout == chrono::seconds::zero())
     {
         return;
     }
 
     lock_guard lock(_mutex);
-    if(_connections.empty())
+    if (_connections.empty())
     {
         _connections.insert(connection);
-        _instance->timer()->scheduleRepeated(
-            shared_from_this(),
-            chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
+        _instance->timer()->scheduleRepeated(shared_from_this(),
+                                             chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
     }
     else
     {
@@ -142,7 +140,7 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
 void
 IceInternal::FactoryACMMonitor::remove(const ConnectionIPtr& connection)
 {
-    if(_config.timeout == chrono::seconds::zero())
+    if (_config.timeout == chrono::seconds::zero())
     {
         return;
     }
@@ -168,15 +166,15 @@ IceInternal::FactoryACMMonitor::acm(const optional<int>& timeout,
     assert(_instance);
 
     ACMConfig config(_config);
-    if(timeout)
+    if (timeout)
     {
         config.timeout = chrono::seconds(*timeout);
     }
-    if(close)
+    if (close)
     {
         config.close = *close;
     }
-    if(heartbeat)
+    if (heartbeat)
     {
         config.heartbeat = *heartbeat;
     }
@@ -205,16 +203,16 @@ IceInternal::FactoryACMMonitor::runTimerTask()
 {
     {
         lock_guard lock(_mutex);
-        if(!_instance)
+        if (!_instance)
         {
             _connections.clear();
             _conditionVariable.notify_all();
             return;
         }
 
-        for(vector<pair<ConnectionIPtr, bool> >::const_iterator p = _changes.begin(); p != _changes.end(); ++p)
+        for (vector<pair<ConnectionIPtr, bool>>::const_iterator p = _changes.begin(); p != _changes.end(); ++p)
         {
-            if(p->second)
+            if (p->second)
             {
                 _connections.insert(p->first);
             }
@@ -225,7 +223,7 @@ IceInternal::FactoryACMMonitor::runTimerTask()
         }
         _changes.clear();
 
-        if(_connections.empty())
+        if (_connections.empty())
         {
             _instance->timer()->cancel(shared_from_this());
             return;
@@ -237,17 +235,17 @@ IceInternal::FactoryACMMonitor::runTimerTask()
     // that connections can be added or removed during monitoring.
     //
     auto now = chrono::steady_clock::now();
-    for(set<ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
+    for (set<ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
     {
         try
         {
             (*p)->monitor(now, _config);
         }
-        catch(const exception& ex)
+        catch (const exception& ex)
         {
             handleException(ex);
         }
-        catch(...)
+        catch (...)
         {
             handleException();
         }
@@ -258,7 +256,7 @@ void
 FactoryACMMonitor::handleException(const exception& ex)
 {
     lock_guard lock(_mutex);
-    if(!_instance)
+    if (!_instance)
     {
         return;
     }
@@ -271,7 +269,7 @@ void
 FactoryACMMonitor::handleException()
 {
     lock_guard lock(_mutex);
-    if(!_instance)
+    if (!_instance)
     {
         return;
     }
@@ -282,15 +280,14 @@ FactoryACMMonitor::handleException()
 
 IceInternal::ConnectionACMMonitor::ConnectionACMMonitor(const FactoryACMMonitorPtr& parent,
                                                         const IceUtil::TimerPtr& timer,
-                                                        const ACMConfig& config) :
-    _parent(parent), _timer(timer), _config(config)
+                                                        const ACMConfig& config)
+    : _parent(parent),
+      _timer(timer),
+      _config(config)
 {
 }
 
-IceInternal::ConnectionACMMonitor::~ConnectionACMMonitor()
-{
-    assert(!_connection);
-}
+IceInternal::ConnectionACMMonitor::~ConnectionACMMonitor() { assert(!_connection); }
 
 void
 IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
@@ -298,11 +295,9 @@ IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
     lock_guard lock(_mutex);
     assert(!_connection && connection);
     _connection = connection;
-    if(_config.timeout != chrono::seconds::zero())
+    if (_config.timeout != chrono::seconds::zero())
     {
-        _timer->scheduleRepeated(
-            shared_from_this(),
-            chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
+        _timer->scheduleRepeated(shared_from_this(), chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
     }
 }
 
@@ -314,7 +309,7 @@ IceInternal::ConnectionACMMonitor::remove(ICE_MAYBE_UNUSED const ConnectionIPtr&
 #endif
     lock_guard lock(_mutex);
     assert(_connection == connection);
-    if(_config.timeout != chrono::seconds::zero())
+    if (_config.timeout != chrono::seconds::zero())
     {
         _timer->cancel(shared_from_this());
     }
@@ -351,7 +346,7 @@ IceInternal::ConnectionACMMonitor::runTimerTask()
     Ice::ConnectionIPtr connection;
     {
         lock_guard lock(_mutex);
-        if(!_connection)
+        if (!_connection)
         {
             return;
         }
@@ -362,11 +357,11 @@ IceInternal::ConnectionACMMonitor::runTimerTask()
     {
         connection->monitor(chrono::steady_clock::now(), _config);
     }
-    catch(const exception& ex)
+    catch (const exception& ex)
     {
         _parent->handleException(ex);
     }
-    catch(...)
+    catch (...)
     {
         _parent->handleException();
     }

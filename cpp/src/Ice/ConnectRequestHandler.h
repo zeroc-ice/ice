@@ -19,41 +19,40 @@
 namespace IceInternal
 {
 
-class ConnectRequestHandler final : public RequestHandler, public std::enable_shared_from_this<ConnectRequestHandler>
-{
-public:
+    class ConnectRequestHandler final : public RequestHandler,
+                                        public std::enable_shared_from_this<ConnectRequestHandler>
+    {
+    public:
+        ConnectRequestHandler(const ReferencePtr&);
 
-    ConnectRequestHandler(const ReferencePtr&);
+        RequestHandlerPtr connect();
 
-    RequestHandlerPtr connect();
+        virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
-    virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
+        virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
+        virtual Ice::ConnectionIPtr getConnection();
+        virtual Ice::ConnectionIPtr waitForConnection();
 
-    virtual Ice::ConnectionIPtr getConnection();
-    virtual Ice::ConnectionIPtr waitForConnection();
+        // setConnection and setException are the response and exception for RoutableReference::getConnectionAsync.
+        void setConnection(Ice::ConnectionIPtr, bool);
+        void setException(std::exception_ptr);
 
-    // setConnection and setException are the response and exception for RoutableReference::getConnectionAsync.
-    void setConnection(Ice::ConnectionIPtr, bool);
-    void setException(std::exception_ptr);
+    private:
+        bool initialized(std::unique_lock<std::mutex>&);
+        void flushRequests();
 
-private:
+        Ice::ConnectionIPtr _connection;
+        bool _compress;
+        std::exception_ptr _exception;
+        bool _initialized;
+        bool _flushing;
 
-    bool initialized(std::unique_lock<std::mutex>&);
-    void flushRequests();
+        std::deque<ProxyOutgoingAsyncBasePtr> _requests;
 
-    Ice::ConnectionIPtr _connection;
-    bool _compress;
-    std::exception_ptr _exception;
-    bool _initialized;
-    bool _flushing;
-
-    std::deque<ProxyOutgoingAsyncBasePtr> _requests;
-
-    std::mutex _mutex;
-    std::condition_variable _conditionVariable;
-};
+        std::mutex _mutex;
+        std::condition_variable _conditionVariable;
+    };
 
 }
 

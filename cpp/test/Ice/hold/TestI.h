@@ -10,7 +10,6 @@
 class HoldI : public Test::Hold
 {
 public:
-
     HoldI(const IceUtil::TimerPtr&, const Ice::ObjectAdapterPtr&);
 
     virtual void putOnHold(std::int32_t, const Ice::Current&);
@@ -20,7 +19,6 @@ public:
     virtual void shutdown(const Ice::Current&);
 
 private:
-
     int _last;
     const IceUtil::TimerPtr _timer;
     const Ice::ObjectAdapterPtr _adapter;

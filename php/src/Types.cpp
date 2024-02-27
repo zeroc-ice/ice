@@ -25,8 +25,8 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 // Class entries represent the PHP class implementations we have registered.
 namespace IcePHP
 {
-zend_class_entry* typeInfoClassEntry = 0;
-zend_class_entry* exceptionInfoClassEntry = 0;
+    zend_class_entry* typeInfoClassEntry = 0;
+    zend_class_entry* exceptionInfoClassEntry = 0;
 }
 
 static zend_object_handlers _typeInfoHandlers;
@@ -36,11 +36,11 @@ static string _unsetGUID = "710A52F2-A014-4CB2-AF40-348D48DBCDDD";
 
 extern "C"
 {
-static zend_object* handleTypeInfoAlloc(zend_class_entry*);
-static void handleTypeInfoFreeStorage(zend_object*);
+    static zend_object* handleTypeInfoAlloc(zend_class_entry*);
+    static void handleTypeInfoFreeStorage(zend_object*);
 
-static zend_object* handleExceptionInfoAlloc(zend_class_entry*);
-static void handleExceptionInfoFreeStorage(zend_object*);
+    static zend_object* handleExceptionInfoAlloc(zend_class_entry*);
+    static void handleExceptionInfoFreeStorage(zend_object*);
 }
 
 typedef map<string, ProxyInfoPtr, std::less<>> ProxyInfoMap;
@@ -52,7 +52,7 @@ static void
 addProxyInfo(const ProxyInfoPtr& p)
 {
     ProxyInfoMap* m;
-    if(ICE_G(proxyInfoMap))
+    if (ICE_G(proxyInfoMap))
     {
         m = reinterpret_cast<ProxyInfoMap*>(ICE_G(proxyInfoMap));
     }
@@ -73,11 +73,11 @@ addPropertyZval(zval* arg, const char* key, zval* value)
 IcePHP::ProxyInfoPtr
 IcePHP::getProxyInfo(string_view id)
 {
-    if(ICE_G(proxyInfoMap))
+    if (ICE_G(proxyInfoMap))
     {
         ProxyInfoMap* m = reinterpret_cast<ProxyInfoMap*>(ICE_G(proxyInfoMap));
         ProxyInfoMap::iterator p = m->find(id);
-        if(p != m->end())
+        if (p != m->end())
         {
             return p->second;
         }
@@ -91,7 +91,7 @@ addClassInfoById(const ClassInfoPtr& p)
     assert(!getClassInfoById(p->id));
 
     ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(idToClassInfoMap));
-    if(!m)
+    if (!m)
     {
         m = new ClassInfoMap;
         ICE_G(idToClassInfoMap) = m;
@@ -106,7 +106,7 @@ addClassInfoByName(const ClassInfoPtr& p)
     assert(p->name[0] == '\\');
 
     ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
-    if(!m)
+    if (!m)
     {
         m = new ClassInfoMap;
         ICE_G(nameToClassInfoMap) = m;
@@ -128,11 +128,11 @@ getClassInfoByClass(zend_class_entry* cls, zend_class_entry* formal)
 
     // TODO remove interfaces, and rename ClassInfo to ValueInfo
     // Check interfaces.
-    if(!info)
+    if (!info)
     {
-        for(zend_ulong i = 0; i < cls->num_interfaces && !info; ++i)
+        for (zend_ulong i = 0; i < cls->num_interfaces && !info; ++i)
         {
-            if(!formal || checkClass(cls->interfaces[i], formal))
+            if (!formal || checkClass(cls->interfaces[i], formal))
             {
                 info = getClassInfoByClass(cls->interfaces[i], formal);
             }
@@ -149,7 +149,7 @@ IcePHP::getClassInfoById(string_view id)
     {
         ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(idToClassInfoMap));
         ClassInfoMap::iterator p = m->find(id);
-        if(p != m->end())
+        if (p != m->end())
         {
             return p->second;
         }
@@ -160,19 +160,19 @@ IcePHP::getClassInfoById(string_view id)
 IcePHP::ClassInfoPtr
 IcePHP::getClassInfoByName(const string& name)
 {
-    if(ICE_G(nameToClassInfoMap))
+    if (ICE_G(nameToClassInfoMap))
     {
         string s = name;
 
         // PHP's class definition (zend_class_entry) does not use a leading backslash in the class name.
-        if(s[0] != '\\')
+        if (s[0] != '\\')
         {
             s.insert(0, "\\");
         }
 
         ClassInfoMap* m = reinterpret_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
         ClassInfoMap::iterator p = m->find(s);
-        if(p != m->end())
+        if (p != m->end())
         {
             return p->second;
         }
@@ -183,11 +183,11 @@ IcePHP::getClassInfoByName(const string& name)
 IcePHP::ExceptionInfoPtr
 IcePHP::getExceptionInfo(string_view id)
 {
-    if(ICE_G(exceptionInfoMap))
+    if (ICE_G(exceptionInfoMap))
     {
         ExceptionInfoMap* m = reinterpret_cast<ExceptionInfoMap*>(ICE_G(exceptionInfoMap));
         ExceptionInfoMap::iterator p = m->find(id);
-        if(p != m->end())
+        if (p != m->end())
         {
             return p->second;
         }
@@ -202,9 +202,9 @@ zend_class_entry* IcePHP::StreamUtil::_sliceInfoType = 0;
 IcePHP::StreamUtil::~StreamUtil()
 {
     // Make sure we break any cycles among the ValueReaders in preserved slices.
-    for(const auto& p : _readers)
+    for (const auto& p : _readers)
     {
-        for(const auto& q : p->getSlicedData()->slices)
+        for (const auto& q : p->getSlicedData()->slices)
         {
             //
             // Don't just call (*q)->instances.clear(), as releasing references
@@ -234,7 +234,7 @@ IcePHP::StreamUtil::add(const shared_ptr<ValueReader>& reader)
 void
 IcePHP::StreamUtil::updateSlicedData(void)
 {
-    for(set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    for (set<shared_ptr<ValueReader>>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
         setSlicedDataMember((*p)->getObject(), (*p)->getSlicedData());
     }
@@ -246,12 +246,12 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
     // Create a PHP equivalent of the SlicedData object.
     assert(slicedData);
 
-    if(!_slicedDataType)
+    if (!_slicedDataType)
     {
         _slicedDataType = idToClass("::Ice::SlicedData");
         assert(_slicedDataType);
     }
-    if(!_sliceInfoType)
+    if (!_sliceInfoType)
     {
         _sliceInfoType = idToClass("::Ice::SliceInfo");
         assert(_sliceInfoType);
@@ -260,7 +260,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
     zval sd;
     AutoDestroy sdDestroyer(&sd);
 
-    if(object_init_ex(&sd, _slicedDataType) != SUCCESS)
+    if (object_init_ex(&sd, _slicedDataType) != SUCCESS)
     {
         throw AbortMarshaling();
     }
@@ -272,12 +272,12 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
     addPropertyZval(&sd, "slices", &slices);
 
     // Translate each SliceInfo object into its PHP equivalent.
-    for(const auto& p : slicedData->slices)
+    for (const auto& p : slicedData->slices)
     {
         zval slice;
         AutoDestroy sliceDestroyer(&slice);
 
-        if(object_init_ex(&slice, _sliceInfoType) != SUCCESS)
+        if (object_init_ex(&slice, _sliceInfoType) != SUCCESS)
         {
             throw AbortMarshaling();
         }
@@ -300,7 +300,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
         zval bytes;
         array_init(&bytes);
         AutoDestroy bytesDestroyer(&bytes);
-        for(const auto& q : p->bytes)
+        for (const auto& q : p->bytes)
         {
             add_next_index_long(&bytes, q & 0xff);
         }
@@ -320,7 +320,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
             auto r = dynamic_pointer_cast<ValueReader>(q);
             assert(r);
             zval* o = r->getObject();
-            assert(Z_TYPE_P(o) == IS_OBJECT); // Should be non-nil.
+            assert(Z_TYPE_P(o) == IS_OBJECT);   // Should be non-nil.
             add_next_index_zval(&instances, o); // Steals a reference.
             Z_ADDREF_P(o);
         }
@@ -348,9 +348,9 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
 
     string name = "_ice_slicedData";
     zval* sd = zend_hash_str_find_ind(Z_OBJPROP_P(obj), name.c_str(), name.size());
-    if(sd)
+    if (sd)
     {
-        if(Z_TYPE_P(sd) != IS_NULL)
+        if (Z_TYPE_P(sd) != IS_NULL)
         {
             // The "slices" member is an array of Ice_SliceInfo objects.
             zval* sl = zend_hash_str_find(Z_OBJPROP_P(sd), "slices", sizeof("slices") - 1);
@@ -393,8 +393,8 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 info->bytes.resize(zend_hash_num_elements(barr));
 
 #if defined(__clang__)
-#   pragma clang diagnostic push
-#   pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
 #endif
                 vector<Ice::Byte>::size_type i = 0;
                 ZEND_HASH_FOREACH_VAL(barr, e)
@@ -405,7 +405,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 }
                 ZEND_HASH_FOREACH_END();
 #if defined(__clang__)
-#   pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 #endif
 
                 zval* instances = zend_hash_str_find(Z_OBJPROP_P(s), "instances", sizeof("instances") - 1);
@@ -416,8 +416,8 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 zval* o;
 
 #if defined(__clang__)
-#   pragma clang diagnostic push
-#   pragma clang diagnostic ignored "-Wshadow"
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow"
 #endif
                 ZEND_HASH_FOREACH_VAL(oarr, o)
                 {
@@ -426,7 +426,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                     shared_ptr<Ice::Value> writer;
 
                     ObjectMap::iterator i = objectMap->find(Z_OBJ_HANDLE_P(o));
-                    if(i == objectMap->end())
+                    if (i == objectMap->end())
                     {
                         writer = make_shared<ValueWriter>(o, objectMap, nullptr);
                         objectMap->insert(ObjectMap::value_type(Z_OBJ_HANDLE_P(o), writer));
@@ -440,7 +440,7 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 }
                 ZEND_HASH_FOREACH_END();
 #if defined(__clang__)
-#   pragma clang diagnostic pop
+#    pragma clang diagnostic pop
 #endif
 
                 zval* hasOptionalMembers =
@@ -448,11 +448,10 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 assert(Z_TYPE_P(hasOptionalMembers) == IS_INDIRECT);
                 hasOptionalMembers = Z_INDIRECT_P(hasOptionalMembers);
                 assert(hasOptionalMembers &&
-                    (Z_TYPE_P(hasOptionalMembers) == IS_TRUE || Z_TYPE_P(hasOptionalMembers) == IS_FALSE));
+                       (Z_TYPE_P(hasOptionalMembers) == IS_TRUE || Z_TYPE_P(hasOptionalMembers) == IS_FALSE));
                 info->hasOptionalMembers = Z_TYPE_P(hasOptionalMembers) == IS_TRUE;
 
-                zval* isLastSlice =
-                    zend_hash_str_find(Z_OBJPROP_P(s), "isLastSlice", sizeof("isLastSlice") - 1);
+                zval* isLastSlice = zend_hash_str_find(Z_OBJPROP_P(s), "isLastSlice", sizeof("isLastSlice") - 1);
                 assert(Z_TYPE_P(isLastSlice) == IS_INDIRECT);
                 isLastSlice = Z_INDIRECT_P(isLastSlice);
                 assert(isLastSlice && (Z_TYPE_P(isLastSlice) == IS_TRUE || Z_TYPE_P(isLastSlice) == IS_FALSE));
@@ -470,14 +469,10 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
 }
 
 // UnmarshalCallback implementation.
-IcePHP::UnmarshalCallback::~UnmarshalCallback()
-{
-}
+IcePHP::UnmarshalCallback::~UnmarshalCallback() {}
 
 // TypeInfo implementation.
-IcePHP::TypeInfo::TypeInfo()
-{
-}
+IcePHP::TypeInfo::TypeInfo() {}
 
 bool
 IcePHP::TypeInfo::usesClasses() const
@@ -500,24 +495,24 @@ IcePHP::TypeInfo::destroy()
 string
 IcePHP::PrimitiveInfo::getId() const
 {
-    switch(kind)
+    switch (kind)
     {
-    case KindBool:
-        return "bool";
-    case KindByte:
-        return "byte";
-    case KindShort:
-        return "short";
-    case KindInt:
-        return "int";
-    case KindLong:
-        return "long";
-    case KindFloat:
-        return "float";
-    case KindDouble:
-        return "double";
-    case KindString:
-        return "string";
+        case KindBool:
+            return "bool";
+        case KindByte:
+            return "byte";
+        case KindShort:
+            return "short";
+        case KindInt:
+            return "int";
+        case KindLong:
+            return "long";
+        case KindFloat:
+            return "float";
+        case KindDouble:
+            return "double";
+        case KindString:
+            return "string";
     }
     assert(false);
     return string();
@@ -526,159 +521,159 @@ IcePHP::PrimitiveInfo::getId() const
 bool
 IcePHP::PrimitiveInfo::validate(zval* zv, bool throwException)
 {
-    switch(kind)
+    switch (kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        if(!(Z_TYPE_P(zv) == IS_TRUE || Z_TYPE_P(zv) == IS_FALSE))
+        case PrimitiveInfo::KindBool:
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            if(throwException)
+            if (!(Z_TYPE_P(zv) == IS_TRUE || Z_TYPE_P(zv) == IS_FALSE))
             {
-                invalidArgument("expected boolean value but received %s", s.c_str());
-            }
-            return false;
-        }
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        if(Z_TYPE_P(zv) != IS_LONG)
-        {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            if(throwException)
-            {
-                invalidArgument("expected byte value but received %s", s.c_str());
-            }
-            return false;
-        }
-        long val = static_cast<long>(Z_LVAL_P(zv));
-        if(val < 0 || val > 255)
-        {
-            if(throwException)
-            {
-                invalidArgument("value %ld is out of range for a byte", val);
-            }
-            return false;
-        }
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        if(Z_TYPE_P(zv) != IS_LONG)
-        {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            if(throwException)
-            {
-                invalidArgument("expected short value but received %s", s.c_str());
-            }
-            return false;
-        }
-        zend_long val = Z_LVAL_P(zv);
-        if(val < SHRT_MIN || val > SHRT_MAX)
-        {
-            if(throwException)
-            {
-                invalidArgument("value %ld is out of range for a short", val);
-            }
-            return false;
-        }
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        if(Z_TYPE_P(zv) != IS_LONG)
-        {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            if(throwException)
-            {
-                invalidArgument("expected int value but received %s", s.c_str());
-            }
-            return false;
-        }
-        zend_long val = Z_LVAL_P(zv);
-        if(val < INT_MIN || val > INT_MAX)
-        {
-            if(throwException)
-            {
-                invalidArgument("value %ld is out of range for an int", val);
-            }
-            return false;
-        }
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        // The platform's 'long' type may not be 64 bits, so we also accept a string argument for this type.
-        if(Z_TYPE_P(zv) != IS_LONG && Z_TYPE_P(zv) != IS_STRING)
-        {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            if(throwException)
-            {
-                invalidArgument("expected long value but received %s", s.c_str());
-            }
-            return false;
-        }
-
-        if(Z_TYPE_P(zv) != IS_LONG)
-        {
-            Int64 val;
-            string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-            if(!IceUtilInternal::stringToInt64(sval, val))
-            {
-                if(throwException)
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                if (throwException)
                 {
-                    invalidArgument("invalid long value `%s'", Z_STRVAL_P(zv));
+                    invalidArgument("expected boolean value but received %s", s.c_str());
                 }
                 return false;
             }
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        if(Z_TYPE_P(zv) != IS_DOUBLE && Z_TYPE_P(zv) != IS_LONG)
+        case PrimitiveInfo::KindByte:
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            if(throwException)
+            if (Z_TYPE_P(zv) != IS_LONG)
             {
-                invalidArgument("expected float value but received %s", s.c_str());
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                if (throwException)
+                {
+                    invalidArgument("expected byte value but received %s", s.c_str());
+                }
+                return false;
             }
-            return false;
-        }
-        if(Z_TYPE_P(zv) == IS_DOUBLE)
-        {
-            double val = Z_DVAL_P(zv);
-            return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) || !isfinite(val);
-        }
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        if(Z_TYPE_P(zv) != IS_DOUBLE && Z_TYPE_P(zv) != IS_LONG)
-        {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            if(throwException)
+            long val = static_cast<long>(Z_LVAL_P(zv));
+            if (val < 0 || val > 255)
             {
-                invalidArgument("expected double value but received %s", s.c_str());
+                if (throwException)
+                {
+                    invalidArgument("value %ld is out of range for a byte", val);
+                }
+                return false;
             }
-            return false;
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        if(Z_TYPE_P(zv) != IS_STRING && Z_TYPE_P(zv) != IS_NULL)
+        case PrimitiveInfo::KindShort:
         {
-            string s = zendTypeToString(Z_TYPE_P(zv));
-            if(throwException)
+            if (Z_TYPE_P(zv) != IS_LONG)
             {
-                invalidArgument("expected string value but received %s", s.c_str());
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                if (throwException)
+                {
+                    invalidArgument("expected short value but received %s", s.c_str());
+                }
+                return false;
             }
-            return false;
+            zend_long val = Z_LVAL_P(zv);
+            if (val < SHRT_MIN || val > SHRT_MAX)
+            {
+                if (throwException)
+                {
+                    invalidArgument("value %ld is out of range for a short", val);
+                }
+                return false;
+            }
+            break;
         }
-        break;
-    }
+        case PrimitiveInfo::KindInt:
+        {
+            if (Z_TYPE_P(zv) != IS_LONG)
+            {
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                if (throwException)
+                {
+                    invalidArgument("expected int value but received %s", s.c_str());
+                }
+                return false;
+            }
+            zend_long val = Z_LVAL_P(zv);
+            if (val < INT_MIN || val > INT_MAX)
+            {
+                if (throwException)
+                {
+                    invalidArgument("value %ld is out of range for an int", val);
+                }
+                return false;
+            }
+            break;
+        }
+        case PrimitiveInfo::KindLong:
+        {
+            // The platform's 'long' type may not be 64 bits, so we also accept a string argument for this type.
+            if (Z_TYPE_P(zv) != IS_LONG && Z_TYPE_P(zv) != IS_STRING)
+            {
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                if (throwException)
+                {
+                    invalidArgument("expected long value but received %s", s.c_str());
+                }
+                return false;
+            }
+
+            if (Z_TYPE_P(zv) != IS_LONG)
+            {
+                Int64 val;
+                string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
+                if (!IceUtilInternal::stringToInt64(sval, val))
+                {
+                    if (throwException)
+                    {
+                        invalidArgument("invalid long value `%s'", Z_STRVAL_P(zv));
+                    }
+                    return false;
+                }
+            }
+            break;
+        }
+        case PrimitiveInfo::KindFloat:
+        {
+            if (Z_TYPE_P(zv) != IS_DOUBLE && Z_TYPE_P(zv) != IS_LONG)
+            {
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                if (throwException)
+                {
+                    invalidArgument("expected float value but received %s", s.c_str());
+                }
+                return false;
+            }
+            if (Z_TYPE_P(zv) == IS_DOUBLE)
+            {
+                double val = Z_DVAL_P(zv);
+                return (val <= numeric_limits<float>::max() && val >= -numeric_limits<float>::max()) || !isfinite(val);
+            }
+            break;
+        }
+        case PrimitiveInfo::KindDouble:
+        {
+            if (Z_TYPE_P(zv) != IS_DOUBLE && Z_TYPE_P(zv) != IS_LONG)
+            {
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                if (throwException)
+                {
+                    invalidArgument("expected double value but received %s", s.c_str());
+                }
+                return false;
+            }
+            break;
+        }
+        case PrimitiveInfo::KindString:
+        {
+            if (Z_TYPE_P(zv) != IS_STRING && Z_TYPE_P(zv) != IS_NULL)
+            {
+                string s = zendTypeToString(Z_TYPE_P(zv));
+                if (throwException)
+                {
+                    invalidArgument("expected string value but received %s", s.c_str());
+                }
+                return false;
+            }
+            break;
+        }
     }
 
     return true;
@@ -693,23 +688,23 @@ IcePHP::PrimitiveInfo::variableLength() const
 int
 IcePHP::PrimitiveInfo::wireSize() const
 {
-    switch(kind)
+    switch (kind)
     {
-    case KindBool:
-    case KindByte:
-        return 1;
-    case KindShort:
-        return 2;
-    case KindInt:
-        return 4;
-    case KindLong:
-        return 8;
-    case KindFloat:
-        return 4;
-    case KindDouble:
-        return 8;
-    case KindString:
-        return 1;
+        case KindBool:
+        case KindByte:
+            return 1;
+        case KindShort:
+            return 2;
+        case KindInt:
+            return 4;
+        case KindLong:
+            return 8;
+        case KindFloat:
+            return 4;
+        case KindDouble:
+            return 8;
+        case KindString:
+            return 1;
     }
     assert(false);
     return 0;
@@ -718,23 +713,23 @@ IcePHP::PrimitiveInfo::wireSize() const
 Ice::OptionalFormat
 IcePHP::PrimitiveInfo::optionalFormat() const
 {
-    switch(kind)
+    switch (kind)
     {
-    case KindBool:
-    case KindByte:
-        return Ice::OptionalFormat::F1;
-    case KindShort:
-        return Ice::OptionalFormat::F2;
-    case KindInt:
-        return Ice::OptionalFormat::F4;
-    case KindLong:
-        return Ice::OptionalFormat::F8;
-    case KindFloat:
-        return Ice::OptionalFormat::F4;
-    case KindDouble:
-        return Ice::OptionalFormat::F8;
-    case KindString:
-        return Ice::OptionalFormat::VSize;
+        case KindBool:
+        case KindByte:
+            return Ice::OptionalFormat::F1;
+        case KindShort:
+            return Ice::OptionalFormat::F2;
+        case KindInt:
+            return Ice::OptionalFormat::F4;
+        case KindLong:
+            return Ice::OptionalFormat::F8;
+        case KindFloat:
+            return Ice::OptionalFormat::F4;
+        case KindDouble:
+            return Ice::OptionalFormat::F8;
+        case KindString:
+            return Ice::OptionalFormat::VSize;
     }
 
     assert(false);
@@ -744,188 +739,183 @@ IcePHP::PrimitiveInfo::optionalFormat() const
 void
 IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool)
 {
-    switch(kind)
+    switch (kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        assert(Z_TYPE_P(zv) == IS_TRUE || Z_TYPE_P(zv) == IS_FALSE);
-        os->write(Z_TYPE_P(zv) == IS_TRUE);
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        assert(Z_TYPE_P(zv) == IS_LONG);
-        long val = static_cast<long>(Z_LVAL_P(zv));
-        assert(val >= 0 && val <= 255); // validate() should have caught this.
-        os->write(static_cast<Ice::Byte>(val));
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        assert(Z_TYPE_P(zv) == IS_LONG);
-        long val = static_cast<long>(Z_LVAL_P(zv));
-        assert(val >= SHRT_MIN && val <= SHRT_MAX); // validate() should have caught this.
-        os->write(static_cast<int16_t>(val));
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        assert(Z_TYPE_P(zv) == IS_LONG);
-        long val = static_cast<long>(Z_LVAL_P(zv));
-        assert(val >= INT_MIN && val <= INT_MAX); // validate() should have caught this.
-        os->write(static_cast<int32_t>(val));
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        // The platform's 'long' type may not be 64 bits, so we also accept a string argument for this type.
-        assert(Z_TYPE_P(zv) == IS_LONG || Z_TYPE_P(zv) == IS_STRING); // validate() should have caught this.
-        Int64 val;
-        if(Z_TYPE_P(zv) == IS_LONG)
+        case PrimitiveInfo::KindBool:
         {
-            val = static_cast<long>(Z_LVAL_P(zv));
+            assert(Z_TYPE_P(zv) == IS_TRUE || Z_TYPE_P(zv) == IS_FALSE);
+            os->write(Z_TYPE_P(zv) == IS_TRUE);
+            break;
         }
-        else
+        case PrimitiveInfo::KindByte:
         {
-            string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-            IceUtilInternal::stringToInt64(sval, val);
+            assert(Z_TYPE_P(zv) == IS_LONG);
+            long val = static_cast<long>(Z_LVAL_P(zv));
+            assert(val >= 0 && val <= 255); // validate() should have caught this.
+            os->write(static_cast<Ice::Byte>(val));
+            break;
         }
-        os->write(static_cast<int64_t>(val));
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        double val = 0;
-        if(Z_TYPE_P(zv) == IS_DOUBLE)
+        case PrimitiveInfo::KindShort:
         {
-            val = Z_DVAL_P(zv);
+            assert(Z_TYPE_P(zv) == IS_LONG);
+            long val = static_cast<long>(Z_LVAL_P(zv));
+            assert(val >= SHRT_MIN && val <= SHRT_MAX); // validate() should have caught this.
+            os->write(static_cast<int16_t>(val));
+            break;
         }
-        else if(Z_TYPE_P(zv) == IS_LONG)
+        case PrimitiveInfo::KindInt:
         {
-            val = static_cast<double>(Z_LVAL_P(zv));
+            assert(Z_TYPE_P(zv) == IS_LONG);
+            long val = static_cast<long>(Z_LVAL_P(zv));
+            assert(val >= INT_MIN && val <= INT_MAX); // validate() should have caught this.
+            os->write(static_cast<int32_t>(val));
+            break;
         }
-        else
+        case PrimitiveInfo::KindLong:
         {
-            assert(false); // validate() should have caught this.
+            // The platform's 'long' type may not be 64 bits, so we also accept a string argument for this type.
+            assert(Z_TYPE_P(zv) == IS_LONG || Z_TYPE_P(zv) == IS_STRING); // validate() should have caught this.
+            Int64 val;
+            if (Z_TYPE_P(zv) == IS_LONG)
+            {
+                val = static_cast<long>(Z_LVAL_P(zv));
+            }
+            else
+            {
+                string sval(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
+                IceUtilInternal::stringToInt64(sval, val);
+            }
+            os->write(static_cast<int64_t>(val));
+            break;
         }
-        os->write(static_cast<float>(val));
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        double val = 0;
-        if(Z_TYPE_P(zv) == IS_DOUBLE)
+        case PrimitiveInfo::KindFloat:
         {
-            val = Z_DVAL_P(zv);
+            double val = 0;
+            if (Z_TYPE_P(zv) == IS_DOUBLE)
+            {
+                val = Z_DVAL_P(zv);
+            }
+            else if (Z_TYPE_P(zv) == IS_LONG)
+            {
+                val = static_cast<double>(Z_LVAL_P(zv));
+            }
+            else
+            {
+                assert(false); // validate() should have caught this.
+            }
+            os->write(static_cast<float>(val));
+            break;
         }
-        else if(Z_TYPE_P(zv) == IS_LONG)
+        case PrimitiveInfo::KindDouble:
         {
-            val = static_cast<double>(Z_LVAL_P(zv));
-        }
-        else
-        {
-            assert(false); // validate() should have caught this.
-        }
-        os->write(val);
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        assert(Z_TYPE_P(zv) == IS_STRING || Z_TYPE_P(zv) == IS_NULL); // validate() should have caught this.
-        if(Z_TYPE_P(zv) == IS_STRING)
-        {
-            string val(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
+            double val = 0;
+            if (Z_TYPE_P(zv) == IS_DOUBLE)
+            {
+                val = Z_DVAL_P(zv);
+            }
+            else if (Z_TYPE_P(zv) == IS_LONG)
+            {
+                val = static_cast<double>(Z_LVAL_P(zv));
+            }
+            else
+            {
+                assert(false); // validate() should have caught this.
+            }
             os->write(val);
+            break;
         }
-        else
+        case PrimitiveInfo::KindString:
         {
-            os->write(string());
+            assert(Z_TYPE_P(zv) == IS_STRING || Z_TYPE_P(zv) == IS_NULL); // validate() should have caught this.
+            if (Z_TYPE_P(zv) == IS_STRING)
+            {
+                string val(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
+                os->write(val);
+            }
+            else
+            {
+                os->write(string());
+            }
+            break;
         }
-        break;
-    }
     }
 }
 
 void
 IcePHP::PrimitiveInfo::unmarshal(
-    Ice::InputStream* is,
-    const UnmarshalCallbackPtr& cb,
-    const CommunicatorInfoPtr&,
-    zval* target,
-    void* closure,
-    bool)
+    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, const CommunicatorInfoPtr&, zval* target, void* closure, bool)
 {
     zval zv;
     AutoDestroy destroy(&zv);
 
-    switch(kind)
+    switch (kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        bool val;
-        is->read(val);
-        ZVAL_BOOL(&zv, val ? 1 : 0);
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        Ice::Byte val;
-        is->read(val);
-        ZVAL_LONG(&zv, val & 0xff);
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        int16_t val;
-        is->read(val);
-        ZVAL_LONG(&zv, val);
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        int32_t val;
-        is->read(val);
-        ZVAL_LONG(&zv, val);
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        int64_t val;
-        is->read(val);
+        case PrimitiveInfo::KindBool:
+        {
+            bool val;
+            is->read(val);
+            ZVAL_BOOL(&zv, val ? 1 : 0);
+            break;
+        }
+        case PrimitiveInfo::KindByte:
+        {
+            Ice::Byte val;
+            is->read(val);
+            ZVAL_LONG(&zv, val & 0xff);
+            break;
+        }
+        case PrimitiveInfo::KindShort:
+        {
+            int16_t val;
+            is->read(val);
+            ZVAL_LONG(&zv, val);
+            break;
+        }
+        case PrimitiveInfo::KindInt:
+        {
+            int32_t val;
+            is->read(val);
+            ZVAL_LONG(&zv, val);
+            break;
+        }
+        case PrimitiveInfo::KindLong:
+        {
+            int64_t val;
+            is->read(val);
 
-        // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-        if(sizeof(int64_t) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
-        {
-            string str = IceUtilInternal::int64ToString(val);
-            ZVAL_STRINGL(&zv, str.c_str(), static_cast<int>(str.length()));
+            // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
+            if (sizeof(int64_t) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
+            {
+                string str = IceUtilInternal::int64ToString(val);
+                ZVAL_STRINGL(&zv, str.c_str(), static_cast<int>(str.length()));
+            }
+            else
+            {
+                ZVAL_LONG(&zv, static_cast<long>(val));
+            }
+            break;
         }
-        else
+        case PrimitiveInfo::KindFloat:
         {
-            ZVAL_LONG(&zv, static_cast<long>(val));
+            float val;
+            is->read(val);
+            ZVAL_DOUBLE(&zv, val);
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        float val;
-        is->read(val);
-        ZVAL_DOUBLE(&zv, val);
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        double val;
-        is->read(val);
-        ZVAL_DOUBLE(&zv, val);
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        string val;
-        is->read(val);
-        ZVAL_STRINGL(&zv, val.c_str(), static_cast<int>(val.length()));
-        break;
-    }
+        case PrimitiveInfo::KindDouble:
+        {
+            double val;
+            is->read(val);
+            ZVAL_DOUBLE(&zv, val);
+            break;
+        }
+        case PrimitiveInfo::KindString:
+        {
+            string val;
+            is->read(val);
+            ZVAL_STRINGL(&zv, val.c_str(), static_cast<int>(val.length()));
+            break;
+        }
     }
     cb->unmarshaled(&zv, target, closure);
 }
@@ -933,7 +923,7 @@ IcePHP::PrimitiveInfo::unmarshal(
 void
 IcePHP::PrimitiveInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    if(!validate(zv, false))
+    if (!validate(zv, false))
     {
         out << "<invalid value - expected " << getId() << ">";
         return;
@@ -944,16 +934,14 @@ IcePHP::PrimitiveInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObject
 }
 
 // EnumInfo implementation.
-IcePHP::EnumInfo::EnumInfo(string ident, zval* en) :
-    id(std::move(ident)),
-    maxValue(0)
+IcePHP::EnumInfo::EnumInfo(string ident, zval* en) : id(std::move(ident)), maxValue(0)
 {
     HashTable* arr = Z_ARRVAL_P(en);
     HashPosition pos;
     zval* val;
 
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while((val = zend_hash_get_current_data_ex(arr, &pos)) != 0)
+    while ((val = zend_hash_get_current_data_ex(arr, &pos)) != 0)
     {
         assert(Z_TYPE_P(val) == IS_STRING);
         string name = Z_STRVAL_P(val);
@@ -964,7 +952,7 @@ IcePHP::EnumInfo::EnumInfo(string ident, zval* en) :
         int32_t value = static_cast<int32_t>(Z_LVAL_P(val));
         zend_hash_move_forward_ex(arr, &pos);
 
-        if(value > maxValue)
+        if (value > maxValue)
         {
             const_cast<int&>(maxValue) = value;
         }
@@ -982,7 +970,7 @@ IcePHP::EnumInfo::getId() const
 bool
 IcePHP::EnumInfo::validate(zval* zv, bool)
 {
-    if(Z_TYPE_P(zv) == IS_LONG)
+    if (Z_TYPE_P(zv) == IS_LONG)
     {
         const int32_t l = static_cast<int32_t>(Z_LVAL_P(zv));
         return l >= 0 && enumerators.find(l) != enumerators.end();
@@ -1020,19 +1008,14 @@ IcePHP::EnumInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool)
 
 void
 IcePHP::EnumInfo::unmarshal(
-    Ice::InputStream* is,
-    const UnmarshalCallbackPtr& cb,
-    const CommunicatorInfoPtr&,
-    zval* target,
-    void* closure,
-    bool)
+    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, const CommunicatorInfoPtr&, zval* target, void* closure, bool)
 {
     zval zv;
     AutoDestroy destroy(&zv);
 
     const int32_t val = is->readEnum(maxValue);
 
-    if(enumerators.find(val) == enumerators.end())
+    if (enumerators.find(val) == enumerators.end())
     {
         invalidArgument("enumerator %d is out of range for enum %s", val, id.c_str());
         throw AbortMarshaling();
@@ -1045,7 +1028,7 @@ IcePHP::EnumInfo::unmarshal(
 void
 IcePHP::EnumInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    if(!validate(zv, false))
+    if (!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -1096,7 +1079,7 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
         assert(Z_TYPE_P(elem) == IS_OBJECT);
         m->type = Wrapper<TypeInfoPtr>::value(elem);
 
-        if(allowOptional)
+        if (allowOptional)
         {
             elem = zend_hash_index_find(member, 2);
             assert(Z_TYPE_P(elem) == IS_TRUE || Z_TYPE_P(elem) == IS_FALSE);
@@ -1112,7 +1095,7 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
             m->tag = 0;
         }
 
-        if(m->optional)
+        if (m->optional)
         {
             optList.push_back(m);
         }
@@ -1123,15 +1106,12 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
     }
     ZEND_HASH_FOREACH_END();
 
-    if(allowOptional)
+    if (allowOptional)
     {
         class SortFn
         {
         public:
-            static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-            {
-                return lhs->tag < rhs->tag;
-            }
+            static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs) { return lhs->tag < rhs->tag; }
         };
 
         optList.sort(SortFn::compare);
@@ -1140,8 +1120,7 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
 }
 
 // StructInfo implementation.
-IcePHP::StructInfo::StructInfo(string ident, const string& n, zval* m) :
-    id(std::move(ident)), name(n)
+IcePHP::StructInfo::StructInfo(string ident, const string& n, zval* m) : id(std::move(ident)), name(n)
 {
     // Set to undefined
     ZVAL_UNDEF(&_nullMarshalValue);
@@ -1154,9 +1133,9 @@ IcePHP::StructInfo::StructInfo(string ident, const string& n, zval* m) :
 
     _variableLength = false;
     _wireSize = 0;
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if(!_variableLength && (*p)->type->variableLength())
+        if (!_variableLength && (*p)->type->variableLength())
         {
             _variableLength = true;
         }
@@ -1173,13 +1152,13 @@ IcePHP::StructInfo::getId() const
 bool
 IcePHP::StructInfo::validate(zval* zv, bool throwException)
 {
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
         return true;
     }
-    else if(Z_TYPE_P(zv) != IS_OBJECT)
+    else if (Z_TYPE_P(zv) != IS_OBJECT)
     {
-        if(throwException)
+        if (throwException)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
             invalidArgument("expected struct value of type %s but received %s", zce->name->val, s.c_str());
@@ -1189,7 +1168,7 @@ IcePHP::StructInfo::validate(zval* zv, bool throwException)
 
     // Compare class entries.
     zend_class_entry* ce = Z_OBJCE_P(zv);
-    if(ce != zce)
+    if (ce != zce)
     {
         invalidArgument("expected struct value of type %s but received %s", zce->name->val, ce->name->val);
         return false;
@@ -1219,9 +1198,9 @@ IcePHP::StructInfo::optionalFormat() const
 bool
 IcePHP::StructInfo::usesClasses() const
 {
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if((*p)->type->usesClasses())
+        if ((*p)->type->usesClasses())
         {
             return true;
         }
@@ -1234,17 +1213,17 @@ IcePHP::StructInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMa
 {
     assert(Z_TYPE_P(zv) == IS_NULL || (Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) == zce));
 
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
-        if(Z_ISUNDEF(_nullMarshalValue))
+        if (Z_ISUNDEF(_nullMarshalValue))
         {
-            if(object_init_ex(&_nullMarshalValue, const_cast<zend_class_entry*>(zce)) != SUCCESS)
+            if (object_init_ex(&_nullMarshalValue, const_cast<zend_class_entry*>(zce)) != SUCCESS)
             {
                 runtimeError("unable to initialize object of type %s", zce->name->val);
                 throw AbortMarshaling();
             }
 
-            if(!invokeMethod(&_nullMarshalValue, ZEND_CONSTRUCTOR_FUNC_NAME))
+            if (!invokeMethod(&_nullMarshalValue, ZEND_CONSTRUCTOR_FUNC_NAME))
             {
                 assert(false);
             }
@@ -1254,9 +1233,9 @@ IcePHP::StructInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMa
     }
 
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if (optional)
     {
-        if(_variableLength)
+        if (_variableLength)
         {
             sizePos = os->startSize();
         }
@@ -1266,21 +1245,21 @@ IcePHP::StructInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMa
         }
     }
 
-    for(const auto& member : members)
+    for (const auto& member : members)
     {
         zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), member->name.size());
-        if(!val)
+        if (!val)
         {
             runtimeError("member `%s' of %s is not defined", member->name.c_str(), id.c_str());
             throw AbortMarshaling();
         }
 
-        if(Z_TYPE_P(val) == IS_INDIRECT)
+        if (Z_TYPE_P(val) == IS_INDIRECT)
         {
             val = Z_INDIRECT_P(val);
         }
 
-        if(!member->type->validate(val, false))
+        if (!member->type->validate(val, false))
         {
             invalidArgument("invalid value for %s member `%s'", id.c_str(), member->name.c_str());
             throw AbortMarshaling();
@@ -1289,32 +1268,31 @@ IcePHP::StructInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMa
         member->type->marshal(val, os, objectMap, false);
     }
 
-    if(optional && _variableLength)
+    if (optional && _variableLength)
     {
         os->endSize(sizePos);
     }
 }
 
 void
-IcePHP::StructInfo::unmarshal(
-    Ice::InputStream* is,
-    const UnmarshalCallbackPtr& cb,
-    const CommunicatorInfoPtr& comm,
-    zval* target,
-    void* closure,
-    bool optional)
+IcePHP::StructInfo::unmarshal(Ice::InputStream* is,
+                              const UnmarshalCallbackPtr& cb,
+                              const CommunicatorInfoPtr& comm,
+                              zval* target,
+                              void* closure,
+                              bool optional)
 {
     zval zv;
     AutoDestroy destroy(&zv);
-    if(object_init_ex(&zv, const_cast<zend_class_entry*>(zce)) != SUCCESS)
+    if (object_init_ex(&zv, const_cast<zend_class_entry*>(zce)) != SUCCESS)
     {
         runtimeError("unable to initialize object of type %s", zce->name->val);
         throw AbortMarshaling();
     }
 
-    if(optional)
+    if (optional)
     {
-        if(_variableLength)
+        if (_variableLength)
         {
             is->skip(4);
         }
@@ -1324,7 +1302,7 @@ IcePHP::StructInfo::unmarshal(
         }
     }
 
-    for(const auto& member : members)
+    for (const auto& member : members)
     {
         member->type->unmarshal(is, member, comm, &zv, 0, false);
     }
@@ -1334,26 +1312,26 @@ IcePHP::StructInfo::unmarshal(
 void
 IcePHP::StructInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(zv, false))
+    if (!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
         out << "<nil>";
     }
     else
     {
         out.sb();
-        for(const auto& member : members)
+        for (const auto& member : members)
         {
             out << nl << member->name << " = ";
             zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), member->name.size());
             assert(Z_TYPE_P(val) == IS_INDIRECT);
             val = Z_INDIRECT_P(val);
-            if(val)
+            if (val)
             {
                 member->type->print(val, out, history);
             }
@@ -1374,15 +1352,14 @@ IcePHP::StructInfo::destroy()
         p->type->destroy();
     }
     const_cast<DataMemberList&>(members).clear();
-    if(!Z_ISUNDEF(_nullMarshalValue))
+    if (!Z_ISUNDEF(_nullMarshalValue))
     {
         zval_ptr_dtor(&_nullMarshalValue);
     }
 }
 
 // SequenceInfo implementation.
-IcePHP::SequenceInfo::SequenceInfo(string ident, zval* e) :
-    id(std::move(ident))
+IcePHP::SequenceInfo::SequenceInfo(string ident, zval* e) : id(std::move(ident))
 {
     const_cast<TypeInfoPtr&>(elementType) = Wrapper<TypeInfoPtr>::value(e);
 }
@@ -1429,7 +1406,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
     int32_t sz = 0;
     HashTable* arr = 0;
 
-    if(Z_TYPE_P(zv) != IS_NULL)
+    if (Z_TYPE_P(zv) != IS_NULL)
     {
         assert(Z_TYPE_P(zv) == IS_ARRAY); // validate() should have caught this.
         arr = Z_ARRVAL_P(zv);
@@ -1437,26 +1414,26 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
     }
 
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if (optional)
     {
-        if(elementType->variableLength())
+        if (elementType->variableLength())
         {
             sizePos = os->startSize();
         }
-        else if(elementType->wireSize() > 1)
+        else if (elementType->wireSize() > 1)
         {
             os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
         }
     }
 
-    if(sz == 0)
+    if (sz == 0)
     {
         os->writeSize(0);
     }
     else
     {
         PrimitiveInfoPtr pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
-        if(pi)
+        if (pi)
         {
             marshalPrimitiveSequence(pi, zv, os);
             return;
@@ -1467,7 +1444,7 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         zval* val;
         ZEND_HASH_FOREACH_VAL(arr, val)
         {
-            if(!elementType->validate(val, false))
+            if (!elementType->validate(val, false))
             {
                 invalidArgument("invalid value for sequence element `%s'", id.c_str());
                 throw AbortMarshaling();
@@ -1477,34 +1454,34 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
         ZEND_HASH_FOREACH_END();
     }
 
-    if(optional && elementType->variableLength())
+    if (optional && elementType->variableLength())
     {
         os->endSize(sizePos);
     }
 }
 
 void
-IcePHP::SequenceInfo::unmarshal(
-    Ice::InputStream* is,
-    const UnmarshalCallbackPtr& cb,
-    const CommunicatorInfoPtr& comm,
-    zval* target,
-    void* closure, bool optional)
+IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is,
+                                const UnmarshalCallbackPtr& cb,
+                                const CommunicatorInfoPtr& comm,
+                                zval* target,
+                                void* closure,
+                                bool optional)
 {
-    if(optional)
+    if (optional)
     {
-        if(elementType->variableLength())
+        if (elementType->variableLength())
         {
             is->skip(4);
         }
-        else if(elementType->wireSize() > 1)
+        else if (elementType->wireSize() > 1)
         {
             is->skipSize();
         }
     }
 
     PrimitiveInfoPtr pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
-    if(pi)
+    if (pi)
     {
         unmarshalPrimitiveSequence(pi, is, cb, target, closure);
         return;
@@ -1515,7 +1492,7 @@ IcePHP::SequenceInfo::unmarshal(
     AutoDestroy destroy(&zv);
 
     int32_t sz = is->readSize();
-    for(int32_t i = 0; i < sz; ++i)
+    for (int32_t i = 0; i < sz; ++i)
     {
         void* cl = reinterpret_cast<void*>(i);
 
@@ -1533,13 +1510,13 @@ IcePHP::SequenceInfo::unmarshal(
 void
 IcePHP::SequenceInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(zv, false))
+    if (!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
         out << "{}";
     }
@@ -1578,7 +1555,7 @@ IcePHP::SequenceInfo::unmarshaled(zval* zv, zval* target, void* closure)
 void
 IcePHP::SequenceInfo::destroy()
 {
-    if(elementType)
+    if (elementType)
     {
         elementType->destroy();
         const_cast<TypeInfoPtr&>(elementType) = 0;
@@ -1593,331 +1570,326 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
     int32_t sz = static_cast<int32_t>(zend_hash_num_elements(arr));
     assert(sz > 0);
 
-    switch(pi->kind)
+    switch (pi->kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        Ice::BoolSeq seq(sz);
-        int32_t i = 0;
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
+        case PrimitiveInfo::KindBool:
         {
-            if(!pi->validate(val, true))
+            Ice::BoolSeq seq(sz);
+            int32_t i = 0;
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
             {
-                throw AbortMarshaling();
+                if (!pi->validate(val, true))
+                {
+                    throw AbortMarshaling();
+                }
+                seq[i++] = Z_TYPE_P(val) == IS_TRUE;
             }
-            seq[i++] = Z_TYPE_P(val) == IS_TRUE;
+            ZEND_HASH_FOREACH_END();
+            os->write(seq);
+            break;
         }
-        ZEND_HASH_FOREACH_END();
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        Ice::ByteSeq seq(sz);
-        int32_t i = 0;
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
+        case PrimitiveInfo::KindByte:
         {
-            if(!pi->validate(val, true))
+            Ice::ByteSeq seq(sz);
+            int32_t i = 0;
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
             {
-                throw AbortMarshaling();
+                if (!pi->validate(val, true))
+                {
+                    throw AbortMarshaling();
+                }
+                long l = static_cast<long>(Z_LVAL_P(val));
+                assert(l >= 0 && l <= 255);
+                seq[i++] = static_cast<Ice::Byte>(l);
             }
-            long l = static_cast<long>(Z_LVAL_P(val));
-            assert(l >= 0 && l <= 255);
-            seq[i++] = static_cast<Ice::Byte>(l);
-        }
-        ZEND_HASH_FOREACH_END();
+            ZEND_HASH_FOREACH_END();
 
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        Ice::ShortSeq seq(sz);
-        int32_t i = 0;
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
-        {
-            if(!pi->validate(val, true))
-            {
-                throw AbortMarshaling();
-            }
-            long l = static_cast<long>(Z_LVAL_P(val));
-            assert(l >= SHRT_MIN && l <= SHRT_MAX);
-            seq[i++] = static_cast<int16_t>(l);
+            os->write(seq);
+            break;
         }
-        ZEND_HASH_FOREACH_END();
-
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        Ice::IntSeq seq(sz);
-        int32_t i = 0;
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
+        case PrimitiveInfo::KindShort:
         {
-            if(!pi->validate(val, true))
+            Ice::ShortSeq seq(sz);
+            int32_t i = 0;
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
             {
-                throw AbortMarshaling();
+                if (!pi->validate(val, true))
+                {
+                    throw AbortMarshaling();
+                }
+                long l = static_cast<long>(Z_LVAL_P(val));
+                assert(l >= SHRT_MIN && l <= SHRT_MAX);
+                seq[i++] = static_cast<int16_t>(l);
             }
-            long l = static_cast<long>(Z_LVAL_P(val));
-            assert(l >= INT_MIN && l <= INT_MAX);
-            seq[i++] = static_cast<int32_t>(l);
-        }
-        ZEND_HASH_FOREACH_END();
+            ZEND_HASH_FOREACH_END();
 
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        Ice::LongSeq seq(sz);
-        int32_t i = 0;
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindInt:
         {
-            if(!pi->validate(val, true))
+            Ice::IntSeq seq(sz);
+            int32_t i = 0;
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
             {
-                throw AbortMarshaling();
+                if (!pi->validate(val, true))
+                {
+                    throw AbortMarshaling();
+                }
+                long l = static_cast<long>(Z_LVAL_P(val));
+                assert(l >= INT_MIN && l <= INT_MAX);
+                seq[i++] = static_cast<int32_t>(l);
             }
-            // The platform's 'long' type may not be 64 bits, so we also accept a string argument for this type.
-            assert(Z_TYPE_P(val) == IS_LONG || Z_TYPE_P(val) == IS_STRING);
-            Int64 l;
-            if(Z_TYPE_P(val) == IS_LONG)
-            {
-                l = static_cast<long>(Z_LVAL_P(val));
-            }
-            else
-            {
-                string sval(Z_STRVAL_P(val), Z_STRLEN_P(val));
-                IceUtilInternal::stringToInt64(sval, l);
-            }
-            seq[i++] = l;
-        }
-        ZEND_HASH_FOREACH_END();
+            ZEND_HASH_FOREACH_END();
 
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        Ice::FloatSeq seq(sz);
-        int32_t i = 0;
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindLong:
         {
-            if(!pi->validate(val, true))
+            Ice::LongSeq seq(sz);
+            int32_t i = 0;
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
             {
-                throw AbortMarshaling();
+                if (!pi->validate(val, true))
+                {
+                    throw AbortMarshaling();
+                }
+                // The platform's 'long' type may not be 64 bits, so we also accept a string argument for this type.
+                assert(Z_TYPE_P(val) == IS_LONG || Z_TYPE_P(val) == IS_STRING);
+                Int64 l;
+                if (Z_TYPE_P(val) == IS_LONG)
+                {
+                    l = static_cast<long>(Z_LVAL_P(val));
+                }
+                else
+                {
+                    string sval(Z_STRVAL_P(val), Z_STRLEN_P(val));
+                    IceUtilInternal::stringToInt64(sval, l);
+                }
+                seq[i++] = l;
             }
-            double d = 0;
-            if(Z_TYPE_P(val) == IS_DOUBLE)
-            {
-                d = Z_DVAL_P(val);
-            }
-            else if(Z_TYPE_P(val) == IS_LONG)
-            {
-                d = static_cast<double>(Z_LVAL_P(val));
-            }
-            else
-            {
-                assert(false); // validate() should have caught this.
-            }
-            seq[i++] = static_cast<float>(d);
-        }
-        ZEND_HASH_FOREACH_END();
+            ZEND_HASH_FOREACH_END();
 
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        Ice::DoubleSeq seq(sz);
-        int32_t i = 0;
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindFloat:
         {
-            if(!pi->validate(val, true))
+            Ice::FloatSeq seq(sz);
+            int32_t i = 0;
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
             {
-                throw AbortMarshaling();
+                if (!pi->validate(val, true))
+                {
+                    throw AbortMarshaling();
+                }
+                double d = 0;
+                if (Z_TYPE_P(val) == IS_DOUBLE)
+                {
+                    d = Z_DVAL_P(val);
+                }
+                else if (Z_TYPE_P(val) == IS_LONG)
+                {
+                    d = static_cast<double>(Z_LVAL_P(val));
+                }
+                else
+                {
+                    assert(false); // validate() should have caught this.
+                }
+                seq[i++] = static_cast<float>(d);
             }
-            double d = 0;
-            if(Z_TYPE_P(val) == IS_DOUBLE)
-            {
-                d = Z_DVAL_P(val);
-            }
-            else if(Z_TYPE_P(val) == IS_LONG)
-            {
-                d = static_cast<double>(Z_LVAL_P(val));
-            }
-            else
-            {
-                assert(false); // validate() should have caught this.
-            }
-            seq[i++] = d;
-        }
-        ZEND_HASH_FOREACH_END();
+            ZEND_HASH_FOREACH_END();
 
-        os->write(seq);
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        Ice::StringSeq seq(sz);
-        int32_t i = 0;
-        zval* val;
-        ZEND_HASH_FOREACH_VAL(arr, val)
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindDouble:
         {
-            if(!pi->validate(val, true))
+            Ice::DoubleSeq seq(sz);
+            int32_t i = 0;
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
             {
-                throw AbortMarshaling();
+                if (!pi->validate(val, true))
+                {
+                    throw AbortMarshaling();
+                }
+                double d = 0;
+                if (Z_TYPE_P(val) == IS_DOUBLE)
+                {
+                    d = Z_DVAL_P(val);
+                }
+                else if (Z_TYPE_P(val) == IS_LONG)
+                {
+                    d = static_cast<double>(Z_LVAL_P(val));
+                }
+                else
+                {
+                    assert(false); // validate() should have caught this.
+                }
+                seq[i++] = d;
             }
-            string s;
-            if(Z_TYPE_P(val) == IS_STRING)
-            {
-                s = string(Z_STRVAL_P(val), Z_STRLEN_P(val));
-            }
-            else
-            {
-                assert(Z_TYPE_P(val) == IS_NULL);
-            }
-            seq[i++] = s;
-        }
-        ZEND_HASH_FOREACH_END();
+            ZEND_HASH_FOREACH_END();
 
-        os->write(seq);
-        break;
-    }
+            os->write(seq);
+            break;
+        }
+        case PrimitiveInfo::KindString:
+        {
+            Ice::StringSeq seq(sz);
+            int32_t i = 0;
+            zval* val;
+            ZEND_HASH_FOREACH_VAL(arr, val)
+            {
+                if (!pi->validate(val, true))
+                {
+                    throw AbortMarshaling();
+                }
+                string s;
+                if (Z_TYPE_P(val) == IS_STRING)
+                {
+                    s = string(Z_STRVAL_P(val), Z_STRLEN_P(val));
+                }
+                else
+                {
+                    assert(Z_TYPE_P(val) == IS_NULL);
+                }
+                seq[i++] = s;
+            }
+            ZEND_HASH_FOREACH_END();
+
+            os->write(seq);
+            break;
+        }
     }
 }
 
 void
 IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
-    const PrimitiveInfoPtr& pi,
-    Ice::InputStream* is,
-    const UnmarshalCallbackPtr& cb,
-    zval* target,
-    void* closure)
+    const PrimitiveInfoPtr& pi, Ice::InputStream* is, const UnmarshalCallbackPtr& cb, zval* target, void* closure)
 {
     zval zv;
     array_init(&zv);
     AutoDestroy destroy(&zv);
 
-    switch(pi->kind)
+    switch (pi->kind)
     {
-    case PrimitiveInfo::KindBool:
-    {
-        pair<const bool*, const bool*> pr;
-        is->read(pr);
-        for (const bool* p = pr.first; p != pr.second; ++p)
+        case PrimitiveInfo::KindBool:
         {
-            add_next_index_bool(&zv, *p ? 1 : 0);
-        }
-        break;
-    }
-    case PrimitiveInfo::KindByte:
-    {
-        pair<const Ice::Byte*, const Ice::Byte*> pr;
-        is->read(pr);
-        for (const Ice::Byte* p = pr.first; p != pr.second; ++p)
-        {
-            add_next_index_long(&zv, *p & 0xff);
-        }
-        break;
-    }
-    case PrimitiveInfo::KindShort:
-    {
-        pair<const int16_t*, const int16_t*> pr;
-        is->read(pr);
-        for (const int16_t* p = pr.first; p != pr.second; ++p)
-        {
-            add_next_index_long(&zv, *p);
-        }
-        break;
-    }
-    case PrimitiveInfo::KindInt:
-    {
-        pair<const int32_t*, const int32_t*> pr;
-        is->read(pr);
-        for (const int32_t* p = pr.first; p != pr.second; ++p)
-        {
-            add_next_index_long(&zv, *p);
-        }
-        break;
-    }
-    case PrimitiveInfo::KindLong:
-    {
-        pair<const int64_t*, const int64_t*> pr;
-        is->read(pr);
-        int32_t i = 0;
-        for (const int64_t* p = pr.first; p != pr.second; ++p, ++i)
-        {
-            zval val;
-            // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-            // TODO: can we remove this now
-            if(sizeof(int64_t) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
+            pair<const bool*, const bool*> pr;
+            is->read(pr);
+            for (const bool* p = pr.first; p != pr.second; ++p)
             {
-                string str = IceUtilInternal::int64ToString(*p);
-                ZVAL_STRINGL(&val, str.c_str(), static_cast<int>(str.length()));
+                add_next_index_bool(&zv, *p ? 1 : 0);
             }
-            else
+            break;
+        }
+        case PrimitiveInfo::KindByte:
+        {
+            pair<const Ice::Byte*, const Ice::Byte*> pr;
+            is->read(pr);
+            for (const Ice::Byte* p = pr.first; p != pr.second; ++p)
             {
-                ZVAL_LONG(&val, static_cast<long>(*p));
+                add_next_index_long(&zv, *p & 0xff);
             }
-            add_index_zval(&zv, i, &val);
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindFloat:
-    {
-        pair<const float*, const float*> pr;
-        is->read(pr);
-        int32_t i = 0;
-        for(const float* p = pr.first; p != pr.second; ++p, ++i)
+        case PrimitiveInfo::KindShort:
         {
-            zval val;
-            ZVAL_DOUBLE(&val, *p);
-            add_index_zval(&zv, i, &val);
+            pair<const int16_t*, const int16_t*> pr;
+            is->read(pr);
+            for (const int16_t* p = pr.first; p != pr.second; ++p)
+            {
+                add_next_index_long(&zv, *p);
+            }
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindDouble:
-    {
-        pair<const double*, const double*> pr;
-        is->read(pr);
-        int32_t i = 0;
-        for(const double* p = pr.first; p != pr.second; ++p, ++i)
+        case PrimitiveInfo::KindInt:
         {
-            zval val;
-            ZVAL_DOUBLE(&val, *p);
-            add_index_zval(&zv, i, &val);
+            pair<const int32_t*, const int32_t*> pr;
+            is->read(pr);
+            for (const int32_t* p = pr.first; p != pr.second; ++p)
+            {
+                add_next_index_long(&zv, *p);
+            }
+            break;
         }
-        break;
-    }
-    case PrimitiveInfo::KindString:
-    {
-        Ice::StringSeq seq;
-        is->read(seq, true);
-        int32_t i = 0;
-        for (const auto& p : seq)
+        case PrimitiveInfo::KindLong:
         {
-            zval val;
-            ZVAL_STRINGL(&val, p.c_str(), static_cast<int>(p.length()));
-            add_index_zval(&zv, i++, &val);
+            pair<const int64_t*, const int64_t*> pr;
+            is->read(pr);
+            int32_t i = 0;
+            for (const int64_t* p = pr.first; p != pr.second; ++p, ++i)
+            {
+                zval val;
+                // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
+                // TODO: can we remove this now
+                if (sizeof(int64_t) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
+                {
+                    string str = IceUtilInternal::int64ToString(*p);
+                    ZVAL_STRINGL(&val, str.c_str(), static_cast<int>(str.length()));
+                }
+                else
+                {
+                    ZVAL_LONG(&val, static_cast<long>(*p));
+                }
+                add_index_zval(&zv, i, &val);
+            }
+            break;
         }
-        break;
-    }
+        case PrimitiveInfo::KindFloat:
+        {
+            pair<const float*, const float*> pr;
+            is->read(pr);
+            int32_t i = 0;
+            for (const float* p = pr.first; p != pr.second; ++p, ++i)
+            {
+                zval val;
+                ZVAL_DOUBLE(&val, *p);
+                add_index_zval(&zv, i, &val);
+            }
+            break;
+        }
+        case PrimitiveInfo::KindDouble:
+        {
+            pair<const double*, const double*> pr;
+            is->read(pr);
+            int32_t i = 0;
+            for (const double* p = pr.first; p != pr.second; ++p, ++i)
+            {
+                zval val;
+                ZVAL_DOUBLE(&val, *p);
+                add_index_zval(&zv, i, &val);
+            }
+            break;
+        }
+        case PrimitiveInfo::KindString:
+        {
+            Ice::StringSeq seq;
+            is->read(seq, true);
+            int32_t i = 0;
+            for (const auto& p : seq)
+            {
+                zval val;
+                ZVAL_STRINGL(&val, p.c_str(), static_cast<int>(p.length()));
+                add_index_zval(&zv, i++, &val);
+            }
+            break;
+        }
     }
 
     cb->unmarshaled(&zv, target, closure);
 }
 
 // DictionaryInfo implementation.
-IcePHP::DictionaryInfo::DictionaryInfo(string ident, zval* k, zval* v) :
-    id(std::move(ident))
+IcePHP::DictionaryInfo::DictionaryInfo(string ident, zval* k, zval* v) : id(std::move(ident))
 {
     const_cast<TypeInfoPtr&>(keyType) = Wrapper<TypeInfoPtr>::value(k);
     const_cast<TypeInfoPtr&>(valueType) = Wrapper<TypeInfoPtr>::value(v);
@@ -1968,7 +1940,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
     int32_t sz = 0;
     HashTable* arr = 0;
 
-    if(Z_TYPE_P(zv) != IS_NULL)
+    if (Z_TYPE_P(zv) != IS_NULL)
     {
         assert(Z_TYPE_P(zv) == IS_ARRAY); // validate() should have caught this.
         arr = Z_ARRVAL_P(zv);
@@ -1976,9 +1948,9 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
     }
 
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if (optional)
     {
-        if(_variableLength)
+        if (_variableLength)
         {
             sizePos = os->startSize();
         }
@@ -1990,7 +1962,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
 
     auto piKey = dynamic_pointer_cast<PrimitiveInfo>(keyType);
     auto enKey = dynamic_pointer_cast<EnumInfo>(keyType);
-    if(!enKey && (!piKey || piKey->kind == PrimitiveInfo::KindFloat || piKey->kind == PrimitiveInfo::KindDouble))
+    if (!enKey && (!piKey || piKey->kind == PrimitiveInfo::KindFloat || piKey->kind == PrimitiveInfo::KindDouble))
     {
         invalidArgument("dictionary type `%s' cannot be marshaled", id.c_str());
         throw AbortMarshaling();
@@ -1998,7 +1970,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
 
     os->writeSize(sz);
 
-    if(sz > 0)
+    if (sz > 0)
     {
         zend_long num_key;
         zend_string* key;
@@ -2010,7 +1982,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
             zval zkey;
             AutoDestroy destroy(&zkey);
 
-            if(key)
+            if (key)
             {
                 ZVAL_STRINGL(&zkey, key->val, key->len);
             }
@@ -2020,52 +1992,52 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
             }
 
             // Convert the zval to the required type, if necessary.
-            if(piKey)
+            if (piKey)
             {
-                switch(piKey->kind)
+                switch (piKey->kind)
                 {
-                case PrimitiveInfo::KindBool:
-                {
-                    convert_to_boolean(&zkey);
-                    break;
-                }
-
-                case PrimitiveInfo::KindByte:
-                case PrimitiveInfo::KindShort:
-                case PrimitiveInfo::KindInt:
-                case PrimitiveInfo::KindLong:
-                {
-                    if(key) // HASH_KEY_IS_STRING
+                    case PrimitiveInfo::KindBool:
                     {
-                        convert_to_long(&zkey);
+                        convert_to_boolean(&zkey);
+                        break;
                     }
-                    break;
-                }
 
-                case PrimitiveInfo::KindString:
-                {
-                    if(!key) // HASH_KEY_IS_LONG
+                    case PrimitiveInfo::KindByte:
+                    case PrimitiveInfo::KindShort:
+                    case PrimitiveInfo::KindInt:
+                    case PrimitiveInfo::KindLong:
                     {
-                        convert_to_string(&zkey);
+                        if (key) // HASH_KEY_IS_STRING
+                        {
+                            convert_to_long(&zkey);
+                        }
+                        break;
                     }
-                    break;
-                }
 
-                case PrimitiveInfo::KindFloat:
-                case PrimitiveInfo::KindDouble:
-                    assert(false);
+                    case PrimitiveInfo::KindString:
+                    {
+                        if (!key) // HASH_KEY_IS_LONG
+                        {
+                            convert_to_string(&zkey);
+                        }
+                        break;
+                    }
+
+                    case PrimitiveInfo::KindFloat:
+                    case PrimitiveInfo::KindDouble:
+                        assert(false);
                 }
             }
             else
             {
-                if(key) // HASH_KEY_IS_STRING
+                if (key) // HASH_KEY_IS_STRING
                 {
                     convert_to_long(&zkey);
                 }
             }
 
             // Marshal the key.
-            if(!keyType->validate(&zkey, false))
+            if (!keyType->validate(&zkey, false))
             {
                 invalidArgument("invalid key in `%s' element", id.c_str());
                 throw AbortMarshaling();
@@ -2073,7 +2045,7 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
             keyType->marshal(&zkey, os, objectMap, false);
 
             // Marshal the value.
-            if(!valueType->validate(val, false))
+            if (!valueType->validate(val, false))
             {
                 invalidArgument("invalid value in `%s' element", id.c_str());
                 throw AbortMarshaling();
@@ -2083,24 +2055,23 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
         ZEND_HASH_FOREACH_END();
     }
 
-    if(optional && _variableLength)
+    if (optional && _variableLength)
     {
         os->endSize(sizePos);
     }
 }
 
 void
-IcePHP::DictionaryInfo::unmarshal(
-    Ice::InputStream* is,
-    const UnmarshalCallbackPtr& cb,
-    const CommunicatorInfoPtr& comm,
-    zval* target,
-    void* closure,
-    bool optional)
+IcePHP::DictionaryInfo::unmarshal(Ice::InputStream* is,
+                                  const UnmarshalCallbackPtr& cb,
+                                  const CommunicatorInfoPtr& comm,
+                                  zval* target,
+                                  void* closure,
+                                  bool optional)
 {
-    if(optional)
+    if (optional)
     {
-        if(_variableLength)
+        if (_variableLength)
         {
             is->skip(4);
         }
@@ -2112,7 +2083,7 @@ IcePHP::DictionaryInfo::unmarshal(
 
     auto piKey = dynamic_pointer_cast<PrimitiveInfo>(keyType);
     auto enKey = dynamic_pointer_cast<EnumInfo>(keyType);
-    if(!enKey && (!piKey || piKey->kind == PrimitiveInfo::KindFloat || piKey->kind == PrimitiveInfo::KindDouble))
+    if (!enKey && (!piKey || piKey->kind == PrimitiveInfo::KindFloat || piKey->kind == PrimitiveInfo::KindDouble))
     {
         invalidArgument("dictionary type `%s' cannot be unmarshaled", id.c_str());
         throw AbortMarshaling();
@@ -2126,7 +2097,7 @@ IcePHP::DictionaryInfo::unmarshal(
     AutoDestroy destroy(&zv);
 
     int32_t sz = is->readSize();
-    for(int32_t i = 0; i < sz; ++i)
+    for (int32_t i = 0; i < sz; ++i)
     {
         // A dictionary key cannot be a class (or contain one), so the key must be available immediately.
         KeyCallbackPtr keyCB = make_shared<KeyCallback>();
@@ -2146,13 +2117,13 @@ IcePHP::DictionaryInfo::unmarshal(
 void
 IcePHP::DictionaryInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(zv, false))
+    if (!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
         out << "{}";
     }
@@ -2168,7 +2139,7 @@ IcePHP::DictionaryInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjec
 
         ZEND_HASH_FOREACH_KEY_VAL(arr, num_key, key, val)
         {
-            if(first)
+            if (first)
             {
                 first = false;
             }
@@ -2178,7 +2149,7 @@ IcePHP::DictionaryInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjec
             }
             out << nl << "key = ";
 
-            if(key)  // HASH_KEY_IS_STRING
+            if (key) // HASH_KEY_IS_STRING
             {
                 out << key->val;
             }
@@ -2195,15 +2166,9 @@ IcePHP::DictionaryInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjec
     }
 }
 
-IcePHP::DictionaryInfo::KeyCallback::KeyCallback()
-{
-    ZVAL_UNDEF(&key);
-}
+IcePHP::DictionaryInfo::KeyCallback::KeyCallback() { ZVAL_UNDEF(&key); }
 
-IcePHP::DictionaryInfo::KeyCallback::~KeyCallback()
-{
-    zval_ptr_dtor(&key);
-}
+IcePHP::DictionaryInfo::KeyCallback::~KeyCallback() { zval_ptr_dtor(&key); }
 
 void
 IcePHP::DictionaryInfo::KeyCallback::unmarshaled(zval* zv, zval*, void*)
@@ -2212,37 +2177,32 @@ IcePHP::DictionaryInfo::KeyCallback::unmarshaled(zval* zv, zval*, void*)
     ZVAL_COPY(&key, zv);
 }
 
-IcePHP::DictionaryInfo::ValueCallback::ValueCallback(zval* k)
-{
-    ZVAL_COPY_VALUE(&key, k);
-}
+IcePHP::DictionaryInfo::ValueCallback::ValueCallback(zval* k) { ZVAL_COPY_VALUE(&key, k); }
 
-IcePHP::DictionaryInfo::ValueCallback::~ValueCallback()
-{
-}
+IcePHP::DictionaryInfo::ValueCallback::~ValueCallback() {}
 
 void
 IcePHP::DictionaryInfo::ValueCallback::unmarshaled(zval* zv, zval* target, void*)
 {
     assert(Z_TYPE_P(target) == IS_ARRAY);
 
-    switch(Z_TYPE(key))
+    switch (Z_TYPE(key))
     {
-    case IS_LONG:
-        add_index_zval(target, Z_LVAL(key), zv);
-        break;
-    case IS_TRUE:
-        add_index_zval(target, 1, zv);
-        break;
-    case IS_FALSE:
-        add_index_zval(target, 0, zv);
-        break;
-    case IS_STRING:
-        add_assoc_zval_ex(target, Z_STRVAL(key), Z_STRLEN(key), zv);
-        break;
-    default:
-        assert(false);
-        return;
+        case IS_LONG:
+            add_index_zval(target, Z_LVAL(key), zv);
+            break;
+        case IS_TRUE:
+            add_index_zval(target, 1, zv);
+            break;
+        case IS_FALSE:
+            add_index_zval(target, 0, zv);
+            break;
+        case IS_STRING:
+            add_assoc_zval_ex(target, Z_STRVAL(key), Z_STRLEN(key), zv);
+            break;
+        default:
+            assert(false);
+            return;
     }
 
     Z_TRY_ADDREF_P(zv);
@@ -2251,12 +2211,12 @@ IcePHP::DictionaryInfo::ValueCallback::unmarshaled(zval* zv, zval* target, void*
 void
 IcePHP::DictionaryInfo::destroy()
 {
-    if(keyType)
+    if (keyType)
     {
         keyType->destroy();
         keyType = nullptr;
     }
-    if(valueType)
+    if (valueType)
     {
         valueType->destroy();
         valueType = nullptr;
@@ -2264,8 +2224,13 @@ IcePHP::DictionaryInfo::destroy()
 }
 
 // ClassInfo implementation.
-IcePHP::ClassInfo::ClassInfo(string ident) :
-    id(std::move(ident)), compactId(-1), preserve(false), interface(false), zce(0), defined(false)
+IcePHP::ClassInfo::ClassInfo(string ident)
+    : id(std::move(ident)),
+      compactId(-1),
+      preserve(false),
+      interface(false),
+      zce(0),
+      defined(false)
 {
 }
 
@@ -2277,17 +2242,16 @@ IcePHP::ClassInfo::define(const string& n, int32_t compact, bool pres, bool intf
     const_cast<bool&>(preserve) = pres;
     const_cast<bool&>(interface) = intf;
 
-    if(b)
+    if (b)
     {
         TypeInfoPtr p = Wrapper<TypeInfoPtr>::value(b);
         base = dynamic_pointer_cast<ClassInfo>(p);
         assert(base);
     }
 
-    if(m)
+    if (m)
     {
-        convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers),
-                           true);
+        convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers), true);
     }
 
     const_cast<bool&>(defined) = true;
@@ -2304,7 +2268,7 @@ IcePHP::ClassInfo::getId() const
 bool
 IcePHP::ClassInfo::validate(zval* val, bool)
 {
-    if(Z_TYPE_P(val) == IS_OBJECT)
+    if (Z_TYPE_P(val) == IS_OBJECT)
     {
         return checkClass(Z_OBJCE_P(val), const_cast<zend_class_entry*>(zce));
     }
@@ -2338,20 +2302,20 @@ IcePHP::ClassInfo::usesClasses() const
 void
 IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap, bool)
 {
-    if(!defined)
+    if (!defined)
     {
         runtimeError("class %s is declared but not defined", id.c_str());
         throw AbortMarshaling();
     }
 
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
         shared_ptr<Ice::Value> nil;
         os->write(nil);
         return;
     }
 
-    assert(Z_TYPE_P(zv) == IS_OBJECT); // validate() should have caught this.
+    assert(Z_TYPE_P(zv) == IS_OBJECT);                                     // validate() should have caught this.
     assert(checkClass(Z_OBJCE_P(zv), const_cast<zend_class_entry*>(zce))); // validate() should have caught this.
 
     // Ice::ValueWriter is a subclass of Ice::Value that wraps a PHP object for marshaling.
@@ -2361,7 +2325,7 @@ IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap
     shared_ptr<Ice::Value> writer;
     assert(objectMap);
     ObjectMap::iterator q = objectMap->find(Z_OBJ_HANDLE_P(zv));
-    if(q == objectMap->end())
+    if (q == objectMap->end())
     {
         writer = make_shared<ValueWriter>(zv, objectMap, dynamic_pointer_cast<ClassInfo>(shared_from_this()));
         objectMap->insert(ObjectMap::value_type(Z_OBJ_HANDLE_P(zv), writer));
@@ -2378,26 +2342,24 @@ IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap
 namespace
 {
 
-void
-patchObject(void* addr, const shared_ptr<Ice::Value>& v)
-{
-    ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
-    assert(cb);
-    cb->invoke(v);
-}
+    void patchObject(void* addr, const shared_ptr<Ice::Value>& v)
+    {
+        ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
+        assert(cb);
+        cb->invoke(v);
+    }
 
 }
 
 void
-IcePHP::ClassInfo::unmarshal(
-    Ice::InputStream* is,
-    const UnmarshalCallbackPtr& cb,
-    const CommunicatorInfoPtr& comm,
-    zval* target,
-    void* closure,
-    bool)
+IcePHP::ClassInfo::unmarshal(Ice::InputStream* is,
+                             const UnmarshalCallbackPtr& cb,
+                             const CommunicatorInfoPtr& comm,
+                             zval* target,
+                             void* closure,
+                             bool)
 {
-    if(!defined)
+    if (!defined)
     {
         runtimeError("class or interface %s is declared but not defined", id.c_str());
         throw AbortMarshaling();
@@ -2405,11 +2367,8 @@ IcePHP::ClassInfo::unmarshal(
 
     // This callback is notified when the Slice value is actually read. The StreamUtil object attached to the stream
     // keeps a reference to the callback object to ensure it lives long enough.
-    ReadObjectCallbackPtr rocb = make_shared<ReadObjectCallback>(
-        dynamic_pointer_cast<ClassInfo>(shared_from_this()),
-        cb,
-        target,
-        closure);
+    ReadObjectCallbackPtr rocb =
+        make_shared<ReadObjectCallback>(dynamic_pointer_cast<ClassInfo>(shared_from_this()), cb, target, closure);
     StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
     assert(util);
     util->add(rocb);
@@ -2419,20 +2378,20 @@ IcePHP::ClassInfo::unmarshal(
 void
 IcePHP::ClassInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(!validate(zv, false))
+    if (!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
         out << "<nil>";
     }
     else
     {
         map<unsigned int, int>::iterator q = history->objects.find(Z_OBJ_HANDLE_P(zv));
-        if(q != history->objects.end())
+        if (q != history->objects.end())
         {
             out << "<object #" << q->second << ">";
         }
@@ -2452,7 +2411,7 @@ void
 IcePHP::ClassInfo::destroy()
 {
     const_cast<ClassInfoPtr&>(base) = 0;
-    if(!members.empty())
+    if (!members.empty())
     {
         DataMemberList ml = members;
         const_cast<DataMemberList&>(members).clear();
@@ -2466,18 +2425,18 @@ IcePHP::ClassInfo::destroy()
 void
 IcePHP::ClassInfo::printMembers(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(base)
+    if (base)
     {
         base->printMembers(zv, out, history);
     }
 
-    for(const auto& member : members)
+    for (const auto& member : members)
     {
         out << nl << member->name << " = ";
         zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), member->name.size());
         assert(Z_TYPE_P(val) == IS_INDIRECT);
         val = Z_INDIRECT_P(val);
-        if(val)
+        if (val)
         {
             member->type->print(val, out, history);
         }
@@ -2487,15 +2446,15 @@ IcePHP::ClassInfo::printMembers(zval* zv, IceUtilInternal::Output& out, PrintObj
         }
     }
 
-    for(const auto& member : members)
+    for (const auto& member : members)
     {
         out << nl << member->name << " = ";
         zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), member->name.size());
         assert(Z_TYPE_P(val) == IS_INDIRECT);
         val = Z_INDIRECT_P(val);
-        if(val)
+        if (val)
         {
-            if(isUnset(val))
+            if (isUnset(val))
             {
                 out << "<unset>";
             }
@@ -2514,7 +2473,7 @@ IcePHP::ClassInfo::printMembers(zval* zv, IceUtilInternal::Output& out, PrintObj
 bool
 IcePHP::ClassInfo::isA(string_view typeId) const
 {
-    if(id == typeId)
+    if (id == typeId)
     {
         return true;
     }
@@ -2523,23 +2482,19 @@ IcePHP::ClassInfo::isA(string_view typeId) const
 }
 
 // ProxyInfo implementation.
-IcePHP::ProxyInfo::ProxyInfo(string ident) :
-    id(std::move(ident)),
-    defined(false)
-{
-}
+IcePHP::ProxyInfo::ProxyInfo(string ident) : id(std::move(ident)), defined(false) {}
 
 void
 IcePHP::ProxyInfo::define(zval* b, zval* i)
 {
-    if(b)
+    if (b)
     {
         TypeInfoPtr p = Wrapper<TypeInfoPtr>::value(b);
         base = dynamic_pointer_cast<ProxyInfo>(p);
         assert(base);
     }
 
-    if(i)
+    if (i)
     {
         HashTable* interfacesArray = Z_ARRVAL_P(i);
         zval* interfaceType;
@@ -2566,11 +2521,11 @@ IcePHP::ProxyInfo::getId() const
 bool
 IcePHP::ProxyInfo::validate(zval* zv, bool throwException)
 {
-    if(Z_TYPE_P(zv) != IS_NULL)
+    if (Z_TYPE_P(zv) != IS_NULL)
     {
-        if(Z_TYPE_P(zv) != IS_OBJECT || (Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) != proxyClassEntry))
+        if (Z_TYPE_P(zv) != IS_OBJECT || (Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) != proxyClassEntry))
         {
-            if(throwException)
+            if (throwException)
             {
                 string s = zendTypeToString(Z_TYPE_P(zv));
                 invalidArgument("expected proxy value or null but received %s", s.c_str());
@@ -2604,13 +2559,13 @@ void
 IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool optional)
 {
     Ice::OutputStream::size_type sizePos = 0;
-    if(optional)
+    if (optional)
     {
         sizePos = os->startSize();
     }
 
     std::optional<Ice::ObjectPrx> proxy;
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
         os->write(proxy);
     }
@@ -2618,11 +2573,11 @@ IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool opt
     {
         assert(Z_TYPE_P(zv) == IS_OBJECT && Z_OBJCE_P(zv) == proxyClassEntry); // validate() should have caught this.
         ProxyInfoPtr info;
-        if(!fetchProxy(zv, proxy, info))
+        if (!fetchProxy(zv, proxy, info))
         {
             throw AbortMarshaling();
         }
-        if(!info->isA(id))
+        if (!info->isA(id))
         {
             invalidArgument("proxy is not narrowed to %s", id.c_str());
             throw AbortMarshaling();
@@ -2630,25 +2585,24 @@ IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool opt
         os->write(proxy);
     }
 
-    if(optional)
+    if (optional)
     {
         os->endSize(sizePos);
     }
 }
 
 void
-IcePHP::ProxyInfo::unmarshal(
-    Ice::InputStream* is,
-    const UnmarshalCallbackPtr& cb,
-    const CommunicatorInfoPtr& comm,
-    zval* target,
-    void* closure,
-    bool optional)
+IcePHP::ProxyInfo::unmarshal(Ice::InputStream* is,
+                             const UnmarshalCallbackPtr& cb,
+                             const CommunicatorInfoPtr& comm,
+                             zval* target,
+                             void* closure,
+                             bool optional)
 {
     zval zv;
     AutoDestroy destroy(&zv);
 
-    if(optional)
+    if (optional)
     {
         is->skip(4);
     }
@@ -2656,20 +2610,20 @@ IcePHP::ProxyInfo::unmarshal(
     std::optional<Ice::ObjectPrx> proxy;
     is->read(proxy);
 
-    if(!proxy)
+    if (!proxy)
     {
         ZVAL_NULL(&zv);
         cb->unmarshaled(&zv, target, closure);
         return;
     }
 
-    if(!defined)
+    if (!defined)
     {
         runtimeError("proxy %s is declared but not defined", id.c_str());
         throw AbortMarshaling();
     }
 
-    if(!createProxy(&zv, proxy.value(), dynamic_pointer_cast<ProxyInfo>(shared_from_this()), comm))
+    if (!createProxy(&zv, proxy.value(), dynamic_pointer_cast<ProxyInfo>(shared_from_this()), comm))
     {
         throw AbortMarshaling();
     }
@@ -2679,13 +2633,13 @@ IcePHP::ProxyInfo::unmarshal(
 void
 IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
-    if(!validate(zv, false))
+    if (!validate(zv, false))
     {
         out << "<invalid value - expected " << id << ">";
         return;
     }
 
-    if(Z_TYPE_P(zv) == IS_NULL)
+    if (Z_TYPE_P(zv) == IS_NULL)
     {
         out << "<nil>";
     }
@@ -2693,7 +2647,7 @@ IcePHP::ProxyInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHist
     {
         optional<Ice::ObjectPrx> proxy;
         ProxyInfoPtr info;
-        if(!fetchProxy(zv, proxy, info))
+        if (!fetchProxy(zv, proxy, info))
         {
             return;
         }
@@ -2706,7 +2660,7 @@ IcePHP::ProxyInfo::destroy()
 {
     const_cast<OperationMap&>(operations).clear();
 
-    for(const auto& p : interfaces)
+    for (const auto& p : interfaces)
     {
         p->destroy();
     }
@@ -2722,17 +2676,17 @@ IcePHP::ProxyInfo::destroy()
 bool
 IcePHP::ProxyInfo::isA(string_view typeId) const
 {
-    if(id == typeId)
+    if (id == typeId)
     {
         return true;
     }
 
-    if(base && base->isA(typeId))
+    if (base && base->isA(typeId))
     {
         return true;
     }
 
-    for(const auto& p : interfaces)
+    for (const auto& p : interfaces)
     {
         if (p->isA(typeId))
         {
@@ -2754,19 +2708,19 @@ IcePHP::ProxyInfo::getOperation(const string& name) const
 {
     OperationPtr op;
     OperationMap::const_iterator p = operations.find(name);
-    if(p != operations.end())
+    if (p != operations.end())
     {
         op = p->second;
     }
 
-    if(!op && base)
+    if (!op && base)
     {
         op = base->getOperation(name);
     }
 
-    if(!op && !interfaces.empty())
+    if (!op && !interfaces.empty())
     {
-        for(const auto& q : interfaces)
+        for (const auto& q : interfaces)
         {
             op = q->getOperation(name);
             if (op)
@@ -2779,9 +2733,9 @@ IcePHP::ProxyInfo::getOperation(const string& name) const
 }
 
 // ValueWriter implementation.
-IcePHP::ValueWriter::ValueWriter(zval* object, ObjectMap* objectMap, ClassInfoPtr formal) :
-    _map(objectMap),
-    _formal(std::move(formal))
+IcePHP::ValueWriter::ValueWriter(zval* object, ObjectMap* objectMap, ClassInfoPtr formal)
+    : _map(objectMap),
+      _formal(std::move(formal))
 {
     // Copy zval and increase ref count
     ZVAL_COPY(&_object, object);
@@ -2799,18 +2753,15 @@ IcePHP::ValueWriter::ValueWriter(zval* object, ObjectMap* objectMap, ClassInfoPt
     }
 }
 
-IcePHP::ValueWriter::~ValueWriter()
-{
-    zval_ptr_dtor(&_object);
-}
+IcePHP::ValueWriter::~ValueWriter() { zval_ptr_dtor(&_object); }
 
 void
 IcePHP::ValueWriter::ice_preMarshal()
 {
     string name = "ice_premarshal"; // Must be lowercase.
-    if(zend_hash_str_exists(&Z_OBJCE_P(&_object)->function_table, name.c_str(), static_cast<uint32_t>(name.size())))
+    if (zend_hash_str_exists(&Z_OBJCE_P(&_object)->function_table, name.c_str(), static_cast<uint32_t>(name.size())))
     {
-        if(!invokeMethod(&_object, name))
+        if (!invokeMethod(&_object, name))
         {
             throw AbortMarshaling();
         }
@@ -2822,7 +2773,7 @@ IcePHP::ValueWriter::_iceWrite(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
-    if(_info && _info->preserve)
+    if (_info && _info->preserve)
     {
         // Retrieve the SlicedData object that we stored as a hidden member of the PHP object.
         slicedData = StreamUtil::getSlicedDataMember(const_cast<zval*>(&_object), const_cast<ObjectMap*>(_map));
@@ -2830,7 +2781,7 @@ IcePHP::ValueWriter::_iceWrite(Ice::OutputStream* os) const
 
     os->startValue(slicedData);
 
-    if(_formal && _formal->interface)
+    if (_formal && _formal->interface)
     {
         // For an interface by value we just marshal the Ice type id of the object in its own slice.
         zval ret;
@@ -2848,14 +2799,14 @@ IcePHP::ValueWriter::_iceWrite(Ice::OutputStream* os) const
         zend_end_try();
 
         // Bail out if an exception has already been thrown.
-        if(Z_ISUNDEF(ret) || EG(exception))
+        if (Z_ISUNDEF(ret) || EG(exception))
         {
             throw AbortMarshaling();
         }
 
         AutoDestroy destroy(&ret);
 
-        if(Z_TYPE(ret) != IS_STRING)
+        if (Z_TYPE(ret) != IS_STRING)
         {
             throw AbortMarshaling();
         }
@@ -2866,10 +2817,10 @@ IcePHP::ValueWriter::_iceWrite(Ice::OutputStream* os) const
     }
     else
     {
-        if(_info->id != "::Ice::UnknownSlicedValue")
+        if (_info->id != "::Ice::UnknownSlicedValue")
         {
             ClassInfoPtr info = _info;
-            while(info && info->id != Ice::Value::ice_staticId())
+            while (info && info->id != Ice::Value::ice_staticId())
             {
                 assert(info->base); // All classes have the Ice::Value base type.
                 const bool lastSlice = info->base->id == Ice::Value::ice_staticId();
@@ -2896,14 +2847,12 @@ IcePHP::ValueWriter::_iceRead(Ice::InputStream*)
 void
 IcePHP::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& members) const
 {
-    for(const auto& member : members)
+    for (const auto& member : members)
     {
-        zval* val = zend_hash_str_find(
-            Z_OBJPROP_P(const_cast<zval*>(&_object)),
-            member->name.c_str(),
-            static_cast<int>(member->name.size()));
+        zval* val = zend_hash_str_find(Z_OBJPROP_P(const_cast<zval*>(&_object)), member->name.c_str(),
+                                       static_cast<int>(member->name.size()));
 
-        if(!val)
+        if (!val)
         {
             runtimeError("member `%s' of %s is not defined", member->name.c_str(), _info->id.c_str());
             throw AbortMarshaling();
@@ -2912,17 +2861,17 @@ IcePHP::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
         assert(Z_TYPE_P(val) == IS_INDIRECT);
         val = Z_INDIRECT_P(val);
 
-        if(Z_TYPE_P(val) == IS_REFERENCE)
+        if (Z_TYPE_P(val) == IS_REFERENCE)
         {
             val = Z_REFVAL_P(val);
         }
 
-        if(member->optional && (isUnset(val) || !os->writeOptional(member->tag, member->type->optionalFormat())))
+        if (member->optional && (isUnset(val) || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
 
-        if(!member->type->validate(val, false))
+        if (!member->type->validate(val, false))
         {
             invalidArgument("invalid value for %s member `%s'", _info->id.c_str(), member->name.c_str());
             throw AbortMarshaling();
@@ -2933,25 +2882,23 @@ IcePHP::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
 }
 
 // ValueReader implementation.
-IcePHP::ValueReader::ValueReader(zval* object, const ClassInfoPtr& info, const CommunicatorInfoPtr& comm) :
-    _info(info), _communicator(comm)
+IcePHP::ValueReader::ValueReader(zval* object, const ClassInfoPtr& info, const CommunicatorInfoPtr& comm)
+    : _info(info),
+      _communicator(comm)
 {
     assert(Z_TYPE_P(object) == IS_OBJECT);
     ZVAL_COPY(&_object, object);
 }
 
-IcePHP::ValueReader::~ValueReader()
-{
-    zval_ptr_dtor(&_object);
-}
+IcePHP::ValueReader::~ValueReader() { zval_ptr_dtor(&_object); }
 
 void
 IcePHP::ValueReader::ice_postUnmarshal()
 {
     string name = "ice_postunmarshal"; // Must be lowercase.
-    if(zend_hash_str_exists(&Z_OBJCE(_object)->function_table, name.c_str(), static_cast<int>(name.size())))
+    if (zend_hash_str_exists(&Z_OBJCE(_object)->function_table, name.c_str(), static_cast<int>(name.size())))
     {
-        if(!invokeMethod(&_object, name))
+        if (!invokeMethod(&_object, name))
         {
             throw AbortMarshaling();
         }
@@ -2971,23 +2918,23 @@ IcePHP::ValueReader::_iceRead(Ice::InputStream* is)
     const bool unknown = _info->id == "::Ice::UnknownSlicedValue";
 
     // Unmarshal the slices of a user-defined class.
-    if(!unknown)
+    if (!unknown)
     {
         ClassInfoPtr info = _info;
 
-        while(info && info->id != Ice::Value::ice_staticId())
+        while (info && info->id != Ice::Value::ice_staticId())
         {
             is->startSlice();
 
-            for(const auto& member : info->members)
+            for (const auto& member : info->members)
             {
                 member->type->unmarshal(is, member, _communicator, &_object, 0, false);
             }
 
             // The optional members have already been sorted by tag.
-            for(const auto& member : info->optionalMembers)
+            for (const auto& member : info->optionalMembers)
             {
-                if(is->readOptional(member->tag, member->type->optionalFormat()))
+                if (is->readOptional(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _communicator, &_object, 0, true);
                 }
@@ -3008,14 +2955,14 @@ IcePHP::ValueReader::_iceRead(Ice::InputStream* is)
 
     _slicedData = is->endValue(_info->preserve);
 
-    if(_slicedData)
+    if (_slicedData)
     {
         StreamUtil* util = reinterpret_cast<StreamUtil*>(is->getClosure());
         assert(util);
         util->add(shared_ptr<ValueReader>(shared_from_this()));
 
         // Define the "unknownTypeId" member for an instance of UnknownSlicedObject.
-        if(unknown)
+        if (unknown)
         {
             assert(!_slicedData->slices.empty());
 
@@ -3047,40 +2994,41 @@ IcePHP::ValueReader::getSlicedData() const
 }
 
 // ReadObjectCallback implementation.
-IcePHP::ReadObjectCallback::ReadObjectCallback(const ClassInfoPtr& info, const UnmarshalCallbackPtr& cb,
-                                               zval* target, void* closure) :
-    _info(info), _cb(cb), _closure(closure)
+IcePHP::ReadObjectCallback::ReadObjectCallback(const ClassInfoPtr& info,
+                                               const UnmarshalCallbackPtr& cb,
+                                               zval* target,
+                                               void* closure)
+    : _info(info),
+      _cb(cb),
+      _closure(closure)
 {
     ZVAL_NULL(&_target);
 
-    if(target)
+    if (target)
     {
         assert(Z_REFCOUNTED_P(target));
         ZVAL_COPY(&_target, target);
     }
 }
 
-IcePHP::ReadObjectCallback::~ReadObjectCallback()
-{
-    zval_ptr_dtor(&_target);
-}
+IcePHP::ReadObjectCallback::~ReadObjectCallback() { zval_ptr_dtor(&_target); }
 
 void
 IcePHP::ReadObjectCallback::invoke(const shared_ptr<Ice::Value>& p)
 {
 #ifdef HT_ALLOW_COW_VIOLATION
-    if(!ZVAL_IS_NULL(&_target))
+    if (!ZVAL_IS_NULL(&_target))
     {
         HT_ALLOW_COW_VIOLATION(Z_ARRVAL(_target));
     }
 #endif
-    if(p)
+    if (p)
     {
         auto reader = dynamic_pointer_cast<ValueReader>(p);
         assert(reader);
 
         // Verify that the unmarshaled object is compatible with the formal type.
-        if(!_info->interface && !reader->getInfo()->isA(_info->id))
+        if (!_info->interface && !reader->getInfo()->isA(_info->id))
         {
             Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
             ex.reason = "unmarshaled object is not an instance of " + _info->id;
@@ -3104,7 +3052,7 @@ IcePHP::ReadObjectCallback::invoke(const shared_ptr<Ice::Value>& p)
 void
 IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr& comm, zval* zv)
 {
-    if(object_init_ex(zv, zce) != SUCCESS)
+    if (object_init_ex(zv, zce) != SUCCESS)
     {
         runtimeError("unable to initialize object of type %s", zce->name->val);
         throw AbortMarshaling();
@@ -3116,15 +3064,15 @@ IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr
     {
         is->startSlice();
 
-        for(const auto& member : info->members)
+        for (const auto& member : info->members)
         {
             member->type->unmarshal(is, member, comm, zv, 0, false);
         }
 
         // The optional members have already been sorted by tag.
-        for(const auto& member : info->optionalMembers)
+        for (const auto& member : info->optionalMembers)
         {
-            if(is->readOptional(member->tag, member->type->optionalFormat()))
+            if (is->readOptional(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, comm, zv, 0, true);
             }
@@ -3140,8 +3088,7 @@ IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr
         is->endSlice();
 
         info = info->base;
-    }
-    while(info);
+    } while (info);
 }
 
 void
@@ -3150,7 +3097,7 @@ IcePHP::ExceptionInfo::print(zval* zv, IceUtilInternal::Output& out)
     out << "exception " << id;
     out.sb();
 
-    if(Z_TYPE_P(zv) != IS_OBJECT)
+    if (Z_TYPE_P(zv) != IS_OBJECT)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
         out << nl << "expected exception value of type " << zce->name->val << " but received " << s;
@@ -3160,7 +3107,7 @@ IcePHP::ExceptionInfo::print(zval* zv, IceUtilInternal::Output& out)
 
     // Compare class entries.
     zend_class_entry* ce = Z_OBJCE_P(zv);
-    if(ce != zce)
+    if (ce != zce)
     {
         out << nl << "expected exception value of type " << zce->name->val << " but received " << ce->name->val;
         out.eb();
@@ -3177,7 +3124,7 @@ IcePHP::ExceptionInfo::print(zval* zv, IceUtilInternal::Output& out)
 void
 IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
-    if(base)
+    if (base)
     {
         base->printMembers(zv, out, history);
     }
@@ -3185,11 +3132,11 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
     for (const auto& member : members)
     {
         out << nl << member->name << " = ";
-        zval* val =  zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), static_cast<int>(member->name.size()));
+        zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), member->name.c_str(), static_cast<int>(member->name.size()));
         assert(Z_TYPE_P(val) == IS_INDIRECT);
         val = Z_INDIRECT_P(val);
 
-        if(val)
+        if (val)
         {
             member->type->print(val, out, history);
         }
@@ -3207,9 +3154,9 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
         assert(Z_TYPE_P(val) == IS_INDIRECT);
         val = Z_INDIRECT_P(val);
 
-        if(val)
+        if (val)
         {
-            if(isUnset(val))
+            if (isUnset(val))
             {
                 out << "<unset>";
             }
@@ -3228,12 +3175,12 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
 bool
 IcePHP::ExceptionInfo::isA(string_view typeId) const
 {
-    if(id == typeId)
+    if (id == typeId)
     {
         return true;
     }
 
-    if(base && base->isA(typeId))
+    if (base && base->isA(typeId))
     {
         return true;
     }
@@ -3242,8 +3189,9 @@ IcePHP::ExceptionInfo::isA(string_view typeId) const
 }
 
 // ExceptionReader implementation.
-IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicatorInfo, const ExceptionInfoPtr& info) :
-    _communicatorInfo(communicatorInfo), _info(info)
+IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicatorInfo, const ExceptionInfoPtr& info)
+    : _communicatorInfo(communicatorInfo),
+      _info(info)
 {
     ZVAL_UNDEF(&_ex);
 }
@@ -3340,7 +3288,7 @@ static bool
 createTypeInfo(zval* zv, shared_ptr<TypeInfo> p)
 {
     assert(typeInfoClassEntry);
-    if(object_init_ex(zv, typeInfoClassEntry) != SUCCESS)
+    if (object_init_ex(zv, typeInfoClassEntry) != SUCCESS)
     {
         runtimeError("unable to initialize type");
         return false;
@@ -3359,12 +3307,12 @@ ZEND_FUNCTION(IcePHP_defineEnum)
     size_t idLen;
     zval* enumerators;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sa"), &id, &idLen, &enumerators) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sa"), &id, &idLen, &enumerators) == FAILURE)
     {
         return;
     }
 
-    if(!createTypeInfo(return_value, make_shared<EnumInfo>(id, enumerators)))
+    if (!createTypeInfo(return_value, make_shared<EnumInfo>(id, enumerators)))
     {
         RETURN_NULL();
     }
@@ -3378,13 +3326,13 @@ ZEND_FUNCTION(IcePHP_defineStruct)
     size_t nameLen;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ssa"), &id, &idLen, &name, &nameLen,
-                             &members) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ssa"), &id, &idLen, &name, &nameLen, &members) ==
+        FAILURE)
     {
         return;
     }
 
-    if(!createTypeInfo(return_value, make_shared<StructInfo>(id, name, members)))
+    if (!createTypeInfo(return_value, make_shared<StructInfo>(id, name, members)))
     {
         RETURN_NULL();
     }
@@ -3396,13 +3344,13 @@ ZEND_FUNCTION(IcePHP_defineSequence)
     size_t idLen;
     zval* element;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so"), &id, &idLen, &element) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so"), &id, &idLen, &element) == FAILURE)
     {
         assert(false);
         return;
     }
 
-    if(!createTypeInfo(return_value, make_shared<SequenceInfo>(id, element)))
+    if (!createTypeInfo(return_value, make_shared<SequenceInfo>(id, element)))
     {
         RETURN_NULL();
     }
@@ -3415,12 +3363,12 @@ ZEND_FUNCTION(IcePHP_defineDictionary)
     zval* key;
     zval* value;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("soo"), &id, &idLen, &key, &value) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("soo"), &id, &idLen, &key, &value) == FAILURE)
     {
         return;
     }
 
-    if(!createTypeInfo(return_value, make_shared<DictionaryInfo>(id, key, value)))
+    if (!createTypeInfo(return_value, make_shared<DictionaryInfo>(id, key, value)))
     {
         RETURN_NULL();
     }
@@ -3431,19 +3379,19 @@ ZEND_FUNCTION(IcePHP_declareProxy)
     char* id;
     size_t idLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &id, &idLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &id, &idLen) == FAILURE)
     {
         return;
     }
 
     ProxyInfoPtr type = getProxyInfo(id);
-    if(!type)
+    if (!type)
     {
         type = make_shared<ProxyInfo>(id);
         addProxyInfo(type);
     }
 
-    if(!createTypeInfo(return_value, std::move(type)))
+    if (!createTypeInfo(return_value, std::move(type)))
     {
         RETURN_NULL();
     }
@@ -3456,20 +3404,20 @@ ZEND_FUNCTION(IcePHP_defineProxy)
     zval* base;
     zval* interfaces;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so!a!"), &id, &idLen, &base, &interfaces) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("so!a!"), &id, &idLen, &base, &interfaces) == FAILURE)
     {
         return;
     }
 
     ProxyInfoPtr type = getProxyInfo(id);
-    if(!type)
+    if (!type)
     {
         type = make_shared<ProxyInfo>(id);
         addProxyInfo(type);
     }
     type->define(base, interfaces);
 
-    if(!createTypeInfo(return_value, std::move(type)))
+    if (!createTypeInfo(return_value, std::move(type)))
     {
         RETURN_NULL();
     }
@@ -3480,19 +3428,19 @@ ZEND_FUNCTION(IcePHP_declareClass)
     char* id;
     size_t idLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &id, &idLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &id, &idLen) == FAILURE)
     {
         return;
     }
 
     ClassInfoPtr type = getClassInfoById(id);
-    if(!type)
+    if (!type)
     {
         type = make_shared<ClassInfo>(id);
         addClassInfoById(type);
     }
 
-    if(!createTypeInfo(return_value, std::move(type)))
+    if (!createTypeInfo(return_value, std::move(type)))
     {
         RETURN_NULL();
     }
@@ -3510,30 +3458,31 @@ ZEND_FUNCTION(IcePHP_defineClass)
     zval* base;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sslbbo!a!"), &id, &idLen, &name, &nameLen,
-                             &compactId, &preserve, &interface, &base, &members) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sslbbo!a!"), &id, &idLen, &name, &nameLen, &compactId,
+                              &preserve, &interface, &base, &members) == FAILURE)
     {
         return;
     }
 
     ClassInfoPtr type = getClassInfoById(id);
-    if(!type)
+    if (!type)
     {
         type = make_shared<ClassInfo>(id);
         addClassInfoById(type);
     }
 
-    type->define(name, static_cast<int32_t>(compactId), preserve ? true : false, interface ? true : false, base, members);
+    type->define(name, static_cast<int32_t>(compactId), preserve ? true : false, interface ? true : false, base,
+                 members);
 
-    if(!interface)
+    if (!interface)
     {
         addClassInfoByName(type);
     }
 
-    if(type->compactId != -1)
+    if (type->compactId != -1)
     {
         CompactIdMap* m = reinterpret_cast<CompactIdMap*>(ICE_G(compactIdToClassInfoMap));
-        if(!m)
+        if (!m)
         {
             m = new CompactIdMap;
             ICE_G(compactIdToClassInfoMap) = m;
@@ -3541,7 +3490,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
         m->insert(CompactIdMap::value_type(type->compactId, type));
     }
 
-    if(!createTypeInfo(return_value, std::move(type)))
+    if (!createTypeInfo(return_value, std::move(type)))
     {
         RETURN_NULL();
     }
@@ -3569,7 +3518,7 @@ handleExceptionInfoFreeStorage(zend_object* object)
 static bool
 createExceptionInfo(zval* zv, const ExceptionInfoPtr& p)
 {
-    if(object_init_ex(zv, exceptionInfoClassEntry) != SUCCESS)
+    if (object_init_ex(zv, exceptionInfoClassEntry) != SUCCESS)
     {
         runtimeError("unable to initialize exception info");
         return false;
@@ -3592,8 +3541,8 @@ ZEND_FUNCTION(IcePHP_defineException)
     zval* base;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ssbo!a!"), &id, &idLen, &name, &nameLen,
-                             &preserve, &base, &members) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ssbo!a!"), &id, &idLen, &name, &nameLen, &preserve,
+                              &base, &members) == FAILURE)
     {
         return;
     }
@@ -3602,11 +3551,11 @@ ZEND_FUNCTION(IcePHP_defineException)
     ex->id = id;
     ex->name = name;
     ex->preserve = preserve ? true : false;
-    if(base)
+    if (base)
     {
         ex->base = Wrapper<ExceptionInfoPtr>::value(base);
     }
-    if(members)
+    if (members)
     {
         convertDataMembers(members, ex->members, ex->optionalMembers, true);
     }
@@ -3614,9 +3563,9 @@ ZEND_FUNCTION(IcePHP_defineException)
     ex->usesClasses = false;
 
     // Only examine the required members to see if any use classes.
-    for(DataMemberList::iterator p = ex->members.begin(); p != ex->members.end(); ++p)
+    for (DataMemberList::iterator p = ex->members.begin(); p != ex->members.end(); ++p)
     {
-        if(!ex->usesClasses)
+        if (!ex->usesClasses)
         {
             ex->usesClasses = (*p)->type->usesClasses();
         }
@@ -3627,7 +3576,7 @@ ZEND_FUNCTION(IcePHP_defineException)
     assert(!getExceptionInfo(ex->id));
 
     ExceptionInfoMap* m;
-    if(ICE_G(exceptionInfoMap))
+    if (ICE_G(exceptionInfoMap))
     {
         m = reinterpret_cast<ExceptionInfoMap*>(ICE_G(exceptionInfoMap));
     }
@@ -3638,7 +3587,7 @@ ZEND_FUNCTION(IcePHP_defineException)
     }
     m->insert(ExceptionInfoMap::value_type(ex->id, ex));
 
-    if(!createExceptionInfo(return_value, ex))
+    if (!createExceptionInfo(return_value, ex))
     {
         RETURN_NULL();
     }
@@ -3646,7 +3595,7 @@ ZEND_FUNCTION(IcePHP_defineException)
 
 ZEND_FUNCTION(IcePHP_stringify)
 {
-    if(ZEND_NUM_ARGS() != 2)
+    if (ZEND_NUM_ARGS() != 2)
     {
         WRONG_PARAM_COUNT;
     }
@@ -3654,7 +3603,7 @@ ZEND_FUNCTION(IcePHP_stringify)
     zval* v;
     zval* t;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zz"), &v, &t) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("zz"), &v, &t) == FAILURE)
     {
         return;
     }
@@ -3674,7 +3623,7 @@ ZEND_FUNCTION(IcePHP_stringify)
 
 ZEND_FUNCTION(IcePHP_stringifyException)
 {
-    if(ZEND_NUM_ARGS() != 2)
+    if (ZEND_NUM_ARGS() != 2)
     {
         WRONG_PARAM_COUNT;
     }
@@ -3682,7 +3631,7 @@ ZEND_FUNCTION(IcePHP_stringifyException)
     zval* v;
     zval* t;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("oo"), &v, &t) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("oo"), &v, &t) == FAILURE)
     {
         return;
     }
@@ -3699,21 +3648,15 @@ ZEND_FUNCTION(IcePHP_stringifyException)
 }
 
 // Predefined methods for IcePHP_TypeInfo.
-static zend_function_entry _typeInfoMethods[] =
-{
-    {0, 0, 0}
-};
+static zend_function_entry _typeInfoMethods[] = {{0, 0, 0}};
 
 // Predefined methods for IcePHP_ExceptionInfo.
-static zend_function_entry _exceptionInfoMethods[] =
-{
-    {0, 0, 0}
-};
+static zend_function_entry _exceptionInfoMethods[] = {{0, 0, 0}};
 
 bool
 IcePHP::isUnset(zval* zv)
 {
-    if(Z_TYPE_P(zv) == IS_STRING)
+    if (Z_TYPE_P(zv) == IS_STRING)
     {
         return _unsetGUID == string(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
     }
@@ -3747,7 +3690,7 @@ IcePHP::typesInit(INIT_FUNC_ARGS)
     _exceptionInfoHandlers.free_obj = handleExceptionInfoFreeStorage;
     _exceptionInfoHandlers.offset = XtOffsetOf(Wrapper<ExceptionInfoPtr>, zobj);
 
-    REGISTER_NS_STRING_CONSTANT("Ice", "None", const_cast<char*>(_unsetGUID.c_str()), CONST_CS|CONST_PERSISTENT);
+    REGISTER_NS_STRING_CONSTANT("Ice", "None", const_cast<char*>(_unsetGUID.c_str()), CONST_CS | CONST_PERSISTENT);
     return true;
 }
 
@@ -3755,14 +3698,14 @@ bool
 IcePHP::typesRequestInit(void)
 {
     // Create the global variables for the primitive types.
-    for(int i = static_cast<int>(PrimitiveInfo::KindBool); i <= static_cast<int>(PrimitiveInfo::KindString); ++i)
+    for (int i = static_cast<int>(PrimitiveInfo::KindBool); i <= static_cast<int>(PrimitiveInfo::KindString); ++i)
     {
         PrimitiveInfoPtr type = make_shared<PrimitiveInfo>();
         type->kind = static_cast<PrimitiveInfo::Kind>(i);
         string name = "IcePHP__t_" + type->getId();
 
         zval zv;
-        if(!createTypeInfo(&zv, std::move(type)))
+        if (!createTypeInfo(&zv, std::move(type)))
         {
             zval_ptr_dtor(&zv);
             return false;
@@ -3785,27 +3728,27 @@ IcePHP::typesRequestInit(void)
 bool
 IcePHP::typesRequestShutdown(void)
 {
-    if(ICE_G(proxyInfoMap))
+    if (ICE_G(proxyInfoMap))
     {
         ProxyInfoMap* m = static_cast<ProxyInfoMap*>(ICE_G(proxyInfoMap));
-        for(ProxyInfoMap::iterator p = m->begin(); p != m->end(); ++p)
+        for (ProxyInfoMap::iterator p = m->begin(); p != m->end(); ++p)
         {
             p->second->destroy();
         }
         delete m;
     }
 
-    if(ICE_G(idToClassInfoMap))
+    if (ICE_G(idToClassInfoMap))
     {
         ClassInfoMap* m = static_cast<ClassInfoMap*>(ICE_G(idToClassInfoMap));
-        for(ClassInfoMap::iterator p = m->begin(); p != m->end(); ++p)
+        for (ClassInfoMap::iterator p = m->begin(); p != m->end(); ++p)
         {
             p->second->destroy();
         }
         delete m;
     }
 
-    if(ICE_G(nameToClassInfoMap))
+    if (ICE_G(nameToClassInfoMap))
     {
         ClassInfoMap* m = static_cast<ClassInfoMap*>(ICE_G(nameToClassInfoMap));
         delete m;

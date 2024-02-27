@@ -13,7 +13,6 @@ using namespace Test;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -28,8 +27,8 @@ Client::run(int argc, char** argv)
     //
     // Shutdown the IceBox server.
     //
-    Ice::uncheckedCast<Ice::ProcessPrx>(
-        communicator->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
+    Ice::uncheckedCast<Ice::ProcessPrx>(communicator->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))
+        ->shutdown();
 }
 
 DEFINE_TEST(Client)

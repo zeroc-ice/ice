@@ -12,24 +12,22 @@
 namespace IcePy
 {
 
-bool initDispatcher(PyObject*);
+    bool initDispatcher(PyObject*);
 
-class Dispatcher final
-{
-public:
+    class Dispatcher final
+    {
+    public:
+        Dispatcher(PyObject*);
 
-    Dispatcher(PyObject*);
+        void setCommunicator(const Ice::CommunicatorPtr&);
 
-    void setCommunicator(const Ice::CommunicatorPtr&);
+        void dispatch(std::function<void()> call, const Ice::ConnectionPtr&);
 
-    void dispatch(std::function<void()> call, const Ice::ConnectionPtr&);
-
-private:
-
-    PyObjectHandle _dispatcher;
-    Ice::CommunicatorPtr _communicator;
-};
-using DispatcherPtr = std::shared_ptr<Dispatcher>;
+    private:
+        PyObjectHandle _dispatcher;
+        Ice::CommunicatorPtr _communicator;
+    };
+    using DispatcherPtr = std::shared_ptr<Dispatcher>;
 
 }
 

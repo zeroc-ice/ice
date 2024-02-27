@@ -28,7 +28,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::ByteSeq inEncaps, outEncaps;
-        if(!oneway->ice_invoke("opOneway", Ice::OperationMode::Normal, inEncaps, outEncaps))
+        if (!oneway->ice_invoke("opOneway", Ice::OperationMode::Normal, inEncaps, outEncaps))
         {
             test(false);
         }
@@ -46,7 +46,7 @@ allTests(Test::TestHelper* helper)
         out.finished(inEncaps);
 
         // ice_invoke
-        if(cl->ice_invoke("opString", Ice::OperationMode::Normal, inEncaps, outEncaps))
+        if (cl->ice_invoke("opString", Ice::OperationMode::Normal, inEncaps, outEncaps))
         {
             Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
             in.startEncapsulation();
@@ -64,7 +64,7 @@ allTests(Test::TestHelper* helper)
 
         // ice_invoke with array mapping
         pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
-        if(cl->ice_invoke("opString", Ice::OperationMode::Normal, inPair, outEncaps))
+        if (cl->ice_invoke("opString", Ice::OperationMode::Normal, inPair, outEncaps))
         {
             Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
             in.startEncapsulation();
@@ -81,15 +81,15 @@ allTests(Test::TestHelper* helper)
         }
     }
 
-    for(int i = 0; i < 2; ++i)
+    for (int i = 0; i < 2; ++i)
     {
         Ice::ByteSeq inEncaps, outEncaps;
         Ice::Context ctx;
-        if(i == 1)
+        if (i == 1)
         {
             ctx["raise"] = "";
         }
-        if(cl->ice_invoke("opException", Ice::OperationMode::Normal, inEncaps, outEncaps, ctx))
+        if (cl->ice_invoke("opException", Ice::OperationMode::Normal, inEncaps, outEncaps, ctx))
         {
             test(false);
         }
@@ -101,10 +101,10 @@ allTests(Test::TestHelper* helper)
             {
                 in.throwException();
             }
-            catch(const Test::MyException&)
+            catch (const Test::MyException&)
             {
             }
-            catch(...)
+            catch (...)
             {
                 test(false);
             }
@@ -117,19 +117,9 @@ allTests(Test::TestHelper* helper)
     cout << "testing asynchronous ice_invoke... " << flush;
     {
         Ice::ByteSeq inEncaps;
-        batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps,
-            [](bool, const vector<Ice::Byte>)
-            {
-                test(false);
-            },
-            [](exception_ptr)
-            {
-                test(false);
-            },
-            [](bool)
-            {
-                test(false);
-            });
+        batchOneway->ice_invokeAsync(
+            "opOneway", Ice::OperationMode::Normal, inEncaps, [](bool, const vector<Ice::Byte>) { test(false); },
+            [](exception_ptr) { test(false); }, [](bool) { test(false); });
         batchOneway->ice_flushBatchRequests();
     }
     //
@@ -138,19 +128,19 @@ allTests(Test::TestHelper* helper)
     {
         Ice::ByteSeq inEncaps;
         {
-            auto [success, _ ] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
+            auto [success, _] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
             test(success);
         }
         {
-            auto [success, _ ] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
+            auto [success, _] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
             test(success);
         }
         {
-            auto [success, _ ] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
+            auto [success, _] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
             test(success);
         }
         {
-            auto [success, _ ] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
+            auto [success, _] = batchOneway->ice_invokeAsync("opOneway", Ice::OperationMode::Normal, inEncaps).get();
             test(success);
         }
 
@@ -161,18 +151,8 @@ allTests(Test::TestHelper* helper)
         promise<bool> completed;
         Ice::ByteSeq inEncaps, outEncaps;
         oneway->ice_invokeAsync(
-            "opOneway",
-            Ice::OperationMode::Normal,
-            inEncaps,
-            nullptr,
-            [&](exception_ptr ex)
-            {
-                completed.set_exception(ex);
-            },
-            [&](bool)
-            {
-                completed.set_value(true);
-            });
+            "opOneway", Ice::OperationMode::Normal, inEncaps, nullptr,
+            [&](exception_ptr ex) { completed.set_exception(ex); }, [&](bool) { completed.set_value(true); });
 
         test(completed.get_future().get());
     }
@@ -197,16 +177,14 @@ allTests(Test::TestHelper* helper)
         out.endEncapsulation();
         out.finished(inEncaps);
 
-        cl->ice_invokeAsync("opString", Ice::OperationMode::Normal, inEncaps,
+        cl->ice_invokeAsync(
+            "opString", Ice::OperationMode::Normal, inEncaps,
             [&](bool ok, vector<Ice::Byte> outParams)
             {
                 outEncaps = std::move(outParams);
                 completed.set_value(ok);
             },
-            [&](exception_ptr ex)
-            {
-                completed.set_exception(ex);
-            });
+            [&](exception_ptr ex) { completed.set_exception(ex); });
         test(completed.get_future().get());
 
         Ice::InputStream in(communicator, outEncaps);
@@ -254,20 +232,14 @@ allTests(Test::TestHelper* helper)
 
         auto inPair = make_pair(inEncaps.data(), inEncaps.data() + inEncaps.size());
 
-        cl->ice_invokeAsync("opString", Ice::OperationMode::Normal, inPair,
+        cl->ice_invokeAsync(
+            "opString", Ice::OperationMode::Normal, inPair,
             [&](bool ok, pair<const Ice::Byte*, const Ice::Byte*> outParams)
             {
                 vector<Ice::Byte>(outParams.first, outParams.second).swap(outEncaps);
                 completed.set_value(ok);
             },
-            [&](exception_ptr ex)
-            {
-                completed.set_exception(ex);
-            },
-            [&](bool)
-            {
-                sent.set_value();
-            });
+            [&](exception_ptr ex) { completed.set_exception(ex); }, [&](bool) { sent.set_value(); });
         sent.get_future().get(); // Ensure sent callback was called
         test(completed.get_future().get());
 
@@ -312,20 +284,14 @@ allTests(Test::TestHelper* helper)
         promise<void> sent;
         Ice::ByteSeq inEncaps, outEncaps;
 
-        cl->ice_invokeAsync("opException", Ice::OperationMode::Normal, inEncaps,
+        cl->ice_invokeAsync(
+            "opException", Ice::OperationMode::Normal, inEncaps,
             [&](bool ok, vector<Ice::Byte> outParams)
             {
                 outEncaps = std::move(outParams);
                 completed.set_value(ok);
             },
-            [&](exception_ptr ex)
-            {
-                completed.set_exception(ex);
-            },
-            [&](bool)
-            {
-                sent.set_value();
-            });
+            [&](exception_ptr ex) { completed.set_exception(ex); }, [&](bool) { sent.set_value(); });
         sent.get_future().get(); // Ensure sent callback was called
         test(!completed.get_future().get());
 
@@ -336,10 +302,10 @@ allTests(Test::TestHelper* helper)
             in.throwException();
             test(false);
         }
-        catch(const Test::MyException&)
+        catch (const Test::MyException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }
@@ -359,10 +325,10 @@ allTests(Test::TestHelper* helper)
             in.throwException();
             test(false);
         }
-        catch(const Test::MyException&)
+        catch (const Test::MyException&)
         {
         }
-        catch(...)
+        catch (...)
         {
             test(false);
         }

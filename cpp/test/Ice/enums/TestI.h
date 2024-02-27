@@ -10,7 +10,6 @@
 class TestIntfI : public virtual Test::TestIntf
 {
 public:
-
     virtual Test::ByteEnum opByte(Test::ByteEnum, Test::ByteEnum&, const Ice::Current&);
 
     virtual Test::ShortEnum opShort(Test::ShortEnum, Test::ShortEnum&, const Ice::Current&);

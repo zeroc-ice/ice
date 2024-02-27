@@ -16,34 +16,34 @@
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICE_API /**/
+#    elif defined(ICE_API_EXPORTS)
+#        define ICE_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 namespace Ice
 {
 
-class EndpointInfo;
-class IPEndpointInfo;
-class TCPEndpointInfo;
-class UDPEndpointInfo;
-class WSEndpointInfo;
-class Endpoint;
+    class EndpointInfo;
+    class IPEndpointInfo;
+    class TCPEndpointInfo;
+    class UDPEndpointInfo;
+    class WSEndpointInfo;
+    class Endpoint;
 
 }
 
 namespace Ice
 {
 
-/**
- * A sequence of endpoints.
- */
-using EndpointSeq = ::std::vector<::std::shared_ptr<Endpoint>>;
+    /**
+     * A sequence of endpoints.
+     */
+    using EndpointSeq = ::std::vector<::std::shared_ptr<Endpoint>>;
 
 }
 
@@ -58,17 +58,17 @@ namespace Ice
 namespace Ice
 {
 
-using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
+    using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
 
-using IPEndpointInfoPtr = ::std::shared_ptr<IPEndpointInfo>;
+    using IPEndpointInfoPtr = ::std::shared_ptr<IPEndpointInfo>;
 
-using TCPEndpointInfoPtr = ::std::shared_ptr<TCPEndpointInfo>;
+    using TCPEndpointInfoPtr = ::std::shared_ptr<TCPEndpointInfo>;
 
-using UDPEndpointInfoPtr = ::std::shared_ptr<UDPEndpointInfo>;
+    using UDPEndpointInfoPtr = ::std::shared_ptr<UDPEndpointInfo>;
 
-using WSEndpointInfoPtr = ::std::shared_ptr<WSEndpointInfo>;
+    using WSEndpointInfoPtr = ::std::shared_ptr<WSEndpointInfo>;
 
-using EndpointPtr = ::std::shared_ptr<Endpoint>;
+    using EndpointPtr = ::std::shared_ptr<Endpoint>;
 
 }
 /// \endcond

@@ -10,10 +10,8 @@
 class MyClassI final : public Test::MyClass, public std::enable_shared_from_this<MyClassI>
 {
 public:
-
-    void callCallbackAsync(std::function<void()>,
-                           std::function<void(std::exception_ptr)>,
-                           const Ice::Current&) override;
+    void
+    callCallbackAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void getCallbackCountAsync(std::function<void(int)>,
                                std::function<void(std::exception_ptr)>,
@@ -44,7 +42,6 @@ public:
     void incHeartbeatCount(const std::shared_ptr<Ice::Connection>&);
 
 private:
-
     void checkConnection(const std::shared_ptr<Ice::Connection>&);
 
     std::mutex _lock;

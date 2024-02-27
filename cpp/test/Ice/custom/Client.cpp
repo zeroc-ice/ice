@@ -12,7 +12,6 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

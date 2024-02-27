@@ -12,12 +12,11 @@ using namespace std;
 class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
-
     ServantLocatorI(bool array, bool async)
     {
-        if(array)
+        if (array)
         {
-            if(async)
+            if (async)
             {
                 _blobject = make_shared<BlobjectArrayAsyncI>();
             }
@@ -28,7 +27,7 @@ public:
         }
         else
         {
-            if(async)
+            if (async)
             {
                 _blobject = make_shared<BlobjectAsyncI>();
             }
@@ -39,28 +38,19 @@ public:
         }
     }
 
-    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final
-    {
-        return _blobject;
-    }
+    shared_ptr<Ice::Object> locate(const Ice::Current&, shared_ptr<void>&) final { return _blobject; }
 
-    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final
-    {
-    }
+    void finished(const Ice::Current&, const shared_ptr<Ice::Object>&, const shared_ptr<void>&) final {}
 
-    void deactivate(const string&) final
-    {
-    }
+    void deactivate(const string&) final {}
 
 private:
-
     shared_ptr<Ice::Object> _blobject;
 };
 
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -77,7 +67,7 @@ Server::run(int argc, char** argv)
     {
         args = opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         cout << argv[0] << ": error: " << e.reason << endl;
         throw;

@@ -8,9 +8,9 @@
 // (std::random_device) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
 #ifdef _WIN32
-#   include <rpc.h>
+#    include <rpc.h>
 #else
-#   include <IceUtil/Random.h>
+#    include <IceUtil/Random.h>
 #endif
 
 using namespace std;
@@ -18,27 +18,27 @@ using namespace std;
 namespace
 {
 
-// Helper char to hex functions
-inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
-{
-    if(hb < 10)
+    // Helper char to hex functions
+    inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
     {
-        *hexBuffer++ = '0' + static_cast<char>(hb);
+        if (hb < 10)
+        {
+            *hexBuffer++ = '0' + static_cast<char>(hb);
+        }
+        else
+        {
+            *hexBuffer++ = 'A' + static_cast<char>(hb - 10);
+        }
     }
-    else
-    {
-        *hexBuffer++ = 'A' + static_cast<char>(hb - 10);
-    }
-}
 
-inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
-{
-    for(size_t i = 0; i < len; i++)
+    inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
     {
-        halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
-        halfByteToHex((bytes[i] & 0x0F), hexBuffer);
+        for (size_t i = 0; i < len; i++)
+        {
+            halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
+            halfByteToHex((bytes[i] & 0x0F), hexBuffer);
+        }
     }
-}
 
 }
 
@@ -49,7 +49,7 @@ IceUtil::generateUUID()
 
     UUID uuid;
     RPC_STATUS ret = UuidCreate(&uuid);
-    if(ret != RPC_S_OK && ret != RPC_S_UUID_LOCAL_ONLY && ret != RPC_S_UUID_NO_ADDRESS)
+    if (ret != RPC_S_OK && ret != RPC_S_UUID_LOCAL_ONLY && ret != RPC_S_UUID_NO_ADDRESS)
     {
         throw SyscallException(__FILE__, __LINE__, GetLastError());
     }
@@ -57,7 +57,7 @@ IceUtil::generateUUID()
     unsigned char* str;
 
     ret = UuidToString(&uuid, &str);
-    if(ret != RPC_S_OK)
+    if (ret != RPC_S_OK)
     {
         throw SyscallException(__FILE__, __LINE__, GetLastError());
     }

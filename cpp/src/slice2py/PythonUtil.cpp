@@ -17,204 +17,205 @@ using namespace IceUtilInternal;
 namespace
 {
 
-string
-getEscapedParamName(const OperationPtr& p, const string& name)
-{
-    ParamDeclList params = p->parameters();
-
-    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    string getEscapedParamName(const OperationPtr& p, const string& name)
     {
-        if((*i)->name() == name)
+        ParamDeclList params = p->parameters();
+
+        for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
         {
-            return name + "_";
+            if ((*i)->name() == name)
+            {
+                return name + "_";
+            }
         }
+        return name;
     }
-    return name;
-}
 
 }
 
 namespace Slice
 {
-namespace Python
-{
-
-class MetaDataVisitor : public ParserVisitor
-{
-public:
-
-    virtual bool visitUnitStart(const UnitPtr&);
-    virtual bool visitModuleStart(const ModulePtr&);
-    virtual void visitClassDecl(const ClassDeclPtr&);
-    virtual bool visitClassDefStart(const ClassDefPtr&);
-    virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
-    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-    virtual bool visitExceptionStart(const ExceptionPtr&);
-    virtual bool visitStructStart(const StructPtr&);
-    virtual void visitOperation(const OperationPtr&);
-    virtual void visitDataMember(const DataMemberPtr&);
-    virtual void visitSequence(const SequencePtr&);
-    virtual void visitDictionary(const DictionaryPtr&);
-    virtual void visitEnum(const EnumPtr&);
-    virtual void visitConst(const ConstPtr&);
-
-private:
-
-    //
-    // Validates sequence metadata.
-    //
-    StringList validateSequence(const string&, const string&, const TypePtr&, const StringList&);
-
-    //
-    // Checks a definition that doesn't currently support Python metadata.
-    //
-    void reject(const ContainedPtr&);
-
-    StringSet _history;
-};
-
-//
-// ModuleVisitor finds all of the Slice modules whose include level is greater
-// than 0 and emits a statement of the following form:
-//
-// _M_Foo = Ice.openModule('Foo')
-//
-// This statement allows the code generated for this translation unit to refer
-// to types residing in those included modules.
-//
-class ModuleVisitor : public ParserVisitor
-{
-public:
-
-    ModuleVisitor(Output&, set<string>&);
-
-    virtual bool visitModuleStart(const ModulePtr&);
-
-private:
-
-    Output& _out;
-    set<string>& _history;
-};
-
-//
-// CodeVisitor generates the Python mapping for a translation unit.
-//
-class CodeVisitor : public ParserVisitor
-{
-public:
-
-    CodeVisitor(IceUtilInternal::Output&, set<string>&);
-
-    virtual bool visitModuleStart(const ModulePtr&);
-    virtual void visitModuleEnd(const ModulePtr&);
-    virtual void visitClassDecl(const ClassDeclPtr&);
-    virtual bool visitClassDefStart(const ClassDefPtr&);
-    virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
-    virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-    virtual bool visitExceptionStart(const ExceptionPtr&);
-    virtual bool visitStructStart(const StructPtr&);
-    virtual void visitSequence(const SequencePtr&);
-    virtual void visitDictionary(const DictionaryPtr&);
-    virtual void visitEnum(const EnumPtr&);
-    virtual void visitConst(const ConstPtr&);
-
-private:
-
-    //
-    // Emit Python code for operations
-    //
-    void writeOperations(const InterfaceDefPtr&);
-
-    //
-    // Return a Python symbol for the given parser element.
-    //
-    string getSymbol(const ContainedPtr&, const string& = "", const string& = "");
-
-    //
-    // Emit Python code to assign the given symbol in the current module.
-    //
-    void registerName(const string&);
-
-    //
-    // Emit the tuple for a Slice type.
-    //
-    void writeType(const TypePtr&);
-
-    //
-    // Write an initializer value for a given type.
-    //
-    void writeInitializer(const DataMemberPtr&);
-
-    //
-    // Add a value to a hash code.
-    //
-    void writeHash(const string&, const TypePtr&, int&);
-
-    //
-    // Write Python metadata as a tuple.
-    //
-    void writeMetaData(const StringList&);
-
-    //
-    // Convert an operation mode into a string.
-    //
-    string getOperationMode(Slice::Operation::Mode);
-
-    struct MemberInfo
+    namespace Python
     {
-        string fixedName;
-        bool inherited;
-        DataMemberPtr dataMember;
-    };
-    typedef list<MemberInfo> MemberInfoList;
 
-    //
-    // Write a member assignment statement for a constructor.
-    //
-    void writeAssign(const MemberInfo&);
+        class MetaDataVisitor : public ParserVisitor
+        {
+        public:
+            virtual bool visitUnitStart(const UnitPtr&);
+            virtual bool visitModuleStart(const ModulePtr&);
+            virtual void visitClassDecl(const ClassDeclPtr&);
+            virtual bool visitClassDefStart(const ClassDefPtr&);
+            virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
+            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+            virtual bool visitExceptionStart(const ExceptionPtr&);
+            virtual bool visitStructStart(const StructPtr&);
+            virtual void visitOperation(const OperationPtr&);
+            virtual void visitDataMember(const DataMemberPtr&);
+            virtual void visitSequence(const SequencePtr&);
+            virtual void visitDictionary(const DictionaryPtr&);
+            virtual void visitEnum(const EnumPtr&);
+            virtual void visitConst(const ConstPtr&);
 
-    //
-    // Write a constant value.
-    //
-    void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
+        private:
+            //
+            // Validates sequence metadata.
+            //
+            StringList validateSequence(const string&, const string&, const TypePtr&, const StringList&);
 
-    //
-    // Write constructor parameters with default values.
-    //
-    void writeConstructorParams(const MemberInfoList&);
+            //
+            // Checks a definition that doesn't currently support Python metadata.
+            //
+            void reject(const ContainedPtr&);
 
-    void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-    void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
+            StringSet _history;
+        };
 
-    typedef vector<string> StringVec;
+        //
+        // ModuleVisitor finds all of the Slice modules whose include level is greater
+        // than 0 and emits a statement of the following form:
+        //
+        // _M_Foo = Ice.openModule('Foo')
+        //
+        // This statement allows the code generated for this translation unit to refer
+        // to types residing in those included modules.
+        //
+        class ModuleVisitor : public ParserVisitor
+        {
+        public:
+            ModuleVisitor(Output&, set<string>&);
 
-    StringVec stripMarkup(const string&);
+            virtual bool visitModuleStart(const ModulePtr&);
 
-    void writeDocstring(const string&, const string& = "");
-    void writeDocstring(const string&, const DataMemberList&);
-    void writeDocstring(const string&, const EnumeratorList&);
+        private:
+            Output& _out;
+            set<string>& _history;
+        };
 
-    typedef map<string, string> StringMap;
-    struct OpComment
-    {
-        StringVec description;
-        StringMap params;
-        string returns;
-        StringMap exceptions;
-    };
-    bool parseOpComment(const string&, OpComment&);
+        //
+        // CodeVisitor generates the Python mapping for a translation unit.
+        //
+        class CodeVisitor : public ParserVisitor
+        {
+        public:
+            CodeVisitor(IceUtilInternal::Output&, set<string>&);
 
-    enum DocstringMode { DocSync, DocAsync, DocAsyncBegin, DocAsyncEnd, DocDispatch, DocAsyncDispatch };
+            virtual bool visitModuleStart(const ModulePtr&);
+            virtual void visitModuleEnd(const ModulePtr&);
+            virtual void visitClassDecl(const ClassDeclPtr&);
+            virtual bool visitClassDefStart(const ClassDefPtr&);
+            virtual void visitInterfaceDecl(const InterfaceDeclPtr&);
+            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
+            virtual bool visitExceptionStart(const ExceptionPtr&);
+            virtual bool visitStructStart(const StructPtr&);
+            virtual void visitSequence(const SequencePtr&);
+            virtual void visitDictionary(const DictionaryPtr&);
+            virtual void visitEnum(const EnumPtr&);
+            virtual void visitConst(const ConstPtr&);
 
-    void writeDocstring(const OperationPtr&, DocstringMode);
+        private:
+            //
+            // Emit Python code for operations
+            //
+            void writeOperations(const InterfaceDefPtr&);
 
-    Output& _out;
-    set<string>& _moduleHistory;
-    list<string> _moduleStack;
-    set<string> _classHistory;
-};
+            //
+            // Return a Python symbol for the given parser element.
+            //
+            string getSymbol(const ContainedPtr&, const string& = "", const string& = "");
 
-}
+            //
+            // Emit Python code to assign the given symbol in the current module.
+            //
+            void registerName(const string&);
+
+            //
+            // Emit the tuple for a Slice type.
+            //
+            void writeType(const TypePtr&);
+
+            //
+            // Write an initializer value for a given type.
+            //
+            void writeInitializer(const DataMemberPtr&);
+
+            //
+            // Add a value to a hash code.
+            //
+            void writeHash(const string&, const TypePtr&, int&);
+
+            //
+            // Write Python metadata as a tuple.
+            //
+            void writeMetaData(const StringList&);
+
+            //
+            // Convert an operation mode into a string.
+            //
+            string getOperationMode(Slice::Operation::Mode);
+
+            struct MemberInfo
+            {
+                string fixedName;
+                bool inherited;
+                DataMemberPtr dataMember;
+            };
+            typedef list<MemberInfo> MemberInfoList;
+
+            //
+            // Write a member assignment statement for a constructor.
+            //
+            void writeAssign(const MemberInfo&);
+
+            //
+            // Write a constant value.
+            //
+            void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
+
+            //
+            // Write constructor parameters with default values.
+            //
+            void writeConstructorParams(const MemberInfoList&);
+
+            void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
+            void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
+
+            typedef vector<string> StringVec;
+
+            StringVec stripMarkup(const string&);
+
+            void writeDocstring(const string&, const string& = "");
+            void writeDocstring(const string&, const DataMemberList&);
+            void writeDocstring(const string&, const EnumeratorList&);
+
+            typedef map<string, string> StringMap;
+            struct OpComment
+            {
+                StringVec description;
+                StringMap params;
+                string returns;
+                StringMap exceptions;
+            };
+            bool parseOpComment(const string&, OpComment&);
+
+            enum DocstringMode
+            {
+                DocSync,
+                DocAsync,
+                DocAsyncBegin,
+                DocAsyncEnd,
+                DocDispatch,
+                DocAsyncDispatch
+            };
+
+            void writeDocstring(const OperationPtr&, DocstringMode);
+
+            Output& _out;
+            set<string>& _moduleHistory;
+            list<string> _moduleStack;
+            set<string> _classHistory;
+        };
+
+    }
 }
 
 static string
@@ -223,51 +224,12 @@ lookupKwd(const string& name)
     //
     // Keyword list. *Must* be kept in alphabetical order.
     //
-    static const string keywordList[] =
-    {
-        "False",
-        "None",
-        "True",
-        "and",
-        "as",
-        "assert",
-        "async",
-        "await",
-        "break",
-        "case",
-        "class",
-        "continue",
-        "def",
-        "del",
-        "elif",
-        "else",
-        "except",
-        "exec",
-        "finally",
-        "for",
-        "from",
-        "global",
-        "if",
-        "import",
-        "in",
-        "is",
-        "lambda",
-        "match",
-        "nonlocal",
-        "not",
-        "or",
-        "pass",
-        "print",
-        "raise",
-        "return",
-        "try",
-        "while",
-        "with",
-        "yield"
-    };
-    bool found =  binary_search(&keywordList[0],
-                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                                name);
+    static const string keywordList[] = {
+        "False", "None",     "True",  "and",    "as",     "assert", "async",  "await", "break",    "case",
+        "class", "continue", "def",   "del",    "elif",   "else",   "except", "exec",  "finally",  "for",
+        "from",  "global",   "if",    "import", "in",     "is",     "lambda", "match", "nonlocal", "not",
+        "or",    "pass",     "print", "raise",  "return", "try",    "while",  "with",  "yield"};
+    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
     return found ? "_" + name : name;
 }
 
@@ -278,7 +240,7 @@ getDictLookup(const ContainedPtr& cont, const string& suffix = "", const string&
     assert(!scope.empty());
 
     string package = Slice::Python::getPackageMetadata(cont);
-    if(!package.empty())
+    if (!package.empty())
     {
         scope = package + "." + scope;
     }
@@ -289,18 +251,15 @@ getDictLookup(const ContainedPtr& cont, const string& suffix = "", const string&
 //
 // ModuleVisitor implementation.
 //
-Slice::Python::ModuleVisitor::ModuleVisitor(Output& out, set<string>& history) :
-    _out(out), _history(history)
-{
-}
+Slice::Python::ModuleVisitor::ModuleVisitor(Output& out, set<string>& history) : _out(out), _history(history) {}
 
 bool
 Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(p->includeLevel() > 0)
+    if (p->includeLevel() > 0)
     {
         string abs = getAbsolute(p);
-        if(_history.count(abs) == 0)
+        if (_history.count(abs) == 0)
         {
             //
             // If this is a top-level module, then we check if it has package metadata.
@@ -310,15 +269,15 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
             if (dynamic_pointer_cast<Unit>(p->container()))
             {
                 string pkg = getPackageMetadata(p);
-                if(!pkg.empty())
+                if (!pkg.empty())
                 {
                     vector<string> v;
                     splitString(pkg, ".", v);
                     string mod;
-                    for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+                    for (vector<string>::iterator q = v.begin(); q != v.end(); ++q)
                     {
                         mod = mod.empty() ? *q : mod + "." + *q;
-                        if(_history.count(mod) == 0)
+                        if (_history.count(mod) == 0)
                         {
                             _out << nl << "_M_" << mod << " = Ice.openModule('" << mod << "')";
                             _history.insert(mod);
@@ -337,9 +296,9 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 // CodeVisitor implementation.
-Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory) :
-    _out(out),
-    _moduleHistory(moduleHistory)
+Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory)
+    : _out(out),
+      _moduleHistory(moduleHistory)
 {
 }
 
@@ -362,25 +321,25 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     //
     string abs = getAbsolute(p);
     _out << sp << nl << "# Start of module " << abs;
-    if(_moduleHistory.count(abs) == 0) // Don't emit this more than once for each module.
+    if (_moduleHistory.count(abs) == 0) // Don't emit this more than once for each module.
     {
         //
         // If this is a top-level module, then we check if it has package metadata.
         // If so, we need to emit statements to open each of the modules in the
         // package before we can open this module.
         //
-        if(dynamic_pointer_cast<Unit>(p->container()))
+        if (dynamic_pointer_cast<Unit>(p->container()))
         {
             string pkg = getPackageMetadata(p);
-            if(!pkg.empty())
+            if (!pkg.empty())
             {
                 vector<string> v;
                 splitString(pkg, ".", v);
                 string mod;
-                for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+                for (vector<string>::iterator q = v.begin(); q != v.end(); ++q)
                 {
                     mod = mod.empty() ? *q : mod + "." + *q;
-                    if(_moduleHistory.count(mod) == 0) // Don't emit this more than once for each module.
+                    if (_moduleHistory.count(mod) == 0) // Don't emit this more than once for each module.
                     {
                         _out << nl << "_M_" << mod << " = Ice.openModule('" << mod << "')";
                         _moduleHistory.insert(mod);
@@ -406,7 +365,7 @@ Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr&)
     _out << sp << nl << "# End of module " << _moduleStack.front();
     _moduleStack.pop_front();
 
-    if(!_moduleStack.empty())
+    if (!_moduleStack.empty())
     {
         _out << sp << nl << "__name__ = '" << _moduleStack.front() << "'";
     }
@@ -419,7 +378,7 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     // Emit forward declarations.
     //
     string scoped = p->scoped();
-    if(_classHistory.count(scoped) == 0)
+    if (_classHistory.count(scoped) == 0)
     {
         _out << sp << nl << "if " << getDictLookup(p) << ':';
         _out.inc();
@@ -436,7 +395,7 @@ Slice::Python::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     // Emit forward declarations.
     //
     string scoped = p->scoped();
-    if(_classHistory.count(scoped) == 0)
+    if (_classHistory.count(scoped) == 0)
     {
         _out << sp << nl << "if " << getDictLookup(p) << ':';
         _out.inc();
@@ -451,16 +410,16 @@ void
 Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
 {
     OperationList ops = p->operations();
-    if(!ops.empty())
+    if (!ops.empty())
     {
         //
         // Emit a placeholder for each operation.
         //
-        for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+        for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
 
-            if((*oli)->hasMarshaledResult())
+            if ((*oli)->hasMarshaledResult())
             {
                 string name = (*oli)->name();
                 name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
@@ -484,9 +443,9 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
 
             ParamDeclList params = (*oli)->parameters();
 
-            for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
+            for (ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
             {
-                if(!(*pli)->isOutParam())
+                if (!(*pli)->isOutParam())
                 {
                     _out << ", " << fixIdent((*pli)->name());
                 }
@@ -542,27 +501,27 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeConstructorParams(allMembers);
     _out << "):";
     _out.inc();
-    if(!base && !p->hasDataMembers())
+    if (!base && !p->hasDataMembers())
     {
         _out << nl << "pass";
     }
     else
     {
-        if(base)
+        if (base)
         {
             _out << nl << getSymbol(base) << ".__init__(self";
-            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
-                if(q->inherited)
+                if (q->inherited)
                 {
                     _out << ", " << q->fixedName;
                 }
             }
             _out << ')';
         }
-        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            if(!q->inherited)
+            if (!q->inherited)
             {
                 writeAssign(*q);
             }
@@ -598,7 +557,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.dec();
 
-    if(_classHistory.count(scoped) == 0 && p->canBeCyclic())
+    if (_classHistory.count(scoped) == 0 && p->canBeCyclic())
     {
         //
         // Emit a forward declaration for the class in case a data member refers to this type.
@@ -611,7 +570,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     writeMetaData(p->getMetaData());
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
     _out << ", " << (preserved ? "True" : "False") << ", False, ";
-    if(!base)
+    if (!base)
     {
         _out << "None";
     }
@@ -629,20 +588,20 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    if(members.size() > 1)
+    if (members.size() > 1)
     {
         _out.inc();
         _out << nl;
     }
     bool isProtected = p->hasMetaData("protected");
-    for(DataMemberList::iterator r = members.begin(); r != members.end(); ++r)
+    for (DataMemberList::iterator r = members.begin(); r != members.end(); ++r)
     {
-        if(r != members.begin())
+        if (r != members.begin())
         {
             _out << ',' << nl;
         }
         _out << "('";
-        if(isProtected || (*r)->hasMetaData("protected"))
+        if (isProtected || (*r)->hasMetaData("protected"))
         {
             _out << '_';
         }
@@ -652,11 +611,11 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeType((*r)->type());
         _out << ", " << ((*r)->optional() ? "True" : "False") << ", " << ((*r)->optional() ? (*r)->tag() : 0) << ')';
     }
-    if(members.size() == 1)
+    if (members.size() == 1)
     {
         _out << ',';
     }
-    else if(members.size() > 1)
+    else if (members.size() > 1)
     {
         _out.dec();
         _out << nl;
@@ -668,7 +627,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.dec();
 
-    if(_classHistory.count(scoped) == 0)
+    if (_classHistory.count(scoped) == 0)
     {
         _classHistory.insert(scoped); // Avoid redundant declarations.
     }
@@ -704,24 +663,24 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     {
         vector<string> baseClasses;
-        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
             InterfaceDefPtr d = *q;
             baseClasses.push_back(getSymbol(*q, "", "Prx"));
         }
 
-        if(baseClasses.empty())
+        if (baseClasses.empty())
         {
             _out << "Ice.ObjectPrx";
         }
         else
         {
             vector<string>::const_iterator q = baseClasses.begin();
-            while(q != baseClasses.end())
+            while (q != baseClasses.end())
             {
                 _out << *q;
 
-                if(++q != baseClasses.end())
+                if (++q != baseClasses.end())
                 {
                     _out << ", ";
                 }
@@ -732,10 +691,10 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.inc();
 
     OperationList ops = p->operations();
-    for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+    for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
     {
         string fixedOpName = fixIdent((*oli)->name());
-        if(fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
+        if (fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
         {
             fixedOpName.insert(0, "_");
         }
@@ -747,33 +706,33 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Find the last required parameter, all optional parameters after the last required parameter will use
         // Ice.Unset as the default.
         ParamDeclPtr lastRequiredParameter;
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
-            if(!(*q)->isOutParam() && !(*q)->optional())
+            if (!(*q)->isOutParam() && !(*q)->optional())
             {
                 lastRequiredParameter = *q;
             }
         }
 
         bool afterLastRequiredParameter = lastRequiredParameter == nullptr;
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
-            if(!(*q)->isOutParam())
+            if (!(*q)->isOutParam())
             {
-                if(!inParams.empty())
+                if (!inParams.empty())
                 {
                     inParams.append(", ");
                     inParamsDecl.append(", ");
                 }
                 string param = fixIdent((*q)->name());
                 inParams.append(param);
-                if(afterLastRequiredParameter)
+                if (afterLastRequiredParameter)
                 {
                     param += "=Ice.Unset";
                 }
                 inParamsDecl.append(param);
 
-                if(*q == lastRequiredParameter)
+                if (*q == lastRequiredParameter)
                 {
                     afterLastRequiredParameter = true;
                 }
@@ -783,7 +742,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sp;
         writeDocstring(*oli, DocSync);
         _out << nl << "def " << fixedOpName << "(self";
-        if(!inParamsDecl.empty())
+        if (!inParamsDecl.empty())
         {
             _out << ", " << inParamsDecl;
         }
@@ -791,7 +750,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << ", " << contextParamName << "=None):";
         _out.inc();
         _out << nl << "return _M_" << classAbs << "._op_" << (*oli)->name() << ".invoke(self, ((" << inParams;
-        if(!inParams.empty() && inParams.find(',') == string::npos)
+        if (!inParams.empty() && inParams.find(',') == string::npos)
         {
             _out << ", ";
         }
@@ -804,14 +763,14 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sp;
         writeDocstring(*oli, DocAsync);
         _out << nl << "def " << (*oli)->name() << "Async(self";
-        if(!inParams.empty())
+        if (!inParams.empty())
         {
             _out << ", " << inParams;
         }
         _out << ", " << contextParamName << "=None):";
         _out.inc();
         _out << nl << "return _M_" << classAbs << "._op_" << (*oli)->name() << ".invokeAsync(self, ((" << inParams;
-        if(!inParams.empty() && inParams.find(',') == string::npos)
+        if (!inParams.empty() && inParams.find(',') == string::npos)
         {
             _out << ", ";
         }
@@ -851,24 +810,24 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "class " << className << '(';
     {
         vector<string> baseClasses;
-        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
             InterfaceDefPtr d = *q;
             baseClasses.push_back(getSymbol(*q, "", ""));
         }
 
-        if(baseClasses.empty())
+        if (baseClasses.empty())
         {
             _out << "Ice.Object";
         }
         else
         {
             vector<string>::const_iterator q = baseClasses.begin();
-            while(q != baseClasses.end())
+            while (q != baseClasses.end())
             {
                 _out << *q;
 
-                if(++q != baseClasses.end())
+                if (++q != baseClasses.end())
                 {
                     _out << ", ";
                 }
@@ -886,9 +845,9 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "def ice_ids(self, current=None):";
     _out.inc();
     _out << nl << "return (";
-    for(StringList::iterator q = ids.begin(); q != ids.end(); ++q)
+    for (StringList::iterator q = ids.begin(); q != ids.end(); ++q)
     {
-        if(q != ids.begin())
+        if (q != ids.begin())
         {
             _out << ", ";
         }
@@ -932,16 +891,16 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << ", None, (";
 
     int interfaceCount = 0;
-    for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+    for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
     {
-        if(interfaceCount > 0)
+        if (interfaceCount > 0)
         {
             _out << ", ";
         }
         _out << "_M_" << getAbsolute(*q, "_t_", "Disp");
         ++interfaceCount;
     }
-    if(interfaceCount == 1)
+    if (interfaceCount == 1)
     {
         _out << ',';
     }
@@ -956,17 +915,17 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // where InParams and OutParams are tuples of type descriptions, and Exceptions
     // is a tuple of exception type ids.
     //
-    if(!ops.empty())
+    if (!ops.empty())
     {
         _out << sp;
     }
-    for(OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
+    for (OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
     {
         ParamDeclList params = (*s)->parameters();
         ParamDeclList::iterator t;
         int count;
         string format;
-        switch((*s)->format())
+        switch ((*s)->format())
         {
             case DefaultFormat:
                 format = "None";
@@ -984,11 +943,11 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
              << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", " << format << ", ";
         writeMetaData((*s)->getMetaData());
         _out << ", (";
-        for(t = params.begin(), count = 0; t != params.end(); ++t)
+        for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
-            if(!(*t)->isOutParam())
+            if (!(*t)->isOutParam())
             {
-                if(count > 0)
+                if (count > 0)
                 {
                     _out << ", ";
                 }
@@ -1001,16 +960,16 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 ++count;
             }
         }
-        if(count == 1)
+        if (count == 1)
         {
             _out << ',';
         }
         _out << "), (";
-        for(t = params.begin(), count = 0; t != params.end(); ++t)
+        for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
-            if((*t)->isOutParam())
+            if ((*t)->isOutParam())
             {
-                if(count > 0)
+                if (count > 0)
                 {
                     _out << ", ";
                 }
@@ -1023,13 +982,13 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 ++count;
             }
         }
-        if(count == 1)
+        if (count == 1)
         {
             _out << ',';
         }
         _out << "), ";
         TypePtr returnType = (*s)->returnType();
-        if(returnType)
+        if (returnType)
         {
             //
             // The return type has the same format as an in/out parameter:
@@ -1047,26 +1006,26 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << ", (";
         ExceptionList exceptions = (*s)->throws();
-        for(ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
+        for (ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
         {
-            if(u != exceptions.begin())
+            if (u != exceptions.begin())
             {
                 _out << ", ";
             }
             _out << "_M_" << getAbsolute(*u, "_t_");
         }
-        if(exceptions.size() == 1)
+        if (exceptions.size() == 1)
         {
             _out << ',';
         }
         _out << "))";
 
         string deprecateMetadata;
-        if((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
+        if ((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
         {
             string msg;
             string::size_type pos = deprecateMetadata.find(':');
-            if(pos != string::npos && pos < deprecateMetadata.size() - 1)
+            if (pos != string::npos && pos < deprecateMetadata.size() - 1)
             {
                 msg = deprecateMetadata.substr(pos + 1);
             }
@@ -1077,7 +1036,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     registerName(className);
     _out.dec();
 
-    if(_classHistory.count(scoped) == 0)
+    if (_classHistory.count(scoped) == 0)
     {
         _classHistory.insert(scoped); // Avoid redundant declarations.
     }
@@ -1098,7 +1057,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "class " << name << '(';
     ExceptionPtr base = p->base();
     string baseName;
-    if(base)
+    if (base)
     {
         baseName = getSymbol(base);
         _out << baseName;
@@ -1123,27 +1082,27 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeConstructorParams(allMembers);
     _out << "):";
     _out.inc();
-    if(!base && members.empty())
+    if (!base && members.empty())
     {
         _out << nl << "pass";
     }
     else
     {
-        if(base)
+        if (base)
         {
             _out << nl << baseName << ".__init__(self";
-            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
-                if(q->inherited)
+                if (q->inherited)
                 {
                     _out << ", " << q->fixedName;
                 }
             }
             _out << ')';
         }
-        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            if(!q->inherited)
+            if (!q->inherited)
             {
                 writeAssign(*q);
             }
@@ -1175,16 +1134,16 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeMetaData(p->getMetaData());
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
     _out << ", " << (preserved ? "True" : "False") << ", ";
-    if(!base)
+    if (!base)
     {
         _out << "None";
     }
     else
     {
-         _out << "_M_" << getAbsolute(base, "_t_");
+        _out << "_M_" << getAbsolute(base, "_t_");
     }
     _out << ", (";
-    if(members.size() > 1)
+    if (members.size() > 1)
     {
         _out.inc();
         _out << nl;
@@ -1196,9 +1155,9 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    for(DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+    for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
     {
-        if(dmli != members.begin())
+        if (dmli != members.begin())
         {
             _out << ',' << nl;
         }
@@ -1206,14 +1165,14 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         writeMetaData((*dmli)->getMetaData());
         _out << ", ";
         writeType((*dmli)->type());
-        _out << ", " << ((*dmli)->optional() ? "True" : "False") << ", "
-             << ((*dmli)->optional() ? (*dmli)->tag() : 0) << ')';
+        _out << ", " << ((*dmli)->optional() ? "True" : "False") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
+             << ')';
     }
-    if(members.size() == 1)
+    if (members.size() == 1)
     {
         _out << ',';
     }
-    else if(members.size() > 1)
+    else if (members.size() > 1)
     {
         _out.dec();
         _out << nl;
@@ -1238,7 +1197,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     MemberInfoList memberList;
 
     {
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
             memberList.push_back(MemberInfo());
             memberList.back().fixedName = fixIdent((*q)->name());
@@ -1259,7 +1218,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeConstructorParams(memberList);
     _out << "):";
     _out.inc();
-    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
         writeAssign(*r);
     }
@@ -1270,13 +1229,13 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     // is a legal dictionary key type.
     //
     bool containsSequence = false;
-    if(Dictionary::legalKeyType(p, containsSequence))
+    if (Dictionary::legalKeyType(p, containsSequence))
     {
         _out << sp << nl << "def __hash__(self):";
         _out.inc();
         _out << nl << "_h = 0";
         int iter = 0;
-        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
         {
             string s = "self." + r->fixedName;
             writeHash(s, r->dataMember->type(), iter);
@@ -1300,7 +1259,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
         {
             //
             // The None value is not orderable in Python 3.
@@ -1424,7 +1383,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
         {
             //
             // The None value is not orderable in Python 3.
@@ -1468,14 +1427,14 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    if(memberList.size() > 1)
+    if (memberList.size() > 1)
     {
         _out.inc();
         _out << nl;
     }
-    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
-        if(r != memberList.begin())
+        if (r != memberList.begin())
         {
             _out << ',' << nl;
         }
@@ -1485,11 +1444,11 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         writeType(r->dataMember->type());
         _out << ')';
     }
-    if(memberList.size() == 1)
+    if (memberList.size() == 1)
     {
         _out << ',';
     }
-    else if(memberList.size() > 1)
+    else if (memberList.size() > 1)
     {
         _out.dec();
         _out << nl;
@@ -1510,12 +1469,12 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     StringList metaData = p->getMetaData();
     bool isCustom = false;
     string customType;
-    for(const auto& q : metaData)
+    for (const auto& q : metaData)
     {
-        if(q.find(protobuf) == 0)
+        if (q.find(protobuf) == 0)
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-            if(!builtin || builtin->kind() != Builtin::KindByte)
+            if (!builtin || builtin->kind() != Builtin::KindByte)
             {
                 continue;
             }
@@ -1529,12 +1488,12 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     string scoped = p->scoped();
     _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
-    if(isCustom)
+    if (isCustom)
     {
         string package = customType.substr(0, customType.find('.'));
         _out << nl << "import " << package;
-        _out << nl << "_M_" << getAbsolute(p, "_t_")
-             << " = IcePy.defineCustom('" << scoped << "', " << customType << ")";
+        _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineCustom('" << scoped << "', " << customType
+             << ")";
     }
     else
     {
@@ -1599,16 +1558,16 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out.dec();
 
     _out << sp;
-    for(q = enums.begin(); q != enums.end(); ++q)
+    for (q = enums.begin(); q != enums.end(); ++q)
     {
         string fixedEnum = fixIdent((*q)->name());
         _out << nl << name << '.' << fixedEnum << " = " << name << "(\"" << (*q)->name() << "\", " << (*q)->value()
              << ')';
     }
     _out << nl << name << "._enumerators = { ";
-    for(q = enums.begin(); q != enums.end(); ++q)
+    for (q = enums.begin(); q != enums.end(); ++q)
     {
-        if(q != enums.begin())
+        if (q != enums.begin())
         {
             _out << ", ";
         }
@@ -1620,8 +1579,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineEnum('" << scoped << "', " << name
-         << ", ";
+    _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineEnum('" << scoped << "', " << name << ", ";
     writeMetaData(p->getMetaData());
     _out << ", " << name << "._enumerators)";
 
@@ -1661,9 +1619,9 @@ void
 Slice::Python::CodeVisitor::writeType(const TypePtr& p)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindBool:
             {
@@ -1721,7 +1679,7 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(p);
-    if(prx)
+    if (prx)
     {
         _out << "_M_" << getAbsolute(prx, "_t_", "Prx");
         return;
@@ -1737,9 +1695,9 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
 {
     TypePtr p = m->type();
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindBool:
             {
@@ -1777,7 +1735,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(p);
-    if(en)
+    if (en)
     {
         EnumeratorList enums = en->enumerators();
         _out << getSymbol(en) << "." << fixIdent(enums.front()->name());
@@ -1785,7 +1743,7 @@ Slice::Python::CodeVisitor::writeInitializer(const DataMemberPtr& m)
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(p);
-    if(st)
+    if (st)
     {
         //
         // We cannot emit a call to the struct's constructor here because Python
@@ -1804,7 +1762,7 @@ void
 Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int& iter)
 {
     SequencePtr seq = dynamic_pointer_cast<Sequence>(p);
-    if(seq)
+    if (seq)
     {
         _out << nl << "if " << name << ':';
         _out.inc();
@@ -1820,7 +1778,7 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(p);
-    if(dict)
+    if (dict)
     {
         _out << nl << "if " << name << ':';
         _out.inc();
@@ -1846,11 +1804,11 @@ Slice::Python::CodeVisitor::writeMetaData(const StringList& meta)
 {
     int i = 0;
     _out << '(';
-    for(StringList::const_iterator p = meta.begin(); p != meta.end(); ++p)
+    for (StringList::const_iterator p = meta.begin(); p != meta.end(); ++p)
     {
-        if(p->find("python:") == 0)
+        if (p->find("python:") == 0)
         {
-            if(i > 0)
+            if (i > 0)
             {
                 _out << ", ";
             }
@@ -1858,7 +1816,7 @@ Slice::Python::CodeVisitor::writeMetaData(const StringList& meta)
             ++i;
         }
     }
-    if(i == 1)
+    if (i == 1)
     {
         _out << ',';
     }
@@ -1875,7 +1833,7 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
     // Structures are treated differently (see bug 3676).
     //
     StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
-    if(st && !info.dataMember->optional())
+    if (st && !info.dataMember->optional())
     {
         _out << nl << "if " << paramName << " is Ice._struct_marker:";
         _out.inc();
@@ -1893,11 +1851,12 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
 }
 
 void
-Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType,
+Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type,
+                                               const SyntaxTreeBasePtr& valueType,
                                                const string& value)
 {
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
-    if(constant)
+    if (constant)
     {
         _out << "_M_" << getAbsolute(constant);
     }
@@ -1905,40 +1864,40 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
     {
         Slice::BuiltinPtr b = dynamic_pointer_cast<Slice::Builtin>(type);
         Slice::EnumPtr en = dynamic_pointer_cast<Slice::Enum>(type);
-        if(b)
+        if (b)
         {
-            switch(b->kind())
+            switch (b->kind())
             {
-            case Slice::Builtin::KindBool:
-            {
-                _out << (value == "true" ? "True" : "False");
-                break;
-            }
-            case Slice::Builtin::KindByte:
-            case Slice::Builtin::KindShort:
-            case Slice::Builtin::KindInt:
-            case Slice::Builtin::KindFloat:
-            case Slice::Builtin::KindDouble:
-            case Slice::Builtin::KindLong:
-            {
-                _out << value;
-                break;
-            }
-            case Slice::Builtin::KindString:
-            {
-                const string controlChars = "\a\b\f\n\r\t\v";
-                const unsigned char cutOff = 0;
+                case Slice::Builtin::KindBool:
+                {
+                    _out << (value == "true" ? "True" : "False");
+                    break;
+                }
+                case Slice::Builtin::KindByte:
+                case Slice::Builtin::KindShort:
+                case Slice::Builtin::KindInt:
+                case Slice::Builtin::KindFloat:
+                case Slice::Builtin::KindDouble:
+                case Slice::Builtin::KindLong:
+                {
+                    _out << value;
+                    break;
+                }
+                case Slice::Builtin::KindString:
+                {
+                    const string controlChars = "\a\b\f\n\r\t\v";
+                    const unsigned char cutOff = 0;
 
-                _out << "\"" << toStringLiteral(value, controlChars, "", UCN, cutOff) << "\"";
-                break;
-            }
-            case Slice::Builtin::KindValue:
-            case Slice::Builtin::KindObject:
-            case Slice::Builtin::KindObjectProxy:
-                assert(false);
+                    _out << "\"" << toStringLiteral(value, controlChars, "", UCN, cutOff) << "\"";
+                    break;
+                }
+                case Slice::Builtin::KindValue:
+                case Slice::Builtin::KindObject:
+                case Slice::Builtin::KindObjectProxy:
+                    assert(false);
             }
         }
-        else if(en)
+        else if (en)
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
@@ -1954,16 +1913,16 @@ Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type, const Syntax
 void
 Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
 {
-    for(MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
         _out << ", " << p->fixedName << "=";
 
         const DataMemberPtr member = p->dataMember;
-        if(member->defaultValueType())
+        if (member->defaultValueType())
         {
             writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
         }
-        else if(member->optional())
+        else if (member->optional())
         {
             _out << "Ice.Unset";
         }
@@ -1978,17 +1937,17 @@ string
 Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
 {
     string result;
-    switch(mode)
+    switch (mode)
     {
-    case Operation::Normal:
-        result = "Ice.OperationMode.Normal";
-        break;
-    case Operation::Nonmutating:
-        result = "Ice.OperationMode.Nonmutating";
-        break;
-    case Operation::Idempotent:
-        result = "Ice.OperationMode.Idempotent";
-        break;
+        case Operation::Normal:
+            result = "Ice.OperationMode.Normal";
+            break;
+        case Operation::Nonmutating:
+            result = "Ice.OperationMode.Nonmutating";
+            break;
+        case Operation::Idempotent:
+            result = "Ice.OperationMode.Idempotent";
+            break;
     }
     return result;
 }
@@ -2004,10 +1963,10 @@ Slice::Python::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfo
 
     DataMemberList members = p->dataMembers();
 
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
-        if(p->hasMetaData("protected") || (*q)->hasMetaData("protected"))
+        if (p->hasMetaData("protected") || (*q)->hasMetaData("protected"))
         {
             m.fixedName = "_" + fixIdent((*q)->name());
         }
@@ -2025,14 +1984,14 @@ void
 Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
 {
     ExceptionPtr base = p->base();
-    if(base)
+    if (base)
     {
         collectExceptionMembers(base, allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();
 
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.fixedName = fixIdent((*q)->name());
@@ -2053,37 +2012,37 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
     do
     {
         pos = text.find('<', pos);
-        if(pos != string::npos)
+        if (pos != string::npos)
         {
             string::size_type endpos = text.find('>', pos);
-            if(endpos == string::npos)
+            if (endpos == string::npos)
             {
                 break;
             }
             text.erase(pos, endpos - pos + 1);
         }
-    } while(pos != string::npos);
+    } while (pos != string::npos);
 
     const string link = "{@link";
     pos = 0;
     do
     {
         pos = text.find(link, pos);
-        if(pos != string::npos)
+        if (pos != string::npos)
         {
             text.erase(pos, link.size());
             string::size_type endpos = text.find('}', pos);
-            if(endpos != string::npos)
+            if (endpos != string::npos)
             {
                 string::size_type identpos = text.find_first_not_of(" \t#", pos);
-                if(identpos != string::npos && identpos < endpos)
+                if (identpos != string::npos && identpos < endpos)
                 {
                     string ident = text.substr(identpos, endpos - identpos);
                     text.replace(pos, endpos - pos + 1, fixIdent(ident));
                 }
             }
         }
-    } while(pos != string::npos);
+    } while (pos != string::npos);
 
     //
     // Strip @see sections.
@@ -2097,10 +2056,10 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
         // to the end of the string, if not found.
         //
         pos = text.find(seeTag, pos);
-        if(pos != string::npos)
+        if (pos != string::npos)
         {
             string::size_type next = text.find('@', pos + seeTag.size());
-            if(next != string::npos)
+            if (next != string::npos)
             {
                 text.erase(pos, next - pos);
             }
@@ -2109,21 +2068,21 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
                 text.erase(pos, string::npos);
             }
         }
-    } while(pos != string::npos);
+    } while (pos != string::npos);
 
     //
     // Escape triple quotes.
     //
     static const string singleQuotes = "'''";
     pos = 0;
-    while((pos = text.find(singleQuotes, pos)) != string::npos)
+    while ((pos = text.find(singleQuotes, pos)) != string::npos)
     {
         text.insert(pos, "\\");
         pos += singleQuotes.size() + 1;
     }
     static const string doubleQuotes = "\"\"\"";
     pos = 0;
-    while((pos = text.find(doubleQuotes, pos)) != string::npos)
+    while ((pos = text.find(doubleQuotes, pos)) != string::npos)
     {
         text.insert(pos, "\\");
         pos += doubleQuotes.size() + 1;
@@ -2133,10 +2092,10 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
     // Fold multiple empty lines.
     //
     pos = 0;
-    while(true)
+    while (true)
     {
         pos = text.find('\n', pos);
-        if(pos == string::npos)
+        if (pos == string::npos)
         {
             break;
         }
@@ -2144,11 +2103,11 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
         //
         // Skip the next LF or CR/LF, if present.
         //
-        if(pos < text.size() - 1 && text[pos + 1] == '\n')
+        if (pos < text.size() - 1 && text[pos + 1] == '\n')
         {
             pos += 2;
         }
-        else if(pos < text.size() - 2 && text[pos + 1] == '\r' && text[pos + 2] == '\n')
+        else if (pos < text.size() - 2 && text[pos + 1] == '\r' && text[pos + 2] == '\n')
         {
             pos += 3;
         }
@@ -2162,7 +2121,7 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
         // Erase any more CR/LF characters.
         //
         string::size_type next = text.find_first_not_of("\r\n", pos);
-        if(next != string::npos)
+        if (next != string::npos)
         {
             text.erase(pos, next - pos);
         }
@@ -2172,7 +2131,7 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
     // Remove trailing whitespace.
     //
     pos = text.find_last_not_of(" \t\r\n");
-    if(pos != string::npos)
+    if (pos != string::npos)
     {
         text.erase(pos + 1, text.size() - pos - 1);
     }
@@ -2181,14 +2140,14 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
     // Split text into lines.
     //
     StringVec lines;
-    if(!text.empty())
+    if (!text.empty())
     {
         string::size_type start = 0;
-        while(start != string::npos)
+        while (start != string::npos)
         {
             string::size_type newline = text.find_first_of("\r\n", start);
             string line;
-            if(newline != string::npos)
+            if (newline != string::npos)
             {
                 line = text.substr(start, newline - start);
                 start = newline;
@@ -2203,7 +2162,7 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
             // Remove trailing whitespace
             //
             pos = line.find_last_not_of(" \t");
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 line.erase(pos + 1, line.size() - pos - 1);
             }
@@ -2221,14 +2180,14 @@ void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& prefix)
 {
     StringVec lines = stripMarkup(comment);
-    if(lines.empty())
+    if (lines.empty())
     {
         return;
     }
 
     _out << nl << prefix << "\"\"\"";
 
-    for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
@@ -2240,28 +2199,28 @@ void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemberList& members)
 {
     StringVec lines = stripMarkup(comment);
-    if(lines.empty())
+    if (lines.empty())
     {
         return;
     }
 
     _out << nl << "\"\"\"";
 
-    for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
 
-    if(!members.empty())
+    if (!members.empty())
     {
         //
         // Collect docstrings (if any) for the members.
         //
         map<string, StringVec> docs;
-        for(DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+        for (DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
         {
             StringVec doc = stripMarkup((*m)->comment());
-            if(!doc.empty())
+            if (!doc.empty())
             {
                 docs[(*m)->name()] = doc;
             }
@@ -2269,18 +2228,18 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         //
         // Only emit members if there's a docstring for at least one member.
         //
-        if(!docs.empty())
+        if (!docs.empty())
         {
             _out << nl << "Members:";
-            for(DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+            for (DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
             {
                 _out << nl << fixIdent((*m)->name()) << " -- ";
                 map<string, StringVec>::iterator p = docs.find((*m)->name());
-                if(p != docs.end())
+                if (p != docs.end())
                 {
-                    for(StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    for (StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
                     {
-                        if(q != p->second.begin())
+                        if (q != p->second.begin())
                         {
                             _out << nl;
                         }
@@ -2298,28 +2257,28 @@ void
 Slice::Python::CodeVisitor::writeDocstring(const string& comment, const EnumeratorList& enums)
 {
     StringVec lines = stripMarkup(comment);
-    if(lines.empty())
+    if (lines.empty())
     {
         return;
     }
 
     _out << nl << "\"\"\"";
 
-    for(StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (StringVec::const_iterator q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
 
-    if(!enums.empty())
+    if (!enums.empty())
     {
         //
         // Collect docstrings (if any) for the enumerators.
         //
         map<string, StringVec> docs;
-        for(EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
+        for (EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
         {
             StringVec doc = stripMarkup((*e)->comment());
-            if(!doc.empty())
+            if (!doc.empty())
             {
                 docs[(*e)->name()] = doc;
             }
@@ -2327,18 +2286,18 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         //
         // Only emit enumerators if there's a docstring for at least one enumerator.
         //
-        if(!docs.empty())
+        if (!docs.empty())
         {
             _out << nl << "Enumerators:";
-            for(EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
+            for (EnumeratorList::const_iterator e = enums.begin(); e != enums.end(); ++e)
             {
                 _out << nl << fixIdent((*e)->name()) << " -- ";
                 map<string, StringVec>::iterator p = docs.find((*e)->name());
-                if(p != docs.end())
+                if (p != docs.end())
                 {
-                    for(StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    for (StringVec::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
                     {
-                        if(q != p->second.begin())
+                        if (q != p->second.begin())
                         {
                             _out << nl;
                         }
@@ -2359,7 +2318,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     // Remove most javadoc & HTML markup.
     //
     StringVec lines = stripMarkup(comment);
-    if(lines.empty())
+    if (lines.empty())
     {
         return false;
     }
@@ -2370,28 +2329,28 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     string name;
     bool inParam = false, inException = false, inReturn = false;
     vector<string>::iterator i = lines.begin();
-    while(i != lines.end())
+    while (i != lines.end())
     {
         string l = *i;
         string::size_type paramTag = l.find("@param");
         string::size_type throwTag = l.find("@throw");
         string::size_type returnTag = l.find("@return");
 
-        if(paramTag != string::npos)
+        if (paramTag != string::npos)
         {
             string::size_type pos = l.find_first_of(" \t", paramTag);
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 pos = l.find_first_not_of(" \t", pos);
             }
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 string::size_type namePos = pos;
                 pos = l.find_first_of(" \t", pos);
                 inParam = true;
                 inException = false;
                 inReturn = false;
-                if(pos == string::npos)
+                if (pos == string::npos)
                 {
                     //
                     // Doc assumed to have the format
@@ -2406,7 +2365,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                 {
                     name = l.substr(namePos, pos - namePos);
                     pos = l.find_first_not_of(" \t", pos);
-                    if(pos != string::npos)
+                    if (pos != string::npos)
                     {
                         c.params[name] = l.substr(pos);
                     }
@@ -2419,21 +2378,21 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
             i = lines.erase(i);
             continue;
         }
-        else if(throwTag != string::npos)
+        else if (throwTag != string::npos)
         {
             string::size_type pos = l.find_first_of(" \t", throwTag);
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 pos = l.find_first_not_of(" \t", pos);
             }
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 string::size_type namePos = pos;
                 pos = l.find_first_of(" \t", pos);
                 inException = true;
                 inParam = false;
                 inReturn = false;
-                if(pos == string::npos)
+                if (pos == string::npos)
                 {
                     //
                     // Doc assumed to have the format
@@ -2448,7 +2407,7 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                 {
                     name = l.substr(namePos, pos - namePos);
                     pos = l.find_first_not_of(" \t", pos);
-                    if(pos != string::npos)
+                    if (pos != string::npos)
                     {
                         c.exceptions[name] = l.substr(pos);
                     }
@@ -2461,14 +2420,14 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
             i = lines.erase(i);
             continue;
         }
-        else if(returnTag != string::npos)
+        else if (returnTag != string::npos)
         {
             string::size_type pos = l.find_first_of(" \t", returnTag);
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 pos = l.find_first_not_of(" \t", pos);
             }
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 inReturn = true;
                 inException = false;
@@ -2485,12 +2444,12 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
             // previous description.
             //
             string::size_type pos = l.find_first_not_of(" \t");
-            if(pos != string::npos && l[pos] != '@')
+            if (pos != string::npos && l[pos] != '@')
             {
-                if(inParam)
+                if (inParam)
                 {
                     assert(!name.empty());
-                    if(!c.params[name].empty())
+                    if (!c.params[name].empty())
                     {
                         c.params[name] += " ";
                     }
@@ -2498,10 +2457,10 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     i = lines.erase(i);
                     continue;
                 }
-                else if(inException)
+                else if (inException)
                 {
                     assert(!name.empty());
-                    if(!c.exceptions[name].empty())
+                    if (!c.exceptions[name].empty())
                     {
                         c.exceptions[name] += " ";
                     }
@@ -2509,9 +2468,9 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
                     i = lines.erase(i);
                     continue;
                 }
-                else if(inReturn)
+                else if (inReturn)
                 {
-                    if(!c.returns.empty())
+                    if (!c.returns.empty())
                     {
                         c.returns += " ";
                     }
@@ -2528,9 +2487,9 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
     //
     // All remaining lines become the general description.
     //
-    for(vector<string>::iterator p = lines.begin(); p != lines.end(); ++p)
+    for (vector<string>::iterator p = lines.begin(); p != lines.end(); ++p)
     {
-        if(p->find_first_not_of(" \t\n\r") != string::npos)
+        if (p->find_first_not_of(" \t\n\r") != string::npos)
         {
             c.description.push_back(*p);
         }
@@ -2543,7 +2502,7 @@ void
 Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode)
 {
     OpComment comment;
-    if(!parseOpComment(op->comment(), comment))
+    if (!parseOpComment(op->comment(), comment))
     {
         return;
     }
@@ -2551,9 +2510,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     TypePtr ret = op->returnType();
     ParamDeclList params = op->parameters();
     vector<string> inParams, outParams;
-    for(ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+    for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
     {
-        if((*p)->isOutParam())
+        if ((*p)->isOutParam())
         {
             outParams.push_back((*p)->name());
         }
@@ -2563,22 +2522,22 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
     }
 
-    if(comment.description.empty())
+    if (comment.description.empty())
     {
-        if((mode == DocSync || mode == DocDispatch) && comment.params.empty() && comment.exceptions.empty() &&
-           comment.returns.empty())
+        if ((mode == DocSync || mode == DocDispatch) && comment.params.empty() && comment.exceptions.empty() &&
+            comment.returns.empty())
         {
             return;
         }
-        else if((mode == DocAsync || mode == DocAsyncBegin) && inParams.empty())
+        else if ((mode == DocAsync || mode == DocAsyncBegin) && inParams.empty())
         {
             return;
         }
-        else if(mode == DocAsyncEnd && outParams.empty() && comment.returns.empty())
+        else if (mode == DocAsyncEnd && outParams.empty() && comment.returns.empty())
         {
             return;
         }
-        else if(mode == DocAsyncDispatch && inParams.empty() && comment.exceptions.empty())
+        else if (mode == DocAsyncDispatch && inParams.empty() && comment.exceptions.empty())
         {
             return;
         }
@@ -2588,9 +2547,9 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     // Emit the general description.
     //
     _out << nl << "\"\"\"";
-    if(!comment.description.empty())
+    if (!comment.description.empty())
     {
-        for(StringVec::const_iterator q = comment.description.begin(); q != comment.description.end(); ++q)
+        for (StringVec::const_iterator q = comment.description.begin(); q != comment.description.end(); ++q)
         {
             _out << nl << *q;
         }
@@ -2600,112 +2559,110 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     // Emit arguments.
     //
     bool needArgs = false;
-    switch(mode)
+    switch (mode)
     {
-    case DocSync:
-    case DocAsync:
-    case DocAsyncBegin:
-    case DocDispatch:
-        needArgs = true;
-        break;
-    case DocAsyncEnd:
-    case DocAsyncDispatch:
-        needArgs = true;
-        break;
+        case DocSync:
+        case DocAsync:
+        case DocAsyncBegin:
+        case DocDispatch:
+            needArgs = true;
+            break;
+        case DocAsyncEnd:
+        case DocAsyncDispatch:
+            needArgs = true;
+            break;
     }
 
-    if(needArgs)
+    if (needArgs)
     {
         _out << nl << "Arguments:";
-        for(vector<string>::iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (vector<string>::iterator q = inParams.begin(); q != inParams.end(); ++q)
         {
             string fixed = fixIdent(*q);
             _out << nl << fixed << " -- ";
             StringMap::const_iterator r = comment.params.find(*q);
-            if(r == comment.params.end())
+            if (r == comment.params.end())
             {
                 r = comment.params.find(fixed); // Just in case.
             }
-            if(r != comment.params.end())
+            if (r != comment.params.end())
             {
                 _out << r->second;
             }
         }
-        if(mode == DocAsyncBegin)
+        if (mode == DocAsyncBegin)
         {
-            _out << nl << "_response -- The asynchronous response callback."
-                 << nl << "_ex -- The asynchronous exception callback."
-                 << nl << "_sent -- The asynchronous sent callback.";
+            _out << nl << "_response -- The asynchronous response callback." << nl
+                 << "_ex -- The asynchronous exception callback." << nl << "_sent -- The asynchronous sent callback.";
         }
-        if(mode == DocSync || mode == DocAsync || mode == DocAsyncBegin)
+        if (mode == DocSync || mode == DocAsync || mode == DocAsyncBegin)
         {
-             const string contextParamName = getEscapedParamName(op, "context");
+            const string contextParamName = getEscapedParamName(op, "context");
             _out << nl << contextParamName << " -- The request context for the invocation.";
         }
-        if(mode == DocDispatch || mode == DocAsyncDispatch)
+        if (mode == DocDispatch || mode == DocAsyncDispatch)
         {
             const string currentParamName = getEscapedParamName(op, "current");
             _out << nl << currentParamName << " -- The Current object for the invocation.";
         }
     }
-    else if(mode == DocAsyncEnd)
+    else if (mode == DocAsyncEnd)
     {
-        _out << nl << "Arguments:"
-             << nl << "_r - The asynchronous result object for the invocation.";
+        _out << nl << "Arguments:" << nl << "_r - The asynchronous result object for the invocation.";
     }
 
     //
     // Emit return value(s).
     //
-    if(mode == DocAsync || mode == DocAsyncDispatch)
+    if (mode == DocAsync || mode == DocAsyncDispatch)
     {
         _out << nl << "Returns: A future object for the invocation.";
     }
-    if(mode == DocAsyncBegin)
+    if (mode == DocAsyncBegin)
     {
         _out << nl << "Returns: An asynchronous result object for the invocation.";
     }
 
-    if((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch) && (ret || !outParams.empty()))
+    if ((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch) && (ret || !outParams.empty()))
     {
-        if((outParams.size() + (ret ? 1 : 0)) > 1)
+        if ((outParams.size() + (ret ? 1 : 0)) > 1)
         {
             _out << nl << "Returns a tuple containing the following:";
-            if(ret)
+            if (ret)
             {
                 _out << nl << "_retval -- " << comment.returns;
             }
-            for(vector<string>::iterator q = outParams.begin(); q != outParams.end(); ++q)
+            for (vector<string>::iterator q = outParams.begin(); q != outParams.end(); ++q)
             {
                 string fixed = fixIdent(*q);
                 _out << nl << fixed << " -- ";
                 StringMap::const_iterator r = comment.params.find(*q);
-                if(r == comment.params.end())
+                if (r == comment.params.end())
                 {
                     r = comment.params.find(fixed); // Just in case.
                 }
-                if(r != comment.params.end())
+                if (r != comment.params.end())
                 {
                     _out << r->second;
                 }
             }
         }
-        else if(ret && !comment.returns.empty())
+        else if (ret && !comment.returns.empty())
         {
             _out << nl << "Returns: " << comment.returns;
         }
-        else if(!outParams.empty())
+        else if (!outParams.empty())
         {
             assert(outParams.size() == 1);
             _out << nl << "Returns:";
             string fixed = fixIdent(outParams[0]);
             _out << nl << fixed << " -- ";
             StringMap::const_iterator r = comment.params.find(outParams[0]);
-            if(r == comment.params.end())
+            if (r == comment.params.end())
             {
                 r = comment.params.find(fixed); // Just in case.
             }
-            if(r != comment.params.end())
+            if (r != comment.params.end())
             {
                 _out << r->second;
             }
@@ -2715,11 +2672,11 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     //
     // Emit exceptions.
     //
-    if((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch || mode == DocAsyncDispatch) &&
-       !comment.exceptions.empty())
+    if ((mode == DocSync || mode == DocAsyncEnd || mode == DocDispatch || mode == DocAsyncDispatch) &&
+        !comment.exceptions.empty())
     {
         _out << nl << "Throws:";
-        for(StringMap::const_iterator r = comment.exceptions.begin(); r != comment.exceptions.end(); ++r)
+        for (StringMap::const_iterator r = comment.exceptions.begin(); r != comment.exceptions.end(); ++r)
         {
             _out << nl << r->first << " -- " << r->second;
         }
@@ -2741,7 +2698,7 @@ Slice::Python::getPackageDirectory(const string& file, const UnitPtr& ut)
     assert(dc);
     const string prefix = "python:pkgdir:";
     string pkgdir = dc->findMetaData(prefix);
-    if(!pkgdir.empty())
+    if (!pkgdir.empty())
     {
         //
         // The metadata is present, so the generated file was placed in the specified directory.
@@ -2763,7 +2720,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
     // Check if the file contains the python:pkgdir file metadata.
     //
     string pkgdir = getPackageDirectory(file, ut);
-    if(!pkgdir.empty())
+    if (!pkgdir.empty())
     {
         //
         // The metadata is present, so the generated file was placed in the specified directory.
@@ -2772,9 +2729,9 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
         IceUtilInternal::splitString(pkgdir, "/", names);
         assert(!names.empty());
         pkgdir = "";
-        for(vector<string>::iterator p = names.begin(); p != names.end(); ++p)
+        for (vector<string>::iterator p = names.begin(); p != names.end(); ++p)
         {
-            if(p != names.begin())
+            if (p != names.begin())
             {
                 pkgdir += ".";
             }
@@ -2800,24 +2757,23 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
 }
 
 void
-Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& includePaths,
-                        Output& out)
+Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
 {
     Slice::Python::MetaDataVisitor visitor;
     un->visit(&visitor, false);
 
     out << nl << "import Ice, IcePy";
 
-    if(!all)
+    if (!all)
     {
         vector<string> paths = includePaths;
-        for(vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
+        for (vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
         {
             *p = fullPath(*p);
         }
 
         StringList includes = un->includeFiles();
-        for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+        for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
         {
             out << nl << "import " << getImportFileName(*q, un, paths);
         }
@@ -2838,13 +2794,13 @@ string
 Slice::Python::scopedToName(const string& scoped)
 {
     string result = fixIdent(scoped);
-    if(result.find("::") == 0)
+    if (result.find("::") == 0)
     {
         result.erase(0, 2);
     }
 
     string::size_type pos;
-    while((pos = result.find("::")) != string::npos)
+    while ((pos = result.find("::")) != string::npos)
     {
         result.replace(pos, 2, ".");
     }
@@ -2855,14 +2811,14 @@ Slice::Python::scopedToName(const string& scoped)
 string
 Slice::Python::fixIdent(const string& ident)
 {
-    if(ident[0] != ':')
+    if (ident[0] != ':')
     {
         return lookupKwd(ident);
     }
     vector<string> ids = splitScopedName(ident);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
         result << "::" + *i;
     }
@@ -2877,7 +2833,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     //
     ModulePtr m;
     ContainedPtr p = cont;
-    while(true)
+    while (true)
     {
         if (dynamic_pointer_cast<Module>(p))
         {
@@ -2886,7 +2842,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 
         ContainerPtr c = p->container();
         p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
-        if(!p)
+        if (!p)
         {
             break;
         }
@@ -2899,7 +2855,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     static const string prefix = "python:package:";
 
     string q;
-    if(!m->findMetaData(prefix, q))
+    if (!m->findMetaData(prefix, q))
     {
         UnitPtr ut = cont->unit();
         string file = cont->file();
@@ -2910,7 +2866,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
         q = dc->findMetaData(prefix);
     }
 
-    if(!q.empty())
+    if (!q.empty())
     {
         q = q.substr(prefix.size());
     }
@@ -2924,9 +2880,9 @@ Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const
     string scope = scopedToName(cont->scope());
 
     string package = getPackageMetadata(cont);
-    if(!package.empty())
+    if (!package.empty())
     {
-        if(!scope.empty())
+        if (!scope.empty())
         {
             scope = package + "." + scope;
         }
@@ -2942,11 +2898,9 @@ Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const
 void
 Slice::Python::printHeader(IceUtilInternal::Output& out)
 {
-    static const char* header =
-"#\n"
-"# Copyright (c) ZeroC, Inc. All rights reserved.\n"
-"#\n"
-        ;
+    static const char* header = "#\n"
+                                "# Copyright (c) ZeroC, Inc. All rights reserved.\n"
+                                "#\n";
 
     out << header;
     out << "#\n";
@@ -2963,24 +2917,24 @@ Slice::Python::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
     // Validate file metadata in the top-level file and all included files.
     //
     StringList files = p->allFiles();
-    for(StringList::iterator q = files.begin(); q != files.end(); ++q)
+    for (StringList::iterator q = files.begin(); q != files.end(); ++q)
     {
         string file = *q;
         DefinitionContextPtr dc = p->findDefinitionContext(file);
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
-        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
+        for (StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
         {
             string s = *r++;
-            if(s.find(prefix) == 0)
+            if (s.find(prefix) == 0)
             {
                 static const string packagePrefix = "python:package:";
-                if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
+                if (s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
                 {
                     continue;
                 }
                 static const string pkgdirPrefix = "python:pkgdir:";
-                if(s.find(pkgdirPrefix) == 0 && s.size() > pkgdirPrefix.size())
+                if (s.find(pkgdirPrefix) == 0 && s.size() > pkgdirPrefix.size())
                 {
                     continue;
                 }
@@ -3000,10 +2954,10 @@ Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
     static const string prefix = "python:package:";
 
     StringList metaData = p->getMetaData();
-    for(StringList::const_iterator r = metaData.begin(); r != metaData.end();)
+    for (StringList::const_iterator r = metaData.begin(); r != metaData.end();)
     {
         string s = *r++;
-        if(s.find(prefix) == 0)
+        if (s.find(prefix) == 0)
         {
             //
             // Must be a top-level module.
@@ -3014,7 +2968,7 @@ Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
             }
         }
 
-        if(s.find("python:") == 0)
+        if (s.find("python:") == 0)
         {
             p->definitionContext()->warning(InvalidMetaData, p->file(), "", "ignoring invalid metadata `" + s + "'");
             metaData.remove(s);
@@ -3069,13 +3023,13 @@ void
 Slice::Python::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
     TypePtr ret = p->returnType();
-    if(ret)
+    if (ret)
     {
         validateSequence(p->file(), p->line(), ret, p->getMetaData());
     }
 
     ParamDeclList params = p->parameters();
-    for(ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
+    for (ParamDeclList::iterator q = params.begin(); q != params.end(); ++q)
     {
         validateSequence(p->file(), (*q)->line(), (*q)->type(), (*q)->getMetaData());
     }
@@ -3099,20 +3053,20 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
 
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
+    for (StringList::const_iterator q = metaData.begin(); q != metaData.end();)
     {
         string s = *q++;
-        if(s.find(protobuf) == 0)
+        if (s.find(protobuf) == 0)
         {
             //
             // Remove from list so validateSequence does not try to handle as well.
             //
             metaData.remove(s);
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-            if(!builtin || builtin->kind() != Builtin::KindByte)
+            if (!builtin || builtin->kind() != Builtin::KindByte)
             {
-                dc->warning(InvalidMetaData, file, line, "ignoring invalid metadata `" + s + ": " +
-                            "`protobuf' encoding must be a byte sequence");
+                dc->warning(InvalidMetaData, file, line,
+                            "ignoring invalid metadata `" + s + ": " + "`protobuf' encoding must be a byte sequence");
             }
             else
             {
@@ -3145,8 +3099,10 @@ Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
 }
 
 StringList
-Slice::Python::MetaDataVisitor::validateSequence(const string& file, const string& line,
-                                                 const TypePtr& type, const StringList& metaData)
+Slice::Python::MetaDataVisitor::validateSequence(const string& file,
+                                                 const string& line,
+                                                 const TypePtr& type,
+                                                 const StringList& metaData)
 {
     const UnitPtr ut = type->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);
@@ -3154,52 +3110,52 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
 
     static const string prefix = "python:";
     StringList newMetaData = metaData;
-    for(StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
+    for (StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
     {
         string s = *p++;
-        if(s.find(prefix) == 0)
+        if (s.find(prefix) == 0)
         {
             SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-            if(seq)
+            if (seq)
             {
                 static const string seqPrefix = "python:seq:";
-                if(s.find(seqPrefix) == 0)
+                if (s.find(seqPrefix) == 0)
                 {
                     string arg = s.substr(seqPrefix.size());
-                    if(arg == "tuple" || arg == "list" || arg == "default")
+                    if (arg == "tuple" || arg == "list" || arg == "default")
                     {
                         continue;
                     }
                 }
-                else if(s.size() > prefix.size())
+                else if (s.size() > prefix.size())
                 {
                     string arg = s.substr(prefix.size());
-                    if(arg == "tuple" || arg == "list" || arg == "default")
+                    if (arg == "tuple" || arg == "list" || arg == "default")
                     {
                         continue;
                     }
-                    else if(arg == "array.array" || arg == "numpy.ndarray" || arg.find("memoryview:") == 0)
+                    else if (arg == "array.array" || arg == "numpy.ndarray" || arg.find("memoryview:") == 0)
                     {
                         //
                         // The memoryview sequence metadata is only valid for integral builtin
                         // types excluding strings.
                         //
                         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-                        if(builtin)
+                        if (builtin)
                         {
-                            switch(builtin->kind())
+                            switch (builtin->kind())
                             {
-                            case Builtin::KindBool:
-                            case Builtin::KindByte:
-                            case Builtin::KindShort:
-                            case Builtin::KindInt:
-                            case Builtin::KindLong:
-                            case Builtin::KindFloat:
-                            case Builtin::KindDouble:
+                                case Builtin::KindBool:
+                                case Builtin::KindByte:
+                                case Builtin::KindShort:
+                                case Builtin::KindInt:
+                                case Builtin::KindLong:
+                                case Builtin::KindFloat:
+                                case Builtin::KindDouble:
                                 {
                                     continue;
                                 }
-                            default:
+                                default:
                                 {
                                     break;
                                 }
@@ -3225,10 +3181,10 @@ Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
     const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);
 
-    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
+    for (StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
     {
         string s = *p++;
-        if(s.find(prefix) == 0)
+        if (s.find(prefix) == 0)
         {
             dc->warning(InvalidMetaData, cont->file(), cont->line(), "ignoring invalid metadata `" + s + "'");
             localMetaData.remove(s);

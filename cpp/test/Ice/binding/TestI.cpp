@@ -10,10 +10,7 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-RemoteCommunicatorI::RemoteCommunicatorI() :
-    _nextPort(1)
-{
-}
+RemoteCommunicatorI::RemoteCommunicatorI() : _nextPort(1) {}
 
 Test::RemoteObjectAdapterPrxPtr
 RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::Current& current)
@@ -21,14 +18,14 @@ RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
     const string defaultProtocol = com->getProperties()->getProperty("Ice.Default.Protocol");
     int retry = 5;
-    while(true)
+    while (true)
     {
         try
         {
             string endpoints = endpts;
-            if(defaultProtocol != "bt")
+            if (defaultProtocol != "bt")
             {
-                if(endpoints.find("-p") == string::npos)
+                if (endpoints.find("-p") == string::npos)
                 {
                     endpoints = TestHelper::getTestEndpoint(com->getProperties(), _nextPort++, endpoints);
                 }
@@ -38,9 +35,9 @@ RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::
             return Ice::uncheckedCast<RemoteObjectAdapterPrx>(
                 current.adapter->addWithUUID(make_shared<RemoteObjectAdapterI>(adapter)));
         }
-        catch(const Ice::SocketException&)
+        catch (const Ice::SocketException&)
         {
-            if(--retry == 0)
+            if (--retry == 0)
             {
                 throw;
             }
@@ -60,9 +57,9 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter),
-    _testIntf(Ice::uncheckedCast<TestIntfPrx>(_adapter->add(make_shared<TestI>(), stringToIdentity("test"))))
+RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter)
+    : _adapter(adapter),
+      _testIntf(Ice::uncheckedCast<TestIntfPrx>(_adapter->add(make_shared<TestI>(), stringToIdentity("test"))))
 {
     _adapter->activate();
 }
@@ -80,7 +77,7 @@ RemoteObjectAdapterI::deactivate(const Ice::Current&)
     {
         _adapter->destroy();
     }
-    catch(const ObjectAdapterDeactivatedException&)
+    catch (const ObjectAdapterDeactivatedException&)
     {
     }
 }

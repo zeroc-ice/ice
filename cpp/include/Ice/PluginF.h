@@ -16,20 +16,20 @@
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICE_API /**/
+#    elif defined(ICE_API_EXPORTS)
+#        define ICE_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 namespace Ice
 {
 
-class Plugin;
-class PluginManager;
+    class Plugin;
+    class PluginManager;
 
 }
 
@@ -44,9 +44,9 @@ namespace Ice
 namespace Ice
 {
 
-using PluginPtr = ::std::shared_ptr<Plugin>;
+    using PluginPtr = ::std::shared_ptr<Plugin>;
 
-using PluginManagerPtr = ::std::shared_ptr<PluginManager>;
+    using PluginManagerPtr = ::std::shared_ptr<PluginManager>;
 
 }
 /// \endcond

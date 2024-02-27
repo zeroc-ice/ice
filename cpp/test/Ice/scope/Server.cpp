@@ -11,14 +11,12 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
 class I1 : public Test::I
 {
 public:
-
     virtual Test::S opS(Test::S, Test::S&, const Ice::Current&);
     virtual Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&);
     virtual Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&);
@@ -37,9 +35,7 @@ public:
 class I2 : public Test::Inner::Inner2::I
 {
 public:
-
-    virtual Test::Inner::Inner2::S
-    opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&);
+    virtual Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&);
 
     virtual Test::Inner::Inner2::SSeq
     opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&);
@@ -47,8 +43,7 @@ public:
     virtual Test::Inner::Inner2::SMap
     opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&);
 
-    virtual Test::Inner::Inner2::CPtr
-    opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&);
+    virtual Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&);
 
     virtual Test::Inner::Inner2::CSeq
     opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&);
@@ -62,9 +57,7 @@ public:
 class I3 : public Test::Inner::I
 {
 public:
-
-    virtual Test::Inner::Inner2::S
-    opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&);
+    virtual Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&);
 
     virtual Test::Inner::Inner2::SSeq
     opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&);
@@ -72,8 +65,7 @@ public:
     virtual Test::Inner::Inner2::SMap
     opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&);
 
-    virtual Test::Inner::Inner2::CPtr
-    opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&);
+    virtual Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&);
 
     virtual Test::Inner::Inner2::CSeq
     opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&);
@@ -87,24 +79,17 @@ public:
 class I4 : public Inner::Test::Inner2::I
 {
 public:
+    virtual Test::S opS(Test::S, Test::S&, const Ice::Current&);
 
-    virtual Test::S
-    opS(Test::S, Test::S&, const Ice::Current&);
+    virtual Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&);
 
-    virtual Test::SSeq
-    opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&);
+    virtual Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&);
 
-    virtual Test::SMap
-    opSMap(Test::SMap, Test::SMap&, const Ice::Current&);
+    virtual Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&);
 
-    virtual Test::CPtr
-    opC(Test::CPtr, Test::CPtr&, const Ice::Current&);
+    virtual Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&);
 
-    virtual Test::CSeq
-    opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&);
-
-    virtual Test::CMap
-    opCMap(Test::CMap, Test::CMap&, const Ice::Current&);
+    virtual Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 };

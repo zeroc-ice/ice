@@ -18,25 +18,22 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-class RegistryService : public Service
-{
-public:
+    class RegistryService : public Service
+    {
+    public:
+        bool shutdown() override;
 
-    bool shutdown() override;
+    protected:
+        bool start(int, char*[], int&) override;
+        void waitForShutdown() override;
+        bool stop() override;
+        shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
-protected:
+    private:
+        void usage(const std::string&);
 
-    bool start(int, char*[], int&) override;
-    void waitForShutdown() override;
-    bool stop() override;
-    shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
-
-private:
-
-    void usage(const std::string&);
-
-    shared_ptr<RegistryI> _registry;
-};
+        shared_ptr<RegistryI> _registry;
+    };
 
 } // End of namespace IceGrid
 
@@ -67,20 +64,20 @@ RegistryService::start(int argc, char* argv[], int& status)
     {
         args = opts.parse(argc, const_cast<const char**>(argv));
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         error(e.reason);
         usage(argv[0]);
         return false;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(argv[0]);
         status = EXIT_SUCCESS;
         return false;
     }
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         print(ICE_STRING_VERSION);
         status = EXIT_SUCCESS;
@@ -88,12 +85,12 @@ RegistryService::start(int argc, char* argv[], int& status)
     }
     nowarn = opts.isSet("nowarn");
     readonly = opts.isSet("readonly");
-    if(opts.isSet("initdb-from-replica"))
+    if (opts.isSet("initdb-from-replica"))
     {
         initFromReplica = opts.optArg("initdb-from-replica");
     }
 
-    if(!args.empty())
+    if (!args.empty())
     {
         consoleErr << argv[0] << ": too many arguments" << endl;
         usage(argv[0]);
@@ -105,7 +102,7 @@ RegistryService::start(int argc, char* argv[], int& status)
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
     //
-    if(!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
+    if (!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
         Warning out(communicator()->getLogger());
         out << "setting `Ice.ThreadPool.Server.Size' is not useful, ";
@@ -115,7 +112,7 @@ RegistryService::start(int argc, char* argv[], int& status)
     auto traceLevels = make_shared<TraceLevels>(communicator(), "IceGrid.Registry");
 
     _registry = make_shared<RegistryI>(communicator(), traceLevels, nowarn, readonly, initFromReplica, "");
-    if(!_registry->start())
+    if (!_registry->start())
     {
         return false;
     }
@@ -143,7 +140,8 @@ RegistryService::stop()
 }
 
 shared_ptr<Communicator>
-RegistryService::initializeCommunicator(int& argc, char* argv[],
+RegistryService::initializeCommunicator(int& argc,
+                                        char* argv[],
                                         const InitializationData& initializationData,
                                         int version)
 {
@@ -158,21 +156,21 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     vTypes.push_back("");
     vTypes.push_back("Admin");
 
-    for(vector<string>::const_iterator p = vTypes.begin(); p != vTypes.end(); ++p)
+    for (vector<string>::const_iterator p = vTypes.begin(); p != vTypes.end(); ++p)
     {
         string verifier = "IceGrid.Registry." + *p + "PermissionsVerifier";
 
-        if(initData.properties->getProperty(verifier).empty())
+        if (initData.properties->getProperty(verifier).empty())
         {
             string cryptPasswords = initData.properties->getProperty("IceGrid.Registry." + *p + "CryptPasswords");
 
-            if(!cryptPasswords.empty())
+            if (!cryptPasswords.empty())
             {
                 initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
                                                  "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
-                initData.properties->setProperty("Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p +
-                                                 "PermissionsVerifier", cryptPasswords);
+                initData.properties->setProperty(
+                    "Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p + "PermissionsVerifier", cryptPasswords);
             }
         }
     }
@@ -185,7 +183,7 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
     //
     // Enable Admin unless explicitely disabled (or enabled) in configuration
     //
-    if(initData.properties->getProperty("Ice.Admin.Enabled").empty())
+    if (initData.properties->getProperty("Ice.Admin.Enabled").empty())
     {
         initData.properties->setProperty("Ice.Admin.Enabled", "1");
     }
@@ -206,23 +204,20 @@ RegistryService::initializeCommunicator(int& argc, char* argv[],
 void
 RegistryService::usage(const string& appName)
 {
-    string options =
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        "--nowarn             Don't print any security warnings.\n"
-        "--readonly           Start the master registry in read-only mode.\n"
-        "--initdb-from-replica <replica>\n"
-        "                     Initialize the database from the given replica.";
+    string options = "Options:\n"
+                     "-h, --help           Show this message.\n"
+                     "-v, --version        Display the Ice version.\n"
+                     "--nowarn             Don't print any security warnings.\n"
+                     "--readonly           Start the master registry in read-only mode.\n"
+                     "--initdb-from-replica <replica>\n"
+                     "                     Initialize the database from the given replica.";
 #ifndef _WIN32
-    options.append(
-        "\n"
-        "\n"
-        "--daemon             Run as a daemon.\n"
-        "--pidfile FILE       Write process ID into FILE.\n"
-        "--noclose            Do not close open file descriptors.\n"
-        "--nochdir            Do not change the current working directory.\n"
-    );
+    options.append("\n"
+                   "\n"
+                   "--daemon             Run as a daemon.\n"
+                   "--pidfile FILE       Write process ID into FILE.\n"
+                   "--noclose            Do not close open file descriptors.\n"
+                   "--nochdir            Do not change the current working directory.\n");
 #endif
     print("Usage: " + appName + " [options]\n" + options);
 }

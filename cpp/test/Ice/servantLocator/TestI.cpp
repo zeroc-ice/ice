@@ -58,7 +58,7 @@ TestI::unknownExceptionWithServantException(const Current&)
 string
 TestI::impossibleException(bool _cpp_throw, const Current&)
 {
-    if(_cpp_throw)
+    if (_cpp_throw)
     {
         throw Test::TestImpossibleException();
     }
@@ -72,7 +72,7 @@ TestI::impossibleException(bool _cpp_throw, const Current&)
 string
 TestI::intfUserException(bool _cpp_throw, const Current&)
 {
-    if(_cpp_throw)
+    if (_cpp_throw)
     {
         throw Test::TestIntfUserException();
     }

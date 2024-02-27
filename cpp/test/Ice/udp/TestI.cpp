@@ -16,7 +16,7 @@ TestIntfI::ping(Test::PingReplyPrxPtr reply, const Current&)
     {
         reply->reply();
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         assert(false);
     }
@@ -29,7 +29,7 @@ TestIntfI::sendByteSeq(Test::ByteSeq, Test::PingReplyPrxPtr reply, const Current
     {
         reply->reply();
     }
-    catch(const Ice::Exception&)
+    catch (const Ice::Exception&)
     {
         assert(false);
     }
@@ -50,7 +50,7 @@ TestIntfI::pingBiDir(Ice::Identity id, const Ice::Current& current)
             seq.resize(32 * 1024);
             Ice::uncheckedCast<Test::TestIntfPrx>(current.con->createProxy(id))->sendByteSeq(seq, nullopt);
         }
-        catch(const DatagramLimitException&)
+        catch (const DatagramLimitException&)
         {
             // Expected.
         }
@@ -60,7 +60,7 @@ TestIntfI::pingBiDir(Ice::Identity id, const Ice::Current& current)
         //
         Ice::uncheckedCast<Test::PingReplyPrx>(current.con->createProxy(id))->replyAsync();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         cerr << ex << endl;
         assert(false);

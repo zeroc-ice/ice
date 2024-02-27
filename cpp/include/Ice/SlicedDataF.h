@@ -13,19 +13,19 @@
 namespace Ice
 {
 
-struct SliceInfo;
-class SlicedData;
-class UnknownSlicedValue;
+    struct SliceInfo;
+    class SlicedData;
+    class UnknownSlicedValue;
 
-using SliceInfoPtr = ::std::shared_ptr<SliceInfo>;
-using SlicedDataPtr = ::std::shared_ptr<SlicedData>;
+    using SliceInfoPtr = ::std::shared_ptr<SliceInfo>;
+    using SlicedDataPtr = ::std::shared_ptr<SlicedData>;
 
-/// \cond INTERNAL
-using UnknownSlicedValuePtr = ::std::shared_ptr<UnknownSlicedValue>;
-/// \endcond
+    /// \cond INTERNAL
+    using UnknownSlicedValuePtr = ::std::shared_ptr<UnknownSlicedValue>;
+    /// \endcond
 
-/** The slices of unknown types. */
-typedef ::std::vector<SliceInfoPtr> SliceInfoSeq;
+    /** The slices of unknown types. */
+    typedef ::std::vector<SliceInfoPtr> SliceInfoSeq;
 
 }
 

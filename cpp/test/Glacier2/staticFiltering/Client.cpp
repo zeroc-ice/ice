@@ -14,7 +14,6 @@ using namespace Test;
 class AttackClient final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -36,13 +35,13 @@ AttackClient::run(int argc, char** argv)
     communicator->setDefaultRouter(router);
 
     auto badProxies = communicator->getProperties()->getPropertiesForPrefix("Reject.Proxy.");
-    for(const auto& p : badProxies)
+    for (const auto& p : badProxies)
     {
         try
         {
             auto session = router->createSession("userid", "abc123");
         }
-        catch(const Glacier2::CannotCreateSessionException&)
+        catch (const Glacier2::CannotCreateSessionException&)
         {
             test(false);
         }
@@ -53,19 +52,19 @@ AttackClient::run(int argc, char** argv)
             cerr << "Test failed on : " << p.second << endl;
             test(false);
         }
-        catch(const ConnectionLostException&)
+        catch (const ConnectionLostException&)
         {
             //
             // This is ok.
             //
         }
-        catch(const CloseConnectionException&)
+        catch (const CloseConnectionException&)
         {
             //
             // This is also ok.
             //
         }
-        catch(const ObjectNotExistException&)
+        catch (const ObjectNotExistException&)
         {
             //
             // This is ok for non-address filters.
@@ -74,11 +73,11 @@ AttackClient::run(int argc, char** argv)
             {
                 router->destroySession();
             }
-            catch(...)
+            catch (...)
             {
             }
         }
-        catch(const LocalException& e)
+        catch (const LocalException& e)
         {
             cerr << e << endl;
             test(false);
@@ -86,13 +85,13 @@ AttackClient::run(int argc, char** argv)
     }
 
     auto goodProxies = communicator->getProperties()->getPropertiesForPrefix("Accept.Proxy.");
-    for(const auto& p : goodProxies)
+    for (const auto& p : goodProxies)
     {
         try
         {
             auto session = router->createSession("userid", "abc123");
         }
-        catch(const Glacier2::CannotCreateSessionException&)
+        catch (const Glacier2::CannotCreateSessionException&)
         {
             test(false);
         }
@@ -101,7 +100,7 @@ AttackClient::run(int argc, char** argv)
         {
             backend->ice_ping();
         }
-        catch(const LocalException& ex)
+        catch (const LocalException& ex)
         {
             cerr << p.second << endl;
             cerr << ex << endl;
@@ -111,7 +110,7 @@ AttackClient::run(int argc, char** argv)
         {
             router->destroySession();
         }
-        catch(const LocalException&)
+        catch (const LocalException&)
         {
             //
             // Expected.
@@ -129,7 +128,7 @@ AttackClient::run(int argc, char** argv)
         auto backend = checkedCast<BackendPrx>(communicator->stringToProxy("dummy:tcp -p 12010"));
         backend->shutdown();
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         test(false);
     }
@@ -143,7 +142,7 @@ AttackClient::run(int argc, char** argv)
         process->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         cout << "ok" << endl;
     }

@@ -16,84 +16,78 @@
 namespace IcePy
 {
 
-bool initOperation(PyObject*);
+    bool initOperation(PyObject*);
 
-extern PyTypeObject AsyncInvocationContextType;
+    extern PyTypeObject AsyncInvocationContextType;
 
-// Builtin operations.
-PyObject* invokeBuiltin(PyObject*, const std::string&, PyObject*);
-PyObject* invokeBuiltinAsync(PyObject*, const std::string&, PyObject*);
+    // Builtin operations.
+    PyObject* invokeBuiltin(PyObject*, const std::string&, PyObject*);
+    PyObject* invokeBuiltinAsync(PyObject*, const std::string&, PyObject*);
 
-// Blobject invocations.
-PyObject* iceInvoke(PyObject*, PyObject*);
-PyObject* iceInvokeAsync(PyObject*, PyObject*);
+    // Blobject invocations.
+    PyObject* iceInvoke(PyObject*, PyObject*);
+    PyObject* iceInvokeAsync(PyObject*, PyObject*);
 
-// Used as the callback for getConnectionAsync operation.
-class GetConnectionAsyncCallback
-{
-public:
+    // Used as the callback for getConnectionAsync operation.
+    class GetConnectionAsyncCallback
+    {
+    public:
+        GetConnectionAsyncCallback(const Ice::CommunicatorPtr&, const std::string&);
+        ~GetConnectionAsyncCallback();
 
-    GetConnectionAsyncCallback(const Ice::CommunicatorPtr&, const std::string&);
-    ~GetConnectionAsyncCallback();
+        void setFuture(PyObject*);
 
-    void setFuture(PyObject*);
+        void response(const Ice::ConnectionPtr&);
+        void exception(const Ice::Exception&);
 
-    void response(const Ice::ConnectionPtr&);
-    void exception(const Ice::Exception&);
+    protected:
+        Ice::CommunicatorPtr _communicator;
+        std::string _op;
+        PyObject* _future;
+        Ice::ConnectionPtr _connection;
+        PyObject* _exception;
+    };
+    using GetConnectionAsyncCallbackPtr = std::shared_ptr<GetConnectionAsyncCallback>;
 
-protected:
+    // Used as the callback for the various flushBatchRequestAsync operations.
+    class FlushAsyncCallback
+    {
+    public:
+        FlushAsyncCallback(const std::string&);
+        ~FlushAsyncCallback();
 
-    Ice::CommunicatorPtr _communicator;
-    std::string _op;
-    PyObject* _future;
-    Ice::ConnectionPtr _connection;
-    PyObject* _exception;
-};
-using GetConnectionAsyncCallbackPtr = std::shared_ptr<GetConnectionAsyncCallback>;
+        void setFuture(PyObject*);
 
-// Used as the callback for the various flushBatchRequestAsync operations.
-class FlushAsyncCallback
-{
-public:
+        void exception(const Ice::Exception&);
+        void sent(bool);
 
-    FlushAsyncCallback(const std::string&);
-    ~FlushAsyncCallback();
+    protected:
+        std::string _op;
+        PyObject* _future;
+        bool _sent;
+        bool _sentSynchronously;
+        PyObject* _exception;
+    };
+    using FlushAsyncCallbackPtr = std::shared_ptr<FlushAsyncCallback>;
 
-    void setFuture(PyObject*);
+    // ServantWrapper handles dispatching to a Python servant.
+    class ServantWrapper : public Ice::BlobjectArrayAsync
+    {
+    public:
+        ServantWrapper(PyObject*);
+        ~ServantWrapper();
 
-    void exception(const Ice::Exception&);
-    void sent(bool);
+        PyObject* getObject();
 
-protected:
+    protected:
+        PyObject* _servant;
+    };
+    using ServantWrapperPtr = std::shared_ptr<ServantWrapper>;
 
-    std::string _op;
-    PyObject* _future;
-    bool _sent;
-    bool _sentSynchronously;
-    PyObject* _exception;
-};
-using FlushAsyncCallbackPtr = std::shared_ptr<FlushAsyncCallback>;
+    ServantWrapperPtr createServantWrapper(PyObject*);
 
-// ServantWrapper handles dispatching to a Python servant.
-class ServantWrapper : public Ice::BlobjectArrayAsync
-{
-public:
-
-    ServantWrapper(PyObject*);
-    ~ServantWrapper();
-
-    PyObject* getObject();
-
-protected:
-
-    PyObject* _servant;
-};
-using ServantWrapperPtr = std::shared_ptr<ServantWrapper>;
-
-ServantWrapperPtr createServantWrapper(PyObject*);
-
-PyObject* createAsyncInvocationContext(std::function<void()>, Ice::CommunicatorPtr);
-PyObject* createFuture(const std::string&, PyObject*);
+    PyObject* createAsyncInvocationContext(std::function<void()>, Ice::CommunicatorPtr);
+    PyObject* createFuture(const std::string&, PyObject*);
 
 }
 

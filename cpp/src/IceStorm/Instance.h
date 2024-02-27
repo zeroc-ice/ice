@@ -15,126 +15,124 @@
 namespace IceStormElection
 {
 
-class Observers;
-class NodeI;
+    class Observers;
+    class NodeI;
 
 }
 
 namespace IceStorm
 {
 
-class TraceLevels;
+    class TraceLevels;
 
-class TopicReaper
-{
-public:
-
-    void add(const std::string&);
-    std::vector<std::string> consumeReapedTopics();
-
-private:
-
-    std::vector<std::string> _topics;
-
-    std::mutex _mutex;
-};
-
-class Instance
-{
-public:
-
-    enum SendQueueSizeMaxPolicy
+    class TopicReaper
     {
-        RemoveSubscriber,
-        DropEvents
+    public:
+        void add(const std::string&);
+        std::vector<std::string> consumeReapedTopics();
+
+    private:
+        std::vector<std::string> _topics;
+
+        std::mutex _mutex;
     };
 
-    Instance(const std::string&, const std::string&, std::shared_ptr<Ice::Communicator>,
-             std::shared_ptr<Ice::ObjectAdapter>, std::shared_ptr<Ice::ObjectAdapter>,
-             std::shared_ptr<Ice::ObjectAdapter> = nullptr,
-             IceStormElection::NodePrxPtr = std::nullopt);
+    class Instance
+    {
+    public:
+        enum SendQueueSizeMaxPolicy
+        {
+            RemoveSubscriber,
+            DropEvents
+        };
 
-    virtual ~Instance();
+        Instance(const std::string&,
+                 const std::string&,
+                 std::shared_ptr<Ice::Communicator>,
+                 std::shared_ptr<Ice::ObjectAdapter>,
+                 std::shared_ptr<Ice::ObjectAdapter>,
+                 std::shared_ptr<Ice::ObjectAdapter> = nullptr,
+                 IceStormElection::NodePrxPtr = std::nullopt);
 
-    void setNode(std::shared_ptr<IceStormElection::NodeI>);
+        virtual ~Instance();
 
-    std::string instanceName() const;
-    std::string serviceName() const;
-    std::shared_ptr<Ice::Communicator> communicator() const;
-    std::shared_ptr<Ice::Properties> properties() const;
-    std::shared_ptr<Ice::ObjectAdapter> publishAdapter() const;
-    std::shared_ptr<Ice::ObjectAdapter> topicAdapter() const;
-    std::shared_ptr<Ice::ObjectAdapter> nodeAdapter() const;
-    std::shared_ptr<IceStormElection::Observers> observers() const;
-    std::shared_ptr<IceStormElection::NodeI> node() const;
-    IceStormElection::NodePrxPtr nodeProxy() const;
-    std::shared_ptr<TraceLevels> traceLevels() const;
-    IceUtil::TimerPtr timer() const;
-    Ice::ObjectPrxPtr topicReplicaProxy() const;
-    Ice::ObjectPrxPtr publisherReplicaProxy() const;
-    std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> observer() const;
-    std::shared_ptr<TopicReaper> topicReaper() const;
+        void setNode(std::shared_ptr<IceStormElection::NodeI>);
 
-    std::chrono::seconds discardInterval() const;
-    std::chrono::milliseconds flushInterval() const;
-    std::chrono::milliseconds sendTimeout() const;
-    int sendQueueSizeMax() const;
-    SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
+        std::string instanceName() const;
+        std::string serviceName() const;
+        std::shared_ptr<Ice::Communicator> communicator() const;
+        std::shared_ptr<Ice::Properties> properties() const;
+        std::shared_ptr<Ice::ObjectAdapter> publishAdapter() const;
+        std::shared_ptr<Ice::ObjectAdapter> topicAdapter() const;
+        std::shared_ptr<Ice::ObjectAdapter> nodeAdapter() const;
+        std::shared_ptr<IceStormElection::Observers> observers() const;
+        std::shared_ptr<IceStormElection::NodeI> node() const;
+        IceStormElection::NodePrxPtr nodeProxy() const;
+        std::shared_ptr<TraceLevels> traceLevels() const;
+        IceUtil::TimerPtr timer() const;
+        Ice::ObjectPrxPtr topicReplicaProxy() const;
+        Ice::ObjectPrxPtr publisherReplicaProxy() const;
+        std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> observer() const;
+        std::shared_ptr<TopicReaper> topicReaper() const;
 
-    void shutdown();
-    virtual void destroy();
+        std::chrono::seconds discardInterval() const;
+        std::chrono::milliseconds flushInterval() const;
+        std::chrono::milliseconds sendTimeout() const;
+        int sendQueueSizeMax() const;
+        SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
 
-private:
+        void shutdown();
+        virtual void destroy();
 
-    const std::string _instanceName;
-    const std::string _serviceName;
-    const std::shared_ptr<Ice::Communicator> _communicator;
-    const std::shared_ptr<Ice::ObjectAdapter> _publishAdapter;
-    const std::shared_ptr<Ice::ObjectAdapter> _topicAdapter;
-    const std::shared_ptr<Ice::ObjectAdapter> _nodeAdapter;
-    const IceStormElection::NodePrxPtr _nodeProxy;
-    const std::shared_ptr<TraceLevels> _traceLevels;
-    const std::chrono::seconds _discardInterval;
-    const std::chrono::milliseconds _flushInterval;
-    const std::chrono::milliseconds _sendTimeout;
-    const int _sendQueueSizeMax;
-    const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy;
-    const Ice::ObjectPrxPtr _topicReplicaProxy;
-    const Ice::ObjectPrxPtr _publisherReplicaProxy;
-    const std::shared_ptr<TopicReaper> _topicReaper;
-    std::shared_ptr<IceStormElection::NodeI> _node;
-    std::shared_ptr<IceStormElection::Observers> _observers;
-    IceUtil::TimerPtr _timer;
-    std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> _observer;
-};
+    private:
+        const std::string _instanceName;
+        const std::string _serviceName;
+        const std::shared_ptr<Ice::Communicator> _communicator;
+        const std::shared_ptr<Ice::ObjectAdapter> _publishAdapter;
+        const std::shared_ptr<Ice::ObjectAdapter> _topicAdapter;
+        const std::shared_ptr<Ice::ObjectAdapter> _nodeAdapter;
+        const IceStormElection::NodePrxPtr _nodeProxy;
+        const std::shared_ptr<TraceLevels> _traceLevels;
+        const std::chrono::seconds _discardInterval;
+        const std::chrono::milliseconds _flushInterval;
+        const std::chrono::milliseconds _sendTimeout;
+        const int _sendQueueSizeMax;
+        const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy;
+        const Ice::ObjectPrxPtr _topicReplicaProxy;
+        const Ice::ObjectPrxPtr _publisherReplicaProxy;
+        const std::shared_ptr<TopicReaper> _topicReaper;
+        std::shared_ptr<IceStormElection::NodeI> _node;
+        std::shared_ptr<IceStormElection::Observers> _observers;
+        IceUtil::TimerPtr _timer;
+        std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> _observer;
+    };
 
-using SubscriberMapRWCursor = IceDB::ReadWriteCursor<SubscriberRecordKey,
-                                                     SubscriberRecord,
-                                                     IceDB::IceContext,
-                                                     Ice::OutputStream>;
+    using SubscriberMapRWCursor =
+        IceDB::ReadWriteCursor<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>;
 
-class PersistentInstance final : public Instance
-{
-public:
+    class PersistentInstance final : public Instance
+    {
+    public:
+        PersistentInstance(const std::string&,
+                           const std::string&,
+                           std::shared_ptr<Ice::Communicator>,
+                           std::shared_ptr<Ice::ObjectAdapter>,
+                           std::shared_ptr<Ice::ObjectAdapter>,
+                           std::shared_ptr<Ice::ObjectAdapter> = nullptr,
+                           IceStormElection::NodePrxPtr = std::nullopt);
 
-    PersistentInstance(const std::string&, const std::string&, std::shared_ptr<Ice::Communicator>,
-                       std::shared_ptr<Ice::ObjectAdapter>, std::shared_ptr<Ice::ObjectAdapter>,
-                       std::shared_ptr<Ice::ObjectAdapter> = nullptr,
-                       IceStormElection::NodePrxPtr = std::nullopt);
+        const IceDB::Env& dbEnv() const { return _dbEnv; }
+        LLUMap lluMap() const { return _lluMap; }
+        SubscriberMap subscriberMap() const { return _subscriberMap; }
 
-    const IceDB::Env& dbEnv() const { return _dbEnv; }
-    LLUMap lluMap() const { return _lluMap; }
-    SubscriberMap subscriberMap() const { return _subscriberMap; }
+        void destroy() override;
 
-    void destroy() override;
-
-private:
-
-    IceUtilInternal::FileLock _dbLock;
-    IceDB::Env _dbEnv;
-    LLUMap _lluMap;
-    SubscriberMap _subscriberMap;
-};
+    private:
+        IceUtilInternal::FileLock _dbLock;
+        IceDB::Env _dbEnv;
+        LLUMap _lluMap;
+        SubscriberMap _subscriberMap;
+    };
 
 } // End namespace IceStorm
 

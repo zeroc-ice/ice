@@ -12,17 +12,16 @@
 
 using namespace std;
 
-ServerLocatorRegistry::ServerLocatorRegistry()
-{
-}
+ServerLocatorRegistry::ServerLocatorRegistry() {}
 
 void
-ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, ::Ice::ObjectPrxPtr object,
+ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter,
+                                                  ::Ice::ObjectPrxPtr object,
                                                   function<void()> response,
                                                   function<void(exception_ptr)>,
                                                   const ::Ice::Current&)
 {
-    if(!object)
+    if (!object)
     {
         _adapters.erase(adapter);
     }
@@ -34,12 +33,14 @@ ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter, ::Ice::ObjectP
 }
 
 void
-ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, string replicaGroup, Ice::ObjectPrxPtr object,
+ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter,
+                                                            string replicaGroup,
+                                                            Ice::ObjectPrxPtr object,
                                                             function<void()> response,
                                                             function<void(exception_ptr)>,
                                                             const ::Ice::Current&)
 {
-    if(!object)
+    if (!object)
     {
         _adapters.erase(adapter);
         _adapters.erase(replicaGroup);
@@ -53,11 +54,8 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter, stri
 }
 
 void
-ServerLocatorRegistry::setServerProcessProxyAsync(string,
-                                                  Ice::ProcessPrxPtr,
-                                                  function<void()> response,
-                                                  function<void(exception_ptr)>,
-                                                  const ::Ice::Current&)
+ServerLocatorRegistry::setServerProcessProxyAsync(
+    string, Ice::ProcessPrxPtr, function<void()> response, function<void(exception_ptr)>, const ::Ice::Current&)
 {
     response();
 }
@@ -71,8 +69,8 @@ ServerLocatorRegistry::addObject(Ice::ObjectPrxPtr object, const ::Ice::Current&
 Ice::ObjectPrxPtr
 ServerLocatorRegistry::getAdapter(const string& adapter) const
 {
-    map< string, ::Ice::ObjectPrxPtr>::const_iterator p = _adapters.find(adapter);
-    if(_adapters.find(adapter) == _adapters.end())
+    map<string, ::Ice::ObjectPrxPtr>::const_iterator p = _adapters.find(adapter);
+    if (_adapters.find(adapter) == _adapters.end())
     {
         throw Ice::AdapterNotFoundException();
     }
@@ -82,8 +80,8 @@ ServerLocatorRegistry::getAdapter(const string& adapter) const
 Ice::ObjectPrxPtr
 ServerLocatorRegistry::getObject(const ::Ice::Identity& id) const
 {
-    map< ::Ice::Identity, ::Ice::ObjectPrxPtr>::const_iterator p = _objects.find(id);
-    if(p == _objects.end())
+    map<::Ice::Identity, ::Ice::ObjectPrxPtr>::const_iterator p = _objects.find(id);
+    if (p == _objects.end())
     {
         throw Ice::ObjectNotFoundException();
     }
@@ -97,10 +95,10 @@ ServerLocatorRegistry::addObject(const Ice::ObjectPrxPtr& object)
     _objects[object->ice_getIdentity()] = object;
 }
 
-ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::Ice::LocatorRegistryPrxPtr& registryPrx) :
-    _registry(registry),
-    _registryPrx(registryPrx),
-    _requestCount(0)
+ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::Ice::LocatorRegistryPrxPtr& registryPrx)
+    : _registry(registry),
+      _registryPrx(registryPrx),
+      _requestCount(0)
 {
 }
 
@@ -124,7 +122,7 @@ ServerLocator::findAdapterByIdAsync(string id,
                                     const ::Ice::Current& current) const
 {
     ++const_cast<int&>(_requestCount);
-    if(id == "TestAdapter10" || id == "TestAdapter10-2")
+    if (id == "TestAdapter10" || id == "TestAdapter10-2")
     {
         test(current.encoding == Ice::Encoding_1_0);
         response(_registry->getAdapter("TestAdapter"));

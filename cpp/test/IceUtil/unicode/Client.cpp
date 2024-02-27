@@ -6,18 +6,18 @@
 #include <TestHelper.h>
 
 #ifdef _WIN32
-#   include <io.h>
+#    include <io.h>
 #else
-#   include <unistd.h>
+#    include <unistd.h>
 #endif
 #include <fstream>
 
 #ifdef _MSC_VER
-#   pragma warning(disable:4127) // conditional expression is constant
+#    pragma warning(disable : 4127) // conditional expression is constant
 #endif
 
 // Uncomment to include performance testing
-//#define TEST_PERF
+// #define TEST_PERF
 
 using namespace IceUtil;
 using namespace std;
@@ -41,7 +41,7 @@ main(int argc, char* argv[])
 {
     string dir = "";
 
-    if(argc > 1)
+    if (argc > 1)
     {
 #ifdef _WIN32
 
@@ -79,16 +79,16 @@ main(int argc, char* argv[])
             lineNumber++;
             wstring wline = stringToWstring(line);
 
-            for(size_t i = 0; i < wline.length(); ++i)
+            for (size_t i = 0; i < wline.length(); ++i)
             {
                 wchar_t wc = wline[i];
                 const char* buffer = reinterpret_cast<char*>(&wc);
-                for(size_t j = 0; j < sizeof(wchar_t); ++j)
+                for (size_t j = 0; j < sizeof(wchar_t); ++j)
                 {
                     test(bis.good());
                     char c;
                     bis.get(c);
-                    if(buffer[j] != c)
+                    if (buffer[j] != c)
                     {
                         cerr << "Error at line " << lineNumber << " column " << i << endl;
                         cerr << "buffer[j] == " << hex << (int)static_cast<unsigned char>(buffer[j]) << endl;
@@ -100,9 +100,9 @@ main(int argc, char* argv[])
             //
             // Skip newline character (Unix-style newline)
             //
-            if(is.good())
+            if (is.good())
             {
-                for(size_t j = 0; j < sizeof(wchar_t); ++j)
+                for (size_t j = 0; j < sizeof(wchar_t); ++j)
                 {
                     test(bis.good());
                     char c;
@@ -115,7 +115,7 @@ main(int argc, char* argv[])
                 bis.get(c);
                 test(bis.eof());
             }
-        } while(is.good());
+        } while (is.good());
 
         cout << "ok" << endl;
     }
@@ -134,9 +134,9 @@ main(int argc, char* argv[])
             wchar_t wc;
             char* buffer = reinterpret_cast<char*>(&wc);
 
-            for(size_t j = 0; j < sizeof(wchar_t); ++j)
+            for (size_t j = 0; j < sizeof(wchar_t); ++j)
             {
-                if(!bis.good())
+                if (!bis.good())
                 {
                     break;
                 }
@@ -144,24 +144,24 @@ main(int argc, char* argv[])
                 buffer[j] = c;
             }
 
-            if(bis.good())
+            if (bis.good())
             {
                 ws.push_back(wc);
             }
-        } while(bis.good());
+        } while (bis.good());
 
         string s = wstringToString(ws);
 
         ifstream nbis((dir + "coeur.utf8").c_str(), ios_base::binary);
         test(nbis.good());
 
-        for(size_t i = 0; i < s.size(); ++i)
+        for (size_t i = 0; i < s.size(); ++i)
         {
             test(nbis.good());
             nbis.get(c);
             char ci = s[i];
 
-            if(c != ci)
+            if (c != ci)
             {
                 cerr << "i == " << i << endl;
                 cerr << "ci == " << hex << (int)static_cast<unsigned char>(ci) << endl;
@@ -184,7 +184,7 @@ main(int argc, char* argv[])
         // xlC in 32-bit mode truncates U+10437 into a single UTF-16 character
         wstring ws = L"\u20ac\u20ac\U00010437";
 
-        if(sizeof(wchar_t) == 2)
+        if (sizeof(wchar_t) == 2)
         {
             test(ws.length() == 4);
         }
@@ -236,20 +236,18 @@ main(int argc, char* argv[])
 
         // From http://stackoverflow.com/questions/1301402/example-invalid-utf8-string
 
-        string badUTF8[] = {
-            "\xc3\x28",
-            "\xa0\xa1",
-            "\xe2\x28\xa1",
-            "\xe2\x82\x28",
-            "\xf0\x28\x8c\xbc",
-            "\xf0\x90\x28\xbc",
-            "\xf0\x28\x8c\x28",
-            "\xf8\xa1\xa1\xa1\xa1",
-            "\xfc\xa1\xa1\xa1\xa1\xa1",
-            ""
-        };
+        string badUTF8[] = {"\xc3\x28",
+                            "\xa0\xa1",
+                            "\xe2\x28\xa1",
+                            "\xe2\x82\x28",
+                            "\xf0\x28\x8c\xbc",
+                            "\xf0\x90\x28\xbc",
+                            "\xf0\x28\x8c\x28",
+                            "\xf8\xa1\xa1\xa1\xa1",
+                            "\xfc\xa1\xa1\xa1\xa1\xa1",
+                            ""};
 
-        for(size_t i = 0; badUTF8[i] != ""; ++i)
+        for (size_t i = 0; badUTF8[i] != ""; ++i)
         {
             try
             {
@@ -257,8 +255,9 @@ main(int argc, char* argv[])
                 wcerr << L"Unexpected: " << ws << endl;
                 test(false);
             }
-            catch(const IllegalConversionException&)
-            {}
+            catch (const IllegalConversionException&)
+            {
+            }
         }
 
         // TODO: need test for bad UTF-32 strings
@@ -266,26 +265,22 @@ main(int argc, char* argv[])
 
         // Note: for an unknown reason, the conversion works without
         // the extra letter (x below) when using codecvt_utf8_utf16.
-        wstring badWstring[] = {
-            wstring(1, wchar_t(0xD800)) + L"x",
-            wstring(2, wchar_t(0xDB7F)),
-            L""
-        };
+        wstring badWstring[] = {wstring(1, wchar_t(0xD800)) + L"x", wstring(2, wchar_t(0xDB7F)), L""};
 
-        for(size_t i = 0; badWstring[i] != L""; ++i)
+        for (size_t i = 0; badWstring[i] != L""; ++i)
         {
             try
             {
                 string s = wstringToString(badWstring[i]);
                 test(false);
             }
-            catch(const IllegalConversionException&)
-            {}
+            catch (const IllegalConversionException&)
+            {
+            }
         }
 #endif
 
         cout << "ok" << endl;
-
     }
     return EXIT_SUCCESS;
 }

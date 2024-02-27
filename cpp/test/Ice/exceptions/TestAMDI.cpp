@@ -12,21 +12,17 @@ using namespace std;
 bool
 endsWith(const string& s, const string& findme)
 {
-    if(s.length() > findme.length())
+    if (s.length() > findme.length())
     {
         return 0 == s.compare(s.length() - findme.length(), findme.length(), findme);
     }
     return false;
 }
 
-ThrowerI::ThrowerI()
-{
-}
+ThrowerI::ThrowerI() {}
 
 void
-ThrowerI::shutdownAsync(function<void()> response,
-                        function<void(exception_ptr)>,
-                        const Ice::Current& current)
+ThrowerI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
     response();
@@ -49,10 +45,7 @@ ThrowerI::supportsAssertExceptionAsync(function<void(bool)> response,
 }
 
 void
-ThrowerI::throwAasAAsync(int a,
-                         function<void()>,
-                         function<void(exception_ptr)> exception,
-                         const Ice::Current&)
+ThrowerI::throwAasAAsync(int a, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -60,21 +53,18 @@ ThrowerI::throwAasAAsync(int a,
         ex.aMem = a;
         throw ex;
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwAorDasAorDAsync(int a,
-                               function<void()>,
-                               function<void(exception_ptr)> exception,
-                               const Ice::Current&)
+ThrowerI::throwAorDasAorDAsync(int a, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
-        if(a > 0)
+        if (a > 0)
         {
             A ex;
             ex.aMem = a;
@@ -87,17 +77,14 @@ ThrowerI::throwAorDasAorDAsync(int a,
             throw ex;
         }
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwBasAAsync(int a, int b,
-                         function<void()>,
-                         function<void(exception_ptr)> exception,
-                         const Ice::Current&)
+ThrowerI::throwBasAAsync(int a, int b, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -106,17 +93,15 @@ ThrowerI::throwBasAAsync(int a, int b,
         ex.bMem = b;
         throw ex;
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwCasAAsync(int a, int b, int c,
-                         function<void()>,
-                         function<void(exception_ptr)> exception,
-                         const Ice::Current&)
+ThrowerI::throwCasAAsync(
+    int a, int b, int c, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -126,17 +111,14 @@ ThrowerI::throwCasAAsync(int a, int b, int c,
         ex.cMem = c;
         throw ex;
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwBasBAsync(int a, int b,
-                         function<void()>,
-                         function<void(exception_ptr)> exception,
-                         const Ice::Current&)
+ThrowerI::throwBasBAsync(int a, int b, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -145,17 +127,15 @@ ThrowerI::throwBasBAsync(int a, int b,
         ex.bMem = b;
         throw ex;
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwCasBAsync(int a, int b, int c,
-                         function<void()>,
-                         function<void(exception_ptr)> exception,
-                         const Ice::Current&)
+ThrowerI::throwCasBAsync(
+    int a, int b, int c, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -165,17 +145,15 @@ ThrowerI::throwCasBAsync(int a, int b, int c,
         ex.cMem = c;
         throw ex;
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwCasCAsync(int a, int b, int c,
-                         function<void()>,
-                         function<void(exception_ptr)> exception,
-                         const Ice::Current&)
+ThrowerI::throwCasCAsync(
+    int a, int b, int c, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -185,17 +163,14 @@ ThrowerI::throwCasCAsync(int a, int b, int c,
         ex.cMem = c;
         throw ex;
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwModAAsync(int a, int a2,
-                         function<void()>,
-                         function<void(exception_ptr)>,
-                         const Ice::Current&)
+ThrowerI::throwModAAsync(int a, int a2, function<void()>, function<void(exception_ptr)>, const Ice::Current&)
 {
     Mod::A ex;
     ex.aMem = a;
@@ -204,10 +179,7 @@ ThrowerI::throwModAAsync(int a, int a2,
 }
 
 void
-ThrowerI::throwUndeclaredAAsync(int a,
-                                function<void()>,
-                                function<void(exception_ptr)> exception,
-                                const Ice::Current&)
+ThrowerI::throwUndeclaredAAsync(int a, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -215,17 +187,14 @@ ThrowerI::throwUndeclaredAAsync(int a,
         ex.aMem = a;
         throw ex;
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwUndeclaredBAsync(int a, int b,
-                                function<void()>,
-                                function<void(exception_ptr)>,
-                                const Ice::Current&)
+ThrowerI::throwUndeclaredBAsync(int a, int b, function<void()>, function<void(exception_ptr)>, const Ice::Current&)
 {
     B ex;
     ex.aMem = a;
@@ -234,10 +203,8 @@ ThrowerI::throwUndeclaredBAsync(int a, int b,
 }
 
 void
-ThrowerI::throwUndeclaredCAsync(int a, int b, int c,
-                                function<void()>,
-                                function<void(exception_ptr)> exception,
-                                const Ice::Current&)
+ThrowerI::throwUndeclaredCAsync(
+    int a, int b, int c, function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -247,46 +214,40 @@ ThrowerI::throwUndeclaredCAsync(int a, int b, int c,
         ex.cMem = c;
         throw ex;
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwLocalExceptionAsync(function<void()>,
-                                   function<void(exception_ptr)> exception,
-                                   const Ice::Current&)
+ThrowerI::throwLocalExceptionAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
         throw Ice::TimeoutException(__FILE__, __LINE__);
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwNonIceExceptionAsync(function<void()>,
-                                    function<void(exception_ptr)> exception,
-                                    const Ice::Current&)
+ThrowerI::throwNonIceExceptionAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
         throw int(12345);
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwAssertExceptionAsync(function<void()>,
-                                    function<void(exception_ptr)>,
-                                    const Ice::Current&)
+ThrowerI::throwAssertExceptionAsync(function<void()>, function<void(exception_ptr)>, const Ice::Current&)
 {
     assert(false); // No supported in C++
 }
@@ -309,17 +270,14 @@ ThrowerI::throwLocalExceptionIdempotentAsync(function<void()>,
     {
         throw Ice::TimeoutException(__FILE__, __LINE__);
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
-
 }
 
 void
-ThrowerI::throwAfterResponseAsync(function<void()> response,
-                                  function<void(exception_ptr)>,
-                                  const Ice::Current&)
+ThrowerI::throwAfterResponseAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&)
 {
     response();
 
@@ -327,15 +285,13 @@ ThrowerI::throwAfterResponseAsync(function<void()> response,
 }
 
 void
-ThrowerI::throwAfterExceptionAsync(function<void()>,
-                                   function<void(exception_ptr)> exception,
-                                   const Ice::Current&)
+ThrowerI::throwAfterExceptionAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
         throw A(12345);
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
@@ -343,30 +299,26 @@ ThrowerI::throwAfterExceptionAsync(function<void()>,
 }
 
 void
-ThrowerI::throwEAsync(function<void()>,
-                      function<void(exception_ptr)> exception,
-                      const Ice::Current&)
+ThrowerI::throwEAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
         throw E("E");
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }
 }
 
 void
-ThrowerI::throwFAsync(function<void()>,
-                      function<void(exception_ptr)> exception,
-                      const Ice::Current&)
+ThrowerI::throwFAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
         throw F("F");
     }
-    catch(...)
+    catch (...)
     {
         exception(current_exception());
     }

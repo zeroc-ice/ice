@@ -7,9 +7,7 @@
 
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI()
-{
-}
+MyDerivedClassI::MyDerivedClassI() {}
 
 Ice::ObjectPrxPtr
 MyDerivedClassI::echo(Ice::ObjectPrxPtr obj, const Ice::Current&)

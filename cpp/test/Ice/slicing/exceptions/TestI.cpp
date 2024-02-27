@@ -9,9 +9,7 @@
 using namespace std;
 using namespace Test;
 
-TestI::TestI()
-{
-}
+TestI::TestI() {}
 
 void
 TestI::baseAsBase(const ::Ice::Current&)
@@ -96,8 +94,7 @@ TestI::knownMostDerivedAsKnownIntermediate(const ::Ice::Current&)
 }
 
 void
-TestI::
-knownMostDerivedAsKnownMostDerived(const ::Ice::Current&)
+TestI::knownMostDerivedAsKnownMostDerived(const ::Ice::Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";

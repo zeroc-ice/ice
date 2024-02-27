@@ -7,50 +7,48 @@
 
 #ifdef __APPLE__
 
-#include <IceSSL/SSLEngine.h>
-#include <Ice/UniqueRef.h>
+#    include <IceSSL/SSLEngine.h>
+#    include <Ice/UniqueRef.h>
 
-#include <Security/Security.h>
-#include <Security/SecureTransport.h>
+#    include <Security/Security.h>
+#    include <Security/SecureTransport.h>
 
 namespace IceSSL
 {
 
-namespace SecureTransport
-{
+    namespace SecureTransport
+    {
 
-class SSLEngine final : public IceSSL::SSLEngine
-{
-public:
+        class SSLEngine final : public IceSSL::SSLEngine
+        {
+        public:
+            SSLEngine(const Ice::CommunicatorPtr&);
 
-    SSLEngine(const Ice::CommunicatorPtr&);
+            void initialize() final;
+            void destroy() final;
+            IceInternal::TransceiverPtr
+            createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
 
-    void initialize() final;
-    void destroy() final;
-    IceInternal::TransceiverPtr
-    createTransceiver(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool) final;
+            SSLContextRef newContext(bool);
+            CFArrayRef getCertificateAuthorities() const;
+            std::string getCipherName(SSLCipherSuite) const;
 
-    SSLContextRef newContext(bool);
-    CFArrayRef getCertificateAuthorities() const;
-    std::string getCipherName(SSLCipherSuite) const;
+        private:
+            void parseCiphers(const std::string&);
 
-private:
+            IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
+            IceInternal::UniqueRef<CFArrayRef> _chain;
 
-    void parseCiphers(const std::string&);
+            SSLProtocol _protocolVersionMax;
+            SSLProtocol _protocolVersionMin;
 
-    IceInternal::UniqueRef<CFArrayRef> _certificateAuthorities;
-    IceInternal::UniqueRef<CFArrayRef> _chain;
+#    if TARGET_OS_IPHONE == 0
+            std::vector<char> _dhParams;
+#    endif
+            std::vector<SSLCipherSuite> _ciphers;
+        };
 
-    SSLProtocol _protocolVersionMax;
-    SSLProtocol _protocolVersionMin;
-
-#if TARGET_OS_IPHONE==0
-    std::vector<char> _dhParams;
-#endif
-    std::vector<SSLCipherSuite> _ciphers;
-};
-
-} // SecureTransport namespace end
+    } // SecureTransport namespace end
 
 } // IceSSL namespace end
 

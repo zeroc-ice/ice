@@ -11,13 +11,13 @@
 namespace IcePy
 {
 
-extern PyTypeObject PropertiesType;
+    extern PyTypeObject PropertiesType;
 
-bool initProperties(PyObject*);
+    bool initProperties(PyObject*);
 
-PyObject* createProperties(const Ice::PropertiesPtr&);
+    PyObject* createProperties(const Ice::PropertiesPtr&);
 
-Ice::PropertiesPtr getProperties(PyObject*);
+    Ice::PropertiesPtr getProperties(PyObject*);
 
 }
 

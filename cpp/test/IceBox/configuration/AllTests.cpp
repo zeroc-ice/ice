@@ -18,7 +18,7 @@ allTests(Test::TestHelper* helper)
     TestIntfPrxPtr service3 = Ice::uncheckedCast<TestIntfPrx>(com->stringToProxy("test:" + helper->getTestEndpoint(2)));
     TestIntfPrxPtr service4 = Ice::uncheckedCast<TestIntfPrx>(com->stringToProxy("test:" + helper->getTestEndpoint(3)));
 
-    if(service1->getProperty("IceBox.InheritProperties") == "")
+    if (service1->getProperty("IceBox.InheritProperties") == "")
     {
         cout << "testing service properties... " << flush;
 

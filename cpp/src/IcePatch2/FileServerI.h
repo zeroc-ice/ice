@@ -11,50 +11,41 @@
 namespace IcePatch2
 {
 
-class FileServerI : public FileServer
-{
-public:
+    class FileServerI : public FileServer
+    {
+    public:
+        FileServerI(const std::string&, const LargeFileInfoSeq&);
 
-    FileServerI(const std::string&, const LargeFileInfoSeq&);
+        FileInfoSeq getFileInfoSeq(std::int32_t, const Ice::Current&) const;
 
-    FileInfoSeq getFileInfoSeq(std::int32_t, const Ice::Current&) const;
+        LargeFileInfoSeq getLargeFileInfoSeq(std::int32_t, const Ice::Current&) const;
 
-    LargeFileInfoSeq
-    getLargeFileInfoSeq(std::int32_t, const Ice::Current&) const;
+        ByteSeqSeq getChecksumSeq(const Ice::Current&) const;
 
-    ByteSeqSeq getChecksumSeq(const Ice::Current&) const;
+        Ice::ByteSeq getChecksum(const Ice::Current&) const;
 
-    Ice::ByteSeq getChecksum(const Ice::Current&) const;
+        void
+        getFileCompressedAsync(std::string,
+                               std::int32_t,
+                               std::int32_t,
+                               std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+                               std::function<void(std::exception_ptr)>,
+                               const Ice::Current&) const;
 
-    void getFileCompressedAsync(
-        std::string,
-        std::int32_t,
-        std::int32_t,
-        std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) const;
+        void getLargeFileCompressedAsync(
+            std::string,
+            std::int64_t,
+            std::int32_t,
+            std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const;
 
-    void getLargeFileCompressedAsync(
-        std::string,
-        std::int64_t,
-        std::int32_t,
-        std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
-        std::function<void(std::exception_ptr)>,
-        const Ice::Current&) const;
+    private:
+        void getFileCompressedInternal(std::string, std::int64_t, std::int32_t, std::vector<Ice::Byte>&, bool) const;
 
-private:
-
-    void
-    getFileCompressedInternal(
-        std::string,
-        std::int64_t,
-        std::int32_t,
-        std::vector<Ice::Byte>&,
-        bool) const;
-
-    const std::string _dataDir;
-    const IcePatch2Internal::FileTree0 _tree0;
-};
+        const std::string _dataDir;
+        const IcePatch2Internal::FileTree0 _tree0;
+    };
 
 }
 

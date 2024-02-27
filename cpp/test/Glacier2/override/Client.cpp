@@ -18,7 +18,6 @@ using namespace Test;
 class CallbackClient final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -53,14 +52,13 @@ CallbackClient::run(int argc, char** argv)
     Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;
-    auto twowayR =
-        uncheckedCast<CallbackReceiverPrx>(adapter->add(callbackReceiver, callbackReceiverIdent));
+    auto twowayR = uncheckedCast<CallbackReceiverPrx>(adapter->add(callbackReceiver, callbackReceiverIdent));
     auto onewayR = twowayR->ice_oneway();
 
     {
         cout << "testing client request override... " << flush;
         {
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 oneway->initiateCallback(twowayR, 0);
                 oneway->initiateCallback(twowayR, 0);
@@ -71,7 +69,7 @@ CallbackClient::run(int argc, char** argv)
         {
             Ice::Context ctx;
             ctx["_ovrd"] = "test";
-            for(int i = 0; i < 5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 oneway->initiateCallback(twowayR, i, ctx);
                 oneway->initiateCallback(twowayR, i, ctx);
@@ -87,7 +85,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing server request override... " << flush;
         Ice::Context ctx;
         ctx["serverOvrd"] = "test";
-        for(int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
             oneway->initiateCallback(onewayR, i, ctx);
             oneway->initiateCallback(onewayR, i, ctx);
@@ -119,8 +117,7 @@ CallbackClient::run(int argc, char** argv)
             test(callbackReceiver->callbackOK(1, 0) == 0);
             count = callbackReceiver->callbackWithPayloadOK(0);
             callbackReceiver->callbackWithPayloadOK(count);
-        }
-        while(count == 10 && nRetry++ < 10);
+        } while (count == 10 && nRetry++ < 10);
         test(count < 10);
 
         oneway->initiateCallbackWithPayload(twowayR);
@@ -147,7 +144,7 @@ CallbackClient::run(int argc, char** argv)
         // time to receive this (these) extra callback(s).
         //
         test(remainingCallbacks <= 4);
-        if(remainingCallbacks > 0)
+        if (remainingCallbacks > 0)
         {
             test(callbackReceiver->callbackOK(remainingCallbacks, 0) == 0);
         }
@@ -170,7 +167,7 @@ CallbackClient::run(int argc, char** argv)
         // Unlikely but sometime we get more than just one callback if the flush
         // occurs in the middle of our 5 callbacks.
         test(remainingCallbacks <= 3);
-        if(remainingCallbacks > 0)
+        if (remainingCallbacks > 0)
         {
             test(callbackReceiver->callbackOK(remainingCallbacks, 0) == 0);
         }
@@ -186,7 +183,7 @@ CallbackClient::run(int argc, char** argv)
         {
             router->destroySession();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             test(false);
         }
@@ -200,7 +197,7 @@ CallbackClient::run(int argc, char** argv)
             process->ice_ping();
             test(false);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             cout << "ok" << endl;
         }

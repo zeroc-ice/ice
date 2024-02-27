@@ -13,7 +13,6 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -27,14 +26,14 @@ Server::run(int argc, char** argv)
     test(value != 0 && string(value) == "12");
 
     ifstream in("envs");
-    if(!in)
+    if (!in)
     {
         test(false);
     }
     string unicodeVar;
     string varname1;
     string varname2;
-    if(!getline(in, unicodeVar) || !getline(in, varname1) || !getline(in, varname2))
+    if (!getline(in, unicodeVar) || !getline(in, varname1) || !getline(in, varname2))
     {
         test(false);
     }
@@ -55,7 +54,7 @@ Server::run(int argc, char** argv)
 
 #else
     char* value2 = getenv("MY_ENV_UNICODE_VARIABLE");
-    test(value2 !=0 && string(value2) == unicodeVar);
+    test(value2 != 0 && string(value2) == unicodeVar);
 
     char* value3 = getenv(varname1.c_str());
     test(value3 != 0 && string(value3) == "1");
@@ -73,7 +72,7 @@ Server::run(int argc, char** argv)
     string name = properties->getProperty("Ice.ProgramName");
     Ice::ObjectAdapterPtr adapter;
 
-    if(!properties->getProperty("ReplicatedAdapter").empty())
+    if (!properties->getProperty("ReplicatedAdapter").empty())
     {
         adapter = communicator->createObjectAdapter("ReplicatedAdapter");
         adapter->activate();
@@ -85,7 +84,7 @@ Server::run(int argc, char** argv)
     {
         adapter->activate();
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
     }
     communicator->waitForShutdown();

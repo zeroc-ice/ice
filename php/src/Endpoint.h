@@ -10,12 +10,12 @@
 namespace IcePHP
 {
 
-bool endpointInit(void);
+    bool endpointInit(void);
 
-bool createEndpoint(zval*, const Ice::EndpointPtr&);
-bool fetchEndpoint(zval*, Ice::EndpointPtr&);
+    bool createEndpoint(zval*, const Ice::EndpointPtr&);
+    bool fetchEndpoint(zval*, Ice::EndpointPtr&);
 
-bool createEndpointInfo(zval*, const Ice::EndpointInfoPtr&);
+    bool createEndpointInfo(zval*, const Ice::EndpointInfoPtr&);
 
 } // End of namespace IcePHP
 

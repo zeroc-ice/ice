@@ -110,11 +110,11 @@ bool
 IceInternal::Reference::getCompressOverride(bool& compress) const
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-    if(defaultsAndOverrides->overrideCompress)
+    if (defaultsAndOverrides->overrideCompress)
     {
         compress = defaultsAndOverrides->overrideCompressValue;
     }
-    else if(_overrideCompress)
+    else if (_overrideCompress)
     {
         compress = _compress;
     }
@@ -129,7 +129,7 @@ int32_t
 Reference::hash() const
 {
     lock_guard lock(_hashMutex);
-    if(!_hashInitialized)
+    if (!_hashInitialized)
     {
         _hashValue = hashInit();
         _hashInitialized = true;
@@ -148,7 +148,7 @@ IceInternal::Reference::streamWrite(OutputStream* s) const
     //
     // For compatibility with the old FacetPath.
     //
-    if(_facet.empty())
+    if (_facet.empty())
     {
         s->write(static_cast<string*>(0), static_cast<string*>(0));
     }
@@ -161,7 +161,7 @@ IceInternal::Reference::streamWrite(OutputStream* s) const
 
     s->write(_secure);
 
-    if(s->getEncoding() != Ice::Encoding_1_0)
+    if (s->getEncoding() != Ice::Encoding_1_0)
     {
         s->write(_protocol);
         s->write(_encoding);
@@ -193,7 +193,7 @@ IceInternal::Reference::toString() const
     // the identity string in quotes.
     //
 
-    if(id.find_first_of(separators) != string::npos)
+    if (id.find_first_of(separators) != string::npos)
     {
         s << '"' << id << '"';
     }
@@ -202,7 +202,7 @@ IceInternal::Reference::toString() const
         s << id;
     }
 
-    if(!_facet.empty())
+    if (!_facet.empty())
     {
         s << " -f ";
 
@@ -212,7 +212,7 @@ IceInternal::Reference::toString() const
         // the reference parser uses as separators, then we enclose
         // the facet string in quotes.
         //
-        if(fs.find_first_of(separators) != string::npos)
+        if (fs.find_first_of(separators) != string::npos)
         {
             s << '"' << fs << '"';
         }
@@ -222,7 +222,7 @@ IceInternal::Reference::toString() const
         }
     }
 
-    switch(_mode)
+    switch (_mode)
     {
         case ModeTwoway:
         {
@@ -255,12 +255,12 @@ IceInternal::Reference::toString() const
         }
     }
 
-    if(_secure)
+    if (_secure)
     {
         s << " -s";
     }
 
-    if(_protocol != Ice::Protocol_1_0)
+    if (_protocol != Ice::Protocol_1_0)
     {
         //
         // We only print the protocol if it's not 1.0. It's fine as
@@ -290,47 +290,47 @@ IceInternal::Reference::operator==(const Reference& r) const
     // Note: if(this == &r) test is performed by each non-abstract derived class.
     //
 
-    if(_mode != r._mode)
+    if (_mode != r._mode)
     {
         return false;
     }
 
-    if(_secure != r._secure)
+    if (_secure != r._secure)
     {
         return false;
     }
 
-    if(_identity != r._identity)
+    if (_identity != r._identity)
     {
         return false;
     }
 
-    if(_context->getValue() != r._context->getValue())
+    if (_context->getValue() != r._context->getValue())
     {
         return false;
     }
 
-    if(_facet != r._facet)
+    if (_facet != r._facet)
     {
         return false;
     }
 
-    if((_overrideCompress != r._overrideCompress) || (_overrideCompress && _compress != r._compress))
+    if ((_overrideCompress != r._overrideCompress) || (_overrideCompress && _compress != r._compress))
     {
         return false;
     }
 
-    if(_protocol != r._protocol)
+    if (_protocol != r._protocol)
     {
         return false;
     }
 
-    if(_encoding != r._encoding)
+    if (_encoding != r._encoding)
     {
         return false;
     }
 
-    if(_invocationTimeout != r._invocationTimeout)
+    if (_invocationTimeout != r._invocationTimeout)
     {
         return false;
     }
@@ -344,94 +344,94 @@ IceInternal::Reference::operator<(const Reference& r) const
     // Note: if(this == &r) test is performed by each non-abstract derived class.
     //
 
-    if(_mode < r._mode)
+    if (_mode < r._mode)
     {
         return true;
     }
-    else if(r._mode < _mode)
+    else if (r._mode < _mode)
     {
         return false;
     }
 
-    if(_identity < r._identity)
+    if (_identity < r._identity)
     {
         return true;
     }
-    else if(r._identity < _identity)
+    else if (r._identity < _identity)
     {
         return false;
     }
 
-    if(_context->getValue() < r._context->getValue())
+    if (_context->getValue() < r._context->getValue())
     {
         return true;
     }
-    else if(r._context->getValue() < _context->getValue())
+    else if (r._context->getValue() < _context->getValue())
     {
         return false;
     }
 
-    if(_facet < r._facet)
+    if (_facet < r._facet)
     {
         return true;
     }
-    else if(r._facet < _facet)
+    else if (r._facet < _facet)
     {
         return false;
     }
 
-    if(!_overrideCompress && r._overrideCompress)
+    if (!_overrideCompress && r._overrideCompress)
     {
         return true;
     }
-    else if(r._overrideCompress < _overrideCompress)
+    else if (r._overrideCompress < _overrideCompress)
     {
         return false;
     }
-    else if(_overrideCompress)
+    else if (_overrideCompress)
     {
-        if(!_compress && r._compress)
+        if (!_compress && r._compress)
         {
             return true;
         }
-        else if(r._compress < _compress)
+        else if (r._compress < _compress)
         {
             return false;
         }
     }
 
-    if(!_secure && r._secure)
+    if (!_secure && r._secure)
     {
         return true;
     }
-    else if(r._secure < _secure)
+    else if (r._secure < _secure)
     {
         return false;
     }
 
-    if(_protocol < r._protocol)
+    if (_protocol < r._protocol)
     {
         return true;
     }
-    else if(r._protocol < _protocol)
+    else if (r._protocol < _protocol)
     {
         return false;
     }
 
-    if(_encoding < r._encoding)
+    if (_encoding < r._encoding)
     {
         return true;
     }
-    else if(r._encoding < _encoding)
+    else if (r._encoding < _encoding)
     {
         return false;
     }
 
-    if(_invocationTimeout < r._invocationTimeout)
+    if (_invocationTimeout < r._invocationTimeout)
     {
         return true;
     }
-    else if(r._invocationTimeout < _invocationTimeout)
+    else if (r._invocationTimeout < _invocationTimeout)
     {
         return false;
     }
@@ -448,38 +448,38 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
                                   const ProtocolVersion& protocol,
                                   const EncodingVersion& encoding,
                                   int invocationTimeout,
-                                  const Ice::Context& ctx) :
-    _instance(instance),
-    _overrideCompress(false),
-    _compress(false),
-    _communicator(communicator),
-    _mode(mode),
-    _secure(secure),
-    _identity(id),
-    _context(make_shared<SharedContext>(ctx)),
-    _facet(facet),
-    _hashInitialized(false),
-    _protocol(protocol),
-    _encoding(encoding),
-    _invocationTimeout(invocationTimeout)
+                                  const Ice::Context& ctx)
+    : _instance(instance),
+      _overrideCompress(false),
+      _compress(false),
+      _communicator(communicator),
+      _mode(mode),
+      _secure(secure),
+      _identity(id),
+      _context(make_shared<SharedContext>(ctx)),
+      _facet(facet),
+      _hashInitialized(false),
+      _protocol(protocol),
+      _encoding(encoding),
+      _invocationTimeout(invocationTimeout)
 {
 }
 
-IceInternal::Reference::Reference(const Reference& r) :
-    enable_shared_from_this<Reference>(),
-    _instance(r._instance),
-    _overrideCompress(r._overrideCompress),
-    _compress(r._compress),
-    _communicator(r._communicator),
-    _mode(r._mode),
-    _secure(r._secure),
-    _identity(r._identity),
-    _context(r._context),
-    _facet(r._facet),
-    _hashInitialized(false),
-    _protocol(r._protocol),
-    _encoding(r._encoding),
-    _invocationTimeout(r._invocationTimeout)
+IceInternal::Reference::Reference(const Reference& r)
+    : enable_shared_from_this<Reference>(),
+      _instance(r._instance),
+      _overrideCompress(r._overrideCompress),
+      _compress(r._compress),
+      _communicator(r._communicator),
+      _mode(r._mode),
+      _secure(r._secure),
+      _identity(r._identity),
+      _context(r._context),
+      _facet(r._facet),
+      _hashInitialized(false),
+      _protocol(r._protocol),
+      _encoding(r._encoding),
+      _invocationTimeout(r._invocationTimeout)
 {
 }
 
@@ -494,7 +494,7 @@ IceInternal::Reference::hashInit() const
     hashAdd(h, _context->getValue());
     hashAdd(h, _facet);
     hashAdd(h, _overrideCompress);
-    if(_overrideCompress)
+    if (_overrideCompress)
     {
         hashAdd(h, _compress);
     }
@@ -517,11 +517,11 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
                                             const ConnectionIPtr& fixedConnection,
                                             int invocationTimeout,
                                             const Ice::Context& context,
-                                            const optional<bool>& compress) :
-    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
-    _fixedConnection(fixedConnection)
+                                            const optional<bool>& compress)
+    : Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
+      _fixedConnection(fixedConnection)
 {
-    if(compress)
+    if (compress)
     {
         _overrideCompress = true;
         _compress = *compress;
@@ -692,7 +692,7 @@ IceInternal::FixedReference::getRequestHandler() const
         case Reference::ModeOneway:
         case Reference::ModeBatchOneway:
         {
-            if(_fixedConnection->endpoint()->datagram())
+            if (_fixedConnection->endpoint()->datagram())
             {
                 throw NoEndpointException(__FILE__, __LINE__, toString());
             }
@@ -702,7 +702,7 @@ IceInternal::FixedReference::getRequestHandler() const
         case Reference::ModeDatagram:
         case Reference::ModeBatchDatagram:
         {
-            if(!_fixedConnection->endpoint()->datagram())
+            if (!_fixedConnection->endpoint()->datagram())
             {
                 throw NoEndpointException(__FILE__, __LINE__, toString());
             }
@@ -716,7 +716,7 @@ IceInternal::FixedReference::getRequestHandler() const
     //
     bool secure;
     DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
-    if(defaultsAndOverrides->overrideSecure)
+    if (defaultsAndOverrides->overrideSecure)
     {
         secure = defaultsAndOverrides->overrideSecureValue;
     }
@@ -724,7 +724,7 @@ IceInternal::FixedReference::getRequestHandler() const
     {
         secure = getSecure();
     }
-    if(secure && !_fixedConnection->endpoint()->secure())
+    if (secure && !_fixedConnection->endpoint()->secure())
     {
         throw NoEndpointException(__FILE__, __LINE__, toString());
     }
@@ -732,11 +732,11 @@ IceInternal::FixedReference::getRequestHandler() const
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
 
     bool compress = false;
-    if(defaultsAndOverrides->overrideCompress)
+    if (defaultsAndOverrides->overrideCompress)
     {
         compress = defaultsAndOverrides->overrideCompressValue;
     }
-    else if(_overrideCompress)
+    else if (_overrideCompress)
     {
         compress = _compress;
     }
@@ -754,12 +754,12 @@ IceInternal::FixedReference::getBatchRequestQueue() const
 bool
 IceInternal::FixedReference::operator==(const Reference& r) const
 {
-    if(this == &r)
+    if (this == &r)
     {
         return true;
     }
     const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
-    if(!rhs || !Reference::operator==(r))
+    if (!rhs || !Reference::operator==(r))
     {
         return false;
     }
@@ -769,21 +769,21 @@ IceInternal::FixedReference::operator==(const Reference& r) const
 bool
 IceInternal::FixedReference::operator<(const Reference& r) const
 {
-    if(this == &r)
+    if (this == &r)
     {
         return false;
     }
-    if(Reference::operator<(r))
+    if (Reference::operator<(r))
     {
         return true;
     }
-    if(!Reference::operator==(r))
+    if (!Reference::operator==(r))
     {
         return false;
     }
 
     const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
-    if(!rhs)
+    if (!rhs)
     {
         assert(dynamic_cast<const RoutableReference*>(&r));
         return false; // As a rule, routable references are superior to fixed references.
@@ -797,9 +797,9 @@ IceInternal::FixedReference::clone() const
     return make_shared<FixedReference>(*this);
 }
 
-IceInternal::FixedReference::FixedReference(const FixedReference& r) :
-    Reference(r),
-    _fixedConnection(r._fixedConnection)
+IceInternal::FixedReference::FixedReference(const FixedReference& r)
+    : Reference(r),
+      _fixedConnection(r._fixedConnection)
 {
 }
 
@@ -821,19 +821,19 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
                                                   EndpointSelectionType endpointSelection,
                                                   int locatorCacheTimeout,
                                                   int invocationTimeout,
-                                                  const Ice::Context& ctx) :
-    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, ctx),
-    _endpoints(endpoints),
-    _adapterId(adapterId),
-    _locatorInfo(locatorInfo),
-    _routerInfo(routerInfo),
-    _collocationOptimized(collocationOptimized),
-    _cacheConnection(cacheConnection),
-    _preferSecure(preferSecure),
-    _endpointSelection(endpointSelection),
-    _locatorCacheTimeout(locatorCacheTimeout),
-    _overrideTimeout(false),
-    _timeout(-1)
+                                                  const Ice::Context& ctx)
+    : Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, ctx),
+      _endpoints(endpoints),
+      _adapterId(adapterId),
+      _locatorInfo(locatorInfo),
+      _routerInfo(routerInfo),
+      _collocationOptimized(collocationOptimized),
+      _cacheConnection(cacheConnection),
+      _preferSecure(preferSecure),
+      _endpointSelection(endpointSelection),
+      _locatorCacheTimeout(locatorCacheTimeout),
+      _overrideTimeout(false),
+      _timeout(-1)
 {
     assert(_adapterId.empty() || _endpoints.empty());
     setBatchRequestQueue();
@@ -917,10 +917,10 @@ ReferencePtr
 IceInternal::RoutableReference::changeEncoding(const Ice::EncodingVersion& encoding) const
 {
     ReferencePtr r = Reference::changeEncoding(encoding);
-    if(r.get() != const_cast<RoutableReference*>(this))
+    if (r.get() != const_cast<RoutableReference*>(this))
     {
         LocatorInfoPtr& locInfo = dynamic_pointer_cast<RoutableReference>(r)->_locatorInfo;
-        if(locInfo && locInfo->getLocator()->ice_getEncodingVersion() != encoding)
+        if (locInfo && locInfo->getLocator()->ice_getEncodingVersion() != encoding)
         {
             locInfo = getInstance()->locatorManager()->get(locInfo->getLocator()->ice_encodingVersion(encoding));
         }
@@ -933,10 +933,10 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
 {
     ReferencePtr r = Reference::changeCompress(newCompress);
     // Also override the compress flag on the endpoints if it was updated.
-    if(r.get() != const_cast<RoutableReference*>(this) && !_endpoints.empty())
+    if (r.get() != const_cast<RoutableReference*>(this) && !_endpoints.empty())
     {
         vector<EndpointIPtr> newEndpoints;
-        for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             newEndpoints.push_back((*p)->compress(newCompress));
         }
@@ -967,8 +967,7 @@ IceInternal::RoutableReference::changeAdapterId(const string& newAdapterId) cons
 ReferencePtr
 IceInternal::RoutableReference::changeLocator(const optional<LocatorPrx>& newLocator) const
 {
-    LocatorInfoPtr newLocatorInfo = newLocator ?
-        getInstance()->locatorManager()->get(newLocator.value()) : nullptr;
+    LocatorInfoPtr newLocatorInfo = newLocator ? getInstance()->locatorManager()->get(newLocator.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_locatorInfo = newLocatorInfo;
     return r;
@@ -977,8 +976,7 @@ IceInternal::RoutableReference::changeLocator(const optional<LocatorPrx>& newLoc
 ReferencePtr
 IceInternal::RoutableReference::changeRouter(const optional<RouterPrx>& newRouter) const
 {
-    RouterInfoPtr newRouterInfo = newRouter ?
-        getInstance()->routerManager()->get(newRouter.value()) : nullptr;
+    RouterInfoPtr newRouterInfo = newRouter ? getInstance()->routerManager()->get(newRouter.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_routerInfo = newRouterInfo;
     return r;
@@ -1030,10 +1028,10 @@ IceInternal::RoutableReference::changeTimeout(int newTimeout) const
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_timeout = newTimeout;
     r->_overrideTimeout = true;
-    if(!_endpoints.empty()) // Also override the timeout on the endpoints.
+    if (!_endpoints.empty()) // Also override the timeout on the endpoints.
     {
         vector<EndpointIPtr> newEndpoints;
-        for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             newEndpoints.push_back((*p)->timeout(newTimeout));
         }
@@ -1047,10 +1045,10 @@ IceInternal::RoutableReference::changeConnectionId(const string& id) const
 {
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_connectionId = id;
-    if(!_endpoints.empty()) // Also override the connection id on the endpoints.
+    if (!_endpoints.empty()) // Also override the connection id on the endpoints.
     {
         vector<EndpointIPtr> newEndpoints;
-        for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             newEndpoints.push_back((*p)->connectionId(id));
         }
@@ -1062,19 +1060,9 @@ IceInternal::RoutableReference::changeConnectionId(const string& id) const
 ReferencePtr
 IceInternal::RoutableReference::changeConnection(const Ice::ConnectionIPtr& connection) const
 {
-    return make_shared<FixedReference>(
-                              getInstance(),
-                              getCommunicator(),
-                              getIdentity(),
-                              getFacet(),
-                              getMode(),
-                              getSecure(),
-                              getProtocol(),
-                              getEncoding(),
-                              connection,
-                              getInvocationTimeout(),
-                              getContext()->getValue(),
-                              getCompress());
+    return make_shared<FixedReference>(getInstance(), getCommunicator(), getIdentity(), getFacet(), getMode(),
+                                       getSecure(), getProtocol(), getEncoding(), connection, getInvocationTimeout(),
+                                       getContext()->getValue(), getCompress());
 }
 
 bool
@@ -1096,10 +1084,10 @@ IceInternal::RoutableReference::streamWrite(OutputStream* s) const
 
     int32_t sz = static_cast<int32_t>(_endpoints.size());
     s->writeSize(sz);
-    if(sz)
+    if (sz)
     {
         assert(_adapterId.empty());
-        for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             s->write((*p)->type());
             (*p)->streamWrite(s);
@@ -1123,19 +1111,19 @@ IceInternal::RoutableReference::toString() const
     //
     string result = Reference::toString();
 
-    if(!_endpoints.empty())
+    if (!_endpoints.empty())
     {
-        for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             string endp = (*p)->toString();
-            if(!endp.empty())
+            if (!endp.empty())
             {
                 result.append(":");
                 result.append(endp);
             }
         }
     }
-    else if(!_adapterId.empty())
+    else if (!_adapterId.empty())
     {
         result.append(" @ ");
 
@@ -1145,7 +1133,7 @@ IceInternal::RoutableReference::toString() const
         // adapter id string in quotes.
         //
         string a = escapeString(_adapterId, "", getInstance()->toStringMode());
-        if(a.find_first_of(" :@") != string::npos)
+        if (a.find_first_of(" :@") != string::npos)
         {
             result.append("\"");
             result.append(a);
@@ -1172,7 +1160,8 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
     properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
-    properties[prefix + ".EndpointSelection"] = _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
+    properties[prefix + ".EndpointSelection"] =
+        _endpointSelection == EndpointSelectionType::Random ? "Random" : "Ordered";
     {
         ostringstream s;
         s << _locatorCacheTimeout;
@@ -1183,19 +1172,19 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
         s << getInvocationTimeout();
         properties[prefix + ".InvocationTimeout"] = s.str();
     }
-    if(_routerInfo)
+    if (_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
-        for(PropertyDict::const_iterator p = routerProperties.begin(); p != routerProperties.end(); ++p)
+        for (PropertyDict::const_iterator p = routerProperties.begin(); p != routerProperties.end(); ++p)
         {
             properties[p->first] = p->second;
         }
     }
 
-    if(_locatorInfo)
+    if (_locatorInfo)
     {
         PropertyDict locatorProperties = _locatorInfo->getLocator()->_getReference()->toProperty(prefix + ".Locator");
-        for(PropertyDict::const_iterator p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
+        for (PropertyDict::const_iterator p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
         {
             properties[p->first] = p->second;
         }
@@ -1218,45 +1207,45 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     //
     // Note: if(this == &r) test is performed by each non-abstract derived class.
     //
-    if(this == &r)
+    if (this == &r)
     {
         return true;
     }
 
     const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
-    if(!rhs || !Reference::operator==(r))
+    if (!rhs || !Reference::operator==(r))
     {
         return false;
     }
-    if(_preferSecure != rhs->_preferSecure)
+    if (_preferSecure != rhs->_preferSecure)
     {
         return false;
     }
-    if(_collocationOptimized != rhs->_collocationOptimized)
+    if (_collocationOptimized != rhs->_collocationOptimized)
     {
         return false;
     }
-    if(_cacheConnection != rhs->_cacheConnection)
+    if (_cacheConnection != rhs->_cacheConnection)
     {
         return false;
     }
-    if(_endpointSelection != rhs->_endpointSelection)
+    if (_endpointSelection != rhs->_endpointSelection)
     {
         return false;
     }
-    if(_connectionId != rhs->_connectionId)
+    if (_connectionId != rhs->_connectionId)
     {
         return false;
     }
-    if((_overrideTimeout != rhs->_overrideTimeout) || (_overrideTimeout && _timeout != rhs->_timeout))
+    if ((_overrideTimeout != rhs->_overrideTimeout) || (_overrideTimeout && _timeout != rhs->_timeout))
     {
         return false;
     }
-    if(!Ice::targetEqualTo(_routerInfo, rhs->_routerInfo))
+    if (!Ice::targetEqualTo(_routerInfo, rhs->_routerInfo))
     {
         return false;
     }
-    if(!Ice::targetEqualTo(_locatorInfo, rhs->_locatorInfo))
+    if (!Ice::targetEqualTo(_locatorInfo, rhs->_locatorInfo))
     {
         return false;
     }
@@ -1265,16 +1254,17 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     // TODO: With C++14 we could use the version that receives four iterators and we don't need to explicitly
     // check the sizes are equal.
     //
-    if(_endpoints.size() != rhs->_endpoints.size() ||
-       !equal(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), Ice::TargetCompare<shared_ptr<EndpointI>, std::equal_to>()))
+    if (_endpoints.size() != rhs->_endpoints.size() ||
+        !equal(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(),
+               Ice::TargetCompare<shared_ptr<EndpointI>, std::equal_to>()))
     {
         return false;
     }
-    if(_adapterId != rhs->_adapterId)
+    if (_adapterId != rhs->_adapterId)
     {
         return false;
     }
-    if(_locatorCacheTimeout != rhs->_locatorCacheTimeout)
+    if (_locatorCacheTimeout != rhs->_locatorCacheTimeout)
     {
         return false;
     }
@@ -1284,124 +1274,124 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
 bool
 IceInternal::RoutableReference::operator<(const Reference& r) const
 {
-    if(this == &r)
+    if (this == &r)
     {
         return false;
     }
 
-    if(Reference::operator<(r))
+    if (Reference::operator<(r))
     {
         return true;
     }
-    else if(!Reference::operator==(r))
+    else if (!Reference::operator==(r))
     {
         return false;
     }
 
     const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
-    if(!rhs)
+    if (!rhs)
     {
         assert(dynamic_cast<const FixedReference*>(&r));
         return true; // As a rule, routable references are superior to fixed references.
     }
 
-    if(!_preferSecure && rhs->_preferSecure)
+    if (!_preferSecure && rhs->_preferSecure)
     {
         return true;
     }
-    else if(rhs->_preferSecure < _preferSecure)
+    else if (rhs->_preferSecure < _preferSecure)
     {
         return false;
     }
-    if(!_collocationOptimized && rhs->_collocationOptimized)
+    if (!_collocationOptimized && rhs->_collocationOptimized)
     {
         return true;
     }
-    else if(rhs->_collocationOptimized < _collocationOptimized)
+    else if (rhs->_collocationOptimized < _collocationOptimized)
     {
         return false;
     }
-    if(!_cacheConnection && rhs->_cacheConnection)
+    if (!_cacheConnection && rhs->_cacheConnection)
     {
         return true;
     }
-    else if(rhs->_cacheConnection < _cacheConnection)
+    else if (rhs->_cacheConnection < _cacheConnection)
     {
         return false;
     }
-    if(_endpointSelection < rhs->_endpointSelection)
+    if (_endpointSelection < rhs->_endpointSelection)
     {
         return true;
     }
-    else if(rhs->_endpointSelection < _endpointSelection)
+    else if (rhs->_endpointSelection < _endpointSelection)
     {
         return false;
     }
-    if(_connectionId < rhs->_connectionId)
+    if (_connectionId < rhs->_connectionId)
     {
         return true;
     }
-    else if(rhs->_connectionId < _connectionId)
+    else if (rhs->_connectionId < _connectionId)
     {
         return false;
     }
-    if(!_overrideTimeout && rhs->_overrideTimeout)
+    if (!_overrideTimeout && rhs->_overrideTimeout)
     {
         return true;
     }
-    else if(rhs->_overrideTimeout < _overrideTimeout)
+    else if (rhs->_overrideTimeout < _overrideTimeout)
     {
         return false;
     }
-    else if(_overrideTimeout)
+    else if (_overrideTimeout)
     {
-        if(_timeout < rhs->_timeout)
+        if (_timeout < rhs->_timeout)
         {
             return true;
         }
-        else if(rhs->_timeout < _timeout)
+        else if (rhs->_timeout < _timeout)
         {
             return false;
         }
     }
-    if(Ice::targetLess(_routerInfo, rhs->_routerInfo))
+    if (Ice::targetLess(_routerInfo, rhs->_routerInfo))
     {
         return true;
     }
-    else if(Ice::targetLess(rhs->_routerInfo, _routerInfo))
+    else if (Ice::targetLess(rhs->_routerInfo, _routerInfo))
     {
         return false;
     }
-    if(Ice::targetLess(_locatorInfo, rhs->_locatorInfo))
+    if (Ice::targetLess(_locatorInfo, rhs->_locatorInfo))
     {
         return true;
     }
-    else if(Ice::targetLess(rhs->_locatorInfo, _locatorInfo))
+    else if (Ice::targetLess(rhs->_locatorInfo, _locatorInfo))
     {
         return false;
     }
-    if(_adapterId < rhs->_adapterId)
+    if (_adapterId < rhs->_adapterId)
     {
         return true;
     }
-    else if(rhs->_adapterId < _adapterId)
+    else if (rhs->_adapterId < _adapterId)
     {
         return false;
     }
-    if(lexicographical_compare(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(),
-                               Ice::TargetCompare<shared_ptr<EndpointI>, std::less>()))
+    if (lexicographical_compare(_endpoints.begin(), _endpoints.end(), rhs->_endpoints.begin(), rhs->_endpoints.end(),
+                                Ice::TargetCompare<shared_ptr<EndpointI>, std::less>()))
     {
         return true;
     }
-    else if(rhs->_endpoints < _endpoints)
+    else if (rhs->_endpoints < _endpoints)
     {
         return false;
     }
-    if(_locatorCacheTimeout < rhs->_locatorCacheTimeout)
+    if (_locatorCacheTimeout < rhs->_locatorCacheTimeout)
     {
         return true;
     }
-    else if(rhs->_locatorCacheTimeout < _locatorCacheTimeout)
+    else if (rhs->_locatorCacheTimeout < _locatorCacheTimeout)
     {
         return false;
     }
@@ -1422,22 +1412,16 @@ IceInternal::RoutableReference::getRequestHandler() const
     if (_collocationOptimized)
     {
         Ice::ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->findObjectAdapter(self);
-        if(adapter)
+        if (adapter)
         {
             return make_shared<CollocatedRequestHandler>(self, adapter);
         }
     }
 
     ConnectRequestHandlerPtr handler = make_shared<ConnectRequestHandler>(self);
-    getConnectionAsync(
-        [handler](Ice::ConnectionIPtr connection, bool compress)
-        {
-            handler->setConnection(connection, compress);
-        },
-        [handler](exception_ptr ex)
-        {
-            handler->setException(ex);
-        });
+    getConnectionAsync([handler](Ice::ConnectionIPtr connection, bool compress)
+                       { handler->setConnection(connection, compress); },
+                       [handler](exception_ptr ex) { handler->setException(ex); });
 
     return handler;
 }
@@ -1449,11 +1433,10 @@ IceInternal::RoutableReference::getBatchRequestQueue() const
 }
 
 void
-IceInternal::RoutableReference::getConnectionAsync(
-    function<void(ConnectionIPtr, bool)> response,
-    function<void(std::exception_ptr)> exception) const
+IceInternal::RoutableReference::getConnectionAsync(function<void(ConnectionIPtr, bool)> response,
+                                                   function<void(std::exception_ptr)> exception) const
 {
-    if(_routerInfo)
+    if (_routerInfo)
     {
         // If we route, we send everything to the router's client proxy endpoints.
         auto self = dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
@@ -1479,14 +1462,12 @@ IceInternal::RoutableReference::getConnectionAsync(
 }
 
 void
-IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
-    function<void(ConnectionIPtr, bool)> response,
-    function<void(std::exception_ptr)> exception) const
+IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(function<void(ConnectionIPtr, bool)> response,
+                                                               function<void(std::exception_ptr)> exception) const
 {
     class Callback final : public LocatorInfo::GetEndpointsCallback
     {
     public:
-
         void setEndpoints(const vector<EndpointIPtr>& endpoints, bool cached) final
         {
             if (endpoints.empty())
@@ -1498,8 +1479,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
             vector<EndpointIPtr> endpts = endpoints;
             _reference->applyOverrides(endpts);
             _reference->createConnectionAsync(
-                endpts,
-                _response,
+                endpts, _response,
                 [reference = _reference, response = _response, exception = _exception, cached](std::exception_ptr exc)
                 {
                     try
@@ -1518,11 +1498,12 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
                         if (cached)
                         {
                             TraceLevelsPtr traceLvls = reference->getInstance()->traceLevels();
-                            if(traceLvls->retry >= 2)
+                            if (traceLvls->retry >= 2)
                             {
                                 Trace out(reference->getInstance()->initializationData().logger, traceLvls->retryCat);
                                 out << "connection to cached endpoints failed\n"
-                                    << "removing endpoints from cache and trying again\n" << ex;
+                                    << "removing endpoints from cache and trying again\n"
+                                    << ex;
                             }
                             reference->getConnectionNoRouterInfoAsync(response, exception); // Retry.
                             return;
@@ -1532,40 +1513,35 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
                 });
         }
 
-        void setException(std::exception_ptr ex) final
-        {
-            _exception(ex);
-        }
+        void setException(std::exception_ptr ex) final { _exception(ex); }
 
-        Callback(
-            const RoutableReferencePtr& reference,
-            function<void(ConnectionIPtr, bool)> response,
-            function<void(std::exception_ptr)> exception) :
-            _reference(reference), _response(std::move(response)), _exception(std::move(exception))
+        Callback(const RoutableReferencePtr& reference,
+                 function<void(ConnectionIPtr, bool)> response,
+                 function<void(std::exception_ptr)> exception)
+            : _reference(reference),
+              _response(std::move(response)),
+              _exception(std::move(exception))
         {
         }
 
     private:
-
         const RoutableReferencePtr _reference;
         const function<void(ConnectionIPtr, bool)> _response;
         const function<void(std::exception_ptr)> _exception;
     };
 
-    if(!_endpoints.empty())
+    if (!_endpoints.empty())
     {
         createConnectionAsync(_endpoints, std::move(response), std::move(exception));
         return;
     }
 
-    if(_locatorInfo)
+    if (_locatorInfo)
     {
-        RoutableReferencePtr self = dynamic_pointer_cast<RoutableReference>(
-            const_cast<RoutableReference*>(this)->shared_from_this());
-        _locatorInfo->getEndpoints(
-            self,
-            _locatorCacheTimeout,
-            make_shared<Callback>(self, std::move(response), std::move(exception)));
+        RoutableReferencePtr self =
+            dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
+        _locatorInfo->getEndpoints(self, _locatorCacheTimeout,
+                                   make_shared<Callback>(self, std::move(response), std::move(exception)));
     }
     else
     {
@@ -1574,10 +1550,9 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
 }
 
 void
-IceInternal::RoutableReference::createConnectionAsync(
-    const vector<EndpointIPtr>& allEndpoints,
-    function<void(ConnectionIPtr, bool)> response,
-    function<void(std::exception_ptr)> exception) const
+IceInternal::RoutableReference::createConnectionAsync(const vector<EndpointIPtr>& allEndpoints,
+                                                      function<void(ConnectionIPtr, bool)> response,
+                                                      function<void(std::exception_ptr)> exception) const
 {
     vector<EndpointIPtr> endpoints = filterEndpoints(allEndpoints);
     if (endpoints.empty())
@@ -1601,15 +1576,11 @@ IceInternal::RoutableReference::createConnectionAsync(
         response(std::move(connection), compress);
     };
 
-    if(getCacheConnection() || endpoints.size() == 1)
+    if (getCacheConnection() || endpoints.size() == 1)
     {
         // Get an existing connection or create one if there's no existing connection to one of the given endpoints.
-        factory->createAsync(
-            endpoints,
-            false,
-            getEndpointSelection(),
-            std::move(createConnectionSucceded),
-            std::move(exception));
+        factory->createAsync(endpoints, false, getEndpointSelection(), std::move(createConnectionSucceded),
+                             std::move(exception));
     }
     else
     {
@@ -1620,29 +1591,23 @@ IceInternal::RoutableReference::createConnectionAsync(
         class CreateConnectionState final : public std::enable_shared_from_this<CreateConnectionState>
         {
         public:
-
-            CreateConnectionState(
-                vector<EndpointIPtr> endpoints,
-                OutgoingConnectionFactoryPtr factory,
-                EndpointSelectionType endpointSelection,
-                function<void(Ice::ConnectionIPtr, bool)> createConnectionSucceded,
-                function<void(exception_ptr)> exception) :
-                _endpoints(std::move(endpoints)),
-                _factory(std::move(factory)),
-                _endpointSelection(endpointSelection),
-                _createConnectionSucceded(std::move(createConnectionSucceded)),
-                _createConnectionFailed(std::move(exception))
+            CreateConnectionState(vector<EndpointIPtr> endpoints,
+                                  OutgoingConnectionFactoryPtr factory,
+                                  EndpointSelectionType endpointSelection,
+                                  function<void(Ice::ConnectionIPtr, bool)> createConnectionSucceded,
+                                  function<void(exception_ptr)> exception)
+                : _endpoints(std::move(endpoints)),
+                  _factory(std::move(factory)),
+                  _endpointSelection(endpointSelection),
+                  _createConnectionSucceded(std::move(createConnectionSucceded)),
+                  _createConnectionFailed(std::move(exception))
             {
             }
 
             void createAsync()
             {
-                _factory->createAsync(
-                    { _endpoints[_endpointIndex] },
-                    true,
-                    _endpointSelection,
-                    _createConnectionSucceded,
-                    [self = shared_from_this()] (exception_ptr e) { self->handleException(e); });
+                _factory->createAsync({_endpoints[_endpointIndex]}, true, _endpointSelection, _createConnectionSucceded,
+                                      [self = shared_from_this()](exception_ptr e) { self->handleException(e); });
             }
 
             void handleException(std::exception_ptr ex)
@@ -1659,16 +1624,11 @@ IceInternal::RoutableReference::createConnectionAsync(
                 }
 
                 const bool more = _endpointIndex != _endpoints.size() - 1;
-                _factory->createAsync(
-                    { _endpoints[_endpointIndex] },
-                    more,
-                    _endpointSelection,
-                    _createConnectionSucceded,
-                    [self = shared_from_this()] (exception_ptr e) { self->handleException(e); });
+                _factory->createAsync({_endpoints[_endpointIndex]}, more, _endpointSelection, _createConnectionSucceded,
+                                      [self = shared_from_this()](exception_ptr e) { self->handleException(e); });
             }
 
         private:
-
             exception_ptr _exception = nullptr;
             size_t _endpointIndex = 0;
             vector<EndpointIPtr> _endpoints;
@@ -1678,12 +1638,9 @@ IceInternal::RoutableReference::createConnectionAsync(
             std::function<void(exception_ptr)> _createConnectionFailed;
         };
 
-        auto state = make_shared<CreateConnectionState>(
-            std::move(endpoints),
-            std::move(factory),
-            getEndpointSelection(),
-            std::move(createConnectionSucceded),
-            std::move(exception));
+        auto state =
+            make_shared<CreateConnectionState>(std::move(endpoints), std::move(factory), getEndpointSelection(),
+                                               std::move(createConnectionSucceded), std::move(exception));
         state->createAsync();
     }
 }
@@ -1691,34 +1648,34 @@ IceInternal::RoutableReference::createConnectionAsync(
 void
 IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) const
 {
-    for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    for (vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         *p = (*p)->connectionId(_connectionId);
-        if(_overrideCompress)
+        if (_overrideCompress)
         {
             *p = (*p)->compress(_compress);
         }
-        if(_overrideTimeout)
+        if (_overrideTimeout)
         {
             *p = (*p)->timeout(_timeout);
         }
     }
 }
 
-IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
-    Reference(r),
-    _endpoints(r._endpoints),
-    _adapterId(r._adapterId),
-    _locatorInfo(r._locatorInfo),
-    _routerInfo(r._routerInfo),
-    _collocationOptimized(r._collocationOptimized),
-    _cacheConnection(r._cacheConnection),
-    _preferSecure(r._preferSecure),
-    _endpointSelection(r._endpointSelection),
-    _locatorCacheTimeout(r._locatorCacheTimeout),
-    _overrideTimeout(r._overrideTimeout),
-    _timeout(r._timeout),
-    _connectionId(r._connectionId)
+IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
+    : Reference(r),
+      _endpoints(r._endpoints),
+      _adapterId(r._adapterId),
+      _locatorInfo(r._locatorInfo),
+      _routerInfo(r._routerInfo),
+      _collocationOptimized(r._collocationOptimized),
+      _cacheConnection(r._cacheConnection),
+      _preferSecure(r._preferSecure),
+      _endpointSelection(r._endpointSelection),
+      _locatorCacheTimeout(r._locatorCacheTimeout),
+      _overrideTimeout(r._overrideTimeout),
+      _timeout(r._timeout),
+      _connectionId(r._connectionId)
 {
     setBatchRequestQueue();
 }
@@ -1730,26 +1687,20 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
 
     // Filter out unknown endpoints.
     endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                              [](const EndpointIPtr& p)
-                              {
-                                  return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
-                              }),
+                              [](const EndpointIPtr& p) { return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0; }),
                     endpoints.end());
 
     // Filter out endpoints according to the mode of the reference.
-    switch(getMode())
+    switch (getMode())
     {
         case Reference::ModeTwoway:
         case Reference::ModeOneway:
         case Reference::ModeBatchOneway:
         {
             // Filter out datagram endpoints.
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                      [](const EndpointIPtr& p)
-                                      {
-                                          return p->datagram();
-                                      }),
-                            endpoints.end());
+            endpoints.erase(
+                remove_if(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return p->datagram(); }),
+                endpoints.end());
             break;
         }
 
@@ -1757,12 +1708,9 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         case Reference::ModeBatchDatagram:
         {
             // Filter out non-datagram endpoints.
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                      [](const EndpointIPtr& p)
-                                      {
-                                          return !p->datagram();
-                                      }),
-                            endpoints.end());
+            endpoints.erase(
+                remove_if(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return !p->datagram(); }),
+                endpoints.end());
             break;
         }
     }
@@ -1770,7 +1718,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     //
     // Sort the endpoints according to the endpoint selection type.
     //
-    switch(getEndpointSelection())
+    switch (getEndpointSelection())
     {
         case EndpointSelectionType::Random:
         {
@@ -1796,27 +1744,20 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     // endpoints preferred over secure endpoints.
     //
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
-    if(overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
+    if (overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
     {
-        endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                  [](const EndpointIPtr& p)
-                                  {
-                                      return !p->secure();
-                                  }),
-                        endpoints.end());
+        endpoints.erase(
+            remove_if(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return !p->secure(); }),
+            endpoints.end());
     }
-    else if(getPreferSecure())
+    else if (getPreferSecure())
     {
         //
         // We must use stable_partition() instead of just simply
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
-        stable_partition(endpoints.begin(), endpoints.end(),
-                         [](const EndpointIPtr& p)
-                         {
-                             return p->secure();
-                         });
+        stable_partition(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return p->secure(); });
     }
     else
     {
@@ -1825,11 +1766,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
-        stable_partition(endpoints.begin(), endpoints.end(),
-                         [](const EndpointIPtr& p)
-                         {
-                             return !p->secure();
-                         });
+        stable_partition(endpoints.begin(), endpoints.end(), [](const EndpointIPtr& p) { return !p->secure(); });
     }
 
     return endpoints;
@@ -1838,6 +1775,6 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
 void
 IceInternal::RoutableReference::setBatchRequestQueue()
 {
-    _batchRequestQueue = isBatch() ?
-        make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram) : nullptr;
+    _batchRequestQueue =
+        isBatch() ? make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram) : nullptr;
 }

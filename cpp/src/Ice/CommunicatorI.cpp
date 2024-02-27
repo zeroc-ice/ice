@@ -27,8 +27,7 @@ CommunicatorFlushBatchAsync::~CommunicatorFlushBatchAsync()
     // Out of line to avoid weak vtable
 }
 
-CommunicatorFlushBatchAsync::CommunicatorFlushBatchAsync(const InstancePtr& instance) :
-    OutgoingAsyncBase(instance)
+CommunicatorFlushBatchAsync::CommunicatorFlushBatchAsync(const InstancePtr& instance) : OutgoingAsyncBase(instance)
 {
     //
     // _useCount is initialized to 1 to prevent premature callbacks.
@@ -44,24 +43,23 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
     class FlushBatch : public OutgoingAsyncBase
     {
     public:
-
         FlushBatch(const CommunicatorFlushBatchAsyncPtr& outAsync,
                    const InstancePtr& instance,
-                   InvocationObserver& observer) :
-            OutgoingAsyncBase(instance), _outAsync(outAsync), _parentObserver(observer)
+                   InvocationObserver& observer)
+            : OutgoingAsyncBase(instance),
+              _outAsync(outAsync),
+              _parentObserver(observer)
         {
         }
 
-        virtual bool
-        sent()
+        virtual bool sent()
         {
             _childObserver.detach();
             _outAsync->check(false);
             return false;
         }
 
-        virtual bool
-        exception(std::exception_ptr ex)
+        virtual bool exception(std::exception_ptr ex)
         {
             _childObserver.failed(getExceptionId(ex));
             _childObserver.detach();
@@ -69,44 +67,21 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
             return false;
         }
 
-        virtual InvocationObserver&
-        getObserver()
-        {
-            return _parentObserver;
-        }
+        virtual InvocationObserver& getObserver() { return _parentObserver; }
 
-        virtual bool handleSent(bool, bool)
-        {
-            return false;
-        }
+        virtual bool handleSent(bool, bool) { return false; }
 
-        virtual bool handleException(std::exception_ptr)
-        {
-            return false;
-        }
+        virtual bool handleException(std::exception_ptr) { return false; }
 
-        virtual bool handleResponse(bool)
-        {
-            return false;
-        }
+        virtual bool handleResponse(bool) { return false; }
 
-        virtual void handleInvokeSent(bool, OutgoingAsyncBase*) const
-        {
-            assert(false);
-        }
+        virtual void handleInvokeSent(bool, OutgoingAsyncBase*) const { assert(false); }
 
-        virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const
-        {
-            assert(false);
-        }
+        virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const { assert(false); }
 
-        virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const
-        {
-            assert(false);
-        }
+        virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const { assert(false); }
 
     private:
-
         const CommunicatorFlushBatchAsyncPtr _outAsync;
         InvocationObserver& _parentObserver;
     };
@@ -121,24 +96,24 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         OutgoingAsyncBasePtr flushBatch = make_shared<FlushBatch>(shared_from_this(), _instance, _observer);
         bool compress;
         int batchRequestNum = con->getBatchRequestQueue()->swap(flushBatch->getOs(), compress);
-        if(batchRequestNum == 0)
+        if (batchRequestNum == 0)
         {
             flushBatch->sent();
         }
         else
         {
-            if(compressBatch == CompressBatch::Yes)
+            if (compressBatch == CompressBatch::Yes)
             {
                 compress = true;
             }
-            else if(compressBatch == CompressBatch::No)
+            else if (compressBatch == CompressBatch::No)
             {
                 compress = false;
             }
             con->sendAsyncRequest(flushBatch, compress, false, batchRequestNum);
         }
     }
-    catch(const LocalException&)
+    catch (const LocalException&)
     {
         check(false);
         throw;
@@ -160,15 +135,15 @@ CommunicatorFlushBatchAsync::check(bool userThread)
     {
         Lock sync(_m);
         assert(_useCount > 0);
-        if(--_useCount > 0)
+        if (--_useCount > 0)
         {
             return;
         }
     }
 
-    if(sentImpl(true))
+    if (sentImpl(true))
     {
-        if(userThread)
+        if (userThread)
         {
             _sentSynchronously = true;
             invokeSent();
@@ -183,7 +158,7 @@ CommunicatorFlushBatchAsync::check(bool userThread)
 void
 Ice::CommunicatorI::destroy() noexcept
 {
-    if(_instance)
+    if (_instance)
     {
         _instance->destroy();
     }
@@ -196,7 +171,7 @@ Ice::CommunicatorI::shutdown() noexcept
     {
         _instance->objectAdapterFactory()->shutdown();
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         // Ignore
     }
@@ -209,7 +184,7 @@ Ice::CommunicatorI::waitForShutdown() noexcept
     {
         _instance->objectAdapterFactory()->waitForShutdown();
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         // Ignore
     }
@@ -222,7 +197,7 @@ Ice::CommunicatorI::isShutdown() const noexcept
     {
         return _instance->objectAdapterFactory()->isShutdown();
     }
-    catch(const Ice::CommunicatorDestroyedException&)
+    catch (const Ice::CommunicatorDestroyedException&)
     {
         return true;
     }
@@ -268,7 +243,7 @@ ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
 {
     string oaName = name;
-    if(oaName.empty())
+    if (oaName.empty())
     {
         oaName = Ice::generateUUID();
     }
@@ -281,13 +256,13 @@ ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
 {
     string oaName = name;
-    if(oaName.empty())
+    if (oaName.empty())
     {
         oaName = Ice::generateUUID();
     }
 
     PropertyDict properties = proxyToProperty(router, oaName + ".Router");
-    for(PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+    for (PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
     {
         getProperties()->setProperty(p->first, p->second);
     }
@@ -380,7 +355,7 @@ Ice::CommunicatorI::postToClientThreadPool(function<void()> call)
 namespace
 {
 
-const ::std::string flushBatchRequests_name = "flushBatchRequests";
+    const ::std::string flushBatchRequests_name = "flushBatchRequests";
 
 }
 
@@ -392,11 +367,11 @@ Ice::CommunicatorI::flushBatchRequestsAsync(CompressBatch compress,
     class CommunicatorFlushBatchLambda : public CommunicatorFlushBatchAsync, public LambdaInvoke
     {
     public:
-
         CommunicatorFlushBatchLambda(const InstancePtr& instance,
                                      std::function<void(std::exception_ptr)> ex,
-                                     std::function<void(bool)> sent) :
-            CommunicatorFlushBatchAsync(instance), LambdaInvoke(std::move(ex), std::move(sent))
+                                     std::function<void(bool)> sent)
+            : CommunicatorFlushBatchAsync(instance),
+              LambdaInvoke(std::move(ex), std::move(sent))
         {
         }
     };
@@ -454,9 +429,10 @@ Ice::CommunicatorI::create(const InitializationData& initData)
         // the libraries are not unloaded until this Communicator's
         // destructor is invoked.
         //
-        const_cast<DynamicLibraryListPtr&>(communicator->_dynamicLibraryList) = communicator->_instance->dynamicLibraryList();
+        const_cast<DynamicLibraryListPtr&>(communicator->_dynamicLibraryList) =
+            communicator->_instance->dynamicLibraryList();
     }
-    catch(...)
+    catch (...)
     {
         communicator->destroy();
         throw;
@@ -466,7 +442,7 @@ Ice::CommunicatorI::create(const InitializationData& initData)
 
 Ice::CommunicatorI::~CommunicatorI()
 {
-    if(_instance && !_instance->destroyed())
+    if (_instance && !_instance->destroyed())
     {
         Warning out(_instance->initializationData().logger);
         out << "Ice::Communicator::destroy() has not been called";
@@ -480,7 +456,7 @@ Ice::CommunicatorI::finishSetup(int& argc, const char* argv[])
     {
         _instance->finishSetup(argc, argv, shared_from_this());
     }
-    catch(...)
+    catch (...)
     {
         destroy();
         throw;

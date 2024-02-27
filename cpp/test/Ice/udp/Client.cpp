@@ -12,7 +12,6 @@ using namespace Test;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -29,7 +28,7 @@ Client::run(int argc, char** argv)
     allTests(this);
 
     int num = argc == 2 ? atoi(argv[1]) : 1;
-    for(int i = 0; i < num; i++)
+    for (int i = 0; i < num; i++)
     {
         ostringstream os;
         os << "control:" << getTestEndpoint(i, "tcp");

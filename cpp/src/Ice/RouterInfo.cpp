@@ -13,20 +13,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::RouterManager::RouterManager() :
-    _tableHint(_table.end())
-{
-}
+IceInternal::RouterManager::RouterManager() : _tableHint(_table.end()) {}
 
 void
 IceInternal::RouterManager::destroy()
 {
     lock_guard lock(_mutex);
-    for_each(_table.begin(), _table.end(),
-             [](const pair<RouterPrx, RouterInfoPtr> it)
-             {
-                 it.second->destroy();
-             });
+    for_each(_table.begin(), _table.end(), [](const pair<RouterPrx, RouterInfoPtr> it) { it.second->destroy(); });
     _table.clear();
     _tableHint = _table.end();
 }
@@ -40,20 +33,20 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
 
     RouterInfoTable::iterator p = _table.end();
 
-    if(_tableHint != _table.end())
+    if (_tableHint != _table.end())
     {
-        if(_tableHint->first == router)
+        if (_tableHint->first == router)
         {
             p = _tableHint;
         }
     }
 
-    if(p == _table.end())
+    if (p == _table.end())
     {
         p = _table.find(router);
     }
 
-    if(p == _table.end())
+    if (p == _table.end())
     {
         _tableHint = _table.insert(_tableHint, pair<const RouterPrx, RouterInfoPtr>(router, new RouterInfo(router)));
     }
@@ -93,9 +86,7 @@ IceInternal::RouterManager::erase(const RouterPrx& rtr)
     return info;
 }
 
-IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) : _router(router), _hasRoutingTable(false)
-{
-}
+IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) : _router(router), _hasRoutingTable(false) {}
 
 void
 IceInternal::RouterInfo::destroy()
@@ -124,7 +115,7 @@ IceInternal::RouterInfo::getClientEndpoints()
 {
     {
         lock_guard lock(_mutex);
-        if(!_clientEndpoints.empty())
+        if (!_clientEndpoints.empty())
         {
             return _clientEndpoints;
         }
@@ -136,9 +127,8 @@ IceInternal::RouterInfo::getClientEndpoints()
 }
 
 void
-IceInternal::RouterInfo::getClientEndpointsAsync(
-    std::function<void(vector<EndpointIPtr>)> response,
-    std::function<void(std::exception_ptr)> ex)
+IceInternal::RouterInfo::getClientEndpointsAsync(std::function<void(vector<EndpointIPtr>)> response,
+                                                 std::function<void(std::exception_ptr)> ex)
 {
     vector<EndpointIPtr> clientEndpoints;
     {
@@ -153,19 +143,16 @@ IceInternal::RouterInfo::getClientEndpointsAsync(
     }
 
     RouterInfoPtr self = shared_from_this();
-    _router->getClientProxyAsync(
-        [self, response](const optional<Ice::ObjectPrx>& proxy, optional<bool> hasRoutingTable)
-        {
-            response(self->setClientEndpoints(proxy, hasRoutingTable.value_or(true)));
-        },
-        ex);
+    _router->getClientProxyAsync([self, response](const optional<Ice::ObjectPrx>& proxy, optional<bool> hasRoutingTable)
+                                 { response(self->setClientEndpoints(proxy, hasRoutingTable.value_or(true))); },
+                                 ex);
 }
 
 vector<EndpointIPtr>
 IceInternal::RouterInfo::getServerEndpoints()
 {
     optional<ObjectPrx> serverProxy = _router->getServerProxy();
-    if(!serverProxy)
+    if (!serverProxy)
     {
         throw NoEndpointException(__FILE__, __LINE__);
     }
@@ -174,21 +161,20 @@ IceInternal::RouterInfo::getServerEndpoints()
 }
 
 bool
-IceInternal::RouterInfo::addProxyAsync(
-    const ReferencePtr& reference,
-    function<void()> response,
-    function<void(exception_ptr)> ex)
+IceInternal::RouterInfo::addProxyAsync(const ReferencePtr& reference,
+                                       function<void()> response,
+                                       function<void(exception_ptr)> ex)
 {
     assert(reference);
     Identity identity = reference->getIdentity();
 
     {
         lock_guard lock(_mutex);
-        if(!_hasRoutingTable)
+        if (!_hasRoutingTable)
         {
             return true; // The router implementation doesn't maintain a routing table.
         }
-        else if(_identities.find(identity) != _identities.end())
+        else if (_identities.find(identity) != _identities.end())
         {
             //
             // Only add the proxy to the router if it's not already in our local map.
@@ -237,10 +223,10 @@ vector<EndpointIPtr>
 IceInternal::RouterInfo::setClientEndpoints(const optional<ObjectPrx>& proxy, bool hasRoutingTable)
 {
     lock_guard lock(_mutex);
-    if(_clientEndpoints.empty())
+    if (_clientEndpoints.empty())
     {
         _hasRoutingTable = hasRoutingTable;
-        if(!proxy)
+        if (!proxy)
         {
             //
             // If getClientProxy() return nil, use router endpoints.
@@ -256,7 +242,7 @@ IceInternal::RouterInfo::setClientEndpoints(const optional<ObjectPrx>& proxy, bo
             // we must use the same timeout as the already existing
             // connection.
             //
-            if(_router->ice_getConnection())
+            if (_router->ice_getConnection())
             {
                 clientProxy = clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
             }
@@ -277,7 +263,7 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     // If it's the case, don't add it to our local map.
     //
     multiset<Identity>::iterator p = _evictedIdentities.find(identity);
-    if(p != _evictedIdentities.end())
+    if (p != _evictedIdentities.end())
     {
         _evictedIdentities.erase(p);
     }
@@ -293,9 +279,9 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     //
     // We also must remove whatever proxies the router evicted.
     //
-    for(Ice::ObjectProxySeq::const_iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
+    for (Ice::ObjectProxySeq::const_iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
     {
-        if(_identities.erase((*q)->ice_getIdentity()) == 0)
+        if (_identities.erase((*q)->ice_getIdentity()) == 0)
         {
             //
             // It's possible for the proxy to not have been

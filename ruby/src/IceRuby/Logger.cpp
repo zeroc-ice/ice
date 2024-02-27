@@ -11,8 +11,7 @@ using namespace IceRuby;
 
 static VALUE _loggerClass;
 
-extern "C"
-void
+extern "C" void
 IceRuby_Logger_free(Ice::LoggerPtr* p)
 {
     assert(p);
@@ -25,8 +24,7 @@ IceRuby::createLogger(const Ice::LoggerPtr& p)
     return Data_Wrap_Struct(_loggerClass, 0, IceRuby_Logger_free, new Ice::LoggerPtr(p));
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Logger_print(VALUE self, VALUE message)
 {
     ICE_RUBY_TRY
@@ -41,8 +39,7 @@ IceRuby_Logger_print(VALUE self, VALUE message)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Logger_trace(VALUE self, VALUE category, VALUE message)
 {
     ICE_RUBY_TRY
@@ -58,8 +55,7 @@ IceRuby_Logger_trace(VALUE self, VALUE category, VALUE message)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Logger_warning(VALUE self, VALUE message)
 {
     ICE_RUBY_TRY
@@ -74,8 +70,7 @@ IceRuby_Logger_warning(VALUE self, VALUE message)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Logger_error(VALUE self, VALUE message)
 {
     ICE_RUBY_TRY
@@ -90,8 +85,7 @@ IceRuby_Logger_error(VALUE self, VALUE message)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_Logger_cloneWithPrefix(VALUE self, VALUE prefix)
 {
     ICE_RUBY_TRY
@@ -107,8 +101,7 @@ IceRuby_Logger_cloneWithPrefix(VALUE self, VALUE prefix)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_getProcessLogger()
 {
     ICE_RUBY_TRY

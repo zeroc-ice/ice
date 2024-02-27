@@ -20,68 +20,62 @@ using namespace IceInternal;
 namespace
 {
 
-inline string
-socketErrorToString(int error)
-{
-    if(error == 0)
+    inline string socketErrorToString(int error)
     {
-        return "unknown error";
+        if (error == 0)
+        {
+            return "unknown error";
+        }
+        return IceUtilInternal::errorToString(error);
     }
-    return IceUtilInternal::errorToString(error);
-}
 
 };
 
 namespace IceInternal
 {
 
-namespace Ex
-{
-
-void
-throwUOE(const string& expectedType, const shared_ptr<Ice::Value>& v)
-{
-    //
-    // If the object is an unknown sliced object, we didn't find an
-    // value factory, in this case raise a NoValueFactoryException
-    // instead.
-    //
-    UnknownSlicedValue* usv = dynamic_cast<UnknownSlicedValue*>(v.get());
-    if(usv)
+    namespace Ex
     {
-        throw NoValueFactoryException(__FILE__, __LINE__, "", usv->ice_id());
+
+        void throwUOE(const string& expectedType, const shared_ptr<Ice::Value>& v)
+        {
+            //
+            // If the object is an unknown sliced object, we didn't find an
+            // value factory, in this case raise a NoValueFactoryException
+            // instead.
+            //
+            UnknownSlicedValue* usv = dynamic_cast<UnknownSlicedValue*>(v.get());
+            if (usv)
+            {
+                throw NoValueFactoryException(__FILE__, __LINE__, "", usv->ice_id());
+            }
+
+            string type = v->ice_id();
+            throw Ice::UnexpectedObjectException(
+                __FILE__, __LINE__, "expected element of type `" + expectedType + "' but received `" + type + "'", type,
+                expectedType);
+        }
+
+        void throwMemoryLimitException(const char* file, int line, size_t requested, size_t maximum)
+        {
+            ostringstream s;
+            s << "requested " << requested << " bytes, maximum allowed is " << maximum
+              << " bytes (see Ice.MessageSizeMax)";
+            throw Ice::MemoryLimitException(file, line, s.str());
+        }
+
+        void throwMarshalException(const char* file, int line, const string& reason)
+        {
+            throw Ice::MarshalException(file, line, reason);
+        }
+
     }
-
-    string type = v->ice_id();
-    throw Ice::UnexpectedObjectException(__FILE__, __LINE__,
-                                         "expected element of type `" + expectedType + "' but received `" +
-                                         type + "'", type, expectedType);
-}
-
-void
-throwMemoryLimitException(const char* file, int line, size_t requested, size_t maximum)
-{
-    ostringstream s;
-    s << "requested " << requested << " bytes, maximum allowed is " << maximum << " bytes (see Ice.MessageSizeMax)";
-    throw Ice::MemoryLimitException(file, line, s.str());
-}
-
-void
-throwMarshalException(const char* file, int line, const string& reason)
-{
-    throw Ice::MarshalException(file, line, reason);
-}
-
-}
 }
 
 namespace
 {
 
-const string userException_ids[] =
-{
-    "::Ice::UserException"
-};
+    const string userException_ids[] = {"::Ice::UserException"};
 
 }
 
@@ -125,14 +119,11 @@ Ice::UserException::_usesClasses() const
     return false;
 }
 
-Ice::LocalException::LocalException(const char* file, int line) :
-    Exception(file, line)
-{
-}
+Ice::LocalException::LocalException(const char* file, int line) : Exception(file, line) {}
 
 Ice::LocalException::~LocalException()
 {
-   // Out of line to avoid weak vtable
+    // Out of line to avoid weak vtable
 }
 
 unique_ptr<Ice::LocalException>
@@ -144,10 +135,7 @@ Ice::LocalException::ice_clone() const
 namespace
 {
 
-const string localException_ids[] =
-{
-    "::Ice::LocalException"
-};
+    const string localException_ids[] = {"::Ice::LocalException"};
 
 }
 
@@ -157,14 +145,9 @@ Ice::LocalException::ice_staticId()
     return localException_ids[0];
 }
 
-Ice::SystemException::SystemException(const char* file, int line) :
-    Exception(file, line)
-{
-}
+Ice::SystemException::SystemException(const char* file, int line) : Exception(file, line) {}
 
-Ice::SystemException::~SystemException()
-{
-}
+Ice::SystemException::~SystemException() {}
 
 unique_ptr<Ice::SystemException>
 Ice::SystemException::ice_clone() const
@@ -175,10 +158,7 @@ Ice::SystemException::ice_clone() const
 namespace
 {
 
-const string systemException_ids[] =
-{
-    "::Ice::SystemException"
-};
+    const string systemException_ids[] = {"::Ice::SystemException"};
 
 }
 
@@ -193,7 +173,7 @@ Ice::InitializationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\ninitialization exception";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -204,7 +184,7 @@ Ice::UnknownException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown exception";
-    if(!unknown.empty())
+    if (!unknown.empty())
     {
         out << ":\n" << unknown;
     }
@@ -215,7 +195,7 @@ Ice::UnknownLocalException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown local exception";
-    if(!unknown.empty())
+    if (!unknown.empty())
     {
         out << ":\n" << unknown;
     }
@@ -226,7 +206,7 @@ Ice::UnknownUserException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown user exception";
-    if(!unknown.empty())
+    if (!unknown.empty())
     {
         out << ":\n" << unknown;
     }
@@ -360,7 +340,7 @@ void
 Ice::SyscallException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    if(error != 0)
+    if (error != 0)
     {
         out << ":\nsyscall exception: " << IceUtilInternal::errorToString(error);
     }
@@ -378,7 +358,7 @@ Ice::FileException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nfile exception: ";
-    if(error == 0)
+    if (error == 0)
     {
         out << "couldn't open file";
     }
@@ -386,7 +366,7 @@ Ice::FileException::ice_print(ostream& out) const
     {
         out << IceUtilInternal::errorToString(error);
     }
-    if(!path.empty())
+    if (!path.empty())
     {
         out << "\npath: " << path;
     }
@@ -411,7 +391,7 @@ Ice::ConnectionLostException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nconnection lost: ";
-    if(error == 0)
+    if (error == 0)
     {
         out << "recv() returned zero";
     }
@@ -484,7 +464,7 @@ Ice::ProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol exception";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -496,21 +476,21 @@ Ice::BadMagicException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\nunknown magic number: ";
 
-    ios_base::fmtflags originalFlags = out.flags();     // Save stream state
+    ios_base::fmtflags originalFlags = out.flags(); // Save stream state
     ostream::char_type originalFill = out.fill();
 
-    out.flags(ios_base::hex);                           // Change to hex
-    out.fill('0');                                      // Fill with leading zeros
+    out.flags(ios_base::hex); // Change to hex
+    out.fill('0');            // Fill with leading zeros
 
     out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[0])) << ", ";
     out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[1])) << ", ";
     out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[2])) << ", ";
     out << "0x" << setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(badMagic[3]));
 
-    out.fill(originalFill);                             // Restore stream state
+    out.fill(originalFill); // Restore stream state
     out.flags(originalFlags);
 
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << "\n" << reason;
     }
@@ -530,7 +510,7 @@ Ice::UnsupportedEncodingException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\nencoding error: unsupported encoding version: " << bad;
     out << "\n(can only support encodings compatible with version " << supported << ")";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << "\n" << reason;
     }
@@ -541,7 +521,7 @@ Ice::UnknownMessageException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: unknown message type";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -552,7 +532,7 @@ Ice::ConnectionNotValidatedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: received message over unvalidated connection";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -563,7 +543,7 @@ Ice::UnknownRequestIdException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: unknown request id";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -574,7 +554,7 @@ Ice::UnknownReplyStatusException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: unknown reply status";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -585,7 +565,7 @@ Ice::CloseConnectionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: connection closed";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -603,7 +583,7 @@ Ice::IllegalMessageSizeException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: illegal message size";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -614,7 +594,7 @@ Ice::CompressionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: failed to compress or uncompress data";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -625,7 +605,7 @@ Ice::DatagramLimitException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: maximum datagram payload size exceeded";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -636,7 +616,7 @@ Ice::MarshalException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: error during marshaling or unmarshaling";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -647,7 +627,7 @@ Ice::ProxyUnmarshalException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -658,7 +638,7 @@ Ice::UnmarshalOutOfBoundsException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: out of bounds during unmarshaling";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -669,7 +649,7 @@ Ice::NoValueFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: no suitable value factory found for `" << type << "'";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -679,9 +659,8 @@ void
 Ice::UnexpectedObjectException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nunexpected class instance of type `" << type <<
-        "'; expected instance of type `" << expectedType << "'";
-    if(!reason.empty())
+    out << ":\nunexpected class instance of type `" << type << "'; expected instance of type `" << expectedType << "'";
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -692,7 +671,7 @@ Ice::MemoryLimitException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: memory limit exceeded";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -703,7 +682,7 @@ Ice::StringConversionException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: string conversion failed";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -714,7 +693,7 @@ Ice::EncapsulationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: illegal encapsulation";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }
@@ -725,7 +704,7 @@ Ice::PluginInitializationException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nplug-in initialization failed";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ": " << reason;
     }
@@ -778,7 +757,7 @@ Ice::SecurityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nsecurity exception";
-    if(!reason.empty())
+    if (!reason.empty())
     {
         out << ":\n" << reason;
     }

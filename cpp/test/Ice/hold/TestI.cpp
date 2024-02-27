@@ -12,8 +12,10 @@
 
 using namespace std;
 
-HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter) :
-    _last(0), _timer(timer), _adapter(adapter)
+HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter)
+    : _last(0),
+      _timer(timer),
+      _adapter(adapter)
 {
 }
 
@@ -23,20 +25,16 @@ HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
     class PutOnHold : public IceUtil::TimerTask
     {
     public:
+        PutOnHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
 
-        PutOnHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
-        {
-        }
-
-        void
-        runTimerTask()
+        void runTimerTask()
         {
             try
             {
                 _adapter->hold();
                 _adapter->activate();
             }
-            catch(const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDeactivatedException&)
             {
                 //
                 // This shouldn't occur. The test ensures all the waitForHold timers are
@@ -47,15 +45,14 @@ HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
         }
 
     private:
-
         const Ice::ObjectAdapterPtr _adapter;
     };
 
-    if(milliSeconds < 0)
+    if (milliSeconds < 0)
     {
         _adapter->hold();
     }
-    else if(milliSeconds == 0)
+    else if (milliSeconds == 0)
     {
         _adapter->hold();
         _adapter->activate();
@@ -66,7 +63,7 @@ HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
         {
             _timer->schedule(make_shared<PutOnHold>(_adapter), chrono::milliseconds(milliSeconds));
         }
-        catch(const IceUtil::IllegalArgumentException&)
+        catch (const IceUtil::IllegalArgumentException&)
         {
         }
     }
@@ -78,20 +75,16 @@ HoldI::waitForHold(const Ice::Current& current)
     class WaitForHold : public IceUtil::TimerTask
     {
     public:
+        WaitForHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
 
-        WaitForHold(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
-        {
-        }
-
-        void
-        runTimerTask()
+        void runTimerTask()
         {
             try
             {
                 _adapter->waitForHold();
                 _adapter->activate();
             }
-            catch(const Ice::ObjectAdapterDeactivatedException&)
+            catch (const Ice::ObjectAdapterDeactivatedException&)
             {
                 //
                 // This shouldn't occur. The test ensures all the waitForHold timers are
@@ -102,7 +95,6 @@ HoldI::waitForHold(const Ice::Current& current)
         }
 
     private:
-
         const Ice::ObjectAdapterPtr _adapter;
     };
 
@@ -110,7 +102,7 @@ HoldI::waitForHold(const Ice::Current& current)
     {
         _timer->schedule(make_shared<WaitForHold>(current.adapter), chrono::seconds::zero());
     }
-    catch(const IceUtil::IllegalArgumentException&)
+    catch (const IceUtil::IllegalArgumentException&)
     {
     }
 }

@@ -11,7 +11,6 @@
 class CallbackReceiverI final : public Test::CallbackReceiver
 {
 public:
-
     void callback(int token, const Ice::Current&) override;
     void callbackWithPayload(Ice::ByteSeq, const ::Ice::Current&) override;
 
@@ -22,7 +21,6 @@ public:
     void activate();
 
 private:
-
     void checkForHold(std::unique_lock<std::mutex>&);
 
     bool _holding = false;
@@ -38,12 +36,14 @@ private:
 class CallbackI final : public Test::Callback
 {
 public:
-
-    void initiateCallbackAsync(Test::CallbackReceiverPrxPtr, int,
-                               std::function<void()>, std::function<void(std::exception_ptr)>,
+    void initiateCallbackAsync(Test::CallbackReceiverPrxPtr,
+                               int,
+                               std::function<void()>,
+                               std::function<void(std::exception_ptr)>,
                                const Ice::Current&) override;
     void initiateCallbackWithPayloadAsync(Test::CallbackReceiverPrxPtr,
-                                          std::function<void()>, std::function<void(std::exception_ptr)>,
+                                          std::function<void()>,
+                                          std::function<void(std::exception_ptr)>,
                                           const ::Ice::Current&) override;
     void shutdown(const Ice::Current&) override;
 };

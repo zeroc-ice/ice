@@ -18,27 +18,27 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
     Test::MyClassPrxPtr batch = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
     promise<void> prom;
     batch->ice_flushBatchRequestsAsync(nullptr,
-        [&](bool sentSynchronously)
-        {
-            test(sentSynchronously);
-            prom.set_value();
-        }); // Empty flush
+                                       [&](bool sentSynchronously)
+                                       {
+                                           test(sentSynchronously);
+                                           prom.set_value();
+                                       }); // Empty flush
     prom.get_future().get();
 
-    for(int i = 0; i < 30; ++i)
+    for (int i = 0; i < 30; ++i)
     {
-        batch->opByteSOnewayAsync(bs1, nullptr, [](exception_ptr){ test(false); });
+        batch->opByteSOnewayAsync(bs1, nullptr, [](exception_ptr) { test(false); });
     }
 
     int count = 0;
-    while(count < 27) // 3 * 9 requests auto-flushed.
+    while (count < 27) // 3 * 9 requests auto-flushed.
     {
         count += p->opByteSOnewayCallCount();
         this_thread::sleep_for(chrono::milliseconds(10));
     }
 
-    if(batch->ice_getConnection() &&
-       p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+    if (batch->ice_getConnection() &&
+        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
     {
         Test::MyClassPrxPtr batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
         Test::MyClassPrxPtr batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());

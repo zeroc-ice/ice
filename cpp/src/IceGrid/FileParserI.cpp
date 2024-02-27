@@ -18,7 +18,7 @@ FileParserI::parse(string file, AdminPrxPtr admin, const Ice::Current& current)
         return DescriptorParser::parseDescriptor(std::move(file), Ice::StringSeq(), map<string, string>(),
                                                  current.adapter->getCommunicator(), std::move(admin));
     }
-    catch(const IceXML::ParserException& e)
+    catch (const IceXML::ParserException& e)
     {
         throw ParseException(e.reason());
     }

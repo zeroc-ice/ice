@@ -7,31 +7,29 @@
 
 #ifdef ICE_SWIFT
 
-#include <Ice/Logger.h>
-#include <Ice/UniqueRef.h>
-#include <os/log.h>
+#    include <Ice/Logger.h>
+#    include <Ice/UniqueRef.h>
+#    include <os/log.h>
 
 namespace Ice
 {
 
-class OSLogLoggerI : public Logger
-{
-public:
+    class OSLogLoggerI : public Logger
+    {
+    public:
+        OSLogLoggerI(const std::string&);
 
-    OSLogLoggerI(const std::string&);
+        virtual void print(const std::string&);
+        virtual void trace(const std::string&, const std::string&);
+        virtual void warning(const std::string&);
+        virtual void error(const std::string&);
+        virtual std::string getPrefix();
+        virtual LoggerPtr cloneWithPrefix(const std::string&);
 
-    virtual void print(const std::string&);
-    virtual void trace(const std::string&, const std::string&);
-    virtual void warning(const std::string&);
-    virtual void error(const std::string&);
-    virtual std::string getPrefix();
-    virtual LoggerPtr cloneWithPrefix(const std::string&);
-
-private:
-
-    const std::string _prefix;
-    IceInternal::UniqueRef<os_log_t> _log;
-};
+    private:
+        const std::string _prefix;
+        IceInternal::UniqueRef<os_log_t> _log;
+    };
 
 }
 

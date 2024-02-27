@@ -12,13 +12,13 @@
 namespace Ice
 {
 
-class Locator;
-class LocatorPrx;
-class LocatorRegistry;
-class LocatorRegistryPrx;
+    class Locator;
+    class LocatorPrx;
+    class LocatorRegistry;
+    class LocatorRegistryPrx;
 
-using LocatorPtr = ::std::shared_ptr<Locator>;
-using LocatorRegistryPtr = ::std::shared_ptr<LocatorRegistry>;
+    using LocatorPtr = ::std::shared_ptr<Locator>;
+    using LocatorRegistryPtr = ::std::shared_ptr<LocatorRegistry>;
 
 }
 

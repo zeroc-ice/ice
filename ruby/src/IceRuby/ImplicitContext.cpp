@@ -12,16 +12,14 @@ using namespace IceRuby;
 
 static VALUE _implicitContextClass;
 
-extern "C"
-void
+extern "C" void
 IceRuby_ImplicitContext_free(Ice::ImplicitContextPtr* p)
 {
     assert(p);
     delete p;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_ImplicitContext_getContext(VALUE self)
 {
     ICE_RUBY_TRY
@@ -33,14 +31,13 @@ IceRuby_ImplicitContext_getContext(VALUE self)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_ImplicitContext_setContext(VALUE self, VALUE context)
 {
     ICE_RUBY_TRY
     {
         Ice::Context ctx;
-        if(!hashToContext(context, ctx))
+        if (!hashToContext(context, ctx))
         {
             throw RubyException(rb_eTypeError, "argument must be a hash");
         }
@@ -51,15 +48,14 @@ IceRuby_ImplicitContext_setContext(VALUE self, VALUE context)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_ImplicitContext_containsKey(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY
     {
         Ice::ImplicitContextPtr p = getImplicitContext(self);
         string k = getString(key);
-        if(p->containsKey(k))
+        if (p->containsKey(k))
         {
             return Qtrue;
         }
@@ -72,8 +68,7 @@ IceRuby_ImplicitContext_containsKey(VALUE self, VALUE key)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_ImplicitContext_get(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY
@@ -87,8 +82,7 @@ IceRuby_ImplicitContext_get(VALUE self, VALUE key)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_ImplicitContext_put(VALUE self, VALUE key, VALUE value)
 {
     ICE_RUBY_TRY
@@ -102,8 +96,7 @@ IceRuby_ImplicitContext_put(VALUE self, VALUE key, VALUE value)
     return Qnil;
 }
 
-extern "C"
-VALUE
+extern "C" VALUE
 IceRuby_ImplicitContext_remove(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY

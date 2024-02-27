@@ -11,7 +11,6 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -42,7 +41,7 @@ Client::run(int argc, char** argv)
         myClass->opVoid();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         cout << "ok" << endl;
     }

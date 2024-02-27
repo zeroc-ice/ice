@@ -14,9 +14,10 @@
 //
 // SIGPIPE test
 //
-#   include <signal.h>
+#    include <signal.h>
 
-extern "C" void testAction(int)
+extern "C" void
+testAction(int)
 {
     test(false);
 }
@@ -28,11 +29,9 @@ using namespace std;
 class Client : public Test::TestHelper
 {
 public:
-
     virtual void run(int, char**);
 
 private:
-
     void runTest(const Test::MyObjectPrxPtr&, const InterceptorIPtr&);
     void runAmdTest(const Test::MyObjectPrxPtr&, const AMDInterceptorIPtr&);
     void testInterceptorExceptions(const Test::MyObjectPrxPtr&);
@@ -122,7 +121,7 @@ Client::runTest(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& intercep
         prx->badAdd(33, 12);
         test(false);
     }
-    catch(const Test::InvalidInputException&)
+    catch (const Test::InvalidInputException&)
     {
         // expected
     }
@@ -137,7 +136,7 @@ Client::runTest(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& intercep
         prx->notExistAdd(33, 12);
         test(false);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         // expected
     }
@@ -150,15 +149,15 @@ Client::runTest(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& intercep
         prx->badSystemAdd(33, 12);
         test(false);
     }
-    catch(const Ice::UnknownException&)
+    catch (const Ice::UnknownException&)
     {
         test(!prx->ice_isCollocationOptimized());
     }
-    catch(const MySystemException&)
+    catch (const MySystemException&)
     {
         test(prx->ice_isCollocationOptimized());
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -192,7 +191,7 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
     {
         Ice::Context ctx;
         ctx["retry"] = "yes";
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             test(prx->amdAdd(33, 12, ctx) == 45);
             test(interceptor->getLastOperation() == "amdAdd");
@@ -206,7 +205,7 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
         prx->amdBadAdd(33, 12);
         test(false);
     }
-    catch(const Test::InvalidInputException&)
+    catch (const Test::InvalidInputException&)
     {
         // expected
     }
@@ -220,7 +219,7 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
         prx->amdNotExistAdd(33, 12);
         test(false);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         // expected
     }
@@ -248,11 +247,11 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
         prx->amdBadSystemAdd(33, 12);
         test(false);
     }
-    catch(const Ice::UnknownException&)
+    catch (const Ice::UnknownException&)
     {
         test(!prx->ice_isCollocationOptimized());
     }
-    catch(const MySystemException&)
+    catch (const MySystemException&)
     {
         test(prx->ice_isCollocationOptimized());
     }
@@ -262,7 +261,7 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
 
     try
     {
-       rethrow_exception(interceptor->getException());
+        rethrow_exception(interceptor->getException());
     }
     catch (const MySystemException&)
     {
@@ -283,14 +282,14 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
 void
 Client::testInterceptorExceptions(const Test::MyObjectPrxPtr& prx)
 {
-    vector<pair<string, string> > exceptions;
+    vector<pair<string, string>> exceptions;
     exceptions.push_back(make_pair("raiseBeforeDispatch", "user"));
     exceptions.push_back(make_pair("raiseBeforeDispatch", "notExist"));
     exceptions.push_back(make_pair("raiseBeforeDispatch", "system"));
     exceptions.push_back(make_pair("raiseAfterDispatch", "user"));
     exceptions.push_back(make_pair("raiseAfterDispatch", "notExist"));
     exceptions.push_back(make_pair("raiseAfterDispatch", "system"));
-    for(vector<pair<string, string> >::const_iterator p = exceptions.begin(); p != exceptions.end(); ++p)
+    for (vector<pair<string, string>>::const_iterator p = exceptions.begin(); p != exceptions.end(); ++p)
     {
         Ice::Context ctx;
         ctx[p->first] = p->second;
@@ -299,19 +298,19 @@ Client::testInterceptorExceptions(const Test::MyObjectPrxPtr& prx)
             prx->ice_ping(ctx);
             test(false);
         }
-        catch(const Ice::UnknownUserException&)
+        catch (const Ice::UnknownUserException&)
         {
             test(p->second == "user");
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
             test(p->second == "notExist");
         }
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
             test(p->second == "system"); // non-collocated
         }
-        catch(const MySystemException&)
+        catch (const MySystemException&)
         {
             test(p->second == "system"); // collocated
         }

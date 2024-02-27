@@ -13,86 +13,80 @@
 namespace IceRuby
 {
 
-bool initValueFactoryManager(VALUE);
+    bool initValueFactoryManager(VALUE);
 
-class FactoryWrapper : public Ice::ValueFactory
-{
-public:
+    class FactoryWrapper : public Ice::ValueFactory
+    {
+    public:
+        FactoryWrapper(VALUE);
 
-    FactoryWrapper(VALUE);
+        virtual std::shared_ptr<Ice::Value> create(std::string_view);
 
-    virtual std::shared_ptr<Ice::Value> create(std::string_view);
+        VALUE getObject() const;
 
-    VALUE getObject() const;
+        void mark();
 
-    void mark();
+        void destroy();
 
-    void destroy();
+    protected:
+        VALUE _factory;
+    };
+    using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
 
-protected:
+    class DefaultValueFactory : public Ice::ValueFactory
+    {
+    public:
+        virtual std::shared_ptr<Ice::Value> create(std::string_view);
 
-    VALUE _factory;
-};
-using FactoryWrapperPtr = std::shared_ptr<FactoryWrapper>;
+        void setDelegate(const Ice::ValueFactoryPtr&);
+        Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
 
-class DefaultValueFactory : public Ice::ValueFactory
-{
-public:
+        VALUE getObject() const;
 
-    virtual std::shared_ptr<Ice::Value> create(std::string_view);
+        void mark();
 
-    void setDelegate(const Ice::ValueFactoryPtr&);
-    Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
+        void destroy();
 
-    VALUE getObject() const;
+    private:
+        Ice::ValueFactoryPtr _delegate;
+    };
+    using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
 
-    void mark();
+    class ValueFactoryManager final : public Ice::ValueFactoryManager
+    {
+    public:
+        static std::shared_ptr<ValueFactoryManager> create();
 
-    void destroy();
+        ~ValueFactoryManager();
 
-private:
+        void add(Ice::ValueFactoryFunc, std::string_view) final;
+        void add(Ice::ValueFactoryPtr, std::string_view) final;
+        Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
-    Ice::ValueFactoryPtr _delegate;
-};
-using DefaultValueFactoryPtr = std::shared_ptr<DefaultValueFactory>;
+        void addValueFactory(VALUE, std::string_view);
+        VALUE findValueFactory(std::string_view) const;
 
-class ValueFactoryManager final : public Ice::ValueFactoryManager
-{
-public:
+        void mark();
+        void markSelf();
 
-    static std::shared_ptr<ValueFactoryManager> create();
+        VALUE getObject() const;
 
-    ~ValueFactoryManager();
+        void destroy();
 
-    void add(Ice::ValueFactoryFunc, std::string_view) final;
-    void add(Ice::ValueFactoryPtr, std::string_view) final;
-    Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
+    private:
+        using FactoryMap = std::map<std::string, Ice::ValueFactoryPtr, std::less<>>;
 
-    void addValueFactory(VALUE, std::string_view);
-    VALUE findValueFactory(std::string_view) const;
+        ValueFactoryManager();
 
-    void mark();
-    void markSelf();
+        Ice::ValueFactoryPtr findCore(std::string_view) const noexcept;
 
-    VALUE getObject() const;
+        VALUE _self;
+        FactoryMap _factories;
+        DefaultValueFactoryPtr _defaultFactory;
 
-    void destroy();
-
-private:
-
-    using FactoryMap = std::map<std::string, Ice::ValueFactoryPtr, std::less<>>;
-
-    ValueFactoryManager();
-
-    Ice::ValueFactoryPtr findCore(std::string_view) const noexcept;
-
-    VALUE _self;
-    FactoryMap _factories;
-    DefaultValueFactoryPtr _defaultFactory;
-
-    mutable std::mutex _mutex;
-};
-using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
+        mutable std::mutex _mutex;
+    };
+    using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
 
 }
 

@@ -12,10 +12,7 @@
 using namespace IceUtil;
 using namespace std;
 
-MySystemException::MySystemException(const char* file, int line) :
-    Ice::SystemException(file, line)
-{
-}
+MySystemException::MySystemException(const char* file, int line) : Ice::SystemException(file, line) {}
 
 string
 MySystemException::ice_id() const
@@ -46,7 +43,7 @@ MyObjectI::addWithRetry(int x, int y, const Ice::Current& current)
 {
     Ice::Context::const_iterator p = current.ctx.find("retry");
 
-    if(p == current.ctx.end() || p->second != "no")
+    if (p == current.ctx.end() || p->second != "no")
     {
         throw MyRetryException();
     }
@@ -72,11 +69,8 @@ MyObjectI::badSystemAdd(int, int, const Ice::Current&)
 }
 
 void
-MyObjectI::amdAddAsync(int x,
-                       int y,
-                       function<void(int)> response,
-                       function<void(exception_ptr)>,
-                       const Ice::Current& current)
+MyObjectI::amdAddAsync(
+    int x, int y, function<void(int)> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     Ice::Context::const_iterator p = current.ctx.find("retry");
     bool retry = p != current.ctx.end();
@@ -88,7 +82,7 @@ MyObjectI::amdAddAsync(int x,
             {
                 response(x + y);
             }
-            catch(const Ice::ResponseSentException&)
+            catch (const Ice::ResponseSentException&)
             {
                 test(retry);
             }
@@ -97,11 +91,8 @@ MyObjectI::amdAddAsync(int x,
 }
 
 void
-MyObjectI::amdAddWithRetryAsync(int x,
-                                int y,
-                                function<void(int)> response,
-                                function<void(exception_ptr)> error,
-                                const Ice::Current& current)
+MyObjectI::amdAddWithRetryAsync(
+    int x, int y, function<void(int)> response, function<void(exception_ptr)> error, const Ice::Current& current)
 {
     std::thread t(
         [x, y, response]()
@@ -111,7 +102,7 @@ MyObjectI::amdAddWithRetryAsync(int x,
                 this_thread::sleep_for(chrono::milliseconds(10));
                 response(x + y);
             }
-            catch(const Ice::ResponseSentException&)
+            catch (const Ice::ResponseSentException&)
             {
             }
         });
@@ -119,18 +110,14 @@ MyObjectI::amdAddWithRetryAsync(int x,
 
     Ice::Context::const_iterator p = current.ctx.find("retry");
 
-    if(p == current.ctx.end() || p->second != "no")
+    if (p == current.ctx.end() || p->second != "no")
     {
         error(make_exception_ptr(MyRetryException()));
     }
 }
 
 void
-MyObjectI::amdBadAddAsync(int,
-                          int,
-                          function<void(int)>,
-                          function<void(exception_ptr)> error,
-                          const Ice::Current&)
+MyObjectI::amdBadAddAsync(int, int, function<void(int)>, function<void(exception_ptr)> error, const Ice::Current&)
 {
     std::thread t(
         [error]()
@@ -142,11 +129,7 @@ MyObjectI::amdBadAddAsync(int,
 }
 
 void
-MyObjectI::amdNotExistAddAsync(int,
-                               int,
-                               function<void(int)>,
-                               function<void(exception_ptr)> error,
-                               const Ice::Current&)
+MyObjectI::amdNotExistAddAsync(int, int, function<void(int)>, function<void(exception_ptr)> error, const Ice::Current&)
 {
     std::thread t(
         [error]()
@@ -158,11 +141,7 @@ MyObjectI::amdNotExistAddAsync(int,
 }
 
 void
-MyObjectI::amdBadSystemAddAsync(int,
-                                int,
-                                function<void(int)>,
-                                function<void(exception_ptr)> error,
-                                const Ice::Current&)
+MyObjectI::amdBadSystemAddAsync(int, int, function<void(int)>, function<void(exception_ptr)> error, const Ice::Current&)
 {
     std::thread t(
         [error]()

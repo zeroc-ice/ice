@@ -8,7 +8,7 @@
 #include <TestHelper.h>
 
 #if defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 using namespace std;
@@ -17,7 +17,6 @@ using namespace Test;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -37,15 +36,15 @@ Client::run(int argc, char** argv)
     unsigned int maxCollisions = 10;
     unsigned int maxIterations = 10000;
 
-    for(i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
+    for (i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
     {
         ostringstream os;
         os << i << ":tcp -p " << IceUtilInternal::random(65536) << " -t 10" << IceUtilInternal::random(1000000)
-                << ":udp -p " << IceUtilInternal::random(65536) << " -h " << IceUtilInternal::random(100);
+           << ":udp -p " << IceUtilInternal::random(65536) << " -h " << IceUtilInternal::random(100);
 
         Ice::ObjectPrxPtr obj = communicator->stringToProxy(os.str());
         Ice::EndpointSeq endpoints = obj->ice_getEndpoints();
-        if(!seenProxy.insert(make_pair(obj->_hash(), obj)).second)
+        if (!seenProxy.insert(make_pair(obj->_hash(), obj)).second)
         {
             ++proxyCollisions;
         }

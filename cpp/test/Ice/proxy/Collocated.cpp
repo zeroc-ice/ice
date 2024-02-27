@@ -11,7 +11,6 @@ using namespace std;
 class Collocated : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -24,7 +23,7 @@ Collocated::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
-    //adapter->activate(); // Don't activate OA to ensure collocation is used.
+    // adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     Test::MyClassPrxPtr allTests(Test::TestHelper*);
     allTests(this);

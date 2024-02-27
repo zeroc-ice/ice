@@ -16,595 +16,522 @@
 //
 extern "C"
 {
-ZEND_FUNCTION(IcePHP_defineEnum);
-ZEND_FUNCTION(IcePHP_defineStruct);
-ZEND_FUNCTION(IcePHP_defineSequence);
-ZEND_FUNCTION(IcePHP_defineDictionary);
-ZEND_FUNCTION(IcePHP_declareProxy);
-ZEND_FUNCTION(IcePHP_defineProxy);
-ZEND_FUNCTION(IcePHP_declareClass);
-ZEND_FUNCTION(IcePHP_defineClass);
-ZEND_FUNCTION(IcePHP_defineException);
-ZEND_FUNCTION(IcePHP_stringify);
-ZEND_FUNCTION(IcePHP_stringifyException);
+    ZEND_FUNCTION(IcePHP_defineEnum);
+    ZEND_FUNCTION(IcePHP_defineStruct);
+    ZEND_FUNCTION(IcePHP_defineSequence);
+    ZEND_FUNCTION(IcePHP_defineDictionary);
+    ZEND_FUNCTION(IcePHP_declareProxy);
+    ZEND_FUNCTION(IcePHP_defineProxy);
+    ZEND_FUNCTION(IcePHP_declareClass);
+    ZEND_FUNCTION(IcePHP_defineClass);
+    ZEND_FUNCTION(IcePHP_defineException);
+    ZEND_FUNCTION(IcePHP_stringify);
+    ZEND_FUNCTION(IcePHP_stringifyException);
 }
 
 namespace IcePHP
 {
 
-// This class is raised as an exception when object marshaling needs to be aborted.
-class AbortMarshaling
-{
-};
-
-class ClassInfo;
-using ClassInfoPtr = std::shared_ptr<ClassInfo>;
-using ClassInfoList = std::vector<ClassInfoPtr>;
-using ObjectMap = std::map<unsigned int, std::shared_ptr<Ice::Value>>;
-
-using CompactIdMap = std::map<int, ClassInfoPtr>;
-
-class ValueReader;
-
-struct PrintObjectHistory
-{
-    int index;
-    std::map<unsigned int, int> objects;
-};
-
-// The delayed nature of class unmarshaling in the Ice protocol requires us to
-// handle unmarshaling using a callback strategy. An instance of UnmarshalCallback
-// is supplied to each type's unmarshal() member function. For all types except
-// classes, the callback is invoked with the unmarshaled value before unmarshal()
-// returns. For class instances, however, the callback may not be invoked until
-// the stream's finished() function is called.
-class UnmarshalCallback
-{
-public:
-
-    virtual ~UnmarshalCallback();
-
-    // The unmarshaled() member function receives the unmarshaled value. The last two arguments are the values passed
-    // to unmarshal() for use by UnmarshalCallback implementations.
-    virtual void unmarshaled(zval*, zval*, void*) = 0;
-};
-using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback> ;
-
-// ReadObjectCallback retains all of the information necessary to store an unmarshaled Slice value as a PHP object.
-class ReadObjectCallback final
-{
-public:
-
-    ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, zval*, void*);
-    ~ReadObjectCallback();
-
-    void invoke(const ::std::shared_ptr<Ice::Value>&);
-
-private:
-
-    ClassInfoPtr _info;
-    UnmarshalCallbackPtr _cb;
-    zval _target;
-    void* _closure;
-};
-using ReadObjectCallbackPtr = std::shared_ptr<ReadObjectCallback>;
-
-// This class keeps track of PHP objects (instances of Slice classes and exceptions) that have preserved slices.
-class StreamUtil
-{
-public:
-
-    ~StreamUtil();
-
-    // Keep a reference to a ReadObjectCallback for patching purposes.
-    void add(const ReadObjectCallbackPtr&);
-
-    // Keep track of object instances that have preserved slices.
-    void add(const std::shared_ptr<ValueReader>&);
-
-    void updateSlicedData(void);
-
-    static void setSlicedDataMember(zval*, const Ice::SlicedDataPtr&);
-    static Ice::SlicedDataPtr getSlicedDataMember(zval*, ObjectMap*);
-
-private:
-
-    std::vector<ReadObjectCallbackPtr> _callbacks;
-    std::set<std::shared_ptr<ValueReader>> _readers;
-    static zend_class_entry* _slicedDataType;
-    static zend_class_entry* _sliceInfoType;
-};
-
-// Base class for type information.
-class TypeInfo : public UnmarshalCallback, public std::enable_shared_from_this<TypeInfo>
-{
-public:
-
-    virtual std::string getId() const = 0;
-
-    virtual bool validate(zval*, bool) = 0; // Validate type data. Bool enables excpetion throwing.
-
-    virtual bool variableLength() const = 0;
-    virtual int wireSize() const = 0;
-    virtual Ice::OptionalFormat optionalFormat() const = 0;
-
-    virtual bool usesClasses() const; // Default implementation returns false.
-
-    virtual void unmarshaled(zval*, zval*, void*); // Default implementation is assert(false).
-
-    virtual void destroy();
-
-protected:
-
-    TypeInfo();
-
-public:
-
-    // The marshal and unmarshal functions can raise Ice exceptions, and may raise AbortMarshaling if an error occurs.
-    virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) = 0;
-    virtual void unmarshal(
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        const CommunicatorInfoPtr&,
-        zval*,
-        void*,
-        bool) = 0;
-    virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
-};
-using TypeInfoPtr = std::shared_ptr<TypeInfo>;
-
-// Primitive type information.
-class PrimitiveInfo final : public TypeInfo
-{
-public:
-
-    std::string getId() const final;
-
-    bool validate(zval*, bool) final;
-
-    bool variableLength() const final;
-    int wireSize() const final;
-    Ice::OptionalFormat optionalFormat() const final;
-
-    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
-    void unmarshal(
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        const CommunicatorInfoPtr&,
-        zval*,
-        void*,
-        bool) final;
-    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
-
-    enum Kind
+    // This class is raised as an exception when object marshaling needs to be aborted.
+    class AbortMarshaling
     {
-        KindBool,
-        KindByte,
-        KindShort,
-        KindInt,
-        KindLong,
-        KindFloat,
-        KindDouble,
-        KindString
     };
 
-    Kind kind;
-};
-using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
+    class ClassInfo;
+    using ClassInfoPtr = std::shared_ptr<ClassInfo>;
+    using ClassInfoList = std::vector<ClassInfoPtr>;
+    using ObjectMap = std::map<unsigned int, std::shared_ptr<Ice::Value>>;
 
-// Enum information.
-class EnumInfo final : public TypeInfo
-{
-public:
+    using CompactIdMap = std::map<int, ClassInfoPtr>;
 
-    EnumInfo(std::string, zval*);
+    class ValueReader;
 
-    std::string getId() const final;
+    struct PrintObjectHistory
+    {
+        int index;
+        std::map<unsigned int, int> objects;
+    };
 
-    bool validate(zval*, bool) final;
-
-    bool variableLength() const final;
-    int wireSize() const final;
-    Ice::OptionalFormat optionalFormat() const final;
-
-    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
-    void unmarshal(
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        const CommunicatorInfoPtr&,
-        zval*,
-        void*,
-        bool) final;
-    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
-
-    const std::string id;
-    const std::map<std::int32_t, std::string> enumerators;
-    const std::int32_t maxValue;
-
-};
-using EnumInfoPtr = std::shared_ptr<EnumInfo>;
-
-class DataMember final : public UnmarshalCallback
-{
-public:
-
-    void unmarshaled(zval*, zval*, void*) final;
-
-    void setMember(zval*, zval*);
-
-    std::string name;
-    TypeInfoPtr type;
-    bool optional;
-    int tag;
-};
-using DataMemberPtr = std::shared_ptr<DataMember>;
-using DataMemberList = std::vector<DataMemberPtr>;
-
-// Struct information.
-class StructInfo final : public TypeInfo
-{
-public:
-
-    StructInfo(std::string, const std::string&, zval*);
-
-    std::string getId() const final;
-    bool validate(zval*, bool) final;
-
-    bool variableLength() const final;
-    int wireSize() const final;
-    Ice::OptionalFormat optionalFormat() const final;
-
-    bool usesClasses() const final;
-
-    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
-    void unmarshal(
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        const CommunicatorInfoPtr&,
-        zval*,
-        void*,
-        bool) final;
-
-    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
-
-    virtual void destroy();
-
-    const std::string id;
-    const std::string name; // PHP class name
-    const DataMemberList members;
-    const zend_class_entry* zce;
-
-private:
-
-    bool _variableLength;
-    int _wireSize;
-    zval _nullMarshalValue;
-};
-using StructInfoPtr = std::shared_ptr<StructInfo>;
-
-// Sequence information.
-class SequenceInfo final : public TypeInfo
-{
-public:
-
-    SequenceInfo(std::string, zval*);
-
-    std::string getId() const final;
-
-    bool validate(zval*, bool) final;
-
-    bool variableLength() const final;
-    int wireSize() const final;
-    Ice::OptionalFormat optionalFormat() const final;
-
-    bool usesClasses() const final;
-
-    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
-    void unmarshal(
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        const CommunicatorInfoPtr&,
-        zval*,
-        void*,
-        bool) final;
-    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
-    void unmarshaled(zval*, zval*, void*) final;
-    void destroy() final;
-
-    const std::string id;
-    const TypeInfoPtr elementType;
-
-private:
-
-    void marshalPrimitiveSequence(const PrimitiveInfoPtr&, zval*, Ice::OutputStream*);
-    void unmarshalPrimitiveSequence(
-        const PrimitiveInfoPtr&,
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        zval*,
-        void*);
-};
-using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
-
-// Dictionary information.
-class DictionaryInfo final : public TypeInfo
-{
-public:
-
-    DictionaryInfo(std::string, zval*, zval*);
-
-    std::string getId() const final;
-
-    bool validate(zval*, bool) final;
-
-    bool variableLength() const final;
-    int wireSize() const final;
-    Ice::OptionalFormat optionalFormat() const final;
-    bool usesClasses() const final;
-
-    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
-    void unmarshal(
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        const CommunicatorInfoPtr&,
-        zval*,
-        void*,
-        bool) final;
-    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
-    void destroy() final;
-
-    class KeyCallback final : public UnmarshalCallback
+    // The delayed nature of class unmarshaling in the Ice protocol requires us to
+    // handle unmarshaling using a callback strategy. An instance of UnmarshalCallback
+    // is supplied to each type's unmarshal() member function. For all types except
+    // classes, the callback is invoked with the unmarshaled value before unmarshal()
+    // returns. For class instances, however, the callback may not be invoked until
+    // the stream's finished() function is called.
+    class UnmarshalCallback
     {
     public:
+        virtual ~UnmarshalCallback();
 
-        KeyCallback();
-        ~KeyCallback();
-
-        void unmarshaled(zval*, zval*, void*) final;
-
-        zval key;
+        // The unmarshaled() member function receives the unmarshaled value. The last two arguments are the values
+        // passed to unmarshal() for use by UnmarshalCallback implementations.
+        virtual void unmarshaled(zval*, zval*, void*) = 0;
     };
-    using KeyCallbackPtr = std::shared_ptr<KeyCallback>;
+    using UnmarshalCallbackPtr = std::shared_ptr<UnmarshalCallback>;
 
-    class ValueCallback final : public UnmarshalCallback
+    // ReadObjectCallback retains all of the information necessary to store an unmarshaled Slice value as a PHP object.
+    class ReadObjectCallback final
     {
     public:
+        ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, zval*, void*);
+        ~ReadObjectCallback();
 
-        ValueCallback(zval*);
-        ~ValueCallback();
+        void invoke(const ::std::shared_ptr<Ice::Value>&);
 
+    private:
+        ClassInfoPtr _info;
+        UnmarshalCallbackPtr _cb;
+        zval _target;
+        void* _closure;
+    };
+    using ReadObjectCallbackPtr = std::shared_ptr<ReadObjectCallback>;
+
+    // This class keeps track of PHP objects (instances of Slice classes and exceptions) that have preserved slices.
+    class StreamUtil
+    {
+    public:
+        ~StreamUtil();
+
+        // Keep a reference to a ReadObjectCallback for patching purposes.
+        void add(const ReadObjectCallbackPtr&);
+
+        // Keep track of object instances that have preserved slices.
+        void add(const std::shared_ptr<ValueReader>&);
+
+        void updateSlicedData(void);
+
+        static void setSlicedDataMember(zval*, const Ice::SlicedDataPtr&);
+        static Ice::SlicedDataPtr getSlicedDataMember(zval*, ObjectMap*);
+
+    private:
+        std::vector<ReadObjectCallbackPtr> _callbacks;
+        std::set<std::shared_ptr<ValueReader>> _readers;
+        static zend_class_entry* _slicedDataType;
+        static zend_class_entry* _sliceInfoType;
+    };
+
+    // Base class for type information.
+    class TypeInfo : public UnmarshalCallback, public std::enable_shared_from_this<TypeInfo>
+    {
+    public:
+        virtual std::string getId() const = 0;
+
+        virtual bool validate(zval*, bool) = 0; // Validate type data. Bool enables excpetion throwing.
+
+        virtual bool variableLength() const = 0;
+        virtual int wireSize() const = 0;
+        virtual Ice::OptionalFormat optionalFormat() const = 0;
+
+        virtual bool usesClasses() const; // Default implementation returns false.
+
+        virtual void unmarshaled(zval*, zval*, void*); // Default implementation is assert(false).
+
+        virtual void destroy();
+
+    protected:
+        TypeInfo();
+
+    public:
+        // The marshal and unmarshal functions can raise Ice exceptions, and may raise AbortMarshaling if an error
+        // occurs.
+        virtual void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) = 0;
+        virtual void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) = 0;
+        virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
+    };
+    using TypeInfoPtr = std::shared_ptr<TypeInfo>;
+
+    // Primitive type information.
+    class PrimitiveInfo final : public TypeInfo
+    {
+    public:
+        std::string getId() const final;
+
+        bool validate(zval*, bool) final;
+
+        bool variableLength() const final;
+        int wireSize() const final;
+        Ice::OptionalFormat optionalFormat() const final;
+
+        void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+        void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
+        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+
+        enum Kind
+        {
+            KindBool,
+            KindByte,
+            KindShort,
+            KindInt,
+            KindLong,
+            KindFloat,
+            KindDouble,
+            KindString
+        };
+
+        Kind kind;
+    };
+    using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
+
+    // Enum information.
+    class EnumInfo final : public TypeInfo
+    {
+    public:
+        EnumInfo(std::string, zval*);
+
+        std::string getId() const final;
+
+        bool validate(zval*, bool) final;
+
+        bool variableLength() const final;
+        int wireSize() const final;
+        Ice::OptionalFormat optionalFormat() const final;
+
+        void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+        void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
+        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+
+        const std::string id;
+        const std::map<std::int32_t, std::string> enumerators;
+        const std::int32_t maxValue;
+    };
+    using EnumInfoPtr = std::shared_ptr<EnumInfo>;
+
+    class DataMember final : public UnmarshalCallback
+    {
+    public:
         void unmarshaled(zval*, zval*, void*) final;
 
-        zval key;
+        void setMember(zval*, zval*);
+
+        std::string name;
+        TypeInfoPtr type;
+        bool optional;
+        int tag;
     };
-    using ValueCallbackPtr = std::shared_ptr<ValueCallback>;
+    using DataMemberPtr = std::shared_ptr<DataMember>;
+    using DataMemberList = std::vector<DataMemberPtr>;
 
-    std::string id;
-    TypeInfoPtr keyType;
-    TypeInfoPtr valueType;
+    // Struct information.
+    class StructInfo final : public TypeInfo
+    {
+    public:
+        StructInfo(std::string, const std::string&, zval*);
 
-private:
+        std::string getId() const final;
+        bool validate(zval*, bool) final;
 
-    bool _variableLength;
-    int _wireSize;
-};
-using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo>;
+        bool variableLength() const final;
+        int wireSize() const final;
+        Ice::OptionalFormat optionalFormat() const final;
 
-class ExceptionInfo;
-using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
-using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
+        bool usesClasses() const final;
 
-using TypeInfoList = std::vector<TypeInfoPtr>;
+        void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+        void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
 
-class ClassInfo final : public TypeInfo
-{
-public:
+        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
 
-    ClassInfo(std::string);
+        virtual void destroy();
 
-    void define(const std::string&, std::int32_t, bool, bool, zval*, zval*);
+        const std::string id;
+        const std::string name; // PHP class name
+        const DataMemberList members;
+        const zend_class_entry* zce;
 
-    std::string getId() const final;
+    private:
+        bool _variableLength;
+        int _wireSize;
+        zval _nullMarshalValue;
+    };
+    using StructInfoPtr = std::shared_ptr<StructInfo>;
 
-    bool validate(zval*, bool) final;
+    // Sequence information.
+    class SequenceInfo final : public TypeInfo
+    {
+    public:
+        SequenceInfo(std::string, zval*);
 
-    bool variableLength() const final;
-    int wireSize() const final;
-    Ice::OptionalFormat optionalFormat() const final;
+        std::string getId() const final;
 
-    bool usesClasses() const final;
+        bool validate(zval*, bool) final;
 
-    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
-    void unmarshal(
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        const CommunicatorInfoPtr&,
-        zval*,
-        void*,
-        bool) final;
-    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
-    void destroy() final;
-    void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
+        bool variableLength() const final;
+        int wireSize() const final;
+        Ice::OptionalFormat optionalFormat() const final;
 
-    bool isA(std::string_view) const;
+        bool usesClasses() const final;
 
-    const std::string id;
-    const std::string name; // PHP class name
-    const std::int32_t compactId;
-    const bool preserve;
-    const bool interface;
-    ClassInfoPtr base;
-    const DataMemberList members;
-    const DataMemberList optionalMembers;
-    const zend_class_entry* zce;
-    bool defined;
-};
+        void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+        void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
+        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void unmarshaled(zval*, zval*, void*) final;
+        void destroy() final;
 
-// Proxy information.
-class ProxyInfo;
-using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
-using ProxyInfoList = std::vector<ProxyInfoPtr>;
+        const std::string id;
+        const TypeInfoPtr elementType;
 
-class ProxyInfo final : public TypeInfo
-{
-public:
+    private:
+        void marshalPrimitiveSequence(const PrimitiveInfoPtr&, zval*, Ice::OutputStream*);
+        void unmarshalPrimitiveSequence(
+            const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&, zval*, void*);
+    };
+    using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 
-    ProxyInfo(std::string);
+    // Dictionary information.
+    class DictionaryInfo final : public TypeInfo
+    {
+    public:
+        DictionaryInfo(std::string, zval*, zval*);
 
-    void define(zval*, zval*);
+        std::string getId() const final;
 
-    std::string getId() const final;
+        bool validate(zval*, bool) final;
 
-    bool validate(zval*, bool) final;
+        bool variableLength() const final;
+        int wireSize() const final;
+        Ice::OptionalFormat optionalFormat() const final;
+        bool usesClasses() const final;
 
-    bool variableLength() const final;
-    int wireSize() const final;
-    Ice::OptionalFormat optionalFormat() const final;
+        void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+        void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
+        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void destroy() final;
 
-    void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
-    void unmarshal(
-        Ice::InputStream*,
-        const UnmarshalCallbackPtr&,
-        const CommunicatorInfoPtr&,
-        zval*,
-        void*,
-        bool) final;
-    void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        class KeyCallback final : public UnmarshalCallback
+        {
+        public:
+            KeyCallback();
+            ~KeyCallback();
 
-    void destroy() final;
-    bool isA(std::string_view) const;
+            void unmarshaled(zval*, zval*, void*) final;
 
-    void addOperation(const std::string&, const OperationPtr&);
-    OperationPtr getOperation(const std::string&) const;
+            zval key;
+        };
+        using KeyCallbackPtr = std::shared_ptr<KeyCallback>;
 
-    const std::string id;
-    ProxyInfoPtr base;
-    ProxyInfoList interfaces;
-    bool defined;
-    typedef std::map<std::string, OperationPtr> OperationMap;
-    OperationMap operations;
-};
+        class ValueCallback final : public UnmarshalCallback
+        {
+        public:
+            ValueCallback(zval*);
+            ~ValueCallback();
 
-// Exception information.
-class ExceptionInfo final : public std::enable_shared_from_this<ExceptionInfo>
-{
-public:
+            void unmarshaled(zval*, zval*, void*) final;
 
-    void unmarshal(Ice::InputStream*, const CommunicatorInfoPtr&, zval*);
+            zval key;
+        };
+        using ValueCallbackPtr = std::shared_ptr<ValueCallback>;
 
-    void print(zval*, IceUtilInternal::Output&);
-    void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
+        std::string id;
+        TypeInfoPtr keyType;
+        TypeInfoPtr valueType;
 
-    bool isA(std::string_view) const;
+    private:
+        bool _variableLength;
+        int _wireSize;
+    };
+    using DictionaryInfoPtr = std::shared_ptr<DictionaryInfo>;
 
-    std::string id;
-    std::string name; // PHP class name
-    bool preserve;
-    ExceptionInfoPtr base;
-    DataMemberList members;
-    DataMemberList optionalMembers;
-    bool usesClasses;
-    zend_class_entry* zce;
-};
+    class ExceptionInfo;
+    using ExceptionInfoPtr = std::shared_ptr<ExceptionInfo>;
+    using ExceptionInfoList = std::vector<ExceptionInfoPtr>;
 
-ClassInfoPtr getClassInfoById(std::string_view);
-ClassInfoPtr getClassInfoByName(const std::string&);
-ProxyInfoPtr getProxyInfo(std::string_view);
-ExceptionInfoPtr getExceptionInfo(std::string_view);
+    using TypeInfoList = std::vector<TypeInfoPtr>;
 
-bool isUnset(zval*);
-void assignUnset(zval*);
+    class ClassInfo final : public TypeInfo
+    {
+    public:
+        ClassInfo(std::string);
 
-bool typesInit(INIT_FUNC_ARGS);
-bool typesRequestInit(void);
-bool typesRequestShutdown(void);
+        void define(const std::string&, std::int32_t, bool, bool, zval*, zval*);
 
-// ValueWriter wraps a PHP object for marshaling.
-class ValueWriter final : public Ice::Value
-{
-public:
+        std::string getId() const final;
 
-    ValueWriter(zval*, ObjectMap*, ClassInfoPtr);
-    ~ValueWriter();
+        bool validate(zval*, bool) final;
 
-    void ice_preMarshal() final;
+        bool variableLength() const final;
+        int wireSize() const final;
+        Ice::OptionalFormat optionalFormat() const final;
 
-    void _iceWrite(Ice::OutputStream*) const final;
-    void _iceRead(Ice::InputStream*) final;
+        bool usesClasses() const final;
 
-private:
+        void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+        void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
+        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
+        void destroy() final;
+        void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    void writeMembers(Ice::OutputStream*, const DataMemberList&) const;
+        bool isA(std::string_view) const;
 
-    zval _object;
-    ObjectMap* _map;
-    ClassInfoPtr _info;
-    ClassInfoPtr _formal;
-};
+        const std::string id;
+        const std::string name; // PHP class name
+        const std::int32_t compactId;
+        const bool preserve;
+        const bool interface;
+        ClassInfoPtr base;
+        const DataMemberList members;
+        const DataMemberList optionalMembers;
+        const zend_class_entry* zce;
+        bool defined;
+    };
 
-// ValueReader unmarshals the state of an Ice value.
-class ValueReader final : public std::enable_shared_from_this<ValueReader>, public Ice::Value
-{
-public:
+    // Proxy information.
+    class ProxyInfo;
+    using ProxyInfoPtr = std::shared_ptr<ProxyInfo>;
+    using ProxyInfoList = std::vector<ProxyInfoPtr>;
 
-    ValueReader(zval*, const ClassInfoPtr&, const CommunicatorInfoPtr&);
-    ~ValueReader();
+    class ProxyInfo final : public TypeInfo
+    {
+    public:
+        ProxyInfo(std::string);
 
-    void ice_postUnmarshal() final;
+        void define(zval*, zval*);
 
-    void _iceWrite(Ice::OutputStream*) const final;
-    void _iceRead(Ice::InputStream*) final;
+        std::string getId() const final;
 
-    ClassInfoPtr getInfo() const;
+        bool validate(zval*, bool) final;
 
-    zval* getObject() const;
+        bool variableLength() const final;
+        int wireSize() const final;
+        Ice::OptionalFormat optionalFormat() const final;
 
-    Ice::SlicedDataPtr getSlicedData() const;
+        void marshal(zval*, Ice::OutputStream*, ObjectMap*, bool) final;
+        void
+        unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&, zval*, void*, bool) final;
+        void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
 
-private:
+        void destroy() final;
+        bool isA(std::string_view) const;
 
-    zval _object;
-    ClassInfoPtr _info;
-    CommunicatorInfoPtr _communicator;
-    Ice::SlicedDataPtr _slicedData;
-};
+        void addOperation(const std::string&, const OperationPtr&);
+        OperationPtr getOperation(const std::string&) const;
 
-// ExceptionReader creates a PHP user exception and unmarshals it.
-class ExceptionReader final : public Ice::UserException
-{
-public:
+        const std::string id;
+        ProxyInfoPtr base;
+        ProxyInfoList interfaces;
+        bool defined;
+        typedef std::map<std::string, OperationPtr> OperationMap;
+        OperationMap operations;
+    };
 
-    ExceptionReader(const CommunicatorInfoPtr&, const ExceptionInfoPtr&);
-    ~ExceptionReader();
+    // Exception information.
+    class ExceptionInfo final : public std::enable_shared_from_this<ExceptionInfo>
+    {
+    public:
+        void unmarshal(Ice::InputStream*, const CommunicatorInfoPtr&, zval*);
 
-    ExceptionReader(const ExceptionReader&) = default;
+        void print(zval*, IceUtilInternal::Output&);
+        void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    std::string ice_id() const final;
-    ExceptionReader* ice_cloneImpl() const final;
-    void ice_throw() const final;
+        bool isA(std::string_view) const;
 
-    void _write(Ice::OutputStream*) const final;
-    void _read(Ice::InputStream*) final;
-    bool _usesClasses() const final;
+        std::string id;
+        std::string name; // PHP class name
+        bool preserve;
+        ExceptionInfoPtr base;
+        DataMemberList members;
+        DataMemberList optionalMembers;
+        bool usesClasses;
+        zend_class_entry* zce;
+    };
 
-    ExceptionInfoPtr getInfo() const;
+    ClassInfoPtr getClassInfoById(std::string_view);
+    ClassInfoPtr getClassInfoByName(const std::string&);
+    ProxyInfoPtr getProxyInfo(std::string_view);
+    ExceptionInfoPtr getExceptionInfo(std::string_view);
 
-    zval* getException() const;
+    bool isUnset(zval*);
+    void assignUnset(zval*);
 
-    Ice::SlicedDataPtr getSlicedData() const;
+    bool typesInit(INIT_FUNC_ARGS);
+    bool typesRequestInit(void);
+    bool typesRequestShutdown(void);
 
-protected:
+    // ValueWriter wraps a PHP object for marshaling.
+    class ValueWriter final : public Ice::Value
+    {
+    public:
+        ValueWriter(zval*, ObjectMap*, ClassInfoPtr);
+        ~ValueWriter();
 
-    void _writeImpl(Ice::OutputStream*) const final {}
-    void _readImpl(Ice::InputStream*) final {}
+        void ice_preMarshal() final;
 
-private:
+        void _iceWrite(Ice::OutputStream*) const final;
+        void _iceRead(Ice::InputStream*) final;
 
-    CommunicatorInfoPtr _communicatorInfo;
-    ExceptionInfoPtr _info;
-    zval _ex;
-    Ice::SlicedDataPtr _slicedData;
-};
+    private:
+        void writeMembers(Ice::OutputStream*, const DataMemberList&) const;
+
+        zval _object;
+        ObjectMap* _map;
+        ClassInfoPtr _info;
+        ClassInfoPtr _formal;
+    };
+
+    // ValueReader unmarshals the state of an Ice value.
+    class ValueReader final : public std::enable_shared_from_this<ValueReader>, public Ice::Value
+    {
+    public:
+        ValueReader(zval*, const ClassInfoPtr&, const CommunicatorInfoPtr&);
+        ~ValueReader();
+
+        void ice_postUnmarshal() final;
+
+        void _iceWrite(Ice::OutputStream*) const final;
+        void _iceRead(Ice::InputStream*) final;
+
+        ClassInfoPtr getInfo() const;
+
+        zval* getObject() const;
+
+        Ice::SlicedDataPtr getSlicedData() const;
+
+    private:
+        zval _object;
+        ClassInfoPtr _info;
+        CommunicatorInfoPtr _communicator;
+        Ice::SlicedDataPtr _slicedData;
+    };
+
+    // ExceptionReader creates a PHP user exception and unmarshals it.
+    class ExceptionReader final : public Ice::UserException
+    {
+    public:
+        ExceptionReader(const CommunicatorInfoPtr&, const ExceptionInfoPtr&);
+        ~ExceptionReader();
+
+        ExceptionReader(const ExceptionReader&) = default;
+
+        std::string ice_id() const final;
+        ExceptionReader* ice_cloneImpl() const final;
+        void ice_throw() const final;
+
+        void _write(Ice::OutputStream*) const final;
+        void _read(Ice::InputStream*) final;
+        bool _usesClasses() const final;
+
+        ExceptionInfoPtr getInfo() const;
+
+        zval* getException() const;
+
+        Ice::SlicedDataPtr getSlicedData() const;
+
+    protected:
+        void _writeImpl(Ice::OutputStream*) const final {}
+        void _readImpl(Ice::InputStream*) final {}
+
+    private:
+        CommunicatorInfoPtr _communicatorInfo;
+        ExceptionInfoPtr _info;
+        zval _ex;
+        Ice::SlicedDataPtr _slicedData;
+    };
 
 } // End of namespace IcePHP
 

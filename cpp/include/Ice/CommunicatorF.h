@@ -16,19 +16,19 @@
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICE_API /**/
+#    elif defined(ICE_API_EXPORTS)
+#        define ICE_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 namespace Ice
 {
 
-class Communicator;
+    class Communicator;
 
 }
 
@@ -36,7 +36,7 @@ class Communicator;
 namespace Ice
 {
 
-using CommunicatorPtr = ::std::shared_ptr<Communicator>;
+    using CommunicatorPtr = ::std::shared_ptr<Communicator>;
 
 }
 /// \endcond

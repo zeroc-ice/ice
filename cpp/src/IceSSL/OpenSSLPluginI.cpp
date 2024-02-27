@@ -13,28 +13,25 @@ using namespace std;
 namespace
 {
 
-class PluginI : public IceSSL::PluginI,
-                public IceSSL::OpenSSL::Plugin
-{
-public:
+    class PluginI : public IceSSL::PluginI, public IceSSL::OpenSSL::Plugin
+    {
+    public:
+        PluginI(const Ice::CommunicatorPtr&);
 
-    PluginI(const Ice::CommunicatorPtr&);
-
-    virtual int64_t getOpenSSLVersion() const;
-    virtual IceSSL::CertificatePtr create(x509_st*) const;
-    virtual IceSSL::CertificatePtr load(const std::string&) const;
-    virtual IceSSL::CertificatePtr decode(const std::string&) const;
-    virtual void setContext(SSL_CTX*);
-    virtual SSL_CTX* getContext();
-};
+        virtual int64_t getOpenSSLVersion() const;
+        virtual IceSSL::CertificatePtr create(x509_st*) const;
+        virtual IceSSL::CertificatePtr load(const std::string&) const;
+        virtual IceSSL::CertificatePtr decode(const std::string&) const;
+        virtual void setContext(SSL_CTX*);
+        virtual SSL_CTX* getContext();
+    };
 
 } // anonymous namespace end
 
 //
 // Plugin implementation.
 //
-PluginI::PluginI(const Ice::CommunicatorPtr& com) :
-    IceSSL::PluginI(com, make_shared<IceSSL::OpenSSL::SSLEngine>(com))
+PluginI::PluginI(const Ice::CommunicatorPtr& com) : IceSSL::PluginI(com, make_shared<IceSSL::OpenSSL::SSLEngine>(com))
 {
 }
 
@@ -91,11 +88,10 @@ createIceSSLOpenSSL(const Ice::CommunicatorPtr& communicator, const string& /*na
 namespace Ice
 {
 
-ICESSL_OPENSSL_API void
-registerIceSSLOpenSSL(bool loadOnInitialize)
-{
-    Ice::registerPluginFactory("IceSSL", createIceSSLOpenSSL, loadOnInitialize);
-}
+    ICESSL_OPENSSL_API void registerIceSSLOpenSSL(bool loadOnInitialize)
+    {
+        Ice::registerPluginFactory("IceSSL", createIceSSLOpenSSL, loadOnInitialize);
+    }
 
 }
 

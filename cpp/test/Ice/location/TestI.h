@@ -13,14 +13,12 @@
 class ServerManagerI : public Test::ServerManager
 {
 public:
-
     ServerManagerI(const ServerLocatorRegistryPtr&, const Ice::InitializationData&);
 
     virtual void startServer(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:
-
     std::vector<Ice::CommunicatorPtr> _communicators;
     ServerLocatorRegistryPtr _registry;
     Ice::InitializationData _initData;
@@ -30,14 +28,12 @@ private:
 class HelloI : public Test::Hello
 {
 public:
-
     virtual void sayHello(const Ice::Current&);
 };
 
 class TestI : public Test::TestIntf
 {
 public:
-
     TestI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ServerLocatorRegistryPtr&);
 
     virtual void shutdown(const Ice::Current&);
@@ -46,11 +42,9 @@ public:
     virtual void migrateHello(const Ice::Current&);
 
 private:
-
     Ice::ObjectAdapterPtr _adapter1;
     Ice::ObjectAdapterPtr _adapter2;
     ServerLocatorRegistryPtr _registry;
-
 };
 
 #endif

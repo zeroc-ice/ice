@@ -8,11 +8,7 @@
 
 using namespace std;
 
-InterceptorI::InterceptorI(const Ice::ObjectPtr& servant) :
-    _servant(servant),
-    _lastStatus(false)
-{
-}
+InterceptorI::InterceptorI(const Ice::ObjectPtr& servant) : _servant(servant), _lastStatus(false) {}
 
 bool
 InterceptorI::dispatch(Ice::Request& request)
@@ -20,17 +16,17 @@ InterceptorI::dispatch(Ice::Request& request)
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
 
     Ice::Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
-    if(p != current.ctx.end())
+    if (p != current.ctx.end())
     {
-        if(p->second == "user")
+        if (p->second == "user")
         {
             throw Test::InvalidInputException();
         }
-        else if(p->second == "notExist")
+        else if (p->second == "notExist")
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
-        else if(p->second == "system")
+        else if (p->second == "system")
         {
             throw MySystemException(__FILE__, __LINE__);
         }
@@ -38,16 +34,16 @@ InterceptorI::dispatch(Ice::Request& request)
 
     _lastOperation = current.operation;
 
-    if(_lastOperation == "addWithRetry")
+    if (_lastOperation == "addWithRetry")
     {
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             try
             {
                 _servant->ice_dispatch(request);
                 test(false);
             }
-            catch(const MyRetryException&)
+            catch (const MyRetryException&)
             {
                 //
                 // Expected, retry
@@ -61,17 +57,17 @@ InterceptorI::dispatch(Ice::Request& request)
     _lastStatus = _servant->ice_dispatch(request);
 
     p = current.ctx.find("raiseAfterDispatch");
-    if(p != current.ctx.end())
+    if (p != current.ctx.end())
     {
-        if(p->second == "user")
+        if (p->second == "user")
         {
             throw Test::InvalidInputException();
         }
-        else if(p->second == "notExist")
+        else if (p->second == "notExist")
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
-        else if(p->second == "system")
+        else if (p->second == "system")
         {
             throw MySystemException(__FILE__, __LINE__);
         }

@@ -14,7 +14,6 @@ using namespace Test;
 class SessionControlClient final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -39,8 +38,8 @@ SessionControlClient::run(int argc, char** argv)
     Ice::InitializationData initData;
     initData.properties = communicator->getProperties();
     auto controlComm = Ice::initialize(argc, argv, initData);
-    auto controller = checkedCast<TestControllerPrx>(
-        controlComm->stringToProxy("testController:" + getTestEndpoint(2, "tcp")));
+    auto controller =
+        checkedCast<TestControllerPrx>(controlComm->stringToProxy("testController:" + getTestEndpoint(2, "tcp")));
     test(controller);
     TestToken currentState;
     TestToken newState;
@@ -63,12 +62,12 @@ SessionControlClient::run(int argc, char** argv)
     auto currentSession = checkedCast<Test::TestSessionPrx>(sessionBase);
 
     bool printOk = false;
-    while(currentState.code == StateCode::Running)
+    while (currentState.code == StateCode::Running)
     {
         controller->step(currentSession, currentState, newState);
         currentState = newState;
 
-        if(currentState.code != StateCode::Running)
+        if (currentState.code != StateCode::Running)
         {
             cout << "ok" << endl;
             break;
@@ -77,9 +76,9 @@ SessionControlClient::run(int argc, char** argv)
         //
         // If we are running the first case for this configuration, print the configuration description.
         //
-        if(currentState.caseIndex == 0)
+        if (currentState.caseIndex == 0)
         {
-            if(printOk)
+            if (printOk)
             {
                 cout << "ok" << endl;
             }
@@ -90,14 +89,14 @@ SessionControlClient::run(int argc, char** argv)
             cout << currentState.description << "... " << flush;
         }
 
-        if(currentState.expectedResult)
+        if (currentState.expectedResult)
         {
             auto prx = uncheckedCast<BackendPrx>(communicator->stringToProxy(currentState.testReference));
             try
             {
                 prx->check();
             }
-            catch(const Exception& ex)
+            catch (const Exception& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -111,10 +110,10 @@ SessionControlClient::run(int argc, char** argv)
                 prx->check();
                 test(false);
             }
-            catch(const ObjectNotExistException&)
+            catch (const ObjectNotExistException&)
             {
             }
-            catch(const Exception& ex)
+            catch (const Exception& ex)
             {
                 cerr << ex << endl;
                 test(false);
@@ -137,7 +136,7 @@ SessionControlClient::run(int argc, char** argv)
         currentSession = uncheckedCast<Test::TestSessionPrx>(router->createSession("userid", "abc123"));
         currentSession->shutdown();
     }
-    catch(const Glacier2::CannotCreateSessionException& ex)
+    catch (const Glacier2::CannotCreateSessionException& ex)
     {
         cerr << ex.reason << endl;
         throw ex;
@@ -156,7 +155,7 @@ SessionControlClient::run(int argc, char** argv)
         process->ice_ping();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         cout << "ok" << endl;
     }
@@ -165,7 +164,7 @@ SessionControlClient::run(int argc, char** argv)
     {
         controlComm->destroy();
     }
-    catch(const Ice::LocalException& ex)
+    catch (const Ice::LocalException& ex)
     {
         cerr << ex << endl;
         test(false);

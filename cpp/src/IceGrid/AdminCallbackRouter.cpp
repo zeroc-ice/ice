@@ -13,9 +13,9 @@ AdminCallbackRouter::addMapping(const string& category, const shared_ptr<Ice::Co
     lock_guard lock(_mutex);
 
 #ifdef NDEBUG
-    _categoryToConnection.insert({ category, con });
+    _categoryToConnection.insert({category, con});
 #else
-    bool inserted = _categoryToConnection.insert({ category, con }).second;
+    bool inserted = _categoryToConnection.insert({category, con}).second;
     assert(inserted == true);
 #endif
 }
@@ -44,7 +44,7 @@ AdminCallbackRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> in
     {
         lock_guard lock(_mutex);
         auto p = _categoryToConnection.find(current.id.category);
-        if(p == _categoryToConnection.end())
+        if (p == _categoryToConnection.end())
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
         }
@@ -56,12 +56,9 @@ AdminCallbackRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> in
     //
     // Call with AMI
     //
-    target->ice_invokeAsync(current.operation, current.mode, inParams,
-                            std::move(response),
-                            [exception = std::move(exception)] (exception_ptr)
-                            {
-                                exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
-                            },
-                            nullptr,
-                            current.ctx);
+    target->ice_invokeAsync(
+        current.operation, current.mode, inParams, std::move(response),
+        [exception = std::move(exception)](exception_ptr)
+        { exception(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__))); },
+        nullptr, current.ctx);
 }

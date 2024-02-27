@@ -15,19 +15,19 @@
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICE_API /**/
+#    elif defined(ICE_API_EXPORTS)
+#        define ICE_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 namespace Ice
 {
 
-class Logger;
+    class Logger;
 
 }
 
@@ -35,7 +35,7 @@ class Logger;
 namespace Ice
 {
 
-using LoggerPtr = ::std::shared_ptr<Logger>;
+    using LoggerPtr = ::std::shared_ptr<Logger>;
 
 }
 /// \endcond

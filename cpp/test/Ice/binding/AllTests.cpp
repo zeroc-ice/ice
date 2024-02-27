@@ -24,7 +24,7 @@ createTestIntfPrx(vector<RemoteObjectAdapterPrxPtr>& adapters)
 {
     Ice::EndpointSeq endpoints;
     TestIntfPrxPtr test;
-    for(vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for (vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
         test = (*p)->getTestIntf();
         Ice::EndpointSeq edpts = test->ice_getEndpoints();
@@ -36,7 +36,7 @@ createTestIntfPrx(vector<RemoteObjectAdapterPrxPtr>& adapters)
 void
 deactivate(const RemoteCommunicatorPrxPtr& com, vector<RemoteObjectAdapterPrxPtr>& adapters)
 {
-    for(vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for (vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
         com->deactivateObjectAdapter(*p);
     }
@@ -71,10 +71,10 @@ allTests(Test::TestHelper* helper)
             test3->ice_ping();
             test(false);
         }
-        catch(const Ice::ConnectFailedException&)
+        catch (const Ice::ConnectFailedException&)
         {
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
         }
     }
@@ -95,7 +95,7 @@ allTests(Test::TestHelper* helper)
         names.insert("Adapter11");
         names.insert("Adapter12");
         names.insert("Adapter13");
-        while(!names.empty())
+        while (!names.empty())
         {
             vector<RemoteObjectAdapterPrxPtr> adpts = adapters;
 
@@ -117,7 +117,7 @@ allTests(Test::TestHelper* helper)
         // always send the request over the same connection.)
         //
         {
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+            for (vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
             {
                 (*p)->getTestIntf()->ice_ping();
             }
@@ -126,13 +126,13 @@ allTests(Test::TestHelper* helper)
             string name = test->getAdapterName();
             const int nRetry = 10;
             int i;
-            for(i = 0; i < nRetry &&  test->getAdapterName() == name; i++);
+            for (i = 0; i < nRetry && test->getAdapterName() == name; i++)
+                ;
             test(i == nRetry);
 
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+            for (vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
             {
-                (*q)->getTestIntf()->ice_getConnection()->close(
-                    Ice::ConnectionClose::GracefullyWithWait);
+                (*q)->getTestIntf()->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
         }
 
@@ -143,7 +143,7 @@ allTests(Test::TestHelper* helper)
         com->deactivateObjectAdapter(adapters[0]);
         names.insert("Adapter12");
         names.insert("Adapter13");
-        while(!names.empty())
+        while (!names.empty())
         {
             vector<RemoteObjectAdapterPrxPtr> adpts = adapters;
 
@@ -183,16 +183,16 @@ allTests(Test::TestHelper* helper)
 
         int count = 20;
         int adapterCount = static_cast<int>(adapters.size());
-        while(--count > 0)
+        while (--count > 0)
         {
 #ifdef _WIN32
-            if(count == 1)
+            if (count == 1)
             {
                 com->deactivateObjectAdapter(adapters[4]);
                 --adapterCount;
             }
 #else
-            if(count < 20 && count % 4 == 0)
+            if (count < 20 && count % 4 == 0)
             {
                 com->deactivateObjectAdapter(adapters[static_cast<size_t>(count / 4 - 1)]);
                 --adapterCount;
@@ -201,53 +201,52 @@ allTests(Test::TestHelper* helper)
             vector<TestIntfPrxPtr> proxies;
             proxies.resize(10);
             unsigned int i;
-            for(i = 0; i < proxies.size(); ++i)
+            for (i = 0; i < proxies.size(); ++i)
             {
                 vector<RemoteObjectAdapterPrxPtr> adpts;
                 adpts.resize(IceUtilInternal::random(static_cast<unsigned int>(adapters.size())));
-                if(adpts.empty())
+                if (adpts.empty())
                 {
                     adpts.resize(1);
                 }
-                for(vector<RemoteObjectAdapterPrxPtr>::iterator p = adpts.begin(); p != adpts.end(); ++p)
+                for (vector<RemoteObjectAdapterPrxPtr>::iterator p = adpts.begin(); p != adpts.end(); ++p)
                 {
                     *p = adapters[IceUtilInternal::random(static_cast<unsigned int>(adapters.size()))];
                 }
                 proxies[i] = createTestIntfPrx(adpts);
             }
 
-            for(i = 0; i < proxies.size(); i++)
+            for (i = 0; i < proxies.size(); i++)
             {
                 proxies[i]->getAdapterNameAsync();
             }
-            for(i = 0; i < proxies.size(); i++)
+            for (i = 0; i < proxies.size(); i++)
             {
                 try
                 {
                     proxies[i]->ice_ping();
                 }
-                catch(const Ice::LocalException&)
+                catch (const Ice::LocalException&)
                 {
                 }
             }
             set<Ice::ConnectionPtr> connections;
-            for(i = 0; i < proxies.size(); i++)
+            for (i = 0; i < proxies.size(); i++)
             {
-                if(proxies[i]->ice_getCachedConnection())
+                if (proxies[i]->ice_getCachedConnection())
                 {
                     connections.insert(proxies[i]->ice_getCachedConnection());
                 }
             }
             test(static_cast<int>(connections.size()) <= adapterCount);
 
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+            for (vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
             {
                 try
                 {
-                    (*q)->getTestIntf()->ice_getConnection()->close(
-                        Ice::ConnectionClose::GracefullyWithWait);
+                    (*q)->getTestIntf()->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
                 }
-                catch(const Ice::LocalException&)
+                catch (const Ice::LocalException&)
                 {
                     // Expected if adapter is down.
                 }
@@ -271,7 +270,7 @@ allTests(Test::TestHelper* helper)
         names.insert("AdapterAMI11");
         names.insert("AdapterAMI12");
         names.insert("AdapterAMI13");
-        while(!names.empty())
+        while (!names.empty())
         {
             vector<RemoteObjectAdapterPrxPtr> adpts = adapters;
 
@@ -293,7 +292,7 @@ allTests(Test::TestHelper* helper)
         // always send the request over the same connection.)
         //
         {
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+            for (vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
             {
                 (*p)->getTestIntf()->ice_ping();
             }
@@ -302,13 +301,13 @@ allTests(Test::TestHelper* helper)
             string name = getAdapterNameWithAMI(test);
             const int nRetry = 10;
             int i;
-            for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == name; i++);
+            for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == name; i++)
+                ;
             test(i == nRetry);
 
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+            for (vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
             {
-                (*q)->getTestIntf()->ice_getConnection()->close(
-                    Ice::ConnectionClose::GracefullyWithWait);
+                (*q)->getTestIntf()->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
         }
 
@@ -319,7 +318,7 @@ allTests(Test::TestHelper* helper)
         com->deactivateObjectAdapter(adapters[0]);
         names.insert("AdapterAMI12");
         names.insert("AdapterAMI13");
-        while(!names.empty())
+        while (!names.empty())
         {
             vector<RemoteObjectAdapterPrxPtr> adpts = adapters;
 
@@ -362,7 +361,7 @@ allTests(Test::TestHelper* helper)
         names.insert("Adapter21");
         names.insert("Adapter22");
         names.insert("Adapter23");
-        while(!names.empty())
+        while (!names.empty())
         {
             names.erase(test->getAdapterName());
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -374,7 +373,7 @@ allTests(Test::TestHelper* helper)
         names.insert("Adapter21");
         names.insert("Adapter22");
         names.insert("Adapter23");
-        while(!names.empty())
+        while (!names.empty())
         {
             names.erase(test->getAdapterName());
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -401,32 +400,38 @@ allTests(Test::TestHelper* helper)
         // Ensure that endpoints are tried in order by deactiving the adapters
         // one after the other.
         //
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter31"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter31"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
-        if(i != nRetry)
+        if (i != nRetry)
         {
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-            for(i = 0; i < nRetry && test->getAdapterName() == "Adapter31"; i++);
+            for (i = 0; i < nRetry && test->getAdapterName() == "Adapter31"; i++)
+                ;
         }
 #endif
         test(i == nRetry);
         com->deactivateObjectAdapter(adapters[0]);
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter32"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter32"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
-        if(i != nRetry)
+        if (i != nRetry)
         {
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-            for(i = 0; i < nRetry && test->getAdapterName() == "Adapter32"; i++);
+            for (i = 0; i < nRetry && test->getAdapterName() == "Adapter32"; i++)
+                ;
         }
 #endif
         test(i == nRetry);
         com->deactivateObjectAdapter(adapters[1]);
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter33"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter33"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
-        if(i != nRetry)
+        if (i != nRetry)
         {
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-            for(i = 0; i < nRetry && test->getAdapterName() == "Adapter33"; i++);
+            for (i = 0; i < nRetry && test->getAdapterName() == "Adapter33"; i++)
+                ;
         }
 #endif
         test(i == nRetry);
@@ -436,10 +441,10 @@ allTests(Test::TestHelper* helper)
         {
             test->getAdapterName();
         }
-        catch(const Ice::ConnectFailedException&)
+        catch (const Ice::ConnectFailedException&)
         {
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
         }
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
@@ -451,34 +456,40 @@ allTests(Test::TestHelper* helper)
         // order.
         //
         adapters.push_back(com->createObjectAdapter("Adapter36", endpoints[2]->toString()));
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
-        if(i != nRetry)
+        if (i != nRetry)
         {
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-            for(i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++);
+            for (i = 0; i < nRetry && test->getAdapterName() == "Adapter36"; i++)
+                ;
         }
 #endif
         test(i == nRetry);
         test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         adapters.push_back(com->createObjectAdapter("Adapter35", endpoints[1]->toString()));
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
-        if(i != nRetry)
+        if (i != nRetry)
         {
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-            for(i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++);
+            for (i = 0; i < nRetry && test->getAdapterName() == "Adapter35"; i++)
+                ;
         }
 #endif
         test(i == nRetry);
         test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         adapters.push_back(com->createObjectAdapter("Adapter34", endpoints[0]->toString()));
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
-        if(i != nRetry)
+        if (i != nRetry)
         {
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-            for(i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++);
+            for (i = 0; i < nRetry && test->getAdapterName() == "Adapter34"; i++)
+                ;
         }
 #endif
         test(i == nRetry);
@@ -508,10 +519,10 @@ allTests(Test::TestHelper* helper)
             test(test3->ice_getConnection() == test1->ice_getConnection());
             test(false);
         }
-        catch(const Ice::ConnectFailedException&)
+        catch (const Ice::ConnectFailedException&)
         {
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
         }
     }
@@ -531,7 +542,7 @@ allTests(Test::TestHelper* helper)
         names.insert("Adapter51");
         names.insert("Adapter52");
         names.insert("Adapter53");
-        while(!names.empty())
+        while (!names.empty())
         {
             names.erase(test->getAdapterName());
         }
@@ -540,7 +551,7 @@ allTests(Test::TestHelper* helper)
 
         names.insert("Adapter52");
         names.insert("Adapter53");
-        while(!names.empty())
+        while (!names.empty())
         {
             names.erase(test->getAdapterName());
         }
@@ -567,7 +578,7 @@ allTests(Test::TestHelper* helper)
         names.insert("AdapterAMI51");
         names.insert("AdapterAMI52");
         names.insert("AdapterAMI53");
-        while(!names.empty())
+        while (!names.empty())
         {
             names.erase(getAdapterNameWithAMI(test));
         }
@@ -576,7 +587,7 @@ allTests(Test::TestHelper* helper)
 
         names.insert("AdapterAMI52");
         names.insert("AdapterAMI53");
-        while(!names.empty())
+        while (!names.empty())
         {
             names.erase(getAdapterNameWithAMI(test));
         }
@@ -608,21 +619,24 @@ allTests(Test::TestHelper* helper)
         // Ensure that endpoints are tried in order by deactiving the adapters
         // one after the other.
         //
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter61"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter61"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
         test(i == nRetry);
 #endif
         com->deactivateObjectAdapter(adapters[0]);
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter62"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter62"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
         test(i == nRetry);
 #endif
         com->deactivateObjectAdapter(adapters[1]);
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter63"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter63"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
@@ -634,10 +648,10 @@ allTests(Test::TestHelper* helper)
         {
             test->getAdapterName();
         }
-        catch(const Ice::ConnectFailedException&)
+        catch (const Ice::ConnectFailedException&)
         {
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
         }
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
@@ -649,21 +663,24 @@ allTests(Test::TestHelper* helper)
         // order.
         //
         adapters.push_back(com->createObjectAdapter("Adapter66", endpoints[2]->toString()));
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter66"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter66"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
         test(i == nRetry);
 #endif
         adapters.push_back(com->createObjectAdapter("Adapter65", endpoints[1]->toString()));
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter65"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter65"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
         test(i == nRetry);
 #endif
         adapters.push_back(com->createObjectAdapter("Adapter64", endpoints[0]->toString()));
-        for(i = 0; i < nRetry && test->getAdapterName() == "Adapter64"; i++);
+        for (i = 0; i < nRetry && test->getAdapterName() == "Adapter64"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
@@ -693,21 +710,24 @@ allTests(Test::TestHelper* helper)
         // Ensure that endpoints are tried in order by deactiving the adapters
         // one after the other.
         //
-        for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI61"; i++);
+        for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI61"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
         test(i == nRetry);
 #endif
         com->deactivateObjectAdapter(adapters[0]);
-        for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI62"; i++);
+        for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI62"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
         test(i == nRetry);
 #endif
         com->deactivateObjectAdapter(adapters[1]);
-        for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI63"; i++);
+        for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI63"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
@@ -719,10 +739,10 @@ allTests(Test::TestHelper* helper)
         {
             test->getAdapterName();
         }
-        catch(const Ice::ConnectFailedException&)
+        catch (const Ice::ConnectFailedException&)
         {
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
         }
 
@@ -735,17 +755,20 @@ allTests(Test::TestHelper* helper)
         // order.
         //
         adapters.push_back(com->createObjectAdapter("AdapterAMI66", endpoints[2]->toString()));
-        for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI66"; i++);
+        for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI66"; i++)
+            ;
 #if TARGET_OS_IPHONE > 0
         test(i >= nRetry - 1); // WORKAROUND: for connection establishment hang.
 #else
         test(i == nRetry);
 #endif
         adapters.push_back(com->createObjectAdapter("AdapterAMI65", endpoints[1]->toString()));
-        for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI65"; i++);
+        for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI65"; i++)
+            ;
         test(i == nRetry);
         adapters.push_back(com->createObjectAdapter("AdapterAMI64", endpoints[0]->toString()));
-        for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI64"; i++);
+        for (i = 0; i < nRetry && getAdapterNameWithAMI(test) == "AdapterAMI64"; i++)
+            ;
         test(i == nRetry);
 
         deactivate(com, adapters);
@@ -767,14 +790,14 @@ allTests(Test::TestHelper* helper)
         {
             testUDP->getAdapterName();
         }
-        catch(const Ice::TwowayOnlyException&)
+        catch (const Ice::TwowayOnlyException&)
         {
         }
     }
     cout << "ok" << endl;
 
-    if(!communicator->getProperties()->getProperty("Ice.Plugin.IceSSL").empty() &&
-       communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
+    if (!communicator->getProperties()->getProperty("Ice.Plugin.IceSSL").empty() &&
+        communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
     {
         cout << "testing unsecure vs. secure endpoints... " << flush;
         {
@@ -784,7 +807,7 @@ allTests(Test::TestHelper* helper)
 
             TestIntfPrxPtr test = createTestIntfPrx(adapters);
             int i;
-            for(i = 0; i < 5; i++)
+            for (i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter82");
                 test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -800,7 +823,7 @@ allTests(Test::TestHelper* helper)
 
             com->deactivateObjectAdapter(adapters[1]);
 
-            for(i = 0; i < 5; i++)
+            for (i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter81");
                 test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -808,7 +831,7 @@ allTests(Test::TestHelper* helper)
 
             com->createObjectAdapter("Adapter83", (test->ice_getEndpoints()[1])->toString()); // Reactive tcp OA.
 
-            for(i = 0; i < 5; i++)
+            for (i = 0; i < 5; i++)
             {
                 test(test->getAdapterName() == "Adapter83");
                 test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
@@ -820,10 +843,10 @@ allTests(Test::TestHelper* helper)
                 testSecure->ice_ping();
                 test(false);
             }
-            catch(const Ice::ConnectFailedException&)
+            catch (const Ice::ConnectFailedException&)
             {
             }
-            catch(const Ice::ConnectTimeoutException&)
+            catch (const Ice::ConnectTimeoutException&)
             {
             }
 
@@ -898,7 +921,7 @@ allTests(Test::TestHelper* helper)
         serverProps.push_back(localipv6);
 
         bool ipv6NotSupported = false;
-        for(vector<Ice::PropertiesPtr>::const_iterator p = serverProps.begin(); p != serverProps.end(); ++p)
+        for (vector<Ice::PropertiesPtr>::const_iterator p = serverProps.begin(); p != serverProps.end(); ++p)
         {
             Ice::InitializationData serverInitData;
             serverInitData.properties = *p;
@@ -909,14 +932,14 @@ allTests(Test::TestHelper* helper)
                 oa = serverCommunicator->createObjectAdapter("Adapter");
                 oa->activate();
             }
-            catch(const Ice::DNSException&)
+            catch (const Ice::DNSException&)
             {
                 serverCommunicator->destroy();
                 continue; // IP version not supported.
             }
-            catch(const Ice::SocketException&)
+            catch (const Ice::SocketException&)
             {
-                if(*p == ipv6)
+                if (*p == ipv6)
                 {
                     ipv6NotSupported = true;
                 }
@@ -932,14 +955,14 @@ allTests(Test::TestHelper* helper)
             {
                 prx->ice_collocationOptimized(false)->ice_ping();
             }
-            catch(const Ice::LocalException&)
+            catch (const Ice::LocalException&)
             {
                 serverCommunicator->destroy();
                 continue; // IP version not supported.
             }
 
             string strPrx = prx->ice_toString();
-            for(vector<Ice::PropertiesPtr>::const_iterator q = clientProps.begin(); q != clientProps.end(); ++q)
+            for (vector<Ice::PropertiesPtr>::const_iterator q = clientProps.begin(); q != clientProps.end(); ++q)
             {
                 Ice::InitializationData clientInitData;
                 clientInitData.properties = *q;
@@ -950,11 +973,11 @@ allTests(Test::TestHelper* helper)
                     clientPrx->ice_ping();
                     test(false);
                 }
-                catch(const Ice::ObjectNotExistException&)
+                catch (const Ice::ObjectNotExistException&)
                 {
                     // Expected, no object registered.
                 }
-                catch(const Ice::DNSException&)
+                catch (const Ice::DNSException&)
                 {
                     // Expected if no IPv4 or IPv6 address is
                     // associated to localhost or if trying to connect
@@ -962,15 +985,14 @@ allTests(Test::TestHelper* helper)
                     // e.g.: resolving an IPv4 address when only IPv6
                     // is enabled fails with a DNS exception.
                 }
-                catch(const Ice::SocketException&)
+                catch (const Ice::SocketException&)
                 {
                     test((*p == ipv4 && *q == ipv6) || (*p == ipv6 && *q == ipv4) ||
                          (*p == bothPreferIPv4 && *q == ipv6) || (*p == bothPreferIPv6 && *q == ipv4) ||
-                         (*p == bothPreferIPv6 && *q == ipv6 && ipv6NotSupported) ||
-                         (*p == anyipv4 && *q == ipv6) || (*p == anyipv6 && *q == ipv4) ||
-                         (*p == localipv4 && *q == ipv6) || (*p == localipv6 && *q == ipv4) ||
-                         (*p == ipv6 && *q == bothPreferIPv4) || (*p == ipv6 && *q == bothPreferIPv6) ||
-                         (*p == bothPreferIPv6 && *q == ipv6));
+                         (*p == bothPreferIPv6 && *q == ipv6 && ipv6NotSupported) || (*p == anyipv4 && *q == ipv6) ||
+                         (*p == anyipv6 && *q == ipv4) || (*p == localipv4 && *q == ipv6) ||
+                         (*p == localipv6 && *q == ipv4) || (*p == ipv6 && *q == bothPreferIPv4) ||
+                         (*p == ipv6 && *q == bothPreferIPv6) || (*p == bothPreferIPv6 && *q == ipv6));
                 }
             }
             serverCommunicator->destroy();

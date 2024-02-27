@@ -8,10 +8,7 @@
 using namespace std;
 using namespace Ice;
 
-TestIntfI::TestIntfI() :
-    _batchCount(0), _shutdown(false)
-{
-}
+TestIntfI::TestIntfI() : _batchCount(0), _shutdown(false) {}
 
 void
 TestIntfI::op(const Ice::Current&)
@@ -57,8 +54,17 @@ TestIntfI::opBatchCount(const Ice::Current&)
 }
 
 void
-TestIntfI::opWithArgs(int32_t& one, int32_t& two, int32_t& three, int32_t& four, int32_t& five, int32_t& six,
-                      int32_t& seven, int32_t& eight, int32_t& nine, int32_t& ten, int32_t& eleven,
+TestIntfI::opWithArgs(int32_t& one,
+                      int32_t& two,
+                      int32_t& three,
+                      int32_t& four,
+                      int32_t& five,
+                      int32_t& six,
+                      int32_t& seven,
+                      int32_t& eight,
+                      int32_t& nine,
+                      int32_t& ten,
+                      int32_t& eleven,
                       const Ice::Current&)
 {
     one = 1;
@@ -78,7 +84,7 @@ bool
 TestIntfI::waitForBatch(int32_t count, const Ice::Current&)
 {
     unique_lock lock(_mutex);
-    while(_batchCount < count)
+    while (_batchCount < count)
     {
         test(_condition.wait_for(lock, chrono::milliseconds(5000)) != cv_status::timeout);
     }
@@ -101,16 +107,17 @@ TestIntfI::sleep(int32_t ms, const Ice::Current&)
 }
 
 void
-TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)>,
+TestIntfI::startDispatchAsync(std::function<void()> response,
+                              std::function<void(std::exception_ptr)>,
                               const Ice::Current&)
 {
     lock_guard lock(_mutex);
-    if(_shutdown)
+    if (_shutdown)
     {
         response();
         return;
     }
-    else if(_pending)
+    else if (_pending)
     {
         _pending();
     }
@@ -121,11 +128,11 @@ void
 TestIntfI::finishDispatch(const Ice::Current&)
 {
     lock_guard lock(_mutex);
-    if(_shutdown)
+    if (_shutdown)
     {
         return;
     }
-    else if(_pending) // Pending might not be set yet if startDispatch is dispatch out-of-order
+    else if (_pending) // Pending might not be set yet if startDispatch is dispatch out-of-order
     {
         _pending();
         _pending = nullptr;
@@ -137,7 +144,7 @@ TestIntfI::shutdown(const Ice::Current& current)
 {
     lock_guard lock(_mutex);
     _shutdown = true;
-    if(_pending)
+    if (_pending)
     {
         _pending();
         _pending = nullptr;
@@ -175,9 +182,7 @@ TestIntfControllerI::resumeAdapter(const Ice::Current&)
     _adapter->activate();
 }
 
-TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
-{
-}
+TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
 
 int32_t
 TestIntfII::op(int32_t i, int32_t& j, const Ice::Current&)

@@ -17,7 +17,6 @@ using namespace Test;
 class Publisher final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -34,7 +33,7 @@ Publisher::run(int argc, char** argv)
     {
         opts.parse(argc, (const char**)argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         ostringstream os;
         os << argv[0] << ": error: " << e.reason;
@@ -43,11 +42,11 @@ Publisher::run(int argc, char** argv)
 
     int events = 1000;
     string s = opts.optArg("events");
-    if(!s.empty())
+    if (!s.empty())
     {
         events = atoi(s.c_str());
     }
-    if(events <= 0)
+    if (events <= 0)
     {
         ostringstream os;
         os << argv[0] << ": events must be > 0.";
@@ -60,16 +59,15 @@ Publisher::run(int argc, char** argv)
     auto properties = communicator->getProperties();
     string managerProxyProperty = "IceStormAdmin.TopicManager.Default";
     string managerProxy = properties->getProperty(managerProxyProperty);
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": property `" << managerProxyProperty << "' is not set";
         throw invalid_argument(os.str());
     }
 
-    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
-        communicator->stringToProxy(managerProxy));
-    if(!manager)
+    auto manager = checkedCast<IceStorm::TopicManagerPrx>(communicator->stringToProxy(managerProxy));
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `" << managerProxy << "' is not running";
@@ -80,7 +78,7 @@ Publisher::run(int argc, char** argv)
 
     auto twowayProxy = uncheckedCast<EventPrx>(topic->getPublisher()->ice_twoway());
     EventPrxPtr proxy;
-    if(oneway)
+    if (oneway)
     {
         proxy = twowayProxy->ice_oneway();
     }
@@ -89,9 +87,9 @@ Publisher::run(int argc, char** argv)
         proxy = twowayProxy;
     }
 
-    for(int i = 0; i < events; ++i)
+    for (int i = 0; i < events; ++i)
     {
-        if(maxQueueTest && i == 10)
+        if (maxQueueTest && i == 10)
         {
             // Sleep one seconds to give some time to IceStorm to connect to the subscriber
             this_thread::sleep_for(1s);
@@ -99,7 +97,7 @@ Publisher::run(int argc, char** argv)
         proxy->pub(i);
     }
 
-    if(oneway)
+    if (oneway)
     {
         //
         // Before we exit, we ping all proxies as twoway, to make sure

@@ -8,7 +8,8 @@
 void
 TestIntfI::opDoubleArrayAsync(std::pair<const double*, const double*> in,
                               std::function<void(const Test::DoubleSeq&, const Test::DoubleSeq&)> response,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&)
+                              std::function<void(std::exception_ptr)>,
+                              const Ice::Current&)
 {
     Test::DoubleSeq out(in.first, in.second);
     response(out, out);
@@ -17,7 +18,8 @@ TestIntfI::opDoubleArrayAsync(std::pair<const double*, const double*> in,
 void
 TestIntfI::opBoolArrayAsync(std::pair<const bool*, const bool*> in,
                             std::function<void(const Test::BoolSeq&, const Test::BoolSeq&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
+                            std::function<void(std::exception_ptr)>,
+                            const Ice::Current&)
 {
     Test::BoolSeq out(in.first, in.second);
     response(out, out);
@@ -26,8 +28,9 @@ TestIntfI::opBoolArrayAsync(std::pair<const bool*, const bool*> in,
 void
 TestIntfI::opByteArrayAsync(std::pair<const Ice::Byte*, const Ice::Byte*> in,
                             std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                                                const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
+                                               const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                            std::function<void(std::exception_ptr)>,
+                            const Ice::Current&)
 {
     response(in, in);
 }
@@ -35,7 +38,8 @@ TestIntfI::opByteArrayAsync(std::pair<const Ice::Byte*, const Ice::Byte*> in,
 void
 TestIntfI::opVariableArrayAsync(std::pair<const Test::Variable*, const Test::Variable*> in,
                                 std::function<void(const Test::VariableList&, const Test::VariableList&)> response,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&)
+                                std::function<void(std::exception_ptr)>,
+                                const Ice::Current&)
 {
     Test::VariableList out(in.first, in.second);
     response(out, out);
@@ -44,7 +48,8 @@ TestIntfI::opVariableArrayAsync(std::pair<const Test::Variable*, const Test::Var
 void
 TestIntfI::opBoolSeqAsync(std::deque<bool> in,
                           std::function<void(const std::deque<bool>&, const std::deque<bool>&)> response,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&)
+                          std::function<void(std::exception_ptr)>,
+                          const Ice::Current&)
 {
     response(in, in);
 }
@@ -52,7 +57,8 @@ TestIntfI::opBoolSeqAsync(std::deque<bool> in,
 void
 TestIntfI::opBoolListAsync(Test::BoolList in,
                            std::function<void(const Test::BoolList&, const Test::BoolList&)> response,
-                           std::function<void(std::exception_ptr)>, const Ice::Current&)
+                           std::function<void(std::exception_ptr)>,
+                           const Ice::Current&)
 {
     response(in, in);
 }
@@ -60,7 +66,8 @@ TestIntfI::opBoolListAsync(Test::BoolList in,
 void
 TestIntfI::opByteSeqAsync(std::deque<Ice::Byte> in,
                           std::function<void(const std::deque<Ice::Byte>&, const std::deque<Ice::Byte>&)> response,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&)
+                          std::function<void(std::exception_ptr)>,
+                          const Ice::Current&)
 {
     response(in, in);
 }
@@ -68,7 +75,8 @@ TestIntfI::opByteSeqAsync(std::deque<Ice::Byte> in,
 void
 TestIntfI::opByteListAsync(Test::ByteList in,
                            std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
-                           std::function<void(std::exception_ptr)>, const Ice::Current&)
+                           std::function<void(std::exception_ptr)>,
+                           const Ice::Current&)
 {
     response(in, in);
 }
@@ -76,15 +84,18 @@ TestIntfI::opByteListAsync(Test::ByteList in,
 void
 TestIntfI::opMyByteSeqAsync(MyByteSeq in,
                             std::function<void(const MyByteSeq&, const MyByteSeq&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
+                            std::function<void(std::exception_ptr)>,
+                            const Ice::Current&)
 {
     response(in, in);
 }
 
 void
-TestIntfI::opStringSeqAsync(std::deque<std::string> in,
-                            std::function<void(const std::deque<std::string>&, const std::deque<std::string>&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
+TestIntfI::opStringSeqAsync(
+    std::deque<std::string> in,
+    std::function<void(const std::deque<std::string>&, const std::deque<std::string>&)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     response(in, in);
 }
@@ -92,16 +103,17 @@ TestIntfI::opStringSeqAsync(std::deque<std::string> in,
 void
 TestIntfI::opStringListAsync(Test::StringList in,
                              std::function<void(const Test::StringList&, const Test::StringList&)> response,
-                             std::function<void(std::exception_ptr)>, const Ice::Current&)
+                             std::function<void(std::exception_ptr)>,
+                             const Ice::Current&)
 {
     response(in, in);
 }
 
 void
 TestIntfI::opFixedSeqAsync(std::deque<Test::Fixed> in,
-                           std::function<void(const std::deque<Test::Fixed>&,
-                                               const std::deque<Test::Fixed>&)> response,
-                           std::function<void(std::exception_ptr)>, const Ice::Current&)
+                           std::function<void(const std::deque<Test::Fixed>&, const std::deque<Test::Fixed>&)> response,
+                           std::function<void(std::exception_ptr)>,
+                           const Ice::Current&)
 {
     response(in, in);
 }
@@ -109,16 +121,18 @@ TestIntfI::opFixedSeqAsync(std::deque<Test::Fixed> in,
 void
 TestIntfI::opFixedListAsync(Test::FixedList in,
                             std::function<void(const Test::FixedList&, const Test::FixedList&)> response,
-                            std::function<void(std::exception_ptr)>, const Ice::Current&)
+                            std::function<void(std::exception_ptr)>,
+                            const Ice::Current&)
 {
     response(in, in);
 }
 
 void
-TestIntfI::opVariableSeqAsync(std::deque<Test::Variable> in,
-                              std::function<void(const std::deque<Test::Variable>&,
-                                                  const std::deque<Test::Variable>&)> response,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&)
+TestIntfI::opVariableSeqAsync(
+    std::deque<Test::Variable> in,
+    std::function<void(const std::deque<Test::Variable>&, const std::deque<Test::Variable>&)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     response(in, in);
 }
@@ -126,25 +140,28 @@ TestIntfI::opVariableSeqAsync(std::deque<Test::Variable> in,
 void
 TestIntfI::opVariableListAsync(Test::VariableList in,
                                std::function<void(const Test::VariableList&, const Test::VariableList&)> response,
-                               std::function<void(std::exception_ptr)>, const Ice::Current&)
+                               std::function<void(std::exception_ptr)>,
+                               const Ice::Current&)
 {
     response(in, in);
 }
 
 void
-TestIntfI::opStringStringDictSeqAsync(std::deque<Test::StringStringDict> in,
-                                      std::function<void(const std::deque<Test::StringStringDict>&,
-                                                          const std::deque<Test::StringStringDict>&)> response,
-                                      std::function<void(std::exception_ptr)>, const Ice::Current&)
+TestIntfI::opStringStringDictSeqAsync(
+    std::deque<Test::StringStringDict> in,
+    std::function<void(const std::deque<Test::StringStringDict>&, const std::deque<Test::StringStringDict>&)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     response(in, in);
 }
 
 void
-TestIntfI::opStringStringDictListAsync(Test::StringStringDictList in,
-                                       std::function<void(const Test::StringStringDictList&,
-                                                           const Test::StringStringDictList&)> response,
-                                       std::function<void(std::exception_ptr)>, const Ice::Current&)
+TestIntfI::opStringStringDictListAsync(
+    Test::StringStringDictList in,
+    std::function<void(const Test::StringStringDictList&, const Test::StringStringDictList&)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     response(in, in);
 }
@@ -152,7 +169,8 @@ TestIntfI::opStringStringDictListAsync(Test::StringStringDictList in,
 void
 TestIntfI::opESeqAsync(std::deque<Test::E> in,
                        std::function<void(const std::deque<Test::E>&, const std::deque<Test::E>&)> response,
-                       std::function<void(std::exception_ptr)>, const Ice::Current&)
+                       std::function<void(std::exception_ptr)>,
+                       const Ice::Current&)
 {
     response(in, in);
 }
@@ -160,16 +178,18 @@ TestIntfI::opESeqAsync(std::deque<Test::E> in,
 void
 TestIntfI::opEListAsync(Test::EList in,
                         std::function<void(const Test::EList&, const Test::EList&)> response,
-                        std::function<void(std::exception_ptr)>, const Ice::Current&)
+                        std::function<void(std::exception_ptr)>,
+                        const Ice::Current&)
 {
     response(in, in);
 }
 
 void
-TestIntfI::opDPrxSeqAsync(std::deque<Test::DPrxPtr> in,
-                          std::function<void(const std::deque<Test::DPrxPtr>&,
-                                             const std::deque<Test::DPrxPtr>&)> response,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&)
+TestIntfI::opDPrxSeqAsync(
+    std::deque<Test::DPrxPtr> in,
+    std::function<void(const std::deque<Test::DPrxPtr>&, const std::deque<Test::DPrxPtr>&)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     response(in, in);
 }
@@ -177,7 +197,8 @@ TestIntfI::opDPrxSeqAsync(std::deque<Test::DPrxPtr> in,
 void
 TestIntfI::opDPrxListAsync(Test::DPrxList in,
                            std::function<void(const Test::DPrxList&, const Test::DPrxList&)> response,
-                           std::function<void(std::exception_ptr)>, const Ice::Current&)
+                           std::function<void(std::exception_ptr)>,
+                           const Ice::Current&)
 {
     response(in, in);
 }
@@ -185,8 +206,9 @@ TestIntfI::opDPrxListAsync(Test::DPrxList in,
 void
 TestIntfI::opCSeqAsync(std::deque<std::shared_ptr<Test::C>> in,
                        std::function<void(const std::deque<std::shared_ptr<Test::C>>&,
-                                           const std::deque<std::shared_ptr<Test::C>>&)> response,
-                       std::function<void(std::exception_ptr)>, const Ice::Current&)
+                                          const std::deque<std::shared_ptr<Test::C>>&)> response,
+                       std::function<void(std::exception_ptr)>,
+                       const Ice::Current&)
 {
     response(in, in);
 }
@@ -194,7 +216,8 @@ TestIntfI::opCSeqAsync(std::deque<std::shared_ptr<Test::C>> in,
 void
 TestIntfI::opCListAsync(Test::CList in,
                         std::function<void(const Test::CList&, const Test::CList&)> response,
-                        std::function<void(std::exception_ptr)>, const Ice::Current&)
+                        std::function<void(std::exception_ptr)>,
+                        const Ice::Current&)
 {
     response(in, in);
 }
@@ -202,7 +225,8 @@ TestIntfI::opCListAsync(Test::CList in,
 void
 TestIntfI::opOutArrayByteSeqAsync(Test::ByteSeq in,
                                   std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                                  std::function<void(std::exception_ptr)>, const Ice::Current&)
+                                  std::function<void(std::exception_ptr)>,
+                                  const Ice::Current&)
 {
     response(std::make_pair(in.data(), in.data() + in.size()));
 }
@@ -210,7 +234,8 @@ TestIntfI::opOutArrayByteSeqAsync(Test::ByteSeq in,
 void
 TestIntfI::opIntStringDictAsync(Test::IntStringDict in,
                                 std::function<void(const Test::IntStringDict&, const Test::IntStringDict&)> response,
-                                std::function<void(std::exception_ptr)>, const Ice::Current&)
+                                std::function<void(std::exception_ptr)>,
+                                const Ice::Current&)
 {
     response(in, in);
 }
@@ -218,13 +243,14 @@ TestIntfI::opIntStringDictAsync(Test::IntStringDict in,
 void
 TestIntfI::opVarDictAsync(Test::CustomMap<std::string, int32_t> in,
                           std::function<void(const Test::CustomMap<int64_t, int64_t>&,
-                                              const Test::CustomMap<std::string, int32_t>&)> response,
-                          std::function<void(std::exception_ptr)>, const Ice::Current&)
+                                             const Test::CustomMap<std::string, int32_t>&)> response,
+                          std::function<void(std::exception_ptr)>,
+                          const Ice::Current&)
 {
     Test::CustomMap<int64_t, int64_t> result;
-    for(int64_t i = 0; i < 1000; ++i)
+    for (int64_t i = 0; i < 1000; ++i)
     {
-        result[i] = i*i;
+        result[i] = i * i;
     }
     response(result, in);
 }
@@ -232,16 +258,18 @@ TestIntfI::opVarDictAsync(Test::CustomMap<std::string, int32_t> in,
 void
 TestIntfI::opShortBufferAsync(Test::ShortBuffer in,
                               std::function<void(const Test::ShortBuffer&, const Test::ShortBuffer&)> response,
-                              std::function<void(std::exception_ptr)>, const Ice::Current&)
+                              std::function<void(std::exception_ptr)>,
+                              const Ice::Current&)
 {
     response(in, in);
 }
 
 void
-TestIntfI::opBoolBufferAsync(Test::CustomBuffer<bool> in,
-                             std::function<void(const Test::CustomBuffer<bool>&,
-                                                 const Test::CustomBuffer<bool>&)> response,
-                             std::function<void(std::exception_ptr)>, const Ice::Current&)
+TestIntfI::opBoolBufferAsync(
+    Test::CustomBuffer<bool> in,
+    std::function<void(const Test::CustomBuffer<bool>&, const Test::CustomBuffer<bool>&)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     response(in, in);
 }
@@ -249,7 +277,8 @@ TestIntfI::opBoolBufferAsync(Test::CustomBuffer<bool> in,
 void
 TestIntfI::opBufferStructAsync(Test::BufferStruct in,
                                std::function<void(const Test::BufferStruct&)> response,
-                               std::function<void(std::exception_ptr)>, const Ice::Current&)
+                               std::function<void(std::exception_ptr)>,
+                               const Ice::Current&)
 {
     response(in);
 }

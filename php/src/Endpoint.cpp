@@ -29,21 +29,18 @@ static zend_object_handlers _endpointInfoHandlers;
 
 extern "C"
 {
-static zend_object* handleEndpointAlloc(zend_class_entry*);
-static void handleEndpointFreeStorage(zend_object*);
+    static zend_object* handleEndpointAlloc(zend_class_entry*);
+    static void handleEndpointFreeStorage(zend_object*);
 
-static zend_object* handleEndpointInfoAlloc(zend_class_entry*);
-static void handleEndpointInfoFreeStorage(zend_object*);
+    static zend_object* handleEndpointInfoAlloc(zend_class_entry*);
+    static void handleEndpointInfoFreeStorage(zend_object*);
 }
 
-ZEND_METHOD(Ice_Endpoint, __construct)
-{
-    runtimeError("Endpoint cannot be instantiated");
-}
+ZEND_METHOD(Ice_Endpoint, __construct) { runtimeError("Endpoint cannot be instantiated"); }
 
 ZEND_METHOD(Ice_Endpoint, __toString)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -56,21 +53,18 @@ ZEND_METHOD(Ice_Endpoint, __toString)
         string str = _this->toString();
         RETURN_STRINGL(str.c_str(), static_cast<int>(str.length()));
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
     }
 }
 
-ZEND_METHOD(Ice_Endpoint, toString)
-{
-    ZEND_MN(Ice_Endpoint___toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
+ZEND_METHOD(Ice_Endpoint, toString) { ZEND_MN(Ice_Endpoint___toString)(INTERNAL_FUNCTION_PARAM_PASSTHRU); }
 
 ZEND_METHOD(Ice_Endpoint, getInfo)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -78,7 +72,7 @@ ZEND_METHOD(Ice_Endpoint, getInfo)
     Ice::EndpointPtr _this = Wrapper<Ice::EndpointPtr>::value(getThis());
     assert(_this);
 
-    if(!createEndpointInfo(return_value, _this->getInfo()))
+    if (!createEndpointInfo(return_value, _this->getInfo()))
     {
         RETURN_NULL();
     }
@@ -103,14 +97,11 @@ handleEndpointFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-ZEND_METHOD(Ice_EndpointInfo, __construct)
-{
-    runtimeError("EndpointInfo cannot be instantiated");
-}
+ZEND_METHOD(Ice_EndpointInfo, __construct) { runtimeError("EndpointInfo cannot be instantiated"); }
 
 ZEND_METHOD(Ice_EndpointInfo, type)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -123,7 +114,7 @@ ZEND_METHOD(Ice_EndpointInfo, type)
         short type = static_cast<short>(_this->type());
         RETURN_LONG(type);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -132,7 +123,7 @@ ZEND_METHOD(Ice_EndpointInfo, type)
 
 ZEND_METHOD(Ice_EndpointInfo, datagram)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -144,7 +135,7 @@ ZEND_METHOD(Ice_EndpointInfo, datagram)
     {
         RETURN_BOOL(_this->datagram() ? 1 : 0);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -153,7 +144,7 @@ ZEND_METHOD(Ice_EndpointInfo, datagram)
 
 ZEND_METHOD(Ice_EndpointInfo, secure)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -165,7 +156,7 @@ ZEND_METHOD(Ice_EndpointInfo, secure)
     {
         RETURN_BOOL(_this->secure() ? 1 : 0);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -189,30 +180,21 @@ handleEndpointInfoFreeStorage(zend_object* object)
     zend_object_std_dtor(object);
 }
 
-static zend_function_entry _interfaceMethods[] =
-{
-    {0, 0, 0}
-};
+static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 // Predefined methods for Endpoint.
-static zend_function_entry _endpointMethods[] =
-{
-    ZEND_ME(Ice_Endpoint, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Endpoint, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Endpoint, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Endpoint, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    {0, 0, 0}
-};
+static zend_function_entry _endpointMethods[] = {
+    ZEND_ME(Ice_Endpoint, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+        ZEND_ME(Ice_Endpoint, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
+            ZEND_ME(Ice_Endpoint, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_Endpoint, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 // Predefined methods for EndpointInfo.
-static zend_function_entry _endpointInfoMethods[] =
-{
-    ZEND_ME(Ice_EndpointInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_EndpointInfo, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_EndpointInfo, datagram, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_EndpointInfo, secure, ice_void_arginfo, ZEND_ACC_PUBLIC)
-    {0, 0, 0}
-};
+static zend_function_entry _endpointInfoMethods[] = {
+    ZEND_ME(Ice_EndpointInfo, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+        ZEND_ME(Ice_EndpointInfo, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+            ZEND_ME(Ice_EndpointInfo, datagram, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_EndpointInfo, secure, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 bool
 IcePHP::endpointInit(void)
@@ -236,7 +218,7 @@ IcePHP::endpointInit(void)
     endpointClassEntry = zend_register_internal_class(&ce);
     memcpy(&_endpointHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _endpointHandlers.free_obj = handleEndpointFreeStorage;
-    _endpointHandlers.offset   = XtOffsetOf(Wrapper<Ice::EndpointPtr>, zobj);
+    _endpointHandlers.offset = XtOffsetOf(Wrapper<Ice::EndpointPtr>, zobj);
     zend_class_implements(endpointClassEntry, 1, endpointInterface);
 
     // Define the EndpointInfo class.
@@ -245,7 +227,7 @@ IcePHP::endpointInit(void)
     endpointInfoClassEntry = zend_register_internal_class(&ce);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     _endpointInfoHandlers.free_obj = handleEndpointInfoFreeStorage;
-    _endpointInfoHandlers.offset   = XtOffsetOf(Wrapper<Ice::EndpointInfoPtr>, zobj);
+    _endpointInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::EndpointInfoPtr>, zobj);
     zend_declare_property_long(endpointInfoClassEntry, "timeout", sizeof("timeout") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_bool(endpointInfoClassEntry, "compress", sizeof("compress") - 1, 0, ZEND_ACC_PUBLIC);
     zend_declare_property_null(endpointInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
@@ -256,12 +238,8 @@ IcePHP::endpointInit(void)
     ipEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
     zend_declare_property_string(ipEndpointInfoClassEntry, "host", sizeof("host") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipEndpointInfoClassEntry, "port", sizeof("port") - 1, 0, ZEND_ACC_PUBLIC);
-    zend_declare_property_string(
-        ipEndpointInfoClassEntry,
-        "sourceAddress",
-        sizeof("sourceAddress") - 1,
-        "",
-        ZEND_ACC_PUBLIC);
+    zend_declare_property_string(ipEndpointInfoClassEntry, "sourceAddress", sizeof("sourceAddress") - 1, "",
+                                 ZEND_ACC_PUBLIC);
 
     // Define the TCPEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPEndpointInfo", nullptr);
@@ -272,12 +250,8 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     udpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
-    zend_declare_property_string(
-        udpEndpointInfoClassEntry,
-        "mcastInterface",
-        sizeof("mcastInterface") - 1,
-        "",
-        ZEND_ACC_PUBLIC);
+    zend_declare_property_string(udpEndpointInfoClassEntry, "mcastInterface", sizeof("mcastInterface") - 1, "",
+                                 ZEND_ACC_PUBLIC);
     zend_declare_property_long(udpEndpointInfoClassEntry, "mcastTtl", sizeof("mcastTtl") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Define the WSEndpointInfo class.
@@ -290,10 +264,7 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "OpaqueEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     opaqueEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
-    zend_declare_property_null(
-        opaqueEndpointInfoClassEntry,
-        "rawEncoding",
-        sizeof("rawEncoding") - 1, ZEND_ACC_PUBLIC);
+    zend_declare_property_null(opaqueEndpointInfoClassEntry, "rawEncoding", sizeof("rawEncoding") - 1, ZEND_ACC_PUBLIC);
     zend_declare_property_null(opaqueEndpointInfoClassEntry, "rawBytes", sizeof("rawBytes") - 1, ZEND_ACC_PUBLIC);
 
     // Define the SSLEndpointInfo class.
@@ -307,7 +278,7 @@ IcePHP::endpointInit(void)
 bool
 IcePHP::createEndpoint(zval* zv, const Ice::EndpointPtr& p)
 {
-    if(object_init_ex(zv, endpointClassEntry) != SUCCESS)
+    if (object_init_ex(zv, endpointClassEntry) != SUCCESS)
     {
         runtimeError("unable to initialize endpoint");
         return false;
@@ -324,19 +295,19 @@ IcePHP::createEndpoint(zval* zv, const Ice::EndpointPtr& p)
 bool
 IcePHP::fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint)
 {
-    if(ZVAL_IS_NULL(zv))
+    if (ZVAL_IS_NULL(zv))
     {
         endpoint = 0;
     }
     else
     {
-        if(Z_TYPE_P(zv) != IS_OBJECT || !checkClass(Z_OBJCE_P(zv), endpointClassEntry))
+        if (Z_TYPE_P(zv) != IS_OBJECT || !checkClass(Z_OBJCE_P(zv), endpointClassEntry))
         {
             invalidArgument("value is not an endpoint");
             return false;
         }
         Wrapper<Ice::EndpointPtr>* obj = Wrapper<Ice::EndpointPtr>::extract(zv);
-        if(!obj)
+        if (!obj)
         {
             return false;
         }
@@ -348,38 +319,38 @@ IcePHP::fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint)
 bool
 IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
 {
-    if(!p)
+    if (!p)
     {
         ZVAL_NULL(zv);
         return true;
     }
 
     int status;
-    if(dynamic_pointer_cast<Ice::WSEndpointInfo>(p))
+    if (dynamic_pointer_cast<Ice::WSEndpointInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::WSEndpointInfo>(p);
-        if((status = object_init_ex(zv, wsEndpointInfoClassEntry)) == SUCCESS)
+        if ((status = object_init_ex(zv, wsEndpointInfoClassEntry)) == SUCCESS)
         {
             add_property_string(zv, "resource", const_cast<char*>(info->resource.c_str()));
         }
     }
-    else if(dynamic_pointer_cast<Ice::TCPEndpointInfo>(p))
+    else if (dynamic_pointer_cast<Ice::TCPEndpointInfo>(p))
     {
         status = object_init_ex(zv, tcpEndpointInfoClassEntry);
     }
-    else if(dynamic_pointer_cast<Ice::UDPEndpointInfo>(p))
+    else if (dynamic_pointer_cast<Ice::UDPEndpointInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(p);
-        if((status = object_init_ex(zv, udpEndpointInfoClassEntry)) == SUCCESS)
+        if ((status = object_init_ex(zv, udpEndpointInfoClassEntry)) == SUCCESS)
         {
             add_property_string(zv, "mcastInterface", const_cast<char*>(info->mcastInterface.c_str()));
             add_property_long(zv, "mcastTtl", static_cast<long>(info->mcastTtl));
         }
     }
-    else if(dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p))
+    else if (dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p);
-        if((status = object_init_ex(zv, opaqueEndpointInfoClassEntry)) == SUCCESS)
+        if ((status = object_init_ex(zv, opaqueEndpointInfoClassEntry)) == SUCCESS)
         {
             zval rawEncoding;
             createEncodingVersion(&rawEncoding, info->rawEncoding);
@@ -396,11 +367,11 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
             zval_ptr_dtor(&rawBytes); // add_property_zval increased the refcount of rawBytes
         }
     }
-    else if(dynamic_pointer_cast<IceSSL::EndpointInfo>(p))
+    else if (dynamic_pointer_cast<IceSSL::EndpointInfo>(p))
     {
         status = object_init_ex(zv, sslEndpointInfoClassEntry);
     }
-    else if(dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
+    else if (dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
     {
         status = object_init_ex(zv, ipEndpointInfoClassEntry);
     }
@@ -409,13 +380,13 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
         status = object_init_ex(zv, endpointInfoClassEntry);
     }
 
-    if(status != SUCCESS)
+    if (status != SUCCESS)
     {
         runtimeError("unable to initialize endpoint info");
         return false;
     }
 
-    if(dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
+    if (dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
     {
         auto info = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
         add_property_string(zv, "host", const_cast<char*>(info->host.c_str()));
@@ -424,7 +395,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
     }
 
     zval underlying;
-    if(!createEndpointInfo(&underlying, p->underlying))
+    if (!createEndpointInfo(&underlying, p->underlying))
     {
         runtimeError("unable to initialize endpoint info");
         return false;

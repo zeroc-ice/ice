@@ -26,15 +26,15 @@ IceInternal::UdpTransceiver::getNativeInfo()
 AsyncInfo*
 IceInternal::UdpTransceiver::getAsyncInfo(SocketOperation status)
 {
-    switch(status)
+    switch (status)
     {
-    case SocketOperationRead:
-        return &_read;
-    case SocketOperationWrite:
-        return &_write;
-    default:
-        assert(false);
-        return 0;
+        case SocketOperationRead:
+            return &_read;
+        case SocketOperationWrite:
+            return &_write;
+        default:
+            assert(false);
+            return 0;
     }
 }
 #endif
@@ -42,12 +42,12 @@ IceInternal::UdpTransceiver::getAsyncInfo(SocketOperation status)
 SocketOperation
 IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
 {
-    if(_state == StateNeedConnect)
+    if (_state == StateNeedConnect)
     {
         _state = StateConnectPending;
         return SocketOperationConnect;
     }
-    else if(_state <= StateConnectPending)
+    else if (_state <= StateConnectPending)
     {
 #if defined(ICE_USE_IOCP)
         doFinishConnectAsync(_fd, _write);
@@ -80,7 +80,7 @@ IceInternal::UdpTransceiver::close()
 EndpointIPtr
 IceInternal::UdpTransceiver::bind()
 {
-    if(isMulticast(_addr))
+    if (isMulticast(_addr))
     {
         setReuseAddress(_fd, true);
         _mcastAddr = _addr;
@@ -97,7 +97,7 @@ IceInternal::UdpTransceiver::bind()
 #endif
 
         const_cast<Address&>(_addr) = doBind(_fd, _addr, _mcastInterface);
-        if(getPort(_mcastAddr) == 0)
+        if (getPort(_mcastAddr) == 0)
         {
             setPort(_mcastAddr, getPort(_addr));
         }
@@ -132,7 +132,7 @@ IceInternal::UdpTransceiver::bind()
 SocketOperation
 IceInternal::UdpTransceiver::write(Buffer& buf)
 {
-    if(buf.i == buf.b.end())
+    if (buf.i == buf.b.end())
     {
         return SocketOperationNone;
     }
@@ -145,7 +145,7 @@ IceInternal::UdpTransceiver::write(Buffer& buf)
 repeat:
 
     ssize_t ret;
-    if(_state == StateConnected)
+    if (_state == StateConnected)
     {
 #ifdef _WIN32
         ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0);
@@ -156,11 +156,11 @@ repeat:
     else
     {
         socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
-        if(_peerAddr.saStorage.ss_family == AF_INET)
+        if (_peerAddr.saStorage.ss_family == AF_INET)
         {
             len = static_cast<socklen_t>(sizeof(sockaddr_in));
         }
-        else if(_peerAddr.saStorage.ss_family == AF_INET6)
+        else if (_peerAddr.saStorage.ss_family == AF_INET6)
         {
             len = static_cast<socklen_t>(sizeof(sockaddr_in6));
         }
@@ -171,22 +171,21 @@ repeat:
         }
 
 #ifdef _WIN32
-        ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0,
-                       &_peerAddr.sa, len);
+        ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0, &_peerAddr.sa,
+                       len);
 #else
-        ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0,
-                       &_peerAddr.sa, len);
+        ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0, &_peerAddr.sa, len);
 #endif
     }
 
-    if(ret == SOCKET_ERROR)
+    if (ret == SOCKET_ERROR)
     {
-        if(interrupted())
+        if (interrupted())
         {
             goto repeat;
         }
 
-        if(wouldBlock())
+        if (wouldBlock())
         {
             return SocketOperationWrite;
         }
@@ -202,7 +201,7 @@ repeat:
 SocketOperation
 IceInternal::UdpTransceiver::read(Buffer& buf)
 {
-    if(buf.i == buf.b.end())
+    if (buf.i == buf.b.end())
     {
         return SocketOperationNone;
     }
@@ -224,7 +223,7 @@ repeat:
 #else
     ssize_t ret;
 #endif
-    if(_state == StateConnected)
+    if (_state == StateConnected)
     {
         ret = ::recv(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0);
     }
@@ -236,18 +235,17 @@ repeat:
         memset(&peerAddr.saStorage, 0, sizeof(sockaddr_storage));
         socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
 
-        ret = recvfrom(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0,
-                       &peerAddr.sa, &len);
+        ret = recvfrom(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0, &peerAddr.sa, &len);
 
-        if(ret != SOCKET_ERROR)
+        if (ret != SOCKET_ERROR)
         {
             _peerAddr = peerAddr;
         }
     }
 
-    if(ret == SOCKET_ERROR)
+    if (ret == SOCKET_ERROR)
     {
-        if(recvTruncated())
+        if (recvTruncated())
         {
             // The message was truncated and the whole buffer is filled. We ignore
             // this error here, it will be detected at the connection level when
@@ -256,17 +254,17 @@ repeat:
         }
         else
         {
-            if(interrupted())
+            if (interrupted())
             {
                 goto repeat;
             }
 
-            if(wouldBlock())
+            if (wouldBlock())
             {
                 return SocketOperationRead;
             }
 
-            if(connectionLost())
+            if (connectionLost())
             {
                 throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
@@ -277,7 +275,7 @@ repeat:
         }
     }
 
-    if(_state == StateNeedConnect)
+    if (_state == StateNeedConnect)
     {
         //
         // If we must connect, we connect to the first peer that sends us a packet.
@@ -292,7 +290,7 @@ repeat:
 #endif
         _state = StateConnected;
 
-        if(_instance->traceLevel() >= 1)
+        if (_instance->traceLevel() >= 1)
         {
             Trace out(_instance->logger(), _instance->traceCategory());
             out << "connected " << _instance->protocol() << " socket\n" << toString();
@@ -318,18 +316,18 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
     _write.buf.buf = reinterpret_cast<char*>(&*buf.i);
     _write.error = ERROR_SUCCESS;
     int err;
-    if(_state == StateConnected)
+    if (_state == StateConnected)
     {
         err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, nullptr);
     }
     else
     {
         socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
-        if(_peerAddr.saStorage.ss_family == AF_INET)
+        if (_peerAddr.saStorage.ss_family == AF_INET)
         {
             len = sizeof(sockaddr_in);
         }
-        else if(_peerAddr.saStorage.ss_family == AF_INET6)
+        else if (_peerAddr.saStorage.ss_family == AF_INET6)
         {
             len = sizeof(sockaddr_in6);
         }
@@ -341,11 +339,11 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
         err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa, len, &_write, nullptr);
     }
 
-    if(err == SOCKET_ERROR)
+    if (err == SOCKET_ERROR)
     {
-        if(!wouldBlock())
+        if (!wouldBlock())
         {
-            if(connectionLost())
+            if (connectionLost())
             {
                 throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
@@ -361,17 +359,17 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
 void
 IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
 {
-    if(_fd == INVALID_SOCKET || _state < StateConnected)
+    if (_fd == INVALID_SOCKET || _state < StateConnected)
     {
         return;
     }
 
-    if(_write.error != ERROR_SUCCESS)
+    if (_write.error != ERROR_SUCCESS)
     {
         WSASetLastError(_write.error);
-        if(connectionLost())
+        if (connectionLost())
         {
-            throw ConnectionLostException(__FILE__, __LINE__ ,getSocketErrno());
+            throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
         }
         else
         {
@@ -394,7 +392,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
     _read.buf.buf = reinterpret_cast<char*>(&*buf.i);
     _read.error = ERROR_SUCCESS;
     int err;
-    if(_state == StateConnected)
+    if (_state == StateConnected)
     {
         err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, nullptr);
     }
@@ -403,19 +401,19 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
         memset(&_readAddr.saStorage, 0, sizeof(struct sockaddr_storage));
         _readAddrLen = static_cast<socklen_t>(sizeof(sockaddr_storage));
 
-        err = WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_readAddr.sa, &_readAddrLen, &_read,
-                          nullptr);
+        err =
+            WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_readAddr.sa, &_readAddrLen, &_read, nullptr);
     }
 
-    if(err == SOCKET_ERROR)
+    if (err == SOCKET_ERROR)
     {
-        if(recvTruncated())
+        if (recvTruncated())
         {
             // Nothing to do.
         }
-        else if(!wouldBlock())
+        else if (!wouldBlock())
         {
-            if(connectionLost())
+            if (connectionLost())
             {
                 throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
@@ -430,11 +428,11 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
 void
 IceInternal::UdpTransceiver::finishRead(Buffer& buf)
 {
-    if(_read.error != ERROR_SUCCESS)
+    if (_read.error != ERROR_SUCCESS)
     {
         WSASetLastError(_read.error);
 
-        if(recvTruncated())
+        if (recvTruncated())
         {
             // The message was truncated and the whole buffer is filled. We ignore
             // this error here, it will be detected at the connection level when
@@ -443,7 +441,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
         }
         else
         {
-            if(connectionLost())
+            if (connectionLost())
             {
                 throw ConnectionLostException(__FILE__, __LINE__, getSocketErrno());
             }
@@ -454,7 +452,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
         }
     }
 
-    if(_state == StateNotConnected)
+    if (_state == StateNotConnected)
     {
         _peerAddr = _readAddr;
     }
@@ -475,22 +473,22 @@ IceInternal::UdpTransceiver::protocol() const
 string
 IceInternal::UdpTransceiver::toString() const
 {
-    if(_fd == INVALID_SOCKET)
+    if (_fd == INVALID_SOCKET)
     {
         return "<closed>";
     }
 
     ostringstream s;
-    if(_incoming && !_bound)
+    if (_incoming && !_bound)
     {
         s << "local address = " << addrToString(_addr);
     }
-    else if(_state == StateNotConnected)
+    else if (_state == StateNotConnected)
     {
         Address localAddr;
         fdToLocalAddress(_fd, localAddr);
         s << "local address = " << addrToString(localAddr);
-        if(isAddressValid(_peerAddr))
+        if (isAddressValid(_peerAddr))
         {
             s << "\nremote address = " << addrToString(_peerAddr);
         }
@@ -500,7 +498,7 @@ IceInternal::UdpTransceiver::toString() const
         s << fdToString(_fd);
     }
 
-    if(isAddressValid(_mcastAddr))
+    if (isAddressValid(_mcastAddr))
     {
         s << "\nmulticast address = " + addrToString(_mcastAddr);
     }
@@ -513,7 +511,7 @@ IceInternal::UdpTransceiver::toDetailedString() const
     ostringstream os;
     os << toString();
     vector<string> intfs;
-    if(isAddressValid(_mcastAddr))
+    if (isAddressValid(_mcastAddr))
     {
         intfs = getInterfacesForMulticast(_mcastInterface, getProtocolSupport(_mcastAddr));
     }
@@ -521,7 +519,7 @@ IceInternal::UdpTransceiver::toDetailedString() const
     {
         intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
     }
-    if(!intfs.empty())
+    if (!intfs.empty())
     {
         os << "\nlocal interfaces = ";
         os << IceUtilInternal::joinString(intfs, ", ");
@@ -533,17 +531,17 @@ Ice::ConnectionInfoPtr
 IceInternal::UdpTransceiver::getInfo() const
 {
     auto info = make_shared<Ice::UDPConnectionInfo>();
-    if(_fd == INVALID_SOCKET)
+    if (_fd == INVALID_SOCKET)
     {
         return info;
     }
 
-    if(_state == StateNotConnected)
+    if (_state == StateNotConnected)
     {
         Address localAddr;
         fdToLocalAddress(_fd, localAddr);
         addrToAddressAndPort(localAddr, info->localAddress, info->localPort);
-        if(isAddressValid(_peerAddr))
+        if (isAddressValid(_peerAddr))
         {
             addrToAddressAndPort(_peerAddr, info->remoteAddress, info->remotePort);
         }
@@ -560,7 +558,7 @@ IceInternal::UdpTransceiver::getInfo() const
     info->rcvSize = _rcvSize;
     info->sndSize = _sndSize;
 
-    if(isAddressValid(_mcastAddr))
+    if (isAddressValid(_mcastAddr))
     {
         addrToAddressAndPort(_mcastAddr, info->mcastAddress, info->mcastPort);
     }
@@ -579,7 +577,7 @@ IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf)
     // the UDP send buffer size (which ever is smaller).
     //
     const int packetSize = min(_maxPacketSize, _sndSize - _udpOverhead);
-    if(packetSize < static_cast<int>(buf.b.size()))
+    if (packetSize < static_cast<int>(buf.b.size()))
     {
         throw DatagramLimitException(__FILE__, __LINE__);
     }
@@ -601,15 +599,16 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
                                             const Address& addr,
                                             const Address& sourceAddr,
                                             const string& mcastInterface,
-                                            int mcastTtl) :
-    _instance(instance),
-    _incoming(false),
-    _bound(false),
-    _addr(addr),
-    _state(StateNeedConnect)
+                                            int mcastTtl)
+    : _instance(instance),
+      _incoming(false),
+      _bound(false),
+      _addr(addr),
+      _state(StateNeedConnect)
 #if defined(ICE_USE_IOCP)
-    , _read(SocketOperationRead),
-    _write(SocketOperationWrite)
+      ,
+      _read(SocketOperationRead),
+      _write(SocketOperationWrite)
 #endif
 {
     _fd = createSocket(true, _addr);
@@ -623,13 +622,13 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
     // NOTE: setting the multicast interface before performing the
     // connect is important for some OS such as macOS.
     //
-    if(isMulticast(_addr))
+    if (isMulticast(_addr))
     {
-        if(mcastInterface.length() > 0)
+        if (mcastInterface.length() > 0)
         {
             setMcastInterface(_fd, mcastInterface, _addr);
         }
-        if(mcastTtl != -1)
+        if (mcastTtl != -1)
         {
             setMcastTtl(_fd, mcastTtl, _addr);
         }
@@ -642,7 +641,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
     // will make sure the transceiver is notified when the socket is ready for sending (see
     // the initialize() implementation).
     //
-    if(doConnect(_fd, _addr, sourceAddr))
+    if (doConnect(_fd, _addr, sourceAddr))
     {
         _state = StateConnected;
     }
@@ -658,26 +657,26 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #endif
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(
-    const UdpEndpointIPtr& endpoint,
-    const ProtocolInstancePtr& instance,
-    const string& host,
-    int port,
-    const string& mcastInterface,
-    bool connect) :
-    _endpoint(endpoint),
-    _instance(instance),
-    _incoming(true),
-    _bound(false),
-    _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true)),
-    _mcastInterface(mcastInterface),
+IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint,
+                                            const ProtocolInstancePtr& instance,
+                                            const string& host,
+                                            int port,
+                                            const string& mcastInterface,
+                                            bool connect)
+    : _endpoint(endpoint),
+      _instance(instance),
+      _incoming(true),
+      _bound(false),
+      _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true)),
+      _mcastInterface(mcastInterface),
 #ifdef _WIN32
-    _port(port),
+      _port(port),
 #endif
-    _state(connect ? StateNeedConnect : StateNotConnected)
+      _state(connect ? StateNeedConnect : StateNotConnected)
 #if defined(ICE_USE_IOCP)
-    , _read(SocketOperationRead),
-    _write(SocketOperationWrite)
+      ,
+      _read(SocketOperationRead),
+      _write(SocketOperationWrite)
 #endif
 {
     _fd = createServerSocket(true, _addr, instance->protocolSupport());
@@ -690,10 +689,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     _mcastAddr.saStorage.ss_family = AF_UNSPEC;
 }
 
-IceInternal::UdpTransceiver::~UdpTransceiver()
-{
-    assert(_fd == INVALID_SOCKET);
-}
+IceInternal::UdpTransceiver::~UdpTransceiver() { assert(_fd == INVALID_SOCKET); }
 
 //
 // Set UDP receive and send buffer sizes.
@@ -703,7 +699,7 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
 {
     assert(_fd != INVALID_SOCKET);
 
-    for(int i = 0; i < 2; ++i)
+    for (int i = 0; i < 2; ++i)
     {
         bool isSnd;
         string direction;
@@ -711,7 +707,7 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
         int* addr;
         int dfltSize;
         int sizeRequested;
-        if(i == 0)
+        if (i == 0)
         {
             isSnd = false;
             direction = "receive";
@@ -730,7 +726,7 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
             sizeRequested = sndSize;
         }
 
-        if(dfltSize <= 0)
+        if (dfltSize <= 0)
         {
             dfltSize = _maxPacketSize;
         }
@@ -739,28 +735,28 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
         //
         // Get property for buffer size if size not passed in.
         //
-        if(sizeRequested == -1)
+        if (sizeRequested == -1)
         {
             sizeRequested = _instance->properties()->getPropertyAsIntWithDefault(prop, dfltSize);
         }
         //
         // Check for sanity.
         //
-        if(sizeRequested < (_udpOverhead + headerSize))
+        if (sizeRequested < (_udpOverhead + headerSize))
         {
             Warning out(_instance->logger());
             out << "Invalid " << prop << " value of " << sizeRequested << " adjusted to " << dfltSize;
             sizeRequested = dfltSize;
         }
 
-        if(sizeRequested != dfltSize)
+        if (sizeRequested != dfltSize)
         {
             //
             // Try to set the buffer size. The kernel will silently adjust
             // the size to an acceptable value. Then read the size back to
             // get the size that was actually set.
             //
-            if(i == 0)
+            if (i == 0)
             {
                 setRecvBufferSize(_fd, sizeRequested);
                 *addr = getRecvBufferSize(_fd);
@@ -775,21 +771,21 @@ IceInternal::UdpTransceiver::setBufSize(int rcvSize, int sndSize)
             // Warn if the size that was set is less than the requested size and
             // we have not already warned.
             //
-            if(*addr == 0) // set buffer size not supported.
+            if (*addr == 0) // set buffer size not supported.
             {
                 *addr = sizeRequested;
             }
-            else if(*addr < sizeRequested)
+            else if (*addr < sizeRequested)
             {
                 BufSizeWarnInfo winfo = _instance->getBufSizeWarn(UDPEndpointType);
-                if((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
-                   (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
+                if ((isSnd && (!winfo.sndWarn || winfo.sndSize != sizeRequested)) ||
+                    (!isSnd && (!winfo.rcvWarn || winfo.rcvSize != sizeRequested)))
                 {
                     Warning out(_instance->logger());
-                    out << "UDP " << direction << " buffer size: requested size of "
-                        << sizeRequested << " adjusted to " << *addr;
+                    out << "UDP " << direction << " buffer size: requested size of " << sizeRequested << " adjusted to "
+                        << *addr;
 
-                    if(isSnd)
+                    if (isSnd)
                     {
                         _instance->setSndBufSizeWarn(UDPEndpointType, sizeRequested);
                     }

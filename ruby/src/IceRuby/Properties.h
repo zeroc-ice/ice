@@ -11,9 +11,9 @@
 namespace IceRuby
 {
 
-void initProperties(VALUE);
-Ice::PropertiesPtr getProperties(VALUE);
-VALUE createProperties(const Ice::PropertiesPtr&);
+    void initProperties(VALUE);
+    Ice::PropertiesPtr getProperties(VALUE);
+    VALUE createProperties(const Ice::PropertiesPtr&);
 
 }
 

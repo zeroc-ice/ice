@@ -16,13 +16,12 @@ setupObjectAdapter(const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
     adapter->add(std::make_shared<RetryI>(), Ice::stringToIdentity("retry"));
-    //adapter->activate(); // Don't activate OA to ensure collocation is used.
+    // adapter->activate(); // Don't activate OA to ensure collocation is used.
 }
 
 class Collocated : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 

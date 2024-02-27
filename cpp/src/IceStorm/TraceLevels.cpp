@@ -11,18 +11,18 @@ using namespace IceStorm;
 
 TraceLevels::TraceLevels(const string name,
                          const shared_ptr<Ice::Properties>& properties,
-                         shared_ptr<Ice::Logger> theLogger) :
-    topicMgr(0),
-    topicMgrCat("TopicManager"),
-    topic(0),
-    topicCat("Topic"),
-    subscriber(0),
-    subscriberCat("Subscriber"),
-    election(0),
-    electionCat("Election"),
-    replication(0),
-    replicationCat("Replication"),
-    logger(std::move(theLogger))
+                         shared_ptr<Ice::Logger> theLogger)
+    : topicMgr(0),
+      topicMgrCat("TopicManager"),
+      topic(0),
+      topicCat("Topic"),
+      subscriber(0),
+      subscriberCat("Subscriber"),
+      election(0),
+      electionCat("Election"),
+      replication(0),
+      replicationCat("Replication"),
+      logger(std::move(theLogger))
 {
     const string keyBase = name + ".Trace.";
     const_cast<int&>(topicMgr) = properties->getPropertyAsInt(keyBase + topicMgrCat);

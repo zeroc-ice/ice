@@ -15,7 +15,7 @@ using namespace IceInternal;
 
 namespace Ice
 {
-const Current emptyCurrent = Current();
+    const Current emptyCurrent = Current();
 }
 
 Ice::Request::~Request()
@@ -39,7 +39,7 @@ Ice::Object::ice_ping(const Current&) const
 vector<string>
 Ice::Object::ice_ids(const Current&) const
 {
-    static const vector<string> allTypeIds = { "::Ice::Object" };
+    static const vector<string> allTypeIds = {"::Ice::Object"};
     return allTypeIds;
 }
 
@@ -85,7 +85,7 @@ Ice::Object::_iceD_ice_ids(Incoming& inS, const Current& current)
     inS.readEmptyParams();
     vector<string> ret = ice_ids(current);
     OutputStream* ostr = inS.startWriteParams();
-    if(ret.empty())
+    if (ret.empty())
     {
         ostr->write(ret);
     }
@@ -113,7 +113,7 @@ Ice::Object::ice_dispatch(Request& request, std::function<bool()> r, std::functi
 {
     IceInternal::Incoming& in = dynamic_cast<IceInternal::IncomingRequest&>(request)._in;
     in.startOver();
-    if(r || e)
+    if (r || e)
     {
         in.push(r, e);
         try
@@ -122,7 +122,7 @@ Ice::Object::ice_dispatch(Request& request, std::function<bool()> r, std::functi
             in.pop();
             return sync;
         }
-        catch(...)
+        catch (...)
         {
             in.pop();
             throw;
@@ -137,22 +137,16 @@ Ice::Object::ice_dispatch(Request& request, std::function<bool()> r, std::functi
 bool
 Ice::Object::_iceDispatch(Incoming& in, const Current& current)
 {
-    static constexpr string_view allOperations[] =
-    {
-        "ice_id",
-        "ice_ids",
-        "ice_isA",
-        "ice_ping"
-    };
+    static constexpr string_view allOperations[] = {"ice_id", "ice_ids", "ice_isA", "ice_ping"};
 
     pair<const string_view*, const string_view*> r = equal_range(allOperations, allOperations + 4, current.operation);
 
-    if(r.first == r.second)
+    if (r.first == r.second)
     {
         throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
 
-    switch(r.first - allOperations)
+    switch (r.first - allOperations)
     {
         case 0:
         {
@@ -181,36 +175,35 @@ Ice::Object::_iceDispatch(Incoming& in, const Current& current)
 namespace
 {
 
-string
-operationModeToString(OperationMode mode)
-{
-    switch(mode)
+    string operationModeToString(OperationMode mode)
     {
-    case OperationMode::Normal:
-        return "::Ice::Normal";
+        switch (mode)
+        {
+            case OperationMode::Normal:
+                return "::Ice::Normal";
 
-    case OperationMode::Nonmutating:
-        return "::Ice::Nonmutating";
+            case OperationMode::Nonmutating:
+                return "::Ice::Nonmutating";
 
-    case OperationMode::Idempotent:
-        return "::Ice::Idempotent";
+            case OperationMode::Idempotent:
+                return "::Ice::Idempotent";
+        }
+        //
+        // This could not happen with C++11 strong type enums
+        //
+        assert(false);
+        return "";
     }
-    //
-    // This could not happen with C++11 strong type enums
-    //
-    assert(false);
-    return "";
-}
 
 }
 
 void
 Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
-    if(expected != received)
+    if (expected != received)
     {
         assert(expected != OperationMode::Nonmutating); // We never expect Nonmutating
-        if(expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
+        if (expected == OperationMode::Idempotent && received == OperationMode::Nonmutating)
         {
             //
             // Fine: typically an old client still using the deprecated nonmutating keyword
@@ -219,10 +212,8 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
         else
         {
             std::ostringstream reason;
-            reason << "unexpected operation mode. expected = "
-                   << operationModeToString(expected)
-                   << " received = "
-                   << operationModeToString(received);
+            reason << "unexpected operation mode. expected = " << operationModeToString(expected)
+                   << " received = " << operationModeToString(received);
             throw Ice::MarshalException(__FILE__, __LINE__, reason.str());
         }
     }
@@ -236,7 +227,7 @@ Ice::Blobject::_iceDispatch(Incoming& in, const Current& current)
     in.readParamEncaps(inEncaps, sz);
     vector<Byte> outEncaps;
     bool ok = ice_invoke(vector<Byte>(inEncaps, inEncaps + sz), outEncaps, current);
-    if(outEncaps.empty())
+    if (outEncaps.empty())
     {
         in.writeParamEncaps(0, 0, ok);
     }
@@ -256,7 +247,7 @@ Ice::BlobjectArray::_iceDispatch(Incoming& in, const Current& current)
     inEncaps.second = inEncaps.first + sz;
     vector<Byte> outEncaps;
     bool ok = ice_invoke(inEncaps, outEncaps, current);
-    if(outEncaps.empty())
+    if (outEncaps.empty())
     {
         in.writeParamEncaps(0, 0, ok);
     }
@@ -274,20 +265,21 @@ Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
     int32_t sz;
     in.readParamEncaps(inEncaps, sz);
     auto async = IncomingAsync::create(in);
-    ice_invokeAsync(vector<Byte>(inEncaps, inEncaps + sz),
-                    [async](bool ok, const vector<Byte>& outEncaps)
-                    {
-                        if(outEncaps.empty())
-                        {
-                            async->writeParamEncaps(0, 0, ok);
-                        }
-                        else
-                        {
-                            async->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
-                        }
-                        async->completed();
-                    },
-                    async->exception(), current);
+    ice_invokeAsync(
+        vector<Byte>(inEncaps, inEncaps + sz),
+        [async](bool ok, const vector<Byte>& outEncaps)
+        {
+            if (outEncaps.empty())
+            {
+                async->writeParamEncaps(0, 0, ok);
+            }
+            else
+            {
+                async->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
+            }
+            async->completed();
+        },
+        async->exception(), current);
     return false;
 }
 
@@ -299,12 +291,13 @@ Ice::BlobjectArrayAsync::_iceDispatch(Incoming& in, const Current& current)
     in.readParamEncaps(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
     auto async = IncomingAsync::create(in);
-    ice_invokeAsync(inEncaps,
-                    [async](bool ok, const pair<const Byte*, const Byte*>& outE)
-                    {
-                        async->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
-                        async->completed();
-                    },
-                    async->exception(), current);
+    ice_invokeAsync(
+        inEncaps,
+        [async](bool ok, const pair<const Byte*, const Byte*>& outE)
+        {
+            async->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
+            async->completed();
+        },
+        async->exception(), current);
     return false;
 }

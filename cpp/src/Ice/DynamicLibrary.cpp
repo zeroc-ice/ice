@@ -7,17 +7,14 @@
 #include <Ice/StringConverter.h>
 
 #ifndef _WIN32
-#   include <dlfcn.h>
+#    include <dlfcn.h>
 #endif
 
 using namespace Ice;
 using namespace IceInternal;
 using namespace std;
 
-IceInternal::DynamicLibrary::DynamicLibrary() :
-    _hnd(0)
-{
-}
+IceInternal::DynamicLibrary::DynamicLibrary() : _hnd(0) {}
 
 IceInternal::DynamicLibrary::~DynamicLibrary()
 {
@@ -45,8 +42,8 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
 #ifdef _WIN32
     const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if(colon == 1 && driveLetters.find(entryPoint[0]) != string::npos &&
-       (entryPoint[2] == '\\' || entryPoint[2] == '/'))
+    if (colon == 1 && driveLetters.find(entryPoint[0]) != string::npos &&
+        (entryPoint[2] == '\\' || entryPoint[2] == '/'))
     {
         //
         // The only colon we found is in the drive specification, as in "C:\MyDir".
@@ -56,7 +53,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     }
 #endif
 
-    if(colon == string::npos || colon == entryPoint.size() - 1)
+    if (colon == string::npos || colon == entryPoint.size() - 1)
     {
         _err = "invalid entry point format `" + entryPoint + "'";
         return 0;
@@ -71,28 +68,28 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #else
     string::size_type separator = libSpec.rfind('/');
 #endif
-    if(separator != string::npos)
+    if (separator != string::npos)
     {
         libPath = libSpec.substr(0, separator + 1);
         libSpec = libSpec.substr(separator + 1);
     }
 
     string::size_type comma = libSpec.find(',');
-    if(comma == string::npos)
+    if (comma == string::npos)
     {
         libName = libSpec;
-        if(useIceVersion)
+        if (useIceVersion)
         {
             int majorVersion = (ICE_INT_VERSION / 10000);
             int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
             int patchVersion = ICE_INT_VERSION % 100;
             ostringstream os;
             os << majorVersion * 10 + minorVersion;
-            if(patchVersion >= 60)
+            if (patchVersion >= 60)
             {
                 os << 'b' << (patchVersion - 60);
             }
-            else if(patchVersion >= 50)
+            else if (patchVersion >= 50)
             {
                 os << 'a' << (patchVersion - 50);
             }
@@ -101,7 +98,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     }
     else
     {
-        if(comma == libSpec.size() - 1)
+        if (comma == libSpec.size() - 1)
         {
             _err = "invalid entry point format `" + entryPoint + "'";
             return 0;
@@ -116,24 +113,24 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     lib += libName;
     lib += version;
 
-#   if defined(_DEBUG)
+#    if defined(_DEBUG)
     lib += 'd';
-#   endif
+#    endif
 
-#   ifdef COMPSUFFIX
+#    ifdef COMPSUFFIX
     lib += COMPSUFFIX;
-#   endif
+#    endif
 
     lib += ".dll";
 #elif defined(__APPLE__)
     lib += "lib" + libName;
-    if(!version.empty())
+    if (!version.empty())
     {
         lib += "." + version;
     }
 #elif defined(__hpux)
     lib += "lib" + libName;
-    if(!version.empty())
+    if (!version.empty())
     {
         lib += "." + version;
     }
@@ -143,14 +140,14 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     }
 #elif defined(_AIX)
     lib += "lib" + libName + ".a(lib" + libName + ".so";
-    if(!version.empty())
+    if (!version.empty())
     {
         lib += "." + version;
     }
     lib += ")";
 #else
     lib += "lib" + libName + ".so";
-    if(!version.empty())
+    if (!version.empty())
     {
         lib += "." + version;
     }
@@ -161,13 +158,13 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     // On macOS fallback to .so and .bundle extensions, if the default
     // .dylib fails.
     //
-    if(!load(lib + ".dylib"))
+    if (!load(lib + ".dylib"))
     {
         string errMsg = _err;
-        if(!load(lib + ".so"))
+        if (!load(lib + ".so"))
         {
             errMsg += "; " + _err;
-            if(!load(lib + ".bundle"))
+            if (!load(lib + ".bundle"))
             {
                 _err = errMsg + "; " + _err;
                 return 0;
@@ -176,7 +173,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
         _err = "";
     }
 #else
-    if(!load(lib))
+    if (!load(lib))
     {
         return 0;
     }
@@ -196,13 +193,13 @@ IceInternal::DynamicLibrary::load(const string& lib)
     _hnd = LoadLibraryW(stringToWstring(lib, getProcessStringConverter()).c_str());
 #else
     int flags = RTLD_NOW | RTLD_GLOBAL;
-#ifdef _AIX
+#    ifdef _AIX
     flags |= RTLD_MEMBER;
-#endif
+#    endif
 
     _hnd = dlopen(lib.c_str(), flags);
 #endif
-    if(_hnd == 0)
+    if (_hnd == 0)
     {
         //
         // Remember the most recent error in _err.
@@ -211,7 +208,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
         _err = "LoadLibraryW on `" + lib + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
-        if(err)
+        if (err)
         {
             _err = err;
         }
@@ -231,7 +228,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
     symbol_type result = dlsym(_hnd, name.c_str());
 #endif
 
-    if(result == 0)
+    if (result == 0)
     {
         //
         // Remember the most recent error in _err.
@@ -240,7 +237,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
         _err = "GetProcAddress for `" + name + "' failed with `" + IceUtilInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
-        if(err)
+        if (err)
         {
             _err = err;
         }

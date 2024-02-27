@@ -20,8 +20,8 @@ using namespace IceUtilInternal;
 namespace
 {
 
-mutex globalMutex;
-bool interrupted = false;
+    mutex globalMutex;
+    bool interrupted = false;
 
 }
 
@@ -36,25 +36,23 @@ void
 usage(const string& n)
 {
     consoleErr << "Usage: " << n << " [options] slice-files...\n";
-    consoleErr <<
-        "Options:\n"
-        "-h, --help               Show this message.\n"
-        "-v, --version            Display the Ice version.\n"
-        "-DNAME                   Define NAME as 1.\n"
-        "-DNAME=DEF               Define NAME as DEF.\n"
-        "-UNAME                   Remove any definition for NAME.\n"
-        "-IDIR                    Put DIR in the include file search path.\n"
-        "-E                       Print preprocessor output on stdout.\n"
-        "--output-dir DIR         Create files in the directory DIR.\n"
-        "-d, --debug              Print debug messages.\n"
-        "--depend                 Generate Makefile dependencies.\n"
-        "--depend-xml             Generate dependencies in XML format.\n"
-        "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-        "--validate               Validate command line options.\n"
-        "--stdout                 Print generated code to stdout.\n"
-        "--typescript             Generate TypeScript declarations.\n"
-        "--depend-json            Generate dependency information in JSON format.\n"
-        ;
+    consoleErr << "Options:\n"
+                  "-h, --help               Show this message.\n"
+                  "-v, --version            Display the Ice version.\n"
+                  "-DNAME                   Define NAME as 1.\n"
+                  "-DNAME=DEF               Define NAME as DEF.\n"
+                  "-UNAME                   Remove any definition for NAME.\n"
+                  "-IDIR                    Put DIR in the include file search path.\n"
+                  "-E                       Print preprocessor output on stdout.\n"
+                  "--output-dir DIR         Create files in the directory DIR.\n"
+                  "-d, --debug              Print debug messages.\n"
+                  "--depend                 Generate Makefile dependencies.\n"
+                  "--depend-xml             Generate dependencies in XML format.\n"
+                  "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
+                  "--validate               Validate command line options.\n"
+                  "--stdout                 Print generated code to stdout.\n"
+                  "--typescript             Generate TypeScript declarations.\n"
+                  "--depend-json            Generate dependency information in JSON format.\n";
 }
 
 int
@@ -84,23 +82,23 @@ compile(const vector<string>& argv)
     {
         args = opts.parse(argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.reason << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         consoleErr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
@@ -108,19 +106,19 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -143,47 +141,47 @@ compile(const vector<string>& argv)
 
     bool typeScript = opts.isSet("typescript");
 
-    if(args.empty())
+    if (args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(depend && dependJSON)
+    if (depend && dependJSON)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-json" << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(depend && dependxml)
+    if (depend && dependxml)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(dependxml && dependJSON)
+    if (dependxml && dependJSON)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend-xml and --depend-json" << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(validate)
+    if (validate)
     {
         return EXIT_SUCCESS;
     }
@@ -194,11 +192,11 @@ compile(const vector<string>& argv)
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
-    if(dependJSON)
+    if (dependJSON)
     {
         os << "{" << endl;
     }
-    else if(dependxml)
+    else if (dependxml)
     {
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
@@ -207,57 +205,57 @@ compile(const vector<string>& argv)
     // Create a copy of args without the duplicates.
     //
     vector<string> sources;
-    for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         vector<string>::iterator p = find(sources.begin(), sources.end(), *i);
-        if(p == sources.end())
+        if (p == sources.end())
         {
             sources.push_back(*i);
         }
     }
 
-    map<string, vector<string> > moduleInfo;
+    map<string, vector<string>> moduleInfo;
 
-    for(vector<string>::const_iterator i = sources.begin(); i != sources.end();)
+    for (vector<string>::const_iterator i = sources.begin(); i != sources.end();)
     {
         PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
         FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2JS__");
 
-        if(cppHandle == 0)
+        if (cppHandle == 0)
         {
             return EXIT_FAILURE;
         }
 
-        if(depend || dependJSON || dependxml)
+        if (depend || dependJSON || dependxml)
         {
             UnitPtr u = Unit::createUnit(false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
-            if(parseStatus == EXIT_FAILURE)
+            if (parseStatus == EXIT_FAILURE)
             {
                 return EXIT_FAILURE;
             }
 
             bool last = (++i == sources.end());
 
-            if(!icecpp->printMakefileDependencies(os,
-                    depend ? Preprocessor::JavaScript : (dependJSON ? Preprocessor::JavaScriptJSON :
-                                                                      Preprocessor::SliceXML),
-                    includePaths,
-                    "-D__SLICE2JS__"))
+            if (!icecpp->printMakefileDependencies(
+                    os,
+                    depend ? Preprocessor::JavaScript
+                           : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
+                    includePaths, "-D__SLICE2JS__"))
             {
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->close())
+            if (!icecpp->close())
             {
                 return EXIT_FAILURE;
             }
 
-            if(dependJSON)
+            if (dependJSON)
             {
-                if(!last)
+                if (!last)
                 {
                     os << ",";
                 }
@@ -266,17 +264,17 @@ compile(const vector<string>& argv)
         }
         else
         {
-            if(preprocess)
+            if (preprocess)
             {
                 char buf[4096];
-                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
+                while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
                 {
-                    if(fputs(buf, stdout) == EOF)
+                    if (fputs(buf, stdout) == EOF)
                     {
                         return EXIT_FAILURE;
                     }
                 }
-                if(!icecpp->close())
+                if (!icecpp->close())
                 {
                     return EXIT_FAILURE;
                 }
@@ -286,13 +284,13 @@ compile(const vector<string>& argv)
                 UnitPtr p = Unit::createUnit(false);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
-                if(!icecpp->close())
+                if (!icecpp->close())
                 {
                     p->destroy();
                     return EXIT_FAILURE;
                 }
 
-                if(parseStatus == EXIT_FAILURE)
+                if (parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;
                 }
@@ -302,12 +300,12 @@ compile(const vector<string>& argv)
                     assert(dc);
                     const string prefix = "js:module:";
                     string m = dc->findMetaData(prefix);
-                    if(!m.empty())
+                    if (!m.empty())
                     {
                         m = m.substr(prefix.size());
                     }
 
-                    if(moduleInfo.find(m) == moduleInfo.end())
+                    if (moduleInfo.find(m) == moduleInfo.end())
                     {
                         vector<string> files;
                         files.push_back(*i);
@@ -320,7 +318,7 @@ compile(const vector<string>& argv)
 
                     try
                     {
-                        if(useStdout)
+                        if (useStdout)
                         {
                             Gen gen(icecpp->getBaseName(), includePaths, output, typeScript, cout);
                             gen.generate(p);
@@ -331,7 +329,7 @@ compile(const vector<string>& argv)
                             gen.generate(p);
                         }
                     }
-                    catch(const Slice::FileException& ex)
+                    catch (const Slice::FileException& ex)
                     {
                         //
                         // If a file could not be created, then clean up any created files.
@@ -350,7 +348,7 @@ compile(const vector<string>& argv)
 
         {
             lock_guard lock(globalMutex);
-            if(interrupted)
+            if (interrupted)
             {
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
@@ -358,16 +356,16 @@ compile(const vector<string>& argv)
         }
     }
 
-    if(dependJSON)
+    if (dependJSON)
     {
         os << "}\n";
     }
-    else if(dependxml)
+    else if (dependxml)
     {
         os << "</dependencies>\n";
     }
 
-    if(depend || dependJSON || dependxml)
+    if (depend || dependJSON || dependxml)
     {
         writeDependencies(os.str(), dependFile);
     }
@@ -376,9 +374,11 @@ compile(const vector<string>& argv)
 }
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t* argv[])
+int
+wmain(int argc, wchar_t* argv[])
 #else
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 #endif
 {
     vector<string> args = Slice::argvToArgs(argc, argv);
@@ -386,14 +386,15 @@ int main(int argc, char* argv[])
     {
         return compile(args);
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
-    catch(...)
+    catch (...)
     {
-        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:"
+                   << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

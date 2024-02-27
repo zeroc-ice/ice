@@ -18,9 +18,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
-    IncomingBase(in),
-    _responseHandlerCopy(_responseHandler->shared_from_this())
+IceInternal::IncomingAsync::IncomingAsync(Incoming& in)
+    : IncomingBase(in),
+      _responseHandlerCopy(_responseHandler->shared_from_this())
 {
 }
 
@@ -42,16 +42,16 @@ IceInternal::IncomingAsync::kill(Incoming& in)
 void
 IceInternal::IncomingAsync::completed()
 {
-    for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
+    for (DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
     {
         try
         {
-            if(p->first && !p->first())
+            if (p->first && !p->first())
             {
                 return;
             }
         }
-        catch(...)
+        catch (...)
         {
         }
     }
@@ -63,16 +63,16 @@ IceInternal::IncomingAsync::completed()
 void
 IceInternal::IncomingAsync::completed(exception_ptr ex)
 {
-    for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
+    for (DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
     {
         try
         {
-            if(p->second && !p->second(ex))
+            if (p->second && !p->second(ex))
             {
                 return;
             }
         }
-        catch(...)
+        catch (...)
         {
         }
     }

@@ -12,9 +12,11 @@ using namespace Slice::Python;
 using namespace IceUtilInternal;
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t* argv[])
+int
+wmain(int argc, wchar_t* argv[])
 #else
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 #endif
 {
     vector<string> args = Slice::argvToArgs(argc, argv);
@@ -22,14 +24,15 @@ int main(int argc, char* argv[])
     {
         return Slice::Python::compile(args);
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
-    catch(...)
+    catch (...)
     {
-        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:"
+                   << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

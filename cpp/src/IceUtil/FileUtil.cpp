@@ -10,12 +10,12 @@
 #include <string.h>
 
 #ifdef _WIN32
-#  include <process.h>
-#  include <io.h>
-#  include <Shlwapi.h>
+#    include <process.h>
+#    include <io.h>
+#    include <Shlwapi.h>
 #else
-#  include <unistd.h>
-#  include <dirent.h>
+#    include <unistd.h>
+#    include <dirent.h>
 #endif
 
 using namespace std;
@@ -23,11 +23,11 @@ using namespace std;
 namespace IceUtilInternal
 {
 #ifdef _WIN32
-const string pathsep = ";";
-const string separator = "\\";
+    const string pathsep = ";";
+    const string separator = "\\";
 #else
-const string pathsep = ":";
-const string separator = "/";
+    const string pathsep = ":";
+    const string separator = "/";
 #endif
 }
 
@@ -41,7 +41,7 @@ IceUtilInternal::isAbsolutePath(const string& path)
     size_t size = path.size();
 
     // Skip whitespace
-    while(i < size && isspace(static_cast<unsigned char>(path[i])))
+    while (i < size && isspace(static_cast<unsigned char>(path[i])))
     {
         ++i;
     }
@@ -49,13 +49,13 @@ IceUtilInternal::isAbsolutePath(const string& path)
 #ifdef _WIN32
     // We need at least 3 non whitespace character to have
     // and absolute path
-    if(i + 3 > size)
+    if (i + 3 > size)
     {
         return false;
     }
 
     // Check for X:\ path ('\' may have been converted to '/')
-    if((path[i] >= 'A' && path[i] <= 'Z') || (path[i] >= 'a' && path[i] <= 'z'))
+    if ((path[i] >= 'A' && path[i] <= 'Z') || (path[i] >= 'a' && path[i] <= 'z'))
     {
         return path[i + 1] == ':' && (path[i + 2] == '\\' || path[i + 2] == '/');
     }
@@ -63,7 +63,7 @@ IceUtilInternal::isAbsolutePath(const string& path)
     // Check for UNC path
     return (path[i] == '\\' && path[i + 1] == '\\') || path[i] == '/';
 #else
-    if(i >= size)
+    if (i >= size)
     {
         return false;
     }
@@ -79,7 +79,7 @@ bool
 IceUtilInternal::directoryExists(const string& path)
 {
     IceUtilInternal::structstat st;
-    if(IceUtilInternal::stat(path, &st) != 0 || !S_ISDIR(st.st_mode))
+    if (IceUtilInternal::stat(path, &st) != 0 || !S_ISDIR(st.st_mode))
     {
         return false;
     }
@@ -97,13 +97,13 @@ IceUtilInternal::isEmptyDirectory(const string& path)
 #else
     struct dirent* d;
     DIR* dir = opendir(path.c_str());
-    if(dir)
+    if (dir)
     {
         bool empty = true;
-        while((d = readdir(dir)))
+        while ((d = readdir(dir)))
         {
             string name(d->d_name);
-            if(name != "." && name != "..")
+            if (name != "." && name != "..")
             {
                 empty = false;
                 break;
@@ -126,7 +126,7 @@ bool
 IceUtilInternal::fileExists(const string& path)
 {
     IceUtilInternal::structstat st;
-    if(IceUtilInternal::stat(path, &st) != 0 || !S_ISREG(st.st_mode))
+    if (IceUtilInternal::stat(path, &st) != 0 || !S_ISREG(st.st_mode))
     {
         return false;
     }
@@ -139,17 +139,16 @@ IceUtilInternal::freopen(const std::string& path, const std::string& mode, FILE*
 #ifdef _LARGEFILE64_SOURCE
     return freopen64(path.c_str(), mode.c_str(), stream);
 #else
-#  ifdef _WIN32
+#    ifdef _WIN32
     //
     // Don't need to use a wide string converter, the wide strings are directly passed
     // to Windows API.
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
-    return _wfreopen(stringToWstring(path, converter).c_str(),
-                     stringToWstring(mode, converter).c_str(), stream);
-#  else
+    return _wfreopen(stringToWstring(path, converter).c_str(), stringToWstring(mode, converter).c_str(), stream);
+#    else
     return freopen(path.c_str(), mode.c_str(), stream);
-#  endif
+#    endif
 #endif
 }
 
@@ -182,8 +181,7 @@ IceUtilInternal::rename(const string& from, const string& to)
     // to Windows API.
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
-    return ::_wrename(stringToWstring(from, converter).c_str(),
-                      stringToWstring(to, converter).c_str());
+    return ::_wrename(stringToWstring(from, converter).c_str(), stringToWstring(to, converter).c_str());
 }
 
 int
@@ -214,8 +212,7 @@ IceUtilInternal::fopen(const string& path, const string& mode)
     // to Windows API.
     //
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
-    return ::_wfopen(stringToWstring(path, converter).c_str(),
-                     stringToWstring(mode, converter).c_str());
+    return ::_wfopen(stringToWstring(path, converter).c_str(), stringToWstring(mode, converter).c_str());
 }
 
 int
@@ -225,10 +222,10 @@ IceUtilInternal::open(const string& path, int flags)
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    if(flags & _O_CREAT)
+    if (flags & _O_CREAT)
     {
-        return ::_wopen(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(),
-                        flags, _S_IREAD | _S_IWRITE);
+        return ::_wopen(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), flags,
+                        _S_IREAD | _S_IWRITE);
     }
     else
     {
@@ -244,7 +241,7 @@ IceUtilInternal::getcwd(string& cwd)
     // from Windows API.
     //
     wchar_t cwdbuf[_MAX_PATH];
-    if(_wgetcwd(cwdbuf, _MAX_PATH) == nullptr)
+    if (_wgetcwd(cwdbuf, _MAX_PATH) == nullptr)
     {
         return -1;
     }
@@ -265,26 +262,24 @@ IceUtilInternal::unlink(const string& path)
 int
 IceUtilInternal::close(int fd)
 {
-#ifdef _WIN32
-        return _close(fd);
-#else
-        return ::close(fd);
-#endif
+#    ifdef _WIN32
+    return _close(fd);
+#    else
+    return ::close(fd);
+#    endif
 }
 
-IceUtilInternal::FileLock::FileLock(const std::string& path) :
-    _fd(INVALID_HANDLE_VALUE),
-    _path(path)
+IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDLE_VALUE), _path(path)
 {
     //
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    _fd = ::CreateFileW(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(),
-                        GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    _fd = ::CreateFileW(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), GENERIC_WRITE, 0, nullptr,
+                        OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
     _path = path;
 
-    if(_fd == INVALID_HANDLE_VALUE)
+    if (_fd == INVALID_HANDLE_VALUE)
     {
         throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
@@ -295,13 +290,13 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     overlaped.Offset = 0;
     overlaped.OffsetHigh = 0;
 
-#if defined(_MSC_VER)
+#    if defined(_MSC_VER)
     overlaped.hEvent = nullptr;
-#else
+#    else
     overlaped.hEvent = 0;
-#endif
+#    endif
 
-    if(::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlaped) == 0)
+    if (::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlaped) == 0)
     {
         ::CloseHandle(_fd);
         throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
@@ -369,7 +364,7 @@ IceUtilInternal::fopen(const string& path, const string& mode)
 int
 IceUtilInternal::open(const string& path, int flags)
 {
-    if(flags & O_CREAT)
+    if (flags & O_CREAT)
     {
         // By default, create with rw-rw-rw- modified by the user's umask (same as fopen).
         return ::open(path.c_str(), flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
@@ -384,7 +379,7 @@ int
 IceUtilInternal::getcwd(string& cwd)
 {
     char cwdbuf[PATH_MAX];
-    if(::getcwd(cwdbuf, PATH_MAX) == nullptr)
+    if (::getcwd(cwdbuf, PATH_MAX) == nullptr)
     {
         return -1;
     }
@@ -404,18 +399,16 @@ IceUtilInternal::close(int fd)
     return ::close(fd);
 }
 
-IceUtilInternal::FileLock::FileLock(const std::string& path) :
-    _fd(-1),
-    _path(path)
+IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(path)
 {
     _fd = ::open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-    if(_fd < 0)
+    if (_fd < 0)
     {
         throw IceUtil::FileLockException(__FILE__, __LINE__, errno, _path);
     }
 
     struct ::flock lock;
-    lock.l_type = F_WRLCK; // Write lock
+    lock.l_type = F_WRLCK;    // Write lock
     lock.l_whence = SEEK_SET; // Begining of file
     lock.l_start = 0;
     lock.l_len = 0;
@@ -425,7 +418,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     // acquire the lock, if the lock cannot be acquired
     // it returns -1 without wait.
     //
-    if(::fcntl(_fd, F_SETLK, &lock) == -1)
+    if (::fcntl(_fd, F_SETLK, &lock) == -1)
     {
         int err = errno;
         close(_fd);
@@ -444,7 +437,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     ostringstream os;
     os << getpid();
 
-    if(write(_fd, os.str().c_str(), os.str().size()) == -1)
+    if (write(_fd, os.str().c_str(), os.str().size()) == -1)
     {
         int err = errno;
         close(_fd);

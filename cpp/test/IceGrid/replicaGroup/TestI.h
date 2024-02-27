@@ -10,14 +10,12 @@
 class TestI : public ::Test::TestIntf
 {
 public:
-
     TestI(const Ice::PropertiesPtr&);
 
     virtual std::string getReplicaId(const Ice::Current&);
     virtual std::string getReplicaIdAndShutdown(const Ice::Current&);
 
 private:
-
     Ice::PropertiesPtr _properties;
 };
 

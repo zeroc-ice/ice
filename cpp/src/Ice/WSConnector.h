@@ -13,29 +13,27 @@
 namespace IceInternal
 {
 
-class WSEndpoint;
+    class WSEndpoint;
 
-class WSConnector final : public Connector
-{
-public:
+    class WSConnector final : public Connector
+    {
+    public:
+        WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, const std::string&);
+        ~WSConnector();
+        TransceiverPtr connect() final;
 
-    WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, const std::string&);
-    ~WSConnector();
-    TransceiverPtr connect() final;
+        std::int16_t type() const final;
+        std::string toString() const final;
 
-    std::int16_t type() const final;
-    std::string toString() const final;
+        bool operator==(const Connector&) const final;
+        bool operator<(const Connector&) const final;
 
-    bool operator==(const Connector&) const final;
-    bool operator<(const Connector&) const final;
-
-private:
-
-    const ProtocolInstancePtr _instance;
-    const ConnectorPtr _delegate;
-    const std::string _host;
-    const std::string _resource;
-};
+    private:
+        const ProtocolInstancePtr _instance;
+        const ConnectorPtr _delegate;
+        const std::string _host;
+        const std::string _resource;
+    };
 
 }
 

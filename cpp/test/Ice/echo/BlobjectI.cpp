@@ -7,10 +7,7 @@
 
 using namespace std;
 
-BlobjectI::BlobjectI() :
-    _startBatch(false)
-{
-}
+BlobjectI::BlobjectI() : _startBatch(false) {}
 
 void
 BlobjectI::setConnection(const Ice::ConnectionPtr& connection)
@@ -44,24 +41,24 @@ BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
     auto connection = getConnection(current);
     const bool twoway = current.requestId > 0;
     auto obj = connection->createProxy(current.id);
-    if(!twoway)
+    if (!twoway)
     {
-        if(_startBatch)
+        if (_startBatch)
         {
             _startBatch = false;
             _batchProxy = obj->ice_batchOneway();
         }
-        if(_batchProxy)
+        if (_batchProxy)
         {
             obj = _batchProxy.value();
         }
 
-        if(!current.facet.empty())
+        if (!current.facet.empty())
         {
             obj = obj->ice_facet(current.facet);
         }
 
-        if(_batchProxy)
+        if (_batchProxy)
         {
             vector<Ice::Byte> out;
             obj->ice_invoke(current.operation, current.mode, inEncaps, out, current.ctx);
@@ -69,16 +66,14 @@ BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
         }
         else
         {
-            obj->ice_oneway()->ice_invokeAsync(current.operation, current.mode, inEncaps,
-                                               [](bool, const std::vector<Ice::Byte>&) { assert(0); },
-                                               ex,
-                                               [&](bool) { response(true, vector<Ice::Byte>()); },
-                                               current.ctx);
+            obj->ice_oneway()->ice_invokeAsync(
+                current.operation, current.mode, inEncaps, [](bool, const std::vector<Ice::Byte>&) { assert(0); }, ex,
+                [&](bool) { response(true, vector<Ice::Byte>()); }, current.ctx);
         }
     }
     else
     {
-        if(!current.facet.empty())
+        if (!current.facet.empty())
         {
             obj = obj->ice_facet(current.facet);
         }
@@ -91,7 +86,7 @@ Ice::ConnectionPtr
 BlobjectI::getConnection(const Ice::Current& current)
 {
     unique_lock lock(_mutex);
-    if(!_connection)
+    if (!_connection)
     {
         return current.con;
     }
@@ -100,13 +95,13 @@ BlobjectI::getConnection(const Ice::Current& current)
     {
         _connection->throwException();
     }
-    catch(const Ice::ConnectionLostException&)
+    catch (const Ice::ConnectionLostException&)
     {
         // If we lost the connection, wait 5 seconds for the server to re-establish it. Some tests,
         // involve connection closure (e.g.: exceptions MemoryLimitException test) and the server
         // automatically re-establishes the connection with the echo server.
         _condition.wait_for(lock, chrono::seconds(5));
-        if(!_connection)
+        if (!_connection)
         {
             throw;
         }

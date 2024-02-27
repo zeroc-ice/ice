@@ -10,13 +10,13 @@
 namespace IceSSL
 {
 
-namespace OpenSSL
-{
+    namespace OpenSSL
+    {
 
-class SSLEngine;
-using SSLEnginePtr = std::shared_ptr<SSLEngine>;
+        class SSLEngine;
+        using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 
-} // OpenSSL namespace end
+    } // OpenSSL namespace end
 
 } // IceSSL namespace end
 

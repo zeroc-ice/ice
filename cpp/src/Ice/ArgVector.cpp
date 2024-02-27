@@ -9,14 +9,14 @@ IceInternal::ArgVector::ArgVector(int argcP, const char* const argvP[])
 {
     assert(argcP >= 0);
     _args.resize(static_cast<size_t>(argcP));
-    for(size_t i = 0; i < static_cast<size_t>(argcP); ++i)
+    for (size_t i = 0; i < static_cast<size_t>(argcP); ++i)
     {
         _args[i] = argvP[i];
     }
     setupArgcArgv();
 }
 
-IceInternal::ArgVector::ArgVector(const ::std::vector< ::std::string>& vec)
+IceInternal::ArgVector::ArgVector(const ::std::vector<::std::string>& vec)
 {
     _args = vec;
     setupArgcArgv();
@@ -38,20 +38,17 @@ IceInternal::ArgVector::operator=(const ArgVector& rhs)
     return *this;
 }
 
-IceInternal::ArgVector::~ArgVector()
-{
-    delete[] argv;
-}
+IceInternal::ArgVector::~ArgVector() { delete[] argv; }
 
 void
 IceInternal::ArgVector::setupArgcArgv()
 {
     argc = static_cast<int>(_args.size());
-    if((argv = new char*[static_cast<size_t>(argc + 1)]) == 0)
+    if ((argv = new char*[static_cast<size_t>(argc + 1)]) == 0)
     {
         throw ::std::bad_alloc();
     }
-    for(size_t i = 0; i < static_cast<size_t>(argc); i++)
+    for (size_t i = 0; i < static_cast<size_t>(argc); i++)
     {
         argv[i] = const_cast<char*>(_args[i].c_str());
     }

@@ -18,13 +18,13 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->requestFailedException();
         test(false);
     }
-    catch(const ObjectNotExistException& ex)
+    catch (const ObjectNotExistException& ex)
     {
         test(ex.id == obj->ice_getIdentity());
         test(ex.facet == obj->ice_getFacet());
         test(ex.operation == "requestFailedException");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -34,11 +34,11 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->unknownUserException();
         test(false);
     }
-    catch(const UnknownUserException& ex)
+    catch (const UnknownUserException& ex)
     {
         test(ex.unknown == "reason");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -48,11 +48,11 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->unknownLocalException();
         test(false);
     }
-    catch(const UnknownLocalException& ex)
+    catch (const UnknownLocalException& ex)
     {
         test(ex.unknown == "reason");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -62,11 +62,11 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->unknownException();
         test(false);
     }
-    catch(const UnknownException& ex)
+    catch (const UnknownException& ex)
     {
         test(ex.unknown == "reason");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -76,14 +76,14 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->userException();
         test(false);
     }
-    catch(const UnknownUserException& ex)
+    catch (const UnknownUserException& ex)
     {
         test(ex.unknown == "::Test::TestIntfUserException");
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -93,12 +93,12 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->localException();
         test(false);
     }
-    catch(const UnknownLocalException& ex)
+    catch (const UnknownLocalException& ex)
     {
         test(ex.unknown.find("Ice::SocketException") != string::npos ||
              ex.unknown.find("Ice.SocketException") != string::npos);
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -108,14 +108,14 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->stdException();
         test(false);
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
-    catch(const UnknownException& ex)
+    catch (const UnknownException& ex)
     {
         test(ex.unknown == "c++ exception: Hello");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -125,14 +125,14 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->cppException();
         test(false);
     }
-    catch(const UnknownException& ex)
+    catch (const UnknownException& ex)
     {
         test(ex.unknown == "c++ exception: unknown");
     }
-    catch(const Ice::OperationNotExistException&)
+    catch (const Ice::OperationNotExistException&)
     {
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -142,11 +142,11 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->unknownExceptionWithServantException();
         test(false);
     }
-    catch(const UnknownException& ex)
+    catch (const UnknownException& ex)
     {
         test(ex.unknown == "reason");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -156,11 +156,11 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->impossibleException(false);
         test(false);
     }
-    catch(const UnknownUserException&)
+    catch (const UnknownUserException&)
     {
         // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -170,11 +170,11 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->impossibleException(true);
         test(false);
     }
-    catch(const UnknownUserException&)
+    catch (const UnknownUserException&)
     {
         // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -184,11 +184,11 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->intfUserException(false);
         test(false);
     }
-    catch(const TestImpossibleException&)
+    catch (const TestImpossibleException&)
     {
         // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -198,11 +198,11 @@ testExceptions(const TestIntfPrxPtr& obj)
         obj->intfUserException(true);
         test(false);
     }
-    catch(const TestImpossibleException&)
+    catch (const TestImpossibleException&)
     {
         // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -231,11 +231,11 @@ allTests(Test::TestHelper* helper)
         o->ice_ids();
         test(false);
     }
-    catch(const UnknownUserException& ex)
+    catch (const UnknownUserException& ex)
     {
         test(ex.unknown == "::Test::TestIntfUserException");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -246,11 +246,11 @@ allTests(Test::TestHelper* helper)
         o->ice_ids();
         test(false);
     }
-    catch(const UnknownUserException& ex)
+    catch (const UnknownUserException& ex)
     {
         test(ex.unknown == "::Test::TestIntfUserException");
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
@@ -263,7 +263,7 @@ allTests(Test::TestHelper* helper)
     {
         Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("category/unknown:" + endp));
     }
-    catch(const ObjectNotExistException&)
+    catch (const ObjectNotExistException&)
     {
     }
     cout << "ok" << endl;
@@ -277,14 +277,14 @@ allTests(Test::TestHelper* helper)
     {
         Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("anothercategory/unknown:" + endp));
     }
-    catch(const ObjectNotExistException&)
+    catch (const ObjectNotExistException&)
     {
     }
     try
     {
         Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("unknown:" + endp));
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
     }
     cout << "ok" << endl;
@@ -307,11 +307,11 @@ allTests(Test::TestHelper* helper)
     {
         obj->asyncResponse();
     }
-    catch(const TestIntfUserException&)
+    catch (const TestIntfUserException&)
     {
         test(false);
     }
-    catch(const TestImpossibleException&)
+    catch (const TestImpossibleException&)
     {
         //
         // Called by finished().
@@ -322,11 +322,11 @@ allTests(Test::TestHelper* helper)
     {
         obj->asyncException();
     }
-    catch(const TestIntfUserException&)
+    catch (const TestIntfUserException&)
     {
         test(false);
     }
-    catch(const TestImpossibleException&)
+    catch (const TestImpossibleException&)
     {
         //
         // Called by finished().
@@ -344,7 +344,7 @@ allTests(Test::TestHelper* helper)
         obj->ice_ping();
         test(false);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         cout << "ok" << endl;
     }
@@ -355,7 +355,7 @@ allTests(Test::TestHelper* helper)
         obj->ice_ping();
         cout << "ok" << endl;
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }

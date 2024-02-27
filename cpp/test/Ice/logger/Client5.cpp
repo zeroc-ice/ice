@@ -12,7 +12,7 @@ runTest(const Ice::CommunicatorPtr& communicator)
 {
     int count = communicator->getProperties()->getPropertyAsInt("Client.Iterations");
     const string message = communicator->getProperties()->getProperty("Client.Message");
-    for(int i = 0; i < count; ++i)
+    for (int i = 0; i < count; ++i)
     {
         communicator->getLogger()->print(message);
     }
@@ -35,7 +35,6 @@ const string message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 class Client5 : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -49,7 +48,7 @@ Client5::run(int, char**)
     // This will generate 19 archived log files, all files including current log file
     // must have 512 bytes length.
     //
-    for(int i = 0; i < 20; ++i)
+    for (int i = 0; i < 20; ++i)
     {
         Ice::InitializationData id;
         id.properties = Ice::createProperties();

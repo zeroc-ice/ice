@@ -13,7 +13,7 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 // Class entries represent the PHP class implementations we have registered.
 namespace IcePHP
 {
-zend_class_entry* loggerClassEntry = 0;
+    zend_class_entry* loggerClassEntry = 0;
 }
 
 // Logger support.
@@ -21,19 +21,16 @@ static zend_object_handlers _loggerHandlers;
 
 extern "C"
 {
-static zend_object* handleAlloc(zend_class_entry*);
-static void handleFreeStorage(zend_object*);
-static zend_object* handleClone(zend_object*);
+    static zend_object* handleAlloc(zend_class_entry*);
+    static void handleFreeStorage(zend_object*);
+    static zend_object* handleClone(zend_object*);
 }
 
-ZEND_METHOD(Ice_Logger, __construct)
-{
-    runtimeError("logger objects cannot be instantiated");
-}
+ZEND_METHOD(Ice_Logger, __construct) { runtimeError("logger objects cannot be instantiated"); }
 
 ZEND_METHOD(Ice_Logger, __toString)
 {
-    if(ZEND_NUM_ARGS() > 0)
+    if (ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
     }
@@ -42,7 +39,7 @@ ZEND_METHOD(Ice_Logger, __toString)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_print_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, message)
+ZEND_ARG_INFO(0, message)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Logger, print)
@@ -50,7 +47,7 @@ ZEND_METHOD(Ice_Logger, print)
     char* m;
     size_t mLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &m, &mLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &m, &mLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -63,7 +60,7 @@ ZEND_METHOD(Ice_Logger, print)
     {
         _this->print(msg);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -71,8 +68,8 @@ ZEND_METHOD(Ice_Logger, print)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_trace_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(2))
-    ZEND_ARG_INFO(0, category)
-    ZEND_ARG_INFO(0, message)
+ZEND_ARG_INFO(0, category)
+ZEND_ARG_INFO(0, message)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Logger, trace)
@@ -82,7 +79,7 @@ ZEND_METHOD(Ice_Logger, trace)
     char* m;
     size_t mLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ss"), &c, &cLen, &m, &mLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ss"), &c, &cLen, &m, &mLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -96,7 +93,7 @@ ZEND_METHOD(Ice_Logger, trace)
     {
         _this->trace(category, msg);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -104,7 +101,7 @@ ZEND_METHOD(Ice_Logger, trace)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_warning_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, message)
+ZEND_ARG_INFO(0, message)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Logger, warning)
@@ -112,7 +109,7 @@ ZEND_METHOD(Ice_Logger, warning)
     char* m;
     size_t mLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &m, &mLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &m, &mLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -125,7 +122,7 @@ ZEND_METHOD(Ice_Logger, warning)
     {
         _this->warning(msg);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -133,7 +130,7 @@ ZEND_METHOD(Ice_Logger, warning)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_error_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, message)
+ZEND_ARG_INFO(0, message)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Logger, error)
@@ -141,7 +138,7 @@ ZEND_METHOD(Ice_Logger, error)
     char* m;
     size_t mLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &m, &mLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &m, &mLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -154,7 +151,7 @@ ZEND_METHOD(Ice_Logger, error)
     {
         _this->error(msg);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
@@ -162,7 +159,7 @@ ZEND_METHOD(Ice_Logger, error)
 }
 
 ZEND_BEGIN_ARG_INFO_EX(Ice_Logger_cloneWithPrefix_arginfo, 1, ZEND_RETURN_VALUE, static_cast<zend_ulong>(1))
-    ZEND_ARG_INFO(0, prefix)
+ZEND_ARG_INFO(0, prefix)
 ZEND_END_ARG_INFO()
 
 ZEND_METHOD(Ice_Logger, cloneWithPrefix)
@@ -170,7 +167,7 @@ ZEND_METHOD(Ice_Logger, cloneWithPrefix)
     char* p;
     size_t pLen;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &p, &pLen) == FAILURE)
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("s"), &p, &pLen) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -185,13 +182,13 @@ ZEND_METHOD(Ice_Logger, cloneWithPrefix)
     {
         clone = _this->cloneWithPrefix(prefix);
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         throwException(ex);
         RETURN_NULL();
     }
 
-    if(!createLogger(return_value, clone))
+    if (!createLogger(return_value, clone))
     {
         RETURN_NULL();
     }
@@ -222,21 +219,15 @@ handleClone(zend_object*)
 }
 
 // Predefined methods for Logger.
-static zend_function_entry _interfaceMethods[] =
-{
-    {0, 0, 0}
-};
-static zend_function_entry _classMethods[] =
-{
-    ZEND_ME(Ice_Logger, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Logger, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, print, Ice_Logger_print_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, trace, Ice_Logger_trace_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, warning, Ice_Logger_warning_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, error, Ice_Logger_error_arginfo, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC)
-    {0, 0, 0}
-};
+static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
+static zend_function_entry _classMethods[] = {
+    ZEND_ME(Ice_Logger, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
+        ZEND_ME(Ice_Logger, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
+            ZEND_ME(Ice_Logger, print, Ice_Logger_print_arginfo, ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_Logger, trace, Ice_Logger_trace_arginfo, ZEND_ACC_PUBLIC)
+                    ZEND_ME(Ice_Logger, warning, Ice_Logger_warning_arginfo, ZEND_ACC_PUBLIC)
+                        ZEND_ME(Ice_Logger, error, Ice_Logger_error_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
+                            Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
 
 bool
 IcePHP::loggerInit(void)
@@ -266,7 +257,7 @@ IcePHP::loggerInit(void)
 bool
 IcePHP::createLogger(zval* zv, const Ice::LoggerPtr& p)
 {
-    if(object_init_ex(zv, loggerClassEntry) != SUCCESS)
+    if (object_init_ex(zv, loggerClassEntry) != SUCCESS)
     {
         runtimeError("unable to initialize logger object");
         return false;
@@ -281,15 +272,15 @@ IcePHP::createLogger(zval* zv, const Ice::LoggerPtr& p)
 bool
 IcePHP::fetchLogger(zval* zv, Ice::LoggerPtr& p)
 {
-    if(!ZVAL_IS_NULL(zv))
+    if (!ZVAL_IS_NULL(zv))
     {
-        if(Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != loggerClassEntry)
+        if (Z_TYPE_P(zv) != IS_OBJECT || Z_OBJCE_P(zv) != loggerClassEntry)
         {
             invalidArgument("value is not a logger object");
             return false;
         }
         p = Wrapper<Ice::LoggerPtr>::value(zv);
-        if(!p)
+        if (!p)
         {
             runtimeError("unable to retrieve logger object from object store");
             return false;

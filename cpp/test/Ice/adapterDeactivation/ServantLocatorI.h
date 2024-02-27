@@ -10,7 +10,6 @@
 class ServantLocatorI final : public Ice::ServantLocator
 {
 public:
-
     ServantLocatorI();
     ~ServantLocatorI() final;
 
@@ -19,7 +18,6 @@ public:
     void deactivate(const std::string&) final;
 
 public:
-
     bool _deactivated;
     std::shared_ptr<Ice::Object> _router;
 };

@@ -24,7 +24,7 @@ YY_DECL;
 // YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
 // assignment operator, etc.
 //
-#define YYMAXDEPTH  10000
+#define YYMAXDEPTH 10000
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 //
@@ -36,66 +36,63 @@ YY_DECL;
 namespace IceStorm
 {
 
-class Parser
-{
-public:
+    class Parser
+    {
+    public:
+        Parser(std::shared_ptr<Ice::Communicator>, TopicManagerPrxPtr, std::map<Ice::Identity, TopicManagerPrxPtr>);
 
-    Parser(std::shared_ptr<Ice::Communicator>, TopicManagerPrxPtr,
-           std::map<Ice::Identity, TopicManagerPrxPtr>);
+        void usage();
 
-    void usage();
+        void create(const std::list<std::string>&);
+        void destroy(const std::list<std::string>&);
+        void link(const std::list<std::string>&);
+        void unlink(const std::list<std::string>&);
+        void links(const std::list<std::string>&);
+        void topics(const std::list<std::string>&);
+        void replica(const std::list<std::string>&);
+        void subscribers(const std::list<std::string>&);
+        void current(const std::list<std::string>&);
 
-    void create(const std::list<std::string>&);
-    void destroy(const std::list<std::string>&);
-    void link(const std::list<std::string>&);
-    void unlink(const std::list<std::string>&);
-    void links(const std::list<std::string>&);
-    void topics(const std::list<std::string>&);
-    void replica(const std::list<std::string>&);
-    void subscribers(const std::list<std::string>&);
-    void current(const std::list<std::string>&);
+        void showBanner();
 
-    void showBanner();
+        //
+        // With older flex version <= 2.5.35 YY_INPUT second
+        // paramenter is of type int&, in newer versions it
+        // changes to size_t&
+        //
+        void getInput(char*, int&, size_t);
+        void getInput(char*, size_t&, size_t);
 
-    //
-    // With older flex version <= 2.5.35 YY_INPUT second
-    // paramenter is of type int&, in newer versions it
-    // changes to size_t&
-    //
-    void getInput(char*, int&, size_t);
-    void getInput(char*, size_t&, size_t);
+        void continueLine();
+        const char* getPrompt();
 
-    void continueLine();
-    const char* getPrompt();
+        void error(const char*);
+        void error(const std::string&);
 
-    void error(const char*);
-    void error(const std::string&);
+        void warning(const char*);
+        void warning(const std::string&);
 
-    void warning(const char*);
-    void warning(const std::string&);
+        void invalidCommand(const std::string&);
 
-    void invalidCommand(const std::string&);
+        int parse(FILE*, bool);
+        int parse(const std::string&, bool);
 
-    int parse(FILE*, bool);
-    int parse(const std::string&, bool);
+    private:
+        TopicManagerPrxPtr findManagerById(const std::string&, std::string&) const;
+        TopicManagerPrxPtr findManagerByCategory(const std::string&) const;
+        TopicPrxPtr findTopic(const std::string&) const;
 
-private:
+        void exception(std::exception_ptr, bool = false);
 
-    TopicManagerPrxPtr findManagerById(const std::string&, std::string&) const;
-    TopicManagerPrxPtr findManagerByCategory(const std::string&) const;
-    TopicPrxPtr findTopic(const std::string&) const;
+        const std::shared_ptr<Ice::Communicator> _communicator;
+        TopicManagerPrxPtr _defaultManager;
+        const std::map<Ice::Identity, TopicManagerPrxPtr> _managers;
+        std::string _commands;
+        bool _continue;
+        int _errors;
+    };
 
-    void exception(std::exception_ptr, bool = false);
-
-    const std::shared_ptr<Ice::Communicator> _communicator;
-    TopicManagerPrxPtr _defaultManager;
-    const std::map<Ice::Identity, TopicManagerPrxPtr> _managers;
-    std::string _commands;
-    bool _continue;
-    int _errors;
-};
-
-extern Parser* parser; // The current parser for bison/flex
+    extern Parser* parser; // The current parser for bison/flex
 
 } // End namespace IceStorm
 

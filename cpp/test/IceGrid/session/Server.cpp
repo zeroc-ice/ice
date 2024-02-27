@@ -13,11 +13,9 @@ using namespace std;
 class ClientPermissionsVerifierI final : public Glacier2::PermissionsVerifier
 {
 public:
-
-    bool
-    checkPermissions(string userId, string passwd, string&, const Ice::Current& current) const override
+    bool checkPermissions(string userId, string passwd, string&, const Ice::Current& current) const override
     {
-        if(current.ctx.find("throw") != current.ctx.end())
+        if (current.ctx.find("throw") != current.ctx.end())
         {
             throw Test::ExtendedPermissionDeniedException("reason");
         }
@@ -28,20 +26,20 @@ public:
 class SSLPermissionsVerifierI final : public Glacier2::SSLPermissionsVerifier
 {
 public:
-
-    bool
-    authorize(Glacier2::SSLInfo info, string&, const Ice::Current& current) const override
+    bool authorize(Glacier2::SSLInfo info, string&, const Ice::Current& current) const override
     {
-        if(current.ctx.find("throw") != current.ctx.end())
+        if (current.ctx.find("throw") != current.ctx.end())
         {
             throw Test::ExtendedPermissionDeniedException("reason");
         }
         test(info.certs.size() > 0);
         auto cert = IceSSL::Certificate::decode(info.certs[0]);
-        test(cert->getIssuerDN() == IceSSL::DistinguishedName(
-             "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
-        test(cert->getSubjectDN() == IceSSL::DistinguishedName(
-             "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
+        test(cert->getIssuerDN() ==
+             IceSSL::DistinguishedName(
+                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
+        test(cert->getSubjectDN() ==
+             IceSSL::DistinguishedName(
+                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
         test(cert->checkValidity());
 
         return true;
@@ -51,7 +49,6 @@ public:
 class Server final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 
@@ -60,7 +57,7 @@ Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv);
     auto adapter = communicatorHolder->createObjectAdapter("Server");
-    if(communicatorHolder->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
+    if (communicatorHolder->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
     {
         adapter->add(make_shared<ClientPermissionsVerifierI>(), Ice::stringToIdentity("ClientPermissionsVerifier"));
         adapter->add(make_shared<SSLPermissionsVerifierI>(), Ice::stringToIdentity("SSLPermissionsVerifier"));
@@ -71,7 +68,7 @@ Server::run(int argc, char** argv)
     {
         adapter->activate();
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
     }
     communicatorHolder->waitForShutdown();

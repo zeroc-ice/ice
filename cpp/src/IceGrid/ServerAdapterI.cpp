@@ -16,29 +16,26 @@ ServerAdapterI::ServerAdapterI(const shared_ptr<NodeI>& node,
                                const string& serverName,
                                const AdapterPrxPtr& proxy,
                                const string& id,
-                               bool enabled) :
-    _node(node),
-    _this(proxy),
-    _serverId(serverName),
-    _id(id),
-    _server(server),
-    _enabled(enabled)
+                               bool enabled)
+    : _node(node),
+      _this(proxy),
+      _serverId(serverName),
+      _id(id),
+      _server(server),
+      _enabled(enabled)
 {
 }
 
-ServerAdapterI::~ServerAdapterI()
-{
-    assert(_activateCB.empty());
-}
+ServerAdapterI::~ServerAdapterI() { assert(_activateCB.empty()); }
 
 void
 ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrxPtr&)> response,
-                               function<void(exception_ptr)>,
-                               const Ice::Current&)
+                              function<void(exception_ptr)>,
+                              const Ice::Current&)
 {
     {
         lock_guard lock(_mutex);
-        if(_enabled && _proxy)
+        if (_enabled && _proxy)
         {
             //
             // Return the adapter direct proxy.
@@ -46,32 +43,32 @@ ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrxPtr&)> response,
             response(_proxy);
             return;
         }
-        else if(_activateCB.empty())
+        else if (_activateCB.empty())
         {
             //
             // Nothing else waits for this adapter so we must make sure that this
             // adapter if still activatable.
             //
-            if(!_enabled || !_server->isAdapterActivatable(_id))
+            if (!_enabled || !_server->isAdapterActivatable(_id))
             {
                 response(nullopt);
                 return;
             }
         }
 
-        if(_node->getTraceLevels()->adapter > 2)
+        if (_node->getTraceLevels()->adapter > 2)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
             out << "waiting for activation of server `" + _serverId + "' adapter `" << _id << "'";
         }
 
         _activateCB.push_back(response);
-        if(_activateCB.size() > 1)
+        if (_activateCB.size() > 1)
         {
             return;
         }
         _activateAfterDeactivating = _server->getState(Ice::emptyCurrent) >= ServerState::Deactivating &&
-            _server->getState(Ice::emptyCurrent) < ServerState::Destroying;
+                                     _server->getState(Ice::emptyCurrent) < ServerState::Destroying;
     }
 
     //
@@ -84,11 +81,11 @@ ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrxPtr&)> response,
         _server->start(ServerI::ServerActivation::OnDemand);
         return;
     }
-    catch(const ServerStartException& ex)
+    catch (const ServerStartException& ex)
     {
         activationFailed(ex.reason);
     }
-    catch(const Ice::ObjectNotExistException&)
+    catch (const Ice::ObjectNotExistException&)
     {
         //
         // The server associated to this adapter doesn't exist anymore. Somehow the database is
@@ -96,7 +93,7 @@ ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrxPtr&)> response,
         //
         destroy();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         ostringstream os;
         os << "unexpected exception: " << ex;
@@ -113,7 +110,7 @@ ServerAdapterI::getDirectProxy(const Ice::Current&) const
     // Return the adapter direct proxy if it's set. Otherwise, throw. The caller can eventually
     // activate the adapter if it's activatable.
     //
-    if(_proxy && _enabled)
+    if (_proxy && _enabled)
     {
         return _proxy;
     }
@@ -132,11 +129,11 @@ ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
     // We don't allow to override an existing proxy by another non
     // null proxy if the server is not inactive.
     //
-    if(!_node->allowEndpointsOverride())
+    if (!_node->allowEndpointsOverride())
     {
-        if(prx && _proxy)
+        if (prx && _proxy)
         {
-            if(_server->getState(Ice::emptyCurrent) == ServerState::Active)
+            if (_server->getState(Ice::emptyCurrent) == ServerState::Active)
             {
                 throw AdapterActiveException();
             }
@@ -152,22 +149,22 @@ ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
     // now. The server is going to be activated again and the adapter
     // activated.
     //
-    if(_server->getState(Ice::emptyCurrent) < ServerState::Deactivating ||
-       _server->getState(Ice::emptyCurrent) >= ServerState::Destroying || !_activateAfterDeactivating)
+    if (_server->getState(Ice::emptyCurrent) < ServerState::Deactivating ||
+        _server->getState(Ice::emptyCurrent) >= ServerState::Destroying || !_activateAfterDeactivating)
     {
-        for(const auto& response : _activateCB)
+        for (const auto& response : _activateCB)
         {
             response(_proxy);
         }
         _activateCB.clear();
     }
 
-    if(updated)
+    if (updated)
     {
-        _node->observerUpdateAdapter({ _id, _proxy });
+        _node->observerUpdateAdapter({_id, _proxy});
     }
 
-    if(_proxy)
+    if (_proxy)
     {
         _server->adapterActivated(_id);
     }
@@ -176,11 +173,11 @@ ServerAdapterI::setDirectProxy(Ice::ObjectPrxPtr prx, const Ice::Current&)
         _server->adapterDeactivated(_id);
     }
 
-    if(_node->getTraceLevels()->adapter > 1)
+    if (_node->getTraceLevels()->adapter > 1)
     {
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
         out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
-        if(_proxy)
+        if (_proxy)
         {
             out << ": " << _proxy;
         }
@@ -195,7 +192,7 @@ ServerAdapterI::destroy()
     {
         _node->getAdapter()->remove(_this->ice_getIdentity());
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
         // Ignore.
     }
@@ -223,14 +220,14 @@ ServerAdapterI::activationFailed(const std::string& reason)
     //
     // The server couldn't be activated, trace and return the current adapter proxy.
     //
-    if(_node->getTraceLevels()->adapter > 1)
+    if (_node->getTraceLevels()->adapter > 1)
     {
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
         out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: " << reason;
     }
 
     lock_guard lock(_mutex);
-    for(const auto& response : _activateCB)
+    for (const auto& response : _activateCB)
     {
         response(nullopt);
     }
@@ -241,19 +238,19 @@ void
 ServerAdapterI::activationCompleted()
 {
     lock_guard lock(_mutex);
-    if(!_proxy)
+    if (!_proxy)
     {
         //
         // The server activation completed, but the adapter hasn't been activated.
         //
-        if(_node->getTraceLevels()->adapter > 1)
+        if (_node->getTraceLevels()->adapter > 1)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
             out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: server activation completed";
         }
     }
 
-    for(const auto& response : _activateCB)
+    for (const auto& response : _activateCB)
     {
         response(_proxy);
     }

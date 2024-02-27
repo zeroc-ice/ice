@@ -11,7 +11,6 @@
 class BI : public Test::B
 {
 public:
-
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
 };
@@ -19,7 +18,6 @@ public:
 class CI : public Test::C
 {
 public:
-
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
 };
@@ -27,7 +25,6 @@ public:
 class DI : public Test::D
 {
 public:
-
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
 };
@@ -35,7 +32,6 @@ public:
 class EI : public Test::E
 {
 public:
-
     EI();
 
     bool checkValues();
@@ -45,7 +41,6 @@ using EIPtr = std::shared_ptr<EI>;
 class FI : public Test::F
 {
 public:
-
     FI();
     FI(const Test::EPtr&);
 
@@ -56,7 +51,6 @@ using FIPtr = std::shared_ptr<FI>;
 class InitialI : public Test::Initial
 {
 public:
-
     InitialI(const Ice::ObjectAdapterPtr&);
     virtual ~InitialI();
 
@@ -110,7 +104,6 @@ public:
     virtual bool hasF3(const Ice::Current&);
 
 private:
-
     Ice::ObjectAdapterPtr _adapter;
     Test::BPtr _b1;
     Test::BPtr _b2;
@@ -123,7 +116,6 @@ private:
 class UnexpectedObjectExceptionTestI : public Ice::Blobject
 {
 public:
-
     virtual bool ice_invoke(std::vector<Ice::Byte>, std::vector<Ice::Byte>&, const Ice::Current&);
 };
 using UnexpectedObjectExceptionTestIPtr = std::shared_ptr<UnexpectedObjectExceptionTestI>;
@@ -131,7 +123,6 @@ using UnexpectedObjectExceptionTestIPtr = std::shared_ptr<UnexpectedObjectExcept
 class TestIntfI : public Test::TestIntf
 {
 public:
-
     virtual Test::BasePtr opDerived(const Ice::Current&);
     virtual void throwDerived(const Ice::Current&);
 };
@@ -139,10 +130,7 @@ public:
 class F2I : public Test::F2
 {
 public:
-
-    virtual void op(const Ice::Current&)
-    {
-    }
+    virtual void op(const Ice::Current&) {}
 };
 
 #endif

@@ -9,7 +9,7 @@
 #include <Test.h>
 
 #ifdef _MSC_VER
-#   pragma warning(disable:4125) // decimal digit terminates octal escape sequence
+#    pragma warning(disable : 4125) // decimal digit terminates octal escape sequence
 #endif
 
 using namespace std;
@@ -31,14 +31,11 @@ allTests(Test::TestHelper* helper)
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
          b1->ice_getAdapterId().empty() && b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy("test ");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet().empty());
+    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() && b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy(" test ");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet().empty());
+    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() && b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy(" test");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet().empty());
+    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() && b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy("'test -f facet'");
     test(b1->ice_getIdentity().name == "test -f facet" && b1->ice_getIdentity().category.empty() &&
          b1->ice_getFacet().empty());
@@ -47,7 +44,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("\"test -f facet'");
         test(false);
     }
-    catch(const Ice::ProxyParseException&)
+    catch (const Ice::ProxyParseException&)
     {
     }
     b1 = communicator->stringToProxy("\"test -f facet\"");
@@ -64,7 +61,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("test test");
         test(false);
     }
-    catch(const Ice::ProxyParseException&)
+    catch (const Ice::ProxyParseException&)
     {
     }
 
@@ -75,7 +72,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("test\\777");
         test(false);
     }
-    catch(const Ice::IdentityParseException&)
+    catch (const Ice::IdentityParseException&)
     {
     }
 
@@ -109,7 +106,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("\"\" test"); // Invalid trailing characters.
         test(false);
     }
-    catch(const Ice::ProxyParseException&)
+    catch (const Ice::ProxyParseException&)
     {
     }
 
@@ -118,7 +115,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("test:"); // Missing endpoint.
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -130,7 +127,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("id@adapter test");
         test(false);
     }
-    catch(const Ice::ProxyParseException&)
+    catch (const Ice::ProxyParseException&)
     {
     }
     b1 = communicator->stringToProxy("category/test@adapter");
@@ -150,16 +147,15 @@ allTests(Test::TestHelper* helper)
          b1->ice_getAdapterId() == "adapter 1");
     b1 = communicator->stringToProxy("\"category \\/test@foo/test\"@adapter");
 
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo"
-         && b1->ice_getAdapterId() == "adapter");
+    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
+         b1->ice_getAdapterId() == "adapter");
 
     b1 = communicator->stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
          b1->ice_getAdapterId() == "adapter:tcp");
 
     b1 = communicator->stringToProxy("id -f facet");
-    test(b1->ice_getIdentity().name == "id" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet() == "facet");
+    test(b1->ice_getIdentity().name == "id" && b1->ice_getIdentity().category.empty() && b1->ice_getFacet() == "facet");
     b1 = communicator->stringToProxy("id -f 'facet x'");
     test(b1->ice_getIdentity().name == "id" && b1->ice_getIdentity().category.empty() &&
          b1->ice_getFacet() == "facet x");
@@ -171,7 +167,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("id -f \"facet x");
         test(false);
     }
-    catch(const Ice::ProxyParseException&)
+    catch (const Ice::ProxyParseException&)
     {
     }
     try
@@ -179,7 +175,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("id -f \'facet x");
         test(false);
     }
-    catch(const Ice::ProxyParseException&)
+    catch (const Ice::ProxyParseException&)
     {
     }
     b1 = communicator->stringToProxy("test -f facet:tcp");
@@ -202,7 +198,7 @@ allTests(Test::TestHelper* helper)
         b1 = communicator->stringToProxy("test -f facet@test @test");
         test(false);
     }
-    catch(const Ice::ProxyParseException&)
+    catch (const Ice::ProxyParseException&)
     {
     }
     b1 = communicator->stringToProxy("test");
@@ -247,17 +243,17 @@ allTests(Test::TestHelper* helper)
         communicator->stringToProxy("test:tcp@adapterId");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
     // This is an unknown endpoint warning, not a parse exception.
     //
-    //try
+    // try
     //{
     //   b1 = communicator->stringToProxy("test -f the:facet:tcp");
     //   test(false);
     //}
-    //catch(const Ice::EndpointParseException&)
+    // catch(const Ice::EndpointParseException&)
     //{
     //}
     try
@@ -265,7 +261,7 @@ allTests(Test::TestHelper* helper)
         communicator->stringToProxy("test: :tcp");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -277,7 +273,7 @@ allTests(Test::TestHelper* helper)
         communicator->createObjectAdapterWithEndpoints("BadAdapter", " : ");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -286,7 +282,7 @@ allTests(Test::TestHelper* helper)
         communicator->createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -295,14 +291,14 @@ allTests(Test::TestHelper* helper)
         communicator->createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
     //
     // Test for bug ICE-5543: escaped escapes in stringToIdentity
     //
-    Ice::Identity id = { "test", ",X2QNUAzSBcJ_e$AV;E\\" };
+    Ice::Identity id = {"test", ",X2QNUAzSBcJ_e$AV;E\\"};
     Ice::Identity id2 = Ice::stringToIdentity(communicator->identityToString(id));
     test(id == id2);
 
@@ -338,7 +334,7 @@ allTests(Test::TestHelper* helper)
         id = Ice::stringToIdentity("xx\01FooBar");
         test(false);
     }
-    catch(const Ice::IdentityParseException&)
+    catch (const Ice::IdentityParseException&)
     {
     }
 
@@ -348,7 +344,7 @@ allTests(Test::TestHelper* helper)
         id = Ice::stringToIdentity("xx\\ud911");
         test(false);
     }
-    catch(const Ice::IdentityParseException&)
+    catch (const Ice::IdentityParseException&)
     {
     }
 
@@ -402,7 +398,7 @@ allTests(Test::TestHelper* helper)
     Ice::ObjectPrxPtr b2 = communicator->stringToProxy(communicator->proxyToString(b1));
     test(b1 == b2);
 
-    if(b1->ice_getConnection()) // not colloc-optimized target
+    if (b1->ice_getConnection()) // not colloc-optimized target
     {
         b2 = b1->ice_getConnection()->createProxy(Ice::stringToIdentity("fixed"));
         string str = communicator->proxyToString(b2);
@@ -458,10 +454,10 @@ allTests(Test::TestHelper* helper)
     // This cannot be tested so easily because the property is cached
     // on communicator initialization.
     //
-    //prop->setProperty("Ice.Default.LocatorCacheTimeout", "60");
-    //b1 = communicator->propertyToProxy(propertyPrefix);
-    //test(b1->ice_getLocatorCacheTimeout() == 60);
-    //prop->setProperty("Ice.Default.LocatorCacheTimeout", "");
+    // prop->setProperty("Ice.Default.LocatorCacheTimeout", "60");
+    // b1 = communicator->propertyToProxy(propertyPrefix);
+    // test(b1->ice_getLocatorCacheTimeout() == 60);
+    // prop->setProperty("Ice.Default.LocatorCacheTimeout", "");
 
     prop->setProperty(propertyPrefix, "test:" + endp);
 
@@ -536,7 +532,7 @@ allTests(Test::TestHelper* helper)
     b1 = b1->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
     b1 = b1->ice_locatorCacheTimeout(100);
     b1 = b1->ice_invocationTimeout(1234);
-    Ice::EncodingVersion v = { 1, 0 };
+    Ice::EncodingVersion v = {1, 0};
     b1 = b1->ice_encodingVersion(v);
     Ice::ObjectPrxPtr router = communicator->stringToProxy("router");
     router = router->ice_collocationOptimized(false);
@@ -570,7 +566,7 @@ allTests(Test::TestHelper* helper)
 
     test(proxyProps["Test.Locator"] == "locator -t -e " + Ice::encodingVersionToString(Ice::currentEncoding));
     // Locator collocation optimization is always disabled.
-    //test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
+    // test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
     test(proxyProps["Test.Locator.ConnectionCached"] == "0");
     test(proxyProps["Test.Locator.PreferSecure"] == "1");
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random");
@@ -593,8 +589,8 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing proxy methods... " << flush;
 
-    test(communicator->identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity())
-         == "other");
+    test(communicator->identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity()) ==
+         "other");
     test(base->ice_facet("facet")->ice_getFacet() == "facet");
     test(base->ice_adapterId("id")->ice_getAdapterId() == "id");
     test(base->ice_twoway()->ice_isTwoway());
@@ -617,7 +613,7 @@ allTests(Test::TestHelper* helper)
         base->ice_timeout(0);
         test(false);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
     }
 
@@ -625,7 +621,7 @@ allTests(Test::TestHelper* helper)
     {
         base->ice_timeout(-1);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
         test(false);
     }
@@ -635,7 +631,7 @@ allTests(Test::TestHelper* helper)
         base->ice_timeout(-2);
         test(false);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
     }
 
@@ -644,7 +640,7 @@ allTests(Test::TestHelper* helper)
         base->ice_invocationTimeout(0);
         test(false);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
     }
 
@@ -653,7 +649,7 @@ allTests(Test::TestHelper* helper)
         base->ice_invocationTimeout(-1);
         base->ice_invocationTimeout(-2);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
         test(false);
     }
@@ -663,7 +659,7 @@ allTests(Test::TestHelper* helper)
         base->ice_invocationTimeout(-3);
         test(false);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
     }
 
@@ -671,7 +667,7 @@ allTests(Test::TestHelper* helper)
     {
         base->ice_locatorCacheTimeout(0);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
         test(false);
     }
@@ -680,7 +676,7 @@ allTests(Test::TestHelper* helper)
     {
         base->ice_locatorCacheTimeout(-1);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
         test(false);
     }
@@ -690,7 +686,7 @@ allTests(Test::TestHelper* helper)
         base->ice_locatorCacheTimeout(-2);
         test(false);
     }
-    catch(const invalid_argument&)
+    catch (const invalid_argument&)
     {
     }
 
@@ -724,10 +720,14 @@ allTests(Test::TestHelper* helper)
     test(compObj->ice_connectionCached(false) < compObj->ice_connectionCached(true));
     test(compObj->ice_connectionCached(true) >= compObj->ice_connectionCached(false));
 
-    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) == compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random));
-    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) != compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
-    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) < compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
-    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered) >= compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random));
+    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) ==
+         compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random));
+    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) !=
+         compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) <
+         compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered) >=
+         compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random));
 
     test(compObj->ice_connectionId("id2") == compObj->ice_connectionId("id2"));
     test(compObj->ice_connectionId("id1") != compObj->ice_connectionId("id2"));
@@ -829,12 +829,16 @@ allTests(Test::TestHelper* helper)
     Ice::EndpointSeq endpts1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
     Ice::EndpointSeq endpts2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")->ice_getEndpoints();
 
-    test(endpts1.size() != endpts2.size() || !equal(endpts1.begin(), endpts1.end(), endpts2.begin(), Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
-    test(lexicographical_compare(endpts1.begin(), endpts1.end(), endpts2.begin(), endpts2.end(), Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
-    test(!lexicographical_compare(endpts2.begin(), endpts2.end(), endpts1.begin(), endpts1.end(), Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
+    test(endpts1.size() != endpts2.size() || !equal(endpts1.begin(), endpts1.end(), endpts2.begin(),
+                                                    Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+    test(lexicographical_compare(endpts1.begin(), endpts1.end(), endpts2.begin(), endpts2.end(),
+                                 Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
+    test(!lexicographical_compare(endpts2.begin(), endpts2.end(), endpts1.begin(), endpts1.end(),
+                                  Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
 
-    Ice::EndpointSeq endpts3 =  communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
-    test(endpts1.size() == endpts3.size() && equal(endpts1.begin(), endpts1.end(), endpts3.begin(), Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+    Ice::EndpointSeq endpts3 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
+    test(endpts1.size() == endpts3.size() && equal(endpts1.begin(), endpts1.end(), endpts3.begin(),
+                                                   Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
 
     test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) == compObj1->ice_encodingVersion(Ice::Encoding_1_0));
     test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) != compObj1->ice_encodingVersion(Ice::Encoding_1_1));
@@ -842,13 +846,13 @@ allTests(Test::TestHelper* helper)
     test(compObj->ice_encodingVersion(Ice::Encoding_1_1) >= compObj->ice_encodingVersion(Ice::Encoding_1_0));
 
     Ice::ConnectionPtr baseConnection = base->ice_getConnection();
-    if(baseConnection && protocol != "bt")
+    if (baseConnection && protocol != "bt")
     {
         Ice::ConnectionPtr baseConnection2 = base->ice_connectionId("base2")->ice_getConnection();
         compObj1 = compObj1->ice_fixed(baseConnection);
         compObj2 = compObj2->ice_fixed(baseConnection2);
         test(compObj1 != compObj2);
-        if(compObj1 < compObj2)
+        if (compObj1 < compObj2)
         {
             test(compObj2 > compObj1);
         }
@@ -895,12 +899,12 @@ allTests(Test::TestHelper* helper)
     //
     cout << "ok" << endl;
 
-    if(protocol != "bt")
+    if (protocol != "bt")
     {
         cout << "testing ice_fixed... " << flush;
         {
             Ice::ConnectionPtr connection = cl->ice_getConnection();
-            if(connection)
+            if (connection)
             {
                 test(!cl->ice_isFixed());
                 Test::MyClassPrxPtr prx = cl->ice_fixed(connection); // Test factory method return type
@@ -926,14 +930,14 @@ allTests(Test::TestHelper* helper)
                 {
                     cl->ice_secure(!connection->getEndpoint()->getInfo()->secure())->ice_fixed(connection)->ice_ping();
                 }
-                catch(const Ice::NoEndpointException&)
+                catch (const Ice::NoEndpointException&)
                 {
                 }
                 try
                 {
                     cl->ice_datagram()->ice_fixed(connection)->ice_ping();
                 }
-                catch(const Ice::NoEndpointException&)
+                catch (const Ice::NoEndpointException&)
                 {
                 }
             }
@@ -944,11 +948,10 @@ allTests(Test::TestHelper* helper)
                     cl->ice_fixed(connection);
                     test(false);
                 }
-                catch(const invalid_argument&)
+                catch (const invalid_argument&)
                 {
                     // Expected with null connection.
                 }
-
             }
         }
         cout << "ok" << endl;
@@ -962,7 +965,7 @@ allTests(Test::TestHelper* helper)
         cl20->ice_ping();
         test(false);
     }
-    catch(const Ice::UnsupportedEncodingException&)
+    catch (const Ice::UnsupportedEncodingException&)
     {
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
@@ -983,7 +986,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Send request with bogus 1.2 encoding.
-        Ice::EncodingVersion version = { 1, 2 };
+        Ice::EncodingVersion version = {1, 2};
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.endEncapsulation();
@@ -995,7 +998,7 @@ allTests(Test::TestHelper* helper)
         cl->ice_invoke("ice_ping", Ice::OperationMode::Normal, inEncaps, outEncaps);
         test(false);
     }
-    catch(const Ice::UnknownLocalException& ex)
+    catch (const Ice::UnknownLocalException& ex)
     {
         // The server thrown an UnsupportedEncodingException
         test(ex.unknown.find("UnsupportedEncodingException") != string::npos);
@@ -1004,7 +1007,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         // Send request with bogus 2.0 encoding.
-        Ice::EncodingVersion version = { 2, 0 };
+        Ice::EncodingVersion version = {2, 0};
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.endEncapsulation();
@@ -1016,7 +1019,7 @@ allTests(Test::TestHelper* helper)
         cl->ice_invoke("ice_ping", Ice::OperationMode::Normal, inEncaps, outEncaps);
         test(false);
     }
-    catch(const Ice::UnknownLocalException& ex)
+    catch (const Ice::UnknownLocalException& ex)
     {
         // The server thrown an UnsupportedEncodingException
         test(ex.unknown.find("UnsupportedEncodingException") != string::npos);
@@ -1033,7 +1036,7 @@ allTests(Test::TestHelper* helper)
         cl20->ice_ping();
         test(false);
     }
-    catch(const Ice::UnsupportedProtocolException&)
+    catch (const Ice::UnsupportedProtocolException&)
     {
         // Server 2.0 proxy doesn't support 1.0 version.
     }
@@ -1048,7 +1051,7 @@ allTests(Test::TestHelper* helper)
     cl13 = Ice::uncheckedCast<Test::MyClassPrx>(communicator->stringToProxy(ref13));
     cl13->ice_ping();
     cl13->ice_pingAsync().get();
-    cout << "ok" <<endl;
+    cout << "ok" << endl;
 
     cout << "testing opaque endpoints... " << flush;
 
@@ -1058,7 +1061,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1068,7 +1071,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1078,7 +1081,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1088,7 +1091,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1098,7 +1101,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -v abc");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1108,7 +1111,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1118,7 +1121,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t -v abc");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1128,7 +1131,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 1 -v");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1138,7 +1141,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t x -v abc");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1148,7 +1151,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t -1 -v abc");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
@@ -1158,23 +1161,25 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectPrxPtr p = communicator->stringToProxy("id:opaque -t 99 -v x?c");
         test(false);
     }
-    catch(const Ice::EndpointParseException&)
+    catch (const Ice::EndpointParseException&)
     {
     }
 
     // Legal TCP endpoint expressed as opaque endpoint
-    Ice::ObjectPrxPtr p1 = communicator->stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+    Ice::ObjectPrxPtr p1 =
+        communicator->stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     string pstr = communicator->proxyToString(p1);
     test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
     // Opaque endpoint encoded with 1.1 encoding.
     {
-        Ice::ObjectPrxPtr p2 = communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        Ice::ObjectPrxPtr p2 =
+            communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         test(communicator->proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
     }
 
-    if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0 &&
-       communicator->getProperties()->getProperty("Ice.Default.Host") == "127.0.0.1")
+    if (communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0 &&
+        communicator->getProperties()->getProperty("Ice.Default.Host") == "127.0.0.1")
     {
         // SSL enabled?
         bool ssl;
@@ -1183,7 +1188,7 @@ allTests(Test::TestHelper* helper)
             communicator->stringToProxy("dummy:ssl");
             ssl = true;
         }
-        catch(const Ice::EndpointParseException&)
+        catch (const Ice::EndpointParseException&)
         {
             ssl = false;
         }
@@ -1191,7 +1196,8 @@ allTests(Test::TestHelper* helper)
         const bool tcp = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
 
         // Two legal TCP endpoints expressed as opaque endpoints
-        p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+        p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 "
+                                         "-t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
         pstr = communicator->proxyToString(p1);
         test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
@@ -1200,13 +1206,13 @@ allTests(Test::TestHelper* helper)
         // back out as an opaque endpoint.
         //
         p1 = communicator->stringToProxy(
-                "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
+            "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
         pstr = communicator->proxyToString(p1);
-        if(ssl)
+        if (ssl)
         {
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
         }
-        else if(tcp)
+        else if (tcp)
         {
             test(pstr ==
                  "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
@@ -1220,13 +1226,13 @@ allTests(Test::TestHelper* helper)
         //
         Ice::ObjectPrxPtr p2 = derived->echo(p1);
         pstr = communicator->proxyToString(p2);
-        if(ssl)
+        if (ssl)
         {
             test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
         }
-        else if(tcp)
+        else if (tcp)
         {
-            if(pstr != "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
+            if (pstr != "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
             {
                 cerr << pstr << endl;
             }

@@ -10,7 +10,6 @@
 class TestI : public Test::TestIntf
 {
 public:
-
     TestI();
 
     virtual void shutdown(const Ice::Current&);

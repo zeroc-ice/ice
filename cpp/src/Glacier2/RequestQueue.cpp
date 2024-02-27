@@ -10,20 +10,23 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::Request::Request(ObjectPrxPtr proxy, const std::pair<const Byte*, const Byte*>& inParams,
-                 const Current& current, bool forwardContext, const Ice::Context& sslContext,
-                 function<void(bool, pair<const Byte*, const Byte*>)> response,
-                 function<void(exception_ptr)> exception) :
-    _proxy(std::move(proxy)),
-    _inParams(inParams.first, inParams.second),
-    _current(current),
-    _forwardContext(forwardContext),
-    _sslContext(sslContext),
-    _response(std::move(response)),
-    _exception(std::move(exception))
+Glacier2::Request::Request(ObjectPrxPtr proxy,
+                           const std::pair<const Byte*, const Byte*>& inParams,
+                           const Current& current,
+                           bool forwardContext,
+                           const Ice::Context& sslContext,
+                           function<void(bool, pair<const Byte*, const Byte*>)> response,
+                           function<void(exception_ptr)> exception)
+    : _proxy(std::move(proxy)),
+      _inParams(inParams.first, inParams.second),
+      _current(current),
+      _forwardContext(forwardContext),
+      _sslContext(sslContext),
+      _response(std::move(response)),
+      _exception(std::move(exception))
 {
     Context::const_iterator p = current.ctx.find("_ovrd");
-    if(p != current.ctx.end())
+    if (p != current.ctx.end())
     {
         const_cast<string&>(_override) = p->second;
     }
@@ -35,7 +38,7 @@ Glacier2::Request::invoke(function<void(bool, pair<const Byte*, const Byte*>)>&&
                           std::function<void(bool)>&& sent)
 {
     pair<const Byte*, const Byte*> inPair;
-    if(_inParams.size() == 0)
+    if (_inParams.size() == 0)
     {
         inPair.first = inPair.second = nullptr;
     }
@@ -45,32 +48,32 @@ Glacier2::Request::invoke(function<void(bool, pair<const Byte*, const Byte*>)>&&
         inPair.second = inPair.first + _inParams.size();
     }
 
-    if(_forwardContext)
+    if (_forwardContext)
     {
-        if(_sslContext.size() > 0)
+        if (_sslContext.size() > 0)
         {
             Ice::Context ctx = _current.ctx;
             ctx.insert(_sslContext.begin(), _sslContext.end());
-            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair,
-                                    std::move(response), std::move(exception), std::move(sent), ctx);
+            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair, std::move(response),
+                                    std::move(exception), std::move(sent), ctx);
         }
         else
         {
-            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair,
-                                    std::move(response), std::move(exception), std::move(sent), _current.ctx);
+            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair, std::move(response),
+                                    std::move(exception), std::move(sent), _current.ctx);
         }
     }
     else
     {
-        if(_sslContext.size() > 0)
+        if (_sslContext.size() > 0)
         {
-            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair,
-                                    std::move(response), std::move(exception), std::move(sent), _sslContext);
+            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair, std::move(response),
+                                    std::move(exception), std::move(sent), _sslContext);
         }
         else
         {
-            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair,
-                                    std::move(response), std::move(exception), std::move(sent));
+            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair, std::move(response),
+                                    std::move(exception), std::move(sent));
         }
     }
 }
@@ -81,7 +84,7 @@ Glacier2::Request::override(const shared_ptr<Request>& other) const
     //
     // Both override values have to be non-empty.
     //
-    if(_override.empty() || other->_override.empty())
+    if (_override.empty() || other->_override.empty())
     {
         return false;
     }
@@ -90,7 +93,7 @@ Glacier2::Request::override(const shared_ptr<Request>& other) const
     // Override does not work for twoways, because a response is
     // expected for each request.
     //
-    if(_proxy->ice_isTwoway() || other->_proxy->ice_isTwoway())
+    if (_proxy->ice_isTwoway() || other->_proxy->ice_isTwoway())
     {
         return false;
     }
@@ -98,7 +101,7 @@ Glacier2::Request::override(const shared_ptr<Request>& other) const
     //
     // Don't override if the override isn't the same.
     //
-    if(_override != other->_override)
+    if (_override != other->_override)
     {
         return false;
     }
@@ -122,7 +125,7 @@ Glacier2::Request::exception(exception_ptr ex)
     //
     // Only for twoways, oneway dispatches are finished when queued, see queued().
     //
-    if(_proxy->ice_isTwoway())
+    if (_proxy->ice_isTwoway())
     {
         _exception(ex);
     }
@@ -131,20 +134,20 @@ Glacier2::Request::exception(exception_ptr ex)
 void
 Glacier2::Request::queued()
 {
-    if(!_proxy->ice_isTwoway())
+    if (!_proxy->ice_isTwoway())
     {
-        _response(true, { nullptr, nullptr });
+        _response(true, {nullptr, nullptr});
     }
 }
 
 Glacier2::RequestQueue::RequestQueue(shared_ptr<RequestQueueThread> requestQueueThread,
                                      shared_ptr<Instance> instance,
-                                     shared_ptr<Ice::Connection> connection) :
-    _requestQueueThread(std::move(requestQueueThread)),
-    _instance(std::move(instance)),
-    _connection(std::move(connection)),
-    _pendingSend(false),
-    _destroyed(false)
+                                     shared_ptr<Ice::Connection> connection)
+    : _requestQueueThread(std::move(requestQueueThread)),
+      _instance(std::move(instance)),
+      _connection(std::move(connection)),
+      _pendingSend(false),
+      _destroyed(false)
 {
 }
 
@@ -152,22 +155,22 @@ bool
 Glacier2::RequestQueue::addRequest(shared_ptr<Request> request)
 {
     lock_guard<mutex> lg(_mutex);
-    if(_destroyed)
+    if (_destroyed)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    if(request->hasOverride())
+    if (request->hasOverride())
     {
-        for(auto& r : _requests)
+        for (auto& r : _requests)
         {
             //
             // If the new request overrides an old one, then abort the old
             // request and replace it with the new request.
             //
-            if(request->override(r))
+            if (request->override(r))
             {
-                if(_observer)
+                if (_observer)
                 {
                     _observer->overridden(!_connection);
                 }
@@ -181,13 +184,13 @@ Glacier2::RequestQueue::addRequest(shared_ptr<Request> request)
     //
     // No override, we add the new request.
     //
-    if(_requests.empty() && (!_connection || !_pendingSend))
+    if (_requests.empty() && (!_connection || !_pendingSend))
     {
         _requestQueueThread->flushRequestQueue(shared_from_this()); // This might throw if the thread is destroyed.
     }
     request->queued();
     _requests.push_back(std::move(request));
-    if(_observer)
+    if (_observer)
     {
         _observer->queued(!_connection);
     }
@@ -198,9 +201,9 @@ void
 Glacier2::RequestQueue::flushRequests()
 {
     lock_guard<mutex> lg(_mutex);
-    if(_connection)
+    if (_connection)
     {
-        if(_pendingSend)
+        if (_pendingSend)
         {
             return;
         }
@@ -208,23 +211,16 @@ Glacier2::RequestQueue::flushRequests()
     }
     else
     {
-        for(const auto& request : _requests)
+        for (const auto& request : _requests)
         {
-            if(_observer)
+            if (_observer)
             {
                 _observer->forwarded(!_connection);
             }
             auto self = shared_from_this();
-            request->invoke(
-                [self, request](bool ok, const pair<const Byte*, const Byte*>& outParams)
-                {
-                    self->response(ok, outParams, request);
-                },
-                [self, request](exception_ptr e)
-                {
-                    self->exception(e, request);
-                }
-            );
+            request->invoke([self, request](bool ok, const pair<const Byte*, const Byte*>& outParams)
+                            { self->response(ok, outParams, request); },
+                            [self, request](exception_ptr e) { self->exception(e, request); });
         }
         _requests.clear();
     }
@@ -252,9 +248,9 @@ Glacier2::RequestQueue::flush()
     _pendingSendRequest = nullptr;
 
     deque<shared_ptr<Request>>::iterator p;
-    for(p = _requests.begin(); p != _requests.end(); ++p)
+    for (p = _requests.begin(); p != _requests.end(); ++p)
     {
-        if(_observer)
+        if (_observer)
         {
             _observer->forwarded(!_connection);
         }
@@ -265,24 +261,20 @@ Glacier2::RequestQueue::flush()
         auto self = shared_from_this();
         auto request = *p;
 
-        request->invoke(
-            [self, request](bool ok, const pair<const Byte*, const Byte*>& outParams)
-            {
-                self->response(ok, outParams, request);
-            },
-            [self, request, completedExceptionally](exception_ptr e)
-            {
-                completedExceptionally->set_value();
-                self->exception(e, request);
-            },
-            [self, request, isSent](bool sentSynchronously)
-            {
-                isSent->set_value();
-                self->sent(sentSynchronously, request);
-            }
-        );
+        request->invoke([self, request](bool ok, const pair<const Byte*, const Byte*>& outParams)
+                        { self->response(ok, outParams, request); },
+                        [self, request, completedExceptionally](exception_ptr e)
+                        {
+                            completedExceptionally->set_value();
+                            self->exception(e, request);
+                        },
+                        [self, request, isSent](bool sentSynchronously)
+                        {
+                            isSent->set_value();
+                            self->sent(sentSynchronously, request);
+                        });
 
-        if((isSent->get_future().wait_for(0s) != future_status::ready) &&
+        if ((isSent->get_future().wait_for(0s) != future_status::ready) &&
             (completedExceptionally->get_future().wait_for(0s) != future_status::ready))
         {
             _pendingSend = true;
@@ -291,7 +283,7 @@ Glacier2::RequestQueue::flush()
         }
     }
 
-    if(p == _requests.end())
+    if (p == _requests.end())
     {
         _requests.clear();
     }
@@ -302,7 +294,9 @@ Glacier2::RequestQueue::flush()
 }
 
 void
-Glacier2::RequestQueue::response(bool ok, const pair<const Byte*, const Byte*>& outParams, const shared_ptr<Request>& request)
+Glacier2::RequestQueue::response(bool ok,
+                                 const pair<const Byte*, const Byte*>& outParams,
+                                 const shared_ptr<Request>& request)
 {
     assert(request);
     request->response(ok, outParams);
@@ -311,16 +305,16 @@ Glacier2::RequestQueue::response(bool ok, const pair<const Byte*, const Byte*>& 
 void
 Glacier2::RequestQueue::exception(exception_ptr ex, const shared_ptr<Request>& request)
 {
-    if(_connection)
+    if (_connection)
     {
         lock_guard<mutex> lg(_mutex);
-        if(request == _pendingSendRequest)
+        if (request == _pendingSendRequest)
         {
             flush();
         }
     }
 
-    if(request)
+    if (request)
     {
         request->exception(ex);
     }
@@ -329,21 +323,21 @@ Glacier2::RequestQueue::exception(exception_ptr ex, const shared_ptr<Request>& r
 void
 Glacier2::RequestQueue::sent(bool sentSynchronously, const shared_ptr<Request>& request)
 {
-    if(_connection && !sentSynchronously)
+    if (_connection && !sentSynchronously)
     {
         lock_guard<mutex> lg(_mutex);
-        if(request == _pendingSendRequest)
+        if (request == _pendingSendRequest)
         {
             flush();
         }
     }
 }
 
-Glacier2::RequestQueueThread::RequestQueueThread(std::chrono::milliseconds sleepTime) :
-    _sleepTime(std::move(sleepTime)),
-    _destroy(false),
-    _sleep(false),
-    _thread([this] { run(); })
+Glacier2::RequestQueueThread::RequestQueueThread(std::chrono::milliseconds sleepTime)
+    : _sleepTime(std::move(sleepTime)),
+      _destroy(false),
+      _sleep(false),
+      _thread([this] { run(); })
 {
 }
 
@@ -373,12 +367,12 @@ Glacier2::RequestQueueThread::flushRequestQueue(shared_ptr<RequestQueue> queue)
 {
     lock_guard<mutex> lg(_mutex);
 
-    if(_destroy)
+    if (_destroy)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    if(_queues.empty() && !_sleep)
+    if (_queues.empty() && !_sleep)
     {
         _condVar.notify_one();
     }
@@ -390,7 +384,7 @@ Glacier2::RequestQueueThread::run()
 {
     std::chrono::nanoseconds sleepDuration = 0ns;
 
-    while(true)
+    while (true)
     {
         vector<shared_ptr<RequestQueue>> queues;
 
@@ -403,13 +397,13 @@ Glacier2::RequestQueueThread::run()
             // wait until all the responses for twoway requests are
             // received.
             //
-            while(!_destroy && (_queues.empty() || _sleep))
+            while (!_destroy && (_queues.empty() || _sleep))
             {
-                if(_sleep)
+                if (_sleep)
                 {
                     auto now = chrono::steady_clock::now();
 
-                    if(_condVar.wait_for(lock, sleepDuration) == cv_status::no_timeout)
+                    if (_condVar.wait_for(lock, sleepDuration) == cv_status::no_timeout)
                     {
                         sleepDuration = 0ns;
                     }
@@ -418,7 +412,7 @@ Glacier2::RequestQueueThread::run()
                         sleepDuration -= chrono::steady_clock::now() - now;
                     }
 
-                    if(sleepDuration <= 0ns)
+                    if (sleepDuration <= 0ns)
                     {
                         _sleep = false;
                     }
@@ -433,7 +427,7 @@ Glacier2::RequestQueueThread::run()
             // If the queue is being destroyed and there's no requests or responses
             // to send, we're done.
             //
-            if(_destroy && _queues.empty())
+            if (_destroy && _queues.empty())
             {
                 return;
             }
@@ -442,14 +436,14 @@ Glacier2::RequestQueueThread::run()
 
             queues.swap(_queues);
 
-            if(_sleepTime > 0ms)
+            if (_sleepTime > 0ms)
             {
                 _sleep = true;
                 sleepDuration = _sleepTime;
             }
         }
 
-        for(const auto& queue : queues)
+        for (const auto& queue : queues)
         {
             queue->flushRequests();
         }

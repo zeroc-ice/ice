@@ -21,8 +21,8 @@ using namespace IceUtilInternal;
 namespace
 {
 
-mutex globalMutex;
-bool interrupted = false;
+    mutex globalMutex;
+    bool interrupted = false;
 
 }
 
@@ -37,24 +37,22 @@ void
 usage(const string& n)
 {
     consoleErr << "Usage: " << n << " [options] slice-files...\n";
-    consoleErr <<
-        "Options:\n"
-        "-h, --help               Show this message.\n"
-        "-v, --version            Display the Ice version.\n"
-        "-DNAME                   Define NAME as 1.\n"
-        "-DNAME=DEF               Define NAME as DEF.\n"
-        "-UNAME                   Remove any definition for NAME.\n"
-        "-IDIR                    Put DIR in the include file search path.\n"
-        "-E                       Print preprocessor output on stdout.\n"
-        "--output-dir DIR         Create files in the directory DIR.\n"
-        "-d, --debug              Print debug messages.\n"
-        "--depend                 Generate Makefile dependencies.\n"
-        "--depend-xml             Generate dependencies in XML format.\n"
-        "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-        "--validate               Validate command line options.\n"
-        "--meta META              Define file metadata directive META.\n"
-        "--list-generated         Emit list of generated files in XML format.\n"
-        ;
+    consoleErr << "Options:\n"
+                  "-h, --help               Show this message.\n"
+                  "-v, --version            Display the Ice version.\n"
+                  "-DNAME                   Define NAME as 1.\n"
+                  "-DNAME=DEF               Define NAME as DEF.\n"
+                  "-UNAME                   Remove any definition for NAME.\n"
+                  "-IDIR                    Put DIR in the include file search path.\n"
+                  "-E                       Print preprocessor output on stdout.\n"
+                  "--output-dir DIR         Create files in the directory DIR.\n"
+                  "-d, --debug              Print debug messages.\n"
+                  "--depend                 Generate Makefile dependencies.\n"
+                  "--depend-xml             Generate dependencies in XML format.\n"
+                  "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
+                  "--validate               Validate command line options.\n"
+                  "--meta META              Define file metadata directive META.\n"
+                  "--list-generated         Emit list of generated files in XML format.\n";
 }
 
 int
@@ -77,28 +75,28 @@ compile(const vector<string>& argv)
     opts.addOpt("", "meta", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
-    vector<string>args;
+    vector<string> args;
     try
     {
         args = opts.parse(argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.reason << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         consoleErr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
@@ -106,19 +104,19 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -139,27 +137,27 @@ compile(const vector<string>& argv)
     vector<string> v = opts.argVec("meta");
     copy(v.begin(), v.end(), back_inserter(globalMetadata));
 
-    if(args.empty())
+    if (args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(depend && dependxml)
+    if (depend && dependxml)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(validate)
+    if (validate)
     {
         return EXIT_SUCCESS;
     }
@@ -170,7 +168,7 @@ compile(const vector<string>& argv)
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
-    if(dependxml)
+    if (dependxml)
     {
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
@@ -178,23 +176,23 @@ compile(const vector<string>& argv)
     vector<string> cppOpts;
     cppOpts.push_back("-D__SLICE2JAVA__");
 
-    for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         //
         // Ignore duplicates.
         //
         vector<string>::iterator j = find(args.begin(), args.end(), *i);
-        if(j != i)
+        if (j != i)
         {
             continue;
         }
 
-        if(depend || dependxml)
+        if (depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, cppOpts);
 
-            if(cppHandle == 0)
+            if (cppHandle == 0)
             {
                 return EXIT_FAILURE;
             }
@@ -203,18 +201,18 @@ compile(const vector<string>& argv)
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
-            if(parseStatus == EXIT_FAILURE)
+            if (parseStatus == EXIT_FAILURE)
             {
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(os, depend ? Preprocessor::Java : Preprocessor::SliceXML,
-                                                  includePaths, cppOpts))
+            if (!icecpp->printMakefileDependencies(os, depend ? Preprocessor::Java : Preprocessor::SliceXML,
+                                                   includePaths, cppOpts))
             {
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->close())
+            if (!icecpp->close())
             {
                 return EXIT_FAILURE;
             }
@@ -226,24 +224,24 @@ compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(true, cppOpts);
 
-            if(cppHandle == 0)
+            if (cppHandle == 0)
             {
                 FileTracker::instance()->error();
                 status = EXIT_FAILURE;
                 break;
             }
 
-            if(preprocess)
+            if (preprocess)
             {
                 char buf[4096];
-                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
+                while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
                 {
-                    if(fputs(buf, stdout) == EOF)
+                    if (fputs(buf, stdout) == EOF)
                     {
                         return EXIT_FAILURE;
                     }
                 }
-                if(!icecpp->close())
+                if (!icecpp->close())
                 {
                     return EXIT_FAILURE;
                 }
@@ -253,14 +251,14 @@ compile(const vector<string>& argv)
                 UnitPtr p = Unit::createUnit(false, globalMetadata);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
-                if(!icecpp->close())
+                if (!icecpp->close())
                 {
                     p->destroy();
                     FileTracker::instance()->error();
                     return EXIT_FAILURE;
                 }
 
-                if(parseStatus == EXIT_FAILURE)
+                if (parseStatus == EXIT_FAILURE)
                 {
                     p->destroy();
                     status = EXIT_FAILURE;
@@ -272,7 +270,7 @@ compile(const vector<string>& argv)
                         Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
                         gen.generate(p);
                     }
-                    catch(const Slice::FileException& ex)
+                    catch (const Slice::FileException& ex)
                     {
                         //
                         // If a file could not be created then cleanup any files we've already created.
@@ -291,7 +289,7 @@ compile(const vector<string>& argv)
 
         {
             lock_guard lock(globalMutex);
-            if(interrupted)
+            if (interrupted)
             {
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
@@ -299,17 +297,17 @@ compile(const vector<string>& argv)
         }
     }
 
-    if(dependxml)
+    if (dependxml)
     {
         os << "</dependencies>\n";
     }
 
-    if(depend || dependxml)
+    if (depend || dependxml)
     {
         writeDependencies(os.str(), dependFile);
     }
 
-    if(listGenerated)
+    if (listGenerated)
     {
         FileTracker::instance()->dumpxml();
     }
@@ -318,9 +316,11 @@ compile(const vector<string>& argv)
 }
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t* argv[])
+int
+wmain(int argc, wchar_t* argv[])
 #else
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 #endif
 {
     vector<string> args = argvToArgs(argc, argv);
@@ -328,14 +328,15 @@ int main(int argc, char* argv[])
     {
         return compile(args);
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
-    catch(...)
+    catch (...)
     {
-        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:"
+                   << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

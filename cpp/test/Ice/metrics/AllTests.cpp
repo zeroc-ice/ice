@@ -15,359 +15,336 @@ using namespace Test;
 namespace
 {
 
-string
-getPort(const Ice::PropertiesAdminPrxPtr& p)
-{
-    ostringstream os;
-    os << TestHelper::getTestPort(p->ice_getCommunicator()->getProperties(), 0);
-    return os.str();
-}
-
-Ice::PropertyDict
-getClientProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& orig, const string& m = string())
-{
-    Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
-    for(Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
+    string getPort(const Ice::PropertiesAdminPrxPtr& p)
     {
-        p->second = "";
-    }
-    for(Ice::PropertyDict::const_iterator p = orig.begin(); p != orig.end(); ++p)
-    {
-        props[p->first] = p->second;
-    }
-    string map;
-    if(!m.empty())
-    {
-        map += "Map." + m + '.';
-    }
-    props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin";
-    props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(pa);
-    props["IceMX.Metrics.View." + map + "Reject.identity"] = ".*/admin|controller";
-    return props;
-}
-
-Ice::PropertyDict
-getServerProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& orig, const string& m = string())
-{
-    Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
-    for(Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
-    {
-        p->second = "";
-    }
-    for(Ice::PropertyDict::const_iterator p = orig.begin(); p != orig.end(); ++p)
-    {
-        props[p->first] = p->second;
-    }
-    string map;
-    if(!m.empty())
-    {
-        map += "Map." + m + '.';
-    }
-    props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
-    props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(pa);
-    return props;
-}
-
-IceMX::ConnectionMetricsPtr
-getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, int64_t expected)
-{
-    IceMX::ConnectionMetricsPtr s;
-    int nRetry = 30;
-    int64_t timestamp;
-    s = dynamic_pointer_cast<IceMX::ConnectionMetrics>(metrics->getMetricsView("View", timestamp)["Connection"][0]);
-    while(s->sentBytes != expected && nRetry-- > 0)
-    {
-        // On some platforms, it's necessary to wait a little before obtaining the server metrics
-        // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
-        // to the operation is sent and getMetricsView can be dispatched before the metric is really
-        // updated.
-        this_thread::sleep_for(chrono::milliseconds(100));
-        s = dynamic_pointer_cast<IceMX::ConnectionMetrics>(metrics->getMetricsView("View", timestamp)["Connection"][0]);
-    }
-    return s;
-}
-
-class UpdateCallbackI
-{
-public:
-
-    UpdateCallbackI(const Ice::PropertiesAdminPrxPtr& serverProps) :
-        _updated(false),
-        _serverProps(serverProps)
-    {
+        ostringstream os;
+        os << TestHelper::getTestPort(p->ice_getCommunicator()->getProperties(), 0);
+        return os.str();
     }
 
-    void
-    waitForUpdate()
+    Ice::PropertyDict
+    getClientProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& orig, const string& m = string())
     {
+        Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
+        for (Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
         {
-            unique_lock lock(_mutex);
-            _condition.wait(lock, [this] { return _updated; });
+            p->second = "";
+        }
+        for (Ice::PropertyDict::const_iterator p = orig.begin(); p != orig.end(); ++p)
+        {
+            props[p->first] = p->second;
+        }
+        string map;
+        if (!m.empty())
+        {
+            map += "Map." + m + '.';
+        }
+        props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin";
+        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(pa);
+        props["IceMX.Metrics.View." + map + "Reject.identity"] = ".*/admin|controller";
+        return props;
+    }
+
+    Ice::PropertyDict
+    getServerProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& orig, const string& m = string())
+    {
+        Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
+        for (Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
+        {
+            p->second = "";
+        }
+        for (Ice::PropertyDict::const_iterator p = orig.begin(); p != orig.end(); ++p)
+        {
+            props[p->first] = p->second;
+        }
+        string map;
+        if (!m.empty())
+        {
+            map += "Map." + m + '.';
+        }
+        props["IceMX.Metrics.View." + map + "Reject.parent"] = "Ice\\.Admin|Controller";
+        props["IceMX.Metrics.View." + map + "Accept.endpointPort"] = getPort(pa);
+        return props;
+    }
+
+    IceMX::ConnectionMetricsPtr getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, int64_t expected)
+    {
+        IceMX::ConnectionMetricsPtr s;
+        int nRetry = 30;
+        int64_t timestamp;
+        s = dynamic_pointer_cast<IceMX::ConnectionMetrics>(metrics->getMetricsView("View", timestamp)["Connection"][0]);
+        while (s->sentBytes != expected && nRetry-- > 0)
+        {
+            // On some platforms, it's necessary to wait a little before obtaining the server metrics
+            // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
+            // to the operation is sent and getMetricsView can be dispatched before the metric is really
+            // updated.
+            this_thread::sleep_for(chrono::milliseconds(100));
+            s = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+                metrics->getMetricsView("View", timestamp)["Connection"][0]);
+        }
+        return s;
+    }
+
+    class UpdateCallbackI
+    {
+    public:
+        UpdateCallbackI(const Ice::PropertiesAdminPrxPtr& serverProps) : _updated(false), _serverProps(serverProps) {}
+
+        void waitForUpdate()
+        {
+            {
+                unique_lock lock(_mutex);
+                _condition.wait(lock, [this] { return _updated; });
+            }
+
+            // Ensure that the previous updates were committed, the setProperties call returns before
+            // notifying the callbacks so to ensure all the update callbacks have be notified we call
+            // a second time, this will block until all the notifications from the first update have
+            // completed.
+            _serverProps->setProperties(Ice::PropertyDict());
+
+            lock_guard lock(_mutex);
+            _updated = false;
         }
 
-        // Ensure that the previous updates were committed, the setProperties call returns before
-        // notifying the callbacks so to ensure all the update callbacks have be notified we call
-        // a second time, this will block until all the notifications from the first update have
-        // completed.
-        _serverProps->setProperties(Ice::PropertyDict());
-
-        lock_guard lock(_mutex);
-        _updated = false;
-    }
-
-    void
-    updated(const Ice::PropertyDict&)
-    {
-        lock_guard lock(_mutex);
-        _updated = true;
-        _condition.notify_one();
-    }
-
-private:
-
-    bool _updated;
-    Ice::PropertiesAdminPrxPtr _serverProps;
-    std::mutex _mutex;
-    std::condition_variable _condition;
-};
-using UpdateCallbackIPtr = std::shared_ptr<UpdateCallbackI>;
-
-void
-waitForCurrent(const IceMX::MetricsAdminPrxPtr& metrics, const string& viewName, const string& map, int value)
-{
-    while(true)
-    {
-        int64_t timestamp;
-        IceMX::MetricsView view = metrics->getMetricsView(viewName, timestamp);
-        test(view.find(map) != view.end());
-        bool ok = true;
-        for(IceMX::MetricsMap::const_iterator m = view[map].begin(); m != view[map].end(); ++m)
+        void updated(const Ice::PropertyDict&)
         {
-            if((*m)->current != value)
+            lock_guard lock(_mutex);
+            _updated = true;
+            _condition.notify_one();
+        }
+
+    private:
+        bool _updated;
+        Ice::PropertiesAdminPrxPtr _serverProps;
+        std::mutex _mutex;
+        std::condition_variable _condition;
+    };
+    using UpdateCallbackIPtr = std::shared_ptr<UpdateCallbackI>;
+
+    void waitForCurrent(const IceMX::MetricsAdminPrxPtr& metrics, const string& viewName, const string& map, int value)
+    {
+        while (true)
+        {
+            int64_t timestamp;
+            IceMX::MetricsView view = metrics->getMetricsView(viewName, timestamp);
+            test(view.find(map) != view.end());
+            bool ok = true;
+            for (IceMX::MetricsMap::const_iterator m = view[map].begin(); m != view[map].end(); ++m)
             {
-                ok = false;
+                if ((*m)->current != value)
+                {
+                    ok = false;
+                    break;
+                }
+            }
+            if (ok)
+            {
+                break;
+            }
+            this_thread::sleep_for(chrono::milliseconds(50));
+        }
+    }
+
+    void waitForCurrent(const ObserverIPtr& observer, int value)
+    {
+        for (int i = 0; i < 10; ++i)
+        {
+            if (observer->getCurrent() != value)
+            {
+                this_thread::sleep_for(chrono::milliseconds(50));
+            }
+            else
+            {
                 break;
             }
         }
-        if(ok)
-        {
-            break;
-        }
-        this_thread::sleep_for(chrono::milliseconds(50));
-    }
-}
+    };
 
-void
-waitForCurrent(const ObserverIPtr& observer, int value)
-{
-    for(int i = 0; i < 10; ++i)
+    template <typename T>
+    void testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
+                       const Ice::PropertiesAdminPrxPtr& props,
+                       UpdateCallbackI* update,
+                       const string& map,
+                       const string& attr,
+                       const string& value,
+                       const T& func)
     {
-        if(observer->getCurrent() != value)
+        Ice::PropertyDict dict;
+        dict["IceMX.Metrics.View.Map." + map + ".GroupBy"] = attr;
+        if (props->ice_getIdentity().category == "client")
         {
-            this_thread::sleep_for(chrono::milliseconds(50));
+            props->setProperties(getClientProps(props, dict, map));
+            update->waitForUpdate();
         }
         else
         {
-            break;
+            props->setProperties(getServerProps(props, dict, map));
+            props->setProperties(Ice::PropertyDict());
+        }
+
+        func();
+        int64_t timestamp;
+        IceMX::MetricsView view = metrics->getMetricsView("View", timestamp);
+        if (view.find(map) == view.end() || view[map].empty())
+        {
+            if (!value.empty())
+            {
+                cerr << "no map `" << map << "' for group by = `" << attr << "'" << endl;
+                test(false);
+            }
+        }
+        else if (view[map].size() != 1 || view[map][0]->id != value)
+        {
+            cerr << "invalid attribute value: " << attr << " = " << value << " got " << view[map][0]->id << endl;
+            test(false);
+        }
+
+        dict.clear();
+        if (props->ice_getIdentity().category == "client")
+        {
+            props->setProperties(getClientProps(props, dict, map));
+            update->waitForUpdate();
+        }
+        else
+        {
+            props->setProperties(getServerProps(props, dict, map));
+            props->setProperties(Ice::PropertyDict());
         }
     }
-};
 
-template<typename T> void
-testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
-              const Ice::PropertiesAdminPrxPtr& props,
-              UpdateCallbackI* update,
-              const string& map,
-              const string& attr,
-              const string& value,
-              const T& func)
-{
-    Ice::PropertyDict dict;
-    dict["IceMX.Metrics.View.Map." + map + ".GroupBy"] = attr;
-    if(props->ice_getIdentity().category == "client")
+    struct Void
     {
-        props->setProperties(getClientProps(props, dict, map));
-        update->waitForUpdate();
-    }
-    else
-    {
-        props->setProperties(getServerProps(props, dict, map));
-        props->setProperties(Ice::PropertyDict());
-    }
+        void operator()() const {}
+    };
 
-    func();
-    int64_t timestamp;
-    IceMX::MetricsView view = metrics->getMetricsView("View", timestamp);
-    if(view.find(map) == view.end() || view[map].empty())
+    struct Connect
     {
-        if(!value.empty())
+        Connect(const Ice::ObjectPrxPtr& proxyP) : proxy(proxyP) {}
+
+        void operator()() const
         {
-            cerr << "no map `" << map << "' for group by = `" << attr << "'" << endl;
+            if (proxy->ice_getCachedConnection())
+            {
+                proxy->ice_getCachedConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+            }
+            try
+            {
+                proxy->ice_ping();
+            }
+            catch (const Ice::LocalException&)
+            {
+            }
+            if (proxy->ice_getCachedConnection())
+            {
+                proxy->ice_getCachedConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+            }
+        }
+
+        Ice::ObjectPrxPtr proxy;
+    };
+
+    struct InvokeOp
+    {
+        InvokeOp(const Test::MetricsPrxPtr& proxyP) : proxy(proxyP) {}
+
+        void operator()() const
+        {
+            Ice::Context ctx;
+            ctx["entry1"] = "test";
+            ctx["entry2"] = "";
+            proxy->op(ctx);
+        }
+
+        Test::MetricsPrxPtr proxy;
+    };
+
+    void testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
+                       const Ice::PropertiesAdminPrxPtr& props,
+                       UpdateCallbackI* update,
+                       const string& map,
+                       const string& attr,
+                       const string& value)
+    {
+        testAttribute(metrics, props, update, map, attr, value, Void());
+    }
+
+    void updateProps(const Ice::PropertiesAdminPrxPtr& cprops,
+                     const Ice::PropertiesAdminPrxPtr& sprops,
+                     UpdateCallbackI* callback,
+                     const Ice::PropertyDict& props,
+                     const string& map = string())
+    {
+        if (sprops->ice_getConnection())
+        {
+            cprops->setProperties(getClientProps(cprops, props, map));
+            sprops->setProperties(getServerProps(sprops, props, map));
+        }
+        else
+        {
+            Ice::PropertyDict clientProps = getClientProps(cprops, props, map);
+            Ice::PropertyDict serverProps = getClientProps(cprops, props, map);
+            serverProps.insert(clientProps.begin(), clientProps.end());
+            cprops->setProperties(serverProps);
+        }
+
+        callback->waitForUpdate();
+    }
+
+    void clearView(const Ice::PropertiesAdminPrxPtr& cprops,
+                   const Ice::PropertiesAdminPrxPtr& sprops,
+                   UpdateCallbackI* callback)
+    {
+        Ice::PropertyDict dict;
+
+        dict = cprops->getPropertiesForPrefix("IceMX.Metrics");
+        dict["IceMX.Metrics.View.Disabled"] = "1";
+        cprops->setProperties(dict);
+
+        dict = sprops->getPropertiesForPrefix("IceMX.Metrics");
+        dict["IceMX.Metrics.View.Disabled"] = "1";
+        sprops->setProperties(dict);
+
+        callback->waitForUpdate();
+
+        dict = cprops->getPropertiesForPrefix("IceMX.Metrics");
+        dict["IceMX.Metrics.View.Disabled"] = "";
+        cprops->setProperties(dict);
+
+        dict = sprops->getPropertiesForPrefix("IceMX.Metrics");
+        dict["IceMX.Metrics.View.Disabled"] = "";
+        sprops->setProperties(dict);
+
+        callback->waitForUpdate();
+    }
+
+    void checkFailure(
+        const IceMX::MetricsAdminPrxPtr& m, const string& map, const string& id, const string& failure, int count = 0)
+    {
+        IceMX::MetricsFailures f = m->getMetricsFailures("View", map, id);
+        if (f.failures.find(failure) == f.failures.end())
+        {
+            cerr << "couldn't find failure `" << failure << "' for `" << id << "'" << endl;
+            test(false);
+        }
+        if (count > 0 && f.failures[failure] != count)
+        {
+            cerr << "count for failure `" << failure << "' of `" << id << "' is different from expected: ";
+            cerr << count << " != " << f.failures[failure] << endl;
             test(false);
         }
     }
-    else if(view[map].size() != 1 || view[map][0]->id != value)
-    {
-        cerr << "invalid attribute value: " << attr << " = " << value << " got " << view[map][0]->id << endl;
-        test(false);
-    }
 
-    dict.clear();
-    if(props->ice_getIdentity().category == "client")
+    map<string, IceMX::MetricsPtr> toMap(const IceMX::MetricsMap& mmap)
     {
-        props->setProperties(getClientProps(props, dict, map));
-        update->waitForUpdate();
-    }
-    else
-    {
-        props->setProperties(getServerProps(props, dict, map));
-        props->setProperties(Ice::PropertyDict());
-    }
-}
-
-struct Void
-{
-    void
-    operator()() const
-    {
-    }
-};
-
-struct Connect
-{
-    Connect(const Ice::ObjectPrxPtr& proxyP) : proxy(proxyP)
-    {
-    }
-
-    void
-    operator()() const
-    {
-        if(proxy->ice_getCachedConnection())
+        map<string, IceMX::MetricsPtr> m;
+        for (IceMX::MetricsMap::const_iterator p = mmap.begin(); p != mmap.end(); ++p)
         {
-            proxy->ice_getCachedConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+            m.insert(make_pair((*p)->id, *p));
         }
-        try
-        {
-            proxy->ice_ping();
-        }
-        catch(const Ice::LocalException&)
-        {
-        }
-        if(proxy->ice_getCachedConnection())
-        {
-            proxy->ice_getCachedConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-        }
+        return m;
     }
-
-    Ice::ObjectPrxPtr proxy;
-};
-
-struct InvokeOp
-{
-    InvokeOp(const Test::MetricsPrxPtr& proxyP) : proxy(proxyP)
-    {
-    }
-
-    void
-    operator()() const
-    {
-        Ice::Context ctx;
-        ctx["entry1"] = "test";
-        ctx["entry2"] = "";
-        proxy->op(ctx);
-    }
-
-    Test::MetricsPrxPtr proxy;
-};
-
-void
-testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
-              const Ice::PropertiesAdminPrxPtr& props,
-              UpdateCallbackI* update,
-              const string& map,
-              const string& attr,
-              const string& value)
-{
-    testAttribute(metrics, props, update, map, attr, value, Void());
-}
-
-void
-updateProps(const Ice::PropertiesAdminPrxPtr& cprops,
-            const Ice::PropertiesAdminPrxPtr& sprops,
-            UpdateCallbackI* callback,
-            const Ice::PropertyDict& props,
-            const string& map = string())
-{
-    if(sprops->ice_getConnection())
-    {
-        cprops->setProperties(getClientProps(cprops, props, map));
-        sprops->setProperties(getServerProps(sprops, props, map));
-    }
-    else
-    {
-        Ice::PropertyDict clientProps = getClientProps(cprops, props, map);
-        Ice::PropertyDict serverProps = getClientProps(cprops, props, map);
-        serverProps.insert(clientProps.begin(), clientProps.end());
-        cprops->setProperties(serverProps);
-    }
-
-    callback->waitForUpdate();
-}
-
-void
-clearView(const Ice::PropertiesAdminPrxPtr& cprops, const Ice::PropertiesAdminPrxPtr& sprops, UpdateCallbackI* callback)
-{
-    Ice::PropertyDict dict;
-
-    dict = cprops->getPropertiesForPrefix("IceMX.Metrics");
-    dict["IceMX.Metrics.View.Disabled"] = "1";
-    cprops->setProperties(dict);
-
-    dict = sprops->getPropertiesForPrefix("IceMX.Metrics");
-    dict["IceMX.Metrics.View.Disabled"] = "1";
-    sprops->setProperties(dict);
-
-    callback->waitForUpdate();
-
-    dict = cprops->getPropertiesForPrefix("IceMX.Metrics");
-    dict["IceMX.Metrics.View.Disabled"] = "";
-    cprops->setProperties(dict);
-
-    dict = sprops->getPropertiesForPrefix("IceMX.Metrics");
-    dict["IceMX.Metrics.View.Disabled"] = "";
-    sprops->setProperties(dict);
-
-    callback->waitForUpdate();
-}
-
-void
-checkFailure(const IceMX::MetricsAdminPrxPtr& m, const string& map, const string& id, const string& failure,
-             int count = 0)
-{
-    IceMX::MetricsFailures f = m->getMetricsFailures("View", map, id);
-    if(f.failures.find(failure) == f.failures.end())
-    {
-        cerr << "couldn't find failure `" << failure << "' for `" << id << "'" << endl;
-        test(false);
-    }
-    if(count > 0 && f.failures[failure] != count)
-    {
-        cerr << "count for failure `" << failure << "' of `" << id << "' is different from expected: ";
-        cerr << count << " != " << f.failures[failure] << endl;
-        test(false);
-    }
-}
-
-map<string, IceMX::MetricsPtr>
-toMap(const IceMX::MetricsMap& mmap)
-{
-    map<string, IceMX::MetricsPtr> m;
-    for(IceMX::MetricsMap::const_iterator p = mmap.begin(); p != mmap.end(); ++p)
-    {
-        m.insert(make_pair((*p)->id, *p));
-    }
-    return m;
-}
 
 }
 
@@ -397,7 +374,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     cout << "testing metrics admin facet checkedCast... " << flush;
     Ice::ObjectPrxPtr admin = communicator->getAdmin();
 
-    Ice::PropertiesAdminPrxPtr clientProps =  Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
+    Ice::PropertiesAdminPrxPtr clientProps = Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
     IceMX::MetricsAdminPrxPtr clientMetrics = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics");
     test(clientProps && clientMetrics);
 
@@ -408,8 +385,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     UpdateCallbackIPtr update = make_shared<UpdateCallbackI>(serverProps);
 
-    dynamic_pointer_cast<Ice::NativePropertiesAdmin>(communicator->findAdminFacet("Properties"))->addUpdateCallback(
-        [update](const Ice::PropertyDict& changes) { update->updated(changes); });
+    dynamic_pointer_cast<Ice::NativePropertiesAdmin>(communicator->findAdminFacet("Properties"))
+        ->addUpdateCallback([update](const Ice::PropertyDict& changes) { update->updated(changes); });
 
     cout << "ok" << endl;
 
@@ -424,7 +401,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     int64_t timestamp;
     IceMX::MetricsView view = clientMetrics->getMetricsView("View", timestamp);
-    if(!collocated)
+    if (!collocated)
     {
         test(view["Connection"].size() == 1 && view["Connection"][0]->current == 1 &&
              view["Connection"][0]->total == 1);
@@ -449,7 +426,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     waitForCurrent(serverMetrics, "View", "Dispatch", 0);
 
     view = clientMetrics->getMetricsView("View", timestamp);
-    if(!collocated)
+    if (!collocated)
     {
         test(view["Connection"].size() == 2);
     }
@@ -460,7 +437,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     IceMX::InvocationMetricsPtr invoke = dynamic_pointer_cast<IceMX::InvocationMetrics>(view["Invocation"][0]);
     test(invoke->id.find("[ice_ping]") > 0 && invoke->current == 0 && invoke->total == 5);
 
-    if(!collocated)
+    if (!collocated)
     {
         test(invoke->remotes.size() == 2);
         test(invoke->remotes[0]->total == 2);
@@ -473,7 +450,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     }
 
     view = serverMetrics->getMetricsView("View", timestamp);
-    if(serverMetrics->ice_getConnection())
+    if (serverMetrics->ice_getConnection())
     {
         test(static_cast<int>(view["Thread"].size()) > threadCount);
         test(view["Connection"].size() == 2);
@@ -482,11 +459,10 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     test(view["Dispatch"][0]->current == 0 && view["Dispatch"][0]->total == 5);
     test(view["Dispatch"][0]->id.find("[ice_ping]") > 0);
 
-    if(!collocated)
+    if (!collocated)
     {
         metrics->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-        metrics->ice_connectionId("Con1")->ice_getConnection()->close(
-            Ice::ConnectionClose::GracefullyWithWait);
+        metrics->ice_connectionId("Con1")->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
         waitForCurrent(clientMetrics, "View", "Connection", 0);
         waitForCurrent(serverMetrics, "View", "Connection", 0);
@@ -500,7 +476,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     string type;
     string isSecure;
-    if(!collocated)
+    if (!collocated)
     {
         Ice::EndpointInfoPtr endpointInfo = metrics->ice_getConnection()->getEndpoint()->getInfo();
         {
@@ -508,9 +484,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             os << endpointInfo->type();
             type = os.str();
         }
-        isSecure = endpointInfo->secure() ? "true": "false";
+        isSecure = endpointInfo->secure() ? "true" : "false";
     }
-    if(!collocated)
+    if (!collocated)
     {
         cout << "testing connection metrics... " << flush;
 
@@ -523,17 +499,20 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->ice_ping();
 
         IceMX::ConnectionMetricsPtr cm1, sm1, cm2, sm2;
-        cm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-        sm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+            clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        sm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+            serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm1 = getServerConnectionMetrics(serverMetrics, 25);
         test(cm1->total == 1 && sm1->total == 1);
 
         metrics->ice_ping();
 
-        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+            clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, 50);
 
-        test(cm2->sentBytes - cm1->sentBytes == 45); // 45 for ice_ping request
+        test(cm2->sentBytes - cm1->sentBytes == 45);         // 45 for ice_ping request
         test(cm2->receivedBytes - cm1->receivedBytes == 25); // 25 bytes for ice_ping response
         test(sm2->receivedBytes - sm1->receivedBytes == 45);
         test(sm2->sentBytes - sm1->sentBytes == 25);
@@ -544,7 +523,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         Test::ByteSeq bs;
         metrics->opByteS(bs);
 
-        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+            clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + cm2->receivedBytes - cm1->receivedBytes);
         int64_t requestSz = cm2->sentBytes - cm1->sentBytes;
         int64_t replySz = cm2->receivedBytes - cm1->receivedBytes;
@@ -555,7 +535,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         bs.resize(456);
         metrics->opByteS(bs);
 
-        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+            clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + replySz);
 
         // 4 is for the seq variable size
@@ -570,7 +551,8 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         bs.resize(1024 * 1024 * 10); // Try with large amount of data which should be sent in several chunks
         metrics->opByteS(bs);
 
-        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        cm2 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+            clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         sm2 = getServerConnectionMetrics(serverMetrics, sm1->sentBytes + replySz);
 
         // 4 is for the seq variable size
@@ -622,17 +604,18 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             metrics->ice_timeout(500)->opByteS(seq);
             test(false);
         }
-        catch(const Ice::TimeoutException&)
+        catch (const Ice::TimeoutException&)
         {
         }
         controller->resume();
 
-        cm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-        while(true)
+        cm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
+            clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        while (true)
         {
             sm1 = dynamic_pointer_cast<IceMX::ConnectionMetrics>(
                 serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
-            if(sm1->failures >= 2)
+            if (sm1->failures >= 2)
             {
                 break;
             }
@@ -648,7 +631,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         m->ice_ping();
 
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "parent", "Communicator");
-        //testAttribute(clientMetrics, clientProps, update.get(), "Connection", "id", "");
+        // testAttribute(clientMetrics, clientProps, update.get(), "Connection", "id", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpoint", endpoint + " -t 500");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointType", type);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "endpointIsDatagram", "false");
@@ -662,7 +645,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "adapterName", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "connectionId", "Con1");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "localHost", host);
-        //testAttribute(clientMetrics, clientProps, update.get(), "Connection", "localPort", "");
+        // testAttribute(clientMetrics, clientProps, update.get(), "Connection", "localPort", "");
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "remoteHost", host);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "remotePort", port);
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "mcastHost", "");
@@ -694,10 +677,10 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             communicator->stringToProxy("test:" + endpoint)->ice_timeout(10)->ice_ping();
             test(false);
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             test(false);
         }
@@ -715,10 +698,14 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
                       endpoint + " -t 60000", c);
 
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointType", type, c);
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointIsDatagram", "false", c);
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointIsSecure", isSecure, c);
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointTimeout", "60000", c);
-        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointCompress", "false", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointIsDatagram",
+                      "false", c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointIsSecure", isSecure,
+                      c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointTimeout", "60000",
+                      c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointCompress", "false",
+                      c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointHost", host, c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointPort", port, c);
 
@@ -727,7 +714,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         //
         // Ice doesn't do any endpoint lookup with iOS.
         //
-#if TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE == 0
         cout << "testing endpoint lookup metrics... " << flush;
 
         props["IceMX.Metrics.View.Map.EndpointLookup.GroupBy"] = "id";
@@ -740,7 +727,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             prx->ice_ping();
             prx->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
 
@@ -754,11 +741,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             communicator->stringToProxy("test:tcp -t 500 -h unknownfoo.zeroc.com -p " + port)->ice_ping();
             test(false);
         }
-        catch(const Ice::DNSException&)
+        catch (const Ice::DNSException&)
         {
             dnsException = true;
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             // Some DNS servers don't fail on unknown DNS names.
         }
@@ -766,7 +753,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][1];
         test(m1->id == "tcp -h unknownfoo.zeroc.com -p " + port + " -t 500" && m1->total == 2 &&
              (!dnsException || m1->failures == 2));
-        if(dnsException)
+        if (dnsException)
         {
             checkFailure(clientMetrics, "EndpointLookup", m1->id, "::Ice::DNSException", 2);
         }
@@ -803,7 +790,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithUserException();
         test(false);
     }
-    catch(const Test::UserEx&)
+    catch (const Test::UserEx&)
     {
     }
     try
@@ -811,7 +798,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithRequestFailedException();
         test(false);
     }
-    catch(const Ice::RequestFailedException&)
+    catch (const Ice::RequestFailedException&)
     {
     }
     try
@@ -819,7 +806,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithLocalException();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
     try
@@ -827,23 +814,23 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithUnknownException();
         test(false);
     }
-    catch(const Ice::UnknownException&)
+    catch (const Ice::UnknownException&)
     {
     }
-    if(!collocated)
+    if (!collocated)
     {
         try
         {
             metrics->fail();
             test(false);
         }
-        catch(const Ice::ConnectionLostException&)
+        catch (const Ice::ConnectionLostException&)
         {
         }
     }
 
     map = toMap(serverMetrics->getMetricsView("View", timestamp)["Dispatch"]);
-    if(!collocated)
+    if (!collocated)
     {
         test(map.size() == 6);
     }
@@ -879,10 +866,10 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "parent", "TestAdapter", op);
     testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "id", "metrics [op]", op);
-    if(!collocated)
+    if (!collocated)
     {
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpoint", endpoint + " -t 60000", op);
-        //testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "connection", "", op);
+        // testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "connection", "", op);
 
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointType", type, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointIsDatagram", "false", op);
@@ -898,7 +885,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "localHost", host, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "localPort", port, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "remoteHost", host, op);
-        //testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "remotePort", port, op);
+        // testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "remotePort", port, op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "mcastHost", "", op);
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "mcastPort", "", op);
     }
@@ -927,9 +914,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     {
         std::promise<void> p;
-        metrics->opAsync(
-            [&p]() { p.set_value(); },
-            [](exception_ptr) { test(false); });
+        metrics->opAsync([&p]() { p.set_value(); }, [](exception_ptr) { test(false); });
         p.get_future().wait();
     }
 
@@ -939,7 +924,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithUserException();
         test(false);
     }
-    catch(const Test::UserEx&)
+    catch (const Test::UserEx&)
     {
     }
 
@@ -948,33 +933,32 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithUserExceptionAsync().get();
         test(false);
     }
-    catch(const Test::UserEx&)
+    catch (const Test::UserEx&)
     {
     }
-    catch(...)
+    catch (...)
     {
         test(false);
     }
 
     {
         std::promise<void> p;
-        metrics->opWithUserExceptionAsync(
-            []() { test(false); },
-            [&p](exception_ptr e)
-            {
-                try
-                {
-                    rethrow_exception(e);
-                }
-                catch(const Test::UserEx&)
-                {
-                    p.set_value();
-                }
-                catch(...)
-                {
-                    test(false);
-                }
-            });
+        metrics->opWithUserExceptionAsync([]() { test(false); },
+                                          [&p](exception_ptr e)
+                                          {
+                                              try
+                                              {
+                                                  rethrow_exception(e);
+                                              }
+                                              catch (const Test::UserEx&)
+                                              {
+                                                  p.set_value();
+                                              }
+                                              catch (...)
+                                              {
+                                                  test(false);
+                                              }
+                                          });
         p.get_future().wait();
     }
 
@@ -984,7 +968,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithRequestFailedException();
         test(false);
     }
-    catch(const Ice::RequestFailedException&)
+    catch (const Ice::RequestFailedException&)
     {
     }
 
@@ -993,29 +977,28 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithRequestFailedExceptionAsync().get();
         test(false);
     }
-    catch(const Ice::RequestFailedException&)
+    catch (const Ice::RequestFailedException&)
     {
     }
 
     {
         std::promise<void> p;
-        metrics->opWithRequestFailedExceptionAsync(
-            []() { test(false); },
-            [&p](exception_ptr e)
-            {
-                try
-                {
-                    rethrow_exception(e);
-                }
-                catch(const Ice::RequestFailedException&)
-                {
-                    p.set_value();
-                }
-                catch(...)
-                {
-                    test(false);
-                }
-            });
+        metrics->opWithRequestFailedExceptionAsync([]() { test(false); },
+                                                   [&p](exception_ptr e)
+                                                   {
+                                                       try
+                                                       {
+                                                           rethrow_exception(e);
+                                                       }
+                                                       catch (const Ice::RequestFailedException&)
+                                                       {
+                                                           p.set_value();
+                                                       }
+                                                       catch (...)
+                                                       {
+                                                           test(false);
+                                                       }
+                                                   });
         p.get_future().wait();
     }
 
@@ -1025,7 +1008,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithLocalException();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
 
@@ -1034,29 +1017,28 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithLocalExceptionAsync().get();
         test(false);
     }
-    catch(const Ice::LocalException&)
+    catch (const Ice::LocalException&)
     {
     }
 
     {
         std::promise<void> p;
-        metrics->opWithLocalExceptionAsync(
-            []() { test(false); },
-            [&p](exception_ptr e)
-            {
-                try
-                {
-                    rethrow_exception(e);
-                }
-                catch(const Ice::LocalException&)
-                {
-                    p.set_value();
-                }
-                catch(...)
-                {
-                    test(false);
-                }
-            });
+        metrics->opWithLocalExceptionAsync([]() { test(false); },
+                                           [&p](exception_ptr e)
+                                           {
+                                               try
+                                               {
+                                                   rethrow_exception(e);
+                                               }
+                                               catch (const Ice::LocalException&)
+                                               {
+                                                   p.set_value();
+                                               }
+                                               catch (...)
+                                               {
+                                                   test(false);
+                                               }
+                                           });
         p.get_future().wait();
     }
 
@@ -1066,7 +1048,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithUnknownException();
         test(false);
     }
-    catch(const Ice::UnknownException&)
+    catch (const Ice::UnknownException&)
     {
     }
 
@@ -1075,41 +1057,40 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         metrics->opWithUnknownExceptionAsync().get();
         test(false);
     }
-    catch(const Ice::UnknownException&)
+    catch (const Ice::UnknownException&)
     {
     }
 
     {
         std::promise<void> p;
-        metrics->opWithUnknownExceptionAsync(
-            []() { test(false); },
-            [&p](exception_ptr e)
-            {
-                try
-                {
-                    rethrow_exception(e);
-                }
-                catch(const Ice::UnknownException&)
-                {
-                    p.set_value();
-                }
-                catch(...)
-                {
-                    test(false);
-                }
-            });
+        metrics->opWithUnknownExceptionAsync([]() { test(false); },
+                                             [&p](exception_ptr e)
+                                             {
+                                                 try
+                                                 {
+                                                     rethrow_exception(e);
+                                                 }
+                                                 catch (const Ice::UnknownException&)
+                                                 {
+                                                     p.set_value();
+                                                 }
+                                                 catch (...)
+                                                 {
+                                                     test(false);
+                                                 }
+                                             });
         p.get_future().wait();
     }
 
     // Fail
-    if(!collocated)
+    if (!collocated)
     {
         try
         {
             metrics->fail();
             test(false);
         }
-        catch(const Ice::ConnectionLostException&)
+        catch (const Ice::ConnectionLostException&)
         {
         }
 
@@ -1118,28 +1099,27 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             metrics->failAsync().get();
             test(false);
         }
-        catch(const Ice::ConnectionLostException&)
+        catch (const Ice::ConnectionLostException&)
         {
         }
 
         std::promise<void> p;
-        metrics->failAsync(
-            []() { test(false); },
-            [&p](exception_ptr e)
-            {
-                try
-                {
-                    rethrow_exception(e);
-                }
-                catch(const Ice::ConnectionLostException&)
-                {
-                    p.set_value();
-                }
-                catch(...)
-                {
-                    test(false);
-                }
-            });
+        metrics->failAsync([]() { test(false); },
+                           [&p](exception_ptr e)
+                           {
+                               try
+                               {
+                                   rethrow_exception(e);
+                               }
+                               catch (const Ice::ConnectionLostException&)
+                               {
+                                   p.set_value();
+                               }
+                               catch (...)
+                               {
+                                   test(false);
+                               }
+                           });
         p.get_future().wait();
     }
 
@@ -1188,18 +1168,18 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     checkFailure(clientMetrics, "Invocation", im1->id, "::Ice::UnknownException", 3);
 
-    if(!collocated)
+    if (!collocated)
     {
         im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["fail"]);
         test(im1->current <= 1 && im1->total == 3 && im1->failures == 3 && im1->retry == 3 && im1->remotes.size() == 1);
         rim1 = dynamic_pointer_cast<IceMX::ChildInvocationMetrics>(im1->remotes[0]);
-        if(rim1->current != 0 || rim1->total != 6 || rim1->failures != 6)
+        if (rim1->current != 0 || rim1->total != 6 || rim1->failures != 6)
         {
             cerr << "rim1->current = " << rim1->current << endl;
             cerr << "rim1->total = " << rim1->total << endl;
             cerr << "rim1->failures = " << rim1->failures << endl;
             IceMX::MetricsFailures f = clientMetrics->getMetricsFailures("View", "Invocation", im1->id);
-            for(IceMX::StringIntDict::const_iterator p = f.failures.begin(); p != f.failures.end(); ++p)
+            for (IceMX::StringIntDict::const_iterator p = f.failures.begin(); p != f.failures.end(); ++p)
             {
                 cerr << p->first << " = " << p->second << endl;
             }
@@ -1232,10 +1212,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     metricsOneway->op();
     metricsOneway->opAsync().get();
     promise<void> sent;
-    metricsOneway->opAsync(
-        []() { },
-        [](exception_ptr) { test(false); },
-        [&](bool) { sent.set_value(); });
+    metricsOneway->opAsync([]() {}, [](exception_ptr) { test(false); }, [&](bool) { sent.set_value(); });
     sent.get_future().get();
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 1);
@@ -1290,12 +1267,12 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 
     im1 = dynamic_pointer_cast<IceMX::InvocationMetrics>(map["ice_flushBatchRequests"]);
     test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
-    if(!collocated)
+    if (!collocated)
     {
         test(im1->remotes.size() == 1); // The first operation got sent over a connection
     }
 
-    if(!collocated)
+    if (!collocated)
     {
         clearView(clientProps, serverProps, update.get());
 
@@ -1355,7 +1332,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     {
         clientMetrics->enableMetricsView("UnknownView");
     }
-    catch(const IceMX::UnknownMetricsView&)
+    catch (const IceMX::UnknownMetricsView&)
     {
     }
 
@@ -1364,11 +1341,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     cout << "testing instrumentation observer delegate... " << flush;
 
     test(obsv->threadObserver->getTotal() > 0);
-    if(!collocated)
+    if (!collocated)
     {
         test(obsv->connectionObserver->getTotal() > 0);
         test(obsv->connectionEstablishmentObserver->getTotal() > 0);
-#if TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE == 0
         test(obsv->endpointLookupObserver->getTotal() > 0);
 #endif
         test(obsv->invocationObserver->remoteObserver->getTotal() > 0);
@@ -1381,11 +1358,11 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     test(obsv->invocationObserver->getTotal() > 0);
 
     test(obsv->threadObserver->getCurrent() > 0);
-    if(!collocated)
+    if (!collocated)
     {
         test(obsv->connectionObserver->getCurrent() > 0);
         test(obsv->connectionEstablishmentObserver->getCurrent() == 0);
-#if TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE == 0
         test(obsv->endpointLookupObserver->getCurrent() == 0);
 #endif
         waitForCurrent(obsv->invocationObserver->remoteObserver, 0);
@@ -1404,30 +1381,30 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     test(obsv->invocationObserver->getCurrent() == 0);
 
     test(obsv->threadObserver->getFailedCount() == 0);
-    if(!collocated)
+    if (!collocated)
     {
         test(obsv->connectionObserver->getFailedCount() > 0);
         test(obsv->connectionEstablishmentObserver->getFailedCount() > 0);
-#if TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE == 0
         test(obsv->endpointLookupObserver->getFailedCount() > 0);
 #endif
     }
-    //test(obsv->dispatchObserver->getFailedCount() > 0);
+    // test(obsv->dispatchObserver->getFailedCount() > 0);
 
     test(obsv->invocationObserver->getFailedCount() > 0);
-    if(!collocated)
+    if (!collocated)
     {
         test(obsv->invocationObserver->remoteObserver->getFailedCount() > 0);
         test(obsv->threadObserver->states > 0);
     }
-    if(!collocated)
+    if (!collocated)
     {
         test(obsv->connectionObserver->received > 0 && obsv->connectionObserver->sent > 0);
     }
 
-    //test(obsv->dispatchObserver->userExceptionCount > 0);
+    // test(obsv->dispatchObserver->userExceptionCount > 0);
     test(obsv->invocationObserver->userExceptionCount > 0);
-    if(!collocated)
+    if (!collocated)
     {
         test(obsv->invocationObserver->retriedCount > 0);
         test(obsv->invocationObserver->remoteObserver->replySize > 0);

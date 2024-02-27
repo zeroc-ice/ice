@@ -23,7 +23,7 @@ Ice::PropertiesI::getProperty(const string& key) noexcept
     lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
-    if(p != _properties.end())
+    if (p != _properties.end())
     {
         p->second.used = true;
         return p->second.value;
@@ -40,7 +40,7 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
     lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
-    if(p != _properties.end())
+    if (p != _properties.end())
     {
         p->second.used = true;
         return p->second.value;
@@ -63,12 +63,12 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, int32_t value) 
     lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
-    if(p != _properties.end())
+    if (p != _properties.end())
     {
         int32_t val = value;
         p->second.used = true;
         istringstream v(p->second.value);
-        if(!(v >> value) || !v.eof())
+        if (!(v >> value) || !v.eof())
         {
             Warning out(getProcessLogger());
             out << "numeric property " << key << " set to non-numeric value, defaulting to " << val;
@@ -91,17 +91,17 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
     lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
-    if(p != _properties.end())
+    if (p != _properties.end())
     {
         p->second.used = true;
 
         StringSeq result;
-        if(!IceUtilInternal::splitString(p->second.value, ", \t\r\n", result))
+        if (!IceUtilInternal::splitString(p->second.value, ", \t\r\n", result))
         {
             Warning out(getProcessLogger());
             out << "mismatched quotes in property " << key << "'s value, returning default value";
         }
-        if(result.size() == 0)
+        if (result.size() == 0)
         {
             result = value;
         }
@@ -119,9 +119,9 @@ Ice::PropertiesI::getPropertiesForPrefix(const string& prefix) noexcept
     lock_guard lock(_mutex);
 
     PropertyDict result;
-    for(map<string, PropertyValue>::iterator p = _properties.begin(); p != _properties.end(); ++p)
+    for (map<string, PropertyValue>::iterator p = _properties.begin(); p != _properties.end(); ++p)
     {
-        if(prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
+        if (prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
         {
             p->second.used = true;
             result[p->first] = p->second.value;
@@ -138,7 +138,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     // Trim whitespace
     //
     string currentKey = IceUtilInternal::trim(key);
-    if(currentKey.empty())
+    if (currentKey.empty())
     {
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
     }
@@ -148,10 +148,10 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     //
     LoggerPtr logger = getProcessLogger();
     string::size_type dotPos = currentKey.find('.');
-    if(dotPos != string::npos)
+    if (dotPos != string::npos)
     {
         string prefix = currentKey.substr(0, dotPos);
-        for(int i = 0 ; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
+        for (int i = 0; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
         {
             string pattern(IceInternal::PropertyNames::validProps[i].properties[0].pattern);
 
@@ -167,29 +167,29 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
             bool mismatchCase = false;
             string otherKey;
             string propPrefix = pattern.substr(0, dotPos);
-            if(IceUtilInternal::toUpper(propPrefix) != IceUtilInternal::toUpper(prefix))
+            if (IceUtilInternal::toUpper(propPrefix) != IceUtilInternal::toUpper(prefix))
             {
                 continue;
             }
 
             bool found = false;
 
-            for(int j = 0; j < IceInternal::PropertyNames::validProps[i].length && !found; ++j)
+            for (int j = 0; j < IceInternal::PropertyNames::validProps[i].length && !found; ++j)
             {
                 const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
                 found = IceUtilInternal::match(currentKey, prop.pattern);
 
-                if(found && prop.deprecated)
+                if (found && prop.deprecated)
                 {
                     logger->warning("deprecated property: " + currentKey);
-                    if(prop.deprecatedBy != 0)
+                    if (prop.deprecatedBy != 0)
                     {
                         currentKey = prop.deprecatedBy;
                     }
                 }
 
-                if(!found && IceUtilInternal::match(IceUtilInternal::toUpper(currentKey),
-                                                    IceUtilInternal::toUpper(prop.pattern)))
+                if (!found && IceUtilInternal::match(IceUtilInternal::toUpper(currentKey),
+                                                     IceUtilInternal::toUpper(prop.pattern)))
                 {
                     found = true;
                     mismatchCase = true;
@@ -197,11 +197,11 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
                     break;
                 }
             }
-            if(!found)
+            if (!found)
             {
                 logger->warning("unknown property: `" + currentKey + "'");
             }
-            else if(mismatchCase)
+            else if (mismatchCase)
             {
                 logger->warning("unknown property: `" + currentKey + "'; did you mean `" + otherKey + "'");
             }
@@ -213,11 +213,11 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     //
     // Set or clear the property.
     //
-    if(!value.empty())
+    if (!value.empty())
     {
         PropertyValue pv(value, false);
         map<string, PropertyValue>::const_iterator p = _properties.find(currentKey);
-        if(p != _properties.end())
+        if (p != _properties.end())
         {
             pv.used = p->second.used;
         }
@@ -236,7 +236,7 @@ Ice::PropertiesI::getCommandLineOptions() noexcept
 
     StringSeq result;
     result.reserve(_properties.size());
-    for(map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
+    for (map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
     {
         result.push_back("--" + p->first + "=" + p->second.value);
     }
@@ -247,20 +247,20 @@ StringSeq
 Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq& options)
 {
     string pfx = prefix;
-    if(!pfx.empty() && pfx[pfx.size() - 1] != '.')
+    if (!pfx.empty() && pfx[pfx.size() - 1] != '.')
     {
         pfx += '.';
     }
     pfx = "--" + pfx;
 
     StringSeq result;
-    for(StringSeq::size_type i = 0; i < options.size(); i++)
+    for (StringSeq::size_type i = 0; i < options.size(); i++)
     {
         string opt = options[i];
 
-        if(opt.find(pfx) == 0)
+        if (opt.find(pfx) == 0)
         {
-            if(opt.find('=') == string::npos)
+            if (opt.find('=') == string::npos)
             {
                 opt += "=1";
             }
@@ -279,12 +279,11 @@ StringSeq
 Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
 {
     StringSeq args = options;
-    for(const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
+    for (const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
     {
         args = parseCommandLineOptions(*i, args);
     }
     return args;
-
 }
 
 void
@@ -292,17 +291,18 @@ Ice::PropertiesI::load(const std::string& file)
 {
     StringConverterPtr stringConverter = getProcessStringConverter();
 
-#if defined (_WIN32)
-    if(file.find("HKCU\\") == 0 || file.find("HKLM\\") == 0)
+#if defined(_WIN32)
+    if (file.find("HKCU\\") == 0 || file.find("HKLM\\") == 0)
     {
         HKEY key = file.find("HKCU\\") == 0 ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
         HKEY iceKey;
         const wstring keyName = stringToWstring(file, stringConverter).substr(file.find("\\") + 1).c_str();
         LONG err;
-        if((err = RegOpenKeyExW(key, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
+        if ((err = RegOpenKeyExW(key, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
-            throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file + "':\n" +
-                                          IceUtilInternal::errorToString(err));
+            throw InitializationException(__FILE__, __LINE__,
+                                          "could not open Windows registry key `" + file + "':\n" +
+                                              IceUtilInternal::errorToString(err));
         }
 
         DWORD maxNameSize; // Size in characters not including terminating null character.
@@ -310,15 +310,16 @@ Ice::PropertiesI::load(const std::string& file)
         DWORD numValues;
         try
         {
-            err = RegQueryInfoKey(iceKey, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-                                  &numValues, &maxNameSize, &maxDataSize, nullptr, nullptr);
-            if(err != ERROR_SUCCESS)
+            err = RegQueryInfoKey(iceKey, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &numValues,
+                                  &maxNameSize, &maxDataSize, nullptr, nullptr);
+            if (err != ERROR_SUCCESS)
             {
-                throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file +
-                                              "':\n" + IceUtilInternal::errorToString(err));
+                throw InitializationException(__FILE__, __LINE__,
+                                              "could not open Windows registry key `" + file + "':\n" +
+                                                  IceUtilInternal::errorToString(err));
             }
 
-            for(DWORD i = 0; i < numValues; ++i)
+            for (DWORD i = 0; i < numValues; ++i)
             {
                 vector<wchar_t> nameBuf(maxNameSize + 1);
                 vector<BYTE> dataBuf(maxDataSize);
@@ -326,11 +327,11 @@ Ice::PropertiesI::load(const std::string& file)
                 DWORD nameBufSize = static_cast<DWORD>(nameBuf.size());
                 DWORD dataBufSize = static_cast<DWORD>(dataBuf.size());
                 err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, nullptr, &keyType, &dataBuf[0], &dataBufSize);
-                if(err != ERROR_SUCCESS || nameBufSize == 0)
+                if (err != ERROR_SUCCESS || nameBufSize == 0)
                 {
                     ostringstream os;
                     os << "could not read Windows registry property name, key: `" + file + "', index: " << i << ":\n";
-                    if(nameBufSize == 0)
+                    if (nameBufSize == 0)
                     {
                         os << "property name can't be the empty string";
                     }
@@ -341,9 +342,9 @@ Ice::PropertiesI::load(const std::string& file)
                     getProcessLogger()->warning(os.str());
                     continue;
                 }
-                string name = wstringToString(
-                    wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize), stringConverter);
-                if(keyType != REG_SZ && keyType != REG_EXPAND_SZ)
+                string name =
+                    wstringToString(wstring(reinterpret_cast<wchar_t*>(&nameBuf[0]), nameBufSize), stringConverter);
+                if (keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;
                     os << "unsupported type for Windows registry property `" + name + "' key: `" + file + "'";
@@ -353,7 +354,7 @@ Ice::PropertiesI::load(const std::string& file)
 
                 string value;
                 wstring valueW = wstring(reinterpret_cast<wchar_t*>(&dataBuf[0]), (dataBufSize / sizeof(wchar_t)) - 1);
-                if(keyType == REG_SZ)
+                if (keyType == REG_SZ)
                 {
                     value = wstringToString(valueW, stringConverter);
                 }
@@ -362,11 +363,11 @@ Ice::PropertiesI::load(const std::string& file)
                     vector<wchar_t> expandedValue(1024);
                     DWORD sz = ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0],
                                                          static_cast<DWORD>(expandedValue.size()));
-                    if(sz >= expandedValue.size())
+                    if (sz >= expandedValue.size())
                     {
                         expandedValue.resize(sz + 1);
-                        if(ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0],
-                                                     static_cast<DWORD>(expandedValue.size())) == 0)
+                        if (ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0],
+                                                      static_cast<DWORD>(expandedValue.size())) == 0)
                         {
                             ostringstream os;
                             os << "could not expand variable in property `" << name << "', key: `" + file + "':\n";
@@ -375,12 +376,12 @@ Ice::PropertiesI::load(const std::string& file)
                             continue;
                         }
                     }
-                    value = wstringToString(wstring(&expandedValue[0], sz -1), stringConverter);
+                    value = wstringToString(wstring(&expandedValue[0], sz - 1), stringConverter);
                 }
                 setProperty(name, value);
             }
         }
-        catch(...)
+        catch (...)
         {
             RegCloseKey(iceKey);
             throw;
@@ -391,25 +392,24 @@ Ice::PropertiesI::load(const std::string& file)
 #endif
     {
         ifstream in(IceUtilInternal::streamFilename(file).c_str());
-        if(!in)
+        if (!in)
         {
             throw FileException(__FILE__, __LINE__, getSystemErrno(), file);
         }
 
         string line;
         bool firstLine = true;
-        while(getline(in, line))
+        while (getline(in, line))
         {
             //
             // Skip UTF8 BOM if present.
             //
-            if(firstLine)
+            if (firstLine)
             {
                 const unsigned char UTF8_BOM[3] = {0xEF, 0xBB, 0xBF};
-                if(line.size() >= 3 &&
-                   static_cast<unsigned char>(line[0]) == UTF8_BOM[0] &&
-                   static_cast<unsigned char>(line[1]) == UTF8_BOM[1] &&
-                   static_cast<unsigned char>(line[2]) == UTF8_BOM[2])
+                if (line.size() >= 3 && static_cast<unsigned char>(line[0]) == UTF8_BOM[0] &&
+                    static_cast<unsigned char>(line[1]) == UTF8_BOM[1] &&
+                    static_cast<unsigned char>(line[2]) == UTF8_BOM[2])
                 {
                     line = line.substr(3);
                 }
@@ -432,9 +432,9 @@ Ice::PropertiesI::getUnusedProperties()
 {
     lock_guard lock(_mutex);
     set<string> unusedProperties;
-    for(map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
+    for (map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
     {
-        if(!p->second.used)
+        if (!p->second.used)
         {
             unusedProperties.insert(p->first);
         }
@@ -442,18 +442,13 @@ Ice::PropertiesI::getUnusedProperties()
     return unusedProperties;
 }
 
-Ice::PropertiesI::PropertiesI(const PropertiesI* p) :
-    _properties(p->_properties)
-{
-}
+Ice::PropertiesI::PropertiesI(const PropertiesI* p) : _properties(p->_properties) {}
 
-Ice::PropertiesI::PropertiesI()
-{
-}
+Ice::PropertiesI::PropertiesI() {}
 
 Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
 {
-    if(defaults != 0)
+    if (defaults != 0)
     {
         _properties = static_cast<PropertiesI*>(defaults.get())->_properties;
     }
@@ -461,9 +456,9 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
     StringSeq::iterator q = args.begin();
 
     map<string, PropertyValue>::iterator p = _properties.find("Ice.ProgramName");
-    if(p == _properties.end())
+    if (p == _properties.end())
     {
-        if(q != args.end())
+        if (q != args.end())
         {
             //
             // Use the first argument as the value for Ice.ProgramName. Replace
@@ -485,12 +480,12 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
     StringSeq tmp;
 
     bool loadConfigFiles = false;
-    while(q != args.end())
+    while (q != args.end())
     {
         string s = *q;
-        if(s.find("--Ice.Config") == 0)
+        if (s.find("--Ice.Config") == 0)
         {
-            if(s.find('=') == string::npos)
+            if (s.find('=') == string::npos)
             {
                 s += "=1";
             }
@@ -505,7 +500,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
     }
     args = tmp;
 
-    if(!loadConfigFiles)
+    if (!loadConfigFiles)
     {
         //
         // If Ice.Config is not set, load from ICE_CONFIG (if set)
@@ -513,7 +508,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
         loadConfigFiles = (_properties.find("Ice.Config") == _properties.end());
     }
 
-    if(loadConfigFiles)
+    if (loadConfigFiles)
     {
         loadConfig();
     }
@@ -527,162 +522,166 @@ Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& conver
     string key;
     string value;
 
-    enum ParseState { Key , Value };
+    enum ParseState
+    {
+        Key,
+        Value
+    };
     ParseState state = Key;
 
     string whitespace;
     string escapedspace;
     bool finished = false;
-    for(string::size_type i = 0; i < line.size(); ++i)
+    for (string::size_type i = 0; i < line.size(); ++i)
     {
         char c = line[i];
-        switch(state)
+        switch (state)
         {
-          case Key:
-          {
-            switch(c)
+            case Key:
             {
-              case '\\':
-                if(i < line.length() - 1)
+                switch (c)
                 {
-                    c = line[++i];
-                    switch(c)
-                    {
-                      case '\\':
-                      case '#':
-                      case '=':
-                        key += whitespace;
-                        whitespace.clear();
-                        key += c;
+                    case '\\':
+                        if (i < line.length() - 1)
+                        {
+                            c = line[++i];
+                            switch (c)
+                            {
+                                case '\\':
+                                case '#':
+                                case '=':
+                                    key += whitespace;
+                                    whitespace.clear();
+                                    key += c;
+                                    break;
+
+                                case ' ':
+                                    if (key.length() != 0)
+                                    {
+                                        whitespace += c;
+                                    }
+                                    break;
+
+                                default:
+                                    key += whitespace;
+                                    whitespace.clear();
+                                    key += '\\';
+                                    key += c;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            key += whitespace;
+                            key += c;
+                        }
                         break;
 
-                      case ' ':
-                        if(key.length() != 0)
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        if (key.length() != 0)
                         {
                             whitespace += c;
                         }
                         break;
 
-                      default:
+                    case '=':
+                        whitespace.clear();
+                        state = Value;
+                        break;
+
+                    case '#':
+                        finished = true;
+                        break;
+
+                    default:
                         key += whitespace;
                         whitespace.clear();
-                        key += '\\';
                         key += c;
                         break;
-                    }
-                }
-                else
-                {
-                    key += whitespace;
-                    key += c;
                 }
                 break;
-
-              case ' ':
-              case '\t':
-              case '\r':
-              case '\n':
-                  if(key.length() != 0)
-                  {
-                      whitespace += c;
-                  }
-                  break;
-
-              case '=':
-                  whitespace.clear();
-                  state = Value;
-                  break;
-
-              case '#':
-                  finished = true;
-                  break;
-
-              default:
-                  key += whitespace;
-                  whitespace.clear();
-                  key += c;
-                  break;
             }
-            break;
-          }
 
-          case Value:
-          {
-            switch(c)
+            case Value:
             {
-              case '\\':
-                if(i < line.length() - 1)
+                switch (c)
                 {
-                    c = line[++i];
-                    switch(c)
-                    {
-                      case '\\':
-                      case '#':
-                      case '=':
+                    case '\\':
+                        if (i < line.length() - 1)
+                        {
+                            c = line[++i];
+                            switch (c)
+                            {
+                                case '\\':
+                                case '#':
+                                case '=':
+                                    value += value.length() == 0 ? escapedspace : whitespace;
+                                    whitespace.clear();
+                                    escapedspace.clear();
+                                    value += c;
+                                    break;
+
+                                case ' ':
+                                    whitespace += c;
+                                    escapedspace += c;
+                                    break;
+
+                                default:
+                                    value += value.length() == 0 ? escapedspace : whitespace;
+                                    whitespace.clear();
+                                    escapedspace.clear();
+                                    value += '\\';
+                                    value += c;
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            value += value.length() == 0 ? escapedspace : whitespace;
+                            value += c;
+                        }
+                        break;
+
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        if (value.length() != 0)
+                        {
+                            whitespace += c;
+                        }
+                        break;
+
+                    case '#':
+                        finished = true;
+                        break;
+
+                    default:
                         value += value.length() == 0 ? escapedspace : whitespace;
                         whitespace.clear();
                         escapedspace.clear();
                         value += c;
                         break;
-
-                      case ' ':
-                        whitespace += c;
-                        escapedspace += c;
-                        break;
-
-                      default:
-                        value += value.length() == 0 ? escapedspace : whitespace;
-                        whitespace.clear();
-                        escapedspace.clear();
-                        value += '\\';
-                        value += c;
-                        break;
-                    }
-                }
-                else
-                {
-                    value += value.length() == 0 ? escapedspace : whitespace;
-                    value += c;
                 }
                 break;
-
-              case ' ':
-              case '\t':
-              case '\r':
-              case '\n':
-                  if(value.length() != 0)
-                  {
-                      whitespace += c;
-                  }
-                  break;
-
-              case '#':
-                  finished = true;
-                  break;
-
-              default:
-                  value += value.length() == 0 ? escapedspace : whitespace;
-                  whitespace.clear();
-                  escapedspace.clear();
-                  value += c;
-                  break;
             }
-            break;
-          }
         }
-        if(finished)
+        if (finished)
         {
             break;
         }
     }
     value += escapedspace;
 
-    if((state == Key && key.length() != 0) || (state == Value && key.length() == 0))
+    if ((state == Key && key.length() != 0) || (state == Value && key.length() == 0))
     {
         getProcessLogger()->warning("invalid config file entry: \"" + line + "\"");
         return;
     }
-    else if(key.length() == 0)
+    else if (key.length() == 0)
     {
         return;
     }
@@ -697,17 +696,17 @@ void
 Ice::PropertiesI::loadConfig()
 {
     string value = getProperty("Ice.Config");
-    if(value.empty() || value == "1")
+    if (value.empty() || value == "1")
     {
 #ifdef _WIN32
         vector<wchar_t> v(256);
         DWORD ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], static_cast<DWORD>(v.size()));
-        if(ret >= v.size())
+        if (ret >= v.size())
         {
             v.resize(ret + 1);
             ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], static_cast<DWORD>(v.size()));
         }
-        if(ret > 0)
+        if (ret > 0)
         {
             value = wstringToString(wstring(&v[0], ret), getProcessStringConverter());
         }
@@ -716,19 +715,19 @@ Ice::PropertiesI::loadConfig()
             value = "";
         }
 #else
-       const char* s = getenv("ICE_CONFIG");
-       if(s && *s != '\0')
-       {
-           value = s;
-       }
+        const char* s = getenv("ICE_CONFIG");
+        if (s && *s != '\0')
+        {
+            value = s;
+        }
 #endif
     }
 
-    if(!value.empty())
+    if (!value.empty())
     {
         vector<string> files;
         IceUtilInternal::splitString(value, ",", files);
-        for(vector<string>::const_iterator i = files.begin(); i != files.end(); ++i)
+        for (vector<string>::const_iterator i = files.begin(); i != files.end(); ++i)
         {
             load(IceUtilInternal::trim(*i));
         }

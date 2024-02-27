@@ -22,23 +22,23 @@ IceInternal::ServantManager::addServant(const shared_ptr<Object>& object, const 
 
     ServantMapMap::iterator p = _servantMapMapHint;
 
-    if(p == _servantMapMap.end() || p->first != ident)
+    if (p == _servantMapMap.end() || p->first != ident)
     {
         p = _servantMapMap.find(ident);
     }
 
-    if(p == _servantMapMap.end())
+    if (p == _servantMapMap.end())
     {
         p = _servantMapMap.insert(_servantMapMapHint, pair<const Identity, FacetMap>(ident, FacetMap()));
     }
     else
     {
-        if(p->second.find(facet) != p->second.end())
+        if (p->second.find(facet) != p->second.end())
         {
             ToStringMode toStringMode = _instance->toStringMode();
             ostringstream os;
             os << Ice::identityToString(ident, toStringMode);
-            if(!facet.empty())
+            if (!facet.empty())
             {
                 os << " -f " << escapeString(facet, "", toStringMode);
             }
@@ -59,7 +59,7 @@ IceInternal::ServantManager::addDefaultServant(const shared_ptr<Object>& object,
     assert(_instance); // Must not be called after destruction.
 
     DefaultServantMap::iterator p = _defaultServantMap.find(category);
-    if(p != _defaultServantMap.end())
+    if (p != _defaultServantMap.end())
     {
         throw AlreadyRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
@@ -84,17 +84,17 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     ServantMapMap::iterator p = _servantMapMapHint;
     FacetMap::iterator q;
 
-    if(p == _servantMapMap.end() || p->first != ident)
+    if (p == _servantMapMap.end() || p->first != ident)
     {
         p = _servantMapMap.find(ident);
     }
 
-    if(p == _servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
+    if (p == _servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
         ToStringMode toStringMode = _instance->toStringMode();
         ostringstream os;
         os << Ice::identityToString(ident, toStringMode);
-        if(!facet.empty())
+        if (!facet.empty())
         {
             os << " -f " + escapeString(facet, "", toStringMode);
         }
@@ -104,9 +104,9 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     servant = q->second;
     p->second.erase(q);
 
-    if(p->second.empty())
+    if (p->second.empty())
     {
-        if(p == _servantMapMapHint)
+        if (p == _servantMapMapHint)
         {
             _servantMapMap.erase(p++);
             _servantMapMapHint = p;
@@ -134,7 +134,7 @@ IceInternal::ServantManager::removeDefaultServant(const string& category)
     assert(_instance); // Must not be called after destruction.
 
     DefaultServantMap::iterator p = _defaultServantMap.find(category);
-    if(p == _defaultServantMap.end())
+    if (p == _defaultServantMap.end())
     {
         throw NotRegisteredException(__FILE__, __LINE__, "default servant", category);
     }
@@ -154,12 +154,12 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 
     ServantMapMap::iterator p = _servantMapMapHint;
 
-    if(p == _servantMapMap.end() || p->first != ident)
+    if (p == _servantMapMap.end() || p->first != ident)
     {
         p = _servantMapMap.find(ident);
     }
 
-    if(p == _servantMapMap.end())
+    if (p == _servantMapMap.end())
     {
         throw NotRegisteredException(__FILE__, __LINE__, "servant",
                                      Ice::identityToString(ident, _instance->toStringMode()));
@@ -167,7 +167,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 
     FacetMap result = p->second;
 
-    if(p == _servantMapMapHint)
+    if (p == _servantMapMapHint)
     {
         _servantMapMap.erase(p++);
         _servantMapMapHint = p;
@@ -191,25 +191,25 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
     // requests are received over the bidir connection after the
     // adapter was deactivated.
     //
-    //assert(_instance); // Must not be called after destruction.
+    // assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
     FacetMap::iterator q;
 
     ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
-    if(p == servantMapMap.end() || p->first != ident)
+    if (p == servantMapMap.end() || p->first != ident)
     {
         p = servantMapMap.find(ident);
     }
 
-    if(p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
+    if (p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
         DefaultServantMap::const_iterator d = _defaultServantMap.find(ident.category);
-        if(d == _defaultServantMap.end())
+        if (d == _defaultServantMap.end())
         {
             d = _defaultServantMap.find("");
-            if(d == _defaultServantMap.end())
+            if (d == _defaultServantMap.end())
             {
                 return 0;
             }
@@ -236,7 +236,7 @@ IceInternal::ServantManager::findDefaultServant(const string& category) const
     lock_guard lock(_mutex);
 
     DefaultServantMap::const_iterator p = _defaultServantMap.find(category);
-    if(p == _defaultServantMap.end())
+    if (p == _defaultServantMap.end())
     {
         return 0;
     }
@@ -257,12 +257,12 @@ IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 
     ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
-    if(p == servantMapMap.end() || p->first != ident)
+    if (p == servantMapMap.end() || p->first != ident)
     {
         p = servantMapMap.find(ident);
     }
 
-    if(p == servantMapMap.end())
+    if (p == servantMapMap.end())
     {
         return FacetMap();
     }
@@ -284,17 +284,17 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
     // requests are received over the bidir connection after the
     // adapter was deactivated.
     //
-    //assert(_instance); // Must not be called after destruction.
+    // assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
     ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
-    if(p == servantMapMap.end() || p->first != ident)
+    if (p == servantMapMap.end() || p->first != ident)
     {
         p = servantMapMap.find(ident);
     }
 
-    if(p == servantMapMap.end())
+    if (p == servantMapMap.end())
     {
         return false;
     }
@@ -313,13 +313,14 @@ IceInternal::ServantManager::addServantLocator(const shared_ptr<ServantLocator>&
 
     assert(_instance); // Must not be called after destruction.
 
-    if((_locatorMapHint != _locatorMap.end() && _locatorMapHint->first == category)
-       || _locatorMap.find(category) != _locatorMap.end())
+    if ((_locatorMapHint != _locatorMap.end() && _locatorMapHint->first == category) ||
+        _locatorMap.find(category) != _locatorMap.end())
     {
         throw AlreadyRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
 
-    _locatorMapHint = _locatorMap.insert(_locatorMapHint, pair<const string, shared_ptr<ServantLocator>>(category, locator));
+    _locatorMapHint =
+        _locatorMap.insert(_locatorMapHint, pair<const string, shared_ptr<ServantLocator>>(category, locator));
 }
 
 shared_ptr<ServantLocator>
@@ -330,20 +331,20 @@ IceInternal::ServantManager::removeServantLocator(const string& category)
     assert(_instance); // Must not be called after destruction.
 
     map<string, shared_ptr<ServantLocator>>::iterator p = _locatorMap.end();
-    if(_locatorMapHint != p)
+    if (_locatorMapHint != p)
     {
-        if(_locatorMapHint->first == category)
+        if (_locatorMapHint->first == category)
         {
             p = _locatorMapHint;
         }
     }
 
-    if(p == _locatorMap.end())
+    if (p == _locatorMap.end())
     {
         p = _locatorMap.find(category);
     }
 
-    if(p == _locatorMap.end())
+    if (p == _locatorMap.end())
     {
         throw NotRegisteredException(__FILE__, __LINE__, "servant locator", category);
     }
@@ -365,26 +366,26 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
     // requests are received over the bidir connection after the
     // adapter was deactivated.
     //
-    //assert(_instance); // Must not be called after destruction.
+    // assert(_instance); // Must not be called after destruction.
 
     map<string, shared_ptr<ServantLocator>>& locatorMap =
         const_cast<map<string, shared_ptr<ServantLocator>>&>(_locatorMap);
 
     map<string, shared_ptr<ServantLocator>>::iterator p = locatorMap.end();
-    if(_locatorMapHint != locatorMap.end())
+    if (_locatorMapHint != locatorMap.end())
     {
-        if(_locatorMapHint->first == category)
+        if (_locatorMapHint->first == category)
         {
             p = _locatorMapHint;
         }
     }
 
-    if(p == locatorMap.end())
+    if (p == locatorMap.end())
     {
         p = locatorMap.find(category);
     }
 
-    if(p != locatorMap.end())
+    if (p != locatorMap.end())
     {
         _locatorMapHint = p;
         return p->second;
@@ -410,7 +411,7 @@ IceInternal::ServantManager::~ServantManager()
     // not been called if the associated object adapter was not
     // properly deactivated.
     //
-    //assert(!_instance);
+    // assert(!_instance);
 }
 
 void
@@ -426,7 +427,7 @@ IceInternal::ServantManager::destroy()
         //
         // If the ServantManager has already been destroyed, we're done.
         //
-        if(!_instance)
+        if (!_instance)
         {
             return;
         }
@@ -444,13 +445,13 @@ IceInternal::ServantManager::destroy()
         _instance = 0;
     }
 
-    for(map<string, shared_ptr<ServantLocator>>::const_iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
+    for (map<string, shared_ptr<ServantLocator>>::const_iterator p = locatorMap.begin(); p != locatorMap.end(); ++p)
     {
         try
         {
             p->second->deactivate(p->first);
         }
-        catch(const Exception& ex)
+        catch (const Exception& ex)
         {
             Error out(logger);
             out << "exception during locator deactivation:\n"
@@ -458,7 +459,7 @@ IceInternal::ServantManager::destroy()
                 << "locator category: `" << p->first << "'\n"
                 << ex;
         }
-        catch(...)
+        catch (...)
         {
             Error out(logger);
             out << "unknown exception during locator deactivation:\n"

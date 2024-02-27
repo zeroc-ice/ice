@@ -18,62 +18,60 @@
 namespace Ice
 {
 
-class ObjectAdapterI;
+    class ObjectAdapterI;
 
 }
 
 namespace IceInternal
 {
 
-class OutgoingAsyncBase;
-class OutgoingAsync;
+    class OutgoingAsyncBase;
+    class OutgoingAsync;
 
-class CollocatedRequestHandler : public RequestHandler, public ResponseHandler
-{
-public:
-
-    CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
-    virtual ~CollocatedRequestHandler();
-
-    virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
-
-    virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
-
-    virtual void sendResponse(std::int32_t, Ice::OutputStream*, Ice::Byte, bool);
-    virtual void sendNoResponse();
-    virtual bool systemException(std::int32_t, std::exception_ptr, bool);
-    virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
-
-    virtual Ice::ConnectionIPtr getConnection();
-    virtual Ice::ConnectionIPtr waitForConnection();
-
-    AsyncStatus invokeAsyncRequest(OutgoingAsyncBase*, int, bool);
-
-    bool sentAsync(OutgoingAsyncBase*);
-
-    void invokeAll(Ice::OutputStream*, std::int32_t, std::int32_t);
-
-    std::shared_ptr<CollocatedRequestHandler> shared_from_this()
+    class CollocatedRequestHandler : public RequestHandler, public ResponseHandler
     {
-        return std::static_pointer_cast<CollocatedRequestHandler>(ResponseHandler::shared_from_this());
-    }
+    public:
+        CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
+        virtual ~CollocatedRequestHandler();
 
-private:
+        virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&);
 
-    void handleException(std::int32_t, std::exception_ptr, bool);
+        virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
-    const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
-    const bool _dispatcher;
-    const Ice::LoggerPtr _logger;
-    const TraceLevelsPtr _traceLevels;
+        virtual void sendResponse(std::int32_t, Ice::OutputStream*, Ice::Byte, bool);
+        virtual void sendNoResponse();
+        virtual bool systemException(std::int32_t, std::exception_ptr, bool);
+        virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
 
-    int _requestId;
-    std::map<OutgoingAsyncBasePtr, std::int32_t> _sendAsyncRequests;
-    std::map<std::int32_t, OutgoingAsyncBasePtr> _asyncRequests;
+        virtual Ice::ConnectionIPtr getConnection();
+        virtual Ice::ConnectionIPtr waitForConnection();
 
-    std::mutex _mutex;
-};
-using CollocatedRequestHandlerPtr = std::shared_ptr<CollocatedRequestHandler>;
+        AsyncStatus invokeAsyncRequest(OutgoingAsyncBase*, int, bool);
+
+        bool sentAsync(OutgoingAsyncBase*);
+
+        void invokeAll(Ice::OutputStream*, std::int32_t, std::int32_t);
+
+        std::shared_ptr<CollocatedRequestHandler> shared_from_this()
+        {
+            return std::static_pointer_cast<CollocatedRequestHandler>(ResponseHandler::shared_from_this());
+        }
+
+    private:
+        void handleException(std::int32_t, std::exception_ptr, bool);
+
+        const std::shared_ptr<Ice::ObjectAdapterI> _adapter;
+        const bool _dispatcher;
+        const Ice::LoggerPtr _logger;
+        const TraceLevelsPtr _traceLevels;
+
+        int _requestId;
+        std::map<OutgoingAsyncBasePtr, std::int32_t> _sendAsyncRequests;
+        std::map<std::int32_t, OutgoingAsyncBasePtr> _asyncRequests;
+
+        std::mutex _mutex;
+    };
+    using CollocatedRequestHandlerPtr = std::shared_ptr<CollocatedRequestHandler>;
 
 }
 

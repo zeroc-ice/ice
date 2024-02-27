@@ -10,22 +10,21 @@ using namespace std;
 using namespace Test;
 
 Glacier2::SessionPrxPtr
-SessionManagerI::create(string userId, Glacier2::SessionControlPrxPtr sessionControl,
-                        const Ice::Current& current)
+SessionManagerI::create(string userId, Glacier2::SessionControlPrxPtr sessionControl, const Ice::Current& current)
 {
-    if(userId == "rejectme")
+    if (userId == "rejectme")
     {
         throw Glacier2::CannotCreateSessionException("");
     }
-    if(userId == "localexception")
+    if (userId == "localexception")
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    return Ice::uncheckedCast<Glacier2::SessionPrx>(current.adapter->addWithUUID(make_shared<SessionI>(sessionControl)));
+    return Ice::uncheckedCast<Glacier2::SessionPrx>(
+        current.adapter->addWithUUID(make_shared<SessionI>(sessionControl)));
 }
 
-SessionI::SessionI(Glacier2::SessionControlPrxPtr sessionControl) :
-    _sessionControl(std::move(sessionControl))
+SessionI::SessionI(Glacier2::SessionControlPrxPtr sessionControl) : _sessionControl(std::move(sessionControl))
 {
     assert(_sessionControl);
 }
@@ -33,7 +32,7 @@ SessionI::SessionI(Glacier2::SessionControlPrxPtr sessionControl) :
 void
 SessionI::destroyFromClientAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current&)
 {
-    _sessionControl->destroyAsync(std::move(response), [](exception_ptr){ test(false); });
+    _sessionControl->destroyAsync(std::move(response), [](exception_ptr) { test(false); });
 }
 
 void

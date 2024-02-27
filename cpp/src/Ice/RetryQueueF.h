@@ -10,8 +10,8 @@
 namespace IceInternal
 {
 
-class RetryQueue;
-using RetryQueuePtr = std::shared_ptr<RetryQueue>;
+    class RetryQueue;
+    using RetryQueuePtr = std::shared_ptr<RetryQueue>;
 
 }
 

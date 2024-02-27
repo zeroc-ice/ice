@@ -12,19 +12,18 @@ using namespace Test;
 namespace
 {
 
-Ice::IPConnectionInfoPtr
-getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
-{
-    for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
+    Ice::IPConnectionInfoPtr getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
     {
-        Ice::IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
-        if(ipInfo)
+        for (Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
         {
-            return ipInfo;
+            Ice::IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
+            if (ipInfo)
+            {
+                return ipInfo;
+            }
         }
+        return nullptr;
     }
-    return nullptr;
-}
 
 }
 
@@ -37,7 +36,7 @@ allTests(Test::TestHelper* helper)
     test(obj);
 
     int proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.HTTPProxyPort");
-    if(proxyPort == 0)
+    if (proxyPort == 0)
     {
         proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.SOCKSProxyPort");
     }
@@ -71,7 +70,7 @@ allTests(Test::TestHelper* helper)
             test->ice_ping();
             test(false);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
         }
     }

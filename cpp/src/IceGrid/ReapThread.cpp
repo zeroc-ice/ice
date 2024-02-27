@@ -8,11 +8,11 @@
 using namespace std;
 using namespace IceGrid;
 
-ReapThread::ReapThread() :
-    _closeCallback([this](const auto& con) { connectionClosed(con); }),
-    _heartbeatCallback([this](const auto& con) { connectionHeartbeat(con); }),
-    _terminated(false),
-    _thread([this] { run(); })
+ReapThread::ReapThread()
+    : _closeCallback([this](const auto& con) { connectionClosed(con); }),
+      _heartbeatCallback([this](const auto& con) { connectionHeartbeat(con); }),
+      _terminated(false),
+      _thread([this] { run(); })
 {
 }
 
@@ -20,11 +20,11 @@ void
 ReapThread::run()
 {
     vector<ReapableItem> reap;
-    while(true)
+    while (true)
     {
         {
             unique_lock lock(_mutex);
-            if(_terminated)
+            if (_terminated)
             {
                 break;
             }
@@ -34,7 +34,7 @@ ReapThread::run()
             //
             // If the wake interval is zero then we wait forever.
             //
-            if(_wakeInterval == 0s)
+            if (_wakeInterval == 0s)
             {
                 _condVar.wait(lock);
             }
@@ -43,23 +43,23 @@ ReapThread::run()
                 _condVar.wait_for(lock, _wakeInterval);
             }
 
-            if(_terminated)
+            if (_terminated)
             {
                 break;
             }
 
             auto p = _sessions.begin();
-            while(p != _sessions.end())
+            while (p != _sessions.end())
             {
                 try
                 {
-                    if(p->timeout == 0s)
+                    if (p->timeout == 0s)
                     {
                         p->item->timestamp(); // This should throw if the reapable is destroyed.
                         ++p;
                         continue;
                     }
-                    else if((chrono::steady_clock::now() - p->item->timestamp()) > p->timeout)
+                    else if ((chrono::steady_clock::now() - p->item->timestamp()) > p->timeout)
                     {
                         reap.push_back(*p);
                     }
@@ -69,20 +69,20 @@ ReapThread::run()
                         continue;
                     }
                 }
-                catch(const Ice::ObjectNotExistException&)
+                catch (const Ice::ObjectNotExistException&)
                 {
                 }
 
                 //
                 // Remove the reapable
                 //
-                if(p->connection)
+                if (p->connection)
                 {
                     auto q = _connections.find(p->connection);
-                    if(q != _connections.end())
+                    if (q != _connections.end())
                     {
                         q->second.erase(p->item);
-                        if(q->second.empty())
+                        if (q->second.empty())
                         {
                             p->connection->setCloseCallback(nullptr);
                             p->connection->setHeartbeatCallback(nullptr);
@@ -94,7 +94,7 @@ ReapThread::run()
             }
         }
 
-        for(const auto& r : reap)
+        for (const auto& r : reap)
         {
             r.item->destroy(false);
         }
@@ -108,7 +108,7 @@ ReapThread::terminate()
     list<ReapableItem> reap;
     {
         lock_guard lock(_mutex);
-        if(_terminated)
+        if (_terminated)
         {
             assert(_sessions.empty());
             return;
@@ -117,7 +117,7 @@ ReapThread::terminate()
         _condVar.notify_one();
         reap.swap(_sessions);
 
-        for(const auto& conn : _connections)
+        for (const auto& conn : _connections)
         {
             conn.first->setCloseCallback(nullptr);
             conn.first->setHeartbeatCallback(nullptr);
@@ -127,7 +127,7 @@ ReapThread::terminate()
         _heartbeatCallback = nullptr;
     }
 
-    for(const auto& r : reap)
+    for (const auto& r : reap)
     {
         r.item->destroy(true);
     }
@@ -140,11 +140,12 @@ ReapThread::join()
 }
 
 void
-ReapThread::add(const shared_ptr<Reapable>& reapable, chrono::seconds timeout,
+ReapThread::add(const shared_ptr<Reapable>& reapable,
+                chrono::seconds timeout,
                 const shared_ptr<Ice::Connection>& connection)
 {
     lock_guard lock(_mutex);
-    if(_terminated)
+    if (_terminated)
     {
         return;
     }
@@ -157,32 +158,32 @@ ReapThread::add(const shared_ptr<Reapable>& reapable, chrono::seconds timeout,
     //
     // 10 seconds is the minimum permissable timeout.
     //
-    if(timeout > 0s && timeout < 10s)
+    if (timeout > 0s && timeout < 10s)
     {
         timeout = 10s;
     }
 
-    _sessions.push_back({ reapable, connection, timeout });
+    _sessions.push_back({reapable, connection, timeout});
 
-    if(connection)
+    if (connection)
     {
         auto p = _connections.find(connection);
-        if(p == _connections.end())
+        if (p == _connections.end())
         {
-            p = _connections.insert({connection, {} }).first;
+            p = _connections.insert({connection, {}}).first;
             connection->setCloseCallback(_closeCallback);
             connection->setHeartbeatCallback(_heartbeatCallback);
         }
         p->second.insert(reapable);
     }
 
-    if(timeout > 0s)
+    if (timeout > 0s)
     {
         //
         // If there is a new minimum wake interval then wake the reaping
         // thread.
         //
-        if(calcWakeInterval())
+        if (calcWakeInterval())
         {
             _condVar.notify_one();
         }
@@ -201,14 +202,14 @@ ReapThread::connectionHeartbeat(const shared_ptr<Ice::Connection>& con)
     lock_guard lock(_mutex);
 
     auto p = _connections.find(con);
-    if(p == _connections.end())
+    if (p == _connections.end())
     {
         con->setCloseCallback(nullptr);
         con->setHeartbeatCallback(nullptr);
         return;
     }
 
-    for(const auto& reapable : p->second)
+    for (const auto& reapable : p->second)
     {
         reapable->heartbeat();
     }
@@ -220,14 +221,14 @@ ReapThread::connectionClosed(const shared_ptr<Ice::Connection>& con)
     lock_guard lock(_mutex);
 
     auto p = _connections.find(con);
-    if(p == _connections.end())
+    if (p == _connections.end())
     {
         con->setCloseCallback(nullptr);
         con->setHeartbeatCallback(nullptr);
         return;
     }
 
-    for(const auto& reapable : p->second)
+    for (const auto& reapable : p->second)
     {
         reapable->destroy(false);
     }
@@ -245,9 +246,9 @@ ReapThread::calcWakeInterval()
     auto oldWakeInterval = _wakeInterval;
     chrono::milliseconds minimum = 0s;
     bool first = true;
-    for(const auto& session : _sessions)
+    for (const auto& session : _sessions)
     {
-        if(session.timeout != 0s && (first || session.timeout < minimum))
+        if (session.timeout != 0s && (first || session.timeout < minimum))
         {
             minimum = session.timeout;
             first = false;

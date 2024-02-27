@@ -22,9 +22,9 @@
 #include <IcePatch2Lib/Util.h>
 
 #ifdef _WIN32
-#   include <direct.h>
-#   include <sys/types.h>
-#   include <winsock2.h>
+#    include <direct.h>
+#    include <sys/types.h>
+#    include <winsock2.h>
 #endif
 
 using namespace std;
@@ -35,75 +35,71 @@ using namespace IceGrid;
 namespace
 {
 
-class ProcessI final : public Process
-{
-public:
+    class ProcessI final : public Process
+    {
+    public:
+        ProcessI(const shared_ptr<Activator>&, const shared_ptr<Process>&);
 
-    ProcessI(const shared_ptr<Activator>&, const shared_ptr<Process>&);
+        void shutdown(const Current&) override;
+        void writeMessage(std::string, int, const Current&) override;
 
-    void shutdown(const Current&) override;
-    void writeMessage(std::string, int, const Current&) override;
+    private:
+        shared_ptr<Activator> _activator;
+        shared_ptr<Process> _origProcess;
+    };
 
-private:
+    class NodeService final : public Service
+    {
+    public:
+        bool shutdown() override;
 
-    shared_ptr<Activator> _activator;
-    shared_ptr<Process> _origProcess;
-};
+    protected:
+        bool start(int, char*[], int&) override;
+        bool startImpl(int, char*[], int&);
+        void waitForShutdown() override;
+        bool stop() override;
+        shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
 
-class NodeService final : public Service
-{
-public:
+    private:
+        void usage(const std::string&);
 
-    bool shutdown() override;
+        shared_ptr<Activator> _activator;
+        IceUtil::TimerPtr _timer;
+        shared_ptr<RegistryI> _registry;
+        shared_ptr<NodeI> _node;
+        unique_ptr<NodeSessionManager> _sessions;
+        shared_ptr<ObjectAdapter> _adapter;
+    };
 
-protected:
+    class CollocatedRegistry final : public RegistryI
+    {
+    public:
+        CollocatedRegistry(const shared_ptr<Communicator>&,
+                           const shared_ptr<Activator>&,
+                           bool,
+                           bool,
+                           const std::string&,
+                           const std::string&);
+        void shutdown() override;
 
-    bool start(int, char*[], int&) override;
-    bool startImpl(int, char*[], int&);
-    void waitForShutdown() override;
-    bool stop() override;
-    shared_ptr<Communicator> initializeCommunicator(int&, char*[], const InitializationData&, int) override;
-
-private:
-
-    void usage(const std::string&);
-
-    shared_ptr<Activator> _activator;
-    IceUtil::TimerPtr _timer;
-    shared_ptr<RegistryI> _registry;
-    shared_ptr<NodeI> _node;
-    unique_ptr<NodeSessionManager> _sessions;
-    shared_ptr<ObjectAdapter> _adapter;
-};
-
-class CollocatedRegistry final : public RegistryI
-{
-public:
-
-    CollocatedRegistry(const shared_ptr<Communicator>&, const shared_ptr<Activator>&, bool, bool, const std::string&,
-                       const std::string&);
-    void shutdown() override;
-
-private:
-
-    shared_ptr<Activator> _activator;
-};
+    private:
+        shared_ptr<Activator> _activator;
+    };
 
 #ifdef _WIN32
-void
-setNoIndexingAttribute(const string& path)
-{
-    wstring wpath = Ice::stringToWstring(path);
-    DWORD attrs = GetFileAttributesW(wpath.c_str());
-    if(attrs == INVALID_FILE_ATTRIBUTES)
+    void setNoIndexingAttribute(const string& path)
     {
-        throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
+        wstring wpath = Ice::stringToWstring(path);
+        DWORD attrs = GetFileAttributesW(wpath.c_str());
+        if (attrs == INVALID_FILE_ATTRIBUTES)
+        {
+            throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
+        }
+        if (!SetFileAttributesW(wpath.c_str(), attrs | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
+        {
+            throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
+        }
     }
-    if(!SetFileAttributesW(wpath.c_str(), attrs | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
-    {
-        throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
-    }
-}
 #endif
 
 }
@@ -113,9 +109,9 @@ CollocatedRegistry::CollocatedRegistry(const shared_ptr<Communicator>& com,
                                        bool nowarn,
                                        bool readonly,
                                        const string& initFromReplica,
-                                       const string& nodeName) :
-    RegistryI(com, make_shared<TraceLevels>(com, "IceGrid.Registry"), nowarn, readonly, initFromReplica, nodeName),
-    _activator(activator)
+                                       const string& nodeName)
+    : RegistryI(com, make_shared<TraceLevels>(com, "IceGrid.Registry"), nowarn, readonly, initFromReplica, nodeName),
+      _activator(activator)
 {
 }
 
@@ -125,9 +121,9 @@ CollocatedRegistry::shutdown()
     _activator->shutdown();
 }
 
-ProcessI::ProcessI(const shared_ptr<Activator>& activator, const shared_ptr<Process>& origProcess) :
-    _activator(activator),
-    _origProcess(origProcess)
+ProcessI::ProcessI(const shared_ptr<Activator>& activator, const shared_ptr<Process>& origProcess)
+    : _activator(activator),
+      _origProcess(origProcess)
 {
 }
 
@@ -154,7 +150,7 @@ NodeService::shutdown()
     // the session creation. This is necessary to unblock the main thread which might
     // be waiting for waitForCreate to return.
     //
-    if(_sessions->isWaitingForCreate())
+    if (_sessions->isWaitingForCreate())
     {
         _sessions->terminate();
     }
@@ -167,13 +163,13 @@ NodeService::start(int argc, char* argv[], int& status)
 {
     try
     {
-        if(!startImpl(argc, argv, status))
+        if (!startImpl(argc, argv, status))
         {
             stop();
             return false;
         }
     }
-    catch(...)
+    catch (...)
     {
         stop();
         throw;
@@ -190,31 +186,31 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string desc;
     vector<string> targets;
 
-    for(int i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
-        if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
         {
             usage(argv[0]);
             status = EXIT_SUCCESS;
             return false;
         }
-        else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+        else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
         {
             print(ICE_STRING_VERSION);
             status = EXIT_SUCCESS;
             return false;
         }
-        else if(strcmp(argv[i], "--nowarn") == 0)
+        else if (strcmp(argv[i], "--nowarn") == 0)
         {
             nowarn = true;
         }
-        else if(strcmp(argv[i], "--readonly") == 0)
+        else if (strcmp(argv[i], "--readonly") == 0)
         {
             readonly = true;
         }
-        else if(strcmp(argv[i], "--initdb-from-replica") == 0)
+        else if (strcmp(argv[i], "--initdb-from-replica") == 0)
         {
-            if(i + 1 >= argc)
+            if (i + 1 >= argc)
             {
                 error("missing replica argument for option `" + string(argv[i]) + "'");
                 usage(argv[0]);
@@ -223,9 +219,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             initFromReplica = argv[++i];
         }
-        else if(strcmp(argv[i], "--deploy") == 0)
+        else if (strcmp(argv[i], "--deploy") == 0)
         {
-            if(i + 1 >= argc)
+            if (i + 1 >= argc)
             {
                 error("missing descriptor argument for option `" + string(argv[i]) + "'");
                 usage(argv[0]);
@@ -234,7 +230,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             desc = argv[++i];
 
-            while(i + 1 < argc && argv[++i][0] != '-')
+            while (i + 1 < argc && argv[++i][0] != '-')
             {
                 targets.push_back(argv[i]);
             }
@@ -250,7 +246,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     auto properties = communicator()->getProperties();
 
     string name = properties->getProperty("IceGrid.Node.Name");
-    if(name.empty())
+    if (name.empty())
     {
         error("property `IceGrid.Node.Name' is not set");
         return false;
@@ -270,7 +266,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
     //
-    if(!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
+    if (!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
         Warning out(communicator()->getLogger());
         out << "setting `Ice.ThreadPool.Server.Size' is not useful, ";
@@ -282,16 +278,17 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create the activator.
     //
-    auto traceLevels =  make_shared<TraceLevels>(communicator(), "IceGrid.Node");
+    auto traceLevels = make_shared<TraceLevels>(communicator(), "IceGrid.Node");
     _activator = make_shared<Activator>(traceLevels);
 
     //
     // Collocate the IceGrid registry if we need to.
     //
-    if(properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
+    if (properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
-        _registry = make_shared<CollocatedRegistry>(communicator(), _activator, nowarn, readonly, initFromReplica, name);
-        if(!_registry->start())
+        _registry =
+            make_shared<CollocatedRegistry>(communicator(), _activator, nowarn, readonly, initFromReplica, name);
+        if (!_registry->start())
         {
             return false;
         }
@@ -304,12 +301,12 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         // activated server). The default locator is also needed by
         // the node session manager.
         //
-        if(properties->getProperty("Ice.Default.Locator").empty())
+        if (properties->getProperty("Ice.Default.Locator").empty())
         {
             properties->setProperty("Ice.Default.Locator", communicator()->getDefaultLocator()->ice_toString());
         }
     }
-    else if(!communicator()->getDefaultLocator())
+    else if (!communicator()->getDefaultLocator())
     {
         error("property `Ice.Default.Locator' is not set");
         return false;
@@ -319,14 +316,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     // Initialize the database environment (first setup the directory structure if needed).
     //
     string dataPath = properties->getProperty("IceGrid.Node.Data");
-    if(dataPath.empty())
+    if (dataPath.empty())
     {
         error("property `IceGrid.Node.Data' is not set");
         return false;
     }
     else
     {
-        if(!IceUtilInternal::directoryExists(dataPath))
+        if (!IceUtilInternal::directoryExists(dataPath))
         {
             FileException ex(__FILE__, __LINE__, IceInternal::getSystemErrno(), dataPath);
             ServiceError err(this);
@@ -337,7 +334,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         //
         // Creates subdirectories.
         //
-        if(dataPath[dataPath.length() - 1] != '/')
+        if (dataPath[dataPath.length() - 1] != '/')
         {
             dataPath += "/";
         }
@@ -359,9 +356,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             setNoIndexingAttribute(dataPath + "tmp");
             setNoIndexingAttribute(dataPath + "distrib");
         }
-        catch(const FileException& ex)
+        catch (const FileException& ex)
         {
-            if(!nowarn)
+            if (!nowarn)
             {
                 Warning out(communicator()->getLogger());
                 out << "couldn't disable file indexing:\n" << ex;
@@ -373,7 +370,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Check that required properties are set and valid.
     //
-    if(properties->getProperty("IceGrid.Node.Endpoints").empty())
+    if (properties->getProperty("IceGrid.Node.Endpoints").empty())
     {
         error("property `IceGrid.Node.Endpoints' is not set");
         return false;
@@ -390,13 +387,13 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string mapperProperty = "IceGrid.Node.UserAccountMapper";
     string mapperPropertyValue = properties->getProperty(mapperProperty);
     UserAccountMapperPrxPtr mapper;
-    if(!mapperPropertyValue.empty())
+    if (!mapperPropertyValue.empty())
     {
         try
         {
             mapper = uncheckedCast<UserAccountMapperPrx>(communicator()->propertyToProxy(mapperProperty));
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             ServiceError err(this);
             err << "user account mapper `" << mapperProperty << "' is invalid:\n" << ex;
@@ -406,14 +403,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     else
     {
         string userAccountFileProperty = properties->getProperty("IceGrid.Node.UserAccounts");
-        if(!userAccountFileProperty.empty())
+        if (!userAccountFileProperty.empty())
         {
             try
             {
                 auto object = _adapter->addWithUUID(make_shared<FileUserAccountMapperI>(userAccountFileProperty));
                 mapper = uncheckedCast<UserAccountMapperPrx>(object);
             }
-            catch(const exception& ex)
+            catch (const exception& ex)
             {
                 error(ex.what());
                 return false;
@@ -430,15 +427,15 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     // The IceGrid instance name.
     //
     string instanceName = properties->getProperty("IceGrid.InstanceName");
-    if(instanceName.empty())
+    if (instanceName.empty())
     {
         instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }
-    if(instanceName.empty())
+    if (instanceName.empty())
     {
         instanceName = communicator()->getDefaultLocator()->ice_getIdentity().category;
     }
-    if(instanceName.empty())
+    if (instanceName.empty())
     {
         instanceName = "IceGrid";
     }
@@ -473,13 +470,13 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Ensures that the locator is reachable.
     //
-    if(!nowarn)
+    if (!nowarn)
     {
         try
         {
             communicator()->getDefaultLocator()->ice_timeout(1000)->ice_ping();
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             Warning out(communicator()->getLogger());
             out << "couldn't reach the IceGrid registry (this is expected ";
@@ -496,12 +493,12 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create Admin unless there is a collocated registry with its own Admin
     //
-    if(!_registry && properties->getPropertyAsInt("Ice.Admin.Enabled") > 0)
+    if (!_registry && properties->getPropertyAsInt("Ice.Admin.Enabled") > 0)
     {
         // Replace Admin facet
         auto origProcess = dynamic_pointer_cast<Process>(communicator()->removeAdminFacet("Process"));
         communicator()->addAdminFacet(make_shared<ProcessI>(_activator, origProcess), "Process");
-        communicator()->createAdmin(_adapter, { "NodeAdmin-" + name, instanceName });
+        communicator()->createAdmin(_adapter, {"NodeAdmin-" + name, instanceName});
     }
 
     //
@@ -521,10 +518,10 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     _sessions->activate();
 
     string bundleName = properties->getProperty("IceGrid.Node.PrintServersReady");
-    if(!bundleName.empty() || !desc.empty())
+    if (!bundleName.empty() || !desc.empty())
     {
         enableInterrupt();
-        if(!_sessions->waitForCreate())
+        if (!_sessions->waitForCreate())
         {
             //
             // Create was interrupted, return true as if the service was
@@ -538,14 +535,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Deploy application if a descriptor is passed as a command-line option.
     //
-    if(!desc.empty())
+    if (!desc.empty())
     {
         try
         {
-            Ice::Identity regId = { "Registry", instanceName };
+            Ice::Identity regId = {"Registry", instanceName};
 
             auto registry = checkedCast<RegistryPrx>(communicator()->getDefaultLocator()->findObjectById(regId));
-            if(!registry)
+            if (!registry)
             {
                 throw runtime_error("invalid registry");
             }
@@ -553,7 +550,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             registry = registry->ice_preferSecure(true); // Use SSL if available.
 
             AdminSessionPrxPtr session;
-            if(communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
+            if (communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
             {
                 session = registry->createAdminSessionFromSecureConnection();
             }
@@ -561,14 +558,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             {
                 string username = communicator()->getProperties()->getProperty("IceGridAdmin.Username");
                 string password = communicator()->getProperties()->getProperty("IceGridAdmin.Password");
-                while(username.empty())
+                while (username.empty())
                 {
                     consoleOut << "user id: " << flush;
                     getline(cin, username);
                     username = IceUtilInternal::trim(username);
                 }
 
-                if(password.empty())
+                if (password.empty())
                 {
                     consoleOut << "password: " << flush;
                     getline(cin, password);
@@ -587,30 +584,30 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             {
                 admin->syncApplication(app);
             }
-            catch(const ApplicationNotExistException&)
+            catch (const ApplicationNotExistException&)
             {
                 admin->addApplication(app);
             }
         }
-        catch(const DeploymentException& ex)
+        catch (const DeploymentException& ex)
         {
             ServiceWarning warn(this);
             warn << "failed to deploy application `" << desc << "':\n" << ex;
         }
-        catch(const AccessDeniedException& ex)
+        catch (const AccessDeniedException& ex)
         {
             ServiceWarning warn(this);
             warn << "failed to deploy application `" << desc << "':\n"
                  << "registry database is locked by `" << ex.lockUserId << "'";
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             ServiceWarning warn(this);
             warn << "failed to deploy application `" << desc << "':\n" << ex.what();
         }
     }
 
-    if(!bundleName.empty())
+    if (!bundleName.empty())
     {
         print(bundleName + " ready");
     }
@@ -633,20 +630,20 @@ NodeService::waitForShutdown()
 bool
 NodeService::stop()
 {
-    if(_activator)
+    if (_activator)
     {
         try
         {
             _activator->shutdown();
             _activator->destroy();
         }
-        catch(...)
+        catch (...)
         {
             assert(false);
         }
     }
 
-    if(_timer)
+    if (_timer)
     {
         //
         // The timer must be destroyed after the activator and before the
@@ -656,7 +653,7 @@ NodeService::stop()
         {
             _timer->destroy();
         }
-        catch(...)
+        catch (...)
         {
             assert(false);
         }
@@ -666,14 +663,14 @@ NodeService::stop()
     //
     // Deactivate the node object adapter.
     //
-    if(_adapter)
+    if (_adapter)
     {
         try
         {
             _adapter->deactivate();
             _adapter = nullptr;
         }
-        catch(const std::exception& ex)
+        catch (const std::exception& ex)
         {
             ServiceWarning warn(this);
             warn << "unexpected exception while shutting down node:\n" << ex;
@@ -683,7 +680,7 @@ NodeService::stop()
     //
     // Terminate the node sessions with the registries.
     //
-    if(_sessions.get())
+    if (_sessions.get())
     {
         _sessions->destroy();
     }
@@ -691,7 +688,7 @@ NodeService::stop()
     //
     // Stop the platform info thread.
     //
-    if(_node)
+    if (_node)
     {
         _node->getPlatformInfo().stop();
     }
@@ -704,7 +701,7 @@ NodeService::stop()
         communicator()->shutdown();
         communicator()->waitForShutdown();
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         ServiceWarning warn(this);
         warn << "unexpected exception while shutting down node:\n" << ex;
@@ -713,7 +710,7 @@ NodeService::stop()
     //
     // Break cylic reference counts.
     //
-    if(_node)
+    if (_node)
     {
         _node->shutdown();
         _node = nullptr;
@@ -722,7 +719,7 @@ NodeService::stop()
     //
     // And shutdown the collocated registry.
     //
-    if(_registry)
+    if (_registry)
     {
         _registry->stop();
         _registry = nullptr;
@@ -732,9 +729,7 @@ NodeService::stop()
 }
 
 shared_ptr<Communicator>
-NodeService::initializeCommunicator(int& argc, char* argv[],
-                                    const InitializationData& initializationData,
-                                    int version)
+NodeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData, int version)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
@@ -747,21 +742,22 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     vTypes.push_back("");
     vTypes.push_back("Admin");
 
-    for(const auto& type : vTypes)
+    for (const auto& type : vTypes)
     {
         string verifier = "IceGrid.Registry." + type + "PermissionsVerifier";
 
-        if(initData.properties->getProperty(verifier).empty())
+        if (initData.properties->getProperty(verifier).empty())
         {
             string cryptPasswords = initData.properties->getProperty("IceGrid.Registry." + type + "CryptPasswords");
 
-            if(!cryptPasswords.empty())
+            if (!cryptPasswords.empty())
             {
                 initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
                                                  "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
                 initData.properties->setProperty("Glacier2CryptPermissionsVerifier.IceGrid.Registry." + type +
-                                                 "PermissionsVerifier", cryptPasswords);
+                                                     "PermissionsVerifier",
+                                                 cryptPasswords);
             }
         }
     }
@@ -774,7 +770,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     //
     // Enable Admin unless explicitely disabled (or enabled) in configuration
     //
-    if(initData.properties->getProperty("Ice.Admin.Enabled").empty())
+    if (initData.properties->getProperty("Ice.Admin.Enabled").empty())
     {
         initData.properties->setProperty("Ice.Admin.Enabled", "1");
     }
@@ -795,27 +791,24 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
 void
 NodeService::usage(const string& appName)
 {
-    string options =
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        "--nowarn             Don't print any security warnings.\n"
-        "--readonly           Start the collocated master registry in read-only mode.\n"
-        "--initdb-from-replica <replica>\n"
-        "                     Initialize the collocated registry database from the\n"
-        "                     given replica.\n"
-        "--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
-        "                     Add or update descriptor in file DESCRIPTOR, with\n"
-        "                     optional targets.\n";
+    string options = "Options:\n"
+                     "-h, --help           Show this message.\n"
+                     "-v, --version        Display the Ice version.\n"
+                     "--nowarn             Don't print any security warnings.\n"
+                     "--readonly           Start the collocated master registry in read-only mode.\n"
+                     "--initdb-from-replica <replica>\n"
+                     "                     Initialize the collocated registry database from the\n"
+                     "                     given replica.\n"
+                     "--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
+                     "                     Add or update descriptor in file DESCRIPTOR, with\n"
+                     "                     optional targets.\n";
 #ifndef _WIN32
-    options.append(
-        "\n"
-        "\n"
-        "--daemon             Run as a daemon.\n"
-        "--noclose            Do not close open file descriptors.\n"
-        "--nochdir            Do not change the current working directory.\n"
-        "--pidfile FILE       Write process ID into FILE."
-    );
+    options.append("\n"
+                   "\n"
+                   "--daemon             Run as a daemon.\n"
+                   "--noclose            Do not close open file descriptors.\n"
+                   "--nochdir            Do not change the current working directory.\n"
+                   "--pidfile FILE       Write process ID into FILE.");
 #endif
     print("Usage: " + appName + " [options]\n" + options);
 }

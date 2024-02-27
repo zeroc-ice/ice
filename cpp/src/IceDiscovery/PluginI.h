@@ -11,25 +11,23 @@
 namespace IceDiscovery
 {
 
-class PluginI : public Ice::Plugin
-{
-public:
+    class PluginI : public Ice::Plugin
+    {
+    public:
+        PluginI(const Ice::CommunicatorPtr&);
 
-    PluginI(const Ice::CommunicatorPtr&);
+        virtual void initialize();
+        virtual void destroy();
 
-    virtual void initialize();
-    virtual void destroy();
-
-private:
-
-    const Ice::CommunicatorPtr _communicator;
-    Ice::ObjectAdapterPtr _multicastAdapter;
-    Ice::ObjectAdapterPtr _replyAdapter;
-    Ice::ObjectAdapterPtr _locatorAdapter;
-    LookupIPtr _lookup;
-    Ice::LocatorPrxPtr _locator;
-    Ice::LocatorPrxPtr _defaultLocator;
-};
+    private:
+        const Ice::CommunicatorPtr _communicator;
+        Ice::ObjectAdapterPtr _multicastAdapter;
+        Ice::ObjectAdapterPtr _replyAdapter;
+        Ice::ObjectAdapterPtr _locatorAdapter;
+        LookupIPtr _lookup;
+        Ice::LocatorPrxPtr _locator;
+        Ice::LocatorPrxPtr _defaultLocator;
+    };
 
 };
 

@@ -13,22 +13,21 @@ using namespace IcePy;
 namespace IcePy
 {
 
-struct BatchRequestObject
-{
-    PyObject_HEAD
-    const Ice::BatchRequest* request;
-    PyObject* size;
-    PyObject* operation;
-    PyObject* proxy;
-};
+    struct BatchRequestObject
+    {
+        PyObject_HEAD const Ice::BatchRequest* request;
+        PyObject* size;
+        PyObject* operation;
+        PyObject* proxy;
+    };
 
 }
 
 #ifdef WIN32
 extern "C"
 #endif
-static BatchRequestObject*
-batchRequestNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
+    static BatchRequestObject*
+    batchRequestNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("Batch requests can only be created by the Ice runtime"));
     return 0;
@@ -37,8 +36,8 @@ batchRequestNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 #ifdef WIN32
 extern "C"
 #endif
-static void
-batchRequestDealloc(BatchRequestObject* self)
+    static void
+    batchRequestDealloc(BatchRequestObject* self)
 {
     Py_XDECREF(self->size);
     Py_XDECREF(self->operation);
@@ -49,18 +48,18 @@ batchRequestDealloc(BatchRequestObject* self)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
+    static PyObject*
+    batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
-    if(!self->size)
+    if (!self->size)
     {
         int32_t size;
         try
         {
             size = self->request->getSize();
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             setPythonException(ex);
             return 0;
@@ -75,18 +74,18 @@ batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
+    static PyObject*
+    batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
-    if(!self->operation)
+    if (!self->operation)
     {
         string operation;
         try
         {
             operation = self->request->getOperation();
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             setPythonException(ex);
             return 0;
@@ -101,11 +100,11 @@ batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
+    static PyObject*
+    batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
-    if(!self->proxy)
+    if (!self->proxy)
     {
         optional<Ice::ObjectPrx> proxy;
         try
@@ -113,7 +112,7 @@ batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
             proxy = self->request->getProxy();
             assert(proxy);
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             setPythonException(ex);
             return 0;
@@ -128,8 +127,8 @@ batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
 #ifdef WIN32
 extern "C"
 #endif
-static PyObject*
-batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
+    static PyObject*
+    batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
 
@@ -137,7 +136,7 @@ batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
     {
         self->request->enqueue();
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         setPythonException(ex);
         return 0;
@@ -147,80 +146,77 @@ batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
     return Py_None;
 }
 
-static PyMethodDef BatchRequestMethods[] =
-{
-    { STRCAST("getSize"), reinterpret_cast<PyCFunction>(batchRequestGetSize), METH_NOARGS,
-        PyDoc_STR(STRCAST("getSize() -> int")) },
-    { STRCAST("getOperation"), reinterpret_cast<PyCFunction>(batchRequestGetOperation), METH_NOARGS,
-        PyDoc_STR(STRCAST("getOperation() -> string")) },
-    { STRCAST("getProxy"), reinterpret_cast<PyCFunction>(batchRequestGetProxy), METH_NOARGS,
-        PyDoc_STR(STRCAST("getProxy() -> Ice.ObjectPrx")) },
-    { STRCAST("enqueue"), reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS,
-        PyDoc_STR(STRCAST("enqueue() -> None")) },
-    { 0, 0 } /* sentinel */
+static PyMethodDef BatchRequestMethods[] = {
+    {STRCAST("getSize"), reinterpret_cast<PyCFunction>(batchRequestGetSize), METH_NOARGS,
+     PyDoc_STR(STRCAST("getSize() -> int"))},
+    {STRCAST("getOperation"), reinterpret_cast<PyCFunction>(batchRequestGetOperation), METH_NOARGS,
+     PyDoc_STR(STRCAST("getOperation() -> string"))},
+    {STRCAST("getProxy"), reinterpret_cast<PyCFunction>(batchRequestGetProxy), METH_NOARGS,
+     PyDoc_STR(STRCAST("getProxy() -> Ice.ObjectPrx"))},
+    {STRCAST("enqueue"), reinterpret_cast<PyCFunction>(batchRequestEnqueue), METH_NOARGS,
+     PyDoc_STR(STRCAST("enqueue() -> None"))},
+    {0, 0} /* sentinel */
 };
 
 namespace IcePy
 {
 
-PyTypeObject BatchRequestType =
-{
-    /* The ob_type field must be initialized in the module init function
-     * to be portable to Windows without using C++. */
-    PyVarObject_HEAD_INIT(0, 0)
-    STRCAST("IcePy.BatchRequest"),        /* tp_name */
-    sizeof(BatchRequestObject),           /* tp_basicsize */
-    0,                                    /* tp_itemsize */
-    /* methods */
-    reinterpret_cast<destructor>(batchRequestDealloc), /* tp_dealloc */
-    0,                               /* tp_print */
-    0,                               /* tp_getattr */
-    0,                               /* tp_setattr */
-    0,                               /* tp_reserved */
-    0,                               /* tp_repr */
-    0,                               /* tp_as_number */
-    0,                               /* tp_as_sequence */
-    0,                               /* tp_as_mapping */
-    0,                               /* tp_hash */
-    0,                               /* tp_call */
-    0,                               /* tp_str */
-    0,                               /* tp_getattro */
-    0,                               /* tp_setattro */
-    0,                               /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT,              /* tp_flags */
-    0,                               /* tp_doc */
-    0,                               /* tp_traverse */
-    0,                               /* tp_clear */
-    0,                               /* tp_richcompare */
-    0,                               /* tp_weaklistoffset */
-    0,                               /* tp_iter */
-    0,                               /* tp_iternext */
-    BatchRequestMethods,             /* tp_methods */
-    0,                               /* tp_members */
-    0,                               /* tp_getset */
-    0,                               /* tp_base */
-    0,                               /* tp_dict */
-    0,                               /* tp_descr_get */
-    0,                               /* tp_descr_set */
-    0,                               /* tp_dictoffset */
-    0,                               /* tp_init */
-    0,                               /* tp_alloc */
-    reinterpret_cast<newfunc>(batchRequestNew), /* tp_new */
-    0,                               /* tp_free */
-    0,                               /* tp_is_gc */
-};
+    PyTypeObject BatchRequestType = {
+        /* The ob_type field must be initialized in the module init function
+         * to be portable to Windows without using C++. */
+        PyVarObject_HEAD_INIT(0, 0) STRCAST("IcePy.BatchRequest"), /* tp_name */
+        sizeof(BatchRequestObject),                                /* tp_basicsize */
+        0,                                                         /* tp_itemsize */
+        /* methods */
+        reinterpret_cast<destructor>(batchRequestDealloc), /* tp_dealloc */
+        0,                                                 /* tp_print */
+        0,                                                 /* tp_getattr */
+        0,                                                 /* tp_setattr */
+        0,                                                 /* tp_reserved */
+        0,                                                 /* tp_repr */
+        0,                                                 /* tp_as_number */
+        0,                                                 /* tp_as_sequence */
+        0,                                                 /* tp_as_mapping */
+        0,                                                 /* tp_hash */
+        0,                                                 /* tp_call */
+        0,                                                 /* tp_str */
+        0,                                                 /* tp_getattro */
+        0,                                                 /* tp_setattro */
+        0,                                                 /* tp_as_buffer */
+        Py_TPFLAGS_DEFAULT,                                /* tp_flags */
+        0,                                                 /* tp_doc */
+        0,                                                 /* tp_traverse */
+        0,                                                 /* tp_clear */
+        0,                                                 /* tp_richcompare */
+        0,                                                 /* tp_weaklistoffset */
+        0,                                                 /* tp_iter */
+        0,                                                 /* tp_iternext */
+        BatchRequestMethods,                               /* tp_methods */
+        0,                                                 /* tp_members */
+        0,                                                 /* tp_getset */
+        0,                                                 /* tp_base */
+        0,                                                 /* tp_dict */
+        0,                                                 /* tp_descr_get */
+        0,                                                 /* tp_descr_set */
+        0,                                                 /* tp_dictoffset */
+        0,                                                 /* tp_init */
+        0,                                                 /* tp_alloc */
+        reinterpret_cast<newfunc>(batchRequestNew),        /* tp_new */
+        0,                                                 /* tp_free */
+        0,                                                 /* tp_is_gc */
+    };
 
 }
 
 bool
 IcePy::initBatchRequest(PyObject* module)
 {
-    if(PyType_Ready(&BatchRequestType) < 0)
+    if (PyType_Ready(&BatchRequestType) < 0)
     {
         return false;
     }
     PyTypeObject* type = &BatchRequestType; // Necessary to prevent GCC's strict-alias warnings.
-    if(PyModule_AddObject(module, STRCAST("BatchRequest"), reinterpret_cast<PyObject*>(type)) < 0)
+    if (PyModule_AddObject(module, STRCAST("BatchRequest"), reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -230,9 +226,10 @@ IcePy::initBatchRequest(PyObject* module)
 
 IcePy::BatchRequestInterceptorWrapper::BatchRequestInterceptorWrapper(PyObject* interceptor) : _interceptor(interceptor)
 {
-    if(!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, STRCAST("enqueue")))
+    if (!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, STRCAST("enqueue")))
     {
-        throw Ice::InitializationException(__FILE__, __LINE__,
+        throw Ice::InitializationException(
+            __FILE__, __LINE__,
             "batch request interceptor must either be a callable or an object with an 'enqueue' method");
     }
 
@@ -245,7 +242,7 @@ IcePy::BatchRequestInterceptorWrapper::enqueue(const Ice::BatchRequest& request,
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     BatchRequestObject* obj = reinterpret_cast<BatchRequestObject*>(BatchRequestType.tp_alloc(&BatchRequestType, 0));
-    if(!obj)
+    if (!obj)
     {
         return;
     }
@@ -255,7 +252,7 @@ IcePy::BatchRequestInterceptorWrapper::enqueue(const Ice::BatchRequest& request,
     obj->operation = 0;
     obj->proxy = 0;
     PyObjectHandle tmp;
-    if(PyCallable_Check(_interceptor.get()))
+    if (PyCallable_Check(_interceptor.get()))
     {
         tmp = PyObject_CallFunction(_interceptor.get(), STRCAST("Oii"), obj, queueCount, queueSize);
     }
@@ -264,7 +261,7 @@ IcePy::BatchRequestInterceptorWrapper::enqueue(const Ice::BatchRequest& request,
         tmp = PyObject_CallMethod(_interceptor.get(), STRCAST("enqueue"), STRCAST("Oii"), obj, queueCount, queueSize);
     }
     Py_DECREF(reinterpret_cast<PyObject*>(obj));
-    if(!tmp.get())
+    if (!tmp.get())
     {
         throwPythonException();
     }

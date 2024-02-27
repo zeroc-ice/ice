@@ -10,7 +10,6 @@
 class TestI : public virtual Test::TestIntf
 {
 public:
-
     TestI();
     ~TestI();
 
@@ -52,13 +51,13 @@ public:
     virtual void checkPBSUnknown(::Test::PreservedPtr, const ::Ice::Current&);
 
     virtual void PBSUnknownAsPreservedWithGraphAsync(std::function<void(const std::shared_ptr<Test::Preserved>&)>,
-                                                      std::function<void(std::exception_ptr)>,
-                                                      const ::Ice::Current&);
+                                                     std::function<void(std::exception_ptr)>,
+                                                     const ::Ice::Current&);
     virtual void checkPBSUnknownWithGraph(::Test::PreservedPtr, const ::Ice::Current&);
 
     virtual void PBSUnknown2AsPreservedWithGraphAsync(std::function<void(const std::shared_ptr<Test::Preserved>&)>,
-                                                       std::function<void(std::exception_ptr)>,
-                                                       const ::Ice::Current&);
+                                                      std::function<void(std::exception_ptr)>,
+                                                      const ::Ice::Current&);
     virtual void checkPBSUnknown2WithGraph(::Test::PreservedPtr, const ::Ice::Current&);
 
     virtual ::Test::PNodePtr exchangePNode(::Test::PNodePtr, const ::Ice::Current&);
@@ -67,16 +66,14 @@ public:
     virtual void throwDerivedAsBase(const ::Ice::Current&);
     virtual void throwDerivedAsDerived(const ::Ice::Current&);
     virtual void throwUnknownDerivedAsBase(const ::Ice::Current&);
-    virtual void throwPreservedExceptionAsync(std::function<void()>,
-                                               std::function<void(std::exception_ptr)>,
-                                               const ::Ice::Current&);
+    virtual void
+    throwPreservedExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&);
 
     virtual void useForward(::Test::ForwardPtr&, const ::Ice::Current&);
 
     virtual void shutdown(const ::Ice::Current&);
 
 private:
-
     std::vector<Ice::ValuePtr> _values;
 };
 

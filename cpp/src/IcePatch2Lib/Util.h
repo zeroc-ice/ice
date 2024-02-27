@@ -12,182 +12,178 @@
 namespace IcePatch2Internal
 {
 
-ICEPATCH2_API extern const char* checksumFile;
-ICEPATCH2_API extern const char* logFile;
+    ICEPATCH2_API extern const char* checksumFile;
+    ICEPATCH2_API extern const char* logFile;
 
-ICEPATCH2_API std::string lastError();
+    ICEPATCH2_API std::string lastError();
 
-ICEPATCH2_API std::string bytesToString(const Ice::ByteSeq&);
-ICEPATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
+    ICEPATCH2_API std::string bytesToString(const Ice::ByteSeq&);
+    ICEPATCH2_API Ice::ByteSeq stringToBytes(const std::string&);
 
-ICEPATCH2_API std::string simplify(const std::string&);
+    ICEPATCH2_API std::string simplify(const std::string&);
 
-ICEPATCH2_API bool isRoot(const std::string&);
+    ICEPATCH2_API bool isRoot(const std::string&);
 
-ICEPATCH2_API std::string getSuffix(const std::string&);
-ICEPATCH2_API std::string getWithoutSuffix(const std::string&);
-ICEPATCH2_API bool ignoreSuffix(const std::string&);
+    ICEPATCH2_API std::string getSuffix(const std::string&);
+    ICEPATCH2_API std::string getWithoutSuffix(const std::string&);
+    ICEPATCH2_API bool ignoreSuffix(const std::string&);
 
-ICEPATCH2_API std::string getBasename(const std::string&);
-ICEPATCH2_API std::string getDirname(const std::string&);
+    ICEPATCH2_API std::string getBasename(const std::string&);
+    ICEPATCH2_API std::string getDirname(const std::string&);
 
-ICEPATCH2_API void rename(const std::string&, const std::string&);
+    ICEPATCH2_API void rename(const std::string&, const std::string&);
 
-ICEPATCH2_API void remove(const std::string&);
-ICEPATCH2_API void removeRecursive(const std::string&);
+    ICEPATCH2_API void remove(const std::string&);
+    ICEPATCH2_API void removeRecursive(const std::string&);
 
-ICEPATCH2_API Ice::StringSeq readDirectory(const std::string&);
+    ICEPATCH2_API Ice::StringSeq readDirectory(const std::string&);
 
-ICEPATCH2_API void createDirectory(const std::string&);
-ICEPATCH2_API void createDirectoryRecursive(const std::string&);
+    ICEPATCH2_API void createDirectory(const std::string&);
+    ICEPATCH2_API void createDirectoryRecursive(const std::string&);
 
-ICEPATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, std::int32_t);
-ICEPATCH2_API void decompressFile(const std::string&);
+    ICEPATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, std::int32_t);
+    ICEPATCH2_API void decompressFile(const std::string&);
 
-ICEPATCH2_API void setFileFlags(const std::string&, const IcePatch2::LargeFileInfo&);
+    ICEPATCH2_API void setFileFlags(const std::string&, const IcePatch2::LargeFileInfo&);
 
-struct FileInfoEqual
-{
-    bool
-    operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
+    struct FileInfoEqual
     {
-        if(lhs.path != rhs.path)
+        bool operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
         {
-            return false;
+            if (lhs.path != rhs.path)
+            {
+                return false;
+            }
+
+            //
+            // For the size portion of the comparison, we only distinquish
+            // between file (size >= 0) and directory (size == -1). We do
+            // not take the actual size into account, as it might be set
+            // to 0 if no compressed file is available.
+            //
+            std::int64_t lsz = lhs.size > 0 ? 0 : lhs.size;
+            std::int64_t rsz = rhs.size > 0 ? 0 : rhs.size;
+            if (lsz != rsz)
+            {
+                return false;
+            }
+
+            if (lhs.executable != rhs.executable)
+            {
+                return false;
+            }
+
+            return lhs.checksum == rhs.checksum;
         }
+    };
 
-        //
-        // For the size portion of the comparison, we only distinquish
-        // between file (size >= 0) and directory (size == -1). We do
-        // not take the actual size into account, as it might be set
-        // to 0 if no compressed file is available.
-        //
-        std::int64_t lsz = lhs.size > 0 ? 0 : lhs.size;
-        std::int64_t rsz = rhs.size > 0 ? 0 : rhs.size;
-        if(lsz != rsz)
-        {
-            return false;
-        }
-
-        if(lhs.executable != rhs.executable)
-        {
-            return false;
-        }
-
-        return lhs.checksum == rhs.checksum;
-    }
-};
-
-struct FileInfoWithoutFlagsLess
-{
-    bool
-    operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
+    struct FileInfoWithoutFlagsLess
     {
-        return compareWithoutFlags(lhs, rhs) < 0;
-    }
+        bool operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
+        {
+            return compareWithoutFlags(lhs, rhs) < 0;
+        }
 
-    int
-    compareWithoutFlags(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
+        int compareWithoutFlags(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
+        {
+            if (lhs.path < rhs.path)
+            {
+                return -1;
+            }
+            else if (rhs.path < lhs.path)
+            {
+                return 1;
+            }
+
+            //
+            // For the size portion of the comparison, we only distinquish
+            // between file (size >= 0) and directory (size == -1). We do
+            // not take the actual size into account, as it might be set
+            // to 0 if no compressed file is available.
+            //
+            std::int64_t lsz = lhs.size > 0 ? 0 : lhs.size;
+            std::int64_t rsz = rhs.size > 0 ? 0 : rhs.size;
+            if (lsz < rsz)
+            {
+                return -1;
+            }
+            else if (rsz < lsz)
+            {
+                return 1;
+            }
+
+            if (lhs.checksum < rhs.checksum)
+            {
+                return -1;
+            }
+            else if (rhs.checksum < lhs.checksum)
+            {
+                return 1;
+            }
+
+            return 0;
+        }
+    };
+
+    struct FileInfoLess : public FileInfoWithoutFlagsLess
     {
-        if(lhs.path < rhs.path)
+        bool operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
         {
-            return -1;
-        }
-        else if(rhs.path < lhs.path)
-        {
-            return 1;
-        }
+            int rc = compareWithoutFlags(lhs, rhs);
+            if (rc < 0)
+            {
+                return true;
+            }
+            else if (rc > 0)
+            {
+                return false;
+            }
 
-        //
-        // For the size portion of the comparison, we only distinquish
-        // between file (size >= 0) and directory (size == -1). We do
-        // not take the actual size into account, as it might be set
-        // to 0 if no compressed file is available.
-        //
-        std::int64_t lsz = lhs.size > 0 ? 0 : lhs.size;
-        std::int64_t rsz = rhs.size > 0 ? 0 : rhs.size;
-        if(lsz < rsz)
-        {
-            return -1;
+            return lhs.executable < rhs.executable;
         }
-        else if(rsz < lsz)
-        {
-            return 1;
-        }
+    };
 
-        if(lhs.checksum < rhs.checksum)
-        {
-            return -1;
-        }
-        else if(rhs.checksum < lhs.checksum)
-        {
-            return 1;
-        }
-
-        return 0;
-    }
-};
-
-struct FileInfoLess : public FileInfoWithoutFlagsLess
-{
-    bool
-    operator()(const IcePatch2::LargeFileInfo& lhs, const IcePatch2::LargeFileInfo& rhs)
+    class ICEPATCH2_API GetFileInfoSeqCB
     {
-        int rc = compareWithoutFlags(lhs, rhs);
-        if(rc < 0)
-        {
-            return true;
-        }
-        else if(rc > 0)
-        {
-            return false;
-        }
+    public:
+        virtual ~GetFileInfoSeqCB();
 
-        return lhs.executable < rhs.executable;
-    }
-};
+        virtual bool remove(const std::string&) = 0;
+        virtual bool checksum(const std::string&) = 0;
+        virtual bool compress(const std::string&) = 0;
+    };
 
-class ICEPATCH2_API GetFileInfoSeqCB
-{
-public:
+    ICEPATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
 
-    virtual ~GetFileInfoSeqCB();
+    ICEPATCH2_API bool
+    getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
 
-    virtual bool remove(const std::string&) = 0;
-    virtual bool checksum(const std::string&) = 0;
-    virtual bool compress(const std::string&) = 0;
-};
+    ICEPATCH2_API void saveFileInfoSeq(const std::string&, const IcePatch2::LargeFileInfoSeq&);
 
-ICEPATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
+    ICEPATCH2_API void loadFileInfoSeq(const std::string&, IcePatch2::LargeFileInfoSeq&);
 
-ICEPATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, IcePatch2::LargeFileInfoSeq&);
+    ICEPATCH2_API bool readFileInfo(FILE*, IcePatch2::LargeFileInfo&);
 
-ICEPATCH2_API void saveFileInfoSeq(const std::string&, const IcePatch2::LargeFileInfoSeq&);
+    ICEPATCH2_API IcePatch2::FileInfo toFileInfo(const IcePatch2::LargeFileInfo&);
+    ICEPATCH2_API IcePatch2::LargeFileInfo toLargeFileInfo(const IcePatch2::FileInfo&);
 
-ICEPATCH2_API void loadFileInfoSeq(const std::string&, IcePatch2::LargeFileInfoSeq&);
+    ICEPATCH2_API bool writeFileInfo(FILE*, const IcePatch2::LargeFileInfo&);
 
-ICEPATCH2_API bool readFileInfo(FILE*, IcePatch2::LargeFileInfo&);
+    struct FileTree1
+    {
+        IcePatch2::LargeFileInfoSeq files;
+        Ice::ByteSeq checksum;
+    };
 
-ICEPATCH2_API IcePatch2::FileInfo toFileInfo(const IcePatch2::LargeFileInfo&);
-ICEPATCH2_API IcePatch2::LargeFileInfo toLargeFileInfo(const IcePatch2::FileInfo&);
+    typedef std::vector<FileTree1> FileTree1Seq;
 
-ICEPATCH2_API bool writeFileInfo(FILE*, const IcePatch2::LargeFileInfo&);
+    struct FileTree0
+    {
+        FileTree1Seq nodes;
+        Ice::ByteSeq checksum;
+    };
 
-struct FileTree1
-{
-    IcePatch2::LargeFileInfoSeq files;
-    Ice::ByteSeq checksum;
-};
-
-typedef std::vector<FileTree1> FileTree1Seq;
-
-struct FileTree0
-{
-    FileTree1Seq nodes;
-    Ice::ByteSeq checksum;
-};
-
-ICEPATCH2_API void getFileTree0(const IcePatch2::LargeFileInfoSeq&, FileTree0&);
+    ICEPATCH2_API void getFileTree0(const IcePatch2::LargeFileInfoSeq&, FileTree0&);
 
 }
 

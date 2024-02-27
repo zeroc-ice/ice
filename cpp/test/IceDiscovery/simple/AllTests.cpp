@@ -16,7 +16,7 @@ allTests(Test::TestHelper* helper, int num)
     CommunicatorPtr communicator = helper->communicator();
     vector<ControllerPrxPtr> proxies;
     vector<ControllerPrxPtr> indirectProxies;
-    for(int i = 0; i < num; ++i)
+    for (int i = 0; i < num; ++i)
     {
         {
             ostringstream os;
@@ -32,7 +32,7 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing indirect proxies... " << flush;
     {
-        for(vector<ControllerPrxPtr>::const_iterator p = indirectProxies.begin(); p != indirectProxies.end(); ++p)
+        for (vector<ControllerPrxPtr>::const_iterator p = indirectProxies.begin(); p != indirectProxies.end(); ++p)
         {
             (*p)->ice_ping();
         }
@@ -41,7 +41,7 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing well-known proxies... " << flush;
     {
-        for(vector<ControllerPrxPtr>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+        for (vector<ControllerPrxPtr>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
         {
             (*p)->ice_ping();
         }
@@ -55,7 +55,7 @@ allTests(Test::TestHelper* helper, int num)
             communicator->stringToProxy("object @ oa1")->ice_ping();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
 
@@ -66,7 +66,7 @@ allTests(Test::TestHelper* helper, int num)
             communicator->stringToProxy("object @ oa1")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -77,7 +77,7 @@ allTests(Test::TestHelper* helper, int num)
             communicator->stringToProxy("object @ oa1")->ice_ping();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch (const Ice::NoEndpointException&)
         {
         }
     }
@@ -118,14 +118,14 @@ allTests(Test::TestHelper* helper, int num)
         {
             communicator->stringToProxy("object @ oa1")->ice_ping();
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
         {
             communicator->stringToProxy("object @ oa2")->ice_ping();
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -156,23 +156,24 @@ allTests(Test::TestHelper* helper, int num)
         adapterIds.insert("oa3");
         TestIntfPrxPtr intf = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("object"));
         intf = intf->ice_connectionCached(false)->ice_locatorCacheTimeout(0);
-        while(!adapterIds.empty())
+        while (!adapterIds.empty())
         {
             adapterIds.erase(intf->getAdapterId());
         }
 
-        while(true)
+        while (true)
         {
             adapterIds.insert("oa1");
             adapterIds.insert("oa2");
             adapterIds.insert("oa3");
-            intf = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("object @ rg"))->ice_connectionCached(false);
+            intf = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("object @ rg"))
+                       ->ice_connectionCached(false);
             int nRetry = 100;
-            while(!adapterIds.empty() && --nRetry > 0)
+            while (!adapterIds.empty() && --nRetry > 0)
             {
                 adapterIds.erase(intf->getAdapterId());
             }
-            if(nRetry > 0)
+            if (nRetry > 0)
             {
                 break;
             }
@@ -196,7 +197,7 @@ allTests(Test::TestHelper* helper, int num)
     cout << "testing invalid lookup endpoints... " << flush;
     {
         string multicast;
-        if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+        if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
         {
             multicast = "\"ff15::1\"";
         }
@@ -217,7 +218,7 @@ allTests(Test::TestHelper* helper, int num)
                 com->stringToProxy("controller0@control0")->ice_ping();
                 test(false);
             }
-            catch(const Ice::LocalException&)
+            catch (const Ice::LocalException&)
             {
             }
             com->destroy();
@@ -226,14 +227,13 @@ allTests(Test::TestHelper* helper, int num)
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             string intf = initData.properties->getProperty("IceDiscovery.Interface");
-            if(!intf.empty())
+            if (!intf.empty())
             {
                 intf = " --interface \"" + intf + "\"";
             }
             string port = initData.properties->getProperty("IceDiscovery.Port");
-            initData.properties->setProperty("IceDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown:" +
-                                             "udp -h " + multicast + " -p " + port + intf);
+            initData.properties->setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown:" +
+                                                                        "udp -h " + multicast + " -p " + port + intf);
             Ice::CommunicatorPtr com = Ice::initialize(initData);
             test(com->getDefaultLocator());
             com->stringToProxy("controller0@control0")->ice_ping();
@@ -243,7 +243,7 @@ allTests(Test::TestHelper* helper, int num)
     cout << "ok" << endl;
 
     cout << "shutting down... " << flush;
-    for(vector<ControllerPrxPtr>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (vector<ControllerPrxPtr>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
         (*p)->shutdown();
     }

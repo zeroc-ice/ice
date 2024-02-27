@@ -44,7 +44,7 @@ allTests(Test::TestHelper* helper)
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
         {
             ostr << "default -a *";
         }
@@ -55,8 +55,8 @@ allTests(Test::TestHelper* helper)
         localOAEndpoint = ostr.str();
     }
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", localOAEndpoint);
-    if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-       communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+        communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
     {
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
         Ice::ObjectPtr obj = std::make_shared<EmptyI>();
@@ -67,7 +67,7 @@ allTests(Test::TestHelper* helper)
             adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
             test(false);
         }
-        catch(const Ice::AlreadyRegisteredException&)
+        catch (const Ice::AlreadyRegisteredException&)
         {
         }
         adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
@@ -76,7 +76,7 @@ allTests(Test::TestHelper* helper)
             adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
             test(false);
         }
-        catch(const Ice::NotRegisteredException&)
+        catch (const Ice::NotRegisteredException&)
         {
         }
         cout << "ok" << endl;
@@ -99,7 +99,7 @@ allTests(Test::TestHelper* helper)
             adapter->removeAllFacets(Ice::stringToIdentity("id1"));
             test(false);
         }
-        catch(const Ice::NotRegisteredException&)
+        catch (const Ice::NotRegisteredException&)
         {
         }
         fm = adapter->removeAllFacets(Ice::stringToIdentity("id2"));

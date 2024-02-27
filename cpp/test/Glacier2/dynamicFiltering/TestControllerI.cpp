@@ -52,10 +52,12 @@ TestControllerI::TestControllerI(const string& endpoint)
 };
 
 void
-TestControllerI::step(Glacier2::SessionPrxPtr currentSession, TestToken currentState, TestToken& newState,
+TestControllerI::step(Glacier2::SessionPrxPtr currentSession,
+                      TestToken currentState,
+                      TestToken& newState,
                       const Ice::Current&)
 {
-    switch(currentState.code)
+    switch (currentState.code)
     {
         case Test::StateCode::Finished:
         {
@@ -70,9 +72,9 @@ TestControllerI::step(Glacier2::SessionPrxPtr currentSession, TestToken currentS
 
             SessionTuple session;
             lock_guard lock(_mutex);
-            for(const auto& p : _sessions)
+            for (const auto& p : _sessions)
             {
-                if(p.session == currentSession)
+                if (p.session == currentSession)
                 {
                     session = p;
                     break;
@@ -90,14 +92,14 @@ TestControllerI::step(Glacier2::SessionPrxPtr currentSession, TestToken currentS
             newState = currentState;
 
             ++newState.caseIndex;
-            if(!(newState.caseIndex < (long)config.cases.size()))
+            if (!(newState.caseIndex < (long)config.cases.size()))
             {
                 //
                 // We are out of test cases for this configuration. Move to
                 // the next configuration.
                 //
                 ++newState.config;
-                if(!(newState.config < (long)_configurations.size()))
+                if (!(newState.config < (long)_configurations.size()))
                 {
                     newState.code = Test::StateCode::Finished;
                     newState.expectedResult = false;
@@ -120,7 +122,7 @@ TestControllerI::step(Glacier2::SessionPrxPtr currentSession, TestToken currentS
             newState.expectedResult = config.cases[static_cast<size_t>(newState.caseIndex)].expectedResult;
             newState.testReference = config.cases[static_cast<size_t>(newState.caseIndex)].proxy;
 
-            if(reconfigure)
+            if (reconfigure)
             {
                 auto categories = session.sessionControl->categories();
                 categories->add(config.categoryFiltersAccept);
@@ -165,9 +167,9 @@ void
 TestControllerI::notifyDestroy(const Glacier2::SessionControlPrxPtr& control)
 {
     lock_guard lock(_mutex);
-    for(auto i = _sessions.begin(); i != _sessions.end(); ++i)
+    for (auto i = _sessions.begin(); i != _sessions.end(); ++i)
     {
-        if(i->sessionControl == control)
+        if (i->sessionControl == control)
         {
             _sessions.erase(i);
             break;

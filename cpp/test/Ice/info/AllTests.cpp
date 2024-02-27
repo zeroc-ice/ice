@@ -13,33 +13,31 @@ using namespace Test;
 namespace
 {
 
-Ice::TCPEndpointInfoPtr
-getTCPEndpointInfo(const Ice::EndpointInfoPtr& info)
-{
-    for(Ice::EndpointInfoPtr p = info; p; p = p->underlying)
+    Ice::TCPEndpointInfoPtr getTCPEndpointInfo(const Ice::EndpointInfoPtr& info)
     {
-        Ice::TCPEndpointInfoPtr tcpInfo = dynamic_pointer_cast<Ice::TCPEndpointInfo>(p);
-        if(tcpInfo)
+        for (Ice::EndpointInfoPtr p = info; p; p = p->underlying)
         {
-            return tcpInfo;
+            Ice::TCPEndpointInfoPtr tcpInfo = dynamic_pointer_cast<Ice::TCPEndpointInfo>(p);
+            if (tcpInfo)
+            {
+                return tcpInfo;
+            }
         }
+        return nullptr;
     }
-    return nullptr;
-}
 
-Ice::TCPConnectionInfoPtr
-getTCPConnectionInfo(const Ice::ConnectionInfoPtr& info)
-{
-    for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
+    Ice::TCPConnectionInfoPtr getTCPConnectionInfo(const Ice::ConnectionInfoPtr& info)
     {
-        Ice::TCPConnectionInfoPtr tcpInfo = dynamic_pointer_cast<Ice::TCPConnectionInfo>(p);
-        if(tcpInfo)
+        for (Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
         {
-            return tcpInfo;
+            Ice::TCPConnectionInfoPtr tcpInfo = dynamic_pointer_cast<Ice::TCPConnectionInfo>(p);
+            if (tcpInfo)
+            {
+                return tcpInfo;
+            }
         }
+        return nullptr;
     }
-    return nullptr;
-}
 
 }
 
@@ -98,7 +96,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
-    if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
         communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
     {
         cout << "test object adapter endpoint information... " << flush;
@@ -115,7 +113,7 @@ allTests(Test::TestHelper* helper)
             Ice::TCPEndpointInfoPtr ipEndpoint = getTCPEndpointInfo(endpoints[0]->getInfo());
             test(ipEndpoint);
             test(ipEndpoint->type() == Ice::TCPEndpointType || ipEndpoint->type() == Ice::SSLEndpointType ||
-                ipEndpoint->type() == Ice::WSEndpointType || ipEndpoint->type() == Ice::WSSEndpointType);
+                 ipEndpoint->type() == Ice::WSEndpointType || ipEndpoint->type() == Ice::WSSEndpointType);
             test(ipEndpoint->host == "127.0.0.1");
             test(ipEndpoint->port > 0);
             test(ipEndpoint->timeout == 15000);
@@ -146,7 +144,7 @@ allTests(Test::TestHelper* helper)
             publishedEndpoints = adapter->getPublishedEndpoints();
             test(publishedEndpoints.size() == 1);
 
-            for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
                 ipEndpoint = getTCPEndpointInfo((*p)->getInfo());
                 test(ipEndpoint->port == port);
@@ -203,7 +201,7 @@ allTests(Test::TestHelper* helper)
         test(info->adapterName.empty());
         test(info->localPort > 0);
         test(info->remotePort == port);
-        if(defaultHost == "127.0.0.1")
+        if (defaultHost == "127.0.0.1")
         {
             test(info->remoteAddress == defaultHost);
             test(info->localAddress == defaultHost);
@@ -225,7 +223,7 @@ allTests(Test::TestHelper* helper)
         os << info->remotePort;
         test(ctx["localPort"] == os.str());
 
-        if(base->ice_getConnection()->type() == "ws" || base->ice_getConnection()->type() == "wss")
+        if (base->ice_getConnection()->type() == "ws" || base->ice_getConnection()->type() == "wss")
         {
             Ice::HeaderDict headers;
 
@@ -233,11 +231,11 @@ allTests(Test::TestHelper* helper)
             test(wsinfo);
             headers = wsinfo->headers;
 
-            if(base->ice_getConnection()->type() == "wss")
+            if (base->ice_getConnection()->type() == "wss")
             {
                 IceSSL::ConnectionInfoPtr wssinfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(wsinfo->underlying);
                 test(wssinfo->verified);
-#if TARGET_OS_IPHONE==0
+#if TARGET_OS_IPHONE == 0
                 test(!wssinfo->certs.empty());
 #endif
             }
@@ -262,7 +260,7 @@ allTests(Test::TestHelper* helper)
         test(udpinfo->adapterName.empty());
         test(udpinfo->localPort > 0);
         test(udpinfo->remotePort == port);
-        if(defaultHost == "127.0.0.1")
+        if (defaultHost == "127.0.0.1")
         {
             test(udpinfo->remoteAddress == defaultHost);
             test(udpinfo->localAddress == defaultHost);

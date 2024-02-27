@@ -15,7 +15,6 @@ using namespace Test;
 class Publisher final : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -25,7 +24,7 @@ Publisher::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
-    if(managerProxy.empty())
+    if (managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": `IceStormAdmin.TopicManager.Default' is not set";
@@ -34,7 +33,7 @@ Publisher::run(int argc, char** argv)
 
     auto base = communicator->stringToProxy(managerProxy);
     auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
+    if (!manager)
     {
         ostringstream os;
         os << argv[0] << ": `" << managerProxy << "' is not running";
@@ -52,37 +51,37 @@ Publisher::run(int argc, char** argv)
     Ice::Context context;
 
     context["cost"] = "0";
-    for(int i = 0; i < 10; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         eventFed1->pub("fed1:0", context);
     }
 
     context["cost"] = "10";
-    for(int i = 0; i < 10; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         eventFed1->pub("fed1:10", context);
     }
 
     context["cost"] = "15";
-    for(int i = 0; i < 10; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         eventFed1->pub("fed1:15", context);
     }
 
     context["cost"] = "0";
-    for(int i = 0; i < 10; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         eventFed2->pub("fed2:0", context);
     }
 
     context["cost"] = "5";
-    for(int i = 0; i < 10; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         eventFed2->pub("fed2:5", context);
     }
 
     context["cost"] = "0";
-    for(int i = 0; i < 10; ++i)
+    for (int i = 0; i < 10; ++i)
     {
         eventFed3->pub("fed3:0", context);
     }

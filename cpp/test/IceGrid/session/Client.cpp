@@ -10,7 +10,6 @@ using namespace std;
 class Client final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 

@@ -11,18 +11,12 @@ using namespace std;
 class PermissionsVerifierI final : public Glacier2::PermissionsVerifier
 {
 public:
-
-    bool
-        checkPermissions(string, string, string&, const Ice::Current&) const override
-    {
-        return true;
-    }
+    bool checkPermissions(string, string, string&, const Ice::Current&) const override { return true; }
 };
 
 class Server : public Test::TestHelper
 {
 public:
-
     void run(int argc, char** argv) override
     {
         Ice::CommunicatorHolder communicator = initialize(argc, argv);

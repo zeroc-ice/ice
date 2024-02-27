@@ -26,8 +26,8 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     {
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-           communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+            communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
         {
             cout << "creating/destroying/recreating object adapter... " << flush;
             ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
@@ -36,7 +36,7 @@ allTests(Test::TestHelper* helper)
                 communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                 test(false);
             }
-            catch(const AlreadyRegisteredException&)
+            catch (const AlreadyRegisteredException&)
             {
             }
             adpt->destroy();
@@ -54,7 +54,7 @@ allTests(Test::TestHelper* helper)
 
     {
         cout << "testing connection closure... " << flush;
-        for(int i = 0; i < 10; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
@@ -91,7 +91,7 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    if(obj->ice_getConnection())
+    if (obj->ice_getConnection())
     {
         cout << "testing object adapter with bi-dir connection... " << flush;
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
@@ -103,7 +103,7 @@ allTests(Test::TestHelper* helper)
             obj->ice_getConnection()->setAdapter(adapter);
             test(false);
         }
-        catch(const Ice::ObjectAdapterDeactivatedException&)
+        catch (const Ice::ObjectAdapterDeactivatedException&)
         {
         }
         cout << "ok" << endl;
@@ -125,7 +125,7 @@ allTests(Test::TestHelper* helper)
             adapter->setPublishedEndpoints(router->ice_getEndpoints());
             test(false);
         }
-        catch(const invalid_argument&)
+        catch (const invalid_argument&)
         {
             // Expected.
         }
@@ -138,7 +138,7 @@ allTests(Test::TestHelper* helper)
             communicator->createObjectAdapterWithRouter("", router);
             test(false);
         }
-        catch(const Ice::OperationNotExistException&)
+        catch (const Ice::OperationNotExistException&)
         {
             // Expected: the "test" object doesn't implement Ice::Router!
         }
@@ -150,10 +150,10 @@ allTests(Test::TestHelper* helper)
             communicator->createObjectAdapterWithRouter("", router);
             test(false);
         }
-        catch(const Ice::ConnectFailedException&)
+        catch (const Ice::ConnectFailedException&)
         {
         }
-        catch(const Ice::ConnectTimeoutException&)
+        catch (const Ice::ConnectTimeoutException&)
         {
         }
     }
@@ -168,7 +168,7 @@ allTests(Test::TestHelper* helper)
             communicator->createObjectAdapterWithEndpoints("Adpt2", helper->getTestEndpoint(10));
             test(false);
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             // Expected can't re-use the same endpoint.
         }
@@ -189,7 +189,7 @@ allTests(Test::TestHelper* helper)
         obj->ice_ping();
         test(false);
     }
-    catch(const LocalException&)
+    catch (const LocalException&)
     {
         cout << "ok" << endl;
     }

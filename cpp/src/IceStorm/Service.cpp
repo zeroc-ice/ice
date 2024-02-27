@@ -32,65 +32,50 @@ using namespace IceStormElection;
 namespace
 {
 
-class ServiceI final : public IceStormInternal::Service
-{
-public:
-
-    void start(const std::shared_ptr<Ice::Communicator>&,
-               const std::shared_ptr<Ice::ObjectAdapter>&,
-               const std::shared_ptr<Ice::ObjectAdapter>&,
-               const std::string&,
-               const Ice::Identity&,
-               const std::string&);
-
-    IceStorm::TopicManagerPrxPtr getTopicManager() const override;
-
-    void start(const std::string&, const std::shared_ptr<Ice::Communicator>&, const Ice::StringSeq&) override;
-    void stop() override;
-
-private:
-
-    void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
-    void validateProperties(const std::string&,
-                            const std::shared_ptr<Ice::Properties>&,
-                            const std::shared_ptr<Ice::Logger>&);
-
-    std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
-    std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
-    IceStorm::TopicManagerPrxPtr _managerProxy;
-    std::shared_ptr<IceStorm::Instance> _instance;
-};
-
-class FinderI final : public IceStorm::Finder
-{
-public:
-
-    FinderI(TopicManagerPrxPtr topicManager) : _topicManager(std::move(topicManager))
+    class ServiceI final : public IceStormInternal::Service
     {
-    }
+    public:
+        void start(const std::shared_ptr<Ice::Communicator>&,
+                   const std::shared_ptr<Ice::ObjectAdapter>&,
+                   const std::shared_ptr<Ice::ObjectAdapter>&,
+                   const std::string&,
+                   const Ice::Identity&,
+                   const std::string&);
 
-    TopicManagerPrxPtr
-    getTopicManager(const Ice::Current&) override
+        IceStorm::TopicManagerPrxPtr getTopicManager() const override;
+
+        void start(const std::string&, const std::shared_ptr<Ice::Communicator>&, const Ice::StringSeq&) override;
+        void stop() override;
+
+    private:
+        void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
+        void validateProperties(const std::string&,
+                                const std::shared_ptr<Ice::Properties>&,
+                                const std::shared_ptr<Ice::Logger>&);
+
+        std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
+        std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
+        IceStorm::TopicManagerPrxPtr _managerProxy;
+        std::shared_ptr<IceStorm::Instance> _instance;
+    };
+
+    class FinderI final : public IceStorm::Finder
     {
-        return _topicManager;
-    }
+    public:
+        FinderI(TopicManagerPrxPtr topicManager) : _topicManager(std::move(topicManager)) {}
 
-private:
+        TopicManagerPrxPtr getTopicManager(const Ice::Current&) override { return _topicManager; }
 
-    const TopicManagerPrxPtr _topicManager;
-};
+    private:
+        const TopicManagerPrxPtr _topicManager;
+    };
 
 }
 
 extern "C"
 {
 
-ICESTORM_SERVICE_API ::IceBox::Service*
-createIceStorm(const shared_ptr<Communicator>&)
-{
-    return new ServiceI;
-}
-
+    ICESTORM_SERVICE_API ::IceBox::Service* createIceStorm(const shared_ptr<Communicator>&) { return new ServiceI; }
 }
 
 shared_ptr<IceStormInternal::Service>
@@ -120,7 +105,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
     // to some suitably high number. This ensures no deadlocks in the
     // replicated case due to call forwarding from replicas to
     // coordinators.
-    if(id != -1 && properties->getProperty(name + ".TopicManager.ThreadPool.SizeMax").empty())
+    if (id != -1 && properties->getProperty(name + ".TopicManager.ThreadPool.SizeMax").empty())
     {
         properties->setProperty(name + ".TopicManager.ThreadPool.SizeMax", "100");
     }
@@ -132,9 +117,9 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
     // We use the name of the service for the name of the database environment.
     //
     string instanceName = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
-    Identity topicManagerId = { "TopicManager", instanceName };
+    Identity topicManagerId = {"TopicManager", instanceName};
 
-    if(properties->getPropertyAsIntWithDefault(name+ ".Transient", 0) > 0)
+    if (properties->getPropertyAsIntWithDefault(name + ".Transient", 0) > 0)
     {
         _instance = make_shared<Instance>(instanceName, name, communicator, publishAdapter, topicAdapter, nullptr);
         try
@@ -142,7 +127,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
             auto manager = make_shared<TransientTopicManagerImpl>(_instance);
             _managerProxy = Ice::uncheckedCast<TopicManagerPrx>(topicAdapter->add(manager, topicManagerId));
         }
-        catch(const Ice::Exception& ex)
+        catch (const Ice::Exception& ex)
         {
             _instance = 0;
 
@@ -156,16 +141,17 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
         return;
     }
 
-    if(id == -1) // No replication.
+    if (id == -1) // No replication.
     {
         try
         {
-            auto instance = make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter, topicAdapter);
+            auto instance =
+                make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter, topicAdapter);
             _manager = TopicManagerImpl::create(instance);
             _instance = std::move(instance);
             _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->add(_manager->getServant(), topicManagerId));
         }
-        catch(const IceUtil::Exception& ex)
+        catch (const IceUtil::Exception& ex)
         {
             _instance = 0;
 
@@ -189,16 +175,16 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
         // Here we check for the manual deployment
         const string prefix = name + ".Nodes.";
         Ice::PropertyDict props = properties->getPropertiesForPrefix(prefix);
-        if(!props.empty())
+        if (!props.empty())
         {
-            for(const auto& prop : props)
+            for (const auto& prop : props)
             {
                 try
                 {
                     int nodeid = stoi(prop.first.substr(prefix.size()));
                     nodes[nodeid] = uncheckedCast<NodePrx>(communicator->propertyToProxy(prop.first));
                 }
-                catch(const std::invalid_argument&)
+                catch (const std::invalid_argument&)
                 {
                     Ice::Warning warn(communicator->getLogger());
                     warn << "deployment warning: invalid node id `" << prop.first.substr(prefix.size()) << "'";
@@ -216,13 +202,13 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
             // and the topic manager otherwise some other deployment
             // is being used.
             const string suffix = ".TopicManager";
-            if(topicManagerAdapterId.empty() || nodeAdapterId.empty() ||
-               topicManagerAdapterId.replace(
-                   topicManagerAdapterId.find(suffix), suffix.size(), ".Node") != nodeAdapterId)
+            if (topicManagerAdapterId.empty() || nodeAdapterId.empty() ||
+                topicManagerAdapterId.replace(topicManagerAdapterId.find(suffix), suffix.size(), ".Node") !=
+                    nodeAdapterId)
             {
                 Ice::Error error(communicator->getLogger());
-                error << "deployment error: `" << topicManagerAdapterId << "' prefix does not match `"
-                      << nodeAdapterId << "'";
+                error << "deployment error: `" << topicManagerAdapterId << "' prefix does not match `" << nodeAdapterId
+                      << "'";
                 throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
             }
 
@@ -240,57 +226,57 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
             auto query = locator->getLocalQuery();
             auto replicas = query->findAllReplicas(communicator->stringToProxy(instanceName + "/TopicManager"));
 
-            for(Ice::ObjectProxySeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
-            for(const auto& replica : replicas)
-            {
-                string adapterid = replica->ice_getAdapterId();
-
-                // Replace TopicManager with the node endpoint.
-                adapterid = adapterid.replace(adapterid.find(suffix), suffix.size(), ".Node");
-
-                // The adapter id must start with the instance name.
-                if(adapterid.find(instanceName) != 0)
+            for (Ice::ObjectProxySeq::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
+                for (const auto& replica : replicas)
                 {
-                    Ice::Error error(communicator->getLogger());
-                    error << "deployment error: `" << adapterid << "' does not start with `" << instanceName << "'";
-                    throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
-                }
+                    string adapterid = replica->ice_getAdapterId();
 
-                // The node id follows. We find the first digit (the
-                // start of the node id, and then the end of the
-                // digits).
-                string::size_type start = instanceName.size();
-                while(start < adapterid.size() && !IceUtilInternal::isDigit(adapterid[start]))
-                {
-                    ++start;
-                }
-                string::size_type end = start;
-                while(end < adapterid.size() && IceUtilInternal::isDigit(adapterid[end]))
-                {
-                    ++end;
-                }
-                if(start == end)
-                {
-                    // We must have at least one digit, otherwise there is
-                    // some sort of deployment error.
-                    Ice::Error error(communicator->getLogger());
-                    error << "deployment error: node id does not follow instance name. instance name:"
-                          << instanceName << " adapter id: " << adapterid;
-                    throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
-                }
+                    // Replace TopicManager with the node endpoint.
+                    adapterid = adapterid.replace(adapterid.find(suffix), suffix.size(), ".Node");
 
-                int nodeid = atoi(adapterid.substr(start, end-start).c_str());
-                ostringstream os;
-                os << "node" << nodeid;
-                Ice::Identity ident;
-                ident.category = instanceName;
-                ident.name = os.str();
+                    // The adapter id must start with the instance name.
+                    if (adapterid.find(instanceName) != 0)
+                    {
+                        Ice::Error error(communicator->getLogger());
+                        error << "deployment error: `" << adapterid << "' does not start with `" << instanceName << "'";
+                        throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
+                    }
 
-                nodes[nodeid] = uncheckedCast<NodePrx>((*p)->ice_adapterId(adapterid)->ice_identity(ident));
-            }
+                    // The node id follows. We find the first digit (the
+                    // start of the node id, and then the end of the
+                    // digits).
+                    string::size_type start = instanceName.size();
+                    while (start < adapterid.size() && !IceUtilInternal::isDigit(adapterid[start]))
+                    {
+                        ++start;
+                    }
+                    string::size_type end = start;
+                    while (end < adapterid.size() && IceUtilInternal::isDigit(adapterid[end]))
+                    {
+                        ++end;
+                    }
+                    if (start == end)
+                    {
+                        // We must have at least one digit, otherwise there is
+                        // some sort of deployment error.
+                        Ice::Error error(communicator->getLogger());
+                        error << "deployment error: node id does not follow instance name. instance name:"
+                              << instanceName << " adapter id: " << adapterid;
+                        throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
+                    }
+
+                    int nodeid = atoi(adapterid.substr(start, end - start).c_str());
+                    ostringstream os;
+                    os << "node" << nodeid;
+                    Ice::Identity ident;
+                    ident.category = instanceName;
+                    ident.name = os.str();
+
+                    nodes[nodeid] = uncheckedCast<NodePrx>((*p)->ice_adapterId(adapterid)->ice_identity(ident));
+                }
         }
 
-        if(nodes.size() < 3)
+        if (nodes.size() < 3)
         {
             Ice::Error error(communicator->getLogger());
             error << "Replication requires at least 3 Nodes";
@@ -302,14 +288,14 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
             // If the node thread pool size is not set then initialize
             // to the number of nodes + 1 and disable thread pool size
             // warnings.
-            if(properties->getProperty(name + ".Node.ThreadPool.Size").empty())
+            if (properties->getProperty(name + ".Node.ThreadPool.Size").empty())
             {
                 ostringstream os;
                 os << nodes.size() + 1;
                 properties->setProperty(name + ".Node.ThreadPool.Size", os.str());
                 properties->setProperty(name + ".Node.ThreadPool.SizeWarn", "0");
             }
-            if(properties->getProperty(name + ".Node.MessageSizeMax").empty())
+            if (properties->getProperty(name + ".Node.MessageSizeMax").empty())
             {
                 properties->setProperty(name + ".Node.MessageSizeMax", "0"); // No limit on data exchanged internally
             }
@@ -319,21 +305,21 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
                                                             topicAdapter, nodeAdapter, nodes[id]);
             _instance = instance;
 
-            _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
+            _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size()) / 2);
 
             // Trace replication information.
             auto traceLevels = _instance->traceLevels();
-            if(traceLevels->election > 0)
+            if (traceLevels->election > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->electionCat);
                 out << "I am node " << id << "\n";
-                for(const auto& node : nodes)
+                for (const auto& node : nodes)
                 {
                     out << "\tnode: " << node.first << " proxy: " << node.second->ice_toString() << "\n";
                 }
             }
 
-            if(topicManagerAdapterId.empty())
+            if (topicManagerAdapterId.empty())
             {
                 // We're not using an IceGrid deployment. Here we need
                 // a proxy which is used to create proxies to the
@@ -363,7 +349,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
 
             node->start();
         }
-        catch(const IceUtil::Exception& ex)
+        catch (const IceUtil::Exception& ex)
         {
             _instance = 0;
 
@@ -394,7 +380,7 @@ ServiceI::start(const shared_ptr<Communicator>& communicator,
     // For IceGrid we don't validate the properties as all sorts of
     // non-IceStorm properties are included in the prefix.
     //
-    //validateProperties(name, communicator->getProperties(), communicator->getLogger());
+    // validateProperties(name, communicator->getProperties(), communicator->getLogger());
 
     // This is for IceGrid only and as such we use a transient
     // implementation of IceStorm.
@@ -406,7 +392,7 @@ ServiceI::start(const shared_ptr<Communicator>& communicator,
         auto manager = make_shared<TransientTopicManagerImpl>(_instance);
         _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->add(manager, id));
     }
-    catch(const Ice::Exception& ex)
+    catch (const Ice::Exception& ex)
     {
         _instance = 0;
         LoggerOutputBase s;
@@ -432,11 +418,11 @@ ServiceI::stop()
     //
     // It's necessary to reap all destroyed topics on shutdown.
     //
-    if(_manager)
+    if (_manager)
     {
         _manager->shutdown();
     }
-    if(_transientManager)
+    if (_transientManager)
     {
         _transientManager->shutdown();
     }
@@ -448,97 +434,96 @@ ServiceI::stop()
 }
 
 void
-ServiceI::validateProperties(const string& name, const shared_ptr<Properties>& properties, const shared_ptr<Logger>& logger)
+ServiceI::validateProperties(const string& name,
+                             const shared_ptr<Properties>& properties,
+                             const shared_ptr<Logger>& logger)
 {
-    static const string suffixes[] =
-    {
-        "ReplicatedTopicManagerEndpoints",
-        "ReplicatedPublishEndpoints",
-        "Nodes.*",
-        "Transient",
-        "NodeId",
-        "Flush.Timeout",
-        "InstanceName",
-        "Election.MasterTimeout",
-        "Election.ElectionTimeout",
-        "Election.ResponseTimeout",
-        "Publish.AdapterId",
-        "Publish.Endpoints",
-        "Publish.Locator",
-        "Publish.PublishedEndpoints",
-        "Publish.ReplicaGroupId",
-        "Publish.Router",
-        "Publish.ThreadPool.Size",
-        "Publish.ThreadPool.SizeMax",
-        "Publish.ThreadPool.SizeWarn",
-        "Publish.ThreadPool.StackSize",
-        "Node.AdapterId",
-        "Node.Endpoints",
-        "Node.Locator",
-        "Node.PublishedEndpoints",
-        "Node.ReplicaGroupId",
-        "Node.Router",
-        "Node.ThreadPool.Size",
-        "Node.ThreadPool.SizeMax",
-        "Node.ThreadPool.SizeWarn",
-        "Node.ThreadPool.StackSize",
-        "TopicManager.AdapterId",
-        "TopicManager.Endpoints",
-        "TopicManager.Locator",
-        "TopicManager.Proxy",
-        "TopicManager.Proxy.EndpointSelection",
-        "TopicManager.Proxy.ConnectionCached",
-        "TopicManager.Proxy.PreferSecure",
-        "TopicManager.Proxy.LocatorCacheTimeout",
-        "TopicManager.Proxy.Locator",
-        "TopicManager.Proxy.Router",
-        "TopicManager.Proxy.CollocationOptimization",
-        "TopicManager.PublishedEndpoints",
-        "TopicManager.ReplicaGroupId",
-        "TopicManager.Router",
-        "TopicManager.ThreadPool.Size",
-        "TopicManager.ThreadPool.SizeMax",
-        "TopicManager.ThreadPool.SizeWarn",
-        "TopicManager.ThreadPool.StackSize",
-        "Trace.Election",
-        "Trace.Replication",
-        "Trace.Subscriber",
-        "Trace.Topic",
-        "Trace.TopicManager",
-        "Send.Timeout",
-        "Send.QueueSizeMax",
-        "Send.QueueSizeMaxPolicy",
-        "Discard.Interval",
-        "LMDB.Path",
-        "LMDB.MapSize"
-    };
+    static const string suffixes[] = {"ReplicatedTopicManagerEndpoints",
+                                      "ReplicatedPublishEndpoints",
+                                      "Nodes.*",
+                                      "Transient",
+                                      "NodeId",
+                                      "Flush.Timeout",
+                                      "InstanceName",
+                                      "Election.MasterTimeout",
+                                      "Election.ElectionTimeout",
+                                      "Election.ResponseTimeout",
+                                      "Publish.AdapterId",
+                                      "Publish.Endpoints",
+                                      "Publish.Locator",
+                                      "Publish.PublishedEndpoints",
+                                      "Publish.ReplicaGroupId",
+                                      "Publish.Router",
+                                      "Publish.ThreadPool.Size",
+                                      "Publish.ThreadPool.SizeMax",
+                                      "Publish.ThreadPool.SizeWarn",
+                                      "Publish.ThreadPool.StackSize",
+                                      "Node.AdapterId",
+                                      "Node.Endpoints",
+                                      "Node.Locator",
+                                      "Node.PublishedEndpoints",
+                                      "Node.ReplicaGroupId",
+                                      "Node.Router",
+                                      "Node.ThreadPool.Size",
+                                      "Node.ThreadPool.SizeMax",
+                                      "Node.ThreadPool.SizeWarn",
+                                      "Node.ThreadPool.StackSize",
+                                      "TopicManager.AdapterId",
+                                      "TopicManager.Endpoints",
+                                      "TopicManager.Locator",
+                                      "TopicManager.Proxy",
+                                      "TopicManager.Proxy.EndpointSelection",
+                                      "TopicManager.Proxy.ConnectionCached",
+                                      "TopicManager.Proxy.PreferSecure",
+                                      "TopicManager.Proxy.LocatorCacheTimeout",
+                                      "TopicManager.Proxy.Locator",
+                                      "TopicManager.Proxy.Router",
+                                      "TopicManager.Proxy.CollocationOptimization",
+                                      "TopicManager.PublishedEndpoints",
+                                      "TopicManager.ReplicaGroupId",
+                                      "TopicManager.Router",
+                                      "TopicManager.ThreadPool.Size",
+                                      "TopicManager.ThreadPool.SizeMax",
+                                      "TopicManager.ThreadPool.SizeWarn",
+                                      "TopicManager.ThreadPool.StackSize",
+                                      "Trace.Election",
+                                      "Trace.Replication",
+                                      "Trace.Subscriber",
+                                      "Trace.Topic",
+                                      "Trace.TopicManager",
+                                      "Send.Timeout",
+                                      "Send.QueueSizeMax",
+                                      "Send.QueueSizeMaxPolicy",
+                                      "Discard.Interval",
+                                      "LMDB.Path",
+                                      "LMDB.MapSize"};
 
     vector<string> unknownProps;
     string prefix = name + ".";
     PropertyDict props = properties->getPropertiesForPrefix(prefix);
-    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    for (PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         bool valid = false;
-        for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)
+        for (unsigned int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
         {
             string prop = prefix + suffixes[i];
-            if(IceUtilInternal::match(p->first, prop))
+            if (IceUtilInternal::match(p->first, prop))
             {
                 valid = true;
                 break;
             }
         }
-        if(!valid)
+        if (!valid)
         {
             unknownProps.push_back(p->first);
         }
     }
 
-    if(!unknownProps.empty())
+    if (!unknownProps.empty())
     {
         Warning out(logger);
         out << "found unknown properties for IceStorm service '" << name << "':";
-        for(vector<string>::const_iterator p = unknownProps.begin(); p != unknownProps.end(); ++p)
+        for (vector<string>::const_iterator p = unknownProps.begin(); p != unknownProps.end(); ++p)
         {
             out << "\n    " << *p;
         }

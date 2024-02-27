@@ -10,11 +10,11 @@
 //
 
 #if !defined(ICE_BUILDING_ICE_GRID) && defined(ICEGRID_API_EXPORTS)
-#   define ICE_BUILDING_ICE_GRID
+#    define ICE_BUILDING_ICE_GRID
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_GRID)
-#   pragma comment(lib, ICE_LIBNAME("IceGrid"))
+#    pragma comment(lib, ICE_LIBNAME("IceGrid"))
 #endif
 
 #endif

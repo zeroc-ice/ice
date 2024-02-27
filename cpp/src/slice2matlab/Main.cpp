@@ -24,9 +24,9 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#  include <direct.h>
+#    include <direct.h>
 #else
-#  include <unistd.h>
+#    include <unistd.h>
 #endif
 
 using namespace std;
@@ -36,1469 +36,1535 @@ using namespace IceUtilInternal;
 namespace
 {
 
-//
-// Split an absolute name into its components and return the components as a list of identifiers.
-//
-vector<string>
-splitAbsoluteName(const string& abs)
-{
-    vector<string> ids;
-    string::size_type start = 0;
-    string::size_type pos;
-    while((pos = abs.find(".", start)) != string::npos)
+    //
+    // Split an absolute name into its components and return the components as a list of identifiers.
+    //
+    vector<string> splitAbsoluteName(const string& abs)
     {
-        assert(pos > start);
-        ids.push_back(abs.substr(start, pos - start));
-        start = pos + 1;
-    }
-    if(start != abs.size())
-    {
-        ids.push_back(abs.substr(start));
-    }
-
-    return ids;
-}
-
-string
-lookupKwd(const string& name)
-{
-    //
-    // Keyword list. *Must* be kept in alphabetical order.
-    //
-    static const string keywordList[] =
-    {
-        "break", "case", "catch", "classdef", "continue", "else", "elseif", "end", "enumeration", "events", "for",
-        "function", "global", "if", "methods", "otherwise", "parfor", "persistent", "properties", "return", "spmd",
-        "switch", "try", "while"
-    };
-    bool found =  binary_search(&keywordList[0],
-                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                                name);
-    return found ? name + "_" : name;
-}
-
-string
-fixIdent(const string& ident)
-{
-    if(ident[0] != ':')
-    {
-        return lookupKwd(ident);
-    }
-    vector<string> ids = splitScopedName(ident);
-    transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-    stringstream result;
-    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
-    {
-        result << "::" + *i;
-    }
-    return result.str();
-}
-
-string
-fixEnumerator(const string& name)
-{
-    assert(name[0] != ':');
-
-    //
-    // Method list. These represent the built-in methods for enumerators, inherited from uint8 or int32.
-    // MATLAB does not allow an enumeration class to declare an enumerator having one of these names.
-    //
-    // *Must* be kept in alphabetical order.
-    //
-    static const string methodList[] =
-    {
-        "abs", "accumarray", "all", "and", "any", "bitand", "bitcmp", "bitget", "bitor", "bitset", "bitshift",
-        "bitxor", "bsxfun", "cat", "ceil", "cell", "cellstr", "char", "complex", "conj", "conv2", "ctranspose",
-        "cummax", "cummin", "cumprod", "cumsum", "diag", "diff", "double", "end", "eq", "fft", "fftn", "find",
-        "fix", "floor", "full", "function_handle", "ge", "gt", "horzcat", "ifft", "ifftn", "imag", "int16", "int32",
-        "int64", "int8", "intersect", "isempty", "isequal", "isequaln", "isequalwithequalnans", "isfinite", "isfloat",
-        "isinf", "isinteger", "islogical", "ismember", "isnan", "isnumeric", "isreal", "isscalar", "issorted",
-        "issparse", "isvector", "ldivide", "le", "length", "linsolve", "logical", "lt", "max", "min", "minus",
-        "mldivide", "mod", "mpower", "mrdivide", "mtimes", "ndims", "ne", "nnz", "nonzeros", "not", "numel", "nzmax",
-        "or", "permute", "plot", "plus", "power", "prod", "rdivide", "real", "rem", "reshape", "round", "setdiff",
-        "setxor", "sign", "single", "size", "sort", "sortrowsc", "strcmp", "strcmpi", "strncmp", "strncmpi",
-        "subsasgn", "subsindex", "subsref", "sum", "times", "transpose", "tril", "triu", "uint16", "uint32", "uint64",
-        "uminus", "union", "uplus", "vertcat", "xor"
-    };
-
-    bool found =  binary_search(&methodList[0],
-                                &methodList[sizeof(methodList) / sizeof(*methodList)],
-                                name);
-    return found ? name + "_" : lookupKwd(name);
-}
-
-string
-fixOp(const string& name)
-{
-    assert(name[0] != ':');
-
-    //
-    // An operation name must be escaped if it matches any of the identifiers in this list, in addition to the
-    // MATLAB language keywords. The identifiers below represent the names of methods inherited from ObjectPrx
-    // and handle.
-    //
-    // *Must* be kept in alphabetical order.
-    //
-    static const string idList[] =
-    {
-        "addlistener", "checkedCast", "delete", "eq", "findobj", "findprop", "ge", "gt", "isvalid", "le", "lt", "ne",
-        "notify", "uncheckedCast"
-    };
-    bool found =  binary_search(&idList[0],
-                                &idList[sizeof(idList) / sizeof(*idList)],
-                                name);
-    return found ? name + "_" : fixIdent(name);
-}
-
-string
-fixExceptionMember(const string& ident)
-{
-    //
-    // User exceptions are subclasses of MATLAB's MException class. Subclasses cannot redefine a member that
-    // conflicts with MException's properties. Unfortunately MException also has some undocumented non-public
-    // properties that will cause run-time errors.
-    //
-    if(ident == "identifier" ||
-       ident == "message" ||
-       ident == "stack" ||
-       ident == "cause" ||
-       ident == "type") // Undocumented
-    {
-        return ident + "_";
-    }
-
-    return fixIdent(ident);
-}
-
-string
-fixStructMember(const string& ident)
-{
-    //
-    // We define eq() and ne() methods for structures.
-    //
-    if(ident == "eq" || ident == "ne")
-    {
-        return ident + "_";
-    }
-
-    return fixIdent(ident);
-}
-
-string
-replace(string s, string patt, string val)
-{
-    string r = s;
-    string::size_type pos = r.find(patt);
-    while(pos != string::npos)
-    {
-        r.replace(pos, patt.size(), val);
-        pos += val.size();
-        pos = r.find(patt, pos);
-    }
-    return r;
-}
-
-void
-writeCopyright(IceUtilInternal::Output& out, const string& file)
-{
-    string f = file;
-    string::size_type pos = f.find_last_of("/");
-    if(pos != string::npos)
-    {
-        f = f.substr(pos + 1);
-    }
-
-    out << nl << "% Copyright (c) ZeroC, Inc. All rights reserved.";
-    out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
-    out << nl;
-}
-
-void
-openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
-{
-    vector<string> v = splitAbsoluteName(abs);
-    assert(v.size() > 1);
-
-    string path;
-    if(!dir.empty())
-    {
-        path = dir + "/";
-    }
-
-    //
-    // Create a package directory corresponding to each component.
-    //
-    for(vector<string>::size_type i = 0; i < v.size() - 1; i++)
-    {
-        path += "+" + lookupKwd(v[i]);
-        if(!IceUtilInternal::directoryExists(path))
+        vector<string> ids;
+        string::size_type start = 0;
+        string::size_type pos;
+        while ((pos = abs.find(".", start)) != string::npos)
         {
-            int err = IceUtilInternal::mkdir(path, 0777);
-            // If slice2matlab is run concurrently, it's possible that another instance of slice2matlab has already
-            // created the directory.
-            if (err == 0 || (errno == EEXIST && IceUtilInternal::directoryExists(path)))
+            assert(pos > start);
+            ids.push_back(abs.substr(start, pos - start));
+            start = pos + 1;
+        }
+        if (start != abs.size())
+        {
+            ids.push_back(abs.substr(start));
+        }
+
+        return ids;
+    }
+
+    string lookupKwd(const string& name)
+    {
+        //
+        // Keyword list. *Must* be kept in alphabetical order.
+        //
+        static const string keywordList[] = {
+            "break",       "case",       "catch",      "classdef", "continue", "else",   "elseif",  "end",
+            "enumeration", "events",     "for",        "function", "global",   "if",     "methods", "otherwise",
+            "parfor",      "persistent", "properties", "return",   "spmd",     "switch", "try",     "while"};
+        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
+        return found ? name + "_" : name;
+    }
+
+    string fixIdent(const string& ident)
+    {
+        if (ident[0] != ':')
+        {
+            return lookupKwd(ident);
+        }
+        vector<string> ids = splitScopedName(ident);
+        transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
+        stringstream result;
+        for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+        {
+            result << "::" + *i;
+        }
+        return result.str();
+    }
+
+    string fixEnumerator(const string& name)
+    {
+        assert(name[0] != ':');
+
+        //
+        // Method list. These represent the built-in methods for enumerators, inherited from uint8 or int32.
+        // MATLAB does not allow an enumeration class to declare an enumerator having one of these names.
+        //
+        // *Must* be kept in alphabetical order.
+        //
+        static const string methodList[] = {"abs",
+                                            "accumarray",
+                                            "all",
+                                            "and",
+                                            "any",
+                                            "bitand",
+                                            "bitcmp",
+                                            "bitget",
+                                            "bitor",
+                                            "bitset",
+                                            "bitshift",
+                                            "bitxor",
+                                            "bsxfun",
+                                            "cat",
+                                            "ceil",
+                                            "cell",
+                                            "cellstr",
+                                            "char",
+                                            "complex",
+                                            "conj",
+                                            "conv2",
+                                            "ctranspose",
+                                            "cummax",
+                                            "cummin",
+                                            "cumprod",
+                                            "cumsum",
+                                            "diag",
+                                            "diff",
+                                            "double",
+                                            "end",
+                                            "eq",
+                                            "fft",
+                                            "fftn",
+                                            "find",
+                                            "fix",
+                                            "floor",
+                                            "full",
+                                            "function_handle",
+                                            "ge",
+                                            "gt",
+                                            "horzcat",
+                                            "ifft",
+                                            "ifftn",
+                                            "imag",
+                                            "int16",
+                                            "int32",
+                                            "int64",
+                                            "int8",
+                                            "intersect",
+                                            "isempty",
+                                            "isequal",
+                                            "isequaln",
+                                            "isequalwithequalnans",
+                                            "isfinite",
+                                            "isfloat",
+                                            "isinf",
+                                            "isinteger",
+                                            "islogical",
+                                            "ismember",
+                                            "isnan",
+                                            "isnumeric",
+                                            "isreal",
+                                            "isscalar",
+                                            "issorted",
+                                            "issparse",
+                                            "isvector",
+                                            "ldivide",
+                                            "le",
+                                            "length",
+                                            "linsolve",
+                                            "logical",
+                                            "lt",
+                                            "max",
+                                            "min",
+                                            "minus",
+                                            "mldivide",
+                                            "mod",
+                                            "mpower",
+                                            "mrdivide",
+                                            "mtimes",
+                                            "ndims",
+                                            "ne",
+                                            "nnz",
+                                            "nonzeros",
+                                            "not",
+                                            "numel",
+                                            "nzmax",
+                                            "or",
+                                            "permute",
+                                            "plot",
+                                            "plus",
+                                            "power",
+                                            "prod",
+                                            "rdivide",
+                                            "real",
+                                            "rem",
+                                            "reshape",
+                                            "round",
+                                            "setdiff",
+                                            "setxor",
+                                            "sign",
+                                            "single",
+                                            "size",
+                                            "sort",
+                                            "sortrowsc",
+                                            "strcmp",
+                                            "strcmpi",
+                                            "strncmp",
+                                            "strncmpi",
+                                            "subsasgn",
+                                            "subsindex",
+                                            "subsref",
+                                            "sum",
+                                            "times",
+                                            "transpose",
+                                            "tril",
+                                            "triu",
+                                            "uint16",
+                                            "uint32",
+                                            "uint64",
+                                            "uminus",
+                                            "union",
+                                            "uplus",
+                                            "vertcat",
+                                            "xor"};
+
+        bool found = binary_search(&methodList[0], &methodList[sizeof(methodList) / sizeof(*methodList)], name);
+        return found ? name + "_" : lookupKwd(name);
+    }
+
+    string fixOp(const string& name)
+    {
+        assert(name[0] != ':');
+
+        //
+        // An operation name must be escaped if it matches any of the identifiers in this list, in addition to the
+        // MATLAB language keywords. The identifiers below represent the names of methods inherited from ObjectPrx
+        // and handle.
+        //
+        // *Must* be kept in alphabetical order.
+        //
+        static const string idList[] = {"addlistener", "checkedCast", "delete", "eq",           "findobj",
+                                        "findprop",    "ge",          "gt",     "isvalid",      "le",
+                                        "lt",          "ne",          "notify", "uncheckedCast"};
+        bool found = binary_search(&idList[0], &idList[sizeof(idList) / sizeof(*idList)], name);
+        return found ? name + "_" : fixIdent(name);
+    }
+
+    string fixExceptionMember(const string& ident)
+    {
+        //
+        // User exceptions are subclasses of MATLAB's MException class. Subclasses cannot redefine a member that
+        // conflicts with MException's properties. Unfortunately MException also has some undocumented non-public
+        // properties that will cause run-time errors.
+        //
+        if (ident == "identifier" || ident == "message" || ident == "stack" || ident == "cause" ||
+            ident == "type") // Undocumented
+        {
+            return ident + "_";
+        }
+
+        return fixIdent(ident);
+    }
+
+    string fixStructMember(const string& ident)
+    {
+        //
+        // We define eq() and ne() methods for structures.
+        //
+        if (ident == "eq" || ident == "ne")
+        {
+            return ident + "_";
+        }
+
+        return fixIdent(ident);
+    }
+
+    string replace(string s, string patt, string val)
+    {
+        string r = s;
+        string::size_type pos = r.find(patt);
+        while (pos != string::npos)
+        {
+            r.replace(pos, patt.size(), val);
+            pos += val.size();
+            pos = r.find(patt, pos);
+        }
+        return r;
+    }
+
+    void writeCopyright(IceUtilInternal::Output& out, const string& file)
+    {
+        string f = file;
+        string::size_type pos = f.find_last_of("/");
+        if (pos != string::npos)
+        {
+            f = f.substr(pos + 1);
+        }
+
+        out << nl << "% Copyright (c) ZeroC, Inc. All rights reserved.";
+        out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
+        out << nl;
+    }
+
+    void openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
+    {
+        vector<string> v = splitAbsoluteName(abs);
+        assert(v.size() > 1);
+
+        string path;
+        if (!dir.empty())
+        {
+            path = dir + "/";
+        }
+
+        //
+        // Create a package directory corresponding to each component.
+        //
+        for (vector<string>::size_type i = 0; i < v.size() - 1; i++)
+        {
+            path += "+" + lookupKwd(v[i]);
+            if (!IceUtilInternal::directoryExists(path))
             {
-                // Directory successfully created or already exists.
+                int err = IceUtilInternal::mkdir(path, 0777);
+                // If slice2matlab is run concurrently, it's possible that another instance of slice2matlab has already
+                // created the directory.
+                if (err == 0 || (errno == EEXIST && IceUtilInternal::directoryExists(path)))
+                {
+                    // Directory successfully created or already exists.
+                }
+                else
+                {
+                    ostringstream os;
+                    os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
+                    throw FileException(__FILE__, __LINE__, os.str());
+                }
+                FileTracker::instance()->addDirectory(path);
+            }
+            path += "/";
+        }
+
+        //
+        // There are two options:
+        //
+        // 1) Create a subdirectory named "@ClassName" containing a file "ClassName.m".
+        // 2) Create a file named "ClassName.m".
+        //
+        // The class directory is useful if you want to add additional supporting files for the class. We only
+        // generate a single file for a class so we use option 2.
+        //
+        const string cls = lookupKwd(v[v.size() - 1]);
+        path += cls + ".m";
+
+        out.open(path);
+        FileTracker::instance()->addFile(path);
+    }
+
+    //
+    // Get the fully-qualified name of the given definition. If a suffix is provided,
+    // it is prepended to the definition's unqualified name. If the nameSuffix
+    // is provided, it is appended to the container's name.
+    //
+    string
+    getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const string& suffix = std::string())
+    {
+        string str = fixIdent(cont->scope() + pfx + cont->name() + suffix);
+        if (str.find("::") == 0)
+        {
+            str.erase(0, 2);
+        }
+
+        return replace(str, "::", ".");
+    }
+
+    string typeToString(const TypePtr& type)
+    {
+        static const char* builtinTable[] = {
+            "uint8",         "logical", "int16", "int32", "int64", "single", "double", "char",
+            "Ice.Object",    // Object
+            "Ice.ObjectPrx", // ObjectPrx
+            "Ice.Value"      // Value
+        };
+
+        if (!type)
+        {
+            return "void";
+        }
+
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+        if (builtin)
+        {
+            return builtinTable[builtin->kind()];
+        }
+
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
+        if (cl)
+        {
+            return getAbsolute(cl);
+        }
+
+        InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
+        if (proxy)
+        {
+            return getAbsolute(proxy, "", "Prx");
+        }
+
+        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
+        if (dict)
+        {
+            if (dynamic_pointer_cast<Struct>(dict->keyType()))
+            {
+                return "struct";
             }
             else
             {
-                ostringstream os;
-                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
-                throw FileException(__FILE__, __LINE__, os.str());
-            }
-            FileTracker::instance()->addDirectory(path);
-        }
-        path += "/";
-    }
-
-    //
-    // There are two options:
-    //
-    // 1) Create a subdirectory named "@ClassName" containing a file "ClassName.m".
-    // 2) Create a file named "ClassName.m".
-    //
-    // The class directory is useful if you want to add additional supporting files for the class. We only
-    // generate a single file for a class so we use option 2.
-    //
-    const string cls = lookupKwd(v[v.size() - 1]);
-    path += cls + ".m";
-
-    out.open(path);
-    FileTracker::instance()->addFile(path);
-}
-
-//
-// Get the fully-qualified name of the given definition. If a suffix is provided,
-// it is prepended to the definition's unqualified name. If the nameSuffix
-// is provided, it is appended to the container's name.
-//
-string
-getAbsolute(const ContainedPtr& cont, const string& pfx = std::string(), const string& suffix = std::string())
-{
-    string str = fixIdent(cont->scope() + pfx + cont->name() + suffix);
-    if(str.find("::") == 0)
-    {
-        str.erase(0, 2);
-    }
-
-    return replace(str, "::", ".");
-}
-
-string
-typeToString(const TypePtr& type)
-{
-    static const char* builtinTable[] =
-    {
-        "uint8",
-        "logical",
-        "int16",
-        "int32",
-        "int64",
-        "single",
-        "double",
-        "char",
-        "Ice.Object", // Object
-        "Ice.ObjectPrx", // ObjectPrx
-        "Ice.Value" // Value
-    };
-
-    if(!type)
-    {
-        return "void";
-    }
-
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
-    {
-        return builtinTable[builtin->kind()];
-    }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
-    {
-        return getAbsolute(cl);
-    }
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(proxy)
-    {
-        return getAbsolute(proxy, "", "Prx");
-    }
-
-    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if(dict)
-    {
-        if(dynamic_pointer_cast<Struct>(dict->keyType()))
-        {
-            return "struct";
-        }
-        else
-        {
-            return "containers.Map";
-        }
-    }
-
-    ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
-    if(contained)
-    {
-        return getAbsolute(contained);
-    }
-
-    return "???";
-}
-
-string
-dictionaryTypeToString(const TypePtr& type, bool key)
-{
-    assert(type);
-
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindBool:
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            {
-                //
-                // containers.Map supports a limited number of key types.
-                //
-                return key ? "int32" : typeToString(type);
-            }
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            case Builtin::KindString:
-            {
-                return typeToString(type);
-            }
-            case Builtin::KindFloat:
-            case Builtin::KindDouble:
-            {
-                assert(!key);
-                return typeToString(type);
-            }
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindValue:
-            {
-                assert(!key);
-                return "any";
-            }
-            default:
-            {
-                return "???";
+                return "containers.Map";
             }
         }
-    }
 
-    EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
-    {
-        //
-        // containers.Map doesn't natively support enumerators as keys but we can work around it using int32.
-        //
-        return key ? "int32" : "any";
-    }
-
-    return "any";
-}
-
-bool
-declarePropertyType(const TypePtr& type, bool optional)
-{
-    if(optional || dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<ClassDecl>(type))
-    {
-        return false;
-    }
-
-    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-    if(b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindObjectProxy ||
-             b->kind() == Builtin::KindValue))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-string
-constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
-{
-    ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
-    if(constant)
-    {
-        return getAbsolute(constant) + ".value";
-    }
-    else
-    {
-        BuiltinPtr bp;
-        if((bp = dynamic_pointer_cast<Builtin>(type)))
+        ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
+        if (contained)
         {
-            switch(bp->kind())
+            return getAbsolute(contained);
+        }
+
+        return "???";
+    }
+
+    string dictionaryTypeToString(const TypePtr& type, bool key)
+    {
+        assert(type);
+
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+        if (builtin)
+        {
+            switch (builtin->kind())
             {
-                case Builtin::KindString:
-                {
-                    return "sprintf('" + toStringLiteral(value, "\a\b\f\n\r\t\v", "", Matlab, 255) + "')";
-                }
                 case Builtin::KindBool:
                 case Builtin::KindByte:
                 case Builtin::KindShort:
+                {
+                    //
+                    // containers.Map supports a limited number of key types.
+                    //
+                    return key ? "int32" : typeToString(type);
+                }
                 case Builtin::KindInt:
                 case Builtin::KindLong:
+                case Builtin::KindString:
+                {
+                    return typeToString(type);
+                }
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
+                {
+                    assert(!key);
+                    return typeToString(type);
+                }
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindValue:
                 {
-                    return value;
+                    assert(!key);
+                    return "any";
                 }
-
                 default:
                 {
                     return "???";
                 }
             }
-
-        }
-        else if(dynamic_pointer_cast<Enum>(type))
-        {
-            EnumeratorPtr e = dynamic_pointer_cast<Enumerator>(valueType);
-            assert(e);
-            return getAbsolute(e);
-        }
-        else
-        {
-            return value;
-        }
-    }
-}
-
-string
-defaultValue(const DataMemberPtr& m)
-{
-    if(m->defaultValueType())
-    {
-        return constantValue(m->type(), m->defaultValueType(), m->defaultValue());
-    }
-    else if(m->optional())
-    {
-        return "IceInternal.UnsetI.Instance";
-    }
-    else
-    {
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(m->type());
-        if(builtin)
-        {
-            switch(builtin->kind())
-            {
-                case Builtin::KindString:
-                    return "''";
-                case Builtin::KindBool:
-                    return "false";
-                case Builtin::KindByte:
-                case Builtin::KindShort:
-                case Builtin::KindInt:
-                case Builtin::KindLong:
-                case Builtin::KindFloat:
-                case Builtin::KindDouble:
-                    return "0";
-                case Builtin::KindObject:
-                case Builtin::KindObjectProxy:
-                case Builtin::KindValue:
-                    return "[]";
-            }
         }
 
-        DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(m->type());
-        if(dict)
+        EnumPtr en = dynamic_pointer_cast<Enum>(type);
+        if (en)
         {
-            const TypePtr key = dict->keyType();
-            const TypePtr value = dict->valueType();
-            if(dynamic_pointer_cast<Struct>(key))
-            {
-                //
-                // We use a struct array when the key is a structure type because we can't use containers.Map.
-                //
-                return "struct('key', {}, 'value', {})";
-            }
-            else
-            {
-                ostringstream ostr;
-                ostr << "containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
-                    << dictionaryTypeToString(value, false) << "')";
-                return ostr.str();
-            }
+            //
+            // containers.Map doesn't natively support enumerators as keys but we can work around it using int32.
+            //
+            return key ? "int32" : "any";
         }
 
-        EnumPtr en = dynamic_pointer_cast<Enum>(m->type());
-        if(en)
+        return "any";
+    }
+
+    bool declarePropertyType(const TypePtr& type, bool optional)
+    {
+        if (optional || dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<InterfaceDecl>(type) ||
+            dynamic_pointer_cast<ClassDecl>(type))
         {
-            const EnumeratorList enumerators = en->enumerators();
-            return getAbsolute(*enumerators.begin());
+            return false;
         }
 
-        StructPtr st = dynamic_pointer_cast<Struct>(m->type());
-        if(st)
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+        if (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindObjectProxy ||
+                  b->kind() == Builtin::KindValue))
         {
-            return getAbsolute(st) + "()";
-        }
-
-        return "[]";
-    }
-}
-
-bool
-isClass(const TypePtr& type)
-{
-    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    return (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl;
-}
-
-bool
-isProxy(const TypePtr& type)
-{
-    BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-    InterfaceDeclPtr p = dynamic_pointer_cast<InterfaceDecl>(type);
-    return (b && b->kind() == Builtin::KindObjectProxy) || p;
-}
-
-bool
-needsConversion(const TypePtr& type)
-{
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
-    {
-        return isClass(seq->type()) || needsConversion(seq->type());
-    }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
-    {
-        const DataMemberList members = st->dataMembers();
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-        {
-            if(needsConversion((*q)->type()) || isClass((*q)->type()))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if(d)
-    {
-        return needsConversion(d->valueType()) || isClass(d->valueType());
-    }
-
-    return false;
-}
-
-void
-convertValueType(IceUtilInternal::Output& out, const string& dest, const string& src, const TypePtr& type,
-                 bool optional)
-{
-    assert(needsConversion(type));
-
-    if(optional)
-    {
-        out << nl << "if " << src << " ~= Ice.Unset";
-        out.inc();
-    }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
-    {
-        out << nl << dest << " = " << getAbsolute(seq) << ".convert(" << src << ");";
-    }
-
-    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if(d)
-    {
-        out << nl << dest << " = " << getAbsolute(d) << ".convert(" << src << ");";
-    }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
-    {
-        out << nl << dest << " = " << src << ".ice_convert();";
-    }
-
-    if(optional)
-    {
-        out.dec();
-        out << nl << "end";
-    }
-}
-
-void
-trimLines(StringList& l)
-{
-    //
-    // Remove empty trailing lines.
-    //
-    while(!l.empty() && l.back().empty())
-    {
-        l.pop_back();
-    }
-}
-
-StringList
-splitComment(const string& c)
-{
-    string comment = c;
-
-    //
-    // Strip HTML markup and javadoc links -- MATLAB doesn't display them.
-    //
-    string::size_type pos = 0;
-    do
-    {
-        pos = comment.find('<', pos);
-        if(pos != string::npos)
-        {
-            string::size_type endpos = comment.find('>', pos);
-            if(endpos == string::npos)
-            {
-                break;
-            }
-            comment.erase(pos, endpos - pos + 1);
-        }
-    }
-    while(pos != string::npos);
-
-    const string link = "{@link";
-    pos = 0;
-    do
-    {
-        pos = comment.find(link, pos);
-        if(pos != string::npos)
-        {
-            comment.erase(pos, link.size() + 1); // Erase trailing white space too.
-            string::size_type endpos = comment.find('}', pos);
-            if(endpos != string::npos)
-            {
-                string ident = comment.substr(pos, endpos - pos);
-                comment.erase(pos, endpos - pos + 1);
-
-                //
-                // Check for links of the form {@link Type#member}.
-                //
-                string::size_type hash = ident.find('#');
-                string rest;
-                if(hash != string::npos)
-                {
-                    rest = ident.substr(hash + 1);
-                    ident = ident.substr(0, hash);
-                    if(!ident.empty())
-                    {
-                        ident = fixIdent(ident);
-                        if(!rest.empty())
-                        {
-                            ident += "." + fixIdent(rest);
-                        }
-                    }
-                    else if(!rest.empty())
-                    {
-                        ident = fixIdent(rest);
-                    }
-                }
-                else
-                {
-                    ident = fixIdent(ident);
-                }
-
-                comment.insert(pos, ident);
-            }
-        }
-    }
-    while(pos != string::npos);
-
-    StringList result;
-
-    pos = 0;
-    string::size_type nextPos;
-    while((nextPos = comment.find_first_of('\n', pos)) != string::npos)
-    {
-        result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
-        pos = nextPos + 1;
-    }
-    string lastLine = IceUtilInternal::trim(string(comment, pos));
-    if(!lastLine.empty())
-    {
-        result.push_back(lastLine);
-    }
-
-    trimLines(result);
-
-    return result;
-}
-
-bool
-parseCommentLine(const string& l, const string& tag, bool namedTag, string& name, string& doc)
-{
-    doc.clear();
-
-    if(l.find(tag) == 0)
-    {
-        const string ws = " \t";
-
-        if(namedTag)
-        {
-            string::size_type n = l.find_first_not_of(ws, tag.size());
-            if(n == string::npos)
-            {
-                return false; // Malformed line, ignore it.
-            }
-            string::size_type end = l.find_first_of(ws, n);
-            if(end == string::npos)
-            {
-                return false; // Malformed line, ignore it.
-            }
-            name = l.substr(n, end - n);
-            n = l.find_first_not_of(ws, end);
-            if(n != string::npos)
-            {
-                doc = l.substr(n);
-            }
-        }
-        else
-        {
-            name.clear();
-
-            string::size_type n = l.find_first_not_of(ws, tag.size());
-            if(n == string::npos)
-            {
-                return false; // Malformed line, ignore it.
-            }
-            doc = l.substr(n);
+            return false;
         }
 
         return true;
     }
 
-    return false;
-}
-
-struct DocElements
-{
-    StringList overview;
-    bool deprecated;
-    StringList deprecateReason;
-    StringList misc;
-    StringList seeAlso;
-    StringList returns;
-    map<string, StringList> params;
-    map<string, StringList> exceptions;
-};
-
-DocElements
-parseComment(const ContainedPtr& p)
-{
-    DocElements doc;
-
-    doc.deprecated = false;
-
-    //
-    // First check metadata for a deprecated tag.
-    //
-    string deprecateMetadata;
-    if(p->findMetaData("deprecate", deprecateMetadata))
+    string constantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
     {
-        doc.deprecated = true;
-        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
+        if (constant)
         {
-            doc.deprecateReason.push_back(IceUtilInternal::trim(deprecateMetadata.substr(10)));
-        }
-    }
-
-    //
-    // Split up the comment into lines.
-    //
-    StringList lines = splitComment(p->comment());
-
-    StringList::const_iterator i;
-    for(i = lines.begin(); i != lines.end(); ++i)
-    {
-        const string l = *i;
-        if(l[0] == '@')
-        {
-            break;
-        }
-        doc.overview.push_back(l);
-    }
-
-    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated, StateSee };
-    State state = StateMisc;
-    string name;
-    const string ws = " \t";
-    const string paramTag = "@param";
-    const string throwsTag = "@throws";
-    const string exceptionTag = "@exception";
-    const string returnTag = "@return";
-    const string deprecatedTag = "@deprecated";
-    const string seeTag = "@see";
-    for(; i != lines.end(); ++i)
-    {
-        const string l = IceUtilInternal::trim(*i);
-        string line;
-        if(parseCommentLine(l, paramTag, true, name, line))
-        {
-            if(!line.empty())
-            {
-                state = StateParam;
-                StringList sl;
-                sl.push_back(line); // The first line of the description.
-                doc.params[name] = sl;
-            }
-        }
-        else if(parseCommentLine(l, throwsTag, true, name, line))
-        {
-            if(!line.empty())
-            {
-                state = StateThrows;
-                StringList sl;
-                sl.push_back(line); // The first line of the description.
-                doc.exceptions[name] = sl;
-            }
-        }
-        else if(parseCommentLine(l, exceptionTag, true, name, line))
-        {
-            if(!line.empty())
-            {
-                state = StateThrows;
-                StringList sl;
-                sl.push_back(line); // The first line of the description.
-                doc.exceptions[name] = sl;
-            }
-        }
-        else if(parseCommentLine(l, seeTag, false, name, line))
-        {
-            if(!line.empty())
-            {
-                state = StateSee;
-                doc.seeAlso.push_back(line);
-            }
-        }
-        else if(parseCommentLine(l, returnTag, false, name, line))
-        {
-            if(!line.empty())
-            {
-                state = StateReturn;
-                doc.returns.push_back(line); // The first line of the description.
-            }
-        }
-        else if(parseCommentLine(l, deprecatedTag, false, name, line))
-        {
-            doc.deprecated = true;
-            if(!line.empty())
-            {
-                state = StateDeprecated;
-                doc.deprecateReason.push_back(line); // The first line of the description.
-            }
-        }
-        else if(!l.empty())
-        {
-            if(l[0] == '@')
-            {
-                //
-                // Treat all other tags as miscellaneous comments.
-                //
-                state = StateMisc;
-            }
-
-            switch(state)
-            {
-                case StateMisc:
-                {
-                    doc.misc.push_back(l);
-                    break;
-                }
-                case StateParam:
-                {
-                    assert(!name.empty());
-                    StringList sl;
-                    if(doc.params.find(name) != doc.params.end())
-                    {
-                        sl = doc.params[name];
-                    }
-                    sl.push_back(l);
-                    doc.params[name] = sl;
-                    break;
-                }
-                case StateThrows:
-                {
-                    assert(!name.empty());
-                    StringList sl;
-                    if(doc.exceptions.find(name) != doc.exceptions.end())
-                    {
-                        sl = doc.exceptions[name];
-                    }
-                    sl.push_back(l);
-                    doc.exceptions[name] = sl;
-                    break;
-                }
-                case StateReturn:
-                {
-                    doc.returns.push_back(l);
-                    break;
-                }
-                case StateDeprecated:
-                {
-                    doc.deprecateReason.push_back(l);
-                    break;
-                }
-                case StateSee:
-                {
-                    doc.seeAlso.push_back(l);
-                    break;
-                }
-            }
-        }
-    }
-
-    trimLines(doc.overview);
-    trimLines(doc.deprecateReason);
-    trimLines(doc.misc);
-    trimLines(doc.returns);
-
-    return doc;
-}
-
-void
-writeDocLines(IceUtilInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
-{
-    StringList l = lines;
-    if(!commentFirst)
-    {
-        out << l.front();
-        l.pop_front();
-    }
-    for(StringList::const_iterator i = l.begin(); i != l.end(); ++i)
-    {
-        out << nl << "%";
-        if(!i->empty())
-        {
-            out << space << *i;
-        }
-    }
-}
-
-void
-writeDocSentence(IceUtilInternal::Output& out, const StringList& lines)
-{
-    //
-    // Write the first sentence.
-    //
-    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
-    {
-        const string ws = " \t";
-
-        if(i->empty())
-        {
-            break;
-        }
-        if(i != lines.begin() && i->find_first_not_of(ws) == 0)
-        {
-            out << " ";
-        }
-        string::size_type pos = i->find('.');
-        if(pos == string::npos)
-        {
-            out << *i;
-        }
-        else if(pos == i->size() - 1)
-        {
-            out << *i;
-            break;
+            return getAbsolute(constant) + ".value";
         }
         else
         {
-            //
-            // Assume a period followed by whitespace indicates the end of the sentence.
-            //
-            while(pos != string::npos)
+            BuiltinPtr bp;
+            if ((bp = dynamic_pointer_cast<Builtin>(type)))
             {
-                if(ws.find((*i)[pos + 1]) != string::npos)
+                switch (bp->kind())
+                {
+                    case Builtin::KindString:
+                    {
+                        return "sprintf('" + toStringLiteral(value, "\a\b\f\n\r\t\v", "", Matlab, 255) + "')";
+                    }
+                    case Builtin::KindBool:
+                    case Builtin::KindByte:
+                    case Builtin::KindShort:
+                    case Builtin::KindInt:
+                    case Builtin::KindLong:
+                    case Builtin::KindFloat:
+                    case Builtin::KindDouble:
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    case Builtin::KindValue:
+                    {
+                        return value;
+                    }
+
+                    default:
+                    {
+                        return "???";
+                    }
+                }
+            }
+            else if (dynamic_pointer_cast<Enum>(type))
+            {
+                EnumeratorPtr e = dynamic_pointer_cast<Enumerator>(valueType);
+                assert(e);
+                return getAbsolute(e);
+            }
+            else
+            {
+                return value;
+            }
+        }
+    }
+
+    string defaultValue(const DataMemberPtr& m)
+    {
+        if (m->defaultValueType())
+        {
+            return constantValue(m->type(), m->defaultValueType(), m->defaultValue());
+        }
+        else if (m->optional())
+        {
+            return "IceInternal.UnsetI.Instance";
+        }
+        else
+        {
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(m->type());
+            if (builtin)
+            {
+                switch (builtin->kind())
+                {
+                    case Builtin::KindString:
+                        return "''";
+                    case Builtin::KindBool:
+                        return "false";
+                    case Builtin::KindByte:
+                    case Builtin::KindShort:
+                    case Builtin::KindInt:
+                    case Builtin::KindLong:
+                    case Builtin::KindFloat:
+                    case Builtin::KindDouble:
+                        return "0";
+                    case Builtin::KindObject:
+                    case Builtin::KindObjectProxy:
+                    case Builtin::KindValue:
+                        return "[]";
+                }
+            }
+
+            DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(m->type());
+            if (dict)
+            {
+                const TypePtr key = dict->keyType();
+                const TypePtr value = dict->valueType();
+                if (dynamic_pointer_cast<Struct>(key))
+                {
+                    //
+                    // We use a struct array when the key is a structure type because we can't use containers.Map.
+                    //
+                    return "struct('key', {}, 'value', {})";
+                }
+                else
+                {
+                    ostringstream ostr;
+                    ostr << "containers.Map('KeyType', '" << dictionaryTypeToString(key, true) << "', 'ValueType', '"
+                         << dictionaryTypeToString(value, false) << "')";
+                    return ostr.str();
+                }
+            }
+
+            EnumPtr en = dynamic_pointer_cast<Enum>(m->type());
+            if (en)
+            {
+                const EnumeratorList enumerators = en->enumerators();
+                return getAbsolute(*enumerators.begin());
+            }
+
+            StructPtr st = dynamic_pointer_cast<Struct>(m->type());
+            if (st)
+            {
+                return getAbsolute(st) + "()";
+            }
+
+            return "[]";
+        }
+    }
+
+    bool isClass(const TypePtr& type)
+    {
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+        ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
+        return (b && (b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue)) || cl;
+    }
+
+    bool isProxy(const TypePtr& type)
+    {
+        BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
+        InterfaceDeclPtr p = dynamic_pointer_cast<InterfaceDecl>(type);
+        return (b && b->kind() == Builtin::KindObjectProxy) || p;
+    }
+
+    bool needsConversion(const TypePtr& type)
+    {
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+        if (seq)
+        {
+            return isClass(seq->type()) || needsConversion(seq->type());
+        }
+
+        StructPtr st = dynamic_pointer_cast<Struct>(type);
+        if (st)
+        {
+            const DataMemberList members = st->dataMembers();
+            for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+            {
+                if (needsConversion((*q)->type()) || isClass((*q)->type()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
+        if (d)
+        {
+            return needsConversion(d->valueType()) || isClass(d->valueType());
+        }
+
+        return false;
+    }
+
+    void convertValueType(
+        IceUtilInternal::Output& out, const string& dest, const string& src, const TypePtr& type, bool optional)
+    {
+        assert(needsConversion(type));
+
+        if (optional)
+        {
+            out << nl << "if " << src << " ~= Ice.Unset";
+            out.inc();
+        }
+
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+        if (seq)
+        {
+            out << nl << dest << " = " << getAbsolute(seq) << ".convert(" << src << ");";
+        }
+
+        DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
+        if (d)
+        {
+            out << nl << dest << " = " << getAbsolute(d) << ".convert(" << src << ");";
+        }
+
+        StructPtr st = dynamic_pointer_cast<Struct>(type);
+        if (st)
+        {
+            out << nl << dest << " = " << src << ".ice_convert();";
+        }
+
+        if (optional)
+        {
+            out.dec();
+            out << nl << "end";
+        }
+    }
+
+    void trimLines(StringList& l)
+    {
+        //
+        // Remove empty trailing lines.
+        //
+        while (!l.empty() && l.back().empty())
+        {
+            l.pop_back();
+        }
+    }
+
+    StringList splitComment(const string& c)
+    {
+        string comment = c;
+
+        //
+        // Strip HTML markup and javadoc links -- MATLAB doesn't display them.
+        //
+        string::size_type pos = 0;
+        do
+        {
+            pos = comment.find('<', pos);
+            if (pos != string::npos)
+            {
+                string::size_type endpos = comment.find('>', pos);
+                if (endpos == string::npos)
                 {
                     break;
                 }
-                pos = i->find('.', pos + 1);
+                comment.erase(pos, endpos - pos + 1);
             }
-            if(pos != string::npos)
+        } while (pos != string::npos);
+
+        const string link = "{@link";
+        pos = 0;
+        do
+        {
+            pos = comment.find(link, pos);
+            if (pos != string::npos)
             {
-                out << i->substr(0, pos + 1);
+                comment.erase(pos, link.size() + 1); // Erase trailing white space too.
+                string::size_type endpos = comment.find('}', pos);
+                if (endpos != string::npos)
+                {
+                    string ident = comment.substr(pos, endpos - pos);
+                    comment.erase(pos, endpos - pos + 1);
+
+                    //
+                    // Check for links of the form {@link Type#member}.
+                    //
+                    string::size_type hash = ident.find('#');
+                    string rest;
+                    if (hash != string::npos)
+                    {
+                        rest = ident.substr(hash + 1);
+                        ident = ident.substr(0, hash);
+                        if (!ident.empty())
+                        {
+                            ident = fixIdent(ident);
+                            if (!rest.empty())
+                            {
+                                ident += "." + fixIdent(rest);
+                            }
+                        }
+                        else if (!rest.empty())
+                        {
+                            ident = fixIdent(rest);
+                        }
+                    }
+                    else
+                    {
+                        ident = fixIdent(ident);
+                    }
+
+                    comment.insert(pos, ident);
+                }
+            }
+        } while (pos != string::npos);
+
+        StringList result;
+
+        pos = 0;
+        string::size_type nextPos;
+        while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+        {
+            result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+            pos = nextPos + 1;
+        }
+        string lastLine = IceUtilInternal::trim(string(comment, pos));
+        if (!lastLine.empty())
+        {
+            result.push_back(lastLine);
+        }
+
+        trimLines(result);
+
+        return result;
+    }
+
+    bool parseCommentLine(const string& l, const string& tag, bool namedTag, string& name, string& doc)
+    {
+        doc.clear();
+
+        if (l.find(tag) == 0)
+        {
+            const string ws = " \t";
+
+            if (namedTag)
+            {
+                string::size_type n = l.find_first_not_of(ws, tag.size());
+                if (n == string::npos)
+                {
+                    return false; // Malformed line, ignore it.
+                }
+                string::size_type end = l.find_first_of(ws, n);
+                if (end == string::npos)
+                {
+                    return false; // Malformed line, ignore it.
+                }
+                name = l.substr(n, end - n);
+                n = l.find_first_not_of(ws, end);
+                if (n != string::npos)
+                {
+                    doc = l.substr(n);
+                }
+            }
+            else
+            {
+                name.clear();
+
+                string::size_type n = l.find_first_not_of(ws, tag.size());
+                if (n == string::npos)
+                {
+                    return false; // Malformed line, ignore it.
+                }
+                doc = l.substr(n);
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    struct DocElements
+    {
+        StringList overview;
+        bool deprecated;
+        StringList deprecateReason;
+        StringList misc;
+        StringList seeAlso;
+        StringList returns;
+        map<string, StringList> params;
+        map<string, StringList> exceptions;
+    };
+
+    DocElements parseComment(const ContainedPtr& p)
+    {
+        DocElements doc;
+
+        doc.deprecated = false;
+
+        //
+        // First check metadata for a deprecated tag.
+        //
+        string deprecateMetadata;
+        if (p->findMetaData("deprecate", deprecateMetadata))
+        {
+            doc.deprecated = true;
+            if (deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+            {
+                doc.deprecateReason.push_back(IceUtilInternal::trim(deprecateMetadata.substr(10)));
+            }
+        }
+
+        //
+        // Split up the comment into lines.
+        //
+        StringList lines = splitComment(p->comment());
+
+        StringList::const_iterator i;
+        for (i = lines.begin(); i != lines.end(); ++i)
+        {
+            const string l = *i;
+            if (l[0] == '@')
+            {
+                break;
+            }
+            doc.overview.push_back(l);
+        }
+
+        enum State
+        {
+            StateMisc,
+            StateParam,
+            StateThrows,
+            StateReturn,
+            StateDeprecated,
+            StateSee
+        };
+        State state = StateMisc;
+        string name;
+        const string ws = " \t";
+        const string paramTag = "@param";
+        const string throwsTag = "@throws";
+        const string exceptionTag = "@exception";
+        const string returnTag = "@return";
+        const string deprecatedTag = "@deprecated";
+        const string seeTag = "@see";
+        for (; i != lines.end(); ++i)
+        {
+            const string l = IceUtilInternal::trim(*i);
+            string line;
+            if (parseCommentLine(l, paramTag, true, name, line))
+            {
+                if (!line.empty())
+                {
+                    state = StateParam;
+                    StringList sl;
+                    sl.push_back(line); // The first line of the description.
+                    doc.params[name] = sl;
+                }
+            }
+            else if (parseCommentLine(l, throwsTag, true, name, line))
+            {
+                if (!line.empty())
+                {
+                    state = StateThrows;
+                    StringList sl;
+                    sl.push_back(line); // The first line of the description.
+                    doc.exceptions[name] = sl;
+                }
+            }
+            else if (parseCommentLine(l, exceptionTag, true, name, line))
+            {
+                if (!line.empty())
+                {
+                    state = StateThrows;
+                    StringList sl;
+                    sl.push_back(line); // The first line of the description.
+                    doc.exceptions[name] = sl;
+                }
+            }
+            else if (parseCommentLine(l, seeTag, false, name, line))
+            {
+                if (!line.empty())
+                {
+                    state = StateSee;
+                    doc.seeAlso.push_back(line);
+                }
+            }
+            else if (parseCommentLine(l, returnTag, false, name, line))
+            {
+                if (!line.empty())
+                {
+                    state = StateReturn;
+                    doc.returns.push_back(line); // The first line of the description.
+                }
+            }
+            else if (parseCommentLine(l, deprecatedTag, false, name, line))
+            {
+                doc.deprecated = true;
+                if (!line.empty())
+                {
+                    state = StateDeprecated;
+                    doc.deprecateReason.push_back(line); // The first line of the description.
+                }
+            }
+            else if (!l.empty())
+            {
+                if (l[0] == '@')
+                {
+                    //
+                    // Treat all other tags as miscellaneous comments.
+                    //
+                    state = StateMisc;
+                }
+
+                switch (state)
+                {
+                    case StateMisc:
+                    {
+                        doc.misc.push_back(l);
+                        break;
+                    }
+                    case StateParam:
+                    {
+                        assert(!name.empty());
+                        StringList sl;
+                        if (doc.params.find(name) != doc.params.end())
+                        {
+                            sl = doc.params[name];
+                        }
+                        sl.push_back(l);
+                        doc.params[name] = sl;
+                        break;
+                    }
+                    case StateThrows:
+                    {
+                        assert(!name.empty());
+                        StringList sl;
+                        if (doc.exceptions.find(name) != doc.exceptions.end())
+                        {
+                            sl = doc.exceptions[name];
+                        }
+                        sl.push_back(l);
+                        doc.exceptions[name] = sl;
+                        break;
+                    }
+                    case StateReturn:
+                    {
+                        doc.returns.push_back(l);
+                        break;
+                    }
+                    case StateDeprecated:
+                    {
+                        doc.deprecateReason.push_back(l);
+                        break;
+                    }
+                    case StateSee:
+                    {
+                        doc.seeAlso.push_back(l);
+                        break;
+                    }
+                }
+            }
+        }
+
+        trimLines(doc.overview);
+        trimLines(doc.deprecateReason);
+        trimLines(doc.misc);
+        trimLines(doc.returns);
+
+        return doc;
+    }
+
+    void
+    writeDocLines(IceUtilInternal::Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
+    {
+        StringList l = lines;
+        if (!commentFirst)
+        {
+            out << l.front();
+            l.pop_front();
+        }
+        for (StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+        {
+            out << nl << "%";
+            if (!i->empty())
+            {
+                out << space << *i;
+            }
+        }
+    }
+
+    void writeDocSentence(IceUtilInternal::Output& out, const StringList& lines)
+    {
+        //
+        // Write the first sentence.
+        //
+        for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        {
+            const string ws = " \t";
+
+            if (i->empty())
+            {
+                break;
+            }
+            if (i != lines.begin() && i->find_first_not_of(ws) == 0)
+            {
+                out << " ";
+            }
+            string::size_type pos = i->find('.');
+            if (pos == string::npos)
+            {
+                out << *i;
+            }
+            else if (pos == i->size() - 1)
+            {
+                out << *i;
                 break;
             }
             else
             {
-                out << *i;
-            }
-        }
-    }
-}
-
-void
-writeSeeAlso(IceUtilInternal::Output& out, const StringList& seeAlso, const ContainerPtr& container)
-{
-    assert(!seeAlso.empty());
-    //
-    // All references must be on one line.
-    //
-    out << nl << "% See also ";
-    for(StringList::const_iterator p = seeAlso.begin(); p != seeAlso.end(); ++p)
-    {
-        if(p != seeAlso.begin())
-        {
-            out << ", ";
-        }
-
-        string sym = *p;
-        string rest;
-        string::size_type pos = sym.find('#');
-        if(pos != string::npos)
-        {
-            rest = sym.substr(pos + 1);
-            sym = sym.substr(0, pos);
-        }
-
-        if(!sym.empty() || !rest.empty())
-        {
-            if(!sym.empty())
-            {
-                ContainedList c = container->lookupContained(sym, false);
-                if(c.empty())
+                //
+                // Assume a period followed by whitespace indicates the end of the sentence.
+                //
+                while (pos != string::npos)
                 {
-                    out << sym;
+                    if (ws.find((*i)[pos + 1]) != string::npos)
+                    {
+                        break;
+                    }
+                    pos = i->find('.', pos + 1);
+                }
+                if (pos != string::npos)
+                {
+                    out << i->substr(0, pos + 1);
+                    break;
                 }
                 else
                 {
-                    out << getAbsolute(c.front());
+                    out << *i;
                 }
+            }
+        }
+    }
 
-                if(!rest.empty())
+    void writeSeeAlso(IceUtilInternal::Output& out, const StringList& seeAlso, const ContainerPtr& container)
+    {
+        assert(!seeAlso.empty());
+        //
+        // All references must be on one line.
+        //
+        out << nl << "% See also ";
+        for (StringList::const_iterator p = seeAlso.begin(); p != seeAlso.end(); ++p)
+        {
+            if (p != seeAlso.begin())
+            {
+                out << ", ";
+            }
+
+            string sym = *p;
+            string rest;
+            string::size_type pos = sym.find('#');
+            if (pos != string::npos)
+            {
+                rest = sym.substr(pos + 1);
+                sym = sym.substr(0, pos);
+            }
+
+            if (!sym.empty() || !rest.empty())
+            {
+                if (!sym.empty())
                 {
-                    out << ".";
+                    ContainedList c = container->lookupContained(sym, false);
+                    if (c.empty())
+                    {
+                        out << sym;
+                    }
+                    else
+                    {
+                        out << getAbsolute(c.front());
+                    }
+
+                    if (!rest.empty())
+                    {
+                        out << ".";
+                    }
+                }
+
+                if (!rest.empty())
+                {
+                    out << rest;
                 }
             }
-
-            if(!rest.empty())
-            {
-                out << rest;
-            }
         }
     }
-}
 
-void
-writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
-{
-    DocElements doc = parseComment(p);
-
-    string n = fixIdent(p->name());
-
-    //
-    // No leading newline.
-    //
-    out << "% " << n << "   Summary of " << n;
-
-    if(!doc.overview.empty())
+    void writeDocSummary(IceUtilInternal::Output& out, const ContainedPtr& p)
     {
-        out << nl << "%";
-        writeDocLines(out, doc.overview, true);
-    }
+        DocElements doc = parseComment(p);
 
-    if(p->containedType() == Contained::ContainedTypeEnum)
-    {
-        out << nl << "%";
-        out << nl << "% " << n << " Properties:";
-        EnumPtr en = dynamic_pointer_cast<Enum>(p);
-        const EnumeratorList el = en->enumerators();
-        for(EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
+        string n = fixIdent(p->name());
+
+        //
+        // No leading newline.
+        //
+        out << "% " << n << "   Summary of " << n;
+
+        if (!doc.overview.empty())
         {
-            StringList sl = splitComment((*q)->comment());
-            out << nl << "%   " << fixEnumerator((*q)->name());
-            if(!sl.empty())
-            {
-                out << " - ";
-                writeDocSentence(out, sl);
-            }
+            out << nl << "%";
+            writeDocLines(out, doc.overview, true);
         }
-    }
-    else if(p->containedType() == Contained::ContainedTypeStruct)
-    {
-        out << nl << "%";
-        out << nl << "% " << n << " Properties:";
-        StructPtr st = dynamic_pointer_cast<Struct>(p);
-        const DataMemberList dml = st->dataMembers();
-        for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
-        {
-            StringList sl = splitComment((*q)->comment());
-            out << nl << "%   " << fixIdent((*q)->name());
-            if(!sl.empty())
-            {
-                out << " - ";
-                writeDocSentence(out, sl);
-            }
-        }
-    }
-    else if(p->containedType() == Contained::ContainedTypeException)
-    {
-        ExceptionPtr ex = dynamic_pointer_cast<Exception>(p);
-        const DataMemberList dml = ex->dataMembers();
-        if(!dml.empty())
+
+        if (p->containedType() == Contained::ContainedTypeEnum)
         {
             out << nl << "%";
             out << nl << "% " << n << " Properties:";
-            for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+            EnumPtr en = dynamic_pointer_cast<Enum>(p);
+            const EnumeratorList el = en->enumerators();
+            for (EnumeratorList::const_iterator q = el.begin(); q != el.end(); ++q)
             {
                 StringList sl = splitComment((*q)->comment());
-                out << nl << "%   " << fixExceptionMember((*q)->name());
-                if(!sl.empty())
+                out << nl << "%   " << fixEnumerator((*q)->name());
+                if (!sl.empty())
                 {
                     out << " - ";
                     writeDocSentence(out, sl);
                 }
             }
         }
-    }
-    else if(p->containedType() == Contained::ContainedTypeClass)
-    {
-        ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p);
-        const DataMemberList dml = cl->dataMembers();
-        if(!dml.empty())
+        else if (p->containedType() == Contained::ContainedTypeStruct)
         {
             out << nl << "%";
             out << nl << "% " << n << " Properties:";
-            for(DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+            StructPtr st = dynamic_pointer_cast<Struct>(p);
+            const DataMemberList dml = st->dataMembers();
+            for (DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
             {
                 StringList sl = splitComment((*q)->comment());
                 out << nl << "%   " << fixIdent((*q)->name());
-                if(!sl.empty())
+                if (!sl.empty())
                 {
                     out << " - ";
                     writeDocSentence(out, sl);
                 }
             }
         }
-    }
-
-    if(!doc.misc.empty())
-    {
-        out << nl << "%";
-        writeDocLines(out, doc.misc, true);
-    }
-
-    if(!doc.seeAlso.empty())
-    {
-        out << nl << "%";
-        writeSeeAlso(out, doc.seeAlso, p->container());
-    }
-
-    if(!doc.deprecateReason.empty())
-    {
-        out << nl << "%";
-        out << nl << "% Deprecated: ";
-        writeDocLines(out, doc.deprecateReason, false);
-    }
-    else if(doc.deprecated)
-    {
-        out << nl << "%";
-        out << nl << "% Deprecated";
-    }
-
-    out << nl;
-}
-
-void
-writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool async)
-{
-    DocElements doc = parseComment(p);
-
-    out << nl << "% " << (async ? p->name() + "Async" : fixOp(p->name()));
-
-    if(!doc.overview.empty())
-    {
-        out << "   ";
-        writeDocLines(out, doc.overview, false);
-    }
-
-    out << nl << "%";
-    out << nl << "% Parameters:";
-    const ParamDeclList inParams = p->inParameters();
-    string ctxName = "context";
-    string resultName = "result";
-    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
-    {
-        if((*q)->name() == "context")
+        else if (p->containedType() == Contained::ContainedTypeException)
         {
-            ctxName = "context_";
+            ExceptionPtr ex = dynamic_pointer_cast<Exception>(p);
+            const DataMemberList dml = ex->dataMembers();
+            if (!dml.empty())
+            {
+                out << nl << "%";
+                out << nl << "% " << n << " Properties:";
+                for (DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+                {
+                    StringList sl = splitComment((*q)->comment());
+                    out << nl << "%   " << fixExceptionMember((*q)->name());
+                    if (!sl.empty())
+                    {
+                        out << " - ";
+                        writeDocSentence(out, sl);
+                    }
+                }
+            }
         }
-        if((*q)->name() == "result")
+        else if (p->containedType() == Contained::ContainedTypeClass)
         {
-            resultName = "result_";
+            ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p);
+            const DataMemberList dml = cl->dataMembers();
+            if (!dml.empty())
+            {
+                out << nl << "%";
+                out << nl << "% " << n << " Properties:";
+                for (DataMemberList::const_iterator q = dml.begin(); q != dml.end(); ++q)
+                {
+                    StringList sl = splitComment((*q)->comment());
+                    out << nl << "%   " << fixIdent((*q)->name());
+                    if (!sl.empty())
+                    {
+                        out << " - ";
+                        writeDocSentence(out, sl);
+                    }
+                }
+            }
         }
 
-        out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-        map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
-        if(r != doc.params.end() && !r->second.empty())
+        if (!doc.misc.empty())
+        {
+            out << nl << "%";
+            writeDocLines(out, doc.misc, true);
+        }
+
+        if (!doc.seeAlso.empty())
+        {
+            out << nl << "%";
+            writeSeeAlso(out, doc.seeAlso, p->container());
+        }
+
+        if (!doc.deprecateReason.empty())
+        {
+            out << nl << "%";
+            out << nl << "% Deprecated: ";
+            writeDocLines(out, doc.deprecateReason, false);
+        }
+        else if (doc.deprecated)
+        {
+            out << nl << "%";
+            out << nl << "% Deprecated";
+        }
+
+        out << nl;
+    }
+
+    void writeOpDocSummary(IceUtilInternal::Output& out, const OperationPtr& p, bool async)
+    {
+        DocElements doc = parseComment(p);
+
+        out << nl << "% " << (async ? p->name() + "Async" : fixOp(p->name()));
+
+        if (!doc.overview.empty())
+        {
+            out << "   ";
+            writeDocLines(out, doc.overview, false);
+        }
+
+        out << nl << "%";
+        out << nl << "% Parameters:";
+        const ParamDeclList inParams = p->inParameters();
+        string ctxName = "context";
+        string resultName = "result";
+        for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            if ((*q)->name() == "context")
+            {
+                ctxName = "context_";
+            }
+            if ((*q)->name() == "result")
+            {
+                resultName = "result_";
+            }
+
+            out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
+            map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
+            if (r != doc.params.end() && !r->second.empty())
+            {
+                out << " - ";
+                writeDocLines(out, r->second, false, "     ");
+            }
+        }
+        out << nl << "%   " << ctxName << " (containers.Map) - Optional request context.";
+
+        if (async)
+        {
+            out << nl << "%";
+            out << nl << "% Returns (Ice.Future) - A future that will be completed with the results of the invocation.";
+        }
+        else
+        {
+            const ParamDeclList outParams = p->outParameters();
+            if (p->returnType() || !outParams.empty())
+            {
+                for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                {
+                    if ((*q)->name() == "result")
+                    {
+                        resultName = "result_";
+                    }
+                }
+
+                out << nl << "%";
+                if (p->returnType() && outParams.empty())
+                {
+                    out << nl << "% Returns (" << typeToString(p->returnType()) << ")";
+                    if (!doc.returns.empty())
+                    {
+                        out << " - ";
+                        writeDocLines(out, doc.returns, false);
+                    }
+                }
+                else if (!p->returnType() && outParams.size() == 1)
+                {
+                    out << nl << "% Returns (" << typeToString(outParams.front()->type()) << ")";
+                    map<string, StringList>::const_iterator q = doc.params.find(outParams.front()->name());
+                    if (q != doc.params.end() && !q->second.empty())
+                    {
+                        out << " - ";
+                        writeDocLines(out, q->second, false);
+                    }
+                }
+                else
+                {
+                    out << nl << "% Returns:";
+                    if (p->returnType())
+                    {
+                        out << nl << "%   " << resultName << " (" << typeToString(p->returnType()) << ")";
+                        if (!doc.returns.empty())
+                        {
+                            out << " - ";
+                            writeDocLines(out, doc.returns, false, "     ");
+                        }
+                    }
+                    for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                    {
+                        out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
+                        map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
+                        if (r != doc.params.end() && !r->second.empty())
+                        {
+                            out << " - ";
+                            writeDocLines(out, r->second, false, "     ");
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!doc.exceptions.empty())
+        {
+            out << nl << "%";
+            out << nl << "% Exceptions:";
+            for (map<string, StringList>::const_iterator q = doc.exceptions.begin(); q != doc.exceptions.end(); ++q)
+            {
+                //
+                // Try to find the exception based on the name given in the doc comment.
+                //
+                out << nl << "%   ";
+                ExceptionPtr ex = p->container()->lookupException(q->first, false);
+                if (ex)
+                {
+                    out << getAbsolute(ex);
+                }
+                else
+                {
+                    out << q->first;
+                }
+                if (!q->second.empty())
+                {
+                    out << " - ";
+                    writeDocLines(out, q->second, false, "     ");
+                }
+            }
+        }
+
+        if (!doc.misc.empty())
+        {
+            out << nl << "%";
+            writeDocLines(out, doc.misc, true);
+        }
+
+        if (!doc.seeAlso.empty())
+        {
+            out << nl << "%";
+            writeSeeAlso(out, doc.seeAlso, p->container());
+        }
+
+        if (!doc.deprecateReason.empty())
+        {
+            out << nl << "%";
+            out << nl << "% Deprecated: ";
+            writeDocLines(out, doc.deprecateReason, false);
+        }
+        else if (doc.deprecated)
+        {
+            out << nl << "%";
+            out << nl << "% Deprecated";
+        }
+
+        out << nl;
+    }
+
+    void writeProxyDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p)
+    {
+        DocElements doc = parseComment(p);
+
+        string n = p->name() + "Prx";
+
+        //
+        // No leading newline.
+        //
+        out << "% " << n << "   Summary of " << n;
+
+        if (!doc.overview.empty())
+        {
+            out << nl << "%";
+            writeDocLines(out, doc.overview, true);
+        }
+
+        out << nl << "%";
+        out << nl << "% " << n << " Methods:";
+        const OperationList ops = p->operations();
+        if (!ops.empty())
+        {
+            for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+            {
+                OperationPtr op = *q;
+                DocElements opdoc = parseComment(op);
+                out << nl << "%   " << fixOp(op->name());
+                if (!opdoc.overview.empty())
+                {
+                    out << " - ";
+                    writeDocSentence(out, opdoc.overview);
+                }
+                out << nl << "%   " << op->name() << "Async";
+                if (!opdoc.overview.empty())
+                {
+                    out << " - ";
+                    writeDocSentence(out, opdoc.overview);
+                }
+            }
+        }
+        out << nl << "%   checkedCast - Contacts the remote server to verify that the object implements this type.";
+        out << nl << "%   uncheckedCast - Downcasts the given proxy to this type without contacting the remote server.";
+
+        if (!doc.misc.empty())
+        {
+            out << nl << "%";
+            writeDocLines(out, doc.misc, true);
+        }
+
+        if (!doc.seeAlso.empty())
+        {
+            out << nl << "%";
+            writeSeeAlso(out, doc.seeAlso, p->container());
+        }
+
+        if (!doc.deprecateReason.empty())
+        {
+            out << nl << "%";
+            out << nl << "% Deprecated: ";
+            writeDocLines(out, doc.deprecateReason, false);
+        }
+        else if (doc.deprecated)
+        {
+            out << nl << "%";
+            out << nl << "% Deprecated";
+        }
+
+        out << nl;
+    }
+
+    void writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
+    {
+        DocElements doc = parseComment(p);
+
+        //
+        // Skip if there are no doc comments.
+        //
+        if (doc.overview.empty() && doc.misc.empty() && doc.seeAlso.empty() && doc.deprecateReason.empty() &&
+            !doc.deprecated)
+        {
+            return;
+        }
+
+        string n;
+
+        ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
+        if (cont->containedType() == Contained::ContainedTypeException)
+        {
+            n = fixExceptionMember(p->name());
+        }
+        else
+        {
+            n = fixIdent(p->name());
+        }
+
+        out << nl << "% " << n;
+
+        if (!doc.overview.empty())
         {
             out << " - ";
-            writeDocLines(out, r->second, false, "     ");
+            writeDocLines(out, doc.overview, false);
         }
-    }
-    out << nl << "%   " << ctxName << " (containers.Map) - Optional request context.";
 
-    if(async)
-    {
-        out << nl << "%";
-        out << nl << "% Returns (Ice.Future) - A future that will be completed with the results of the invocation.";
-    }
-    else
-    {
-        const ParamDeclList outParams = p->outParameters();
-        if(p->returnType() || !outParams.empty())
+        if (!doc.misc.empty())
         {
-            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
-            {
-                if((*q)->name() == "result")
-                {
-                    resultName = "result_";
-                }
-            }
-
             out << nl << "%";
-            if(p->returnType() && outParams.empty())
-            {
-                out << nl << "% Returns (" << typeToString(p->returnType()) << ")";
-                if(!doc.returns.empty())
-                {
-                    out << " - ";
-                    writeDocLines(out, doc.returns, false);
-                }
-            }
-            else if(!p->returnType() && outParams.size() == 1)
-            {
-                out << nl << "% Returns (" << typeToString(outParams.front()->type()) << ")";
-                map<string, StringList>::const_iterator q = doc.params.find(outParams.front()->name());
-                if(q != doc.params.end() && !q->second.empty())
-                {
-                    out << " - ";
-                    writeDocLines(out, q->second, false);
-                }
-            }
-            else
-            {
-                out << nl << "% Returns:";
-                if(p->returnType())
-                {
-                    out << nl << "%   " << resultName << " (" << typeToString(p->returnType()) << ")";
-                    if(!doc.returns.empty())
-                    {
-                        out << " - ";
-                        writeDocLines(out, doc.returns, false, "     ");
-                    }
-                }
-                for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
-                {
-                    out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-                    map<string, StringList>::const_iterator r = doc.params.find((*q)->name());
-                    if(r != doc.params.end() && !r->second.empty())
-                    {
-                        out << " - ";
-                        writeDocLines(out, r->second, false, "     ");
-                    }
-                }
-            }
+            writeDocLines(out, doc.misc, true);
         }
-    }
 
-    if(!doc.exceptions.empty())
-    {
-        out << nl << "%";
-        out << nl << "% Exceptions:";
-        for(map<string, StringList>::const_iterator q = doc.exceptions.begin(); q != doc.exceptions.end(); ++q)
+        if (!doc.seeAlso.empty())
         {
-            //
-            // Try to find the exception based on the name given in the doc comment.
-            //
-            out << nl << "%   ";
-            ExceptionPtr ex = p->container()->lookupException(q->first, false);
-            if(ex)
-            {
-                out << getAbsolute(ex);
-            }
-            else
-            {
-                out << q->first;
-            }
-            if(!q->second.empty())
-            {
-                out << " - ";
-                writeDocLines(out, q->second, false, "     ");
-            }
+            out << nl << "%";
+            writeSeeAlso(out, doc.seeAlso, p->container());
         }
-    }
 
-    if(!doc.misc.empty())
-    {
-        out << nl << "%";
-        writeDocLines(out, doc.misc, true);
-    }
-
-    if(!doc.seeAlso.empty())
-    {
-        out << nl << "%";
-        writeSeeAlso(out, doc.seeAlso, p->container());
-    }
-
-    if(!doc.deprecateReason.empty())
-    {
-        out << nl << "%";
-        out << nl << "% Deprecated: ";
-        writeDocLines(out, doc.deprecateReason, false);
-    }
-    else if(doc.deprecated)
-    {
-        out << nl << "%";
-        out << nl << "% Deprecated";
-    }
-
-    out << nl;
-}
-
-void
-writeProxyDocSummary(IceUtilInternal::Output& out, const InterfaceDefPtr& p)
-{
-    DocElements doc = parseComment(p);
-
-    string n = p->name() + "Prx";
-
-    //
-    // No leading newline.
-    //
-    out << "% " << n << "   Summary of " << n;
-
-    if(!doc.overview.empty())
-    {
-        out << nl << "%";
-        writeDocLines(out, doc.overview, true);
-    }
-
-    out << nl << "%";
-    out << nl << "% " << n << " Methods:";
-    const OperationList ops = p->operations();
-    if(!ops.empty())
-    {
-        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        if (!doc.deprecateReason.empty())
         {
-            OperationPtr op = *q;
-            DocElements opdoc = parseComment(op);
-            out << nl << "%   " << fixOp(op->name());
-            if(!opdoc.overview.empty())
-            {
-                out << " - ";
-                writeDocSentence(out, opdoc.overview);
-            }
-            out << nl << "%   " << op->name() << "Async";
-            if(!opdoc.overview.empty())
-            {
-                out << " - ";
-                writeDocSentence(out, opdoc.overview);
-            }
+            out << nl << "%";
+            out << nl << "% Deprecated: ";
+            writeDocLines(out, doc.deprecateReason, false);
+        }
+        else if (doc.deprecated)
+        {
+            out << nl << "%";
+            out << nl << "% Deprecated";
         }
     }
-    out << nl << "%   checkedCast - Contacts the remote server to verify that the object implements this type.";
-    out << nl << "%   uncheckedCast - Downcasts the given proxy to this type without contacting the remote server.";
-
-    if(!doc.misc.empty())
-    {
-        out << nl << "%";
-        writeDocLines(out, doc.misc, true);
-    }
-
-    if(!doc.seeAlso.empty())
-    {
-        out << nl << "%";
-        writeSeeAlso(out, doc.seeAlso, p->container());
-    }
-
-    if(!doc.deprecateReason.empty())
-    {
-        out << nl << "%";
-        out << nl << "% Deprecated: ";
-        writeDocLines(out, doc.deprecateReason, false);
-    }
-    else if(doc.deprecated)
-    {
-        out << nl << "%";
-        out << nl << "% Deprecated";
-    }
-
-    out << nl;
-}
-
-void
-writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
-{
-    DocElements doc = parseComment(p);
-
-    //
-    // Skip if there are no doc comments.
-    //
-    if(doc.overview.empty() && doc.misc.empty() && doc.seeAlso.empty() && doc.deprecateReason.empty() &&
-       !doc.deprecated)
-    {
-        return;
-    }
-
-    string n;
-
-    ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
-    if(cont->containedType() == Contained::ContainedTypeException)
-    {
-        n = fixExceptionMember(p->name());
-    }
-    else
-    {
-        n = fixIdent(p->name());
-    }
-
-    out << nl << "% " << n;
-
-    if(!doc.overview.empty())
-    {
-        out << " - ";
-        writeDocLines(out, doc.overview, false);
-    }
-
-    if(!doc.misc.empty())
-    {
-        out << nl << "%";
-        writeDocLines(out, doc.misc, true);
-    }
-
-    if(!doc.seeAlso.empty())
-    {
-        out << nl << "%";
-        writeSeeAlso(out, doc.seeAlso, p->container());
-    }
-
-    if(!doc.deprecateReason.empty())
-    {
-        out << nl << "%";
-        out << nl << "% Deprecated: ";
-        writeDocLines(out, doc.deprecateReason, false);
-    }
-    else if(doc.deprecated)
-    {
-        out << nl << "%";
-        out << nl << "% Deprecated";
-    }
-}
 
 }
 
@@ -1508,7 +1574,6 @@ writeMemberDoc(IceUtilInternal::Output& out, const DataMemberPtr& p)
 class CodeVisitor : public ParserVisitor
 {
 public:
-
     CodeVisitor(const string&);
 
     virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -1521,7 +1586,6 @@ public:
     virtual void visitConst(const ConstPtr&);
 
 private:
-
     struct MemberInfo
     {
         string fixedName;
@@ -1544,7 +1608,7 @@ private:
         TypePtr type;
         bool optional;
         int tag;
-        int pos; // Only used for out params
+        int pos;            // Only used for out params
         ParamDeclPtr param; // 0 == return value
     };
     typedef list<ParamInfo> ParamInfoList;
@@ -1571,10 +1635,7 @@ private:
 //
 // CodeVisitor implementation.
 //
-CodeVisitor::CodeVisitor(const string& dir) :
-    _dir(dir)
-{
-}
+CodeVisitor::CodeVisitor(const string& dir) : _dir(dir) {}
 
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
@@ -1594,7 +1655,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << nl << "classdef ";
     out << name;
-    if(base)
+    if (base)
     {
         out << " < " << getAbsolute(base);
     }
@@ -1605,20 +1666,20 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.inc();
 
     const DataMemberList members = p->dataMembers();
-    if(!members.empty())
+    if (!members.empty())
     {
-        if(p->hasMetaData("protected"))
+        if (p->hasMetaData("protected"))
         {
             //
             // All members are protected.
             //
             out << nl << "properties(Access=protected)";
             out.inc();
-            for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+            for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
             {
                 writeMemberDoc(out, *q);
                 out << nl << fixIdent((*q)->name());
-                if(declarePropertyType((*q)->type(), (*q)->optional()))
+                if (declarePropertyType((*q)->type(), (*q)->optional()))
                 {
                     out << " " << typeToString((*q)->type());
                 }
@@ -1629,9 +1690,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         else
         {
             DataMemberList prot, pub;
-            for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+            for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
             {
-                if((*q)->hasMetaData("protected"))
+                if ((*q)->hasMetaData("protected"))
                 {
                     prot.push_back(*q);
                 }
@@ -1640,15 +1701,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     pub.push_back(*q);
                 }
             }
-            if(!pub.empty())
+            if (!pub.empty())
             {
                 out << nl << "properties";
                 out.inc();
-                for(DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
+                for (DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
                 {
                     writeMemberDoc(out, *q);
                     out << nl << fixIdent((*q)->name());
-                    if(declarePropertyType((*q)->type(), (*q)->optional()))
+                    if (declarePropertyType((*q)->type(), (*q)->optional()))
                     {
                         out << " " << typeToString((*q)->type());
                     }
@@ -1656,15 +1717,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out.dec();
                 out << nl << "end";
             }
-            if(!prot.empty())
+            if (!prot.empty())
             {
                 out << nl << "properties(Access=protected)";
                 out.inc();
-                for(DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
+                for (DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
                 {
                     writeMemberDoc(out, *q);
                     out << nl << fixIdent((*q)->name());
-                    if(declarePropertyType((*q)->type(), (*q)->optional()))
+                    if (declarePropertyType((*q)->type(), (*q)->optional()))
                     {
                         out << " " << typeToString((*q)->type());
                     }
@@ -1687,7 +1748,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Constructor
     //
-    if(allMembers.empty())
+    if (allMembers.empty())
     {
         out << nl << "function " << self << " = " << name << spar << "noInit" << epar;
         out.inc();
@@ -1702,17 +1763,17 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         vector<string> allNames;
-        for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             allNames.push_back(q->fixedName);
         }
         out << nl << "function " << self << " = " << name << spar << allNames << epar;
         out.inc();
-        if(base)
+        if (base)
         {
             out << nl << "if nargin == 0";
             out.inc();
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
             }
@@ -1732,9 +1793,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << "if ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
             out.inc();
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
-                if(!q->inherited)
+                if (!q->inherited)
                 {
                     out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
                 }
@@ -1746,14 +1807,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "if nargin == 0";
             out.inc();
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 out << nl << self << "." << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
             }
             out.dec();
             out << nl << "elseif ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
             out.inc();
-            for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
             }
@@ -1771,7 +1832,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    if(preserved && !basePreserved)
+    if (preserved && !basePreserved)
     {
         out << nl << "function r = ice_getSlicedData(obj)";
         out.inc();
@@ -1784,20 +1845,20 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "end";
 
     DataMemberList convertMembers;
-    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
-        if(needsConversion((*d)->type()))
+        if (needsConversion((*d)->type()))
         {
             convertMembers.push_back(*d);
         }
     }
 
-    if((preserved && !basePreserved) || !convertMembers.empty())
+    if ((preserved && !basePreserved) || !convertMembers.empty())
     {
         out << nl << "methods(Hidden=true)";
         out.inc();
 
-        if(preserved && !basePreserved)
+        if (preserved && !basePreserved)
         {
             out << nl << "function iceWrite(obj, os)";
             out.inc();
@@ -1815,7 +1876,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "end";
         }
 
-        if(!convertMembers.empty())
+        if (!convertMembers.empty())
         {
             out << nl << "function r = iceDelayPostUnmarshal(~)";
             out.inc();
@@ -1824,12 +1885,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "end";
             out << nl << "function icePostUnmarshal(obj)";
             out.inc();
-            for(DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
+            for (DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
             {
                 string m = "obj." + fixIdent((*d)->name());
                 convertValueType(out, m, m, (*d)->type(), (*d)->optional());
             }
-            if(base)
+            if (base)
             {
                 out << nl << "icePostUnmarshal@" << getAbsolute(base) << "(obj);";
             }
@@ -1849,19 +1910,19 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "function iceWriteImpl(obj, os)";
     out.inc();
     out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false") << ");";
-    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
-        if(!(*d)->optional())
+        if (!(*d)->optional())
         {
             marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
         }
     }
-    for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    for (DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
         marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
     }
     out << nl << "os.endSlice();";
-    if(base)
+    if (base)
     {
         out << nl << "iceWriteImpl@" << getAbsolute(base) << "(obj, os);";
     }
@@ -1870,11 +1931,11 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "function iceReadImpl(obj, is)";
     out.inc();
     out << nl << "is.startSlice();";
-    for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
     {
-        if(!(*d)->optional())
+        if (!(*d)->optional())
         {
-            if(isClass((*d)->type()))
+            if (isClass((*d)->type()))
             {
                 unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), false, 0);
             }
@@ -1884,9 +1945,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
     }
-    for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    for (DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        if(isClass((*d)->type()))
+        if (isClass((*d)->type()))
         {
             unmarshal(out, "is", "@obj.iceSetMember_" + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
         }
@@ -1896,7 +1957,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
     out << nl << "is.endSlice();";
-    if(base)
+    if (base)
     {
         out << nl << "iceReadImpl@" << getAbsolute(base) << "(obj, is);";
     }
@@ -1904,13 +1965,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "end";
 
     DataMemberList classMembers = p->classDataMembers();
-    if(!classMembers.empty())
+    if (!classMembers.empty())
     {
         //
         // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
         // instance is eventually unmarshaled.
         //
-        for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
+        for (DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
         {
             string m = fixIdent((*d)->name());
             out << nl << "function iceSetMember_" << m << "(obj, v)";
@@ -1934,7 +1995,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    if(preserved && !basePreserved)
+    if (preserved && !basePreserved)
     {
         out << nl << "properties(Access=protected)";
         out.inc();
@@ -1949,7 +2010,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out.close();
 
-    if(p->compactId() >= 0)
+    if (p->compactId() >= 0)
     {
         ostringstream ostr;
         ostr << "IceCompactId.TypeId_" << p->compactId();
@@ -1998,11 +2059,11 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     writeCopyright(out, p->file());
 
     out << nl << "classdef " << prxName << " < ";
-    if(!bases.empty())
+    if (!bases.empty())
     {
-        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
-            if(q != bases.begin())
+            if (q != bases.begin())
             {
                 out << " & ";
             }
@@ -2024,7 +2085,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     bool hasExceptions = false;
     const OperationList ops = p->operations();
-    for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
         OperationPtr op = *q;
         ParamInfoList requiredInParams, optionalInParams;
@@ -2036,7 +2097,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const bool twowayOnly = op->returnsData();
         const ExceptionList exceptions = op->throws();
 
-        if(!exceptions.empty())
+        if (!exceptions.empty())
         {
             hasExceptions = true;
         }
@@ -2045,16 +2106,16 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Ensure no parameter is named "obj".
         //
         string self = "obj";
-        for(ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
+        for (ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
         {
-            if(r->fixedName == "obj")
+            if (r->fixedName == "obj")
             {
                 self = "obj_";
             }
         }
-        for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        for (ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
         {
-            if(r->fixedName == "obj")
+            if (r->fixedName == "obj")
             {
                 self = "obj_";
             }
@@ -2064,12 +2125,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Synchronous method.
         //
         out << nl << "function ";
-        if(allOutParams.size() > 1)
+        if (allOutParams.size() > 1)
         {
             out << "[";
-            for(ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
             {
-                if(r != allOutParams.begin())
+                if (r != allOutParams.begin())
                 {
                     out << ", ";
                 }
@@ -2077,14 +2138,14 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             out << "] = ";
         }
-        else if(allOutParams.size() == 1)
+        else if (allOutParams.size() == 1)
         {
             out << allOutParams.begin()->fixedName << " = ";
         }
         out << fixOp(op->name()) << spar;
 
         out << self;
-        for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        for (ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
         {
             out << r->fixedName;
         }
@@ -2094,9 +2155,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         writeOpDocSummary(out, op, false);
 
-        if(!allInParams.empty())
+        if (!allInParams.empty())
         {
-            if(op->format() == DefaultFormat)
+            if (op->format() == DefaultFormat)
             {
                 out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
@@ -2104,15 +2165,15 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
             }
-            for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
             {
                 marshal(out, "os_", r->fixedName, r->type, false, 0);
             }
-            for(ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
             {
                 marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
             }
-            if(op->sendsClasses(false))
+            if (op->sendsClasses(false))
             {
                 out << nl << "os_.writePendingValues();";
             }
@@ -2120,14 +2181,14 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         out << nl;
-        if(!allOutParams.empty())
+        if (!allOutParams.empty())
         {
             out << "is_ = ";
         }
         out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->sendMode()) << ", "
             << (twowayOnly ? "true" : "false") << ", " << (allInParams.empty() ? "[]" : "os_") << ", "
             << (!allOutParams.empty() ? "true" : "false");
-        if(exceptions.empty())
+        if (exceptions.empty())
         {
             out << ", {}";
         }
@@ -2137,7 +2198,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         out << ", varargin{:});";
 
-        if(twowayOnly && !allOutParams.empty())
+        if (twowayOnly && !allOutParams.empty())
         {
             out << nl << "is_.startEncapsulation();";
             //
@@ -2149,12 +2210,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             ParamInfoList classParams;
             ParamInfoList convertParams;
-            for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
             {
-                if(r->param)
+                if (r->param)
                 {
                     string param;
-                    if(isClass(r->type))
+                    if (isClass(r->type))
                     {
                         out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                         param = "@(v) " + r->fixedName + "_h_.set(v)";
@@ -2166,7 +2227,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     }
                     unmarshal(out, "is_", param, r->type, false, -1);
 
-                    if(needsConversion(r->type))
+                    if (needsConversion(r->type))
                     {
                         convertParams.push_back(*r);
                     }
@@ -2175,11 +2236,11 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // Now do the required return value if necessary.
             //
-            if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
+            if (!requiredOutParams.empty() && !requiredOutParams.begin()->param)
             {
                 ParamInfoList::const_iterator r = requiredOutParams.begin();
                 string param;
-                if(isClass(r->type))
+                if (isClass(r->type))
                 {
                     out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                     param = "@(v) " + r->fixedName + "_h_.set(v)";
@@ -2191,7 +2252,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 }
                 unmarshal(out, "is_", param, r->type, false, -1);
 
-                if(needsConversion(r->type))
+                if (needsConversion(r->type))
                 {
                     convertParams.push_back(*r);
                 }
@@ -2199,10 +2260,10 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // Now unmarshal all optional out parameters. They are already sorted by tag.
             //
-            for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
                 string param;
-                if(isClass(r->type))
+                if (isClass(r->type))
                 {
                     out << nl << r->fixedName << "_h_ = IceInternal.ValueHolder();";
                     param = "@(v) " + r->fixedName + "_h_.set(v)";
@@ -2214,12 +2275,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 }
                 unmarshal(out, "is_", param, r->type, r->optional, r->tag);
 
-                if(needsConversion(r->type))
+                if (needsConversion(r->type))
                 {
                     convertParams.push_back(*r);
                 }
             }
-            if(op->returnsClasses(false))
+            if (op->returnsClasses(false))
             {
                 out << nl << "is_.readPendingValues();";
             }
@@ -2228,12 +2289,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             // After calling readPendingValues(), all callback functions have been invoked.
             // Now we need to collect the values.
             //
-            for(ParamInfoList::const_iterator r = classParams.begin(); r != classParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = classParams.begin(); r != classParams.end(); ++r)
             {
                 out << nl << r->fixedName << " = " << r->fixedName << "_h_.value;";
             }
 
-            for(ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
             {
                 convertValueType(out, r->fixedName, r->fixedName, r->type, r->optional);
             }
@@ -2247,7 +2308,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         out << nl << "function r_ = " << op->name() << "Async" << spar;
         out << self;
-        for(ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        for (ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
         {
             out << r->fixedName;
         }
@@ -2257,9 +2318,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         writeOpDocSummary(out, op, true);
 
-        if(!allInParams.empty())
+        if (!allInParams.empty())
         {
-            if(op->format() == DefaultFormat)
+            if (op->format() == DefaultFormat)
             {
                 out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
@@ -2267,22 +2328,22 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << nl << "os_ = " << self << ".iceStartWriteParams(" << getFormatType(op->format()) << ");";
             }
-            for(ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
             {
                 marshal(out, "os_", r->fixedName, r->type, false, 0);
             }
-            for(ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
             {
                 marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
             }
-            if(op->sendsClasses(false))
+            if (op->sendsClasses(false))
             {
                 out << nl << "os_.writePendingValues();";
             }
             out << nl << self << ".iceEndWriteParams(os_);";
         }
 
-        if(twowayOnly && !allOutParams.empty())
+        if (twowayOnly && !allOutParams.empty())
         {
             out << nl << "function varargout = unmarshal(is_)";
             out.inc();
@@ -2294,12 +2355,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             // * unmarshal the required return value (if any)
             // * unmarshal all optional out parameters (this includes an optional return value)
             //
-            for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
             {
-                if(r->param)
+                if (r->param)
                 {
                     string param;
-                    if(isClass(r->type))
+                    if (isClass(r->type))
                     {
                         out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                         param = "@(v) " + r->fixedName + ".set(v)";
@@ -2314,11 +2375,11 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // Now do the required return value if necessary.
             //
-            if(!requiredOutParams.empty() && !requiredOutParams.begin()->param)
+            if (!requiredOutParams.empty() && !requiredOutParams.begin()->param)
             {
                 ParamInfoList::const_iterator r = requiredOutParams.begin();
                 string param;
-                if(isClass(r->type))
+                if (isClass(r->type))
                 {
                     out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                     param = "@(v) " + r->fixedName + ".set(v)";
@@ -2332,10 +2393,10 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // Now unmarshal all optional out parameters. They are already sorted by tag.
             //
-            for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
                 string param;
-                if(isClass(r->type))
+                if (isClass(r->type))
                 {
                     out << nl << r->fixedName << " = IceInternal.ValueHolder();";
                     param = "@(v) " + r->fixedName + ".set(v)";
@@ -2346,18 +2407,18 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 }
                 unmarshal(out, "is_", param, r->type, r->optional, r->tag);
             }
-            if(op->returnsClasses(false))
+            if (op->returnsClasses(false))
             {
                 out << nl << "is_.readPendingValues();";
             }
             out << nl << "is_.endEncapsulation();";
-            for(ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
             {
-                if(isClass(r->type))
+                if (isClass(r->type))
                 {
                     out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
                 }
-                else if(needsConversion(r->type))
+                else if (needsConversion(r->type))
                 {
                     ostringstream dest;
                     dest << "varargout{" << r->pos << "}";
@@ -2368,13 +2429,13 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
                 }
             }
-            for(ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+            for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
-                if(isClass(r->type))
+                if (isClass(r->type))
                 {
                     out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ".value;";
                 }
-                else if(needsConversion(r->type))
+                else if (needsConversion(r->type))
                 {
                     ostringstream dest;
                     dest << "varargout{" << r->pos << "}";
@@ -2392,7 +2453,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->sendMode())
             << ", " << (twowayOnly ? "true" : "false") << ", " << (allInParams.empty() ? "[]" : "os_") << ", "
             << allOutParams.size() << ", " << (twowayOnly && !allOutParams.empty() ? "@unmarshal" : "[]");
-        if(exceptions.empty())
+        if (exceptions.empty())
         {
             out << ", {}";
         }
@@ -2462,13 +2523,13 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "function obj = " << prxName << "(communicator, encoding, impl, bytes)";
     out.inc();
 
-    if(bases.empty())
+    if (bases.empty())
     {
         out << nl << "obj = obj@Ice.ObjectPrx(communicator, encoding, impl, bytes);";
     }
     else
     {
-        for(InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
             out << nl << "obj = obj@" << getAbsolute(*q, "", "Prx") << "(communicator, encoding, impl, bytes);";
         }
@@ -2478,7 +2539,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out.dec();
     out << nl << "end";
 
-    if(hasExceptions)
+    if (hasExceptions)
     {
         //
         // Generate a constant property for each operation that throws user exceptions. The property is
@@ -2486,7 +2547,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         out << nl << "properties(Constant,Access=private)";
         out.inc();
-        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
             OperationPtr op = *q;
             ExceptionList exceptions = op->throws();
@@ -2501,12 +2562,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             exceptions.sort(Slice::DerivedToBaseCompare());
 
-            if(!exceptions.empty())
+            if (!exceptions.empty())
             {
                 out << nl << op->name() << "_ex_ = { ";
-                for(ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
+                for (ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
                 {
-                    if(e != exceptions.begin())
+                    if (e != exceptions.begin())
                     {
                         out << ", ";
                     }
@@ -2546,7 +2607,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
 
     out << nl << "classdef " << name;
-    if(base)
+    if (base)
     {
         out << " < " << getAbsolute(base);
     }
@@ -2557,15 +2618,15 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out.inc();
 
     const DataMemberList members = p->dataMembers();
-    if(!members.empty())
+    if (!members.empty())
     {
         out << nl << "properties";
         out.inc();
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             writeMemberDoc(out, *q);
             out << nl << fixExceptionMember((*q)->name());
-            if(declarePropertyType((*q)->type(), (*q)->optional()))
+            if (declarePropertyType((*q)->type(), (*q)->optional()))
             {
                 out << " " << typeToString((*q)->type());
             }
@@ -2579,11 +2640,11 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     vector<string> allNames;
     MemberInfoList convertMembers;
-    for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
     {
         allNames.push_back(q->fixedName);
 
-        if(!q->inherited && needsConversion(q->dataMember->type()))
+        if (!q->inherited && needsConversion(q->dataMember->type()))
         {
             convertMembers.push_back(*q);
         }
@@ -2596,7 +2657,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Constructor
     //
-    out << nl << "function " << self << " = " << name << spar << "ice_exid" << "ice_exmsg" << allNames << epar;
+    out << nl << "function " << self << " = " << name << spar << "ice_exid"
+        << "ice_exmsg" << allNames << epar;
     out.inc();
     string exid = abs;
     const string exmsg = abs;
@@ -2605,17 +2667,17 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     string::size_type pos = exid.find('.');
     assert(pos != string::npos);
-    while(pos != string::npos)
+    while (pos != string::npos)
     {
         exid[pos] = ':';
         pos = exid.find('.', pos);
     }
 
-    if(!allMembers.empty())
+    if (!allMembers.empty())
     {
         out << nl << "if nargin <= 2";
         out.inc();
-        for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
         }
@@ -2635,26 +2697,28 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out.dec();
     out << nl << "end";
 
-    if(!base)
+    if (!base)
     {
-        out << nl << self << " = " << self << "@" << "Ice.UserException"
-            << spar << "ice_exid" << "ice_exmsg" << epar << ';';
+        out << nl << self << " = " << self << "@"
+            << "Ice.UserException" << spar << "ice_exid"
+            << "ice_exmsg" << epar << ';';
     }
     else
     {
-        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "ice_exid" << "ice_exmsg";
-        for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        out << nl << self << " = " << self << "@" << getAbsolute(base) << spar << "ice_exid"
+            << "ice_exmsg";
+        for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
-            if(q->inherited)
+            if (q->inherited)
             {
                 out << q->fixedName;
             }
         }
         out << epar << ';';
     }
-    for(MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
     {
-        if(!q->inherited)
+        if (!q->inherited)
         {
             out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
         }
@@ -2668,7 +2732,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out.dec();
     out << nl << "end";
 
-    if(preserved && !basePreserved)
+    if (preserved && !basePreserved)
     {
         out << nl << "function r = ice_getSlicedData(obj)";
         out.inc();
@@ -2814,18 +2878,18 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     vector<string> memberNames;
     DataMemberList convertMembers;
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         const string m = fixStructMember((*q)->name());
         memberNames.push_back(m);
         writeMemberDoc(out, *q);
         out << nl << m;
-        if(declarePropertyType((*q)->type(), false))
+        if (declarePropertyType((*q)->type(), false))
         {
             out << " " << typeToString((*q)->type());
         }
 
-        if(needsConversion((*q)->type()))
+        if (needsConversion((*q)->type()))
         {
             convertMembers.push_back(*q);
         }
@@ -2840,14 +2904,14 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     out << nl << "if nargin == 0";
     out.inc();
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         out << nl << self << "." << fixStructMember((*q)->name()) << " = " << defaultValue(*q) << ';';
     }
     out.dec();
     out << nl << "elseif ne(" << fixStructMember((*members.begin())->name()) << ", IceInternal.NoInit.Instance)";
     out.inc();
-    for(vector<string>::const_iterator q = memberNames.begin(); q != memberNames.end(); ++q)
+    for (vector<string>::const_iterator q = memberNames.begin(); q != memberNames.end(); ++q)
     {
         out << nl << self << "." << *q << " = " << *q << ';';
     }
@@ -2866,7 +2930,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.dec();
     out << nl << "end";
 
-    if(!convertMembers.empty() || !classMembers.empty())
+    if (!convertMembers.empty() || !classMembers.empty())
     {
         out << nl << "function obj = ice_convert(obj)";
         out.inc();
@@ -2960,9 +3024,9 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     const TypePtr content = p->type();
 
     const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
-    if(b)
+    if (b)
     {
-        switch(b->kind())
+        switch (b->kind())
         {
             case Builtin::KindBool:
             case Builtin::KindByte:
@@ -3016,7 +3080,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     // Aside from the primitive types, only enum and struct sequences are mapped to arrays. The rest are mapped
     // to cell arrays. We can't use the same subscript syntax for both.
     //
-    if(enumContent || structContent)
+    if (enumContent || structContent)
     {
         marshal(out, "os", "seq(i)", content, false, 0);
     }
@@ -3033,7 +3097,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out.inc();
     out << nl << "if seq ~= Ice.Unset && os.writeOptional(tag, " << getOptionalFormat(p) << ")";
     out.inc();
-    if(p->type()->isVariableLength())
+    if (p->type()->isVariableLength())
     {
         out << nl << "pos = os.startSize();";
         out << nl << abs << ".write(os, seq);";
@@ -3045,7 +3109,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         // The element is a fixed-size type. If the element type is bool or byte, we do NOT write an extra size.
         //
         const size_t sz = p->type()->minWireSize();
-        if(sz > 1)
+        if (sz > 1)
         {
             out << nl << "len = length(seq);";
             out << nl << "if len > 254";
@@ -3055,7 +3119,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
             out << nl << "else";
             out.inc();
             out << nl << "os.writeSize(len * " << sz << " + 1);";
-            out .dec();
+            out.dec();
             out << nl << "end";
         }
         out << nl << abs << ".write(os, seq);";
@@ -3068,7 +3132,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out << nl << "function r = read(is)";
     out.inc();
     out << nl << "sz = is.readSize();";
-    if(cls)
+    if (cls)
     {
         //
         // For a sequence<class>, read() returns an instance of IceInternal.CellArrayHandle that we later replace
@@ -3093,7 +3157,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         out.dec();
         out << nl << "end";
     }
-    else if((b && b->kind() == Builtin::KindString) || dictContent || seqContent || proxy)
+    else if ((b && b->kind() == Builtin::KindString) || dictContent || seqContent || proxy)
     {
         //
         // These types require a cell array.
@@ -3113,7 +3177,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         out.dec();
         out << nl << "end";
     }
-    else if(enumContent)
+    else if (enumContent)
     {
         const EnumeratorList enumerators = enumContent->enumerators();
         out << nl << "r = " << getAbsolute(enumContent) << ".empty();";
@@ -3128,7 +3192,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         out.dec();
         out << nl << "end";
     }
-    else if(structContent)
+    else if (structContent)
     {
         //
         // The most efficient way to build a sequence of structs is to pre-allocate the array using the
@@ -3158,11 +3222,11 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out.inc();
     out << nl << "if is.readOptional(tag, " << getOptionalFormat(p) << ")";
     out.inc();
-    if(p->type()->isVariableLength())
+    if (p->type()->isVariableLength())
     {
         out << nl << "is.skip(4);";
     }
-    else if(p->type()->minWireSize() > 1)
+    else if (p->type()->minWireSize() > 1)
     {
         out << nl << "is.skipSize();";
     }
@@ -3176,11 +3240,11 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     out.dec();
     out << nl << "end";
 
-    if(cls || convert)
+    if (cls || convert)
     {
         out << nl << "function r = convert(seq)";
         out.inc();
-        if(cls)
+        if (cls)
         {
             out << nl << "if isempty(seq)";
             out.inc();
@@ -3195,7 +3259,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
         else
         {
             assert(structContent || seqContent || dictContent);
-            if(structContent)
+            if (structContent)
             {
                 //
                 // Inline the conversion.
@@ -3497,7 +3561,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     writeCopyright(out, p->file());
 
     out << nl << "classdef " << name;
-    if(p->maxValue() <= 255)
+    if (p->maxValue() <= 255)
     {
         out << " < uint8";
     }
@@ -3509,10 +3573,10 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.inc();
     out << nl << "enumeration";
     out.inc();
-    for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         StringList sl = splitComment((*q)->comment());
-        if(!sl.empty())
+        if (!sl.empty())
         {
             writeDocLines(out, sl, true);
         }
@@ -3574,7 +3638,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.inc();
     out << nl << "switch v";
     out.inc();
-    for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         out << nl << "case " << (*q)->value();
         out.inc();
@@ -3617,8 +3681,7 @@ CodeVisitor::visitConst(const ConstPtr& p)
     out.inc();
     out << nl << "properties(Constant)";
     out.inc();
-    out << nl << "value " << typeToString(p->type()) << " = "
-        << constantValue(p->type(), p->valueType(), p->value());
+    out << nl << "value " << typeToString(p->type()) << " = " << constantValue(p->type(), p->valueType(), p->value());
     out.dec();
     out << nl << "end";
 
@@ -3632,7 +3695,7 @@ CodeVisitor::visitConst(const ConstPtr& p)
 string
 CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
 {
-    switch(mode)
+    switch (mode)
     {
         case Operation::Normal:
             return "0";
@@ -3656,7 +3719,7 @@ CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMember
 
     DataMemberList members = p->dataMembers();
 
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.fixedName = fixIdent((*q)->name());
@@ -3670,14 +3733,14 @@ void
 CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
 {
     ExceptionPtr base = p->base();
-    if(base)
+    if (base)
     {
         collectExceptionMembers(base, allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();
 
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.fixedName = fixExceptionMember((*q)->name());
@@ -3692,7 +3755,7 @@ CodeVisitor::getAllInParams(const OperationPtr& op)
 {
     const ParamDeclList l = op->inParameters();
     ParamInfoList r;
-    for(ParamDeclList::const_iterator p = l.begin(); p != l.end(); ++p)
+    for (ParamDeclList::const_iterator p = l.begin(); p != l.end(); ++p)
     {
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
@@ -3709,9 +3772,9 @@ void
 CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
 {
     const ParamInfoList params = getAllInParams(op);
-    for(ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        if(p->optional)
+        if (p->optional)
         {
             optional.push_back(*p);
         }
@@ -3727,10 +3790,7 @@ CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& required, ParamI
     class SortFn
     {
     public:
-        static bool compare(const ParamInfo& lhs, const ParamInfo& rhs)
-        {
-            return lhs.tag < rhs.tag;
-        }
+        static bool compare(const ParamInfo& lhs, const ParamInfo& rhs) { return lhs.tag < rhs.tag; }
     };
     optional.sort(SortFn::compare);
 }
@@ -3742,15 +3802,15 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
     ParamInfoList l;
     int pos = 1;
 
-    if(op->returnType())
+    if (op->returnType())
     {
         ParamInfo info;
         info.fixedName = "result";
         info.pos = pos++;
 
-        for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
         {
-            if((*p)->name() == "result")
+            if ((*p)->name() == "result")
             {
                 info.fixedName = "result_";
                 break;
@@ -3762,7 +3822,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         l.push_back(info);
     }
 
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
@@ -3781,9 +3841,9 @@ void
 CodeVisitor::getOutParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
 {
     const ParamInfoList params = getAllOutParams(op);
-    for(ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        if(p->optional)
+        if (p->optional)
         {
             optional.push_back(*p);
         }
@@ -3799,10 +3859,7 @@ CodeVisitor::getOutParams(const OperationPtr& op, ParamInfoList& required, Param
     class SortFn
     {
     public:
-        static bool compare(const ParamInfo& lhs, const ParamInfo& rhs)
-        {
-            return lhs.tag < rhs.tag;
-        }
+        static bool compare(const ParamInfo& lhs, const ParamInfo& rhs) { return lhs.tag < rhs.tag; }
     };
     optional.sort(SortFn::compare);
 }
@@ -3811,73 +3868,73 @@ string
 CodeVisitor::getOptionalFormat(const TypePtr& type)
 {
     BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
-    if(bp)
+    if (bp)
     {
-        switch(bp->kind())
+        switch (bp->kind())
         {
-        case Builtin::KindByte:
-        case Builtin::KindBool:
-        {
-            return "Ice.OptionalFormat.F1";
-        }
-        case Builtin::KindShort:
-        {
-            return "Ice.OptionalFormat.F2";
-        }
-        case Builtin::KindInt:
-        case Builtin::KindFloat:
-        {
-            return "Ice.OptionalFormat.F4";
-        }
-        case Builtin::KindLong:
-        case Builtin::KindDouble:
-        {
-            return "Ice.OptionalFormat.F8";
-        }
-        case Builtin::KindString:
-        {
-            return "Ice.OptionalFormat.VSize";
-        }
-        case Builtin::KindObject:
-        {
-            return "Ice.OptionalFormat.Class";
-        }
-        case Builtin::KindObjectProxy:
-        {
-            return "Ice.OptionalFormat.FSize";
-        }
-        case Builtin::KindValue:
-        {
-            return "Ice.OptionalFormat.Class";
-        }
+            case Builtin::KindByte:
+            case Builtin::KindBool:
+            {
+                return "Ice.OptionalFormat.F1";
+            }
+            case Builtin::KindShort:
+            {
+                return "Ice.OptionalFormat.F2";
+            }
+            case Builtin::KindInt:
+            case Builtin::KindFloat:
+            {
+                return "Ice.OptionalFormat.F4";
+            }
+            case Builtin::KindLong:
+            case Builtin::KindDouble:
+            {
+                return "Ice.OptionalFormat.F8";
+            }
+            case Builtin::KindString:
+            {
+                return "Ice.OptionalFormat.VSize";
+            }
+            case Builtin::KindObject:
+            {
+                return "Ice.OptionalFormat.Class";
+            }
+            case Builtin::KindObjectProxy:
+            {
+                return "Ice.OptionalFormat.FSize";
+            }
+            case Builtin::KindValue:
+            {
+                return "Ice.OptionalFormat.Class";
+            }
         }
     }
 
-    if(dynamic_pointer_cast<Enum>(type))
+    if (dynamic_pointer_cast<Enum>(type))
     {
         return "Ice.OptionalFormat.Size";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    if (seq)
     {
         return seq->type()->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if(d)
+    if (d)
     {
-        return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
-            "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
+        return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ? "Ice.OptionalFormat.FSize"
+                                                                                        : "Ice.OptionalFormat.VSize";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
+    if (st)
     {
         return st->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
-    if(dynamic_pointer_cast<InterfaceDecl>(type))
+    if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
         return "Ice.OptionalFormat.FSize";
     }
@@ -3890,33 +3947,33 @@ CodeVisitor::getOptionalFormat(const TypePtr& type)
 string
 CodeVisitor::getFormatType(FormatType type)
 {
-    switch(type)
+    switch (type)
     {
-    case DefaultFormat:
-        return "Ice.FormatType.DefaultFormat";
-    case CompactFormat:
-        return "Ice.FormatType.CompactFormat";
-    case SlicedFormat:
-        return "Ice.FormatType.SlicedFormat";
-    default:
-        assert(false);
+        case DefaultFormat:
+            return "Ice.FormatType.DefaultFormat";
+        case CompactFormat:
+            return "Ice.FormatType.CompactFormat";
+        case SlicedFormat:
+            return "Ice.FormatType.SlicedFormat";
+        default:
+            assert(false);
     }
 
     return "???";
 }
 
 void
-CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,
-                     bool optional, int tag)
+CodeVisitor::marshal(
+    IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type, bool optional, int tag)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindByte:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeByteOpt(" << tag << ", " << v << ");";
                 }
@@ -3928,7 +3985,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindBool:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeBoolOpt(" << tag << ", " << v << ");";
                 }
@@ -3940,7 +3997,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindShort:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeShortOpt(" << tag << ", " << v << ");";
                 }
@@ -3952,7 +4009,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindInt:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeIntOpt(" << tag << ", " << v << ");";
                 }
@@ -3964,7 +4021,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindLong:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeLongOpt(" << tag << ", " << v << ");";
                 }
@@ -3976,7 +4033,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindFloat:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeFloatOpt(" << tag << ", " << v << ");";
                 }
@@ -3988,7 +4045,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindDouble:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeDoubleOpt(" << tag << ", " << v << ");";
                 }
@@ -4000,7 +4057,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindString:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeStringOpt(" << tag << ", " << v << ");";
                 }
@@ -4013,7 +4070,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeValueOpt(" << tag << ", " << v << ");";
                 }
@@ -4025,7 +4082,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             }
             case Builtin::KindObjectProxy:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".writeProxyOpt(" << tag << ", " << v << ");";
                 }
@@ -4040,9 +4097,9 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(prx)
+    if (prx)
     {
-        if(optional)
+        if (optional)
         {
             out << nl << stream << ".writeProxyOpt(" << tag << ", " << v << ");";
         }
@@ -4054,9 +4111,9 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
+    if (cl)
     {
-        if(optional)
+        if (optional)
         {
             out << nl << stream << ".writeValueOpt(" << tag << ", " << v << ");";
         }
@@ -4068,10 +4125,10 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
+    if (st)
     {
         const string typeS = getAbsolute(st);
-        if(optional)
+        if (optional)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
@@ -4083,10 +4140,10 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
+    if (en)
     {
         const string typeS = getAbsolute(en);
-        if(optional)
+        if (optional)
         {
             out << nl << typeS << ".ice_writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
@@ -4098,9 +4155,9 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if(dict)
+    if (dict)
     {
-        if(optional)
+        if (optional)
         {
             out << nl << getAbsolute(dict) << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
@@ -4112,32 +4169,19 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    if (seq)
     {
         const TypePtr content = seq->type();
         const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
 
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
-           b->kind() != Builtin::KindValue)
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
+            b->kind() != Builtin::KindValue)
         {
-            static const char* builtinTable[] =
-            {
-                "Byte",
-                "Bool",
-                "Short",
-                "Int",
-                "Long",
-                "Float",
-                "Double",
-                "String",
-                "???",
-                "???",
-                "???",
-                "???"
-            };
+            static const char* builtinTable[] = {"Byte",   "Bool",   "Short", "Int", "Long", "Float",
+                                                 "Double", "String", "???",   "???", "???",  "???"};
             string bs = builtinTable[b->kind()];
             out << nl << stream << ".write" << builtinTable[b->kind()] << "Seq";
-            if(optional)
+            if (optional)
             {
                 out << "Opt(" << tag << ", ";
             }
@@ -4149,7 +4193,7 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
             return;
         }
 
-        if(optional)
+        if (optional)
         {
             out << nl << getAbsolute(seq) << ".writeOpt(" << stream << ", " << tag << ", " << v << ");";
         }
@@ -4164,17 +4208,17 @@ CodeVisitor::marshal(IceUtilInternal::Output& out, const string& stream, const s
 }
 
 void
-CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type,
-                       bool optional, int tag)
+CodeVisitor::unmarshal(
+    IceUtilInternal::Output& out, const string& stream, const string& v, const TypePtr& type, bool optional, int tag)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindByte:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readByteOpt(" << tag << ");";
                 }
@@ -4186,7 +4230,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindBool:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readBoolOpt(" << tag << ");";
                 }
@@ -4198,7 +4242,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindShort:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readShortOpt(" << tag << ");";
                 }
@@ -4210,7 +4254,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindInt:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readIntOpt(" << tag << ");";
                 }
@@ -4222,7 +4266,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindLong:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readLongOpt(" << tag << ");";
                 }
@@ -4234,7 +4278,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindFloat:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readFloatOpt(" << tag << ");";
                 }
@@ -4246,7 +4290,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindDouble:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readDoubleOpt(" << tag << ");";
                 }
@@ -4258,7 +4302,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindString:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readStringOpt(" << tag << ");";
                 }
@@ -4271,7 +4315,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             case Builtin::KindObject:
             case Builtin::KindValue:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", 'Ice.Value');";
                 }
@@ -4283,7 +4327,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             }
             case Builtin::KindObjectProxy:
             {
-                if(optional)
+                if (optional)
                 {
                     out << nl << v << " = " << stream << ".readProxyOpt(" << tag << ");";
                 }
@@ -4298,10 +4342,10 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     }
 
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(prx)
+    if (prx)
     {
         const string typeS = getAbsolute(prx, "", "Prx");
-        if(optional)
+        if (optional)
         {
             out << nl << "if " << stream << ".readOptional(" << tag << ", " << getOptionalFormat(type) << ")";
             out.inc();
@@ -4319,10 +4363,10 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
+    if (cl)
     {
         const string cls = getAbsolute(cl);
-        if(optional)
+        if (optional)
         {
             out << nl << stream << ".readValueOpt(" << tag << ", " << v << ", '" << cls << "');";
         }
@@ -4334,10 +4378,10 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
+    if (st)
     {
         const string typeS = getAbsolute(st);
-        if(optional)
+        if (optional)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
         }
@@ -4349,10 +4393,10 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
+    if (en)
     {
         const string typeS = getAbsolute(en);
-        if(optional)
+        if (optional)
         {
             out << nl << v << " = " << typeS << ".ice_readOpt(" << stream << ", " << tag << ");";
         }
@@ -4364,9 +4408,9 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if(dict)
+    if (dict)
     {
-        if(optional)
+        if (optional)
         {
             out << nl << v << " = " << getAbsolute(dict) << ".readOpt(" << stream << ", " << tag << ");";
         }
@@ -4378,32 +4422,19 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    if (seq)
     {
         const TypePtr content = seq->type();
         const BuiltinPtr b = dynamic_pointer_cast<Builtin>(content);
 
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
-           b->kind() != Builtin::KindValue)
+        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy &&
+            b->kind() != Builtin::KindValue)
         {
-            static const char* builtinTable[] =
-            {
-                "Byte",
-                "Bool",
-                "Short",
-                "Int",
-                "Long",
-                "Float",
-                "Double",
-                "String",
-                "???",
-                "???",
-                "???",
-                "???"
-            };
+            static const char* builtinTable[] = {"Byte",   "Bool",   "Short", "Int", "Long", "Float",
+                                                 "Double", "String", "???",   "???", "???",  "???"};
             string bs = builtinTable[b->kind()];
             out << nl << v << " = " << stream << ".read" << builtinTable[b->kind()] << "Seq";
-            if(optional)
+            if (optional)
             {
                 out << "Opt(" << tag << ");";
             }
@@ -4414,7 +4445,7 @@ CodeVisitor::unmarshal(IceUtilInternal::Output& out, const string& stream, const
             return;
         }
 
-        if(optional)
+        if (optional)
         {
             out << nl << v << " = " << getAbsolute(seq) << ".readOpt(" << stream << ", " << tag << ");";
         }
@@ -4433,10 +4464,10 @@ CodeVisitor::unmarshalStruct(IceUtilInternal::Output& out, const StructPtr& p, c
 {
     const DataMemberList members = p->dataMembers();
 
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         string m = fixStructMember((*q)->name());
-        if(isClass((*q)->type()))
+        if (isClass((*q)->type()))
         {
             out << nl << m << "_ = IceInternal.ValueHolder();";
             out << nl << v << "." << m << " = " << m << "_;";
@@ -4454,14 +4485,14 @@ CodeVisitor::convertStruct(IceUtilInternal::Output& out, const StructPtr& p, con
 {
     const DataMemberList members = p->dataMembers();
 
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         string m = fixStructMember((*q)->name());
-        if(needsConversion((*q)->type()))
+        if (needsConversion((*q)->type()))
         {
             convertValueType(out, v + "." + m, v + "." + m, (*q)->type(), false);
         }
-        else if(isClass((*q)->type()))
+        else if (isClass((*q)->type()))
         {
             out << nl << v << "." << m << " = " << v << "." << m << ".value;";
         }
@@ -4473,11 +4504,11 @@ CodeVisitor::writeBaseClassArrayParams(IceUtilInternal::Output& out, const Membe
 {
     out << nl << "v = { ";
     bool first = true;
-    for(MemberInfoList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (MemberInfoList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        if(q->inherited)
+        if (q->inherited)
         {
-            if(first)
+            if (first)
             {
                 out << (noInit ? "IceInternal.NoInit.Instance" : q->fixedName);
                 first = false;
@@ -4494,8 +4525,8 @@ CodeVisitor::writeBaseClassArrayParams(IceUtilInternal::Output& out, const Membe
 namespace
 {
 
-mutex globalMutex;
-bool interrupted = false;
+    mutex globalMutex;
+    bool interrupted = false;
 
 }
 
@@ -4510,24 +4541,22 @@ static void
 usage(const string& n)
 {
     consoleErr << "Usage: " << n << " [options] slice-files...\n";
-    consoleErr <<
-        "Options:\n"
-        "-h, --help               Show this message.\n"
-        "-v, --version            Display the Ice version.\n"
-        "-DNAME                   Define NAME as 1.\n"
-        "-DNAME=DEF               Define NAME as DEF.\n"
-        "-UNAME                   Remove any definition for NAME.\n"
-        "-IDIR                    Put DIR in the include file search path.\n"
-        "-E                       Print preprocessor output on stdout.\n"
-        "--output-dir DIR         Create files in the directory DIR.\n"
-        "-d, --debug              Print debug messages.\n"
-        "--depend                 Generate Makefile dependencies.\n"
-        "--depend-xml             Generate dependencies in XML format.\n"
-        "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-        "--validate               Validate command line options.\n"
-        "--all                    Generate code for Slice definitions in included files.\n"
-        "--list-generated         Emit list of generated files in XML format.\n"
-        ;
+    consoleErr << "Options:\n"
+                  "-h, --help               Show this message.\n"
+                  "-v, --version            Display the Ice version.\n"
+                  "-DNAME                   Define NAME as 1.\n"
+                  "-DNAME=DEF               Define NAME as DEF.\n"
+                  "-UNAME                   Remove any definition for NAME.\n"
+                  "-IDIR                    Put DIR in the include file search path.\n"
+                  "-E                       Print preprocessor output on stdout.\n"
+                  "--output-dir DIR         Create files in the directory DIR.\n"
+                  "-d, --debug              Print debug messages.\n"
+                  "--depend                 Generate Makefile dependencies.\n"
+                  "--depend-xml             Generate dependencies in XML format.\n"
+                  "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
+                  "--validate               Validate command line options.\n"
+                  "--all                    Generate code for Slice definitions in included files.\n"
+                  "--list-generated         Emit list of generated files in XML format.\n";
 }
 
 int
@@ -4556,23 +4585,23 @@ compile(const vector<string>& argv)
     {
         args = opts.parse(argv);
     }
-    catch(const IceUtilInternal::BadOptException& e)
+    catch (const IceUtilInternal::BadOptException& e)
     {
         consoleErr << argv[0] << ": error: " << e.reason << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(opts.isSet("help"))
+    if (opts.isSet("help"))
     {
         usage(argv[0]);
         return EXIT_SUCCESS;
     }
 
-    if(opts.isSet("version"))
+    if (opts.isSet("version"))
     {
         consoleErr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
@@ -4580,19 +4609,19 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -4613,27 +4642,27 @@ compile(const vector<string>& argv)
 
     bool listGenerated = opts.isSet("list-generated");
 
-    if(args.empty())
+    if (args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(depend && dependxml)
+    if (depend && dependxml)
     {
         consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
-        if(!validate)
+        if (!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
 
-    if(validate)
+    if (validate)
     {
         return EXIT_SUCCESS;
     }
@@ -4644,28 +4673,28 @@ compile(const vector<string>& argv)
     ctrlCHandler.setCallback(interruptedCallback);
 
     ostringstream os;
-    if(dependxml)
+    if (dependxml)
     {
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
-    for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         //
         // Ignore duplicates.
         //
         vector<string>::iterator p = find(args.begin(), args.end(), *i);
-        if(p != i)
+        if (p != i)
         {
             continue;
         }
 
-        if(depend || dependxml)
+        if (depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2MATLAB__");
 
-            if(cppHandle == 0)
+            if (cppHandle == 0)
             {
                 return EXIT_FAILURE;
             }
@@ -4674,18 +4703,18 @@ compile(const vector<string>& argv)
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
-            if(parseStatus == EXIT_FAILURE)
+            if (parseStatus == EXIT_FAILURE)
             {
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(os, depend ? Preprocessor::MATLAB : Preprocessor::SliceXML,
-                                                  includePaths, "-D__SLICE2MATLAB__"))
+            if (!icecpp->printMakefileDependencies(os, depend ? Preprocessor::MATLAB : Preprocessor::SliceXML,
+                                                   includePaths, "-D__SLICE2MATLAB__"))
             {
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->close())
+            if (!icecpp->close())
             {
                 return EXIT_FAILURE;
             }
@@ -4697,22 +4726,22 @@ compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2MATLAB__");
 
-            if(cppHandle == 0)
+            if (cppHandle == 0)
             {
                 return EXIT_FAILURE;
             }
 
-            if(preprocess)
+            if (preprocess)
             {
                 char buf[4096];
-                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
+                while (fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != nullptr)
                 {
-                    if(fputs(buf, stdout) == EOF)
+                    if (fputs(buf, stdout) == EOF)
                     {
                         return EXIT_FAILURE;
                     }
                 }
-                if(!icecpp->close())
+                if (!icecpp->close())
                 {
                     return EXIT_FAILURE;
                 }
@@ -4722,13 +4751,13 @@ compile(const vector<string>& argv)
                 UnitPtr u = Unit::createUnit(all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
-                if(!icecpp->close())
+                if (!icecpp->close())
                 {
                     u->destroy();
                     return EXIT_FAILURE;
                 }
 
-                if(parseStatus == EXIT_FAILURE)
+                if (parseStatus == EXIT_FAILURE)
                 {
                     status = EXIT_FAILURE;
                 }
@@ -4736,7 +4765,7 @@ compile(const vector<string>& argv)
                 {
                     string base = icecpp->getBaseName();
                     string::size_type pos = base.find_last_of("/\\");
-                    if(pos != string::npos)
+                    if (pos != string::npos)
                     {
                         base.erase(0, pos + 1);
                     }
@@ -4746,7 +4775,7 @@ compile(const vector<string>& argv)
                         CodeVisitor codeVisitor(output);
                         u->visit(&codeVisitor, all);
                     }
-                    catch(const Slice::FileException& ex)
+                    catch (const Slice::FileException& ex)
                     {
                         //
                         // If a file could not be created, then cleanup any created files.
@@ -4766,7 +4795,7 @@ compile(const vector<string>& argv)
 
         {
             lock_guard lock(globalMutex);
-            if(interrupted)
+            if (interrupted)
             {
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
@@ -4774,17 +4803,17 @@ compile(const vector<string>& argv)
         }
     }
 
-    if(dependxml)
+    if (dependxml)
     {
         os << "</dependencies>\n";
     }
 
-    if(depend || dependxml)
+    if (depend || dependxml)
     {
         writeDependencies(os.str(), dependFile);
     }
 
-    if(listGenerated)
+    if (listGenerated)
     {
         FileTracker::instance()->dumpxml();
     }
@@ -4793,9 +4822,11 @@ compile(const vector<string>& argv)
 }
 
 #ifdef _WIN32
-int wmain(int argc, wchar_t* argv[])
+int
+wmain(int argc, wchar_t* argv[])
 #else
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 #endif
 {
     vector<string> args = Slice::argvToArgs(argc, argv);
@@ -4803,14 +4834,15 @@ int main(int argc, char* argv[])
     {
         return compile(args);
     }
-    catch(const std::exception& ex)
+    catch (const std::exception& ex)
     {
         consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
-    catch(...)
+    catch (...)
     {
-        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:"
+                   << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

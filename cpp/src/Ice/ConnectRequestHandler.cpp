@@ -16,10 +16,10 @@
 using namespace std;
 using namespace IceInternal;
 
-ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref) :
-    RequestHandler(ref),
-    _initialized(false),
-    _flushing(false)
+ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref)
+    : RequestHandler(ref),
+      _initialized(false),
+      _flushing(false)
 {
 }
 
@@ -28,12 +28,12 @@ ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)
 {
     {
         unique_lock lock(_mutex);
-        if(!_initialized)
+        if (!_initialized)
         {
             out->cancelable(shared_from_this()); // This will throw if the request is canceled
         }
 
-        if(!initialized(lock))
+        if (!initialized(lock))
         {
             _requests.push_back(out);
             return AsyncStatusQueued;
@@ -47,19 +47,19 @@ ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync
 {
     {
         unique_lock lock(_mutex);
-        if(_exception)
+        if (_exception)
         {
             return; // The request has been notified of a failure already.
         }
 
-        if(!initialized(lock))
+        if (!initialized(lock))
         {
-            for(deque<ProxyOutgoingAsyncBasePtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+            for (deque<ProxyOutgoingAsyncBasePtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
             {
-                if(p->get() == outAsync.get())
+                if (p->get() == outAsync.get())
                 {
                     _requests.erase(p);
-                    if(outAsync->exception(ex))
+                    if (outAsync->exception(ex))
                     {
                         outAsync->invokeExceptionAsync();
                     }
@@ -80,11 +80,11 @@ ConnectRequestHandler::getConnection()
     // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
     // exception can be set after the connection is set if the flush of pending requests fails).
     //
-    if(_connection)
+    if (_connection)
     {
         return _connection;
     }
-    else if(_exception)
+    else if (_exception)
     {
         rethrow_exception(_exception);
     }
@@ -95,7 +95,7 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::waitForConnection()
 {
     unique_lock lock(_mutex);
-    if(_exception)
+    if (_exception)
     {
         throw RetryException(_exception);
     }
@@ -104,7 +104,7 @@ ConnectRequestHandler::waitForConnection()
     //
     _conditionVariable.wait(lock, [this] { return _initialized || _exception; });
 
-    if(_exception)
+    if (_exception)
     {
         rethrow_exception(_exception);
     }
@@ -133,9 +133,7 @@ ConnectRequestHandler::setConnection(Ice::ConnectionIPtr connection, bool compre
     {
         auto self = shared_from_this();
         if (!ri->addProxyAsync(
-                _reference,
-                [self] { self->flushRequests(); },
-                [self](exception_ptr ex) { self->setException(ex); }))
+                _reference, [self] { self->flushRequests(); }, [self](exception_ptr ex) { self->setException(ex); }))
         {
             return; // The request handler will be initialized once addProxyAsync completes.
         }
@@ -179,7 +177,7 @@ ConnectRequestHandler::initialized(unique_lock<mutex>& lock)
 {
     // Must be called with the mutex locked.
 
-    if(_initialized)
+    if (_initialized)
     {
         assert(_connection);
         return true;
@@ -188,9 +186,9 @@ ConnectRequestHandler::initialized(unique_lock<mutex>& lock)
     {
         _conditionVariable.wait(lock, [this] { return !_flushing; });
 
-        if(_exception)
+        if (_exception)
         {
-            if(_connection)
+            if (_connection)
             {
                 //
                 // Only throw if the connection didn't get established. If
@@ -225,26 +223,26 @@ ConnectRequestHandler::flushRequests()
     }
 
     exception_ptr exception;
-    while(!_requests.empty()) // _requests is immutable when _flushing = true
+    while (!_requests.empty()) // _requests is immutable when _flushing = true
     {
         ProxyOutgoingAsyncBasePtr& req = _requests.front();
         try
         {
-            if(req->invokeRemote(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
+            if (req->invokeRemote(_connection, _compress, _response) & AsyncStatusInvokeSentCallback)
             {
                 req->invokeSentAsync();
             }
         }
-        catch(const RetryException& ex)
+        catch (const RetryException& ex)
         {
             exception = ex.get();
             req->retryException();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             exception = current_exception();
 
-            if(req->exception(exception))
+            if (req->exception(exception))
             {
                 req->invokeExceptionAsync();
             }

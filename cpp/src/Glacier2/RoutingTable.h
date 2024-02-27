@@ -17,47 +17,46 @@
 namespace Glacier2
 {
 
-class RoutingTable final
-{
-public:
-
-    RoutingTable(std::shared_ptr<Ice::Communicator>, std::shared_ptr<ProxyVerifier>);
-
-    void destroy();
-
-    std::shared_ptr<Glacier2::Instrumentation::SessionObserver>
-    updateObserver(const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>&,
-                   const std::string&, const std::shared_ptr<Ice::Connection>&);
-
-    // Returns evicted proxies.
-    Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&);
-    Ice::ObjectPrxPtr get(const Ice::Identity&); // Returns null if no proxy can be found.
-
-private:
-
-    const std::shared_ptr<Ice::Communicator> _communicator;
-    const int _traceLevel;
-    const int _maxSize;
-    const std::shared_ptr<ProxyVerifier> _verifier;
-
-    struct EvictorEntry;
-    using EvictorMap = std::map<Ice::Identity, std::shared_ptr<EvictorEntry>>;
-    using EvictorQueue = std::list<EvictorMap::iterator>;
-
-    friend struct EvictorEntry;
-    struct EvictorEntry
+    class RoutingTable final
     {
-        Ice::ObjectPrxPtr proxy;
-        EvictorQueue::iterator pos;
+    public:
+        RoutingTable(std::shared_ptr<Ice::Communicator>, std::shared_ptr<ProxyVerifier>);
+
+        void destroy();
+
+        std::shared_ptr<Glacier2::Instrumentation::SessionObserver>
+        updateObserver(const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>&,
+                       const std::string&,
+                       const std::shared_ptr<Ice::Connection>&);
+
+        // Returns evicted proxies.
+        Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&);
+        Ice::ObjectPrxPtr get(const Ice::Identity&); // Returns null if no proxy can be found.
+
+    private:
+        const std::shared_ptr<Ice::Communicator> _communicator;
+        const int _traceLevel;
+        const int _maxSize;
+        const std::shared_ptr<ProxyVerifier> _verifier;
+
+        struct EvictorEntry;
+        using EvictorMap = std::map<Ice::Identity, std::shared_ptr<EvictorEntry>>;
+        using EvictorQueue = std::list<EvictorMap::iterator>;
+
+        friend struct EvictorEntry;
+        struct EvictorEntry
+        {
+            Ice::ObjectPrxPtr proxy;
+            EvictorQueue::iterator pos;
+        };
+
+        EvictorMap _map;
+        EvictorQueue _queue;
+
+        IceInternal::ObserverHelperT<Glacier2::Instrumentation::SessionObserver> _observer;
+
+        std::mutex _mutex;
     };
-
-    EvictorMap _map;
-    EvictorQueue _queue;
-
-    IceInternal::ObserverHelperT<Glacier2::Instrumentation::SessionObserver> _observer;
-
-    std::mutex _mutex;
-};
 
 }
 

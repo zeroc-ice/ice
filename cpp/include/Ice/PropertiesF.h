@@ -17,21 +17,21 @@
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICE_API /**/
+#    elif defined(ICE_API_EXPORTS)
+#        define ICE_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 namespace Ice
 {
 
-class Properties;
-class PropertiesAdmin;
-class PropertiesAdminPrx;
+    class Properties;
+    class PropertiesAdmin;
+    class PropertiesAdminPrx;
 
 }
 
@@ -46,7 +46,7 @@ namespace Ice
 namespace Ice
 {
 
-using PropertiesPtr = ::std::shared_ptr<Properties>;
+    using PropertiesPtr = ::std::shared_ptr<Properties>;
 
 }
 /// \endcond

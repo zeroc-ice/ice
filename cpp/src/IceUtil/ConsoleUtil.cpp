@@ -13,9 +13,9 @@ using namespace std;
 namespace
 {
 
-mutex consoleMutex;
-// We leak consoleUtil object to ensure that is available during static destruction.
-ConsoleUtil* consoleUtil = 0;
+    mutex consoleMutex;
+    // We leak consoleUtil object to ensure that is available during static destruction.
+    ConsoleUtil* consoleUtil = 0;
 
 }
 
@@ -23,7 +23,7 @@ const ConsoleUtil&
 IceUtilInternal::getConsoleUtil()
 {
     lock_guard sync(consoleMutex);
-    if(consoleUtil == 0)
+    if (consoleUtil == 0)
     {
         consoleUtil = new ConsoleUtil();
     }
@@ -33,9 +33,9 @@ IceUtilInternal::getConsoleUtil()
 ConsoleOut IceUtilInternal::consoleOut;
 ConsoleErr IceUtilInternal::consoleErr;
 
-ConsoleUtil::ConsoleUtil() :
-    _converter(IceUtil::getProcessStringConverter()),
-    _consoleConverter(IceUtil::createWindowsStringConverter(GetConsoleOutputCP()))
+ConsoleUtil::ConsoleUtil()
+    : _converter(IceUtil::getProcessStringConverter()),
+      _consoleConverter(IceUtil::createWindowsStringConverter(GetConsoleOutputCP()))
 {
 }
 
@@ -49,13 +49,12 @@ ConsoleUtil::toConsoleEncoding(const string& message) const
 
         // Then from UTF-8 to console CP
         string consoleString;
-        _consoleConverter->fromUTF8(reinterpret_cast<const IceUtil::Byte* > (u8s.data()),
-                                    reinterpret_cast<const IceUtil::Byte*>(u8s.data() + u8s.size()),
-                                    consoleString);
+        _consoleConverter->fromUTF8(reinterpret_cast<const IceUtil::Byte*>(u8s.data()),
+                                    reinterpret_cast<const IceUtil::Byte*>(u8s.data() + u8s.size()), consoleString);
 
         return consoleString;
     }
-    catch(const IceUtil::IllegalConversionException&)
+    catch (const IceUtil::IllegalConversionException&)
     {
         //
         // If there is a problem with the encoding conversions we just

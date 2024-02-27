@@ -15,7 +15,6 @@ using EndpointIPtr = std::shared_ptr<EndpointI>;
 class EndpointI : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
 {
 public:
-
     static std::int16_t TYPE_BASE;
 
     EndpointI(const IceInternal::EndpointIPtr&);
@@ -28,10 +27,9 @@ public:
     virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
     virtual IceInternal::TransceiverPtr transceiver() const;
-    virtual void connectorsAsync(
-        Ice::EndpointSelectionType,
-        std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
-        std::function<void(std::exception_ptr)>) const;
+    virtual void connectorsAsync(Ice::EndpointSelectionType,
+                                 std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
+                                 std::function<void(std::exception_ptr)>) const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const;
     virtual std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const;
@@ -58,7 +56,6 @@ public:
     using IceInternal::EndpointI::connectionId;
 
 private:
-
     friend class EndpointFactory;
 
     const IceInternal::EndpointIPtr _endpoint;

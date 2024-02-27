@@ -11,29 +11,28 @@
 namespace IceStorm
 {
 
-class TraceLevels
-{
-public:
+    class TraceLevels
+    {
+    public:
+        TraceLevels(const ::std::string name, const std::shared_ptr<Ice::Properties>&, std::shared_ptr<Ice::Logger>);
 
-    TraceLevels(const ::std::string name, const std::shared_ptr<Ice::Properties>&, std::shared_ptr<Ice::Logger>);
+        const int topicMgr;
+        const char* topicMgrCat;
 
-    const int topicMgr;
-    const char* topicMgrCat;
+        const int topic;
+        const char* topicCat;
 
-    const int topic;
-    const char* topicCat;
+        const int subscriber;
+        const char* subscriberCat;
 
-    const int subscriber;
-    const char* subscriberCat;
+        const int election;
+        const char* electionCat;
 
-    const int election;
-    const char* electionCat;
+        const int replication;
+        const char* replicationCat;
 
-    const int replication;
-    const char* replicationCat;
-
-    const std::shared_ptr<Ice::Logger> logger;
-};
+        const std::shared_ptr<Ice::Logger> logger;
+    };
 
 } // End namespace IceStorm
 

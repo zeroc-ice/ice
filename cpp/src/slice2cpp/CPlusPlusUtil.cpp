@@ -9,7 +9,7 @@
 #include <algorithm>
 
 #ifndef _WIN32
-#  include <fcntl.h>
+#    include <fcntl.h>
 #endif
 
 using namespace std;
@@ -20,414 +20,308 @@ using namespace IceUtilInternal;
 namespace
 {
 
-string toTemplateArg(const string& arg)
-{
-    if(arg.empty())
+    string toTemplateArg(const string& arg)
     {
-        return arg;
-    }
-    string fixed = arg;
-    if(arg[0] == ':')
-    {
-        fixed = " " + fixed;
-    }
-    if(fixed[fixed.length() - 1] == '>')
-    {
-        fixed = fixed + " ";
-    }
-    return fixed;
-}
-
-string
-toOptional(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
-{
-    if (isProxyType(type))
-    {
-        // We map optional proxies like regular proxies, as optional<XxxPrx>.
-        return typeToString(type, scope, metaData, typeCtx);
-    }
-    else
-    {
-        return "::std::optional<" + typeToString(type, scope, metaData, typeCtx) + '>';
-    }
-}
-
-string
-stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
-{
-    string strType = findMetaData(metaData, typeCtx);
-    if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
-    {
-        // TODO: if we're still using TypeContextAMIPrivateEnd, we should give it a better name.
-        // TODO: should be something like the following line but doesn't work currently
-        // return (typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd)) ? "::std::wstring_view" : "::std::wstring";
-        return "::std::wstring";
-    }
-    else if(strType != "" && strType != "string")
-    {
-        // The user provided a type name, we use it as-is.
-        return strType;
-    }
-    else
-    {
-        return "::std::string";
-        // return (typeCtx & TypeContextInParam) ? "::std::string_view" : "::std::string";
-    }
-}
-
-string
-sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metaData, int typeCtx)
-{
-    string seqType = findMetaData(metaData, typeCtx);
-    if(!seqType.empty())
-    {
-        if(seqType == "%array")
+        if (arg.empty())
         {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if(typeCtx & TypeContextAMIPrivateEnd)
-            {
-                if(builtin && builtin->kind() == Builtin::KindByte)
-                {
-                    string s = typeToString(seq->type(), scope);
-                    return "::std::pair<const " + s + "*, const " + s + "*>";
-                }
-                else if(builtin &&
-                        builtin->kind() != Builtin::KindString &&
-                        builtin->kind() != Builtin::KindObject &&
-                        builtin->kind() != Builtin::KindObjectProxy)
-                {
-                    string s = toTemplateArg(typeToString(builtin, scope));
-                    return "::std::pair< ::IceUtil::ScopedArray<" + s + ">, " +
-                        "::std::pair<const " + s + "*, const " + s + "*> >";
-                }
-                else
-                {
-                    string s = toTemplateArg(typeToString(seq->type(), scope, seq->typeMetaData(),
-                                                          inWstringModule(seq) ? TypeContextUseWstring : 0));
-                    return "::std::vector<" + s + '>';
-                }
-            }
-            string s = typeToString(seq->type(), scope, seq->typeMetaData(),
-                                    typeCtx | (inWstringModule(seq) ? TypeContextUseWstring : 0));
-            return "::std::pair<const " + s + "*, const " + s + "*>";
+            return arg;
+        }
+        string fixed = arg;
+        if (arg[0] == ':')
+        {
+            fixed = " " + fixed;
+        }
+        if (fixed[fixed.length() - 1] == '>')
+        {
+            fixed = fixed + " ";
+        }
+        return fixed;
+    }
+
+    string toOptional(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
+    {
+        if (isProxyType(type))
+        {
+            // We map optional proxies like regular proxies, as optional<XxxPrx>.
+            return typeToString(type, scope, metaData, typeCtx);
         }
         else
         {
-            return seqType;
+            return "::std::optional<" + typeToString(type, scope, metaData, typeCtx) + '>';
         }
     }
-    else
-    {
-        return getUnqualified(fixKwd(seq->scoped()), scope);
-    }
-}
 
-string
-dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const StringList& metaData, int typeCtx)
-{
-    const string dictType = findMetaData(metaData, typeCtx);
-    if(dictType.empty())
+    string stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
     {
-        return getUnqualified(fixKwd(dict->scoped()), scope);
-    }
-    else
-    {
-        return dictType;
-    }
-}
-
-void
-writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& scope, const string& fixedName,
-                       const StringList& metaData, int typeCtx, bool endArg)
-{
-    string s = typeToString(type, optional, scope, metaData, typeCtx);
-    out << nl << s << ' ' << fixedName << ';';
-
-    if((typeCtx & TypeContextCpp11) || !(typeCtx & TypeContextInParam) || !endArg)
-    {
-        return; // We're done.
+        string strType = findMetaData(metaData, typeCtx);
+        if (strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
+        {
+            // TODO: if we're still using TypeContextAMIPrivateEnd, we should give it a better name.
+            // TODO: should be something like the following line but doesn't work currently
+            // return (typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd)) ? "::std::wstring_view" :
+            // "::std::wstring";
+            return "::std::wstring";
+        }
+        else if (strType != "" && strType != "string")
+        {
+            // The user provided a type name, we use it as-is.
+            return strType;
+        }
+        else
+        {
+            return "::std::string";
+            // return (typeCtx & TypeContextInParam) ? "::std::string_view" : "::std::string";
+        }
     }
 
-    //
-    // If using a array we need to allocate the array as well now to ensure they are always in the same scope.
-    //
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    string sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metaData, int typeCtx)
     {
         string seqType = findMetaData(metaData, typeCtx);
-        if(seqType.empty())
+        if (!seqType.empty())
         {
-            seqType = findMetaData(seq->getMetaData(), typeCtx);
-        }
-
-        string str;
-        if(seqType == "%array")
-        {
-            str = typeToString(seq, scope, metaData, TypeContextAMIPrivateEnd);
-        }
-
-        if(!str.empty())
-        {
-            if(optional)
+            if (seqType == "%array")
             {
-                str = "::std::optional<" + str + '>';
-            }
-            out << nl << str << ' ' << fixedName << "_tmp_;";
-        }
-    }
-}
-
-void
-writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string& fixedName, const StringList& metaData,
-                  const string& obj = "")
-{
-    string objPrefix = obj.empty() ? obj : obj + ".";
-    string paramName = objPrefix + fixedName;
-    string escapedParamName = objPrefix + fixedName + "_tmp_";
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
-    {
-        string seqType = findMetaData(metaData, TypeContextInParam);
-        if(seqType.empty())
-        {
-            seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
-        }
-
-        if(seqType == "%array")
-        {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if(builtin &&
-               builtin->kind() != Builtin::KindByte &&
-               builtin->kind() != Builtin::KindString &&
-               builtin->kind() != Builtin::KindObject &&
-               builtin->kind() != Builtin::KindObjectProxy)
-            {
-                if(optional)
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
+                if (typeCtx & TypeContextAMIPrivateEnd)
                 {
-                    out << nl << "if(" << escapedParamName << ")";
-                    out << sb;
-                    out << nl << paramName << " = " << escapedParamName << "->second;";
-                    out << eb;
+                    if (builtin && builtin->kind() == Builtin::KindByte)
+                    {
+                        string s = typeToString(seq->type(), scope);
+                        return "::std::pair<const " + s + "*, const " + s + "*>";
+                    }
+                    else if (builtin && builtin->kind() != Builtin::KindString &&
+                             builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
+                    {
+                        string s = toTemplateArg(typeToString(builtin, scope));
+                        return "::std::pair< ::IceUtil::ScopedArray<" + s + ">, " + "::std::pair<const " + s +
+                               "*, const " + s + "*> >";
+                    }
+                    else
+                    {
+                        string s = toTemplateArg(typeToString(seq->type(), scope, seq->typeMetaData(),
+                                                              inWstringModule(seq) ? TypeContextUseWstring : 0));
+                        return "::std::vector<" + s + '>';
+                    }
                 }
-                else
-                {
-                    out << nl << paramName << " = " << escapedParamName << ".second;";
-                }
-            }
-            else if(!builtin ||
-                    builtin->kind() == Builtin::KindString ||
-                    builtin->kind() == Builtin::KindObject ||
-                    builtin->kind() == Builtin::KindObjectProxy)
-            {
-                if(optional)
-                {
-                    out << nl << "if(" << escapedParamName << ")";
-                    out << sb;
-                    out << nl << paramName << ".emplace();";
-                    out << nl << "if(!" << escapedParamName << "->empty())";
-                    out << sb;
-                    out << nl << paramName << "->first" << " = &(*" << escapedParamName << ")[0];";
-                    out << nl << paramName << "->second" << " = " << paramName << "->first + " << escapedParamName
-                        << "->size();";
-                    out << eb;
-                    out << nl << "else";
-                    out << sb;
-                    out << nl << paramName << "->first" << " = " << paramName << "->second" << " = 0;";
-                    out << eb;
-                    out << eb;
-                }
-                else
-                {
-                    out << nl << "if(!" << escapedParamName << ".empty())";
-                    out << sb;
-                    out << nl << paramName << ".first" << " = &" << escapedParamName << "[0];";
-                    out << nl << paramName << ".second" << " = " << paramName << ".first + " << escapedParamName
-                        << ".size();";
-                    out << eb;
-                    out << nl << "else";
-                    out << sb;
-                    out << nl << paramName << ".first" << " = " << paramName << ".second" << " = 0;";
-                    out << eb;
-                }
-            }
-        }
-    }
-}
-
-void
-writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
-                            bool prepend, int typeCtx, const string& customStream = "", const string& retP = "",
-                            const string& obj = "")
-{
-    string prefix = prepend ? paramPrefix : "";
-    string returnValueS = retP.empty() ? string("ret") : retP;
-    string objPrefix = obj.empty() ? obj : obj + ".";
-
-    string stream = customStream;
-    if(stream.empty())
-    {
-        stream = marshal ? "ostr" : "istr";
-    }
-
-    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
-    bool tuple = (typeCtx & TypeContextTuple) != 0;
-
-    //
-    // Marshal non optional parameters.
-    //
-    ParamDeclList requiredParams;
-    ParamDeclList optionals;
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
-    {
-        if((*p)->optional())
-        {
-            optionals.push_back(*p);
-        }
-        else
-        {
-            requiredParams.push_back(*p);
-        }
-    }
-
-    int retOffset = op && op->returnType() ? 1 : 0;
-
-    if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsOptional()))
-    {
-        if(cpp11)
-        {
-            out << nl;
-            if(marshal)
-            {
-                out << stream << "->writeAll";
+                string s = typeToString(seq->type(), scope, seq->typeMetaData(),
+                                        typeCtx | (inWstringModule(seq) ? TypeContextUseWstring : 0));
+                return "::std::pair<const " + s + "*, const " + s + "*>";
             }
             else
             {
-                out << stream << "->readAll";
+                return seqType;
             }
-            out << spar;
-            for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
-            {
-                if (tuple)
-                {
-                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
-                    out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
-                }
-                else
-                {
-                    out << objPrefix + fixKwd(prefix + (*p)->name());
-                }
-            }
-            if(op && op->returnType() && !op->returnIsOptional())
-            {
-                if (tuple)
-                {
-                    out << "::std::get<0>(" + obj + ")";
-                }
-                else
-                {
-                    out << objPrefix + returnValueS;
-                }
-            }
-            out << epar << ";";
         }
         else
         {
-            for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+            return getUnqualified(fixKwd(seq->scoped()), scope);
+        }
+    }
+
+    string
+    dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const StringList& metaData, int typeCtx)
+    {
+        const string dictType = findMetaData(metaData, typeCtx);
+        if (dictType.empty())
+        {
+            return getUnqualified(fixKwd(dict->scoped()), scope);
+        }
+        else
+        {
+            return dictType;
+        }
+    }
+
+    void writeParamAllocateCode(Output& out,
+                                const TypePtr& type,
+                                bool optional,
+                                const string& scope,
+                                const string& fixedName,
+                                const StringList& metaData,
+                                int typeCtx,
+                                bool endArg)
+    {
+        string s = typeToString(type, optional, scope, metaData, typeCtx);
+        out << nl << s << ' ' << fixedName << ';';
+
+        if ((typeCtx & TypeContextCpp11) || !(typeCtx & TypeContextInParam) || !endArg)
+        {
+            return; // We're done.
+        }
+
+        //
+        // If using a array we need to allocate the array as well now to ensure they are always in the same scope.
+        //
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+        if (seq)
+        {
+            string seqType = findMetaData(metaData, typeCtx);
+            if (seqType.empty())
             {
-                writeMarshalUnmarshalCode(out, (*p)->type(), false, 0, fixKwd(prefix + (*p)->name()), marshal,
-                                          (*p)->getMetaData(), typeCtx, customStream, true, obj);
+                seqType = findMetaData(seq->getMetaData(), typeCtx);
             }
 
-            if(op && op->returnType())
+            string str;
+            if (seqType == "%array")
             {
-                if(!op->returnIsOptional())
+                str = typeToString(seq, scope, metaData, TypeContextAMIPrivateEnd);
+            }
+
+            if (!str.empty())
+            {
+                if (optional)
                 {
-                    writeMarshalUnmarshalCode(out, op->returnType(), false, 0, returnValueS, marshal, op->getMetaData(),
-                                              typeCtx, customStream, true, obj);
+                    str = "::std::optional<" + str + '>';
+                }
+                out << nl << str << ' ' << fixedName << "_tmp_;";
+            }
+        }
+    }
+
+    void writeParamEndCode(Output& out,
+                           const TypePtr& type,
+                           bool optional,
+                           const string& fixedName,
+                           const StringList& metaData,
+                           const string& obj = "")
+    {
+        string objPrefix = obj.empty() ? obj : obj + ".";
+        string paramName = objPrefix + fixedName;
+        string escapedParamName = objPrefix + fixedName + "_tmp_";
+
+        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
+        if (seq)
+        {
+            string seqType = findMetaData(metaData, TypeContextInParam);
+            if (seqType.empty())
+            {
+                seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
+            }
+
+            if (seqType == "%array")
+            {
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
+                if (builtin && builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindString &&
+                    builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
+                {
+                    if (optional)
+                    {
+                        out << nl << "if(" << escapedParamName << ")";
+                        out << sb;
+                        out << nl << paramName << " = " << escapedParamName << "->second;";
+                        out << eb;
+                    }
+                    else
+                    {
+                        out << nl << paramName << " = " << escapedParamName << ".second;";
+                    }
+                }
+                else if (!builtin || builtin->kind() == Builtin::KindString || builtin->kind() == Builtin::KindObject ||
+                         builtin->kind() == Builtin::KindObjectProxy)
+                {
+                    if (optional)
+                    {
+                        out << nl << "if(" << escapedParamName << ")";
+                        out << sb;
+                        out << nl << paramName << ".emplace();";
+                        out << nl << "if(!" << escapedParamName << "->empty())";
+                        out << sb;
+                        out << nl << paramName << "->first"
+                            << " = &(*" << escapedParamName << ")[0];";
+                        out << nl << paramName << "->second"
+                            << " = " << paramName << "->first + " << escapedParamName << "->size();";
+                        out << eb;
+                        out << nl << "else";
+                        out << sb;
+                        out << nl << paramName << "->first"
+                            << " = " << paramName << "->second"
+                            << " = 0;";
+                        out << eb;
+                        out << eb;
+                    }
+                    else
+                    {
+                        out << nl << "if(!" << escapedParamName << ".empty())";
+                        out << sb;
+                        out << nl << paramName << ".first"
+                            << " = &" << escapedParamName << "[0];";
+                        out << nl << paramName << ".second"
+                            << " = " << paramName << ".first + " << escapedParamName << ".size();";
+                        out << eb;
+                        out << nl << "else";
+                        out << sb;
+                        out << nl << paramName << ".first"
+                            << " = " << paramName << ".second"
+                            << " = 0;";
+                        out << eb;
+                    }
                 }
             }
         }
     }
 
-    if(!optionals.empty() || (op && op->returnType() && op->returnIsOptional()))
+    void writeMarshalUnmarshalParams(Output& out,
+                                     const ParamDeclList& params,
+                                     const OperationPtr& op,
+                                     bool marshal,
+                                     bool prepend,
+                                     int typeCtx,
+                                     const string& customStream = "",
+                                     const string& retP = "",
+                                     const string& obj = "")
     {
-        //
-        // Sort optional parameters by tag.
-        //
-        class SortFn
-        {
-        public:
-            static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
-            {
-                return lhs->tag() < rhs->tag();
-            }
-        };
-        optionals.sort(SortFn::compare);
+        string prefix = prepend ? paramPrefix : "";
+        string returnValueS = retP.empty() ? string("ret") : retP;
+        string objPrefix = obj.empty() ? obj : obj + ".";
 
-        if(cpp11)
+        string stream = customStream;
+        if (stream.empty())
         {
-            out << nl;
-            if(marshal)
+            stream = marshal ? "ostr" : "istr";
+        }
+
+        bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+        bool tuple = (typeCtx & TypeContextTuple) != 0;
+
+        //
+        // Marshal non optional parameters.
+        //
+        ParamDeclList requiredParams;
+        ParamDeclList optionals;
+        for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        {
+            if ((*p)->optional())
             {
-                out << stream << "->writeAll";
+                optionals.push_back(*p);
             }
             else
             {
-                out << stream << "->readAll";
+                requiredParams.push_back(*p);
             }
-            out << spar;
+        }
 
+        int retOffset = op && op->returnType() ? 1 : 0;
+
+        if (!requiredParams.empty() || (op && op->returnType() && !op->returnIsOptional()))
+        {
+            if (cpp11)
             {
-                //
-                // Tags
-                //
-                ostringstream os;
-                os << '{';
-                bool checkReturnType = op && op->returnIsOptional();
-                bool insertComma = false;
-                for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                out << nl;
+                if (marshal)
                 {
-                    if(checkReturnType && op->returnTag() < (*p)->tag())
-                    {
-                        os << (insertComma ? ", " : "") << op->returnTag();
-                        checkReturnType = false;
-                        insertComma = true;
-                    }
-                    os << (insertComma ? ", " : "") << (*p)->tag();
-                    insertComma = true;
+                    out << stream << "->writeAll";
                 }
-                if(checkReturnType)
+                else
                 {
-                    os << (insertComma ? ", " : "") << op->returnTag();
+                    out << stream << "->readAll";
                 }
-                os << '}';
-                out << os.str();
-            }
-
-            {
-                //
-                // Parameters
-                //
-                bool checkReturnType = op && op->returnIsOptional();
-                for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                out << spar;
+                for (ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
                 {
-                    if(checkReturnType && op->returnTag() < (*p)->tag())
-                    {
-                        if (tuple)
-                        {
-                            out << "::std::get<0>(" + obj + ")";
-                        }
-                        else
-                        {
-                            out << objPrefix + returnValueS;
-                        }
-                        checkReturnType = false;
-                    }
-
                     if (tuple)
                     {
-                        auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                        auto index =
+                            std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
                         out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
                     }
                     else
@@ -435,7 +329,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                         out << objPrefix + fixKwd(prefix + (*p)->name());
                     }
                 }
-                if(checkReturnType)
+                if (op && op->returnType() && !op->returnIsOptional())
                 {
                     if (tuple)
                     {
@@ -446,37 +340,155 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                         out << objPrefix + returnValueS;
                     }
                 }
+                out << epar << ";";
             }
-            out << epar << ";";
-        }
-        else
-        {
-
-            //
-            // Marshal optional parameters.
-            //
-
-            bool checkReturnType = op && op->returnIsOptional();
-            for(ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+            else
             {
-                if(checkReturnType && op->returnTag() < (*p)->tag())
+                for (ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+                {
+                    writeMarshalUnmarshalCode(out, (*p)->type(), false, 0, fixKwd(prefix + (*p)->name()), marshal,
+                                              (*p)->getMetaData(), typeCtx, customStream, true, obj);
+                }
+
+                if (op && op->returnType())
+                {
+                    if (!op->returnIsOptional())
+                    {
+                        writeMarshalUnmarshalCode(out, op->returnType(), false, 0, returnValueS, marshal,
+                                                  op->getMetaData(), typeCtx, customStream, true, obj);
+                    }
+                }
+            }
+        }
+
+        if (!optionals.empty() || (op && op->returnType() && op->returnIsOptional()))
+        {
+            //
+            // Sort optional parameters by tag.
+            //
+            class SortFn
+            {
+            public:
+                static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
+                {
+                    return lhs->tag() < rhs->tag();
+                }
+            };
+            optionals.sort(SortFn::compare);
+
+            if (cpp11)
+            {
+                out << nl;
+                if (marshal)
+                {
+                    out << stream << "->writeAll";
+                }
+                else
+                {
+                    out << stream << "->readAll";
+                }
+                out << spar;
+
+                {
+                    //
+                    // Tags
+                    //
+                    ostringstream os;
+                    os << '{';
+                    bool checkReturnType = op && op->returnIsOptional();
+                    bool insertComma = false;
+                    for (ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                    {
+                        if (checkReturnType && op->returnTag() < (*p)->tag())
+                        {
+                            os << (insertComma ? ", " : "") << op->returnTag();
+                            checkReturnType = false;
+                            insertComma = true;
+                        }
+                        os << (insertComma ? ", " : "") << (*p)->tag();
+                        insertComma = true;
+                    }
+                    if (checkReturnType)
+                    {
+                        os << (insertComma ? ", " : "") << op->returnTag();
+                    }
+                    os << '}';
+                    out << os.str();
+                }
+
+                {
+                    //
+                    // Parameters
+                    //
+                    bool checkReturnType = op && op->returnIsOptional();
+                    for (ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                    {
+                        if (checkReturnType && op->returnTag() < (*p)->tag())
+                        {
+                            if (tuple)
+                            {
+                                out << "::std::get<0>(" + obj + ")";
+                            }
+                            else
+                            {
+                                out << objPrefix + returnValueS;
+                            }
+                            checkReturnType = false;
+                        }
+
+                        if (tuple)
+                        {
+                            auto index =
+                                std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                            out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
+                        }
+                        else
+                        {
+                            out << objPrefix + fixKwd(prefix + (*p)->name());
+                        }
+                    }
+                    if (checkReturnType)
+                    {
+                        if (tuple)
+                        {
+                            out << "::std::get<0>(" + obj + ")";
+                        }
+                        else
+                        {
+                            out << objPrefix + returnValueS;
+                        }
+                    }
+                }
+                out << epar << ";";
+            }
+            else
+            {
+
+                //
+                // Marshal optional parameters.
+                //
+
+                bool checkReturnType = op && op->returnIsOptional();
+                for (ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                {
+                    if (checkReturnType && op->returnTag() < (*p)->tag())
+                    {
+                        writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
+                                                  op->getMetaData(), typeCtx, customStream, true, obj);
+
+                        checkReturnType = false;
+                    }
+                    writeMarshalUnmarshalCode(out, (*p)->type(), true, (*p)->tag(), fixKwd(prefix + (*p)->name()),
+                                              marshal, (*p)->getMetaData(), typeCtx, customStream, true, obj);
+                }
+                if (checkReturnType)
                 {
                     writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
                                               op->getMetaData(), typeCtx, customStream, true, obj);
-
-                    checkReturnType = false;
                 }
-                writeMarshalUnmarshalCode(out, (*p)->type(), true, (*p)->tag(), fixKwd(prefix + (*p)->name()), marshal,
-                                          (*p)->getMetaData(), typeCtx, customStream, true, obj);
-            }
-            if(checkReturnType)
-            {
-                writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), returnValueS, marshal,
-                                          op->getMetaData(), typeCtx, customStream, true, obj);
             }
         }
     }
-}
 }
 
 string Slice::paramPrefix = "iceP_";
@@ -484,7 +496,7 @@ string Slice::paramPrefix = "iceP_";
 char
 Slice::ToIfdef::operator()(char c)
 {
-    if(!isalnum(static_cast<unsigned char>(c)))
+    if (!isalnum(static_cast<unsigned char>(c)))
     {
         return '_';
     }
@@ -497,11 +509,9 @@ Slice::ToIfdef::operator()(char c)
 void
 Slice::printHeader(Output& out)
 {
-    static const char* header =
-"//\n"
-"// Copyright (c) ZeroC, Inc. All rights reserved.\n"
-"//\n"
-        ;
+    static const char* header = "//\n"
+                                "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
+                                "//\n";
 
     out << header;
     out << "//\n";
@@ -515,7 +525,7 @@ Slice::printVersionCheck(Output& out)
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
     int iceVersion = ICE_INT_VERSION; // Use this to prevent warning with C++Builder
-    if(iceVersion % 100 >= 50)
+    if (iceVersion % 100 >= 50)
     {
         //
         // Beta version: exact match required
@@ -547,7 +557,7 @@ Slice::printVersionCheck(Output& out)
 void
 Slice::printDllExportStuff(Output& out, const string& dllExport)
 {
-    if(dllExport.size())
+    if (dllExport.size())
     {
         out << sp;
         out << "\n#ifndef " << dllExport;
@@ -566,9 +576,9 @@ bool
 Slice::isMovable(const TypePtr& type)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        switch(builtin->kind())
+        switch (builtin->kind())
         {
             case Builtin::KindString:
             case Builtin::KindObject:
@@ -589,23 +599,23 @@ Slice::isMovable(const TypePtr& type)
 string
 Slice::getUnqualified(const std::string& type, const std::string& scope)
 {
-    if(type.find("::") != string::npos)
+    if (type.find("::") != string::npos)
     {
         string prefix;
-        if(type.find("const ") == 0)
+        if (type.find("const ") == 0)
         {
             prefix += "const ";
         }
 
-        if(type.find("::std::shared_ptr<", prefix.size()) == prefix.size())
+        if (type.find("::std::shared_ptr<", prefix.size()) == prefix.size())
         {
             prefix += "::std::shared_ptr<";
         }
 
-        if(type.find(scope, prefix.size()) == prefix.size())
+        if (type.find(scope, prefix.size()) == prefix.size())
         {
             string t = type.substr(prefix.size() + scope.size());
-            if(t.find("::") == string::npos)
+            if (t.find("::") == string::npos)
             {
                 return prefix + t;
             }
@@ -619,31 +629,28 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
 {
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
-    static const char* builtinTable[] =
-    {
-        "::std::uint8_t",
-        "bool",
-        "::std::int16_t",
-        "::std::int32_t",
-        "::std::int64_t",
-        "float",
-        "double",
-        "****", // string or wstring, see below
-        "::std::shared_ptr<::Ice::Value>",
-        "::std::optional<::Ice::ObjectPrx>",
-        "::std::shared_ptr<::Ice::Value>"
-    };
+    static const char* builtinTable[] = {"::std::uint8_t",
+                                         "bool",
+                                         "::std::int16_t",
+                                         "::std::int32_t",
+                                         "::std::int64_t",
+                                         "float",
+                                         "double",
+                                         "****", // string or wstring, see below
+                                         "::std::shared_ptr<::Ice::Value>",
+                                         "::std::optional<::Ice::ObjectPrx>",
+                                         "::std::shared_ptr<::Ice::Value>"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        if(builtin->kind() == Builtin::KindString)
+        if (builtin->kind() == Builtin::KindString)
         {
             return stringTypeToString(type, metaData, typeCtx);
         }
         else
         {
-            if(builtin->kind() == Builtin::KindObject)
+            if (builtin->kind() == Builtin::KindObject)
             {
                 return getUnqualified(builtinTable[Builtin::KindValue], scope);
             }
@@ -655,9 +662,9 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
+    if (cl)
     {
-        if(cpp11)
+        if (cpp11)
         {
             return "::std::shared_ptr<" + getUnqualified(cl->scoped(), scope) + ">";
         }
@@ -668,31 +675,31 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
+    if (st)
     {
         return getUnqualified(fixKwd(st->scoped()), scope);
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(proxy)
+    if (proxy)
     {
         return "::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
+    if (en)
     {
         return getUnqualified(fixKwd(en->scoped()), scope);
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    if (seq)
     {
         return sequenceTypeToString(seq, scope, metaData, typeCtx);
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if(dict)
+    if (dict)
     {
         return dictionaryTypeToString(dict, scope, metaData, typeCtx);
     }
@@ -703,7 +710,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
 string
 Slice::typeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData, int typeCtx)
 {
-    if(optional)
+    if (optional)
     {
         return toOptional(type, scope, metaData, typeCtx);
     }
@@ -714,15 +721,15 @@ Slice::typeToString(const TypePtr& type, bool optional, const string& scope, con
 }
 
 string
-Slice::returnTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
-                          int typeCtx)
+Slice::returnTypeToString(
+    const TypePtr& type, bool optional, const string& scope, const StringList& metaData, int typeCtx)
 {
-    if(!type)
+    if (!type)
     {
         return "void";
     }
 
-    if(optional)
+    if (optional)
     {
         return toOptional(type, scope, metaData, typeCtx);
     }
@@ -731,44 +738,41 @@ Slice::returnTypeToString(const TypePtr& type, bool optional, const string& scop
 }
 
 string
-Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
-                         int typeCtx)
+Slice::inputTypeToString(
+    const TypePtr& type, bool optional, const string& scope, const StringList& metaData, int typeCtx)
 {
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
-    static const char* InputBuiltinTable[] =
-    {
-        "::std::uint8_t",
-        "bool",
-        "::std::int16_t",
-        "::std::int32_t",
-        "::std::int64_t",
-        "float",
-        "double",
-        "****", // string_view or wstring_view, see below
-        "const ::std::shared_ptr<::Ice::Value>&",
-        "const ::std::optional<::Ice::ObjectPrx>&",
-        "const ::std::shared_ptr<::Ice::Value>&"
-    };
+    static const char* InputBuiltinTable[] = {"::std::uint8_t",
+                                              "bool",
+                                              "::std::int16_t",
+                                              "::std::int32_t",
+                                              "::std::int64_t",
+                                              "float",
+                                              "double",
+                                              "****", // string_view or wstring_view, see below
+                                              "const ::std::shared_ptr<::Ice::Value>&",
+                                              "const ::std::optional<::Ice::ObjectPrx>&",
+                                              "const ::std::shared_ptr<::Ice::Value>&"};
 
     typeCtx |= TypeContextInParam;
 
-    if(optional)
+    if (optional)
     {
         return "const " + toOptional(type, scope, metaData, typeCtx) + '&';
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        if(builtin->kind() == Builtin::KindString)
+        if (builtin->kind() == Builtin::KindString)
         {
             // TODO: temporary, stringTypeToString should return the correct string.
             return stringTypeToString(type, metaData, typeCtx) + "_view";
         }
         else
         {
-            if(builtin->kind() == Builtin::KindObject)
+            if (builtin->kind() == Builtin::KindObject)
             {
                 return getUnqualified(InputBuiltinTable[Builtin::KindValue], scope);
             }
@@ -780,9 +784,9 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
+    if (cl)
     {
-        if(cpp11)
+        if (cpp11)
         {
             return "const ::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
         }
@@ -793,31 +797,31 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
+    if (st)
     {
         return "const " + getUnqualified(fixKwd(st->scoped()), scope) + "&";
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(proxy)
+    if (proxy)
     {
         return "const ::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
+    if (en)
     {
         return getUnqualified(fixKwd(en->scoped()), scope);
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    if (seq)
     {
         return "const " + sequenceTypeToString(seq, scope, metaData, typeCtx) + "&";
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if(dict)
+    if (dict)
     {
         return "const " + dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
     }
@@ -826,41 +830,38 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 }
 
 string
-Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
-                          int typeCtx)
+Slice::outputTypeToString(
+    const TypePtr& type, bool optional, const string& scope, const StringList& metaData, int typeCtx)
 {
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
-    static const char* outputBuiltinTable[] =
-    {
-        "::std::uint8_t&",
-        "bool&",
-        "::std::int16_t&",
-        "::std::int32_t&",
-        "::std::int64_t&",
-        "float&",
-        "double&",
-        "****", // string& or wstring&, see below
-        "::std::shared_ptr<::Ice::Value>&",
-        "::std::optional<::Ice::ObjectPrx>&",
-        "::std::shared_ptr<::Ice::Value>&"
-    };
+    static const char* outputBuiltinTable[] = {"::std::uint8_t&",
+                                               "bool&",
+                                               "::std::int16_t&",
+                                               "::std::int32_t&",
+                                               "::std::int64_t&",
+                                               "float&",
+                                               "double&",
+                                               "****", // string& or wstring&, see below
+                                               "::std::shared_ptr<::Ice::Value>&",
+                                               "::std::optional<::Ice::ObjectPrx>&",
+                                               "::std::shared_ptr<::Ice::Value>&"};
 
-    if(optional)
+    if (optional)
     {
         return toOptional(type, scope, metaData, typeCtx) + '&';
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
+    if (builtin)
     {
-        if(builtin->kind() == Builtin::KindString)
+        if (builtin->kind() == Builtin::KindString)
         {
             return stringTypeToString(type, metaData, typeCtx) + "&";
         }
         else
         {
-            if(builtin->kind() == Builtin::KindObject)
+            if (builtin->kind() == Builtin::KindObject)
             {
                 return getUnqualified(outputBuiltinTable[Builtin::KindValue], scope);
             }
@@ -872,9 +873,9 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
+    if (cl)
     {
-        if(cpp11)
+        if (cpp11)
         {
             return "::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
         }
@@ -885,31 +886,31 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
+    if (st)
     {
         return getUnqualified(fixKwd(st->scoped()), scope) + "&";
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(proxy)
+    if (proxy)
     {
         return "::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
+    if (en)
     {
         return getUnqualified(fixKwd(en->scoped()), scope) + "&";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    if (seq)
     {
         return sequenceTypeToString(seq, scope, metaData, typeCtx) + "&";
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if(dict)
+    if (dict)
     {
         return dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
     }
@@ -921,7 +922,7 @@ string
 Slice::operationModeToString(Operation::Mode mode, bool cpp11)
 {
     string prefix = cpp11 ? "::Ice::OperationMode::" : "::Ice::";
-    switch(mode)
+    switch (mode)
     {
         case Operation::Normal:
         {
@@ -951,17 +952,17 @@ Slice::opFormatTypeToString(const OperationPtr& op, bool cpp11)
 {
     string prefix = cpp11 ? "::Ice::FormatType::" : "::Ice::";
 
-    switch(op->format())
+    switch (op->format())
     {
-    case DefaultFormat:
-        return prefix + "DefaultFormat";
-    case CompactFormat:
-        return prefix + "CompactFormat";
-    case SlicedFormat:
-        return prefix + "SlicedFormat";
+        case DefaultFormat:
+            return prefix + "DefaultFormat";
+        case CompactFormat:
+            return prefix + "CompactFormat";
+        case SlicedFormat:
+            return prefix + "SlicedFormat";
 
-    default:
-        assert(false);
+        default:
+            assert(false);
     }
 
     return "???";
@@ -983,21 +984,21 @@ lookupKwd(const string& name)
     // are Slice keywords (class, int, etc.). They have not been removed
     // so that the keyword list is kept complete.
     //
-    static const string keywordList[] =
-    {
-        "alignas", "alignof", "and", "and_eq", "asm", "auto", "bitand", "bitor", "bool", "break",
-        "case", "catch", "char", "char16_t", "char32_t", "class", "compl", "const", "const_cast", "constexpr", "continue",
-        "decltype", "default", "delete", "do", "double", "dynamic_cast",
-        "else", "enum", "explicit", "export", "extern", "false", "float", "for", "friend",
-        "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "noexcept", "not", "not_eq", "nullptr",
-        "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast", "requires",
-        "return", "short", "signed", "sizeof", "static", "static_assert", "static_cast", "struct", "switch",
-        "template", "this", "thread_local", "throw", "true", "try", "typedef", "typeid", "typename",
-        "union", "unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
-    };
-    bool found =  binary_search(&keywordList[0],
-                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-                                name);
+    static const string keywordList[] = {
+        "alignas",     "alignof",  "and",      "and_eq",    "asm",        "auto",         "bitand",
+        "bitor",       "bool",     "break",    "case",      "catch",      "char",         "char16_t",
+        "char32_t",    "class",    "compl",    "const",     "const_cast", "constexpr",    "continue",
+        "decltype",    "default",  "delete",   "do",        "double",     "dynamic_cast", "else",
+        "enum",        "explicit", "export",   "extern",    "false",      "float",        "for",
+        "friend",      "goto",     "if",       "inline",    "int",        "long",         "mutable",
+        "namespace",   "new",      "noexcept", "not",       "not_eq",     "nullptr",      "operator",
+        "or",          "or_eq",    "private",  "protected", "public",     "register",     "reinterpret_cast",
+        "requires",    "return",   "short",    "signed",    "sizeof",     "static",       "static_assert",
+        "static_cast", "struct",   "switch",   "template",  "this",       "thread_local", "throw",
+        "true",        "try",      "typedef",  "typeid",    "typename",   "union",        "unsigned",
+        "using",       "virtual",  "void",     "volatile",  "wchar_t",    "while",        "xor",
+        "xor_eq"};
+    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
     return found ? "_cpp_" + name : name;
 }
 
@@ -1011,14 +1012,14 @@ lookupKwd(const string& name)
 string
 Slice::fixKwd(const string& name)
 {
-    if(name[0] != ':')
+    if (name[0] != ':')
     {
         return lookupKwd(name);
     }
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
         result << "::" + *i;
     }
@@ -1026,14 +1027,22 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional, int tag, const string& param,
-                                 bool marshal, const StringList& metaData, int typeCtx, const string& customStream,
-                                 bool pointer, const string& obj)
+Slice::writeMarshalUnmarshalCode(Output& out,
+                                 const TypePtr& type,
+                                 bool optional,
+                                 int tag,
+                                 const string& param,
+                                 bool marshal,
+                                 const StringList& metaData,
+                                 int typeCtx,
+                                 const string& customStream,
+                                 bool pointer,
+                                 const string& obj)
 {
     string objPrefix = obj.empty() ? obj : obj + ".";
 
     ostringstream os;
-    if(customStream.empty())
+    if (customStream.empty())
     {
         os << (marshal ? "ostr" : "istr");
     }
@@ -1043,7 +1052,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
     }
 
     string deref;
-    if(pointer)
+    if (pointer)
     {
         os << "->";
     }
@@ -1052,7 +1061,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
         os << '.';
     }
 
-    if(marshal)
+    if (marshal)
     {
         os << "write(";
     }
@@ -1061,22 +1070,22 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
         os << "read(";
     }
 
-    if(optional)
+    if (optional)
     {
         os << tag << ", ";
     }
 
     string func = os.str();
-    if(!marshal)
+    if (!marshal)
     {
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        if(seq && !(typeCtx & TypeContextAMIPrivateEnd))
+        if (seq && !(typeCtx & TypeContextAMIPrivateEnd))
         {
             string seqType = findMetaData(metaData, typeCtx);
-            if(seqType == "%array")
+            if (seqType == "%array")
             {
                 BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-                if(builtin && builtin->kind() == Builtin::KindByte)
+                if (builtin && builtin->kind() == Builtin::KindByte)
                 {
                     out << nl << func << objPrefix << param << ");";
                     return;
@@ -1093,38 +1102,54 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
-                        const string& customStream, const string& retP)
+Slice::writeMarshalCode(Output& out,
+                        const ParamDeclList& params,
+                        const OperationPtr& op,
+                        bool prepend,
+                        int typeCtx,
+                        const string& customStream,
+                        const string& retP)
 {
     writeMarshalUnmarshalParams(out, params, op, true, prepend, typeCtx, customStream, retP);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
-                          const string& customStream, const string& retP, const string& obj)
+Slice::writeUnmarshalCode(Output& out,
+                          const ParamDeclList& params,
+                          const OperationPtr& op,
+                          bool prepend,
+                          int typeCtx,
+                          const string& customStream,
+                          const string& retP,
+                          const string& obj)
 {
     writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx, customStream, retP, obj);
 }
 
 void
-Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend,
-                         const string& clScope, int typeCtx, const string& customRet)
+Slice::writeAllocateCode(Output& out,
+                         const ParamDeclList& params,
+                         const OperationPtr& op,
+                         bool prepend,
+                         const string& clScope,
+                         int typeCtx,
+                         const string& customRet)
 {
     string prefix = prepend ? paramPrefix : "";
     string returnValueS = customRet;
-    if(returnValueS.empty())
+    if (returnValueS.empty())
     {
         returnValueS = "ret";
     }
 
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), clScope, fixKwd(prefix + (*p)->name()),
-                               (*p)->getMetaData(), typeCtx, getEndArg((*p)->type(), (*p)->getMetaData(),
-                                                                       (*p)->name()) != (*p)->name());
+                               (*p)->getMetaData(), typeCtx,
+                               getEndArg((*p)->type(), (*p)->getMetaData(), (*p)->name()) != (*p)->name());
     }
 
-    if(op && op->returnType())
+    if (op && op->returnType())
     {
         writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), clScope, returnValueS, op->getMetaData(),
                                typeCtx, getEndArg(op->returnType(), op->getMetaData(), returnValueS) != returnValueS);
@@ -1136,26 +1161,23 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
 {
     string endArg = arg;
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
+    if (seq)
     {
         string seqType = findMetaData(metaData, TypeContextInParam);
-        if(seqType.empty())
+        if (seqType.empty())
         {
             seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
         }
 
-        if(seqType == "%array")
+        if (seqType == "%array")
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if(builtin &&
-               builtin->kind() != Builtin::KindByte &&
-               builtin->kind() != Builtin::KindString &&
-               builtin->kind() != Builtin::KindObject &&
-               builtin->kind() != Builtin::KindObjectProxy)
+            if (builtin && builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindString &&
+                builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
             {
                 endArg += "_tmp_";
             }
-            else if(!builtin || builtin->kind() != Builtin::KindByte)
+            else if (!builtin || builtin->kind() != Builtin::KindByte)
             {
                 endArg += "_tmp_";
             }
@@ -1168,11 +1190,11 @@ void
 Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend)
 {
     string prefix = prepend ? paramPrefix : "";
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamEndCode(out, (*p)->type(), (*p)->optional(), fixKwd(prefix + (*p)->name()), (*p)->getMetaData());
     }
-    if(op && op->returnType())
+    if (op && op->returnType())
     {
         writeParamEndCode(out, op->returnType(), op->returnIsOptional(), "ret", op->getMetaData());
     }
@@ -1189,13 +1211,10 @@ Slice::writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output& C,
 }
 
 void
-Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
-                                          const string& holder,
-                                          const DataMemberList& dataMembers,
-                                          bool optional,
-                                          bool marshal)
+Slice::writeMarshalUnmarshalAllInHolder(
+    IceUtilInternal::Output& out, const string& holder, const DataMemberList& dataMembers, bool optional, bool marshal)
 {
-    if(dataMembers.empty())
+    if (dataMembers.empty())
     {
         return;
     }
@@ -1206,13 +1225,13 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
     out << nl << stream << "->" << streamOp;
     out << spar;
 
-    if(optional)
+    if (optional)
     {
         ostringstream os;
         os << "{";
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            if(q != dataMembers.begin())
+            if (q != dataMembers.begin())
             {
                 os << ", ";
             }
@@ -1222,27 +1241,23 @@ Slice::writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output& out,
         out << os.str();
     }
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         out << holder + fixKwd((*q)->name());
     }
 
     out << epar << ";";
-
 }
 
 void
-Slice::writeStreamHelpers(Output& out,
-                          const ContainedPtr& c,
-                          DataMemberList dataMembers,
-                          bool hasBaseDataMembers,
-                          bool cpp11)
+Slice::writeStreamHelpers(
+    Output& out, const ContainedPtr& c, DataMemberList dataMembers, bool hasBaseDataMembers, bool cpp11)
 {
     // If c is a C++11 class/exception whose base class contains data members (recursively), then we need to generate
     // a StreamWriter even if its implementation is empty. This is because our default marshaling uses ice_tuple() which
     // contains all of our class/exception's data members as well the base data members, which breaks marshaling. This
     // is not an issue for structs.
-    if(dataMembers.empty() && !(cpp11 && hasBaseDataMembers))
+    if (dataMembers.empty() && !(cpp11 && hasBaseDataMembers))
     {
         return;
     }
@@ -1250,9 +1265,9 @@ Slice::writeStreamHelpers(Output& out,
     DataMemberList requiredMembers;
     DataMemberList optionalMembers;
 
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if((*q)->optional())
+        if ((*q)->optional())
         {
             optionalMembers.push_back(*q);
         }
@@ -1266,10 +1281,7 @@ Slice::writeStreamHelpers(Output& out,
     class SortFn
     {
     public:
-        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
-        {
-            return lhs->tag() < rhs->tag();
-        }
+        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs) { return lhs->tag() < rhs->tag(); }
     };
     optionalMembers.sort(SortFn::compare);
 
@@ -1283,12 +1295,12 @@ Slice::writeStreamHelpers(Output& out,
     // Only generate StreamWriter specializations if we are generating for C++98 or
     // we are generating for C++11 with optional data members and no base class data members
     //
-    if(!cpp11 || !optionalMembers.empty() || hasBaseDataMembers)
+    if (!cpp11 || !optionalMembers.empty() || hasBaseDataMembers)
     {
         out << nl << "template<typename S>";
         out << nl << "struct StreamWriter" << (cpp11 ? "<" : "< ") << fullName << ", S>";
         out << sb;
-        if(requiredMembers.empty() && optionalMembers.empty())
+        if (requiredMembers.empty() && optionalMembers.empty())
         {
             out << nl << "static void write(S*, const " << fullName << "&)";
         }
@@ -1299,19 +1311,19 @@ Slice::writeStreamHelpers(Output& out,
 
         out << sb;
 
-        if(cpp11)
+        if (cpp11)
         {
             writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, true);
             writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, true);
         }
         else
         {
-            for(DataMemberList::const_iterator q = requiredMembers.begin(); q != requiredMembers.end(); ++q)
+            for (DataMemberList::const_iterator q = requiredMembers.begin(); q != requiredMembers.end(); ++q)
             {
                 writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
             }
 
-            for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+            for (DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
             {
                 writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, true);
             }
@@ -1338,19 +1350,19 @@ Slice::writeStreamHelpers(Output& out,
 
     out << sb;
 
-    if(cpp11)
+    if (cpp11)
     {
         writeMarshalUnmarshalAllInHolder(out, holder, requiredMembers, false, false);
         writeMarshalUnmarshalAllInHolder(out, holder, optionalMembers, true, false);
     }
     else
     {
-        for(DataMemberList::const_iterator q = requiredMembers.begin(); q != requiredMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = requiredMembers.begin(); q != requiredMembers.end(); ++q)
         {
             writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
         }
 
-        for(DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+        for (DataMemberList::const_iterator q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
         {
             writeMarshalUnmarshalDataMemberInHolder(out, holder, *q, false);
         }
@@ -1368,23 +1380,22 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers,
     //
     const string scope = "";
     out << nl << "std::tuple<";
-    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        if(q != dataMembers.begin())
+        if (q != dataMembers.begin())
         {
             out << ", ";
         }
         out << "const ";
-        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), typeCtx)
-            << "&";
+        out << typeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), typeCtx) << "&";
     }
     out << "> ice_tuple() const";
 
     out << sb;
     out << nl << "return std::tie(";
-    for(DataMemberList::const_iterator pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
+    for (DataMemberList::const_iterator pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
     {
-        if(pi != dataMembers.begin())
+        if (pi != dataMembers.begin())
         {
             out << ", ";
         }
@@ -1396,7 +1407,7 @@ Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers,
 bool
 Slice::findMetaData(const string& prefix, const ClassDeclPtr& cl, string& value)
 {
-    if(findMetaData(prefix, cl->getMetaData(), value))
+    if (findMetaData(prefix, cl->getMetaData(), value))
     {
         return true;
     }
@@ -1408,10 +1419,10 @@ Slice::findMetaData(const string& prefix, const ClassDeclPtr& cl, string& value)
 bool
 Slice::findMetaData(const string& prefix, const StringList& metaData, string& value)
 {
-    for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); i++)
+    for (StringList::const_iterator i = metaData.begin(); i != metaData.end(); i++)
     {
         string s = *i;
-        if(s.find(prefix) == 0)
+        if (s.find(prefix) == 0)
         {
             value = s.substr(prefix.size());
             return true;
@@ -1425,10 +1436,10 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
 {
     static const string prefix = "cpp:";
 
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
+    for (StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
         string str = *q;
-        if(str.find(prefix) == 0)
+        if (str.find(prefix) == 0)
         {
             string::size_type pos = str.find(':', prefix.size());
 
@@ -1444,27 +1455,27 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             // 2: unscoped
             //
 
-            if(pos != string::npos)
+            if (pos != string::npos)
             {
                 string ss = str.substr(prefix.size());
 
-                if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
+                if (typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
                 {
-                    if(ss.find("view-type:") == 0)
+                    if (ss.find("view-type:") == 0)
                     {
                         return str.substr(pos + 1);
                     }
                 }
 
-                if(ss.find("type:") == 0)
+                if (ss.find("type:") == 0)
                 {
                     return str.substr(pos + 1);
                 }
             }
-            else if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
+            else if (typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
             {
                 string ss = str.substr(prefix.size());
-                if(ss == "array")
+                if (ss == "array")
                 {
                     return "%array";
                 }
@@ -1475,7 +1486,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             else
             {
                 string ss = str.substr(prefix.size());
-                if(ss == "unscoped" && (typeCtx & TypeContextCpp11))
+                if (ss == "unscoped" && (typeCtx & TypeContextCpp11))
                 {
                     return "%unscoped";
                 }
@@ -1490,19 +1501,19 @@ bool
 Slice::inWstringModule(const SequencePtr& seq)
 {
     ContainerPtr cont = seq->container();
-    while(cont)
+    while (cont)
     {
         ModulePtr mod = dynamic_pointer_cast<Module>(cont);
-        if(!mod)
+        if (!mod)
         {
             break;
         }
         StringList metaData = mod->getMetaData();
-        if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
+        if (find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
         {
             return true;
         }
-        else if(find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
+        else if (find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
         {
             return false;
         }
@@ -1515,12 +1526,12 @@ string
 Slice::getDataMemberRef(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    if(!p->optional())
+    if (!p->optional())
     {
         return name;
     }
 
-    if(dynamic_pointer_cast<Builtin>(p->type()))
+    if (dynamic_pointer_cast<Builtin>(p->type()))
     {
         return "*" + name;
     }

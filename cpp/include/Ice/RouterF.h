@@ -11,10 +11,10 @@
 namespace Ice
 {
 
-class Router;
-class RouterPrx;
+    class Router;
+    class RouterPrx;
 
-using RouterPtr = ::std::shared_ptr<Router>;
+    using RouterPtr = ::std::shared_ptr<Router>;
 
 }
 

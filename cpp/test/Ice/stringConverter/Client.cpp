@@ -10,8 +10,8 @@
 #include <locale.h>
 
 #ifdef _MSC_VER
-#   pragma warning(disable:4127) // conditional expression is constant
-#   pragma warning(disable:4310) // cast truncates constant value
+#    pragma warning(disable : 4127) // conditional expression is constant
+#    pragma warning(disable : 4310) // cast truncates constant value
 #endif
 
 using namespace std;
@@ -22,7 +22,6 @@ static bool useIconv = true;
 class Client : public Test::TestHelper
 {
 public:
-
     void run(int, char**);
 };
 
@@ -48,7 +47,7 @@ Client::run(int argc, char** argv)
     useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0 || setlocale(LC_ALL, "fr_FR.iso885915@euro") != 0);
 #endif
 
-    if(useIconv)
+    if (useIconv)
     {
 
 #if defined(__hpux)
@@ -60,7 +59,7 @@ Client::run(int argc, char** argv)
         // Always big-endian
         narrowEncoding = "ISO8859-15";
 
-        if(sizeof(wchar_t) == 4)
+        if (sizeof(wchar_t) == 4)
         {
             wideEncoding = "UTF-32";
         }
@@ -72,21 +71,21 @@ Client::run(int argc, char** argv)
 
         narrowEncoding = "ISO8859-15";
 
-        if(sizeof(wchar_t) == 4)
+        if (sizeof(wchar_t) == 4)
         {
-#  ifdef ICE_BIG_ENDIAN
+#    ifdef ICE_BIG_ENDIAN
             wideEncoding = "UTF-32BE";
-#  else
+#    else
             wideEncoding = "UTF-32LE";
-#  endif
+#    endif
         }
         else
         {
-#  ifdef ICE_BIG_ENDIAN
+#    ifdef ICE_BIG_ENDIAN
             wideEncoding = "UTF-16BE";
-#  else
+#    else
             wideEncoding = "UTF-16LE";
-#  endif
+#    endif
         }
 #endif
     }
@@ -98,7 +97,7 @@ Client::run(int argc, char** argv)
         //
         setProcessStringConverter(Ice::createWindowsStringConverter(28605));
 #else
-        if(useLocale)
+        if (useLocale)
         {
             setProcessStringConverter(Ice::createIconvStringConverter<char>(""));
         }
@@ -112,17 +111,16 @@ Client::run(int argc, char** argv)
 #endif
 
         Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-        auto proxy =
-            Ice::uncheckedCast<Test::MyObjectPrx>(communicator->stringToProxy("test:" + getTestEndpoint()));
+        auto proxy = Ice::uncheckedCast<Test::MyObjectPrx>(communicator->stringToProxy("test:" + getTestEndpoint()));
 
         char oe = char(0xBD); // A single character in ISO Latin 9
         string msg = string("tu me fends le c") + oe + "ur!";
         cout << "testing string converter";
-        if(useLocale)
+        if (useLocale)
         {
             cout << " (using locale)";
         }
-        if(useIconv)
+        if (useIconv)
         {
             cout << " (using iconv)";
         }
@@ -153,26 +151,25 @@ Client::run(int argc, char** argv)
     Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
 
     string propValue = "Ice:createStringConverter";
-    if(useIconv && !useLocale)
+    if (useIconv && !useLocale)
     {
-        propValue +=  " iconv=" + narrowEncoding + "," + wideEncoding;
+        propValue += " iconv=" + narrowEncoding + "," + wideEncoding;
     }
     propValue += " windows=28605";
 
     properties->setProperty("Ice.Plugin.IceStringConverter", propValue);
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    auto proxy =
-        Ice::uncheckedCast<Test::MyObjectPrx>(communicator->stringToProxy("test:" + getTestEndpoint()));
+    auto proxy = Ice::uncheckedCast<Test::MyObjectPrx>(communicator->stringToProxy("test:" + getTestEndpoint()));
 
     char oe = char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";
     cout << "testing string converter plug-in";
-    if(useLocale)
+    if (useLocale)
     {
         cout << " (using locale)";
     }
-    if(useIconv)
+    if (useIconv)
     {
         cout << " (using iconv)";
     }

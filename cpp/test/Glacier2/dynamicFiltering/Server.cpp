@@ -22,26 +22,20 @@ using namespace Test;
 class ServerLocatorRegistry final : public LocatorRegistry
 {
 public:
-
-    void
-    setAdapterDirectProxyAsync(string, ObjectPrxPtr, function<void()> response,
-                               function<void(exception_ptr)>, const Current&) override
+    void setAdapterDirectProxyAsync(
+        string, ObjectPrxPtr, function<void()> response, function<void(exception_ptr)>, const Current&) override
     {
         response();
     }
 
-    void
-    setReplicatedAdapterDirectProxyAsync(string, string, ObjectPrxPtr,
-                                         function<void()> response, function<void(exception_ptr)>,
-                                         const Current&) override
+    void setReplicatedAdapterDirectProxyAsync(
+        string, string, ObjectPrxPtr, function<void()> response, function<void(exception_ptr)>, const Current&) override
     {
         response();
     }
 
-    void
-    setServerProcessProxyAsync(string, ProcessPrxPtr,
-                               function<void()> response, function<void(exception_ptr)>,
-                               const Current&) override
+    void setServerProcessProxyAsync(
+        string, ProcessPrxPtr, function<void()> response, function<void(exception_ptr)>, const Current&) override
     {
         response();
     }
@@ -50,35 +44,31 @@ public:
 class ServerLocatorI final : public Locator
 {
 public:
-    ServerLocatorI(shared_ptr<Backend> backend, shared_ptr<ObjectAdapter> adapter) :
-        _backend(std::move(backend)),
-        _adapter(std::move(adapter))
+    ServerLocatorI(shared_ptr<Backend> backend, shared_ptr<ObjectAdapter> adapter)
+        : _backend(std::move(backend)),
+          _adapter(std::move(adapter))
     {
-        _registryPrx = uncheckedCast<LocatorRegistryPrx>(_adapter->add(make_shared<ServerLocatorRegistry>(),
-                                                                       Ice::stringToIdentity("registry")));
+        _registryPrx = uncheckedCast<LocatorRegistryPrx>(
+            _adapter->add(make_shared<ServerLocatorRegistry>(), Ice::stringToIdentity("registry")));
     }
 
-    void
-    findObjectByIdAsync(Identity id,
-                        function<void(const ObjectPrxPtr&)> response, function<void(exception_ptr)>,
-                        const Current&) const override
+    void findObjectByIdAsync(Identity id,
+                             function<void(const ObjectPrxPtr&)> response,
+                             function<void(exception_ptr)>,
+                             const Current&) const override
     {
         response(_adapter->createProxy(id));
     }
 
-    void
-    findAdapterByIdAsync(string,
-                         function<void(const ObjectPrxPtr&)> response, function<void(exception_ptr)>,
-                         const Current&) const override
+    void findAdapterByIdAsync(string,
+                              function<void(const ObjectPrxPtr&)> response,
+                              function<void(exception_ptr)>,
+                              const Current&) const override
     {
         response(_adapter->createDirectProxy(stringToIdentity("dummy")));
     }
 
-    LocatorRegistryPrxPtr
-    getRegistry(const Current&) const override
-    {
-        return _registryPrx;
-    }
+    LocatorRegistryPrxPtr getRegistry(const Current&) const override { return _registryPrx; }
 
 private:
     shared_ptr<Backend> _backend;
@@ -89,7 +79,6 @@ private:
 class SessionControlServer final : public Test::TestHelper
 {
 public:
-
     void run(int, char**) override;
 };
 

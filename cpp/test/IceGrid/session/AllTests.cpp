@@ -16,21 +16,13 @@ using namespace Test;
 class ObserverBase
 {
 public:
+    ObserverBase(const string& name) : _name(name), _updated(0) { _observers.insert(make_pair(name, this)); }
 
-    ObserverBase(const string& name) : _name(name), _updated(0)
-    {
-        _observers.insert(make_pair(name, this));
-    }
+    virtual ~ObserverBase() { _observers.erase(_name); }
 
-    virtual ~ObserverBase()
+    static void printStack()
     {
-        _observers.erase(_name);
-    }
-
-    static void
-    printStack()
-    {
-        for(const auto& p : _observers)
+        for (const auto& p : _observers)
         {
             vector<string>::const_iterator q = p.second->_stack.begin();
             if (p.second->_stack.size() > 10)
@@ -47,13 +39,12 @@ public:
         }
     }
 
-    void
-    waitForUpdate(int line)
+    void waitForUpdate(int line)
     {
         unique_lock<mutex> lg(_mutex);
 
         _stack.push_back("wait for update from line " + to_string(line));
-        while(!_updated)
+        while (!_updated)
         {
             _condVar.wait(lg);
         }
@@ -61,9 +52,7 @@ public:
     }
 
 protected:
-
-    void
-    updated(const string& update)
+    void updated(const string& update)
     {
         _stack.push_back(update);
         ++_updated;
@@ -78,7 +67,6 @@ protected:
     static map<string, ObserverBase*> _observers;
 
 private:
-
     condition_variable _condVar;
 };
 map<string, ObserverBase*> ObserverBase::_observers;
@@ -86,18 +74,14 @@ map<string, ObserverBase*> ObserverBase::_observers;
 class ApplicationObserverI final : public ApplicationObserver, public ObserverBase
 {
 public:
+    ApplicationObserverI(const string& name) : ObserverBase(name) {}
 
-    ApplicationObserverI(const string& name) : ObserverBase(name)
-    {
-    }
-
-    void
-    applicationInit(int serialP, ApplicationInfoSeq apps, const Ice::Current&) override
+    void applicationInit(int serialP, ApplicationInfoSeq apps, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        for(const auto& p : apps)
+        for (const auto& p : apps)
         {
-            if(p.descriptor.name != "Test") // Ignore the test application from application.xml!
+            if (p.descriptor.name != "Test") // Ignore the test application from application.xml!
             {
                 applications.insert(make_pair(p.descriptor.name, p));
             }
@@ -105,32 +89,29 @@ public:
         updated(updateSerial(serialP, "init update"));
     }
 
-    void
-    applicationAdded(int serialP, ApplicationInfo app, const Ice::Current&) override
+    void applicationAdded(int serialP, ApplicationInfo app, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         applications.insert(make_pair(app.descriptor.name, app));
         updated(updateSerial(serialP, "application added `" + app.descriptor.name + "'"));
     }
 
-    void
-    applicationRemoved(int serialP, std::string name, const Ice::Current&) override
+    void applicationRemoved(int serialP, std::string name, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         applications.erase(name);
         updated(updateSerial(serialP, "application removed `" + name + "'"));
     }
 
-    void
-    applicationUpdated(int serialP, ApplicationUpdateInfo info, const Ice::Current&) override
+    void applicationUpdated(int serialP, ApplicationUpdateInfo info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         const ApplicationUpdateDescriptor& desc = info.descriptor;
-        for(const auto& p : desc.removeVariables)
+        for (const auto& p : desc.removeVariables)
         {
             applications[desc.name].descriptor.variables.erase(p);
         }
-        for(const auto& p : desc.variables)
+        for (const auto& p : desc.variables)
         {
             applications[desc.name].descriptor.variables[p.first] = p.second;
         }
@@ -141,9 +122,7 @@ public:
     map<string, ApplicationInfo> applications;
 
 private:
-
-    string
-    updateSerial(int serialP, const string& update)
+    string updateSerial(int serialP, const string& update)
     {
         serial = serialP;
         ostringstream os;
@@ -155,40 +134,33 @@ private:
 class AdapterObserverI final : public AdapterObserver, public ObserverBase
 {
 public:
+    AdapterObserverI(const string& name) : ObserverBase(name) {}
 
-    AdapterObserverI(const string& name) : ObserverBase(name)
-    {
-    }
-
-    void
-    adapterInit(AdapterInfoSeq adaptersP, const Ice::Current&) override
+    void adapterInit(AdapterInfoSeq adaptersP, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        for(const auto& p : adaptersP)
+        for (const auto& p : adaptersP)
         {
             adapters.insert(make_pair(p.id, p));
         }
         updated(updateSerial(0, "init update"));
     }
 
-    void
-    adapterAdded(AdapterInfo info, const Ice::Current&) override
+    void adapterAdded(AdapterInfo info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         adapters.insert(make_pair(info.id, info));
         updated(updateSerial(0, "adapter added `" + info.id + "'"));
     }
 
-    void
-    adapterUpdated(AdapterInfo info, const Ice::Current&) override
+    void adapterUpdated(AdapterInfo info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         adapters[info.id] = info;
         updated(updateSerial(0, "adapter updated `" + info.id + "'"));
     }
 
-    void
-    adapterRemoved(string id, const Ice::Current&) override
+    void adapterRemoved(string id, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         adapters.erase(id);
@@ -199,9 +171,7 @@ public:
     map<string, AdapterInfo> adapters;
 
 private:
-
-    string
-    updateSerial(int serialP, const string& update)
+    string updateSerial(int serialP, const string& update)
     {
         serial = serialP;
         ostringstream os;
@@ -213,54 +183,44 @@ private:
 class ObjectObserverI final : public ObjectObserver, public ObserverBase
 {
 public:
+    ObjectObserverI(const string& name) : ObserverBase(name) {}
 
-    ObjectObserverI(const string& name) : ObserverBase(name)
-    {
-    }
-
-    void
-    objectInit(ObjectInfoSeq objectsP, const Ice::Current&) override
+    void objectInit(ObjectInfoSeq objectsP, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        for(const auto& p : objectsP)
+        for (const auto& p : objectsP)
         {
             objects.insert(make_pair(p.proxy->ice_getIdentity(), p));
         }
         updated(updateSerial(0, "init update"));
     }
 
-    void
-    objectAdded(ObjectInfo info, const Ice::Current&) override
+    void objectAdded(ObjectInfo info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
         updated(updateSerial(0, "object added `" + info.proxy->ice_toString() + "'"));
     }
 
-    void
-    objectUpdated(ObjectInfo info, const Ice::Current&) override
+    void objectUpdated(ObjectInfo info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         objects[info.proxy->ice_getIdentity()] = info;
         updated(updateSerial(0, "object updated `" + info.proxy->ice_toString() + "'"));
     }
 
-    void
-    objectRemoved(Ice::Identity id, const Ice::Current& current) override
+    void objectRemoved(Ice::Identity id, const Ice::Current& current) override
     {
         lock_guard<mutex> lg(_mutex);
         objects.erase(id);
-        updated(updateSerial(0, "object removed `" +
-                             current.adapter->getCommunicator()->identityToString(id) + "'"));
+        updated(updateSerial(0, "object removed `" + current.adapter->getCommunicator()->identityToString(id) + "'"));
     }
 
     int serial;
     map<Ice::Identity, ObjectInfo> objects;
 
 private:
-
-    string
-    updateSerial(int serialP, const string& update)
+    string updateSerial(int serialP, const string& update)
     {
         serial = serialP;
         ostringstream os;
@@ -272,55 +232,48 @@ private:
 class NodeObserverI final : public NodeObserver, public ObserverBase
 {
 public:
+    NodeObserverI(const string& name) : ObserverBase(name) {}
 
-    NodeObserverI(const string& name) : ObserverBase(name)
-    {
-    }
-
-    void
-    nodeInit(NodeDynamicInfoSeq info, const Ice::Current&) override
+    void nodeInit(NodeDynamicInfoSeq info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        for(const auto& p : info)
+        for (const auto& p : info)
         {
             nodes[p.info.name] = filter(p);
         }
         updated("init");
     }
 
-    void
-    nodeUp(NodeDynamicInfo info, const Ice::Current&) override
+    void nodeUp(NodeDynamicInfo info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         nodes[info.info.name] = filter(info);
         updated("node `" + info.info.name + "' up");
     }
 
-    void
-    nodeDown(string name, const Ice::Current&) override
+    void nodeDown(string name, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         nodes.erase(name);
         updated("node `" + name + "' down");
     }
 
-    void
-    updateServer(string node, ServerDynamicInfo info, const Ice::Current&) override
+    void updateServer(string node, ServerDynamicInfo info, const Ice::Current&) override
     {
-        if(info.id == "Glacier2" || info.id == "Glacier2Admin" || info.id == "PermissionsVerifierServer")
+        if (info.id == "Glacier2" || info.id == "Glacier2Admin" || info.id == "PermissionsVerifierServer")
         {
             return;
         }
 
         lock_guard<mutex> lg(_mutex);
-        //cerr << node << " " << info.id << " " << info.state << " " << info.pid << endl;
+        // cerr << node << " " << info.id << " " << info.state << " " << info.pid << endl;
         ServerDynamicInfoSeq& servers = nodes[node].servers;
         ServerDynamicInfoSeq::iterator p;
-        for(p = servers.begin(); p != servers.end(); ++p)
+        for (p = servers.begin(); p != servers.end(); ++p)
         {
-            if(p->id == info.id)
+            if (p->id == info.id)
             {
-                if(info.state == ServerState::Destroyed)
+                if (info.state == ServerState::Destroyed)
                 {
                     servers.erase(p);
                 }
@@ -331,7 +284,7 @@ public:
                 break;
             }
         }
-        if(info.state != ServerState::Destroyed && p == servers.end())
+        if (info.state != ServerState::Destroyed && p == servers.end())
         {
             servers.push_back(info);
         }
@@ -342,23 +295,22 @@ public:
         updated(os.str());
     }
 
-    void
-    updateAdapter(string node, AdapterDynamicInfo info, const Ice::Current&) override
+    void updateAdapter(string node, AdapterDynamicInfo info, const Ice::Current&) override
     {
-        if(info.id == "PermissionsVerifierServer.Server")
+        if (info.id == "PermissionsVerifierServer.Server")
         {
             return;
         }
 
         lock_guard<mutex> lg(_mutex);
-        //cerr << "update adapter: " << info.id << " " << (info.proxy ? "active" : "inactive") << endl;
+        // cerr << "update adapter: " << info.id << " " << (info.proxy ? "active" : "inactive") << endl;
         AdapterDynamicInfoSeq& adapters = nodes[node].adapters;
         AdapterDynamicInfoSeq::iterator p;
-        for(p = adapters.begin(); p != adapters.end(); ++p)
+        for (p = adapters.begin(); p != adapters.end(); ++p)
         {
-            if(p->id == info.id)
+            if (p->id == info.id)
             {
-                if(info.proxy)
+                if (info.proxy)
                 {
                     *p = info;
                 }
@@ -369,21 +321,20 @@ public:
                 break;
             }
         }
-        if(info.proxy && p == adapters.end())
+        if (info.proxy && p == adapters.end())
         {
             adapters.push_back(info);
         }
 
         ostringstream os;
-        os << "adapter `" << info.id << " on node `" << node << "' state updated: "
-           << (info.proxy ? "active" : "inactive");
+        os << "adapter `" << info.id << " on node `" << node
+           << "' state updated: " << (info.proxy ? "active" : "inactive");
         updated(os.str());
     }
 
-    NodeDynamicInfo
-    filter(NodeDynamicInfo info)
+    NodeDynamicInfo filter(NodeDynamicInfo info)
     {
-        if(info.info.name != "localnode")
+        if (info.info.name != "localnode")
         {
             return info;
         }
@@ -391,18 +342,18 @@ public:
         NodeDynamicInfo filtered;
         filtered.info = info.info;
 
-        for(const auto& p : info.servers)
+        for (const auto& p : info.servers)
         {
-            if(p.id == "Glacier2" || p.id == "Glacier2Admin" || p.id == "PermissionsVerifierServer")
+            if (p.id == "Glacier2" || p.id == "Glacier2Admin" || p.id == "PermissionsVerifierServer")
             {
                 continue;
             }
             filtered.servers.push_back(p);
         }
 
-        for(const auto& a : info.adapters)
+        for (const auto& a : info.adapters)
         {
-            if(a.id == "PermissionsVerifierServer.Server")
+            if (a.id == "PermissionsVerifierServer.Server")
             {
                 continue;
             }
@@ -418,32 +369,26 @@ public:
 class RegistryObserverI final : public RegistryObserver, public ObserverBase
 {
 public:
+    RegistryObserverI(const string& name) : ObserverBase(name) {}
 
-    RegistryObserverI(const string& name) : ObserverBase(name)
-    {
-    }
-
-    void
-    registryInit(RegistryInfoSeq info, const Ice::Current&) override
+    void registryInit(RegistryInfoSeq info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        for(RegistryInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
+        for (RegistryInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
         {
             registries[p->name] = *p;
         }
         updated("init");
     }
 
-    void
-    registryUp(RegistryInfo info, const Ice::Current&) override
+    void registryUp(RegistryInfo info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         registries[info.name] = info;
         updated("registry `" + info.name + "' up");
     }
 
-    void
-    registryDown(string name, const Ice::Current&) override
+    void registryDown(string name, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
         registries.erase(name);
@@ -469,8 +414,8 @@ allTests(TestHelper* helper)
     auto communicator = helper->communicator();
     bool encoding10 = communicator->getProperties()->getProperty("Ice.Default.EncodingVersion") == "1.0";
 
-    auto registry = Ice::checkedCast<RegistryPrx>(communicator->stringToProxy(
-        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
+    auto registry = Ice::checkedCast<RegistryPrx>(
+        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
 
     auto session = registry->createAdminSession("admin3", "test3");
     session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
@@ -483,7 +428,7 @@ allTests(TestHelper* helper)
     {
         admin->startServer("Glacier2");
     }
-    catch(const ServerStartException& ex)
+    catch (const ServerStartException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -495,7 +440,7 @@ allTests(TestHelper* helper)
     {
         admin->startServer("Glacier2Admin");
     }
-    catch(const ServerStartException& ex)
+    catch (const ServerStartException& ex)
     {
         cerr << ex.reason << endl;
         test(false);
@@ -522,7 +467,7 @@ allTests(TestHelper* helper)
     // TODO: Find a better way to wait for the Glacier2 router to be
     // fully started...
     //
-    while(true)
+    while (true)
     {
         try
         {
@@ -530,7 +475,7 @@ allTests(TestHelper* helper)
             adminRouter1->ice_ping();
             break;
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             this_thread::sleep_for(100ms);
         }
@@ -540,14 +485,16 @@ allTests(TestHelper* helper)
         cout << "testing username/password sessions... " << flush;
         SessionPrxPtr session1, session2;
 
-        session1 = Ice::uncheckedCast<SessionPrx>(registry1->createSession("client1", "test1")->ice_connectionId("reg1"));
-        session2 = Ice::uncheckedCast<SessionPrx>(registry2->createSession("client2", "test2")->ice_connectionId("reg2"));
+        session1 =
+            Ice::uncheckedCast<SessionPrx>(registry1->createSession("client1", "test1")->ice_connectionId("reg1"));
+        session2 =
+            Ice::uncheckedCast<SessionPrx>(registry2->createSession("client2", "test2")->ice_connectionId("reg2"));
         try
         {
             registry1->createSession("client3", "test1");
             test(false);
         }
-        catch(const PermissionDeniedException&)
+        catch (const PermissionDeniedException&)
         {
         }
         try
@@ -557,7 +504,7 @@ allTests(TestHelper* helper)
             registry1->createSession("client3", "test1", ctx);
             test(false);
         }
-        catch(const PermissionDeniedException& ex)
+        catch (const PermissionDeniedException& ex)
         {
             test(ex.reason == "reason");
         }
@@ -570,7 +517,7 @@ allTests(TestHelper* helper)
             session1->ice_connectionId("")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -578,7 +525,7 @@ allTests(TestHelper* helper)
             session2->ice_connectionId("")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -587,7 +534,7 @@ allTests(TestHelper* helper)
             session1->ice_connectionId("reg2")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -595,7 +542,7 @@ allTests(TestHelper* helper)
             session2->ice_connectionId("reg1")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -613,7 +560,7 @@ allTests(TestHelper* helper)
             registry1->createAdminSession("admin3", "test1");
             test(false);
         }
-        catch(const PermissionDeniedException&)
+        catch (const PermissionDeniedException&)
         {
         }
         try
@@ -623,7 +570,7 @@ allTests(TestHelper* helper)
             registry1->createSession("admin3", "test1", ctx);
             test(false);
         }
-        catch(const PermissionDeniedException& ex)
+        catch (const PermissionDeniedException& ex)
         {
             test(ex.reason == "reason");
         }
@@ -636,7 +583,7 @@ allTests(TestHelper* helper)
             adminSession1->ice_connectionId("")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -644,7 +591,7 @@ allTests(TestHelper* helper)
             adminSession2->ice_connectionId("")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -656,7 +603,7 @@ allTests(TestHelper* helper)
             adminSession1->getAdmin()->ice_connectionId("reg2")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -664,7 +611,7 @@ allTests(TestHelper* helper)
             adminSession2->getAdmin()->ice_connectionId("reg1")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -674,14 +621,16 @@ allTests(TestHelper* helper)
         cout << "ok" << endl;
     }
 
-    if(properties->getProperty("Ice.Default.Protocol") == "ssl")
+    if (properties->getProperty("Ice.Default.Protocol") == "ssl")
     {
         cout << "testing sessions from secure connection... " << flush;
 
         SessionPrxPtr session1, session2;
 
-        session1 = Ice::uncheckedCast<SessionPrx>(registry1->createSessionFromSecureConnection()->ice_connectionId("reg1"));
-        session2 = Ice::uncheckedCast<SessionPrx>(registry2->createSessionFromSecureConnection()->ice_connectionId("reg2"));
+        session1 =
+            Ice::uncheckedCast<SessionPrx>(registry1->createSessionFromSecureConnection()->ice_connectionId("reg1"));
+        session2 =
+            Ice::uncheckedCast<SessionPrx>(registry2->createSessionFromSecureConnection()->ice_connectionId("reg2"));
 
         session1->ice_ping();
         session2->ice_ping();
@@ -693,7 +642,7 @@ allTests(TestHelper* helper)
             registry1->createSessionFromSecureConnection(ctx);
             test(false);
         }
-        catch(const PermissionDeniedException& ex)
+        catch (const PermissionDeniedException& ex)
         {
             test(ex.reason == "reason");
         }
@@ -703,7 +652,7 @@ allTests(TestHelper* helper)
             session1->ice_connectionId("")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -711,7 +660,7 @@ allTests(TestHelper* helper)
             session2->ice_connectionId("")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -735,7 +684,7 @@ allTests(TestHelper* helper)
             registry1->createAdminSessionFromSecureConnection(ctx);
             test(false);
         }
-        catch(const PermissionDeniedException& ex)
+        catch (const PermissionDeniedException& ex)
         {
             test(ex.reason == "reason");
         }
@@ -745,7 +694,7 @@ allTests(TestHelper* helper)
             adminSession1->ice_connectionId("")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -753,7 +702,7 @@ allTests(TestHelper* helper)
             adminSession2->ice_connectionId("")->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -770,7 +719,7 @@ allTests(TestHelper* helper)
             registry1->createSessionFromSecureConnection();
             test(false);
         }
-        catch(const PermissionDeniedException&)
+        catch (const PermissionDeniedException&)
         {
         }
         try
@@ -778,7 +727,7 @@ allTests(TestHelper* helper)
             registry1->createAdminSessionFromSecureConnection();
             test(false);
         }
-        catch(const PermissionDeniedException&)
+        catch (const PermissionDeniedException&)
         {
         }
         cout << "ok" << endl;
@@ -804,7 +753,7 @@ allTests(TestHelper* helper)
             router1->createSession("client3", "test1");
             test(false);
         }
-        catch(const Glacier2::CannotCreateSessionException&)
+        catch (const Glacier2::CannotCreateSessionException&)
         {
         }
         try
@@ -814,11 +763,11 @@ allTests(TestHelper* helper)
             router->ice_connectionId("routerex")->createSession("client3", "test1", ctx);
             test(false);
         }
-        catch(const ExtendedPermissionDeniedException& ex)
+        catch (const ExtendedPermissionDeniedException& ex)
         {
             test(!encoding10 && ex.reason == "reason");
         }
-        catch(const Glacier2::PermissionDeniedException& ex)
+        catch (const Glacier2::PermissionDeniedException& ex)
         {
             test(encoding10 && ex.reason == "reason");
         }
@@ -831,7 +780,7 @@ allTests(TestHelper* helper)
             session1->ice_connectionId("router2")->ice_router(router2)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -839,7 +788,7 @@ allTests(TestHelper* helper)
             session2->ice_connectionId("router1")->ice_router(router1)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -853,7 +802,7 @@ allTests(TestHelper* helper)
             obj->ice_connectionId("router1")->ice_router(router1)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -861,7 +810,7 @@ allTests(TestHelper* helper)
             obj->ice_connectionId("router2")->ice_router(router2)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -871,17 +820,19 @@ allTests(TestHelper* helper)
         AdminSessionPrxPtr admSession1, admSession2;
 
         base = adminRouter1->createSession("admin1", "test1");
-        admSession1 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter1")->ice_router(adminRouter1));
+        admSession1 =
+            Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter1")->ice_router(adminRouter1));
 
         base = adminRouter2->createSession("admin2", "test2");
-        admSession2 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter2")->ice_router(adminRouter2));
+        admSession2 =
+            Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter2")->ice_router(adminRouter2));
 
         try
         {
             adminRouter1->createSession("admin3", "test1");
             test(false);
         }
-        catch(const Glacier2::CannotCreateSessionException&)
+        catch (const Glacier2::CannotCreateSessionException&)
         {
         }
         try
@@ -891,11 +842,11 @@ allTests(TestHelper* helper)
             adminRouter->ice_connectionId("routerex")->createSession("admin3", "test1", ctx);
             test(false);
         }
-        catch(const ExtendedPermissionDeniedException& ex)
+        catch (const ExtendedPermissionDeniedException& ex)
         {
             test(!encoding10 && ex.reason == "reason");
         }
-        catch(const Glacier2::PermissionDeniedException& ex)
+        catch (const Glacier2::PermissionDeniedException& ex)
         {
             test(encoding10 && ex.reason == "reason");
         }
@@ -918,7 +869,7 @@ allTests(TestHelper* helper)
             admSession1->ice_connectionId("admRouter2")->ice_router(adminRouter2)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -926,7 +877,7 @@ allTests(TestHelper* helper)
             admSession2->ice_connectionId("admRouter1")->ice_router(adminRouter1)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -935,7 +886,7 @@ allTests(TestHelper* helper)
             admin1->ice_connectionId("admRouter2")->ice_router(adminRouter2)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -943,7 +894,7 @@ allTests(TestHelper* helper)
             admin2->ice_connectionId("admRouter1")->ice_router(adminRouter1)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -953,7 +904,7 @@ allTests(TestHelper* helper)
         cout << "ok" << endl;
     }
 
-    if(properties->getProperty("Ice.Default.Protocol") == "ssl")
+    if (properties->getProperty("Ice.Default.Protocol") == "ssl")
     {
         cout << "testing Glacier2 sessions from secure connection... " << flush;
 
@@ -983,11 +934,11 @@ allTests(TestHelper* helper)
             router->ice_connectionId("routerex")->createSessionFromSecureConnection(ctx);
             test(false);
         }
-        catch(const ExtendedPermissionDeniedException& ex)
+        catch (const ExtendedPermissionDeniedException& ex)
         {
             test(!encoding10 && ex.reason == "reason");
         }
-        catch(const Glacier2::PermissionDeniedException& ex)
+        catch (const Glacier2::PermissionDeniedException& ex)
         {
             test(encoding10 && ex.reason == "reason");
         }
@@ -997,7 +948,7 @@ allTests(TestHelper* helper)
             session1->ice_connectionId("router21")->ice_router(router2)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -1005,7 +956,7 @@ allTests(TestHelper* helper)
             session2->ice_connectionId("router11")->ice_router(router1)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -1019,7 +970,7 @@ allTests(TestHelper* helper)
             obj->ice_connectionId("router11")->ice_router(router1)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -1027,7 +978,7 @@ allTests(TestHelper* helper)
             obj->ice_connectionId("router21")->ice_router(router2)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -1041,10 +992,12 @@ allTests(TestHelper* helper)
         adminRouter2 = Ice::uncheckedCast<Glacier2::RouterPrx>(adminRouter->ice_connectionId("admRouter21"));
 
         base = adminRouter1->createSessionFromSecureConnection();
-        admSession1 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter11")->ice_router(adminRouter1));
+        admSession1 =
+            Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter11")->ice_router(adminRouter1));
 
         base = adminRouter2->createSessionFromSecureConnection();
-        admSession2 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter21")->ice_router(adminRouter2));
+        admSession2 =
+            Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter21")->ice_router(adminRouter2));
 
         admSession1->ice_ping();
         admSession2->ice_ping();
@@ -1056,11 +1009,11 @@ allTests(TestHelper* helper)
             adminRouter->ice_connectionId("routerex")->createSessionFromSecureConnection(ctx);
             test(false);
         }
-        catch(const ExtendedPermissionDeniedException& ex)
+        catch (const ExtendedPermissionDeniedException& ex)
         {
             test(!encoding10 && ex.reason == "reason");
         }
-        catch(const Glacier2::PermissionDeniedException& ex)
+        catch (const Glacier2::PermissionDeniedException& ex)
         {
             test(encoding10 && ex.reason == "reason");
         }
@@ -1080,7 +1033,7 @@ allTests(TestHelper* helper)
             admSession1->ice_connectionId("admRouter21")->ice_router(adminRouter2)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -1088,7 +1041,7 @@ allTests(TestHelper* helper)
             admSession2->ice_connectionId("admRouter11")->ice_router(adminRouter1)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -1097,7 +1050,7 @@ allTests(TestHelper* helper)
             admin1->ice_connectionId("admRouter21")->ice_router(adminRouter2)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
         try
@@ -1105,7 +1058,7 @@ allTests(TestHelper* helper)
             admin2->ice_connectionId("admRouter11")->ice_router(adminRouter1)->ice_ping();
             test(false);
         }
-        catch(const Ice::ObjectNotExistException&)
+        catch (const Ice::ObjectNotExistException&)
         {
         }
 
@@ -1122,7 +1075,7 @@ allTests(TestHelper* helper)
             router1->createSessionFromSecureConnection();
             test(false);
         }
-        catch(const Glacier2::PermissionDeniedException&)
+        catch (const Glacier2::PermissionDeniedException&)
         {
         }
         try
@@ -1130,7 +1083,7 @@ allTests(TestHelper* helper)
             adminRouter1->createSessionFromSecureConnection();
             test(false);
         }
-        catch(const Glacier2::PermissionDeniedException&)
+        catch (const Glacier2::PermissionDeniedException&)
         {
         }
         cout << "ok" << endl;
@@ -1154,11 +1107,8 @@ allTests(TestHelper* helper)
         auto no1 = adpt1->addWithUUID(nodeObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(),
-                                         no1->ice_getIdentity(),
-                                         app1->ice_getIdentity(),
-                                         Ice::Identity(),
-                                         Ice::Identity());
+        session1->setObserversByIdentity(Ice::Identity(), no1->ice_getIdentity(), app1->ice_getIdentity(),
+                                         Ice::Identity(), Ice::Identity());
 
         auto adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "tcp");
         auto appObs2 = make_shared<ApplicationObserverI>("appObs2");
@@ -1166,11 +1116,8 @@ allTests(TestHelper* helper)
         auto nodeObs2 = make_shared<NodeObserverI>("nodeObs1");
         auto no2 = adpt2->addWithUUID(nodeObs2);
         adpt2->activate();
-        session2->setObservers(nullopt,
-                               Ice::uncheckedCast<NodeObserverPrx>(no2),
-                               Ice::uncheckedCast<ApplicationObserverPrx>(app2),
-                               nullopt,
-                               nullopt);
+        session2->setObservers(nullopt, Ice::uncheckedCast<NodeObserverPrx>(no2),
+                               Ice::uncheckedCast<ApplicationObserverPrx>(app2), nullopt, nullopt);
 
         appObs1->waitForUpdate(__LINE__);
         appObs2->waitForUpdate(__LINE__);
@@ -1182,7 +1129,7 @@ allTests(TestHelper* helper)
         {
             session1->getAdmin()->ice_ping();
         }
-        catch(const Ice::LocalException&)
+        catch (const Ice::LocalException&)
         {
             test(false);
         }
@@ -1192,7 +1139,7 @@ allTests(TestHelper* helper)
             int s = session1->startUpdate();
             test(s != serial + 1);
         }
-        catch(const AccessDeniedException&)
+        catch (const AccessDeniedException&)
         {
             test(false);
         }
@@ -1202,7 +1149,7 @@ allTests(TestHelper* helper)
             int s = session1->startUpdate();
             test(s == serial);
         }
-        catch(const Ice::UserException&)
+        catch (const Ice::UserException&)
         {
             test(false);
         }
@@ -1212,7 +1159,7 @@ allTests(TestHelper* helper)
             session2->startUpdate();
             test(false);
         }
-        catch(const AccessDeniedException& ex)
+        catch (const AccessDeniedException& ex)
         {
             test(ex.lockUserId == "admin1");
         }
@@ -1221,7 +1168,7 @@ allTests(TestHelper* helper)
         {
             session1->finishUpdate();
         }
-        catch(const Ice::UserException&)
+        catch (const Ice::UserException&)
         {
             test(false);
         }
@@ -1231,7 +1178,7 @@ allTests(TestHelper* helper)
             int s = session2->startUpdate();
             test(s == appObs2->serial);
         }
-        catch(const Ice::UserException&)
+        catch (const Ice::UserException&)
         {
             test(false);
         }
@@ -1242,7 +1189,7 @@ allTests(TestHelper* helper)
             app.name = "Application";
             admin2->addApplication(std::move(app));
         }
-        catch(const Ice::UserException&)
+        catch (const Ice::UserException&)
         {
             test(false);
         }
@@ -1252,7 +1199,7 @@ allTests(TestHelper* helper)
             admin1->addApplication(ApplicationDescriptor());
             test(false);
         }
-        catch(const AccessDeniedException&)
+        catch (const AccessDeniedException&)
         {
         }
 
@@ -1260,7 +1207,7 @@ allTests(TestHelper* helper)
         {
             session2->finishUpdate();
         }
-        catch(const Ice::UserException&)
+        catch (const Ice::UserException&)
         {
             test(false);
         }
@@ -1282,7 +1229,7 @@ allTests(TestHelper* helper)
             admin1->updateApplication(std::move(update));
             session1->finishUpdate();
         }
-        catch(const Ice::UserException& ex)
+        catch (const Ice::UserException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1302,7 +1249,7 @@ allTests(TestHelper* helper)
             admin2->removeApplication("Application");
             session2->finishUpdate();
         }
-        catch(const Ice::UserException&)
+        catch (const Ice::UserException&)
         {
             test(false);
         }
@@ -1319,7 +1266,7 @@ allTests(TestHelper* helper)
             int s = session1->startUpdate();
             test(s == serial);
         }
-        catch(const Ice::UserException&)
+        catch (const Ice::UserException&)
         {
             test(false);
         }
@@ -1331,7 +1278,7 @@ allTests(TestHelper* helper)
             test(s == serial);
             session2->finishUpdate();
         }
-        catch(const Ice::UserException&)
+        catch (const Ice::UserException&)
         {
             test(false);
         }
@@ -1357,7 +1304,7 @@ allTests(TestHelper* helper)
             admin1->addApplication(std::move(app));
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
         }
 
@@ -1367,7 +1314,7 @@ allTests(TestHelper* helper)
             locatorRegistry->setAdapterDirectProxy(string(512, 'A'), obj);
             test(false);
         }
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
         }
 
@@ -1376,7 +1323,7 @@ allTests(TestHelper* helper)
             locatorRegistry->setReplicatedAdapterDirectProxy("Adapter", string(512, 'A'), obj);
             test(false);
         }
-        catch(const Ice::UnknownException&)
+        catch (const Ice::UnknownException&)
         {
         }
 
@@ -1385,7 +1332,7 @@ allTests(TestHelper* helper)
             admin1->addObjectWithType(obj, string(512, 'T'));
             test(false);
         }
-        catch(const DeploymentException&)
+        catch (const DeploymentException&)
         {
         }
 
@@ -1404,10 +1351,7 @@ allTests(TestHelper* helper)
         auto app1 = adpt1->addWithUUID(appObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(),
-                                         Ice::Identity(),
-                                         app1->ice_getIdentity(),
-                                         Ice::Identity(),
+        session1->setObserversByIdentity(Ice::Identity(), Ice::Identity(), app1->ice_getIdentity(), Ice::Identity(),
                                          Ice::Identity());
 
         appObs1->waitForUpdate(__LINE__);
@@ -1426,7 +1370,7 @@ allTests(TestHelper* helper)
             test(appObs1->applications.find("Application") != appObs1->applications.end());
             test(++serial == appObs1->serial);
         }
-        catch(const Ice::UserException& ex)
+        catch (const Ice::UserException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1443,7 +1387,7 @@ allTests(TestHelper* helper)
             test(appObs1->applications["Application"].descriptor.variables["test"] == "test");
             test(++serial == appObs1->serial);
         }
-        catch(const Ice::UserException& ex)
+        catch (const Ice::UserException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1462,7 +1406,7 @@ allTests(TestHelper* helper)
             test(appObs1->applications["Application"].descriptor.variables["test1"] == "test");
             test(++serial == appObs1->serial);
         }
-        catch(const Ice::UserException& ex)
+        catch (const Ice::UserException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1475,7 +1419,7 @@ allTests(TestHelper* helper)
             test(appObs1->applications.empty());
             test(++serial == appObs1->serial);
         }
-        catch(const Ice::UserException& ex)
+        catch (const Ice::UserException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1500,10 +1444,7 @@ allTests(TestHelper* helper)
         auto adapter1 = adpt1->addWithUUID(adptObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(),
-                                         Ice::Identity(),
-                                         Ice::Identity(),
-                                         adapter1->ice_getIdentity(),
+        session1->setObserversByIdentity(Ice::Identity(), Ice::Identity(), Ice::Identity(), adapter1->ice_getIdentity(),
                                          Ice::Identity());
 
         adptObs1->waitForUpdate(__LINE__); // init
@@ -1559,7 +1500,7 @@ allTests(TestHelper* helper)
             adptObs1->waitForUpdate(__LINE__);
             test(adptObs1->adapters.find("DummyAdapter") == adptObs1->adapters.end());
         }
-        catch(const Ice::UserException& ex)
+        catch (const Ice::UserException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1584,10 +1525,7 @@ allTests(TestHelper* helper)
         auto object1 = adpt1->addWithUUID(objectObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(),
-                                         Ice::Identity(),
-                                         Ice::Identity(),
-                                         Ice::Identity(),
+        session1->setObserversByIdentity(Ice::Identity(), Ice::Identity(), Ice::Identity(), Ice::Identity(),
                                          object1->ice_getIdentity());
 
         objectObs1->waitForUpdate(__LINE__); // init
@@ -1613,7 +1551,7 @@ allTests(TestHelper* helper)
             objectObs1->waitForUpdate(__LINE__);
             test(objectObs1->objects.find(Ice::stringToIdentity("dummy")) == objectObs1->objects.end());
         }
-        catch(const Ice::UserException& ex)
+        catch (const Ice::UserException& ex)
         {
             cerr << ex << endl;
             test(false);
@@ -1638,11 +1576,8 @@ allTests(TestHelper* helper)
         auto no1 = adpt1->addWithUUID(nodeObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(),
-                                         no1->ice_getIdentity(),
-                                         app1->ice_getIdentity(),
-                                         Ice::Identity(),
-                                         Ice::Identity());
+        session1->setObserversByIdentity(Ice::Identity(), no1->ice_getIdentity(), app1->ice_getIdentity(),
+                                         Ice::Identity(), Ice::Identity());
 
         appObs1->waitForUpdate(__LINE__);
         nodeObs1->waitForUpdate(__LINE__); // init
@@ -1659,11 +1594,11 @@ allTests(TestHelper* helper)
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
-        server->propertySet.properties.push_back(PropertyDescriptor{ "IceGrid.Node.Name", "node-1" });
+        server->propertySet.properties.push_back(PropertyDescriptor{"IceGrid.Node.Name", "node-1"});
         server->propertySet.properties.push_back(
-            PropertyDescriptor{ "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1" });
-        server->propertySet.properties.push_back(PropertyDescriptor{ "IceGrid.Node.Endpoints", "default" });
-        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
+            PropertyDescriptor{"IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1"});
+        server->propertySet.properties.push_back(PropertyDescriptor{"IceGrid.Node.Endpoints", "default"});
+        server->propertySet.properties.push_back(PropertyDescriptor{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"});
 
         NodeDescriptor node;
         node.servers.push_back(std::move(server));
@@ -1681,8 +1616,7 @@ allTests(TestHelper* helper)
         do
         {
             nodeObs1->waitForUpdate(__LINE__); // nodeUp
-        }
-        while(nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
+        } while (nodeObs1->nodes.find("node-1") == nodeObs1->nodes.end());
 
         test(nodeObs1->nodes["localnode"].servers.size() == 1);
         test(nodeObs1->nodes["localnode"].servers[0].state == ServerState::Active);
@@ -1718,8 +1652,8 @@ allTests(TestHelper* helper)
         adapter.registerProcess = false;
         adapter.serverLifetime = true;
         server->adapters.push_back(std::move(adapter));
-        server->propertySet.properties.push_back(PropertyDescriptor{ "Server.Endpoints", "default" });
-        server->propertySet.properties.push_back(PropertyDescriptor{ "Ice.Admin.Endpoints", "tcp -h 127.0.0.1" });
+        server->propertySet.properties.push_back(PropertyDescriptor{"Server.Endpoints", "default"});
+        server->propertySet.properties.push_back(PropertyDescriptor{"Ice.Admin.Endpoints", "tcp -h 127.0.0.1"});
         node = NodeDescriptor();
         node.servers.push_back(server);
         testApp.nodes["localnode"] = node;
@@ -1788,11 +1722,8 @@ allTests(TestHelper* helper)
         auto ro1 = adpt1->addWithUUID(registryObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(ro1->ice_getIdentity(),
-                                         Ice::Identity(),
-                                         app1->ice_getIdentity(),
-                                         Ice::Identity(),
-                                         Ice::Identity());
+        session1->setObserversByIdentity(ro1->ice_getIdentity(), Ice::Identity(), app1->ice_getIdentity(),
+                                         Ice::Identity(), Ice::Identity());
 
         appObs1->waitForUpdate(__LINE__);
         registryObs1->waitForUpdate(__LINE__); // init
@@ -1803,7 +1734,7 @@ allTests(TestHelper* helper)
         auto query = Ice::uncheckedCast<QueryPrx>(communicator->stringToProxy("TestIceGrid/Query"));
         auto registries = query->findAllObjectsByType("::IceGrid::Registry");
         const string prefix("Registry-");
-        for(const auto& p : registries)
+        for (const auto& p : registries)
         {
             string name = p->ice_getIdentity().name;
             string::size_type pos = name.find(prefix);

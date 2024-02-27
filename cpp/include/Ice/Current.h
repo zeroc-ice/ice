@@ -22,80 +22,89 @@
 #include <IceUtil/UndefSysMacros.h>
 
 #ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
+#    if defined(ICE_STATIC_LIBS)
+#        define ICE_API /**/
+#    elif defined(ICE_API_EXPORTS)
+#        define ICE_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICE_API ICE_DECLSPEC_IMPORT
+#    endif
 #endif
 
 namespace Ice
 {
 
-/**
- * Information about the current method invocation for servers. Each operation on the server has a
- * <code>Current</code> as its implicit final parameter. <code>Current</code> is mostly used for Ice services. Most
- * applications ignore this parameter.
- * \headerfile Ice/Ice.h
- */
-struct Current
-{
     /**
-     * The object adapter.
+     * Information about the current method invocation for servers. Each operation on the server has a
+     * <code>Current</code> as its implicit final parameter. <code>Current</code> is mostly used for Ice services. Most
+     * applications ignore this parameter.
+     * \headerfile Ice/Ice.h
      */
-    ::std::shared_ptr<::Ice::ObjectAdapter> adapter;
-    /**
-     * Information about the connection over which the current method invocation was received. If the invocation is
-     * direct due to collocation optimization, this value is set to null.
-     */
-    ::std::shared_ptr<::Ice::Connection> con;
-    /**
-     * The Ice object identity.
-     */
-    ::Ice::Identity id;
-    /**
-     * The facet.
-     */
-    ::std::string facet;
-    /**
-     * The operation name.
-     */
-    ::std::string operation;
-    /**
-     * The mode of the operation.
-     */
-    ::Ice::OperationMode mode;
-    /**
-     * The request context, as received from the client.
-     */
-    ::Ice::Context ctx;
-    /**
-     * The request id unless oneway (0).
-     */
-    int requestId;
-    /**
-     * The encoding version used to encode the input and output parameters.
-     */
-    ::Ice::EncodingVersion encoding;
-
-    /**
-     * Obtains a tuple containing all of the struct's data members.
-     * @return The data members in a tuple.
-     */
-    std::tuple<const ::std::shared_ptr<::Ice::ObjectAdapter>&, const ::std::shared_ptr<::Ice::Connection>&, const ::Ice::Identity&, const ::std::string&, const ::std::string&, const ::Ice::OperationMode&, const ::Ice::Context&, const int&, const ::Ice::EncodingVersion&> ice_tuple() const
+    struct Current
     {
-        return std::tie(adapter, con, id, facet, operation, mode, ctx, requestId, encoding);
-    }
-};
+        /**
+         * The object adapter.
+         */
+        ::std::shared_ptr<::Ice::ObjectAdapter> adapter;
+        /**
+         * Information about the connection over which the current method invocation was received. If the invocation is
+         * direct due to collocation optimization, this value is set to null.
+         */
+        ::std::shared_ptr<::Ice::Connection> con;
+        /**
+         * The Ice object identity.
+         */
+        ::Ice::Identity id;
+        /**
+         * The facet.
+         */
+        ::std::string facet;
+        /**
+         * The operation name.
+         */
+        ::std::string operation;
+        /**
+         * The mode of the operation.
+         */
+        ::Ice::OperationMode mode;
+        /**
+         * The request context, as received from the client.
+         */
+        ::Ice::Context ctx;
+        /**
+         * The request id unless oneway (0).
+         */
+        int requestId;
+        /**
+         * The encoding version used to encode the input and output parameters.
+         */
+        ::Ice::EncodingVersion encoding;
 
-using Ice::operator<;
-using Ice::operator<=;
-using Ice::operator>;
-using Ice::operator>=;
-using Ice::operator==;
-using Ice::operator!=;
+        /**
+         * Obtains a tuple containing all of the struct's data members.
+         * @return The data members in a tuple.
+         */
+        std::tuple<const ::std::shared_ptr<::Ice::ObjectAdapter>&,
+                   const ::std::shared_ptr<::Ice::Connection>&,
+                   const ::Ice::Identity&,
+                   const ::std::string&,
+                   const ::std::string&,
+                   const ::Ice::OperationMode&,
+                   const ::Ice::Context&,
+                   const int&,
+                   const ::Ice::EncodingVersion&>
+        ice_tuple() const
+        {
+            return std::tie(adapter, con, id, facet, operation, mode, ctx, requestId, encoding);
+        }
+    };
+
+    using Ice::operator<;
+    using Ice::operator<=;
+    using Ice::operator>;
+    using Ice::operator>=;
+    using Ice::operator==;
+    using Ice::operator!=;
 
 }
 

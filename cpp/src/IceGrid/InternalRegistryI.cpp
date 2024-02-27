@@ -25,13 +25,13 @@ InternalRegistryI::InternalRegistryI(const shared_ptr<RegistryI>& registry,
                                      const shared_ptr<Database>& database,
                                      const shared_ptr<ReapThread>& reaper,
                                      const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-                                     ReplicaSessionManager& session) :
-    _registry(registry),
-    _database(database),
-    _reaper(reaper),
-    _wellKnownObjects(wellKnownObjects),
-    _fileCache(make_shared<FileCache>(database->getCommunicator())),
-    _session(session)
+                                     ReplicaSessionManager& session)
+    : _registry(registry),
+      _database(database),
+      _reaper(reaper),
+      _wellKnownObjects(wellKnownObjects),
+      _fileCache(make_shared<FileCache>(database->getCommunicator())),
+      _session(session)
 {
     auto properties = database->getCommunicator()->getProperties();
     _nodeSessionTimeout =
@@ -43,27 +43,28 @@ InternalRegistryI::InternalRegistryI(const shared_ptr<RegistryI>& registry,
 }
 
 NodeSessionPrxPtr
-InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, NodePrxPtr node, LoadInfo load,
+InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info,
+                                NodePrxPtr node,
+                                LoadInfo load,
                                 const Ice::Current& current)
 {
     const auto traceLevels = _database->getTraceLevels();
     const auto logger = traceLevels->logger;
-    if(!info || !node)
+    if (!info || !node)
     {
         return nullopt;
     }
 
-    if(_requireNodeCertCN)
+    if (_requireNodeCertCN)
     {
         try
         {
             auto sslConnInfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
-            if(sslConnInfo)
+            if (sslConnInfo)
             {
-                if (sslConnInfo->certs.empty() ||
-                    !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
+                if (sslConnInfo->certs.empty() || !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
                 {
-                    if(traceLevels->node > 0)
+                    if (traceLevels->node > 0)
                     {
                         Ice::Trace out(logger, traceLevels->nodeCat);
                         out << "certificate CN doesn't match node name `" << info->name << "'";
@@ -73,7 +74,7 @@ InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, NodePrxPtr no
             }
             else
             {
-                if(traceLevels->node > 0)
+                if (traceLevels->node > 0)
                 {
                     Ice::Trace out(logger, traceLevels->nodeCat);
                     out << "node certificate for `" << info->name << "' is required to connect to this registry";
@@ -81,13 +82,13 @@ InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, NodePrxPtr no
                 throw PermissionDeniedException("node certificate is required to connect to this registry");
             }
         }
-        catch(const PermissionDeniedException&)
+        catch (const PermissionDeniedException&)
         {
             throw;
         }
-        catch(const IceUtil::Exception&)
+        catch (const IceUtil::Exception&)
         {
-            if(traceLevels->node > 0)
+            if (traceLevels->node > 0)
             {
                 Ice::Trace out(logger, traceLevels->nodeCat);
                 out << "unexpected exception while verifying certificate for node `" << info->name << "'";
@@ -102,7 +103,7 @@ InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info, NodePrxPtr no
         _reaper->add(make_shared<SessionReapable<NodeSessionI>>(logger, session), _nodeSessionTimeout);
         return session->getProxy();
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
@@ -115,22 +116,21 @@ InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
 {
     const auto traceLevels = _database->getTraceLevels();
     const auto logger = traceLevels->logger;
-    if(!info || !prx)
+    if (!info || !prx)
     {
         return nullopt;
     }
 
-    if(_requireReplicaCertCN)
+    if (_requireReplicaCertCN)
     {
         try
         {
             auto sslConnInfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(current.con->getInfo());
-            if(sslConnInfo)
+            if (sslConnInfo)
             {
-                if (sslConnInfo->certs.empty() ||
-                    !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
+                if (sslConnInfo->certs.empty() || !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
                 {
-                    if(traceLevels->replica > 0)
+                    if (traceLevels->replica > 0)
                     {
                         Ice::Trace out(logger, traceLevels->replicaCat);
                         out << "certificate CN doesn't match replica name `" << info->name << "'";
@@ -140,7 +140,7 @@ InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
             }
             else
             {
-                if(traceLevels->replica > 0)
+                if (traceLevels->replica > 0)
                 {
                     Ice::Trace out(logger, traceLevels->replicaCat);
                     out << "replica certificate for `" << info->name << "' is required to connect to this registry";
@@ -148,13 +148,13 @@ InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
                 throw PermissionDeniedException("replica certificate is required to connect to this registry");
             }
         }
-        catch(const PermissionDeniedException&)
+        catch (const PermissionDeniedException&)
         {
             throw;
         }
-        catch(const IceUtil::Exception&)
+        catch (const IceUtil::Exception&)
         {
-            if(traceLevels->replica > 0)
+            if (traceLevels->replica > 0)
             {
                 Ice::Trace out(logger, traceLevels->replicaCat);
                 out << "unexpected exception while verifying certificate for replica `" << info->name << "'";
@@ -169,7 +169,7 @@ InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
         _reaper->add(make_shared<SessionReapable<ReplicaSessionI>>(logger, s), _replicaSessionTimeout);
         return s->getProxy();
     }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
+    catch (const Ice::ObjectAdapterDeactivatedException&)
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
@@ -186,7 +186,7 @@ InternalRegistryI::getNodes(const Ice::Current&) const
 {
     NodePrxSeq nodes;
     Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(string{Node::ice_staticId()});
-    for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
         nodes.push_back(Ice::uncheckedCast<NodePrx>(*p));
     }
@@ -198,7 +198,7 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
 {
     InternalRegistryPrxSeq replicas;
     Ice::ObjectProxySeq proxies = _database->getObjectsByType(string{InternalRegistry::ice_staticId()});
-    for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
         replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(*p));
     }
@@ -236,8 +236,8 @@ InternalRegistryI::getOffsetFromEnd(string filename, int count, const Ice::Curre
 }
 
 bool
-InternalRegistryI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines,
-                        const Ice::Current&) const
+InternalRegistryI::read(
+    string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines, const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }
@@ -246,18 +246,18 @@ string
 InternalRegistryI::getFilePath(const string& filename) const
 {
     string file;
-    if(filename == "stderr")
+    if (filename == "stderr")
     {
         file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdErr");
-        if(file.empty())
+        if (file.empty())
         {
             throw FileNotAvailableException("Ice.StdErr configuration property is not set");
         }
     }
-    else if(filename == "stdout")
+    else if (filename == "stdout")
     {
         file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdOut");
-        if(file.empty())
+        if (file.empty())
         {
             throw FileNotAvailableException("Ice.StdOut configuration property is not set");
         }
