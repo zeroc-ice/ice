@@ -60,7 +60,7 @@ OutgoingAsyncBase::invokeSentAsync()
         {
         }
 
-        void run()
+        void run() final
         {
             _outAsync->invokeSent();
         }
@@ -96,7 +96,7 @@ OutgoingAsyncBase::invokeExceptionAsync()
         {
         }
 
-        void run()
+        void run() final
         {
             _outAsync->invokeException();
         }
@@ -124,7 +124,7 @@ OutgoingAsyncBase::invokeResponseAsync()
         {
         }
 
-        void run()
+        void run() final
         {
             _outAsync->invokeResponse();
         }
