@@ -22,7 +22,7 @@ using namespace Ice;
 using namespace IceBT;
 
 IceBT::EndpointI::EndpointI(const InstancePtr& instance, const string& addr, const string& uuid, const string& name,
-                            Int channel, Int timeout, const string& connectionId, bool compress) :
+                            int32_t channel, int32_t timeout, const string& connectionId, bool compress) :
     _instance(instance),
     _addr(addr),
     _uuid(uuid),
@@ -57,7 +57,7 @@ IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s) :
     //
     s->read(const_cast<string&>(_addr), false);
     s->read(const_cast<string&>(_uuid), false);
-    s->read(const_cast<Int&>(_timeout));
+    s->read(const_cast<int32_t&>(_timeout));
     s->read(const_cast<bool&>(_compress));
     hashInit();
 }
@@ -74,7 +74,7 @@ IceBT::EndpointI::streamWriteImpl(OutputStream* s) const
     s->write(_compress);
 }
 
-Ice::Short
+int16_t
 IceBT::EndpointI::type() const
 {
     return _instance->type();
@@ -86,14 +86,14 @@ IceBT::EndpointI::protocol() const
     return _instance->protocol();
 }
 
-Int
+int32_t
 IceBT::EndpointI::timeout() const
 {
     return _timeout;
 }
 
 IceInternal::EndpointIPtr
-IceBT::EndpointI::timeout(Int timeout) const
+IceBT::EndpointI::timeout(int32_t timeout) const
 {
     if(timeout == _timeout)
     {
@@ -361,7 +361,7 @@ IceBT::EndpointI::operator<(const Ice::Endpoint& r) const
     return false;
 }
 
-Ice::Int
+int32_t
 IceBT::EndpointI::hash() const
 {
     return _hashValue;
@@ -484,7 +484,7 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 
     if(_channel < 0)
     {
-        const_cast<Int&>(_channel) = 0;
+        const_cast<int32_t&>(_channel) = 0;
     }
 
     if(!oaEndpoint && _channel != 0)
@@ -505,13 +505,13 @@ IceBT::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
 void
 IceBT::EndpointI::hashInit()
 {
-    Int h = 5381;
+    int32_t h = 5381;
     IceInternal::hashAdd(h, _addr);
     IceInternal::hashAdd(h, _uuid);
     IceInternal::hashAdd(h, _timeout);
     IceInternal::hashAdd(h, _connectionId);
     IceInternal::hashAdd(h, _compress);
-    const_cast<Int&>(_hashValue) = h;
+    const_cast<int32_t&>(_hashValue) = h;
 }
 
 bool
@@ -550,7 +550,7 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
         }
 
         istringstream t(argument);
-        if(!(t >> const_cast<Int&>(_channel)) || !t.eof() || _channel < 0 || _channel > 30)
+        if(!(t >> const_cast<int32_t&>(_channel)) || !t.eof() || _channel < 0 || _channel > 30)
         {
             throw EndpointParseException(__FILE__, __LINE__, "invalid channel value `" + arg + "' in endpoint " +
                                          endpoint);
@@ -566,12 +566,12 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
 
         if(arg == "infinite")
         {
-            const_cast<Int&>(_timeout) = -1;
+            const_cast<int32_t&>(_timeout) = -1;
         }
         else
         {
             istringstream t(argument);
-            if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
+            if(!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
             {
                 throw EndpointParseException(__FILE__, __LINE__, "invalid timeout value `" + arg + "' in endpoint " +
                                              endpoint);
@@ -611,7 +611,7 @@ IceBT::EndpointInfoI::~EndpointInfoI()
 {
 }
 
-Ice::Short
+int16_t
 IceBT::EndpointInfoI::type() const noexcept
 {
     return _endpoint->type();
@@ -637,7 +637,7 @@ IceBT::EndpointFactoryI::~EndpointFactoryI()
 {
 }
 
-Short
+int16_t
 IceBT::EndpointFactoryI::type() const
 {
     return _instance->type();

@@ -44,21 +44,21 @@ TestIntfI::opWithPayload(Ice::ByteSeq, const Ice::Current&)
 void
 TestIntfI::opBatch(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     ++_batchCount;
-    notify();
+    _condition.notify_one();
 }
 
-Ice::Int
+int32_t
 TestIntfI::opBatchCount(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     return _batchCount;
 }
 
 void
-TestIntfI::opWithArgs(Ice::Int& one, Ice::Int& two, Ice::Int& three, Ice::Int& four, Ice::Int& five, Ice::Int& six,
-                      Ice::Int& seven, Ice::Int& eight, Ice::Int& nine, Ice::Int& ten, Ice::Int& eleven,
+TestIntfI::opWithArgs(int32_t& one, int32_t& two, int32_t& three, int32_t& four, int32_t& five, int32_t& six,
+                      int32_t& seven, int32_t& eight, int32_t& nine, int32_t& ten, int32_t& eleven,
                       const Ice::Current&)
 {
     one = 1;
@@ -75,12 +75,12 @@ TestIntfI::opWithArgs(Ice::Int& one, Ice::Int& two, Ice::Int& three, Ice::Int& f
 }
 
 bool
-TestIntfI::waitForBatch(Ice::Int count, const Ice::Current&)
+TestIntfI::waitForBatch(int32_t count, const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    unique_lock lock(_mutex);
     while(_batchCount < count)
     {
-        test(timedWait(IceUtil::Time::milliSeconds(5000)));
+        test(_condition.wait_for(lock, chrono::milliseconds(5000)) != cv_status::timeout);
     }
     bool result = count == _batchCount;
     _batchCount = 0;
@@ -94,17 +94,17 @@ TestIntfI::close(Test::CloseMode mode, const Ice::Current& current)
 }
 
 void
-TestIntfI::sleep(Ice::Int ms, const Ice::Current&)
+TestIntfI::sleep(int32_t ms, const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    timedWait(IceUtil::Time::milliSeconds(ms));
+    unique_lock lock(_mutex);
+    _condition.wait_for(lock, chrono::milliseconds(ms));
 }
 
 void
 TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)>,
                               const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_shutdown)
     {
         response();
@@ -120,7 +120,7 @@ TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void
 void
 TestIntfI::finishDispatch(const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_shutdown)
     {
         return;
@@ -135,7 +135,7 @@ TestIntfI::finishDispatch(const Ice::Current&)
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    lock_guard lock(_mutex);
     _shutdown = true;
     if(_pending)
     {
@@ -179,8 +179,8 @@ TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) :
 {
 }
 
-Ice::Int
-TestIntfII::op(Ice::Int i, Ice::Int& j, const Ice::Current&)
+int32_t
+TestIntfII::op(int32_t i, int32_t& j, const Ice::Current&)
 {
     j = i;
     return i;

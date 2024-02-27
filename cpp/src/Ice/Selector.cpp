@@ -7,12 +7,14 @@
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/LocalException.h>
-#include <IceUtil/Time.h>
 
 #ifdef ICE_USE_CFSTREAM
 #   include <CoreFoundation/CoreFoundation.h>
 #   include <CoreFoundation/CFStream.h>
 #endif
+
+#include <thread>
+#include <chrono>
 
 using namespace std;
 using namespace IceInternal;
@@ -27,10 +29,6 @@ struct timespec zeroTimeout = { 0, 0 };
 #if defined(ICE_USE_IOCP)
 
 Selector::Selector(const InstancePtr& instance) : _instance(instance)
-{
-}
-
-Selector::~Selector()
 {
 }
 
@@ -135,7 +133,7 @@ Selector::getNextHandler(SocketOperation& status, DWORD& count, int& error, int 
                 Ice::SocketException ex(__FILE__, __LINE__, err);
                 Ice::Error out(_instance->initializationData().logger);
                 out << "couldn't dequeue packet from completion port:\n" << ex;
-                IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5)); // Sleep 5s to avoid looping
+                this_thread::sleep_for(5s); // Sleep 5s to avoid looping
             }
         }
         AsyncInfo* info = static_cast<AsyncInfo*>(ol);
@@ -229,10 +227,6 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
     pollFd.events = POLLIN;
     _pollFdSet.push_back(pollFd);
 #endif
-}
-
-Selector::~Selector()
-{
 }
 
 void
@@ -699,7 +693,7 @@ Selector::select(int timeout)
             Ice::SocketException ex(__FILE__, __LINE__, IceInternal::getSocketErrno());
             Ice::Error out(_instance->initializationData().logger);
             out << "selector failed:\n" << ex;
-            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(5)); // Sleep 5s to avoid looping
+            std::this_thread::sleep_for(5s); // Sleep 5s to avoid looping
         }
         else if(_count == 0 && timeout < 0)
         {
@@ -708,7 +702,7 @@ Selector::select(int timeout)
                 spuriousWakeup = 0;
                 _instance->initializationData().logger->warning("spurious selector wakeup");
             }
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+            std::this_thread::sleep_for(1ms);
             continue;
         }
         break;
@@ -979,34 +973,6 @@ void eventHandlerSocketCallback(CFSocketRef, CFSocketCallBackType callbackType, 
     }
 }
 
-class SelectorHelperThread : public IceUtil::Thread
-{
-public:
-
-    SelectorHelperThread(Selector& selector) : _selector(selector)
-    {
-    }
-
-    virtual void run()
-    {
-        _selector.run();
-
-#if TARGET_IPHONE_SIMULATOR != 0
-        //
-        // Workaround for CFSocket bug where the CFSocketManager thread crashes if an
-        // invalidated socket is being processed for reads/writes. We add this sleep
-        // mostly to prevent spurious crashes with testing. This bug is very unlikely
-        // to be hit otherwise.
-        //
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-#endif
-    }
-
-private:
-
-    Selector& _selector;
-};
-
 CFOptionFlags
 toCFCallbacks(SocketOperation op)
 {
@@ -1158,7 +1124,7 @@ EventHandlerWrapper::checkReady()
 {
     if((_ready | _handler->_ready) & ~_handler->_disabled & _handler->_registered)
     {
-        _selector.addReadyHandler(this);
+        _selector.addReadyHandler(shared_from_this());
         return false;
     }
     else
@@ -1189,7 +1155,7 @@ EventHandlerWrapper::update(SocketOperation remove, SocketOperation add)
 
     // Clear ready flags which might not be valid anymore.
     _ready = static_cast<SocketOperation>(_ready & _handler->_registered);
-    return _handler->getNativeInfo();
+    return _handler->getNativeInfo() != nullptr;
 }
 
 bool
@@ -1198,7 +1164,7 @@ EventHandlerWrapper::finish()
     _finish = true;
     _ready = SocketOperationNone;
     _handler->_registered = SocketOperationNone;
-    return _handler->getNativeInfo();
+    return _handler->getNativeInfo() != nullptr;
 }
 
 Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroyed(false)
@@ -1210,22 +1176,31 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _destroye
     _source.reset(CFRunLoopSourceCreate(0, 0, &ctx));
     _runLoop = 0;
 
-    _thread = make_shared<SelectorHelperThread>(*this);
-    _thread->start();
+    _thread = std::thread([this]
+    {
+        run();
 
-    unique_lock<mutex> lock(_mutex);
+#if TARGET_IPHONE_SIMULATOR != 0
+        //
+        // Workaround for CFSocket bug where the CFSocketManager thread crashes if an
+        // invalidated socket is being processed for reads/writes. We add this sleep
+        // mostly to prevent spurious crashes with testing. This bug is very unlikely
+        // to be hit otherwise.
+        //
+        this_thread::sleep_for(100ms);
+#endif
+    });
+
+    unique_lock lock(_mutex);
     _conditionVariable.wait(lock, [this] { return _runLoop != 0; });
-}
-
-Selector::~Selector()
-{
 }
 
 void
 Selector::destroy()
 {
+    thread t;
     {
-        lock_guard lock(_mutex);
+        unique_lock lock(_mutex);
 
         //
         // Make sure any pending changes are processed to ensure remaining
@@ -1239,13 +1214,15 @@ Selector::destroy()
         {
             CFRunLoopSourceSignal(_source.get());
             CFRunLoopWakeUp(_runLoop);
-
-            wait();
+            _conditionVariable.wait(lock);
         }
+        t = std::move(_thread);
     }
 
-    _thread->getThreadControl().join();
-    _thread = 0;
+    if (t.joinable())
+    {
+        t.join();
+    }
 
     lock_guard lock(_mutex);
     _source.reset(0);
@@ -1393,16 +1370,19 @@ Selector::select(int timeout)
             _conditionVariable.wait(lock);
         }
 
-        if(timeout > 0)
+        if (_readyHandlers.empty())
         {
-            if(_conditionVariable.wait_for(chrono::seconds(timeout) == cv_status::no_timeout))
+            if(timeout > 0)
             {
-                break;
+                if(_conditionVariable.wait_for(lock, chrono::seconds(timeout)) == cv_status::no_timeout)
+                {
+                    break;
+                }
             }
-        }
-        else
-        {
-            _conditionVariable.wait(lock, [this] { return !_readyHandlers.empty(); });
+            else
+            {
+                _conditionVariable.wait(lock);
+            }
         }
 
         if(_changes.empty())
@@ -1453,7 +1433,7 @@ Selector::ready(EventHandlerWrapper* wrapper, SocketOperation op, int error)
 }
 
 void
-Selector::addReadyHandler(EventHandlerWrapper* wrapper)
+Selector::addReadyHandler(EventHandlerWrapperPtr wrapper)
 {
     // Called from ready()
     _readyHandlers.insert(wrapper);

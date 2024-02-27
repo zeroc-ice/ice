@@ -28,7 +28,7 @@
 #include <Ice/NetworkF.h>
 #include <Ice/NetworkProxyF.h>
 #include <Ice/Initialize.h>
-#include <Ice/ImplicitContextI.h>
+#include <Ice/ImplicitContext.h>
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
 #include <list>
@@ -106,20 +106,17 @@ public:
     const ACMConfig& clientACM() const;
     const ACMConfig& serverACM() const;
 
-    Ice::ObjectPrxPtr createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
-    Ice::ObjectPrxPtr getAdmin();
+    Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
+    std::optional<Ice::ObjectPrx> getAdmin();
     void addAdminFacet(const std::shared_ptr<Ice::Object>&, const std::string&);
     std::shared_ptr<Ice::Object> removeAdminFacet(const std::string&);
     std::shared_ptr<Ice::Object> findAdminFacet(const std::string&);
     Ice::FacetMap findAllAdminFacets();
 
-    const Ice::ImplicitContextIPtr& getImplicitContext() const
-    {
-        return _implicitContext;
-    }
+    const Ice::ImplicitContextPtr& getImplicitContext() const;
 
-    void setDefaultLocator(const Ice::LocatorPrxPtr&);
-    void setDefaultRouter(const Ice::RouterPrxPtr&);
+    void setDefaultLocator(const std::optional<Ice::LocatorPrx>&);
+    void setDefaultRouter(const std::optional<Ice::RouterPrx>&);
 
     void setLogger(const Ice::LoggerPtr&);
     void setThreadHook(std::function<void()>, std::function<void()>);
@@ -127,9 +124,9 @@ public:
     const Ice::StringConverterPtr& getStringConverter() const { return _stringConverter; }
     const Ice::WstringConverterPtr& getWstringConverter() const { return _wstringConverter; }
 
-    BufSizeWarnInfo getBufSizeWarn(Ice::Short type);
-    void setSndBufSizeWarn(Ice::Short type, int size);
-    void setRcvBufSizeWarn(Ice::Short type, int size);
+    BufSizeWarnInfo getBufSizeWarn(std::int16_t type);
+    void setSndBufSizeWarn(std::int16_t type, int size);
+    void setRcvBufSizeWarn(std::int16_t type, int size);
 
 private:
 
@@ -146,7 +143,7 @@ private:
     void addAllAdminFacets();
     void setServerProcessProxy(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
 
-    BufSizeWarnInfo getBufSizeWarnInternal(Ice::Short type);
+    BufSizeWarnInfo getBufSizeWarnInternal(std::int16_t type);
 
     enum State
     {
@@ -177,13 +174,14 @@ private:
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
     EndpointHostResolverPtr _endpointHostResolver;
+    std::thread _endpointHostResolverThread;
     RetryQueuePtr _retryQueue;
     std::vector<int> _retryIntervals;
     TimerPtr _timer;
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
-    const Ice::ImplicitContextIPtr _implicitContext;
+    const Ice::ImplicitContextPtr _implicitContext;
     Ice::StringConverterPtr _stringConverter;
     Ice::WstringConverterPtr _wstringConverter;
     bool _adminEnabled;
@@ -192,10 +190,20 @@ private:
     Ice::Identity _adminIdentity;
     std::set<std::string> _adminFacetFilter;
     IceInternal::MetricsAdminIPtr _metricsAdmin;
-    std::map<Ice::Short, BufSizeWarnInfo> _setBufSizeWarn;
+    std::map<std::int16_t, BufSizeWarnInfo> _setBufSizeWarn;
     std::mutex _setBufSizeWarnMutex;
     mutable std::recursive_mutex _mutex;
     std::condition_variable_any _conditionVariable;
+
+    enum ImplicitContextKind
+    {
+        None,
+        PerThread,
+        Shared
+    };
+    ImplicitContextKind _implicitContextKind;
+    // Only set when _implicitContextKind == Shared.
+    Ice::ImplicitContextPtr _sharedImplicitContext;
 };
 
 class ProcessI : public Ice::Process
@@ -205,7 +213,7 @@ public:
     ProcessI(const Ice::CommunicatorPtr&);
 
     virtual void shutdown(const Ice::Current&);
-    virtual void writeMessage(std::string, Ice::Int, const Ice::Current&);
+    virtual void writeMessage(std::string, std::int32_t, const Ice::Current&);
 
 private:
 

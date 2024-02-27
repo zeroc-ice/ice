@@ -5,7 +5,6 @@
 #ifndef ICE_OBJECT_H
 #define ICE_OBJECT_H
 
-#include <IceUtil/Mutex.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/IncomingAsyncF.h>
@@ -102,7 +101,6 @@ public:
      */
     static const std::string& ice_staticId();
 
-// TODO: temporary. To remove it, we need to refactor IncomingAsync that is the base class for generated AMD callbacks.
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
      * to a servant (or to another interceptor).
@@ -121,23 +119,6 @@ public:
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
     /// \endcond
-
-    /**
-     * Holds the results of a call to ice_invoke.
-     */
-    struct Ice_invokeResult
-    {
-        /**
-         * Indicates whether the invocation resulted in success (true) or a user exception (false).
-         */
-        bool returnValue;
-
-        /**
-         * Holds an encapsulation of the encoded results. If returnValue is true, this contains the encoded
-         * out parameters. If returnValue is false, this contains the encoded user exception.
-         */
-        std::vector<::Ice::Byte> outParams;
-    };
 
 protected:
 

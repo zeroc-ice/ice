@@ -36,7 +36,7 @@ public:
     //
     // Return the endpoint type.
     //
-    virtual Ice::Short type() const = 0;
+    virtual std::int16_t type() const = 0;
 
     //
     // Return the protocol name
@@ -47,14 +47,14 @@ public:
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    virtual Ice::Int timeout() const = 0;
+    virtual std::int32_t timeout() const = 0;
 
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    virtual EndpointIPtr timeout(Ice::Int) const = 0;
+    virtual EndpointIPtr timeout(std::int32_t) const = 0;
 
     //
     // Returns the endpoint connection id.
@@ -134,7 +134,7 @@ public:
     //
     virtual bool equivalent(const EndpointIPtr&) const = 0;
 
-    virtual ::Ice::Int hash() const = 0;
+    virtual ::std::int32_t hash() const = 0;
 
     //
     // Returns the stringified options
@@ -160,7 +160,7 @@ public:
         T::timeout = _endpoint->timeout();
     }
 
-    virtual Ice::Short
+    virtual std::int16_t
     type() const noexcept
     {
         return _endpoint->type();

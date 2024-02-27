@@ -31,10 +31,10 @@ IceObjC::StreamConnector::connect()
     UniqueRef<CFHostRef> host(CFHostCreateWithName(nullptr, h.get()));
     CFStreamCreatePairWithSocketToCFHost(nullptr, host.get(), _port, &readStream.get(), &writeStream.get());
     _instance->setupStreams(readStream.get(), writeStream.get(), false, _host);
-    return new StreamTransceiver(_instance, readStream.release(), writeStream.release(), _host, _port);
+    return make_shared<StreamTransceiver>(_instance, readStream.release(), writeStream.release(), _host, _port);
 }
 
-Short
+int16_t
 IceObjC::StreamConnector::type() const
 {
     return _instance->type();
@@ -129,8 +129,8 @@ IceObjC::StreamConnector::operator<(const IceInternal::Connector& r) const
 
 IceObjC::StreamConnector::StreamConnector(const InstancePtr& instance,
                                           const string& host,
-                                          Ice::Int port,
-                                          Ice::Int timeout,
+                                          int32_t port,
+                                          int32_t timeout,
                                           const string& connectionId) :
     _instance(instance),
     _host(host.empty() ? string("127.0.0.1") : host),

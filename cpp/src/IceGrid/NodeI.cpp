@@ -99,7 +99,7 @@ public:
     }
 
     virtual bool
-    fileListProgress(Ice::Int /*percent*/)
+    fileListProgress(int32_t /*percent*/)
     {
         return true;
     }
@@ -116,7 +116,7 @@ public:
     }
 
     virtual bool
-    patchStart(const string& /*path*/, Ice::Long /*size*/, Ice::Long totalProgress, Ice::Long totalSize)
+    patchStart(const string& /*path*/, int64_t /*size*/, int64_t totalProgress, int64_t totalSize)
     {
         if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
         {
@@ -154,7 +154,7 @@ public:
     }
 
     virtual bool
-    patchProgress(Ice::Long /*progress*/, Ice::Long /*size*/, Ice::Long /*totalProgress*/, Ice::Long /*totalSize*/)
+    patchProgress(int64_t /*progress*/, int64_t /*size*/, int64_t /*totalProgress*/, int64_t /*totalSize*/)
     {
         return true;
     }
@@ -187,7 +187,7 @@ private:
 }
 
 NodeI::Update::Update(UpdateFunction updateFunction, const shared_ptr<NodeI>& node,
-                      const shared_ptr<NodeObserverPrx>& observer) : _func(std::move(updateFunction)),
+                      const NodeObserverPrxPtr& observer) : _func(std::move(updateFunction)),
                                                                      _node(node), _observer(observer)
 {
 }
@@ -214,9 +214,9 @@ NodeI::NodeI(const shared_ptr<Ice::ObjectAdapter>& adapter,
              const shared_ptr<Activator>& activator,
              const IceUtil::TimerPtr& timer,
              const shared_ptr<TraceLevels>& traceLevels,
-             const shared_ptr<NodePrx>& proxy,
+             const NodePrxPtr& proxy,
              const string& name,
-             const shared_ptr<UserAccountMapperPrx>& mapper,
+             const UserAccountMapperPrxPtr& mapper,
              const string& instanceName) :
     _communicator(adapter->getCommunicator()),
     _adapter(adapter),
@@ -272,7 +272,7 @@ NodeI::NodeI(const shared_ptr<Ice::ObjectAdapter>& adapter,
 
 void
 NodeI::loadServerAsync(shared_ptr<InternalServerDescriptor> descriptor, string replicaName,
-                       function<void(const shared_ptr<ServerPrx>&, const AdapterPrxDict&, int, int)> response,
+                       function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
                        function<void(exception_ptr)> exception, const Ice::Current& current)
 {
     loadServer(std::move(descriptor), std::move(replicaName), false, std::move(response), std::move(exception), current);
@@ -281,7 +281,7 @@ NodeI::loadServerAsync(shared_ptr<InternalServerDescriptor> descriptor, string r
 void
 NodeI::loadServerWithoutRestartAsync(shared_ptr<InternalServerDescriptor> descriptor,
                                      string replicaName,
-                                     function<void(const shared_ptr<ServerPrx>&,
+                                     function<void(const ServerPrxPtr&,
                                                    const AdapterPrxDict&, int, int)> response,
                                      function<void(exception_ptr)> exception,
                                     const Ice::Current& current)
@@ -309,7 +309,7 @@ NodeI::destroyServerWithoutRestartAsync(string serverId, string uuid, int revisi
 
 void
 NodeI::patchAsync(
-    std::shared_ptr<PatcherFeedbackPrx> feedback,
+    PatcherFeedbackPrxPtr feedback,
     std::string application,
     std::string server,
     std::shared_ptr<InternalDistributionDescriptor> appDistrib,
@@ -438,7 +438,7 @@ NodeI::patchAsync(
             //
             // Patch the application.
             //
-            shared_ptr<FileServerPrx> icepatch;
+            FileServerPrxPtr icepatch;
             if(patchApplication)
             {
                 assert(!appDistrib->icepatch.empty());
@@ -506,7 +506,7 @@ NodeI::patchAsync(
 }
 
 void
-NodeI::registerWithReplica(shared_ptr<InternalRegistryPrx> replica, const Ice::Current&)
+NodeI::registerWithReplica(InternalRegistryPrxPtr replica, const Ice::Current&)
 {
     _sessions.create(std::move(replica));
 }
@@ -518,13 +518,13 @@ NodeI::replicaInit(InternalRegistryPrxSeq replicas, const Ice::Current&)
 }
 
 void
-NodeI::replicaAdded(shared_ptr<InternalRegistryPrx> replica, const Ice::Current&)
+NodeI::replicaAdded(InternalRegistryPrxPtr replica, const Ice::Current&)
 {
     _sessions.replicaAdded(std::move(replica));
 }
 
 void
-NodeI::replicaRemoved(shared_ptr<InternalRegistryPrx> replica, const Ice::Current&)
+NodeI::replicaRemoved(InternalRegistryPrxPtr replica, const Ice::Current&)
 {
     _sessions.replicaRemoved(std::move(replica));
 }
@@ -559,14 +559,14 @@ NodeI::shutdown(const Ice::Current&) const
     _activator->shutdown();
 }
 
-long long
+int64_t
 NodeI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 {
     return _fileCache->getOffsetFromEnd(getFilePath(filename), count);
 }
 
 bool
-NodeI::read(string filename, long long pos, int size, long long& newPos, Ice::StringSeq& lines,
+NodeI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines,
             const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
@@ -616,7 +616,7 @@ NodeI::getTraceLevels() const
     return _traceLevels;
 }
 
-shared_ptr<UserAccountMapperPrx>
+UserAccountMapperPrxPtr
 NodeI::getUserAccountMapper() const
 {
     return _userAccountMapper;
@@ -634,7 +634,7 @@ NodeI::getFileCache() const
     return _fileCache;
 }
 
-shared_ptr<NodePrx>
+NodePrxPtr
 NodeI::getProxy() const
 {
     return _proxy;
@@ -670,14 +670,14 @@ NodeI::allowEndpointsOverride() const
     return _allowEndpointsOverride;
 }
 
-shared_ptr<NodeSessionPrx>
-NodeI::registerWithRegistry(const shared_ptr<InternalRegistryPrx>& registry)
+NodeSessionPrxPtr
+NodeI::registerWithRegistry(const InternalRegistryPrxPtr& registry)
 {
     return registry->registerNode(_platform.getInternalNodeInfo(), _proxy, _platform.getLoadInfo());
 }
 
 void
-NodeI::checkConsistency(const shared_ptr<NodeSessionPrx>& session)
+NodeI::checkConsistency(const NodeSessionPrxPtr& session)
 {
     //
     // Only do the consistency check on the startup. This ensures that servers can't
@@ -733,7 +733,7 @@ NodeI::checkConsistency(const shared_ptr<NodeSessionPrx>& session)
 }
 
 void
-NodeI::addObserver(const shared_ptr<NodeSessionPrx>& session, const shared_ptr<NodeObserverPrx>& observer)
+NodeI::addObserver(const NodeSessionPrxPtr& session, const NodeObserverPrxPtr& observer)
 {
     lock_guard observerLock(_observerMutex);
     assert(_observers.find(session) == _observers.end());
@@ -764,7 +764,7 @@ NodeI::addObserver(const shared_ptr<NodeSessionPrx>& session, const shared_ptr<N
 }
 
 void
-NodeI::removeObserver(const shared_ptr<NodeSessionPrx>& session)
+NodeI::removeObserver(const NodeSessionPrxPtr& session)
 {
     lock_guard observerLock(_observerMutex);
     _observers.erase(session);
@@ -790,7 +790,7 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
     // registered twice if a replica is removed and added right away
     // after).
     //
-    set<shared_ptr<NodeObserverPrx>> sent;
+    set<NodeObserverPrxPtr> sent;
     for(const auto& observer : _observers)
     {
         if(sent.find(observer.second) == sent.end())
@@ -828,7 +828,7 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
     // registered twice if a replica is removed and added right away
     // after).
     //
-    set<shared_ptr<NodeObserverPrx>> sent;
+    set<NodeObserverPrxPtr> sent;
     for(const auto& observer : _observers)
     {
         if(sent.find(observer.second) == sent.end())
@@ -846,7 +846,7 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
 }
 
 void
-NodeI::queueUpdate(const shared_ptr<NodeObserverPrx>& proxy, Update::UpdateFunction updateFunction)
+NodeI::queueUpdate(const NodeObserverPrxPtr& proxy, Update::UpdateFunction updateFunction)
 {
     // Must be called with mutex locked
     auto update = make_shared<Update>(std::move(updateFunction), shared_from_this(), proxy);
@@ -865,7 +865,7 @@ NodeI::queueUpdate(const shared_ptr<NodeObserverPrx>& proxy, Update::UpdateFunct
 }
 
 void
-NodeI::dequeueUpdate(const shared_ptr<NodeObserverPrx>& proxy, const shared_ptr<Update>& update, bool all)
+NodeI::dequeueUpdate(const NodeObserverPrxPtr& proxy, const shared_ptr<Update>& update, bool all)
 {
     lock_guard observerLock(_observerMutex);
     auto p = _observerUpdates.find(proxy);
@@ -1040,7 +1040,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     return commands;
 }
 
-shared_ptr<NodeSessionPrx>
+NodeSessionPrxPtr
 NodeI::getMasterNodeSession() const
 {
     return _sessions.getMasterNodeSession();
@@ -1129,7 +1129,7 @@ NodeI::canRemoveServerDirectory(const string& name)
 }
 
 void
-NodeI::patch(const shared_ptr<FileServerPrx>& icepatch, const string& dest, const vector<string>& directories)
+NodeI::patch(const FileServerPrxPtr& icepatch, const string& dest, const vector<string>& directories)
 {
     IcePatch2::PatcherFeedbackPtr feedback = make_shared<LogPatcherFeedback>(_traceLevels, dest);
     IcePatch2Internal::createDirectory(_dataDir + "/" + dest);
@@ -1208,7 +1208,7 @@ NodeI::getFilePath(const string& filename) const
 
 void
 NodeI::loadServer(shared_ptr<InternalServerDescriptor> descriptor, string replicaName, bool noRestart,
-                  function<void(const shared_ptr<ServerPrx> &, const AdapterPrxDict &, int, int)>&& response,
+                  function<void(const ServerPrxPtr &, const AdapterPrxDict &, int, int)>&& response,
                   function<void(exception_ptr)>&& exception,
                   const Ice::Current& current)
 {
@@ -1317,7 +1317,7 @@ NodeI::destroyServer(string serverId, string uuid, int revision, string replicaN
 
         if(!server)
         {
-            server = make_shared<ServerI>(shared_from_this(), nullptr, _serversDir, serverId, _waitTime);
+            server = make_shared<ServerI>(shared_from_this(), nullopt, _serversDir, serverId, _waitTime);
         }
 
         //

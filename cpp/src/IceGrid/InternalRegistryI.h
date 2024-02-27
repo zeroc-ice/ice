@@ -26,25 +26,25 @@ public:
                       const std::shared_ptr<ReapThread>&, const std::shared_ptr<WellKnownObjectsManager>&,
                       ReplicaSessionManager&);
 
-    std::shared_ptr<NodeSessionPrx> registerNode(std::shared_ptr<InternalNodeInfo>, std::shared_ptr<NodePrx>, LoadInfo,
+    NodeSessionPrxPtr registerNode(std::shared_ptr<InternalNodeInfo>, NodePrxPtr, LoadInfo,
                                                  const Ice::Current&) override;
-    std::shared_ptr<ReplicaSessionPrx> registerReplica(std::shared_ptr<InternalReplicaInfo>,
-                                                       std::shared_ptr<InternalRegistryPrx>,
+    ReplicaSessionPrxPtr registerReplica(std::shared_ptr<InternalReplicaInfo>,
+                                                       InternalRegistryPrxPtr,
                                                        const Ice::Current&) override;
 
-    void registerWithReplica(std::shared_ptr<InternalRegistryPrx>, const Ice::Current&) override;
+    void registerWithReplica(InternalRegistryPrxPtr, const Ice::Current&) override;
 
     NodePrxSeq getNodes(const Ice::Current&) const override;
     InternalRegistryPrxSeq getReplicas(const Ice::Current&) const override;
 
-    ApplicationInfoSeq getApplications(long long&, const Ice::Current&) const override;
-    AdapterInfoSeq getAdapters(long long&, const Ice::Current&) const override;
-    ObjectInfoSeq getObjects(long long&, const Ice::Current&) const override;
+    ApplicationInfoSeq getApplications(std::int64_t&, const Ice::Current&) const override;
+    AdapterInfoSeq getAdapters(std::int64_t&, const Ice::Current&) const override;
+    ObjectInfoSeq getObjects(std::int64_t&, const Ice::Current&) const override;
 
     void shutdown(const Ice::Current&) const override;
 
-    long long getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
-    bool read(std::string, long long, int, long long&, Ice::StringSeq&, const Ice::Current&) const override;
+    std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+    bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
 
 private:
 

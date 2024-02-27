@@ -20,6 +20,7 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/PropertyNames.h>
 #include <Ice/StringUtil.h>
+#include "Ice/ProxyFunctions.h"
 
 using namespace std;
 using namespace Ice;
@@ -31,10 +32,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                                       const ReferencePtr& tmpl,
                                       const vector<EndpointIPtr>& endpoints)
 {
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
+    assert(!ident.name.empty());
 
     return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(),
                   endpoints, "", "");
@@ -46,10 +44,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                                       const ReferencePtr& tmpl,
                                       const string& adapterId)
 {
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
+    assert(!ident.name.empty());
 
     return create(ident, facet, tmpl->getMode(), tmpl->getSecure(), tmpl->getProtocol(), tmpl->getEncoding(),
                   vector<EndpointIPtr>(), adapterId, "");
@@ -58,10 +53,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::ConnectionIPtr& connection)
 {
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
+    assert(!ident.name.empty());
 
     //
     // Create new reference
@@ -86,7 +78,7 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
 {
     if(str.empty())
     {
-        return 0;
+        return nullptr;
     }
 
     const string delim = " \t\r\n";
@@ -132,36 +124,28 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
         throw ProxyParseException(__FILE__, __LINE__, "no identity in `" + s + "'");
     }
 
-    //
-    // Parsing the identity may raise IdentityParseException.
-    //
-    Identity ident = Ice::stringToIdentity(idstr);
-
-    if(ident.name.empty())
+    if (idstr.empty())
     {
-        //
-        // An identity with an empty name and a non-empty
-        // category is illegal.
-        //
-        if(!ident.category.empty())
-        {
-            throw IllegalIdentityException(__FILE__, __LINE__, ident);
-        }
         //
         // Treat a stringified proxy containing two double
         // quotes ("") the same as an empty string, i.e.,
         // a null proxy, but only if nothing follows the
         // quotes.
         //
-        else if(s.find_first_not_of(delim, end) != string::npos)
+        if(s.find_first_not_of(delim, end) != string::npos)
         {
             throw ProxyParseException(__FILE__, __LINE__, "invalid characters after identity in `" + s + "'");
         }
         else
         {
-            return 0;
+            return nullptr;
         }
     }
+
+    //
+    // Parsing the identity may raise IdentityParseException.
+    //
+    Identity ident = Ice::stringToIdentity(idstr);
 
     string facet;
     Reference::Mode mode = Reference::ModeTwoway;
@@ -532,11 +516,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
     // Don't read the identity here. Operations calling this
     // constructor read the identity, and pass it as a parameter.
     //
-
-    if(ident.name.empty() && ident.category.empty())
-    {
-        return 0;
-    }
+    assert(!ident.name.empty());
 
     //
     // For compatibility with the old FacetPath.
@@ -580,7 +560,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
     vector<EndpointIPtr> endpoints;
     string adapterId;
 
-    Ice::Int sz = s->readSize();
+    int32_t sz = s->readSize();
 
     if(sz > 0)
     {
@@ -600,9 +580,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
 }
 
 ReferenceFactoryPtr
-IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrxPtr& defaultRouter)
+IceInternal::ReferenceFactory::setDefaultRouter(const optional<RouterPrx>& defaultRouter)
 {
-    if(defaultRouter == _defaultRouter)
+    if (defaultRouter == _defaultRouter)
     {
         return shared_from_this();
     }
@@ -613,14 +593,14 @@ IceInternal::ReferenceFactory::setDefaultRouter(const RouterPrxPtr& defaultRoute
     return factory;
 }
 
-RouterPrxPtr
+std::optional<RouterPrx>
 IceInternal::ReferenceFactory::getDefaultRouter() const
 {
     return _defaultRouter;
 }
 
 ReferenceFactoryPtr
-IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrxPtr& defaultLocator)
+IceInternal::ReferenceFactory::setDefaultLocator(const std::optional<LocatorPrx>& defaultLocator)
 {
     if(defaultLocator == _defaultLocator)
     {
@@ -633,7 +613,7 @@ IceInternal::ReferenceFactory::setDefaultLocator(const LocatorPrxPtr& defaultLoc
     return factory;
 }
 
-LocatorPrxPtr
+std::optional<LocatorPrx>
 IceInternal::ReferenceFactory::getDefaultLocator() const
 {
     return _defaultLocator;
@@ -729,10 +709,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         }
         else
         {
-            locatorInfo = _instance->locatorManager()->get(_defaultLocator);
+            locatorInfo = _instance->locatorManager()->get(_defaultLocator.value());
         }
     }
-    RouterInfoPtr routerInfo = _instance->routerManager()->get(_defaultRouter);
+    RouterInfoPtr routerInfo = _defaultRouter ? _instance->routerManager()->get(_defaultRouter.value()) : nullptr;
     bool collocationOptimized = defaultsAndOverrides->defaultCollocationOptimization;
     bool cacheConnection = true;
     bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
@@ -755,7 +735,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         string property;
 
         property = propertyPrefix + ".Locator";
-        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_communicator->propertyToProxy(property));
+        auto locator = Ice::uncheckedCast<LocatorPrx>(_communicator->propertyToProxy(property));
         if(locator)
         {
             if(locator->ice_getEncodingVersion() != encoding)
@@ -764,13 +744,13 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
             }
             else
             {
-                locatorInfo = _instance->locatorManager()->get(locator);
+                locatorInfo = _instance->locatorManager()->get(locator.value());
             }
         }
 
         property = propertyPrefix + ".Router";
-        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_communicator->propertyToProxy(property));
-        if(router)
+        auto router = Ice::uncheckedCast<RouterPrx>(_communicator->propertyToProxy(property));
+        if (router)
         {
             if(propertyPrefix.size() > 7 && propertyPrefix.substr(propertyPrefix.size() - 7, 7) == ".Router")
             {
@@ -780,7 +760,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
             }
             else
             {
-                routerInfo = _instance->routerManager()->get(router);
+                routerInfo = _instance->routerManager()->get(router.value());
             }
         }
 

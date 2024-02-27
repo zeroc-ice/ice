@@ -103,7 +103,8 @@ public:
 
 private:
 
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
+    mutex _mutex;
+    condition_variable _condition;
     int _receivedCalls;
     string _prefix;
     Ice::LogMessageSeq _initMessages;
@@ -119,27 +120,27 @@ RemoteLoggerI::RemoteLoggerI() : _receivedCalls(0)
 void
 RemoteLoggerI::init(string prefix, Ice::LogMessageSeq logMessages, const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    lock_guard lock(_mutex);
     _prefix = prefix;
     _initMessages.insert(_initMessages.end(), logMessages.begin(), logMessages.end());
     _receivedCalls++;
-    _monitor.notifyAll();
+    _condition.notify_all();
 }
 
 void
 RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    lock_guard lock(_mutex);
     _logMessages.push_back(logMessage);
     _receivedCalls++;
-    _monitor.notifyAll();
+    _condition.notify_all();
 }
 
 void
 RemoteLoggerI::checkNextInit(const string& prefix, Ice::LogMessageType type, const string& message,
                              const string& category)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    lock_guard lock(_mutex);
     test(_prefix == prefix);
     test(_initMessages.size() > 0);
     Ice::LogMessage front = _initMessages.front();
@@ -152,7 +153,7 @@ RemoteLoggerI::checkNextInit(const string& prefix, Ice::LogMessageType type, con
 void
 RemoteLoggerI::checkNextLog(Ice::LogMessageType type, const string& message, const string& category)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    lock_guard lock(_mutex);
     test(_logMessages.size() > 0);
     Ice::LogMessage front = _logMessages.front();
     test(front.type == type);
@@ -164,21 +165,21 @@ RemoteLoggerI::checkNextLog(Ice::LogMessageType type, const string& message, con
 bool
 RemoteLoggerI::wait(int calls)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+    unique_lock lock(_mutex);
     _receivedCalls -= calls;
-    IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
-    IceUtil::Time start = now;
-    IceUtil::Time delay = IceUtil::Time::seconds(20);
+    auto now = chrono::steady_clock::now();
+    const auto start = now;
+    auto delay = chrono::seconds(20);
     while(_receivedCalls < 0)
     {
-        _monitor.timedWait(delay);
-        now = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        if(now - start >= IceUtil::Time::seconds(20))
+        _condition.wait_for(lock, delay);
+        now = chrono::steady_clock::now();
+        if(now - start >= chrono::seconds(20))
         {
             cerr << "expected `" << calls << "' received: `" << (calls + _receivedCalls) << "'" << endl;
             return false; // Waited for more than 20s for close, something's wrong.
         }
-        delay = start + IceUtil::Time::seconds(20) - now;
+        delay = chrono::duration_cast<chrono::seconds>(start + chrono::seconds(20) - now);
     }
     return true;
 }
@@ -255,7 +256,7 @@ allTests(Test::TestHelper* helper)
         }
 
         Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("");
-        test(com->createAdmin(adapter, id));
+        com->createAdmin(adapter, id);
         test(com->getAdmin());
 
         testFacets(com);
@@ -294,7 +295,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         proc->shutdown();
         com->waitForShutdown();
         com->destroy();
@@ -311,7 +312,7 @@ allTests(Test::TestHelper* helper)
         props["Prop3"] = "3";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         //
         // Test: PropertiesAdmin::getProperty()
         //
@@ -393,7 +394,7 @@ allTests(Test::TestHelper* helper)
         com->print("print");
 
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::LoggerAdminPrx> logger = Ice::checkedCast<Ice::LoggerAdminPrx>(obj, "Logger");
+        Ice::LoggerAdminPrxPtr logger = Ice::checkedCast<Ice::LoggerAdminPrx>(obj, "Logger");
         test(logger);
 
         string prefix;
@@ -566,7 +567,7 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.InstanceName"] = "Test";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         tf->op();
         com->destroy();
     }
@@ -584,9 +585,9 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Properties";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         test(!proc);
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         test(!tf);
         com->destroy();
     }
@@ -601,9 +602,9 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Process";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         test(!tf);
         com->destroy();
     }
@@ -618,9 +619,9 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "TestFacet";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         test(!proc);
         com->destroy();
     }
@@ -635,11 +636,11 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "Properties TestFacet";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(pa->getProperty("Ice.Admin.InstanceName") == "Test");
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         tf->op();
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         test(!proc);
         com->destroy();
     }
@@ -654,11 +655,11 @@ allTests(Test::TestHelper* helper)
         props["Ice.Admin.Facets"] = "TestFacet, Process";
         RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
         Ice::ObjectPrxPtr obj = com->getAdmin();
-        shared_ptr<Ice::PropertiesAdminPrx> pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        shared_ptr<Test::TestFacetPrx> tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         tf->op();
-        shared_ptr<Ice::ProcessPrx> proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
         proc->shutdown();
         com->waitForShutdown();
         com->destroy();

@@ -15,9 +15,9 @@ IceMatlab_cppflags      := -I$(project) \
 IceMatlab_system_libs   := $(matlab_ldflags) \
     -L$(top_srcdir)/cpp/lib/x86_64-linux-gnu \
     -Wl,-rpath=\$$ORIGIN \
-    -lIce++11 -lIceSSL++11 -lIceDiscovery++11 -lIceLocatorDiscovery++11
+    -lIce -lIceSSL -lIceDiscovery -lIceLocatorDiscovery
 
-IceMatlab_dependencies  := IceDiscovery++11 IceLocatorDiscovery++11 IceSSL++11 Ice++11
+IceMatlab_dependencies  := IceDiscovery IceLocatorDiscovery IceSSL Ice
 
 projects += $(project)
 srcs:: $(project)

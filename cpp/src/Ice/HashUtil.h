@@ -9,19 +9,19 @@ namespace IceInternal
 {
 
 inline void
-hashAdd(Ice::Int& hashCode, Ice::Int value)
+hashAdd(std::int32_t& hashCode, std::int32_t value)
 {
-    hashCode = ((hashCode << 5) + hashCode) ^ static_cast<Ice::Int>(2654435761u) * value;
+    hashCode = ((hashCode << 5) + hashCode) ^ static_cast<std::int32_t>(2654435761u) * value;
 }
 
 inline void
-hashAdd(Ice::Int& hashCode, bool value)
+hashAdd(std::int32_t& hashCode, bool value)
 {
     hashCode = ((hashCode << 5) + hashCode) ^ (value ? 1 : 0);
 }
 
 inline void
-hashAdd(Ice::Int& hashCode, const std::string& value)
+hashAdd(std::int32_t& hashCode, const std::string& value)
 {
     for(std::string::const_iterator p = value.begin(); p != value.end(); ++p)
     {
@@ -30,7 +30,7 @@ hashAdd(Ice::Int& hashCode, const std::string& value)
 }
 
 template<typename T> void
-hashAdd(Ice::Int& hashCode, const std::vector<T>& seq)
+hashAdd(std::int32_t& hashCode, const std::vector<T>& seq)
 {
     for(typename std::vector<T>::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
@@ -39,7 +39,7 @@ hashAdd(Ice::Int& hashCode, const std::vector<T>& seq)
 }
 
 template<typename K, typename V> void
-hashAdd(Ice::Int& hashCode, const std::map<K, V>& map)
+hashAdd(std::int32_t& hashCode, const std::map<K, V>& map)
 {
     for(typename std::map<K, V>::const_iterator p = map.begin(); p != map.end(); ++p)
     {

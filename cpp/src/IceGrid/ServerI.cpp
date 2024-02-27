@@ -5,6 +5,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/TimeUtil.h>
 #include <IceGrid/ServerI.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/Activator.h>
@@ -246,7 +247,7 @@ class ResetPropertiesCB : public enable_shared_from_this<ResetPropertiesCB>
 public:
 
     ResetPropertiesCB(const shared_ptr<ServerI>& server,
-                      const shared_ptr<Ice::ObjectPrx> admin,
+                      const Ice::ObjectPrxPtr admin,
                       const shared_ptr<InternalServerDescriptor>& desc,
                       const shared_ptr<InternalServerDescriptor>& old,
                       const shared_ptr<TraceLevels>& traceLevels) :
@@ -342,7 +343,7 @@ private:
     }
 
     const shared_ptr<ServerI> _server;
-    const shared_ptr<Ice::ObjectPrx> _admin;
+    const Ice::ObjectPrxPtr _admin;
     const shared_ptr<InternalServerDescriptor> _desc;
     const shared_ptr<TraceLevels> _traceLevels;
     PropertyDescriptorSeqDict _properties;
@@ -430,7 +431,7 @@ TimedServerCommand::startTimer()
     _timerTask = make_shared<CommandTimeoutTimerTask>(shared_from_this());
     try
     {
-        _timer->schedule(_timerTask, IceUtil::Time::seconds(_timeout.count()));
+        _timer->schedule(_timerTask, _timeout);
     }
     catch(const std::exception&)
     {
@@ -493,14 +494,14 @@ LoadCommand::clearDir() const
 }
 
 void
-LoadCommand::addCallback(function<void(const shared_ptr<ServerPrx>&, const AdapterPrxDict &, int, int)> response,
+LoadCommand::addCallback(function<void(const ServerPrxPtr&, const AdapterPrxDict &, int, int)> response,
                          function<void(exception_ptr)> exception)
 {
     _loadCB.push_back({std::move(response), std::move(exception)});
 }
 
 void
-LoadCommand::startRuntimePropertiesUpdate(const shared_ptr<Ice::ObjectPrx>& process)
+LoadCommand::startRuntimePropertiesUpdate(const Ice::ObjectPrxPtr& process)
 {
     if(_updating)
     {
@@ -515,7 +516,7 @@ LoadCommand::startRuntimePropertiesUpdate(const shared_ptr<Ice::ObjectPrx>& proc
 
 bool
 LoadCommand::finishRuntimePropertiesUpdate(const shared_ptr<InternalServerDescriptor>& runtime,
-                                           const shared_ptr<Ice::ObjectPrx>& process)
+                                           const Ice::ObjectPrxPtr& process)
 {
     _updating = false;
     _runtime = runtime; // The new runtime server descriptor.
@@ -548,7 +549,7 @@ LoadCommand::failed(exception_ptr ex)
 }
 
 void
-LoadCommand::finished(const shared_ptr<ServerPrx>& proxy, const AdapterPrxDict& adapters,
+LoadCommand::finished(const ServerPrxPtr& proxy, const AdapterPrxDict& adapters,
                       chrono::seconds at, chrono::seconds dt)
 {
     for(const auto& cb : _loadCB)
@@ -785,7 +786,7 @@ StopCommand::finished()
     _stopCB.clear();
 }
 
-ServerI::ServerI(const shared_ptr<NodeI>& node, const shared_ptr<ServerPrx>& proxy, const string& serversDir, const string& id, int wt) :
+ServerI::ServerI(const shared_ptr<NodeI>& node, const ServerPrxPtr& proxy, const string& serversDir, const string& id, int wt) :
     _node(node),
     _this(proxy),
     _id(id),
@@ -877,20 +878,20 @@ ServerI::getState(const Ice::Current&) const
     return toServerState(_state);
 }
 
-Ice::Int
+int32_t
 ServerI::getPid(const Ice::Current&) const
 {
     return _node->getActivator()->getServerPid(_id);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 ServerI::getProcess() const
 {
     lock_guard lock(_mutex);
 
-    if(_process == nullptr || _state <= Inactive || _state >= Deactivating)
+    if(_process == nullopt || _state <= Inactive || _state >= Deactivating)
     {
-        return nullptr;
+        return nullopt;
     }
     else
     {
@@ -965,7 +966,7 @@ ServerI::isEnabled(const ::Ice::Current&) const
 }
 
 void
-ServerI::setProcessAsync(shared_ptr<Ice::ProcessPrx> process, function<void()> response,
+ServerI::setProcessAsync(Ice::ProcessPrxPtr process, function<void()> response,
                          function<void(exception_ptr)>, const Ice::Current&)
 {
     bool deact = false;
@@ -1013,14 +1014,14 @@ ServerI::setProcessAsync(shared_ptr<Ice::ProcessPrx> process, function<void()> r
     }
 }
 
-long long
+int64_t
 ServerI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 {
     return _node->getFileCache()->getOffsetFromEnd(getFilePath(std::move(filename)), count);
 }
 
 bool
-ServerI::read(string filename, long long pos, int size, long long& newPos, Ice::StringSeq& lines,
+ServerI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines,
               const Ice::Current&) const
 {
     return _node->getFileCache()->read(getFilePath(std::move(filename)), pos, size, newPos, lines);
@@ -1173,7 +1174,7 @@ ServerI::start(ServerActivation activation, function<void()> response , function
 
 shared_ptr<ServerCommand>
 ServerI::load(const shared_ptr<InternalServerDescriptor>& desc, const string& replicaName, bool noRestart,
-              function<void(const shared_ptr<ServerPrx> &, const AdapterPrxDict &, int, int)> response,
+              function<void(const ServerPrxPtr &, const AdapterPrxDict &, int, int)> response,
               function<void(exception_ptr)> exception)
 {
     lock_guard lock(_mutex);
@@ -1610,7 +1611,7 @@ ServerI::activate()
             waitForReplication = _waitForReplication;
             _waitForReplication = false;
 
-            _process = 0;
+            _process = nullopt;
 
 #ifndef _WIN32
             uid = _uid;
@@ -1767,7 +1768,7 @@ ServerI::kill()
 void
 ServerI::deactivate()
 {
-    shared_ptr<Ice::ProcessPrx> process;
+    Ice::ProcessPrxPtr process;
     {
         lock_guard lock(_mutex);
         if(_state != Deactivating && _state != DeactivatingWaitForProcess)
@@ -1935,7 +1936,7 @@ ServerI::terminated(const string& msg, int status)
     {
         try
         {
-            adpt.second->setDirectProxy(nullptr, Ice::emptyCurrent);
+            adpt.second->setDirectProxy(nullopt, Ice::emptyCurrent);
         }
         catch(const Ice::ObjectNotExistException&)
         {
@@ -2285,7 +2286,9 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             {
                 throw runtime_error("couldn't create configuration file: " + configFilePath);
             }
-            configfile << "# Configuration file (" << IceUtil::Time::now().toDateTime() << ")" << endl << endl;
+            configfile
+                << "# Configuration file ("
+                << IceInternal::timePointToDateTimeString(chrono::system_clock::now()) << ")" << endl << endl;
             for(const auto& propertyDescriptor : prop.second)
             {
                 if(propertyDescriptor.value.empty() && propertyDescriptor.name.find('#') == 0)
@@ -2864,7 +2867,7 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
             _timerTask = make_shared<DelayedStart>(shared_from_this(), _node->getTraceLevels());
             try
             {
-                _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+                _node->getTimer()->schedule(_timerTask, chrono::milliseconds(500));
             }
             catch(const IceUtil::Exception&)
             {
@@ -2891,11 +2894,11 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
                 if(now - *_failureTime < _disableOnFailure)
                 {
                     auto delay = duration_cast<milliseconds>(_disableOnFailure - (now - *_failureTime));
-                    _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds((delay + 500ms).count()));
+                    _node->getTimer()->schedule(_timerTask, delay + 500ms);
                 }
                 else
                 {
-                    _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
+                    _node->getTimer()->schedule(_timerTask, chrono::milliseconds(500));
                 }
             }
             catch(const IceUtil::Exception&)

@@ -5,7 +5,6 @@
 #ifndef ICE_LOCATOR_INFO_H
 #define ICE_LOCATOR_INFO_H
 
-#include <IceUtil/Time.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/LocatorF.h>
 #include <Ice/ReferenceF.h>
@@ -13,6 +12,7 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/Version.h>
+#include "Ice/Locator.h"
 
 #include <mutex>
 #include <condition_variable>
@@ -32,15 +32,13 @@ public:
     // Returns locator info for a given locator. Automatically creates
     // the locator info if it doesn't exist yet.
     //
-    LocatorInfoPtr get(const Ice::LocatorPrxPtr&);
+    LocatorInfoPtr get(const Ice::LocatorPrx&);
 
 private:
 
     const bool _background;
 
-    using LocatorInfoTable = std::map<std::shared_ptr<Ice::LocatorPrx>,
-                                      LocatorInfoPtr,
-                                      Ice::TargetCompare<std::shared_ptr<Ice::LocatorPrx>, std::less>>;
+    using LocatorInfoTable = std::map<Ice::LocatorPrx, LocatorInfoPtr>;
     LocatorInfoTable _table;
     LocatorInfoTable::iterator _tableHint;
 
@@ -66,10 +64,10 @@ public:
 
 private:
 
-    bool checkTTL(const IceUtil::Time&, int) const;
+    bool checkTTL(const std::chrono::steady_clock::time_point&, int) const;
 
-    std::map<std::string, std::pair<IceUtil::Time, std::vector<EndpointIPtr> > > _adapterEndpointsMap;
-    std::map<Ice::Identity, std::pair<IceUtil::Time, ReferencePtr> > _objectMap;
+    std::map<std::string, std::pair<std::chrono::steady_clock::time_point, std::vector<EndpointIPtr> > > _adapterEndpointsMap;
+    std::map<Ice::Identity, std::pair<std::chrono::steady_clock::time_point, ReferencePtr> > _objectMap;
     std::mutex _mutex;
 };
 
@@ -92,7 +90,7 @@ public:
 
         RequestCallback(const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
 
-        void response(const LocatorInfoPtr&, const Ice::ObjectPrxPtr&);
+        void response(const LocatorInfoPtr&, const std::optional<Ice::ObjectPrx>&);
         void exception(const LocatorInfoPtr&, std::exception_ptr);
 
     private:
@@ -109,7 +107,7 @@ public:
 
         void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
 
-        void response(const Ice::ObjectPrxPtr&);
+        void response(const std::optional<Ice::ObjectPrx>&);
         void exception(std::exception_ptr);
 
     protected:
@@ -128,26 +126,21 @@ public:
         std::vector<ReferencePtr> _wellKnownRefs;
         bool _sent;
         bool _response;
-        Ice::ObjectPrxPtr _proxy;
+        std::optional<Ice::ObjectPrx> _proxy;
         std::exception_ptr _exception;
     };
     using RequestPtr = std::shared_ptr<Request>;
 
-    LocatorInfo(const Ice::LocatorPrxPtr&, const LocatorTablePtr&, bool);
+    LocatorInfo(const Ice::LocatorPrx&, const LocatorTablePtr&, bool);
 
     void destroy();
 
     bool operator==(const LocatorInfo&) const;
     bool operator<(const LocatorInfo&) const;
 
-    const Ice::LocatorPrxPtr& getLocator() const
-    {
-        //
-        // No mutex lock necessary, _locator is immutable.
-        //
-        return _locator;
-    }
-    Ice::LocatorRegistryPrxPtr getLocatorRegistry();
+    Ice::LocatorPrx getLocator() const { return _locator; }
+
+    std::optional<Ice::LocatorRegistryPrx> getLocatorRegistry();
 
     void getEndpoints(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
     {
@@ -167,12 +160,12 @@ private:
     RequestPtr getAdapterRequest(const ReferencePtr&);
     RequestPtr getObjectRequest(const ReferencePtr&);
 
-    void finishRequest(const ReferencePtr&, const std::vector<ReferencePtr>&, const Ice::ObjectPrxPtr&, bool);
+    void finishRequest(const ReferencePtr&, const std::vector<ReferencePtr>&, const std::optional<Ice::ObjectPrx>&, bool);
     friend class Request;
     friend class RequestCallback;
 
-    const Ice::LocatorPrxPtr _locator;
-    Ice::LocatorRegistryPrxPtr _locatorRegistry;
+    const Ice::LocatorPrx _locator;
+    std::optional<Ice::LocatorRegistryPrx> _locatorRegistry;
     const LocatorTablePtr _table;
     const bool _background;
 

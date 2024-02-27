@@ -10,6 +10,9 @@
 
 #include <dlfcn.h>
 
+#include <mutex>
+#include <condition_variable>
+
 @protocol ControllerView
 -(void) print:(NSString*)msg;
 -(void) println:(NSString*)msg;
@@ -23,9 +26,7 @@ namespace
 
     typedef Test::TestHelper* (*CREATE_HELPER_ENTRY_POINT)();
 
-    class ControllerHelperI : public Test::ControllerHelper,
-                              private IceUtil::Monitor<IceUtil::Mutex>,
-                              public IceUtil::Thread
+    class ControllerHelperI : public Test::ControllerHelper
     {
     public:
 
@@ -55,13 +56,15 @@ namespace
         int _status;
         std::ostringstream _out;
         Ice::CommunicatorPtr _communicator;
+        mutable std::mutex _mutex;
+        mutable std::condition_variable _condition;
     };
 
     class ProcessI : public Process
     {
     public:
 
-        ProcessI(id<ControllerView>, ControllerHelperI*);
+        ProcessI(id<ControllerView>, std::shared_ptr<ControllerHelperI>);
         virtual ~ProcessI();
 
         void waitReady(int, const Ice::Current&);
@@ -71,7 +74,8 @@ namespace
     private:
 
         id<ControllerView> _controller;
-        IceUtil::Handle<ControllerHelperI> _helper;
+        std::shared_ptr<ControllerHelperI> _helper;
+        std::thread _helperThread;
     };
 
     class ProcessControllerI : public ProcessController
@@ -80,7 +84,7 @@ namespace
 
         ProcessControllerI(id<ControllerView>, NSString*, NSString*);
 
-        virtual shared_ptr<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
+        virtual ProcessPrxPtr start(string, string, StringSeq, const Ice::Current&);
         virtual string getHost(string, bool, const Ice::Current&);
 
     private:
@@ -122,15 +126,15 @@ ControllerHelperI::~ControllerHelperI()
 void
 ControllerHelperI::serverReady()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _ready = true;
-    notifyAll();
+    _condition.notify_all();
 }
 
 void
 ControllerHelperI::communicatorInitialized(const Ice::CommunicatorPtr& communicator)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _communicator = communicator;
 }
 
@@ -205,7 +209,7 @@ ControllerHelperI::run()
     argv[_args.size()] = 0;
     try
     {
-        IceInternal::UniquePtr<Test::TestHelper> helper(createHelper());
+        unique_ptr<Test::TestHelper> helper(createHelper());
         helper->setControllerHelper(this);
         helper->run(static_cast<int>(_args.size()), argv);
         completed(0);
@@ -234,17 +238,17 @@ ControllerHelperI::run()
 void
 ControllerHelperI::completed(int status)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _completed = true;
     _status = status;
     _communicator = 0;
-    notifyAll();
+    _condition.notify_all();
 }
 
 void
 ControllerHelperI::shutdown()
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     if(_communicator)
     {
         _communicator->shutdown();
@@ -254,10 +258,10 @@ ControllerHelperI::shutdown()
 void
 ControllerHelperI::waitReady(int timeout) const
 {
-    Lock sync(*this);
+    unique_lock<mutex> lock(_mutex);
     while(!_ready && !_completed)
     {
-        if(!timedWait(IceUtil::Time::seconds(timeout)))
+        if(_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
         {
             throw ProcessFailedException("timed out waiting for the process to be ready");
         }
@@ -271,10 +275,10 @@ ControllerHelperI::waitReady(int timeout) const
 int
 ControllerHelperI::waitSuccess(int timeout) const
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     while(!_completed)
     {
-        if(!timedWait(IceUtil::Time::seconds(timeout)))
+        if(_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
         {
             throw ProcessFailedException("timed out waiting for the process to succeed");
         }
@@ -289,9 +293,10 @@ ControllerHelperI::getOutput() const
     return _out.str();
 }
 
-ProcessI::ProcessI(id<ControllerView> controller, ControllerHelperI* helper) :
+ProcessI::ProcessI(id<ControllerView> controller, std::shared_ptr<ControllerHelperI> helper) :
     _controller(controller),
-    _helper(helper)
+    _helper(helper),
+    _helperThread([helper] { helper->run(); })
 {
 }
 
@@ -316,7 +321,7 @@ ProcessI::terminate(const Ice::Current& current)
 {
     _helper->shutdown();
     current.adapter->remove(current.id);
-    _helper->getThreadControl().join();
+    _helperThread.join();
     return _helper->getOutput();
 }
 
@@ -325,7 +330,7 @@ ProcessControllerI::ProcessControllerI(id<ControllerView> controller, NSString* 
 {
 }
 
-shared_ptr<ProcessPrx>
+ProcessPrxPtr
 ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ice::Current& c)
 {
     StringSeq newArgs = args;
@@ -333,14 +338,8 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     replace(prefix.begin(), prefix.end(), '/', '_');
     newArgs.insert(newArgs.begin(), testSuite + ' ' + exe);
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
-    IceUtil::Handle<ControllerHelperI> helper(new ControllerHelperI(_controller, prefix + '/' + exe + ".bundle", newArgs));
-
-    //
-    // Use a 768KB thread stack size for the objects test. This is necessary when running the
-    // test on arm64 devices with a debug Ice libraries which require lots of stack space.
-    //
-    helper->start(768 * 1024);
-    return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper.get())));
+    auto helper = make_shared<ControllerHelperI>(_controller, prefix + '/' + exe + ".bundle", newArgs);
+    return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper)));
 }
 
 string

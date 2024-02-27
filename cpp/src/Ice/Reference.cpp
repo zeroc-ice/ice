@@ -125,7 +125,7 @@ IceInternal::Reference::getCompressOverride(bool& compress) const
     return true;
 }
 
-Int
+int32_t
 Reference::hash() const
 {
     lock_guard lock(_hashMutex);
@@ -486,8 +486,8 @@ IceInternal::Reference::Reference(const Reference& r) :
 int
 IceInternal::Reference::hashInit() const
 {
-    Int h = 5381;
-    hashAdd(h, static_cast<Int>(_mode));
+    int32_t h = 5381;
+    hashAdd(h, static_cast<int32_t>(_mode));
     hashAdd(h, _secure);
     hashAdd(h, _identity.name);
     hashAdd(h, _identity.category);
@@ -595,13 +595,13 @@ IceInternal::FixedReference::changeAdapterId(const string& /*newAdapterId*/) con
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeLocator(const LocatorPrxPtr&) const
+IceInternal::FixedReference::changeLocator(const optional<LocatorPrx>&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
 
 ReferencePtr
-IceInternal::FixedReference::changeRouter(const RouterPrxPtr&) const
+IceInternal::FixedReference::changeRouter(const optional<RouterPrx>&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
 }
@@ -745,7 +745,7 @@ IceInternal::FixedReference::getRequestHandler() const
     return make_shared<FixedRequestHandler>(ref, _fixedConnection, compress);
 }
 
-BatchRequestQueuePtr
+const BatchRequestQueuePtr&
 IceInternal::FixedReference::getBatchRequestQueue() const
 {
     return _fixedConnection->getBatchRequestQueue();
@@ -836,6 +836,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
     _timeout(-1)
 {
     assert(_adapterId.empty() || _endpoints.empty());
+    setBatchRequestQueue();
 }
 
 vector<EndpointIPtr>
@@ -905,6 +906,14 @@ IceInternal::RoutableReference::getTimeout() const
 }
 
 ReferencePtr
+IceInternal::RoutableReference::changeMode(Mode newMode) const
+{
+    ReferencePtr r = Reference::changeMode(newMode);
+    static_pointer_cast<RoutableReference>(r)->setBatchRequestQueue();
+    return r;
+}
+
+ReferencePtr
 IceInternal::RoutableReference::changeEncoding(const Ice::EncodingVersion& encoding) const
 {
     ReferencePtr r = Reference::changeEncoding(encoding);
@@ -956,18 +965,20 @@ IceInternal::RoutableReference::changeAdapterId(const string& newAdapterId) cons
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeLocator(const LocatorPrxPtr& newLocator) const
+IceInternal::RoutableReference::changeLocator(const optional<LocatorPrx>& newLocator) const
 {
-    LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
+    LocatorInfoPtr newLocatorInfo = newLocator ?
+        getInstance()->locatorManager()->get(newLocator.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_locatorInfo = newLocatorInfo;
     return r;
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeRouter(const RouterPrxPtr& newRouter) const
+IceInternal::RoutableReference::changeRouter(const optional<RouterPrx>& newRouter) const
 {
-    RouterInfoPtr newRouterInfo = getInstance()->routerManager()->get(newRouter);
+    RouterInfoPtr newRouterInfo = newRouter ?
+        getInstance()->routerManager()->get(newRouter.value()) : nullptr;
     RoutableReferencePtr r = dynamic_pointer_cast<RoutableReference>(clone());
     r->_routerInfo = newRouterInfo;
     return r;
@@ -1083,7 +1094,7 @@ IceInternal::RoutableReference::streamWrite(OutputStream* s) const
 {
     Reference::streamWrite(s);
 
-    Int sz = static_cast<Int>(_endpoints.size());
+    int32_t sz = static_cast<int32_t>(_endpoints.size());
     s->writeSize(sz);
     if(sz)
     {
@@ -1431,10 +1442,10 @@ IceInternal::RoutableReference::getRequestHandler() const
     return handler;
 }
 
-BatchRequestQueuePtr
+const BatchRequestQueuePtr&
 IceInternal::RoutableReference::getBatchRequestQueue() const
 {
-    return make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram);
+    return _batchRequestQueue;
 }
 
 void
@@ -1575,137 +1586,105 @@ IceInternal::RoutableReference::createConnectionAsync(
         return;
     }
 
-    //
-    // Finally, create the connection.
-    //
     OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
+    auto self = static_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
+
+    auto createConnectionSucceded =
+        [routerInfo = _routerInfo, response = std::move(response)](Ice::ConnectionIPtr connection, bool compress)
+    {
+        // If we have a router, set the object adapter for this router (if any) to the new connection, so that
+        // callbacks from the router can be received over this new connection.
+        if (routerInfo && routerInfo->getAdapter())
+        {
+            connection->setAdapter(routerInfo->getAdapter());
+        }
+        response(std::move(connection), compress);
+    };
+
     if(getCacheConnection() || endpoints.size() == 1)
     {
-        class CB1 final : public OutgoingConnectionFactory::CreateConnectionCallback
-        {
-        public:
-
-            void setConnection(const Ice::ConnectionIPtr& connection, bool compress) final
-            {
-                //
-                // If we have a router, set the object adapter for this router
-                // (if any) to the new connection, so that callbacks from the
-                // router can be received over this new connection.
-                //
-                if(_routerInfo && _routerInfo->getAdapter())
-                {
-                    connection->setAdapter(_routerInfo->getAdapter());
-                }
-                _response(connection, compress);
-            }
-
-            void setException(std::exception_ptr ex) final
-            {
-                _exception(ex);
-            }
-
-            CB1(
-                const RouterInfoPtr& routerInfo,
-                function<void(ConnectionIPtr, bool)> response,
-                function<void(std::exception_ptr)> exception) :
-                _routerInfo(routerInfo), _response(std::move(response)), _exception(std::move(exception))
-            {
-            }
-
-        private:
-
-            const RouterInfoPtr _routerInfo;
-            const function<void(ConnectionIPtr, bool)> _response;
-            const function<void(std::exception_ptr)> _exception;
-        };
-
-        //
-        // Get an existing connection or create one if there's no
-        // existing connection to one of the given endpoints.
-        //
-        factory->create(endpoints, false, getEndpointSelection(), make_shared<CB1>(_routerInfo, response, exception));
-        return;
+        // Get an existing connection or create one if there's no existing connection to one of the given endpoints.
+        factory->createAsync(
+            endpoints,
+            false,
+            getEndpointSelection(),
+            std::move(createConnectionSucceded),
+            std::move(exception));
     }
     else
     {
-        class CB2 final :
-            public OutgoingConnectionFactory::CreateConnectionCallback,
-            public std::enable_shared_from_this<CB2>
+        // Go through the list of endpoints and try to create the connection until it succeeds. This is different from
+        // just calling create() with the given endpoints since this might create a new connection even if there's an
+        // existing connection for one of the endpoints.
+
+        class CreateConnectionState final : public std::enable_shared_from_this<CreateConnectionState>
         {
         public:
 
-            void setConnection(const Ice::ConnectionIPtr& connection, bool compress) final
+            CreateConnectionState(
+                vector<EndpointIPtr> endpoints,
+                OutgoingConnectionFactoryPtr factory,
+                EndpointSelectionType endpointSelection,
+                function<void(Ice::ConnectionIPtr, bool)> createConnectionSucceded,
+                function<void(exception_ptr)> exception) :
+                _endpoints(std::move(endpoints)),
+                _factory(std::move(factory)),
+                _endpointSelection(endpointSelection),
+                _createConnectionSucceded(std::move(createConnectionSucceded)),
+                _createConnectionFailed(std::move(exception))
             {
-                //
-                // If we have a router, set the object adapter for this router
-                // (if any) to the new connection, so that callbacks from the
-                // router can be received over this new connection.
-                //
-                if(_reference->getRouterInfo() && _reference->getRouterInfo()->getAdapter())
-                {
-                    connection->setAdapter(_reference->getRouterInfo()->getAdapter());
-                }
-                _response(connection, compress);
             }
 
-            void setException(std::exception_ptr ex) final
+            void createAsync()
             {
-                if(!_exceptionPtr)
+                _factory->createAsync(
+                    { _endpoints[_endpointIndex] },
+                    true,
+                    _endpointSelection,
+                    _createConnectionSucceded,
+                    [self = shared_from_this()] (exception_ptr e) { self->handleException(e); });
+            }
+
+            void handleException(std::exception_ptr ex)
+            {
+                if (!_exception)
                 {
-                    _exceptionPtr = ex;
+                    _exception = ex;
                 }
 
-                if(++_i == _endpoints.size())
+                if (++_endpointIndex == _endpoints.size())
                 {
-                    _exception(_exceptionPtr);
+                    _createConnectionFailed(_exception);
                     return;
                 }
 
-                const bool more = _i != _endpoints.size() - 1;
-                vector<EndpointIPtr> endpoint;
-                endpoint.push_back(_endpoints[_i]);
-
-                OutgoingConnectionFactoryPtr factory = _reference->getInstance()->outgoingConnectionFactory();
-                factory->create(endpoint, more, _reference->getEndpointSelection(), shared_from_this());
-            }
-
-            CB2(
-                const RoutableReferencePtr& reference,
-                const vector<EndpointIPtr>& endpoints,
-                function<void(ConnectionIPtr, bool)> response,
-                function<void(std::exception_ptr)> exception) :
-                _reference(reference),
-                _endpoints(endpoints),
-                _response(std::move(response)),
-                _exception(std::move(exception)),
-                _i(0)
-            {
+                const bool more = _endpointIndex != _endpoints.size() - 1;
+                _factory->createAsync(
+                    { _endpoints[_endpointIndex] },
+                    more,
+                    _endpointSelection,
+                    _createConnectionSucceded,
+                    [self = shared_from_this()] (exception_ptr e) { self->handleException(e); });
             }
 
         private:
 
-            const RoutableReferencePtr _reference;
-            const vector<EndpointIPtr> _endpoints;
-            const function<void(ConnectionIPtr, bool)> _response;
-            const function<void(std::exception_ptr)> _exception;
-            size_t _i;
-            exception_ptr _exceptionPtr;
+            exception_ptr _exception = nullptr;
+            size_t _endpointIndex = 0;
+            vector<EndpointIPtr> _endpoints;
+            OutgoingConnectionFactoryPtr _factory;
+            EndpointSelectionType _endpointSelection;
+            std::function<void(Ice::ConnectionIPtr, bool)> _createConnectionSucceded;
+            std::function<void(exception_ptr)> _createConnectionFailed;
         };
 
-        //
-        // Go through the list of endpoints and try to create the
-        // connection until it succeeds. This is different from just
-        // calling create() with the given endpoints since this might
-        // create a new connection even if there's an existing
-        // connection for one of the endpoints.
-        //
-
-        vector<EndpointIPtr> endpt;
-        endpt.push_back(endpoints[0]);
-        RoutableReferencePtr self = dynamic_pointer_cast<RoutableReference>(
-            const_cast<RoutableReference*>(this)->shared_from_this());
-        factory->create(endpt, true, getEndpointSelection(), make_shared<CB2>(self, endpoints, response, exception));
-        return;
+        auto state = make_shared<CreateConnectionState>(
+            std::move(endpoints),
+            std::move(factory),
+            getEndpointSelection(),
+            std::move(createConnectionSucceded),
+            std::move(exception));
+        state->createAsync();
     }
 }
 
@@ -1741,6 +1720,7 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
     _timeout(r._timeout),
     _connectionId(r._connectionId)
 {
+    setBatchRequestQueue();
 }
 
 vector<EndpointIPtr>
@@ -1853,4 +1833,11 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     }
 
     return endpoints;
+}
+
+void
+IceInternal::RoutableReference::setBatchRequestQueue()
+{
+    _batchRequestQueue = isBatch() ?
+        make_shared<BatchRequestQueue>(getInstance(), getMode() == Reference::ModeBatchDatagram) : nullptr;
 }

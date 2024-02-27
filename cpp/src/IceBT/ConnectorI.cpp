@@ -29,7 +29,7 @@ IceBT::ConnectorI::connect()
     return make_shared<TransceiverI>(_instance, _addr, _uuid);
 }
 
-Short
+int16_t
 IceBT::ConnectorI::type() const
 {
     return _instance->type();
@@ -108,7 +108,7 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
     return _connectionId < p->_connectionId;
 }
 
-IceBT::ConnectorI::ConnectorI(const InstancePtr& instance, const string& addr, const string& uuid, Int timeout,
+IceBT::ConnectorI::ConnectorI(const InstancePtr& instance, const string& addr, const string& uuid, int32_t timeout,
                               const string& connectionId) :
     _instance(instance),
     _addr(addr),

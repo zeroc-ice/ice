@@ -313,7 +313,7 @@ rb_num2long_wrapper(VALUE val)
 VALUE
 rb_num2ll_wrapper(VALUE val)
 {
-    RubyCallArgs<Ice::Long>* data = (RubyCallArgs<Ice::Long>*)val;
+    RubyCallArgs<int64_t>* data = (RubyCallArgs<int64_t>*)val;
     data->ret = rb_num2ll(data->val);
     return val;
 }
@@ -333,10 +333,10 @@ IceRuby::getInteger(VALUE val)
     return arg.ret;
 }
 
-Ice::Long
+int64_t
 IceRuby::getLong(VALUE val)
 {
-    RubyCallArgs<Ice::Long> arg= {val, -1};
+    RubyCallArgs<int64_t> arg= {val, -1};
     int error = 0;
     rb_protect(rb_num2ll_wrapper, (VALUE)&arg, &error);
     if(error)
@@ -662,11 +662,6 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     {
         volatile VALUE v = createString(e.str);
         callRuby(rb_iv_set, p, "@str", v);
-    }
-    catch(const Ice::IllegalIdentityException& e)
-    {
-        volatile VALUE v = IceRuby::createIdentity(e.id);
-        callRuby(rb_iv_set, p, "@id", v);
     }
     catch(const Ice::IllegalServantException& e)
     {

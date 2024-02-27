@@ -297,8 +297,6 @@ interface Initial
 
     bool supportsCsharpSerializable();
 
-    bool supportsCppStringView();
-
     bool supportsNullOptional();
 }
 

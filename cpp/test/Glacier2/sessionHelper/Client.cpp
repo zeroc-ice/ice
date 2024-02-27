@@ -410,7 +410,7 @@ Client::run(int argc, char** argv)
         cout << "ok" << endl;
 
         cout << "testing SessionHelper session after destroy... " << flush;
-        test(_session->session() == nullptr);
+        test(_session->session() == nullopt);
         cout << "ok" << endl;
 
         cout << "testing SessionHelper communicator after destroy... " << flush;
@@ -426,21 +426,21 @@ Client::run(int argc, char** argv)
         cout << "ok" << endl;
 
         cout << "uninstalling router with communicator... " << flush;
-        communicator->setDefaultRouter(nullptr);
+        communicator->setDefaultRouter(nullopt);
         cout << "ok" << endl;
 
-        shared_ptr<Ice::ObjectPrx> processBase;
+        Ice::ObjectPrxPtr processBase;
         {
             cout << "testing stringToProxy for process object... " << flush;
             processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
             cout << "ok" << endl;
         }
 
-        shared_ptr<Ice::ProcessPrx> process;
+        Ice::ProcessPrxPtr process;
         {
             cout << "testing checked cast for admin object... " << flush;
             process = Ice::checkedCast<Ice::ProcessPrx>(processBase);
-            test(process != 0);
+            test(process);
             cout << "ok" << endl;
         }
 

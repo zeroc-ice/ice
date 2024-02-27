@@ -54,7 +54,7 @@
         auto prx = self.communicator->stringToProxy(fromNSString(str));
         if(prx)
         {
-            return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
+            return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx.value()];
         }
         return [NSNull null];
     }
@@ -72,7 +72,7 @@
         auto prx = self.communicator->propertyToProxy(fromNSString(property));
         if(prx)
         {
-            return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
+            return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx.value()];
         }
         return [NSNull null];
     }
@@ -122,7 +122,7 @@
     {
         assert(router);
         auto oa = self.communicator->createObjectAdapterWithRouter(fromNSString(name),
-                                                               Ice::uncheckedCast<Ice::RouterPrx>([router prx]));
+                                                               Ice::uncheckedCast<Ice::RouterPrx>([router prx]).value());
         return [ICEObjectAdapter getHandle:oa];
     }
     catch(const std::exception& ex)
@@ -154,14 +154,26 @@
 
 -(nullable ICEObjectPrx*) getDefaultRouter
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:self.communicator->getDefaultRouter()];
+    std::optional<Ice::RouterPrx> router = self.communicator->getDefaultRouter();
+    if (router)
+    {
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:router.value()];
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 -(BOOL) setDefaultRouter:(ICEObjectPrx*)router error:(NSError**)error
 {
     try
     {
-        auto r = router ? [router prx] : nullptr;
+        std::optional<Ice::ObjectPrx> r;
+        if (router)
+        {
+            r = [router prx];
+        }
         self.communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(r));
         return YES;
     }
@@ -174,14 +186,26 @@
 
 -(nullable ICEObjectPrx*) getDefaultLocator
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:self.communicator->getDefaultLocator()];
+    std::optional<Ice::LocatorPrx> locator = self.communicator->getDefaultLocator();
+    if (locator)
+    {
+        return [[ICEObjectPrx alloc] initWithCppObjectPrx:locator.value()];
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 -(BOOL) setDefaultLocator:(ICEObjectPrx*)locator error:(NSError**)error
 {
     try
     {
-        auto l = locator ? [locator prx] : nullptr;
+        std::optional<Ice::ObjectPrx> l;
+        if (locator)
+        {
+            l = [locator prx];
+        }
         self.communicator->setDefaultLocator((Ice::uncheckedCast<Ice::LocatorPrx>(l)));
         return YES;
     }
@@ -263,7 +287,7 @@
     try
     {
         auto adminPrx = self.communicator->getAdmin();
-        return adminPrx ? [[ICEObjectPrx alloc] initWithCppObjectPrx:adminPrx] : [NSNull null];
+        return adminPrx ? [[ICEObjectPrx alloc] initWithCppObjectPrx:adminPrx.value()] : [NSNull null];
     }
     catch(const std::exception& ex)
     {

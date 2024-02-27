@@ -100,7 +100,7 @@ public:
     }
 
     virtual bool
-    fileListProgress(Ice::Int percent)
+    fileListProgress(int32_t percent)
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
@@ -121,7 +121,7 @@ public:
     }
 
     virtual bool
-    patchStart(const string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
+    patchStart(const string& path, int64_t size, int64_t totalProgress, int64_t totalSize)
     {
         if(!_pressAnyKeyMessage)
         {
@@ -137,7 +137,7 @@ public:
     }
 
     virtual bool
-    patchProgress(Ice::Long progress, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
+    patchProgress(int64_t progress, int64_t size, int64_t totalProgress, int64_t totalSize)
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {

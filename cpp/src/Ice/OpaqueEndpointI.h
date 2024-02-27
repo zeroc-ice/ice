@@ -16,15 +16,15 @@ class OpaqueEndpointI : public EndpointI, public std::enable_shared_from_this<Op
 public:
 
     OpaqueEndpointI(std::vector<std::string>&);
-    OpaqueEndpointI(Ice::Short, Ice::InputStream*);
+    OpaqueEndpointI(std::int16_t, Ice::InputStream*);
 
     virtual void streamWrite(Ice::OutputStream*) const;
     virtual Ice::EndpointInfoPtr getInfo() const noexcept;
-    virtual Ice::Short type() const;
+    virtual std::int16_t type() const;
     virtual const std::string& protocol() const;
 
-    virtual Ice::Int timeout() const;
-    virtual EndpointIPtr timeout(Ice::Int) const;
+    virtual std::int32_t timeout() const;
+    virtual EndpointIPtr timeout(std::int32_t) const;
     virtual const std::string& connectionId() const;
     virtual EndpointIPtr connectionId(const ::std::string&) const;
     virtual bool compress() const;
@@ -41,7 +41,7 @@ public:
     virtual std::vector<EndpointIPtr> expandIfWildcard() const;
     virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
     virtual bool equivalent(const EndpointIPtr&) const;
-    virtual Ice::Int hash() const;
+    virtual std::int32_t hash() const;
     virtual std::string options() const;
 
     virtual bool operator==(const Ice::Endpoint&) const;
@@ -59,7 +59,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
-    Ice::Short _type;
+    std::int16_t _type;
     Ice::EncodingVersion _rawEncoding; // The encoding used for _rawBytes
     const std::vector<Ice::Byte> _rawBytes;
 };

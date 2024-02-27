@@ -15,9 +15,9 @@ BlobjectI::BlobjectI() :
 void
 BlobjectI::setConnection(const Ice::ConnectionPtr& connection)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     _connection = connection;
-    notifyAll();
+    _condition.notify_all();
 }
 
 void
@@ -32,7 +32,7 @@ BlobjectI::flushBatch()
 {
     assert(_batchProxy);
     _batchProxy->ice_flushBatchRequests();
-    _batchProxy = 0;
+    _batchProxy = nullopt;
 }
 
 void
@@ -53,7 +53,7 @@ BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
         }
         if(_batchProxy)
         {
-            obj = _batchProxy;
+            obj = _batchProxy.value();
         }
 
         if(!current.facet.empty())
@@ -90,7 +90,7 @@ BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
 Ice::ConnectionPtr
 BlobjectI::getConnection(const Ice::Current& current)
 {
-    Lock sync(*this);
+    unique_lock lock(_mutex);
     if(!_connection)
     {
         return current.con;
@@ -105,7 +105,7 @@ BlobjectI::getConnection(const Ice::Current& current)
         // If we lost the connection, wait 5 seconds for the server to re-establish it. Some tests,
         // involve connection closure (e.g.: exceptions MemoryLimitException test) and the server
         // automatically re-establishes the connection with the echo server.
-        timedWait(IceUtil::Time::seconds(5));
+        _condition.wait_for(lock, chrono::seconds(5));
         if(!_connection)
         {
             throw;

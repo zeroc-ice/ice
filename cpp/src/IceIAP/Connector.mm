@@ -32,7 +32,7 @@ IceObjC::iAPConnector::connect()
     return transceiver;
 }
 
-Short
+int16_t
 IceObjC::iAPConnector::type() const
 {
     return _instance->type();
@@ -131,7 +131,7 @@ IceObjC::iAPConnector::operator<(const IceInternal::Connector& r) const
 }
 
 IceObjC::iAPConnector::iAPConnector(const ProtocolInstancePtr& instance,
-                                    Ice::Int timeout,
+                                    int32_t timeout,
                                     const string& connectionId,
                                     NSString* protocol,
                                     EAAccessory* accessory) :

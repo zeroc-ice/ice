@@ -76,7 +76,7 @@ registerIceIAP(bool loadOnInitialize)
 }
 
 IceObjC::iAPEndpointI::iAPEndpointI(const ProtocolInstancePtr& instance, const string& m,
-                                    const string& o, const string& n, const string& p, Int ti,
+                                    const string& o, const string& n, const string& p, int32_t ti,
                                     const string& conId, bool co) :
     _instance(instance),
     _manufacturer(m),
@@ -105,7 +105,7 @@ IceObjC::iAPEndpointI::iAPEndpointI(const ProtocolInstancePtr& instance, InputSt
     s->read(const_cast<string&>(_modelNumber), false);
     s->read(const_cast<string&>(_name), false);
     s->read(const_cast<string&>(_protocol), false);
-    s->read(const_cast<Int&>(_timeout));
+    s->read(const_cast<int32_t&>(_timeout));
     s->read(const_cast<bool&>(_compress));
 }
 
@@ -133,7 +133,7 @@ IceObjC::iAPEndpointI::getInfo() const noexcept
     return info;
 }
 
-Short
+int16_t
 IceObjC::iAPEndpointI::type() const
 {
     return _instance->type();
@@ -157,14 +157,14 @@ IceObjC::iAPEndpointI::secure() const
     return _instance->secure();
 }
 
-Int
+int32_t
 IceObjC::iAPEndpointI::timeout() const
 {
     return _timeout;
 }
 
 EndpointIPtr
-IceObjC::iAPEndpointI::timeout(Int t) const
+IceObjC::iAPEndpointI::timeout(int32_t t) const
 {
     if(t == _timeout)
     {
@@ -267,7 +267,7 @@ IceObjC::iAPEndpointI::connectorsAsync(
 #if defined(__clang__) && !__has_feature(objc_arc)
         [protocol release];
 #endif
-        if(c.empty())
+        if(connectors.empty())
         {
             throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
         }
@@ -536,10 +536,10 @@ IceObjC::iAPEndpointI::options() const
     return s.str();
 }
 
-Ice::Int
+int32_t
 IceObjC::iAPEndpointI::hash() const
 {
-    Ice::Int h = 5381;
+    int32_t h = 5381;
     hashAdd(h, _manufacturer);
     hashAdd(h, _modelNumber);
     hashAdd(h, _name);
@@ -606,12 +606,12 @@ IceObjC::iAPEndpointI::checkOption(const string& option, const string& argument,
         {
             if(argument == "infinite")
             {
-                const_cast<Int&>(_timeout) = -1;
+                const_cast<int32_t&>(_timeout) = -1;
             }
             else
             {
                 istringstream t(argument);
-                if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
+                if(!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
                     EndpointParseException ex(__FILE__, __LINE__);
                     ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
@@ -650,7 +650,7 @@ IceObjC::iAPEndpointFactory::~iAPEndpointFactory()
 {
 }
 
-Short
+int16_t
 IceObjC::iAPEndpointFactory::type() const
 {
     return _instance->type();

@@ -303,8 +303,6 @@ interface Initial
 
     bool supportsJavaSerializable();
 
-    bool supportsCppStringView();
-
     bool supportsNullOptional();
 }
 

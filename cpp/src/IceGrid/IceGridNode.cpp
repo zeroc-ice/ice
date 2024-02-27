@@ -389,7 +389,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     string mapperProperty = "IceGrid.Node.UserAccountMapper";
     string mapperPropertyValue = properties->getProperty(mapperProperty);
-    shared_ptr<UserAccountMapperPrx> mapper;
+    UserAccountMapperPrxPtr mapper;
     if(!mapperPropertyValue.empty())
     {
         try
@@ -424,7 +424,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create a new timer to handle server activation/deactivation timeouts.
     //
-    _timer = IceUtil::Timer::create();
+    _timer = make_shared<IceUtil::Timer>();
 
     //
     // The IceGrid instance name.
@@ -552,7 +552,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             registry = registry->ice_preferSecure(true); // Use SSL if available.
 
-            shared_ptr<AdminSessionPrx> session;
+            AdminSessionPrxPtr session;
             if(communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
             {
                 session = registry->createAdminSessionFromSecureConnection();

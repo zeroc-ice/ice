@@ -16,17 +16,17 @@ public:
     virtual void shutdown(const Ice::Current&);
     virtual PingPongMarshaledResult pingPong(Ice::ValuePtr, const Ice::Current&);
 
-    virtual void opOptionalException(std::optional<::Ice::Int>,
+    virtual void opOptionalException(std::optional<::std::int32_t>,
                                      std::optional<::std::string>,
                                      std::optional<Test::OneOptionalPtr>,
                                      const Ice::Current&);
 
-    virtual void opDerivedException(std::optional<::Ice::Int>,
+    virtual void opDerivedException(std::optional<::std::int32_t>,
                                     std::optional<::std::string>,
                                     std::optional<Test::OneOptionalPtr>,
                                     const Ice::Current&);
 
-    virtual void opRequiredException(std::optional<::Ice::Int>,
+    virtual void opRequiredException(std::optional<::std::int32_t>,
                                      std::optional<::std::string>,
                                      std::optional<Test::OneOptionalPtr>,
                                      const Ice::Current&);
@@ -38,33 +38,29 @@ public:
     virtual std::optional<bool> opBool(std::optional<bool>, std::optional<bool>&,
                                            const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Short> opShort(std::optional<::Ice::Short>,
-                                                     std::optional<::Ice::Short>&,
+    virtual std::optional<::std::int16_t> opShort(std::optional<::std::int16_t>,
+                                                     std::optional<::std::int16_t>&,
                                                      const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Int> opInt(std::optional<::Ice::Int>,
-                                                 std::optional<::Ice::Int>&,
+    virtual std::optional<::std::int32_t> opInt(std::optional<::std::int32_t>,
+                                                 std::optional<::std::int32_t>&,
                                                  const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Long> opLong(std::optional<::Ice::Long>,
-                                                   std::optional<::Ice::Long>&,
+    virtual std::optional<std::int64_t> opLong(std::optional<std::int64_t>,
+                                                   std::optional<std::int64_t>&,
                                                    const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Float> opFloat(std::optional<::Ice::Float>,
-                                                     std::optional<::Ice::Float>&,
+    virtual std::optional<float> opFloat(std::optional<float>,
+                                                     std::optional<float>&,
                                                      const ::Ice::Current&);
 
-    virtual std::optional<::Ice::Double> opDouble(std::optional<::Ice::Double>,
-                                                       std::optional<::Ice::Double>&,
+    virtual std::optional<double> opDouble(std::optional<double>,
+                                                       std::optional<double>&,
                                                        const ::Ice::Current&);
 
     virtual std::optional<::std::string> opString(std::optional<::std::string>,
                                                        std::optional<::std::string>&,
                                                        const ::Ice::Current&);
-
-    virtual std::optional<::std::string> opCustomString(std::optional<Util::string_view>,
-                                                               std::optional<::std::string>&,
-                                                               const ::Ice::Current&);
 
     virtual std::optional<Test::MyEnum> opMyEnum(std::optional<Test::MyEnum>,
                                                       std::optional<Test::MyEnum>&,
@@ -86,8 +82,8 @@ public:
                                                                   std::optional<Test::OneOptionalPtr>&,
                                                                   const ::Ice::Current&);
 
-    virtual std::optional<Test::MyInterfacePrxPtr> opMyInterfaceProxy(std::optional<Test::MyInterfacePrxPtr>,
-                                                                          std::optional<Test::MyInterfacePrxPtr>&,
+    virtual std::optional<Test::MyInterfacePrx> opMyInterfaceProxy(std::optional<Test::MyInterfacePrx>,
+                                                                          std::optional<Test::MyInterfacePrx>&,
                                                                           const ::Ice::Current&);
 
     virtual std::optional<::Test::ByteSeq> opByteSeq(
@@ -101,27 +97,27 @@ public:
         const ::Ice::Current&);
 
     virtual std::optional<::Test::ShortSeq> opShortSeq(
-        std::optional<::std::pair<const ::Ice::Short*, const ::Ice::Short*> >,
+        std::optional<::std::pair<const ::std::int16_t*, const ::std::int16_t*> >,
         std::optional<::Test::ShortSeq>&,
         const ::Ice::Current&);
 
     virtual std::optional<::Test::IntSeq> opIntSeq(
-        std::optional<::std::pair<const ::Ice::Int*, const ::Ice::Int*> >,
+        std::optional<::std::pair<const ::std::int32_t*, const ::std::int32_t*> >,
         std::optional<::Test::IntSeq>&,
         const ::Ice::Current&);
 
     virtual std::optional<::Test::LongSeq> opLongSeq(
-        std::optional<::std::pair<const ::Ice::Long*, const ::Ice::Long*> >,
+        std::optional<::std::pair<const std::int64_t*, const std::int64_t*> >,
         std::optional<::Test::LongSeq>&,
         const ::Ice::Current&);
 
     virtual std::optional<::Test::FloatSeq> opFloatSeq(
-        std::optional<::std::pair<const ::Ice::Float*, const ::Ice::Float*> >,
+        std::optional<::std::pair<const float*, const float*> >,
         std::optional<::Test::FloatSeq>&,
         const ::Ice::Current&);
 
     virtual std::optional<::Test::DoubleSeq> opDoubleSeq(
-        std::optional<::std::pair<const ::Ice::Double*, const ::Ice::Double*> >,
+        std::optional<::std::pair<const double*, const double*> >,
         std::optional<::Test::DoubleSeq>&,
         const ::Ice::Current&);
 
@@ -169,11 +165,6 @@ public:
         std::optional<::Test::IntOneOptionalDict>&,
         const ::Ice::Current&);
 
-    virtual std::optional<::Test::IntStringDict> opCustomIntStringDict(
-        std::optional<std::map<int, Util::string_view> >,
-        std::optional<::Test::IntStringDict>&,
-        const ::Ice::Current&);
-
     virtual void opClassAndUnknownOptional(Test::APtr, const Ice::Current&);
 
     virtual void sendOptionalClass(bool, std::optional<Test::OneOptionalPtr>, const Ice::Current&);
@@ -205,8 +196,6 @@ public:
     virtual bool supportsJavaSerializable(const Ice::Current&);
 
     virtual bool supportsCsharpSerializable(const Ice::Current&);
-
-    virtual bool supportsCppStringView(const Ice::Current&);
 
     virtual bool supportsNullOptional(const Ice::Current&);
 };

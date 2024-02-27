@@ -17,8 +17,8 @@ public:
 
     FileCache(const std::shared_ptr<Ice::Communicator>&);
 
-    long long  getOffsetFromEnd(const std::string&, int);
-    bool read(const std::string&, long long , int, long long &, Ice::StringSeq&);
+    std::int64_t  getOffsetFromEnd(const std::string&, int);
+    bool read(const std::string&, std::int64_t , int, std::int64_t &, Ice::StringSeq&);
 
 private:
 

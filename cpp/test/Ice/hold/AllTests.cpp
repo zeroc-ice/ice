@@ -13,7 +13,7 @@ using namespace Test;
 namespace
 {
 
-class Condition : public IceUtil::Mutex
+class Condition
 {
 public:
 
@@ -24,20 +24,21 @@ public:
     void
     set(bool value)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _value = value;
     }
 
     bool
     value() const
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         return _value;
     }
 
 private:
 
     bool _value;
+    mutable mutex _mutex;
 };
 using ConditionPtr = shared_ptr<Condition>;
 
@@ -59,11 +60,11 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     HoldPrxPtr hold = Ice::checkedCast<HoldPrx>(base);
     test(hold);
-    test(Ice::targetEqualTo(hold, base));
+    test(hold == base);
     HoldPrxPtr holdSerialized = Ice::checkedCast<HoldPrx>(baseSerialized);
     test(holdSerialized);
 
-    test(Ice::targetEqualTo(holdSerialized, baseSerialized));
+    test(holdSerialized == baseSerialized);
     cout << "ok" << endl;
 
     cout << "changing state between active and hold rapidly... " << flush;
@@ -95,7 +96,7 @@ allTests(Test::TestHelper* helper)
             completed = make_shared<promise<void>>();
             auto sent = make_shared<promise<bool>>();
             auto expected = value;
-            hold->setAsync(value + 1, static_cast<Ice::Int>(IceUtilInternal::random(5)),
+            hold->setAsync(value + 1, static_cast<int32_t>(IceUtilInternal::random(5)),
                 [cond, expected, completed](int val)
                 {
                     if(val != expected)
@@ -144,7 +145,7 @@ allTests(Test::TestHelper* helper)
             auto expected = value;
             holdSerialized->setAsync(
                 value + 1,
-                static_cast<Ice::Int>(IceUtilInternal::random(1)),
+                static_cast<int32_t>(IceUtilInternal::random(1)),
                 [cond, expected, completed](int val)
                 {
                     if(val != expected)

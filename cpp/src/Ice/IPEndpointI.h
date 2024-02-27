@@ -6,7 +6,6 @@
 #define ICE_IP_ENDPOINT_I_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/Thread.h>
 #include <Ice/IPEndpointIF.h>
 #include <Ice/EndpointI.h>
 #include <Ice/Network.h>
@@ -26,7 +25,7 @@ public:
     IPEndpointInfoI(const EndpointIPtr&);
     virtual ~IPEndpointInfoI();
 
-    virtual Ice::Short type() const noexcept;
+    virtual std::int16_t type() const noexcept;
     virtual bool datagram() const noexcept;
     virtual bool secure() const noexcept;
 
@@ -42,7 +41,7 @@ public:
     void streamWriteImpl(Ice::OutputStream*) const override;
 
     Ice::EndpointInfoPtr getInfo() const noexcept override;
-    Ice::Short type() const override;
+    std::int16_t type() const override;
     const std::string& protocol() const override;
     bool secure() const override;
 
@@ -55,7 +54,7 @@ public:
     std::vector<EndpointIPtr> expandIfWildcard() const override;
     std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const override;
     bool equivalent(const EndpointIPtr&) const override;
-    ::Ice::Int hash() const override;
+    ::std::int32_t hash() const override;
     std::string options() const override;
 
     bool operator==(const Ice::Endpoint&) const override;
@@ -63,7 +62,7 @@ public:
 
     virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
 
-    virtual void hashInit(Ice::Int&) const;
+    virtual void hashInit(std::int32_t&) const;
     virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
 
     using EndpointI::connectionId;
@@ -92,11 +91,11 @@ protected:
 private:
 
     mutable bool _hashInitialized;
-    mutable Ice::Int _hashValue;
+    mutable std::int32_t _hashValue;
     mutable std::mutex _hashMutex;
 };
 
-class ICE_API EndpointHostResolver final : public IceUtil::Thread
+class ICE_API EndpointHostResolver final
 {
 public:
 
@@ -111,7 +110,7 @@ public:
         std::function<void(std::exception_ptr)>);
     void destroy();
 
-    void run() final;
+    void run();
     void updateObserver();
 
 private:

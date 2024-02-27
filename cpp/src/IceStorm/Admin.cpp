@@ -118,9 +118,9 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     debug = opts.isSet("debug");
 
     // The complete set of Ice::Identity -> manager proxies.
-    map<Ice::Identity, shared_ptr<IceStorm::TopicManagerPrx>> managers;
+    map<Ice::Identity, IceStorm::TopicManagerPrxPtr> managers;
     auto properties = communicator->getProperties();
-    shared_ptr<IceStorm::TopicManagerPrx> defaultManager;
+    IceStorm::TopicManagerPrxPtr defaultManager;
 
     auto props = communicator->getProperties()->getPropertiesForPrefix("IceStormAdmin.TopicManager.");
     {

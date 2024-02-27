@@ -39,22 +39,17 @@ string toTemplateArg(const string& arg)
 }
 
 string
-toOptional(const string& s, int typeCtx)
+toOptional(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
-    bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
-    string result = "std::optional";
-    result += '<';
-    if(cpp11)
+    if (isProxyType(type))
     {
-        result += s;
+        // We map optional proxies like regular proxies, as optional<XxxPrx>.
+        return typeToString(type, scope, metaData, typeCtx);
     }
     else
     {
-        result += toTemplateArg(s);
+        return "::std::optional<" + typeToString(type, scope, metaData, typeCtx) + '>';
     }
-
-    result += '>';
-    return result;
 }
 
 string
@@ -63,15 +58,20 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
     string strType = findMetaData(metaData, typeCtx);
     if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
     {
+        // TODO: if we're still using TypeContextAMIPrivateEnd, we should give it a better name.
+        // TODO: should be something like the following line but doesn't work currently
+        // return (typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd)) ? "::std::wstring_view" : "::std::wstring";
         return "::std::wstring";
     }
     else if(strType != "" && strType != "string")
     {
+        // The user provided a type name, we use it as-is.
         return strType;
     }
     else
     {
         return "::std::string";
+        // return (typeCtx & TypeContextInParam) ? "::std::string_view" : "::std::string";
     }
 }
 
@@ -163,11 +163,7 @@ void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& scope, const string& fixedName,
                        const StringList& metaData, int typeCtx, bool endArg)
 {
-    string s = typeToString(type, scope, metaData, typeCtx);
-    if(optional)
-    {
-        s = toOptional(s, typeCtx);
-    }
+    string s = typeToString(type, optional, scope, metaData, typeCtx);
     out << nl << s << ' ' << fixedName << ';';
 
     if((typeCtx & TypeContextCpp11) || !(typeCtx & TypeContextInParam) || !endArg)
@@ -207,7 +203,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
         {
             if(optional)
             {
-                str = toOptional(str, typeCtx);
+                str = "::std::optional<" + str + '>';
             }
             out << nl << str << ' ' << fixedName << "_tmp_;";
         }
@@ -325,6 +321,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
     }
 
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
+    bool tuple = (typeCtx & TypeContextTuple) != 0;
 
     //
     // Marshal non optional parameters.
@@ -343,6 +340,8 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         }
     }
 
+    int retOffset = op && op->returnType() ? 1 : 0;
+
     if(!requiredParams.empty() || (op && op->returnType() && !op->returnIsOptional()))
     {
         if(cpp11)
@@ -359,11 +358,26 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             out << spar;
             for(ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
             {
-                out << objPrefix + fixKwd(prefix + (*p)->name());
+                if (tuple)
+                {
+                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                    out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
+                }
+                else
+                {
+                    out << objPrefix + fixKwd(prefix + (*p)->name());
+                }
             }
             if(op && op->returnType() && !op->returnIsOptional())
             {
-                out << objPrefix + returnValueS;
+                if (tuple)
+                {
+                    out << "::std::get<0>(" + obj + ")";
+                }
+                else
+                {
+                    out << objPrefix + returnValueS;
+                }
             }
             out << epar << ";";
         }
@@ -450,14 +464,37 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 {
                     if(checkReturnType && op->returnTag() < (*p)->tag())
                     {
-                        out << objPrefix + returnValueS;
+                        if (tuple)
+                        {
+                            out << "::std::get<0>(" + obj + ")";
+                        }
+                        else
+                        {
+                            out << objPrefix + returnValueS;
+                        }
                         checkReturnType = false;
                     }
-                    out << objPrefix + fixKwd(prefix + (*p)->name());
+
+                    if (tuple)
+                    {
+                        auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                        out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
+                    }
+                    else
+                    {
+                        out << objPrefix + fixKwd(prefix + (*p)->name());
+                    }
                 }
                 if(checkReturnType)
                 {
-                    out << objPrefix + returnValueS;
+                    if (tuple)
+                    {
+                        out << "::std::get<0>(" + obj + ")";
+                    }
+                    else
+                    {
+                        out << objPrefix + returnValueS;
+                    }
                 }
             }
             out << epar << ";";
@@ -634,31 +671,16 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
 
     static const char* builtinTable[] =
     {
-        "::Ice::Byte",
+        "::std::uint8_t",
         "bool",
-        "::Ice::Short",
-        "::Ice::Int",
-        "::Ice::Long",
-        "::Ice::Float",
-        "::Ice::Double",
-        "::std::string",
-        "::Ice::ValuePtr",
-        "::Ice::ObjectPrx",
-        "::Ice::ValuePtr"
-    };
-
-    static const char* cpp11BuiltinTable[] =
-    {
-        "::Ice::Byte",
-        "bool",
-        "short",
-        "int",
-        "long long int",
+        "::std::int16_t",
+        "::std::int32_t",
+        "::std::int64_t",
         "float",
         "double",
-        "::std::string",
+        "****", // string or wstring, see below
         "::std::shared_ptr<::Ice::Value>",
-        "::std::shared_ptr<::Ice::ObjectPrx>",
+        "::std::optional<::Ice::ObjectPrx>",
         "::std::shared_ptr<::Ice::Value>"
     };
 
@@ -669,20 +691,16 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
         {
             return stringTypeToString(type, metaData, typeCtx);
         }
-        else if(cpp11)
+        else
         {
             if(builtin->kind() == Builtin::KindObject)
             {
-                return getUnqualified(cpp11BuiltinTable[Builtin::KindValue], scope);
+                return getUnqualified(builtinTable[Builtin::KindValue], scope);
             }
             else
             {
-                return getUnqualified(cpp11BuiltinTable[builtin->kind()], scope);
+                return getUnqualified(builtinTable[builtin->kind()], scope);
             }
-        }
-        else
-        {
-            return getUnqualified(builtinTable[builtin->kind()], scope);
         }
     }
 
@@ -718,14 +736,7 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
-        if(cpp11)
-        {
-            return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">";
-        }
-        else
-        {
-            return getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope);
-        }
+        return "::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
@@ -754,7 +765,7 @@ Slice::typeToString(const TypePtr& type, bool optional, const string& scope, con
 {
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx);
+        return toOptional(type, scope, metaData, typeCtx);
     }
     else
     {
@@ -773,7 +784,7 @@ Slice::returnTypeToString(const TypePtr& type, bool optional, const string& scop
 
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx);
+        return toOptional(type, scope, metaData, typeCtx);
     }
 
     return typeToString(type, scope, metaData, typeCtx);
@@ -785,33 +796,18 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 {
     bool cpp11 = (typeCtx & TypeContextCpp11) != 0;
 
-    static const char* cpp98InputBuiltinTable[] =
+    static const char* InputBuiltinTable[] =
     {
-        "::Ice::Byte",
+        "::std::uint8_t",
         "bool",
-        "::Ice::Short",
-        "::Ice::Int",
-        "::Ice::Long",
-        "::Ice::Float",
-        "::Ice::Double",
-        "const ::std::string&",
-        "const ::Ice::ValuePtr&",
-        "const ::Ice::ObjectPrx&",
-        "const ::Ice::ValuePtr&"
-    };
-
-    static const char* cpp11InputBuiltinTable[] =
-    {
-        "::Ice::Byte",
-        "bool",
-        "short",
-        "int",
-        "long long int",
+        "::std::int16_t",
+        "::std::int32_t",
+        "::std::int64_t",
         "float",
         "double",
-        "const ::std::string&",
+        "****", // string_view or wstring_view, see below
         "const ::std::shared_ptr<::Ice::Value>&",
-        "const ::std::shared_ptr<::Ice::ObjectPrx>&",
+        "const ::std::optional<::Ice::ObjectPrx>&",
         "const ::std::shared_ptr<::Ice::Value>&"
     };
 
@@ -819,7 +815,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 
     if(optional)
     {
-        return "const " + toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx) + '&';
+        return "const " + toOptional(type, scope, metaData, typeCtx) + '&';
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -827,22 +823,19 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            return string("const ") + stringTypeToString(type, metaData, typeCtx) + '&';
-        }
-        else if(cpp11)
-        {
-            if(builtin->kind() == Builtin::KindObject)
-            {
-                return getUnqualified(cpp11InputBuiltinTable[Builtin::KindValue], scope);
-            }
-            else
-            {
-                return getUnqualified(cpp11InputBuiltinTable[builtin->kind()], scope);
-            }
+            // TODO: temporary, stringTypeToString should return the correct string.
+            return stringTypeToString(type, metaData, typeCtx) + "_view";
         }
         else
         {
-            return getUnqualified(cpp98InputBuiltinTable[builtin->kind()], scope);
+            if(builtin->kind() == Builtin::KindObject)
+            {
+                return getUnqualified(InputBuiltinTable[Builtin::KindValue], scope);
+            }
+            else
+            {
+                return getUnqualified(InputBuiltinTable[builtin->kind()], scope);
+            }
         }
     }
 
@@ -882,14 +875,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
-        if(cpp11)
-        {
-            return "const ::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
-        }
-        else
-        {
-            return "const " + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + "&";
-        }
+        return "const ::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
@@ -921,37 +907,22 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
 
     static const char* outputBuiltinTable[] =
     {
-        "::Ice::Byte&",
+        "::std::uint8_t&",
         "bool&",
-        "::Ice::Short&",
-        "::Ice::Int&",
-        "::Ice::Long&",
-        "::Ice::Float&",
-        "::Ice::Double&",
-        "::std::string&",
-        "::Ice::ValuePtr&",
-        "::Ice::ObjectPrxPtr&",
-        "::Ice::ValuePtr&"
-    };
-
-    static const char* cpp11OutputBuiltinTable[] =
-    {
-        "::Ice::Byte&",
-        "bool&",
-        "short&",
-        "int&",
-        "long long int&",
+        "::std::int16_t&",
+        "::std::int32_t&",
+        "::std::int64_t&",
         "float&",
         "double&",
-        "::std::string&",
+        "****", // string& or wstring&, see below
         "::std::shared_ptr<::Ice::Value>&",
-        "::std::shared_ptr<::Ice::ObjectPrx>&",
+        "::std::optional<::Ice::ObjectPrx>&",
         "::std::shared_ptr<::Ice::Value>&"
     };
 
     if(optional)
     {
-        return toOptional(typeToString(type, scope, metaData, typeCtx), typeCtx) + '&';
+        return toOptional(type, scope, metaData, typeCtx) + '&';
     }
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -961,20 +932,16 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
         {
             return stringTypeToString(type, metaData, typeCtx) + "&";
         }
-        else if(cpp11)
+        else
         {
             if(builtin->kind() == Builtin::KindObject)
             {
-                return getUnqualified(cpp11OutputBuiltinTable[Builtin::KindValue], scope);
+                return getUnqualified(outputBuiltinTable[Builtin::KindValue], scope);
             }
             else
             {
-                return getUnqualified(cpp11OutputBuiltinTable[builtin->kind()], scope);
+                return getUnqualified(outputBuiltinTable[builtin->kind()], scope);
             }
-        }
-        else
-        {
-            return getUnqualified(outputBuiltinTable[builtin->kind()], scope);
         }
     }
 
@@ -1007,14 +974,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if(proxy)
     {
-        if(cpp11)
-        {
-            return "::std::shared_ptr<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
-        }
-        else
-        {
-            return getUnqualified(fixKwd(proxy->scoped() + "Prx&"), scope);
-        }
+        return "::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);

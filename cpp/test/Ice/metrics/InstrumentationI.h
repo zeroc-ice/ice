@@ -6,8 +6,9 @@
 #define INSTRUMENTATION_I_H
 
 #include <Ice/Instrumentation.h>
+#include <mutex>
 
-class ObserverI : public virtual Ice::Instrumentation::Observer, public IceUtil::Mutex
+class ObserverI : public virtual Ice::Instrumentation::Observer
 {
 public:
 
@@ -22,7 +23,7 @@ public:
     virtual void
     attach()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ++total;
         ++current;
     }
@@ -30,41 +31,45 @@ public:
     virtual void
     detach()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         --current;
     }
 
     virtual void
     failed(const std::string&)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ++failedCount;
     }
 
-    Ice::Int
+    std::int32_t
     getTotal() const
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         return total;
     }
 
-    Ice::Int
+    std::int32_t
     getCurrent() const
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         return current;
     }
 
-    Ice::Int
+    std::int32_t
     getFailedCount() const
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         return failedCount;
     }
 
-    Ice::Int total;
-    Ice::Int current;
-    Ice::Int failedCount;
+    std::int32_t total;
+    std::int32_t current;
+    std::int32_t failedCount;
+
+protected:
+
+    mutable std::mutex _mutex;
 };
 using ObserverIPtr = std::shared_ptr<ObserverI>;
 
@@ -75,28 +80,28 @@ public:
     virtual void
     reset()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ObserverI::reset();
         received = 0;
         sent = 0;
     }
 
     virtual void
-    sentBytes(Ice::Int s)
+    sentBytes(std::int32_t s)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         sent += s;
     }
 
     virtual void
-    receivedBytes(Ice::Int s)
+    receivedBytes(std::int32_t s)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         received += s;
     }
 
-    Ice::Int sent;
-    Ice::Int received;
+    std::int32_t sent;
+    std::int32_t received;
 };
 using ConnectionObserverIPtr = std::shared_ptr<ConnectionObserverI>;
 
@@ -107,7 +112,7 @@ public:
     virtual void
     reset()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ObserverI::reset();
         states = 0;
     }
@@ -115,11 +120,11 @@ public:
     virtual void
     stateChanged(Ice::Instrumentation::ThreadState, Ice::Instrumentation::ThreadState)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ++states;
     }
 
-    Ice::Int states;
+    std::int32_t states;
 };
 using ThreadObserverIPtr = std::shared_ptr<ThreadObserverI>;
 
@@ -129,7 +134,7 @@ public:
 
     virtual void reset()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ObserverI::reset();
         userExceptionCount = 0;
         replySize = 0;
@@ -138,19 +143,19 @@ public:
     virtual void
     userException()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ++userExceptionCount;
     }
 
     virtual void
-    reply(Ice::Int s)
+    reply(std::int32_t s)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         replySize += s;
     }
 
-    Ice::Int userExceptionCount;
-    Ice::Int replySize;
+    std::int32_t userExceptionCount;
+    std::int32_t replySize;
 };
 using DispatchObserverIPtr = std::shared_ptr<DispatchObserverI>;
 
@@ -161,19 +166,19 @@ public:
     virtual void
     reset()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ObserverI::reset();
         replySize = 0;
     }
 
     virtual void
-    reply(Ice::Int s)
+    reply(std::int32_t s)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         replySize += s;
     }
 
-    Ice::Int replySize;
+    std::int32_t replySize;
 };
 using ChildInvocationObserverIPtr = std::shared_ptr<ChildInvocationObserverI>;
 
@@ -193,7 +198,7 @@ public:
 
     virtual void reset()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ObserverI::reset();
         retriedCount = 0;
         userExceptionCount = 0;
@@ -210,21 +215,21 @@ public:
     virtual void
     retried()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ++retriedCount;
     }
 
     virtual void
     userException()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         ++userExceptionCount;
     }
 
     virtual Ice::Instrumentation::RemoteObserverPtr
-    getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, Ice::Int, Ice::Int)
+    getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, std::int32_t, std::int32_t)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(!remoteObserver)
         {
             remoteObserver = std::make_shared<RemoteObserverI>();
@@ -234,9 +239,9 @@ public:
     }
 
     virtual Ice::Instrumentation::CollocatedObserverPtr
-    getCollocatedObserver(const Ice::ObjectAdapterPtr&, Ice::Int, Ice::Int)
+    getCollocatedObserver(const Ice::ObjectAdapterPtr&, std::int32_t, std::int32_t)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(!collocatedObserver)
         {
             collocatedObserver = std::make_shared<CollocatedObserverI>();
@@ -245,15 +250,15 @@ public:
         return collocatedObserver;
     }
 
-    Ice::Int userExceptionCount;
-    Ice::Int retriedCount;
+    std::int32_t userExceptionCount;
+    std::int32_t retriedCount;
 
     RemoteObserverIPtr remoteObserver;
     CollocatedObserverIPtr collocatedObserver;
 };
 using InvocationObserverIPtr = std::shared_ptr<InvocationObserverI>;
 
-class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver, public IceUtil::Mutex
+class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
 public:
 
@@ -266,7 +271,7 @@ public:
     virtual Ice::Instrumentation::ObserverPtr
     getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const std::string&)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(!connectionEstablishmentObserver)
         {
             connectionEstablishmentObserver = std::make_shared<ObserverI>();
@@ -278,7 +283,7 @@ public:
     virtual Ice::Instrumentation::ObserverPtr
     getEndpointLookupObserver(const Ice::EndpointPtr&)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(!endpointLookupObserver)
         {
             endpointLookupObserver = std::make_shared<ObserverI>();
@@ -293,7 +298,7 @@ public:
                           Ice::Instrumentation::ConnectionState,
                           const Ice::Instrumentation::ConnectionObserverPtr& old)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         test(!old || dynamic_cast<ConnectionObserverI*>(old.get()));
         if(!connectionObserver)
         {
@@ -307,7 +312,7 @@ public:
     getThreadObserver(const std::string&, const std::string&, Ice::Instrumentation::ThreadState,
                       const Ice::Instrumentation::ThreadObserverPtr& old)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         test(!old || dynamic_cast<ThreadObserverI*>(old.get()));
         if(!threadObserver)
         {
@@ -320,7 +325,7 @@ public:
     virtual Ice::Instrumentation::InvocationObserverPtr
     getInvocationObserver(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context&)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(!invocationObserver)
         {
             invocationObserver = std::make_shared<InvocationObserverI>();
@@ -330,9 +335,9 @@ public:
     }
 
     virtual Ice::Instrumentation::DispatchObserverPtr
-    getDispatchObserver(const Ice::Current&, Ice::Int)
+    getDispatchObserver(const Ice::Current&, std::int32_t)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(!dispatchObserver)
         {
             dispatchObserver = std::make_shared<DispatchObserverI>();
@@ -377,6 +382,10 @@ public:
     ThreadObserverIPtr threadObserver;
     InvocationObserverIPtr invocationObserver;
     DispatchObserverIPtr dispatchObserver;
+
+private:
+
+    std::mutex _mutex;
 };
 using CommunicatorObserverIPtr = std::shared_ptr<CommunicatorObserverI>;
 

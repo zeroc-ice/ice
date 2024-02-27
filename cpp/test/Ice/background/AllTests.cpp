@@ -10,10 +10,13 @@
 #include <PluginI.h>
 #include <Configuration.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace Test;
 
-class Callback : public IceUtil::Monitor<IceUtil::Mutex>
+class Callback
 {
 public:
 
@@ -24,36 +27,35 @@ public:
     void
     check()
     {
-        Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
+        unique_lock lock(_mutex);
+        _condition.wait(lock, [this]{ return _called; });
         _called = false;
     }
 
     void
     called()
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(!_called);
         _called = true;
-        notify();
+        _condition.notify_one();
     }
 
     bool
     isCalled()
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         return _called;
     }
 
 private:
 
     bool _called;
+    mutex _mutex;
+    condition_variable _condition;
 };
 
-class OpThread : public IceUtil::Thread, public IceUtil::Mutex
+class OpThread final
 {
 public:
 
@@ -63,14 +65,13 @@ public:
     {
     }
 
-    void
-    run()
+    void run()
     {
         int count = 0;
         while(true)
         {
             {
-                IceUtil::Mutex::Lock sync(*this);
+                lock_guard lock(_mutex);
                 if(_destroyed)
                 {
                     return;
@@ -85,7 +86,7 @@ public:
                     _background->ice_twoway()->ice_ping();
                 }
                 _background->opAsync();
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+                this_thread::sleep_for(chrono::milliseconds(1));
             }
             catch(const Ice::LocalException&)
             {
@@ -96,7 +97,7 @@ public:
     void
     destroy()
     {
-        IceUtil::Mutex::Lock sync(*this);
+        lock_guard lock(_mutex);
         _destroyed = true;
     }
 
@@ -104,6 +105,7 @@ private:
 
     bool _destroyed;
     BackgroundPrxPtr _background;
+    mutex _mutex;
 };
 using OpThreadPtr = shared_ptr<OpThread>;
 
@@ -373,10 +375,11 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
     }
 
-    OpThreadPtr thread1 = make_shared<OpThread>(background);
-    thread1->start();
-    OpThreadPtr thread2 = make_shared<OpThread>(background);
-    thread2->start();
+    auto opThread1 = make_shared<OpThread>(background);
+    auto worker1 = std::thread([opThread1] { opThread1->run(); });
+
+    OpThreadPtr opThread2 = make_shared<OpThread>(background);
+    auto worker2 = std::thread([opThread2] { opThread2->run(); });
 
     for(int i = 0; i < 5; i++)
     {
@@ -391,7 +394,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
 
         configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
         configuration->connectException(0);
         try
         {
@@ -402,11 +405,11 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         }
     }
 
-    thread1->destroy();
-    thread2->destroy();
+    opThread1->destroy();
+    opThread2->destroy();
 
-    thread1->getThreadControl().join();
-    thread2->getThreadControl().join();
+    worker1.join();
+    worker2.join();
 }
 
 void
@@ -565,10 +568,10 @@ initializeTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = make_shared<OpThread>(background);
-    thread1->start();
-    OpThreadPtr thread2 = make_shared<OpThread>(background);
-    thread2->start();
+    auto opThread1 = make_shared<OpThread>(background);
+    thread worker1 = thread([opThread1] { opThread1->run(); });
+    auto opThread2 = make_shared<OpThread>(background);
+    thread worker2 = thread([opThread2] { opThread2->run(); });
 
     for(int i = 0; i < 5; i++)
     {
@@ -585,7 +588,7 @@ initializeTests(const ConfigurationPtr& configuration,
 
         configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
         configuration->initializeException(0);
         try
         {
@@ -612,7 +615,7 @@ initializeTests(const ConfigurationPtr& configuration,
 
         ctl->initializeException(true);
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
         ctl->initializeException(false);
         try
         {
@@ -652,11 +655,11 @@ initializeTests(const ConfigurationPtr& configuration,
         }
     }
 
-    thread1->destroy();
-    thread2->destroy();
+    opThread1->destroy();
+    opThread2->destroy();
 
-    thread1->getThreadControl().join();
-    thread2->getThreadControl().join();
+    worker1.join();
+    worker2.join();
 }
 
 void
@@ -1413,10 +1416,10 @@ readWriteTests(const ConfigurationPtr& configuration,
     }
 #endif
 
-    OpThreadPtr thread1 = make_shared<OpThread>(background);
-    thread1->start();
-    OpThreadPtr thread2 = make_shared<OpThread>(background);
-    thread2->start();
+    auto opThread1 = make_shared<OpThread>(background);
+    auto worker1 = thread([opThread1] { opThread1->run(); });
+    auto opThread2 = make_shared<OpThread>(background);
+    auto worker2 = thread([opThread2] { opThread2->run(); });
 
     for(int i = 0; i < 5; i++)
     {
@@ -1429,7 +1432,7 @@ readWriteTests(const ConfigurationPtr& configuration,
             test(false);
         }
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
         configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
         try
         {
@@ -1440,18 +1443,18 @@ readWriteTests(const ConfigurationPtr& configuration,
         }
         configuration->writeException(0);
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
 
         background->ice_ping();
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
 
         background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
     }
 
-    thread1->destroy();
-    thread2->destroy();
+    opThread1->destroy();
+    opThread2->destroy();
 
-    thread1->getThreadControl().join();
-    thread2->getThreadControl().join();
+    worker1.join();
+    worker2.join();
 }

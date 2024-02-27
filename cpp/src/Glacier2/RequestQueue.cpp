@@ -10,7 +10,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::Request::Request(shared_ptr<ObjectPrx> proxy, const std::pair<const Byte*, const Byte*>& inParams,
+Glacier2::Request::Request(ObjectPrxPtr proxy, const std::pair<const Byte*, const Byte*>& inParams,
                  const Current& current, bool forwardContext, const Ice::Context& sslContext,
                  function<void(bool, pair<const Byte*, const Byte*>)> response,
                  function<void(exception_ptr)> exception) :
@@ -106,7 +106,7 @@ Glacier2::Request::override(const shared_ptr<Request>& other) const
     //
     // We cannot override if the proxies differ.
     //
-    return Ice::targetEqualTo(_proxy, other->_proxy);
+    return _proxy == other->_proxy;
 }
 
 void

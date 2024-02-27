@@ -362,8 +362,8 @@ public:
      * @param line The line number at which the exception was raised, typically __LINE__.
      * @param operation The name of the operation that was invoked.
      */
-    TwowayOnlyException(const char* file, int line, const ::std::string& operation) : LocalExceptionHelper<TwowayOnlyException, LocalException>(file, line),
-        operation(operation)
+    TwowayOnlyException(const char* file, int line, ::std::string operation) : LocalExceptionHelper<TwowayOnlyException, LocalException>(file, line),
+        operation(std::move(operation))
     {
     }
 
@@ -1197,24 +1197,12 @@ public:
     }
 
     /**
-     * One-shot constructor to initialize all data members.
-     * The file and line number are required for all local exceptions.
-     * @param file The file name in which the exception was raised, typically __FILE__.
-     * @param line The line number at which the exception was raised, typically __LINE__.
-     * @param id The illegal identity.
-     */
-    IllegalIdentityException(const char* file, int line, const Identity& id) : LocalExceptionHelper<IllegalIdentityException, LocalException>(file, line),
-        id(id)
-    {
-    }
-
-    /**
      * Obtains a tuple containing all of the exception's data members.
      * @return The data members in a tuple.
      */
-    std::tuple<const ::Ice::Identity&> ice_tuple() const
+    std::tuple<> ice_tuple() const
     {
-        return std::tie(id);
+        return std::tie();
     }
 
     /**
@@ -1227,11 +1215,6 @@ public:
      * @param stream The target stream.
      */
     ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
-
-    /**
-     * The illegal identity.
-     */
-    ::Ice::Identity id;
 };
 
 /**

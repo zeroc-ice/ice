@@ -13,7 +13,7 @@ class breakI : public _cpp_and::_cpp_break
 {
 public:
 
-    virtual void caseAsync(::Ice::Int,
+    virtual void caseAsync(::int32_t,
                            function<void(int)> response,
                            function<void(exception_ptr)>,
                            const ::Ice::Current&)
@@ -40,7 +40,7 @@ class switchI: public _cpp_and::_cpp_switch
 {
 public:
 
-    virtual void foo(shared_ptr<_cpp_and::charPrx>, Ice::Int&, const ::Ice::Current&)
+    virtual void foo(_cpp_and::charPrxPtr, int32_t&, const ::Ice::Current&)
     {
     }
 };
@@ -60,7 +60,7 @@ public:
     {
     }
 
-    virtual void foo(const _cpp_and::charPrx&, Ice::Int&, const ::Ice::Current&)
+    virtual void foo(const _cpp_and::charPrx&, int32_t&, const ::Ice::Current&)
     {
     }
 };
@@ -79,10 +79,10 @@ public:
               const ::std::shared_ptr<::Ice::Value>&,
               const _cpp_and::breakPrxPtr&,
               const _cpp_and::charPrxPtr&,
-              const ::std::shared_ptr<::Ice::ObjectPrx>&,
+              const ::Ice::ObjectPrxPtr&,
               const _cpp_and::doPrxPtr&,
-              ::Ice::Int, ::Ice::Int,
-              ::Ice::Int, ::Ice::Int,
+              ::int32_t, ::int32_t,
+              ::int32_t, ::int32_t,
               const ::Ice::Current&)
     {
         return _cpp_and::_cpp_auto();
@@ -121,8 +121,18 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     _cpp_and::switchPtr f1 = std::make_shared<switchI>();
 
     _cpp_and::doPrxPtr g;
+
+// Work-around for:
+// error: array subscript -6 is outside array bounds of ‘int (* [1152921504606846975])(...)’ [-Werror=array-bounds]
+#if defined(NDEBUG) && defined(__GNUC__)
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     g->_cpp_case(0, d2);
     g->_cpp_explicit();
+#if defined(NDEBUG) && defined(__GNUC__)
+#   pragma GCC diagnostic pop
+#endif
     _cpp_and::doPtr g1 = std::make_shared<doI>();
 
     _cpp_and::_cpp_extern h;

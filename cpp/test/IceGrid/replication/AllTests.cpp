@@ -21,7 +21,7 @@ const auto sleepTime = 100ms;
 const int maxRetry = static_cast<int>(120000 / sleepTime.count()); // 2 minutes
 
 void
-waitForServerState(const shared_ptr<AdminPrx>& admin, const string& server, bool up)
+waitForServerState(const AdminPrxPtr& admin, const string& server, bool up)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -38,7 +38,7 @@ waitForServerState(const shared_ptr<AdminPrx>& admin, const string& server, bool
 }
 
 void
-waitForReplicaState(const shared_ptr<AdminPrx>& admin, const string& replica, bool up)
+waitForReplicaState(const AdminPrxPtr& admin, const string& replica, bool up)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -84,7 +84,7 @@ waitForReplicaState(const shared_ptr<AdminPrx>& admin, const string& replica, bo
 }
 
 void
-waitForNodeState(const shared_ptr<AdminPrx>& admin, const string& node, bool up)
+waitForNodeState(const AdminPrxPtr& admin, const string& node, bool up)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -128,7 +128,7 @@ waitForNodeState(const shared_ptr<AdminPrx>& admin, const string& node, bool up)
 }
 
 void
-instantiateServer(const shared_ptr<AdminPrx>& admin, string templ, const map<string, string>& params)
+instantiateServer(const AdminPrxPtr& admin, string templ, const map<string, string>& params)
 {
     ServerInstanceDescriptor desc;
     desc._cpp_template = std::move(templ);
@@ -156,7 +156,7 @@ instantiateServer(const shared_ptr<AdminPrx>& admin, string templ, const map<str
 }
 
 void
-removeServer(const shared_ptr<AdminPrx>& admin, const string& id)
+removeServer(const AdminPrxPtr& admin, const string& id)
 {
     try
     {
@@ -192,7 +192,7 @@ removeServer(const shared_ptr<AdminPrx>& admin, const string& id)
 }
 
 bool
-waitAndPing(const shared_ptr<Ice::ObjectPrx>& obj)
+waitAndPing(const Ice::ObjectPrxPtr& obj)
 {
     int nRetry = 0;
     while(nRetry < maxRetry)
@@ -211,8 +211,8 @@ waitAndPing(const shared_ptr<Ice::ObjectPrx>& obj)
     return false;
 }
 
-shared_ptr<AdminPrx>
-createAdminSession(const shared_ptr<Ice::LocatorPrx>& locator, string replica)
+AdminPrxPtr
+createAdminSession(const Ice::LocatorPrxPtr& locator, string replica)
 {
     test(waitAndPing(locator));
 
@@ -233,13 +233,13 @@ createAdminSession(const shared_ptr<Ice::LocatorPrx>& locator, string replica)
 bool
 isObjectInfoEqual(const ObjectInfo& info1, const ObjectInfo& info2)
 {
-    return (info1.type == info2.type) && Ice::targetEqualTo(info1.proxy, info2.proxy);
+    return (info1.type == info2.type) && (info1.proxy == info2.proxy);
 }
 
 bool
 isAdapterInfoEqual(const AdapterInfo& adpt1, const AdapterInfo& adpt2)
 {
-    return (adpt1.id == adpt2.id) && (adpt1.replicaGroupId == adpt2.replicaGroupId) && Ice::targetEqualTo(adpt1.proxy, adpt2.proxy);
+    return (adpt1.id == adpt2.id) && (adpt1.replicaGroupId == adpt2.replicaGroupId) && (adpt1.proxy == adpt2.proxy);
 }
 
 }
@@ -290,7 +290,7 @@ allTests(Test::TestHelper* helper)
     auto replicatedLocator = Ice::uncheckedCast<Ice::LocatorPrx>(
         communicator->stringToProxy("RepTestIceGrid/Locator:default -p 12050:default -p 12051"));
 
-    shared_ptr<AdminPrx> masterAdmin, slave1Admin, slave2Admin;
+    AdminPrxPtr masterAdmin, slave1Admin, slave2Admin;
 
     admin->startServer("Master");
     masterAdmin = createAdminSession(masterLocator, "");
@@ -393,7 +393,7 @@ allTests(Test::TestHelper* helper)
         test(endpoints[0]->toString().find("-p 12050") != string::npos);
         test(endpoints[1]->toString().find("-p 12051") != string::npos);
 
-        shared_ptr<QueryPrx> query;
+        QueryPrxPtr query;
         query = Ice::uncheckedCast<QueryPrx>(
             communicator->stringToProxy("RepTestIceGrid/Query:" + endpoints[0]->toString()));
         auto objs1 = query->findAllObjectsByType("::IceGrid::Registry");
@@ -404,7 +404,7 @@ allTests(Test::TestHelper* helper)
         auto objs2 = query->findAllObjectsByType("::IceGrid::Registry");
         for(vector<Ice::ObjectPrxPtr>::size_type i = 0; i < objs1.size(); i++)
         {
-            test(Ice::targetEqualTo(objs1[i], objs2[i]));
+            test(objs1[i] == objs2[i]);
         }
     }
     cout << "ok" << endl;

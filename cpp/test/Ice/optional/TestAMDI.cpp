@@ -105,8 +105,8 @@ InitialI::opIntAsync(optional<int> p1,
 }
 
 void
-InitialI::opLongAsync(optional<long long int> p1,
-                           ::std::function<void(const optional<long long int>&, const optional<long long int>&)> response,
+InitialI::opLongAsync(optional<int64_t> p1,
+                           ::std::function<void(const optional<int64_t>&, const optional<int64_t>&)> response,
                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
@@ -132,14 +132,6 @@ void
 InitialI::opStringAsync(optional<::std::string> p1,
                              ::std::function<void(const optional<::std::string>&, const optional<::std::string>&)> response,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
-InitialI::opCustomStringAsync(optional<Util::string_view> p1,
-                                   ::std::function<void(const optional<Util::string_view>&, const optional<Util::string_view>&)> response,
-                                   ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
@@ -185,8 +177,8 @@ InitialI::opOneOptionalAsync(optional<::std::shared_ptr<::Test::OneOptional>> p1
 }
 
 void
-InitialI::opMyInterfaceProxyAsync(optional<::std::shared_ptr<MyInterfacePrx>> p1,
-                                       ::std::function<void(const optional<::std::shared_ptr<MyInterfacePrx>>&, const optional<::std::shared_ptr<MyInterfacePrx>>&)> response,
+InitialI::opMyInterfaceProxyAsync(optional<::MyInterfacePrx> p1,
+                                       ::std::function<void(const optional<::MyInterfacePrx>&, const optional<::MyInterfacePrx>&)> response,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
@@ -225,8 +217,8 @@ InitialI::opIntSeqAsync(optional<::std::pair<const int*, const int*>> p1,
 }
 
 void
-InitialI::opLongSeqAsync(optional<::std::pair<const long long int*, const long long int*>> p1,
-                              ::std::function<void(const optional<::std::pair<const long long int*, const long long int*>>&, const optional<::std::pair<const long long int*, const long long int*>>&)> response,
+InitialI::opLongSeqAsync(optional<::std::pair<const int64_t*, const int64_t*>> p1,
+                              ::std::function<void(const optional<::std::pair<const int64_t*, const int64_t*>>&, const optional<::std::pair<const int64_t*, const int64_t*>>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
@@ -324,14 +316,6 @@ void
 InitialI::opIntOneOptionalDictAsync(optional<::Test::IntOneOptionalDict> p1,
                                     ::std::function<void(const optional<::Test::IntOneOptionalDict>&, const optional<::Test::IntOneOptionalDict>&)> response,
                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(p1, p1);
-}
-
-void
-InitialI::opCustomIntStringDictAsync(optional<::std::map< int, ::Util::string_view>> p1,
-                                     ::std::function<void(const optional<::std::map< int, ::Util::string_view>>&, const optional<::std::map< int, ::Util::string_view>>&)> response,
-                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
 }
@@ -460,13 +444,6 @@ InitialI::supportsJavaSerializableAsync(::std::function<void(bool)> response,
 void
 InitialI::supportsCsharpSerializableAsync(::std::function<void(bool)> response,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
-{
-    response(true);
-}
-
-void
-InitialI::supportsCppStringViewAsync(::std::function<void(bool)> response,
-                                     ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(true);
 }

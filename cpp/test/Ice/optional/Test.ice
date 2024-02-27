@@ -4,7 +4,7 @@
 
 #pragma once
 
-[["cpp:include:list", "cpp:include:CustomMap.h", "cpp:include:StringView.h"]]
+[["cpp:include:list", "cpp:include:CustomMap.h"]]
 
 module Test
 {
@@ -71,7 +71,7 @@ dictionary<int, VarStruct> IntVarStructDict;
 dictionary<int, OneOptional> IntOneOptionalDict;
 dictionary<int, MyInterface*> IntMyInterfacePrxDict;
 
-["cpp:type:Test::CustomMap<Ice::Int, std::string>"] dictionary<int, string> IntStringDict;
+["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
 
 class MultiOptional
 {
@@ -233,10 +233,6 @@ interface Initial
 
     optional(1) string opString(optional(2) string p1, out optional(3) string p3);
 
-    ["cpp:view-type:Util::string_view"] optional(1) string
-    opCustomString(["cpp:view-type:Util::string_view"] optional(2) string p1,
-                   out ["cpp:view-type:Util::string_view"] optional(3) string p3);
-
     optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
 
     optional(1) SmallStruct opSmallStruct(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
@@ -295,11 +291,6 @@ interface Initial
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
-    ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(1) IntStringDict
-    opCustomIntStringDict(
-        ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(2) IntStringDict p1,
-        out ["cpp:view-type:::std::map< ::Ice::Int, ::Util::string_view>", "cpp:type:::Test::CustomMap< ::Ice::Int, std::string>"] optional(3) IntStringDict p3);
-
     optional(1) IntOneOptionalDict opIntOneOptionalDict(optional(2) IntOneOptionalDict p1, out optional(3) IntOneOptionalDict p3);
 
     void opClassAndUnknownOptional(A p);
@@ -333,8 +324,11 @@ interface Initial
 
     bool supportsCsharpSerializable();
 
-    bool supportsCppStringView();
-
+    // TODO: remove.
+    // This test actually uses this flag only for tagged classes (to be removed), not tagged proxies.
+    // For tagged proxies: in IceRPC and from Ice 3.8 on, we don't distinguish between a not-set tagged
+    // proxy and a tagged proxy set to nullopt. We encode as not-set in both cases, and decode successfully both to
+    // nulltopt.
     bool supportsNullOptional();
 }
 

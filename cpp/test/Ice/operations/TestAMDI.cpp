@@ -5,8 +5,10 @@
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
 #include <TestHelper.h>
+
 #include <functional>
 #include <iterator>
+#include <thread>
 
 using namespace Ice;
 using namespace Test;
@@ -46,36 +48,17 @@ MyDerivedClassI::ice_id(const Ice::Current& current) const
     return Test::MyDerivedClass::ice_id(current);
 }
 
-class Thread_opVoid : public IceUtil::Thread
-{
-public:
-
-    Thread_opVoid(function<void()> response) :
-        _response(std::move(response))
-    {
-    }
-
-    virtual void run()
-    {
-        _response();
-    }
-
-private:
-
-    function<void()> _response;
-};
-
 void
 MyDerivedClassI::shutdownAsync(function<void()> response,
                                function<void(exception_ptr)>,
                                const Ice::Current& current)
 {
     {
-        IceUtil::Mutex::Lock sync(_opVoidMutex);
-        if(_opVoidThread)
+        lock_guard lock(_opVoidMutex);
+        if(_opVoidThread.joinable())
         {
-            _opVoidThread->getThreadControl().join();
-            _opVoidThread = 0;
+            _opVoidThread.join();
+            _opVoidThread = thread();
         }
     }
 
@@ -97,15 +80,14 @@ MyDerivedClassI::opVoidAsync(function<void()> response,
 {
     test(current.mode == OperationMode::Normal);
 
-    IceUtil::Mutex::Lock sync(_opVoidMutex);
-    if(_opVoidThread)
+    lock_guard lock(_opVoidMutex);
+    if(_opVoidThread.joinable())
     {
-        _opVoidThread->getThreadControl().join();
-        _opVoidThread = 0;
+        _opVoidThread.join();
+        _opVoidThread = thread();
     }
 
-    _opVoidThread = make_shared<Thread_opVoid>(response);
-    _opVoidThread->start();
+    _opVoidThread = std::thread(response);
 }
 
 void
@@ -131,8 +113,8 @@ MyDerivedClassI::opBoolAsync(bool p1,
 void
 MyDerivedClassI::opShortIntLongAsync(short p1,
                                      int p2,
-                                     long long int p3,
-                                     function<void(long long int, short, int, long long int)> response,
+                                     int64_t p3,
+                                     function<void(int64_t, short, int, int64_t)> response,
                                      function<void(exception_ptr)>,
                                      const Ice::Current&)
 {
@@ -152,7 +134,7 @@ MyDerivedClassI::opFloatDoubleAsync(float p1,
 void
 MyDerivedClassI::opStringAsync(string p1,
                                string p2,
-                               function<void(const string&, const string&)> response,
+                               function<void(string_view, string_view)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {
@@ -169,10 +151,10 @@ MyDerivedClassI::opMyEnumAsync(Test::MyEnum p1,
 }
 
 void
-MyDerivedClassI::opMyClassAsync(shared_ptr<Test::MyClassPrx> p1,
-                                function<void(const shared_ptr<Test::MyClassPrx>&,
-                                               const shared_ptr<Test::MyClassPrx>&,
-                                               const shared_ptr<Test::MyClassPrx>&)> response,
+MyDerivedClassI::opMyClassAsync(Test::MyClassPrxPtr p1,
+                                function<void(const Test::MyClassPrxPtr&,
+                                               const Test::MyClassPrxPtr&,
+                                               const Test::MyClassPrxPtr&)> response,
                                 function<void(exception_ptr)>,
                                 const Ice::Current& current)
 {
@@ -702,7 +684,7 @@ MyDerivedClassI::opByteSOnewayAsync(Test::ByteS,
                                     function<void(exception_ptr)>,
                                     const Ice::Current&)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     ++_opByteSOnewayCallCount;
     response();
 }
@@ -712,7 +694,7 @@ MyDerivedClassI::opByteSOnewayCallCountAsync(function<void(int)> response,
                                              function<void(exception_ptr)>,
                                              const Ice::Current&)
 {
-    IceUtil::Mutex::Lock sync(_mutex);
+    lock_guard lock(_mutex);
     response(_opByteSOnewayCallCount);
     _opByteSOnewayCallCount = 0;
 }
@@ -727,13 +709,13 @@ MyDerivedClassI::opContextAsync(function<void(const Ice::Context&)> response,
 }
 
 void
-MyDerivedClassI::opDoubleMarshalingAsync(Ice::Double p1,
+MyDerivedClassI::opDoubleMarshalingAsync(double p1,
                                          Test::DoubleS p2,
                                          function<void()> response,
                                          function<void(exception_ptr)>,
                                          const Ice::Current&)
 {
-    Ice::Double d = 1278312346.0 / 13.0;
+    double d = 1278312346.0 / 13.0;
     test(p1 == d);
     for(unsigned int i = 0; i < p2.size(); ++i)
     {
@@ -778,8 +760,8 @@ MyDerivedClassI::opByte1Async(Ice::Byte b,
 }
 
 void
-MyDerivedClassI::opShort1Async(Ice::Short s,
-                               function<void(Ice::Short)> response,
+MyDerivedClassI::opShort1Async(int16_t s,
+                               function<void(int16_t)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {
@@ -787,8 +769,8 @@ MyDerivedClassI::opShort1Async(Ice::Short s,
 }
 
 void
-MyDerivedClassI::opInt1Async(Ice::Int i,
-                             function<void(Ice::Int)> response,
+MyDerivedClassI::opInt1Async(int32_t i,
+                             function<void(int32_t)> response,
                              function<void(exception_ptr)>,
                              const Ice::Current&)
 {
@@ -796,8 +778,8 @@ MyDerivedClassI::opInt1Async(Ice::Int i,
 }
 
 void
-MyDerivedClassI::opLong1Async(Ice::Long l,
-                              function<void(Ice::Long)> response,
+MyDerivedClassI::opLong1Async(int64_t l,
+                              function<void(int64_t)> response,
                               function<void(exception_ptr)>,
                               const Ice::Current&)
 {
@@ -805,8 +787,8 @@ MyDerivedClassI::opLong1Async(Ice::Long l,
 }
 
 void
-MyDerivedClassI::opFloat1Async(Ice::Float f,
-                               function<void(Ice::Float)> response,
+MyDerivedClassI::opFloat1Async(float f,
+                               function<void(float)> response,
                                function<void(exception_ptr)>,
                                const Ice::Current&)
 {
@@ -814,8 +796,8 @@ MyDerivedClassI::opFloat1Async(Ice::Float f,
 }
 
 void
-MyDerivedClassI::opDouble1Async(Ice::Double d,
-                                function<void(Ice::Double)> response,
+MyDerivedClassI::opDouble1Async(double d,
+                                function<void(double)> response,
                                 function<void(exception_ptr)>,
                                 const Ice::Current&)
 {
@@ -824,7 +806,7 @@ MyDerivedClassI::opDouble1Async(Ice::Double d,
 
 void
 MyDerivedClassI::opString1Async(string s,
-                                function<void(const string&)> response,
+                                function<void(string_view)> response,
                                 function<void(exception_ptr)>,
                                 const Ice::Current&)
 {

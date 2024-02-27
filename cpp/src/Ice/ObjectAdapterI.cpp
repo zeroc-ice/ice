@@ -27,6 +27,8 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/PropertyNames.h>
 #include <Ice/ConsoleUtil.h>
+#include "Ice/ProxyFunctions.h"
+#include "CheckIdentity.h"
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -42,13 +44,6 @@ using namespace IceInternal;
 
 namespace
 {
-inline void checkIdentity(const Identity& ident)
-{
-    if(ident.name.empty())
-    {
-        throw IllegalIdentityException(__FILE__, __LINE__, ident);
-    }
-}
 
 inline void checkServant(const shared_ptr<Object>& servant)
 {
@@ -216,7 +211,7 @@ Ice::ObjectAdapterI::deactivate() noexcept
 
     //
     // NOTE: the router/locator infos and incoming connection
-    // facatory list are immutable at this point.
+    // factory list are immutable at this point.
     //
 
     try
@@ -234,7 +229,7 @@ Ice::ObjectAdapterI::deactivate() noexcept
             _routerInfo->setAdapter(0);
         }
 
-        updateLocatorRegistry(_locatorInfo, 0);
+        updateLocatorRegistry(_locatorInfo, nullopt);
     }
     catch(const Ice::LocalException&)
     {
@@ -367,33 +362,33 @@ Ice::ObjectAdapterI::destroy() noexcept
     }
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::add(const shared_ptr<Object>& object, const Identity& ident)
 {
     return addFacet(object, ident, "");
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::addFacet(const shared_ptr<Object>& object, const Identity& ident, const string& facet)
 {
     lock_guard lock(_mutex);
 
     checkForDeactivation();
     checkServant(object);
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     _servantManager->addServant(object, ident, facet);
 
     return newProxy(ident, facet);
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::addWithUUID(const shared_ptr<Object>& object)
 {
     return addFacetWithUUID(object, "");
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::addFacetWithUUID(const shared_ptr<Object>& object, const string& facet)
 {
     Identity ident;
@@ -424,7 +419,7 @@ Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->removeServant(ident, facet);
 }
@@ -435,7 +430,7 @@ Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->removeAllFacets(ident);
 }
@@ -462,7 +457,7 @@ Ice::ObjectAdapterI::findFacet(const Identity& ident, const string& facet) const
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->findServant(ident, facet);
 }
@@ -473,13 +468,13 @@ Ice::ObjectAdapterI::findAllFacets(const Identity& ident) const
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return _servantManager->findAllFacets(ident);
 }
 
 shared_ptr<Object>
-Ice::ObjectAdapterI::findByProxy(const ObjectPrxPtr& proxy) const
+Ice::ObjectAdapterI::findByProxy(const ObjectPrx& proxy) const
 {
     lock_guard lock(_mutex);
 
@@ -529,62 +524,54 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix) const
     return _servantManager->findServantLocator(prefix);
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::createProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return newProxy(ident, "");
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::createDirectProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return newDirectProxy(ident, "");
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::createIndirectProxy(const Identity& ident) const
 {
     lock_guard lock(_mutex);
 
     checkForDeactivation();
-    checkIdentity(ident);
+    checkIdentity(ident, __FILE__, __LINE__);
 
     return newIndirectProxy(ident, "", _id);
 }
 
 void
-Ice::ObjectAdapterI::setLocator(const LocatorPrxPtr& locator)
+Ice::ObjectAdapterI::setLocator(const optional<LocatorPrx>& locator)
 {
     lock_guard lock(_mutex);
 
     checkForDeactivation();
 
-    _locatorInfo = _instance->locatorManager()->get(locator);
+    _locatorInfo = locator ? _instance->locatorManager()->get(locator.value()) : nullptr;
 }
 
-LocatorPrxPtr
+optional<LocatorPrx>
 Ice::ObjectAdapterI::getLocator() const noexcept
 {
     lock_guard lock(_mutex);
-
-    if(!_locatorInfo)
-    {
-        return 0;
-    }
-    else
-    {
-        return _locatorInfo->getLocator();
-    }
+    return _locatorInfo ? optional<LocatorPrx>(_locatorInfo->getLocator()) : nullopt;
 }
 
 EndpointSeq
@@ -880,7 +867,7 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 //
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
                                     const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
-                                    /*const RouterPrxPtr& router,*/ bool noConfig) :
+                                    bool noConfig) :
     _state(StateUninitialized),
     _instance(instance),
     _communicator(communicator),
@@ -894,7 +881,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 }
 
 void
-Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
+Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 {
     if(_noConfig)
     {
@@ -925,7 +912,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
         //
         // Make sure named adapter has some configuration
         //
-        if(router == 0 && noProps)
+        if(router == nullopt && noProps)
         {
             throw InitializationException(__FILE__, __LINE__, "object adapter `" + _name + "' requires configuration");
         }
@@ -953,7 +940,7 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
 
         {
             const int defaultMessageSizeMax = static_cast<int>(_instance->messageSizeMax() / 1024);
-            Int num = properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
+            int32_t num = properties->getPropertyAsIntWithDefault(_name + ".MessageSizeMax", defaultMessageSizeMax);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
@@ -977,14 +964,14 @@ Ice::ObjectAdapterI::initialize(const RouterPrxPtr& router)
             _threadPool = ThreadPool::create(_instance, _name + ".ThreadPool", 0);
         }
 
-        if(!router)
+        if (!router)
         {
-            const_cast<RouterPrxPtr&>(router) = Ice::uncheckedCast<RouterPrx>(
+            router = Ice::uncheckedCast<RouterPrx>(
                 _instance->proxyFactory()->propertyToProxy(_name + ".Router"));
         }
         if(router)
         {
-            _routerInfo = _instance->routerManager()->get(router);
+            _routerInfo = _instance->routerManager()->get(router.value());
             assert(_routerInfo);
 
             //
@@ -1082,7 +1069,7 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
     }
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 {
     if(_id.empty())
@@ -1099,28 +1086,20 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
     }
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) const
 {
-    //
-    // Create a reference and return a proxy for this reference.
-    //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, _publishedEndpoints);
-    return _instance->proxyFactory()->referenceToProxy(ref);
+    return ObjectPrx::_fromReference(
+        _instance->referenceFactory()->create(ident, facet, _reference, _publishedEndpoints));
 }
 
-ObjectPrxPtr
+ObjectPrx
 Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet, const string& id) const
 {
     //
     // Create an indirect reference with the given adapter id.
     //
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, facet, _reference, id);
-
-    //
-    // Return a proxy for the reference.
-    //
-    return _instance->proxyFactory()->referenceToProxy(ref);
+    return ObjectPrx::_fromReference(_instance->referenceFactory()->create(ident, facet, _reference, id));
 }
 
 void
@@ -1285,14 +1264,14 @@ ObjectAdapterI::computePublishedEndpoints()
 }
 
 void
-ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locatorInfo, const Ice::ObjectPrxPtr& proxy)
+ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locatorInfo, const optional<ObjectPrx>& proxy)
 {
     if(_id.empty() || !locatorInfo)
     {
         return; // Nothing to update.
     }
 
-    LocatorRegistryPrxPtr locatorRegistry = locatorInfo->getLocatorRegistry();
+    optional<LocatorRegistryPrx> locatorRegistry = locatorInfo->getLocatorRegistry();
     if(!locatorRegistry)
     {
         return;

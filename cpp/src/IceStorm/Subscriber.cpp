@@ -100,28 +100,28 @@ class SubscriberOneway final : public Subscriber
 public:
 
     SubscriberOneway(const shared_ptr<Instance>&, const SubscriberRecord&,
-                     const shared_ptr<Ice::ObjectPrx>&, int, shared_ptr<Ice::ObjectPrx>);
+                     const Ice::ObjectPrxPtr&, int, Ice::ObjectPrxPtr);
 
     void flush() override;
     void sentAsynchronously();
 
 private:
 
-    const shared_ptr<Ice::ObjectPrx> _obj;
+    const Ice::ObjectPrxPtr _obj;
 };
 
 class SubscriberTwoway final : public Subscriber
 {
 public:
 
-    SubscriberTwoway(const shared_ptr<Instance>&, const SubscriberRecord&, const shared_ptr<Ice::ObjectPrx>&, int, int,
-                     shared_ptr<Ice::ObjectPrx>);
+    SubscriberTwoway(const shared_ptr<Instance>&, const SubscriberRecord&, const Ice::ObjectPrxPtr&, int, int,
+                     Ice::ObjectPrxPtr);
 
     void flush() override;
 
 private:
 
-   const shared_ptr<Ice::ObjectPrx> _obj;
+   const Ice::ObjectPrxPtr _obj;
 };
 
 class SubscriberLink final : public Subscriber
@@ -134,16 +134,16 @@ public:
 
 private:
 
-    const shared_ptr<TopicLinkPrx> _obj;
+    const TopicLinkPrxPtr _obj;
 };
 
 }
 
 SubscriberOneway::SubscriberOneway(const shared_ptr<Instance>& instance,
                                    const SubscriberRecord& rec,
-                                   const shared_ptr<Ice::ObjectPrx>& proxy,
+                                   const Ice::ObjectPrxPtr& proxy,
                                    int retryCount,
-                                   shared_ptr<Ice::ObjectPrx> obj) :
+                                   Ice::ObjectPrxPtr obj) :
     Subscriber(instance, rec, proxy, retryCount, 5),
     _obj(std::move(obj))
 {
@@ -253,10 +253,10 @@ SubscriberOneway::sentAsynchronously()
 
 SubscriberTwoway::SubscriberTwoway(const shared_ptr<Instance>& instance,
                                    const SubscriberRecord& rec,
-                                   const shared_ptr<Ice::ObjectPrx>& proxy,
+                                   const Ice::ObjectPrxPtr& proxy,
                                    int retryCount,
                                    int maxOutstanding,
-                                   shared_ptr<Ice::ObjectPrx> obj) :
+                                   Ice::ObjectPrxPtr obj) :
     Subscriber(instance, rec, proxy, retryCount, maxOutstanding),
     _obj(std::move(obj))
 {
@@ -319,7 +319,7 @@ namespace
 
 SubscriberLink::SubscriberLink(const shared_ptr<Instance>& instance,
                                const SubscriberRecord& rec) :
-    Subscriber(instance, rec, 0, -1, 1),
+    Subscriber(instance, rec, nullopt, -1, 1),
     _obj(Ice::uncheckedCast<TopicLinkPrx>(
         rec.obj->ice_collocationOptimized(false)->ice_timeout(static_cast<int>(instance->sendTimeout().count()))))
 {
@@ -438,7 +438,7 @@ Subscriber::create(const shared_ptr<Instance>& instance,
             //
             // Override the timeout.
             //
-            shared_ptr<Ice::ObjectPrx> newObj;
+            Ice::ObjectPrxPtr newObj;
             try
             {
                 newObj = rec.obj->ice_timeout(static_cast<int>(instance->sendTimeout().count()));
@@ -517,7 +517,7 @@ Subscriber::create(const shared_ptr<Instance>& instance,
     }
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 Subscriber::proxy() const
 {
     return _proxyReplica;
@@ -585,7 +585,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
 
         if(_observer)
         {
-            _observer->queued(static_cast<Ice::Int>(events.size()));
+            _observer->queued(static_cast<int32_t>(events.size()));
         }
         flush();
         break;
@@ -855,7 +855,7 @@ Subscriber::updateObserver()
 
 Subscriber::Subscriber(shared_ptr<Instance> instance,
                        SubscriberRecord rec,
-                       shared_ptr<Ice::ObjectPrx> proxy,
+                       Ice::ObjectPrxPtr proxy,
                        int retryCount,
                        int maxOutstanding) :
     _instance(std::move(instance)),
@@ -872,7 +872,7 @@ Subscriber::Subscriber(shared_ptr<Instance> instance,
 {
     if(_proxy && _instance->publisherReplicaProxy())
     {
-        const_cast<shared_ptr<Ice::ObjectPrx>&>(_proxyReplica) =
+        const_cast<Ice::ObjectPrxPtr&>(_proxyReplica) =
             _instance->publisherReplicaProxy()->ice_identity(_proxy->ice_getIdentity());
     }
 

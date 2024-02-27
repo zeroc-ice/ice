@@ -25,11 +25,11 @@ public:
     void streamWriteImpl(Ice::OutputStream*) const final;
 
     Ice::EndpointInfoPtr getInfo() const noexcept final;
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     const std::string& protocol() const final;
 
-    Ice::Int timeout() const final;
-    IceInternal::EndpointIPtr timeout(Ice::Int) const final;
+    std::int32_t timeout() const final;
+    IceInternal::EndpointIPtr timeout(std::int32_t) const final;
     const std::string& connectionId() const final;
     IceInternal::EndpointIPtr connectionId(const ::std::string&) const final;
     bool compress() const final;
@@ -46,7 +46,7 @@ public:
     std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const final;
     std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const final;
     bool equivalent(const IceInternal::EndpointIPtr&) const final;
-    ::Ice::Int hash() const final;
+    ::std::int32_t hash() const final;
     std::string options() const final;
 
     EndpointIPtr endpoint(const IceInternal::EndpointIPtr&) const;
@@ -71,12 +71,12 @@ class EndpointFactoryI final : public IceInternal::EndpointFactoryWithUnderlying
 {
 public:
 
-    EndpointFactoryI(const InstancePtr&, Ice::Short);
+    EndpointFactoryI(const InstancePtr&, std::int16_t);
 
     void destroy() final;
 
     IceInternal::EndpointFactoryPtr
-    cloneWithUnderlying(const IceInternal::ProtocolInstancePtr&, Ice::Short) const final;
+    cloneWithUnderlying(const IceInternal::ProtocolInstancePtr&, std::int16_t) const final;
 
 protected:
 

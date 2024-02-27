@@ -130,7 +130,7 @@ public:
      * @see #remove
      * @see #find
      */
-    virtual ObjectPrxPtr add(const ::std::shared_ptr<Object>& servant, const Identity& id) = 0;
+    virtual ObjectPrx add(const ::std::shared_ptr<Object>& servant, const Identity& id) = 0;
 
     /**
      * Like {@link #add}, but with a facet. Calling <code>add(servant, id)</code> is equivalent to calling
@@ -145,7 +145,7 @@ public:
      * @see #removeFacet
      * @see #findFacet
      */
-    virtual ObjectPrxPtr addFacet(const ::std::shared_ptr<Object>& servant, const Identity& id, const ::std::string& facet) = 0;
+    virtual ObjectPrx addFacet(const ::std::shared_ptr<Object>& servant, const Identity& id, const ::std::string& facet) = 0;
 
     /**
      * Add a servant to this object adapter's Active Servant Map, using an automatically generated UUID as its
@@ -159,7 +159,7 @@ public:
      * @see #remove
      * @see #find
      */
-    virtual ObjectPrxPtr addWithUUID(const ::std::shared_ptr<Object>& servant) = 0;
+    virtual ObjectPrx addWithUUID(const ::std::shared_ptr<Object>& servant) = 0;
 
     /**
      * Like {@link #addWithUUID}, but with a facet. Calling <code>addWithUUID(servant)</code> is equivalent to calling
@@ -173,7 +173,7 @@ public:
      * @see #removeFacet
      * @see #findFacet
      */
-    virtual ObjectPrxPtr addFacetWithUUID(const ::std::shared_ptr<Object>& servant, const ::std::string& facet) = 0;
+    virtual ObjectPrx addFacetWithUUID(const ::std::shared_ptr<Object>& servant, const ::std::string& facet) = 0;
 
     /**
      * Add a default servant to handle requests for a specific category. Adding a default servant for a category for
@@ -287,7 +287,7 @@ public:
      * @see #find
      * @see #findFacet
      */
-    virtual ::std::shared_ptr<Object> findByProxy(const ObjectPrxPtr& proxy) const = 0;
+    virtual ::std::shared_ptr<Object> findByProxy(const ObjectPrx& proxy) const = 0;
 
     /**
      * Add a Servant Locator to this object adapter. Adding a servant locator for a category for which a servant
@@ -359,7 +359,7 @@ public:
      * @return A proxy for the object with the given identity.
      * @see Identity
      */
-    virtual ObjectPrxPtr createProxy(const Identity& id) const = 0;
+    virtual ObjectPrx createProxy(const Identity& id) const = 0;
 
     /**
      * Create a direct proxy for the object with the given identity. The returned proxy contains this object adapter's
@@ -368,7 +368,7 @@ public:
      * @return A proxy for the object with the given identity.
      * @see Identity
      */
-    virtual ObjectPrxPtr createDirectProxy(const Identity& id) const = 0;
+    virtual ObjectPrx createDirectProxy(const Identity& id) const = 0;
 
     /**
      * Create an indirect proxy for the object with the given identity. If this object adapter is configured with an
@@ -378,7 +378,7 @@ public:
      * @return A proxy for the object with the given identity.
      * @see Identity
      */
-    virtual ObjectPrxPtr createIndirectProxy(const Identity& id) const = 0;
+    virtual ObjectPrx createIndirectProxy(const Identity& id) const = 0;
 
     /**
      * Set an Ice locator for this object adapter. By doing so, the object adapter will register itself with the
@@ -390,7 +390,7 @@ public:
      * @see Locator
      * @see LocatorRegistry
      */
-    virtual void setLocator(const LocatorPrxPtr& loc) = 0;
+    virtual void setLocator(const std::optional<LocatorPrx>& loc) = 0;
 
     /**
      * Get the Ice locator used by this object adapter.
@@ -398,7 +398,7 @@ public:
      * @see Locator
      * @see #setLocator
      */
-    virtual LocatorPrxPtr getLocator() const noexcept = 0;
+    virtual std::optional<LocatorPrx> getLocator() const noexcept = 0;
 
     /**
      * Get the set of endpoints configured with this object adapter.

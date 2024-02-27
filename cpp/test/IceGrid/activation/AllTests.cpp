@@ -4,23 +4,24 @@
 
 #include <Ice/Ice.h>
 #include <IceGrid/IceGrid.h>
-#include <IceUtil/Thread.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
 #include <chrono>
 
 using namespace std;
 using namespace Test;
 
 void waitForServerState(
-    shared_ptr<IceGrid::AdminPrx> admin,
+    IceGrid::AdminPrxPtr admin,
     std::string server,
     IceGrid::ServerState state)
 {
     int nRetry = 0;
     while(admin->getServerState(server) != state && nRetry < 15)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+        this_thread::sleep_for(chrono::milliseconds(500));
         ++nRetry;
     }
     if(admin->getServerState(server) != state)
@@ -35,7 +36,7 @@ class Pinger
 {
 public:
 
-    Pinger(shared_ptr<Ice::ObjectPrx> proxy, int nRepetitions) :
+    Pinger(Ice::ObjectPrxPtr proxy, int nRepetitions) :
         _proxy(std::move(proxy)),
         _finished(false),
         _nRepetitions(nRepetitions)
@@ -79,7 +80,7 @@ public:
 
 private:
 
-    shared_ptr<Ice::ObjectPrx> _proxy;
+    Ice::ObjectPrxPtr _proxy;
     exception_ptr _exception;
     bool _finished;
     int _nRepetitions;
@@ -91,20 +92,20 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    shared_ptr<IceGrid::RegistryPrx> registry = Ice::checkedCast<IceGrid::RegistryPrx>(
+    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
 
-    shared_ptr<IceGrid::QueryPrx> query = Ice::checkedCast<IceGrid::QueryPrx>(
+    IceGrid::QueryPrxPtr query = Ice::checkedCast<IceGrid::QueryPrx>(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Query"));
 
-    shared_ptr<IceGrid::AdminSessionPrx> adminSession = registry->createAdminSession("foo", "bar");
+    IceGrid::AdminSessionPrxPtr adminSession = registry->createAdminSession("foo", "bar");
 
     adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          nullopt,
                                          Ice::ACMHeartbeat::HeartbeatAlways);
 
-    shared_ptr<IceGrid::AdminPrx> admin = adminSession->getAdmin();
+    IceGrid::AdminPrxPtr admin = adminSession->getAdmin();
     test(admin);
 
     admin->startServer("node-1");
@@ -113,14 +114,14 @@ allTests(Test::TestHelper* helper)
     int nRetry = 0;
     while(!admin->pingNode("node-1") && nRetry < 15)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+        this_thread::sleep_for(chrono::milliseconds(200));
         ++nRetry;
     }
 
     nRetry = 0;
     while(!admin->pingNode("node-2") && nRetry < 15)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+        this_thread::sleep_for(chrono::milliseconds(200));
         ++nRetry;
     }
 
@@ -128,7 +129,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
-        shared_ptr<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server"));
+        TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server"));
         waitForServerState(admin, "server", IceGrid::ServerState::Active);
         obj->shutdown();
         waitForServerState(admin, "server", IceGrid::ServerState::Inactive);
@@ -150,7 +151,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
-        shared_ptr<TestIntfPrx> obj;
+        TestIntfPrxPtr obj;
         try
         {
             obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server-manual"));
@@ -178,7 +179,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
-        shared_ptr<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server-always"));
+        TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server-always"));
         admin->stopServer("server-always");
         waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
         obj->shutdown();
@@ -200,10 +201,10 @@ allTests(Test::TestHelper* helper)
     cout << "testing session activation... " << flush;
     try
     {
-        shared_ptr<IceGrid::SessionPrx> session = registry->createSession("test", "");
+        IceGrid::SessionPrxPtr session = registry->createSession("test", "");
 
         test(admin->getServerState("server-session") == IceGrid::ServerState::Inactive);
-        shared_ptr<TestIntfPrx> obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-session"));
+        TestIntfPrxPtr obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-session"));
         try
         {
             obj->ice_ping();
@@ -278,7 +279,7 @@ allTests(Test::TestHelper* helper)
         {
             // The notification of the server being disabled is asynchronous and might
             // not be visible to the Query interface immediately.
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         try
@@ -314,7 +315,7 @@ allTests(Test::TestHelper* helper)
         {
             // The notification of the server being disabled is asynchronous and might
             // not be visible to the Query interface immediately.
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         test(admin->getServerState("server-always") == IceGrid::ServerState::Active);
@@ -342,7 +343,7 @@ allTests(Test::TestHelper* helper)
         {
             // The notification of the server being disabled is asynchronous and might
             // not be visible to the Query interface immediately.
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
 
         test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
@@ -369,7 +370,7 @@ allTests(Test::TestHelper* helper)
         {
             // The notification of the server being disabled is asynchronous and might
             // not be visible to the Query interface immediately.
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+            this_thread::sleep_for(chrono::milliseconds(100));
         }
     }
     catch(const Ice::LocalException& ex)
@@ -434,7 +435,7 @@ allTests(Test::TestHelper* helper)
     {
         int i;
         const int nThreads = 3;
-        shared_ptr<Ice::ObjectPrx> invalid = communicator->stringToProxy("invalid-exe");
+        Ice::ObjectPrxPtr invalid = communicator->stringToProxy("invalid-exe");
         vector<pair<shared_ptr<Pinger>, thread>> pingers;
         for(i = 0; i < nThreads; i++)
         {
@@ -569,7 +570,7 @@ allTests(Test::TestHelper* helper)
     {
         test(admin->getServerState("server-activation-timeout") == IceGrid::ServerState::Inactive);
         const int nThreads = 5;
-        shared_ptr<Ice::ObjectPrx> proxy = communicator->stringToProxy("server-activation-timeout");
+        Ice::ObjectPrxPtr proxy = communicator->stringToProxy("server-activation-timeout");
         vector<pair<shared_ptr<Pinger>, thread>> pingers;
         for (int i = 0; i < nThreads; i++)
         {
@@ -634,7 +635,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server1") == IceGrid::ServerState::Inactive);
-        shared_ptr<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server1"));
+        TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server1"));
         waitForServerState(admin, "server1", IceGrid::ServerState::Active);
         obj->fail();
         waitForServerState(admin, "server1", IceGrid::ServerState::Inactive);
@@ -700,7 +701,7 @@ allTests(Test::TestHelper* helper)
         nRetry = 0;
         while(!admin->isServerEnabled("server2") && nRetry < 15)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(chrono::milliseconds(500));
             ++nRetry;
             try
             {
@@ -737,7 +738,7 @@ allTests(Test::TestHelper* helper)
                admin->getServerState("server2-always") != IceGrid::ServerState::Active) &&
               nRetry < 15)
         {
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(chrono::milliseconds(500));
             ++nRetry;
         }
         test(

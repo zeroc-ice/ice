@@ -3,7 +3,6 @@
 //
 
 #include <IceUtil/Options.h>
-#include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/UUID.h>
@@ -44,21 +43,21 @@ class ReuseConnectionRouter final : public Ice::Router
 {
 public:
 
-    ReuseConnectionRouter(shared_ptr<Ice::ObjectPrx> proxy) : _clientProxy(std::move(proxy))
+    ReuseConnectionRouter(Ice::ObjectPrxPtr proxy) : _clientProxy(std::move(proxy))
     {
     }
 
-    shared_ptr<Ice::ObjectPrx>
+    Ice::ObjectPrxPtr
     getClientProxy(optional<bool>& hasRoutingTable, const Ice::Current&) const override
     {
         hasRoutingTable = false;
         return _clientProxy;
     }
 
-    shared_ptr<Ice::ObjectPrx>
+    Ice::ObjectPrxPtr
     getServerProxy(const Ice::Current&) const override
     {
-        return nullptr;
+        return nullopt;
     }
 
     Ice::ObjectProxySeq
@@ -69,7 +68,7 @@ public:
 
 private:
 
-    const shared_ptr<Ice::ObjectPrx> _clientProxy;
+    const Ice::ObjectPrxPtr _clientProxy;
 };
 
 int run(const Ice::StringSeq&);
@@ -307,8 +306,8 @@ run(const Ice::StringSeq& args)
         replica = opts.optArg("replica");
     }
 
-    shared_ptr<Glacier2::RouterPrx> router;
-    shared_ptr<IceGrid::AdminSessionPrx> session;
+    Glacier2::RouterPrxPtr router;
+    IceGrid::AdminSessionPrxPtr session;
     int status = 0;
     try
     {
@@ -392,7 +391,7 @@ run(const Ice::StringSeq& args)
                 }
                 else
                 {
-                    communicator->setDefaultLocator(0);
+                    communicator->setDefaultLocator(nullopt);
                 }
 
                 //
@@ -495,8 +494,8 @@ run(const Ice::StringSeq& args)
             // no need to go further. Otherwise, we get the proxy of local registry
             // proxy.
             //
-            shared_ptr<IceGrid::LocatorPrx> locator;
-            shared_ptr<IceGrid::RegistryPrx> localRegistry;
+            IceGrid::LocatorPrxPtr locator;
+            IceGrid::RegistryPrxPtr localRegistry;
             try
             {
                 locator = Ice::checkedCast<IceGrid::LocatorPrx>(communicator->getDefaultLocator());
@@ -513,7 +512,7 @@ run(const Ice::StringSeq& args)
                 return 1;
             }
 
-            shared_ptr<IceGrid::RegistryPrx> registry;
+            IceGrid::RegistryPrxPtr registry;
             if(localRegistry->ice_getIdentity() == registryId)
             {
                 registry = localRegistry;

@@ -300,7 +300,7 @@ void
 Ice::IllegalIdentityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nillegal identity: `" << identityToString(id, ToStringMode::Unicode) << "'";
+    out << ":\nan identity with an empty name is not allowed";
 }
 
 void

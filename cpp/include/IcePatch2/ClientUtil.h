@@ -6,7 +6,6 @@
 #define ICE_PATCH2_CLIENT_UTIL_H
 
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
 #include <IcePatch2/FileServer.h>
 
 #include <stdio.h>
@@ -51,7 +50,7 @@ public:
     // otherwise.
     //
     virtual bool fileListStart() = 0;
-    virtual bool fileListProgress(Ice::Int) = 0;
+    virtual bool fileListProgress(std::int32_t) = 0;
     virtual bool fileListEnd() = 0;
 
     //
@@ -61,8 +60,8 @@ public:
     // These methods should return false to interrupt the patching,
     // false otherwise.
     //
-    virtual bool patchStart(const std::string&, Ice::Long, Ice::Long, Ice::Long) = 0;
-    virtual bool patchProgress(Ice::Long, Ice::Long, Ice::Long, Ice::Long) = 0;
+    virtual bool patchStart(const std::string&, std::int64_t, std::int64_t, std::int64_t) = 0;
+    virtual bool patchProgress(std::int64_t, std::int64_t, std::int64_t, std::int64_t) = 0;
     virtual bool patchEnd() = 0;
 };
 typedef std::shared_ptr<PatcherFeedback> PatcherFeedbackPtr;
@@ -135,7 +134,7 @@ public:
     // Create a patcher with the given parameters. These parameters
     // are equivalent to the configuration properties described above.
     //
-    static PatcherPtr create(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, Ice::Int, Ice::Int);
+    static PatcherPtr create(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, std::int32_t, std::int32_t);
 };
 
 }

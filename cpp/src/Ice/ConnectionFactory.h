@@ -37,20 +37,14 @@ class ObjectAdapterI;
 namespace IceInternal
 {
 
+class CommunicatorFlushBatchAsync;
+using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+
 template<typename T> class ThreadPoolMessage;
 
 class OutgoingConnectionFactory final : public std::enable_shared_from_this<OutgoingConnectionFactory>
 {
 public:
-
-    class CreateConnectionCallback
-    {
-    public:
-
-        virtual void setConnection(const Ice::ConnectionIPtr&, bool) = 0;
-        virtual void setException(std::exception_ptr) = 0;
-    };
-    using CreateConnectionCallbackPtr = std::shared_ptr<CreateConnectionCallback>;
 
     void destroy();
 
@@ -58,7 +52,13 @@ public:
 
     void waitUntilFinished();
 
-    void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, const CreateConnectionCallbackPtr&);
+    void createAsync(
+        const std::vector<EndpointIPtr>&,
+        bool,
+        Ice::EndpointSelectionType,
+        std::function<void(Ice::ConnectionIPtr, bool)>,
+        std::function<void(std::exception_ptr)>);
+
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
     void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
@@ -88,8 +88,10 @@ private:
         ConnectCallback(
             const InstancePtr&,
             const OutgoingConnectionFactoryPtr&,
-            const std::vector<EndpointIPtr>&, bool,
-            const CreateConnectionCallbackPtr&,
+            const std::vector<EndpointIPtr>&,
+            bool,
+            std::function<void(Ice::ConnectionIPtr, bool)>,
+            std::function<void(std::exception_ptr)>,
             Ice::EndpointSelectionType);
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
@@ -111,8 +113,6 @@ private:
         bool removeConnectors(const std::vector<ConnectorInfo>&);
         void removeFromPending();
 
-        bool operator<(const ConnectCallback&) const;
-
     private:
 
         bool connectionStartFailedImpl(std::exception_ptr);
@@ -121,7 +121,8 @@ private:
         const OutgoingConnectionFactoryPtr _factory;
         const std::vector<EndpointIPtr> _endpoints;
         const bool _hasMore;
-        const CreateConnectionCallbackPtr _callback;
+        const std::function<void(Ice::ConnectionIPtr, bool)> _createConnectionResponse;
+        const std::function<void(std::exception_ptr)> _createConnectionException;
         const Ice::EndpointSelectionType _selType;
         Ice::Instrumentation::ObserverPtr _observer;
         std::vector<EndpointIPtr>::const_iterator _endpointsIter;
@@ -154,7 +155,7 @@ private:
     const FactoryACMMonitorPtr _monitor;
     bool _destroyed;
 
-    using ConnectCallbackSet = std::set<ConnectCallbackPtr, Ice::TargetCompare<ConnectCallbackPtr, std::less>>;
+    using ConnectCallbackSet = std::set<ConnectCallbackPtr>;
 
     std::multimap<ConnectorPtr, Ice::ConnectionIPtr, Ice::TargetCompare<ConnectorPtr, std::less>> _connections;
     std::map<ConnectorPtr, ConnectCallbackSet, Ice::TargetCompare<ConnectorPtr, std::less>> _pending;

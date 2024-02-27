@@ -47,7 +47,7 @@ public:
     //
     // Get an EndpointFactory.
     //
-    EndpointFactoryPtr getEndpointFactory(Ice::Short) const;
+    EndpointFactoryPtr getEndpointFactory(std::int16_t) const;
 
 private:
 

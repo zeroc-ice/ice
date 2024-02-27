@@ -7,6 +7,9 @@
 #include <TestI.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter) :
@@ -15,7 +18,7 @@ HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapte
 }
 
 void
-HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
+HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
 {
     class PutOnHold : public IceUtil::TimerTask
     {
@@ -61,7 +64,7 @@ HoldI::putOnHold(Ice::Int milliSeconds, const Ice::Current&)
     {
         try
         {
-            _timer->schedule(make_shared<PutOnHold>(_adapter), IceUtil::Time::milliSeconds(milliSeconds));
+            _timer->schedule(make_shared<PutOnHold>(_adapter), chrono::milliseconds(milliSeconds));
         }
         catch(const IceUtil::IllegalArgumentException&)
         {
@@ -105,28 +108,28 @@ HoldI::waitForHold(const Ice::Current& current)
 
     try
     {
-        _timer->schedule(make_shared<WaitForHold>(current.adapter), IceUtil::Time());
+        _timer->schedule(make_shared<WaitForHold>(current.adapter), chrono::seconds::zero());
     }
     catch(const IceUtil::IllegalArgumentException&)
     {
     }
 }
 
-Ice::Int
-HoldI::set(Ice::Int value, Ice::Int delay, const Ice::Current&)
+int32_t
+HoldI::set(int32_t value, int32_t delay, const Ice::Current&)
 {
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(delay));
+    this_thread::sleep_for(chrono::milliseconds(delay));
 
-    Lock sync(*this);
-    Ice::Int tmp = _last;
+    lock_guard lock(_mutex);
+    int32_t tmp = _last;
     _last = value;
     return tmp;
 }
 
 void
-HoldI::setOneway(Ice::Int value, Ice::Int expected, const Ice::Current&)
+HoldI::setOneway(int32_t value, int32_t expected, const Ice::Current&)
 {
-    Lock sync(*this);
+    lock_guard lock(_mutex);
     test(_last == expected);
     _last = value;
 }

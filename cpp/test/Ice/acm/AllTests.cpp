@@ -6,6 +6,9 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace Test;
 namespace
@@ -19,9 +22,7 @@ toString(int value)
     return os.str();
 }
 
-class LoggerI : public Ice::Logger,
-                private IceUtil::Mutex,
-                public std::enable_shared_from_this<LoggerI>
+class LoggerI : public Ice::Logger, public std::enable_shared_from_this<LoggerI>
 {
 public:
 
@@ -32,7 +33,7 @@ public:
     void
     start()
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _started = true;
         dump();
     }
@@ -40,7 +41,7 @@ public:
     virtual void
     print(const std::string& msg)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _messages.push_back(msg);
         if(_started)
         {
@@ -51,7 +52,7 @@ public:
     virtual void
     trace(const std::string& category, const std::string& message)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _messages.push_back("[" + category + "] " + message);
         if(_started)
         {
@@ -62,7 +63,7 @@ public:
     virtual void
     warning(const std::string& message)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _messages.push_back("warning: " + message);
         if(_started)
         {
@@ -73,7 +74,7 @@ public:
     virtual void
     error(const std::string& message)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _messages.push_back("error: " + message);
         if(_started)
         {
@@ -107,11 +108,11 @@ private:
 
     bool _started;
     vector<string> _messages;
+    mutex _mutex;
 };
 using LoggerIPtr = std::shared_ptr<LoggerI>;
 
-class TestCase : public enable_shared_from_this<TestCase>,
-                 protected IceUtil::Monitor<IceUtil::Mutex>
+class TestCase : public enable_shared_from_this<TestCase>
 {
 public:
 
@@ -205,30 +206,25 @@ public:
     virtual void
     heartbeat(const Ice::ConnectionPtr&)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         ++_heartbeat;
     }
 
     virtual void
     closed(const Ice::ConnectionPtr&)
     {
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         _closed = true;
-        notify();
+        _conditionVariable.notify_one();
     }
 
     void
     waitForClosed()
     {
-        Lock sync(*this);
-        IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        while(!_closed)
+        unique_lock lock(_mutex);
+        if (!_conditionVariable.wait_for(lock, chrono::seconds(30), [this] { return _closed; }))
         {
-            timedWait(IceUtil::Time::seconds(30));
-            if(IceUtil::Time::now(IceUtil::Time::Monotonic) - now > IceUtil::Time::seconds(30))
-            {
-                test(false); // Waited for more than 30s for close, something's wrong.
-            }
+            test(false); // Waited for more than 30s for close, something's wrong.
         }
     }
 
@@ -269,6 +265,8 @@ protected:
 
     int _heartbeat;
     bool _closed;
+    mutex _mutex;
+    condition_variable _conditionVariable;
 };
 using TestCasePtr = std::shared_ptr<TestCase>;
 
@@ -286,7 +284,7 @@ public:
     {
         proxy->sleep(4);
 
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         test(_heartbeat >= 4);
     }
 };
@@ -347,7 +345,7 @@ public:
 
             waitForClosed();
 
-            Lock sync(*this);
+            lock_guard lock(_mutex);
             test(_heartbeat == 0);
         }
     }
@@ -369,7 +367,7 @@ public:
         // No close on invocation, the call should succeed this time.
         proxy->sleep(3);
 
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         test(_heartbeat == 0);
         test(!_closed);
     }
@@ -388,7 +386,7 @@ public:
     {
         waitForClosed();
 
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         test(_heartbeat == 0);
     }
 };
@@ -404,9 +402,9 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
+        this_thread::sleep_for(chrono::milliseconds(3000)); // Idle for 3 seconds
 
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         test(_heartbeat == 0);
         test(!_closed);
     }
@@ -429,10 +427,10 @@ public:
         // the close is graceful or forceful.
         //
         adapter->hold();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(5000)); // Idle for 5 seconds
+        this_thread::sleep_for(chrono::milliseconds(5000)); // Idle for 5 seconds
 
         {
-            Lock sync(*this);
+            lock_guard lock(_mutex);
             test(_heartbeat == 0);
             test(!_closed); // Not closed yet because of graceful close.
         }
@@ -459,7 +457,7 @@ public:
 
         waitForClosed();
 
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         test(_heartbeat == 0);
     }
 };
@@ -475,9 +473,9 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000));
+        this_thread::sleep_for(chrono::milliseconds(3000));
 
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         test(_heartbeat >= 3);
     }
 };
@@ -496,10 +494,10 @@ public:
         for(int i = 0; i < 10; ++i)
         {
             proxy->ice_ping();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
+            this_thread::sleep_for(chrono::milliseconds(300));
         }
 
-        Lock sync(*this);
+        lock_guard lock(_mutex);
         test(_heartbeat >= 3);
     }
 };

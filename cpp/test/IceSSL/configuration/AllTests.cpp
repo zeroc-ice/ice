@@ -6,6 +6,9 @@
 #include <IceSSL/IceSSL.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
+#include <chrono>
 #include <fstream>
 #include <algorithm>
 
@@ -17,8 +20,6 @@
 #       include <IceSSL/SecureTransportUtil.h> // For loadCertificateChain
 #   endif
 #endif
-
-#define ICE_TARGET_EQUAL_TO(A,B) Ice::targetEqualTo(A, B)
 
 #if defined(__APPLE__)
 #   define ICE_USE_SECURE_TRANSPORT 1
@@ -565,7 +566,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #endif
 
 #ifdef ICE_USE_OPENSSL
-    Ice::Long openSSLVersion;
+    int64_t openSSLVersion;
     {
         //
         // Get the IceSSL engine name and version
@@ -774,7 +775,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #else
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
 #endif
-            server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
+            server->checkCert(clientCert->getSubjectDN().toString(), clientCert->getIssuerDN().toString());
 
             //
             // Validate that we can get the connection info. Validate
@@ -784,12 +785,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             //
 #if defined(_WIN32) && defined(ICE_USE_OPENSSL)
             IceSSL::CertificatePtr serverCert = IceSSL::OpenSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(ICE_TARGET_EQUAL_TO(IceSSL::OpenSSL::Certificate::decode(serverCert->encode()), serverCert));
+            test(Ice::targetEqualTo(IceSSL::OpenSSL::Certificate::decode(serverCert->encode()), serverCert));
 #else
             IceSSL::CertificatePtr serverCert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
-            test(ICE_TARGET_EQUAL_TO(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
+            test(Ice::targetEqualTo(IceSSL::Certificate::decode(serverCert->encode()), serverCert));
 #endif
-            test(ICE_TARGET_EQUAL_TO(serverCert, serverCert));
+            test(Ice::targetEqualTo(serverCert, serverCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(serverCert->checkValidity());
 
@@ -803,7 +804,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             IceSSL::CertificatePtr caCert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
             IceSSL::CertificatePtr caCert2 = IceSSL::Certificate::load(defaultDir + "/cacert2.pem");
 #endif
-            test(ICE_TARGET_EQUAL_TO(caCert, caCert));
+            test(Ice::targetEqualTo(caCert, caCert));
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(caCert->checkValidity());
 
@@ -820,11 +821,11 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             test(info->verified);
             test(getTrustError(info) == IceSSL::TrustError::NoError);
 
-            test(ICE_TARGET_EQUAL_TO(caCert, info->certs[1]));
-            test(ICE_TARGET_EQUAL_TO(serverCert, info->certs[0]));
+            test(Ice::targetEqualTo(caCert, info->certs[1]));
+            test(Ice::targetEqualTo(serverCert, info->certs[0]));
 
-            test(!(ICE_TARGET_EQUAL_TO(serverCert, info->certs[1])));
-            test(!(ICE_TARGET_EQUAL_TO(caCert, info->certs[0])));
+            test(!Ice::targetEqualTo(serverCert, info->certs[1]));
+            test(!Ice::targetEqualTo(caCert, info->certs[0]));
 
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(info->certs[0]->checkValidity() && info->certs[1]->checkValidity());
@@ -857,7 +858,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #else
             IceSSL::CertificatePtr clientCert = IceSSL::Certificate::load(defaultDir + "/c_rsa_ca1_pub.pem");
 #endif
-            server->checkCert(clientCert->getSubjectDN(), clientCert->getIssuerDN());
+            server->checkCert(clientCert->getSubjectDN().toString(), clientCert->getIssuerDN().toString());
         }
         catch(const LocalException& ex)
         {
@@ -4031,7 +4032,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                         if(++retryCount < retryMax)
                         {
                             cout << "retrying... " << flush;
-                            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryDelay));
+                            this_thread::sleep_for(chrono::milliseconds(retryDelay));
                             continue;
                         }
                     }
@@ -4073,7 +4074,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
                         if(++retryCount < retryMax)
                         {
                             cout << "retrying... " << flush;
-                            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryDelay));
+                            this_thread::sleep_for(chrono::milliseconds(retryDelay));
                             continue;
                         }
                     }

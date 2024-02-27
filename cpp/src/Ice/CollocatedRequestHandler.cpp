@@ -8,7 +8,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/OutgoingAsync.h>
+#include "Ice/OutgoingAsync.h"
 
 #include <Ice/TraceUtil.h>
 
@@ -26,8 +26,8 @@ public:
     InvokeAllAsync(const OutgoingAsyncBasePtr& outAsync,
                    OutputStream* os,
                    const CollocatedRequestHandlerPtr& handler,
-                   Int requestId,
-                   Int batchRequestNum) :
+                   int32_t requestId,
+                   int32_t batchRequestNum) :
         _outAsync(outAsync), _os(os), _handler(handler), _requestId(requestId), _batchRequestNum(batchRequestNum)
     {
     }
@@ -46,18 +46,18 @@ private:
     OutgoingAsyncBasePtr _outAsync;
     OutputStream* _os;
     CollocatedRequestHandlerPtr _handler;
-    Int _requestId;
-    Int _batchRequestNum;
+    int32_t _requestId;
+    int32_t _batchRequestNum;
 };
 
 void
-fillInValue(OutputStream* os, int pos, Int value)
+fillInValue(OutputStream* os, int pos, int32_t value)
 {
     const Byte* p = reinterpret_cast<const Byte*>(&value);
 #ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(Int), os->b.begin() + pos);
+    reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
 #else
-    copy(p, p + sizeof(Int), os->b.begin() + pos);
+    copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
 #endif
 }
 
@@ -88,7 +88,7 @@ CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAs
 {
     lock_guard<mutex> lock(_mutex);
 
-    map<OutgoingAsyncBasePtr, Int>::iterator p = _sendAsyncRequests.find(outAsync);
+    map<OutgoingAsyncBasePtr, int32_t>::iterator p = _sendAsyncRequests.find(outAsync);
     if(p != _sendAsyncRequests.end())
     {
         if(p->second > 0)
@@ -107,7 +107,7 @@ CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAs
     OutgoingAsyncPtr o = dynamic_pointer_cast<OutgoingAsync>(outAsync);
     if(o)
     {
-        for(map<Int, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
+        for(map<int32_t, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
         {
             if(q->second.get() == o.get())
             {
@@ -192,7 +192,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 }
 
 void
-CollocatedRequestHandler::sendResponse(Int requestId, OutputStream* os, Byte, bool amd)
+CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, Byte, bool amd)
 {
     OutgoingAsyncBasePtr outAsync;
     {
@@ -201,7 +201,7 @@ CollocatedRequestHandler::sendResponse(Int requestId, OutputStream* os, Byte, bo
 
         if(_traceLevels->protocol >= 1)
         {
-            fillInValue(os, 10, static_cast<Int>(os->b.size()));
+            fillInValue(os, 10, static_cast<int32_t>(os->b.size()));
         }
 
         InputStream is(os->instance(), os->getEncoding(), *os, true); // Adopting the OutputStream's buffer.
@@ -251,7 +251,7 @@ CollocatedRequestHandler::sendNoResponse()
 }
 
 bool
-CollocatedRequestHandler::systemException(Int requestId, exception_ptr ex, bool amd)
+CollocatedRequestHandler::systemException(int32_t requestId, exception_ptr ex, bool amd)
 {
     handleException(requestId, ex, amd);
     _adapter->decDirectCount();
@@ -259,7 +259,7 @@ CollocatedRequestHandler::systemException(Int requestId, exception_ptr ex, bool 
 }
 
 void
-CollocatedRequestHandler::invokeException(Int requestId, exception_ptr ex, int /*invokeNum*/, bool amd)
+CollocatedRequestHandler::invokeException(int32_t requestId, exception_ptr ex, int /*invokeNum*/, bool amd)
 {
     handleException(requestId, ex, amd);
     _adapter->decDirectCount();
@@ -297,11 +297,11 @@ CollocatedRequestHandler::sentAsync(OutgoingAsyncBase* outAsync)
 }
 
 void
-CollocatedRequestHandler::invokeAll(OutputStream* os, Int requestId, Int batchRequestNum)
+CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t batchRequestNum)
 {
     if(_traceLevels->protocol >= 1)
     {
-        fillInValue(os, 10, static_cast<Int>(os->b.size()));
+        fillInValue(os, 10, static_cast<int32_t>(os->b.size()));
         if(requestId > 0)
         {
             fillInValue(os, headerSize, requestId);

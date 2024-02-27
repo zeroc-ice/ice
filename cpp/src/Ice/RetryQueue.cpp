@@ -3,7 +3,7 @@
 //
 
 #include <Ice/RetryQueue.h>
-#include <Ice/OutgoingAsync.h>
+#include "Ice/OutgoingAsync.h"
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
@@ -89,7 +89,7 @@ IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)
     out->cancelable(task); // This will throw if the request is canceled.
     try
     {
-        _instance->timer()->schedule(task, IceUtil::Time::milliSeconds(interval));
+        _instance->timer()->schedule(task, chrono::milliseconds(interval));
     }
     catch(const IceUtil::IllegalArgumentException&) // Expected if the communicator destroyed the timer.
     {

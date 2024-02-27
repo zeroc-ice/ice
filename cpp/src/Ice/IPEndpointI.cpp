@@ -24,7 +24,7 @@ IceInternal::IPEndpointInfoI::~IPEndpointInfoI()
 {
 }
 
-Ice::Short
+int16_t
 IceInternal::IPEndpointInfoI::type() const noexcept
 {
     return _endpoint->type();
@@ -50,7 +50,7 @@ IceInternal::IPEndpointI::getInfo() const noexcept
     return info;
 }
 
-Ice::Short
+int16_t
 IceInternal::IPEndpointI::type() const
 {
     return _instance->type();
@@ -188,7 +188,7 @@ IceInternal::IPEndpointI::equivalent(const EndpointIPtr& endpoint) const
     return ipEndpointI->type() == type() && ipEndpointI->_host == _host && ipEndpointI->_port == _port;
 }
 
-Ice::Int
+int32_t
 IceInternal::IPEndpointI::hash() const
 {
     lock_guard lock(_hashMutex);
@@ -366,7 +366,7 @@ IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const Net
 }
 
 void
-IceInternal::IPEndpointI::hashInit(Ice::Int& h) const
+IceInternal::IPEndpointI::hashInit(int32_t& h) const
 {
     hashAdd(h, _host);
     hashAdd(h, _port);
@@ -442,7 +442,7 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
                                               endpoint);
         }
         istringstream p(argument);
-        if(!(p >> const_cast<Ice::Int&>(_port)) || !p.eof())
+        if(!(p >> const_cast<int32_t&>(_port)) || !p.eof())
         {
             throw Ice::EndpointParseException(__FILE__, __LINE__, "invalid port value `" + argument + "' in endpoint " +
                                               endpoint);
@@ -500,11 +500,10 @@ IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, Input
     _hashInitialized(false)
 {
     s->read(const_cast<string&>(_host), false);
-    s->read(const_cast<Ice::Int&>(_port));
+    s->read(const_cast<int32_t&>(_port));
 }
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
-    IceUtil::Thread("Ice.HostResolver"),
     _instance(instance),
     _protocol(instance->protocolSupport()),
     _preferIPv6(instance->preferIPv6()),
@@ -677,7 +676,7 @@ IceInternal::EndpointHostResolver::updateObserver()
     {
         _observer.attach(observer->getThreadObserver(
             "Communicator",
-            name(),
+            "Ice.HostResolver",
             ThreadState::ThreadStateIdle,
             _observer.get()));
     }

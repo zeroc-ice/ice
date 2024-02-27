@@ -5,35 +5,11 @@
 #ifndef __Ice_ImplicitContext_h__
 #define __Ice_ImplicitContext_h__
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <optional>
-#include <Ice/ExceptionHelpers.h>
-#include <Ice/LocalException.h>
-#include <Ice/Current.h>
-#include <IceUtil/UndefSysMacros.h>
+#include "Config.h"
+#include "OutputStream.h"
+#include <Ice/Context.h>
 
-#ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
-#endif
-
-namespace Ice
-{
-
-class ImplicitContext;
-
-}
+#include <string>
 
 namespace Ice
 {
@@ -58,30 +34,28 @@ namespace Ice
  * null replaced by the empty-string.
  * \headerfile Ice/Ice.h
  */
-class ICE_CLASS(ICE_API) ImplicitContext
+class ICE_API ImplicitContext final
 {
 public:
-
-    ICE_MEMBER(ICE_API) virtual ~ImplicitContext();
 
     /**
      * Get a copy of the underlying context.
      * @return A copy of the underlying context.
      */
-    virtual ::Ice::Context getContext() const = 0;
+    Context getContext() const;
 
     /**
      * Set the underlying context.
      * @param newContext The new context.
      */
-    virtual void setContext(const Context& newContext) = 0;
+    void setContext(const Context& newContext);
 
     /**
      * Check if this key has an associated value in the underlying context.
      * @param key The key.
      * @return True if the key has an associated value, False otherwise.
      */
-    virtual bool containsKey(const ::std::string& key) const = 0;
+    bool containsKey(const std::string& key) const;
 
     /**
      * Get the value associated with the given key in the underlying context. Returns an empty string if no value is
@@ -90,7 +64,7 @@ public:
      * @param key The key.
      * @return The value associated with the key.
      */
-    virtual ::std::string get(const ::std::string& key) const = 0;
+    std::string get(const std::string& key) const;
 
     /**
      * Create or update a key/value entry in the underlying context.
@@ -98,33 +72,39 @@ public:
      * @param value The value.
      * @return The previous value associated with the key, if any.
      */
-    virtual ::std::string put(const ::std::string& key, const ::std::string& value) = 0;
+    std::string put(const std::string& key, const std::string& value);
 
     /**
      * Remove the entry for the given key in the underlying context.
      * @param key The key.
      * @return The value associated with the key, if any.
      */
-    virtual ::std::string remove(const ::std::string& key) = 0;
+    std::string remove(const std::string& key);
+
+    /**
+     * Marshals the underlying context plus the given context. Entries in the given context overwrite entries in the
+     * underlying context.
+     * @param context The context to write to the output stream.
+     * @param os The output stream.
+     */
+    void write(const Context& context, Ice::OutputStream* os) const;
+
+    /**
+     * Combines the underlying context plus the given context. Entries in the given context overwrite entries in the
+     * underlying context.
+     * @param context The context to combine with the underlying context.
+     * @param combined The combined context.
+     */
+    void combine(const Context& context, Context& combined) const;
+
+private:
+
+    mutable std::mutex _mutex;
+    Context _context;
 };
 
-}
-
-/// \cond STREAM
-namespace Ice
-{
+using ImplicitContextPtr = std::shared_ptr<ImplicitContext>;
 
 }
-/// \endcond
 
-/// \cond INTERNAL
-namespace Ice
-{
-
-using ImplicitContextPtr = ::std::shared_ptr<ImplicitContext>;
-
-}
-/// \endcond
-
-#include <IceUtil/PopDisableWarnings.h>
 #endif

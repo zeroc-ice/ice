@@ -9,7 +9,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/Object.h>
 #include <Ice/ValueF.h>
-#include <Ice/ProxyF.h>
+#include "ProxyF.h"
 #include <Ice/LoggerF.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/Buffer.h>
@@ -18,6 +18,7 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/StreamHelpers.h>
 #include <Ice/FactoryTable.h>
+#include "ReferenceF.h"
 
 namespace Ice
 {
@@ -363,13 +364,13 @@ public:
         // stream. If I use an Int, it is always 4 bytes. For
         // readSize()/writeSize(), it could be 1 or 5 bytes.
         //
-        Int sz;
+        std::int32_t sz;
         read(sz);
         if(sz < 6)
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        if(i - sizeof(Int) + sz > b.end())
+        if(i - sizeof(std::int32_t) + sz > b.end())
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
@@ -431,13 +432,13 @@ public:
      */
     EncodingVersion skipEmptyEncapsulation()
     {
-        Ice::Int sz;
+        std::int32_t sz;
         read(sz);
         if(sz < 6)
         {
             throwEncapsulationException(__FILE__, __LINE__);
         }
-        if(i - sizeof(Ice::Int) + sz > b.end())
+        if(i - sizeof(std::int32_t) + sz > b.end())
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
@@ -447,7 +448,7 @@ public:
 
         if(encoding == Ice::Encoding_1_0)
         {
-            if(sz != static_cast<Ice::Int>(sizeof(Ice::Int)) + 2)
+            if(sz != static_cast<std::int32_t>(sizeof(std::int32_t)) + 2)
             {
                 throwEncapsulationException(__FILE__, __LINE__);
             }
@@ -456,7 +457,7 @@ public:
         {
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
-            i += static_cast<size_t>(sz) - sizeof(Ice::Int) - 2;
+            i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
         }
         return encoding;
     }
@@ -468,7 +469,7 @@ public:
      * @param sz The number of bytes in the encapsulation.
      * @return encoding The encapsulation's encoding version.
      */
-    EncodingVersion readEncapsulation(const Byte*& v, Int& sz)
+    EncodingVersion readEncapsulation(const Byte*& v, std::int32_t& sz)
     {
         EncodingVersion encoding;
         v = i;
@@ -477,13 +478,13 @@ public:
         {
             throwEncapsulationException(__FILE__, __LINE__);
         }
-        if(i - sizeof(Int) + sz > b.end())
+        if(i - sizeof(std::int32_t) + sz > b.end())
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
 
         read(encoding);
-        i += static_cast<size_t>(sz) - sizeof(Int) - 2;
+        i += static_cast<size_t>(sz) - sizeof(std::int32_t) - 2;
         return encoding;
     }
 
@@ -502,7 +503,7 @@ public:
      *
      * @return The size of the encapsulated data.
      */
-    Int getEncapsulationSize();
+    std::int32_t getEncapsulationSize();
 
     /**
      * Skips over an encapsulation.
@@ -552,14 +553,14 @@ public:
      *
      * @return The extracted size.
      */
-    Int readSize() // Inlined for performance reasons.
+    std::int32_t readSize() // Inlined for performance reasons.
     {
         Byte byte;
         read(byte);
         unsigned char val = static_cast<unsigned char>(byte);
         if(val == 255)
         {
-            Int v;
+            std::int32_t v;
             read(v);
             if(v < 0)
             {
@@ -569,7 +570,7 @@ public:
         }
         else
         {
-            return static_cast<Int>(static_cast<unsigned char>(byte));
+            return static_cast<std::int32_t>(static_cast<unsigned char>(byte));
         }
     }
 
@@ -579,7 +580,7 @@ public:
      * @param minSize The minimum size required by the sequence type.
      * @return The extracted size.
      */
-    Int readAndCheckSeqSize(int minSize);
+    std::int32_t readAndCheckSeqSize(int minSize);
 
     /**
      * Reads a blob of bytes from the stream.
@@ -587,7 +588,7 @@ public:
      * @param bytes The vector to hold a copy of the bytes from the marshaling buffer.
      * @param sz The number of bytes to read.
      */
-    void readBlob(std::vector<Byte>& bytes, Int sz);
+    void readBlob(std::vector<Byte>& bytes, std::int32_t sz);
 
     /**
      * Reads a blob of bytes from the stream.
@@ -622,11 +623,12 @@ public:
     }
 
     /**
-     * Reads an optional data value from the stream.
+     * Reads an optional data value from the stream. For all types except proxies.
      * @param tag The tag ID.
      * @param v Holds the extracted data (if any).
      */
-    template<typename T> void read(Int tag, std::optional<T>& v)
+    template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void read(std::int32_t tag, std::optional<T>& v)
     {
         if(readOptional(tag, StreamOptionalHelper<T,
                                              StreamableTraits<T>::helper,
@@ -636,6 +638,26 @@ public:
             StreamOptionalHelper<T,
                                  StreamableTraits<T>::helper,
                                  StreamableTraits<T>::fixedLength>::read(this, *v);
+        }
+        else
+        {
+            v = std::nullopt;
+        }
+    }
+
+    /**
+     * Reads an optional proxy from the stream.
+     * @param tag The tag ID.
+     * @param v The proxy unmarshaled by this function. If nullopt, the proxy was not present in the stream or
+     * was set to nullopt (set to nullopt is supported for backward compatibility with Ice 3.7 and earlier releases).
+     */
+    template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+    void read(std::int32_t tag, std::optional<T>& v)
+    {
+        if (readOptional(tag, OptionalFormat::FSize))
+        {
+            skip(4); // the fixed-length size on 4 bytes
+            read(v); // can be nullopt
         }
         else
         {
@@ -685,7 +707,7 @@ public:
      * Reads a list of optional data values.
      */
     template<typename T>
-    void readAll(std::initializer_list<int> tags, std::optional<T>& v)
+    void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v)
     {
         read(*(tags.begin() + tags.size() - 1), v);
     }
@@ -694,7 +716,7 @@ public:
      * Reads a list of optional data values.
      */
     template<typename T, typename... Te>
-    void readAll(std::initializer_list<int> tags, std::optional<T>& v, std::optional<Te>&... ve)
+    void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v, std::optional<Te>&... ve)
     {
         size_t index = tags.size() - sizeof...(ve) - 1;
         read(*(tags.begin() + index), v);
@@ -708,7 +730,7 @@ public:
      * @param expectedFormat The optional format for the value.
      * @return True if the value is present, false otherwise.
      */
-    bool readOptional(Int tag, OptionalFormat expectedFormat)
+    bool readOptional(std::int32_t tag, OptionalFormat expectedFormat)
     {
         assert(_currentEncaps);
         if(_currentEncaps->decoder)
@@ -774,19 +796,20 @@ public:
     void read(std::pair<const bool*, const bool*>& v);
 
     /**
-     * Reads a short from the stream.
-     * @param v The extracted short.
+     * Unmarshals a Slice short into an int16_t.
+     * @param v The extracted int16_t.
      */
-    void read(Short& v);
+    void read(std::int16_t& v);
 
     /**
-     * Reads a sequence of shorts from the stream.
-     * @param v A vector to hold a copy of the short values.
+     * Unmarshals a sequence of Slice shorts into a vector of int16_t.
+     * @param v A vector to hold a copy of the int16_t values.
      */
-    void read(std::vector<Short>& v);
+    void read(std::vector<std::int16_t>& v);
 
     /**
-     * Reads a sequence of boolean values from the stream.
+     * Unmarshals a sequence of Slice shorts into a pair of int16_t pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const short*, const short*>& v);
@@ -795,16 +818,16 @@ public:
      * Reads an int from the stream.
      * @param v The extracted int.
      */
-    void read(Int& v) // Inlined for performance reasons.
+    void read(std::int32_t& v) // Inlined for performance reasons.
     {
-        if(b.end() - i < static_cast<int>(sizeof(Int)))
+        if(b.end() - i < static_cast<int>(sizeof(std::int32_t)))
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
         const Byte* src = &(*i);
-        i += sizeof(Int);
+        i += sizeof(std::int32_t);
 #ifdef ICE_BIG_ENDIAN
-        Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Int) - 1;
+        Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(std::int32_t) - 1;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest-- = *src++;
@@ -822,7 +845,7 @@ public:
      * Reads a sequence of ints from the stream.
      * @param v A vector to hold a copy of the int values.
      */
-    void read(std::vector<Int>& v);
+    void read(std::vector<std::int32_t>& v);
 
     /**
      * Reads a sequence of ints from the stream.
@@ -834,52 +857,54 @@ public:
      * Reads a long from the stream.
      * @param v The extracted long.
      */
-    void read(Long& v);
+    void read(std::int64_t& v);
 
     /**
      * Reads a sequence of longs from the stream.
      * @param v A vector to hold a copy of the long values.
      */
-    void read(std::vector<Long>& v);
+    void read(std::vector<std::int64_t>& v);
 
     /**
      * Reads a sequence of longs from the stream.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
-    void read(std::pair<const long long*, const long long*>& v);
+    void read(std::pair<const std::int64_t*, const std::int64_t*>& v);
 
     /**
-     * Reads a float from the stream.
+     * Unmarshals a Slice float into a float.
      * @param v The extracted float.
      */
-    void read(Float& v);
+    void read(float& v);
 
     /**
-     * Reads a sequence of floats from the stream.
-     * @param v A vector to hold a copy of the float values.
+     * Unmarshals a sequence of Slice floats into a vector of float.
+     * @param v An output vector filled by this function.
      */
-    void read(std::vector<Float>& v);
+    void read(std::vector<float>& v);
 
     /**
-     * Reads a sequence of floats from the stream.
+     * Unmarshals a sequence of Slice floats into a pair of float pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const float*, const float*>& v);
 
     /**
-     * Reads a double from the stream.
+     * Unmarshals a Slice double into a double.
      * @param v The extracted double.
      */
-    void read(Double& v);
+    void read(double& v);
 
     /**
-     * Reads a sequence of doubles from the stream.
-     * @param v A vector to hold a copy of the double values.
+     * Unmarshals a sequence of Slice doubles into a vector of double.
+     * @param v An output vector filled by this function.
      */
-    void read(std::vector<Double>& v);
+    void read(std::vector<double>& v);
 
     /**
-     * Reads a sequence of doubles from the stream.
+     * Unmarshals a sequence of Slice doubles into a pair of double pointers representing the start and end of the
+     * sequence elements.
      * @param v A pair of pointers representing the start and end of the sequence elements.
      */
     void read(std::pair<const double*, const double*>& v);
@@ -920,28 +945,21 @@ public:
      * @param v The extracted sequence.
      */
     void read(std::vector<std::wstring>& v);
-
-    /**
-     * Reads a proxy from the stream.
-     * @return The proxy as the base ObjectPrx type.
-     */
-    std::shared_ptr<ObjectPrx> readProxy();
-
     /**
      * Reads a typed proxy from the stream.
      * @param v The proxy as a user-defined type.
      */
-    template<typename T, typename ::std::enable_if<::std::is_base_of<ObjectPrx, T>::value>::type* = nullptr>
-    void read(::std::shared_ptr<T>& v)
+    template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+    void read(std::optional<Prx>& v)
     {
-        ::std::shared_ptr<ObjectPrx> proxy(readProxy());
-        if(!proxy)
+        IceInternal::ReferencePtr ref = readReference();
+        if (ref)
         {
-            v = 0;
+            v = Prx::_fromReference(ref);
         }
         else
         {
-            v = std::make_shared<T>(*proxy);
+            v = std::nullopt;
         }
     }
 
@@ -971,7 +989,7 @@ public:
      * @param maxValue The maximum enumerator value in the definition.
      * @return The enumerator value.
      */
-    Int readEnum(Int maxValue);
+    std::int32_t readEnum(std::int32_t maxValue);
 
     /**
      * Extracts a user exception from the stream and throws it.
@@ -1043,17 +1061,20 @@ public:
 
     void initialize(IceInternal::Instance*, const EncodingVersion&);
 
-    bool readOptImpl(Int, OptionalFormat);
+    bool readOptImpl(std::int32_t, OptionalFormat);
     /// \endcond
 
 private:
 
     void initialize(const EncodingVersion&);
 
+    // Reads a reference from the stream; the return value can be null.
+    IceInternal::ReferencePtr readReference();
+
     //
     // String
     //
-    bool readConverted(std::string&, Int);
+    bool readConverted(std::string&, std::int32_t);
 
     //
     // We can't throw these exception from inline functions from within
@@ -1096,7 +1117,7 @@ private:
         virtual void endSlice() = 0;
         virtual void skipSlice() = 0;
 
-        virtual bool readOptional(Int, OptionalFormat)
+        virtual bool readOptional(std::int32_t, OptionalFormat)
         {
             return false;
         }
@@ -1117,11 +1138,11 @@ private:
         std::string readTypeId(bool);
         std::shared_ptr<Value> newInstance(const std::string&);
 
-        void addPatchEntry(Int, PatchFunc, void*);
-        void unmarshal(Int, const std::shared_ptr<Value>&);
+        void addPatchEntry(std::int32_t, PatchFunc, void*);
+        void unmarshal(std::int32_t, const std::shared_ptr<Value>&);
 
-        typedef std::map<Int, std::shared_ptr<Value>> IndexToPtrMap;
-        typedef std::map<Int, std::string> TypeIdMap;
+        typedef std::map<std::int32_t, std::shared_ptr<Value>> IndexToPtrMap;
+        typedef std::map<std::int32_t, std::string> TypeIdMap;
 
         struct PatchEntry
         {
@@ -1130,7 +1151,7 @@ private:
             size_t classGraphDepth;
         };
         typedef std::vector<PatchEntry> PatchList;
-        typedef std::map<Int, PatchList> PatchMap;
+        typedef std::map<std::int32_t, PatchList> PatchMap;
 
         InputStream* _stream;
         Encaps* _encaps;
@@ -1147,7 +1168,7 @@ private:
         // Encapsulation attributes for object un-marshalling
         IndexToPtrMap _unmarshaledMap;
         TypeIdMap _typeIdMap;
-        Int _typeIdIndex;
+        std::int32_t _typeIdIndex;
         ValueList _valueList;
     };
 
@@ -1182,7 +1203,7 @@ private:
         bool _skipFirstSlice;
 
         // Slice attributes
-        Int _sliceSize;
+        std::int32_t _sliceSize;
         std::string _typeId;
     };
 
@@ -1206,22 +1227,22 @@ private:
         virtual void endSlice();
         virtual void skipSlice();
 
-        virtual bool readOptional(Int, OptionalFormat);
+        virtual bool readOptional(std::int32_t, OptionalFormat);
 
     private:
 
-        Int readInstance(Int, PatchFunc, void*);
+        std::int32_t readInstance(std::int32_t, PatchFunc, void*);
         SlicedDataPtr readSlicedData();
 
         struct IndirectPatchEntry
         {
-            Int index;
+            std::int32_t index;
             PatchFunc patchFunc;
             void* patchAddr;
         };
         typedef std::vector<IndirectPatchEntry> IndirectPatchList;
 
-        typedef std::vector<Int> IndexList;
+        typedef std::vector<std::int32_t> IndexList;
         typedef std::vector<IndexList> IndexListList;
 
         struct InstanceData
@@ -1250,7 +1271,7 @@ private:
 
             // Slice attributes
             Byte sliceFlags;
-            Int sliceSize;
+            std::int32_t sliceSize;
             std::string typeId;
             int compactId;
             IndirectPatchList indirectPatchList;
@@ -1275,7 +1296,7 @@ private:
             _current->skipFirstSlice = false;
         }
 
-        Int _valueIdIndex; // The ID of the next value to unmarshal.
+        std::int32_t _valueIdIndex; // The ID of the next value to unmarshal.
     };
 
     class Encaps : private ::IceUtil::noncopyable
@@ -1301,7 +1322,7 @@ private:
         }
 
         Container::size_type start;
-        Int sz;
+        std::int32_t sz;
         EncodingVersion encoding;
 
         EncapsDecoder* decoder;

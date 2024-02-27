@@ -11,7 +11,6 @@
 #include <IceBT/EndpointInfo.h>
 #include <IceBT/Engine.h>
 #include <IceBT/InstanceF.h>
-#include <IceUtil/Thread.h>
 
 namespace IceBT
 {
@@ -20,16 +19,16 @@ class EndpointI final : public IceInternal::EndpointI, public std::enable_shared
 {
 public:
 
-    EndpointI(const InstancePtr&, const std::string&, const std::string&, const std::string&, Ice::Int,
-              Ice::Int, const std::string&, bool);
+    EndpointI(const InstancePtr&, const std::string&, const std::string&, const std::string&, std::int32_t,
+              std::int32_t, const std::string&, bool);
     EndpointI(const InstancePtr&);
     EndpointI(const InstancePtr&, Ice::InputStream*);
 
     void streamWriteImpl(Ice::OutputStream*) const final;
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     const std::string& protocol() const final;
-    Ice::Int timeout() const final;
-    IceInternal::EndpointIPtr timeout(Ice::Int) const final;
+    std::int32_t timeout() const final;
+    IceInternal::EndpointIPtr timeout(std::int32_t) const final;
     const std::string& connectionId() const final;
     IceInternal::EndpointIPtr connectionId(const std::string&) const final;
     bool compress() const final;
@@ -49,7 +48,7 @@ public:
     bool operator==(const Ice::Endpoint&) const final;
     bool operator<(const Ice::Endpoint&) const final;
 
-    Ice::Int hash() const final;
+    std::int32_t hash() const final;
 
     std::string options() const final;
 
@@ -68,11 +67,11 @@ private:
     const std::string _addr;
     const std::string _uuid;
     const std::string _name;
-    const Ice::Int _channel;
-    const Ice::Int _timeout;
+    const std::int32_t _channel;
+    const std::int32_t _timeout;
     const std::string _connectionId;
     const bool _compress;
-    const Ice::Int _hashValue;
+    const std::int32_t _hashValue;
 };
 
 class EndpointInfoI final : public EndpointInfo
@@ -82,7 +81,7 @@ public:
     EndpointInfoI(const EndpointIPtr&);
     ~EndpointInfoI();
 
-    Ice::Short type() const noexcept final;
+    std::int16_t type() const noexcept final;
     bool datagram() const noexcept final;
     bool secure() const noexcept final;
 
@@ -98,7 +97,7 @@ public:
     EndpointFactoryI(const InstancePtr&);
     ~EndpointFactoryI();
 
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     std::string protocol() const final;
     IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
     IceInternal::EndpointIPtr read(Ice::InputStream*) const final;

@@ -52,7 +52,7 @@ TestControllerI::TestControllerI(const string& endpoint)
 };
 
 void
-TestControllerI::step(shared_ptr<Glacier2::SessionPrx> currentSession, TestToken currentState, TestToken& newState,
+TestControllerI::step(Glacier2::SessionPrxPtr currentSession, TestToken currentState, TestToken& newState,
                       const Ice::Current&)
 {
     switch(currentState.code)
@@ -72,7 +72,7 @@ TestControllerI::step(shared_ptr<Glacier2::SessionPrx> currentSession, TestToken
             lock_guard lock(_mutex);
             for(const auto& p : _sessions)
             {
-                if(targetEqualTo(p.session, currentSession))
+                if(p.session == currentSession)
                 {
                     session = p;
                     break;
@@ -162,12 +162,12 @@ TestControllerI::addSession(SessionTuple&& s)
 }
 
 void
-TestControllerI::notifyDestroy(const shared_ptr<Glacier2::SessionControlPrx>& control)
+TestControllerI::notifyDestroy(const Glacier2::SessionControlPrxPtr& control)
 {
     lock_guard lock(_mutex);
     for(auto i = _sessions.begin(); i != _sessions.end(); ++i)
     {
-        if(targetEqualTo(i->sessionControl, control))
+        if(i->sessionControl == control)
         {
             _sessions.erase(i);
             break;

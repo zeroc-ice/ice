@@ -65,7 +65,7 @@ public:
         in->startValue();
         // ::Test::B
         in->startSlice();
-        Ice::Int v;
+        int32_t v;
         in->read(v);
         in->endSlice();
         // ::Test::A
@@ -97,7 +97,7 @@ public:
         in->skipSlice();
         // ::Test::B
         in->startSlice();
-        Ice::Int v;
+        int32_t v;
         in->read(v);
         in->endSlice();
         // ::Test::A
@@ -140,7 +140,7 @@ public:
         out->endSlice();
         // ::Test::B
         out->startSlice(B::ice_staticId(), -1, false);
-        Ice::Int v = 14;
+        int32_t v = 14;
         out->write(v);
         out->endSlice();
         // ::Test::A
@@ -182,7 +182,7 @@ public:
         in->endSlice();
         // ::Test::B
         in->startSlice();
-        Ice::Int v;
+        int32_t v;
         in->read(v);
         in->endSlice();
         // ::Test::A
@@ -322,10 +322,7 @@ allTests(Test::TestHelper* helper, bool)
     cout << "testing checked cast... " << flush;
     InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
     test(initial);
-
-    test(targetEqualTo(initial, base));
-
-    bool supportsCppStringView = initial->supportsCppStringView();
+    test(initial == base);
     cout << "ok" << endl;
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
@@ -350,7 +347,7 @@ allTests(Test::TestHelper* helper, bool)
     MultiOptionalPtr mo1 = make_shared<MultiOptional>();
     mo1->a = static_cast<Ice::Byte>(15);
     mo1->b = true;
-    mo1->c = static_cast<Ice::Short>(19);
+    mo1->c = static_cast<int16_t>(19);
     mo1->d = 78;
     mo1->e = 99;
     mo1->f = 5.5f;
@@ -415,7 +412,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->b == true);
     test(mo3->c == static_cast<short>(19));
     test(mo3->d == 78);
-    test(mo3->e == static_cast<Ice::Long>(99));
+    test(mo3->e == static_cast<int64_t>(99));
     test(mo3->f == 5.5f);
     test(mo3->g == 1.0);
     test(mo3->h == string("test"));
@@ -517,7 +514,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->g == mo1->g);
     test(mo5->h == mo1->h);
     test(mo5->i == mo1->i);
-    test(targetEqualTo(mo5->j.value(), mo1->j.value()));
+    test(mo5->j == mo1->j);
     test(mo5->k == mo5->k);
     test(mo5->bs == mo1->bs);
     test(mo5->ss == mo1->ss);
@@ -535,7 +532,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->mips.value().size() == mo1->mips.value().size());
     for(size_t i = 0; i< mo5->mips.value().size(); ++i)
     {
-        test(targetEqualTo(mo5->mips.value()[i], mo1->mips.value()[i]));
+        test(mo5->mips.value()[i] == mo1->mips.value()[i]);
     }
 
     test(mo5->ied == mo1->ied);
@@ -546,7 +543,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->imipd.value().size() == mo1->imipd.value().size());
     for(auto& v : mo5->imipd.value())
     {
-        test(targetEqualTo(mo1->imipd.value()[v.first], v.second));
+        test(mo1->imipd.value()[v.first] == v.second);
     }
 
     test(mo5->bos == mo1->bos);
@@ -581,7 +578,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!mo7->g);
     test(mo7->h == mo1->h);
     test(!mo7->i);
-    test(targetEqualTo(mo7->j.value(), mo1->j.value()));
+    test(mo7->j == mo1->j);
     test(!mo7->k);
     test(mo7->bs == mo1->bs);
     test(!mo7->ss);
@@ -650,7 +647,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo8->mips.value().size() == mo1->mips.value().size());
     for(size_t i = 0; i< mo8->mips.value().size(); ++i)
     {
-        test(targetEqualTo(mo8->mips.value()[i], mo1->mips.value()[i]));
+        test(mo8->mips.value()[i] == mo1->mips.value()[i]);
     }
 
     test(mo8->ied == mo1->ied);
@@ -1006,12 +1003,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Short> p1;
-        optional<Ice::Short> p3;
-        optional<Ice::Short> p2 = initial->opShort(p1, p3);
+        optional<int16_t> p1;
+        optional<int16_t> p3;
+        optional<int16_t> p2 = initial->opShort(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Short sval = 56;
+        const int16_t sval = 56;
 
         p1 = sval;
         p2 = initial->opShort(p1, p3);
@@ -1036,12 +1033,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Int> p1;
-        optional<Ice::Int> p3;
-        optional<Ice::Int> p2 = initial->opInt(p1, p3);
+        optional<int32_t> p1;
+        optional<int32_t> p3;
+        optional<int32_t> p2 = initial->opInt(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Int ival = 56;
+        const int32_t ival = 56;
 
         p1 = ival;
         p2 = initial->opInt(p1, p3);
@@ -1066,12 +1063,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Long> p1;
-        optional<Ice::Long> p3;
-        optional<Ice::Long> p2 = initial->opLong(p1, p3);
+        optional<int64_t> p1;
+        optional<int64_t> p3;
+        optional<int64_t> p2 = initial->opLong(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Long lval = 56;
+        const int64_t lval = 56;
 
         p1 = lval;
         p2 = initial->opLong(p1, p3);
@@ -1096,12 +1093,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Float> p1;
-        optional<Ice::Float> p3;
-        optional<Ice::Float> p2 = initial->opFloat(p1, p3);
+        optional<float> p1;
+        optional<float> p3;
+        optional<float> p2 = initial->opFloat(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Float fval = 1.0f;
+        const float fval = 1.0f;
 
         p1 = fval;
         p2 = initial->opFloat(p1, p3);
@@ -1126,12 +1123,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<Ice::Double> p1;
-        optional<Ice::Double> p3;
-        optional<Ice::Double> p2 = initial->opDouble(p1, p3);
+        optional<double> p1;
+        optional<double> p3;
+        optional<double> p2 = initial->opDouble(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Double dval = 1.0;
+        const double dval = 1.0;
 
         p1 = dval;
         p2 = initial->opDouble(p1, p3);
@@ -1183,39 +1180,6 @@ allTests(Test::TestHelper* helper, bool)
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();
         in2.endEncapsulation();
-    }
-
-    {
-        if(supportsCppStringView)
-        {
-            optional<Util::string_view> p1;
-            optional<string> p3;
-            optional<string> p2 = initial->opCustomString(p1, p3);
-            test(!p2 && !p3);
-
-            const string sval = "test";
-
-            p1 = Util::string_view(sval);
-            p2 = initial->opString(sval, p3);
-            test(p2 == sval && p3 == sval);
-
-            Ice::OutputStream out(communicator);
-            out.startEncapsulation();
-            out.write(2, p1);
-            out.endEncapsulation();
-            out.finished(inEncaps);
-            initial->ice_invoke("opCustomString", Ice::OperationMode::Normal, inEncaps, outEncaps);
-            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-            in.startEncapsulation();
-            in.read(1, p2);
-            in.read(3, p3);
-            in.endEncapsulation();
-            test(p2 == sval && p3 == sval);
-
-            Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-            in2.startEncapsulation();
-            in2.endEncapsulation();
-        }
     }
 
     {
@@ -1334,6 +1298,7 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
+        // TODO: remove this testing for tagged classes alongside the tagged class support.
         optional<OneOptionalPtr> p1;
         optional<OneOptionalPtr> p3;
         optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
@@ -1368,15 +1333,15 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<MyInterfacePrxPtr> p1;
-        optional<MyInterfacePrxPtr> p3;
-        optional<MyInterfacePrxPtr> p2 = initial->opMyInterfaceProxy(p1, p3);
+        optional<MyInterfacePrx> p1;
+        optional<MyInterfacePrx> p3;
+        optional<MyInterfacePrx> p2 = initial->opMyInterfaceProxy(p1, p3);
         test(!p2 && !p3);
 
         p1 = Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test"));
         p2 = initial->opMyInterfaceProxy(p1, p3);
 
-        test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
+        test(p2.value() == p1.value() && p3.value() == p1.value());
 
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
@@ -1390,7 +1355,7 @@ allTests(Test::TestHelper* helper, bool)
         in.read(3, p3);
         in.endEncapsulation();
 
-        test(targetEqualTo(p2.value(), p1.value()) && targetEqualTo(p3.value(), p1.value()));
+        test(p2.value() == p1.value() && p3.value() == p1.value());
 
         Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
         in2.startEncapsulation();
@@ -1484,12 +1449,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Short*, const Ice::Short*> > p1;
+        optional<std::pair<const int16_t*, const int16_t*> > p1;
         optional<ShortSeq> p3;
         optional<ShortSeq> p2 = initial->opShortSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Short> bs(100);
+        vector<int16_t> bs(100);
         fill(bs.begin(), bs.end(), 56);
         p1 = toArrayRange(bs);
         p2 = initial->opShortSeq(p1, p3);
@@ -1515,12 +1480,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Int*, const Ice::Int*> > p1;
+        optional<std::pair<const int32_t*, const int32_t*> > p1;
         optional<IntSeq> p3;
         optional<IntSeq> p2 = initial->opIntSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Int> bs(100);
+        vector<int32_t> bs(100);
         fill(bs.begin(), bs.end(), 56);
         p1 = toArrayRange(bs);
         p2 = initial->opIntSeq(p1, p3);
@@ -1546,12 +1511,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Long*, const Ice::Long*> > p1;
+        optional<std::pair<const int64_t*, const int64_t*> > p1;
         optional<LongSeq> p3;
         optional<LongSeq> p2 = initial->opLongSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Long> bs(100);
+        vector<int64_t> bs(100);
         fill(bs.begin(), bs.end(), 56);
         p1 = toArrayRange(bs);
         p2 = initial->opLongSeq(p1, p3);
@@ -1577,12 +1542,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Float*, const Ice::Float*> > p1;
+        optional<std::pair<const float*, const float*> > p1;
         optional<FloatSeq> p3;
         optional<FloatSeq> p2 = initial->opFloatSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Float> bs(100);
+        vector<float> bs(100);
         fill(bs.begin(), bs.end(), 1.0f);
         p1 = toArrayRange(bs);
         p2 = initial->opFloatSeq(p1, p3);
@@ -1608,12 +1573,12 @@ allTests(Test::TestHelper* helper, bool)
     }
 
     {
-        optional<std::pair<const Ice::Double*, const Ice::Double*> > p1;
+        optional<std::pair<const double*, const double*> > p1;
         optional<DoubleSeq> p3;
         optional<DoubleSeq> p2 = initial->opDoubleSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Double> bs(100);
+        vector<double> bs(100);
         fill(bs.begin(), bs.end(), 1.0);
         p1 = toArrayRange(bs);
         p2 = initial->opDoubleSeq(p1, p3);
@@ -1779,45 +1744,6 @@ allTests(Test::TestHelper* helper, bool)
         in2.endEncapsulation();
     }
 
-    {
-        if(supportsCppStringView)
-        {
-            optional<std::map<int, Util::string_view> > p1;
-            optional<IntStringDict> p3;
-            optional<IntStringDict> p2 = initial->opCustomIntStringDict(p1, p3);
-            test(!p2 && !p3);
-
-            map<int, Util::string_view> ss;
-            ss.insert(make_pair<int, Util::string_view>(5, "testing"));
-            p1 = ss;
-            p2 = initial->opCustomIntStringDict(p1, p3);
-            test(p2 && p3);
-            test(p2 == p3);
-            test(p2->size() == p1->size());
-            test((*p2)[5] == ss[5].to_string());
-
-            Ice::OutputStream out(communicator);
-            out.startEncapsulation();
-            out.write(2, p1);
-            out.endEncapsulation();
-            out.finished(inEncaps);
-            initial->ice_invoke("opCustomIntStringDict", Ice::OperationMode::Normal, inEncaps, outEncaps);
-            Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
-            in.startEncapsulation();
-            in.read(1, p2);
-            in.read(3, p3);
-            in.endEncapsulation();
-            test(p2 && p3);
-            test(p2 == p3);
-            test(p2->size() == p1->size());
-            test((*p2)[5] == ss[5].to_string());
-
-            Ice::InputStream in2(communicator, out.getEncoding(), outEncaps);
-            in2.startEncapsulation();
-            in2.endEncapsulation();
-        }
-    }
-
     cout << "ok" << endl;
 
     cout << "testing exception optionals... " << flush;
@@ -1864,7 +1790,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            optional<Ice::Int> a;
+            optional<int32_t> a;
             optional<string> b;
             optional<OneOptionalPtr> o;
             initial->opDerivedException(a, b, o);
@@ -1887,7 +1813,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            optional<Ice::Int> a = 30;
+            optional<int32_t> a = 30;
             optional<string> b = string("test2");
             optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
             initial->opDerivedException(a, b, o);
@@ -1910,7 +1836,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            optional<Ice::Int> a;
+            optional<int32_t> a;
             optional<string> b;
             optional<OneOptionalPtr> o;
             initial->opRequiredException(a, b, o);
@@ -1931,7 +1857,7 @@ allTests(Test::TestHelper* helper, bool)
 
         try
         {
-            optional<Ice::Int> a = 30;
+            optional<int32_t> a = 30;
             optional<string> b = string("test2");
             optional<OneOptionalPtr> o = make_shared<OneOptional>(53);
             initial->opRequiredException(a, b, o);

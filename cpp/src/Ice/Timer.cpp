@@ -15,25 +15,10 @@ TimerTask::~TimerTask()
     // Out of line to avoid weak vtable
 }
 
-TimerPtr
-Timer::create()
-{
-    auto timer = shared_ptr<Timer>(new Timer());
-    timer->start();
-    return timer;
-}
-
-TimerPtr
-Timer::create(int priority)
-{
-    auto timer = shared_ptr<Timer>(new Timer());
-    timer->start(0, priority);
-    return timer;
-}
-
 Timer::Timer() :
-    Thread("IceUtil timer thread"),
-    _destroyed(false)
+    _destroyed(false),
+    _wakeUpTime(chrono::steady_clock::time_point()),
+    _worker(&Timer::run, this)
 {
 }
 
@@ -41,154 +26,92 @@ void
 Timer::destroy()
 {
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+        std::lock_guard lock(_mutex);
         if(_destroyed)
         {
             return;
         }
         _destroyed = true;
-        _monitor.notify();
         _tasks.clear();
         _tokens.clear();
+        _condition.notify_one();
     }
 
-    if(getThreadControl() == ThreadControl())
+    if (std::this_thread::get_id() == _worker.get_id())
     {
-        getThreadControl().detach();
+        _worker.detach();
     }
-    else
+    else if (_worker.joinable())
     {
-        getThreadControl().join();
-    }
-}
-
-void
-Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& delay)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    if(_destroyed)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
-    }
-
-    IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
-    IceUtil::Time time = now + delay;
-    if(delay > IceUtil::Time() && time < now)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
-    }
-
-    bool inserted = _tasks.insert(make_pair(task, time)).second;
-    if(!inserted)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
-    }
-    _tokens.insert(Token(time, IceUtil::Time(), task));
-
-    if(_wakeUpTime == IceUtil::Time() || time < _wakeUpTime)
-    {
-        _monitor.notify();
-    }
-}
-
-void
-Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    if(_destroyed)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "timer destroyed");
-    }
-
-    IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
-    const Token token(now + delay, delay, task);
-    if(delay > IceUtil::Time() && token.scheduledTime < now)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
-    }
-
-    bool inserted = _tasks.insert(make_pair(task, token.scheduledTime)).second;
-    if(!inserted)
-    {
-        throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
-    }
-    _tokens.insert(token);
-
-    if(_wakeUpTime == IceUtil::Time() || token.scheduledTime < _wakeUpTime)
-    {
-        _monitor.notify();
+        _worker.join();
     }
 }
 
 bool
 Timer::cancel(const TimerTaskPtr& task)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    lock_guard lock(_mutex);
     if(_destroyed)
     {
         return false;
     }
 
-    map<TimerTaskPtr, IceUtil::Time, TimerTaskCompare>::iterator p = _tasks.find(task);
+    auto p = _tasks.find(task);
     if(p == _tasks.end())
     {
         return false;
     }
 
-    _tokens.erase(Token(p->second, IceUtil::Time(), p->first));
+    _tokens.erase(Token { p->second, nullopt, p->first });
     _tasks.erase(p);
 
     return true;
 }
 
-void
-Timer::run()
+void Timer::run()
 {
-    Token token(IceUtil::Time(), IceUtil::Time(), 0);
-    while(true)
+    Token token { chrono::steady_clock::time_point(), nullopt, nullptr };
+    while (true)
     {
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+            unique_lock lock(_mutex);
 
-            if(!_destroyed)
+            if (!_destroyed)
             {
-                //
-                // If the task we just ran is a repeated task, schedule it
-                // again for execution if it wasn't canceled.
-                //
-                if(token.delay != IceUtil::Time())
+                // If the task we just ran is a repeated task, schedule it again for execution if it wasn't canceled.
+                if (token.delay)
                 {
-                    map<TimerTaskPtr, IceUtil::Time, TimerTaskCompare>::iterator p = _tasks.find(token.task);
-                    if(p != _tasks.end())
+                    auto p = _tasks.find(token.task);
+                    if (p != _tasks.end())
                     {
-                        token.scheduledTime = IceUtil::Time::now(IceUtil::Time::Monotonic) + token.delay;
+                        token.scheduledTime = chrono::steady_clock::now() + token.delay.value();
                         p->second = token.scheduledTime;
                         _tokens.insert(token);
                     }
                 }
-                token = Token(IceUtil::Time(), IceUtil::Time(), 0);
+                token = { chrono::steady_clock::time_point(), nullopt, nullptr };
 
-                if(_tokens.empty())
+                if (_tokens.empty())
                 {
-                    _wakeUpTime = IceUtil::Time();
-                    _monitor.wait();
+                    _wakeUpTime = chrono::steady_clock::time_point();
+                    _condition.wait(lock);
                 }
             }
 
-            if(_destroyed)
+            if (_destroyed)
             {
                 break;
             }
 
-            while(!_tokens.empty() && !_destroyed)
+            while (!_tokens.empty() && !_destroyed)
             {
-                const IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
+                const auto now = chrono::steady_clock::now();
                 const Token& first = *(_tokens.begin());
-                if(first.scheduledTime <= now)
+                if (first.scheduledTime <= now)
                 {
                     token = first;
                     _tokens.erase(_tokens.begin());
-                    if(token.delay == IceUtil::Time())
+                    if (!token.delay)
                     {
                         _tasks.erase(token.task);
                     }
@@ -196,35 +119,16 @@ Timer::run()
                 }
 
                 _wakeUpTime = first.scheduledTime;
-                try
-                {
-                    _monitor.timedWait(first.scheduledTime - now);
-                }
-                catch(const IceUtil::InvalidTimeoutException&)
-                {
-                    IceUtil::Time timeout = (first.scheduledTime - now) / 2;
-                    while(timeout > IceUtil::Time())
-                    {
-                        try
-                        {
-                            _monitor.timedWait(timeout);
-                            break;
-                        }
-                        catch(const IceUtil::InvalidTimeoutException&)
-                        {
-                            timeout = timeout / 2;
-                        }
-                    }
-                }
+                _condition.wait_for(lock, first.scheduledTime - now);
             }
 
-            if(_destroyed)
+            if (_destroyed)
             {
                 break;
             }
         }
 
-        if(token.task)
+        if (token.task)
         {
             try
             {
@@ -247,13 +151,11 @@ Timer::run()
                 consoleErr << "IceUtil::Timer::run(): uncaught exception" << endl;
             }
 
-            if(token.delay == IceUtil::Time())
+            if (!token.delay)
             {
-                //
                 // If the task is not a repeated task, clear the task reference now rather than
                 // in the synchronization block above. Clearing the task reference might end up
                 // calling user code which could trigger a deadlock. See also issue #352.
-                //
                 token.task = nullptr;
             }
         }

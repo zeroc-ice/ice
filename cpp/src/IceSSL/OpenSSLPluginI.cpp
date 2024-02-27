@@ -20,7 +20,7 @@ public:
 
     PluginI(const Ice::CommunicatorPtr&);
 
-    virtual Ice::Long getOpenSSLVersion() const;
+    virtual int64_t getOpenSSLVersion() const;
     virtual IceSSL::CertificatePtr create(x509_st*) const;
     virtual IceSSL::CertificatePtr load(const std::string&) const;
     virtual IceSSL::CertificatePtr decode(const std::string&) const;
@@ -38,7 +38,7 @@ PluginI::PluginI(const Ice::CommunicatorPtr& com) :
 {
 }
 
-Ice::Long
+int64_t
 PluginI::getOpenSSLVersion() const
 {
     return SSLeay();

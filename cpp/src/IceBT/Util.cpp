@@ -65,7 +65,7 @@ IceBT::formatDeviceAddress(const DeviceAddress& addr)
 }
 
 string
-IceBT::addrToString(const string& addr, Int channel)
+IceBT::addrToString(const string& addr, int32_t channel)
 {
     ostringstream ostr;
     ostr << addr << '#' << channel;
@@ -79,7 +79,7 @@ IceBT::addrToString(const SocketAddress& addr)
 }
 
 SocketAddress
-IceBT::createAddr(const string& addr, Ice::Int channel)
+IceBT::createAddr(const string& addr, int32_t channel)
 {
     SocketAddress ret;
     memset(&ret, 0, sizeof(ret));

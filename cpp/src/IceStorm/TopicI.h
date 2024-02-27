@@ -29,13 +29,13 @@ public:
                                              const SubscriberRecordSeq&);
 
     std::string getName() const;
-    std::shared_ptr<Ice::ObjectPrx> getPublisher() const;
-    std::shared_ptr<Ice::ObjectPrx> getNonReplicatedPublisher() const;
-    std::shared_ptr<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, std::shared_ptr<Ice::ObjectPrx>);
-    void unsubscribe(const std::shared_ptr<Ice::ObjectPrx>&);
-    std::shared_ptr<TopicLinkPrx> getLinkProxy();
-    void link(const std::shared_ptr<TopicPrx>&, int);
-    void unlink(const std::shared_ptr<TopicPrx>&);
+    Ice::ObjectPrxPtr getPublisher() const;
+    Ice::ObjectPrxPtr getNonReplicatedPublisher() const;
+    Ice::ObjectPrxPtr subscribeAndGetPublisher(QoS, Ice::ObjectPrxPtr);
+    void unsubscribe(const Ice::ObjectPrxPtr&);
+    TopicLinkPrxPtr getLinkProxy();
+    void link(const TopicPrxPtr&, int);
+    void unlink(const TopicPrxPtr&);
     LinkInfoSeq getLinkInfoSeq() const;
     Ice::IdentitySeq getSubscribers() const;
     void reap(const Ice::IdentitySeq&);
@@ -48,7 +48,7 @@ public:
     // Internal methods
     bool destroyed() const;
     Ice::Identity id() const;
-    std::shared_ptr<TopicPrx> proxy() const;
+    TopicPrxPtr proxy() const;
     void shutdown();
     void publish(bool, const EventDataSeq&);
 
@@ -72,15 +72,15 @@ private:
     //
     // Immutable members.
     //
-    const std::shared_ptr<Ice::ObjectPrx> _publisherReplicaProxy;
+    const Ice::ObjectPrxPtr _publisherReplicaProxy;
     const std::shared_ptr<PersistentInstance> _instance;
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
 
     IceInternal::ObserverHelperT<IceStorm::Instrumentation::TopicObserver> _observer;
 
-    std::shared_ptr<Ice::ObjectPrx> _publisherPrx; // The actual publisher proxy.
-    std::shared_ptr<TopicLinkPrx> _linkPrx; // The link proxy.
+    Ice::ObjectPrxPtr _publisherPrxPtr; // The actual publisher proxy.
+    TopicLinkPrxPtr _linkPrxPtr; // The link proxy.
 
     std::shared_ptr<Ice::Object> _servant; // The topic implementation servant.
 

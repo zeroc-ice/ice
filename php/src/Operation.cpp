@@ -92,13 +92,13 @@ public:
 
     virtual ~Invocation() = default;
 
-    Invocation(shared_ptr<Ice::ObjectPrx>, CommunicatorInfoPtr);
+    Invocation(Ice::ObjectPrx, CommunicatorInfoPtr);
 
     virtual void invoke(INTERNAL_FUNCTION_PARAMETERS) = 0;
 
 protected:
 
-    shared_ptr<Ice::ObjectPrx> _prx;
+    Ice::ObjectPrx _prx;
     CommunicatorInfoPtr _communicator;
 };
 using InvocationPtr = std::shared_ptr<Invocation>;
@@ -109,7 +109,7 @@ class TypedInvocation : public Invocation
 {
 public:
 
-    TypedInvocation(shared_ptr<Ice::ObjectPrx>, CommunicatorInfoPtr, OperationIPtr);
+    TypedInvocation(Ice::ObjectPrx, CommunicatorInfoPtr, OperationIPtr);
 
 protected:
 
@@ -119,7 +119,7 @@ protected:
     void unmarshalResults(int, zval*, zval*, const pair<const Ice::Byte*, const Ice::Byte*>&);
     void unmarshalException(zval*, const pair<const Ice::Byte*, const Ice::Byte*>&);
     bool validateException(const ExceptionInfoPtr&) const;
-    void checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>&) const;
+    void checkTwowayOnly(const Ice::ObjectPrx&) const;
 };
 
 // A synchronous typed invocation.
@@ -127,7 +127,7 @@ class SyncTypedInvocation final : public TypedInvocation
 {
 public:
 
-    SyncTypedInvocation(shared_ptr<Ice::ObjectPrx>, CommunicatorInfoPtr, OperationIPtr);
+    SyncTypedInvocation(Ice::ObjectPrx, CommunicatorInfoPtr, OperationIPtr);
 
     void invoke(INTERNAL_FUNCTION_PARAMETERS) final;
 };
@@ -302,7 +302,7 @@ IcePHP::OperationI::convertParams(zval* p, ParamInfoList& params, bool& usesClas
     assert(Z_TYPE_P(p) == IS_ARRAY);
     HashTable* arr = Z_ARRVAL_P(p);
     zval* val;
-    Ice::Int i = 0;
+    int32_t i = 0;
     ZEND_HASH_FOREACH_VAL(arr, val)
     {
         ParamInfoPtr param = convertParam(val, i++);
@@ -360,7 +360,7 @@ IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& 
 }
 
 // Invocation
-IcePHP::Invocation::Invocation(shared_ptr<Ice::ObjectPrx> prx, CommunicatorInfoPtr communicator) :
+IcePHP::Invocation::Invocation(Ice::ObjectPrx prx, CommunicatorInfoPtr communicator) :
     _prx(std::move(prx)),
     _communicator(std::move(communicator))
 {
@@ -368,7 +368,7 @@ IcePHP::Invocation::Invocation(shared_ptr<Ice::ObjectPrx> prx, CommunicatorInfoP
 
 // TypedInvocation
 IcePHP::TypedInvocation::TypedInvocation(
-    shared_ptr<Ice::ObjectPrx> prx,
+    Ice::ObjectPrx prx,
     CommunicatorInfoPtr communicator,
     OperationIPtr op) :
     Invocation(std::move(prx), std::move(communicator)),
@@ -625,7 +625,7 @@ IcePHP::TypedInvocation::validateException(const ExceptionInfoPtr& info) const
 }
 
 void
-IcePHP::TypedInvocation::checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>& proxy) const
+IcePHP::TypedInvocation::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 {
     if((_op->returnType || !_op->outParams.empty()) && !proxy->ice_isTwoway())
     {
@@ -635,7 +635,7 @@ IcePHP::TypedInvocation::checkTwowayOnly(const shared_ptr<Ice::ObjectPrx>& proxy
 
 // SyncTypedInvocation
 IcePHP::SyncTypedInvocation::SyncTypedInvocation(
-    shared_ptr<Ice::ObjectPrx> prx,
+    Ice::ObjectPrx prx,
     CommunicatorInfoPtr communicator,
     OperationIPtr op) :
     TypedInvocation(std::move(prx), std::move(communicator), std::move(op))
@@ -771,7 +771,7 @@ ZEND_FUNCTION(IcePHP_defineOperation)
 
 ZEND_FUNCTION(IcePHP_Operation_call)
 {
-    shared_ptr<Ice::ObjectPrx> proxy;
+    optional<Ice::ObjectPrx> proxy;
     ProxyInfoPtr info;
     CommunicatorInfoPtr comm;
 #ifndef NDEBUG
@@ -787,6 +787,6 @@ ZEND_FUNCTION(IcePHP_Operation_call)
     auto opi = dynamic_pointer_cast<OperationI>(op);
     assert(opi);
 
-    auto inv = make_shared<SyncTypedInvocation>(proxy, comm, opi);
+    auto inv = make_shared<SyncTypedInvocation>(std::move(proxy).value(), comm, opi);
     inv->invoke(INTERNAL_FUNCTION_PARAM_PASSTHRU);
 }

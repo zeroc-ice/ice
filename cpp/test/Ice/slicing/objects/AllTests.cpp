@@ -141,10 +141,6 @@ public:
     {
         unique_lock lock(_mutex);
         _condition.wait(lock, [this] { return _called; });
-        while(!_called)
-        {
-            wait();
-        }
         _called = false;
     }
 
@@ -152,7 +148,7 @@ protected:
 
     void called()
     {
-        unique_lock lock(_mutex);
+        lock_guard lock(_mutex);
         assert(!_called);
         _called = true;
         _condition.notify_one();
@@ -1286,8 +1282,8 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            auto b1 = std::move(result.p1);
-            auto b2 = std::move(result.p2);
+            auto b1 = std::move(std::get<0>(result));
+            auto b2 = std::move(std::get<1>(result));
 
             test(b1);
             test(b1->ice_id() == "::Test::D1");
@@ -1370,10 +1366,10 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            test(result.returnValue == result.p1);
+            test(std::get<0>(result) == std::get<1>(result));
 
-            breakCycles(result.returnValue);
-            breakCycles(result.p2);
+            breakCycles(std::get<0>(result));
+            breakCycles(std::get<1>(result));
         }
         catch(...)
         {
@@ -1407,10 +1403,10 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            test(result.returnValue == result.p2);
+            test(std::get<0>(result) == std::get<1>(result));
 
-            breakCycles(result.returnValue);
-            breakCycles(result.p1);
+            breakCycles(std::get<0>(result));
+            breakCycles(std::get<1>(result));
         }
         catch(...)
         {
@@ -1691,9 +1687,9 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            auto ret = result.returnValue;
-            auto p1 = result.p1;
-            auto p2 = result.p2;
+            auto ret = std::get<0>(result);
+            auto p1 = std::get<1>(result);
+            auto p2 = std::get<2>(result);
 
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
@@ -1754,8 +1750,8 @@ allTests(Test::TestHelper* helper)
         try
         {
             auto result = f.get();
-            auto ret = std::move(result.returnValue);
-            auto b = std::move(result.p);
+            auto ret = std::move(std::get<0>(result));
+            auto b = std::move(std::get<1>(result));
 
             test(b);
             test(b->sb == "D4.sb (1)");
@@ -2259,8 +2255,8 @@ allTests(Test::TestHelper* helper)
             }
 
             auto result = test->dictionaryTestAsync(bin).get();
-            r = result.returnValue;
-            bout = result.bout;
+            r = std::get<0>(result);
+            bout = std::get<1>(result);
 
             test(bout.size() == 10);
             for(i = 0; i < 10; ++i)

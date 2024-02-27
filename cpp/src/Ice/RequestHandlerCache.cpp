@@ -324,6 +324,10 @@ RequestHandlerCache::handleException(
         {
             throw; // Retry could break at-most-once semantics, don't retry.
         }
+
+        // gcc complains without this return statement.
+        assert(false);
+        return 0;
     }
     assert(false);
     return 0;

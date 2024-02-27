@@ -81,7 +81,7 @@ GroupNodeInfo::GroupNodeInfo(int i) :
 {
 }
 
-GroupNodeInfo::GroupNodeInfo(int i, LogUpdate l, shared_ptr<Ice::ObjectPrx> o) :
+GroupNodeInfo::GroupNodeInfo(int i, LogUpdate l, Ice::ObjectPrxPtr o) :
     id(i), llu(l), observer(std::move(o))
 {
 }
@@ -137,8 +137,8 @@ toString(const set<int>& s)
 
 NodeI::NodeI(const shared_ptr<Instance>& instance,
              shared_ptr<Replica> replica,
-             shared_ptr<Ice::ObjectPrx> replicaProxy,
-             int id, const map<int, shared_ptr<NodePrx>>& nodes) :
+             Ice::ObjectPrxPtr replicaProxy,
+             int id, const map<int, NodePrxPtr>& nodes) :
     _timer(instance->timer()),
     _traceLevels(instance->traceLevels()),
     _observers(instance->observers()),
@@ -158,7 +158,7 @@ NodeI::NodeI(const shared_ptr<Instance>& instance,
     for(const auto& node : _nodes)
     {
         auto prx = Ice::uncheckedCast<NodePrx>(node.second->ice_oneway());
-        const_cast<map<int, shared_ptr<NodePrx>>& >(_nodesOneway)[node.first] = std::move(prx);
+        const_cast<map<int, NodePrxPtr>& >(_nodesOneway)[node.first] = std::move(prx);
     }
 }
 
@@ -190,7 +190,7 @@ NodeI::start()
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
     _timer->schedule(_checkTask,
-                     IceUtil::Time::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
+                     chrono::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
     recovery();
 }
 
@@ -208,7 +208,7 @@ NodeI::check()
         if(_state == NodeState::NodeStateElection || _state == NodeState::NodeStateReorganization || _coord != _id)
         {
             assert(_checkTask);
-            _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+            _timer->schedule(_checkTask, chrono::seconds(_electionTimeout.count()));
             return;
         }
 
@@ -298,7 +298,7 @@ NodeI::check()
     if(tmpset.empty())
     {
         assert(_checkTask);
-        _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+        _timer->schedule(_checkTask, _electionTimeout);
         return;
     }
 
@@ -325,7 +325,7 @@ NodeI::check()
 
     assert(!_mergeTask);
     _mergeTask = make_shared<MergeTask>(shared_from_this(), tmpset);
-    _timer->schedule(_mergeTask, IceUtil::Time::seconds(delay.count()));
+    _timer->schedule(_mergeTask, delay);
 }
 
 // Called if the node has not heard from the coordinator in some time.
@@ -485,7 +485,7 @@ NodeI::merge(const set<int>& coordinatorSet)
         {
             timeout = 0s;
         }
-        _timer->schedule(_mergeContinueTask, IceUtil::Time::seconds(timeout.count()));
+        _timer->schedule(_mergeContinueTask, timeout);
     }
 }
 
@@ -644,7 +644,7 @@ NodeI::mergeContinue()
         {
             auto node = _nodes.find(n.id);
             assert(node != _nodes.end());
-            node->second->ready(_id, gp, _replicaProxy, static_cast<Ice::Int>(max), maxllu.generation);
+            node->second->ready(_id, gp, _replicaProxy, static_cast<int32_t>(max), maxllu.generation);
         }
         catch(const Ice::Exception& ex)
         {
@@ -672,13 +672,13 @@ NodeI::mergeContinue()
                 << " nodes with llu generation: " << maxllu.generation;
         }
         setState(NodeState::NodeStateNormal);
-        _coordinatorProxy = 0;
+        _coordinatorProxy = nullopt;
 
         _generation = maxllu.generation;
 
         assert(!_checkTask);
         _checkTask = make_shared<CheckTask>(shared_from_this());
-        _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+        _timer->schedule(_checkTask, _electionTimeout);
     }
 }
 
@@ -757,7 +757,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
 
         _coord = j;
         _group = gn;
-        max = static_cast<Ice::Int>(_max);
+        max = static_cast<int32_t>(_max);
     }
 
     Ice::IntSeq forwardedInvites;
@@ -794,7 +794,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
         if(!_timeoutTask)
         {
             _timeoutTask = make_shared<TimeoutTask>(shared_from_this());
-            _timer->scheduleRepeated(_timeoutTask, IceUtil::Time::seconds(_masterTimeout.count()));
+            _timer->scheduleRepeated(_timeoutTask, _masterTimeout);
         }
     }
 
@@ -812,7 +812,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
 }
 
 void
-NodeI::ready(int j, string gn, shared_ptr<Ice::ObjectPrx> coordinator, int max, Ice::Long generation,
+NodeI::ready(int j, string gn, Ice::ObjectPrxPtr coordinator, int max, int64_t generation,
              const Ice::Current&)
 {
     lock_guard<recursive_mutex> lg(_mutex);
@@ -849,13 +849,13 @@ NodeI::ready(int j, string gn, shared_ptr<Ice::ObjectPrx> coordinator, int max, 
         if(!_checkTask)
         {
             _checkTask = make_shared<CheckTask>(shared_from_this());
-            _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+            _timer->schedule(_checkTask, _electionTimeout);
         }
     }
 }
 
 void
-NodeI::accept(int j, string gn, Ice::IntSeq forwardedInvites, shared_ptr<Ice::ObjectPrx> observer, LogUpdate llu,
+NodeI::accept(int j, string gn, Ice::IntSeq forwardedInvites, Ice::ObjectPrxPtr observer, LogUpdate llu,
               int max, const Ice::Current&)
 {
     // Verify that j exists in our node set.
@@ -914,7 +914,7 @@ NodeI::accept(int j, string gn, Ice::IntSeq forwardedInvites, shared_ptr<Ice::Ob
         if((_up.size() == _nodes.size()-1 || _invitesIssued == _invitesAccepted) &&
             _mergeContinueTask && _timer->cancel(_mergeContinueTask))
         {
-            _timer->schedule(_mergeContinueTask, IceUtil::Time::seconds(0));
+            _timer->schedule(_mergeContinueTask, chrono::seconds::zero());
         }
     }
 }
@@ -933,7 +933,7 @@ NodeI::areYouThere(string gn, int j, const Ice::Current&) const
     return _group == gn && _coord == _id && _up.find(GroupNodeInfo(j)) != _up.end();
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 NodeI::sync(const Ice::Current&) const
 {
     return _replica->getSync();
@@ -972,7 +972,7 @@ NodeI::query(const Ice::Current&) const
 }
 
 void
-NodeI::recovery(Ice::Long generation)
+NodeI::recovery(int64_t generation)
 {
     unique_lock<recursive_mutex> lock(_mutex);
 
@@ -1021,7 +1021,7 @@ NodeI::recovery(Ice::Long generation)
     if(!_checkTask)
     {
         _checkTask = make_shared<CheckTask>(shared_from_this());
-        _timer->schedule(_checkTask, IceUtil::Time::seconds(_electionTimeout.count()));
+        _timer->schedule(_checkTask, _electionTimeout);
     }
 }
 
@@ -1061,7 +1061,7 @@ NodeI::destroy()
 // A node should only receive an observer init call if the node is
 // reorganizing and its not the coordinator.
 void
-NodeI::checkObserverInit(Ice::Long)
+NodeI::checkObserverInit(int64_t)
 {
     lock_guard<recursive_mutex> lg(_mutex);
     if(_state != NodeState::NodeStateReorganization)
@@ -1075,8 +1075,8 @@ NodeI::checkObserverInit(Ice::Long)
 }
 
 // Notify the node that we're about to start an update.
-shared_ptr<Ice::ObjectPrx>
-NodeI::startUpdate(Ice::Long& generation, const char* file, int line)
+Ice::ObjectPrxPtr
+NodeI::startUpdate(int64_t& generation, const char* file, int line)
 {
     bool majority = _observers->check();
 
@@ -1133,8 +1133,8 @@ NodeI::updateMaster(const char*, int)
     return true;
 }
 
-shared_ptr<Ice::ObjectPrx>
-NodeI::startCachedRead(Ice::Long& generation, const char* file, int line)
+Ice::ObjectPrxPtr
+NodeI::startCachedRead(int64_t& generation, const char* file, int line)
 {
     unique_lock<recursive_mutex> lock(_mutex);
 
@@ -1150,7 +1150,7 @@ NodeI::startCachedRead(Ice::Long& generation, const char* file, int line)
 }
 
 void
-NodeI::startObserverUpdate(Ice::Long generation, const char* file, int line)
+NodeI::startObserverUpdate(int64_t generation, const char* file, int line)
 {
     lock_guard<recursive_mutex> lg(_mutex);
 

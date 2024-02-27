@@ -14,6 +14,9 @@
 
 #include <IcePatch2Lib/Util.h>
 
+#include <thread>
+#include <chrono>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -621,7 +624,7 @@ Activator::activate(const string& name,
 //         out << "activated server `" << name << "' (pid = " << pi.dwProcessId << ")";
 //     }
 
-    return static_cast<Ice::Int>(process.pid);
+    return static_cast<int32_t>(process.pid);
 #else
     struct passwd pwbuf;
     vector<char> buffer(4096); // 4KB initial buffer size
@@ -910,10 +913,10 @@ Activator::activate(const string& name,
 }
 
 void
-Activator::deactivate(const string& name, const shared_ptr<Ice::ProcessPrx>& process)
+Activator::deactivate(const string& name, const Ice::ProcessPrxPtr& process)
 {
 #ifdef _WIN32
-    Ice::Int pid = getServerPid(name);
+    int32_t pid = getServerPid(name);
     if(pid == 0)
     {
         //
@@ -981,7 +984,7 @@ Activator::sendSignal(const string& name, const string& signal)
 void
 Activator::sendSignal(const string& name, int signal)
 {
-    Ice::Int pid = getServerPid(name);
+    int32_t pid = getServerPid(name);
     if(pid == 0)
     {
         //
@@ -1456,7 +1459,7 @@ Activator::waitPid(pid_t processPid)
                 if(errno == ECHILD && nRetry < 10)
                 {
                     // Wait 1ms, 11ms, 21ms, etc.
-                    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1));
+                    this_thread::sleep_for(chrono::milliseconds(nRetry * 10 + 1));
                     ++nRetry;
                     continue;
                 }

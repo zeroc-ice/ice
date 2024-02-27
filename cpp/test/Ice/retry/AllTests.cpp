@@ -11,7 +11,7 @@
 using namespace std;
 using namespace Test;
 
-class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
+class CallbackBase
 {
 public:
 
@@ -26,11 +26,8 @@ public:
 
     void check()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(!_called)
-        {
-            wait();
-        }
+        unique_lock lock(_mutex);
+        _condition.wait(lock, [this] { return _called; });
         _called = false;
     }
 
@@ -38,15 +35,17 @@ protected:
 
     void called()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        lock_guard lock(_mutex);
         assert(!_called);
         _called = true;
-        notify();
+        _condition.notify_one();
     }
 
 private:
 
     bool _called;
+    mutex _mutex;
+    condition_variable _condition;
 };
 
 class CallbackSuccess : public CallbackBase
@@ -96,11 +95,11 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
     cout << "testing checked cast... " << flush;
     RetryPrxPtr retry1 = Ice::checkedCast<RetryPrx>(base1);
     test(retry1);
-    test(Ice::targetEqualTo(retry1, base1));
+    test(retry1 == base1);
 
     RetryPrxPtr retry2 = Ice::checkedCast<RetryPrx>(base2);
     test(retry2);
-    test(Ice::targetEqualTo(retry2, base2));
+    test(retry2 == base2);
     cout << "ok" << endl;
 
     cout << "calling regular operation with first proxy... " << flush;

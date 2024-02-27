@@ -5,9 +5,6 @@
 #ifndef DISPATCHER_I_H
 #define DISPATCHER_I_H
 
-#include <IceUtil/Thread.h>
-#include <IceUtil/Monitor.h>
-#include <IceUtil/Mutex.h>
 #include <Ice/Dispatcher.h>
 #include <Ice/Connection.h>
 
@@ -32,7 +29,7 @@ private:
     std::function<void()> _call;
 };
 
-class Dispatcher : public IceUtil::Thread
+class Dispatcher
 {
 public:
 

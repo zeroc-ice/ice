@@ -14,7 +14,7 @@ public:
 
     IceInternal::TransceiverPtr connect();
 
-    Ice::Short type() const;
+    std::int16_t type() const;
     std::string toString() const;
 
     virtual bool operator==(const IceInternal::Connector&) const;

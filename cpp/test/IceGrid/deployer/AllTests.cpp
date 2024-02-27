@@ -5,7 +5,6 @@
 #include <Ice/Ice.h>
 #include <Ice/Comparable.h>
 #include <IceGrid/IceGrid.h>
-#include <IceUtil/Thread.h>
 #include <TestHelper.h>
 #include <Test.h>
 
@@ -51,17 +50,17 @@ bool isLongLineEnd(const string& line)
 
 }
 
-function<bool(const shared_ptr<Ice::ObjectPrx>&)>
+function<bool(const Ice::ObjectPrxPtr&)>
 proxyIdentityEqual(const string& strId)
 {
-    return [id = Ice::stringToIdentity(strId)](const shared_ptr<Ice::ObjectPrx>& obj)
+    return [id = Ice::stringToIdentity(strId)](const Ice::ObjectPrxPtr& obj)
     {
         return obj->ice_getIdentity() == id;
     };
 }
 
 void
-logTests(const shared_ptr<Ice::Communicator>& comm, const shared_ptr<AdminSessionPrx>& session)
+logTests(const shared_ptr<Ice::Communicator>& comm, const AdminSessionPrxPtr& session)
 {
     cout << "testing stderr/stdout/log files... " << flush;
     string testDir = comm->getProperties()->getProperty("TestDir");
@@ -91,7 +90,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const shared_ptr<AdminSessio
     {
     }
 
-    shared_ptr<Ice::ObjectPrx> obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("LogServer"));
+    Ice::ObjectPrxPtr obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("LogServer"));
     try
     {
         session->openServerStdErr("LogServer", -1)->destroy();
@@ -103,7 +102,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const shared_ptr<AdminSessio
         test(false);
     }
 
-    shared_ptr<FileIteratorPrx> it;
+    FileIteratorPrxPtr it;
     Ice::StringSeq lines;
     try
     {
@@ -363,20 +362,20 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr comm = helper->communicator();
-    shared_ptr<IceGrid::RegistryPrx> registry = Ice::checkedCast<IceGrid::RegistryPrx>(
+    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
-    shared_ptr<IceGrid::QueryPrx> query = Ice::checkedCast<IceGrid::QueryPrx>(
+    IceGrid::QueryPrxPtr query = Ice::checkedCast<IceGrid::QueryPrx>(
         comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Query"));
     test(query);
 
-    shared_ptr<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
+    AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          nullopt,
                                          Ice::ACMHeartbeat::HeartbeatAlways);
 
-    shared_ptr<AdminPrx> admin = session->getAdmin();
+    AdminPrxPtr admin = session->getAdmin();
     test(admin);
 
     cout << "testing server registration... "  << flush;
@@ -425,21 +424,21 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        shared_ptr<Ice::ObjectPrx> obj = query->findObjectByType("::Test");
+        Ice::ObjectPrxPtr obj = query->findObjectByType("::Test");
         string id = comm->identityToString(obj->ice_getIdentity());
         test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
              id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
-        shared_ptr<Ice::ObjectPrx> obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample::LoadSample5);
+        Ice::ObjectPrxPtr obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample::LoadSample5);
         string id = comm->identityToString(obj->ice_getIdentity());
         test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
              id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
-        shared_ptr<Ice::ObjectPrx> obj = query->findObjectByType("::Foo");
+        Ice::ObjectPrxPtr obj = query->findObjectByType("::Foo");
         test(!obj);
 
         obj = query->findObjectByTypeOnLeastLoadedNode("::Foo", LoadSample::LoadSample15);
@@ -475,15 +474,15 @@ allTests(Test::TestHelper* helper)
     replicated14.name = "ReplicatedObject14";
     test(query->findObjectById(replicated14)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.4"));
 
-    shared_ptr<Ice::LocatorPrx> locator = comm->getDefaultLocator();
-    test(Ice::targetEqualTo(query->findObjectById(encoding10_oneway), locator->findObjectById(encoding10_oneway)));
-    test(Ice::targetEqualTo(query->findObjectById(encoding10_secure), locator->findObjectById(encoding10_secure)));
-    test(Ice::targetEqualTo(query->findObjectById(oaoptions), locator->findObjectById(oaoptions)));
-    test(Ice::targetEqualTo(query->findObjectById(comoptions), locator->findObjectById(comoptions)));
-    test(Ice::targetEqualTo(query->findObjectById(options34), locator->findObjectById(options34)));
-    test(Ice::targetEqualTo(query->findObjectById(simpleServer), locator->findObjectById(simpleServer)));
-    test(Ice::targetEqualTo(query->findObjectById(replicated15), locator->findObjectById(replicated15)));
-    test(Ice::targetEqualTo(query->findObjectById(replicated14), locator->findObjectById(replicated14)));
+    Ice::LocatorPrxPtr locator = comm->getDefaultLocator();
+    test(query->findObjectById(encoding10_oneway) == locator->findObjectById(encoding10_oneway));
+    test(query->findObjectById(encoding10_secure) == locator->findObjectById(encoding10_secure));
+    test(query->findObjectById(oaoptions) == locator->findObjectById(oaoptions));
+    test(query->findObjectById(comoptions) == locator->findObjectById(comoptions));
+    test(query->findObjectById(options34) == locator->findObjectById(options34));
+    test(query->findObjectById(simpleServer) == locator->findObjectById(simpleServer));
+    test(query->findObjectById(replicated15) == locator->findObjectById(replicated15));
+    test(query->findObjectById(replicated14) == locator->findObjectById(replicated14));
 
     cout << "ok" << endl;
 
@@ -496,7 +495,7 @@ allTests(Test::TestHelper* helper)
     // server. Ensure we can reach each object.
     //
     cout << "pinging server objects... " << flush;
-    shared_ptr<TestIntfPrx> obj;
+    TestIntfPrxPtr obj;
     obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server1@Server1.Server"));
     obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server2@Server2.Server"));
     obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("SimpleServer@SimpleServer.Server"));
@@ -562,7 +561,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing variables... " << flush;
-    vector<shared_ptr<TestIntfPrx>> proxies;
+    vector<TestIntfPrxPtr> proxies;
     obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server1@Server1.Server"));
     proxies.push_back(obj);
     obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
@@ -730,19 +729,19 @@ void
 allTestsWithTarget(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr comm = helper->communicator();
-    shared_ptr<RegistryPrx> registry = Ice::checkedCast<IceGrid::RegistryPrx>(
+    RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
-    shared_ptr<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
+    AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
-    shared_ptr<AdminPrx> admin = session->getAdmin();
+    AdminPrxPtr admin = session->getAdmin();
     test(admin);
 
     cout << "testing targets... " << flush;
 
-    shared_ptr<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server3@Server3.Server"));
+    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server3@Server3.Server"));
     obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox3-Service1@IceBox3.Service1.Service1"));
     obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox3-Service3@IceBox3.Service3.Service3"));
 

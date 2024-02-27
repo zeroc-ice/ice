@@ -12,7 +12,8 @@
                 "editorconfig.editorconfig",
                 "ms-azuretools.vscode-docker",
                 "streetsidesoftware.code-spell-checker",
-                "zerocinc.slice"
+                "zerocinc.slice",
+                "ms-vscode.cpptools-extension-pack"
             ]
             /* spell-checker:enable */
         }

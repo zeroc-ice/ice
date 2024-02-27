@@ -3,6 +3,7 @@
 //
 
 #include <Ice/Instance.h>
+#include <Ice/TimeUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/RouterInfo.h>
@@ -42,6 +43,9 @@
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/UUID.h>
+
+#include "Ice/ProxyFunctions.h"
+#include "CheckIdentity.h"
 
 #include <stdio.h>
 #include <list>
@@ -134,7 +138,7 @@ public:
 
             if(notDestroyedCount > 0)
             {
-                consoleErr << "!! " << IceUtil::Time::now().toDateTime() << " error: ";
+                consoleErr << "!! " << timePointToDateTimeString(chrono::system_clock::now()) << " error: ";
                 if(notDestroyedCount == 1)
                 {
                     consoleErr << "communicator ";
@@ -181,34 +185,20 @@ private:
 //
 // Timer specialization which supports the thread observer
 //
-class Timer : public IceUtil::Timer
+class Timer final : public IceUtil::Timer
 {
 public:
 
-    static TimerPtr create()
+    Timer() :
+        _hasObserver(false)
     {
-        auto timer = shared_ptr<Timer>(new Timer());
-        timer->start();
-        return timer;
-    }
-
-    static TimerPtr create(int priority)
-    {
-        auto timer = shared_ptr<Timer>(new Timer());
-        timer->start(0, priority);
-        return timer;
     }
 
     void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
 private:
 
-    Timer() :
-        _hasObserver(0)
-    {
-    }
-
-    virtual void runTimerTask(const IceUtil::TimerTaskPtr&);
+    void runTimerTask(const IceUtil::TimerTaskPtr&) final;
 
     std::mutex _mutex;
     std::atomic<bool> _hasObserver;
@@ -255,7 +245,9 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
                 threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
                                              Instrumentation::ThreadState::ThreadStateIdle);
             }
+            throw;
         }
+
         if(threadObserver)
         {
             threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
@@ -543,7 +535,7 @@ IceInternal::Instance::serverACM() const
     return _serverACM;
 }
 
-Ice::ObjectPrxPtr
+Ice::ObjectPrx
 IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
     ObjectAdapterPtr adapter = adminAdapter;
@@ -556,10 +548,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if(adminIdentity.name.empty())
-    {
-        throw Ice::IllegalIdentityException(__FILE__, __LINE__, adminIdentity);
-    }
+    checkIdentity(adminIdentity, __FILE__, __LINE__);
 
     if(_adminAdapter)
     {
@@ -575,7 +564,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     {
         if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt);
         }
         else
         {
@@ -611,7 +600,7 @@ IceInternal::Instance::createAdmin(const ObjectAdapterPtr& adminAdapter, const I
     return adapter->createProxy(adminIdentity);
 }
 
-Ice::ObjectPrxPtr
+std::optional<ObjectPrx>
 IceInternal::Instance::getAdmin()
 {
     unique_lock lock(_mutex);
@@ -630,11 +619,11 @@ IceInternal::Instance::getAdmin()
         ObjectAdapterPtr adapter;
         if(_initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", 0);
+            adapter = _objectAdapterFactory->createObjectAdapter("Ice.Admin", nullopt);
         }
         else
         {
-            return 0;
+            return nullopt;
         }
 
         Identity adminIdentity;
@@ -671,7 +660,7 @@ IceInternal::Instance::getAdmin()
     }
     else
     {
-        return 0;
+        return nullopt;
     }
 }
 
@@ -702,12 +691,12 @@ IceInternal::Instance::addAllAdminFacets()
 void
 IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapter, const Identity& adminIdentity)
 {
-    ObjectPrxPtr admin = adminAdapter->createProxy(adminIdentity);
-    LocatorPrxPtr locator = adminAdapter->getLocator();
+    ObjectPrx admin = adminAdapter->createProxy(adminIdentity);
+    optional<LocatorPrx> locator = adminAdapter->getLocator();
     const string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
     if(locator && serverId != "")
     {
-        ProcessPrxPtr process = Ice::uncheckedCast<ProcessPrx>(admin->ice_facet("Process"));
+        ProcessPrx process = Ice::uncheckedCast<ProcessPrx>(admin, "Process");
         try
         {
             //
@@ -861,7 +850,7 @@ IceInternal::Instance::findAllAdminFacets()
 }
 
 void
-IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocator)
+IceInternal::Instance::setDefaultLocator(const optional<LocatorPrx>& defaultLocator)
 {
     lock_guard lock(_mutex);
 
@@ -874,7 +863,7 @@ IceInternal::Instance::setDefaultLocator(const Ice::LocatorPrxPtr& defaultLocato
 }
 
 void
-IceInternal::Instance::setDefaultRouter(const Ice::RouterPrxPtr& defaultRouter)
+IceInternal::Instance::setDefaultRouter(const optional<RouterPrx>& defaultRouter)
 {
     lock_guard lock(_mutex);
 
@@ -924,7 +913,6 @@ IceInternal::Instance::Instance(const InitializationData& initData) :
     _classGraphDepthMax(0),
     _toStringMode(ToStringMode::Unicode),
     _acceptClassCycles(false),
-    _implicitContext(nullptr),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
     _adminEnabled(false)
@@ -1098,7 +1086,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #endif
             if(!logfile.empty())
             {
-                Int sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
+                int32_t sz = _initData.properties->getPropertyAsIntWithDefault("Ice.LogFile.SizeMax", 0);
                 if(sz < 0)
                 {
                     sz = 0;
@@ -1136,7 +1124,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         {
             static const int defaultMessageSizeMax = 1024;
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff / 1024))
             {
                 const_cast<size_t&>(_messageSizeMax) = static_cast<size_t>(0x7fffffff);
@@ -1158,7 +1146,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlushSize", 1024); // 1MB default
             if(num < 1)
             {
                 const_cast<size_t&>(_batchAutoFlushSize) = static_cast<size_t>(num);
@@ -1176,7 +1164,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         {
             static const int defaultValue = 100;
-            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+            int32_t num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
             if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
             {
                 const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
@@ -1203,8 +1191,27 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 
-        const_cast<ImplicitContextIPtr&>(_implicitContext) =
-            ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
+        string implicitContextKind = _initData.properties->getPropertyWithDefault("Ice.ImplicitContext", "None");
+        if(implicitContextKind == "Shared")
+        {
+            _implicitContextKind = ImplicitContextKind::Shared;
+            _sharedImplicitContext = std::make_shared<ImplicitContext>();
+        }
+        else if(implicitContextKind == "PerThread")
+        {
+            _implicitContextKind = ImplicitContextKind::PerThread;
+        }
+        else if (implicitContextKind == "None")
+        {
+            _implicitContextKind = ImplicitContextKind::None;
+        }
+        else
+        {
+            throw Ice::InitializationException(
+                __FILE__,
+                __LINE__,
+                "'" + implicitContextKind + "' is not a valid value for Ice.ImplicitContext");
+        }
 
         _routerManager = make_shared<RouterManager>();
 
@@ -1294,6 +1301,39 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
     }
 }
 
+const Ice::ImplicitContextPtr&
+IceInternal::Instance::getImplicitContext() const
+{
+    switch (_implicitContextKind)
+    {
+        case ImplicitContextKind::PerThread:
+        {
+            static thread_local std::map<const IceInternal::Instance*, ImplicitContextPtr> perThreadImplicitContextMap;
+            auto it = perThreadImplicitContextMap.find(this);
+            if (it == perThreadImplicitContextMap.end())
+            {
+                auto r = perThreadImplicitContextMap.emplace(make_pair(this, std::make_shared<ImplicitContext>()));
+                return r.first->second;
+            }
+            else
+            {
+                return it->second;
+            }
+        }
+        case ImplicitContextKind::Shared:
+        {
+            assert(_sharedImplicitContext);
+            return _sharedImplicitContext;
+        }
+        default:
+        {
+            assert(_sharedImplicitContext == nullptr);
+            assert(_implicitContextKind == ImplicitContextKind::None);
+            return _sharedImplicitContext;
+        }
+    }
+}
+
 IceInternal::Instance::~Instance()
 {
     assert(_state == StateDestroyed);
@@ -1305,6 +1345,7 @@ IceInternal::Instance::~Instance()
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
     assert(!_endpointHostResolver);
+    assert(!_endpointHostResolverThread.joinable());
     assert(!_retryQueue);
     assert(!_timer);
     assert(!_routerManager);
@@ -1449,18 +1490,9 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     try
     {
-        bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
-        int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
-        if(hasPriority)
-        {
-            _timer = Timer::create(priority);
-        }
-        else
-        {
-            _timer = Timer::create();
-        }
+        _timer = make_shared<Timer>();
     }
-    catch(const IceUtil::Exception& ex)
+    catch (const IceUtil::Exception& ex)
     {
         Error out(_initData.logger);
         out << "cannot create thread for timer:\n" << ex;
@@ -1470,16 +1502,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     try
     {
         _endpointHostResolver = make_shared<EndpointHostResolver>(shared_from_this());
-        bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
-        int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
-        if(hasPriority)
-        {
-            _endpointHostResolver->start(0, priority);
-        }
-        else
-        {
-            _endpointHostResolver->start();
-        }
+        _endpointHostResolverThread = std::thread([this] { _endpointHostResolver->run(); });
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1496,7 +1519,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     //
     if(!_referenceFactory->getDefaultRouter())
     {
-        RouterPrxPtr router = Ice::uncheckedCast<RouterPrx>(_proxyFactory->propertyToProxy("Ice.Default.Router"));
+        optional<RouterPrx> router = Ice::uncheckedCast<RouterPrx>(_proxyFactory->propertyToProxy("Ice.Default.Router"));
         if(router)
         {
             _referenceFactory = _referenceFactory->setDefaultRouter(router);
@@ -1505,7 +1528,7 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
 
     if(!_referenceFactory->getDefaultLocator())
     {
-        LocatorPrxPtr locator = Ice::uncheckedCast<LocatorPrx>(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
+        optional<LocatorPrx> locator = Ice::uncheckedCast<LocatorPrx>(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
         if(locator)
         {
             _referenceFactory = _referenceFactory->setDefaultLocator(locator);
@@ -1669,9 +1692,9 @@ IceInternal::Instance::destroy()
     {
         _serverThreadPool->joinWithAllThreads();
     }
-    if(_endpointHostResolver)
+    if(_endpointHostResolverThread.joinable())
     {
-        _endpointHostResolver->getThreadControl().join();
+        _endpointHostResolverThread.join();
     }
 
     if(_routerManager)
@@ -1784,7 +1807,7 @@ IceInternal::Instance::updateThreadObservers()
 }
 
 BufSizeWarnInfo
-IceInternal::Instance::getBufSizeWarn(Short type)
+IceInternal::Instance::getBufSizeWarn(int16_t type)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 
@@ -1792,10 +1815,10 @@ IceInternal::Instance::getBufSizeWarn(Short type)
 }
 
 BufSizeWarnInfo
-IceInternal::Instance::getBufSizeWarnInternal(Short type)
+IceInternal::Instance::getBufSizeWarnInternal(int16_t type)
 {
     BufSizeWarnInfo info;
-    map<Short, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
+    map<int16_t, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
     if(p == _setBufSizeWarn.end())
     {
         info.sndWarn = false;
@@ -1812,7 +1835,7 @@ IceInternal::Instance::getBufSizeWarnInternal(Short type)
 }
 
 void
-IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
+IceInternal::Instance::setSndBufSizeWarn(int16_t type, int size)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 
@@ -1823,7 +1846,7 @@ IceInternal::Instance::setSndBufSizeWarn(Short type, int size)
 }
 
 void
-IceInternal::Instance::setRcvBufSizeWarn(Short type, int size)
+IceInternal::Instance::setRcvBufSizeWarn(int16_t type, int size)
 {
     lock_guard lock(_setBufSizeWarnMutex);
 
@@ -1845,7 +1868,7 @@ IceInternal::ProcessI::shutdown(const Current&)
 }
 
 void
-IceInternal::ProcessI::writeMessage(string message, Int fd, const Current&)
+IceInternal::ProcessI::writeMessage(string message, int32_t fd, const Current&)
 {
     switch(fd)
     {

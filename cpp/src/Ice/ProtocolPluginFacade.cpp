@@ -37,7 +37,7 @@ IceInternal::ProtocolPluginFacade::addEndpointFactory(const EndpointFactoryPtr& 
 }
 
 EndpointFactoryPtr
-IceInternal::ProtocolPluginFacade::getEndpointFactory(Ice::Short type) const
+IceInternal::ProtocolPluginFacade::getEndpointFactory(int16_t type) const
 {
     return _instance->endpointFactoryManager()->get(type);
 }

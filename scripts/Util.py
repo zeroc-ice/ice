@@ -2934,7 +2934,7 @@ class AndroidProcessController(RemoteProcessController):
 
 class iOSSimulatorProcessController(RemoteProcessController):
     device = "iOSSimulatorProcessController"
-    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-13"
+    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-15"
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, None)
@@ -2943,7 +2943,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
         try:
             for r in run("xcrun simctl list runtimes").split("\n"):
-                m = re.search("iOS .* \\(.*\\) - (.*)", r)
+                m = re.search(r"iOS .* \(.*\) - (.*)", r)
                 if m:
                     self.runtimeID = m.group(1)
         except Exception:
@@ -3764,12 +3764,10 @@ class CppMapping(Mapping):
             if current.config.buildPlatform == "iphonesimulator"
             else "iPhoneOS"
         )
-        return "{0}/com.zeroc.Cpp11-Test-Controller".format(category)
+        return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        appName = (
-            "C++11 Test Controller.app"
-        )
+        appName = "C++ Test Controller.app"
         path = os.path.join(self.component.getTestDir(self), "ios", "controller")
         path = os.path.join(
             path,
@@ -4522,7 +4520,7 @@ class SwiftMapping(Mapping):
             current.config.buildConfig,
             current.config.buildPlatform,
         )
-        targetBuildDir = re.search("\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
 
         testDriver = os.path.join(targetBuildDir, "TestDriver.app")
         if not os.path.exists(testDriver):

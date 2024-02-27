@@ -204,7 +204,7 @@ public:
 using PrimitiveInfoPtr = std::shared_ptr<PrimitiveInfo>;
 
 // Enum information.
-using EnumeratorMap = std::map<Ice::Int, VALUE>;
+using EnumeratorMap = std::map<std::int32_t, VALUE>;
 
 class EnumInfo final : public TypeInfo
 {
@@ -227,7 +227,7 @@ public:
 
     const std::string id;
     const VALUE rubyClass;
-    const Ice::Int maxValue;
+    const std::int32_t maxValue;
     const EnumeratorMap enumerators;
 };
 using EnumInfoPtr = std::shared_ptr<EnumInfo>;
@@ -403,7 +403,7 @@ public:
     bool isA(const ClassInfoPtr&);
 
     const std::string id;
-    const Ice::Int compactId;
+    const std::int32_t compactId;
     const bool isBase; // Is this the ClassInfo for Value?
     const bool isLocal;
     const bool interface;

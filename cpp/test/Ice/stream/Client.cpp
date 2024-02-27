@@ -3,7 +3,7 @@
 //
 
 #ifdef _MSC_VER
-#   pragma warning(disable:4244) // '=': conversion from 'int' to 'Ice::Short', possible loss of data
+#   pragma warning(disable:4244) // '=': conversion from 'int' to 'int16_t', possible loss of data
 #endif
 
 #include <Ice/Ice.h>
@@ -200,50 +200,50 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Short)2);
+        out.write((int16_t)2);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Short v;
+        int16_t v;
         in.read(v);
         test(v == 2);
     }
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Int)3);
+        out.write((int32_t)3);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Int v;
+        int32_t v;
         in.read(v);
         test(v == 3);
     }
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Long)4);
+        out.write((int64_t)4);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Long v;
+        int64_t v;
         in.read(v);
         test(v == 4);
     }
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Float)5.0);
+        out.write((float)5.0);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Float v;
+        float v;
         in.read(v);
         test(v == 5.0);
     }
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Double)6.0);
+        out.write((double)6.0);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Double v;
+        double v;
         in.read(v);
         test(v == 6.0);
     }
@@ -290,7 +290,7 @@ allTests(Test::TestHelper* helper)
         Ice::InputStream in(communicator, data);
         SmallStruct s2;
         in.read(s2);
-        test(targetEqualTo(s2.p, s.p));
+        test(s2.p == s.p);
         s2.p = s.p; // otherwise the s2 == s below will fail
 
         test(s2 == s);
@@ -301,7 +301,7 @@ allTests(Test::TestHelper* helper)
         OptionalClassPtr o = std::make_shared<OptionalClass>();
         o->bo = false;
         o->by = 5;
-        o->sh = static_cast<Ice::Short>(4);
+        o->sh = static_cast<int16_t>(4);
         o->i = 3;
         out.write(o);
         out.writePendingValues();
@@ -329,7 +329,7 @@ allTests(Test::TestHelper* helper)
         OptionalClassPtr o = std::make_shared<OptionalClass>();
         o->bo = false;
         o->by = 5;
-        o->sh = static_cast<Ice::Short>(4);
+        o->sh = static_cast<int16_t>(4);
         o->i = 3;
         out.write(o);
         out.writePendingValues();
@@ -638,7 +638,7 @@ allTests(Test::TestHelper* helper)
 
         for(SmallStructS::size_type j = 0; j < arr2.size(); ++j)
         {
-            test(targetEqualTo(arr[j].p, arr2[j].p));
+            test(arr[j].p == arr2[j].p);
             arr2[j].p = arr[j].p;
             test(arr[j] == arr2[j]);
         }

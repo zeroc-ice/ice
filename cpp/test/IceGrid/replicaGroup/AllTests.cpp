@@ -5,9 +5,11 @@
 #include <Ice/Ice.h>
 #include <Ice/BuiltinSequences.h>
 #include <IceGrid/IceGrid.h>
-#include <IceUtil/Thread.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
+#include <chrono>
 #include <set>
 
 using namespace std;
@@ -15,7 +17,7 @@ using namespace Test;
 using namespace IceGrid;
 
 void
-instantiateServer(const shared_ptr<AdminPrx>& admin, const string& templ, const string& node,
+instantiateServer(const AdminPrxPtr& admin, const string& templ, const string& node,
                   const map<string, string>& params,
                   const string& application = string("Test"), bool startServer = true)
 {
@@ -62,7 +64,7 @@ instantiateServer(const shared_ptr<AdminPrx>& admin, const string& templ, const 
 }
 
 void
-removeServer(const shared_ptr<AdminPrx>& admin, const string& id)
+removeServer(const AdminPrxPtr& admin, const string& id)
 {
     try
     {
@@ -1045,7 +1047,7 @@ allTests(Test::TestHelper* helper)
                 {
                     throw;
                 }
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+                this_thread::sleep_for(chrono::milliseconds(100));
             }
             catch(const Ice::LocalException& ex)
             {

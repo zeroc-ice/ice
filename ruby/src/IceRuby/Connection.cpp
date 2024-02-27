@@ -109,13 +109,13 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
         Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
         assert(p);
 
-        optional<Ice::Int> timeout;
+        optional<int32_t> timeout;
         optional<Ice::ACMClose> close;
         optional<Ice::ACMHeartbeat> heartbeat;
 
         if(t != Unset)
         {
-            timeout = static_cast<Ice::Int>(getInteger(t));
+            timeout = static_cast<int32_t>(getInteger(t));
         }
 
         if(c != Unset)
@@ -216,7 +216,7 @@ IceRuby_Connection_timeout(VALUE self)
         Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
         assert(p);
 
-        Ice::Int timeout = (*p)->timeout();
+        int32_t timeout = (*p)->timeout();
         return INT2FIX(timeout);
     }
     ICE_RUBY_CATCH

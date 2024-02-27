@@ -13,6 +13,7 @@
 #include <Ice/Comparable.h>
 
 #include <set>
+#include <chrono>
 
 namespace IceDiscovery
 {
@@ -78,9 +79,9 @@ protected:
     std::vector<CB> _callbacks;
 };
 
-typedef std::pair<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>,
+typedef std::pair<std::function<void(const ::Ice::ObjectPrxPtr&)>,
                   std::function<void(std::exception_ptr)>> ObjectCB;
-typedef std::pair<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>,
+typedef std::pair<std::function<void(const ::Ice::ObjectPrxPtr&)>,
                   std::function<void(std::exception_ptr)>> AdapterCB;
 
 class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>, public std::enable_shared_from_this<ObjectRequest>
@@ -119,9 +120,9 @@ private:
     // the same proxy if it's accessible through multiple network interfaces and if we
     // also sent the request to multiple interfaces.
     //
-    std::set<std::shared_ptr<Ice::ObjectPrx>, Ice::TargetCompare<std::shared_ptr<Ice::ObjectPrx>, std::less>> _proxies;
-    IceUtil::Time _start;
-    IceUtil::Time _latency;
+    std::set<Ice::ObjectPrxPtr> _proxies;
+    std::chrono::steady_clock::time_point _start;
+    std::chrono::nanoseconds _latency;
 };
 using AdapterRequestPtr = std::shared_ptr<AdapterRequest>;
 
@@ -168,7 +169,7 @@ private:
     LocatorRegistryIPtr _registry;
     LookupPrxPtr _lookup;
     std::vector<std::pair<LookupPrxPtr, LookupReplyPrxPtr> > _lookups;
-    const IceUtil::Time _timeout;
+    const std::chrono::milliseconds _timeout;
     const int _retryCount;
     const int _latencyMultiplier;
     const std::string _domainId;
@@ -188,8 +189,8 @@ public:
 
     LookupReplyI(const LookupIPtr&);
 
-    virtual void foundObjectById(Ice::Identity, std::shared_ptr<Ice::ObjectPrx>, const Ice::Current&);
-    virtual void foundAdapterById(std::string, std::shared_ptr<Ice::ObjectPrx>, bool, const Ice::Current&);
+    virtual void foundObjectById(Ice::Identity, Ice::ObjectPrxPtr, const Ice::Current&);
+    virtual void foundAdapterById(std::string, Ice::ObjectPrxPtr, bool, const Ice::Current&);
 
 private:
 

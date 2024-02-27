@@ -28,7 +28,7 @@ class PublishThread final
 {
 public:
 
-    explicit PublishThread(shared_ptr<SinglePrx> single) :
+    explicit PublishThread(SinglePrxPtr single) :
         _single(std::move(single)),
         _published(0),
         _destroy(false)
@@ -70,7 +70,7 @@ public:
 
 private:
 
-    const shared_ptr<SinglePrx> _single;
+    const SinglePrxPtr _single;
     int _published;
     bool _destroy;
     mutex _mutex;

@@ -22,7 +22,7 @@
 
 using namespace std;
 
-Ice::Short EndpointI::TYPE_BASE = 100;
+int16_t EndpointI::TYPE_BASE = 100;
 
 EndpointI::EndpointI(const IceInternal::EndpointIPtr& endpoint) :
     _endpoint(endpoint),
@@ -37,10 +37,10 @@ EndpointI::streamWriteImpl(Ice::OutputStream* s) const
     _endpoint->streamWrite(s);
 }
 
-Ice::Short
+int16_t
 EndpointI::type() const
 {
-    return (Ice::Short)(TYPE_BASE + _endpoint->type());
+    return (int16_t)(TYPE_BASE + _endpoint->type());
 }
 
 const std::string&

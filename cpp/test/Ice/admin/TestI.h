@@ -9,8 +9,7 @@
 #include <TestHelper.h>
 #include <Ice/NativePropertiesAdmin.h>
 
-class RemoteCommunicatorI : public virtual Test::RemoteCommunicator,
-                            public IceUtil::Monitor<IceUtil::Mutex>
+class RemoteCommunicatorI : public virtual Test::RemoteCommunicator
 {
 public:
 
@@ -39,6 +38,7 @@ private:
     Ice::PropertyDict _changes;
 
     std::function<void()> _removeCallback;
+    std::mutex _mutex;
 };
 using RemoteCommunicatorIPtr = std::shared_ptr<RemoteCommunicatorI>;
 

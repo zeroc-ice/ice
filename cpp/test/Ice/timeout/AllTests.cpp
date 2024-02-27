@@ -7,6 +7,9 @@
 #include <Test.h>
 #include <TestI.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 using namespace Test;
 
@@ -256,7 +259,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
             try
             {
                 connection->getInfo();
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+                this_thread::sleep_for(chrono::milliseconds(10));
             }
             catch(const Ice::ConnectionManuallyClosedException& ex)
             {
@@ -381,9 +384,9 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrxPtr& control
         Ice::CommunicatorHolder ich(initData);
         Ice::ConnectionPtr connection = ich->stringToProxy(sref)->ice_getConnection();
         controller->holdAdapter(-1);
-        IceUtil::Time now = IceUtil::Time::now();
+        auto now = chrono::steady_clock::now();
         ich.release()->destroy();
-        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(1000));
+        test(chrono::steady_clock::now() - now < chrono::milliseconds(1000));
         controller->resumeAdapter();
         timeout->op(); // Ensure adapter is active.
     }

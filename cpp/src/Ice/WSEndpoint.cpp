@@ -119,7 +119,7 @@ IceInternal::WSEndpoint::getInfo() const noexcept
     return info;
 }
 
-Short
+int16_t
 IceInternal::WSEndpoint::type() const
 {
     return _delegate->type();
@@ -138,14 +138,14 @@ IceInternal::WSEndpoint::streamWriteImpl(OutputStream* s) const
     s->write(_resource, false);
 }
 
-Int
+int32_t
 IceInternal::WSEndpoint::timeout() const
 {
     return _delegate->timeout();
 }
 
 EndpointIPtr
-IceInternal::WSEndpoint::timeout(Int timeout) const
+IceInternal::WSEndpoint::timeout(int32_t timeout) const
 {
     if(timeout == _delegate->timeout())
     {
@@ -317,7 +317,7 @@ IceInternal::WSEndpoint::equivalent(const EndpointIPtr& endpoint) const
     return _delegate->equivalent(wsEndpointI->_delegate);
 }
 
-Int
+int32_t
 IceInternal::WSEndpoint::hash() const
 {
     int h = _delegate->hash();
@@ -446,13 +446,13 @@ IceInternal::WSEndpoint::checkOption(const string& option, const string& argumen
     }
 }
 
-IceInternal::WSEndpointFactory::WSEndpointFactory(const ProtocolInstancePtr& instance, Short type) :
+IceInternal::WSEndpointFactory::WSEndpointFactory(const ProtocolInstancePtr& instance, int16_t type) :
     EndpointFactoryWithUnderlying(instance, type)
 {
 }
 
 EndpointFactoryPtr
-IceInternal::WSEndpointFactory::cloneWithUnderlying(const ProtocolInstancePtr& instance, Short underlying) const
+IceInternal::WSEndpointFactory::cloneWithUnderlying(const ProtocolInstancePtr& instance, int16_t underlying) const
 {
     return make_shared<WSEndpointFactory>(instance, underlying);
 }

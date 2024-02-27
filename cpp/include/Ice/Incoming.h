@@ -67,7 +67,7 @@ public:
     Ice::OutputStream* startWriteParams();
     void endWriteParams();
     void writeEmptyParams();
-    void writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
+    void writeParamEncaps(const Ice::Byte*, std::int32_t, bool);
     void setMarshaledResult(const Ice::MarshaledResult&);
 
     void response(bool);
@@ -75,7 +75,7 @@ public:
 
 protected:
 
-    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
+    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, std::int32_t);
     IncomingBase(IncomingBase&);
     IncomingBase(const IncomingBase&) = delete;
 
@@ -110,7 +110,7 @@ class ICE_API Incoming final : public IncomingBase
 {
 public:
 
-    Incoming(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
+    Incoming(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, std::int32_t);
 
     const Ice::Current& getCurrent()
     {
@@ -157,7 +157,7 @@ public:
     {
         _current.encoding = _is->skipEmptyEncapsulation();
     }
-    void readParamEncaps(const Ice::Byte*& v, Ice::Int& sz)
+    void readParamEncaps(const Ice::Byte*& v, std::int32_t& sz)
     {
         _current.encoding = _is->readEncapsulation(v, sz);
     }

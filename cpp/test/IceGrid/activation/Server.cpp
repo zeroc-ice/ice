@@ -3,9 +3,11 @@
 //
 
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
 #include <TestI.h>
 #include <TestHelper.h>
+
+#include <thread>
+#include <chrono>
 
 using namespace std;
 
@@ -43,7 +45,7 @@ Server::run(int argc, char** argv)
     int delay = properties->getPropertyAsInt("ActivationDelay");
     if(delay > 0)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(delay));
+        this_thread::sleep_for(chrono::seconds(delay));
     }
 
     try
@@ -58,7 +60,7 @@ Server::run(int argc, char** argv)
     delay = properties->getPropertyAsInt("DeactivationDelay");
     if(delay > 0)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(delay));
+        this_thread::sleep_for(chrono::seconds(delay));
     }
 
     if(testI->isFailed())

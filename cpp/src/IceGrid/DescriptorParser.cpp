@@ -26,7 +26,7 @@ public:
 
     DescriptorHandler(const string&, const shared_ptr<Ice::Communicator>&);
 
-    void setAdmin(const shared_ptr<IceGrid::AdminPrx>&);
+    void setAdmin(const IceGrid::AdminPrxPtr&);
     void setVariables(const map<string, string>&, const vector<string>&);
 
     void startElement(const string&, const IceXML::Attributes&, int, int) override;
@@ -45,7 +45,7 @@ private:
     bool isTargetDeployable(const string&) const;
 
     const shared_ptr<Ice::Communicator> _communicator;
-    shared_ptr<IceGrid::AdminPrx> _admin;
+    IceGrid::AdminPrxPtr _admin;
     string _filename;
     map<string, string> _overrides;
     vector<string> _targets;
@@ -84,7 +84,7 @@ DescriptorHandler::DescriptorHandler(const string& filename, const shared_ptr<Ic
 }
 
 void
-DescriptorHandler::setAdmin(const shared_ptr<AdminPrx>& admin)
+DescriptorHandler::setAdmin(const AdminPrxPtr& admin)
 {
     _admin = admin;
 }
@@ -173,9 +173,9 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
             bool importTemplates = attributes.asBool("import-default-templates", false);
 
             //
-            // TODO: is ignoring importTemplates the desired behavior when _admin == 0?
+            // TODO: is ignoring importTemplates the desired behavior when _admin == nullopt?
             //
-            if(importTemplates && _admin != 0)
+            if(importTemplates && _admin != nullopt)
             {
                 try
                 {
@@ -827,7 +827,7 @@ DescriptorParser::parseDescriptor(const string& descriptor,
                                   const Ice::StringSeq& targets,
                                   const map<string, string>& variables,
                                   const shared_ptr<Ice::Communicator>& communicator,
-                                  const shared_ptr<IceGrid::AdminPrx>& admin)
+                                  const IceGrid::AdminPrxPtr& admin)
 {
     string filename = IcePatch2Internal::simplify(descriptor);
     DescriptorHandler handler(filename, communicator);

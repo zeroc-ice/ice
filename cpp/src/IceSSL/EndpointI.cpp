@@ -59,7 +59,7 @@ IceSSL::EndpointI::getInfo() const noexcept
     return info;
 }
 
-Ice::Short
+int16_t
 IceSSL::EndpointI::type() const
 {
     return _delegate->type();
@@ -71,14 +71,14 @@ IceSSL::EndpointI::protocol() const
     return _delegate->protocol();
 }
 
-Int
+int32_t
 IceSSL::EndpointI::timeout() const
 {
     return _delegate->timeout();
 }
 
 IceInternal::EndpointIPtr
-IceSSL::EndpointI::timeout(Int timeout) const
+IceSSL::EndpointI::timeout(int32_t timeout) const
 {
     if(timeout == _delegate->timeout())
     {
@@ -246,7 +246,7 @@ IceSSL::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
     return _delegate->equivalent(endpointI->_delegate);
 }
 
-Ice::Int
+int32_t
 IceSSL::EndpointI::hash() const
 {
     return _delegate->hash();
@@ -317,7 +317,7 @@ IceSSL::EndpointI::checkOption(const string& /*option*/, const string& /*argumen
     return false;
 }
 
-IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, Short type) :
+IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, int16_t type) :
     IceInternal::EndpointFactoryWithUnderlying(instance, type), _sslInstance(instance)
 {
 }
@@ -329,7 +329,7 @@ IceSSL::EndpointFactoryI::destroy()
 }
 
 IceInternal::EndpointFactoryPtr
-IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, Short underlying) const
+IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, int16_t underlying) const
 {
     return make_shared<EndpointFactoryI>(make_shared<Instance>(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
 }

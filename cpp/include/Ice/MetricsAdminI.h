@@ -13,6 +13,7 @@
 
 #include <regex>
 #include <list>
+#include <mutex>
 
 namespace IceMX
 {
@@ -109,7 +110,7 @@ private:
 };
 using MetricsMapFactoryPtr = std::shared_ptr<MetricsMapFactory>;
 
-template<class MetricsType> class MetricsMapT : public MetricsMapI, private IceUtil::Mutex
+template<class MetricsType> class MetricsMapT : public MetricsMapI
 {
 public:
 
@@ -144,7 +145,7 @@ public:
         void
         failed(const std::string& exceptionName)
         {
-            IceUtil::Mutex::Lock sync(*_map);
+            std::lock_guard lock(_map->_mutex);
             ++_object->failures;
             ++_failures[exceptionName];
         }
@@ -154,7 +155,7 @@ public:
         {
             MetricsMapIPtr m;
             {
-                IceUtil::Mutex::Lock sync(*_map);
+                std::lock_guard lock(_map->_mutex);
                 typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::iterator p =
                     _subMaps.find(mapName);
                 if(p == _subMaps.end())
@@ -178,9 +179,9 @@ public:
         }
 
         void
-        detach(Ice::Long lifetime)
+        detach(std::int64_t lifetime)
         {
-            IceUtil::Mutex::Lock sync(*_map);
+            std::lock_guard lock(_map->_mutex);
             _object->totalLifetime += lifetime;
             if(--_object->current == 0)
             {
@@ -191,7 +192,7 @@ public:
         template<typename Function> void
         execute(Function func)
         {
-            IceUtil::Mutex::Lock sync(*_map);
+            std::lock_guard lock(_map->_mutex);
             func(_object);
         }
 
@@ -277,7 +278,6 @@ public:
 
     MetricsMapT(const MetricsMapT& other) :
         MetricsMapI(other),
-        IceUtil::Mutex(),
         _destroyed(false)
     {
     }
@@ -290,7 +290,7 @@ public:
     virtual void
     destroy()
     {
-        Lock sync(*this);
+        std::lock_guard lock(_mutex);
         _destroyed = true;
         _objects.clear(); // Break cyclic reference counts
         _detachedQueue.clear(); // Break cyclic reference counts
@@ -301,7 +301,7 @@ public:
     {
         IceMX::MetricsMap objects;
 
-        Lock sync(*this);
+        std::lock_guard lock(_mutex);
         for(typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             objects.push_back(p->second->clone());
@@ -314,7 +314,7 @@ public:
     {
         IceMX::MetricsFailuresSeq failures;
 
-        Lock sync(*this);
+        std::lock_guard lock(_mutex);
         for(typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             IceMX::MetricsFailures f = p->second->getFailures();
@@ -329,7 +329,7 @@ public:
     virtual IceMX::MetricsFailures
     getFailures(const std::string& id)
     {
-        Lock sync(*this);
+        std::lock_guard lock(_mutex);
         typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(id);
         if(p != _objects.end())
         {
@@ -406,7 +406,7 @@ public:
         //
         // Lookup the metrics object.
         //
-        Lock sync(*this);
+        std::lock_guard lock(_mutex);
         if(_destroyed)
         {
             return nullptr;
@@ -499,6 +499,7 @@ private:
     std::map<std::string, EntryTPtr> _objects;
     std::list<EntryTPtr> _detachedQueue;
     std::map<std::string, std::pair<SubMapMember, MetricsMapIPtr> > _subMaps;
+    mutable std::mutex _mutex;
 };
 
 template<class MetricsType> class MetricsMapFactoryT : public MetricsMapFactory
@@ -554,8 +555,7 @@ private:
 };
 using MetricsViewIPtr = std::shared_ptr<MetricsViewI>;
 
-class ICE_API MetricsAdminI : public IceMX::MetricsAdmin,
-                              private IceUtil::Mutex
+class ICE_API MetricsAdminI : public IceMX::MetricsAdmin
 {
 public:
 
@@ -572,7 +572,7 @@ public:
         bool updated;
         MetricsMapFactoryPtr factory;
         {
-            Lock sync(*this);
+            std::lock_guard lock(_mutex);
             factory = std::make_shared<MetricsMapFactoryT<MetricsType>>(updater);
             _factories[map] = factory;
             updated = addOrUpdateMap(map, factory);
@@ -589,7 +589,7 @@ public:
         bool updated;
         std::shared_ptr<MetricsMapFactoryT<MetricsType>> factory;
         {
-            Lock sync(*this);
+            std::lock_guard lock(_mutex);
             std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
             if(p == _factories.end())
             {
@@ -616,7 +616,7 @@ public:
 
     virtual void enableMetricsView(std::string, const ::Ice::Current&);
     virtual void disableMetricsView(std::string, const ::Ice::Current&);
-    virtual IceMX::MetricsView getMetricsView(std::string, Ice::Long&, const ::Ice::Current&);
+    virtual IceMX::MetricsView getMetricsView(std::string, std::int64_t&, const ::Ice::Current&);
     virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const ::Ice::Current&);
     virtual IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const ::Ice::Current&);
     std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
@@ -636,6 +636,7 @@ private:
 
     const Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
+    mutable std::mutex _mutex;
 };
 
 using MetricsAdminIPtr = std::shared_ptr<MetricsAdminI>;

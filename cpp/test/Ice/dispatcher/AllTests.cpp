@@ -8,6 +8,9 @@
 #include <Test.h>
 #include <Dispatcher.h>
 
+#include <thread>
+#include <chrono>
+
 using namespace std;
 
 namespace
@@ -24,11 +27,8 @@ public:
 
     void check()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-        while(!_called)
-        {
-            _m.wait();
-        }
+        unique_lock lock(_mutex);
+        _condition.wait(lock, [this] { return _called; });
         _called = false;
     }
 
@@ -88,15 +88,16 @@ protected:
 
     void called()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        lock_guard lock(_mutex);
         assert(!_called);
         _called = true;
-        _m.notify();
+        _condition.notify_one();
     }
 
 private:
 
-    IceUtil::Monitor<IceUtil::Mutex> _m;
+    mutex _mutex;
+    condition_variable _condition;
     bool _called;
     bool _sentSynchronously;
 };

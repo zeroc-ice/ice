@@ -695,16 +695,11 @@ if "IllegalIdentityException" not in _M_Ice.__dict__:
 
     class IllegalIdentityException(Ice.LocalException):
         """
-          This exception is raised if an illegal identity is encountered.
-        Members:
-        id --  The illegal identity.
+          This exception is raised if an identity with an empty name is encountered.
         """
 
-        def __init__(self, id=Ice._struct_marker):
-            if id is Ice._struct_marker:
-                self.id = _M_Ice.Identity()
-            else:
-                self.id = id
+        def __init__(self):
+            pass
 
         def __str__(self):
             return IcePy.stringifyException(self)
@@ -718,7 +713,7 @@ if "IllegalIdentityException" not in _M_Ice.__dict__:
         IllegalIdentityException,
         (),
         None,
-        (("id", (), _M_Ice._t_Identity, False, 0),),
+        (),
     )
     IllegalIdentityException._ice_type = _M_Ice._t_IllegalIdentityException
 

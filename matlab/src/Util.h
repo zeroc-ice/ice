@@ -2,8 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Identity.h>
-#include <Ice/Version.h>
+#include <Ice/Ice.h>
 #include <IceSSL/IceSSL.h>
 
 #if defined(__GNUC__)
@@ -58,6 +57,34 @@ template<typename T>
 void* createShared(std::shared_ptr<T> p)
 {
     return new std::shared_ptr<T>(std::move(p));
+}
+
+inline void* createProxy(Ice::ObjectPrx p)
+{
+    return new Ice::ObjectPrx(std::move(p));
+}
+
+inline void* createProxy(std::optional<Ice::ObjectPrx> p)
+{
+    return p ? createProxy(std::move(p).value()) : nullptr;
+}
+
+inline Ice::ObjectPrx restoreProxy(void* p)
+{
+    assert(p);
+    return *reinterpret_cast<Ice::ObjectPrx*>(p);
+}
+
+inline std::optional<Ice::ObjectPrx> restoreNullableProxy(void* p)
+{
+    if (p)
+    {
+        return restoreProxy(p);
+    }
+    else
+    {
+        return std::nullopt;
+    }
 }
 
 }

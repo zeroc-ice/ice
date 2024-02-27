@@ -42,8 +42,8 @@ registerIceUDP(bool loadOnInitialize)
 
 }
 
-IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& host, Int port,
-                                        const Address& sourceAddr, const string& mcastInterface, Int mttl, bool conn,
+IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, const string& host, int32_t port,
+                                        const Address& sourceAddr, const string& mcastInterface, int32_t mttl, bool conn,
                                         const string& conId, bool co) :
     IPEndpointI(instance, host, port, sourceAddr, conId),
     _mcastTtl(mttl),
@@ -103,14 +103,14 @@ IceInternal::UdpEndpointI::getInfo() const noexcept
     return info;
 }
 
-Int
+int32_t
 IceInternal::UdpEndpointI::timeout() const
 {
     return -1;
 }
 
 EndpointIPtr
-IceInternal::UdpEndpointI::timeout(Int) const
+IceInternal::UdpEndpointI::timeout(int32_t) const
 {
     return const_cast<UdpEndpointI*>(this)->shared_from_this();
 }
@@ -340,7 +340,7 @@ IceInternal::UdpEndpointI::operator<(const Endpoint& r) const
 }
 
 void
-IceInternal::UdpEndpointI::hashInit(Ice::Int& h) const
+IceInternal::UdpEndpointI::hashInit(int32_t& h) const
 {
     IPEndpointI::hashInit(h);
     hashAdd(h, _mcastInterface);
@@ -428,7 +428,7 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
                                          endpoint);
         }
         istringstream p(argument);
-        if(!(p >> const_cast<Int&>(_mcastTtl)) || !p.eof())
+        if(!(p >> const_cast<int32_t&>(_mcastTtl)) || !p.eof())
         {
             throw EndpointParseException(__FILE__, __LINE__, "invalid TTL value `" + argument + "' in endpoint " +
                                          endpoint);
@@ -462,7 +462,7 @@ IceInternal::UdpEndpointFactory::~UdpEndpointFactory()
 {
 }
 
-Short
+int16_t
 IceInternal::UdpEndpointFactory::type() const
 {
     return _instance->type();

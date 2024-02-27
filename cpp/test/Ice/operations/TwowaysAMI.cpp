@@ -41,11 +41,8 @@ public:
 
     void check()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-        while(!_called)
-        {
-            _m.wait();
-        }
+        unique_lock lock(_mutex);
+        _condition.wait(lock, [this] { return _called; });
         _called = false;
     }
 
@@ -53,15 +50,16 @@ protected:
 
     void called()
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        lock_guard lock(_mutex);
         assert(!_called);
         _called = true;
-        _m.notify();
+        _condition.notify_one();
     }
 
 private:
 
-    IceUtil::Monitor<IceUtil::Mutex> _m;
+    mutex _mutex;
+    condition_variable _condition;
     bool _called;
 };
 
@@ -128,7 +126,7 @@ public:
         called();
     }
 
-    void opShortIntLong(Ice::Long r, Ice::Short s, Ice::Int i, Ice::Long l)
+    void opShortIntLong(int64_t r, int16_t s, int32_t i, int64_t l)
     {
         test(s == 10);
         test(i == 11);
@@ -137,11 +135,11 @@ public:
         called();
     }
 
-    void opFloatDouble(Ice::Double r, Ice::Float f, Ice::Double d)
+    void opFloatDouble(double r, float f, double d)
     {
-        test(f == Ice::Float(3.14));
-        test(d == Ice::Double(1.1E10));
-        test(r == Ice::Double(1.1E10));
+        test(f == float(3.14));
+        test(d == double(1.1E10));
+        test(r == double(1.1E10));
         called();
     }
 
@@ -186,7 +184,7 @@ public:
 
     void opStruct(const Test::Structure& rso, const Test::Structure& so)
     {
-        test(rso.p == 0);
+        test(rso.p == nullopt);
         test(rso.e == Test::MyEnum::enum2);
         test(rso.s.s == "def");
         test(so.e == Test::MyEnum::enum3);
@@ -263,18 +261,18 @@ public:
     void opFloatDoubleS(const Test::DoubleS& rso, const Test::FloatS& fso, const Test::DoubleS& dso)
     {
         test(fso.size() == 2);
-        test(fso[0] == ::Ice::Float(3.14));
-        test(fso[1] == ::Ice::Float(1.11));
+        test(fso[0] == float(3.14));
+        test(fso[1] == float(1.11));
         test(dso.size() == 3);
-        test(dso[0] == ::Ice::Double(1.3E10));
-        test(dso[1] == ::Ice::Double(1.2E10));
-        test(dso[2] == ::Ice::Double(1.1E10));
+        test(dso[0] == double(1.3E10));
+        test(dso[1] == double(1.2E10));
+        test(dso[2] == double(1.1E10));
         test(rso.size() == 5);
-        test(rso[0] == ::Ice::Double(1.1E10));
-        test(rso[1] == ::Ice::Double(1.2E10));
-        test(rso[2] == ::Ice::Double(1.3E10));
-        test(::Ice::Float(rso[3]) == ::Ice::Float(3.14));
-        test(::Ice::Float(rso[4]) == ::Ice::Float(1.11));
+        test(rso[0] == double(1.1E10));
+        test(rso[1] == double(1.2E10));
+        test(rso[2] == double(1.3E10));
+        test(float(rso[3]) == float(3.14));
+        test(float(rso[4]) == float(1.11));
         called();
     }
 
@@ -378,24 +376,24 @@ public:
     {
         test(fso.size() == 3);
         test(fso[0].size() == 1);
-        test(fso[0][0] == ::Ice::Float(3.14));
+        test(fso[0][0] == float(3.14));
         test(fso[1].size() == 1);
-        test(fso[1][0] == ::Ice::Float(1.11));
+        test(fso[1][0] == float(1.11));
         test(fso[2].size() == 0);
         test(dso.size() == 1);
         test(dso[0].size() == 3);
-        test(dso[0][0] == ::Ice::Double(1.1E10));
-        test(dso[0][1] == ::Ice::Double(1.2E10));
-        test(dso[0][2] == ::Ice::Double(1.3E10));
+        test(dso[0][0] == double(1.1E10));
+        test(dso[0][1] == double(1.2E10));
+        test(dso[0][2] == double(1.3E10));
         test(rso.size() == 2);
         test(rso[0].size() == 3);
-        test(rso[0][0] == ::Ice::Double(1.1E10));
-        test(rso[0][1] == ::Ice::Double(1.2E10));
-        test(rso[0][2] == ::Ice::Double(1.3E10));
+        test(rso[0][0] == double(1.1E10));
+        test(rso[0][1] == double(1.2E10));
+        test(rso[0][2] == double(1.3E10));
         test(rso[1].size() == 3);
-        test(rso[1][0] == ::Ice::Double(1.1E10));
-        test(rso[1][1] == ::Ice::Double(1.2E10));
-        test(rso[1][2] == ::Ice::Double(1.3E10));
+        test(rso[1][0] == double(1.1E10));
+        test(rso[1][1] == double(1.2E10));
+        test(rso[1][2] == double(1.3E10));
         called();
     }
 
@@ -458,18 +456,18 @@ public:
     void opLongFloatD(const Test::LongFloatD& ro, const Test::LongFloatD& _do)
     {
         Test::LongFloatD di1;
-        di1[999999110] = Ice::Float(-1.1);
-        di1[999999111] = Ice::Float(123123.2);
+        di1[999999110] = float(-1.1);
+        di1[999999111] = float(123123.2);
         test(_do == di1);
         test(ro.size() == 4);
         test(ro.find(999999110) != ro.end());
-        test(ro.find(999999110)->second == Ice::Float(-1.1));
+        test(ro.find(999999110)->second == float(-1.1));
         test(ro.find(999999120) != ro.end());
-        test(ro.find(999999120)->second == Ice::Float(-100.4));
+        test(ro.find(999999120)->second == float(-100.4));
         test(ro.find(999999111) != ro.end());
-        test(ro.find(999999111)->second == Ice::Float(123123.2));
+        test(ro.find(999999111)->second == float(123123.2));
         test(ro.find(999999130) != ro.end());
-        test(ro.find(999999130)->second == Ice::Float(0.5));
+        test(ro.find(999999130)->second == float(0.5));
         called();
     }
 
@@ -604,32 +602,32 @@ public:
         test(ro.size() == 2);
         test(ro[0].size() == 3);
         test(ro[0].find(999999110) != ro[0].end());
-        test(ro[0].find(999999110)->second == Ice::Float(-1.1));
+        test(ro[0].find(999999110)->second == float(-1.1));
         test(ro[0].find(999999120) != ro[0].end());
-        test(ro[0].find(999999120)->second == Ice::Float(-100.4));
+        test(ro[0].find(999999120)->second == float(-100.4));
         test(ro[0].find(999999130) != ro[0].end());
-        test(ro[0].find(999999130)->second == Ice::Float(0.5));
+        test(ro[0].find(999999130)->second == float(0.5));
         test(ro[1].size() == 2);
         test(ro[1].find(999999110) != ro[1].end());
-        test(ro[1].find(999999110)->second == Ice::Float(-1.1));
+        test(ro[1].find(999999110)->second == float(-1.1));
         test(ro[1].find(999999111) != ro[1].end());
-        test(ro[1].find(999999111)->second == Ice::Float(123123.2));
+        test(ro[1].find(999999111)->second == float(123123.2));
         test(_do.size() == 3);
         test(_do[0].size() == 1);
         test(_do[0].find(999999140) != _do[0].end());
-        test(_do[0].find(999999140)->second == Ice::Float(3.14));
+        test(_do[0].find(999999140)->second == float(3.14));
         test(_do[1].size() == 2);
         test(_do[1].find(999999110) != _do[1].end());
-        test(_do[1].find(999999110)->second == Ice::Float(-1.1));
+        test(_do[1].find(999999110)->second == float(-1.1));
         test(_do[1].find(999999111) != _do[1].end());
-        test(_do[1].find(999999111)->second == Ice::Float(123123.2));
+        test(_do[1].find(999999111)->second == float(123123.2));
         test(_do[2].size() == 3);
         test(_do[2].find(999999110) != _do[2].end());
-        test(_do[2].find(999999110)->second == Ice::Float(-1.1));
+        test(_do[2].find(999999110)->second == float(-1.1));
         test(_do[2].find(999999120) != _do[2].end());
-        test(_do[2].find(999999120)->second == Ice::Float(-100.4));
+        test(_do[2].find(999999120)->second == float(-100.4));
         test(_do[2].find(999999130) != _do[2].end());
-        test(_do[2].find(999999130)->second == Ice::Float(0.5));
+        test(_do[2].find(999999130)->second == float(0.5));
         called();
     }
 
@@ -885,22 +883,22 @@ public:
         test(_do.size() == 1);
         test(_do.find("aBc") != _do.end());
         test(_do.find("aBc")->second.size() == 2);
-        test(_do.find("aBc")->second[0] == Ice::Float(-3.14));
-        test(_do.find("aBc")->second[1] == Ice::Float(3.14));
+        test(_do.find("aBc")->second[0] == float(-3.14));
+        test(_do.find("aBc")->second[1] == float(3.14));
         test(ro.size() == 3);
         test(ro.find("abc") != ro.end());
         test(ro.find("abc")->second.size() == 3);
-        test(ro.find("abc")->second[0] == Ice::Float(-1.1));
-        test(ro.find("abc")->second[1] == Ice::Float(123123.2));
-        test(ro.find("abc")->second[2] == Ice::Float(100.0));
+        test(ro.find("abc")->second[0] == float(-1.1));
+        test(ro.find("abc")->second[1] == float(123123.2));
+        test(ro.find("abc")->second[2] == float(100.0));
         test(ro.find("ABC") != ro.end());
         test(ro.find("ABC")->second.size() == 2);
-        test(ro.find("ABC")->second[0] == Ice::Float(42.24));
-        test(ro.find("ABC")->second[1] == Ice::Float(-1.61));
+        test(ro.find("ABC")->second[0] == float(42.24));
+        test(ro.find("ABC")->second[1] == float(-1.61));
         test(ro.find("aBc") != ro.end());
         test(ro.find("aBc")->second.size() == 2);
-        test(ro.find("aBc")->second[0] == Ice::Float(-3.14));
-        test(ro.find("aBc")->second[1] == Ice::Float(3.14));
+        test(ro.find("aBc")->second[0] == float(-3.14));
+        test(ro.find("aBc")->second[1] == float(3.14));
         called();
     }
 
@@ -909,22 +907,22 @@ public:
         test(_do.size() == 1);
         test(_do.find("") != _do.end());
         test(_do.find("")->second.size() == 2);
-        test(_do.find("")->second[0] == Ice::Double(1.6E10));
-        test(_do.find("")->second[1] == Ice::Double(1.7E10));
+        test(_do.find("")->second[0] == double(1.6E10));
+        test(_do.find("")->second[1] == double(1.7E10));
         test(ro.size() == 3);
         test(ro.find("Hello!!") != ro.end());
         test(ro.find("Hello!!")->second.size() == 3);
-        test(ro.find("Hello!!")->second[0] == Ice::Double(1.1E10));
-        test(ro.find("Hello!!")->second[1] == Ice::Double(1.2E10));
-        test(ro.find("Hello!!")->second[2] == Ice::Double(1.3E10));
+        test(ro.find("Hello!!")->second[0] == double(1.1E10));
+        test(ro.find("Hello!!")->second[1] == double(1.2E10));
+        test(ro.find("Hello!!")->second[2] == double(1.3E10));
         test(ro.find("Goodbye") != ro.end());
         test(ro.find("Goodbye")->second.size() == 2);
-        test(ro.find("Goodbye")->second[0] == Ice::Double(1.4E10));
-        test(ro.find("Goodbye")->second[1] == Ice::Double(1.5E10));
+        test(ro.find("Goodbye")->second[0] == double(1.4E10));
+        test(ro.find("Goodbye")->second[1] == double(1.5E10));
         test(ro.find("") != ro.end());
         test(ro.find("")->second.size() == 2);
-        test(ro.find("")->second[0] == Ice::Double(1.6E10));
-        test(ro.find("")->second[1] == Ice::Double(1.7E10));
+        test(ro.find("")->second[0] == double(1.6E10));
+        test(ro.find("")->second[1] == double(1.7E10));
         called();
     }
 
@@ -1129,7 +1127,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = make_shared<Callback>();
         p->opShortIntLongAsync(10, 11, 12,
-            [&](long long int l1, short s1P, int i1, long long int l2)
+            [&](int64_t l1, short s1P, int i1, int64_t l2)
             {
                 cb->opShortIntLong(l1, s1P, i1, l2);
             },
@@ -1173,7 +1171,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = make_shared<Callback>(communicator);
         p->opMyClassAsync(p,
-                          [&](shared_ptr<Test::MyClassPrx> c1, shared_ptr<Test::MyClassPrx> c2, shared_ptr<Test::MyClassPrx> c3)
+                          [&](Test::MyClassPrxPtr c1, Test::MyClassPrxPtr c2, Test::MyClassPrxPtr c3)
             {
                 cb->opMyClass(std::move(c1), std::move(c2), std::move(c3));
             },
@@ -1187,7 +1185,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         si1.e = Test::MyEnum::enum3;
         si1.s.s = "abc";
         Test::Structure si2;
-        si2.p = 0;
+        si2.p = nullopt;
         si2.e = Test::MyEnum::enum2;
         si2.s.s = "def";
 
@@ -1277,12 +1275,12 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::FloatS fsi;
         Test::DoubleS dsi;
 
-        fsi.push_back(Ice::Float(3.14));
-        fsi.push_back(Ice::Float(1.11));
+        fsi.push_back(float(3.14));
+        fsi.push_back(float(1.11));
 
-        dsi.push_back(Ice::Double(1.1E10));
-        dsi.push_back(Ice::Double(1.2E10));
-        dsi.push_back(Ice::Double(1.3E10));
+        dsi.push_back(double(1.1E10));
+        dsi.push_back(double(1.2E10));
+        dsi.push_back(double(1.3E10));
 
         CallbackPtr cb = make_shared<Callback>();
         p->opFloatDoubleSAsync(fsi, dsi,
@@ -1397,12 +1395,12 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::DoubleSS dsi;
         dsi.resize(1);
 
-        fsi[0].push_back(Ice::Float(3.14));
-        fsi[1].push_back(Ice::Float(1.11));
+        fsi[0].push_back(float(3.14));
+        fsi[1].push_back(float(1.11));
 
-        dsi[0].push_back(Ice::Double(1.1E10));
-        dsi[0].push_back(Ice::Double(1.2E10));
-        dsi[0].push_back(Ice::Double(1.3E10));
+        dsi[0].push_back(double(1.1E10));
+        dsi[0].push_back(double(1.2E10));
+        dsi[0].push_back(double(1.3E10));
 
         CallbackPtr cb = make_shared<Callback>();
         p->opFloatDoubleSSAsync(fsi, dsi,
@@ -1476,12 +1474,12 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         Test::LongFloatD di1;
-        di1[999999110] = Ice::Float(-1.1);
-        di1[999999111] = Ice::Float(123123.2);
+        di1[999999110] = float(-1.1);
+        di1[999999111] = float(123123.2);
         Test::LongFloatD di2;
-        di2[999999110] = Ice::Float(-1.1);
-        di2[999999120] = Ice::Float(-100.4);
-        di2[999999130] = Ice::Float(0.5);
+        di2[999999110] = float(-1.1);
+        di2[999999120] = float(-100.4);
+        di2[999999130] = float(0.5);
 
         CallbackPtr cb = make_shared<Callback>();
         p->opLongFloatDAsync(di1, di2,
@@ -1623,14 +1621,14 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2.resize(1);
 
         Test::LongFloatD di1;
-        di1[999999110] = Ice::Float(-1.1);
-        di1[999999111] = Ice::Float(123123.2);
+        di1[999999110] = float(-1.1);
+        di1[999999111] = float(123123.2);
         Test::LongFloatD di2;
-        di2[999999110] = Ice::Float(-1.1);
-        di2[999999120] = Ice::Float(-100.4);
-        di2[999999130] = Ice::Float(0.5);
+        di2[999999110] = float(-1.1);
+        di2[999999120] = float(-100.4);
+        di2[999999130] = float(0.5);
         Test::LongFloatD di3;
-        di3[999999140] = Ice::Float(3.14);
+        di3[999999140] = float(3.14);
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -1923,13 +1921,13 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::FloatS si2;
         Test::FloatS si3;
 
-        si1.push_back(Ice::Float(-1.1));
-        si1.push_back(Ice::Float(123123.2));
-        si1.push_back(Ice::Float(100.0));
-        si2.push_back(Ice::Float(42.24));
-        si2.push_back(Ice::Float(-1.61));
-        si3.push_back(Ice::Float(-3.14));
-        si3.push_back(Ice::Float(3.14));
+        si1.push_back(float(-1.1));
+        si1.push_back(float(123123.2));
+        si1.push_back(float(100.0));
+        si2.push_back(float(42.24));
+        si2.push_back(float(-1.61));
+        si3.push_back(float(-3.14));
+        si3.push_back(float(3.14));
 
         sdi1["abc"] = si1;
         sdi1["ABC"] = si2;
@@ -1953,13 +1951,13 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::DoubleS si2;
         Test::DoubleS si3;
 
-        si1.push_back(Ice::Double(1.1E10));
-        si1.push_back(Ice::Double(1.2E10));
-        si1.push_back(Ice::Double(1.3E10));
-        si2.push_back(Ice::Double(1.4E10));
-        si2.push_back(Ice::Double(1.5E10));
-        si3.push_back(Ice::Double(1.6E10));
-        si3.push_back(Ice::Double(1.7E10));
+        si1.push_back(double(1.1E10));
+        si1.push_back(double(1.2E10));
+        si1.push_back(double(1.3E10));
+        si2.push_back(double(1.4E10));
+        si2.push_back(double(1.5E10));
+        si3.push_back(double(1.6E10));
+        si3.push_back(double(1.7E10));
 
         sdi1["Hello!!"] = si1;
         sdi1["Goodbye"] = si2;
@@ -2242,7 +2240,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     }
 
     {
-        Ice::Double d = 1278312346.0 / 13.0;
+        double d = 1278312346.0 / 13.0;
         Test::DoubleS ds(5, d);
         CallbackPtr cb = make_shared<Callback>();
         p->opDoubleMarshalingAsync(d, ds,
@@ -2388,7 +2386,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByte(r.returnValue, r.p3);
+            cb->opByte(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2407,7 +2405,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opBool(r.returnValue, r.p3);
+            cb->opBool(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2426,7 +2424,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortIntLong(r.returnValue, r.p4, r.p5, r.p6);
+            cb->opShortIntLong(std::get<0>(r), std::get<1>(r), std::get<2>(r), std::get<3>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2445,7 +2443,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opFloatDouble(r.returnValue, r.p3, r.p4);
+            cb->opFloatDouble(std::get<0>(r), std::get<1>(r), std::get<2>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2464,7 +2462,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opString(r.returnValue, r.p3);
+            cb->opString(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2483,7 +2481,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyEnum(r.returnValue, r.p2);
+            cb->opMyEnum(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2502,7 +2500,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyClass(r.returnValue, r.p2, r.p3);
+            cb->opMyClass(std::get<0>(r), std::get<1>(r), std::get<2>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2521,7 +2519,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         si1.e = Test::MyEnum::enum3;
         si1.s.s = "abc";
         Test::Structure si2;
-        si2.p = 0;
+        si2.p = nullopt;
         si2.e = Test::MyEnum::enum2;
         si2.s.s = "def";
 
@@ -2530,7 +2528,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStruct(r.returnValue, r.p3);
+            cb->opStruct(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2562,7 +2560,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteS(r.returnValue, r.p3);
+            cb->opByteS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2590,7 +2588,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opBoolS(r.returnValue, r.p3);
+            cb->opBoolS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2626,7 +2624,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortIntLongS(r.returnValue, r.p4, r.p5, r.p6);
+            cb->opShortIntLongS(std::get<0>(r), std::get<1>(r), std::get<2>(r), std::get<3>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2643,19 +2641,19 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::FloatS fsi;
         Test::DoubleS dsi;
 
-        fsi.push_back(Ice::Float(3.14));
-        fsi.push_back(Ice::Float(1.11));
+        fsi.push_back(float(3.14));
+        fsi.push_back(float(1.11));
 
-        dsi.push_back(Ice::Double(1.1E10));
-        dsi.push_back(Ice::Double(1.2E10));
-        dsi.push_back(Ice::Double(1.3E10));
+        dsi.push_back(double(1.1E10));
+        dsi.push_back(double(1.2E10));
+        dsi.push_back(double(1.3E10));
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opFloatDoubleSAsync(fsi, dsi);
         try
         {
             auto r = f.get();
-            cb->opFloatDoubleS(r.returnValue, r.p3, r.p4);
+            cb->opFloatDoubleS(std::get<0>(r), std::get<1>(r), std::get<2>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2683,7 +2681,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringS(r.returnValue, r.p3);
+            cb->opStringS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2716,7 +2714,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteSS(r.returnValue, r.p3);
+            cb->opByteSS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2735,19 +2733,19 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::DoubleSS dsi;
         dsi.resize(1);
 
-        fsi[0].push_back(Ice::Float(3.14));
-        fsi[1].push_back(Ice::Float(1.11));
+        fsi[0].push_back(float(3.14));
+        fsi[1].push_back(float(1.11));
 
-        dsi[0].push_back(Ice::Double(1.1E10));
-        dsi[0].push_back(Ice::Double(1.2E10));
-        dsi[0].push_back(Ice::Double(1.3E10));
+        dsi[0].push_back(double(1.1E10));
+        dsi[0].push_back(double(1.2E10));
+        dsi[0].push_back(double(1.3E10));
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opFloatDoubleSSAsync(fsi, dsi);
         try
         {
             auto r = f.get();
-            cb->opFloatDoubleSS(r.returnValue, r.p3, r.p4);
+            cb->opFloatDoubleSS(std::get<0>(r), std::get<1>(r), std::get<2>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2777,7 +2775,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringSS(r.returnValue, r.p3);
+            cb->opStringSS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2804,7 +2802,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteBoolD(r.returnValue, r.p3);
+            cb->opByteBoolD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2831,7 +2829,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortIntD(r.returnValue, r.p3);
+            cb->opShortIntD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2846,19 +2844,19 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         Test::LongFloatD di1;
-        di1[999999110] = Ice::Float(-1.1);
-        di1[999999111] = Ice::Float(123123.2);
+        di1[999999110] = float(-1.1);
+        di1[999999111] = float(123123.2);
         Test::LongFloatD di2;
-        di2[999999110] = Ice::Float(-1.1);
-        di2[999999120] = Ice::Float(-100.4);
-        di2[999999130] = Ice::Float(0.5);
+        di2[999999110] = float(-1.1);
+        di2[999999120] = float(-100.4);
+        di2[999999130] = float(0.5);
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opLongFloatDAsync(di1, di2);
         try
         {
             auto r = f.get();
-            cb->opLongFloatD(r.returnValue, r.p3);
+            cb->opLongFloatD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2885,7 +2883,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringStringD(r.returnValue, r.p3);
+            cb->opStringStringD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2912,7 +2910,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringMyEnumD(r.returnValue, r.p3);
+            cb->opStringMyEnumD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2944,7 +2942,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyStructMyEnumD(r.returnValue, r.p3);
+            cb->opMyStructMyEnumD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -2983,7 +2981,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteBoolDS(r.returnValue, r.p3);
+            cb->opByteBoolDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3021,7 +3019,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortIntDS(r.returnValue, r.p3);
+            cb->opShortIntDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3041,14 +3039,14 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         dsi2.resize(1);
 
         Test::LongFloatD di1;
-        di1[999999110] = Ice::Float(-1.1);
-        di1[999999111] = Ice::Float(123123.2);
+        di1[999999110] = float(-1.1);
+        di1[999999111] = float(123123.2);
         Test::LongFloatD di2;
-        di2[999999110] = Ice::Float(-1.1);
-        di2[999999120] = Ice::Float(-100.4);
-        di2[999999130] = Ice::Float(0.5);
+        di2[999999110] = float(-1.1);
+        di2[999999120] = float(-100.4);
+        di2[999999130] = float(0.5);
         Test::LongFloatD di3;
-        di3[999999140] = Ice::Float(3.14);
+        di3[999999140] = float(3.14);
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -3059,7 +3057,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opLongFloatDS(r.returnValue, r.p3);
+            cb->opLongFloatDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3097,7 +3095,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringStringDS(r.returnValue, r.p3);
+            cb->opStringStringDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3135,7 +3133,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringMyEnumDS(r.returnValue, r.p3);
+            cb->opStringMyEnumDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3171,7 +3169,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyEnumStringDS(r.returnValue, r.p3);
+            cb->opMyEnumStringDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3215,7 +3213,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyStructMyEnumDS(r.returnValue, r.p3);
+            cb->opMyStructMyEnumDS(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3251,7 +3249,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opByteByteSD(r.returnValue, r.p3);
+            cb->opByteByteSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3286,7 +3284,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opBoolBoolSD(r.returnValue, r.p3);
+            cb->opBoolBoolSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3324,7 +3322,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opShortShortSD(r.returnValue, r.p3);
+            cb->opShortShortSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3362,7 +3360,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opIntIntSD(r.returnValue, r.p3);
+            cb->opIntIntSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3400,7 +3398,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opLongLongSD(r.returnValue, r.p3);
+            cb->opLongLongSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3421,13 +3419,13 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::FloatS si2;
         Test::FloatS si3;
 
-        si1.push_back(Ice::Float(-1.1));
-        si1.push_back(Ice::Float(123123.2));
-        si1.push_back(Ice::Float(100.0));
-        si2.push_back(Ice::Float(42.24));
-        si2.push_back(Ice::Float(-1.61));
-        si3.push_back(Ice::Float(-3.14));
-        si3.push_back(Ice::Float(3.14));
+        si1.push_back(float(-1.1));
+        si1.push_back(float(123123.2));
+        si1.push_back(float(100.0));
+        si2.push_back(float(42.24));
+        si2.push_back(float(-1.61));
+        si3.push_back(float(-3.14));
+        si3.push_back(float(3.14));
 
         sdi1["abc"] = si1;
         sdi1["ABC"] = si2;
@@ -3438,7 +3436,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringFloatSD(r.returnValue, r.p3);
+            cb->opStringFloatSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3459,13 +3457,13 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::DoubleS si2;
         Test::DoubleS si3;
 
-        si1.push_back(Ice::Double(1.1E10));
-        si1.push_back(Ice::Double(1.2E10));
-        si1.push_back(Ice::Double(1.3E10));
-        si2.push_back(Ice::Double(1.4E10));
-        si2.push_back(Ice::Double(1.5E10));
-        si3.push_back(Ice::Double(1.6E10));
-        si3.push_back(Ice::Double(1.7E10));
+        si1.push_back(double(1.1E10));
+        si1.push_back(double(1.2E10));
+        si1.push_back(double(1.3E10));
+        si2.push_back(double(1.4E10));
+        si2.push_back(double(1.5E10));
+        si3.push_back(double(1.6E10));
+        si3.push_back(double(1.7E10));
 
         sdi1["Hello!!"] = si1;
         sdi1["Goodbye"] = si2;
@@ -3476,7 +3474,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringDoubleSD(r.returnValue, r.p3);
+            cb->opStringDoubleSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3516,7 +3514,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opStringStringSD(r.returnValue, r.p3);
+            cb->opStringStringSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3555,7 +3553,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         try
         {
             auto r = f.get();
-            cb->opMyEnumMyEnumSD(r.returnValue, r.p3);
+            cb->opMyEnumMyEnumSD(std::get<0>(r), std::get<1>(r));
         }
         catch(const Ice::Exception& ex)
         {
@@ -3597,7 +3595,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     }
 
     {
-        Ice::Double d = 1278312346.0 / 13.0;
+        double d = 1278312346.0 / 13.0;
         Test::DoubleS ds(5, d);
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opDoubleMarshalingAsync(d, ds);

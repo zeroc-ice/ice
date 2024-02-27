@@ -59,15 +59,7 @@ Ice_Communicator_stringToProxy(void* self, const char* s, void** proxy)
 {
     try
     {
-        auto p = deref<Ice::Communicator>(self)->stringToProxy(s);
-        if(p)
-        {
-            *proxy = createShared<Ice::ObjectPrx>(p);
-        }
-        else
-        {
-            *proxy = 0;
-        }
+        *proxy = createProxy(deref<Ice::Communicator>(self)->stringToProxy(s));
     }
     catch(const std::exception& ex)
     {
@@ -82,7 +74,7 @@ Ice_Communicator_proxyToString(void* self, void* proxy)
     assert(proxy);
     try
     {
-        auto p = deref<Ice::ObjectPrx>(proxy);
+        auto p = restoreProxy(proxy);
         return createResultValue(createStringFromUTF8(deref<Ice::Communicator>(self)->proxyToString(p)));
     }
     catch(const std::exception& ex)
@@ -96,15 +88,7 @@ Ice_Communicator_propertyToProxy(void* self, const char* prop, void** proxy)
 {
     try
     {
-        auto p = deref<Ice::Communicator>(self)->propertyToProxy(prop);
-        if(p)
-        {
-            *proxy = createShared<Ice::ObjectPrx>(p);
-        }
-        else
-        {
-            *proxy = 0;
-        }
+        *proxy = createProxy(deref<Ice::Communicator>(self)->propertyToProxy(prop));
     }
     catch(const std::exception& ex)
     {
@@ -119,7 +103,7 @@ Ice_Communicator_proxyToProperty(void* self, void* proxy, const char* prop)
     assert(proxy);
     try
     {
-        auto p = deref<Ice::ObjectPrx>(proxy);
+        auto p = restoreProxy(proxy);
         auto d = deref<Ice::Communicator>(self)->proxyToProperty(p, prop);
         return createResultValue(createStringMap(d));
     }
@@ -194,15 +178,7 @@ Ice_Communicator_getDefaultRouter(void* self, void** proxy)
 {
     try
     {
-        auto p = deref<Ice::Communicator>(self)->getDefaultRouter();
-        if(p)
-        {
-            *proxy = createShared<Ice::ObjectPrx>(p);
-        }
-        else
-        {
-            *proxy = 0;
-        }
+        *proxy = createProxy(deref<Ice::Communicator>(self)->getDefaultRouter());
     }
     catch(const std::exception& ex)
     {
@@ -216,11 +192,7 @@ Ice_Communicator_setDefaultRouter(void* self, void* proxy)
 {
     try
     {
-        shared_ptr<Ice::RouterPrx> p;
-        if(proxy)
-        {
-            p = Ice::uncheckedCast<Ice::RouterPrx>(deref<Ice::ObjectPrx>(proxy));
-        }
+        optional<Ice::RouterPrx> p = Ice::uncheckedCast<Ice::RouterPrx>(restoreNullableProxy(proxy));
         deref<Ice::Communicator>(self)->setDefaultRouter(p);
     }
     catch(const std::exception& ex)
@@ -235,15 +207,7 @@ Ice_Communicator_getDefaultLocator(void* self, void** proxy)
 {
     try
     {
-        auto p = deref<Ice::Communicator>(self)->getDefaultLocator();
-        if(p)
-        {
-            *proxy = createShared<Ice::ObjectPrx>(p);
-        }
-        else
-        {
-            *proxy = 0;
-        }
+        *proxy = createProxy(deref<Ice::Communicator>(self)->getDefaultLocator());
     }
     catch(const std::exception& ex)
     {
@@ -257,11 +221,7 @@ Ice_Communicator_setDefaultLocator(void* self, void* proxy)
 {
     try
     {
-        shared_ptr<Ice::LocatorPrx> p;
-        if(proxy)
-        {
-            p = Ice::uncheckedCast<Ice::LocatorPrx>(deref<Ice::ObjectPrx>(proxy));
-        }
+        optional<Ice::LocatorPrx> p = Ice::uncheckedCast<Ice::LocatorPrx>(restoreNullableProxy(proxy));
         deref<Ice::Communicator>(self)->setDefaultLocator(p);
     }
     catch(const std::exception& ex)

@@ -6,7 +6,7 @@
 #include <TestI.h>
 
 Test::DoubleSeq
-TestIntfI::opDoubleArray(std::pair<const Ice::Double*, const Ice::Double*> inSeq,
+TestIntfI::opDoubleArray(std::pair<const double*, const double*> inSeq,
                          Test::DoubleSeq& outSeq,
                          const Ice::Current&)
 {
@@ -145,15 +145,6 @@ TestIntfI::opMyByteSeq(MyByteSeq inSeq,
 {
     outSeq = inSeq;
     return inSeq;
-}
-
-std::string
-TestIntfI::opString(Util::string_view inString,
-                    std::string& outString,
-                    const Ice::Current&)
-{
-    outString = inString.to_string();
-    return outString;
 }
 
 std::deque< ::std::string>
@@ -313,35 +304,18 @@ TestIntfI::opIntStringDict(Test::IntStringDict data, Test::IntStringDict& copy, 
     return data;
 }
 
-Test::CustomMap<Ice::Long, Ice::Long>
-TestIntfI::opVarDict(Test::CustomMap<std::string, Ice::Int> data,
-                     Test::CustomMap<std::string, Ice::Int>& copy, const Ice::Current&)
+Test::CustomMap<int64_t, int64_t>
+TestIntfI::opVarDict(Test::CustomMap<std::string, int32_t> data,
+                     Test::CustomMap<std::string, int32_t>& copy, const Ice::Current&)
 {
     copy = data;
 
-    Test::CustomMap<Ice::Long, Ice::Long> result;
-    for(Ice::Long i = 0; i < 1000; ++i)
+    Test::CustomMap<int64_t, int64_t> result;
+    for(int64_t i = 0; i < 1000; ++i)
     {
         result[i] = i*i;
     }
     return result;
-}
-
-Test::CustomMap<Ice::Int, std::string>
-TestIntfI::opCustomIntStringDict(
-    std::map<Ice::Int, Util::string_view> data,
-    Test::CustomMap<Ice::Int, std::string>& copy,
-    const Ice::Current&)
-{
-    copy.clear();
-
-    for(std::map<Ice::Int, Util::string_view>::const_iterator p = data.begin();
-        p != data.end(); ++p)
-    {
-        copy[p->first] = p->second.to_string();
-    }
-
-    return copy;
 }
 
 Test::ShortBuffer

@@ -250,7 +250,7 @@ Ice::OutputStream::writeBlob(const vector<Byte>& v)
 void
 Ice::OutputStream::write(const Byte* begin, const Byte* end)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -263,7 +263,7 @@ Ice::OutputStream::write(const Byte* begin, const Byte* end)
 void
 Ice::OutputStream::write(const vector<bool>& v)
 {
-    Int sz = static_cast<Int>(v.size());
+    int32_t sz = static_cast<int32_t>(v.size());
     writeSize(sz);
     if(sz > 0)
     {
@@ -279,7 +279,7 @@ namespace
 template<size_t boolSize>
 struct WriteBoolHelper
 {
-    static void write(const bool* begin, OutputStream::Container::size_type pos, OutputStream::Container& b, Int sz)
+    static void write(const bool* begin, OutputStream::Container::size_type pos, OutputStream::Container& b, int32_t sz)
     {
         for(size_t idx = 0; idx < static_cast<size_t>(sz); ++idx)
         {
@@ -291,7 +291,7 @@ struct WriteBoolHelper
 template<>
 struct WriteBoolHelper<1>
 {
-    static void write(const bool* begin, OutputStream::Container::size_type pos, OutputStream::Container& b, Int sz)
+    static void write(const bool* begin, OutputStream::Container::size_type pos, OutputStream::Container& b, int32_t sz)
     {
         memcpy(&b[pos], begin, static_cast<size_t>(sz));
     }
@@ -302,7 +302,7 @@ struct WriteBoolHelper<1>
 void
 Ice::OutputStream::write(const bool* begin, const bool* end)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -313,13 +313,13 @@ Ice::OutputStream::write(const bool* begin, const bool* end)
 }
 
 void
-Ice::OutputStream::write(Short v)
+Ice::OutputStream::write(int16_t v)
 {
     Container::size_type pos = b.size();
-    resize(pos + sizeof(Short));
+    resize(pos + sizeof(int16_t));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Short) - 1;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(int16_t) - 1;
     *dest++ = *src--;
     *dest = *src;
 #else
@@ -330,40 +330,40 @@ Ice::OutputStream::write(Short v)
 }
 
 void
-Ice::OutputStream::write(const Short* begin, const Short* end)
+Ice::OutputStream::write(const int16_t* begin, const int16_t* end)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + static_cast<size_t>(sz) * sizeof(Short));
+        resize(pos + static_cast<size_t>(sz) * sizeof(int16_t));
 #ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Short) - 1;
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(int16_t) - 1;
         Byte* dest = &(*(b.begin() + pos));
         for(int j = 0 ; j < sz ; ++j)
         {
             *dest++ = *src--;
             *dest++ = *src--;
-            src += 2 * sizeof(Short);
+            src += 2 * sizeof(int16_t);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Short));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(int16_t));
 #endif
     }
 }
 
 void
-Ice::OutputStream::write(const Int* begin, const Int* end)
+Ice::OutputStream::write(const int32_t* begin, const int32_t* end)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + static_cast<size_t>(sz) * sizeof(Int));
+        resize(pos + static_cast<size_t>(sz) * sizeof(int32_t));
 #ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Int) - 1;
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(int32_t) - 1;
         Byte* dest = &(*(b.begin() + pos));
         for(int j = 0 ; j < sz ; ++j)
         {
@@ -371,19 +371,19 @@ Ice::OutputStream::write(const Int* begin, const Int* end)
             *dest++ = *src--;
             *dest++ = *src--;
             *dest++ = *src--;
-            src += 2 * sizeof(Int);
+            src += 2 * sizeof(int32_t);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Int));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(int32_t));
 #endif
     }
 }
 
 void
-Ice::OutputStream::write(Long v)
+Ice::OutputStream::write(int64_t v)
 {
     Container::size_type pos = b.size();
-    resize(pos + sizeof(Long));
+    resize(pos + sizeof(int64_t));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
     const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Long) - 1;
@@ -409,16 +409,16 @@ Ice::OutputStream::write(Long v)
 }
 
 void
-Ice::OutputStream::write(const Long* begin, const Long* end)
+Ice::OutputStream::write(const int64_t* begin, const int64_t* end)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + static_cast<size_t>(sz) * sizeof(Long));
+        resize(pos + static_cast<size_t>(sz) * sizeof(int64_t));
 #ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Long) - 1;
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(int64_t) - 1;
         Byte* dest = &(*(b.begin() + pos));
         for(int j = 0 ; j < sz ; ++j)
         {
@@ -430,22 +430,22 @@ Ice::OutputStream::write(const Long* begin, const Long* end)
             *dest++ = *src--;
             *dest++ = *src--;
             *dest++ = *src--;
-            src += 2 * sizeof(Long);
+            src += 2 * sizeof(int64_t);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Long));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(int64_t));
 #endif
     }
 }
 
 void
-Ice::OutputStream::write(Float v)
+Ice::OutputStream::write(float v)
 {
     Container::size_type pos = b.size();
-    resize(pos + sizeof(Float));
+    resize(pos + sizeof(float));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Float) - 1;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(float) - 1;
     *dest++ = *src--;
     *dest++ = *src--;
     *dest++ = *src--;
@@ -460,16 +460,16 @@ Ice::OutputStream::write(Float v)
 }
 
 void
-Ice::OutputStream::write(const Float* begin, const Float* end)
+Ice::OutputStream::write(const float* begin, const float* end)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + static_cast<size_t>(sz) * sizeof(Float));
+        resize(pos + static_cast<size_t>(sz) * sizeof(float));
 #ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Float) - 1;
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(float) - 1;
         Byte* dest = &(*(b.begin() + pos));
         for(int j = 0 ; j < sz ; ++j)
         {
@@ -477,22 +477,22 @@ Ice::OutputStream::write(const Float* begin, const Float* end)
             *dest++ = *src--;
             *dest++ = *src--;
             *dest++ = *src--;
-            src += 2 * sizeof(Float);
+            src += 2 * sizeof(float);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Float));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(float));
 #endif
     }
 }
 
 void
-Ice::OutputStream::write(Double v)
+Ice::OutputStream::write(double v)
 {
     Container::size_type pos = b.size();
-    resize(pos + sizeof(Double));
+    resize(pos + sizeof(double));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Double) - 1;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(double) - 1;
     *dest++ = *src--;
     *dest++ = *src--;
     *dest++ = *src--;
@@ -515,16 +515,16 @@ Ice::OutputStream::write(Double v)
 }
 
 void
-Ice::OutputStream::write(const Double* begin, const Double* end)
+Ice::OutputStream::write(const double* begin, const double* end)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
         Container::size_type pos = b.size();
-        resize(pos + static_cast<size_t>(sz) * sizeof(Double));
+        resize(pos + static_cast<size_t>(sz) * sizeof(double));
 #ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Double) - 1;
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(double) - 1;
         Byte* dest = &(*(b.begin() + pos));
         for(int j = 0 ; j < sz ; ++j)
         {
@@ -536,10 +536,10 @@ Ice::OutputStream::write(const Double* begin, const Double* end)
             *dest++ = *src--;
             *dest++ = *src--;
             *dest++ = *src--;
-            src += 2 * sizeof(Double);
+            src += 2 * sizeof(double);
         }
 #else
-        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(Double));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), static_cast<size_t>(sz) * sizeof(double));
 #endif
     }
 }
@@ -568,7 +568,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
     //
     try
     {
-        Int guessedSize = static_cast<Int>(vsize);
+        int32_t guessedSize = static_cast<int32_t>(vsize);
         writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
 
         size_t firstIndex = b.size();
@@ -609,7 +609,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
         }
         size_t lastIndex = b.size();
 
-        Int actualSize = static_cast<Int>(lastIndex - firstIndex);
+        int32_t actualSize = static_cast<int32_t>(lastIndex - firstIndex);
 
         //
         // Check against the guess
@@ -653,7 +653,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 void
 Ice::OutputStream::write(const string* begin, const string* end, bool convert)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -665,7 +665,7 @@ Ice::OutputStream::write(const string* begin, const string* end, bool convert)
 }
 
 void
-Ice::OutputStream::write(const wstring& v)
+Ice::OutputStream::write(wstring_view v)
 {
     if(v.empty())
     {
@@ -680,7 +680,7 @@ Ice::OutputStream::write(const wstring& v)
     //
     try
     {
-        Int guessedSize = static_cast<Int>(v.size());
+        int32_t guessedSize = static_cast<int32_t>(v.size());
         writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
 
         size_t firstIndex = b.size();
@@ -704,7 +704,7 @@ Ice::OutputStream::write(const wstring& v)
         }
         size_t lastIndex = b.size();
 
-        Int actualSize = static_cast<Int>(lastIndex - firstIndex);
+        int32_t actualSize = static_cast<int32_t>(lastIndex - firstIndex);
 
         //
         // Check against the guess
@@ -748,7 +748,7 @@ Ice::OutputStream::write(const wstring& v)
 void
 Ice::OutputStream::write(const wstring* begin, const wstring* end)
 {
-    Int sz = static_cast<Int>(end - begin);
+    int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if(sz > 0)
     {
@@ -760,21 +760,20 @@ Ice::OutputStream::write(const wstring* begin, const wstring* end)
 }
 
 void
-Ice::OutputStream::writeProxy(const shared_ptr<ObjectPrx>& v)
+Ice::OutputStream::writeProxy(const ObjectPrx& v)
 {
-    if(v)
-    {
-        v->_write(*this);
-    }
-    else
-    {
-        Identity ident;
-        write(ident);
-    }
+    v->_write(*this);
 }
 
 void
-Ice::OutputStream::writeEnum(Int v, Int maxValue)
+Ice::OutputStream::writeNullProxy()
+{
+    Identity ident;
+    write(ident);
+}
+
+void
+Ice::OutputStream::writeEnum(int32_t v, int32_t maxValue)
 {
     if(getEncoding() == Encoding_1_0)
     {
@@ -784,7 +783,7 @@ Ice::OutputStream::writeEnum(Int v, Int maxValue)
         }
         else if(maxValue < 32767)
         {
-            write(static_cast<Short>(v));
+            write(static_cast<int16_t>(v));
         }
         else
         {
@@ -807,7 +806,7 @@ Ice::OutputStream::writeException(const UserException& e)
 }
 
 bool
-Ice::OutputStream::writeOptImpl(Int tag, OptionalFormat type)
+Ice::OutputStream::writeOptImpl(int32_t tag, OptionalFormat type)
 {
     if(getEncoding() == Encoding_1_0)
     {
@@ -887,7 +886,7 @@ Ice::OutputStream::EncapsEncoder::~EncapsEncoder()
     // Out of line to avoid weak vtable
 }
 
-Int
+int32_t
 Ice::OutputStream::EncapsEncoder::registerTypeId(const string& typeId)
 {
     TypeIdMap::const_iterator p = _typeIdMap.find(typeId);
@@ -952,7 +951,7 @@ Ice::OutputStream::EncapsEncoder10::endInstance()
         //
         // Write the Object slice.
         //
-        startSlice(Object::ice_staticId(), -1, true);
+        startSlice(Value::ice_staticId(), -1, true);
         _stream->writeSize(0); // For compatibility with the old AFM.
         endSlice();
     }
@@ -969,7 +968,7 @@ Ice::OutputStream::EncapsEncoder10::startSlice(const string& typeId, int, bool /
     //
     if(_sliceType == ValueSlice)
     {
-        Int index = registerTypeId(typeId);
+        int32_t index = registerTypeId(typeId);
         if(index < 0)
         {
             _stream->write(false);
@@ -986,7 +985,7 @@ Ice::OutputStream::EncapsEncoder10::startSlice(const string& typeId, int, bool /
         _stream->write(typeId, false);
     }
 
-    _stream->write(Int(0)); // Placeholder for the slice length.
+    _stream->write(int32_t(0)); // Placeholder for the slice length.
 
     _writeSlice = _stream->b.size();
 }
@@ -997,8 +996,8 @@ Ice::OutputStream::EncapsEncoder10::endSlice()
     //
     // Write the slice length.
     //
-    Int sz = static_cast<Int>(_stream->b.size() - _writeSlice + sizeof(Int));
-    Byte* dest = &(*(_stream->b.begin() + _writeSlice - sizeof(Int)));
+    int32_t sz = static_cast<int32_t>(_stream->b.size() - _writeSlice + sizeof(int32_t));
+    Byte* dest = &(*(_stream->b.begin() + _writeSlice - sizeof(int32_t)));
     _stream->write(sz, dest);
 }
 
@@ -1017,7 +1016,7 @@ Ice::OutputStream::EncapsEncoder10::writePendingValues()
 
         PtrToIndexMap savedMap;
         savedMap.swap(_toBeMarshaledMap);
-        _stream->writeSize(static_cast<Int>(savedMap.size()));
+        _stream->writeSize(static_cast<int32_t>(savedMap.size()));
         for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
         {
             //
@@ -1048,7 +1047,7 @@ Ice::OutputStream::EncapsEncoder10::writePendingValues()
     _stream->writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
 }
 
-Int
+int32_t
 Ice::OutputStream::EncapsEncoder10::registerValue(const shared_ptr<Value>& v)
 {
     assert(v);
@@ -1099,7 +1098,7 @@ Ice::OutputStream::EncapsEncoder11::write(const shared_ptr<Value>& v)
         if(p == _current->indirectionMap.end())
         {
             _current->indirectionTable.push_back(v);
-            Int idx = static_cast<Int>(_current->indirectionTable.size()); // Position + 1 (0 is reserved for nil)
+            int32_t idx = static_cast<int32_t>(_current->indirectionTable.size()); // Position + 1 (0 is reserved for nil)
             _current->indirectionMap.insert(make_pair(v, idx));
             _stream->writeSize(idx);
         }
@@ -1185,7 +1184,7 @@ Ice::OutputStream::EncapsEncoder11::startSlice(const string& typeId, int compact
             }
             else
             {
-                Int index = registerTypeId(typeId);
+                int32_t index = registerTypeId(typeId);
                 if(index < 0)
                 {
                     _current->sliceFlags |= FLAG_HAS_TYPE_ID_STRING;
@@ -1206,7 +1205,7 @@ Ice::OutputStream::EncapsEncoder11::startSlice(const string& typeId, int compact
 
     if(_current->sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
-        _stream->write(Int(0)); // Placeholder for the slice length.
+        _stream->write(int32_t(0)); // Placeholder for the slice length.
     }
 
     _current->writeSlice = _stream->b.size();
@@ -1231,8 +1230,8 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
     //
     if(_current->sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
-        Int sz = static_cast<Int>(_stream->b.size() - _current->writeSlice + sizeof(Int));
-        Byte* dest = &(*(_stream->b.begin() + _current->writeSlice - sizeof(Int)));
+        int32_t sz = static_cast<int32_t>(_stream->b.size() - _current->writeSlice + sizeof(int32_t));
+        Byte* dest = &(*(_stream->b.begin() + _current->writeSlice - sizeof(int32_t)));
         _stream->write(sz, dest);
     }
 
@@ -1247,7 +1246,7 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
         //
         // Write the indirect instance table.
         //
-        _stream->writeSize(static_cast<Int>(_current->indirectionTable.size()));
+        _stream->writeSize(static_cast<int32_t>(_current->indirectionTable.size()));
         ValueList::const_iterator p;
         for(p = _current->indirectionTable.begin(); p != _current->indirectionTable.end(); ++p)
         {
@@ -1265,7 +1264,7 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
 }
 
 bool
-Ice::OutputStream::EncapsEncoder11::writeOptional(Ice::Int tag, Ice::OptionalFormat format)
+Ice::OutputStream::EncapsEncoder11::writeOptional(int32_t tag, Ice::OptionalFormat format)
 {
     if(!_current)
     {

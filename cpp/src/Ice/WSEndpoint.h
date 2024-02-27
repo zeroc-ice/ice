@@ -26,11 +26,11 @@ public:
     void streamWriteImpl(Ice::OutputStream*) const final;
 
     Ice::EndpointInfoPtr getInfo() const noexcept final;
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     const std::string& protocol() const final;
 
-    Ice::Int timeout() const final;
-    EndpointIPtr timeout(Ice::Int) const final;
+    std::int32_t timeout() const final;
+    EndpointIPtr timeout(std::int32_t) const final;
     const std::string& connectionId() const final;
     EndpointIPtr connectionId(const ::std::string&) const final;
     bool compress() const final;
@@ -47,7 +47,7 @@ public:
     std::vector<EndpointIPtr> expandIfWildcard() const final;
     std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const final;
     bool equivalent(const EndpointIPtr&) const final;
-    ::Ice::Int hash() const final;
+    ::std::int32_t hash() const final;
     std::string options() const final;
 
     WSEndpointPtr endpoint(const EndpointIPtr&) const;
@@ -73,9 +73,9 @@ class ICE_API WSEndpointFactory final : public EndpointFactoryWithUnderlying
 {
 public:
 
-    WSEndpointFactory(const ProtocolInstancePtr&, Ice::Short);
+    WSEndpointFactory(const ProtocolInstancePtr&, std::int16_t);
 
-    EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, Ice::Short) const final;
+    EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const final;
 
 protected:
 

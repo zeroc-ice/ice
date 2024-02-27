@@ -82,47 +82,47 @@ allTests(Test::TestHelper* helper)
         s1.v = 0;
         {
             auto result = i->opSAsync(s1).get();
-            test(result.returnValue == s1);
-            test(result.s2 == s1);
+            test(std::get<0>(result) == s1);
+            test(std::get<1>(result) == s1);
         }
 
         Test::SSeq sseq1;
         sseq1.push_back(s1);
         {
             auto result = i->opSSeqAsync(sseq1).get();
-            test(result.returnValue == sseq1);
-            test(result.s2 == sseq1);
+            test(std::get<0>(result) == sseq1);
+            test(std::get<1>(result) == sseq1);
         }
 
         Test::SMap smap1;
         smap1["a"] = s1;
         {
             auto result = i->opSMapAsync(smap1).get();
-            test(result.returnValue == smap1);
-            test(result.s2 == smap1);
+            test(std::get<0>(result) == smap1);
+            test(std::get<1>(result) == smap1);
         }
 
         Test::CPtr c1 =  make_shared<Test::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
-            test(Ice::targetEqualTo(result.returnValue, c1));
-            test(Ice::targetEqualTo(result.c2, c1));
+            test(Ice::targetEqualTo(std::get<0>(result), c1));
+            test(Ice::targetEqualTo(std::get<1>(result), c1));
         }
 
         Test::CSeq cseq1;
         cseq1.push_back(c1);
         {
             auto result = i->opCSeqAsync(cseq1).get();
-            test(Ice::targetEqualTo(result.returnValue[0], c1));
-            test(Ice::targetEqualTo(result.s2[0], c1));
+            test(Ice::targetEqualTo(std::get<0>(result)[0], c1));
+            test(Ice::targetEqualTo(std::get<1>(result)[0], c1));
         }
 
         Test::CMap cmap1;
         cmap1["a"] = c1;
         {
             auto result = i->opCMapAsync(cmap1).get();
-            test(Ice::targetEqualTo(result.returnValue["a"], c1));
-            test(Ice::targetEqualTo(result.c2["a"], c1));
+            test(Ice::targetEqualTo(std::get<0>(result)["a"], c1));
+            test(Ice::targetEqualTo(std::get<1>(result)["a"], c1));
         }
 
         {
@@ -451,47 +451,47 @@ allTests(Test::TestHelper* helper)
         s1.v = 0;
         {
             auto result = i->opSAsync(s1).get();
-            test(result.returnValue == s1);
-            test(result.s2 == s1);
+            test(std::get<0>(result) == s1);
+            test(std::get<1>(result) == s1);
         }
 
         Test::Inner::Inner2::SSeq sseq1;
         sseq1.push_back(s1);
         {
             auto result = i->opSSeqAsync(sseq1).get();
-            test(result.returnValue == sseq1);
-            test(result.s2 == sseq1);
+            test(std::get<0>(result) == sseq1);
+            test(std::get<1>(result) == sseq1);
         }
 
         Test::Inner::Inner2::SMap smap1;
         smap1["a"] = s1;
         {
             auto result = i->opSMapAsync(smap1).get();
-            test(result.returnValue == smap1);
-            test(result.s2 == smap1);
+            test(std::get<0>(result) == smap1);
+            test(std::get<1>(result) == smap1);
         }
 
         Test::Inner::Inner2::CPtr c1 = make_shared<Test::Inner::Inner2::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
-            test(Ice::targetEqualTo(result.returnValue, c1));
-            test(Ice::targetEqualTo(result.c2, c1));
+            test(Ice::targetEqualTo(std::get<0>(result), c1));
+            test(Ice::targetEqualTo(std::get<1>(result), c1));
         }
 
         Test::Inner::Inner2::CSeq cseq1;
         cseq1.push_back(c1);
         {
             auto result = i->opCSeqAsync(cseq1).get();
-            test(Ice::targetEqualTo(result.returnValue[0], c1));
-            test(Ice::targetEqualTo(result.c2[0], c1));
+            test(Ice::targetEqualTo(std::get<0>(result)[0], c1));
+            test(Ice::targetEqualTo(std::get<1>(result)[0], c1));
         }
 
         Test::Inner::Inner2::CMap cmap1;
         cmap1["a"] = c1;
         {
             auto result = i->opCMapAsync(cmap1).get();
-            test(Ice::targetEqualTo(result.returnValue["a"], c1));
-            test(Ice::targetEqualTo(result.c2["a"], c1));
+            test(Ice::targetEqualTo(std::get<0>(result)["a"], c1));
+            test(Ice::targetEqualTo(std::get<1>(result)["a"], c1));
         }
     }
 
@@ -728,47 +728,47 @@ allTests(Test::TestHelper* helper)
         s1.v = 0;
         {
             auto result = i->opSAsync(s1).get();
-            test(result.returnValue == s1);
-            test(result.s2 == s1);
+            test(std::get<0>(result) == s1);
+            test(std::get<1>(result) == s1);
         }
 
         Test::Inner::Inner2::SSeq sseq1;
         sseq1.push_back(s1);
         {
             auto result = i->opSSeqAsync(sseq1).get();
-            test(result.returnValue == sseq1);
-            test(result.s2 == sseq1);
+            test(std::get<0>(result) == sseq1);
+            test(std::get<1>(result) == sseq1);
         }
 
         Test::Inner::Inner2::SMap smap1;
         smap1["a"] = s1;
         {
             auto result = i->opSMapAsync(smap1).get();
-            test(result.returnValue == smap1);
-            test(result.s2 == smap1);
+            test(std::get<0>(result) == smap1);
+            test(std::get<1>(result) == smap1);
         }
 
         Test::Inner::Inner2::CPtr c1 = make_shared<Test::Inner::Inner2::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
-            test(Ice::targetEqualTo(result.returnValue, c1));
-            test(Ice::targetEqualTo(result.c2, c1));
+            test(Ice::targetEqualTo(std::get<0>(result), c1));
+            test(Ice::targetEqualTo(std::get<1>(result), c1));
         }
 
         Test::Inner::Inner2::CSeq cseq1;
         cseq1.push_back(c1);
         {
             auto result = i->opCSeqAsync(cseq1).get();
-            test(Ice::targetEqualTo(result.returnValue[0], c1));
-            test(Ice::targetEqualTo(result.c2[0], c1));
+            test(Ice::targetEqualTo(std::get<0>(result)[0], c1));
+            test(Ice::targetEqualTo(std::get<1>(result)[0], c1));
         }
 
         Test::Inner::Inner2::CMap cmap1;
         cmap1["a"] = c1;
         {
             auto result = i->opCMapAsync(cmap1).get();
-            test(Ice::targetEqualTo(result.returnValue["a"], c1));
-            test(Ice::targetEqualTo(result.c2["a"], c1));
+            test(Ice::targetEqualTo(std::get<0>(result)["a"], c1));
+            test(Ice::targetEqualTo(std::get<1>(result)["a"], c1));
         }
     }
 
@@ -1005,47 +1005,47 @@ allTests(Test::TestHelper* helper)
         s1.v = 0;
         {
             auto result = i->opSAsync(s1).get();
-            test(result.returnValue == s1);
-            test(result.s2 == s1);
+            test(std::get<0>(result) == s1);
+            test(std::get<1>(result) == s1);
         }
 
         Test::SSeq sseq1;
         sseq1.push_back(s1);
         {
             auto result = i->opSSeqAsync(sseq1).get();
-            test(result.returnValue == sseq1);
-            test(result.s2 == sseq1);
+            test(std::get<0>(result) == sseq1);
+            test(std::get<1>(result) == sseq1);
         }
 
         Test::SMap smap1;
         smap1["a"] = s1;
         {
             auto result = i->opSMapAsync(smap1).get();
-            test(result.returnValue == smap1);
-            test(result.s2 == smap1);
+            test(std::get<0>(result) == smap1);
+            test(std::get<1>(result) == smap1);
         }
 
         Test::CPtr c1 = make_shared<Test::C>(s1);
         {
             auto result = i->opCAsync(c1).get();
-            test(Ice::targetEqualTo(result.returnValue, c1));
-            test(Ice::targetEqualTo(result.c2, c1));
+            test(Ice::targetEqualTo(std::get<0>(result), c1));
+            test(Ice::targetEqualTo(std::get<1>(result), c1));
         }
 
         Test::CSeq cseq1;
         cseq1.push_back(c1);
         {
             auto result = i->opCSeqAsync(cseq1).get();
-            test(Ice::targetEqualTo(result.returnValue[0], c1));
-            test(Ice::targetEqualTo(result.c2[0], c1));
+            test(Ice::targetEqualTo(std::get<0>(result)[0], c1));
+            test(Ice::targetEqualTo(std::get<1>(result)[0], c1));
         }
 
         Test::CMap cmap1;
         cmap1["a"] = c1;
         {
             auto result = i->opCMapAsync(cmap1).get();
-            test(Ice::targetEqualTo(result.returnValue["a"], c1));
-            test(Ice::targetEqualTo(result.c2["a"], c1));
+            test(Ice::targetEqualTo(std::get<0>(result)["a"], c1));
+            test(Ice::targetEqualTo(std::get<1>(result)["a"], c1));
         }
     }
 

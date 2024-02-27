@@ -98,8 +98,8 @@ private:
     mutable std::mutex _mutex;
 };
 
-const Ice::Long TICKS_PER_MSECOND = 10000LL;
-const Ice::Long MSECS_TO_EPOCH = 11644473600000LL;
+const int64_t TICKS_PER_MSECOND = 10000LL;
+const int64_t MSECS_TO_EPOCH = 11644473600000LL;
 
 void
 loadCertificate(PCERT_SIGNED_CONTENT_INFO* cert, const char* buffer, DWORD length)
@@ -140,14 +140,12 @@ loadCertificate(PCERT_SIGNED_CONTENT_INFO* cert, const string& file)
 chrono::system_clock::time_point
 filetimeToTime(FILETIME ftime)
 {
-    Ice::Long value = 0;
+    int64_t value = 0;
     DWORD* dest = reinterpret_cast<DWORD*>(&value);
     *dest++ = ftime.dwLowDateTime;
     *dest = ftime.dwHighDateTime;
 
-    IceUtil::Time time = IceUtil::Time::milliSeconds((value / TICKS_PER_MSECOND) - MSECS_TO_EPOCH);
-
-    return chrono::system_clock::time_point(chrono::microseconds(time.toMicroSeconds()));
+    return chrono::system_clock::time_point(chrono::milliseconds((value / TICKS_PER_MSECOND) - MSECS_TO_EPOCH));
 }
 
 string

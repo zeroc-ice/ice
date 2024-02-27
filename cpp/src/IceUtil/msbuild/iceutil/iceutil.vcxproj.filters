@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{ED03E3E4-C50D-4FE0-9F5A-53834B8A5FBE}</UniqueIdentifier>
@@ -49,104 +48,79 @@
     <ClCompile Include="..\..\StringConverter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Time.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ConsoleUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
-
   <ItemGroup>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Cond.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Config.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\CountDownLatch.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\InputUtil.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Lock.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Monitor.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Mutex.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\MutexProtocol.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Options.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\OutputUtil.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\PopDisableWarnings.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\PushDisableWarnings.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Random.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Thread.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\ThreadException.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Time.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-  <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h">
-    <Filter>Header Files</Filter>
-  </ClInclude>
-</ItemGroup>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\FileUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\InputUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Options.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\OutputUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\PopDisableWarnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\PushDisableWarnings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\ThreadException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

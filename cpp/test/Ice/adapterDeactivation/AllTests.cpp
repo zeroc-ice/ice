@@ -22,7 +22,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing checked cast... " << flush;
     TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
-    test(Ice::targetEqualTo(obj, base));
+    test(obj == base);
     cout << "ok" << endl;
 
     {
@@ -146,7 +146,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             router = Ice::uncheckedCast<Ice::RouterPrx>(
-                communicator->stringToProxy("test:" + helper->getTestEndpoint(1)));
+                communicator->stringToProxy("test:" + helper->getTestEndpoint(1)).value());
             communicator->createObjectAdapterWithRouter("", router);
             test(false);
         }

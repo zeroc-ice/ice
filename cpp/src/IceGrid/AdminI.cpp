@@ -88,9 +88,16 @@ namespace
             _proxy = _proxy->ice_invocationTimeout(timeout);
         }
 
-        ServerPrx* operator->() const
+        ServerPrx* operator->()
         {
-            return _proxy.get();
+            if (_proxy)
+            {
+                return &_proxy.value();
+            }
+            else
+            {
+                return nullptr;
+            }
         }
 
         void handleException(exception_ptr ex) const
@@ -116,7 +123,7 @@ namespace
     private:
 
         string _id;
-        shared_ptr<ServerPrx> _proxy;
+        ServerPrxPtr _proxy;
         chrono::seconds _activationTimeout;
         chrono::seconds _deactivationTimeout;
         string _node;
@@ -414,7 +421,7 @@ AdminI::getServerAdminCategory(const Current&) const
     return _registry->getServerAdminCategory();
 }
 
-shared_ptr<ObjectPrx>
+ObjectPrxPtr
 AdminI::getServerAdmin(string id, const Current& current) const
 {
     ServerProxyWrapper proxy(_database, id); // Ensure that the server exists and loaded on the node.
@@ -574,7 +581,7 @@ AdminI::getAllAdapterIds(const Current&) const
 }
 
 void
-AdminI::addObject(shared_ptr<Ice::ObjectPrx> proxy, const ::Ice::Current& current)
+AdminI::addObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current& current)
 {
     checkIsReadOnly();
 
@@ -590,14 +597,14 @@ AdminI::addObject(shared_ptr<Ice::ObjectPrx> proxy, const ::Ice::Current& curren
     catch (const Ice::LocalException& ex)
     {
         ostringstream os;
-        os << "failed to invoke ice_id() on proxy `" + current.adapter->getCommunicator()->proxyToString(proxy)
+        os << "failed to invoke ice_id() on proxy `" << proxy
             << "':\n" << ex;
         throw DeploymentException(os.str());
     }
 }
 
 void
-AdminI::updateObject(shared_ptr<Ice::ObjectPrx> proxy, const ::Ice::Current&)
+AdminI::updateObject(Ice::ObjectPrxPtr proxy, const ::Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -617,7 +624,7 @@ AdminI::updateObject(shared_ptr<Ice::ObjectPrx> proxy, const ::Ice::Current&)
 }
 
 void
-AdminI::addObjectWithType(shared_ptr<Ice::ObjectPrx> proxy, string type, const ::Ice::Current&)
+AdminI::addObjectWithType(Ice::ObjectPrxPtr proxy, string type, const ::Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -677,7 +684,7 @@ AdminI::getNodeInfo(string name, const Ice::Current&) const
     return toNodeInfo(_database->getNode(name)->getInfo());
 }
 
-shared_ptr<ObjectPrx>
+ObjectPrxPtr
 AdminI::getNodeAdmin(string name, const Current& current) const
 {
     //
@@ -811,7 +818,7 @@ AdminI::getRegistryInfo(string name, const Ice::Current&) const
     }
 }
 
-shared_ptr<ObjectPrx>
+ObjectPrxPtr
 AdminI::getRegistryAdmin(string name, const Current& current) const
 {
     if (name != _registry->getName())

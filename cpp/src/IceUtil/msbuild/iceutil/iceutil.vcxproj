@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -92,7 +91,6 @@
     <ClCompile Include="..\..\OutputUtil.cpp" />
     <ClCompile Include="..\..\StringConverter.cpp" />
     <ClCompile Include="..\..\ThreadException.cpp" />
-    <ClCompile Include="..\..\Time.cpp" />
     <ClCompile Include="..\..\UtilException.cpp" />
     <ClCompile Include="..\..\FileUtil.cpp" />
     <ClCompile Include="..\..\InputUtil.cpp" />
@@ -102,10 +100,8 @@
     <ClCompile Include="..\..\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\IceUtil\Cond.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Config.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\CountDownLatch.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Exception.h" />
@@ -113,10 +109,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\InputUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Lock.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Monitor.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Mutex.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\MutexProtocol.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Optional.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Options.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\OutputUtil.h" />
@@ -126,9 +118,7 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Thread.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ThreadException.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\Time.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h" />

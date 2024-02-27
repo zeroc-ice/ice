@@ -19,7 +19,7 @@ IceInternal::ProtocolInstance::~ProtocolInstance()
     // Out of line to avoid weak vtable
 }
 
-IceInternal::ProtocolInstance::ProtocolInstance(const CommunicatorPtr& com, Short type, const string& protocol,
+IceInternal::ProtocolInstance::ProtocolInstance(const CommunicatorPtr& com, int16_t type, const string& protocol,
                                                  bool secure) :
     _instance(getInstance(com)),
     _traceLevel(_instance->traceLevels()->network),
@@ -31,7 +31,7 @@ IceInternal::ProtocolInstance::ProtocolInstance(const CommunicatorPtr& com, Shor
 {
 }
 
-IceInternal::ProtocolInstance::ProtocolInstance(const InstancePtr& instance, Short type, const string& protocol,
+IceInternal::ProtocolInstance::ProtocolInstance(const InstancePtr& instance, int16_t type, const string& protocol,
                                                 bool secure) :
     _instance(instance),
     _traceLevel(_instance->traceLevels()->network),
@@ -50,25 +50,25 @@ IceInternal::ProtocolInstance::logger() const
 }
 
 EndpointFactoryPtr
-IceInternal::ProtocolInstance::getEndpointFactory(Ice::Short type) const
+IceInternal::ProtocolInstance::getEndpointFactory(int16_t type) const
 {
     return _instance->endpointFactoryManager()->get(type);
 }
 
 BufSizeWarnInfo
-IceInternal::ProtocolInstance::getBufSizeWarn(Short type)
+IceInternal::ProtocolInstance::getBufSizeWarn(int16_t type)
 {
     return _instance->getBufSizeWarn(type);
 }
 
 void
-IceInternal::ProtocolInstance::setSndBufSizeWarn(Short type, int size)
+IceInternal::ProtocolInstance::setSndBufSizeWarn(int16_t type, int size)
 {
     _instance->setSndBufSizeWarn(type, size);
 }
 
 void
-IceInternal::ProtocolInstance::setRcvBufSizeWarn(Short type, int size)
+IceInternal::ProtocolInstance::setRcvBufSizeWarn(int16_t type, int size)
 {
     _instance->setRcvBufSizeWarn(type, size);
 }

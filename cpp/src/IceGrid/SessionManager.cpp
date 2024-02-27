@@ -22,11 +22,11 @@ SessionManager::SessionManager(const shared_ptr<Ice::Communicator>& communicator
     }
 }
 
-vector<shared_ptr<QueryPrx>>
+vector<QueryPrxPtr>
 SessionManager::findAllQueryObjects(bool cached)
 {
-    vector<shared_ptr<QueryPrx>> queryObjects;
-    shared_ptr<Ice::LocatorPrx> locator;
+    vector<QueryPrxPtr> queryObjects;
+    Ice::LocatorPrxPtr locator;
     {
         lock_guard lock(_mutex);
         if(!_communicator)
@@ -90,8 +90,8 @@ SessionManager::findAllQueryObjects(bool cached)
     //
     // Find all known query objects by querying all the registries we can find.
     //
-    map<Ice::Identity, shared_ptr<QueryPrx>> proxies;
-    set<shared_ptr<QueryPrx>> requested;
+    map<Ice::Identity, QueryPrxPtr> proxies;
+    set<QueryPrxPtr> requested;
     while(true)
     {
         vector<future<Ice::ObjectProxySeq>> results;

@@ -17,7 +17,6 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/OutgoingAsyncF.h>
 #include <Ice/Exception.h>
 #include <Ice/BuiltinSequences.h>
 #include <Ice/Proxy.h>
@@ -25,6 +24,14 @@
 
 #include <list>
 #include <mutex>
+
+namespace IceInternal
+{
+
+class CommunicatorFlushBatchAsync;
+using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
+
+}
 
 namespace Ice
 {
@@ -45,10 +52,10 @@ public:
     bool isDeactivated() const noexcept final;
     void destroy() noexcept final;
 
-    ObjectPrxPtr add(const std::shared_ptr<Object>&, const Identity&) final;
-    ObjectPrxPtr addFacet(const std::shared_ptr<Object>&, const Identity&, const std::string&) final;
-    ObjectPrxPtr addWithUUID(const std::shared_ptr<Object>&) final;
-    ObjectPrxPtr addFacetWithUUID(const std::shared_ptr<Object>&, const std::string&) final;
+    ObjectPrx add(const std::shared_ptr<Object>&, const Identity&) final;
+    ObjectPrx addFacet(const std::shared_ptr<Object>&, const Identity&, const std::string&) final;
+    ObjectPrx addWithUUID(const std::shared_ptr<Object>&) final;
+    ObjectPrx addFacetWithUUID(const std::shared_ptr<Object>&, const std::string&) final;
     void addDefaultServant(const std::shared_ptr<Object>&, const std::string&) final;
     std::shared_ptr<Object> remove(const Identity&) final;
     std::shared_ptr<Object> removeFacet(const Identity&, const std::string&) final;
@@ -57,19 +64,19 @@ public:
     std::shared_ptr<Object> find(const Identity&) const final;
     std::shared_ptr<Object> findFacet(const Identity&, const std::string&) const final;
     FacetMap findAllFacets(const Identity&) const final;
-    std::shared_ptr<Object> findByProxy(const ObjectPrxPtr&) const final;
+    std::shared_ptr<Object> findByProxy(const ObjectPrx&) const final;
     std::shared_ptr<Object> findDefaultServant(const std::string&) const final;
 
     void addServantLocator(const std::shared_ptr<ServantLocator>&, const std::string&) final;
     std::shared_ptr<ServantLocator> removeServantLocator(const std::string&) final;
     std::shared_ptr<ServantLocator> findServantLocator(const std::string&) const final;
 
-    ObjectPrxPtr createProxy(const Identity&) const final;
-    ObjectPrxPtr createDirectProxy(const Identity&) const final;
-    ObjectPrxPtr createIndirectProxy(const Identity&) const final;
+    ObjectPrx createProxy(const Identity&) const final;
+    ObjectPrx createDirectProxy(const Identity&) const final;
+    ObjectPrx createIndirectProxy(const Identity&) const final;
 
-    void setLocator(const LocatorPrxPtr&) final;
-    LocatorPrxPtr getLocator() const noexcept;
+    void setLocator(const std::optional<LocatorPrx>&) final;
+    std::optional<LocatorPrx> getLocator() const noexcept;
     EndpointSeq getEndpoints() const noexcept;
 
     void refreshPublishedEndpoints() final;
@@ -102,16 +109,16 @@ public:
 
 private:
 
-    void initialize(const RouterPrxPtr&);
+    void initialize(std::optional<RouterPrx>);
     friend class IceInternal::ObjectAdapterFactory;
 
-    ObjectPrxPtr newProxy(const Identity&, const std::string&) const;
-    ObjectPrxPtr newDirectProxy(const Identity&, const std::string&) const;
-    ObjectPrxPtr newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
+    ObjectPrx newProxy(const Identity&, const std::string&) const;
+    ObjectPrx newDirectProxy(const Identity&, const std::string&) const;
+    ObjectPrx newIndirectProxy(const Identity&, const std::string&, const std::string&) const;
     void checkForDeactivation() const;
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&, bool) const;
     std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
-    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrxPtr&);
+    void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<Ice::ObjectPrx>&);
     bool filterProperties(Ice::StringSeq&);
 
     enum State

@@ -46,7 +46,7 @@ Instance::Instance(const string& instanceName,
                    shared_ptr<Ice::ObjectAdapter> publishAdapter,
                    shared_ptr<Ice::ObjectAdapter> topicAdapter,
                    shared_ptr<Ice::ObjectAdapter> nodeAdapter,
-                   shared_ptr<NodePrx> nodeProxy) :
+                   NodePrxPtr nodeProxy) :
     _instanceName(instanceName),
     _serviceName(name),
     _communicator(std::move(communicator)),
@@ -74,18 +74,18 @@ Instance::Instance(const string& instanceName,
             string p = properties->getProperty(name + ".ReplicatedTopicManagerEndpoints");
             if(!p.empty())
             {
-                const_cast<shared_ptr<Ice::ObjectPrx>&>(_topicReplicaProxy) =
+                const_cast<Ice::ObjectPrxPtr&>(_topicReplicaProxy) =
                     _communicator->stringToProxy("dummy:" + p);
             }
             p = properties->getProperty(name + ".ReplicatedPublishEndpoints");
             if(!p.empty())
             {
-                const_cast<shared_ptr<Ice::ObjectPrx>&>(_publisherReplicaProxy) =
+                const_cast<Ice::ObjectPrxPtr&>(_publisherReplicaProxy) =
                     _communicator->stringToProxy("dummy:" + p);
             }
         }
 
-        _timer = IceUtil::Timer::create();
+        _timer = make_shared<IceUtil::Timer>();
 
         string policy = properties->getProperty(name + ".Send.QueueSizeMaxPolicy");
         if(policy == "RemoveSubscriber")
@@ -184,7 +184,7 @@ Instance::node() const
     return _node;
 }
 
-shared_ptr<NodePrx>
+NodePrxPtr
 Instance::nodeProxy() const
 {
     return _nodeProxy;
@@ -202,13 +202,13 @@ Instance::timer() const
     return _timer;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 Instance::topicReplicaProxy() const
 {
     return _topicReplicaProxy;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 Instance::publisherReplicaProxy() const
 {
     return _publisherReplicaProxy;
@@ -296,7 +296,7 @@ PersistentInstance::PersistentInstance(const string& instanceName,
                                        shared_ptr<Ice::ObjectAdapter> publishAdapter,
                                        shared_ptr<Ice::ObjectAdapter> topicAdapter,
                                        shared_ptr<Ice::ObjectAdapter> nodeAdapter,
-                                       shared_ptr<NodePrx> nodeProxy) :
+                                       NodePrxPtr nodeProxy) :
     Instance(
         instanceName,
         name,

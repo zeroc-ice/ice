@@ -55,7 +55,7 @@ toCFString(const string& s)
 }
 #endif
 
-IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const string& protocol, bool secure) :
+IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, int16_t type, const string& protocol, bool secure) :
     ProtocolInstance(com, type, protocol, secure),
     _communicator(com),
     _proxySettings(0)
@@ -87,7 +87,8 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
     }
 }
 
-IceObjC::Instance::~Instance()
+IceObjC::Instance::Instance(const IceObjC::InstancePtr& instance, const ProtocolInstancePtr& protocolInstance) :
+    Instance(instance->_communicator, protocolInstance->type(), protocolInstance->protocol(), protocolInstance->secure())
 {
 }
 
@@ -107,14 +108,8 @@ IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
     }
 }
 
-IceObjC::Instance*
-IceObjC::Instance::clone(const ProtocolInstancePtr& instance)
-{
-    return new Instance(_communicator, instance->type(), instance->protocol(), instance->secure());
-}
-
-IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, const string& ho, Int po,
-                                          const Address& sourceAddr, Int ti, const string& conId, bool co) :
+IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, const string& ho, int32_t po,
+                                          const Address& sourceAddr, int32_t ti, const string& conId, bool co) :
     IceInternal::IPEndpointI(instance, ho, po, sourceAddr, conId),
     _streamInstance(instance),
     _timeout(ti),
@@ -136,7 +131,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Inpu
     _timeout(-1),
     _compress(false)
 {
-    s->read(const_cast<Int&>(_timeout));
+    s->read(const_cast<int32_t&>(_timeout));
     s->read(const_cast<bool&>(_compress));
 }
 
@@ -150,14 +145,14 @@ IceObjC::StreamEndpointI::getInfo() const noexcept
     return info;
 }
 
-Int
+int32_t
 IceObjC::StreamEndpointI::timeout() const
 {
     return _timeout;
 }
 
 EndpointIPtr
-IceObjC::StreamEndpointI::timeout(Int t) const
+IceObjC::StreamEndpointI::timeout(int32_t t) const
 {
     if(t == _timeout)
     {
@@ -354,7 +349,7 @@ IceObjC::StreamEndpointI::streamWriteImpl(Ice::OutputStream* s) const
 }
 
 void
-IceObjC::StreamEndpointI::hashInit(Ice::Int& h) const
+IceObjC::StreamEndpointI::hashInit(int32_t& h) const
 {
     IPEndpointI::hashInit(h);
     hashAdd(h, _timeout);
@@ -381,12 +376,12 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
 
         if(argument == "infinite")
         {
-            const_cast<Int&>(_timeout) = -1;
+            const_cast<int32_t&>(_timeout) = -1;
         }
         else
         {
             istringstream t(argument);
-            if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
+            if(!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
             {
                 throw EndpointParseException(__FILE__, __LINE__, "invalid timeout value `" + argument +
                                              "' in endpoint " + endpoint);
@@ -431,11 +426,7 @@ IceObjC::StreamEndpointFactory::StreamEndpointFactory(const InstancePtr& instanc
 {
 }
 
-IceObjC::StreamEndpointFactory::~StreamEndpointFactory()
-{
-}
-
-Short
+int16_t
 IceObjC::StreamEndpointFactory::type() const
 {
     return _instance->type();
@@ -464,12 +455,12 @@ IceObjC::StreamEndpointFactory::read(Ice::InputStream* s) const
 void
 IceObjC::StreamEndpointFactory::destroy()
 {
-    _instance = 0;
+    _instance = nullptr;
 }
 
 EndpointFactoryPtr
 IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
-    return make_shared<StreamEndpointFactory>(_instance->clone(instance));
+    return make_shared<StreamEndpointFactory>(make_shared<IceObjC::Instance>(_instance, instance));
 }
 #endif

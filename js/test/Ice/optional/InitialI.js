@@ -326,11 +326,6 @@
             return false;
         }
 
-        supportsCppStringView(current)
-        {
-            return false;
-        }
-
         supportsNullOptional(current)
         {
             return true;

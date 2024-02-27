@@ -26,11 +26,11 @@ class iAPConnector final : public IceInternal::Connector
 {
 public:
 
-    iAPConnector(const IceInternal::ProtocolInstancePtr&, Ice::Int, const std::string&, NSString*, EAAccessory*);
+    iAPConnector(const IceInternal::ProtocolInstancePtr&, std::int32_t, const std::string&, NSString*, EAAccessory*);
     ~iAPConnector();
     IceInternal::TransceiverPtr connect() final;
 
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     std::string toString() const final;
 
     bool operator==(const IceInternal::Connector&) const final;
@@ -39,7 +39,7 @@ public:
 private:
 
     const IceInternal::ProtocolInstancePtr _instance;
-    const Ice::Int _timeout;
+    const std::int32_t _timeout;
     const std::string _connectionId;
     NSString* _protocol;
     EAAccessory* _accessory;

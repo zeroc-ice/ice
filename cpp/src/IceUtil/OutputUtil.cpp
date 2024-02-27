@@ -346,6 +346,21 @@ IceUtilInternal::Output::epar(char c)
     _out << c;
 }
 
+void
+IceUtilInternal::Output::spar(string_view s)
+{
+    _emptyBlock = false;
+    _out << s;
+    _par = 0;
+}
+
+void
+IceUtilInternal::Output::epar(string_view s)
+{
+    _par = -1;
+    _out << s;
+}
+
 Output&
 IceUtilInternal::operator<<(Output& out, ios_base& (*val)(ios_base&))
 {

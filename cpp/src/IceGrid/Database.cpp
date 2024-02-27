@@ -180,7 +180,7 @@ findByType(const IceDB::ReadOnlyTxn& txn,
 
 shared_ptr<Database>
 Database::create(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-                 const shared_ptr<IceStorm::TopicManagerPrx>& topicManager,
+                 const IceStorm::TopicManagerPrxPtr& topicManager,
                  const string& instanceName,
                  const shared_ptr<TraceLevels>& traceLevels,
                  const RegistryInfo& info,
@@ -194,7 +194,7 @@ Database::create(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
 }
 
 Database::Database(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
-                   const shared_ptr<IceStorm::TopicManagerPrx>& topicManager,
+                   const IceStorm::TopicManagerPrxPtr& topicManager,
                    const string& instanceName,
                    const shared_ptr<TraceLevels>& traceLevels,
                    const RegistryInfo& info,
@@ -269,7 +269,7 @@ Database::Database(const shared_ptr<Ice::ObjectAdapter>& registryAdapter,
     _serverCache.setNodeObserverTopic(_nodeObserverTopic);
 
     // Set all serials to 1 if they have not yet been set.
-    long long serial;
+    int64_t serial;
     if(!_serials.get(txn, applicationsDbName, serial))
     {
         _serials.put(txn, applicationsDbName, 1);
@@ -375,7 +375,7 @@ Database::unlock(AdminSessionI* session)
 }
 
 void
-Database::syncApplications(const ApplicationInfoSeq& newApplications, long long dbSerial)
+Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t dbSerial)
 {
     assert(dbSerial != 0);
     int serial = 0;
@@ -455,7 +455,7 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, long long 
 }
 
 void
-Database::syncAdapters(const AdapterInfoSeq& adapters, long long dbSerial)
+Database::syncAdapters(const AdapterInfoSeq& adapters, int64_t dbSerial)
 {
     assert(dbSerial != 0);
     int serial = 0;
@@ -497,7 +497,7 @@ Database::syncAdapters(const AdapterInfoSeq& adapters, long long dbSerial)
 }
 
 void
-Database::syncObjects(const ObjectInfoSeq& objects, long long dbSerial)
+Database::syncObjects(const ObjectInfoSeq& objects, int64_t dbSerial)
 {
     assert(dbSerial != 0);
     int serial = 0;
@@ -535,7 +535,7 @@ Database::syncObjects(const ObjectInfoSeq& objects, long long dbSerial)
 }
 
 ApplicationInfoSeq
-Database::getApplications(long long& serial)
+Database::getApplications(int64_t& serial)
 {
     try
     {
@@ -552,7 +552,7 @@ Database::getApplications(long long& serial)
 }
 
 AdapterInfoSeq
-Database::getAdapters(long long& serial)
+Database::getAdapters(int64_t& serial)
 {
     try
     {
@@ -569,7 +569,7 @@ Database::getAdapters(long long& serial)
 }
 
 ObjectInfoSeq
-Database::getObjects(long long& serial)
+Database::getObjects(int64_t& serial)
 {
     try
     {
@@ -593,7 +593,7 @@ Database::getSerials() const
 }
 
 void
-Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, long long dbSerial)
+Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
@@ -717,7 +717,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, lo
 
 void
 Database::updateApplication(const ApplicationUpdateInfo& updt, bool noRestart, AdminSessionI* session,
-                            Ice::Long dbSerial)
+                            int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
@@ -784,7 +784,8 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, bool n
         previous = make_unique<ApplicationHelper>(_communicator, oldApp.descriptor);
         helper = make_unique<ApplicationHelper>(_communicator, newDesc, true);
 
-        update.updateTime = IceUtil::Time::now().toMilliSeconds();
+        update.updateTime = chrono::duration_cast<chrono::milliseconds>(
+            chrono::system_clock::now().time_since_epoch()).count();
         update.updateUser = _lockUserId;
         update.revision = oldApp.revision + 1;
         update.descriptor = helper->diff(*previous);
@@ -830,7 +831,8 @@ Database::instantiateServer(const string& application,
         previous = make_unique<ApplicationHelper>(_communicator, oldApp.descriptor);
         helper = make_unique<ApplicationHelper>(_communicator, previous->instantiateServer(node, instance), true);
 
-        update.updateTime = IceUtil::Time::now().toMilliSeconds();
+        update.updateTime = chrono::duration_cast<chrono::milliseconds>(
+            chrono::system_clock::now().time_since_epoch()).count();
         update.updateUser = _lockUserId;
         update.revision = oldApp.revision + 1;
         update.descriptor = helper->diff(*previous);
@@ -847,7 +849,7 @@ Database::instantiateServer(const string& application,
 }
 
 void
-Database::removeApplication(const string& name, AdminSessionI* session, Ice::Long dbSerial)
+Database::removeApplication(const string& name, AdminSessionI* session, int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
     ServerEntrySeq entries;
@@ -1009,7 +1011,7 @@ Database::getAllocatableObject(const Ice::Identity& id) const
 
 void
 Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGroupId,
-                                const shared_ptr<Ice::ObjectPrx>& proxy, long long dbSerial)
+                                const Ice::ObjectPrxPtr& proxy, int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
@@ -1099,7 +1101,7 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& encoding,
                                 const shared_ptr<Ice::Connection>& con,
                                 const Ice::Context& ctx)
@@ -1132,7 +1134,7 @@ Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& en
     {
         return _communicator->stringToProxy("dummy:default")->ice_endpoints(endpoints);
     }
-    return 0;
+    return nullopt;
 }
 
 void
@@ -1152,7 +1154,7 @@ Database::removeAdapter(const string& adapterId)
         }
 
         AdapterInfoSeq infos;
-        Ice::Long dbSerial = 0;
+        int64_t dbSerial = 0;
         try
         {
             IceDB::ReadWriteTxn txn(_env);
@@ -1211,7 +1213,7 @@ Database::removeAdapter(const string& adapterId)
     _adapterObserverTopic->waitForSyncedSubscribers(serial);
 }
 
-shared_ptr<AdapterPrx>
+AdapterPrxPtr
 Database::getAdapterProxy(const string& adapterId, const string& replicaGroupId, bool upToDate)
 {
     lock_guard lock(_mutex); // Make sure this isn't call during an update.
@@ -1487,7 +1489,7 @@ Database::addObject(const ObjectInfo& info)
             throw ObjectExistsException(id);
         }
 
-        long long dbSerial = 0;
+        int64_t dbSerial = 0;
         try
         {
             IceDB::ReadWriteTxn txn(_env);
@@ -1519,7 +1521,7 @@ Database::addObject(const ObjectInfo& info)
 }
 
 void
-Database::addOrUpdateObject(const ObjectInfo& info, long long dbSerial)
+Database::addOrUpdateObject(const ObjectInfo& info, int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
@@ -1575,7 +1577,7 @@ Database::addOrUpdateObject(const ObjectInfo& info, long long dbSerial)
 }
 
 void
-Database::removeObject(const Ice::Identity& id, long long dbSerial)
+Database::removeObject(const Ice::Identity& id, int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
 
@@ -1621,7 +1623,7 @@ Database::removeObject(const Ice::Identity& id, long long dbSerial)
 }
 
 void
-Database::updateObject(const shared_ptr<Ice::ObjectPrx>& proxy)
+Database::updateObject(const Ice::ObjectPrxPtr& proxy)
 {
     assert(_master);
 
@@ -1638,7 +1640,7 @@ Database::updateObject(const shared_ptr<Ice::ObjectPrx>& proxy)
         }
 
         ObjectInfo info;
-        Ice::Long dbSerial = 0;
+        int64_t dbSerial = 0;
         try
         {
             IceDB::ReadWriteTxn txn(_env);
@@ -1724,7 +1726,7 @@ Database::removeRegistryWellKnownObjects(const ObjectInfoSeq& objects)
     return _objectObserverTopic->wellKnownObjectsRemoved(objects);
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 Database::getObjectProxy(const Ice::Identity& id)
 {
     try
@@ -1747,29 +1749,29 @@ Database::getObjectProxy(const Ice::Identity& id)
     return info.proxy;
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 Database::getObjectByType(const string& type, const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
     if(objs.empty())
     {
-        return 0;
+        return nullopt;
     }
     return objs[IceUtilInternal::random(static_cast<unsigned int>(objs.size()))];
 }
 
-shared_ptr<Ice::ObjectPrx>
+Ice::ObjectPrxPtr
 Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample,
                                            const shared_ptr<Ice::Connection>& con, const Ice::Context& ctx)
 {
     Ice::ObjectProxySeq objs = getObjectsByType(type, con, ctx);
     if(objs.empty())
     {
-        return 0;
+        return nullopt;
     }
 
     IceUtilInternal::shuffle(objs.begin(), objs.end());
-    vector<pair<shared_ptr<Ice::ObjectPrx>, float>> objectsWithLoad;
+    vector<pair<Ice::ObjectPrxPtr, float>> objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for(const auto& obj : objs)
     {
@@ -2355,16 +2357,16 @@ Database::reload(const ApplicationHelper& oldApp,
     }
 }
 
-long long
-Database::saveApplication(const ApplicationInfo& info, const IceDB::ReadWriteTxn& txn, long long dbSerial)
+int64_t
+Database::saveApplication(const ApplicationInfo& info, const IceDB::ReadWriteTxn& txn, int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
     _applications.put(txn, info.descriptor.name, info);
     return updateSerial(txn, applicationsDbName, dbSerial);
 }
 
-long long
-Database::removeApplication(const string& name, const IceDB::ReadWriteTxn& txn, long long dbSerial)
+int64_t
+Database::removeApplication(const string& name, const IceDB::ReadWriteTxn& txn, int64_t dbSerial)
 {
     assert(dbSerial != 0 || _master);
     _applications.del(txn, name);
@@ -2557,7 +2559,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
                                   const ApplicationHelper& appHelper,
                                   AdminSessionI* /*session*/,
                                   bool noRestart,
-                                  Ice::Long dbSerial)
+                                  int64_t dbSerial)
 {
     const ApplicationDescriptor& newDesc = appHelper.getDefinition();
 
@@ -2658,7 +2660,8 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
 
                 reload(previous, helper, entries, info.uuid, info.revision, noRestart);
 
-                newUpdate.updateTime = IceUtil::Time::now().toMilliSeconds();
+                newUpdate.updateTime = chrono::duration_cast<chrono::milliseconds>(
+                    chrono::system_clock::now().time_since_epoch()).count();
                 newUpdate.updateUser = _lockUserId;
                 newUpdate.revision = info.revision;
                 newUpdate.descriptor = helper.diff(previous);
@@ -2720,16 +2723,16 @@ Database::finishUpdating(const string& name)
     _condVar.notify_all();
 }
 
-long long
+int64_t
 Database::getSerial(const IceDB::Txn& txn, const string& dbName)
 {
-    long long serial = 1;
+    int64_t serial = 1;
     _serials.get(txn, dbName, serial);
     return serial;
 }
 
-long long
-Database::updateSerial(const IceDB::ReadWriteTxn& txn, const string& dbName, long long serial)
+int64_t
+Database::updateSerial(const IceDB::ReadWriteTxn& txn, const string& dbName, int64_t serial)
 {
     if(serial == -1) // The master we are talking to doesn't support serials (old IceGrid versions)
     {
@@ -2747,7 +2750,7 @@ Database::updateSerial(const IceDB::ReadWriteTxn& txn, const string& dbName, lon
     }
     else
     {
-        Ice::Long dbSerial = getSerial(txn, dbName) + 1;
+        int64_t dbSerial = getSerial(txn, dbName) + 1;
         _serials.put(txn, dbName, dbSerial);
         return dbSerial;
     }

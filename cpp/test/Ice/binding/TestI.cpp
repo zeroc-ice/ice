@@ -15,7 +15,7 @@ RemoteCommunicatorI::RemoteCommunicatorI() :
 {
 }
 
-shared_ptr<Test::RemoteObjectAdapterPrx>
+Test::RemoteObjectAdapterPrxPtr
 RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::Current& current)
 {
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
@@ -49,7 +49,7 @@ RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Ice::
 }
 
 void
-RemoteCommunicatorI::deactivateObjectAdapter(shared_ptr<RemoteObjectAdapterPrx> adapter, const Current&)
+RemoteCommunicatorI::deactivateObjectAdapter(RemoteObjectAdapterPrxPtr adapter, const Current&)
 {
     adapter->deactivate(); // Collocated call
 }

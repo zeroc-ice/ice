@@ -20,20 +20,20 @@ class iAPEndpointI final : public IceInternal::EndpointI, public std::enable_sha
 public:
 
     iAPEndpointI(const IceInternal::ProtocolInstancePtr&, const std::string&, const std::string&, const std::string&,
-                 const std::string&, Ice::Int, const std::string&, bool);
+                 const std::string&, std::int32_t, const std::string&, bool);
     iAPEndpointI(const IceInternal::ProtocolInstancePtr&);
     iAPEndpointI(const IceInternal::ProtocolInstancePtr&, Ice::InputStream*);
 
     void streamWriteImpl(Ice::OutputStream*) const final;
 
     Ice::EndpointInfoPtr getInfo() const noexcept final;
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     const std::string& protocol() const final;
     bool datagram() const final;
     bool secure() const final;
 
-    Ice::Int timeout() const final;
-    IceInternal::EndpointIPtr timeout(Ice::Int) const final;
+    std::int32_t timeout() const final;
+    IceInternal::EndpointIPtr timeout(std::int32_t) const final;
     const std::string& connectionId() const final;
     IceInternal::EndpointIPtr connectionId(const std::string&) const final;
     bool compress() const final;
@@ -53,7 +53,7 @@ public:
     bool operator<(const Ice::Endpoint&) const final;
 
     std::string options() const final;
-    ::Ice::Int hash() const final;
+    ::std::int32_t hash() const final;
 
 private:
 
@@ -67,7 +67,7 @@ private:
     const std::string _modelNumber;
     const std::string _name;
     const std::string _protocol;
-    const Ice::Int _timeout;
+    const std::int32_t _timeout;
     const std::string _connectionId;
     const bool _compress;
 };
@@ -80,7 +80,7 @@ public:
 
     ~iAPEndpointFactory();
 
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     std::string protocol() const final;
     IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
     IceInternal::EndpointIPtr read(Ice::InputStream*) const final;

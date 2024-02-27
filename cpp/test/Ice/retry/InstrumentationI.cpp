@@ -5,6 +5,8 @@
 #include <Ice/Ice.h>
 #include <TestHelper.h>
 
+#include <thread>
+#include <chrono>
 #include <mutex>
 
 using namespace std;
@@ -53,13 +55,13 @@ public:
     }
 
     virtual ::Ice::Instrumentation::RemoteObserverPtr
-    getRemoteObserver(const ::Ice::ConnectionInfoPtr&, const ::Ice::EndpointPtr&, ::Ice::Int, ::Ice::Int)
+    getRemoteObserver(const ::Ice::ConnectionInfoPtr&, const ::Ice::EndpointPtr&, ::int32_t, ::int32_t)
     {
         return nullptr;
     }
 
     virtual ::Ice::Instrumentation::CollocatedObserverPtr
-    getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::Ice::Int, ::Ice::Int)
+    getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::int32_t, ::int32_t)
     {
         return nullptr;
     }
@@ -109,7 +111,7 @@ public:
     }
 
     virtual Ice::Instrumentation::DispatchObserverPtr
-    getDispatchObserver(const Ice::Current&, Ice::Int)
+    getDispatchObserver(const Ice::Current&, int32_t)
     {
         return nullptr;
     }
@@ -141,7 +143,7 @@ testEqual(int& value, int expected)
                 break;
             }
         }
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+        this_thread::sleep_for(chrono::milliseconds(10));
     }
     if(value != expected)
     {

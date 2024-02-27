@@ -335,18 +335,15 @@ module ::Ice
 
     if not defined?(::Ice::IllegalIdentityException)
         class IllegalIdentityException < Ice::LocalException
-            def initialize(id=::Ice::Identity.new)
-                @id = id
+            def initialize
             end
 
             def to_s
                 '::Ice::IllegalIdentityException'
             end
-
-            attr_accessor :id
         end
 
-        T_IllegalIdentityException = ::Ice::__defineException('::Ice::IllegalIdentityException', IllegalIdentityException, nil, [["id", ::Ice::T_Identity, false, 0]])
+        T_IllegalIdentityException = ::Ice::__defineException('::Ice::IllegalIdentityException', IllegalIdentityException, nil, [])
     end
 
     if not defined?(::Ice::IllegalServantException)

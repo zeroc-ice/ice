@@ -28,7 +28,7 @@ private:
     BackgroundControllerIPtr _controller;
 };
 
-class BackgroundControllerI : public Test::BackgroundController, IceUtil::Monitor<IceUtil::Mutex>
+class BackgroundControllerI : public Test::BackgroundController
 {
 public:
 
@@ -57,6 +57,8 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     std::set<std::string> _pausedCalls;
     ConfigurationPtr _configuration;
+    std::mutex _mutex;
+    std::condition_variable _condition;
 };
 
 #endif

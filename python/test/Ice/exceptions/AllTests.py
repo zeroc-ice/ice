@@ -232,10 +232,10 @@ def allTests(helper, communicator):
         pass
 
     try:
-        adapter.add(obj, Ice.stringToIdentity(""))
+        adapter.add(obj, Ice.Identity("", ""))
         test(False)
-    except Ice.IllegalIdentityException as ex:
-        test(ex.id.name == "")
+    except Ice.IllegalIdentityException:
+        pass
 
     try:
         adapter.add(None, Ice.stringToIdentity("x"))

@@ -63,7 +63,7 @@ hasProperty(const shared_ptr<CommunicatorDescriptor>& communicator, const string
 }
 
 void
-updateServerRuntimeProperties(const shared_ptr<AdminPrx>& admin, const string&,
+updateServerRuntimeProperties(const AdminPrxPtr& admin, const string&,
                               const shared_ptr<ServerDescriptor>& desc)
 {
     ApplicationUpdateDescriptor update;
@@ -84,7 +84,7 @@ updateServerRuntimeProperties(const shared_ptr<AdminPrx>& admin, const string&,
 }
 
 shared_ptr<ServiceDescriptor>
-getServiceDescriptor(const shared_ptr<AdminPrx>& admin, const string& service)
+getServiceDescriptor(const AdminPrxPtr& admin, const string& service)
 {
     auto info = admin->getServerInfo("IceBox");
     test(info.descriptor);
@@ -100,7 +100,7 @@ getServiceDescriptor(const shared_ptr<AdminPrx>& admin, const string& service)
 }
 
 void
-updateServiceRuntimeProperties(const shared_ptr<AdminPrx>& admin,  const shared_ptr<ServiceDescriptor>& desc)
+updateServiceRuntimeProperties(const AdminPrxPtr& admin,  const shared_ptr<ServiceDescriptor>& desc)
 {
     auto info = admin->getServerInfo("IceBox");
     test(info.descriptor);

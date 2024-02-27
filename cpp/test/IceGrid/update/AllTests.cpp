@@ -2,11 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
 #include <IceGrid/IceGrid.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#include <thread>
+#include <chrono>
 
 using namespace std;
 using namespace Test;
@@ -61,16 +63,16 @@ void
 allTests(Test::TestHelper* helper)
 {
     const Ice::CommunicatorPtr& communicator = helper->communicator();
-    shared_ptr<IceGrid::RegistryPrx> registry = Ice::checkedCast<IceGrid::RegistryPrx>(
+    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
-    shared_ptr<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
+    AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          nullopt,
                                          Ice::ACMHeartbeat::HeartbeatAlways);
 
-    shared_ptr<AdminPrx> admin = session->getAdmin();
+    AdminPrxPtr admin = session->getAdmin();
     test(admin);
 
     Ice::PropertiesPtr properties = communicator->getProperties();
@@ -1150,7 +1152,7 @@ allTests(Test::TestHelper* helper)
             catch(const NodeNotExistException&)
             {
             }
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+            this_thread::sleep_for(chrono::milliseconds(500));
             ++retry;
         }
         test(admin->pingNode("node-1"));
@@ -1235,11 +1237,11 @@ allTests(Test::TestHelper* helper)
             }
             catch(const DeploymentException&)
             {
-                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+                this_thread::sleep_for(chrono::milliseconds(200));
             }
         }
 
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+        this_thread::sleep_for(chrono::seconds(1));
 
         update = ApplicationUpdateDescriptor();
         update.name = "TestApp";

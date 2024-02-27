@@ -17,7 +17,7 @@ class TcpEndpointI final : public IPEndpointI
 {
 public:
 
-    TcpEndpointI(const ProtocolInstancePtr&, const std::string&, Ice::Int, const Address&, Ice::Int, const std::string&,
+    TcpEndpointI(const ProtocolInstancePtr&, const std::string&, std::int32_t, const Address&, std::int32_t, const std::string&,
                  bool);
     TcpEndpointI(const ProtocolInstancePtr&);
     TcpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
@@ -26,8 +26,8 @@ public:
 
     Ice::EndpointInfoPtr getInfo() const noexcept final;
 
-    Ice::Int timeout() const final;
-    EndpointIPtr timeout(Ice::Int) const final;
+    std::int32_t timeout() const final;
+    EndpointIPtr timeout(std::int32_t) const final;
     bool compress() const final;
     EndpointIPtr compress(bool) const final;
     bool datagram() const final;
@@ -44,7 +44,7 @@ public:
 
 protected:
 
-    void hashInit(Ice::Int&) const final;
+    void hashInit(std::int32_t&) const final;
     void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
     bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
@@ -56,7 +56,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
-    const Ice::Int _timeout;
+    const std::int32_t _timeout;
     const bool _compress;
 };
 
@@ -67,7 +67,7 @@ public:
     TcpEndpointFactory(const ProtocolInstancePtr&);
     ~TcpEndpointFactory();
 
-    Ice::Short type() const final;
+    std::int16_t type() const final;
     std::string protocol() const final;
     EndpointIPtr create(std::vector<std::string>&, bool) const final;
     EndpointIPtr read(Ice::InputStream*) const final;

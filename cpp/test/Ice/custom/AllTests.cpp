@@ -54,24 +54,13 @@ allTests(Test::TestHelper* helper)
 
     Test::TestIntfPrxPtr t = Ice::checkedCast<Test::TestIntfPrx>(base);
     test(t);
-    test(Ice::targetEqualTo(t, base));
+    test(t == base);
     cout << "ok" << endl;
 
     cout << "testing ice_id and ice_ids with string converter... " << flush;
     test(t->ice_id() == Test::TestIntfPrx::ice_staticId());
     test(t->ice_ids()[0] == Ice::ObjectPrx::ice_staticId());
     test(t->ice_ids()[1] == Test::TestIntfPrx::ice_staticId());
-    cout << "ok" << endl;
-
-    cout << "testing alternate strings... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-        string out;
-        string ret = t->opString(in, out);
-
-        test(ret == out);
-        test(ret == in);
-    }
     cout << "ok" << endl;
 
     cout << "testing alternate sequences... " << flush;
@@ -83,12 +72,12 @@ allTests(Test::TestHelper* helper)
         in[2] = 0.375;
         in[3] = 4 / 3;
         in[4] = -5.725;
-        Ice::Double inArray[5];
+        double inArray[5];
         for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
-        pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+        pair<const double*, const double*> inPair(inArray, inArray + 5);
 
         Test::DoubleSeq out;
         Test::DoubleSeq ret = t->opDoubleArray(inPair, out);
@@ -480,8 +469,8 @@ allTests(Test::TestHelper* helper)
 
         for(auto i: in)
         {
-            test(Ice::targetEqualTo(*op++, i));
-            test(Ice::targetEqualTo(*rp++, i));
+            test(*op++ == i);
+            test(*rp++ == i);
         }
     }
 
@@ -500,8 +489,8 @@ allTests(Test::TestHelper* helper)
 
         for(auto i: in)
         {
-            test(Ice::targetEqualTo(*op++, i));
-            test(Ice::targetEqualTo(*rp++, i));
+            test(*op++ == i);
+            test(*rp++ == i);
         }
     }
 
@@ -566,45 +555,24 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::CustomMap<std::string, Ice::Int> idict;
+        Test::CustomMap<std::string, int32_t> idict;
 
         idict["ONE"] = 1;
         idict["TWO"] = 2;
         idict["THREE"] = 3;
         idict["MINUS ONE"] = -1;
 
-        Test::CustomMap<std::string, Ice::Int> out;
+        Test::CustomMap<std::string, int32_t> out;
         out["FIVE"] = 5;
 
-        Test::CustomMap<Ice::Long, Ice::Long> ret = t->opVarDict(idict, out);
+        Test::CustomMap<int64_t, int64_t> ret = t->opVarDict(idict, out);
 
         test(out == idict);
 
         test(ret.size() == 1000);
-        for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        for(Test::CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
         {
             test(i->second == i->first * i->first);
-        }
-    }
-
-    {
-        std::map<int, Util::string_view> idict;
-
-        idict[1] = "ONE";
-        idict[2] = "TWO";
-        idict[3] = "THREE";
-        idict[-1] = "MINUS ONE";
-
-        Test::IntStringDict out;
-        out[5] = "FIVE";
-
-        Test::IntStringDict ret = t->opCustomIntStringDict(idict, out);
-        test(out.size() == idict.size());
-        test(out == ret);
-        for(std::map<int, Util::string_view>::const_iterator p = idict.begin();
-            p != idict.end(); ++p)
-        {
-            test(out[p->first] == p->second.to_string());
         }
     }
 
@@ -613,7 +581,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing alternate custom sequences... " << flush;
     {
         Test::ShortBuffer inS;
-        inS.setAndInit(new Ice::Short[3], 3);
+        inS.setAndInit(new int16_t[3], 3);
         Test::ShortBuffer outS;
         Test::ShortBuffer ret = t->opShortBuffer(inS, outS);
 
@@ -632,11 +600,11 @@ allTests(Test::TestHelper* helper)
         Test::BufferStruct bs;
         bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
-        bs.shortBuf.setAndInit(new Ice::Short[10], 10);
-        bs.intBuf.setAndInit(new Ice::Int[10], 10);
-        bs.longBuf.setAndInit(new Ice::Long[10], 10);
-        bs.floatBuf.setAndInit(new Ice::Float[10], 10);
-        bs.doubleBuf.setAndInit(new Ice::Double[10], 10);
+        bs.shortBuf.setAndInit(new int16_t[10], 10);
+        bs.intBuf.setAndInit(new int32_t[10], 10);
+        bs.longBuf.setAndInit(new int64_t[10], 10);
+        bs.floatBuf.setAndInit(new float[10], 10);
+        bs.doubleBuf.setAndInit(new double[10], 10);
 
         Test::BufferStruct rs = t->opBufferStruct(bs);
         test(rs == bs);
@@ -653,15 +621,6 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    cout << "testing alternate strings with AMI... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-        auto r = t->opStringAsync(in).get();
-        test(r.returnValue == r.outString);
-        test(r.returnValue == in);
-    }
-    cout << "ok" << endl;
-
     cout << "testing alternate sequences with AMI... " << flush;
     {
         {
@@ -671,15 +630,15 @@ allTests(Test::TestHelper* helper)
             in[2] = 0.375;
             in[3] = 4 / 3;
             in[4] = -5.725;
-            Ice::Double inArray[5];
+            double inArray[5];
             for(size_t i = 0; i < 5; ++i)
             {
                 inArray[i] = in[i];
             }
-            pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+            pair<const double*, const double*> inPair(inArray, inArray + 5);
             auto r = t->opDoubleArrayAsync(inPair).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -697,8 +656,8 @@ allTests(Test::TestHelper* helper)
             pair<const bool*, const bool*> inPair(inArray, inArray + 5);
 
             auto r = t->opBoolArrayAsync(inPair).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -717,8 +676,8 @@ allTests(Test::TestHelper* helper)
             pair<const Ice::Byte*, const Ice::Byte*> inPair(inArray, inArray + 5);
 
             auto r = t->opByteArrayAsync(inPair).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -737,8 +696,8 @@ allTests(Test::TestHelper* helper)
             pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
 
             auto r = t->opVariableArrayAsync(inPair).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -749,8 +708,8 @@ allTests(Test::TestHelper* helper)
             in[3] = false;
             in[4] = true;
             auto r = t->opBoolRangeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -762,8 +721,8 @@ allTests(Test::TestHelper* helper)
             in.push_back('5');
 
             auto r = t->opByteRangeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -780,8 +739,8 @@ allTests(Test::TestHelper* helper)
             v.s = "STRINGS.";
             in.push_back(v);
             auto r = t->opVariableRangeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -792,8 +751,8 @@ allTests(Test::TestHelper* helper)
             in.push_back('4');
             in.push_back('5');
             auto r = t->opByteRangeTypeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -817,8 +776,8 @@ allTests(Test::TestHelper* helper)
             inSeq.push_back(v);
 
             auto r = t->opVariableRangeTypeAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -830,8 +789,8 @@ allTests(Test::TestHelper* helper)
             in[4] = true;
 
             auto r = t->opBoolSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -843,8 +802,8 @@ allTests(Test::TestHelper* helper)
             in.push_back(true);
 
             auto r = t->opBoolListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -856,8 +815,8 @@ allTests(Test::TestHelper* helper)
             in[4] = '5';
 
             auto r = t->opByteSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -869,8 +828,8 @@ allTests(Test::TestHelper* helper)
             in.push_back('5');
 
             auto r = t->opByteListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -882,8 +841,8 @@ allTests(Test::TestHelper* helper)
             }
 
             auto r = t->opMyByteSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -895,8 +854,8 @@ allTests(Test::TestHelper* helper)
             in[4] = "STRINGS.";
 
             auto r = t->opStringSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -908,8 +867,8 @@ allTests(Test::TestHelper* helper)
             in.push_back("STRINGS.");
 
             auto r = t->opStringListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -921,8 +880,8 @@ allTests(Test::TestHelper* helper)
             in[4].s = 5;
 
             auto r = t->opFixedSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -934,8 +893,8 @@ allTests(Test::TestHelper* helper)
             }
 
             auto r = t->opFixedListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -947,8 +906,8 @@ allTests(Test::TestHelper* helper)
             in[4].s = "STRINGS.";
 
             auto r = t->opVariableSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -966,8 +925,8 @@ allTests(Test::TestHelper* helper)
             in.push_back(v);
 
             auto r = t->opVariableListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -979,8 +938,8 @@ allTests(Test::TestHelper* helper)
             in[4]["E"] = "E";
 
             auto r = t->opStringStringDictSeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -998,8 +957,8 @@ allTests(Test::TestHelper* helper)
             in.push_back(ssd);
 
             auto r = t->opStringStringDictListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -1011,8 +970,8 @@ allTests(Test::TestHelper* helper)
             in[4] = Test:: E::E3;
 
             auto r = t->opESeqAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -1024,8 +983,8 @@ allTests(Test::TestHelper* helper)
             in.push_back(Test:: E::E3);
 
             auto r = t->opEListAsync(in).get();
-            test(r.outSeq == in);
-            test(r.returnValue == in);
+            test(std::get<1>(r) == in);
+            test(std::get<0>(r) == in);
         }
 
         {
@@ -1038,16 +997,16 @@ allTests(Test::TestHelper* helper)
 
             auto r = t->opDPrxSeqAsync(in).get();
 
-            test(r.outSeq.size() == in.size());
-            test(r.returnValue.size() == in.size());
+            test(std::get<1>(r).size() == in.size());
+            test(std::get<0>(r).size() == in.size());
 
-            auto op = r.outSeq.begin();
-            auto rp = r.returnValue.begin();
+            auto op = std::get<1>(r).begin();
+            auto rp = std::get<0>(r).begin();
 
             for(auto i: in)
             {
-                test(Ice::targetEqualTo(*op++, i));
-                test(Ice::targetEqualTo(*rp++, i));
+                test(*op++ == i);
+                test(*rp++ == i);
             }
         }
 
@@ -1061,16 +1020,16 @@ allTests(Test::TestHelper* helper)
 
             auto r = t->opDPrxListAsync(in).get();
 
-            test(r.outSeq.size() == in.size());
-            test(r.returnValue.size() == in.size());
+            test(std::get<1>(r).size() == in.size());
+            test(std::get<0>(r).size() == in.size());
 
-            auto op = r.outSeq.begin();
-            auto rp = r.returnValue.begin();
+            auto op = std::get<1>(r).begin();
+            auto rp = std::get<0>(r).begin();
 
             for(auto i: in)
             {
-                test(Ice::targetEqualTo(*op++, i));
-                test(Ice::targetEqualTo(*rp++, i));
+                test(*op++ == i);
+                test(*rp++ == i);
             }
         }
 
@@ -1083,13 +1042,13 @@ allTests(Test::TestHelper* helper)
             in[4] = in[0];
 
             auto r = t->opCSeqAsync(in).get();
-            test(r.outSeq.size() == in.size());
-            test(r.returnValue.size() == in.size());
+            test(std::get<1>(r).size() == in.size());
+            test(std::get<0>(r).size() == in.size());
 
-            auto rp = r.returnValue.begin();
-            for(auto o: r.outSeq)
+            auto rp = std::get<0>(r).begin();
+            for(auto o: std::get<1>(r))
             {
-                test(o == r.outSeq[0]);
+                test(o == std::get<1>(r)[0]);
                 test(*rp++ == o);
             }
         }
@@ -1103,9 +1062,9 @@ allTests(Test::TestHelper* helper)
             in.push_back(make_shared<Test::C>());
 
             auto r = t->opCListAsync(in).get();
-            test(r.outSeq.size() == in.size());
-            test(r.returnValue.size() == in.size());
-            test(r.outSeq == r.returnValue);
+            test(std::get<1>(r).size() == in.size());
+            test(std::get<0>(r).size() == in.size());
+            test(std::get<1>(r) == std::get<0>(r));
         }
 
         {
@@ -1134,28 +1093,6 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    cout << "testing alternate strings with AMI callbacks... " << flush;
-    {
-        Util::string_view in = "HELLO WORLD!";
-
-        promise<bool> done;
-
-        t->opStringAsync(in,
-            [&](Util::string_view ret, Util::string_view out)
-            {
-                test(out == ret);
-                test(in == out);
-                done.set_value(true);
-            },
-            [&](std::exception_ptr)
-            {
-                done.set_value(false);
-            });
-
-        test(done.get_future().get());
-    }
-    cout << "ok" << endl;
-
     cout << "testing alternate sequences with AMI callbacks... " << flush;
 
     {
@@ -1165,18 +1102,18 @@ allTests(Test::TestHelper* helper)
         in[2] = 0.375;
         in[3] = 4 / 3;
         in[4] = -5.725;
-        Ice::Double inArray[5];
+        double inArray[5];
         for(size_t i = 0; i < 5; ++i)
         {
             inArray[i] = in[i];
         }
-        pair<const Ice::Double*, const Ice::Double*> inPair(inArray, inArray + 5);
+        pair<const double*, const double*> inPair(inArray, inArray + 5);
 
         promise<bool> done;
 
         t->opDoubleArrayAsync(inPair,
-                              [&](pair<const Ice::Double*, const Ice::Double*> ret,
-                                  pair<const Ice::Double*, const Ice::Double*> out)
+                              [&](pair<const double*, const double*> ret,
+                                  pair<const double*, const double*> out)
                               {
                                   test(arrayRangeEquals<double>(out, inPair));
                                   test(arrayRangeEquals<double>(ret, inPair));
@@ -1822,15 +1759,15 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opDPrxSeqAsync(in,
-                          [&](deque<shared_ptr<Test::DPrx>> ret, deque<shared_ptr<Test::DPrx>> out)
+                          [&](deque<Test::DPrxPtr> ret, deque<Test::DPrxPtr> out)
                           {
                               test(ret.size() == in.size());
                               auto op = out.begin();
                               auto rp = ret.begin();
                               for(auto i: in)
                               {
-                                  test(Ice::targetEqualTo(*op++, i));
-                                  test(Ice::targetEqualTo(*rp++, i));
+                                  test(*op++ == i);
+                                  test(*rp++ == i);
                               }
                               done.set_value(true);
                           },
@@ -1853,15 +1790,15 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opDPrxListAsync(in,
-                           [&](list<shared_ptr<Test::DPrx>> ret, list<shared_ptr<Test::DPrx>> out)
+                           [&](list<Test::DPrxPtr> ret, list<Test::DPrxPtr> out)
                            {
                                test(ret.size() == in.size());
                               auto op = out.begin();
                               auto rp = ret.begin();
                               for(auto i: in)
                               {
-                                  test(Ice::targetEqualTo(*op++, i));
-                                  test(Ice::targetEqualTo(*rp++, i));
+                                  test(*op++ == i);
+                                  test(*rp++ == i);
                               }
                               done.set_value(true);
                           },
@@ -1983,12 +1920,12 @@ allTests(Test::TestHelper* helper)
             idict[-1] = "MINUS ONE";
 
             auto r = t->opIntStringDictAsync(idict).get();
-            test(r.odict == idict);
-            test(r.returnValue == idict);
+            test(std::get<1>(r) == idict);
+            test(std::get<0>(r) == idict);
         }
 
         {
-            Test::CustomMap<std::string, Ice::Int> idict;
+            Test::CustomMap<std::string, int32_t> idict;
 
             idict["ONE"] = 1;
             idict["TWO"] = 2;
@@ -1996,33 +1933,13 @@ allTests(Test::TestHelper* helper)
             idict["MINUS ONE"] = -1;
 
             auto r = t->opVarDictAsync(idict).get();
-            test(r.odict == idict);
-            test(r.returnValue.size() == 1000);
-            for(auto i: r.returnValue)
+            test(std::get<1>(r) == idict);
+            test(std::get<0>(r).size() == 1000);
+            for(auto i: std::get<0>(r))
             {
                 test(i.second == i.first * i.first);
             }
         }
-
-        {
-            std::map<int, Util::string_view> idict;
-
-            idict[1] = "ONE";
-            idict[2] = "TWO";
-            idict[3] = "THREE";
-            idict[-1] = "MINUS ONE";
-
-            auto r = t->opCustomIntStringDictAsync(idict).get();
-            test(r.odict.size() == idict.size());
-
-            test(r.odict == r.returnValue);
-
-            for(auto i: idict)
-            {
-                test(r.odict[i.first] == i.second);
-            }
-        }
-
     }
     cout << "ok" << endl;
 
@@ -2054,7 +1971,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::CustomMap<std::string, Ice::Int> idict;
+            Test::CustomMap<std::string, int32_t> idict;
 
             idict["ONE"] = 1;
             idict["TWO"] = 2;
@@ -2064,7 +1981,7 @@ allTests(Test::TestHelper* helper)
             promise<bool> done;
 
             t->opVarDictAsync(idict,
-                              [&](Test::CustomMap<long long, long long> ret, Test::CustomMap<string, int> out)
+                              [&](Test::CustomMap<int64_t, int64_t> ret, Test::CustomMap<string, int> out)
                               {
                                   test(out == idict);
                                   for(auto i: ret)
@@ -2081,36 +1998,6 @@ allTests(Test::TestHelper* helper)
 
             test(done.get_future().get());
         }
-
-        {
-            std::map<int, Util::string_view> idict;
-
-            idict[1] = "ONE";
-            idict[2] = "TWO";
-            idict[3] = "THREE";
-            idict[-1] = "MINUS ONE";
-
-            promise<bool> done;
-
-            t->opCustomIntStringDictAsync(idict,
-                                          [&](map<int, Util::string_view> ret, map<int, Util::string_view> out)
-                                          {
-                                              test(ret == out);
-                                              for(auto i: idict)
-                                              {
-                                                  test(ret[i.first] == i.second);
-                                              }
-
-                                              done.set_value(true);
-                                           },
-                                           [&](std::exception_ptr)
-                                           {
-                                              done.set_value(false);
-                                           });
-
-            test(done.get_future().get());
-        }
-
     }
     cout << "ok" << endl;
 
@@ -2148,8 +2035,8 @@ allTests(Test::TestHelper* helper)
 
     {
         auto r = wsc1->opStringAsync(wstr).get();
-        test(r.s2 == wstr);
-        test(r.returnValue == wstr);
+        test(std::get<1>(r) == wstr);
+        test(std::get<0>(r) == wstr);
     }
 
     {
@@ -2176,8 +2063,8 @@ allTests(Test::TestHelper* helper)
 
     {
         auto r = wsc2->opStringAsync(wstr).get();
-        test(r.s2 == wstr);
-        test(r.returnValue == wstr);
+        test(std::get<1>(r) == wstr);
+        test(std::get<0>(r) == wstr);
     }
 
     {
