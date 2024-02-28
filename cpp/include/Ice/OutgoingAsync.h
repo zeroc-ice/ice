@@ -407,9 +407,13 @@ public:
                 {
                     response(std::move(v));
                 }
-                catch(...)
+                catch (const std::exception& ex)
                 {
-                    throw std::current_exception();
+                    this->warning(ex);
+                }
+                catch (...)
+                {
+                    this->warning();
                 }
             }
         };
