@@ -232,7 +232,6 @@ throwUserExceptionLambda(IceUtilInternal::Output& C, ExceptionList throws, const
         //
         for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
         {
-            string scoped = (*i)->scoped();
             C << nl << "catch(const " << getUnqualified(fixKwd((*i)->scoped()), scope) << "&)";
             C << sb;
             C << nl << "throw;";
@@ -901,7 +900,7 @@ Slice::Gen::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                 static const string cppDllExportPrefix = "cpp:dll-export:";
                 static const string cppDoxygenIncludePrefix = "cpp:doxygen:include:";
 
-                if(s == "cpp:no-default-include")
+                if(s == cppNoDefaultInclude)
                 {
                     continue;
                 }
@@ -2156,9 +2155,6 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     vector<string> baseParams;
     map<string, CommentPtr> allComments;
 
-    string fileParam = "file";
-    string lineParam = "line";
-
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         params.push_back(fixKwd((*q)->name()));
@@ -2173,15 +2169,6 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(comment)
         {
             allComments[(*q)->name()] = comment;
-        }
-
-        if((*q)->name() == "file")
-        {
-            fileParam = "file_";
-        }
-        else if((*q)->name() == "line")
-        {
-            fileParam = "line_";
         }
     }
 
@@ -2316,7 +2303,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if(p->usesClasses(false))
     {
-        if(!base || (base && !base->usesClasses(false)))
+        if(!base || !base->usesClasses(false))
         {
             H << sp;
             H << nl << "/// \\cond STREAM";
@@ -2347,7 +2334,6 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
-    string factoryName;
 
     ExceptionPtr base = p->base();
     bool basePreserved = p->inheritsMetaData("preserve-slice");
@@ -2493,7 +2479,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
-    string name = fixKwd(p->name());
     ClassDefPtr base = p->base();
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = p->hasMetaData("preserve-slice");
@@ -2873,10 +2858,6 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         H << nl << "using ProxyType = " << p->name() << "Prx;";
     }
 
-    vector<string> params;
-    vector<string> allTypes;
-    vector<string> allParamDecls;
-
     StringList ids = p->ids();
 
     H << sp;
@@ -3041,7 +3022,6 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     string interfaceScope = fixKwd(interface->scope());
 
     string scope = fixKwd(interface->scope() + interface->name() + "::");
-    string scoped = fixKwd(interface->scope() + interface->name() + "::" + p->name());
 
     ParamDeclList inParams = p->inParameters();
     ParamDeclList outParams = p->outParameters();
@@ -3085,7 +3065,6 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         TypePtr type = (*q)->type();
         string paramName = fixKwd((*q)->name());
         bool isOutParam = (*q)->isOutParam();
-        string typeString;
 
         if(!isOutParam)
         {
@@ -3202,7 +3181,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         {
             returns.push_back("The marshaled result structure.");
         }
-        else if(!amd)
+        else
         {
             returns = comment->returns();
         }
