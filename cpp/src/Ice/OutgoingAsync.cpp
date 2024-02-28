@@ -147,13 +147,9 @@ OutgoingAsyncBase::invokeSent()
     {
         handleInvokeSent(_sentSynchronously, this);
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        warning(ex);
-    }
-    catch(...)
-    {
-        warning();
+        warning("sent", current_exception());
     }
 
     if(_observer && _doneInSent)
@@ -169,13 +165,9 @@ OutgoingAsyncBase::invokeException()
     {
         handleInvokeException(_ex, this);
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        warning(ex);
-    }
-    catch(...)
-    {
-        warning();
+        warning("exception", current_exception());
     }
 
     _observer.detach();
@@ -192,25 +184,25 @@ OutgoingAsyncBase::invokeResponse()
 
     try
     {
-        try
+        handleInvokeResponse(_state & OK, this);
+    }
+    catch (...)
+    {
+        // TODO: make handleException noexcept
+        // With the lambda async API, lambdaInvokeResponse throws _before_ reaching the application's response when the
+        // unmarshaling fails or when the response contains a user exception. We want to call handleInvokeException
+        // in this situation.
+        if (handleException(current_exception()))
         {
-            handleInvokeResponse(_state & OK, this);
-        }
-        catch(const Ice::Exception&)
-        {
-            if(handleException(current_exception()))
+            try
             {
                 handleInvokeException(current_exception(), this);
             }
+            catch (...)
+            {
+                warning("exception", current_exception());
+            }
         }
-    }
-    catch(const std::exception& ex)
-    {
-        warning(ex);
-    }
-    catch(...)
-    {
-        warning();
     }
 
     _observer.detach();
@@ -337,30 +329,27 @@ OutgoingAsyncBase::cancel(std::exception_ptr ex)
 }
 
 void
-OutgoingAsyncBase::warning(const std::exception& exc) const
+OutgoingAsyncBase::warning(string_view callbackName, std::exception_ptr eptr) const
 {
-    if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    if (_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
     {
         Ice::Warning out(_instance->initializationData().logger);
-        const Ice::Exception* ex = dynamic_cast<const Ice::Exception*>(&exc);
-        if(ex)
+        try
         {
-            out << "Ice::Exception raised by AMI callback:\n" << *ex;
+            rethrow_exception(eptr);
         }
-        else
+        catch (const Ice::Exception& ex)
         {
-            out << "std::exception raised by AMI callback:\n" << exc.what();
+            out << "Ice::Exception raised by " << callbackName << " callback:\n" << ex;
         }
-    }
-}
-
-void
-OutgoingAsyncBase::warning() const
-{
-    if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-    {
-        Ice::Warning out(_instance->initializationData().logger);
-        out << "unknown exception raised by AMI callback";
+        catch (const std::exception& ex)
+        {
+            out << "std::exception raised by " << callbackName << " callback:\n" << ex.what();
+        }
+        catch (...)
+        {
+            out << "unknown exception raised by " << callbackName << " callback";
+        }
     }
 }
 
