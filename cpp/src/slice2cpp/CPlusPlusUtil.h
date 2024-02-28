@@ -23,10 +23,7 @@ void printVersionCheck(::IceUtilInternal::Output&);
 void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
 
 const int TypeContextInParam = 1;
-const int TypeContextArrayParam = 2;
-const int TypeContextViewParam = 4;
 const int TypeContextUseWstring = 16;
-const int TypeContextTuple = 32;
 
 bool isMovable(const TypePtr&);
 
