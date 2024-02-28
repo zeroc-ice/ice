@@ -177,29 +177,29 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque< ::Ice::Byte> in(5);
+        deque<uint8_t> in(5);
         in[0] = '1';
         in[1] = '2';
         in[2] = '3';
         in[3] = '4';
         in[4] = '5';
 
-        deque< ::Ice::Byte> out;
-        deque< ::Ice::Byte> ret = t->opByteSeq(in, out);
+        deque<uint8_t> out;
+        deque<uint8_t> ret = t->opByteSeq(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        list< ::Ice::Byte> in;
+        list<uint8_t> in;
         in.push_back('1');
         in.push_back('2');
         in.push_back('3');
         in.push_back('4');
         in.push_back('5');
 
-        list< ::Ice::Byte> out;
-        list< ::Ice::Byte> ret = t->opByteList(in, out);
+        list<uint8_t> out;
+        list<uint8_t> ret = t->opByteList(in, out);
         test(out == in);
         test(ret == in);
     }
@@ -644,7 +644,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            deque< ::Ice::Byte> in(5);
+            deque<uint8_t> in(5);
             in[0] = '1';
             in[1] = '2';
             in[2] = '3';
@@ -657,7 +657,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            list< ::Ice::Byte> in;
+            list<uint8_t> in;
             in.push_back('1');
             in.push_back('2');
             in.push_back('3');
@@ -1095,7 +1095,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque< ::Ice::Byte> in(5);
+        deque<uint8_t> in(5);
         in[0] = '1';
         in[1] = '2';
         in[2] = '3';
@@ -1120,7 +1120,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list< ::Ice::Byte> in;
+        list<uint8_t> in;
         in.push_back('1');
         in.push_back('2');
         in.push_back('3');

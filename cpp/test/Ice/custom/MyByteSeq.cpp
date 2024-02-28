@@ -16,7 +16,7 @@ MyByteSeq::MyByteSeq(size_t size)
 {
     if(_size != 0)
     {
-        _data = new Ice::Byte[_size];
+        _data = new uint8_t[_size];
     }
 }
 
@@ -25,7 +25,7 @@ MyByteSeq::MyByteSeq(const MyByteSeq& seq)
     _size = seq._size;
     if(_size != 0)
     {
-        _data = new Ice::Byte[_size];
+        _data = new uint8_t[_size];
         memcpy(_data, seq._data, _size);
     }
     else
@@ -77,7 +77,7 @@ MyByteSeq::operator=(const MyByteSeq& rhs)
     _size = rhs._size;
     if(_size != 0)
     {
-        _data = new Ice::Byte[_size];
+        _data = new uint8_t[_size];
         memcpy(_data, rhs._data, _size);
     }
 }
