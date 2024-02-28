@@ -545,25 +545,24 @@ writeOpDocSummary(Output& out, const OperationPtr& op, const CommentPtr& doc, Op
 string
 createOutgoingAsyncTypeParam(const vector<string>& elements)
 {
-    if (elements.size() == 0)
+    switch (elements.size())
     {
-        return "void";
-    }
-    else if (elements.size() == 1)
-    {
-        return elements.front();
-    }
-    else
-    {
-        ostringstream os;
-        Output out(os);
-        out << "::std::tuple" << sabrk;
-        for (const auto& element : elements)
+        case 0:
+            return "void";
+        case 1:
+            return elements.front();
+        default:
         {
-            out << element;
+            ostringstream os;
+            Output out(os);
+            out << "::std::tuple" << sabrk;
+            for (const auto& element : elements)
+            {
+                out << element;
+            }
+            out << eabrk;
+            return os.str();
         }
-        out << eabrk;
-        return os.str();
     }
 }
 
@@ -572,31 +571,14 @@ createOutgoingAsyncTypeParam(const vector<string>& elements)
 vector<string>
 createOutgoingAsyncParams(const OperationPtr& p, const string& scope, int typeContext)
 {
-    TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(), typeContext);
-
-    ParamDeclList outParams = p->outParameters();
-
     vector<string> elements;
-
-    if ((outParams.size() > 1) || (ret && outParams.size() > 0))
+    TypePtr ret = p->returnType();
+    if (ret)
     {
-        if (ret)
-        {
-            elements.push_back(retS);
-        }
-        for (const auto& param : outParams)
-        {
-            elements.push_back(typeToString(param->type(), param->optional(), scope, param->getMetaData(), typeContext));
-        }
+        elements.push_back(returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(), typeContext));
     }
-    else if (ret)
+    for (const auto& param : p->outParameters())
     {
-        elements.push_back(retS);
-    }
-    else if (outParams.size() == 1)
-    {
-        const auto& param = outParams.front();
         elements.push_back(typeToString(param->type(), param->optional(), scope, param->getMetaData(), typeContext));
     }
     return elements;
@@ -1666,13 +1648,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> futureOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring);
     vector<string> lambdaOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring | TypeContextInParam);
 
-    string futureImplPrefix = "_iceI_";
-    string lambdaImplPrefix = "_iceI_";
-
-    if (futureOutParams != lambdaOutParams)
-    {
-        lambdaImplPrefix = "_iceIL_";
-    }
+    const string futureImplPrefix = "_iceI_";
+    const string lambdaImplPrefix = futureOutParams == lambdaOutParams ? "_iceI_" : "_iceIL_";
 
     ParamDeclList paramList = p->parameters();
     ParamDeclList inParams = p->inParameters();
