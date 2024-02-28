@@ -30,7 +30,7 @@ public:
         std::string,
         std::int32_t,
         std::int32_t,
-        std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+        std::function<void(const std::pair<const std::uint8_t*, const std::uint8_t*>& returnValue)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) const;
 
@@ -38,7 +38,7 @@ public:
         std::string,
         std::int64_t,
         std::int32_t,
-        std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+        std::function<void(const std::pair<const std::uint8_t*, const std::uint8_t*>& returnValue)>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) const;
 
@@ -49,7 +49,7 @@ private:
         std::string,
         std::int64_t,
         std::int32_t,
-        std::vector<Ice::Byte>&,
+        std::vector<std::uint8_t>&,
         bool) const;
 
     const std::string _dataDir;

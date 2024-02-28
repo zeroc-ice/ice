@@ -533,7 +533,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, InputStream* s)
         facet.swap(facetPath[0]);
     }
 
-    Byte modeAsByte;
+    uint8_t modeAsByte;
     s->read(modeAsByte);
     Reference::Mode mode = static_cast<Reference::Mode>(modeAsByte);
     if(mode < 0 || mode > Reference::ModeLast)

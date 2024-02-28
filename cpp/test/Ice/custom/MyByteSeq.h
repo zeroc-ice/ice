@@ -11,10 +11,10 @@ class MyByteSeq
 {
 public:
 
-    typedef Ice::Byte* iterator;
-    typedef Ice::Byte* const_iterator;
+    typedef std::uint8_t* iterator;
+    typedef std::uint8_t* const_iterator;
 
-    typedef Ice::Byte value_type;
+    typedef std::uint8_t value_type;
 
     MyByteSeq();
     MyByteSeq(size_t);
@@ -31,7 +31,7 @@ public:
 private:
 
     size_t _size;
-    Ice::Byte* _data;
+    std::uint8_t* _data;
 };
 
 #endif

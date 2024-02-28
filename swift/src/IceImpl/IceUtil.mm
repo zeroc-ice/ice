@@ -175,7 +175,7 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
 
 +(NSString*) identityToString:(NSString*)name
                               category:(NSString*)category
-                                  mode:(uint8_t)mode
+                                  mode:(std::uint8_t)mode
 {
     Ice::Identity identity{fromNSString(name), fromNSString(category)};
     return toNSString(Ice::identityToString(identity, static_cast<Ice::ToStringMode>(mode)));

@@ -32,8 +32,8 @@ public:
                                           ::std::function<void()>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opByteAsync(std::optional<::Ice::Byte>,
-                             ::std::function<void(const std::optional<::Ice::Byte>&, const std::optional<::Ice::Byte>&)>,
+    virtual void opByteAsync(std::optional<std::uint8_t>,
+                             ::std::function<void(const std::optional<std::uint8_t>&, const std::optional<std::uint8_t>&)>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opBoolAsync(std::optional<bool>,
@@ -88,8 +88,8 @@ public:
                                          ::std::function<void(const std::optional<::Test::MyInterfacePrx>&, const std::optional<::Test::MyInterfacePrx>&)>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void opByteSeqAsync(std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>,
-                                ::std::function<void(const std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)>,
+    virtual void opByteSeqAsync(std::optional<::std::pair<const ::std::uint8_t*, const ::std::uint8_t*>>,
+                                ::std::function<void(const std::optional<::std::pair<const ::std::uint8_t*, const ::std::uint8_t*>>&, const std::optional<::std::pair<const ::std::uint8_t*, const ::std::uint8_t*>>&)>,
                                 ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opBoolSeqAsync(std::optional<::std::pair<const bool*, const bool*>>,

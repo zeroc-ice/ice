@@ -39,7 +39,7 @@ public:
 
     virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
 
-    virtual void sendResponse(std::int32_t, Ice::OutputStream*, Ice::Byte, bool);
+    virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t, bool);
     virtual void sendNoResponse();
     virtual bool systemException(std::int32_t, std::exception_ptr, bool);
     virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);

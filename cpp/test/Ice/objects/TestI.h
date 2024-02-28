@@ -124,7 +124,7 @@ class UnexpectedObjectExceptionTestI : public Ice::Blobject
 {
 public:
 
-    virtual bool ice_invoke(std::vector<Ice::Byte>, std::vector<Ice::Byte>&, const Ice::Current&);
+    virtual bool ice_invoke(std::vector<std::uint8_t>, std::vector<std::uint8_t>&, const Ice::Current&);
 };
 using UnexpectedObjectExceptionTestIPtr = std::shared_ptr<UnexpectedObjectExceptionTestI>;
 

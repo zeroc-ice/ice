@@ -18,7 +18,7 @@ sequence<BoolList> BoolListSeq;
 ["cpp:type:std::list< ::Test::BoolSeq>"] sequence<BoolSeq> BoolSeqList;
 
 sequence<byte> ByteSeq;
-["cpp:type:std::list< ::Ice::Byte>"] sequence<byte> ByteList;
+["cpp:type:std::list<std::uint8_t>"] sequence<byte> ByteList;
 
 ["cpp:type:std::list< ::Test::ByteList>"] sequence<ByteList> ByteListList;
 sequence<ByteList> ByteListSeq;
@@ -106,7 +106,7 @@ class DictClass
 ["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
 ["cpp:type:Test::CustomBuffer<float>"] sequence<float> FloatBuffer;
 ["cpp:type:Test::CustomBuffer<double>"] sequence<double> DoubleBuffer;
-["cpp:type:Test::CustomBuffer<Ice::Byte>"] sequence<byte> ByteBuffer;
+["cpp:type:Test::CustomBuffer<std::uint8_t>"] sequence<byte> ByteBuffer;
 struct BufferStruct
 {
     ByteBuffer byteBuf;
@@ -133,9 +133,9 @@ struct BufferStruct
 
     BoolList opBoolList(BoolList inSeq, out BoolList outSeq);
 
-    ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq
-    opByteSeq(["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq inSeq,
-              out ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq outSeq);
+    ["cpp:type:std::deque<std::uint8_t>"] ByteSeq
+    opByteSeq(["cpp:type:std::deque<std::uint8_t>"] ByteSeq inSeq,
+              out ["cpp:type:std::deque<std::uint8_t>"] ByteSeq outSeq);
 
     ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 

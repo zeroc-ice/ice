@@ -157,7 +157,7 @@ IceInternal::Reference::streamWrite(OutputStream* s) const
         s->write(&_facet, &_facet + 1);
     }
 
-    s->write(static_cast<Byte>(_mode));
+    s->write(static_cast<uint8_t>(_mode));
 
     s->write(_secure);
 

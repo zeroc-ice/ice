@@ -18,9 +18,9 @@ public:
                           std::function<void(const ::Test::BoolSeq&, const ::Test::BoolSeq&)>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opByteArrayAsync(std::pair<const ::Ice::Byte*, const ::Ice::Byte*>,
-                          std::function<void(const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                                              const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
+    void opByteArrayAsync(std::pair<const ::std::uint8_t*, const ::std::uint8_t*>,
+                          std::function<void(const std::pair<const ::std::uint8_t*, const ::std::uint8_t*>&,
+                                              const std::pair<const ::std::uint8_t*, const ::std::uint8_t*>&)>,
                           std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opVariableArrayAsync(std::pair<const ::Test::Variable*, const ::Test::Variable*>,
@@ -35,8 +35,8 @@ public:
                          std::function<void(const ::Test::BoolList&, const ::Test::BoolList&)>,
                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opByteSeqAsync(std::deque< ::Ice::Byte>,
-                        std::function<void(const std::deque< ::Ice::Byte>&, const std::deque< ::Ice::Byte>&)>,
+    void opByteSeqAsync(std::deque< std::uint8_t>,
+                        std::function<void(const std::deque< std::uint8_t>&, const std::deque< std::uint8_t>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opByteListAsync(::Test::ByteList,
@@ -110,7 +110,7 @@ public:
                       std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opOutArrayByteSeqAsync(::Test::ByteSeq,
-                                std::function<void(const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&)>,
+                                std::function<void(const std::pair<const ::std::uint8_t*, const ::std::uint8_t*>&)>,
                                 std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opIntStringDictAsync(::Test::IntStringDict,

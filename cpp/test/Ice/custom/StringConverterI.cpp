@@ -7,23 +7,23 @@
 using namespace std;
 using namespace Ice;
 
-Byte*
+uint8_t*
 Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
-    Byte* targetStart = buffer.getMoreBytes(size, 0);
-    Byte* targetEnd = targetStart + size;
+    uint8_t* targetStart = buffer.getMoreBytes(size, 0);
+    uint8_t* targetEnd = targetStart + size;
 
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = static_cast<Byte>(tolower(sourceStart[i]));
+        targetStart[i] = static_cast<uint8_t>(tolower(sourceStart[i]));
     }
 
     return targetEnd;
 }
 
 void
-Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
+Test::StringConverterI::fromUTF8(const uint8_t* sourceStart, const uint8_t* sourceEnd,
                                  string& target) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
@@ -34,25 +34,25 @@ Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     }
 }
 
-Byte*
+uint8_t*
 Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
 {
     wstring ws(sourceStart, sourceEnd);
     string s = wstringToString(ws);
 
     size_t size = s.size();
-    Byte* targetStart = buffer.getMoreBytes(size, 0);
-    Byte* targetEnd = targetStart + size;
+    uint8_t* targetStart = buffer.getMoreBytes(size, 0);
+    uint8_t* targetEnd = targetStart + size;
 
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = static_cast<Byte>(tolower(s[i]));
+        targetStart[i] = static_cast<uint8_t>(tolower(s[i]));
     }
     return targetEnd;
 }
 
 void
-Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
+Test::WstringConverterI::fromUTF8(const uint8_t* sourceStart, const uint8_t* sourceEnd,
                                   wstring& target) const
 {
     string s(sourceStart, sourceEnd);

@@ -224,7 +224,7 @@ public:
     {
         _os.writeEmptyEncapsulation(_encoding);
     }
-    void writeParamEncaps(const ::Ice::Byte* encaps, std::int32_t size)
+    void writeParamEncaps(const ::std::uint8_t* encaps, std::int32_t size)
     {
         if(size == 0)
         {

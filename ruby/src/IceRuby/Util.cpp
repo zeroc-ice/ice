@@ -378,13 +378,13 @@ IceRuby::stringSeqToArray(const vector<string>& seq)
 }
 
 VALUE
-IceRuby::createNumSeq(const vector<Ice::Byte>& v)
+IceRuby::createNumSeq(const vector<uint8_t>& v)
 {
     volatile VALUE result = createArray(v.size());
     long i = 0;
     if(v.size() > 0)
     {
-        for(vector<Ice::Byte>::const_iterator p = v.begin(); p != v.end(); ++p, ++i)
+        for(vector<uint8_t>::const_iterator p = v.begin(); p != v.end(); ++p, ++i)
         {
             RARRAY_ASET(result, i, INT2FIX(*p));
         }

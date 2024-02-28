@@ -23,8 +23,8 @@ public:
     virtual void sent();
 
     void finished(const std::shared_ptr<Ice::Communicator>&, const Ice::EncodingVersion&, bool,
-                  std::pair<const Ice::Byte*, const Ice::Byte*>);
-    void getResults(bool&, pair<const Ice::Byte*, const Ice::Byte*>&);
+                  std::pair<const uint8_t*, const uint8_t*>);
+    void getResults(bool&, pair<const uint8_t*, const uint8_t*>&);
 
 protected:
 
@@ -35,7 +35,7 @@ private:
     const bool _twoway;
     State _state;
     bool _ok; // True for success, false for user exception.
-    vector<Ice::Byte> _data;
+    vector<uint8_t> _data;
 };
 
 InvocationFuture::InvocationFuture(bool twoway, bool batch) :
@@ -67,7 +67,7 @@ InvocationFuture::exception(exception_ptr e)
 
 void
 InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& /*communicator*/,
-                           const Ice::EncodingVersion& /*encoding*/, bool b, pair<const Ice::Byte*, const Ice::Byte*> p)
+                           const Ice::EncodingVersion& /*encoding*/, bool b, pair<const uint8_t*, const uint8_t*> p)
 {
     lock_guard<mutex> lock(_mutex);
     _ok = b;
@@ -75,14 +75,14 @@ InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& /*communica
     _token = nullptr;
     if(p.second > p.first)
     {
-        vector<Ice::Byte> data(p.first, p.second); // Makes a copy.
+        vector<uint8_t> data(p.first, p.second); // Makes a copy.
         _data.swap(data); // Avoids another copy.
     }
     _cond.notify_all();
 }
 
 void
-InvocationFuture::getResults(bool& ok, pair<const Ice::Byte*, const Ice::Byte*>& p)
+InvocationFuture::getResults(bool& ok, pair<const uint8_t*, const uint8_t*>& p)
 {
     lock_guard<mutex> lock(_mutex);
     assert(_twoway);
@@ -192,8 +192,8 @@ Ice_ObjectPrx_read(void* communicator, mxArray* encoding, mxArray* buf, int star
 {
     assert(!mxIsEmpty(buf));
 
-    pair<const Ice::Byte*, const Ice::Byte*> p;
-    p.first = reinterpret_cast<Ice::Byte*>(mxGetData(buf)) + start;
+    pair<const uint8_t*, const uint8_t*> p;
+    p.first = reinterpret_cast<uint8_t*>(mxGetData(buf)) + start;
     p.second = p.first + size;
 
     try
@@ -231,7 +231,7 @@ Ice_ObjectPrx_write(void* proxy, void* communicator, mxArray* encoding)
 
         Ice::OutputStream out(comm, enc);
         out.write(prx);
-        pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
+        pair<const uint8_t*, const uint8_t*> p = out.finished();
 
         assert(p.second > p.first);
         return createResultValue(createByteArray(p.first, p.second));
@@ -245,14 +245,14 @@ Ice_ObjectPrx_write(void* proxy, void* communicator, mxArray* encoding)
 mxArray*
 Ice_ObjectPrx_ice_invoke(void* self, const char* op, int m, mxArray* inParams, unsigned int size, mxArray* context)
 {
-    pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
+    pair<const uint8_t*, const uint8_t*> params(0, 0);
     if(!mxIsEmpty(inParams))
     {
-        params.first = reinterpret_cast<Ice::Byte*>(mxGetData(inParams));
+        params.first = reinterpret_cast<uint8_t*>(mxGetData(inParams));
         params.second = params.first + size;
     }
     auto mode = static_cast<Ice::OperationMode>(m);
-    vector<Ice::Byte> v;
+    vector<uint8_t> v;
 
     try
     {
@@ -276,14 +276,14 @@ Ice_ObjectPrx_ice_invoke(void* self, const char* op, int m, mxArray* inParams, u
 mxArray*
 Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size)
 {
-    pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
+    pair<const uint8_t*, const uint8_t*> params(0, 0);
     if(!mxIsEmpty(inParams))
     {
-        params.first = reinterpret_cast<Ice::Byte*>(mxGetData(inParams));
+        params.first = reinterpret_cast<uint8_t*>(mxGetData(inParams));
         params.second = params.first + size;
     }
     auto mode = static_cast<Ice::OperationMode>(m);
-    vector<Ice::Byte> v;
+    vector<uint8_t> v;
 
     try
     {
@@ -307,10 +307,10 @@ Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, int m, mxArray* inPara
                               mxArray* context, void** future)
 {
     const auto proxy = restoreProxy(self);
-    pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
+    pair<const uint8_t*, const uint8_t*> params(0, 0);
     if(!mxIsEmpty(inParams))
     {
-        params.first = reinterpret_cast<Ice::Byte*>(mxGetData(inParams));
+        params.first = reinterpret_cast<uint8_t*>(mxGetData(inParams));
         params.second = params.first + size;
     }
     auto mode = static_cast<Ice::OperationMode>(m);
@@ -325,7 +325,7 @@ Ice_ObjectPrx_ice_invokeAsync(void* self, const char* op, int m, mxArray* inPara
         getStringMap(context, ctx);
         function<void()> token = proxy->ice_invokeAsync(
             op, mode, params,
-            [proxy, f](bool ok, pair<const Ice::Byte*, const Ice::Byte*> outParams)
+            [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
             {
                 f->finished(proxy->ice_getCommunicator(), proxy->ice_getEncodingVersion(), ok, outParams);
             },
@@ -352,10 +352,10 @@ mxArray*
 Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, int m, mxArray* inParams, unsigned int size, void** future)
 {
     const auto proxy = restoreProxy(self);
-    pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
+    pair<const uint8_t*, const uint8_t*> params(0, 0);
     if(!mxIsEmpty(inParams))
     {
-        params.first = reinterpret_cast<Ice::Byte*>(mxGetData(inParams));
+        params.first = reinterpret_cast<uint8_t*>(mxGetData(inParams));
         params.second = params.first + size;
     }
     auto mode = static_cast<Ice::OperationMode>(m);
@@ -368,7 +368,7 @@ Ice_ObjectPrx_ice_invokeAsyncNC(void* self, const char* op, int m, mxArray* inPa
     {
         function<void()> token = proxy->ice_invokeAsync(
             op, mode, params,
-            [proxy, f](bool ok, pair<const Ice::Byte*, const Ice::Byte*> outParams)
+            [proxy, f](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
             {
                 f->finished(proxy->ice_getCommunicator(),
                             proxy->ice_getEncodingVersion(), ok, outParams);
@@ -1176,7 +1176,7 @@ Ice_InvocationFuture_results(void* self)
     }
 
     bool ok;
-    pair<const Ice::Byte*, const Ice::Byte*> p;
+    pair<const uint8_t*, const uint8_t*> p;
     f->getResults(ok, p);
     mxArray* params = 0;
     if(p.second > p.first)

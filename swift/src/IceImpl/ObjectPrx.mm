@@ -204,12 +204,12 @@
     }
 }
 
--(uint8_t) ice_getEndpointSelection
+-(std::uint8_t) ice_getEndpointSelection
 {
-    return static_cast<uint8_t>(_prx->ice_getEndpointSelection());
+    return static_cast<std::uint8_t>(_prx->ice_getEndpointSelection());
 }
 
--(instancetype) ice_endpointSelection:(uint8_t)type error:(NSError**)error
+-(instancetype) ice_endpointSelection:(std::uint8_t)type error:(NSError**)error
 {
     try
     {
@@ -223,7 +223,7 @@
     }
 }
 
--(instancetype) ice_encodingVersion:(uint8_t)major minor:(uint8_t)minor
+-(instancetype) ice_encodingVersion:(std::uint8_t)major minor:(std::uint8_t)minor
 {
     Ice::EncodingVersion encoding{major, minor};
 
@@ -231,7 +231,7 @@
     return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
--(void) ice_getEncodingVersion:(uint8_t*)major minor:(uint8_t*)minor
+-(void) ice_getEncodingVersion:(std::uint8_t*)major minor:(std::uint8_t*)minor
 {
     Ice::EncodingVersion v = _prx->ice_getEncodingVersion();
     *major = v.major;
@@ -565,14 +565,14 @@
 
 +(id) ice_read:(NSData*)data
   communicator:(ICECommunicator*)communicator
- encodingMajor:(uint8_t)major
- encodingMinor:(uint8_t)minor
+ encodingMajor:(std::uint8_t)major
+ encodingMinor:(std::uint8_t)minor
      bytesRead:(NSInteger*)bytesRead
          error:(NSError**)error
 {
 
-    std::pair<const Ice::Byte*, const Ice::Byte*> p;
-    p.first = static_cast<const Ice::Byte*>(data.bytes);
+    std::pair<const std::uint8_t*, const std::uint8_t*> p;
+    p.first = static_cast<const std::uint8_t*>(data.bytes);
     p.second = p.first + data.length;
 
     auto comm = [communicator communicator];
@@ -602,8 +602,8 @@
 }
 
 -(void) ice_write:(id<ICEOutputStreamHelper>)os
-    encodingMajor:(uint8_t)encodingMajor
-    encodingMinor:(uint8_t)encodingMinor
+    encodingMajor:(std::uint8_t)encodingMajor
+    encodingMinor:(std::uint8_t)encodingMinor
 {
     //
     // Marshal a proxy into a stream and return the encoded bytes.
@@ -617,14 +617,14 @@
 }
 
 -(BOOL) invoke:(NSString* _Nonnull)op
-          mode:(uint8_t)mode
+          mode:(std::uint8_t)mode
       inParams:(NSData*)inParams
        context:(NSDictionary* _Nullable)context
       response:(void (^)(bool, void*, long))response
          error:(NSError**)error
 {
-    std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    std::pair<const std::uint8_t*, const std::uint8_t*> params(0, 0);
+    params.first = static_cast<const std::uint8_t*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -634,7 +634,7 @@
         {
             fromNSDictionary(context, ctx);
         }
-        std::vector<Ice::Byte> outParams;
+        std::vector<std::uint8_t> outParams;
 
         // We use a std::promise and invokeAsync to avoid making an extra copy of the outParam buffer
         // and to avoid calling PromiseKit wait. PromiseKit issues a warning if wait() is called on the main thread.
@@ -642,13 +642,13 @@
         std::promise<void> p;
 
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
-                              [response, &p](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
+                              [response, &p](bool ok, std::pair<const std::uint8_t*, const std::uint8_t*> outParams)
                               {
                                   // We need an autorelease pool as the unmarshaling (in the response) can
                                   // create autorelease objects, typically when unmarshaling proxies
                                   @autoreleasepool
                                   {
-                                      response(ok, const_cast<Ice::Byte*>(outParams.first),
+                                      response(ok, const_cast<std::uint8_t*>(outParams.first),
                                                static_cast<long>(outParams.second - outParams.first));
                                   }
                                   p.set_value();
@@ -671,13 +671,13 @@
 }
 
 -(BOOL) onewayInvoke:(NSString*)op
-                mode:(uint8_t)mode
+                mode:(std::uint8_t)mode
             inParams:(NSData*)inParams
              context:(NSDictionary*)context
                error:(NSError**)error
 {
-    std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    std::pair<const std::uint8_t*, const std::uint8_t*> params(0, 0);
+    params.first = static_cast<const std::uint8_t*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -688,7 +688,7 @@
             fromNSDictionary(context, ctx);
         }
 
-        std::vector<Ice::Byte> ignored;
+        std::vector<std::uint8_t> ignored;
         _prx->ice_invoke(fromNSString(op), static_cast<Ice::OperationMode>(mode), params, ignored,
                          context ? ctx : Ice::noExplicitContext);
         return YES;
@@ -701,15 +701,15 @@
 }
 
 -(void) invokeAsync:(NSString* _Nonnull)op
-               mode:(uint8_t)mode
+               mode:(std::uint8_t)mode
            inParams:(NSData*)inParams
             context:(NSDictionary* _Nullable)context
            response:(void (^)(bool, void*, long))response
           exception:(void (^)(NSError*))exception
                sent:(void (^_Nullable)(bool))sent
 {
-    std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    std::pair<const std::uint8_t*, const std::uint8_t*> params(0, 0);
+    params.first = static_cast<const std::uint8_t*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -721,7 +721,7 @@
         }
 
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
-                                            [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
+                                            [response](bool ok, std::pair<const std::uint8_t*, const std::uint8_t*> outParams)
                                             {
                                                 // We need an autorelease pool in case the unmarshaling creates auto
                                                 // release objects, and in case the application attaches a handler to
@@ -729,7 +729,7 @@
                                                 // executes response)
                                                 @autoreleasepool
                                                 {
-                                                    response(ok, const_cast<Ice::Byte*>(outParams.first),
+                                                    response(ok, const_cast<std::uint8_t*>(outParams.first),
                                                              static_cast<long>(outParams.second - outParams.first));
                                                 }
                                             },

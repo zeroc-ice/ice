@@ -83,8 +83,8 @@ InitialI::opRequiredException(optional<int32_t> a,
     throw ex;
 }
 
-optional<Ice::Byte>
-InitialI::opByte(optional<Ice::Byte> p1, optional<Ice::Byte>& p3, const Current&)
+optional<uint8_t>
+InitialI::opByte(optional<uint8_t> p1, optional<uint8_t>& p3, const Current&)
 {
     p3 = p1;
     return p1;
@@ -182,7 +182,7 @@ InitialI::opMyInterfaceProxy(optional<MyInterfacePrx> p1, optional<MyInterfacePr
 }
 
 optional<Test::ByteSeq>
-InitialI::opByteSeq(optional<pair<const Ice::Byte*, const Ice::Byte*> > p1, optional<Test::ByteSeq>& p3,
+InitialI::opByteSeq(optional<pair<const uint8_t*, const uint8_t*> > p1, optional<Test::ByteSeq>& p3,
                     const Current&)
 {
     if(p1)

@@ -848,7 +848,7 @@ void getFileCompressed(
             path,
             static_cast<int32_t>(pos),
             chunkSize,
-            [cb](std::pair<const Byte*, const Byte*> result) { cb->complete(ByteSeq(result.first, result.second)); },
+            [cb](std::pair<const uint8_t*, const uint8_t*> result) { cb->complete(ByteSeq(result.first, result.second)); },
             [cb](exception_ptr exception) { cb->exception(exception); });
     }
     else
@@ -857,7 +857,7 @@ void getFileCompressed(
             path,
             pos,
             chunkSize,
-            [cb](std::pair<const Byte*, const Byte*> result) { cb->complete(ByteSeq(result.first, result.second)); },
+            [cb](std::pair<const uint8_t*, const uint8_t*> result) { cb->complete(ByteSeq(result.first, result.second)); },
             [cb](exception_ptr exception) { cb->exception(exception); });
     }
 }

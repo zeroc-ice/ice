@@ -258,8 +258,8 @@ public:
 
     virtual bool operator==(const IceSSL::Certificate&) const;
 
-    virtual vector<Ice::Byte> getAuthorityKeyIdentifier() const;
-    virtual vector<Ice::Byte> getSubjectKeyIdentifier() const;
+    virtual vector<uint8_t> getAuthorityKeyIdentifier() const;
+    virtual vector<uint8_t> getSubjectKeyIdentifier() const;
     virtual bool verify(const IceSSL::CertificatePtr&) const;
     virtual string encode() const;
 
@@ -439,13 +439,13 @@ SecureTransportCertificateI::operator==(const IceSSL::Certificate& r) const
     return CFEqual(_cert.get(), p->_cert.get());
 }
 
-vector<Ice::Byte>
+vector<uint8_t>
 SecureTransportCertificateI::getAuthorityKeyIdentifier() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
 #else // macOS
-    vector<Ice::Byte> keyid;
+    vector<uint8_t> keyid;
 
     UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDAuthorityKeyIdentifier));
     if(property)
@@ -479,13 +479,13 @@ SecureTransportCertificateI::getAuthorityKeyIdentifier() const
 #endif
 }
 
-vector<Ice::Byte>
+vector<uint8_t>
 SecureTransportCertificateI::getSubjectKeyIdentifier() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
 #else // macOS
-    vector<Ice::Byte> keyid;
+    vector<uint8_t> keyid;
     UniqueRef<CFDictionaryRef> property(getCertificateProperty(_cert.get(), kSecOIDSubjectKeyIdentifier));
     if(property)
     {

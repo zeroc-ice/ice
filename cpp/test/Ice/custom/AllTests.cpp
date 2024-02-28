@@ -107,7 +107,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Test::ByteList in;
-        Ice::Byte inArray[5];
+        uint8_t inArray[5];
         inArray[0] = '1';
         in.push_back(inArray[0]);
         inArray[1] = '2';
@@ -118,7 +118,7 @@ allTests(Test::TestHelper* helper)
         in.push_back(inArray[3]);
         inArray[4] = '5';
         in.push_back(inArray[4]);
-        pair<const Ice::Byte*, const Ice::Byte*> inPair(inArray, inArray + 5);
+        pair<const uint8_t*, const uint8_t*> inPair(inArray, inArray + 5);
 
         Test::ByteList out;
         Test::ByteList ret = t->opByteArray(inPair, out);
@@ -177,29 +177,29 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque< ::Ice::Byte> in(5);
+        deque<uint8_t> in(5);
         in[0] = '1';
         in[1] = '2';
         in[2] = '3';
         in[3] = '4';
         in[4] = '5';
 
-        deque< ::Ice::Byte> out;
-        deque< ::Ice::Byte> ret = t->opByteSeq(in, out);
+        deque<uint8_t> out;
+        deque<uint8_t> ret = t->opByteSeq(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        list< ::Ice::Byte> in;
+        list<uint8_t> in;
         in.push_back('1');
         in.push_back('2');
         in.push_back('3');
         in.push_back('4');
         in.push_back('5');
 
-        list< ::Ice::Byte> out;
-        list< ::Ice::Byte> ret = t->opByteList(in, out);
+        list<uint8_t> out;
+        list<uint8_t> ret = t->opByteList(in, out);
         test(out == in);
         test(ret == in);
     }
@@ -209,7 +209,7 @@ allTests(Test::TestHelper* helper)
         int i = 0;
         for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
-            *p = static_cast<Ice::Byte>('1' + i++);
+            *p = static_cast<uint8_t>('1' + i++);
         }
 
         MyByteSeq out;
@@ -515,7 +515,7 @@ allTests(Test::TestHelper* helper)
         test(retBS == inBS);
 
         Test::BufferStruct bs;
-        bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
+        bs.byteBuf.setAndInit(new uint8_t[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
         bs.shortBuf.setAndInit(new int16_t[10], 10);
         bs.intBuf.setAndInit(new int32_t[10], 10);
@@ -579,7 +579,7 @@ allTests(Test::TestHelper* helper)
 
         {
             Test::ByteList in;
-            Ice::Byte inArray[5];
+            uint8_t inArray[5];
             inArray[0] = '1';
             in.push_back(inArray[0]);
             inArray[1] = '2';
@@ -590,7 +590,7 @@ allTests(Test::TestHelper* helper)
             in.push_back(inArray[3]);
             inArray[4] = '5';
             in.push_back(inArray[4]);
-            pair<const Ice::Byte*, const Ice::Byte*> inPair(inArray, inArray + 5);
+            pair<const uint8_t*, const uint8_t*> inPair(inArray, inArray + 5);
 
             auto r = t->opByteArrayAsync(inPair).get();
             test(std::get<1>(r) == in);
@@ -644,7 +644,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            deque< ::Ice::Byte> in(5);
+            deque<uint8_t> in(5);
             in[0] = '1';
             in[1] = '2';
             in[2] = '3';
@@ -657,7 +657,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            list< ::Ice::Byte> in;
+            list<uint8_t> in;
             in.push_back('1');
             in.push_back('2');
             in.push_back('3');
@@ -674,7 +674,7 @@ allTests(Test::TestHelper* helper)
             int i = 0;
             for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
             {
-                *p = static_cast<Ice::Byte>('1' + i++);
+                *p = static_cast<uint8_t>('1' + i++);
             }
 
             auto r = t->opMyByteSeqAsync(in).get();
@@ -985,22 +985,22 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Ice::Byte in[5];
+        uint8_t in[5];
         in[0] = '1';
         in[1] = '2';
         in[2] = '3';
         in[3] = '4';
         in[4] = '5';
-        pair<const Ice::Byte*, const Ice::Byte*> inPair(in, in + 5);
+        pair<const uint8_t*, const uint8_t*> inPair(in, in + 5);
 
         promise<bool> done;
 
         t->opByteArrayAsync(inPair,
-                            [&](pair<const Ice::Byte*, const Ice::Byte*> ret,
-                                pair<const Ice::Byte*, const Ice::Byte*> out)
+                            [&](pair<const uint8_t*, const uint8_t*> ret,
+                                pair<const uint8_t*, const uint8_t*> out)
                             {
-                                test(arrayRangeEquals<Ice::Byte>(out, inPair));
-                                test(arrayRangeEquals<Ice::Byte>(ret, inPair));
+                                test(arrayRangeEquals<uint8_t>(out, inPair));
+                                test(arrayRangeEquals<uint8_t>(ret, inPair));
                                 done.set_value(true);
                             },
                             [&](std::exception_ptr)
@@ -1095,7 +1095,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque< ::Ice::Byte> in(5);
+        deque<uint8_t> in(5);
         in[0] = '1';
         in[1] = '2';
         in[2] = '3';
@@ -1105,7 +1105,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opByteSeqAsync(in,
-                          [&](deque<Ice::Byte> ret, deque<Ice::Byte> out)
+                          [&](deque<uint8_t> ret, deque<uint8_t> out)
                           {
                               test(ret == out);
                               test(ret == in);
@@ -1120,7 +1120,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list< ::Ice::Byte> in;
+        list<uint8_t> in;
         in.push_back('1');
         in.push_back('2');
         in.push_back('3');
@@ -1130,7 +1130,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opByteListAsync(in,
-                           [&](list<Ice::Byte> ret, list<Ice::Byte> out)
+                           [&](list<uint8_t> ret, list<uint8_t> out)
                            {
                                test(ret == out);
                                test(ret == in);
@@ -1149,7 +1149,7 @@ allTests(Test::TestHelper* helper)
         int i = 0;
         for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
-            *p = static_cast<Ice::Byte>('1' + i++);
+            *p = static_cast<uint8_t>('1' + i++);
         }
 
         promise<bool> done;
@@ -1553,10 +1553,10 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opOutArrayByteSeqAsync(in,
-                                  [&](pair<const Ice::Byte*, const Ice::Byte*> out)
+                                  [&](pair<const uint8_t*, const uint8_t*> out)
                                   {
-                                      test(arrayRangeEquals<Ice::Byte>(
-                                               make_pair<const Ice::Byte*>(&in[0], &in[0] + in.size()), out));
+                                      test(arrayRangeEquals<uint8_t>(
+                                               make_pair<const uint8_t*>(&in[0], &in[0] + in.size()), out));
                                       done.set_value(true);
                                   },
                                   [&](std::exception_ptr)

@@ -30,7 +30,7 @@ struct ICE_API SliceInfo
     /**
      * The encoded bytes for this slice, including the leading size integer.
      */
-    std::vector<Byte> bytes;
+    std::vector<std::uint8_t> bytes;
 
     /**
      * The class instances referenced by this slice.

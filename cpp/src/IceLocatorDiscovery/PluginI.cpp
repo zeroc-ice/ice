@@ -19,7 +19,7 @@ namespace
 {
 
 class LocatorI; // Forward declaration
-typedef std::pair<function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>,
+typedef std::pair<function<void(bool, const pair<const uint8_t*, const uint8_t*>&)>,
                   function<void(exception_ptr)>> AMDCallback;
 
 class Request : public std::enable_shared_from_this<Request>
@@ -29,7 +29,7 @@ public:
     Request(LocatorI* locator,
             const string& operation,
             Ice::OperationMode mode,
-            const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+            const pair<const uint8_t*, const uint8_t*>& inParams,
             const Ice::Context& ctx,
             const AMDCallback& amdCB) :
         _locator(locator),
@@ -42,7 +42,7 @@ public:
     }
 
     void invoke(const Ice::LocatorPrxPtr&);
-    void response(bool, const pair<const Ice::Byte*, const Ice::Byte*>&);
+    void response(bool, const pair<const uint8_t*, const uint8_t*>&);
     void exception(std::exception_ptr);
 
 protected:
@@ -68,8 +68,8 @@ public:
     LocatorI(const string&, const LookupPrxPtr&, const Ice::PropertiesPtr&, const string&, const Ice::LocatorPrxPtr&);
     void setLookupReply(const LookupReplyPrxPtr&);
 
-    virtual void ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*>,
-                                 function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>,
+    virtual void ice_invokeAsync(pair<const uint8_t*, const uint8_t*>,
+                                 function<void(bool, const pair<const uint8_t*, const uint8_t*>&)>,
                                  function<void(exception_ptr)>,
                                  const Ice::Current&);
 
@@ -325,9 +325,9 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
         {
             auto self = shared_from_this();
             l->ice_invokeAsync(_operation, _mode, _inParams,
-                               [self](bool ok, vector<Ice::Byte> outParams)
+                               [self](bool ok, vector<uint8_t> outParams)
                                {
-                                   pair<const Ice::Byte*, const Ice::Byte*> outPair;
+                                   pair<const uint8_t*, const uint8_t*> outPair;
                                    if(outParams.empty())
                                    {
                                        outPair.first = outPair.second = 0;
@@ -359,7 +359,7 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
 }
 
 void
-Request::response(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& outParams)
+Request::response(bool ok, const pair<const uint8_t*, const uint8_t*>& outParams)
 {
     _amdCB.first(ok, outParams);
 }
@@ -477,8 +477,8 @@ LocatorI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
 }
 
 void
-LocatorI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                          function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> responseCB,
+LocatorI::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
+                          function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> responseCB,
                           function<void(exception_ptr)> exceptionCB,
                           const Ice::Current& current)
 {

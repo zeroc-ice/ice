@@ -33,7 +33,7 @@ public:
     }
 
     bool
-    ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inParams, Ice::ByteSeq&, const Ice::Current& current) override
+    ice_invoke(pair<const uint8_t*, const uint8_t*> inParams, Ice::ByteSeq&, const Ice::Current& current) override
     {
         // Use cached reads.
         EventData event = { current.operation, current.mode, Ice::ByteSeq(), current.ctx };

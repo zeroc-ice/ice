@@ -31,8 +31,8 @@ public:
                                      std::optional<Test::OneOptionalPtr>,
                                      const Ice::Current&);
 
-    virtual std::optional<::Ice::Byte> opByte(std::optional<::Ice::Byte>,
-                                                   std::optional<::Ice::Byte>&,
+    virtual std::optional<std::uint8_t> opByte(std::optional<std::uint8_t>,
+                                                   std::optional<std::uint8_t>&,
                                                    const ::Ice::Current&);
 
     virtual std::optional<bool> opBool(std::optional<bool>, std::optional<bool>&,
@@ -87,7 +87,7 @@ public:
                                                                           const ::Ice::Current&);
 
     virtual std::optional<::Test::ByteSeq> opByteSeq(
-        std::optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*> >,
+        std::optional<::std::pair<const ::std::uint8_t*, const ::std::uint8_t*> >,
         std::optional<::Test::ByteSeq>&,
         const ::Ice::Current&);
 

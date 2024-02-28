@@ -42,7 +42,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(int16_t type, InputStream* s) : _t
 {
     _rawEncoding = s->getEncoding();
     int32_t sz = s->getEncapsulationSize();
-    s->readBlob(const_cast<vector<Byte>&>(_rawBytes), sz);
+    s->readBlob(const_cast<vector<uint8_t>&>(_rawBytes), sz);
 }
 
 namespace
@@ -371,7 +371,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
                 throw EndpointParseException(__FILE__, __LINE__, os.str());
             }
         }
-        const_cast<vector<Byte>&>(_rawBytes) = Base64::decode(argument);
+        const_cast<vector<uint8_t>&>(_rawBytes) = Base64::decode(argument);
         return true;
     }
 

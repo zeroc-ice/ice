@@ -52,7 +52,7 @@ private:
 void
 fillInValue(OutputStream* os, int pos, int32_t value)
 {
-    const Byte* p = reinterpret_cast<const Byte*>(&value);
+    const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
 #else
@@ -191,7 +191,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 }
 
 void
-CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, Byte, bool amd)
+CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, uint8_t, bool amd)
 {
     OutgoingAsyncBasePtr outAsync;
     {

@@ -987,11 +987,11 @@ allTests(Test::TestHelper* helper)
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.endEncapsulation();
-        vector<Ice::Byte> inEncaps;
+        vector<uint8_t> inEncaps;
         out.finished(inEncaps);
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
-        vector<Ice::Byte> outEncaps;
+        vector<uint8_t> outEncaps;
         cl->ice_invoke("ice_ping", Ice::OperationMode::Normal, inEncaps, outEncaps);
         test(false);
     }
@@ -1008,11 +1008,11 @@ allTests(Test::TestHelper* helper)
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
         out.endEncapsulation();
-        vector<Ice::Byte> inEncaps;
+        vector<uint8_t> inEncaps;
         out.finished(inEncaps);
         inEncaps[4] = version.major;
         inEncaps[5] = version.minor;
-        vector<Ice::Byte> outEncaps;
+        vector<uint8_t> outEncaps;
         cl->ice_invoke("ice_ping", Ice::OperationMode::Normal, inEncaps, outEncaps);
         test(false);
     }

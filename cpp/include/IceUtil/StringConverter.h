@@ -29,7 +29,7 @@ public:
      * @param firstUnused A pointer to the first unused byte.
      * @return A pointer to the beginning of the buffer.
      */
-    virtual Byte* getMoreBytes(size_t howMany, Byte* firstUnused) = 0;
+    virtual std::uint8_t* getMoreBytes(size_t howMany, std::uint8_t* firstUnused) = 0;
 
     virtual ~UTF8Buffer();
 };
@@ -50,12 +50,12 @@ public:
      * Returns a pointer to byte after the last written byte (which may be
      * past the last byte returned by getMoreBytes).
      */
-    virtual Byte* toUTF8(const charT* sourceStart, const charT* sourceEnd, UTF8Buffer& buf) const = 0;
+    virtual std::uint8_t* toUTF8(const charT* sourceStart, const charT* sourceEnd, UTF8Buffer& buf) const = 0;
 
     /**
      * Unmarshals a UTF-8 sequence into a basic_string.
      */
-    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, std::basic_string<charT>& target) const = 0;
+    virtual void fromUTF8(const std::uint8_t* sourceStart, const std::uint8_t* sourceEnd, std::basic_string<charT>& target) const = 0;
 
     virtual ~BasicStringConverter()
     {
@@ -163,13 +163,13 @@ namespace IceUtilInternal
 //
 // Convert from UTF-8 to UTF-16/32
 //
-ICE_API std::vector<unsigned short> toUTF16(const std::vector<IceUtil::Byte>&);
-ICE_API std::vector<unsigned int> toUTF32(const std::vector<IceUtil::Byte>&);
+ICE_API std::vector<unsigned short> toUTF16(const std::vector<std::uint8_t>&);
+ICE_API std::vector<unsigned int> toUTF32(const std::vector<std::uint8_t>&);
 
 //
 // Convert from UTF-32 to UTF-8
 //
-ICE_API std::vector<IceUtil::Byte> fromUTF32(const std::vector<unsigned int>&);
+ICE_API std::vector<std::uint8_t> fromUTF32(const std::vector<unsigned int>&);
 
 }
 

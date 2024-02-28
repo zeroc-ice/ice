@@ -48,7 +48,7 @@ public:
     SCHannelX509ExtensionI(CERT_EXTENSION , const string&, const CertInfoHolderPtr&);
     virtual bool isCritical() const;
     virtual string getOID() const;
-    virtual vector<Ice::Byte> getData() const;
+    virtual vector<uint8_t> getData() const;
 
 private:
 
@@ -68,8 +68,8 @@ public:
 
     virtual bool operator==(const IceSSL::Certificate&) const;
 
-    virtual vector<Ice::Byte> getAuthorityKeyIdentifier() const;
-    virtual vector<Ice::Byte> getSubjectKeyIdentifier() const;
+    virtual vector<uint8_t> getAuthorityKeyIdentifier() const;
+    virtual vector<uint8_t> getSubjectKeyIdentifier() const;
     virtual bool verify(const CertificatePtr&) const;
     virtual string encode() const;
 
@@ -230,11 +230,11 @@ certificateAltNames(CERT_INFO* certInfo, LPCSTR altNameOID)
                         // IPv4 address
                         //
                         ostringstream os;
-                        Byte* src = reinterpret_cast<Byte*>(entry->IPAddress.pbData);
+                        uint8_t* src = reinterpret_cast<uint8_t*>(entry->IPAddress.pbData);
                         for(int j = 0; j < 4;)
                         {
                             int value = 0;
-                            Byte* dest = reinterpret_cast<Byte*>(&value);
+                            uint8_t* dest = reinterpret_cast<uint8_t*>(&value);
                             *dest = *src++;
                             os << value;
                             if(++j < 4)
@@ -282,10 +282,10 @@ SCHannelX509ExtensionI::getOID() const
     return _oid;
 }
 
-vector<Ice::Byte>
+vector<uint8_t>
 SCHannelX509ExtensionI::getData() const
 {
-    vector<Ice::Byte> data;
+    vector<uint8_t> data;
     data.resize(_extension.Value.cbData);
     memcpy(&data[0], _extension.Value.pbData, _extension.Value.cbData);
     return data;
@@ -340,10 +340,10 @@ SChannelCertificateI::operator==(const IceSSL::Certificate& r) const
     return CertCompareCertificate(X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, _certInfo, p->_certInfo) != 0;
 }
 
-vector<Ice::Byte>
+vector<uint8_t>
 SChannelCertificateI::getAuthorityKeyIdentifier() const
 {
-    vector<Ice::Byte> keyid;
+    vector<uint8_t> keyid;
     PCERT_EXTENSION extension = CertFindExtension(szOID_AUTHORITY_KEY_IDENTIFIER2, _certInfo->cExtension,
                                                   _certInfo->rgExtension);
     if(extension)
@@ -366,10 +366,10 @@ SChannelCertificateI::getAuthorityKeyIdentifier() const
     return keyid;
 }
 
-vector<Ice::Byte>
+vector<uint8_t>
 SChannelCertificateI::getSubjectKeyIdentifier() const
 {
-    vector<Ice::Byte> keyid;
+    vector<uint8_t> keyid;
     PCERT_EXTENSION extension = CertFindExtension(szOID_SUBJECT_KEY_IDENTIFIER, _certInfo->cExtension,
                                                   _certInfo->rgExtension);
     if(extension)

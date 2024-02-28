@@ -48,8 +48,8 @@ public:
     }
 
     virtual void
-    ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
-                    std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
+    ice_invokeAsync(std::pair<const std::uint8_t*, const std::uint8_t*> inEncaps,
+                    std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)> response,
                     std::function<void(std::exception_ptr)> error,
                     const Ice::Current& current);
 

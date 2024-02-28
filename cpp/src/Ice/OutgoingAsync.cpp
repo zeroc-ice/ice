@@ -676,7 +676,7 @@ OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context&
 
     _os.write(operation, false);
 
-    _os.write(static_cast<Byte>(_mode));
+    _os.write(static_cast<uint8_t>(_mode));
 
     if(&context != &Ice::noExplicitContext)
     {
@@ -725,7 +725,7 @@ OutgoingAsync::response()
         _childObserver.detach();
     }
 
-    Byte replyStatus;
+    uint8_t replyStatus;
     try
     {
         _is.read(replyStatus);

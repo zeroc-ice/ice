@@ -349,7 +349,7 @@ public:
      * Obtains the data associated with this extension.
      * @return The extension data.
      */
-    virtual std::vector<Ice::Byte> getData() const = 0;
+    virtual std::vector<std::uint8_t> getData() const = 0;
 };
 using X509ExtensionPtr = std::shared_ptr<X509Extension>;
 
@@ -379,13 +379,13 @@ public:
      * Obtains the authority key identifier.
      * @return The identifier.
      */
-    virtual std::vector<Ice::Byte> getAuthorityKeyIdentifier() const = 0;
+    virtual std::vector<std::uint8_t> getAuthorityKeyIdentifier() const = 0;
 
     /**
      * Obtains the subject key identifier.
      * @return The identifier.
      */
-    virtual std::vector<Ice::Byte> getSubjectKeyIdentifier() const = 0;
+    virtual std::vector<std::uint8_t> getSubjectKeyIdentifier() const = 0;
 
     /**
      * Verifies that this certificate was signed by the given certificate

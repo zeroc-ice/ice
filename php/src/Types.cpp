@@ -396,12 +396,12 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
 #   pragma clang diagnostic push
 #   pragma clang diagnostic ignored "-Wshadow"
 #endif
-                vector<Ice::Byte>::size_type i = 0;
+                vector<uint8_t>::size_type i = 0;
                 ZEND_HASH_FOREACH_VAL(barr, e)
                 {
                     long l = static_cast<long>(Z_LVAL_P(e));
                     assert(l >= 0 && l <= 255);
-                    info->bytes[i++] = static_cast<Ice::Byte>(l);
+                    info->bytes[i++] = static_cast<uint8_t>(l);
                 }
                 ZEND_HASH_FOREACH_END();
 #if defined(__clang__)
@@ -757,7 +757,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
         assert(Z_TYPE_P(zv) == IS_LONG);
         long val = static_cast<long>(Z_LVAL_P(zv));
         assert(val >= 0 && val <= 255); // validate() should have caught this.
-        os->write(static_cast<Ice::Byte>(val));
+        os->write(static_cast<uint8_t>(val));
         break;
     }
     case PrimitiveInfo::KindShort:
@@ -869,7 +869,7 @@ IcePHP::PrimitiveInfo::unmarshal(
     }
     case PrimitiveInfo::KindByte:
     {
-        Ice::Byte val;
+        uint8_t val;
         is->read(val);
         ZVAL_LONG(&zv, val & 0xff);
         break;
@@ -1625,7 +1625,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             }
             long l = static_cast<long>(Z_LVAL_P(val));
             assert(l >= 0 && l <= 255);
-            seq[i++] = static_cast<Ice::Byte>(l);
+            seq[i++] = static_cast<uint8_t>(l);
         }
         ZEND_HASH_FOREACH_END();
 
@@ -1820,9 +1820,9 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindByte:
     {
-        pair<const Ice::Byte*, const Ice::Byte*> pr;
+        pair<const uint8_t*, const uint8_t*> pr;
         is->read(pr);
-        for (const Ice::Byte* p = pr.first; p != pr.second; ++p)
+        for (const uint8_t* p = pr.first; p != pr.second; ++p)
         {
             add_next_index_long(&zv, *p & 0xff);
         }

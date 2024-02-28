@@ -1421,7 +1421,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 seq.resize(1024 * 10);
                 for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
                 {
-                    *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+                    *q = static_cast<uint8_t>(IceUtilInternal::random(255));
                 }
 
                 //

@@ -24,9 +24,9 @@ TestIntfI::opBoolArrayAsync(std::pair<const bool*, const bool*> in,
 }
 
 void
-TestIntfI::opByteArrayAsync(std::pair<const Ice::Byte*, const Ice::Byte*> in,
-                            std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                                                const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+TestIntfI::opByteArrayAsync(std::pair<const uint8_t*, const uint8_t*> in,
+                            std::function<void(const std::pair<const uint8_t*, const uint8_t*>&,
+                                                const std::pair<const uint8_t*, const uint8_t*>&)> response,
                             std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
@@ -58,8 +58,8 @@ TestIntfI::opBoolListAsync(Test::BoolList in,
 }
 
 void
-TestIntfI::opByteSeqAsync(std::deque<Ice::Byte> in,
-                          std::function<void(const std::deque<Ice::Byte>&, const std::deque<Ice::Byte>&)> response,
+TestIntfI::opByteSeqAsync(std::deque<uint8_t> in,
+                          std::function<void(const std::deque<uint8_t>&, const std::deque<uint8_t>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
@@ -201,7 +201,7 @@ TestIntfI::opCListAsync(Test::CList in,
 
 void
 TestIntfI::opOutArrayByteSeqAsync(Test::ByteSeq in,
-                                  std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+                                  std::function<void(const std::pair<const uint8_t*, const uint8_t*>&)> response,
                                   std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(std::make_pair(in.data(), in.data() + in.size()));
