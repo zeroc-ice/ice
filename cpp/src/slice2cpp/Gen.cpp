@@ -541,6 +541,15 @@ writeOpDocSummary(Output& out, const OperationPtr& op, const CommentPtr& doc, Op
     out << nl << " */";
 }
 
+string
+createLambdaResponse(const vector<string>& lambdaOutParams)
+{
+    ostringstream os;
+    Output out(os);
+    out <<  "::std::function<void" << spar << lambdaOutParams << epar << ">";
+    return os.str();
+}
+
 // Returns the client-side result type for an operation - can be void, a single type, or a tuple.
 string
 createReturnType(const vector<string>& elements)
@@ -1747,8 +1756,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "auto result = ";
     }
 
+    // We call makePromiseOutgoing with the "sync" parameter set to true; the Promise/future implementation later on
+    // calls makePromiseOutgoing with this parameter set to false.
+    // This parameter is useful for collocated calls.
     C << "::IceInternal::makePromiseOutgoing<" << futureT << ">";
-
     C << spar << "true, this" << "&" + interface->name() + "Prx::_iceI_" + name;
     C << inParamsImpl;
     C << "context" << epar << ".get();";
@@ -1801,6 +1812,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string responseParam = escapeParam(inParams, "response");
     const string exParam = escapeParam(inParams, "ex");
     const string sentParam = escapeParam(inParams, "sent");
+    const string lambdaResponse = createLambdaResponse(lambdaOutParams);
 
     H << sp;
     if(comment)
@@ -1816,50 +1828,27 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl;
     H << deprecateSymbol;
     H << "::std::function<void()>";
-    H << nl << name << "Async(";
+
+    // TODO: need "nl" version of spar/epar
+    H << nl << name << "Async" << spar;
     H.useCurrentPosAsIndent();
-    if(!inParamsDecl.empty())
-    {
-        for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
-        {
-            if(q != inParamsDecl.begin())
-            {
-                H << " ";
-            }
+    H << inParamsDecl;
 
-            H << *q << ",";
-        }
-        H << nl;
-    }
-
-    H << "::std::function<void" << spar << lambdaOutParams << epar << "> " << responseParam << ",";
-    H << nl << "::std::function<void(::std::exception_ptr)> " << exParam << " = nullptr,";
-    H << nl << "::std::function<void(bool)> " << sentParam << " = nullptr,";
-    H << nl << contextDecl << ") const;";
-
+    H << lambdaResponse + " " + responseParam;
+    H << "::std::function<void(::std::exception_ptr)> " + exParam + " = nullptr";
+    H << "::std::function<void(bool)> " + sentParam + " = nullptr";
+    H << contextDecl << epar << " const;";
     H.restoreIndent();
 
     C << sp;
     C << nl << "::std::function<void()>";
-    C << nl << scoped << name << "Async(";
+    C << nl << scoped << name << "Async" << spar;
     C.useCurrentPosAsIndent();
-    if (!inParamsImplDecl.empty())
-    {
-        for (vector<string>::const_iterator q = inParamsImplDecl.begin(); q != inParamsImplDecl.end(); ++q)
-        {
-            if (q != inParamsImplDecl.begin())
-            {
-                C << " ";
-            }
-            C << *q << ",";
-        }
-        C << nl;
-    }
-
-    C << "::std::function<void " << spar << lambdaOutParams << epar << "> response,";
-    C << nl << "::std::function<void(::std::exception_ptr)> ex,";
-    C << nl << "::std::function<void(bool)> sent,";
-    C << nl << "const ::Ice::Context& context) const";
+    C << inParamsImplDecl;
+    C << lambdaResponse + " response";
+    C << "::std::function<void(::std::exception_ptr)> ex";
+    C << "::std::function<void(bool)> sent";
+    C << "const ::Ice::Context& context" << epar << " const";
     C.restoreIndent();
 
     C << sb;
@@ -1917,7 +1906,6 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     ParamDeclList inParams = p->inParameters();
     ParamDeclList outParams = p->outParameters();
 
-    string returnValueS = "returnValue";
     bool outParamsHasOpt = false;
 
     if(ret)
@@ -1927,24 +1915,13 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
 
     for (const auto& q : paramList)
     {
-        string paramName = fixKwd(q->name());
-        StringList metaData = q->getMetaData();
-
         if (q->isOutParam())
         {
-            string outputTypeString = outputTypeToString(q->type(), q->optional(), interfaceScope, metaData,
-                                                         _useWstring);
             outParamsHasOpt |= q->optional();
-
-            if (q->name() == "returnValue")
-            {
-                returnValueS = "_returnValue";
-            }
         }
         else
         {
-            string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, metaData,
-                                                  _useWstring);
+            string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, q->getMetaData(), _useWstring);
 
             inParamsS.push_back(typeString);
             inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name());
@@ -2000,7 +1977,8 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", interfaceScope) << " istr)";
         C << sb;
         C << nl << returnT << " v;";
-        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextTuple, "", returnValueS, "v");
+        // The "ret" parameter (the one before last) is not used with tuples.
+        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextTuple, "", "", "v");
 
         if(p->returnsClasses(false))
         {
