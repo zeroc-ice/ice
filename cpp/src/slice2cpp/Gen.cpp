@@ -567,6 +567,8 @@ createOutgoingAsyncTypeParam(const vector<string>& elements)
     }
 }
 
+// Returns the C++ types that make up the client-side result type of an operation (first return type then out parameter
+// types, as per the future API).
 vector<string>
 createOutgoingAsyncParams(const OperationPtr& p, const string& scope, int typeContext)
 {

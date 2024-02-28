@@ -100,8 +100,7 @@ protected:
     void cancel(std::exception_ptr);
     void checkCanceled();
 
-    void warning(const std::exception&) const;
-    void warning() const;
+    void warning(std::string_view callbackName, std::exception_ptr eptr) const;
 
     //
     // This virtual method is necessary for the communicator flush
@@ -407,13 +406,9 @@ public:
                 {
                     response(std::move(v));
                 }
-                catch (const std::exception& exception)
-                {
-                    this->warning(exception);
-                }
                 catch (...)
                 {
-                    this->warning();
+                    this->warning("response", std::current_exception());
                 }
             }
         };
@@ -447,13 +442,9 @@ public:
                 {
                     response();
                 }
-                catch (const std::exception& exception)
-                {
-                    this->warning(exception);
-                }
                 catch (...)
                 {
-                    this->warning();
+                    this->warning("response", std::current_exception());
                 }
             }
         };
