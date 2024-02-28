@@ -100,8 +100,7 @@ protected:
     void cancel(std::exception_ptr);
     void checkCanceled();
 
-    void warning(const std::exception&) const;
-    void warning() const;
+    void warning(std::string_view callbackName, std::exception_ptr eptr) const;
 
     //
     // This virtual method is necessary for the communicator flush
@@ -407,9 +406,9 @@ public:
                 {
                     response(std::move(v));
                 }
-                catch(...)
+                catch (...)
                 {
-                    throw std::current_exception();
+                    this->warning("response", std::current_exception());
                 }
             }
         };
@@ -439,56 +438,16 @@ public:
                 {
                     this->_is.skipEmptyEncapsulation();
                 }
-
                 try
                 {
                     response();
                 }
-                catch(...)
+                catch (...)
                 {
-                    throw std::current_exception();
+                    this->warning("response", std::current_exception());
                 }
             }
         };
-    }
-};
-
-class CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
-{
-public:
-
-    CustomLambdaOutgoing(Ice::ObjectPrx proxy,
-                         std::function<void(Ice::InputStream*)> read,
-                         std::function<void(std::exception_ptr)> ex,
-                         std::function<void(bool)> sent) :
-        OutgoingAsync(std::move(proxy), false), LambdaInvoke(std::move(ex), std::move(sent))
-    {
-        _response = [this, read = std::move(read)](bool ok)
-        {
-            if(!ok)
-            {
-                this->throwUserException();
-            }
-            else if(read)
-            {
-                //
-                // Read and respond
-                //
-                read(&this->_is);
-            }
-        };
-    }
-
-    void
-    invoke(std::string_view operation,
-           Ice::OperationMode mode,
-           Ice::FormatType format,
-           const Ice::Context& ctx,
-           std::function<void(Ice::OutputStream*)> write,
-           std::function<void(const Ice::UserException&)> userException)
-    {
-        _userException = std::move(userException);
-        OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
     }
 };
 

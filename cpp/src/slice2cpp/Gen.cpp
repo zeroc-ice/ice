@@ -543,45 +543,54 @@ writeOpDocSummary(Output& out, const OperationPtr& op, const CommentPtr& doc, Op
 
 // Returns the client-side result type for an operation - can be void, a single type, or a tuple.
 string
-createResultType(const OperationPtr& p, const string& scope, int useWstring)
+createOutgoingAsyncTypeParam(const vector<string>& elements)
 {
-    assert(useWstring == 0 || useWstring == TypeContextUseWstring);
+    switch (elements.size())
+    {
+        case 0:
+            return "void";
+        case 1:
+            return elements.front();
+        default:
+        {
+            ostringstream os;
+            Output out(os);
+            out << "::std::tuple" << sabrk;
+            for (const auto& element : elements)
+            {
+                out << element;
+            }
+            out << eabrk;
+            return os.str();
+        }
+    }
+}
 
+// Returns the C++ types that make up the client-side result type of an operation (first return type then out parameter
+// types, as per the future API).
+vector<string>
+createOutgoingAsyncParams(const OperationPtr& p, const string& scope, int typeContext)
+{
+    vector<string> elements;
     TypePtr ret = p->returnType();
-    string retS = returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(), useWstring);
+    if (ret)
+    {
+        elements.push_back(returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(), typeContext));
+    }
+    for (const auto& param : p->outParameters())
+    {
+        elements.push_back(typeToString(param->type(), param->optional(), scope, param->getMetaData(), typeContext));
+    }
+    return elements;
+}
 
-    ParamDeclList outParams = p->outParameters();
-
-    if ((outParams.size() > 1) || (ret && outParams.size() > 0))
-    {
-        // Generate a tuple
-        ostringstream os;
-        Output out(os);
-        out << "::std::tuple" << sabrk;
-        if (ret)
-        {
-            out << retS;
-        }
-        for (const auto& param : outParams)
-        {
-            out << typeToString(param->type(), param->optional(), scope, param->getMetaData(), useWstring);
-        }
-        out << eabrk;
-        return os.str();
-    }
-    else if (ret)
-    {
-        return retS;
-    }
-    else if (outParams.size() == 1)
-    {
-        const auto& param = outParams.front();
-        return typeToString(param->type(), param->optional(), scope, param->getMetaData(), useWstring);
-    }
-    else
-    {
-        return "void";
-    }
+string
+createLambdaResponse(const OperationPtr& p, int typeContext)
+{
+    ostringstream os;
+    Output out(os);
+    out <<  "::std::function<void" << spar << createOutgoingAsyncParams(p, "", typeContext) << epar << ">";
+    return os.str();
 }
 
 }
@@ -1627,77 +1636,47 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string retS = returnTypeToString(ret, retIsOpt, interfaceScope, p->getMetaData(), _useWstring);
     string retSImpl = returnTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring);
 
-    vector<string> params;
+    // All parameters
     vector<string> paramsDecl;
     vector<string> paramsImplDecl;
 
-    vector<string> inParamsS;
+    // Only the parameters marshaled into the request.
     vector<string> inParamsDecl;
     vector<string> inParamsImplDecl;
+    vector<string> inParamsImpl;
 
-    vector<string> futureOutParams;
-    vector<string> lambdaOutParams;
+    vector<string> futureOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring);
+    vector<string> lambdaOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring | TypeContextInParam);
+
+    const string futureImplPrefix = "_iceI_";
+    const string lambdaImplPrefix = futureOutParams == lambdaOutParams ? "_iceI_" : "_iceIL_";
 
     ParamDeclList paramList = p->parameters();
     ParamDeclList inParams = p->inParameters();
     ParamDeclList outParams = p->outParameters();
 
-    string returnValueS = "returnValue";
-    bool outParamsHasOpt = false;
-
-    if(ret)
+    for (const auto& q : paramList)
     {
-        //
-        // Use empty scope to get full qualified names in types used with future declarations.
-        //
-        futureOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring ));
+        string paramName = fixKwd(q->name());
+        StringList metaData = q->getMetaData();
 
-        // TODO: we need TypeContextInParam to get the view-type behavior.
-        lambdaOutParams.push_back(typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring | TypeContextInParam));
-
-        outParamsHasOpt |= p->returnIsOptional();
-    }
-
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        string paramName = fixKwd((*q)->name());
-        StringList metaData = (*q)->getMetaData();
-
-        if((*q)->isOutParam())
+        if(q->isOutParam())
         {
-            //
-            // Use empty scope to get full qualified names in types used with future declarations.
-            //
-            futureOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), "", metaData, _useWstring));
-            lambdaOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), "", metaData,
-                                                   _useWstring | TypeContextInParam));
+            string outputTypeString = outputTypeToString(q->type(), q->optional(), interfaceScope, metaData, _useWstring);
 
-            string outputTypeString = outputTypeToString((*q)->type(), (*q)->optional(), interfaceScope, metaData,
-                                                         _useWstring);
-
-            params.push_back(outputTypeString);
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
-            paramsImplDecl.push_back(outputTypeString + ' ' +  paramPrefix + (*q)->name());
-
-            outParamsHasOpt |= (*q)->optional();
-
-            if((*q)->name() == "returnValue")
-            {
-                returnValueS = "_returnValue";
-            }
+            paramsImplDecl.push_back(outputTypeString + ' ' +  paramPrefix + q->name());
         }
         else
         {
-            string typeString = inputTypeToString((*q)->type(), (*q)->optional(), interfaceScope, metaData,
-                                                  _useWstring);
+            string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, metaData, _useWstring);
 
-            params.push_back(typeString);
             paramsDecl.push_back(typeString + ' ' + paramName);
-            paramsImplDecl.push_back(typeString + ' ' +  paramPrefix + (*q)->name());
+            paramsImplDecl.push_back(typeString + ' ' +  paramPrefix + q->name());
 
-            inParamsS.push_back(typeString);
             inParamsDecl.push_back(typeString + ' ' + paramName);
-            inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + (*q)->name());
+            inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name());
+            inParamsImpl.push_back(paramPrefix + q->name());
         }
     }
 
@@ -1707,8 +1686,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string contextDef = "const " + getUnqualified("::Ice::Context&", interfaceScope) + " " + contextParam;
     const string contextDecl = contextDef + " = " + getUnqualified("::Ice::noExplicitContext", interfaceScope);
 
-    string futureT = createResultType(p, interfaceScope, _useWstring);
-    string futureTAbsolute = createResultType(p, "", _useWstring);
+    string futureT = createOutgoingAsyncTypeParam(futureOutParams);
+    string futureTAbsolute = createOutgoingAsyncTypeParam(createOutgoingAsyncParams(p, "", _useWstring));
+    string lambdaT = createOutgoingAsyncTypeParam(lambdaOutParams);
 
     const string deprecateSymbol = getDeprecateSymbol(p, interface);
 
@@ -1747,28 +1727,26 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else if (futureOutParams.size() > 1)
     {
-        C << "auto _result = ";
+        C << "auto result = ";
     }
 
+    // We call makePromiseOutgoing with the "sync" parameter set to true; the Promise/future implementation later on
+    // calls makePromiseOutgoing with this parameter set to false. This parameter is useful for collocated calls.
     C << "::IceInternal::makePromiseOutgoing<" << futureT << ">";
-
     C << spar << "true, this" << "&" + interface->name() + "Prx::_iceI_" + name;
-    for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
-    {
-        C << paramPrefix + (*q)->name();
-    }
+    C << inParamsImpl;
     C << "context" << epar << ".get();";
     if (futureOutParams.size() > 1)
     {
         int index = ret ? 1 : 0;
-        for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+        for (const auto& q : outParams)
         {
-            C << nl << paramPrefix << (*q)->name() << " = ";
-            C << condMove(isMovable((*q)->type()), "::std::get<" + std::to_string(index++) + ">(_result)") << ";";
+            C << nl << paramPrefix << q->name() << " = ";
+            C << condMove(isMovable(q->type()), "::std::get<" + std::to_string(index++) + ">(result)") << ";";
         }
         if(ret)
         {
-            C << nl << "return " + condMove(isMovable(ret), "::std::get<0>(_result)") + ";";
+            C << nl << "return " + condMove(isMovable(ret), "::std::get<0>(result)") + ";";
         }
     }
     C << eb;
@@ -1796,21 +1774,18 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "return ::IceInternal::makePromiseOutgoing<" << futureT << ">" << spar;
     C << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
-    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
-    {
-        C << paramPrefix + (*q)->name();
-    }
+    C << inParamsImpl;
     C << "context" << epar << ";";
     C << eb;
 
     //
     // Lambda based asynchronous operation
     //
-    bool lambdaCustomOut = (lambdaOutParams != futureOutParams);
 
     const string responseParam = escapeParam(inParams, "response");
     const string exParam = escapeParam(inParams, "ex");
     const string sentParam = escapeParam(inParams, "sent");
+    const string lambdaResponse = createLambdaResponse(p, _useWstring | TypeContextInParam);
 
     H << sp;
     if(comment)
@@ -1826,166 +1801,120 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl;
     H << deprecateSymbol;
     H << "::std::function<void()>";
-    H << nl << name << "Async(";
+
+    // TODO: need "nl" version of spar/epar
+    H << nl << name << "Async" << spar;
     H.useCurrentPosAsIndent();
-    if(!inParamsDecl.empty())
-    {
-        for(vector<string>::const_iterator q = inParamsDecl.begin(); q != inParamsDecl.end(); ++q)
-        {
-            if(q != inParamsDecl.begin())
-            {
-                H << " ";
-            }
+    H << inParamsDecl;
 
-            H << *q << ",";
-        }
-        H << nl;
-    }
-
-    H << "::std::function<void" << spar << lambdaOutParams << epar << "> " << responseParam << ",";
-    H << nl << "::std::function<void(::std::exception_ptr)> " << exParam << " = nullptr,";
-    H << nl << "::std::function<void(bool)> " << sentParam << " = nullptr,";
-    H << nl << contextDecl << ") const;";
-
+    H << lambdaResponse + " " + responseParam;
+    H << "::std::function<void(::std::exception_ptr)> " + exParam + " = nullptr";
+    H << "::std::function<void(bool)> " + sentParam + " = nullptr";
+    H << contextDecl << epar << " const;";
     H.restoreIndent();
 
     C << sp;
     C << nl << "::std::function<void()>";
-    C << nl << scoped << name << "Async(";
+    C << nl << scoped << name << "Async" << spar;
     C.useCurrentPosAsIndent();
-    if (!inParamsImplDecl.empty())
-    {
-        for (vector<string>::const_iterator q = inParamsImplDecl.begin(); q != inParamsImplDecl.end(); ++q)
-        {
-            if (q != inParamsImplDecl.begin())
-            {
-                C << " ";
-            }
-            C << *q << ",";
-        }
-        C << nl;
-    }
-
-    C << "::std::function<void " << spar << lambdaOutParams << epar << "> response,";
-    C << nl << "::std::function<void(::std::exception_ptr)> ex,";
-    C << nl << "::std::function<void(bool)> sent,";
-    C << nl << "const ::Ice::Context& context) const";
+    C << inParamsImplDecl;
+    C << lambdaResponse + " response";
+    C << "::std::function<void(::std::exception_ptr)> ex";
+    C << "::std::function<void(bool)> sent";
+    C << "const ::Ice::Context& context" << epar << " const";
     C.restoreIndent();
 
-    if(lambdaCustomOut)
+    C << sb;
+    if (lambdaOutParams.size() > 1)
     {
-        //
-        // "Custom" implementation in .cpp file
-        //
+        C << nl << "auto responseCb = [response = ::std::move(response)]("
+            << lambdaT << "&& result)";
         C << sb;
-
-        C << nl << "static constexpr ::std::string_view operationName = \"" << name << "\";";
-        C << sp;
-
-        if(p->returnsData())
-        {
-            C << nl << "_checkTwowayOnly(operationName);";
-        }
-
-        C << nl << "::std::function<void(::Ice::InputStream*)> read;";
-        C << nl << "if(response)";
-        C << sb;
-        C << nl << "read = [response](::Ice::InputStream* istr)";
-        C << sb;
-        C << nl << "istr->startEncapsulation();";
-        // TODO: we need TypeContextInParam to get the view-type behavior.
-        writeAllocateCode(C, outParams, p, true, interfaceScope, _useWstring | TypeContextInParam);
-        writeUnmarshalCode(C, outParams, p, true, _useWstring | TypeContextInParam);
-
-        if(p->returnsClasses(false))
-        {
-            C << nl << "istr->readPendingValues();";
-        }
-        C << nl << "istr->endEncapsulation();";
-        C << nl << "try" << sb;
-        C << nl << "response" << spar;
-        if(ret)
-        {
-            C << "ret";
-        }
-        for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
-        {
-            C << fixKwd(paramPrefix + (*q)->name());
-        }
-        C << epar << ";";
-        C << eb;
-        C << nl << "catch(...)";
-        C << sb;
-        C << nl << "throw ::std::current_exception();";
-        C << eb;
+        C << nl << "::std::apply(::std::move(response), ::std::move(result));";
         C << eb << ";";
-        C << eb;
-        C << nl << "auto outAsync = ::std::make_shared<::IceInternal::CustomLambdaOutgoing>(";
-        C << "*this, read, ex, sent);";
-        C << sp;
-
-        C << nl << "outAsync->invoke(operationName, ";
-        C << operationModeToString(p->sendMode()) << ", " << opFormatTypeToString(p) << ", context,";
-        C.inc();
-        C << nl;
-
-        writeInParamsLambda(C, p, inParams, interfaceScope);
-        C << "," << nl;
-        throwUserExceptionLambda(C, p->throws(), interfaceScope);
-
-        C.dec();
-        C << ");";
-        C << nl << "return [outAsync]() { outAsync->cancel(); };";
-        C << eb;
     }
-    else
+
+    C << nl << "return ::IceInternal::makeLambdaOutgoing<" << lambdaT << ">" << spar;
+
+    C << "std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")"
+        << "std::move(ex)"
+        << "std::move(sent)"
+        << "this";
+    C << string("&" + getUnqualified(scoped, interfaceScope.substr(2)) + lambdaImplPrefix + name);
+    C << inParamsImpl;
+    C << "context" << epar << ";";
+    C << eb;
+
+    // Implementation
+
+    emitOperationImpl(p, futureImplPrefix, futureOutParams);
+
+    if (lambdaImplPrefix != futureImplPrefix)
     {
-        //
-        // Simple implementation in .cpp file
-        //
+        emitOperationImpl(p, lambdaImplPrefix, lambdaOutParams);
+    }
+}
 
-        C << sb;
-        if(futureOutParams.size() > 1)
-        {
-            C << nl << "auto _responseCb = [_response = ::std::move(" << responseParam << ")]("
-                << futureT << "&& _result)";
-            C << sb;
-            C << nl << "::std::apply(::std::move(_response), ::std::move(_result));";
-            C << eb << ";";
-        }
+void
+Slice::Gen::ProxyVisitor::emitOperationImpl(
+    const OperationPtr& p,
+    const string& prefix,
+    const std::vector<std::string>& outgoingAsyncParams)
+{
+    string name = p->name();
+    InterfaceDefPtr interface = p->interface();
+    string interfaceScope = fixKwd(interface->scope());
 
-        C << nl << "return ::IceInternal::makeLambdaOutgoing<" << futureT << ">" << spar;
+    TypePtr ret = p->returnType();
 
-        C << "std::move(" + (futureOutParams.size() > 1 ? string("_responseCb") : "response") + ")"
-          << "std::move(ex)"
-          << "std::move(sent)"
-          << "this";
-        C << string("&" + getUnqualified(scoped, interfaceScope.substr(2)) + "_iceI_" + name);
-        for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
-        {
-            C << paramPrefix + (*q)->name();
-        }
-        C << "context" << epar << ";";
-        C << eb;
+    bool retIsOpt = p->returnIsOptional();
+    string retS = returnTypeToString(ret, retIsOpt, interfaceScope, p->getMetaData(), _useWstring);
+    string retSImpl = returnTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring);
+
+    vector<string> inParamsS;
+    vector<string> inParamsImplDecl;
+
+    ParamDeclList inParams = p->inParameters();
+    ParamDeclList outParams = p->outParameters();
+
+    bool outParamsHasOpt = false;
+
+    if (ret)
+    {
+        outParamsHasOpt |= p->returnIsOptional();
+    }
+    outParamsHasOpt |=
+        std::find_if(
+            outParams.begin(),
+            outParams.end(),
+            [](const ParamDeclPtr& q) { return q->optional(); }) != outParams.end();
+
+    for (const auto& q : inParams)
+    {
+        string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, q->getMetaData(), _useWstring);
+
+        inParamsS.push_back(typeString);
+        inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name());
     }
 
-    //
-    // Private implementation
-    //
+    string scoped = fixKwd(interface->scope() + interface->name() + "Prx" + "::").substr(2);
+
+    string returnT = createOutgoingAsyncTypeParam(outgoingAsyncParams);
+
+    string implName = prefix + name;
 
     H << sp;
     H << nl << "/// \\cond INTERNAL";
-    H << nl << "void _iceI_" << name << spar;
-    H << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>&";
+    H << nl << "void " << implName << spar;
+    H << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + returnT + ">>&";
     H << inParamsS;
     H << ("const " + getUnqualified("::Ice::Context&", interfaceScope));
     H << epar << " const;";
     H << nl << "/// \\endcond";
 
     C << sp;
-    C << nl << "/// \\cond INTERNAL";
-    C << nl << "void" << nl << scoped << "_iceI_" << name << spar;
-    C << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>& outAsync";
+    C << nl << "void" << nl << scoped << implName << spar;
+    C << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + returnT + ">>& outAsync";
     C << inParamsImplDecl << ("const " + getUnqualified("::Ice::Context&", interfaceScope) + " context");
     C << epar << " const";
     C << sb;
@@ -2005,7 +1934,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << "," << nl;
     throwUserExceptionLambda(C, p->throws(), interfaceScope);
 
-    if(futureOutParams.size() > 1)
+    if(outgoingAsyncParams.size() > 1)
     {
         //
         // Generate a read method if there are more than one ret/out parameter. If there's
@@ -2014,8 +1943,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", interfaceScope) << " istr)";
         C << sb;
-        C << nl << futureT << " v;";
-        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextTuple, "", returnValueS, "v");
+        C << nl << returnT << " v;";
+        // The "ret" parameter (the one before last) is not used with tuples.
+        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextTuple, "", "", "v");
 
         if(p->returnsClasses(false))
         {
@@ -2055,7 +1985,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C.dec();
     C << ");" << eb;
-    C << nl << "/// \\endcond";
 }
 
 Slice::Gen::DataDefVisitor::DataDefVisitor(
