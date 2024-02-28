@@ -99,85 +99,6 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
     out << nl << s << ' ' << fixedName << ';';
 }
 
-// This function is used only for unmarshaling.
-void
-writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string& fixedName, const StringList& metaData,
-                  const string& obj = "")
-{
-    string objPrefix = obj.empty() ? obj : obj + ".";
-    string paramName = objPrefix + fixedName;
-    string escapedParamName = objPrefix + fixedName + "_tmp_";
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
-    {
-        string seqType = findMetaData(metaData, TypeContextInParam);
-        if(seqType.empty())
-        {
-            seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
-        }
-
-        if(seqType == "%array")
-        {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if(builtin &&
-               builtin->kind() != Builtin::KindByte &&
-               builtin->kind() != Builtin::KindString &&
-               builtin->kind() != Builtin::KindObject &&
-               builtin->kind() != Builtin::KindObjectProxy)
-            {
-                if(optional)
-                {
-                    out << nl << "if(" << escapedParamName << ")";
-                    out << sb;
-                    out << nl << paramName << " = " << escapedParamName << "->second;";
-                    out << eb;
-                }
-                else
-                {
-                    out << nl << paramName << " = " << escapedParamName << ".second;";
-                }
-            }
-            else if(!builtin ||
-                    builtin->kind() == Builtin::KindString ||
-                    builtin->kind() == Builtin::KindObject ||
-                    builtin->kind() == Builtin::KindObjectProxy)
-            {
-                if(optional)
-                {
-                    out << nl << "if(" << escapedParamName << ")";
-                    out << sb;
-                    out << nl << paramName << ".emplace();";
-                    out << nl << "if(!" << escapedParamName << "->empty())";
-                    out << sb;
-                    out << nl << paramName << "->first" << " = &(*" << escapedParamName << ")[0];";
-                    out << nl << paramName << "->second" << " = " << paramName << "->first + " << escapedParamName
-                        << "->size();";
-                    out << eb;
-                    out << nl << "else";
-                    out << sb;
-                    out << nl << paramName << "->first" << " = " << paramName << "->second" << " = 0;";
-                    out << eb;
-                    out << eb;
-                }
-                else
-                {
-                    out << nl << "if(!" << escapedParamName << ".empty())";
-                    out << sb;
-                    out << nl << paramName << ".first" << " = &" << escapedParamName << "[0];";
-                    out << nl << paramName << ".second" << " = " << paramName << ".first + " << escapedParamName
-                        << ".size();";
-                    out << eb;
-                    out << nl << "else";
-                    out << sb;
-                    out << nl << paramName << ".first" << " = " << paramName << ".second" << " = 0;";
-                    out << eb;
-                }
-            }
-        }
-    }
-}
-
 void
 writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
                             bool prepend, int typeCtx, const string& customStream = "", const string& retP = "",
@@ -850,72 +771,6 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional, int tag, const string& param,
-                                 bool marshal, const StringList& metaData, int typeCtx, const string& customStream,
-                                 bool pointer, const string& obj)
-{
-    string objPrefix = obj.empty() ? obj : obj + ".";
-
-    ostringstream os;
-    if(customStream.empty())
-    {
-        os << (marshal ? "ostr" : "istr");
-    }
-    else
-    {
-        os << customStream;
-    }
-
-    if(pointer)
-    {
-        os << "->";
-    }
-    else
-    {
-        os << '.';
-    }
-
-    if(marshal)
-    {
-        os << "write(";
-    }
-    else
-    {
-        os << "read(";
-    }
-
-    if(optional)
-    {
-        os << tag << ", ";
-    }
-
-    string func = os.str();
-    if(!marshal)
-    {
-        SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        if(seq)
-        {
-            string seqType = findMetaData(metaData, typeCtx);
-            if(seqType == "%array")
-            {
-                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-                if(builtin && builtin->kind() == Builtin::KindByte)
-                {
-                    out << nl << func << objPrefix << param << ");";
-                    return;
-                }
-
-                out << nl << func << objPrefix << param << "_tmp_);";
-                writeParamEndCode(out, seq, optional, param, metaData, obj);
-                return;
-            }
-        }
-    }
-
-    out << nl << func << objPrefix << param << ");";
-}
-
-void
 Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
                         const string& customStream, const string& retP)
 {
@@ -951,16 +806,6 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
         writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), clScope, returnValueS, op->getMetaData(),
                                typeCtx);
     }
-}
-
-void
-Slice::writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output& C,
-                                               const string& holder,
-                                               const DataMemberPtr& p,
-                                               bool marshal)
-{
-    writeMarshalUnmarshalCode(C, p->type(), p->optional(), p->tag(), holder + fixKwd(p->name()), marshal,
-                              p->getMetaData());
 }
 
 void
@@ -1175,17 +1020,11 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
         {
             string::size_type pos = str.find(':', prefix.size());
 
-            //
             // If the form is cpp:type:<...> the data after cpp:type:
             // is returned.
             // If the form is cpp:view-type:<...> the data after the
             // cpp:view-type: is returned
             // If the form is cpp:array, the return value is % followed by the string after cpp:.
-            //
-            // The priority of the metadata is as follows:
-            // 1: array view-type for "view" parameters
-            // 2: unscoped
-            //
 
             if(pos != string::npos)
             {

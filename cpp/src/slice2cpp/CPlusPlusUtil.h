@@ -23,6 +23,8 @@ void printVersionCheck(::IceUtilInternal::Output&);
 void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
 
 const int TypeContextInParam = 1;
+const int TypeContextArrayParam = 2;
+const int TypeContextViewParam = 4;
 const int TypeContextUseWstring = 16;
 const int TypeContextTuple = 32;
 
@@ -46,10 +48,6 @@ std::string opFormatTypeToString(const OperationPtr&);
 
 std::string fixKwd(const std::string&);
 
-void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, int, const std::string&,
-                               bool, const StringList& = StringList(), int = 0, const std::string& = "",
-                               bool = true, const std::string& = "");
-
 void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
                       int = 0, const std::string& = "", const std::string& = "");
 void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
@@ -57,7 +55,6 @@ void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const 
 void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
                        int = 0, const std::string& = "");
 
-void writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, bool);
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool);
 void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, int);
