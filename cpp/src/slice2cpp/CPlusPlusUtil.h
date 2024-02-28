@@ -48,10 +48,8 @@ std::string opFormatTypeToString(const OperationPtr&);
 
 std::string fixKwd(const std::string&);
 
-void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
-                      int = 0, const std::string& = "", const std::string& = "");
-void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
-                        const std::string& = "", const std::string& = "", const std::string& = "");
+void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
+void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
 void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
                        int = 0, const std::string& = "");
 

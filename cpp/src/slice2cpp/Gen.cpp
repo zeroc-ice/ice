@@ -180,6 +180,7 @@ toDllMemberExport(const string& dllExport)
     }
 }
 
+// Marshals the parameters of an outgoing request.
 void
 writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const ParamDeclList& inParams,
                     const string& scope)
@@ -192,7 +193,7 @@ writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const Par
     {
         C << "[&](" << getUnqualified("::Ice::OutputStream*", scope) << " ostr)";
         C << sb;
-        writeMarshalCode(C, inParams, 0, true, TypeContextInParam);
+        writeMarshalCode(C, inParams, nullptr, TypeContextInParam);
         if(p->sendsClasses(false))
         {
             C << nl << "ostr->writePendingValues();";
@@ -1943,8 +1944,8 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", interfaceScope) << " istr)";
         C << sb;
         C << nl << returnT << " v;";
-        // The "ret" parameter (the one before last) is not used with tuples.
-        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextTuple, "", "", "v");
+
+        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextTuple);
 
         if(p->returnsClasses(false))
         {
@@ -3082,7 +3083,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C.dec();
         C << sb;
         C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
-        writeMarshalCode(C, outParams, p, true, 0, "ostr");
+        writeMarshalCode(C, outParams, p);
         if(p->returnsClasses(false))
         {
             C << nl << "ostr->writePendingValues();";
@@ -3183,7 +3184,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             if(ret || !outParams.empty())
             {
                 C << nl << "auto ostr = inS.startWriteParams();";
-                writeMarshalCode(C, outParams, p, true);
+                writeMarshalCode(C, outParams, p);
                 if(p->returnsClasses(false))
                 {
                     C << nl << "ostr->writePendingValues();";
@@ -3205,7 +3206,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             C << nl << "auto responseCB = [inA]" << spar << responseParamsDecl << epar;
             C << sb;
             C << nl << "auto ostr = inA->startWriteParams();";
-            writeMarshalCode(C, outParams, p, true);
+            writeMarshalCode(C, outParams, p);
             if(p->returnsClasses(false))
             {
                 C << nl << "ostr->writePendingValues();";

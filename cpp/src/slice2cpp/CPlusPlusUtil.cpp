@@ -101,12 +101,10 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
 
 void
 writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
-                            bool prepend, int typeCtx, const string& customStream = "", const string& retP = "",
-                            const string& obj = "")
+                            bool prepend, int typeCtx, const string& customStream = "", const string& retP = "")
 {
     string prefix = prepend ? paramPrefix : "";
     string returnValueS = retP.empty() ? string("ret") : retP;
-    string objPrefix = obj.empty() ? obj : obj + ".";
 
     string stream = customStream;
     if(stream.empty())
@@ -152,22 +150,22 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             if (tuple)
             {
                 auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
-                out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
+                out << "::std::get<" + std::to_string(index) + ">(v)";
             }
             else
             {
-                out << objPrefix + fixKwd(prefix + (*p)->name());
+                out << fixKwd(prefix + (*p)->name());
             }
         }
         if(op && op->returnType() && !op->returnIsOptional())
         {
             if (tuple)
             {
-                out << "::std::get<0>(" + obj + ")";
+                out << "::std::get<0>(v)";
             }
             else
             {
-                out << objPrefix + returnValueS;
+                out << returnValueS;
             }
         }
         out << epar << ";";
@@ -237,11 +235,11 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 {
                     if (tuple)
                     {
-                        out << "::std::get<0>(" + obj + ")";
+                        out << "::std::get<0>(v)";
                     }
                     else
                     {
-                        out << objPrefix + returnValueS;
+                        out << returnValueS;
                     }
                     checkReturnType = false;
                 }
@@ -249,22 +247,22 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 if (tuple)
                 {
                     auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
-                    out << "::std::get<" + std::to_string(index) + ">(" + obj + ")";
+                    out << "::std::get<" + std::to_string(index) + ">(v)";
                 }
                 else
                 {
-                    out << objPrefix + fixKwd(prefix + (*p)->name());
+                    out << fixKwd(prefix + (*p)->name());
                 }
             }
             if(checkReturnType)
             {
                 if (tuple)
                 {
-                    out << "::std::get<0>(" + obj + ")";
+                    out << "::std::get<0>(v)";
                 }
                 else
                 {
-                    out << objPrefix + returnValueS;
+                    out << returnValueS;
                 }
             }
         }
@@ -771,17 +769,15 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
-                        const string& customStream, const string& retP)
+Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, int typeCtx)
 {
-    writeMarshalUnmarshalParams(out, params, op, true, prepend, typeCtx, customStream, retP);
+    writeMarshalUnmarshalParams(out, params, op, true, /*prepend*/ true, typeCtx, "");
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx,
-                          const string& customStream, const string& retP, const string& obj)
+Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
 {
-    writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx, customStream, retP, obj);
+    writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx, "", "");
 }
 
 void
