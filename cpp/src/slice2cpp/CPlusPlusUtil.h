@@ -49,7 +49,7 @@ std::string opFormatTypeToString(const OperationPtr&);
 std::string fixKwd(const std::string&);
 
 void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);
-void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
+void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);
 void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, const std::string&, int);
 
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);

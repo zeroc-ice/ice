@@ -100,11 +100,13 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
 }
 
 void
-writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal, int typeCtx)
+writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal)
 {
     const string returnValueS = "ret";
     const string stream = marshal ? "ostr" : "istr";
-    bool tuple = (typeCtx & TypeContextTuple) != 0;
+
+    // True when unmarshaling a tuple response.
+    bool tuple = !marshal && op && (params.size() + (op->returnType() ? 1 : 0)) > 1;
 
     //
     // Marshal non optional parameters.
@@ -763,13 +765,13 @@ Slice::fixKwd(const string& name)
 void
 Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op)
 {
-    writeMarshalUnmarshalParams(out, params, op, true, 0);
+    writeMarshalUnmarshalParams(out, params, op, true);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, int typeCtx)
+Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op)
 {
-    writeMarshalUnmarshalParams(out, params, op, false, typeCtx);
+    writeMarshalUnmarshalParams(out, params, op, false);
 }
 
 void

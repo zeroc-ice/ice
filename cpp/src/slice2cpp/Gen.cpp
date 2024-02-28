@@ -1934,7 +1934,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     C << "," << nl;
     throwUserExceptionLambda(C, p->throws(), interfaceScope);
 
-    if(outgoingAsyncParams.size() > 1)
+    if (outgoingAsyncParams.size() > 1)
     {
         //
         // Generate a read method if there are more than one ret/out parameter. If there's
@@ -1945,7 +1945,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         C << sb;
         C << nl << returnT << " v;";
 
-        writeUnmarshalCode(C, outParams, p, TypeContextTuple);
+        writeUnmarshalCode(C, outParams, p);
 
         if(p->returnsClasses(false))
         {
