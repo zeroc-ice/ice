@@ -23,9 +23,6 @@ void printVersionCheck(::IceUtilInternal::Output&);
 void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
 
 const int TypeContextInParam = 1;
-const int TypeContextAMIEnd = 2;
-const int TypeContextAMIPrivateEnd = 4;
-const int TypeContextAMICallPrivateEnd = 8;
 const int TypeContextUseWstring = 16;
 const int TypeContextTuple = 32;
 

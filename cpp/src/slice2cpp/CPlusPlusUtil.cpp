@@ -20,24 +20,6 @@ using namespace IceUtilInternal;
 namespace
 {
 
-string toTemplateArg(const string& arg)
-{
-    if(arg.empty())
-    {
-        return arg;
-    }
-    string fixed = arg;
-    if(arg[0] == ':')
-    {
-        fixed = " " + fixed;
-    }
-    if(fixed[fixed.length() - 1] == '>')
-    {
-        fixed = fixed + " ";
-    }
-    return fixed;
-}
-
 string
 toOptional(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
 {
@@ -58,9 +40,6 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
     string strType = findMetaData(metaData, typeCtx);
     if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
     {
-        // TODO: if we're still using TypeContextAMIPrivateEnd, we should give it a better name.
-        // TODO: should be something like the following line but doesn't work currently
-        // return (typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd)) ? "::std::wstring_view" : "::std::wstring";
         return "::std::wstring";
     }
     else if(strType != "" && strType != "string")
@@ -71,7 +50,6 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
     else
     {
         return "::std::string";
-        // return (typeCtx & TypeContextInParam) ? "::std::string_view" : "::std::string";
     }
 }
 
@@ -84,29 +62,6 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
         if(seqType == "%array")
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if(typeCtx & TypeContextAMIPrivateEnd)
-            {
-                if(builtin && builtin->kind() == Builtin::KindByte)
-                {
-                    string s = typeToString(seq->type(), scope);
-                    return "::std::pair<const " + s + "*, const " + s + "*>";
-                }
-                else if(builtin &&
-                        builtin->kind() != Builtin::KindString &&
-                        builtin->kind() != Builtin::KindObject &&
-                        builtin->kind() != Builtin::KindObjectProxy)
-                {
-                    string s = toTemplateArg(typeToString(builtin, scope));
-                    return "::std::pair< ::IceUtil::ScopedArray<" + s + ">, " +
-                        "::std::pair<const " + s + "*, const " + s + "*> >";
-                }
-                else
-                {
-                    string s = toTemplateArg(typeToString(seq->type(), scope, seq->typeMetaData(),
-                                                          inWstringModule(seq) ? TypeContextUseWstring : 0));
-                    return "::std::vector<" + s + '>';
-                }
-            }
             string s = typeToString(seq->type(), scope, seq->typeMetaData(),
                                     typeCtx | (inWstringModule(seq) ? TypeContextUseWstring : 0));
             return "::std::pair<const " + s + "*, const " + s + "*>";
@@ -956,7 +911,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
     if(!marshal)
     {
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-        if(seq && !(typeCtx & TypeContextAMIPrivateEnd))
+        if(seq)
         {
             string seqType = findMetaData(metaData, typeCtx);
             if(seqType == "%array")
@@ -1268,7 +1223,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             {
                 string ss = str.substr(prefix.size());
 
-                if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
+                if(typeCtx & TypeContextInParam)
                 {
                     if(ss.find("view-type:") == 0)
                     {
@@ -1281,7 +1236,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                     return str.substr(pos + 1);
                 }
             }
-            else if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd))
+            else if(typeCtx & TypeContextInParam)
             {
                 string ss = str.substr(prefix.size());
                 if(ss == "array")
