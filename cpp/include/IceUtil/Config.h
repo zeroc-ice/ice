@@ -221,8 +221,6 @@ private:
     const noncopyable& operator=(const noncopyable&);
 };
 
-typedef unsigned char Byte;
-
 //
 // Int64 typedef and ICE_INT64 macro for Int64 literal values
 //

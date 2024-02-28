@@ -62,7 +62,7 @@ private:
     bool postWrite(Buffer&);
 
     bool readBuffered(Buffer::Container::size_type);
-    void prepareWriteHeader(Ice::Byte, Buffer::Container::size_type);
+    void prepareWriteHeader(std::uint8_t, Buffer::Container::size_type);
 
     friend class WSConnector;
     friend class WSAcceptor;

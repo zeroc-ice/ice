@@ -33,8 +33,8 @@ public:
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
 
-    virtual void opByteAsync(Ice::Byte, Ice::Byte,
-                             ::std::function<void(Ice::Byte, std::uint8_t)>,
+    virtual void opByteAsync(std::uint8_t, std::uint8_t,
+                             ::std::function<void(std::uint8_t, std::uint8_t)>,
                              ::std::function<void(std::exception_ptr)>,
                              const Ice::Current&);
 
@@ -297,7 +297,7 @@ public:
                                 ::std::function<void(std::exception_ptr)>,
                                 const Ice::Current&);
 
-    virtual void opByte1Async(Ice::Byte,
+    virtual void opByte1Async(std::uint8_t,
                               ::std::function<void(std::uint8_t)>,
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&);

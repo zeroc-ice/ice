@@ -313,7 +313,7 @@ public:
         assert(v >= 0);
         if(v > 254)
         {
-            write(Byte(255));
+            write(std::uint8_t(255));
             write(v);
         }
         else
@@ -333,7 +333,7 @@ public:
         assert(v >= 0);
         if(v > 254)
         {
-            *dest++ = Byte(255);
+            *dest++ = std::uint8_t(255);
             write(v, dest);
         }
         else

@@ -1160,7 +1160,7 @@ Ice::OutputStream::EncapsEncoder11::startSlice(string_view typeId, int compactId
         _current->sliceFlags |= FLAG_IS_LAST_SLICE; // This is the last slice.
     }
 
-    _stream->write(Byte(0)); // Placeholder for the slice flags
+    _stream->write(std::uint8_t(0)); // Placeholder for the slice flags
 
     //
     // For instance slices, encode the flag and the type ID either as a

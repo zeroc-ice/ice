@@ -191,7 +191,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 }
 
 void
-CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, Byte, bool amd)
+CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, uint8_t, bool amd)
 {
     OutgoingAsyncBasePtr outAsync;
     {

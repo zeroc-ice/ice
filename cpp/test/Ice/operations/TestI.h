@@ -27,8 +27,8 @@ public:
 
     virtual void opVoid(const Ice::Current&);
 
-    virtual std::uint8_t opByte(Ice::Byte,
-                             Ice::Byte,
+    virtual std::uint8_t opByte(std::uint8_t,
+                             std::uint8_t,
                              std::uint8_t&,
                              const Ice::Current&);
 
@@ -262,7 +262,7 @@ public:
 
     virtual void opDerived(const Ice::Current&);
 
-    virtual std::uint8_t opByte1(Ice::Byte, const Ice::Current&);
+    virtual std::uint8_t opByte1(std::uint8_t, const Ice::Current&);
 
     virtual std::int16_t opShort1(std::int16_t, const Ice::Current&);
 

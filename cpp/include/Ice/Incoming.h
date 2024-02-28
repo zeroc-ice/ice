@@ -75,7 +75,7 @@ public:
 
 protected:
 
-    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, std::int32_t);
+    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
     IncomingBase(IncomingBase&);
     IncomingBase(const IncomingBase&) = delete;
 
@@ -110,7 +110,7 @@ class ICE_API Incoming final : public IncomingBase
 {
 public:
 
-    Incoming(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, std::int32_t);
+    Incoming(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
 
     const Ice::Current& getCurrent()
     {

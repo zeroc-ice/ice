@@ -93,7 +93,7 @@ MyDerivedClassI::opVoidAsync(function<void()> response,
 void
 MyDerivedClassI::opByteAsync(uint8_t p1,
                              uint8_t p2,
-                             function<void(Ice::Byte, uint8_t)> response,
+                             function<void(uint8_t, uint8_t)> response,
                              function<void(exception_ptr)>,
                              const Ice::Current&)
 {

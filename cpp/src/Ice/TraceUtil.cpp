@@ -123,7 +123,7 @@ printRequestHeader(ostream& s, InputStream& stream)
     }
 }
 
-static Byte
+static uint8_t
 printHeader(ostream& s, InputStream& stream)
 {
     uint8_t magicNumber;
@@ -329,7 +329,7 @@ printReply(ostream& s, InputStream& stream)
     }
 }
 
-static Byte
+static uint8_t
 printMessage(ostream& s, InputStream& stream)
 {
     uint8_t type = printHeader(s, stream);
