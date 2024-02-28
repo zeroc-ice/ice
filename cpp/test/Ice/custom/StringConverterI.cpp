@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Ice;
 
-Byte*
+uint8_t*
 Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
@@ -34,7 +34,7 @@ Test::StringConverterI::fromUTF8(const uint8_t* sourceStart, const uint8_t* sour
     }
 }
 
-Byte*
+uint8_t*
 Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
 {
     wstring ws(sourceStart, sourceEnd);

@@ -654,7 +654,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             if(dataBuffer->cbBuffer > remaining)
             {
                 _readUnprocessed.b.resize(dataBuffer->cbBuffer - remaining);
-                memcpy(_readUnprocessed.b.begin(), reinterpret_cast<Byte*>(dataBuffer->pvBuffer) + remaining,
+                memcpy(_readUnprocessed.b.begin(), reinterpret_cast<uint8_t*>(dataBuffer->pvBuffer) + remaining,
                     dataBuffer->cbBuffer - remaining);
             }
         }

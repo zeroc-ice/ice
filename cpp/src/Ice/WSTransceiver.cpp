@@ -98,7 +98,7 @@ int64_t ice_nlltoh(const uint8_t* src)
     // Extract a 64-bit integer in network (big-endian) order.
     //
 #ifdef ICE_BIG_ENDIAN
-    uint8_t* dest = reinterpret_cast<Byte*>(&v);
+    uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -108,7 +108,7 @@ int64_t ice_nlltoh(const uint8_t* src)
     *dest++ = *src++;
     *dest = *src;
 #else
-    uint8_t* dest = reinterpret_cast<Byte*>(&v) + sizeof(int64_t) - 1;
+    uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
     *dest-- = *src++;
     *dest-- = *src++;
     *dest-- = *src++;

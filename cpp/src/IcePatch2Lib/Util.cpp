@@ -596,7 +596,7 @@ IcePatch2Internal::compressBytesToFile(const string& pa, const ByteSeq& bytes, i
         throw runtime_error(reason);
     }
 
-    BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[static_cast<size_t>(pos)]),
+    BZ2_bzWrite(&bzError, bzFile, const_cast<uint8_t*>(&bytes[static_cast<size_t>(pos)]),
                 static_cast<int>(bytes.size()) - pos);
     if(bzError != BZ_OK)
     {
@@ -895,7 +895,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
                 IceInternal::SHA1 hasher;
                 if(relPath.size() != 0)
                 {
-                    hasher.update(reinterpret_cast<const IceUtil::Byte*>(relPath.c_str()), relPath.size());
+                    hasher.update(reinterpret_cast<const uint8_t*>(relPath.c_str()), relPath.size());
                 }
 
                 if(buf.st_size != 0)
@@ -956,7 +956,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
                         bytesLeft -= static_cast<unsigned int>(bytes.size());
                         if(doCompress)
                         {
-                            BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[0]), static_cast<int>(bytes.size()));
+                            BZ2_bzWrite(&bzError, bzFile, const_cast<uint8_t*>(&bytes[0]), static_cast<int>(bytes.size()));
                             if(bzError != BZ_OK)
                             {
                                 string reason = "BZ2_bzWrite failed";
@@ -971,7 +971,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
                             }
                         }
 
-                        hasher.update(reinterpret_cast<IceUtil::Byte*>(&bytes[0]), bytes.size());
+                        hasher.update(reinterpret_cast<uint8_t*>(&bytes[0]), bytes.size());
                     }
 
                     IceUtilInternal::close(fd);

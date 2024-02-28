@@ -83,7 +83,7 @@ public:
             const size_t chunkSize = std::max<size_t>(static_cast<size_t>(sourceEnd - sourceStart) * factor, 4);
             ++factor; // at the next round, we'll allocate more bytes per remaining source character
 
-            targetStart = reinterpret_cast<char*>(buffer.getMoreBytes(chunkSize, reinterpret_cast<Byte*>(targetNext)));
+            targetStart = reinterpret_cast<char*>(buffer.getMoreBytes(chunkSize, reinterpret_cast<uint8_t*>(targetNext)));
             targetEnd = targetStart + chunkSize;
             targetNext = targetStart;
 
@@ -128,7 +128,7 @@ public:
             sourceStart = sourceNext;
         } while (more);
 
-        return reinterpret_cast<Byte*>(targetNext);
+        return reinterpret_cast<uint8_t*>(targetNext);
     }
 
     virtual void fromUTF8(const uint8_t* sourceStart, const uint8_t* sourceEnd, wstring& target) const
@@ -198,7 +198,7 @@ public:
             _buffer.resize(bytesUsed + howMany);
         }
 
-        return const_cast<Byte*>(reinterpret_cast<const uint8_t*>(_buffer.data())) + bytesUsed;
+        return const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(_buffer.data())) + bytesUsed;
     }
 
     void swap(string& other, const uint8_t* tail)
@@ -462,7 +462,7 @@ WindowsStringConverter::WindowsStringConverter(unsigned int cp) :
 {
 }
 
-Byte*
+uint8_t*
 WindowsStringConverter::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
     //
