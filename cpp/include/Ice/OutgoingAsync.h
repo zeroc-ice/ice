@@ -407,9 +407,9 @@ public:
                 {
                     response(std::move(v));
                 }
-                catch (const std::exception& ex)
+                catch (const std::exception& exception)
                 {
-                    this->warning(ex);
+                    this->warning(exception);
                 }
                 catch (...)
                 {
@@ -443,14 +443,13 @@ public:
                 {
                     this->_is.skipEmptyEncapsulation();
                 }
-
                 try
                 {
                     response();
                 }
-                catch (const std::exception& ex)
+                catch (const std::exception& exception)
                 {
-                    this->warning(ex);
+                    this->warning(exception);
                 }
                 catch (...)
                 {
