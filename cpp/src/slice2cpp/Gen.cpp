@@ -541,18 +541,9 @@ writeOpDocSummary(Output& out, const OperationPtr& op, const CommentPtr& doc, Op
     out << nl << " */";
 }
 
-string
-createLambdaResponse(const vector<string>& lambdaOutParams)
-{
-    ostringstream os;
-    Output out(os);
-    out <<  "::std::function<void" << spar << lambdaOutParams << epar << ">";
-    return os.str();
-}
-
 // Returns the client-side result type for an operation - can be void, a single type, or a tuple.
 string
-createReturnType(const vector<string>& elements)
+createOutgoingAsyncTypeParam(const vector<string>& elements)
 {
     if (elements.size() == 0)
     {
@@ -577,7 +568,7 @@ createReturnType(const vector<string>& elements)
 }
 
 vector<string>
-createReturnTypeList(const OperationPtr& p, const string& scope, int typeContext)
+createOutgoingAsyncParams(const OperationPtr& p, const string& scope, int typeContext)
 {
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(), typeContext);
@@ -607,6 +598,15 @@ createReturnTypeList(const OperationPtr& p, const string& scope, int typeContext
         elements.push_back(typeToString(param->type(), param->optional(), scope, param->getMetaData(), typeContext));
     }
     return elements;
+}
+
+string
+createLambdaResponse(const OperationPtr& p, int typeContext)
+{
+    ostringstream os;
+    Output out(os);
+    out <<  "::std::function<void" << spar << createOutgoingAsyncParams(p, "", typeContext) << epar << ">";
+    return os.str();
 }
 
 }
@@ -1661,10 +1661,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> inParamsImplDecl;
     vector<string> inParamsImpl;
 
-    vector<string> futureOutParams = createReturnTypeList(p, "", _useWstring);
-    vector<string> lambdaOutParams = createReturnTypeList(p, "", _useWstring | TypeContextInParam);
-    vector<string> futureReturnTypeList = createReturnTypeList(p, interfaceScope, _useWstring);
-    vector<string> lambdaReturnTypeList = createReturnTypeList(p, interfaceScope, _useWstring | TypeContextInParam);
+    vector<string> futureOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring);
+    vector<string> lambdaOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring | TypeContextInParam);
 
     string futureImplPrefix = "_iceI_";
     string lambdaImplPrefix = "_iceI_";
@@ -1685,16 +1683,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
         if(q->isOutParam())
         {
-            string outputTypeString = outputTypeToString(q->type(), q->optional(), interfaceScope, metaData,
-                                                         _useWstring);
+            string outputTypeString = outputTypeToString(q->type(), q->optional(), interfaceScope, metaData, _useWstring);
 
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
             paramsImplDecl.push_back(outputTypeString + ' ' +  paramPrefix + q->name());
         }
         else
         {
-            string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, metaData,
-                                                  _useWstring);
+            string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, metaData, _useWstring);
 
             paramsDecl.push_back(typeString + ' ' + paramName);
             paramsImplDecl.push_back(typeString + ' ' +  paramPrefix + q->name());
@@ -1711,10 +1707,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string contextDef = "const " + getUnqualified("::Ice::Context&", interfaceScope) + " " + contextParam;
     const string contextDecl = contextDef + " = " + getUnqualified("::Ice::noExplicitContext", interfaceScope);
 
-    string futureT = createReturnType(futureReturnTypeList);
-    string futureTAbsolute = createReturnType(futureOutParams);
-    string lambdaT = createReturnType(lambdaReturnTypeList);
-    string lambdaTAbsolute = createReturnType(lambdaOutParams);
+    string futureT = createOutgoingAsyncTypeParam(futureOutParams);
+    string futureTAbsolute = createOutgoingAsyncTypeParam(createOutgoingAsyncParams(p, "", _useWstring));
+    string lambdaT = createOutgoingAsyncTypeParam(lambdaOutParams);
 
     const string deprecateSymbol = getDeprecateSymbol(p, interface);
 
@@ -1757,8 +1752,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 
     // We call makePromiseOutgoing with the "sync" parameter set to true; the Promise/future implementation later on
-    // calls makePromiseOutgoing with this parameter set to false.
-    // This parameter is useful for collocated calls.
+    // calls makePromiseOutgoing with this parameter set to false. This parameter is useful for collocated calls.
     C << "::IceInternal::makePromiseOutgoing<" << futureT << ">";
     C << spar << "true, this" << "&" + interface->name() + "Prx::_iceI_" + name;
     C << inParamsImpl;
@@ -1812,7 +1806,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string responseParam = escapeParam(inParams, "response");
     const string exParam = escapeParam(inParams, "ex");
     const string sentParam = escapeParam(inParams, "sent");
-    const string lambdaResponse = createLambdaResponse(lambdaOutParams);
+    const string lambdaResponse = createLambdaResponse(p, _useWstring | TypeContextInParam);
 
     H << sp;
     if(comment)
@@ -1874,11 +1868,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     // Implementation
 
-    emitOperationImpl(p, futureImplPrefix, futureReturnTypeList, futureOutParams);
+    emitOperationImpl(p, futureImplPrefix, futureOutParams);
 
     if (lambdaImplPrefix != futureImplPrefix)
     {
-        emitOperationImpl(p, lambdaImplPrefix, lambdaReturnTypeList, lambdaOutParams);
+        emitOperationImpl(p, lambdaImplPrefix, lambdaOutParams);
     }
 }
 
@@ -1886,8 +1880,7 @@ void
 Slice::Gen::ProxyVisitor::emitOperationImpl(
     const OperationPtr& p,
     const string& prefix,
-    const std::vector<std::string>& returnTypeList,
-    const std::vector<std::string>& absReturnTypeList)
+    const std::vector<std::string>& outgoingAsyncParams)
 {
     string name = p->name();
     InterfaceDefPtr interface = p->interface();
@@ -1902,36 +1895,32 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     vector<string> inParamsS;
     vector<string> inParamsImplDecl;
 
-    ParamDeclList paramList = p->parameters();
     ParamDeclList inParams = p->inParameters();
     ParamDeclList outParams = p->outParameters();
 
     bool outParamsHasOpt = false;
 
-    if(ret)
+    if (ret)
     {
         outParamsHasOpt |= p->returnIsOptional();
     }
+    outParamsHasOpt |=
+        std::find_if(
+            outParams.begin(),
+            outParams.end(),
+            [](const ParamDeclPtr& q) { return q->optional(); }) != outParams.end();
 
-    for (const auto& q : paramList)
+    for (const auto& q : inParams)
     {
-        if (q->isOutParam())
-        {
-            outParamsHasOpt |= q->optional();
-        }
-        else
-        {
-            string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, q->getMetaData(), _useWstring);
+        string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, q->getMetaData(), _useWstring);
 
-            inParamsS.push_back(typeString);
-            inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name());
-        }
+        inParamsS.push_back(typeString);
+        inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name());
     }
 
     string scoped = fixKwd(interface->scope() + interface->name() + "Prx" + "::").substr(2);
 
-    string returnT = createReturnType(returnTypeList);
-    string returnTAbsolute = createReturnType(absReturnTypeList);
+    string returnT = createOutgoingAsyncTypeParam(outgoingAsyncParams);
 
     string implName = prefix + name;
 
@@ -1967,7 +1956,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     C << "," << nl;
     throwUserExceptionLambda(C, p->throws(), interfaceScope);
 
-    if(returnTypeList.size() > 1)
+    if(outgoingAsyncParams.size() > 1)
     {
         //
         // Generate a read method if there are more than one ret/out parameter. If there's
