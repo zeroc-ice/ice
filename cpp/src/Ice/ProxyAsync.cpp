@@ -117,7 +117,7 @@ public:
 
     using ProxyFlushBatchAsync::ProxyFlushBatchAsync;
 
-    virtual bool handleSent(bool, bool) override
+    bool handleSent(bool, bool) noexcept override
     {
         this->_promise.set_value();
         return false;
@@ -219,7 +219,7 @@ public:
         };
     }
 
-    virtual bool handleSent(bool done, bool) override
+    bool handleSent(bool done, bool) noexcept override
     {
         if(done)
         {
