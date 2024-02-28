@@ -1964,7 +1964,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", interfaceScope) << " istr)";
         C << sb;
 
-        writeAllocateCode(C, outParams, p, true, interfaceScope, _useWstring);
+        writeAllocateCode(C, outParams, p, interfaceScope, _useWstring);
         writeUnmarshalCode(C, outParams, p, _useWstring);
 
         if(p->returnsClasses(false))
@@ -3137,7 +3137,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     if(!inParams.empty())
     {
         C << nl << "auto istr = inS.startReadParams();";
-        writeAllocateCode(C, inParams, 0, true, interfaceScope, _useWstring | TypeContextInParam);
+        writeAllocateCode(C, inParams, 0, interfaceScope, _useWstring | TypeContextInParam);
         writeUnmarshalCode(C, inParams, 0, _useWstring | TypeContextInParam);
         if(p->sendsClasses(false))
         {
@@ -3162,7 +3162,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            writeAllocateCode(C, outParams, 0, true, interfaceScope, _useWstring);
+            writeAllocateCode(C, outParams, 0, interfaceScope, _useWstring);
             if(ret)
             {
                 C << nl << retS << " ret = ";

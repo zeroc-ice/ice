@@ -50,8 +50,7 @@ std::string fixKwd(const std::string&);
 
 void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
 void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
-void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
-                       int = 0, const std::string& = "");
+void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, const std::string&, int);
 
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool);
