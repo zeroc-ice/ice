@@ -36,8 +36,8 @@ BlobjectI::flushBatch()
 }
 
 void
-BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
-                           std::function<void(bool, const std::vector<Ice::Byte>&)> response,
+BlobjectI::ice_invokeAsync(std::vector<uint8_t> inEncaps,
+                           std::function<void(bool, const std::vector<uint8_t>&)> response,
                            std::function<void(std::exception_ptr)> ex,
                            const Ice::Current& current)
 {
@@ -63,16 +63,16 @@ BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
 
         if(_batchProxy)
         {
-            vector<Ice::Byte> out;
+            vector<uint8_t> out;
             obj->ice_invoke(current.operation, current.mode, inEncaps, out, current.ctx);
-            response(true, vector<Ice::Byte>());
+            response(true, vector<uint8_t>());
         }
         else
         {
             obj->ice_oneway()->ice_invokeAsync(current.operation, current.mode, inEncaps,
-                                               [](bool, const std::vector<Ice::Byte>&) { assert(0); },
+                                               [](bool, const std::vector<uint8_t>&) { assert(0); },
                                                ex,
-                                               [&](bool) { response(true, vector<Ice::Byte>()); },
+                                               [&](bool) { response(true, vector<uint8_t>()); },
                                                current.ctx);
         }
     }

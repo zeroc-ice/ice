@@ -43,18 +43,6 @@ namespace Ice
 
 namespace IceInternal
 {
-}
-
-namespace Ice
-{
-
-/** The mapping for the Slice byte type. */
-typedef unsigned char Byte;
-
-}
-
-namespace IceInternal
-{
 
 ICE_API int getSystemErrno();
 

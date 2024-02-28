@@ -24,14 +24,14 @@ class Request
 public:
 
     Request(Ice::ObjectPrxPtr,
-            const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+            const std::pair<const std::uint8_t*, const std::uint8_t*>&,
             const Ice::Current&,
             bool,
             const Ice::Context&,
-            std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)>,
+            std::function<void(bool, std::pair<const std::uint8_t*, const std::uint8_t*>)>,
             std::function<void(std::exception_ptr)>);
 
-    void invoke(std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)>&&,
+    void invoke(std::function<void(bool, std::pair<const std::uint8_t*, const std::uint8_t*>)>&&,
                 std::function<void(std::exception_ptr)>&&,
                 std::function<void(bool)>&& = nullptr);
     bool override(const std::shared_ptr<Request>&) const;
@@ -40,7 +40,7 @@ public:
 private:
 
     friend class RequestQueue;
-    void response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&);
+    void response(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&);
     void exception(std::exception_ptr);
     void queued();
 
@@ -50,7 +50,7 @@ private:
     const bool _forwardContext;
     const Ice::Context _sslContext;
     const std::string _override;
-    std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> _response;
+    std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)> _response;
     std::function<void(std::exception_ptr)> _exception;
 };
 
@@ -71,7 +71,7 @@ private:
 
     void flush();
 
-    void response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const std::shared_ptr<Request>&);
+    void response(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&, const std::shared_ptr<Request>&);
     void exception(std::exception_ptr, const std::shared_ptr<Request>&);
     void sent(bool, const std::shared_ptr<Request>&);
 

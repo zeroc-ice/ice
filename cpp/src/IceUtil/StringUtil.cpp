@@ -17,7 +17,7 @@ namespace
 {
 
 char
-toHexDigit(Byte b)
+toHexDigit(uint8_t b)
 {
     assert(b < 16);
     if(b < 10)
@@ -38,7 +38,7 @@ addContinuationByte(string::iterator& p, string::iterator end, unsigned int code
         throw IllegalArgumentException(__FILE__, __LINE__, "UTF-8 sequence too short");
     }
 
-    Byte b = static_cast<Byte>(*p++);
+    uint8_t b = static_cast<uint8_t>(*p++);
 
     if((b >> 6) != 2)
     {
@@ -55,7 +55,7 @@ appendUniversalName(char c, string::iterator& p, string::iterator end, string& r
 {
     unsigned int codePoint;
 
-    Byte b = static_cast<Byte>(c);
+    uint8_t b = static_cast<uint8_t>(c);
     if((b >> 5) == 0x06)
     {
         // 2 bytes
@@ -89,7 +89,7 @@ appendUniversalName(char c, string::iterator& p, string::iterator end, string& r
         result.append("\\U");
         for(int j = 7; j >= 0; j--)
         {
-            result.push_back(toHexDigit(static_cast<Byte>((codePoint >> (j * 4)) & 0x0F)));
+            result.push_back(toHexDigit(static_cast<uint8_t>((codePoint >> (j * 4)) & 0x0F)));
         }
     }
     else
@@ -97,7 +97,7 @@ appendUniversalName(char c, string::iterator& p, string::iterator end, string& r
         result.append("\\u");
         for(int j = 3; j >= 0; j--)
         {
-            result.push_back(toHexDigit(static_cast<Byte>((codePoint >> (j * 4)) & 0x0F)));
+            result.push_back(toHexDigit(static_cast<uint8_t>((codePoint >> (j * 4)) & 0x0F)));
         }
     }
 }

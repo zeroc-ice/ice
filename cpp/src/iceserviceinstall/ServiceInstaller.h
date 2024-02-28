@@ -61,7 +61,7 @@ private:
     std::string _glacier2InstanceName;
 
     SID* _sid;
-    std::vector<IceUtil::Byte> _sidBuffer;
+    std::vector<std::uint8_t> _sidBuffer;
 
     std::string _sidName;
 

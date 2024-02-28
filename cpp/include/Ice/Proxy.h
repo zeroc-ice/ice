@@ -483,8 +483,8 @@ public:
     bool
     ice_invoke(std::string_view operation,
                Ice::OperationMode mode,
-               const std::vector<Byte>& inParams,
-               std::vector<Ice::Byte>& outParams,
+               const std::vector<std::uint8_t>& inParams,
+               std::vector<std::uint8_t>& outParams,
                const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -495,10 +495,10 @@ public:
      * @param context The context map for the invocation.
      * @return The future object for the invocation.
      */
-    std::future<std::tuple<bool, std::vector<Ice::Byte>>>
-    ice_invokeAsync(std::string_view operation,
+    std::future<std::tuple<bool, std::vector<std::uint8_t>>>
+    ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
-                    const std::vector<Byte>& inParams,
+                    const std::vector<std::uint8_t>& inParams,
                     const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -515,8 +515,8 @@ public:
     std::function<void()>
     ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
-                    const std::vector<Ice::Byte>& inParams,
-                    std::function<void(bool, std::vector<Ice::Byte>)> response,
+                    const std::vector<std::uint8_t>& inParams,
+                    std::function<void(bool, std::vector<std::uint8_t>)> response,
                     std::function<void(std::exception_ptr)> ex = nullptr,
                     std::function<void(bool)> sent = nullptr,
                     const Ice::Context& context = Ice::noExplicitContext) const;
@@ -536,8 +536,8 @@ public:
     bool
     ice_invoke(std::string_view operation,
                Ice::OperationMode mode,
-               const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-               std::vector<Ice::Byte>& outParams,
+               const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
+               std::vector<std::uint8_t>& outParams,
                const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -548,10 +548,10 @@ public:
      * @param context The context map for the invocation.
      * @return The future object for the invocation.
      */
-    std::future<std::tuple<bool, std::vector<Ice::Byte>>>
-    ice_invokeAsync(std::string_view operation,
+    std::future<std::tuple<bool, std::vector<std::uint8_t>>>
+    ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
-                    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+                    const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
                     const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -568,8 +568,8 @@ public:
     std::function<void()>
     ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
-                    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                    std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)> response,
+                    const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
+                    std::function<void(bool, std::pair<const std::uint8_t*, const std::uint8_t*>)> response,
                     std::function<void(std::exception_ptr)> ex = nullptr,
                     std::function<void(bool)> sent = nullptr,
                     const Ice::Context& context = Ice::noExplicitContext) const;

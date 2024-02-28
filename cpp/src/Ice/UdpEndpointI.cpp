@@ -69,7 +69,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, Inp
 {
     if(s->getEncoding() == Ice::Encoding_1_0)
     {
-        Ice::Byte b;
+        uint8_t b;
         s->read(b);
         s->read(b);
         s->read(b);
@@ -398,7 +398,7 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
         }
         try
         {
-            Ice::Byte major, minor;
+            uint8_t major, minor;
             IceInternal::stringToMajorMinor(argument, major, minor);
             if(major != 1 || minor != 0)
             {

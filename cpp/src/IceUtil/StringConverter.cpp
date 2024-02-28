@@ -47,7 +47,7 @@ class UnicodeWstringConverter : public WstringConverter
 {
 public:
 
-    virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
+    virtual uint8_t* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd, UTF8Buffer& buffer) const
     {
         //
         // Max bytes for a character encoding in UTF-8 is 4,
@@ -83,7 +83,7 @@ public:
             const size_t chunkSize = std::max<size_t>(static_cast<size_t>(sourceEnd - sourceStart) * factor, 4);
             ++factor; // at the next round, we'll allocate more bytes per remaining source character
 
-            targetStart = reinterpret_cast<char*>(buffer.getMoreBytes(chunkSize, reinterpret_cast<Byte*>(targetNext)));
+            targetStart = reinterpret_cast<char*>(buffer.getMoreBytes(chunkSize, reinterpret_cast<uint8_t*>(targetNext)));
             targetEnd = targetStart + chunkSize;
             targetNext = targetStart;
 
@@ -128,10 +128,10 @@ public:
             sourceStart = sourceNext;
         } while (more);
 
-        return reinterpret_cast<Byte*>(targetNext);
+        return reinterpret_cast<uint8_t*>(targetNext);
     }
 
-    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, wstring& target) const
+    virtual void fromUTF8(const uint8_t* sourceStart, const uint8_t* sourceEnd, wstring& target) const
     {
         const size_t sourceSize = static_cast<size_t>(sourceEnd - sourceStart);
 
@@ -185,12 +185,12 @@ public:
     //
     // Returns the first unused byte in the resized buffer
     //
-    Byte* getMoreBytes(size_t howMany, Byte* firstUnused)
+    uint8_t* getMoreBytes(size_t howMany, uint8_t* firstUnused)
     {
         size_t bytesUsed = 0;
         if(firstUnused != 0)
         {
-            bytesUsed = static_cast<size_t>(firstUnused - reinterpret_cast<const Byte*>(_buffer.data()));
+            bytesUsed = static_cast<size_t>(firstUnused - reinterpret_cast<const uint8_t*>(_buffer.data()));
         }
 
         if(_buffer.size() < howMany + bytesUsed)
@@ -198,13 +198,13 @@ public:
             _buffer.resize(bytesUsed + howMany);
         }
 
-        return const_cast<Byte*>(reinterpret_cast<const Byte*>(_buffer.data())) + bytesUsed;
+        return const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(_buffer.data())) + bytesUsed;
     }
 
-    void swap(string& other, const Byte* tail)
+    void swap(string& other, const uint8_t* tail)
     {
-        assert(tail >= reinterpret_cast<const Byte*>(_buffer.data()));
-        _buffer.resize(static_cast<size_t>(tail - reinterpret_cast<const Byte*>(_buffer.data())));
+        assert(tail >= reinterpret_cast<const uint8_t*>(_buffer.data()));
+        _buffer.resize(static_cast<size_t>(tail - reinterpret_cast<const uint8_t*>(_buffer.data())));
         other.swap(_buffer);
     }
 
@@ -272,7 +272,7 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
         // First convert to UTF-8 narrow string.
         //
         UTF8BufferI buffer;
-        Byte* last = wConverterWithDefault->toUTF8(v.data(), v.data() + v.size(), buffer);
+        uint8_t* last = wConverterWithDefault->toUTF8(v.data(), v.data() + v.size(), buffer);
         buffer.swap(target, last);
 
         //
@@ -282,8 +282,8 @@ IceUtil::wstringToString(const wstring& v, const StringConverterPtr& converter, 
         if(converter)
         {
             string tmp;
-            converter->fromUTF8(reinterpret_cast<const Byte*>(target.data()),
-                                reinterpret_cast<const Byte*>(target.data() + target.size()), tmp);
+            converter->fromUTF8(reinterpret_cast<const uint8_t*>(target.data()),
+                                reinterpret_cast<const uint8_t*>(target.data() + target.size()), tmp);
             tmp.swap(target);
         }
     }
@@ -304,7 +304,7 @@ IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, c
         if(converter)
         {
             UTF8BufferI buffer;
-            Byte* last = converter->toUTF8(v.data(), v.data() + v.size(), buffer);
+            uint8_t* last = converter->toUTF8(v.data(), v.data() + v.size(), buffer);
             buffer.swap(tmp, last);
         }
         else
@@ -317,8 +317,8 @@ IceUtil::stringToWstring(const string& v, const StringConverterPtr& converter, c
         //
         // Convert from UTF-8 to the wide string encoding
         //
-        wConverterWithDefault->fromUTF8(reinterpret_cast<const Byte*>(tmp.data()),
-                                        reinterpret_cast<const Byte*>(tmp.data() + tmp.size()), target);
+        wConverterWithDefault->fromUTF8(reinterpret_cast<const uint8_t*>(tmp.data()),
+                                        reinterpret_cast<const uint8_t*>(tmp.data() + tmp.size()), target);
 
     }
     return target;
@@ -332,7 +332,7 @@ IceUtil::nativeToUTF8(const string& str, const IceUtil::StringConverterPtr& conv
         return str;
     }
     UTF8BufferI buffer;
-    Byte* last = converter->toUTF8(str.data(), str.data() + str.size(), buffer);
+    uint8_t* last = converter->toUTF8(str.data(), str.data() + str.size(), buffer);
     string result;
     buffer.swap(result, last);
     return result;
@@ -346,8 +346,8 @@ IceUtil::UTF8ToNative(const string& str, const IceUtil::StringConverterPtr& conv
         return str;
     }
     string tmp;
-    converter->fromUTF8(reinterpret_cast<const Byte*>(str.data()),
-                        reinterpret_cast<const Byte*>(str.data() + str.size()), tmp);
+    converter->fromUTF8(reinterpret_cast<const uint8_t*>(str.data()),
+                        reinterpret_cast<const uint8_t*>(str.data() + str.size()), tmp);
     return tmp;
 }
 
@@ -355,7 +355,7 @@ typedef char16_t Char16T;
 typedef char32_t Char32T;
 
 vector<unsigned short>
-IceUtilInternal::toUTF16(const vector<Byte>& source)
+IceUtilInternal::toUTF16(const vector<uint8_t>& source)
 {
     vector<unsigned short> result;
     if(!source.empty())
@@ -383,7 +383,7 @@ IceUtilInternal::toUTF16(const vector<Byte>& source)
 }
 
 vector<unsigned int>
-IceUtilInternal::toUTF32(const vector<Byte>& source)
+IceUtilInternal::toUTF32(const vector<uint8_t>& source)
 {
     vector<unsigned int> result;
     if(!source.empty())
@@ -409,10 +409,10 @@ IceUtilInternal::toUTF32(const vector<Byte>& source)
     return result;
 }
 
-vector<Byte>
+vector<uint8_t>
 IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
 {
-    vector<Byte> result;
+    vector<uint8_t> result;
     if(!source.empty())
     {
         assert(sizeof(Char32T) == sizeof(unsigned int));
@@ -425,8 +425,8 @@ IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
             Convert::byte_string bs = convert.to_bytes(reinterpret_cast<const Char32T*>(&source.front()),
                                                        reinterpret_cast<const Char32T*>(&source.front() + source.size()));
 
-            result = vector<Byte>(reinterpret_cast<const Byte*>(bs.data()),
-                                  reinterpret_cast<const Byte*>(bs.data()) + bs.length());
+            result = vector<uint8_t>(reinterpret_cast<const uint8_t*>(bs.data()),
+                                  reinterpret_cast<const uint8_t*>(bs.data()) + bs.length());
         }
         catch(const std::range_error& ex)
         {
@@ -449,9 +449,9 @@ public:
 
     explicit WindowsStringConverter(unsigned int);
 
-    virtual Byte* toUTF8(const char*, const char*, UTF8Buffer&) const;
+    virtual uint8_t* toUTF8(const char*, const char*, UTF8Buffer&) const;
 
-    virtual void fromUTF8(const Byte*, const Byte*, string& target) const;
+    virtual void fromUTF8(const uint8_t*, const uint8_t*, string& target) const;
 
 private:
     unsigned int _cp;
@@ -462,7 +462,7 @@ WindowsStringConverter::WindowsStringConverter(unsigned int cp) :
 {
 }
 
-Byte*
+uint8_t*
 WindowsStringConverter::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
     //
@@ -507,7 +507,7 @@ WindowsStringConverter::toUTF8(const char* sourceStart, const char* sourceEnd, U
 }
 
 void
-WindowsStringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd, string& target) const
+WindowsStringConverter::fromUTF8(const uint8_t* sourceStart, const uint8_t* sourceEnd, string& target) const
 {
     if(sourceStart == sourceEnd)
     {

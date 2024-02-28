@@ -597,7 +597,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         // If we have filled the buffer or if nothing left to read from
         // the read buffer, we're done.
         //
-        Byte* i = buffer.i + length;
+        uint8_t* i = buffer.i + length;
         if(i == buffer.b.end() || _readBuffer.i == _readBuffer.b.begin())
         {
             break;
@@ -654,7 +654,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
             if(dataBuffer->cbBuffer > remaining)
             {
                 _readUnprocessed.b.resize(dataBuffer->cbBuffer - remaining);
-                memcpy(_readUnprocessed.b.begin(), reinterpret_cast<Byte*>(dataBuffer->pvBuffer) + remaining,
+                memcpy(_readUnprocessed.b.begin(), reinterpret_cast<uint8_t*>(dataBuffer->pvBuffer) + remaining,
                     dataBuffer->cbBuffer - remaining);
             }
         }

@@ -59,13 +59,13 @@ const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 //
 // Rename to avoid conflict with OS 10.10 htonll
 //
-void ice_htonll(int64_t v, Byte* dest)
+void ice_htonll(int64_t v, uint8_t* dest)
 {
     //
     // Transfer a 64-bit integer in network (big-endian) order.
     //
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v);
+    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -75,7 +75,7 @@ void ice_htonll(int64_t v, Byte* dest)
     *dest++ = *src++;
     *dest = *src;
 #else
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(int64_t) - 1;
+    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(int64_t) - 1;
     *dest++ = *src--;
     *dest++ = *src--;
     *dest++ = *src--;
@@ -90,7 +90,7 @@ void ice_htonll(int64_t v, Byte* dest)
 //
 // Rename to avoid conflict with OS 10.10 nlltoh
 //
-int64_t ice_nlltoh(const Byte* src)
+int64_t ice_nlltoh(const uint8_t* src)
 {
     int64_t v;
 
@@ -98,7 +98,7 @@ int64_t ice_nlltoh(const Byte* src)
     // Extract a 64-bit integer in network (big-endian) order.
     //
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v);
+    uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -108,7 +108,7 @@ int64_t ice_nlltoh(const Byte* src)
     *dest++ = *src++;
     *dest = *src;
 #else
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(int64_t) - 1;
+    uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
     *dest-- = *src++;
     *dest-- = *src++;
     *dest-- = *src++;
@@ -236,7 +236,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 //
                 // Check if we have enough data for a complete message.
                 //
-                const Ice::Byte* p = _parser->isCompleteMessage(&_readBuffer.b[0], _readBuffer.i);
+                const uint8_t* p = _parser->isCompleteMessage(&_readBuffer.b[0], _readBuffer.i);
                 if(!p)
                 {
                     if(_readBuffer.i < _readBuffer.b.end())
@@ -1656,7 +1656,7 @@ IceInternal::WSTransceiver::readBuffered(IceInternal::Buffer::Container::size_ty
 }
 
 void
-IceInternal::WSTransceiver::prepareWriteHeader(Byte opCode, IceInternal::Buffer::Container::size_type payloadLength)
+IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buffer::Container::size_type payloadLength)
 {
     //
     // We need to prepare the frame header.
@@ -1667,21 +1667,21 @@ IceInternal::WSTransceiver::prepareWriteHeader(Byte opCode, IceInternal::Buffer:
     //
     // Set the opcode - this is the one and only data frame.
     //
-    *_writeBuffer.i++ = static_cast<Byte>(opCode | FLAG_FINAL);
+    *_writeBuffer.i++ = static_cast<uint8_t>(opCode | FLAG_FINAL);
 
     //
     // Set the payload length.
     //
     if(payloadLength <= 125)
     {
-        *_writeBuffer.i++ = static_cast<Byte>(payloadLength);
+        *_writeBuffer.i++ = static_cast<uint8_t>(payloadLength);
     }
     else if(payloadLength > 125 && payloadLength <= USHRT_MAX)
     {
         //
         // Use an extra 16 bits to encode the payload length.
         //
-        *_writeBuffer.i++ = static_cast<Byte>(126);
+        *_writeBuffer.i++ = static_cast<uint8_t>(126);
         *reinterpret_cast<uint16_t*>(_writeBuffer.i) = htons(static_cast<uint16_t>(payloadLength));
         _writeBuffer.i += 2;
     }
@@ -1690,7 +1690,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(Byte opCode, IceInternal::Buffer:
         //
         // Use an extra 64 bits to encode the payload length.
         //
-        *_writeBuffer.i++ = static_cast<Byte>(127);
+        *_writeBuffer.i++ = static_cast<uint8_t>(127);
         ice_htonll(static_cast<int64_t>(payloadLength), _writeBuffer.i);
         _writeBuffer.i += 8;
     }

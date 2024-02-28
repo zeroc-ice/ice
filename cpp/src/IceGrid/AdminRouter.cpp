@@ -14,8 +14,8 @@ IceGrid::AdminRouter::AdminRouter(const shared_ptr<TraceLevels>& traceLevels) :
 
 void
 IceGrid::AdminRouter::invokeOnTarget(const Ice::ObjectPrxPtr& target,
-                                     const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>&& response,
+                                     const pair<const uint8_t*, const uint8_t*>& inParams,
+                                     function<void(bool, const pair<const uint8_t*, const uint8_t*>&)>&& response,
                                      function<void(exception_ptr)>&& exception,
                                      const Ice::Current& current)
 {

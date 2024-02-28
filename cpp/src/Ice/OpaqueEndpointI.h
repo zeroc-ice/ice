@@ -61,7 +61,7 @@ private:
     //
     std::int16_t _type;
     Ice::EncodingVersion _rawEncoding; // The encoding used for _rawBytes
-    const std::vector<Ice::Byte> _rawBytes;
+    const std::vector<std::uint8_t> _rawBytes;
 };
 
 }

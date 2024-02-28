@@ -72,8 +72,8 @@ class ConnectionI : public Connection,
 
     private:
 
-        Ice::Byte* _readStreamPos;
-        Ice::Byte* _writeStreamPos;
+        std::uint8_t* _readStreamPos;
+        std::uint8_t* _writeStreamPos;
     };
 
 public:
@@ -169,7 +169,7 @@ public:
 
     virtual void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr);
 
-    virtual void sendResponse(std::int32_t, Ice::OutputStream*, Byte, bool);
+    virtual void sendResponse(std::int32_t, Ice::OutputStream*, std::uint8_t, bool);
     virtual void sendNoResponse();
     virtual bool systemException(std::int32_t, std::exception_ptr, bool);
     virtual void invokeException(std::int32_t, std::exception_ptr, int, bool);
@@ -209,7 +209,7 @@ public:
 
     void dispatch(std::function<void(ConnectionIPtr)>,
                   const std::vector<OutgoingMessage>&,
-                  Byte,
+                  std::uint8_t,
                   std::int32_t,
                   std::int32_t,
                   const IceInternal::ServantManagerPtr&,
@@ -265,11 +265,11 @@ private:
     void doUncompress(Ice::InputStream&, Ice::InputStream&);
 #endif
 
-    IceInternal::SocketOperation parseMessage(Ice::InputStream&, std::int32_t&, std::int32_t&, Byte&,
+    IceInternal::SocketOperation parseMessage(Ice::InputStream&, std::int32_t&, std::int32_t&, std::uint8_t&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
                                               IceInternal::OutgoingAsyncBasePtr&, HeartbeatCallback&, int&);
 
-    void invokeAll(Ice::InputStream&, std::int32_t, std::int32_t, Byte,
+    void invokeAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t,
                    const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 
     void scheduleTimeout(IceInternal::SocketOperation status);

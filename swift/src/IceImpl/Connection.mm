@@ -16,7 +16,7 @@
     return std::static_pointer_cast<Ice::Connection>(self.cppObject);
 }
 
--(void) close:(uint8_t)mode
+-(void) close:(std::uint8_t)mode
 {
     self.connection->close(Ice::ConnectionClose(mode));
 }
@@ -62,7 +62,7 @@
     return [ICEEndpoint getHandle:endpoint];
 }
 
--(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error
+-(BOOL) flushBatchRequests:(std::uint8_t)compress error:(NSError**)error
 {
     try
     {
@@ -76,7 +76,7 @@
     }
 }
 
--(void) flushBatchRequestsAsync:(uint8_t)compress
+-(void) flushBatchRequestsAsync:(std::uint8_t)compress
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent
 {
@@ -223,12 +223,12 @@
     self.connection->setACM(opTimeout, opClose, opHeartbeat);
 }
 
--(void) getACM:(int32_t*)timeout close:(uint8_t*)close heartbeat:(uint8_t*)heartbeat
+-(void) getACM:(int32_t*)timeout close:(std::uint8_t*)close heartbeat:(std::uint8_t*)heartbeat
 {
     auto acm = self.connection->getACM();
     *timeout = acm.timeout;
-    *close = static_cast<uint8_t>(acm.close);
-    *heartbeat = static_cast<uint8_t>(acm.heartbeat);
+    *close = static_cast<std::uint8_t>(acm.close);
+    *heartbeat = static_cast<std::uint8_t>(acm.heartbeat);
 }
 
 -(NSString*) type
