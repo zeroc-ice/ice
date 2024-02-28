@@ -38,6 +38,7 @@ class Properties;
 
 }
 
+/// \cond INTERNAL
 namespace Ice
 {
 

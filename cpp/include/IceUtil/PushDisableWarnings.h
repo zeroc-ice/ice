@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+/*! \file
+    \hideincludedbygraph
+*/
+
 // No pragma once as this file can be included several times in a translation
 // unit
 
