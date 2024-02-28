@@ -114,8 +114,8 @@ public:
 
     void opByte(uint8_t r, uint8_t b)
     {
-        test(b == Ice::Byte(0xf0));
-        test(r == Ice::Byte(0xff));
+        test(b == uint8_t(0xf0));
+        test(r == uint8_t(0xff));
         called();
     }
 
@@ -203,19 +203,19 @@ public:
     void opByteS(const Test::ByteS& rso, const Test::ByteS& bso)
     {
         test(bso.size() == 4);
-        test(bso[0] == Ice::Byte(0x22));
-        test(bso[1] == Ice::Byte(0x12));
-        test(bso[2] == Ice::Byte(0x11));
-        test(bso[3] == Ice::Byte(0x01));
+        test(bso[0] == uint8_t(0x22));
+        test(bso[1] == uint8_t(0x12));
+        test(bso[2] == uint8_t(0x11));
+        test(bso[3] == uint8_t(0x01));
         test(rso.size() == 8);
-        test(rso[0] == Ice::Byte(0x01));
-        test(rso[1] == Ice::Byte(0x11));
-        test(rso[2] == Ice::Byte(0x12));
-        test(rso[3] == Ice::Byte(0x22));
-        test(rso[4] == Ice::Byte(0xf1));
-        test(rso[5] == Ice::Byte(0xf2));
-        test(rso[6] == Ice::Byte(0xf3));
-        test(rso[7] == Ice::Byte(0xf4));
+        test(rso[0] == uint8_t(0x01));
+        test(rso[1] == uint8_t(0x11));
+        test(rso[2] == uint8_t(0x12));
+        test(rso[3] == uint8_t(0x22));
+        test(rso[4] == uint8_t(0xf1));
+        test(rso[5] == uint8_t(0xf2));
+        test(rso[6] == uint8_t(0xf3));
+        test(rso[7] == uint8_t(0xf4));
         called();
     }
 
@@ -294,23 +294,23 @@ public:
     {
         test(bso.size() == 2);
         test(bso[0].size() == 1);
-        test(bso[0][0] == Ice::Byte(0xff));
+        test(bso[0][0] == uint8_t(0xff));
         test(bso[1].size() == 3);
-        test(bso[1][0] == Ice::Byte(0x01));
-        test(bso[1][1] == Ice::Byte(0x11));
-        test(bso[1][2] == Ice::Byte(0x12));
+        test(bso[1][0] == uint8_t(0x01));
+        test(bso[1][1] == uint8_t(0x11));
+        test(bso[1][2] == uint8_t(0x12));
         test(rso.size() == 4);
         test(rso[0].size() == 3);
-        test(rso[0][0] == Ice::Byte(0x01));
-        test(rso[0][1] == Ice::Byte(0x11));
-        test(rso[0][2] == Ice::Byte(0x12));
+        test(rso[0][0] == uint8_t(0x01));
+        test(rso[0][1] == uint8_t(0x11));
+        test(rso[0][2] == uint8_t(0x12));
         test(rso[1].size() == 1);
-        test(rso[1][0] == Ice::Byte(0xff));
+        test(rso[1][0] == uint8_t(0xff));
         test(rso[2].size() == 1);
-        test(rso[2][0] == Ice::Byte(0x0e));
+        test(rso[2][0] == uint8_t(0x0e));
         test(rso[3].size() == 2);
-        test(rso[3][0] == Ice::Byte(0xf2));
-        test(rso[3][1] == Ice::Byte(0xf1));
+        test(rso[3][0] == uint8_t(0xf2));
+        test(rso[3][1] == uint8_t(0xf1));
         called();
     }
 
@@ -767,22 +767,22 @@ public:
     void opByteByteSD(const Test::ByteByteSD& ro, const Test::ByteByteSD& _do)
     {
         test(_do.size() == 1);
-        test(_do.find(Ice::Byte(0xf1)) != _do.end());
-        test(_do.find(Ice::Byte(0xf1))->second.size() == 2);
-        test(_do.find(Ice::Byte(0xf1))->second[0] == 0xf2);
-        test(_do.find(Ice::Byte(0xf1))->second[1] == 0xf3);
+        test(_do.find(uint8_t(0xf1)) != _do.end());
+        test(_do.find(uint8_t(0xf1))->second.size() == 2);
+        test(_do.find(uint8_t(0xf1))->second[0] == 0xf2);
+        test(_do.find(uint8_t(0xf1))->second[1] == 0xf3);
         test(ro.size() == 3);
-        test(ro.find(Ice::Byte(0x01)) != ro.end());
-        test(ro.find(Ice::Byte(0x01))->second.size() == 2);
-        test(ro.find(Ice::Byte(0x01))->second[0] == Ice::Byte(0x01));
-        test(ro.find(Ice::Byte(0x01))->second[1] == Ice::Byte(0x11));
-        test(ro.find(Ice::Byte(0x22)) != ro.end());
-        test(ro.find(Ice::Byte(0x22))->second.size() == 1);
-        test(ro.find(Ice::Byte(0x22))->second[0] == Ice::Byte(0x12));
-        test(ro.find(Ice::Byte(0xf1)) != ro.end());
-        test(ro.find(Ice::Byte(0xf1))->second.size() == 2);
-        test(ro.find(Ice::Byte(0xf1))->second[0] == Ice::Byte(0xf2));
-        test(ro.find(Ice::Byte(0xf1))->second[1] == Ice::Byte(0xf3));
+        test(ro.find(uint8_t(0x01)) != ro.end());
+        test(ro.find(uint8_t(0x01))->second.size() == 2);
+        test(ro.find(uint8_t(0x01))->second[0] == uint8_t(0x01));
+        test(ro.find(uint8_t(0x01))->second[1] == uint8_t(0x11));
+        test(ro.find(uint8_t(0x22)) != ro.end());
+        test(ro.find(uint8_t(0x22))->second.size() == 1);
+        test(ro.find(uint8_t(0x22))->second[0] == uint8_t(0x12));
+        test(ro.find(uint8_t(0xf1)) != ro.end());
+        test(ro.find(uint8_t(0xf1))->second.size() == 2);
+        test(ro.find(uint8_t(0xf1))->second[0] == uint8_t(0xf2));
+        test(ro.find(uint8_t(0xf1))->second[1] == uint8_t(0xf3));
         called();
     }
 
@@ -1104,7 +1104,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        p->opByteAsync(Ice::Byte(0xff), Ice::Byte(0x0f),
+        p->opByteAsync(uint8_t(0xff), uint8_t(0x0f),
             [&](uint8_t b1, uint8_t b2)
             {
                 cb->opByte(b1, b2);
@@ -1203,15 +1203,15 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::ByteS bsi1;
         Test::ByteS bsi2;
 
-        bsi1.push_back(Ice::Byte(0x01));
-        bsi1.push_back(Ice::Byte(0x11));
-        bsi1.push_back(Ice::Byte(0x12));
-        bsi1.push_back(Ice::Byte(0x22));
+        bsi1.push_back(uint8_t(0x01));
+        bsi1.push_back(uint8_t(0x11));
+        bsi1.push_back(uint8_t(0x12));
+        bsi1.push_back(uint8_t(0x22));
 
-        bsi2.push_back(Ice::Byte(0xf1));
-        bsi2.push_back(Ice::Byte(0xf2));
-        bsi2.push_back(Ice::Byte(0xf3));
-        bsi2.push_back(Ice::Byte(0xf4));
+        bsi2.push_back(uint8_t(0xf1));
+        bsi2.push_back(uint8_t(0xf2));
+        bsi2.push_back(uint8_t(0xf3));
+        bsi2.push_back(uint8_t(0xf4));
 
         CallbackPtr cb = make_shared<Callback>();
         p->opByteSAsync(bsi1, bsi2,
@@ -1318,14 +1318,14 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::ByteSS bsi2;
         bsi2.resize(2);
 
-        bsi1[0].push_back(Ice::Byte(0x01));
-        bsi1[0].push_back(Ice::Byte(0x11));
-        bsi1[0].push_back(Ice::Byte(0x12));
-        bsi1[1].push_back(Ice::Byte(0xff));
+        bsi1[0].push_back(uint8_t(0x01));
+        bsi1[0].push_back(uint8_t(0x11));
+        bsi1[0].push_back(uint8_t(0x12));
+        bsi1[1].push_back(uint8_t(0xff));
 
-        bsi2[0].push_back(Ice::Byte(0x0e));
-        bsi2[1].push_back(Ice::Byte(0xf2));
-        bsi2[1].push_back(Ice::Byte(0xf1));
+        bsi2[0].push_back(uint8_t(0x0e));
+        bsi2[1].push_back(uint8_t(0xf2));
+        bsi2[1].push_back(uint8_t(0xf1));
 
         CallbackPtr cb = make_shared<Callback>();
         p->opByteSSAsync(bsi1, bsi2,
@@ -1776,15 +1776,15 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::ByteS si2;
         Test::ByteS si3;
 
-        si1.push_back(Ice::Byte(0x01));
-        si1.push_back(Ice::Byte(0x11));
-        si2.push_back(Ice::Byte(0x12));
-        si3.push_back(Ice::Byte(0xf2));
-        si3.push_back(Ice::Byte(0xf3));
+        si1.push_back(uint8_t(0x01));
+        si1.push_back(uint8_t(0x11));
+        si2.push_back(uint8_t(0x12));
+        si3.push_back(uint8_t(0xf2));
+        si3.push_back(uint8_t(0xf3));
 
-        sdi1[Ice::Byte(0x01)] = si1;
-        sdi1[Ice::Byte(0x22)] = si2;
-        sdi2[Ice::Byte(0xf1)] = si3;
+        sdi1[uint8_t(0x01)] = si1;
+        sdi1[uint8_t(0x22)] = si2;
+        sdi2[uint8_t(0xf1)] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
         p->opByteByteSDAsync(sdi1, sdi2,
@@ -2382,7 +2382,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 
     {
         CallbackPtr cb = make_shared<Callback>();
-        auto f = p->opByteAsync(Ice::Byte(0xff), Ice::Byte(0x0f));
+        auto f = p->opByteAsync(uint8_t(0xff), uint8_t(0x0f));
         try
         {
             auto r = f.get();
@@ -2545,15 +2545,15 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::ByteS bsi1;
         Test::ByteS bsi2;
 
-        bsi1.push_back(Ice::Byte(0x01));
-        bsi1.push_back(Ice::Byte(0x11));
-        bsi1.push_back(Ice::Byte(0x12));
-        bsi1.push_back(Ice::Byte(0x22));
+        bsi1.push_back(uint8_t(0x01));
+        bsi1.push_back(uint8_t(0x11));
+        bsi1.push_back(uint8_t(0x12));
+        bsi1.push_back(uint8_t(0x22));
 
-        bsi2.push_back(Ice::Byte(0xf1));
-        bsi2.push_back(Ice::Byte(0xf2));
-        bsi2.push_back(Ice::Byte(0xf3));
-        bsi2.push_back(Ice::Byte(0xf4));
+        bsi2.push_back(uint8_t(0xf1));
+        bsi2.push_back(uint8_t(0xf2));
+        bsi2.push_back(uint8_t(0xf3));
+        bsi2.push_back(uint8_t(0xf4));
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opByteSAsync(bsi1, bsi2);
@@ -2700,14 +2700,14 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::ByteSS bsi2;
         bsi2.resize(2);
 
-        bsi1[0].push_back(Ice::Byte(0x01));
-        bsi1[0].push_back(Ice::Byte(0x11));
-        bsi1[0].push_back(Ice::Byte(0x12));
-        bsi1[1].push_back(Ice::Byte(0xff));
+        bsi1[0].push_back(uint8_t(0x01));
+        bsi1[0].push_back(uint8_t(0x11));
+        bsi1[0].push_back(uint8_t(0x12));
+        bsi1[1].push_back(uint8_t(0xff));
 
-        bsi2[0].push_back(Ice::Byte(0x0e));
-        bsi2[1].push_back(Ice::Byte(0xf2));
-        bsi2[1].push_back(Ice::Byte(0xf1));
+        bsi2[0].push_back(uint8_t(0x0e));
+        bsi2[1].push_back(uint8_t(0xf2));
+        bsi2[1].push_back(uint8_t(0xf1));
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opByteSSAsync(bsi1, bsi2);
@@ -3234,15 +3234,15 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::ByteS si2;
         Test::ByteS si3;
 
-        si1.push_back(Ice::Byte(0x01));
-        si1.push_back(Ice::Byte(0x11));
-        si2.push_back(Ice::Byte(0x12));
-        si3.push_back(Ice::Byte(0xf2));
-        si3.push_back(Ice::Byte(0xf3));
+        si1.push_back(uint8_t(0x01));
+        si1.push_back(uint8_t(0x11));
+        si2.push_back(uint8_t(0x12));
+        si3.push_back(uint8_t(0xf2));
+        si3.push_back(uint8_t(0xf3));
 
-        sdi1[Ice::Byte(0x01)] = si1;
-        sdi1[Ice::Byte(0x22)] = si2;
-        sdi2[Ice::Byte(0xf1)] = si3;
+        sdi1[uint8_t(0x01)] = si1;
+        sdi1[uint8_t(0x22)] = si2;
+        sdi2[uint8_t(0xf1)] = si3;
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opByteByteSDAsync(sdi1, sdi2);

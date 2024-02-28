@@ -515,7 +515,7 @@ allTests(Test::TestHelper* helper)
         test(retBS == inBS);
 
         Test::BufferStruct bs;
-        bs.byteBuf.setAndInit(new Ice::Byte[10], 10);
+        bs.byteBuf.setAndInit(new uint8_t[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
         bs.shortBuf.setAndInit(new int16_t[10], 10);
         bs.intBuf.setAndInit(new int32_t[10], 10);

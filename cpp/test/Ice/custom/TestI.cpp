@@ -113,18 +113,18 @@ TestIntfI::opBoolDequeListRange(Test::BoolDequeList inSeq, Test::BoolDequeList& 
     return outSeq;
 }
 
-std::deque< ::Ice::Byte>
-TestIntfI::opByteSeq(std::deque< ::Ice::Byte> inSeq,
-                     std::deque< ::Ice::Byte>& outSeq,
+std::deque< uint8_t>
+TestIntfI::opByteSeq(std::deque< uint8_t> inSeq,
+                     std::deque< uint8_t>& outSeq,
                      const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Ice::Byte>
-TestIntfI::opByteList(std::list< ::Ice::Byte> inSeq,
-                      std::list< ::Ice::Byte>& outSeq,
+std::list< uint8_t>
+TestIntfI::opByteList(std::list< uint8_t> inSeq,
+                      std::list< uint8_t>& outSeq,
                       const Ice::Current&)
 {
     outSeq = inSeq;

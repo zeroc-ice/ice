@@ -35,8 +35,8 @@ public:
                          std::function<void(const ::Test::BoolList&, const ::Test::BoolList&)>,
                          std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void opByteSeqAsync(std::deque< ::Ice::Byte>,
-                        std::function<void(const std::deque< ::Ice::Byte>&, const std::deque< ::Ice::Byte>&)>,
+    void opByteSeqAsync(std::deque< std::uint8_t>,
+                        std::function<void(const std::deque< std::uint8_t>&, const std::deque< std::uint8_t>&)>,
                         std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void opByteListAsync(::Test::ByteList,

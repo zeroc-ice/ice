@@ -31,8 +31,8 @@ public:
                                      std::optional<Test::OneOptionalPtr>,
                                      const Ice::Current&);
 
-    virtual std::optional<::Ice::Byte> opByte(std::optional<::Ice::Byte>,
-                                                   std::optional<::Ice::Byte>&,
+    virtual std::optional<std::uint8_t> opByte(std::optional<std::uint8_t>,
+                                                   std::optional<std::uint8_t>&,
                                                    const ::Ice::Current&);
 
     virtual std::optional<bool> opBool(std::optional<bool>, std::optional<bool>&,

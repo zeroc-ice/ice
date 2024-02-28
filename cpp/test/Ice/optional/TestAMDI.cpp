@@ -73,8 +73,8 @@ InitialI::opRequiredExceptionAsync(optional<int> a, optional<::std::string> b, o
 }
 
 void
-InitialI::opByteAsync(optional<::Ice::Byte> p1,
-                      ::std::function<void(const optional<::Ice::Byte>&, const optional<::Ice::Byte>&)> response,
+InitialI::opByteAsync(optional<uint8_t> p1,
+                      ::std::function<void(const optional<uint8_t>&, const optional<uint8_t>&)> response,
                       ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);

@@ -56,12 +56,12 @@ public:
     virtual ::Test::BoolDequeList opBoolDequeListRange(::Test::BoolDequeList,
                                                        ::Test::BoolDequeList&, const ::Ice::Current&);
 
-    virtual std::deque< ::Ice::Byte> opByteSeq(std::deque< ::Ice::Byte>,
-                                               std::deque< ::Ice::Byte>&,
+    virtual std::deque< std::uint8_t> opByteSeq(std::deque< std::uint8_t>,
+                                               std::deque< std::uint8_t>&,
                                                const Ice::Current&);
 
-    virtual std::list< ::Ice::Byte> opByteList(std::list< ::Ice::Byte>,
-                                               std::list< ::Ice::Byte>&,
+    virtual std::list< std::uint8_t> opByteList(std::list< std::uint8_t>,
+                                               std::list< std::uint8_t>&,
                                                const Ice::Current&);
 
     virtual MyByteSeq opMyByteSeq(MyByteSeq,
