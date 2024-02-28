@@ -12,8 +12,6 @@
 #include "Ice/BuiltinSequences.h"
 #include "ReferenceF.h"
 #include "BatchRequestQueueF.h"
-#include "Ice/RouterF.h"
-#include "Ice/LocatorF.h"
 #include "Current.h"
 #include "CommunicatorF.h"
 #include "LocalException.h"
