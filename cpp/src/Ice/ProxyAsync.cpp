@@ -518,7 +518,7 @@ bool Ice::ObjectPrx::ice_invoke(string_view operation,
     return success;
 }
 
-std::future<std::tuple<bool, vector<Byte>>>
+std::future<std::tuple<bool, vector<uint8_t>>>
 Ice::ObjectPrx::ice_invokeAsync(const string &operation,
                                 Ice::OperationMode mode,
                                 const std::pair<const uint8_t *, const uint8_t *> &inParams,
