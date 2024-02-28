@@ -64,7 +64,6 @@ bool findMetaData(const std::string&, const StringList&, std::string&);
 std::string findMetaData(const StringList&, int = 0);
 bool inWstringModule(const SequencePtr&);
 
-std::string getDataMemberRef(const DataMemberPtr&);
 }
 
 #endif

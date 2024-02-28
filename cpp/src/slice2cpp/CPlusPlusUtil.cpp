@@ -1092,22 +1092,3 @@ Slice::inWstringModule(const SequencePtr& seq)
     }
     return false;
 }
-
-string
-Slice::getDataMemberRef(const DataMemberPtr& p)
-{
-    string name = fixKwd(p->name());
-    if(!p->optional())
-    {
-        return name;
-    }
-
-    if(dynamic_pointer_cast<Builtin>(p->type()))
-    {
-        return "*" + name;
-    }
-    else
-    {
-        return "(*" + name + ")";
-    }
-}
