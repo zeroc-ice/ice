@@ -35,7 +35,7 @@ namespace
 {
 
 #if defined(__APPLE__)
-    template <typename T> struct CFTypeRefDeleter
+    template<typename T> struct CFTypeRefDeleter
     {
         using pointer = T; // This is used by std::unique_ptr to determine the type
         void operator()(T ref) { CFRelease(ref); }
@@ -299,9 +299,9 @@ namespace
             return false;
         }
 
-        unique_ptr<CFDataRef, CFTypeRefDeleter<CFDataRef>> data(
-            CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, reinterpret_cast<const uint8_t*>(salt.c_str()),
-                                        static_cast<CFIndex>(salt.size()), kCFAllocatorNull));
+        unique_ptr<CFDataRef, CFTypeRefDeleter<CFDataRef>> data(CFDataCreateWithBytesNoCopy(
+            kCFAllocatorDefault, reinterpret_cast<const uint8_t*>(salt.c_str()), static_cast<CFIndex>(salt.size()),
+            kCFAllocatorNull));
 
         SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error);
         if (error)
@@ -319,10 +319,10 @@ namespace
         }
 
         vector<uint8_t> checksumBuffer1(checksumLength);
-        OSStatus status =
-            CCKeyDerivationPBKDF(kCCPBKDF2, password.c_str(), password.size(), CFDataGetBytePtr(saltBuffer.get()),
-                                 static_cast<size_t>(CFDataGetLength(saltBuffer.get())), algorithmId,
-                                 static_cast<unsigned int>(rounds), checksumBuffer1.data(), checksumLength);
+        OSStatus status = CCKeyDerivationPBKDF(
+            kCCPBKDF2, password.c_str(), password.size(), CFDataGetBytePtr(saltBuffer.get()),
+            static_cast<size_t>(CFDataGetLength(saltBuffer.get())), algorithmId, static_cast<unsigned int>(rounds),
+            checksumBuffer1.data(), checksumLength);
         if (status != errSecSuccess)
         {
             return false;
@@ -334,8 +334,9 @@ namespace
             CFRelease(error);
             return false;
         }
-        data.reset(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault, reinterpret_cast<const uint8_t*>(checksum.c_str()),
-                                               static_cast<CFIndex>(checksum.size()), kCFAllocatorNull));
+        data.reset(CFDataCreateWithBytesNoCopy(
+            kCFAllocatorDefault, reinterpret_cast<const uint8_t*>(checksum.c_str()),
+            static_cast<CFIndex>(checksum.size()), kCFAllocatorNull));
         SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error);
         if (error)
         {
@@ -350,15 +351,15 @@ namespace
             return false;
         }
 
-        vector<uint8_t> checksumBuffer2(CFDataGetBytePtr(data.get()),
-                                        CFDataGetBytePtr(data.get()) + CFDataGetLength(data.get()));
+        vector<uint8_t> checksumBuffer2(
+            CFDataGetBytePtr(data.get()), CFDataGetBytePtr(data.get()) + CFDataGetLength(data.get()));
         return checksumBuffer1 == checksumBuffer2;
 #    else
         DWORD saltLength = static_cast<DWORD>(salt.size());
         vector<BYTE> saltBuffer(saltLength);
 
-        if (!CryptStringToBinary(salt.c_str(), static_cast<DWORD>(salt.size()), CRYPT_STRING_BASE64, &saltBuffer[0],
-                                 &saltLength, 0, 0))
+        if (!CryptStringToBinary(
+                salt.c_str(), static_cast<DWORD>(salt.size()), CRYPT_STRING_BASE64, &saltBuffer[0], &saltLength, 0, 0))
         {
             return false;
         }
@@ -374,9 +375,9 @@ namespace
 
         vector<BYTE> passwordBuffer(password.begin(), password.end());
 
-        DWORD status = BCryptDeriveKeyPBKDF2(algorithmHandle, &passwordBuffer[0],
-                                             static_cast<DWORD>(passwordBuffer.size()), &saltBuffer[0], saltLength,
-                                             rounds, &checksumBuffer1[0], static_cast<DWORD>(checksumLength), 0);
+        DWORD status = BCryptDeriveKeyPBKDF2(
+            algorithmHandle, &passwordBuffer[0], static_cast<DWORD>(passwordBuffer.size()), &saltBuffer[0], saltLength,
+            rounds, &checksumBuffer1[0], static_cast<DWORD>(checksumLength), 0);
 
         BCryptCloseAlgorithmProvider(algorithmHandle, 0);
 
@@ -388,8 +389,9 @@ namespace
         DWORD checksumBuffer2Length = static_cast<DWORD>(checksumLength);
         vector<BYTE> checksumBuffer2(checksumLength);
 
-        if (!CryptStringToBinary(checksum.c_str(), static_cast<DWORD>(checksum.size()), CRYPT_STRING_BASE64,
-                                 &checksumBuffer2[0], &checksumBuffer2Length, 0, 0))
+        if (!CryptStringToBinary(
+                checksum.c_str(), static_cast<DWORD>(checksum.size()), CRYPT_STRING_BASE64, &checksumBuffer2[0],
+                &checksumBuffer2Length, 0, 0))
         {
             return false;
         }
@@ -456,7 +458,9 @@ extern "C"
 {
 
     CRYPT_PERMISSIONS_VERIFIER_API Ice::Plugin* createCryptPermissionsVerifier(
-        const shared_ptr<Communicator>& communicator, const string& name, const StringSeq& args)
+        const shared_ptr<Communicator>& communicator,
+        const string& name,
+        const StringSeq& args)
     {
         if (args.size() > 0)
         {

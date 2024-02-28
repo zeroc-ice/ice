@@ -527,14 +527,14 @@ SecureTransportCertificateI::verify(const IceSSL::CertificatePtr& cert) const
         UniqueRef<CFDataRef> issuer(SecCertificateCopyNormalizedIssuerContent(_cert.get(), &error.get()));
         if (error)
         {
-            throw CertificateEncodingException(__FILE__, __LINE__,
-                                               "certificate error:\n" + sslErrorToString(error.get()));
+            throw CertificateEncodingException(
+                __FILE__, __LINE__, "certificate error:\n" + sslErrorToString(error.get()));
         }
         UniqueRef<CFDataRef> subject(SecCertificateCopyNormalizedSubjectContent(c->getCert(), &error.get()));
         if (error)
         {
-            throw CertificateEncodingException(__FILE__, __LINE__,
-                                               "certificate error:\n" + sslErrorToString(error.get()));
+            throw CertificateEncodingException(
+                __FILE__, __LINE__, "certificate error:\n" + sslErrorToString(error.get()));
         }
 
         //
@@ -577,8 +577,8 @@ SecureTransportCertificateI::encode() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     UniqueRef<CFDataRef> cert(SecCertificateCopyData(_cert.get()));
-    vector<unsigned char> data(CFDataGetBytePtr(cert.get()),
-                               CFDataGetBytePtr(cert.get()) + CFDataGetLength(cert.get()));
+    vector<unsigned char> data(
+        CFDataGetBytePtr(cert.get()), CFDataGetBytePtr(cert.get()) + CFDataGetLength(cert.get()));
     ostringstream os;
     os << "-----BEGIN CERTIFICATE-----\n";
     os << IceInternal::Base64::encode(data);
@@ -591,8 +591,9 @@ SecureTransportCertificateI::encode() const
     {
         throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));
     }
-    return string(reinterpret_cast<const char*>(CFDataGetBytePtr(exported.get())),
-                  static_cast<size_t>(CFDataGetLength(exported.get())));
+    return string(
+        reinterpret_cast<const char*>(CFDataGetBytePtr(exported.get())),
+        static_cast<size_t>(CFDataGetLength(exported.get())));
 #endif
 }
 
@@ -918,9 +919,9 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
     }
     return make_shared<SecureTransportCertificateI>(cert);
 #else // macOS
-    UniqueRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(kCFAllocatorDefault,
-                                                          reinterpret_cast<const UInt8*>(encoding.c_str()),
-                                                          static_cast<CFIndex>(encoding.size()), kCFAllocatorNull));
+    UniqueRef<CFDataRef> data(CFDataCreateWithBytesNoCopy(
+        kCFAllocatorDefault, reinterpret_cast<const UInt8*>(encoding.c_str()), static_cast<CFIndex>(encoding.size()),
+        kCFAllocatorNull));
 
     SecExternalFormat format = kSecFormatUnknown;
     SecExternalItemType type = kSecItemTypeCertificate;

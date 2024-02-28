@@ -719,8 +719,9 @@ allTests(Test::TestHelper* helper)
             this_thread::sleep_for(chrono::milliseconds(500));
             ++nRetry;
         }
-        test(admin->isServerEnabled("server2-always") &&
-             admin->getServerState("server2-always") == IceGrid::ServerState::Active);
+        test(
+            admin->isServerEnabled("server2-always") &&
+            admin->getServerState("server2-always") == IceGrid::ServerState::Active);
         obj->ice_ping();
     }
     catch (const Ice::LocalException& ex)

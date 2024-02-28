@@ -24,10 +24,10 @@ namespace Glacier2
 
         void destroy();
 
-        std::shared_ptr<Glacier2::Instrumentation::SessionObserver>
-        updateObserver(const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>&,
-                       const std::string&,
-                       const std::shared_ptr<Ice::Connection>&);
+        std::shared_ptr<Glacier2::Instrumentation::SessionObserver> updateObserver(
+            const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>&,
+            const std::string&,
+            const std::shared_ptr<Ice::Connection>&);
 
         // Returns evicted proxies.
         Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&);

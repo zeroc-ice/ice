@@ -21,11 +21,12 @@ namespace
     class AdapterRequest final : public LocatorI::Request
     {
     public:
-        AdapterRequest(function<void(const Ice::ObjectPrxPtr&)> response,
-                       function<void(exception_ptr)> exception,
-                       const shared_ptr<LocatorI>& locator,
-                       const Ice::EncodingVersion& encoding,
-                       const LocatorAdapterInfo& adapter)
+        AdapterRequest(
+            function<void(const Ice::ObjectPrxPtr&)> response,
+            function<void(exception_ptr)> exception,
+            const shared_ptr<LocatorI>& locator,
+            const Ice::EncodingVersion& encoding,
+            const LocatorAdapterInfo& adapter)
             : _response(std::move(response)),
               _exception(std::move(exception)),
               _locator(locator),
@@ -52,9 +53,10 @@ namespace
             //
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
-                exception(id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                                  __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                                  proxy->ice_getEncodingVersion())));
+                exception(
+                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
+                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
+                            proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -83,14 +85,15 @@ namespace
     class ReplicaGroupRequest final : public LocatorI::Request
     {
     public:
-        ReplicaGroupRequest(function<void(const Ice::ObjectPrxPtr&)> response,
-                            function<void(exception_ptr)> exception,
-                            const shared_ptr<LocatorI>& locator,
-                            const string& id,
-                            const Ice::EncodingVersion& encoding,
-                            const LocatorAdapterInfoSeq& adapters,
-                            int count,
-                            Ice::ObjectPrxPtr firstProxy)
+        ReplicaGroupRequest(
+            function<void(const Ice::ObjectPrxPtr&)> response,
+            function<void(exception_ptr)> exception,
+            const shared_ptr<LocatorI>& locator,
+            const string& id,
+            const Ice::EncodingVersion& encoding,
+            const LocatorAdapterInfoSeq& adapters,
+            int count,
+            Ice::ObjectPrxPtr firstProxy)
             : _response(std::move(response)),
               _exception(std::move(exception)),
               _locator(locator),
@@ -229,9 +232,10 @@ namespace
             //
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
-                exception(id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                                  __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                                  proxy->ice_getEncodingVersion())));
+                exception(
+                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
+                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
+                            proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -312,14 +316,15 @@ namespace
     class RoundRobinRequest final : public LocatorI::Request, SynchronizationCallback
     {
     public:
-        RoundRobinRequest(function<void(const Ice::ObjectPrxPtr&)> response,
-                          function<void(exception_ptr)> exception,
-                          const shared_ptr<LocatorI>& locator,
-                          const shared_ptr<Database> database,
-                          const string& id,
-                          const Ice::Current& current,
-                          const LocatorAdapterInfoSeq& adapters,
-                          int count)
+        RoundRobinRequest(
+            function<void(const Ice::ObjectPrxPtr&)> response,
+            function<void(exception_ptr)> exception,
+            const shared_ptr<LocatorI>& locator,
+            const shared_ptr<Database> database,
+            const string& id,
+            const Ice::Current& current,
+            const LocatorAdapterInfoSeq& adapters,
+            int count)
             : _response(std::move(response)),
               _exception(std::move(exception)),
               _locator(locator),
@@ -380,9 +385,10 @@ namespace
             //
             if (!IceInternal::isSupported(_encoding, proxy->ice_getEncodingVersion()))
             {
-                exception(id, make_exception_ptr(Ice::UnsupportedEncodingException(
-                                  __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
-                                  proxy->ice_getEncodingVersion())));
+                exception(
+                    id, make_exception_ptr(Ice::UnsupportedEncodingException(
+                            __FILE__, __LINE__, "server doesn't support requested encoding", _encoding,
+                            proxy->ice_getEncodingVersion())));
                 return;
             }
 
@@ -495,8 +501,9 @@ namespace
                     {
                         if (!_waitForActivation)
                         {
-                            _database->getLocatorAdapterInfo(_id, _connection, _context, _adapters, _count,
-                                                             replicaGroup, roundRobin, _activatingOrFailed);
+                            _database->getLocatorAdapterInfo(
+                                _id, _connection, _context, _adapters, _count, replicaGroup, roundRobin,
+                                _activatingOrFailed);
                         }
 
                         if (_waitForActivation || (_adapters.empty() && _activatingOrFailed.size() > _failed.size()))
@@ -505,8 +512,8 @@ namespace
                             // If there are no more adapters to try and some servers were being activated, we
                             // try again but this time we wait for the server activation.
                             //
-                            _database->getLocatorAdapterInfo(_id, _connection, _context, _adapters, _count,
-                                                             replicaGroup, roundRobin, _failed);
+                            _database->getLocatorAdapterInfo(
+                                _id, _connection, _context, _adapters, _count, replicaGroup, roundRobin, _failed);
                             _waitForActivation = true;
                         }
                         break;
@@ -605,11 +612,12 @@ namespace
     class FindAdapterByIdCallback final : public SynchronizationCallback
     {
     public:
-        FindAdapterByIdCallback(const shared_ptr<LocatorI>& locator,
-                                function<void(const Ice::ObjectPrxPtr&)> response,
-                                function<void(exception_ptr)> exception,
-                                const string& id,
-                                const Ice::Current& current)
+        FindAdapterByIdCallback(
+            const shared_ptr<LocatorI>& locator,
+            function<void(const Ice::ObjectPrxPtr&)> response,
+            function<void(exception_ptr)> exception,
+            const string& id,
+            const Ice::Current& current)
             : _locator(locator),
               _response(std::move(response)),
               _exception(std::move(exception)),
@@ -661,11 +669,12 @@ namespace
 
 };
 
-LocatorI::LocatorI(const shared_ptr<Ice::Communicator>& communicator,
-                   const shared_ptr<Database>& database,
-                   const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-                   const RegistryPrxPtr& registry,
-                   const QueryPrxPtr& query)
+LocatorI::LocatorI(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const shared_ptr<Database>& database,
+    const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
+    const RegistryPrxPtr& registry,
+    const QueryPrxPtr& query)
     : _communicator(communicator),
       _database(database),
       _wellKnownObjects(wellKnownObjects),
@@ -679,10 +688,11 @@ LocatorI::LocatorI(const shared_ptr<Ice::Communicator>& communicator,
 // registry.
 //
 void
-LocatorI::findObjectByIdAsync(Ice::Identity id,
-                              function<void(const Ice::ObjectPrxPtr&)> response,
-                              function<void(exception_ptr)>,
-                              const Ice::Current&) const
+LocatorI::findObjectByIdAsync(
+    Ice::Identity id,
+    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&) const
 {
     try
     {
@@ -699,10 +709,11 @@ LocatorI::findObjectByIdAsync(Ice::Identity id,
 // registry. If found, we try to get its direct proxy.
 //
 void
-LocatorI::findAdapterByIdAsync(string id,
-                               function<void(const Ice::ObjectPrxPtr&)> response,
-                               function<void(exception_ptr)> exception,
-                               const Ice::Current& current) const
+LocatorI::findAdapterByIdAsync(
+    string id,
+    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current) const
 {
     auto self = const_pointer_cast<LocatorI>(shared_from_this());
 
@@ -721,8 +732,8 @@ LocatorI::findAdapterByIdAsync(string id,
         {
             try
             {
-                _database->getLocatorAdapterInfo(id, current.con, current.ctx, adapters, count, replicaGroup,
-                                                 roundRobin);
+                _database->getLocatorAdapterInfo(
+                    id, current.con, current.ctx, adapters, count, replicaGroup, roundRobin);
                 break;
             }
             catch (const SynchronizationException&)
@@ -743,8 +754,8 @@ LocatorI::findAdapterByIdAsync(string id,
         }
         else if (replicaGroup)
         {
-            request = make_shared<ReplicaGroupRequest>(response, exception, self, id, current.encoding, adapters, count,
-                                                       nullopt);
+            request = make_shared<ReplicaGroupRequest>(
+                response, exception, self, id, current.encoding, adapters, count, nullopt);
         }
         else
         {
@@ -915,8 +926,9 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, exception_p
         int timeout = secondsToInt(adapter.activationTimeout + adapter.deactivationTimeout) * 1000;
         auto self = shared_from_this();
         Ice::uncheckedCast<AdapterPrx>(adapter.proxy->ice_invocationTimeout(timeout))
-            ->activateAsync([self, adapter](auto obj) { self->getDirectProxyResponse(adapter, std::move(obj)); },
-                            [self, adapter](auto e) { self->getDirectProxyException(adapter, e); });
+            ->activateAsync(
+                [self, adapter](auto obj) { self->getDirectProxyResponse(adapter, std::move(obj)); },
+                [self, adapter](auto e) { self->getDirectProxyException(adapter, e); });
     }
     else
     {

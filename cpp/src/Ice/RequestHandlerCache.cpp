@@ -274,7 +274,11 @@ RequestHandlerCache::clearCachedRequestHandler(const RequestHandlerPtr& handler)
 
 int
 RequestHandlerCache::handleException(
-    std::exception_ptr ex, const RequestHandlerPtr& handler, OperationMode mode, bool sent, int& cnt)
+    std::exception_ptr ex,
+    const RequestHandlerPtr& handler,
+    OperationMode mode,
+    bool sent,
+    int& cnt)
 {
     clearCachedRequestHandler(handler);
 

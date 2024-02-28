@@ -26,20 +26,22 @@ extern "C"
 class LocatorI : public Ice::Locator
 {
 public:
-    virtual void findAdapterByIdAsync(string,
-                                      function<void(const Ice::ObjectPrxPtr&)> response,
-                                      function<void(exception_ptr)>,
-                                      const Ice::Current& current) const
+    virtual void findAdapterByIdAsync(
+        string,
+        function<void(const Ice::ObjectPrxPtr&)> response,
+        function<void(exception_ptr)>,
+        const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
         Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
         response(current.adapter->createDirectProxy(Ice::stringToIdentity("dummy")));
     }
 
-    virtual void findObjectByIdAsync(Ice::Identity id,
-                                     function<void(const Ice::ObjectPrxPtr&)> response,
-                                     function<void(exception_ptr)>,
-                                     const Ice::Current& current) const
+    virtual void findObjectByIdAsync(
+        Ice::Identity id,
+        function<void(const Ice::ObjectPrxPtr&)> response,
+        function<void(exception_ptr)>,
+        const Ice::Current& current) const
     {
         _controller->checkCallPause(current);
         Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();

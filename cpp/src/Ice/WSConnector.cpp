@@ -77,10 +77,11 @@ IceInternal::WSConnector::operator<(const Connector& r) const
     return Ice::targetLess(_delegate, p->_delegate);
 }
 
-IceInternal::WSConnector::WSConnector(const ProtocolInstancePtr& instance,
-                                      const ConnectorPtr& del,
-                                      const string& host,
-                                      const string& resource)
+IceInternal::WSConnector::WSConnector(
+    const ProtocolInstancePtr& instance,
+    const ConnectorPtr& del,
+    const string& host,
+    const string& resource)
     : _instance(instance),
       _delegate(del),
       _host(host),

@@ -22,10 +22,11 @@ namespace IceStorm
     class TopicImpl
     {
     public:
-        static std::shared_ptr<TopicImpl> create(std::shared_ptr<PersistentInstance>,
-                                                 const std::string&,
-                                                 const Ice::Identity&,
-                                                 const SubscriberRecordSeq&);
+        static std::shared_ptr<TopicImpl> create(
+            std::shared_ptr<PersistentInstance>,
+            const std::string&,
+            const Ice::Identity&,
+            const SubscriberRecordSeq&);
 
         std::string getName() const;
         Ice::ObjectPrxPtr getPublisher() const;
@@ -62,10 +63,11 @@ namespace IceStorm
         void updateSubscriberObservers();
 
     private:
-        TopicImpl(std::shared_ptr<PersistentInstance>,
-                  const std::string&,
-                  const Ice::Identity&,
-                  const SubscriberRecordSeq&);
+        TopicImpl(
+            std::shared_ptr<PersistentInstance>,
+            const std::string&,
+            const Ice::Identity&,
+            const SubscriberRecordSeq&);
 
         IceStormElection::LogUpdate destroyInternal(const IceStormElection::LogUpdate&, bool);
         void removeSubscribers(const Ice::IdentitySeq&);

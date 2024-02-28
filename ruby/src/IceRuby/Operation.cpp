@@ -84,16 +84,17 @@ IceRuby_Operation_free(OperationPtr* p)
 }
 
 extern "C" VALUE
-IceRuby_defineOperation(VALUE /*self*/,
-                        VALUE name,
-                        VALUE mode,
-                        VALUE sendMode,
-                        VALUE amd,
-                        VALUE format,
-                        VALUE inParams,
-                        VALUE outParams,
-                        VALUE returnType,
-                        VALUE exceptions)
+IceRuby_defineOperation(
+    VALUE /*self*/,
+    VALUE name,
+    VALUE mode,
+    VALUE sendMode,
+    VALUE amd,
+    VALUE format,
+    VALUE inParams,
+    VALUE outParams,
+    VALUE returnType,
+    VALUE exceptions)
 {
     ICE_RUBY_TRY
     {
@@ -156,15 +157,16 @@ IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 //
 // OperationI implementation.
 //
-IceRuby::OperationI::OperationI(VALUE name,
-                                VALUE mode,
-                                VALUE sendMode,
-                                VALUE amd,
-                                VALUE format,
-                                VALUE inParams,
-                                VALUE outParams,
-                                VALUE returnType,
-                                VALUE exceptions)
+IceRuby::OperationI::OperationI(
+    VALUE name,
+    VALUE mode,
+    VALUE sendMode,
+    VALUE amd,
+    VALUE format,
+    VALUE inParams,
+    VALUE outParams,
+    VALUE returnType,
+    VALUE exceptions)
 {
     _name = getString(name);
     _amd = amd == Qtrue;
@@ -385,10 +387,11 @@ IceRuby::OperationI::convertParam(VALUE v, long pos)
 }
 
 void
-IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy,
-                                    VALUE args,
-                                    Ice::OutputStream* os,
-                                    pair<const Ice::Byte*, const Ice::Byte*>& params)
+IceRuby::OperationI::prepareRequest(
+    const Ice::ObjectPrx& proxy,
+    VALUE args,
+    Ice::OutputStream* os,
+    pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
     params.first = params.second = static_cast<const Ice::Byte*>(0);
 
@@ -423,8 +426,8 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy,
             if ((!info->optional || arg != Unset) && !info->type->validate(arg))
             {
                 string opName = fixIdent(_name, IdentNormal);
-                throw RubyException(rb_eTypeError, "invalid value for argument %ld in operation `%s'", info->pos + 1,
-                                    opName.c_str());
+                throw RubyException(
+                    rb_eTypeError, "invalid value for argument %ld in operation `%s'", info->pos + 1, opName.c_str());
             }
         }
 

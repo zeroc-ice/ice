@@ -12,10 +12,11 @@
 using namespace std;
 using namespace IceGrid;
 
-XmlAttributesHelper::XmlAttributesHelper(const IceXML::Attributes& attrs,
-                                         const shared_ptr<Ice::Logger>& logger,
-                                         const string& filename,
-                                         int line)
+XmlAttributesHelper::XmlAttributesHelper(
+    const IceXML::Attributes& attrs,
+    const shared_ptr<Ice::Logger>& logger,
+    const string& filename,
+    int line)
     : _attributes(attrs),
       _logger(logger),
       _filename(filename),
@@ -212,9 +213,10 @@ PropertySetDescriptorBuilder::finish()
     return true;
 }
 
-ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
-                                                           const XmlAttributesHelper& attrs,
-                                                           const map<string, string>& overrides)
+ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const XmlAttributesHelper& attrs,
+    const map<string, string>& overrides)
     : _communicator(communicator),
       _overrides(overrides)
 {
@@ -222,10 +224,11 @@ ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const shared_ptr<Ice:
     _descriptor.variables = overrides;
 }
 
-ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
-                                                           const ApplicationDescriptor& app,
-                                                           const XmlAttributesHelper& attrs,
-                                                           const map<string, string>& overrides)
+ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const ApplicationDescriptor& app,
+    const XmlAttributesHelper& attrs,
+    const map<string, string>& overrides)
     : _communicator(communicator),
       _descriptor(app),
       _overrides(overrides)
@@ -449,9 +452,10 @@ ServerInstanceDescriptorBuilder::addPropertySet(const string& service, const Pro
     p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
 }
 
-NodeDescriptorBuilder::NodeDescriptorBuilder(ApplicationDescriptorBuilder& app,
-                                             const NodeDescriptor& desc,
-                                             const XmlAttributesHelper& attrs)
+NodeDescriptorBuilder::NodeDescriptorBuilder(
+    ApplicationDescriptorBuilder& app,
+    const NodeDescriptor& desc,
+    const XmlAttributesHelper& attrs)
     : _application(app),
       _descriptor(desc)
 {
@@ -527,9 +531,10 @@ NodeDescriptorBuilder::setDescription(const string& description)
     _descriptor.description = description;
 }
 
-TemplateDescriptorBuilder::TemplateDescriptorBuilder(ApplicationDescriptorBuilder& application,
-                                                     const XmlAttributesHelper& attrs,
-                                                     bool serviceTemplate)
+TemplateDescriptorBuilder::TemplateDescriptorBuilder(
+    ApplicationDescriptorBuilder& application,
+    const XmlAttributesHelper& attrs,
+    bool serviceTemplate)
     : _application(application),
       _serviceTemplate(serviceTemplate),
       _id(attrs("id"))
@@ -608,8 +613,8 @@ CommunicatorDescriptorBuilder::finish()
     // property set because it's not allowed to define properties
     // before references to property sets.
     //
-    _descriptor->propertySet.properties.insert(_descriptor->propertySet.properties.begin(), _hiddenProperties.begin(),
-                                               _hiddenProperties.end());
+    _descriptor->propertySet.properties.insert(
+        _descriptor->propertySet.properties.begin(), _hiddenProperties.begin(), _hiddenProperties.end());
 }
 
 void
@@ -753,8 +758,9 @@ ServiceInstanceDescriptorBuilder::addPropertySet(const PropertySetDescriptor& de
     p.properties.insert(p.properties.end(), desc.properties.begin(), desc.properties.end());
 }
 
-ServerDescriptorBuilder::ServerDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
-                                                 const XmlAttributesHelper& attrs)
+ServerDescriptorBuilder::ServerDescriptorBuilder(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const XmlAttributesHelper& attrs)
     : CommunicatorDescriptorBuilder(communicator)
 {
     init(make_shared<ServerDescriptor>(), attrs);
@@ -830,8 +836,9 @@ ServerDescriptorBuilder::addDistributionDirectory(const string& directory)
     _descriptor->distrib.directories.push_back(directory);
 }
 
-IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
-                                                 const XmlAttributesHelper& attrs)
+IceBoxDescriptorBuilder::IceBoxDescriptorBuilder(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const XmlAttributesHelper& attrs)
     : ServerDescriptorBuilder(communicator)
 {
     init(make_shared<IceBoxDescriptor>(), attrs);
@@ -877,8 +884,9 @@ IceBoxDescriptorBuilder::addService(const shared_ptr<ServiceDescriptor>& desc)
     _descriptor->services.push_back(instance);
 }
 
-ServiceDescriptorBuilder::ServiceDescriptorBuilder(const shared_ptr<Ice::Communicator>& communicator,
-                                                   const XmlAttributesHelper& attrs)
+ServiceDescriptorBuilder::ServiceDescriptorBuilder(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const XmlAttributesHelper& attrs)
     : CommunicatorDescriptorBuilder(communicator)
 {
     init(make_shared<ServiceDescriptor>(), attrs);

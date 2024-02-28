@@ -335,9 +335,10 @@ Allocatable::operator<(const Allocatable& r) const
 }
 
 void
-Allocatable::queueAllocationAttempt(const shared_ptr<Allocatable>& allocatable,
-                                    const shared_ptr<AllocationRequest>& request,
-                                    bool tryAllocate)
+Allocatable::queueAllocationAttempt(
+    const shared_ptr<Allocatable>& allocatable,
+    const shared_ptr<AllocationRequest>& request,
+    bool tryAllocate)
 {
     assert(!_parent);
     if (!tryAllocate)
@@ -465,10 +466,11 @@ Allocatable::allocate(const shared_ptr<AllocationRequest>& request, bool tryAllo
 }
 
 bool
-Allocatable::allocateFromChild(const shared_ptr<AllocationRequest>& request,
-                               const shared_ptr<Allocatable>& child,
-                               bool tryAllocate,
-                               bool fromRelease)
+Allocatable::allocateFromChild(
+    const shared_ptr<AllocationRequest>& request,
+    const shared_ptr<Allocatable>& child,
+    bool tryAllocate,
+    bool fromRelease)
 {
     if (_parent && !_parent->allocateFromChild(request, child, tryAllocate, fromRelease))
     {

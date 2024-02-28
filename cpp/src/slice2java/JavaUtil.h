@@ -90,9 +90,10 @@ namespace Slice
         //
         // Convert a Slice scoped name into a Java name.
         //
-        std::string convertScopedName(const std::string&,
-                                      const std::string& = std::string(),
-                                      const std::string& = std::string()) const;
+        std::string convertScopedName(
+            const std::string&,
+            const std::string& = std::string(),
+            const std::string& = std::string()) const;
 
         //
         // Returns the package prefix of a Contained entity.
@@ -115,10 +116,11 @@ namespace Slice
         // package argument matches the entity's package name, then the
         // package is removed from the result.
         //
-        std::string getUnqualified(const ContainedPtr&,
-                                   const std::string& = std::string(),
-                                   const std::string& = std::string(),
-                                   const std::string& = std::string()) const;
+        std::string getUnqualified(
+            const ContainedPtr&,
+            const std::string& = std::string(),
+            const std::string& = std::string(),
+            const std::string& = std::string()) const;
 
         //
         // Return the method call necessary to obtain the static type ID for an object type.
@@ -146,23 +148,25 @@ namespace Slice
             TypeModeMember,
             TypeModeReturn
         };
-        std::string typeToString(const TypePtr&,
-                                 TypeMode,
-                                 const std::string& = std::string(),
-                                 const StringList& = StringList(),
-                                 bool = true,
-                                 bool = false) const;
+        std::string typeToString(
+            const TypePtr&,
+            TypeMode,
+            const std::string& = std::string(),
+            const StringList& = StringList(),
+            bool = true,
+            bool = false) const;
 
         //
         // Get the Java object name for a type. For primitive types, this returns the
         // Java class type (e.g., Integer). For all other types, this function delegates
         // to typeToString.
         //
-        std::string typeToObjectString(const TypePtr&,
-                                       TypeMode,
-                                       const std::string& = std::string(),
-                                       const StringList& = StringList(),
-                                       bool = true) const;
+        std::string typeToObjectString(
+            const TypePtr&,
+            TypeMode,
+            const std::string& = std::string(),
+            const StringList& = StringList(),
+            bool = true) const;
 
         //
         // Generate code to marshal or unmarshal a type.
@@ -179,44 +183,47 @@ namespace Slice
         std::string getWriteFunction(const std::string&, const TypePtr&);
         std::string getReadFunction(const std::string&, const TypePtr&);
 
-        void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                       const std::string&,
-                                       const TypePtr&,
-                                       OptionalMode,
-                                       bool,
-                                       int,
-                                       const std::string&,
-                                       bool,
-                                       int&,
-                                       const std::string& = "",
-                                       const StringList& = StringList(),
-                                       const std::string& = "");
+        void writeMarshalUnmarshalCode(
+            ::IceUtilInternal::Output&,
+            const std::string&,
+            const TypePtr&,
+            OptionalMode,
+            bool,
+            int,
+            const std::string&,
+            bool,
+            int&,
+            const std::string& = "",
+            const StringList& = StringList(),
+            const std::string& = "");
 
         //
         // Generate code to marshal or unmarshal a dictionary type.
         //
-        void writeDictionaryMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                                 const std::string&,
-                                                 const DictionaryPtr&,
-                                                 const std::string&,
-                                                 bool,
-                                                 int&,
-                                                 bool,
-                                                 const std::string& = "",
-                                                 const StringList& = StringList());
+        void writeDictionaryMarshalUnmarshalCode(
+            ::IceUtilInternal::Output&,
+            const std::string&,
+            const DictionaryPtr&,
+            const std::string&,
+            bool,
+            int&,
+            bool,
+            const std::string& = "",
+            const StringList& = StringList());
 
         //
         // Generate code to marshal or unmarshal a sequence type.
         //
-        void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                               const std::string&,
-                                               const SequencePtr&,
-                                               const std::string&,
-                                               bool,
-                                               int&,
-                                               bool,
-                                               const std::string& = "",
-                                               const StringList& = StringList());
+        void writeSequenceMarshalUnmarshalCode(
+            ::IceUtilInternal::Output&,
+            const std::string&,
+            const SequencePtr&,
+            const std::string&,
+            bool,
+            int&,
+            bool,
+            const std::string& = "",
+            const StringList& = StringList());
 
         //
         // Search metadata for an entry with the given prefix and return the entire string.
@@ -242,8 +249,8 @@ namespace Slice
         // The functions return true if a custom type was defined and false to indicate
         // the default mapping was used.
         //
-        bool getDictionaryTypes(
-            const DictionaryPtr&, const std::string&, const StringList&, std::string&, std::string&) const;
+        bool getDictionaryTypes(const DictionaryPtr&, const std::string&, const StringList&, std::string&, std::string&)
+            const;
         bool
         getSequenceTypes(const SequencePtr&, const std::string&, const StringList&, std::string&, std::string&) const;
 

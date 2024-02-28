@@ -59,8 +59,9 @@ string
 IceBT::formatDeviceAddress(const DeviceAddress& addr)
 {
     char buf[64];
-    sprintf(buf, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", addr.b[5], addr.b[4], addr.b[3], addr.b[2], addr.b[1],
-            addr.b[0]);
+    sprintf(
+        buf, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", addr.b[5], addr.b[4], addr.b[3], addr.b[2], addr.b[1],
+        addr.b[0]);
     return IceUtilInternal::toUpper(string(buf));
 }
 
@@ -163,7 +164,11 @@ IceBT::fdToString(SOCKET fd)
 
 void
 IceBT::fdToAddressAndChannel(
-    SOCKET fd, string& localAddress, int& localChannel, string& remoteAddress, int& remoteChannel)
+    SOCKET fd,
+    string& localAddress,
+    int& localChannel,
+    string& remoteAddress,
+    int& remoteChannel)
 {
     if (fd == INVALID_SOCKET)
     {

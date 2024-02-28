@@ -109,7 +109,11 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
 }
 
 IceBT::ConnectorI::ConnectorI(
-    const InstancePtr& instance, const string& addr, const string& uuid, int32_t timeout, const string& connectionId)
+    const InstancePtr& instance,
+    const string& addr,
+    const string& uuid,
+    int32_t timeout,
+    const string& connectionId)
     : _instance(instance),
       _addr(addr),
       _uuid(uuid),

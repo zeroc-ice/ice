@@ -45,11 +45,12 @@ namespace
     {
 
     public:
-        SessionHelperI(const Glacier2::SessionThreadCallbackPtr&,
-                       const Glacier2::SessionCallbackPtr&,
-                       const Ice::InitializationData&,
-                       const string&,
-                       bool);
+        SessionHelperI(
+            const Glacier2::SessionThreadCallbackPtr&,
+            const Glacier2::SessionCallbackPtr&,
+            const Ice::InitializationData&,
+            const string&,
+            bool);
         void destroy();
         Ice::CommunicatorPtr communicator() const;
         std::string categoryForClient() const;
@@ -92,11 +93,12 @@ namespace
 
 }
 
-SessionHelperI::SessionHelperI(const Glacier2::SessionThreadCallbackPtr& threadCB,
-                               const Glacier2::SessionCallbackPtr& callback,
-                               const Ice::InitializationData& initData,
-                               const string& finderStr,
-                               bool useCallbacks)
+SessionHelperI::SessionHelperI(
+    const Glacier2::SessionThreadCallbackPtr& threadCB,
+    const Glacier2::SessionCallbackPtr& callback,
+    const Ice::InitializationData& initData,
+    const string& finderStr,
+    bool useCallbacks)
     : _connected(false),
       _destroy(false),
       _initData(initData),
@@ -414,9 +416,9 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     }
                     catch (const Ice::CommunicatorDestroyedException&)
                     {
-                        session->dispatchCallback([callback, session, ex = current_exception()]()
-                                                  { callback->connectFailed(session, ex); },
-                                                  nullptr);
+                        session->dispatchCallback(
+                            [callback, session, ex = current_exception()]() { callback->connectFailed(session, ex); },
+                            nullptr);
                         return;
                     }
                     catch (const Ice::Exception&)
@@ -432,8 +434,8 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     }
                 }
 
-                session->dispatchCallbackAndWait([callback, session]() { callback->createdCommunicator(session); },
-                                                 nullptr);
+                session->dispatchCallbackAndWait(
+                    [callback, session]() { callback->createdCommunicator(session); }, nullptr);
                 auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter());
                 Glacier2::SessionPrxPtr sessionPrx = factory->connect(routerPrx);
                 session->connected(routerPrx, sessionPrx);
@@ -531,8 +533,8 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
     }
     else
     {
-        dispatchCallback([callback = _callback, session = shared_from_this()]() { callback->connected(session); },
-                         conn);
+        dispatchCallback(
+            [callback = _callback, session = shared_from_this()]() { callback->connected(session); }, conn);
     }
 }
 
@@ -591,8 +593,9 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const SessionCallbackPtr& c
     setDefaultProperties();
 }
 
-Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationData& initData,
-                                                     const SessionCallbackPtr& callback)
+Glacier2::SessionFactoryHelper::SessionFactoryHelper(
+    const Ice::InitializationData& initData,
+    const SessionCallbackPtr& callback)
     : _routerHost("localhost"),
       _protocol("ssl"),
       _port(0),
@@ -608,8 +611,9 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationDa
     setDefaultProperties();
 }
 
-Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& properties,
-                                                     const SessionCallbackPtr& callback)
+Glacier2::SessionFactoryHelper::SessionFactoryHelper(
+    const Ice::PropertiesPtr& properties,
+    const SessionCallbackPtr& callback)
     : _routerHost("localhost"),
       _protocol("ssl"),
       _port(0),
@@ -619,8 +623,8 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& p
 {
     if (!properties)
     {
-        throw Ice::InitializationException(__FILE__, __LINE__,
-                                           "Attempt to create a SessionFactoryHelper with a null Properties argument");
+        throw Ice::InitializationException(
+            __FILE__, __LINE__, "Attempt to create a SessionFactoryHelper with a null Properties argument");
     }
     _initData.properties = properties;
     setDefaultProperties();
@@ -805,8 +809,9 @@ Glacier2::SessionFactoryHelper::connect()
     map<string, string> context;
     {
         lock_guard lock(_mutex);
-        session = make_shared<SessionHelperI>(make_shared<SessionThreadCallback>(shared_from_this()), _callback,
-                                              createInitData(), getRouterFinderStr(), _useCallbacks);
+        session = make_shared<SessionHelperI>(
+            make_shared<SessionThreadCallback>(shared_from_this()), _callback, createInitData(), getRouterFinderStr(),
+            _useCallbacks);
         context = _context;
     }
     session->connect(context);
@@ -820,8 +825,9 @@ Glacier2::SessionFactoryHelper::connect(const string& user, const string& passwo
     map<string, string> context;
     {
         lock_guard lock(_mutex);
-        session = make_shared<SessionHelperI>(make_shared<SessionThreadCallback>(shared_from_this()), _callback,
-                                              createInitData(), getRouterFinderStr(), _useCallbacks);
+        session = make_shared<SessionHelperI>(
+            make_shared<SessionThreadCallback>(shared_from_this()), _callback, createInitData(), getRouterFinderStr(),
+            _useCallbacks);
         context = _context;
     }
     session->connect(user, password, _context);

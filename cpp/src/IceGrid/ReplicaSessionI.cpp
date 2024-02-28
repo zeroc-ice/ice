@@ -23,11 +23,12 @@ namespace IceGrid
 }
 
 shared_ptr<ReplicaSessionI>
-ReplicaSessionI::create(const shared_ptr<Database>& database,
-                        const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-                        const shared_ptr<InternalReplicaInfo>& info,
-                        const InternalRegistryPrxPtr& proxy,
-                        chrono::seconds timeout)
+ReplicaSessionI::create(
+    const shared_ptr<Database>& database,
+    const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
+    const shared_ptr<InternalReplicaInfo>& info,
+    const InternalRegistryPrxPtr& proxy,
+    chrono::seconds timeout)
 {
 
     shared_ptr<ReplicaSessionI> replicaSession(new ReplicaSessionI(database, wellKnownObjects, info, proxy, timeout));
@@ -59,11 +60,12 @@ ReplicaSessionI::create(const shared_ptr<Database>& database,
     return replicaSession;
 }
 
-ReplicaSessionI::ReplicaSessionI(const shared_ptr<Database>& database,
-                                 const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-                                 const shared_ptr<InternalReplicaInfo>& info,
-                                 const InternalRegistryPrxPtr& proxy,
-                                 chrono::seconds timeout)
+ReplicaSessionI::ReplicaSessionI(
+    const shared_ptr<Database>& database,
+    const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
+    const shared_ptr<InternalReplicaInfo>& info,
+    const InternalRegistryPrxPtr& proxy,
+    chrono::seconds timeout)
     : _database(database),
       _wellKnownObjects(wellKnownObjects),
       _traceLevels(database->getTraceLevels()),
@@ -100,9 +102,10 @@ ReplicaSessionI::getTimeout(const Ice::Current&) const
 }
 
 void
-ReplicaSessionI::setDatabaseObserver(DatabaseObserverPrxPtr observer,
-                                     optional<StringLongDict> slaveSerials,
-                                     const Ice::Current&)
+ReplicaSessionI::setDatabaseObserver(
+    DatabaseObserverPrxPtr observer,
+    optional<StringLongDict> slaveSerials,
+    const Ice::Current&)
 {
     //
     // If it's a read only master, we don't setup the observer to not
@@ -216,10 +219,11 @@ ReplicaSessionI::registerWellKnownObjects(ObjectInfoSeq objects, const Ice::Curr
 }
 
 void
-ReplicaSessionI::setAdapterDirectProxy(string adapterId,
-                                       string replicaGroupId,
-                                       Ice::ObjectPrxPtr proxy,
-                                       const Ice::Current&)
+ReplicaSessionI::setAdapterDirectProxy(
+    string adapterId,
+    string replicaGroupId,
+    Ice::ObjectPrxPtr proxy,
+    const Ice::Current&)
 {
     if (_database->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
     {

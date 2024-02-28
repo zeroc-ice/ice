@@ -153,13 +153,14 @@ Slice::CsVisitor::CsVisitor(Output& out) : _out(out) {}
 Slice::CsVisitor::~CsVisitor() {}
 
 void
-Slice::CsVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params,
-                                              const OperationPtr& op,
-                                              bool marshal,
-                                              const string& ns,
-                                              bool resultStruct,
-                                              bool publicNames,
-                                              const string& customStream)
+Slice::CsVisitor::writeMarshalUnmarshalParams(
+    const ParamDeclList& params,
+    const OperationPtr& op,
+    bool marshal,
+    const string& ns,
+    bool resultStruct,
+    bool publicNames,
+    const string& customStream)
 {
     ParamDeclList optionals;
 
@@ -290,10 +291,11 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params,
 }
 
 void
-Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member,
-                                         const string& name,
-                                         const string& ns,
-                                         bool forStruct)
+Slice::CsVisitor::writeMarshalDataMember(
+    const DataMemberPtr& member,
+    const string& name,
+    const string& ns,
+    bool forStruct)
 {
     if (member->optional())
     {
@@ -314,10 +316,11 @@ Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member,
 }
 
 void
-Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member,
-                                           const string& name,
-                                           const string& ns,
-                                           bool forStruct)
+Slice::CsVisitor::writeUnmarshalDataMember(
+    const DataMemberPtr& member,
+    const string& name,
+    const string& ns,
+    bool forStruct)
 {
     string param = name;
     if (isClassType(member->type()))
@@ -598,8 +601,8 @@ Slice::CsVisitor::writeDispatch(const InterfaceDefPtr& p)
     if (!allOps.empty())
     {
         StringList allOpNames;
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
-                  [](const ContainedPtr& it) { return it->name(); });
+        transform(
+            allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const ContainedPtr& it) { return it->name(); });
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -849,8 +852,9 @@ Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool int
     ParamDeclList paramList = op->inParameters();
     for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-        params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), ns, (*q)->optional()) + " " +
-                         (internal ? "iceP_" + (*q)->name() : fixId((*q)->name())));
+        params.push_back(
+            getParamAttributes(*q) + typeToString((*q)->type(), ns, (*q)->optional()) + " " +
+            (internal ? "iceP_" + (*q)->name() : fixId((*q)->name())));
     }
     return params;
 }
@@ -917,7 +921,11 @@ Slice::CsVisitor::getInArgs(const OperationPtr& op, bool internal)
 
 string
 Slice::CsVisitor::getDispatchParams(
-    const OperationPtr& op, string& retS, vector<string>& params, vector<string>& args, const string& ns)
+    const OperationPtr& op,
+    string& retS,
+    vector<string>& params,
+    vector<string>& args,
+    const string& ns)
 {
     string name;
     InterfaceDefPtr interface = op->interface();
@@ -1282,8 +1290,8 @@ Slice::CsVisitor::editMarkup(const string& s)
                 {
                     string ident = result.substr(startIdent, endIdent - startIdent);
                     string::size_type endComment = result.find_first_of("@<", endIdent);
-                    string comment = result.substr(endIdent + 1,
-                                                   endComment == string::npos ? endComment : endComment - endIdent - 1);
+                    string comment = result.substr(
+                        endIdent + 1, endComment == string::npos ? endComment : endComment - endIdent - 1);
                     result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
                     string newComment = "<param name=\"" + ident + "\">" + comment + "</param>\n";
                     result.insert(startIdent, newComment);
@@ -1327,8 +1335,8 @@ Slice::CsVisitor::editMarkup(const string& s)
                 {
                     string ident = result.substr(startIdent, endIdent - startIdent);
                     string::size_type endComment = result.find_first_of("@<", endIdent);
-                    string comment = result.substr(endIdent + 1,
-                                                   endComment == string::npos ? endComment : endComment - endIdent - 1);
+                    string comment = result.substr(
+                        endIdent + 1, endComment == string::npos ? endComment : endComment - endIdent - 1);
                     result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
                     string newComment = "<exception name=\"" + ident + "\">" + comment + "</exception>\n";
                     result.insert(startIdent, newComment);
@@ -1384,9 +1392,10 @@ Slice::CsVisitor::splitComment(const ContainedPtr& p, StringList& summaryLines, 
             ++i;
             break;
         }
-        else if (s[i] == '@' &&
-                 (s.substr(i, paramTag.size()) == paramTag || s.substr(i, throwsTag.size()) == throwsTag ||
-                  s.substr(i, exceptionTag.size()) == exceptionTag || s.substr(i, returnTag.size()) == returnTag))
+        else if (
+            s[i] == '@' &&
+            (s.substr(i, paramTag.size()) == paramTag || s.substr(i, throwsTag.size()) == throwsTag ||
+             s.substr(i, exceptionTag.size()) == exceptionTag || s.substr(i, returnTag.size()) == returnTag))
         {
             break;
         }
@@ -1484,12 +1493,13 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
 }
 
 void
-Slice::CsVisitor::writeDocCommentAMI(const OperationPtr& p,
-                                     ParamDir paramType,
-                                     const string& deprecateReason,
-                                     const string& extraParam1,
-                                     const string& extraParam2,
-                                     const string& extraParam3)
+Slice::CsVisitor::writeDocCommentAMI(
+    const OperationPtr& p,
+    ParamDir paramType,
+    const string& deprecateReason,
+    const string& extraParam1,
+    const string& extraParam2,
+    const string& extraParam3)
 {
     StringList summaryLines;
     StringList remarksLines;
@@ -1620,11 +1630,12 @@ Slice::CsVisitor::writeDocCommentAMI(const OperationPtr& p,
 }
 
 void
-Slice::CsVisitor::writeDocCommentTaskAsyncAMI(const OperationPtr& p,
-                                              const string& deprecateReason,
-                                              const string& extraParam1,
-                                              const string& extraParam2,
-                                              const string& extraParam3)
+Slice::CsVisitor::writeDocCommentTaskAsyncAMI(
+    const OperationPtr& p,
+    const string& deprecateReason,
+    const string& extraParam1,
+    const string& extraParam2,
+    const string& extraParam3)
 {
     StringList summaryLines;
     StringList remarksLines;
@@ -3409,8 +3420,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         string context = getEscapedParamName(p, "context");
         _out << sp;
-        writeDocComment(p, deprecateReason,
-                        "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
+        writeDocComment(
+            p, deprecateReason, "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
         if (!deprecateReason.empty())
         {
             _out << nl << "[global::System.Obsolete(\"" << deprecateReason << "\")]";
@@ -3568,13 +3579,14 @@ Slice::Gen::OpsVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << sp;
         if (amd)
         {
-            writeDocCommentAMD(op,
-                               "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+            writeDocCommentAMD(
+                op, "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
         }
         else
         {
-            writeDocComment(op, getDeprecateReason(op, p, "operation"),
-                            "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
+            writeDocComment(
+                op, getDeprecateReason(op, p, "operation"),
+                "<param name=\"" + args.back() + "\">The Current object for the invocation.</param>");
         }
         emitAttributes(op);
         emitDeprecate(op, op, _out, "operation");

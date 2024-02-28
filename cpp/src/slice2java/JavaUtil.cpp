@@ -38,17 +38,18 @@ namespace
 
     string typeToBufferString(const TypePtr& type)
     {
-        static const char* builtinBufferTable[] = {"java.nio.ByteBuffer",
-                                                   "???",
-                                                   "java.nio.ShortBuffer",
-                                                   "java.nio.IntBuffer",
-                                                   "java.nio.LongBuffer",
-                                                   "java.nio.FloatBuffer",
-                                                   "java.nio.DoubleBuffer",
-                                                   "???",
-                                                   "???",
-                                                   "???",
-                                                   "???"};
+        static const char* builtinBufferTable[] = {
+            "java.nio.ByteBuffer",
+            "???",
+            "java.nio.ShortBuffer",
+            "java.nio.IntBuffer",
+            "java.nio.LongBuffer",
+            "java.nio.FloatBuffer",
+            "java.nio.DoubleBuffer",
+            "???",
+            "???",
+            "???",
+            "???"};
 
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
         if (!builtin)
@@ -184,8 +185,9 @@ namespace
                     string s = *q++;
                     if (s.find("java:type:", 0) == 0)
                     {
-                        dc->warning(InvalidMetaData, p->file(), p->line(),
-                                    "ignoring invalid metadata `" + s + "' for operation with void return type");
+                        dc->warning(
+                            InvalidMetaData, p->file(), p->line(),
+                            "ignoring invalid metadata `" + s + "' for operation with void return type");
                         metaData.remove(s);
                         continue;
                     }
@@ -242,9 +244,10 @@ namespace
                     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
                     if (!builtin || builtin->kind() != Builtin::KindByte)
                     {
-                        dc->warning(InvalidMetaData, file, line,
-                                    "ignoring invalid metadata `" + s +
-                                        "': " + "this metadata can only be used with a byte sequence");
+                        dc->warning(
+                            InvalidMetaData, file, line,
+                            "ignoring invalid metadata `" + s +
+                                "': " + "this metadata can only be used with a byte sequence");
                         continue;
                     }
                     newMetaData.push_back(s);
@@ -258,9 +261,9 @@ namespace
                                      builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
                                      builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
                     {
-                        dc->warning(InvalidMetaData, file, line,
-                                    "ignoring invalid metadata `" + s +
-                                        "': " + "this metadata can not be used with this type");
+                        dc->warning(
+                            InvalidMetaData, file, line,
+                            "ignoring invalid metadata `" + s + "': " + "this metadata can not be used with this type");
                         continue;
                     }
                     newMetaData.push_back(s);
@@ -954,10 +957,11 @@ Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string&
 }
 
 string
-Slice::JavaGenerator::getUnqualified(const ContainedPtr& cont,
-                                     const string& package,
-                                     const string& prefix,
-                                     const string& suffix) const
+Slice::JavaGenerator::getUnqualified(
+    const ContainedPtr& cont,
+    const string& package,
+    const string& prefix,
+    const string& suffix) const
 {
     string name = cont->name();
     if (prefix == "" && suffix == "")
@@ -1101,36 +1105,39 @@ Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
 }
 
 string
-Slice::JavaGenerator::typeToString(const TypePtr& type,
-                                   TypeMode mode,
-                                   const string& package,
-                                   const StringList& metaData,
-                                   bool formal,
-                                   bool optional) const
+Slice::JavaGenerator::typeToString(
+    const TypePtr& type,
+    TypeMode mode,
+    const string& package,
+    const StringList& metaData,
+    bool formal,
+    bool optional) const
 {
-    static const char* builtinTable[] = {"byte",
-                                         "boolean",
-                                         "short",
-                                         "int",
-                                         "long",
-                                         "float",
-                                         "double",
-                                         "String",
-                                         "com.zeroc.Ice.Object",
-                                         "com.zeroc.Ice.ObjectPrx",
-                                         "com.zeroc.Ice.Value"};
+    static const char* builtinTable[] = {
+        "byte",
+        "boolean",
+        "short",
+        "int",
+        "long",
+        "float",
+        "double",
+        "String",
+        "com.zeroc.Ice.Object",
+        "com.zeroc.Ice.ObjectPrx",
+        "com.zeroc.Ice.Value"};
 
-    static const char* builtinOptionalTable[] = {"java.util.Optional<java.lang.Byte>",
-                                                 "java.util.Optional<java.lang.Boolean>",
-                                                 "java.util.Optional<java.lang.Short>",
-                                                 "java.util.OptionalInt",
-                                                 "java.util.OptionalLong",
-                                                 "java.util.Optional<java.lang.Float>",
-                                                 "java.util.OptionalDouble",
-                                                 "???",
-                                                 "???",
-                                                 "???",
-                                                 "???"};
+    static const char* builtinOptionalTable[] = {
+        "java.util.Optional<java.lang.Byte>",
+        "java.util.Optional<java.lang.Boolean>",
+        "java.util.Optional<java.lang.Short>",
+        "java.util.OptionalInt",
+        "java.util.OptionalLong",
+        "java.util.Optional<java.lang.Float>",
+        "java.util.OptionalDouble",
+        "???",
+        "???",
+        "???",
+        "???"};
 
     if (!type)
     {
@@ -1229,7 +1236,11 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 
 string
 Slice::JavaGenerator::typeToObjectString(
-    const TypePtr& type, TypeMode mode, const string& package, const StringList& metaData, bool formal) const
+    const TypePtr& type,
+    TypeMode mode,
+    const string& package,
+    const StringList& metaData,
+    bool formal) const
 {
     static const char* builtinTable[] = {"java.lang.Byte",          "java.lang.Boolean",  "java.lang.Short",
                                          "java.lang.Integer",       "java.lang.Long",     "java.lang.Float",
@@ -1246,18 +1257,19 @@ Slice::JavaGenerator::typeToObjectString(
 }
 
 void
-Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
-                                                const string& package,
-                                                const TypePtr& type,
-                                                OptionalMode mode,
-                                                bool optionalMapping,
-                                                int tag,
-                                                const string& param,
-                                                bool marshal,
-                                                int& iter,
-                                                const string& customStream,
-                                                const StringList& metaData,
-                                                const string& patchParams)
+Slice::JavaGenerator::writeMarshalUnmarshalCode(
+    Output& out,
+    const string& package,
+    const TypePtr& type,
+    OptionalMode mode,
+    bool optionalMapping,
+    int tag,
+    const string& param,
+    bool marshal,
+    int& iter,
+    const string& customStream,
+    const StringList& metaData,
+    const string& patchParams)
 {
     string stream = customStream;
     if (stream.empty())
@@ -1486,8 +1498,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     string d = optionalParam && optionalMapping ? param + ".get()" : param;
                     out << nl << "int pos = " << stream << ".startSize();";
-                    writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream,
-                                                        metaData);
+                    writeDictionaryMarshalUnmarshalCode(
+                        out, package, dict, d, marshal, iter, true, customStream, metaData);
                     out << nl << stream << ".endSize(pos);";
                 }
                 else
@@ -1497,8 +1509,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     out << nl << "final int optSize = " << d << " == null ? 0 : " << d << ".size();";
                     out << nl << stream << ".writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz
                         << " + 1);";
-                    writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, customStream,
-                                                        metaData);
+                    writeDictionaryMarshalUnmarshalCode(
+                        out, package, dict, d, marshal, iter, true, customStream, metaData);
                 }
 
                 if (optionalParam)
@@ -1578,8 +1590,9 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     return;
                 }
             }
-            else if (!hasTypeMetaData(seq, metaData) || findMetaData("java:type", seq->getMetaData(), ignored) ||
-                     findMetaData("java:type", metaData, ignored))
+            else if (
+                !hasTypeMetaData(seq, metaData) || findMetaData("java:type", seq->getMetaData(), ignored) ||
+                findMetaData("java:type", metaData, ignored))
             {
                 string instanceType, formalType, origInstanceType, origFormalType;
                 getSequenceTypes(seq, "", metaData, instanceType, formalType);
@@ -1726,15 +1739,16 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
 }
 
 void
-Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
-                                                          const string& package,
-                                                          const DictionaryPtr& dict,
-                                                          const string& param,
-                                                          bool marshal,
-                                                          int& iter,
-                                                          bool useHelper,
-                                                          const string& customStream,
-                                                          const StringList& metaData)
+Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
+    Output& out,
+    const string& package,
+    const DictionaryPtr& dict,
+    const string& param,
+    bool marshal,
+    int& iter,
+    bool useHelper,
+    const string& customStream,
+    const StringList& metaData)
 {
     string stream = customStream;
     if (stream.empty())
@@ -1838,8 +1852,9 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             valueS = typeToObjectString(value, TypeModeIn, package);
             ostringstream patchParams;
             patchParams << "value -> " << v << ".put(key, value), " << valueS << ".class";
-            writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream,
-                                      StringList(), patchParams.str());
+            writeMarshalUnmarshalCode(
+                out, package, value, OptionalNone, false, 0, "value", false, iter, customStream, StringList(),
+                patchParams.str());
         }
         else
         {
@@ -1860,15 +1875,16 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
 }
 
 void
-Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
-                                                        const string& package,
-                                                        const SequencePtr& seq,
-                                                        const string& param,
-                                                        bool marshal,
-                                                        int& iter,
-                                                        bool useHelper,
-                                                        const string& customStream,
-                                                        const StringList& metaData)
+Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
+    Output& out,
+    const string& package,
+    const SequencePtr& seq,
+    const string& param,
+    bool marshal,
+    int& iter,
+    bool useHelper,
+    const string& customStream,
+    const StringList& metaData)
 {
     string stream = customStream;
     if (stream.empty())
@@ -2073,14 +2089,15 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "final int fi" << iter << " = i" << iter << ";";
                 patchParams << "value -> " << v << ".set(fi" << iter << ", value), " << origContentS << ".class";
 
-                writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", false, iter, customStream,
-                                          StringList(), patchParams.str());
+                writeMarshalUnmarshalCode(
+                    out, package, type, OptionalNone, false, 0, "elem", false, iter, customStream, StringList(),
+                    patchParams.str());
             }
             else
             {
                 out << nl << cont << " elem;";
-                writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", false, iter,
-                                          customStream);
+                writeMarshalUnmarshalCode(
+                    out, package, type, OptionalNone, false, 0, "elem", false, iter, customStream);
                 out << nl << v << ".add(elem);";
             }
             out << eb;
@@ -2216,8 +2233,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 ostringstream o;
                 o << v << "[i" << iter << "]";
                 iter++;
-                writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), true, iter,
-                                          customStream);
+                writeMarshalUnmarshalCode(
+                    out, package, type, OptionalNone, false, 0, o.str(), true, iter, customStream);
                 out << eb;
                 out << eb;
             }
@@ -2281,13 +2298,14 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     ostringstream patchParams;
                     out << nl << "final int fi" << iter << " = i" << iter << ";";
                     patchParams << "value -> " << v << "[fi" << iter << "] = value, " << origContentS << ".class";
-                    writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), false, iter,
-                                              customStream, StringList(), patchParams.str());
+                    writeMarshalUnmarshalCode(
+                        out, package, type, OptionalNone, false, 0, o.str(), false, iter, customStream, StringList(),
+                        patchParams.str());
                 }
                 else
                 {
-                    writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, o.str(), false, iter,
-                                              customStream);
+                    writeMarshalUnmarshalCode(
+                        out, package, type, OptionalNone, false, 0, o.str(), false, iter, customStream);
                 }
                 out << eb;
                 iter++;
@@ -2394,11 +2412,12 @@ Slice::JavaGenerator::hasTypeMetaData(const TypePtr& type, const StringList& loc
 }
 
 bool
-Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
-                                         const string& package,
-                                         const StringList& metaData,
-                                         string& instanceType,
-                                         string& formalType) const
+Slice::JavaGenerator::getDictionaryTypes(
+    const DictionaryPtr& dict,
+    const string& package,
+    const StringList& metaData,
+    string& instanceType,
+    string& formalType) const
 {
     //
     // Get the types of the key and value.
@@ -2429,11 +2448,12 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
 }
 
 bool
-Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
-                                       const string& package,
-                                       const StringList& metaData,
-                                       string& instanceType,
-                                       string& formalType) const
+Slice::JavaGenerator::getSequenceTypes(
+    const SequencePtr& seq,
+    const string& package,
+    const StringList& metaData,
+    string& instanceType,
+    string& formalType) const
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
     if (builtin)

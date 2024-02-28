@@ -317,8 +317,9 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         {
             promise<void> completed;
             promise<bool> sent;
-            prx->opAsync([]() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
-                         [&sent](bool value) { sent.set_value(value); });
+            prx->opAsync(
+                []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+                [&sent](bool value) { sent.set_value(value); });
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
         }
@@ -327,8 +328,9 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
             promise<void> completed;
             promise<bool> sent;
 
-            prx->opAsync([]() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
-                         [&sent](bool value) { sent.set_value(value); });
+            prx->opAsync(
+                []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+                [&sent](bool value) { sent.set_value(value); });
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
         }
@@ -381,9 +383,10 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
 }
 
 void
-initializeTests(const ConfigurationPtr& configuration,
-                const Test::BackgroundPrxPtr& background,
-                const Test::BackgroundControllerPrxPtr& ctl)
+initializeTests(
+    const ConfigurationPtr& configuration,
+    const Test::BackgroundPrxPtr& background,
+    const Test::BackgroundControllerPrxPtr& ctl)
 {
     try
     {
@@ -426,8 +429,9 @@ initializeTests(const ConfigurationPtr& configuration,
         promise<bool> sent;
         promise<void> completed;
 
-        prx->opAsync([]() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
-                     [&sent](bool value) { sent.set_value(value); });
+        prx->opAsync(
+            []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+            [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
 
@@ -620,9 +624,10 @@ initializeTests(const ConfigurationPtr& configuration,
 }
 
 void
-validationTests(const ConfigurationPtr& configuration,
-                const Test::BackgroundPrxPtr& background,
-                const Test::BackgroundControllerPrxPtr& ctl)
+validationTests(
+    const ConfigurationPtr& configuration,
+    const Test::BackgroundPrxPtr& background,
+    const Test::BackgroundControllerPrxPtr& ctl)
 {
     try
     {
@@ -659,8 +664,9 @@ validationTests(const ConfigurationPtr& configuration,
         promise<bool> sent;
         promise<void> completed;
 
-        prx->opAsync([]() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
-                     [&sent](bool value) { sent.set_value(value); });
+        prx->opAsync(
+            []() { test(false); }, [&completed](exception_ptr) { completed.set_value(); },
+            [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
         configuration->readException(0);
@@ -709,22 +715,23 @@ validationTests(const ConfigurationPtr& configuration,
             configuration->readReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             promise<void> completed;
-            background->opAsync([]() { test(false); },
-                                [&completed](exception_ptr err)
-                                {
-                                    try
-                                    {
-                                        rethrow_exception(err);
-                                    }
-                                    catch (const Ice::SocketException&)
-                                    {
-                                        completed.set_value();
-                                    }
-                                    catch (...)
-                                    {
-                                        test(false);
-                                    }
-                                });
+            background->opAsync(
+                []() { test(false); },
+                [&completed](exception_ptr err)
+                {
+                    try
+                    {
+                        rethrow_exception(err);
+                    }
+                    catch (const Ice::SocketException&)
+                    {
+                        completed.set_value();
+                    }
+                    catch (...)
+                    {
+                        test(false);
+                    }
+                });
             completed.get_future().get();
             configuration->readException(0);
             configuration->readReady(true);
@@ -738,11 +745,13 @@ validationTests(const ConfigurationPtr& configuration,
     promise<bool> s1;
     promise<bool> s2;
 
-    background->opAsync([&p1]() { p1.set_value(); }, [&p1](exception_ptr e) { p1.set_exception(e); },
-                        [&s1](bool value) { s1.set_value(value); });
+    background->opAsync(
+        [&p1]() { p1.set_value(); }, [&p1](exception_ptr e) { p1.set_exception(e); },
+        [&s1](bool value) { s1.set_value(value); });
 
-    background->opAsync([&p2]() { p2.set_value(); }, [&p2](exception_ptr e) { p2.set_exception(e); },
-                        [&s2](bool value) { s2.set_value(value); });
+    background->opAsync(
+        [&p2]() { p2.set_value(); }, [&p2](exception_ptr e) { p2.set_exception(e); },
+        [&s2](bool value) { s2.set_value(value); });
 
     test(s1.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
     test(s2.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
@@ -888,9 +897,10 @@ validationTests(const ConfigurationPtr& configuration,
 }
 
 void
-readWriteTests(const ConfigurationPtr& configuration,
-               const Test::BackgroundPrxPtr& background,
-               const Test::BackgroundControllerPrxPtr& ctl)
+readWriteTests(
+    const ConfigurationPtr& configuration,
+    const Test::BackgroundPrxPtr& background,
+    const Test::BackgroundControllerPrxPtr& ctl)
 {
     try
     {
@@ -923,23 +933,24 @@ readWriteTests(const ConfigurationPtr& configuration,
         configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
         promise<bool> sent;
         promise<void> completed;
-        prx->opAsync([]() { test(false); },
-                     [&completed](exception_ptr e)
-                     {
-                         try
-                         {
-                             rethrow_exception(e);
-                         }
-                         catch (const Ice::SocketException&)
-                         {
-                             completed.set_value();
-                         }
-                         catch (...)
-                         {
-                             test(false);
-                         }
-                     },
-                     [&sent](bool value) { sent.set_value(value); });
+        prx->opAsync(
+            []() { test(false); },
+            [&completed](exception_ptr e)
+            {
+                try
+                {
+                    rethrow_exception(e);
+                }
+                catch (const Ice::SocketException&)
+                {
+                    completed.set_value();
+                }
+                catch (...)
+                {
+                    test(false);
+                }
+            },
+            [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
         configuration->writeException(0);
@@ -962,22 +973,23 @@ readWriteTests(const ConfigurationPtr& configuration,
     configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
     {
         promise<void> completed;
-        background->opAsync([]() { test(false); },
-                            [&completed](exception_ptr e)
-                            {
-                                try
-                                {
-                                    rethrow_exception(e);
-                                }
-                                catch (const Ice::SocketException&)
-                                {
-                                    completed.set_value();
-                                }
-                                catch (...)
-                                {
-                                    test(false);
-                                }
-                            });
+        background->opAsync(
+            []() { test(false); },
+            [&completed](exception_ptr e)
+            {
+                try
+                {
+                    rethrow_exception(e);
+                }
+                catch (const Ice::SocketException&)
+                {
+                    completed.set_value();
+                }
+                catch (...)
+                {
+                    test(false);
+                }
+            });
         completed.get_future().get();
     }
     configuration->readException(0);
@@ -1037,23 +1049,24 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->writeException(new Ice::SocketException(__FILE__, __LINE__));
             promise<void> completed;
             promise<bool> sent;
-            prx->opAsync([]() { test(false); },
-                         [&completed](exception_ptr e)
-                         {
-                             try
-                             {
-                                 rethrow_exception(e);
-                             }
-                             catch (const Ice::SocketException&)
-                             {
-                                 completed.set_value();
-                             }
-                             catch (...)
-                             {
-                                 test(false);
-                             }
-                         },
-                         [&sent](bool value) { sent.set_value(value); });
+            prx->opAsync(
+                []() { test(false); },
+                [&completed](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch (const Ice::SocketException&)
+                    {
+                        completed.set_value();
+                    }
+                    catch (...)
+                    {
+                        test(false);
+                    }
+                },
+                [&sent](bool value) { sent.set_value(value); });
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
             configuration->writeReady(true);
@@ -1079,22 +1092,23 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->readReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             promise<void> completed;
-            background->opAsync([]() { test(false); },
-                                [&completed](exception_ptr e)
-                                {
-                                    try
-                                    {
-                                        rethrow_exception(e);
-                                    }
-                                    catch (const Ice::SocketException&)
-                                    {
-                                        completed.set_value();
-                                    }
-                                    catch (...)
-                                    {
-                                        test(false);
-                                    }
-                                });
+            background->opAsync(
+                []() { test(false); },
+                [&completed](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch (const Ice::SocketException&)
+                    {
+                        completed.set_value();
+                    }
+                    catch (...)
+                    {
+                        test(false);
+                    }
+                });
             completed.get_future().get();
             configuration->readReady(true);
             configuration->readException(0);
@@ -1106,22 +1120,23 @@ readWriteTests(const ConfigurationPtr& configuration,
             configuration->writeReady(false);
             configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
             promise<void> completed;
-            background->opAsync([]() { test(false); },
-                                [&](exception_ptr e)
-                                {
-                                    try
-                                    {
-                                        rethrow_exception(e);
-                                    }
-                                    catch (const Ice::SocketException&)
-                                    {
-                                        completed.set_value();
-                                    }
-                                    catch (...)
-                                    {
-                                        test(false);
-                                    }
-                                });
+            background->opAsync(
+                []() { test(false); },
+                [&](exception_ptr e)
+                {
+                    try
+                    {
+                        rethrow_exception(e);
+                    }
+                    catch (const Ice::SocketException&)
+                    {
+                        completed.set_value();
+                    }
+                    catch (...)
+                    {
+                        test(false);
+                    }
+                });
             completed.get_future().get();
             configuration->writeReady(true);
             configuration->readReady(true);
@@ -1154,15 +1169,15 @@ readWriteTests(const ConfigurationPtr& configuration,
     promise<void> c1;
     promise<bool> s1;
 
-    background->opAsync([&c1]() { c1.set_value(); }, [](exception_ptr) { test(false); },
-                        [&s1](bool value) { s1.set_value(value); });
+    background->opAsync(
+        [&c1]() { c1.set_value(); }, [](exception_ptr) { test(false); }, [&s1](bool value) { s1.set_value(value); });
     auto fs1 = s1.get_future();
     test(fs1.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
     promise<void> c2;
     promise<bool> s2;
-    background->opAsync([&c2]() { c2.set_value(); }, [](exception_ptr) { test(false); },
-                        [&s2](bool value) { s2.set_value(value); });
+    background->opAsync(
+        [&c2]() { c2.set_value(); }, [](exception_ptr) { test(false); }, [&s2](bool value) { s2.set_value(value); });
 
     auto fs2 = s2.get_future();
     test(fs2.wait_for(chrono::milliseconds(0)) != future_status::ready);

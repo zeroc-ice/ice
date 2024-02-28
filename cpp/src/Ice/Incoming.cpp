@@ -39,13 +39,14 @@ Ice::MarshaledResult::MarshaledResult(const Ice::Current& current)
     ostr->write(replyOK);
 }
 
-IceInternal::IncomingBase::IncomingBase(Instance* instance,
-                                        ResponseHandler* responseHandler,
-                                        Ice::Connection* connection,
-                                        const ObjectAdapterPtr& adapter,
-                                        bool response,
-                                        Byte compress,
-                                        int32_t requestId)
+IceInternal::IncomingBase::IncomingBase(
+    Instance* instance,
+    ResponseHandler* responseHandler,
+    Ice::Connection* connection,
+    const ObjectAdapterPtr& adapter,
+    bool response,
+    Byte compress,
+    int32_t requestId)
     : _response(response),
       _compress(compress),
       _format(Ice::FormatType::DefaultFormat),
@@ -168,8 +169,9 @@ IceInternal::IncomingBase::response(bool amd)
     }
     catch (const LocalException&)
     {
-        _responseHandler->invokeException(_current.requestId, current_exception(), 1,
-                                          amd); // Fatal invocation exception
+        _responseHandler->invokeException(
+            _current.requestId, current_exception(), 1,
+            amd); // Fatal invocation exception
     }
 
     _observer.detach();
@@ -189,8 +191,9 @@ IceInternal::IncomingBase::exception(std::exception_ptr exc, bool amd)
     }
     catch (const LocalException&)
     {
-        _responseHandler->invokeException(_current.requestId, current_exception(), 1,
-                                          amd); // Fatal invocation exception
+        _responseHandler->invokeException(
+            _current.requestId, current_exception(), 1,
+            amd); // Fatal invocation exception
     }
 }
 
@@ -509,13 +512,14 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
     _responseHandler = 0;
 }
 
-IceInternal::Incoming::Incoming(Instance* instance,
-                                ResponseHandler* responseHandler,
-                                Ice::Connection* connection,
-                                const ObjectAdapterPtr& adapter,
-                                bool response,
-                                Byte compress,
-                                int32_t requestId)
+IceInternal::Incoming::Incoming(
+    Instance* instance,
+    ResponseHandler* responseHandler,
+    Ice::Connection* connection,
+    const ObjectAdapterPtr& adapter,
+    bool response,
+    Byte compress,
+    int32_t requestId)
     : IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
       _inParamPos(0)
 {

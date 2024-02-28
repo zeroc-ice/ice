@@ -310,8 +310,8 @@ namespace Ice
          * @see #findServantLocator
          * @see ServantLocator
          */
-        virtual void addServantLocator(const ::std::shared_ptr<ServantLocator>& locator,
-                                       const ::std::string& category) = 0;
+        virtual void
+        addServantLocator(const ::std::shared_ptr<ServantLocator>& locator, const ::std::string& category) = 0;
 
         /**
          * Remove a Servant Locator from this object adapter.

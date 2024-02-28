@@ -181,14 +181,14 @@ ZEND_END_ARG_INFO()
     ZEND_NS_NAMED_FE("Ice", currentProtocol, ZEND_FN(Ice_currentProtocol), ice_void_arginfo)                           \
     ZEND_NS_NAMED_FE("Ice", currentProtocolEncoding, ZEND_FN(Ice_currentProtocolEncoding), ice_void_arginfo)           \
     ZEND_NS_NAMED_FE("Ice", currentEncoding, ZEND_FN(Ice_currentEncoding), ice_void_arginfo)                           \
-    ZEND_NS_NAMED_FE("Ice", protocolVersionToString, ZEND_FN(Ice_protocolVersionToString),                             \
-                     Ice_protocolVersionToString_arginfo)                                                              \
-    ZEND_NS_NAMED_FE("Ice", stringToProtocolVersion, ZEND_FN(Ice_stringToProtocolVersion),                             \
-                     Ice_stringToProtocolVersion_arginfo)                                                              \
-    ZEND_NS_NAMED_FE("Ice", encodingVersionToString, ZEND_FN(Ice_encodingVersionToString),                             \
-                     Ice_encodingVersionToString_arginfo)                                                              \
-    ZEND_NS_NAMED_FE("Ice", stringToEncodingVersion, ZEND_FN(Ice_stringToEncodingVersion),                             \
-                     Ice_stringToEncodingVersion_arginfo)
+    ZEND_NS_NAMED_FE(                                                                                                  \
+        "Ice", protocolVersionToString, ZEND_FN(Ice_protocolVersionToString), Ice_protocolVersionToString_arginfo)     \
+    ZEND_NS_NAMED_FE(                                                                                                  \
+        "Ice", stringToProtocolVersion, ZEND_FN(Ice_stringToProtocolVersion), Ice_stringToProtocolVersion_arginfo)     \
+    ZEND_NS_NAMED_FE(                                                                                                  \
+        "Ice", encodingVersionToString, ZEND_FN(Ice_encodingVersionToString), Ice_encodingVersionToString_arginfo)     \
+    ZEND_NS_NAMED_FE(                                                                                                  \
+        "Ice", stringToEncodingVersion, ZEND_FN(Ice_stringToEncodingVersion), Ice_stringToEncodingVersion_arginfo)
 
 //
 // Entries for all global functions.

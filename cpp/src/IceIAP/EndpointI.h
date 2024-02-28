@@ -18,14 +18,15 @@ namespace IceObjC
     class iAPEndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<iAPEndpointI>
     {
     public:
-        iAPEndpointI(const IceInternal::ProtocolInstancePtr&,
-                     const std::string&,
-                     const std::string&,
-                     const std::string&,
-                     const std::string&,
-                     std::int32_t,
-                     const std::string&,
-                     bool);
+        iAPEndpointI(
+            const IceInternal::ProtocolInstancePtr&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            std::int32_t,
+            const std::string&,
+            bool);
         iAPEndpointI(const IceInternal::ProtocolInstancePtr&);
         iAPEndpointI(const IceInternal::ProtocolInstancePtr&, Ice::InputStream*);
 
@@ -45,9 +46,10 @@ namespace IceObjC
         IceInternal::EndpointIPtr compress(bool) const final;
 
         IceInternal::TransceiverPtr transceiver() const final;
-        void connectorsAsync(Ice::EndpointSelectionType,
-                             std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
-                             std::function<void(std::exception_ptr)>) const final;
+        void connectorsAsync(
+            Ice::EndpointSelectionType,
+            std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
+            std::function<void(std::exception_ptr)>) const final;
         IceInternal::AcceptorPtr acceptor(const std::string&) const final;
         std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const final;
         std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const final;

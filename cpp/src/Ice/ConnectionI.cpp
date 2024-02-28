@@ -51,17 +51,18 @@ namespace
     class DispatchCall final : public DispatchWorkItem
     {
     public:
-        DispatchCall(const ConnectionIPtr& connection,
-                     function<void(ConnectionIPtr)> connectionStartCompleted,
-                     const vector<ConnectionI::OutgoingMessage>& sentCBs,
-                     Byte compress,
-                     int32_t requestId,
-                     int32_t invokeNum,
-                     const ServantManagerPtr& servantManager,
-                     const ObjectAdapterPtr& adapter,
-                     const OutgoingAsyncBasePtr& outAsync,
-                     const HeartbeatCallback& heartbeatCallback,
-                     InputStream& stream)
+        DispatchCall(
+            const ConnectionIPtr& connection,
+            function<void(ConnectionIPtr)> connectionStartCompleted,
+            const vector<ConnectionI::OutgoingMessage>& sentCBs,
+            Byte compress,
+            int32_t requestId,
+            int32_t invokeNum,
+            const ServantManagerPtr& servantManager,
+            const ObjectAdapterPtr& adapter,
+            const OutgoingAsyncBasePtr& outAsync,
+            const HeartbeatCallback& heartbeatCallback,
+            InputStream& stream)
             : DispatchWorkItem(connection),
               _connection(connection),
               _connectionStartCompleted(std::move(connectionStartCompleted)),
@@ -80,8 +81,9 @@ namespace
 
         void run() final
         {
-            _connection->dispatch(_connectionStartCompleted, _sentCBs, _compress, _requestId, _invokeNum,
-                                  _servantManager, _adapter, _outAsync, _heartbeatCallback, _stream);
+            _connection->dispatch(
+                _connectionStartCompleted, _sentCBs, _compress, _requestId, _invokeNum, _servantManager, _adapter,
+                _outAsync, _heartbeatCallback, _stream);
         }
 
     private:
@@ -369,8 +371,9 @@ Ice::ConnectionI::OutgoingMessage::completed(std::exception_ptr ex)
 }
 
 void
-Ice::ConnectionI::startAsync(function<void(Ice::ConnectionIPtr)> connectionStartCompleted,
-                             function<void(Ice::ConnectionIPtr, exception_ptr)> connectionStartFailed)
+Ice::ConnectionI::startAsync(
+    function<void(Ice::ConnectionIPtr)> connectionStartCompleted,
+    function<void(Ice::ConnectionIPtr, exception_ptr)> connectionStartFailed)
 {
     try
     {
@@ -648,8 +651,9 @@ Ice::ConnectionI::monitor(const chrono::steady_clock::time_point& now, const ACM
             //
             setState(StateClosed, make_exception_ptr(ConnectionTimeoutException(__FILE__, __LINE__)));
         }
-        else if (acm.close != ACMClose::CloseOnInvocation && _dispatchCount == 0 && _batchRequestQueue->isEmpty() &&
-                 _asyncRequests.empty())
+        else if (
+            acm.close != ACMClose::CloseOnInvocation && _dispatchCount == 0 && _batchRequestQueue->isEmpty() &&
+            _asyncRequests.empty())
         {
             //
             // The connection is idle, close it.
@@ -754,17 +758,19 @@ Ice::ConnectionI::getBatchRequestQueue() const
 }
 
 std::function<void()>
-Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
-                                          ::std::function<void(::std::exception_ptr)> ex,
-                                          ::std::function<void(bool)> sent)
+Ice::ConnectionI::flushBatchRequestsAsync(
+    CompressBatch compress,
+    ::std::function<void(::std::exception_ptr)> ex,
+    ::std::function<void(bool)> sent)
 {
     class ConnectionFlushBatchLambda : public ConnectionFlushBatchAsync, public LambdaInvoke
     {
     public:
-        ConnectionFlushBatchLambda(std::shared_ptr<Ice::ConnectionI>&& connection,
-                                   const InstancePtr& instance,
-                                   std::function<void(std::exception_ptr)> ex,
-                                   std::function<void(bool)> sent)
+        ConnectionFlushBatchLambda(
+            std::shared_ptr<Ice::ConnectionI>&& connection,
+            const InstancePtr& instance,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : ConnectionFlushBatchAsync(connection, instance),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
@@ -783,9 +789,10 @@ namespace
     class HeartbeatAsync : public OutgoingAsyncBase
     {
     public:
-        HeartbeatAsync(const ConnectionIPtr& connection,
-                       const CommunicatorPtr& communicator,
-                       const InstancePtr& instance)
+        HeartbeatAsync(
+            const ConnectionIPtr& connection,
+            const CommunicatorPtr& communicator,
+            const InstancePtr& instance)
             : OutgoingAsyncBase(instance),
               _communicator(communicator),
               _connection(connection)
@@ -859,11 +866,12 @@ Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex,
     class HeartbeatLambda : public HeartbeatAsync, public LambdaInvoke
     {
     public:
-        HeartbeatLambda(std::shared_ptr<Ice::ConnectionI>&& connection,
-                        std::shared_ptr<Ice::Communicator>& communicator,
-                        const InstancePtr& instance,
-                        std::function<void(std::exception_ptr)> ex,
-                        std::function<void(bool)> sent)
+        HeartbeatLambda(
+            std::shared_ptr<Ice::ConnectionI>&& connection,
+            std::shared_ptr<Ice::Communicator>& communicator,
+            const InstancePtr& instance,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : HeartbeatAsync(connection, communicator, instance),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
@@ -923,9 +931,10 @@ Ice::ConnectionI::closeCallback(const CloseCallback& callback)
 }
 
 void
-Ice::ConnectionI::setACM(const optional<int>& timeout,
-                         const optional<Ice::ACMClose>& close,
-                         const optional<Ice::ACMHeartbeat>& heartbeat)
+Ice::ConnectionI::setACM(
+    const optional<int>& timeout,
+    const optional<Ice::ACMClose>& close,
+    const optional<Ice::ACMHeartbeat>& heartbeat)
 {
     std::lock_guard lock(_mutex);
     if (timeout && *timeout < 0)
@@ -1252,8 +1261,9 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
 }
 
 void
-Ice::ConnectionI::setAdapterAndServantManager(const ObjectAdapterPtr& adapter,
-                                              const IceInternal::ServantManagerPtr& servantManager)
+Ice::ConnectionI::setAdapterAndServantManager(
+    const ObjectAdapterPtr& adapter,
+    const IceInternal::ServantManagerPtr& servantManager)
 {
     std::lock_guard lock(_mutex);
     if (_state <= StateNotValidated || _state >= StateClosing)
@@ -1558,8 +1568,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 if (readyOp & SocketOperationRead)
                 {
                     newOp = static_cast<SocketOperation>(
-                        newOp | parseMessage(current.stream, invokeNum, requestId, compress, servantManager, adapter,
-                                             outAsync, heartbeatCallback, dispatchCount));
+                        newOp | parseMessage(
+                                    current.stream, invokeNum, requestId, compress, servantManager, adapter, outAsync,
+                                    heartbeatCallback, dispatchCount));
                 }
 
                 if (readyOp & SocketOperationWrite)
@@ -1631,14 +1642,15 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 // dispatchFromThisThread dispatches to the correct DispatchQueue
 #ifdef ICE_SWIFT
-    _threadPool->dispatchFromThisThread(
-        make_shared<DispatchCall>(shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId,
-                                  invokeNum, servantManager, adapter, outAsync, heartbeatCallback, current.stream));
+    _threadPool->dispatchFromThisThread(make_shared<DispatchCall>(
+        shared_from_this(), std::move(connectionStartCompleted), sentCBs, compress, requestId, invokeNum,
+        servantManager, adapter, outAsync, heartbeatCallback, current.stream));
 #else
     if (!_dispatcher) // Optimization, call dispatch() directly if there's no dispatcher.
     {
-        dispatch(connectionStartCompleted, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync,
-                 heartbeatCallback, current.stream);
+        dispatch(
+            connectionStartCompleted, sentCBs, compress, requestId, invokeNum, servantManager, adapter, outAsync,
+            heartbeatCallback, current.stream);
     }
     else
     {
@@ -1650,16 +1662,17 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 }
 
 void
-ConnectionI::dispatch(function<void(ConnectionIPtr)> connectionStartCompleted,
-                      const vector<OutgoingMessage>& sentCBs,
-                      Byte compress,
-                      int32_t requestId,
-                      int32_t invokeNum,
-                      const ServantManagerPtr& servantManager,
-                      const ObjectAdapterPtr& adapter,
-                      const OutgoingAsyncBasePtr& outAsync,
-                      const HeartbeatCallback& heartbeatCallback,
-                      InputStream& stream)
+ConnectionI::dispatch(
+    function<void(ConnectionIPtr)> connectionStartCompleted,
+    const vector<OutgoingMessage>& sentCBs,
+    Byte compress,
+    int32_t requestId,
+    int32_t invokeNum,
+    const ServantManagerPtr& servantManager,
+    const ObjectAdapterPtr& adapter,
+    const OutgoingAsyncBasePtr& outAsync,
+    const HeartbeatCallback& heartbeatCallback,
+    InputStream& stream)
 {
     int dispatchedCount = 0;
 
@@ -2054,13 +2067,14 @@ Ice::ConnectionI::exception(std::exception_ptr ex)
     setState(StateClosed, ex);
 }
 
-Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
-                              const InstancePtr& instance,
-                              const ACMMonitorPtr& monitor,
-                              const TransceiverPtr& transceiver,
-                              const ConnectorPtr& connector,
-                              const EndpointIPtr& endpoint,
-                              const shared_ptr<ObjectAdapterI>& adapter)
+Ice::ConnectionI::ConnectionI(
+    const CommunicatorPtr& communicator,
+    const InstancePtr& instance,
+    const ACMMonitorPtr& monitor,
+    const TransceiverPtr& transceiver,
+    const ConnectorPtr& connector,
+    const EndpointIPtr& endpoint,
+    const shared_ptr<ObjectAdapterI>& adapter)
     : _communicator(communicator),
       _instance(instance),
       _monitor(monitor),
@@ -2119,13 +2133,14 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
 }
 
 Ice::ConnectionIPtr
-Ice::ConnectionI::create(const CommunicatorPtr& communicator,
-                         const InstancePtr& instance,
-                         const ACMMonitorPtr& monitor,
-                         const TransceiverPtr& transceiver,
-                         const ConnectorPtr& connector,
-                         const EndpointIPtr& endpoint,
-                         const shared_ptr<ObjectAdapterI>& adapter)
+Ice::ConnectionI::create(
+    const CommunicatorPtr& communicator,
+    const InstancePtr& instance,
+    const ACMMonitorPtr& monitor,
+    const TransceiverPtr& transceiver,
+    const ConnectorPtr& connector,
+    const EndpointIPtr& endpoint,
+    const shared_ptr<ObjectAdapterI>& adapter)
 {
     Ice::ConnectionIPtr conn(
         new ConnectionI(communicator, instance, monitor, transceiver, connector, endpoint, adapter));
@@ -3018,9 +3033,9 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     unsigned int uncompressedLen = static_cast<unsigned int>(uncompressed.b.size() - headerSize);
     unsigned int compressedLen = static_cast<unsigned int>(uncompressedLen * 1.01 + 600);
     compressed.b.resize(headerSize + sizeof(int32_t) + compressedLen);
-    int bzError = BZ2_bzBuffToBuffCompress(reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t),
-                                           &compressedLen, reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
-                                           uncompressedLen, _compressionLevel, 0, 0);
+    int bzError = BZ2_bzBuffToBuffCompress(
+        reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t), &compressedLen,
+        reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize, uncompressedLen, _compressionLevel, 0, 0);
     if (bzError != BZ_OK)
     {
         throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
@@ -3077,9 +3092,9 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 
     unsigned int uncompressedLen = static_cast<unsigned int>(uncompressedSize - headerSize);
     unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(int32_t));
-    int bzError = BZ2_bzBuffToBuffDecompress(reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize, &uncompressedLen,
-                                             reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t),
-                                             compressedLen, 0, 0);
+    int bzError = BZ2_bzBuffToBuffDecompress(
+        reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize, &uncompressedLen,
+        reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t), compressedLen, 0, 0);
     if (bzError != BZ_OK)
     {
         throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
@@ -3090,15 +3105,16 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 #endif
 
 SocketOperation
-Ice::ConnectionI::parseMessage(InputStream& stream,
-                               int32_t& invokeNum,
-                               int32_t& requestId,
-                               Byte& compress,
-                               ServantManagerPtr& servantManager,
-                               ObjectAdapterPtr& adapter,
-                               OutgoingAsyncBasePtr& outAsync,
-                               HeartbeatCallback& heartbeatCallback,
-                               int& dispatchCount)
+Ice::ConnectionI::parseMessage(
+    InputStream& stream,
+    int32_t& invokeNum,
+    int32_t& requestId,
+    Byte& compress,
+    ServantManagerPtr& servantManager,
+    ObjectAdapterPtr& adapter,
+    OutgoingAsyncBasePtr& outAsync,
+    HeartbeatCallback& heartbeatCallback,
+    int& dispatchCount)
 {
     assert(_state > StateNotValidated && _state < StateClosed);
 
@@ -3168,8 +3184,9 @@ Ice::ConnectionI::parseMessage(InputStream& stream,
             {
                 if (_state >= StateClosing)
                 {
-                    trace("received request during closing\n(ignored by server, client will retry)", stream, _logger,
-                          _traceLevels);
+                    trace(
+                        "received request during closing\n(ignored by server, client will retry)", stream, _logger,
+                        _traceLevels);
                 }
                 else
                 {
@@ -3187,8 +3204,9 @@ Ice::ConnectionI::parseMessage(InputStream& stream,
             {
                 if (_state >= StateClosing)
                 {
-                    trace("received batch request during closing\n(ignored by server, client will retry)", stream,
-                          _logger, _traceLevels);
+                    trace(
+                        "received batch request during closing\n(ignored by server, client will retry)", stream,
+                        _logger, _traceLevels);
                 }
                 else
                 {
@@ -3317,12 +3335,13 @@ Ice::ConnectionI::parseMessage(InputStream& stream,
 }
 
 void
-Ice::ConnectionI::invokeAll(InputStream& stream,
-                            int32_t invokeNum,
-                            int32_t requestId,
-                            Byte compress,
-                            const ServantManagerPtr& servantManager,
-                            const ObjectAdapterPtr& adapter)
+Ice::ConnectionI::invokeAll(
+    InputStream& stream,
+    int32_t invokeNum,
+    int32_t requestId,
+    Byte compress,
+    const ServantManagerPtr& servantManager,
+    const ObjectAdapterPtr& adapter)
 {
     //
     // Note: In contrast to other private or protected methods, this

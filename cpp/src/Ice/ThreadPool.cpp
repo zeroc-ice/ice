@@ -244,8 +244,9 @@ IceInternal::ThreadPool::create(const InstancePtr& instance, const string& prefi
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout)
     : _instance(instance),
 #ifdef ICE_SWIFT
-      _dispatchQueue(dispatch_queue_create(prefixToDispatchQueueLabel(prefix).c_str(),
-                                           DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL)),
+      _dispatchQueue(dispatch_queue_create(
+          prefixToDispatchQueueLabel(prefix).c_str(),
+          DISPATCH_QUEUE_CONCURRENT_WITH_AUTORELEASE_POOL)),
 #else
       _dispatcher(_instance->initializationData().dispatcher),
 #endif
@@ -1244,9 +1245,10 @@ IceInternal::ThreadPool::EventHandlerThread::join()
     }
 }
 
-ThreadPoolCurrent::ThreadPoolCurrent(const InstancePtr& instance,
-                                     const ThreadPoolPtr& threadPool,
-                                     const ThreadPool::EventHandlerThreadPtr& thread)
+ThreadPoolCurrent::ThreadPoolCurrent(
+    const InstancePtr& instance,
+    const ThreadPoolPtr& threadPool,
+    const ThreadPool::EventHandlerThreadPtr& thread)
     : operation(SocketOperationNone),
       stream(instance.get(), Ice::currentProtocolEncoding),
       _threadPool(threadPool.get()),

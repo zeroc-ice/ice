@@ -31,8 +31,8 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
 {
     auto properties = communicator->getProperties();
     auto adapter = communicator->createObjectAdapter(name);
-    adapter->add(make_shared<TestI>(adapter, properties),
-                 stringToIdentity(properties->getProperty(name + ".Identity")));
+    adapter->add(
+        make_shared<TestI>(adapter, properties), stringToIdentity(properties->getProperty(name + ".Identity")));
     adapter->activate();
 }
 

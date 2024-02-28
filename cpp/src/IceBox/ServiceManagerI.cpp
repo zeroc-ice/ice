@@ -37,8 +37,8 @@ namespace
             }
             catch (const IceUtilInternal::BadOptException& ex)
             {
-                throw FailureException(__FILE__, __LINE__,
-                                       "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.reason);
+                throw FailureException(
+                    __FILE__, __LINE__, "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.reason);
             }
 
             assert(!args.empty());
@@ -337,8 +337,8 @@ IceBox::ServiceManagerI::start()
         PropertyDict services = properties->getPropertiesForPrefix(prefix);
         if (services.empty())
         {
-            throw FailureException(__FILE__, __LINE__,
-                                   "ServiceManager: configuration must include at least one IceBox service");
+            throw FailureException(
+                __FILE__, __LINE__, "ServiceManager: configuration must include at least one IceBox service");
         }
 
         StringSeq loadOrder = properties->getPropertyAsList("IceBox.LoadOrder");

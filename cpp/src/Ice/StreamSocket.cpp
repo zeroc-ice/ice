@@ -8,10 +8,11 @@
 
 using namespace IceInternal;
 
-StreamSocket::StreamSocket(const ProtocolInstancePtr& instance,
-                           const NetworkProxyPtr& proxy,
-                           const Address& addr,
-                           const Address& sourceAddr)
+StreamSocket::StreamSocket(
+    const ProtocolInstancePtr& instance,
+    const NetworkProxyPtr& proxy,
+    const Address& addr,
+    const Address& sourceAddr)
     : NativeInfo(createSocket(false, proxy ? proxy->getAddress() : addr)),
       _instance(instance),
       _proxy(proxy),

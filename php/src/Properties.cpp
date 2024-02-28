@@ -161,10 +161,11 @@ ZEND_METHOD(Ice_Properties, getPropertyAsInt)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsIntWithDefault_arginfo,
-                       1,
-                       ZEND_RETURN_VALUE,
-                       static_cast<zend_ulong>(2))
+ZEND_BEGIN_ARG_INFO_EX(
+    Ice_Properties_getPropertyAsIntWithDefault_arginfo,
+    1,
+    ZEND_RETURN_VALUE,
+    static_cast<zend_ulong>(2))
 ZEND_ARG_INFO(0, name)
 ZEND_ARG_INFO(0, defaultValue)
 ZEND_END_ARG_INFO()
@@ -230,10 +231,11 @@ ZEND_METHOD(Ice_Properties, getPropertyAsList)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_getPropertyAsListWithDefault_arginfo,
-                       1,
-                       ZEND_RETURN_VALUE,
-                       static_cast<zend_ulong>(2))
+ZEND_BEGIN_ARG_INFO_EX(
+    Ice_Properties_getPropertyAsListWithDefault_arginfo,
+    1,
+    ZEND_RETURN_VALUE,
+    static_cast<zend_ulong>(2))
 ZEND_ARG_INFO(0, name)
 ZEND_ARG_INFO(0, defaultValue)
 ZEND_END_ARG_INFO()
@@ -420,10 +422,11 @@ ZEND_METHOD(Ice_Properties, parseCommandLineOptions)
     }
 }
 
-ZEND_BEGIN_ARG_INFO_EX(Ice_Properties_parseIceCommandLineOptions_arginfo,
-                       1,
-                       ZEND_RETURN_VALUE,
-                       static_cast<zend_ulong>(1))
+ZEND_BEGIN_ARG_INFO_EX(
+    Ice_Properties_parseIceCommandLineOptions_arginfo,
+    1,
+    ZEND_RETURN_VALUE,
+    static_cast<zend_ulong>(1))
 ZEND_ARG_INFO(0, options)
 ZEND_END_ARG_INFO()
 
@@ -554,8 +557,8 @@ ZEND_FUNCTION(Ice_createProperties)
     zval* arglist = 0;
     zval* defaultsObj = 0;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("|a!O!"), &arglist, &defaultsObj,
-                              propertiesClassEntry) == FAILURE)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(), const_cast<char*>("|a!O!"), &arglist, &defaultsObj, propertiesClassEntry) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -618,33 +621,42 @@ static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 static zend_function_entry _classMethods[] = {
     ZEND_ME(Ice_Properties, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR) ZEND_ME(
-        Ice_Properties, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC)
-        ZEND_ME(Ice_Properties, getProperty, Ice_Properties_getProperty_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-            Ice_Properties, getPropertyWithDefault, Ice_Properties_getPropertyWithDefault_arginfo, ZEND_ACC_PUBLIC)
+        Ice_Properties,
+        __toString,
+        ice_to_string_arginfo,
+        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Properties, getProperty, Ice_Properties_getProperty_arginfo, ZEND_ACC_PUBLIC)
+        ZEND_ME(Ice_Properties, getPropertyWithDefault, Ice_Properties_getPropertyWithDefault_arginfo, ZEND_ACC_PUBLIC)
             ZEND_ME(Ice_Properties, getPropertyAsInt, Ice_Properties_getPropertyAsInt_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
                 Ice_Properties,
                 getPropertyAsIntWithDefault,
                 Ice_Properties_getPropertyAsIntWithDefault_arginfo,
                 ZEND_ACC_PUBLIC)
                 ZEND_ME(Ice_Properties, getPropertyAsList, Ice_Properties_getPropertyAsList_arginfo, ZEND_ACC_PUBLIC)
-                    ZEND_ME(Ice_Properties,
-                            getPropertyAsListWithDefault,
-                            Ice_Properties_getPropertyAsListWithDefault_arginfo,
-                            ZEND_ACC_PUBLIC) ZEND_ME(Ice_Properties,
-                                                     getPropertiesForPrefix,
-                                                     Ice_Properties_getPropertiesForPrefix_arginfo,
-                                                     ZEND_ACC_PUBLIC)
-                        ZEND_ME(Ice_Properties, setProperty, Ice_Properties_setProperty_arginfo, ZEND_ACC_PUBLIC)
-                            ZEND_ME(Ice_Properties, getCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                                ZEND_ME(Ice_Properties,
+                    ZEND_ME(
+                        Ice_Properties,
+                        getPropertyAsListWithDefault,
+                        Ice_Properties_getPropertyAsListWithDefault_arginfo,
+                        ZEND_ACC_PUBLIC)
+                        ZEND_ME(
+                            Ice_Properties,
+                            getPropertiesForPrefix,
+                            Ice_Properties_getPropertiesForPrefix_arginfo,
+                            ZEND_ACC_PUBLIC)
+                            ZEND_ME(Ice_Properties, setProperty, Ice_Properties_setProperty_arginfo, ZEND_ACC_PUBLIC)
+                                ZEND_ME(Ice_Properties, getCommandLineOptions, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                    ZEND_ME(
+                                        Ice_Properties,
                                         parseCommandLineOptions,
                                         Ice_Properties_parseCommandLineOptions_arginfo,
-                                        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Properties,
-                                                                 parseIceCommandLineOptions,
-                                                                 Ice_Properties_parseIceCommandLineOptions_arginfo,
-                                                                 ZEND_ACC_PUBLIC)
-                                    ZEND_ME(Ice_Properties, load, Ice_Properties_load_arginfo, ZEND_ACC_PUBLIC)
-                                        ZEND_ME(Ice_Properties, clone, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
+                                        ZEND_ACC_PUBLIC)
+                                        ZEND_ME(
+                                            Ice_Properties,
+                                            parseIceCommandLineOptions,
+                                            Ice_Properties_parseIceCommandLineOptions_arginfo,
+                                            ZEND_ACC_PUBLIC)
+                                            ZEND_ME(Ice_Properties, load, Ice_Properties_load_arginfo, ZEND_ACC_PUBLIC)
+                                                ZEND_ME(Ice_Properties, clone, ice_void_arginfo, ZEND_ACC_PUBLIC){
+                                                    0, 0, 0}};
 
 bool
 IcePHP::propertiesInit(void)

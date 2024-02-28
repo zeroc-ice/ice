@@ -21,7 +21,7 @@ namespace IceMX
 {
 
     /// \cond INTERNAL
-    template <typename T> class MetricsHelperT
+    template<typename T> class MetricsHelperT
     {
     public:
         virtual ~MetricsHelperT() {}
@@ -34,7 +34,7 @@ namespace IceMX
         }
 
     protected:
-        template <typename Helper> class AttributeResolverT
+        template<typename Helper> class AttributeResolverT
         {
             class Resolver
             {
@@ -81,26 +81,26 @@ namespace IceMX
 
             void setDefault(std::string (Helper::*memberFn)(const std::string&) const) { _default = memberFn; }
 
-            template <typename Y> void add(const std::string& name, Y Helper::*member)
+            template<typename Y> void add(const std::string& name, Y Helper::*member)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
                     name, new HelperMemberResolver<Y>(name, member)));
             }
 
-            template <typename Y> void add(const std::string& name, Y (Helper::*memberFn)() const)
+            template<typename Y> void add(const std::string& name, Y (Helper::*memberFn)() const)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
                     name, new HelperMemberFunctionResolver<Y>(name, memberFn)));
             }
 
-            template <typename I, typename O, typename Y>
+            template<typename I, typename O, typename Y>
             void add(const std::string& name, O (Helper::*getFn)() const, Y I::*member)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
                     name, new MemberResolver<I, O, Y>(name, getFn, member)));
             }
 
-            template <typename I, typename O, typename Y>
+            template<typename I, typename O, typename Y>
             void add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
@@ -111,7 +111,7 @@ namespace IceMX
             // Since C++17 the noexcept-specification is part of the function type and we need a separate
             // overload to handle memberFn being noexcept
             //
-            template <typename I, typename O, typename Y>
+            template<typename I, typename O, typename Y>
             void add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const noexcept)
             {
                 _attributes.insert(typename std::map<std::string, Resolver*>::value_type(
@@ -119,7 +119,7 @@ namespace IceMX
             }
 
         private:
-            template <typename Y> class HelperMemberResolver : public Resolver
+            template<typename Y> class HelperMemberResolver : public Resolver
             {
             public:
                 HelperMemberResolver(const std::string& name, Y Helper::*member) : Resolver(name), _member(member) {}
@@ -130,7 +130,7 @@ namespace IceMX
                 Y Helper::*_member;
             };
 
-            template <typename Y> class HelperMemberFunctionResolver : public Resolver
+            template<typename Y> class HelperMemberFunctionResolver : public Resolver
             {
             public:
                 HelperMemberFunctionResolver(const std::string& name, Y (Helper::*memberFn)() const)
@@ -145,7 +145,7 @@ namespace IceMX
                 Y (Helper::*_memberFn)() const;
             };
 
-            template <typename I, typename O, typename Y> class MemberResolver : public Resolver
+            template<typename I, typename O, typename Y> class MemberResolver : public Resolver
             {
             public:
                 MemberResolver(const std::string& name, O (Helper::*getFn)() const, Y I::*member)
@@ -174,7 +174,7 @@ namespace IceMX
                 Y I::*_member;
             };
 
-            template <typename I, typename O, typename Y> class MemberFunctionResolver : public Resolver
+            template<typename I, typename O, typename Y> class MemberFunctionResolver : public Resolver
             {
             public:
                 MemberFunctionResolver(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const)
@@ -203,9 +203,9 @@ namespace IceMX
                 Y (I::*_memberFn)() const;
             };
 
-            template <typename I, typename V> static I* dynamicCast(V* v) { return dynamic_cast<I*>(v); }
+            template<typename I, typename V> static I* dynamicCast(V* v) { return dynamic_cast<I*>(v); }
 
-            template <typename I> static I* dynamicCast(Ice::EndpointInfo* v)
+            template<typename I> static I* dynamicCast(Ice::EndpointInfo* v)
             {
                 for (Ice::EndpointInfo* info = v; info; info = info->underlying.get())
                 {
@@ -218,7 +218,7 @@ namespace IceMX
                 return 0;
             }
 
-            template <typename I> static I* dynamicCast(Ice::ConnectionInfo* v)
+            template<typename I> static I* dynamicCast(Ice::ConnectionInfo* v)
             {
                 for (Ice::ConnectionInfo* info = v; info; info = info->underlying.get())
                 {
@@ -231,7 +231,7 @@ namespace IceMX
                 return 0;
             }
 
-            template <typename I> static std::string toString(const I& v)
+            template<typename I> static std::string toString(const I& v)
             {
                 std::ostringstream os;
                 os << v;
@@ -240,7 +240,7 @@ namespace IceMX
 
             static const std::string toString(const Ice::ObjectPrx& p) { return p->ice_toString(); }
 
-            template <typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
+            template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
             static const std::string toString(const std::optional<Prx>& p)
             {
                 return p ? toString(p.value()) : "";
@@ -266,7 +266,7 @@ namespace IceMX
     };
     using UpdaterPtr = std::shared_ptr<Updater>;
 
-    template <typename T> class UpdaterT final : public Updater
+    template<typename T> class UpdaterT final : public Updater
     {
     public:
         UpdaterT(const std::shared_ptr<T>& updater, void (T::*fn)()) : _updater(updater), _fn(fn) {}
@@ -278,7 +278,7 @@ namespace IceMX
         void (T::*_fn)();
     };
 
-    template <typename T> UpdaterPtr newUpdater(const std::shared_ptr<T>& updater, void (T::*fn)())
+    template<typename T> UpdaterPtr newUpdater(const std::shared_ptr<T>& updater, void (T::*fn)())
     {
         if (updater)
         {
@@ -290,7 +290,7 @@ namespace IceMX
         }
     }
 
-    template <typename T> class ObserverT : public virtual ::Ice::Instrumentation::Observer
+    template<typename T> class ObserverT : public virtual ::Ice::Instrumentation::Observer
     {
     public:
         typedef T MetricsType;
@@ -324,7 +324,7 @@ namespace IceMX
             }
         }
 
-        template <typename Function> void forEach(const Function& func)
+        template<typename Function> void forEach(const Function& func)
         {
             for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
             {
@@ -368,9 +368,9 @@ namespace IceMX
             return nullptr;
         }
 
-        template <typename ObserverImpl, typename ObserverMetricsType>
-        std::shared_ptr<ObserverImpl> getObserver(const std::string& mapName,
-                                                  const MetricsHelperT<ObserverMetricsType>& helper)
+        template<typename ObserverImpl, typename ObserverMetricsType>
+        std::shared_ptr<ObserverImpl>
+        getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
         {
             std::vector<typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
             for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
@@ -399,7 +399,7 @@ namespace IceMX
         std::chrono::microseconds _previousDelay;
     };
 
-    template <typename ObserverImplType> class ObserverFactoryT : public Updater
+    template<typename ObserverImplType> class ObserverFactoryT : public Updater
     {
     public:
         using ObserverImplPtrType = ::std::shared_ptr<ObserverImplType>;
@@ -450,7 +450,7 @@ namespace IceMX
             return obsv;
         }
 
-        template <typename ObserverPtrType>
+        template<typename ObserverPtrType>
         ObserverImplPtrType getObserver(const MetricsHelperT<MetricsType>& helper, const ObserverPtrType& observer)
         {
             ObserverImplPtrType old = std::dynamic_pointer_cast<ObserverImplType>(observer);
@@ -486,7 +486,7 @@ namespace IceMX
             return obsv;
         }
 
-        template <typename SubMapMetricsType>
+        template<typename SubMapMetricsType>
         void registerSubMap(const std::string& subMap, MetricsMap MetricsType::*member)
         {
             assert(_metrics);

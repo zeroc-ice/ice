@@ -14,7 +14,7 @@ namespace IceInternal
 
     std::string getExceptionId(std::exception_ptr);
 
-    template <typename T = Ice::Instrumentation::Observer> class ObserverHelperT
+    template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
     {
     public:
         using TPtr = ::std::shared_ptr<T>;

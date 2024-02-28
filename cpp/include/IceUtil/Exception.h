@@ -101,7 +101,7 @@ namespace IceUtil
      * It implements ice_clone and ice_throw.
      * \headerfile Ice/Ice.h
      */
-    template <typename E, typename B = Exception> class ExceptionHelper : public B
+    template<typename E, typename B = Exception> class ExceptionHelper : public B
     {
     public:
         using B::B;
@@ -186,7 +186,7 @@ namespace IceUtil
         const int _error;
     };
 
-    template <typename E> using SyscallExceptionHelper = ExceptionHelper<E, SyscallException>;
+    template<typename E> using SyscallExceptionHelper = ExceptionHelper<E, SyscallException>;
 
     /**
      * This exception indicates the failure to lock a file.

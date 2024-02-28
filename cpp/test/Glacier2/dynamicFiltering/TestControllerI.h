@@ -60,10 +60,11 @@ class TestControllerI final : public Test::TestController
 public:
     TestControllerI(const std::string&);
 
-    void step(Glacier2::SessionPrxPtr currentSession,
-              Test::TestToken currentState,
-              Test::TestToken& newState,
-              const Ice::Current&) override;
+    void step(
+        Glacier2::SessionPrxPtr currentSession,
+        Test::TestToken currentState,
+        Test::TestToken& newState,
+        const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 

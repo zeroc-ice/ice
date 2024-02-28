@@ -17,7 +17,7 @@ using namespace Slice::Python;
 namespace IcePy
 {
 
-    template <typename T> bool setVersion(PyObject* p, const T& version)
+    template<typename T> bool setVersion(PyObject* p, const T& version)
     {
         PyObjectHandle major = PyLong_FromLong(version.major);
         PyObjectHandle minor = PyLong_FromLong(version.minor);
@@ -33,7 +33,7 @@ namespace IcePy
         return true;
     }
 
-    template <typename T> bool getVersion(PyObject* p, T& v)
+    template<typename T> bool getVersion(PyObject* p, T& v)
     {
         PyObjectHandle major = getAttr(p, "major", false);
         PyObjectHandle minor = getAttr(p, "minor", false);
@@ -81,7 +81,7 @@ namespace IcePy
         return true;
     }
 
-    template <typename T> PyObject* createVersion(const T& version, const char* type)
+    template<typename T> PyObject* createVersion(const T& version, const char* type)
     {
         PyObject* versionType = lookupType(type);
 
@@ -99,7 +99,7 @@ namespace IcePy
         return obj.release();
     }
 
-    template <typename T> PyObject* versionToString(PyObject* args, const char* type)
+    template<typename T> PyObject* versionToString(PyObject* args, const char* type)
     {
         PyObject* versionType = IcePy::lookupType(type);
         PyObject* p;
@@ -127,7 +127,7 @@ namespace IcePy
         return createString(s);
     }
 
-    template <typename T> PyObject* stringToVersion(PyObject* args, const char* type)
+    template<typename T> PyObject* stringToVersion(PyObject* args, const char* type)
     {
         char* str;
         if (!PyArg_ParseTuple(args, STRCAST("s"), &str))

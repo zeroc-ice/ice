@@ -17,12 +17,13 @@ using namespace Test;
 using namespace IceGrid;
 
 void
-instantiateServer(const AdminPrxPtr& admin,
-                  const string& templ,
-                  const string& node,
-                  const map<string, string>& params,
-                  const string& application = string("Test"),
-                  bool startServer = true)
+instantiateServer(
+    const AdminPrxPtr& admin,
+    const string& templ,
+    const string& node,
+    const map<string, string>& params,
+    const string& application = string("Test"),
+    bool startServer = true)
 {
     ServerInstanceDescriptor desc;
     desc._cpp_template = templ;
@@ -541,37 +542,46 @@ allTests(Test::TestHelper* helper)
         try
         {
             ctx["server"] = "Server3";
-            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
-                 "Server3.Service.Service");
+            test(
+                query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
+                "Server3.Service.Service");
             ctx["server"] = "Server1";
-            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
-                 "Server1.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
+                "Server1.ReplicatedAdapter");
             ctx["server"] = "Server2";
-            test(query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
-                 "Server2.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)->findObjectByType("::Test::TestIntf2")->ice_getAdapterId() ==
+                "Server2.ReplicatedAdapter");
 
             ctx["server"] = "Server3";
-            test(query->ice_context(ctx)
-                     ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
-                     ->ice_getAdapterId() == "Server3.Service.Service");
+            test(
+                query->ice_context(ctx)
+                    ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
+                    ->ice_getAdapterId() == "Server3.Service.Service");
             ctx["server"] = "Server1";
-            test(query->ice_context(ctx)
-                     ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
-                     ->ice_getAdapterId() == "Server1.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)
+                    ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
+                    ->ice_getAdapterId() == "Server1.ReplicatedAdapter");
             ctx["server"] = "Server2";
-            test(query->ice_context(ctx)
-                     ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
-                     ->ice_getAdapterId() == "Server2.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)
+                    ->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf2", LoadSample::LoadSample5)
+                    ->ice_getAdapterId() == "Server2.ReplicatedAdapter");
 
             ctx["server"] = "Server3";
-            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
-                 "Server3.Service.Service");
+            test(
+                query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
+                "Server3.Service.Service");
             ctx["server"] = "Server1";
-            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
-                 "Server1.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
+                "Server1.ReplicatedAdapter");
             ctx["server"] = "Server2";
-            test(query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
-                 "Server2.ReplicatedAdapter");
+            test(
+                query->ice_context(ctx)->findAllObjectsByType("::Test::TestIntf2")[0]->ice_getAdapterId() ==
+                "Server2.ReplicatedAdapter");
         }
         catch (const Ice::LocalException& ex)
         {

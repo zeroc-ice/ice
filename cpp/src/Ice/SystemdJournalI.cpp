@@ -54,8 +54,9 @@ Ice::SystemdJournalI::cloneWithPrefix(const string& prefix)
 void
 Ice::SystemdJournalI::write(int priority, const string& message) const
 {
-    sd_journal_send("MESSAGE=%s", message.c_str(), "PRIORITY=%i", priority, "SYSLOG_IDENTIFIER=%s", _prefix.c_str(),
-                    NULL); // Using NULL is necessary for EL7, see #293
+    sd_journal_send(
+        "MESSAGE=%s", message.c_str(), "PRIORITY=%i", priority, "SYSLOG_IDENTIFIER=%s", _prefix.c_str(),
+        NULL); // Using NULL is necessary for EL7, see #293
 }
 
 #endif

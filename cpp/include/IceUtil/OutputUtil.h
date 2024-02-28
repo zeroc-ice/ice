@@ -109,7 +109,7 @@ namespace IceUtilInternal
         bool _emptyBlock;
     };
 
-    template <typename T> inline Output& operator<<(Output& out, const T& val)
+    template<typename T> inline Output& operator<<(Output& out, const T& val)
     {
         std::ostringstream s;
         s << val;
@@ -117,7 +117,7 @@ namespace IceUtilInternal
         return out;
     }
 
-    template <typename T> inline Output& operator<<(Output& out, const std::vector<T>& val)
+    template<typename T> inline Output& operator<<(Output& out, const std::vector<T>& val)
     {
         for (typename std::vector<T>::const_iterator p = val.begin(); p != val.end(); ++p)
         {
@@ -126,13 +126,13 @@ namespace IceUtilInternal
         return out;
     }
 
-    template <> inline Output& operator<<(Output& o, const NextLine&)
+    template<> inline Output& operator<<(Output& o, const NextLine&)
     {
         o.newline();
         return o;
     }
 
-    template <> inline Output& operator<<(Output& o, const Separator&)
+    template<> inline Output& operator<<(Output& o, const Separator&)
     {
         o.separator();
         return o;
@@ -143,7 +143,7 @@ namespace IceUtilInternal
     };
     extern ICE_API StartBlock sb;
 
-    template <> inline Output& operator<<(Output& o, const StartBlock&)
+    template<> inline Output& operator<<(Output& o, const StartBlock&)
     {
         o.sb();
         return o;
@@ -154,7 +154,7 @@ namespace IceUtilInternal
     };
     extern ICE_API EndBlock eb;
 
-    template <> inline Output& operator<<(Output& o, const EndBlock&)
+    template<> inline Output& operator<<(Output& o, const EndBlock&)
     {
         o.eb();
         return o;
@@ -165,7 +165,7 @@ namespace IceUtilInternal
     };
     extern ICE_API StartPar spar;
 
-    template <> inline Output& operator<<(Output& o, const StartPar&)
+    template<> inline Output& operator<<(Output& o, const StartPar&)
     {
         o.spar();
         return o;
@@ -176,7 +176,7 @@ namespace IceUtilInternal
     };
     extern ICE_API EndPar epar;
 
-    template <> inline Output& operator<<(Output& o, const EndPar&)
+    template<> inline Output& operator<<(Output& o, const EndPar&)
     {
         o.epar();
         return o;
@@ -187,7 +187,7 @@ namespace IceUtilInternal
     };
     extern ICE_API StartAbrk sabrk;
 
-    template <> inline Output& operator<<(Output& o, const StartAbrk&)
+    template<> inline Output& operator<<(Output& o, const StartAbrk&)
     {
         o.spar('<');
         return o;
@@ -198,7 +198,7 @@ namespace IceUtilInternal
     };
     extern ICE_API EndAbrk eabrk;
 
-    template <> inline Output& operator<<(Output& o, const EndAbrk&)
+    template<> inline Output& operator<<(Output& o, const EndAbrk&)
     {
         o.epar('>');
         return o;
@@ -241,7 +241,7 @@ namespace IceUtilInternal
         bool _escape;
     };
 
-    template <typename T> inline XMLOutput& operator<<(XMLOutput& out, const T& val)
+    template<typename T> inline XMLOutput& operator<<(XMLOutput& out, const T& val)
     {
         std::ostringstream s;
         s << val;
@@ -249,13 +249,13 @@ namespace IceUtilInternal
         return out;
     }
 
-    template <> inline XMLOutput& operator<<(XMLOutput& o, const NextLine&)
+    template<> inline XMLOutput& operator<<(XMLOutput& o, const NextLine&)
     {
         o.newline();
         return o;
     }
 
-    template <> inline XMLOutput& operator<<(XMLOutput& o, const Separator&)
+    template<> inline XMLOutput& operator<<(XMLOutput& o, const Separator&)
     {
         o.separator();
         return o;
@@ -266,7 +266,7 @@ namespace IceUtilInternal
     };
     extern ICE_API EndElement ee;
 
-    template <> inline XMLOutput& operator<<(XMLOutput& o, const EndElement&)
+    template<> inline XMLOutput& operator<<(XMLOutput& o, const EndElement&)
     {
         o.endElement();
         return o;
@@ -285,7 +285,7 @@ namespace IceUtilInternal
 
     typedef StartElement se;
 
-    template <> inline XMLOutput& operator<<(XMLOutput& o, const StartElement& e)
+    template<> inline XMLOutput& operator<<(XMLOutput& o, const StartElement& e)
     {
         o.startElement(e.getName());
         return o;
@@ -306,7 +306,7 @@ namespace IceUtilInternal
 
     typedef Attribute attr;
 
-    template <> inline XMLOutput& operator<<(XMLOutput& o, const Attribute& e)
+    template<> inline XMLOutput& operator<<(XMLOutput& o, const Attribute& e)
     {
         o.attr(e.getName(), e.getValue());
         return o;
@@ -322,13 +322,13 @@ namespace IceUtilInternal
     };
     extern ICE_API EndEscapes endEscapes;
 
-    template <> inline XMLOutput& operator<<(XMLOutput& o, const StartEscapes&)
+    template<> inline XMLOutput& operator<<(XMLOutput& o, const StartEscapes&)
     {
         o.startEscapes();
         return o;
     }
 
-    template <> inline XMLOutput& operator<<(XMLOutput& o, const EndEscapes&)
+    template<> inline XMLOutput& operator<<(XMLOutput& o, const EndEscapes&)
     {
         o.endEscapes();
         return o;

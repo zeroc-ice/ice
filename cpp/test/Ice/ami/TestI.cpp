@@ -54,18 +54,19 @@ TestIntfI::opBatchCount(const Ice::Current&)
 }
 
 void
-TestIntfI::opWithArgs(int32_t& one,
-                      int32_t& two,
-                      int32_t& three,
-                      int32_t& four,
-                      int32_t& five,
-                      int32_t& six,
-                      int32_t& seven,
-                      int32_t& eight,
-                      int32_t& nine,
-                      int32_t& ten,
-                      int32_t& eleven,
-                      const Ice::Current&)
+TestIntfI::opWithArgs(
+    int32_t& one,
+    int32_t& two,
+    int32_t& three,
+    int32_t& four,
+    int32_t& five,
+    int32_t& six,
+    int32_t& seven,
+    int32_t& eight,
+    int32_t& nine,
+    int32_t& ten,
+    int32_t& eleven,
+    const Ice::Current&)
 {
     one = 1;
     two = 2;
@@ -107,9 +108,10 @@ TestIntfI::sleep(int32_t ms, const Ice::Current&)
 }
 
 void
-TestIntfI::startDispatchAsync(std::function<void()> response,
-                              std::function<void(std::exception_ptr)>,
-                              const Ice::Current&)
+TestIntfI::startDispatchAsync(
+    std::function<void()> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     lock_guard lock(_mutex);
     if (_shutdown)

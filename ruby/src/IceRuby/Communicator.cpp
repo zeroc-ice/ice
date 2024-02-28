@@ -147,8 +147,8 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
 
         if (!NIL_P(initData) && !NIL_P(configFile))
         {
-            throw RubyException(rb_eTypeError,
-                                "initialize accepts either Ice.InitializationData or a configuration filename");
+            throw RubyException(
+                rb_eTypeError, "initialize accepts either Ice.InitializationData or a configuration filename");
         }
 
         Ice::StringSeq seq;
@@ -261,8 +261,9 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         }
         delete[] av;
 
-        VALUE result = Data_Wrap_Struct(_communicatorClass, IceRuby_Communicator_mark, IceRuby_Communicator_free,
-                                        new Ice::CommunicatorPtr(communicator));
+        VALUE result = Data_Wrap_Struct(
+            _communicatorClass, IceRuby_Communicator_mark, IceRuby_Communicator_free,
+            new Ice::CommunicatorPtr(communicator));
 
         CommunicatorMap::iterator p = _communicatorMap.find(communicator);
         if (p != _communicatorMap.end())
@@ -639,8 +640,8 @@ IceRuby_Communicator_flushBatchRequests(VALUE self, VALUE compress)
         volatile VALUE type = callRuby(rb_path2class, "Ice::CompressBatch");
         if (callRuby(rb_obj_is_instance_of, compress, type) != Qtrue)
         {
-            throw RubyException(rb_eTypeError,
-                                "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
+            throw RubyException(
+                rb_eTypeError, "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
         }
         volatile VALUE compressValue = callRuby(rb_funcall, compress, rb_intern("to_i"), 0);
         assert(TYPE(compressValue) == T_FIXNUM);
@@ -669,8 +670,8 @@ IceRuby::initCommunicator(VALUE iceModule)
     rb_define_method(_communicatorClass, "propertyToProxy", CAST_METHOD(IceRuby_Communicator_propertyToProxy), 1);
     rb_define_method(_communicatorClass, "proxyToProperty", CAST_METHOD(IceRuby_Communicator_proxyToProperty), 2);
     rb_define_method(_communicatorClass, "identityToString", CAST_METHOD(IceRuby_Communicator_identityToString), 1);
-    rb_define_method(_communicatorClass, "getValueFactoryManager",
-                     CAST_METHOD(IceRuby_Communicator_getValueFactoryManager), 0);
+    rb_define_method(
+        _communicatorClass, "getValueFactoryManager", CAST_METHOD(IceRuby_Communicator_getValueFactoryManager), 0);
     rb_define_method(_communicatorClass, "getImplicitContext", CAST_METHOD(IceRuby_Communicator_getImplicitContext), 0);
     rb_define_method(_communicatorClass, "getProperties", CAST_METHOD(IceRuby_Communicator_getProperties), 0);
     rb_define_method(_communicatorClass, "getLogger", CAST_METHOD(IceRuby_Communicator_getLogger), 0);

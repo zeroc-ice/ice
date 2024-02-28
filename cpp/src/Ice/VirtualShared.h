@@ -14,7 +14,7 @@ namespace IceInternal
         virtual ~VirtualEnableSharedFromThisBase() = default;
     };
 
-    template <typename T> class EnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
+    template<typename T> class EnableSharedFromThis : public virtual VirtualEnableSharedFromThisBase
     {
     public:
         std::shared_ptr<T> shared_from_this()

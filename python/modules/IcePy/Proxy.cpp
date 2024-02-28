@@ -1763,19 +1763,19 @@ extern "C"
     try
     {
         cancel = (*self->proxy)
-                     ->ice_getConnectionAsync([callback](const Ice::ConnectionPtr& connection)
-                                              { callback->response(connection); },
-                                              [callback](exception_ptr exptr)
-                                              {
-                                                  try
-                                                  {
-                                                      rethrow_exception(exptr);
-                                                  }
-                                                  catch (const Ice::Exception& ex)
-                                                  {
-                                                      callback->exception(ex);
-                                                  }
-                                              });
+                     ->ice_getConnectionAsync(
+                         [callback](const Ice::ConnectionPtr& connection) { callback->response(connection); },
+                         [callback](exception_ptr exptr)
+                         {
+                             try
+                             {
+                                 rethrow_exception(exptr);
+                             }
+                             catch (const Ice::Exception& ex)
+                             {
+                                 callback->exception(ex);
+                             }
+                         });
     }
     catch (const Ice::Exception& ex)
     {
@@ -2444,7 +2444,11 @@ IcePy::getProxy(PyObject* p)
 
 bool
 IcePy::getProxyArg(
-    PyObject* p, const string& func, const string& arg, optional<Ice::ObjectPrx>& proxy, const string& type)
+    PyObject* p,
+    const string& func,
+    const string& arg,
+    optional<Ice::ObjectPrx>& proxy,
+    const string& type)
 {
     bool result = true;
 
@@ -2480,8 +2484,9 @@ IcePy::getProxyArg(
     else
     {
         string typeName = type.empty() ? "Ice.ObjectPrx" : type;
-        PyErr_Format(PyExc_ValueError, STRCAST("%s expects a proxy of type %s or None for argument '%s'"), func.c_str(),
-                     typeName.c_str(), arg.c_str());
+        PyErr_Format(
+            PyExc_ValueError, STRCAST("%s expects a proxy of type %s or None for argument '%s'"), func.c_str(),
+            typeName.c_str(), arg.c_str());
     }
 
     return result;

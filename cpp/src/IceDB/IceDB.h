@@ -118,7 +118,7 @@ namespace IceDB
     // size if known, and 0 if not know.
     // static bool write(const T&, MDB_val&, H&, const C&);
     //
-    template <typename T, typename C, typename H> struct Codec;
+    template<typename T, typename C, typename H> struct Codec;
 
     class ICE_DB_API Env
     {
@@ -199,7 +199,7 @@ namespace IceDB
         MDB_dbi _mdbi;
     };
 
-    template <typename K, typename D, typename C, typename H> class Dbi : public DbiBase
+    template<typename K, typename D, typename C, typename H> class Dbi : public DbiBase
     {
     public:
         Dbi(const Txn& txn, const std::string& name, const C& ctx, unsigned int flags = 0, MDB_cmp_func* cmp = 0)
@@ -322,7 +322,7 @@ namespace IceDB
         const bool _readOnly;
     };
 
-    template <typename K, typename D, typename C, typename H> class Cursor : public CursorBase
+    template<typename K, typename D, typename C, typename H> class Cursor : public CursorBase
     {
     public:
         Cursor(const Dbi<K, D, C, H>& dbi, const Txn& txn)
@@ -379,7 +379,7 @@ namespace IceDB
         C _marshalingContext;
     };
 
-    template <typename K, typename D, typename C, typename H> class ReadWriteCursor : public Cursor<K, D, C, H>
+    template<typename K, typename D, typename C, typename H> class ReadWriteCursor : public Cursor<K, D, C, H>
     {
     public:
         ReadWriteCursor(const Dbi<K, D, C, H>& dbi, const ReadWriteTxn& txn) : Cursor<K, D, C, H>(dbi, txn) {}
@@ -404,7 +404,7 @@ namespace IceDB
         void del(unsigned int flags = 0) { CursorBase::del(flags); }
     };
 
-    template <typename K, typename D, typename C, typename H> class ReadOnlyCursor : public Cursor<K, D, C, H>
+    template<typename K, typename D, typename C, typename H> class ReadOnlyCursor : public Cursor<K, D, C, H>
     {
     public:
         ReadOnlyCursor(const Dbi<K, D, C, H>& dbi, const ReadOnlyTxn& txn) : Cursor<K, D, C, H>(dbi, txn) {}
@@ -421,12 +421,12 @@ namespace IceDB
         Ice::EncodingVersion encoding;
     };
 
-    template <typename T> struct Codec<T, IceContext, Ice::OutputStream>
+    template<typename T> struct Codec<T, IceContext, Ice::OutputStream>
     {
         static void read(T& t, const MDB_val& val, const IceContext& ctx)
         {
-            std::pair<const Ice::Byte*, const Ice::Byte*> p(static_cast<const Ice::Byte*>(val.mv_data),
-                                                            static_cast<const Ice::Byte*>(val.mv_data) + val.mv_size);
+            std::pair<const Ice::Byte*, const Ice::Byte*> p(
+                static_cast<const Ice::Byte*>(val.mv_data), static_cast<const Ice::Byte*>(val.mv_data) + val.mv_size);
             Ice::InputStream in(ctx.communicator, ctx.encoding, p);
             in.read(t);
         }
@@ -442,8 +442,8 @@ namespace IceDB
         static bool write(const T& t, MDB_val& val, const IceContext& ctx)
         {
             const size_t limit = val.mv_size;
-            std::pair<Ice::Byte*, Ice::Byte*> p(reinterpret_cast<Ice::Byte*>(val.mv_data),
-                                                reinterpret_cast<Ice::Byte*>(val.mv_data) + limit);
+            std::pair<Ice::Byte*, Ice::Byte*> p(
+                reinterpret_cast<Ice::Byte*>(val.mv_data), reinterpret_cast<Ice::Byte*>(val.mv_data) + limit);
             Ice::OutputStream stream(ctx.communicator, ctx.encoding, p);
             stream.write(t);
             val.mv_size = stream.b.size();

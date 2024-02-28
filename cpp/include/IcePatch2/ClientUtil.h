@@ -132,7 +132,12 @@ namespace IcePatch2
         // are equivalent to the configuration properties described above.
         //
         static PatcherPtr create(
-            const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, std::int32_t, std::int32_t);
+            const FileServerPrxPtr&,
+            const PatcherFeedbackPtr&,
+            const std::string&,
+            bool,
+            std::int32_t,
+            std::int32_t);
     };
 
 }

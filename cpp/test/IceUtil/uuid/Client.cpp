@@ -26,7 +26,7 @@ usage(const char* myName)
     cerr << "Usage: " << myName << " [number of UUIDs to generate] [number of threads]" << endl;
 }
 
-template <typename T, typename GenerateFunc> class InsertThread
+template<typename T, typename GenerateFunc> class InsertThread
 {
 public:
     typedef set<T> ItemSet;
@@ -100,7 +100,7 @@ public:
     int operator()() { return static_cast<int>(IceUtilInternal::random()); }
 };
 
-template <typename T, typename GenerateFunc>
+template<typename T, typename GenerateFunc>
 void
 runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string name)
 {

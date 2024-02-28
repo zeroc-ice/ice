@@ -57,8 +57,8 @@ Selector::initialize(EventHandler* handler)
     SOCKET socket = handler->getNativeInfo()->fd();
     if (socket != INVALID_SOCKET)
     {
-        if (CreateIoCompletionPort(reinterpret_cast<HANDLE>(socket), _handle, reinterpret_cast<ULONG_PTR>(handler),
-                                   0) == nullptr)
+        if (CreateIoCompletionPort(
+                reinterpret_cast<HANDLE>(socket), _handle, reinterpret_cast<ULONG_PTR>(handler), 0) == nullptr)
         {
             throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
         }
@@ -733,8 +733,9 @@ void
 Selector::updateSelector()
 {
 #    if defined(ICE_USE_KQUEUE)
-    int rs = kevent(_queueFd, &_changes[0], static_cast<int>(_changes.size()), &_changes[0],
-                    static_cast<int>(_changes.size()), &zeroTimeout);
+    int rs = kevent(
+        _queueFd, &_changes[0], static_cast<int>(_changes.size()), &_changes[0], static_cast<int>(_changes.size()),
+        &zeroTimeout);
     if (rs < 0)
     {
         Ice::Error out(_instance->initializationData().logger);
@@ -854,9 +855,10 @@ Selector::updateSelector()
 }
 
 void
-Selector::updateSelectorForEventHandler(EventHandler* handler,
-                                        ICE_MAYBE_UNUSED SocketOperation remove,
-                                        ICE_MAYBE_UNUSED SocketOperation add)
+Selector::updateSelectorForEventHandler(
+    EventHandler* handler,
+    ICE_MAYBE_UNUSED SocketOperation remove,
+    ICE_MAYBE_UNUSED SocketOperation add)
 {
 #    if defined(ICE_USE_EPOLL)
     SocketOperation previous = handler->_registered;
@@ -921,15 +923,16 @@ Selector::updateSelectorForEventHandler(EventHandler* handler,
     if (add & SocketOperationRead)
     {
         struct kevent ev;
-        EV_SET(&ev, fd, EVFILT_READ, EV_ADD | (handler->_disabled & SocketOperationRead ? EV_DISABLE : 0), 0, 0,
-               handler);
+        EV_SET(
+            &ev, fd, EVFILT_READ, EV_ADD | (handler->_disabled & SocketOperationRead ? EV_DISABLE : 0), 0, 0, handler);
         _changes.push_back(ev);
     }
     if (add & SocketOperationWrite)
     {
         struct kevent ev;
-        EV_SET(&ev, fd, EVFILT_WRITE, EV_ADD | (handler->_disabled & SocketOperationWrite ? EV_DISABLE : 0), 0, 0,
-               handler);
+        EV_SET(
+            &ev, fd, EVFILT_WRITE, EV_ADD | (handler->_disabled & SocketOperationWrite ? EV_DISABLE : 0), 0, 0,
+            handler);
         _changes.push_back(ev);
     }
     if (_selecting)
@@ -963,8 +966,8 @@ namespace
         }
         else if (callbackType == kCFSocketConnectCallBack)
         {
-            reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(SocketOperationConnect,
-                                                                        d ? *reinterpret_cast<const SInt32*>(d) : 0);
+            reinterpret_cast<EventHandlerWrapper*>(info)->readyCallback(
+                SocketOperationConnect, d ? *reinterpret_cast<const SInt32*>(d) : 0);
         }
     }
 
@@ -1009,8 +1012,8 @@ EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& select
 
         // Disable automatic re-enabling of callbacks and closing of the native socket.
         CFSocketSetSocketFlags(_socket.get(), 0);
-        CFSocketDisableCallBacks(_socket.get(),
-                                 kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
+        CFSocketDisableCallBacks(
+            _socket.get(), kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
         _source.reset(CFSocketCreateRunLoopSource(kCFAllocatorDefault, _socket.get(), 0));
     }
 }
@@ -1025,8 +1028,8 @@ EventHandlerWrapper::updateRunLoop()
 
     if (_socket)
     {
-        CFSocketDisableCallBacks(_socket.get(),
-                                 kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
+        CFSocketDisableCallBacks(
+            _socket.get(), kCFSocketReadCallBack | kCFSocketWriteCallBack | kCFSocketConnectCallBack);
         if (op)
         {
             CFSocketEnableCallBacks(_socket.get(), toCFCallbacks(op));

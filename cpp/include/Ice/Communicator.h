@@ -179,8 +179,8 @@ namespace Ice
          * @param property The base property name.
          * @return The property set.
          */
-        virtual ::Ice::PropertyDict proxyToProperty(const std::optional<ObjectPrx>& proxy,
-                                                    const ::std::string& property) const = 0;
+        virtual ::Ice::PropertyDict
+        proxyToProperty(const std::optional<ObjectPrx>& proxy, const ::std::string& property) const = 0;
 
         /**
          * Convert an identity into a string.
@@ -229,8 +229,8 @@ namespace Ice
          * @see ObjectAdapter
          * @see Properties
          */
-        virtual ::std::shared_ptr<::Ice::ObjectAdapter> createObjectAdapterWithRouter(const ::std::string& name,
-                                                                                      const RouterPrx& rtr) = 0;
+        virtual ::std::shared_ptr<::Ice::ObjectAdapter>
+        createObjectAdapterWithRouter(const ::std::string& name, const RouterPrx& rtr) = 0;
 
         /**
          * Get the implicit context associated with this communicator.
@@ -332,9 +332,10 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        virtual ::std::function<void()> flushBatchRequestsAsync(CompressBatch compress,
-                                                                ::std::function<void(::std::exception_ptr)> exception,
-                                                                ::std::function<void(bool)> sent = nullptr) = 0;
+        virtual ::std::function<void()> flushBatchRequestsAsync(
+            CompressBatch compress,
+            ::std::function<void(::std::exception_ptr)> exception,
+            ::std::function<void(bool)> sent = nullptr) = 0;
 
         /**
          * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed
@@ -357,8 +358,8 @@ namespace Ice
          * @return A proxy to the main ("") facet of the Admin object.
          * @see #getAdmin
          */
-        virtual ObjectPrx createAdmin(const ::std::shared_ptr<ObjectAdapter>& adminAdapter,
-                                      const Identity& adminId) = 0;
+        virtual ObjectPrx
+        createAdmin(const ::std::shared_ptr<ObjectAdapter>& adminAdapter, const Identity& adminId) = 0;
 
         /**
          * Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and

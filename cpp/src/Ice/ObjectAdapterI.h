@@ -102,11 +102,12 @@ namespace Ice
         void setAdapterOnConnection(const Ice::ConnectionIPtr&);
         size_t messageSizeMax() const { return _messageSizeMax; }
 
-        ObjectAdapterI(const IceInternal::InstancePtr&,
-                       const CommunicatorPtr&,
-                       const IceInternal::ObjectAdapterFactoryPtr&,
-                       const std::string&,
-                       bool);
+        ObjectAdapterI(
+            const IceInternal::InstancePtr&,
+            const CommunicatorPtr&,
+            const IceInternal::ObjectAdapterFactoryPtr&,
+            const std::string&,
+            bool);
         virtual ~ObjectAdapterI();
 
     private:

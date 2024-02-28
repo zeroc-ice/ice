@@ -54,10 +54,10 @@ ServerManagerI::startServer(const Ice::Current&)
         try
         {
             Ice::PropertiesPtr props = _initData.properties;
-            serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints",
-                                                             TestHelper::getTestEndpoint(props, _nextPort++));
-            serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints",
-                                                             TestHelper::getTestEndpoint(props, _nextPort++));
+            serverCommunicator->getProperties()->setProperty(
+                "TestAdapter.Endpoints", TestHelper::getTestEndpoint(props, _nextPort++));
+            serverCommunicator->getProperties()->setProperty(
+                "TestAdapter2.Endpoints", TestHelper::getTestEndpoint(props, _nextPort++));
 
             adapter = serverCommunicator->createObjectAdapter("TestAdapter");
             adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
@@ -107,9 +107,10 @@ ServerManagerI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
-             const Ice::ObjectAdapterPtr& adapter2,
-             const ServerLocatorRegistryPtr& registry)
+TestI::TestI(
+    const Ice::ObjectAdapterPtr& adapter,
+    const Ice::ObjectAdapterPtr& adapter2,
+    const ServerLocatorRegistryPtr& registry)
     : _adapter1(adapter),
       _adapter2(adapter2),
       _registry(registry)

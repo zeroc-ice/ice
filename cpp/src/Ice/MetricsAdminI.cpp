@@ -192,10 +192,11 @@ MetricsViewI::destroy()
 }
 
 bool
-MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties,
-                             const string& mapName,
-                             const MetricsMapFactoryPtr& factory,
-                             const ::Ice::LoggerPtr& logger)
+MetricsViewI::addOrUpdateMap(
+    const PropertiesPtr& properties,
+    const string& mapName,
+    const MetricsMapFactoryPtr& factory,
+    const ::Ice::LoggerPtr& logger)
 {
     const string viewPrefix = "IceMX.Metrics." + _name + ".";
     const string mapsPrefix = viewPrefix + "Map.";

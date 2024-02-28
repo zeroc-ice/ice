@@ -315,22 +315,23 @@ allTests(Test::TestHelper* helper, const string& ref)
     for (i = 0; i < 1000; i++)
     {
         auto result = make_shared<promise<void>>();
-        hello->sayHelloAsync([result]() { test(false); },
-                             [result](exception_ptr ex)
-                             {
-                                 try
-                                 {
-                                     rethrow_exception(ex);
-                                 }
-                                 catch (const Ice::NotRegisteredException&)
-                                 {
-                                     result->set_value();
-                                 }
-                                 catch (...)
-                                 {
-                                     test(false);
-                                 }
-                             });
+        hello->sayHelloAsync(
+            [result]() { test(false); },
+            [result](exception_ptr ex)
+            {
+                try
+                {
+                    rethrow_exception(ex);
+                }
+                catch (const Ice::NotRegisteredException&)
+                {
+                    result->set_value();
+                }
+                catch (...)
+                {
+                    test(false);
+                }
+            });
         results.push_back(result->get_future());
     }
     for (auto& result : results)
@@ -361,8 +362,8 @@ allTests(Test::TestHelper* helper, const string& ref)
     try
     {
         communicator->stringToProxy("test@TestAdapter3")->ice_ping();
-        registry->setAdapterDirectProxy("TestAdapter3",
-                                        communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
+        registry->setAdapterDirectProxy(
+            "TestAdapter3", communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
         communicator->stringToProxy("test@TestAdapter3")->ice_ping();
     }
     catch (const Ice::LocalException&)
@@ -411,8 +412,8 @@ allTests(Test::TestHelper* helper, const string& ref)
         test(ex.id == "TestUnknown");
     }
     registry->addObject(communicator->stringToProxy("test3@TestAdapter4")); // Update
-    registry->setAdapterDirectProxy("TestAdapter4",
-                                    communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
+    registry->setAdapterDirectProxy(
+        "TestAdapter4", communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
     try
     {
         communicator->stringToProxy("test3")->ice_ping();
@@ -431,8 +432,8 @@ allTests(Test::TestHelper* helper, const string& ref)
         test(false);
     }
 
-    registry->setAdapterDirectProxy("TestAdapter4",
-                                    communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
+    registry->setAdapterDirectProxy(
+        "TestAdapter4", communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
     try
     {
         communicator->stringToProxy("test3")->ice_ping();

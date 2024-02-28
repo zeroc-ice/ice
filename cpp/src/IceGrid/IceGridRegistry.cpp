@@ -140,10 +140,11 @@ RegistryService::stop()
 }
 
 shared_ptr<Communicator>
-RegistryService::initializeCommunicator(int& argc,
-                                        char* argv[],
-                                        const InitializationData& initializationData,
-                                        int version)
+RegistryService::initializeCommunicator(
+    int& argc,
+    char* argv[],
+    const InitializationData& initializationData,
+    int version)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
@@ -166,8 +167,9 @@ RegistryService::initializeCommunicator(int& argc,
 
             if (!cryptPasswords.empty())
             {
-                initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
-                                                 "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
+                initData.properties->setProperty(
+                    "Ice.Plugin.Glacier2CryptPermissionsVerifier",
+                    "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
                 initData.properties->setProperty(
                     "Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p + "PermissionsVerifier", cryptPasswords);

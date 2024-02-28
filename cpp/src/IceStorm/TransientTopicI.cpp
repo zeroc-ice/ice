@@ -28,9 +28,8 @@ namespace
     public:
         TransientPublisherI(shared_ptr<TransientTopicImpl> impl) : _impl(std::move(impl)) {}
 
-        bool ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                        Ice::ByteSeq&,
-                        const Ice::Current& current) override
+        bool ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inParams, Ice::ByteSeq&, const Ice::Current& current)
+            override
         {
             // Use cached reads.
             EventData event = {current.operation, current.mode, Ice::ByteSeq(), current.ctx};

@@ -100,9 +100,10 @@ namespace IceInternal
         // returning connectors sorted according to the endpoint selection
         // type.
         //
-        virtual void connectorsAsync(Ice::EndpointSelectionType,
-                                     std::function<void(std::vector<ConnectorPtr>)>,
-                                     std::function<void(std::exception_ptr)>) const = 0;
+        virtual void connectorsAsync(
+            Ice::EndpointSelectionType,
+            std::function<void(std::vector<ConnectorPtr>)>,
+            std::function<void(std::exception_ptr)>) const = 0;
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
@@ -146,7 +147,7 @@ namespace IceInternal
         virtual bool checkOption(const std::string&, const std::string&, const std::string&);
     };
 
-    template <typename T> class InfoI : public T
+    template<typename T> class InfoI : public T
     {
     public:
         InfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)

@@ -29,7 +29,7 @@ namespace IceInternal
             };
         }
 
-        template <class T> std::function<void(const T&)> response()
+        template<class T> std::function<void(const T&)> response()
         {
             return [self = shared_from_this()](const T& marshaledResult)
             {

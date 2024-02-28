@@ -114,12 +114,13 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) == -1;
 }
 
-IceInternal::UdpConnector::UdpConnector(const ProtocolInstancePtr& instance,
-                                        const Address& addr,
-                                        const Address& sourceAddr,
-                                        const string& mcastInterface,
-                                        int mcastTtl,
-                                        const std::string& connectionId)
+IceInternal::UdpConnector::UdpConnector(
+    const ProtocolInstancePtr& instance,
+    const Address& addr,
+    const Address& sourceAddr,
+    const string& mcastInterface,
+    int mcastTtl,
+    const std::string& connectionId)
     : _instance(instance),
       _addr(addr),
       _sourceAddr(sourceAddr),

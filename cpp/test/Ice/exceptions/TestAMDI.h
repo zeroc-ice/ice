@@ -16,13 +16,15 @@ public:
 
     virtual void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
 
-    virtual void supportsUndeclaredExceptionsAsync(std::function<void(bool)>,
-                                                   std::function<void(std::exception_ptr)>,
-                                                   const Ice::Current&);
+    virtual void supportsUndeclaredExceptionsAsync(
+        std::function<void(bool)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
-    virtual void supportsAssertExceptionAsync(std::function<void(bool)>,
-                                              std::function<void(std::exception_ptr)>,
-                                              const Ice::Current&);
+    virtual void supportsAssertExceptionAsync(
+        std::function<void(bool)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
     virtual void
     throwAasAAsync(int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
@@ -52,10 +54,19 @@ public:
     throwUndeclaredAAsync(int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
 
     virtual void throwUndeclaredBAsync(
-        int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+        int,
+        int,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
     virtual void throwUndeclaredCAsync(
-        int, int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+        int,
+        int,
+        int,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
     virtual void
     throwLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
@@ -66,14 +77,16 @@ public:
     virtual void
     throwAssertExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
 
-    virtual void throwMemoryLimitExceptionAsync(Ice::ByteSeq,
-                                                std::function<void(const Ice::ByteSeq&)>,
-                                                std::function<void(std::exception_ptr)>,
-                                                const Ice::Current&);
+    virtual void throwMemoryLimitExceptionAsync(
+        Ice::ByteSeq,
+        std::function<void(const Ice::ByteSeq&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
-    virtual void throwLocalExceptionIdempotentAsync(std::function<void()>,
-                                                    std::function<void(std::exception_ptr)>,
-                                                    const Ice::Current&);
+    virtual void throwLocalExceptionIdempotentAsync(
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
     virtual void
     throwAfterResponseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);

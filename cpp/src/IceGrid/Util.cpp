@@ -197,9 +197,10 @@ IceGrid::escapeProperty(const string& s, bool escapeEqual)
 }
 
 ObjectInfo
-IceGrid::toObjectInfo(const shared_ptr<Ice::Communicator>& communicator,
-                      const ObjectDescriptor& obj,
-                      const string& adapterId)
+IceGrid::toObjectInfo(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const ObjectDescriptor& obj,
+    const string& adapterId)
 {
     ObjectInfo info;
     info.type = obj.type;
@@ -226,7 +227,11 @@ IceGrid::toObjectInfo(const shared_ptr<Ice::Communicator>& communicator,
 
 void
 IceGrid::setupThreadPool(
-    const shared_ptr<Properties>& properties, const string& name, int size, int sizeMax, bool serialize)
+    const shared_ptr<Properties>& properties,
+    const string& name,
+    int size,
+    int sizeMax,
+    bool serialize)
 {
     if (properties->getPropertyAsIntWithDefault(name + ".Size", 0) < size)
     {

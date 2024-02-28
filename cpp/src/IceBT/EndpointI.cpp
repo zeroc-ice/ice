@@ -21,14 +21,15 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceBT::EndpointI::EndpointI(const InstancePtr& instance,
-                            const string& addr,
-                            const string& uuid,
-                            const string& name,
-                            int32_t channel,
-                            int32_t timeout,
-                            const string& connectionId,
-                            bool compress)
+IceBT::EndpointI::EndpointI(
+    const InstancePtr& instance,
+    const string& addr,
+    const string& uuid,
+    const string& name,
+    int32_t channel,
+    int32_t timeout,
+    const string& connectionId,
+    bool compress)
     : _instance(instance),
       _addr(addr),
       _uuid(uuid),
@@ -168,9 +169,10 @@ IceBT::EndpointI::transceiver() const
 }
 
 void
-IceBT::EndpointI::connectorsAsync(EndpointSelectionType /*selType*/,
-                                  function<void(vector<IceInternal::ConnectorPtr>)> response,
-                                  function<void(exception_ptr)>) const
+IceBT::EndpointI::connectorsAsync(
+    EndpointSelectionType /*selType*/,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)>) const
 {
     vector<IceInternal::ConnectorPtr> connectors;
     connectors.emplace_back(make_shared<ConnectorI>(_instance, _addr, _uuid, _timeout, _connectionId));
@@ -180,8 +182,8 @@ IceBT::EndpointI::connectorsAsync(EndpointSelectionType /*selType*/,
 IceInternal::AcceptorPtr
 IceBT::EndpointI::acceptor(const string& adapterName) const
 {
-    return make_shared<AcceptorI>(const_cast<EndpointI*>(this)->shared_from_this(), _instance, adapterName, _addr,
-                                  _uuid, _name, _channel);
+    return make_shared<AcceptorI>(
+        const_cast<EndpointI*>(this)->shared_from_this(), _instance, adapterName, _addr, _uuid, _name, _channel);
 }
 
 vector<IceInternal::EndpointIPtr>
@@ -456,8 +458,8 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
         }
         else
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "`-a *' not valid for proxy endpoint `" + toString() + "'");
+            throw EndpointParseException(
+                __FILE__, __LINE__, "`-a *' not valid for proxy endpoint `" + toString() + "'");
         }
     }
 
@@ -497,8 +499,8 @@ IceBT::EndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
 IceBT::EndpointIPtr
 IceBT::EndpointI::endpoint(const AcceptorIPtr& acceptor) const
 {
-    return make_shared<EndpointI>(_instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout, _connectionId,
-                                  _compress);
+    return make_shared<EndpointI>(
+        _instance, _addr, _uuid, _name, acceptor->effectiveChannel(), _timeout, _connectionId, _compress);
 }
 
 void
@@ -521,13 +523,13 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "no argument provided for -a option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -a option in endpoint " + endpoint);
         }
         if (arg != "*" && !isValidDeviceAddress(arg))
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "invalid argument provided for -a option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "invalid argument provided for -a option in endpoint " + endpoint);
         }
         const_cast<string&>(_addr) = arg;
     }
@@ -535,8 +537,8 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "no argument provided for -u option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -u option in endpoint " + endpoint);
         }
         const_cast<string&>(_uuid) = arg;
     }
@@ -544,23 +546,23 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "no argument provided for -c option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -c option in endpoint " + endpoint);
         }
 
         istringstream t(argument);
         if (!(t >> const_cast<int32_t&>(_channel)) || !t.eof() || _channel < 0 || _channel > 30)
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "invalid channel value `" + arg + "' in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "invalid channel value `" + arg + "' in endpoint " + endpoint);
         }
     }
     else if (option == "-t")
     {
         if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "no argument provided for -t option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -t option in endpoint " + endpoint);
         }
 
         if (arg == "infinite")
@@ -572,8 +574,8 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
             istringstream t(argument);
             if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
             {
-                throw EndpointParseException(__FILE__, __LINE__,
-                                             "invalid timeout value `" + arg + "' in endpoint " + endpoint);
+                throw EndpointParseException(
+                    __FILE__, __LINE__, "invalid timeout value `" + arg + "' in endpoint " + endpoint);
             }
         }
     }
@@ -581,8 +583,8 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if (!arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "unexpected argument `" + arg + "' provided for -z option in " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "unexpected argument `" + arg + "' provided for -z option in " + endpoint);
         }
         const_cast<bool&>(_compress) = true;
     }
@@ -590,8 +592,8 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     {
         if (arg.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "no argument provided for --name option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for --name option in endpoint " + endpoint);
         }
         const_cast<string&>(_name) = arg;
     }

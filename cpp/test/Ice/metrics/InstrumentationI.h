@@ -238,8 +238,8 @@ class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 public:
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr& u) { updater = u; }
 
-    virtual Ice::Instrumentation::ObserverPtr getConnectionEstablishmentObserver(const Ice::EndpointPtr&,
-                                                                                 const std::string&)
+    virtual Ice::Instrumentation::ObserverPtr
+    getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const std::string&)
     {
         std::lock_guard lock(_mutex);
         if (!connectionEstablishmentObserver)
@@ -261,11 +261,11 @@ public:
         return endpointLookupObserver;
     }
 
-    virtual Ice::Instrumentation::ConnectionObserverPtr
-    getConnectionObserver(const Ice::ConnectionInfoPtr&,
-                          const Ice::EndpointPtr&,
-                          Ice::Instrumentation::ConnectionState,
-                          const Ice::Instrumentation::ConnectionObserverPtr& old)
+    virtual Ice::Instrumentation::ConnectionObserverPtr getConnectionObserver(
+        const Ice::ConnectionInfoPtr&,
+        const Ice::EndpointPtr&,
+        Ice::Instrumentation::ConnectionState,
+        const Ice::Instrumentation::ConnectionObserverPtr& old)
     {
         std::lock_guard lock(_mutex);
         test(!old || dynamic_cast<ConnectionObserverI*>(old.get()));
@@ -277,11 +277,11 @@ public:
         return connectionObserver;
     }
 
-    virtual Ice::Instrumentation::ThreadObserverPtr
-    getThreadObserver(const std::string&,
-                      const std::string&,
-                      Ice::Instrumentation::ThreadState,
-                      const Ice::Instrumentation::ThreadObserverPtr& old)
+    virtual Ice::Instrumentation::ThreadObserverPtr getThreadObserver(
+        const std::string&,
+        const std::string&,
+        Ice::Instrumentation::ThreadState,
+        const Ice::Instrumentation::ThreadObserverPtr& old)
     {
         std::lock_guard lock(_mutex);
         test(!old || dynamic_cast<ThreadObserverI*>(old.get()));

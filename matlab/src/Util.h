@@ -47,9 +47,9 @@ namespace IceMatlab
 
     std::string idToClass(const std::string&);
 
-    template <typename T> std::shared_ptr<T> deref(void* p) { return *reinterpret_cast<std::shared_ptr<T>*>(p); }
+    template<typename T> std::shared_ptr<T> deref(void* p) { return *reinterpret_cast<std::shared_ptr<T>*>(p); }
 
-    template <typename T> void* createShared(std::shared_ptr<T> p) { return new std::shared_ptr<T>(std::move(p)); }
+    template<typename T> void* createShared(std::shared_ptr<T> p) { return new std::shared_ptr<T>(std::move(p)); }
 
     inline void* createProxy(Ice::ObjectPrx p) { return new Ice::ObjectPrx(std::move(p)); }
 

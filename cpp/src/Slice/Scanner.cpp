@@ -1528,8 +1528,8 @@ YY_DECL
                         IceUtil::Int64 codePoint = strtoull((yytext + 2), 0, 16);
                         if (codePoint <= 0xdfff && codePoint >= 0xd800)
                         {
-                            currentUnit->error("a universal character name cannot designate a surrogate: `" +
-                                               string(yytext) + "'");
+                            currentUnit->error(
+                                "a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
                         }
                         StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
                         str->literal += yytext;
@@ -1569,8 +1569,8 @@ YY_DECL
                     YY_RULE_SETUP
 #line 248 "src/Slice/Scanner.l"
                     {
-                        currentUnit->warning(All,
-                                             "unknown escape sequence in string literal: `" + string(yytext) + "'");
+                        currentUnit->warning(
+                            All, "unknown escape sequence in string literal: `" + string(yytext) + "'");
 
                         StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
                         // Escape the entire sequence.
@@ -1655,8 +1655,8 @@ YY_DECL
                         }
                         else if (ftp->v == 0 && errno == ERANGE)
                         {
-                            currentUnit->error("floating-point constant `" + string(yytext) +
-                                               "' too small (underflow)");
+                            currentUnit->error(
+                                "floating-point constant `" + string(yytext) + "' too small (underflow)");
                         }
                         return ICE_FLOATING_POINT_LITERAL;
                     }
@@ -1775,8 +1775,9 @@ YY_DECL
                     YY_RULE_SETUP
 #line 398 "src/Slice/Scanner.l"
                     {
-                        currentUnit->error("encountered unexpected token while scanning preprocessor directive: `" +
-                                           string(yytext) + "'");
+                        currentUnit->error(
+                            "encountered unexpected token while scanning preprocessor directive: `" + string(yytext) +
+                            "'");
                     }
                     YY_BREAK
                 /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
@@ -3020,8 +3021,9 @@ namespace Slice
         {
             if (pos->first != id)
             {
-                currentUnit->error("illegal identifier: `" + id + "' differs from keyword `" + pos->first +
-                                   "' only in capitalization");
+                currentUnit->error(
+                    "illegal identifier: `" + id + "' differs from keyword `" + pos->first +
+                    "' only in capitalization");
                 id = pos->first;
             }
             return pos->second;

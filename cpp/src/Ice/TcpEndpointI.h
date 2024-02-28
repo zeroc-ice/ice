@@ -16,13 +16,14 @@ namespace IceInternal
     class TcpEndpointI final : public IPEndpointI
     {
     public:
-        TcpEndpointI(const ProtocolInstancePtr&,
-                     const std::string&,
-                     std::int32_t,
-                     const Address&,
-                     std::int32_t,
-                     const std::string&,
-                     bool);
+        TcpEndpointI(
+            const ProtocolInstancePtr&,
+            const std::string&,
+            std::int32_t,
+            const Address&,
+            std::int32_t,
+            const std::string&,
+            bool);
         TcpEndpointI(const ProtocolInstancePtr&);
         TcpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 

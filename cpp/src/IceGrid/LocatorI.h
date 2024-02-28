@@ -33,21 +33,24 @@ namespace IceGrid
             virtual void exception(const std::string&, std::exception_ptr) = 0;
         };
 
-        LocatorI(const std::shared_ptr<Ice::Communicator>&,
-                 const std::shared_ptr<Database>&,
-                 const std::shared_ptr<WellKnownObjectsManager>&,
-                 const RegistryPrxPtr&,
-                 const QueryPrxPtr&);
+        LocatorI(
+            const std::shared_ptr<Ice::Communicator>&,
+            const std::shared_ptr<Database>&,
+            const std::shared_ptr<WellKnownObjectsManager>&,
+            const RegistryPrxPtr&,
+            const QueryPrxPtr&);
 
-        void findObjectByIdAsync(Ice::Identity,
-                                 std::function<void(const Ice::ObjectPrxPtr&)>,
-                                 std::function<void(std::exception_ptr)>,
-                                 const Ice::Current&) const override;
+        void findObjectByIdAsync(
+            Ice::Identity,
+            std::function<void(const Ice::ObjectPrxPtr&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const override;
 
-        void findAdapterByIdAsync(std::string,
-                                  std::function<void(const Ice::ObjectPrxPtr&)>,
-                                  std::function<void(std::exception_ptr)>,
-                                  const Ice::Current&) const override;
+        void findAdapterByIdAsync(
+            std::string,
+            std::function<void(const Ice::ObjectPrxPtr&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const override;
 
         Ice::LocatorRegistryPrxPtr getRegistry(const Ice::Current&) const override;
         RegistryPrxPtr getLocalRegistry(const Ice::Current&) const override;

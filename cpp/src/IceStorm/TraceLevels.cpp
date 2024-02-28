@@ -9,9 +9,10 @@
 using namespace std;
 using namespace IceStorm;
 
-TraceLevels::TraceLevels(const string name,
-                         const shared_ptr<Ice::Properties>& properties,
-                         shared_ptr<Ice::Logger> theLogger)
+TraceLevels::TraceLevels(
+    const string name,
+    const shared_ptr<Ice::Properties>& properties,
+    shared_ptr<Ice::Logger> theLogger)
     : topicMgr(0),
       topicMgrCat("TopicManager"),
       topic(0),

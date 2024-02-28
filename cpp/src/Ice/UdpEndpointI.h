@@ -16,15 +16,16 @@ namespace IceInternal
     class UdpEndpointI final : public IPEndpointI
     {
     public:
-        UdpEndpointI(const ProtocolInstancePtr&,
-                     const std::string&,
-                     std::int32_t,
-                     const Address&,
-                     const std::string&,
-                     std::int32_t,
-                     bool,
-                     const std::string&,
-                     bool);
+        UdpEndpointI(
+            const ProtocolInstancePtr&,
+            const std::string&,
+            std::int32_t,
+            const Address&,
+            const std::string&,
+            std::int32_t,
+            bool,
+            const std::string&,
+            bool);
         UdpEndpointI(const ProtocolInstancePtr&);
         UdpEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
 

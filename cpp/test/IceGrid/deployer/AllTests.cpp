@@ -418,15 +418,17 @@ allTests(Test::TestHelper* helper)
     {
         Ice::ObjectPrxPtr obj = query->findObjectByType("::Test");
         string id = comm->identityToString(obj->ice_getIdentity());
-        test(id.find("Server") == 0 || id.find("IceBox") == 0 || id == "SimpleServer" ||
-             id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
+        test(
+            id.find("Server") == 0 || id.find("IceBox") == 0 || id == "SimpleServer" ||
+            id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
         Ice::ObjectPrxPtr obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample::LoadSample5);
         string id = comm->identityToString(obj->ice_getIdentity());
-        test(id.find("Server") == 0 || id.find("IceBox") == 0 || id == "SimpleServer" ||
-             id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
+        test(
+            id.find("Server") == 0 || id.find("IceBox") == 0 || id == "SimpleServer" ||
+            id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
@@ -519,8 +521,9 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("PropertyWithHash") == "foo#bar");
     test(obj->getProperty("PropertyWithTab") == "foo\tbar");
     test(obj->getProperty("PropertyWithEscapeSpace") == "foo\\ ");
-    test(obj->getProperty("PropertyWithProperty") ==
-         "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
+    test(
+        obj->getProperty("PropertyWithProperty") ==
+        "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
@@ -538,8 +541,9 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("PropertyWithHash") == "foo#bar");
     test(obj->getProperty("PropertyWithTab") == "foo\tbar");
     test(obj->getProperty("PropertyWithEscapeSpace") == "foo\\ ");
-    test(obj->getProperty("PropertyWithProperty") ==
-         "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
+    test(
+        obj->getProperty("PropertyWithProperty") ==
+        "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
 
     obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("Service2.Type") == "nonstandard");

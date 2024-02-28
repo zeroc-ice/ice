@@ -73,8 +73,8 @@ namespace IceGrid
             {
                 if (chown(path.c_str(), uid, gid) != 0)
                 {
-                    throw runtime_error("can't change permissions on `" + name + "':\n" +
-                                        IceUtilInternal::lastErrorToString());
+                    throw runtime_error(
+                        "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString());
                 }
             }
             else if (name != "..")
@@ -95,8 +95,8 @@ namespace IceGrid
                 {
                     if (chown(name.c_str(), uid, gid) != 0)
                     {
-                        throw runtime_error("can't change permissions on `" + name + "':\n" +
-                                            IceUtilInternal::lastErrorToString());
+                        throw runtime_error(
+                            "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString());
                     }
                 }
             }
@@ -104,9 +104,10 @@ namespace IceGrid
     }
 #endif
 
-    static bool descriptorUpdated(const shared_ptr<InternalServerDescriptor>& lhs,
-                                  const shared_ptr<InternalServerDescriptor>& rhs,
-                                  bool noProps = false)
+    static bool descriptorUpdated(
+        const shared_ptr<InternalServerDescriptor>& lhs,
+        const shared_ptr<InternalServerDescriptor>& rhs,
+        bool noProps = false)
     {
         if (lhs->uuid == rhs->uuid && lhs->revision == rhs->revision)
         {
@@ -229,11 +230,12 @@ namespace IceGrid
     class ResetPropertiesCB : public enable_shared_from_this<ResetPropertiesCB>
     {
     public:
-        ResetPropertiesCB(const shared_ptr<ServerI>& server,
-                          const Ice::ObjectPrxPtr admin,
-                          const shared_ptr<InternalServerDescriptor>& desc,
-                          const shared_ptr<InternalServerDescriptor>& old,
-                          const shared_ptr<TraceLevels>& traceLevels)
+        ResetPropertiesCB(
+            const shared_ptr<ServerI>& server,
+            const Ice::ObjectPrxPtr admin,
+            const shared_ptr<InternalServerDescriptor>& desc,
+            const shared_ptr<InternalServerDescriptor>& old,
+            const shared_ptr<TraceLevels>& traceLevels)
             : _server(server),
               _admin(admin),
               _desc(desc),
@@ -349,8 +351,8 @@ namespace IceGrid
                 break;
             }
             string variable = v.substr(beg + 1, end - beg - 1);
-            DWORD ret = GetEnvironmentVariableW(Ice::stringToWstring(variable).c_str(), &buf[0],
-                                                static_cast<DWORD>(buf.size()));
+            DWORD ret = GetEnvironmentVariableW(
+                Ice::stringToWstring(variable).c_str(), &buf[0], static_cast<DWORD>(buf.size()));
             string valstr = (ret > 0 && ret < buf.size()) ? Ice::wstringToString(&buf[0]) : string("");
             v.replace(beg, end - beg + 1, valstr);
             beg += valstr.size();
@@ -392,9 +394,10 @@ namespace IceGrid
 
 ServerCommand::ServerCommand(const shared_ptr<ServerI>& server) : _server(server) {}
 
-TimedServerCommand::TimedServerCommand(const shared_ptr<ServerI>& server,
-                                       const IceUtil::TimerPtr& timer,
-                                       chrono::seconds timeout)
+TimedServerCommand::TimedServerCommand(
+    const shared_ptr<ServerI>& server,
+    const IceUtil::TimerPtr& timer,
+    chrono::seconds timeout)
     : ServerCommand(server),
       _timer(timer),
       _timeout(timeout)
@@ -425,9 +428,10 @@ TimedServerCommand::stopTimer()
     }
 }
 
-LoadCommand::LoadCommand(const shared_ptr<ServerI>& server,
-                         const shared_ptr<InternalServerDescriptor>& runtime,
-                         const shared_ptr<TraceLevels>& traceLevels)
+LoadCommand::LoadCommand(
+    const shared_ptr<ServerI>& server,
+    const shared_ptr<InternalServerDescriptor>& runtime,
+    const shared_ptr<TraceLevels>& traceLevels)
     : ServerCommand(server),
       _runtime(runtime),
       _updating(false),
@@ -473,8 +477,9 @@ LoadCommand::clearDir() const
 }
 
 void
-LoadCommand::addCallback(function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
-                         function<void(exception_ptr)> exception)
+LoadCommand::addCallback(
+    function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
+    function<void(exception_ptr)> exception)
 {
     _loadCB.push_back({std::move(response), std::move(exception)});
 }
@@ -494,8 +499,9 @@ LoadCommand::startRuntimePropertiesUpdate(const Ice::ObjectPrxPtr& process)
 }
 
 bool
-LoadCommand::finishRuntimePropertiesUpdate(const shared_ptr<InternalServerDescriptor>& runtime,
-                                           const Ice::ObjectPrxPtr& process)
+LoadCommand::finishRuntimePropertiesUpdate(
+    const shared_ptr<InternalServerDescriptor>& runtime,
+    const Ice::ObjectPrxPtr& process)
 {
     _updating = false;
     _runtime = runtime; // The new runtime server descriptor.
@@ -694,10 +700,11 @@ StartCommand::finished()
     _startCB.clear();
 }
 
-StopCommand::StopCommand(const shared_ptr<ServerI>& server,
-                         const IceUtil::TimerPtr& timer,
-                         chrono::seconds timeout,
-                         bool deactivate)
+StopCommand::StopCommand(
+    const shared_ptr<ServerI>& server,
+    const IceUtil::TimerPtr& timer,
+    chrono::seconds timeout,
+    bool deactivate)
     : TimedServerCommand(server, timer, timeout),
       _deactivate(deactivate)
 {
@@ -768,7 +775,11 @@ StopCommand::finished()
 }
 
 ServerI::ServerI(
-    const shared_ptr<NodeI>& node, const ServerPrxPtr& proxy, const string& serversDir, const string& id, int wt)
+    const shared_ptr<NodeI>& node,
+    const ServerPrxPtr& proxy,
+    const string& serversDir,
+    const string& id,
+    int wt)
     : _node(node),
       _this(proxy),
       _id(id),
@@ -948,10 +959,11 @@ ServerI::isEnabled(const ::Ice::Current&) const
 }
 
 void
-ServerI::setProcessAsync(Ice::ProcessPrxPtr process,
-                         function<void()> response,
-                         function<void(exception_ptr)>,
-                         const Ice::Current&)
+ServerI::setProcessAsync(
+    Ice::ProcessPrxPtr process,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     bool deact = false;
     ServerAdapterDict adpts;
@@ -1154,11 +1166,12 @@ ServerI::start(ServerActivation activation, function<void()> response, function<
 }
 
 shared_ptr<ServerCommand>
-ServerI::load(const shared_ptr<InternalServerDescriptor>& desc,
-              const string& replicaName,
-              bool noRestart,
-              function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
-              function<void(exception_ptr)> exception)
+ServerI::load(
+    const shared_ptr<InternalServerDescriptor>& desc,
+    const string& replicaName,
+    bool noRestart,
+    function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
+    function<void(exception_ptr)> exception)
 {
     lock_guard lock(_mutex);
     checkDestroyed();
@@ -1651,8 +1664,8 @@ ServerI::activate()
         }
 
 #ifndef _WIN32
-        int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, uid, gid, options, envs,
-                                                  shared_from_this());
+        int pid = _node->getActivator()->activate(
+            desc->id, desc->exe, desc->pwd, uid, gid, options, envs, shared_from_this());
 #else
         int pid = _node->getActivator()->activate(desc->id, desc->exe, desc->pwd, options, envs, shared_from_this());
 #endif
@@ -2103,8 +2116,8 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
                 if (!servant)
                 {
                     auto proxy = Ice::uncheckedCast<AdapterPrx>(adapter->createProxy(id));
-                    servant = make_shared<ServerAdapterI>(_node, this, _id, proxy, adpt->id,
-                                                          _activation != Disabled || _failureTime != nullopt);
+                    servant = make_shared<ServerAdapterI>(
+                        _node, this, _id, proxy, adpt->id, _activation != Disabled || _failureTime != nullopt);
                     adapter->add(servant, id);
                 }
                 _adapters.insert(make_pair(adpt->id, servant));
@@ -2390,8 +2403,8 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
 
     if (uuid != descUUID)
     {
-        throw DeploymentException("server from replica `" + replicaName + "' is from another application (`" + uuid +
-                                  "')");
+        throw DeploymentException(
+            "server from replica `" + replicaName + "' is from another application (`" + uuid + "')");
     }
     else if (revision != descRevision)
     {
@@ -2500,8 +2513,8 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         }
         if (user != string(&buf[0]))
         {
-            throw runtime_error("couldn't load server under user account `" + user +
-                                "': feature not supported on Windows");
+            throw runtime_error(
+                "couldn't load server under user account `" + user + "': feature not supported on Windows");
         }
     }
 #else
@@ -2633,8 +2646,9 @@ ServerI::checkActivation()
         // one to be registered) and if all the server lifetime adapters have been activated.
         //
         if ((!_desc->processRegistered || _process) &&
-            includes(_activatedAdapters.begin(), _activatedAdapters.end(), _serverLifetimeAdapters.begin(),
-                     _serverLifetimeAdapters.end()))
+            includes(
+                _activatedAdapters.begin(), _activatedAdapters.end(), _serverLifetimeAdapters.begin(),
+                _serverLifetimeAdapters.end()))
         {
             setStateNoSync(InternalServerState::Active);
             return true;

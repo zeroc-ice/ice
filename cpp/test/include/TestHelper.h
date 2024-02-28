@@ -146,7 +146,7 @@ namespace Test
         abort();
     }
 
-    template <typename T> int runTest(int argc, char* argv[])
+    template<typename T> int runTest(int argc, char* argv[])
     {
         int status = 0;
         try

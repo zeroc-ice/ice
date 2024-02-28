@@ -17,10 +17,11 @@ namespace IceGrid
     class PatcherFeedbackI : public PatcherFeedback, public std::enable_shared_from_this<PatcherFeedback>
     {
     public:
-        PatcherFeedbackI(const string& node,
-                         const shared_ptr<NodeSessionI>& session,
-                         const Ice::Identity id,
-                         const shared_ptr<PatcherFeedbackAggregator>& aggregator)
+        PatcherFeedbackI(
+            const string& node,
+            const shared_ptr<NodeSessionI>& session,
+            const Ice::Identity id,
+            const shared_ptr<PatcherFeedbackAggregator>& aggregator)
             : _node(node),
               _session(session),
               _id(id),
@@ -50,7 +51,11 @@ namespace IceGrid
 }
 
 PatcherFeedbackAggregator::PatcherFeedbackAggregator(
-    Ice::Identity id, const shared_ptr<TraceLevels>& traceLevels, const string& type, const string& name, int nodeCount)
+    Ice::Identity id,
+    const shared_ptr<TraceLevels>& traceLevels,
+    const string& type,
+    const string& name,
+    int nodeCount)
     : _id(id),
       _traceLevels(traceLevels),
       _type(type),
@@ -125,11 +130,12 @@ PatcherFeedbackAggregator::checkIfDone()
 }
 
 shared_ptr<NodeSessionI>
-NodeSessionI::create(const shared_ptr<Database>& database,
-                     const NodePrxPtr& node,
-                     const shared_ptr<InternalNodeInfo>& info,
-                     std::chrono::seconds timeout,
-                     const LoadInfo& load)
+NodeSessionI::create(
+    const shared_ptr<Database>& database,
+    const NodePrxPtr& node,
+    const shared_ptr<InternalNodeInfo>& info,
+    std::chrono::seconds timeout,
+    const LoadInfo& load)
 {
     shared_ptr<NodeSessionI> nodeSession(new NodeSessionI(database, node, info, timeout, load));
     try
@@ -164,11 +170,12 @@ NodeSessionI::create(const shared_ptr<Database>& database,
     return nodeSession;
 }
 
-NodeSessionI::NodeSessionI(const shared_ptr<Database>& database,
-                           const NodePrxPtr& node,
-                           const shared_ptr<InternalNodeInfo>& info,
-                           std::chrono::seconds timeout,
-                           const LoadInfo& load)
+NodeSessionI::NodeSessionI(
+    const shared_ptr<Database>& database,
+    const NodePrxPtr& node,
+    const shared_ptr<InternalNodeInfo>& info,
+    std::chrono::seconds timeout,
+    const LoadInfo& load)
     : _database(database),
       _traceLevels(database->getTraceLevels()),
       _node(node),
@@ -268,14 +275,15 @@ NodeSessionI::getServers(const Ice::Current&) const
 }
 
 void
-NodeSessionI::waitForApplicationUpdateAsync(std::string application,
-                                            int revision,
-                                            function<void()> response,
-                                            function<void(exception_ptr)> exception,
-                                            const Ice::Current&) const
+NodeSessionI::waitForApplicationUpdateAsync(
+    std::string application,
+    int revision,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current&) const
 {
-    _database->waitForApplicationUpdate(std::move(application), std::move(revision), std::move(response),
-                                        std::move(exception));
+    _database->waitForApplicationUpdate(
+        std::move(application), std::move(revision), std::move(response), std::move(exception));
 }
 
 void
@@ -302,11 +310,12 @@ NodeSessionI::shutdown()
 }
 
 void
-NodeSessionI::patch(const shared_ptr<PatcherFeedbackAggregator>& aggregator,
-                    const string& application,
-                    const string& server,
-                    const shared_ptr<InternalDistributionDescriptor>& dist,
-                    bool shutdown)
+NodeSessionI::patch(
+    const shared_ptr<PatcherFeedbackAggregator>& aggregator,
+    const string& application,
+    const string& server,
+    const shared_ptr<InternalDistributionDescriptor>& dist,
+    bool shutdown)
 {
     Ice::Identity id;
     id.category = _database->getInstanceName();

@@ -56,8 +56,9 @@ public:
 
     void exception(const ::Ice::Exception& ex)
     {
-        test(dynamic_cast<const Ice::ConnectionLostException*>(&ex) ||
-             dynamic_cast<const Ice::UnknownLocalException*>(&ex));
+        test(
+            dynamic_cast<const Ice::ConnectionLostException*>(&ex) ||
+            dynamic_cast<const Ice::UnknownLocalException*>(&ex));
         called();
     }
 };

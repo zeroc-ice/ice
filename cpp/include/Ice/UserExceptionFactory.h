@@ -18,7 +18,7 @@ namespace Ice
 namespace IceInternal
 {
 
-    template <class E>
+    template<class E>
     void
 #ifdef NDEBUG
     defaultUserExceptionFactory(std::string_view)

@@ -29,9 +29,10 @@ Glacier2::RoutingTable::destroy()
 }
 
 shared_ptr<Glacier2::Instrumentation::SessionObserver>
-Glacier2::RoutingTable::updateObserver(const shared_ptr<Glacier2::Instrumentation::RouterObserver>& obsv,
-                                       const string& userId,
-                                       const shared_ptr<Ice::Connection>& connection)
+Glacier2::RoutingTable::updateObserver(
+    const shared_ptr<Glacier2::Instrumentation::RouterObserver>& obsv,
+    const string& userId,
+    const shared_ptr<Ice::Connection>& connection)
 {
     lock_guard<mutex> lg(_mutex);
     _observer.attach(obsv->getSessionObserver(userId, connection, static_cast<int>(_map.size()), _observer.get()));

@@ -102,33 +102,35 @@ allTests(Test::TestHelper* helper)
         p->op();
 
         CallbackPtr cb = std::make_shared<Callback>();
-        p->opAsync([cb]() { cb->response(); },
-                   [cb](exception_ptr err)
-                   {
-                       try
-                       {
-                           rethrow_exception(err);
-                       }
-                       catch (const Ice::Exception& ex)
-                       {
-                           cb->exception(ex);
-                       }
-                   });
+        p->opAsync(
+            [cb]() { cb->response(); },
+            [cb](exception_ptr err)
+            {
+                try
+                {
+                    rethrow_exception(err);
+                }
+                catch (const Ice::Exception& ex)
+                {
+                    cb->exception(ex);
+                }
+            });
         cb->check();
 
         auto i = p->ice_adapterId("dummy");
-        i->opAsync([cb]() { cb->response(); },
-                   [cb](exception_ptr err)
-                   {
-                       try
-                       {
-                           rethrow_exception(err);
-                       }
-                       catch (const Ice::Exception& ex)
-                       {
-                           cb->exception(ex);
-                       }
-                   });
+        i->opAsync(
+            [cb]() { cb->response(); },
+            [cb](exception_ptr err)
+            {
+                try
+                {
+                    rethrow_exception(err);
+                }
+                catch (const Ice::Exception& ex)
+                {
+                    cb->exception(ex);
+                }
+            });
         cb->check();
 
         {

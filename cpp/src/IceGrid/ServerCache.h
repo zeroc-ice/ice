@@ -61,11 +61,12 @@ namespace IceGrid
         ServerInfo getInfo(bool = false) const;
         std::string getId() const;
 
-        ServerPrxPtr getProxy(std::chrono::seconds&,
-                              std::chrono::seconds&,
-                              std::string&,
-                              bool = true,
-                              std::chrono::seconds = std::chrono::seconds(0));
+        ServerPrxPtr getProxy(
+            std::chrono::seconds&,
+            std::chrono::seconds&,
+            std::string&,
+            bool = true,
+            std::chrono::seconds = std::chrono::seconds(0));
         ServerPrxPtr getProxy(bool = true, std::chrono::seconds = std::chrono::seconds(0));
         Ice::ObjectPrxPtr getAdminProxy();
 
@@ -120,12 +121,13 @@ namespace IceGrid
     class ServerCache : public CacheByString<ServerEntry>
     {
     public:
-        ServerCache(const std::shared_ptr<Ice::Communicator>&,
-                    const std::string&,
-                    NodeCache&,
-                    AdapterCache&,
-                    ObjectCache&,
-                    AllocatableObjectCache&);
+        ServerCache(
+            const std::shared_ptr<Ice::Communicator>&,
+            const std::string&,
+            NodeCache&,
+            AdapterCache&,
+            ObjectCache&,
+            AllocatableObjectCache&);
 
         std::shared_ptr<ServerEntry> add(const ServerInfo&);
         std::shared_ptr<ServerEntry> get(const std::string&) const;
@@ -145,13 +147,15 @@ namespace IceGrid
         void setNodeObserverTopic(const std::shared_ptr<NodeObserverTopic>&);
 
     private:
-        void addCommunicator(const std::shared_ptr<CommunicatorDescriptor>&,
-                             const std::shared_ptr<CommunicatorDescriptor>&,
-                             const std::shared_ptr<ServerEntry>&,
-                             const std::string&);
-        void removeCommunicator(const std::shared_ptr<CommunicatorDescriptor>&,
-                                const std::shared_ptr<CommunicatorDescriptor>&,
-                                const std::shared_ptr<ServerEntry>&);
+        void addCommunicator(
+            const std::shared_ptr<CommunicatorDescriptor>&,
+            const std::shared_ptr<CommunicatorDescriptor>&,
+            const std::shared_ptr<ServerEntry>&,
+            const std::string&);
+        void removeCommunicator(
+            const std::shared_ptr<CommunicatorDescriptor>&,
+            const std::shared_ptr<CommunicatorDescriptor>&,
+            const std::shared_ptr<ServerEntry>&);
 
         friend struct AddCommunicator;
         friend struct RemoveCommunicator;

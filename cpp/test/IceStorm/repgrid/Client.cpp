@@ -78,8 +78,9 @@ Client::run(int argc, char** argv)
     auto p1 = topic->getPublisher();
     auto p2 = topic->getNonReplicatedPublisher();
     test(p1->ice_getAdapterId() == "PublishReplicaGroup");
-    test(p2->ice_getAdapterId() == "Test.IceStorm1.Publish" || p2->ice_getAdapterId() == "Test.IceStorm2.Publish" ||
-         p2->ice_getAdapterId() == "Test.IceStorm3.Publish");
+    test(
+        p2->ice_getAdapterId() == "Test.IceStorm1.Publish" || p2->ice_getAdapterId() == "Test.IceStorm2.Publish" ||
+        p2->ice_getAdapterId() == "Test.IceStorm3.Publish");
 
     //
     // Get a publisher object, create a twoway proxy and then cast to

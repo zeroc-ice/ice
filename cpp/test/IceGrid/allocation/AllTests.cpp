@@ -874,8 +874,9 @@ allTests(Test::TestHelper* helper)
         {
             this_thread::sleep_for(200ms);
         } while (!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
-        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
-             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
+        test(
+            (cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+            (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable);
         this_thread::sleep_for(300ms);
         auto cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
@@ -920,8 +921,9 @@ allTests(Test::TestHelper* helper)
         {
             this_thread::sleep_for(200ms);
         } while (!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
-        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
-             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
+        test(
+            (cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+            (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable3);
         this_thread::sleep_for(300ms);
         cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;
@@ -947,8 +949,9 @@ allTests(Test::TestHelper* helper)
         {
             this_thread::sleep_for(200ms);
         } while (!cb31->hasResponse(dummy) && !cb32->hasResponse(dummy));
-        test((cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
-             (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
+        test(
+            (cb31->hasResponse(dummy) && dummy && !cb32->hasResponse(dummy)) ||
+            (cb32->hasResponse(dummy) && dummy && !cb31->hasResponse(dummy)));
         session1->releaseObject(allocatable3);
         this_thread::sleep_for(300ms);
         cb33 = cb31->hasResponse(dummy) ? cb32 : cb31;

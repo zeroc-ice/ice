@@ -209,8 +209,8 @@ main(int argc, char* argv[])
 
         cout << "testing IceUtilInternal::toUTF16, toUTF32 and fromUTF32... ";
 
-        vector<Byte> u8 = vector<Byte>(reinterpret_cast<const Byte*>(ns.data()),
-                                       reinterpret_cast<const Byte*>(ns.data() + ns.length()));
+        vector<Byte> u8 = vector<Byte>(
+            reinterpret_cast<const Byte*>(ns.data()), reinterpret_cast<const Byte*>(ns.data() + ns.length()));
 
         vector<unsigned short> u16 = IceUtilInternal::toUTF16(u8);
         test(u16.size() == 4);
@@ -236,16 +236,17 @@ main(int argc, char* argv[])
 
         // From http://stackoverflow.com/questions/1301402/example-invalid-utf8-string
 
-        string badUTF8[] = {"\xc3\x28",
-                            "\xa0\xa1",
-                            "\xe2\x28\xa1",
-                            "\xe2\x82\x28",
-                            "\xf0\x28\x8c\xbc",
-                            "\xf0\x90\x28\xbc",
-                            "\xf0\x28\x8c\x28",
-                            "\xf8\xa1\xa1\xa1\xa1",
-                            "\xfc\xa1\xa1\xa1\xa1\xa1",
-                            ""};
+        string badUTF8[] = {
+            "\xc3\x28",
+            "\xa0\xa1",
+            "\xe2\x28\xa1",
+            "\xe2\x82\x28",
+            "\xf0\x28\x8c\xbc",
+            "\xf0\x90\x28\xbc",
+            "\xf0\x28\x8c\x28",
+            "\xf8\xa1\xa1\xa1\xa1",
+            "\xfc\xa1\xa1\xa1\xa1\xa1",
+            ""};
 
         for (size_t i = 0; badUTF8[i] != ""; ++i)
         {

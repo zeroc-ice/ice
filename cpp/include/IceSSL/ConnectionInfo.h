@@ -63,13 +63,14 @@ namespace IceSSL
          * @param certs The certificate chain.
          * @param verified The certificate chain verification status.
          */
-        ConnectionInfo(const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
-                       bool incoming,
-                       const ::std::string& adapterName,
-                       const ::std::string& connectionId,
-                       const ::std::string& cipher,
-                       const std::vector<CertificatePtr>& certs,
-                       bool verified)
+        ConnectionInfo(
+            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            bool incoming,
+            const ::std::string& adapterName,
+            const ::std::string& connectionId,
+            const ::std::string& cipher,
+            const std::vector<CertificatePtr>& certs,
+            bool verified)
             : ::Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
               cipher(cipher),
               certs(certs),

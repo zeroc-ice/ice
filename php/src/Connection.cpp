@@ -438,20 +438,26 @@ handleConnectionCompare(zval* zobj1, zval* zobj2)
 static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 static zend_function_entry _connectionClassMethods[] = {
-    ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR)
-        ZEND_ME(Ice_Connection, __toString, ice_to_string_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-            Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                    Ice_Connection, setACM, Ice_Connection_setACM_arginfo, ZEND_ACC_PUBLIC)
-                    ZEND_ME(Ice_Connection, getACM, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                        Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                        ZEND_ME(Ice_Connection, timeout, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                            Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                            ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                                Ice_Connection, setBufferSize, Ice_Connection_setBufferSize_arginfo, ZEND_ACC_PUBLIC)
-                                ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
+    ZEND_ME(Ice_Connection, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR) ZEND_ME(
+        Ice_Connection,
+        __toString,
+        ice_to_string_arginfo,
+        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Connection, close, Ice_Connection_close_arginfo, ZEND_ACC_PUBLIC)
+        ZEND_ME(Ice_Connection, getEndpoint, ice_void_arginfo, ZEND_ACC_PUBLIC)
+            ZEND_ME(Ice_Connection, flushBatchRequests, Ice_Connection_flushBatchRequests_arginfo, ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_Connection, heartbeat, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                    ZEND_ME(Ice_Connection, setACM, Ice_Connection_setACM_arginfo, ZEND_ACC_PUBLIC)
+                        ZEND_ME(Ice_Connection, getACM, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                            ZEND_ME(Ice_Connection, type, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                ZEND_ME(Ice_Connection, timeout, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                    ZEND_ME(Ice_Connection, toString, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                        ZEND_ME(Ice_Connection, getInfo, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
+                                            Ice_Connection,
+                                            setBufferSize,
+                                            Ice_Connection_setBufferSize_arginfo,
+                                            ZEND_ACC_PUBLIC)
+                                            ZEND_ME(Ice_Connection, throwException, ice_void_arginfo, ZEND_ACC_PUBLIC){
+                                                0, 0, 0}};
 
 ZEND_METHOD(Ice_ConnectionInfo, __construct) { runtimeError("ConnectionInfo cannot be instantiated"); }
 
@@ -508,19 +514,19 @@ IcePHP::connectionInit(void)
     _connectionInfoHandlers.offset = XtOffsetOf(Wrapper<Ice::ConnectionInfoPtr>, zobj);
 
     zend_declare_property_bool(connectionInfoClassEntry, "incoming", sizeof("incoming") - 1, 0, ZEND_ACC_PUBLIC);
-    zend_declare_property_string(connectionInfoClassEntry, "adapterName", sizeof("adapterName") - 1, "",
-                                 ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        connectionInfoClassEntry, "adapterName", sizeof("adapterName") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_null(connectionInfoClassEntry, "underlying", sizeof("underlying") - 1, ZEND_ACC_PUBLIC);
 
     // Register the IPConnectionInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
-    zend_declare_property_string(ipConnectionInfoClassEntry, "localAddress", sizeof("localAddress") - 1, "",
-                                 ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        ipConnectionInfoClassEntry, "localAddress", sizeof("localAddress") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipConnectionInfoClassEntry, "localPort", sizeof("localPort") - 1, 0, ZEND_ACC_PUBLIC);
-    zend_declare_property_string(ipConnectionInfoClassEntry, "remoteAddress", sizeof("remoteAddress") - 1, "",
-                                 ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        ipConnectionInfoClassEntry, "remoteAddress", sizeof("remoteAddress") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipConnectionInfoClassEntry, "remotePort", sizeof("remotePort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the TCPConnectionInfo class.
@@ -534,8 +540,8 @@ IcePHP::connectionInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", nullptr);
     ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
-    zend_declare_property_string(udpConnectionInfoClassEntry, "mcastAddress", sizeof("mcastAddress") - 1, "",
-                                 ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        udpConnectionInfoClassEntry, "mcastAddress", sizeof("mcastAddress") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(udpConnectionInfoClassEntry, "mcastPort", sizeof("mcastPort") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Register the WSConnectionInfo class.
@@ -672,8 +678,9 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
         AutoDestroy listDestroyer(&zarr);
 
         Ice::StringSeq encoded;
-        transform(info->certs.cbegin(), info->certs.cend(), back_inserter(encoded),
-                  [](const auto& cert) { return cert->encode(); });
+        transform(
+            info->certs.cbegin(), info->certs.cend(), back_inserter(encoded),
+            [](const auto& cert) { return cert->encode(); });
 
         if (createStringArray(&zarr, encoded))
         {

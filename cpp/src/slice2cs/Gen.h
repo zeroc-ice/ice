@@ -17,13 +17,14 @@ namespace Slice
         virtual ~CsVisitor();
 
     protected:
-        void writeMarshalUnmarshalParams(const ParamDeclList&,
-                                         const OperationPtr&,
-                                         bool,
-                                         const std::string&,
-                                         bool = false,
-                                         bool = false,
-                                         const std::string& = "");
+        void writeMarshalUnmarshalParams(
+            const ParamDeclList&,
+            const OperationPtr&,
+            bool,
+            const std::string&,
+            bool = false,
+            bool = false,
+            const std::string& = "");
         void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
         void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
 
@@ -36,11 +37,12 @@ namespace Slice
         static std::vector<std::string> getOutParams(const OperationPtr&, const std::string&, bool, bool);
         static std::vector<std::string> getArgs(const OperationPtr&);
         static std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
-        static std::string getDispatchParams(const OperationPtr&,
-                                             std::string&,
-                                             std::vector<std::string>&,
-                                             std::vector<std::string>&,
-                                             const std::string&);
+        static std::string getDispatchParams(
+            const OperationPtr&,
+            std::string&,
+            std::vector<std::string>&,
+            std::vector<std::string>&,
+            const std::string&);
 
         void emitAttributes(const ContainedPtr&);
         void emitComVisibleAttribute();
@@ -72,17 +74,19 @@ namespace Slice
             InParam,
             OutParam
         };
-        void writeDocCommentAMI(const OperationPtr&,
-                                ParamDir,
-                                const std::string&,
-                                const std::string& = "",
-                                const std::string& = "",
-                                const std::string& = "");
-        void writeDocCommentTaskAsyncAMI(const OperationPtr&,
-                                         const std::string&,
-                                         const std::string& = "",
-                                         const std::string& = "",
-                                         const std::string& = "");
+        void writeDocCommentAMI(
+            const OperationPtr&,
+            ParamDir,
+            const std::string&,
+            const std::string& = "",
+            const std::string& = "",
+            const std::string& = "");
+        void writeDocCommentTaskAsyncAMI(
+            const OperationPtr&,
+            const std::string&,
+            const std::string& = "",
+            const std::string& = "",
+            const std::string& = "");
         void writeDocCommentAMD(const OperationPtr&, const std::string&);
         void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
 

@@ -18,11 +18,12 @@ namespace IceGrid
     class ReplicaSessionI final : public ReplicaSession
     {
     public:
-        static std::shared_ptr<ReplicaSessionI> create(const std::shared_ptr<Database>&,
-                                                       const std::shared_ptr<WellKnownObjectsManager>&,
-                                                       const std::shared_ptr<InternalReplicaInfo>&,
-                                                       const InternalRegistryPrxPtr&,
-                                                       std::chrono::seconds);
+        static std::shared_ptr<ReplicaSessionI> create(
+            const std::shared_ptr<Database>&,
+            const std::shared_ptr<WellKnownObjectsManager>&,
+            const std::shared_ptr<InternalReplicaInfo>&,
+            const InternalRegistryPrxPtr&,
+            std::chrono::seconds);
 
         void keepAlive(const Ice::Current&) override;
         int getTimeout(const Ice::Current&) const override;
@@ -44,11 +45,12 @@ namespace IceGrid
         bool isDestroyed() const;
 
     private:
-        ReplicaSessionI(const std::shared_ptr<Database>&,
-                        const std::shared_ptr<WellKnownObjectsManager>&,
-                        const std::shared_ptr<InternalReplicaInfo>&,
-                        const InternalRegistryPrxPtr&,
-                        std::chrono::seconds);
+        ReplicaSessionI(
+            const std::shared_ptr<Database>&,
+            const std::shared_ptr<WellKnownObjectsManager>&,
+            const std::shared_ptr<InternalReplicaInfo>&,
+            const InternalRegistryPrxPtr&,
+            std::chrono::seconds);
 
         void destroyImpl(bool);
 

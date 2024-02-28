@@ -40,52 +40,58 @@ namespace IceGrid
             NodeObserverPrxPtr _observer;
         };
 
-        NodeI(const std::shared_ptr<Ice::ObjectAdapter>&,
-              NodeSessionManager&,
-              const std::shared_ptr<Activator>&,
-              const IceUtil::TimerPtr&,
-              const std::shared_ptr<TraceLevels>&,
-              const NodePrxPtr&,
-              const std::string&,
-              const UserAccountMapperPrxPtr&,
-              const std::string&);
+        NodeI(
+            const std::shared_ptr<Ice::ObjectAdapter>&,
+            NodeSessionManager&,
+            const std::shared_ptr<Activator>&,
+            const IceUtil::TimerPtr&,
+            const std::shared_ptr<TraceLevels>&,
+            const NodePrxPtr&,
+            const std::string&,
+            const UserAccountMapperPrxPtr&,
+            const std::string&);
 
-        void loadServerAsync(std::shared_ptr<InternalServerDescriptor>,
-                             std::string,
-                             std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
-                             std::function<void(std::exception_ptr)>,
-                             const Ice::Current&) override;
+        void loadServerAsync(
+            std::shared_ptr<InternalServerDescriptor>,
+            std::string,
+            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) override;
 
-        void loadServerWithoutRestartAsync(std::shared_ptr<InternalServerDescriptor>,
-                                           std::string,
-                                           std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
-                                           std::function<void(std::exception_ptr)>,
-                                           const Ice::Current&) override;
+        void loadServerWithoutRestartAsync(
+            std::shared_ptr<InternalServerDescriptor>,
+            std::string,
+            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) override;
 
-        void destroyServerAsync(std::string,
-                                std::string,
-                                int,
-                                std::string,
-                                std::function<void()>,
-                                std::function<void(std::exception_ptr)>,
-                                const Ice::Current&) override;
+        void destroyServerAsync(
+            std::string,
+            std::string,
+            int,
+            std::string,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) override;
 
-        void destroyServerWithoutRestartAsync(std::string,
-                                              std::string,
-                                              int,
-                                              std::string,
-                                              std::function<void()>,
-                                              std::function<void(std::exception_ptr)>,
-                                              const ::Ice::Current& current) override;
+        void destroyServerWithoutRestartAsync(
+            std::string,
+            std::string,
+            int,
+            std::string,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const ::Ice::Current& current) override;
 
-        void patchAsync(PatcherFeedbackPrxPtr feedback,
-                        std::string application,
-                        std::string server,
-                        std::shared_ptr<InternalDistributionDescriptor> appDistrib,
-                        bool shutdown,
-                        std::function<void()> response,
-                        std::function<void(std::exception_ptr)> exception,
-                        const Ice::Current&) override;
+        void patchAsync(
+            PatcherFeedbackPrxPtr feedback,
+            std::string application,
+            std::string server,
+            std::shared_ptr<InternalDistributionDescriptor> appDistrib,
+            bool shutdown,
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current&) override;
 
         void registerWithReplica(InternalRegistryPrxPtr, const Ice::Current&) override;
 
@@ -147,21 +153,23 @@ namespace IceGrid
         std::set<std::shared_ptr<ServerI>> getApplicationServers(const std::string&) const;
         std::string getFilePath(const std::string&) const;
 
-        void loadServer(std::shared_ptr<InternalServerDescriptor>,
-                        std::string,
-                        bool,
-                        std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>&&,
-                        std::function<void(std::exception_ptr)>&&,
-                        const Ice::Current&);
+        void loadServer(
+            std::shared_ptr<InternalServerDescriptor>,
+            std::string,
+            bool,
+            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>&&,
+            std::function<void(std::exception_ptr)>&&,
+            const Ice::Current&);
 
-        void destroyServer(std::string,
-                           std::string,
-                           int,
-                           std::string,
-                           bool,
-                           std::function<void()>,
-                           std::function<void(std::exception_ptr)>,
-                           const Ice::Current&);
+        void destroyServer(
+            std::string,
+            std::string,
+            int,
+            std::string,
+            bool,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&);
 
         const std::shared_ptr<Ice::Communicator> _communicator;
         const std::shared_ptr<Ice::ObjectAdapter> _adapter;

@@ -43,7 +43,7 @@ namespace IceDiscovery
     };
     using RequestPtr = std::shared_ptr<Request>;
 
-    template <class T, class CB> class RequestT : public Request
+    template<class T, class CB> class RequestT : public Request
     {
     public:
         RequestT(const LookupIPtr& lookup, T id, int retryCount) : Request(lookup, retryCount), _id(id) {}

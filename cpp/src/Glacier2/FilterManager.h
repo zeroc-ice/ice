@@ -19,10 +19,11 @@ namespace Glacier2
     class FilterManager
     {
     public:
-        FilterManager(std::shared_ptr<Instance>,
-                      std::shared_ptr<StringSetI>,
-                      std::shared_ptr<StringSetI>,
-                      std::shared_ptr<IdentitySetI>);
+        FilterManager(
+            std::shared_ptr<Instance>,
+            std::shared_ptr<StringSetI>,
+            std::shared_ptr<StringSetI>,
+            std::shared_ptr<IdentitySetI>);
         virtual ~FilterManager();
 
         void destroy();

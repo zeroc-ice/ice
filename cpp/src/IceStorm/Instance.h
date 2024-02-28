@@ -46,13 +46,14 @@ namespace IceStorm
             DropEvents
         };
 
-        Instance(const std::string&,
-                 const std::string&,
-                 std::shared_ptr<Ice::Communicator>,
-                 std::shared_ptr<Ice::ObjectAdapter>,
-                 std::shared_ptr<Ice::ObjectAdapter>,
-                 std::shared_ptr<Ice::ObjectAdapter> = nullptr,
-                 IceStormElection::NodePrxPtr = std::nullopt);
+        Instance(
+            const std::string&,
+            const std::string&,
+            std::shared_ptr<Ice::Communicator>,
+            std::shared_ptr<Ice::ObjectAdapter>,
+            std::shared_ptr<Ice::ObjectAdapter>,
+            std::shared_ptr<Ice::ObjectAdapter> = nullptr,
+            IceStormElection::NodePrxPtr = std::nullopt);
 
         virtual ~Instance();
 
@@ -113,13 +114,14 @@ namespace IceStorm
     class PersistentInstance final : public Instance
     {
     public:
-        PersistentInstance(const std::string&,
-                           const std::string&,
-                           std::shared_ptr<Ice::Communicator>,
-                           std::shared_ptr<Ice::ObjectAdapter>,
-                           std::shared_ptr<Ice::ObjectAdapter>,
-                           std::shared_ptr<Ice::ObjectAdapter> = nullptr,
-                           IceStormElection::NodePrxPtr = std::nullopt);
+        PersistentInstance(
+            const std::string&,
+            const std::string&,
+            std::shared_ptr<Ice::Communicator>,
+            std::shared_ptr<Ice::ObjectAdapter>,
+            std::shared_ptr<Ice::ObjectAdapter>,
+            std::shared_ptr<Ice::ObjectAdapter> = nullptr,
+            IceStormElection::NodePrxPtr = std::nullopt);
 
         const IceDB::Env& dbEnv() const { return _dbEnv; }
         LLUMap lluMap() const { return _lluMap; }

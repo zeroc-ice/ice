@@ -41,16 +41,17 @@ namespace IceGrid
 
         bool canRemove();
 
-        void loadServer(const std::shared_ptr<ServerEntry>&,
-                        const ServerInfo&,
-                        const std::shared_ptr<SessionI>&,
-                        std::chrono::seconds,
-                        bool);
+        void loadServer(
+            const std::shared_ptr<ServerEntry>&,
+            const ServerInfo&,
+            const std::shared_ptr<SessionI>&,
+            std::chrono::seconds,
+            bool);
         void destroyServer(const std::shared_ptr<ServerEntry>&, const ServerInfo&, std::chrono::seconds, bool);
 
         ServerInfo getServerInfo(const ServerInfo&, const std::shared_ptr<SessionI>&);
-        std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor(const ServerInfo&,
-                                                                              const std::shared_ptr<SessionI>&);
+        std::shared_ptr<InternalServerDescriptor>
+        getInternalServerDescriptor(const ServerInfo&, const std::shared_ptr<SessionI>&);
 
         void checkSession(std::unique_lock<std::mutex>&) const;
         void setProxy(const NodePrxPtr&);

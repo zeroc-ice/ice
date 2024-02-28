@@ -60,10 +60,11 @@ namespace Slice
         StringList splitComment(const std::string&);
         bool parseCommentLine(const std::string&, const std::string&, bool, std::string&, std::string&);
         DocElements parseComment(const ContainedPtr&);
-        void writeDocLines(IceUtilInternal::Output&,
-                           const StringList&,
-                           bool commentFirst = true,
-                           const std::string& space = " ");
+        void writeDocLines(
+            IceUtilInternal::Output&,
+            const StringList&,
+            bool commentFirst = true,
+            const std::string& space = " ");
         void writeDocSentence(IceUtilInternal::Output&, const StringList&);
         void writeSeeAlso(IceUtilInternal::Output&, const StringList&, const ContainerPtr&);
         void writeDocSummary(IceUtilInternal::Output&, const ContainedPtr&);
@@ -113,26 +114,33 @@ namespace Slice
         bool containsClassMembers(const StructPtr&);
 
         std::string getValue(const std::string&, const TypePtr&);
-        void writeConstantValue(IceUtilInternal::Output& out,
-                                const TypePtr&,
-                                const SyntaxTreeBasePtr&,
-                                const std::string&,
-                                const StringList&,
-                                const std::string&,
-                                bool optional = false);
+        void writeConstantValue(
+            IceUtilInternal::Output& out,
+            const TypePtr&,
+            const SyntaxTreeBasePtr&,
+            const std::string&,
+            const StringList&,
+            const std::string&,
+            bool optional = false);
         void writeDefaultInitializer(IceUtilInternal::Output&, bool, bool);
         void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
-        void writeMemberwiseInitializer(IceUtilInternal::Output&,
-                                        const DataMemberList&,
-                                        const DataMemberList&,
-                                        const DataMemberList&,
-                                        const ContainedPtr&,
-                                        bool rootClass = false,
-                                        const StringPairList& = StringPairList());
+        void writeMemberwiseInitializer(
+            IceUtilInternal::Output&,
+            const DataMemberList&,
+            const DataMemberList&,
+            const DataMemberList&,
+            const ContainedPtr&,
+            bool rootClass = false,
+            const StringPairList& = StringPairList());
         void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 
         void writeMarshalUnmarshalCode(
-            ::IceUtilInternal::Output&, const TypePtr&, const ContainedPtr&, const std::string&, bool, int = -1);
+            ::IceUtilInternal::Output&,
+            const TypePtr&,
+            const ContainedPtr&,
+            const std::string&,
+            bool,
+            int = -1);
 
         bool usesMarshalHelper(const TypePtr&);
         void writeMarshalInParams(::IceUtilInternal::Output&, const OperationPtr&);
@@ -163,12 +171,13 @@ namespace Slice
             virtual void visitConst(const ConstPtr&);
 
         private:
-            StringList validate(const SyntaxTreeBasePtr&,
-                                const StringList&,
-                                const std::string&,
-                                const std::string&,
-                                bool local = false,
-                                bool operationParameter = false);
+            StringList validate(
+                const SyntaxTreeBasePtr&,
+                const StringList&,
+                const std::string&,
+                const std::string&,
+                bool local = false,
+                bool operationParameter = false);
 
             typedef std::map<std::string, std::string> ModuleMap;
             typedef std::map<std::string, ModuleMap> ModulePrefix;

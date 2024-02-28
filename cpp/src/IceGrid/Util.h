@@ -16,7 +16,7 @@
 namespace IceGrid
 {
 
-    template <typename T> std::insert_iterator<T> inline set_inserter(T& container)
+    template<typename T> std::insert_iterator<T> inline set_inserter(T& container)
     {
         return std::insert_iterator<T>(container, container.begin());
     }
@@ -39,8 +39,9 @@ namespace IceGrid
 
     int secondsToInt(const std::chrono::seconds&);
 
-    inline void forEachCommunicator(const std::shared_ptr<CommunicatorDescriptor>& descriptor,
-                                    std::function<void(const std::shared_ptr<CommunicatorDescriptor>&)> callback)
+    inline void forEachCommunicator(
+        const std::shared_ptr<CommunicatorDescriptor>& descriptor,
+        std::function<void(const std::shared_ptr<CommunicatorDescriptor>&)> callback)
     {
         callback(descriptor);
         auto iceBox = std::dynamic_pointer_cast<IceBoxDescriptor>(descriptor);
@@ -53,10 +54,12 @@ namespace IceGrid
         }
     }
 
-    inline void forEachCommunicator(const std::shared_ptr<CommunicatorDescriptor>& oldDescriptor,
-                                    const std::shared_ptr<CommunicatorDescriptor>& newDescriptor,
-                                    std::function<void(const std::shared_ptr<CommunicatorDescriptor>&,
-                                                       const std::shared_ptr<CommunicatorDescriptor>&)> callback)
+    inline void forEachCommunicator(
+        const std::shared_ptr<CommunicatorDescriptor>& oldDescriptor,
+        const std::shared_ptr<CommunicatorDescriptor>& newDescriptor,
+        std::function<
+            void(const std::shared_ptr<CommunicatorDescriptor>&, const std::shared_ptr<CommunicatorDescriptor>&)>
+            callback)
     {
         callback(oldDescriptor, newDescriptor);
 
@@ -113,7 +116,7 @@ namespace IceGrid
         }
     }
 
-    template <class T> std::vector<std::string> inline getMatchingKeys(const T& m, const std::string& expression)
+    template<class T> std::vector<std::string> inline getMatchingKeys(const T& m, const std::string& expression)
     {
         std::vector<std::string> keys;
         for (typename T::const_iterator p = m.begin(); p != m.end(); ++p)

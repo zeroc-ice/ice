@@ -19,12 +19,12 @@ namespace
     //
     // Converts a vector to an "array range"
     //
-    template <typename T> pair<const T*, const T*> toArrayRange(const vector<T>& v)
+    template<typename T> pair<const T*, const T*> toArrayRange(const vector<T>& v)
     {
         return make_pair(&v[0], &v[0] + v.size());
     }
 
-    template <typename T> pair<const T*, const T*> toArrayRange(const T* v, size_t sz) { return make_pair(v, v + sz); }
+    template<typename T> pair<const T*, const T*> toArrayRange(const T* v, size_t sz) { return make_pair(v, v + sz); }
 
 }
 
@@ -166,8 +166,9 @@ public:
         test(s == "test");
         optional<vector<string>> o;
         in->read(1, o);
-        test(o && o->size() == 4 && (*o)[0] == "test1" && (*o)[1] == "test2" && (*o)[2] == "test3" &&
-             (*o)[3] == "test4");
+        test(
+            o && o->size() == 4 && (*o)[0] == "test1" && (*o)[1] == "test2" && (*o)[2] == "test3" &&
+            (*o)[3] == "test4");
         in->read(1000, a);
         in->endSlice();
         // ::Test::B
@@ -412,16 +413,18 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing comparison operators... " << flush;
 
-    test(mo1->a == static_cast<Ice::Byte>(15) && static_cast<Ice::Byte>(15) == mo1->a &&
-         mo1->a != static_cast<Ice::Byte>(16) && static_cast<Ice::Byte>(16) != mo1->a);
-    test(mo1->a < static_cast<Ice::Byte>(16) && mo1->a > static_cast<Ice::Byte>(14) &&
-         mo1->a <= static_cast<Ice::Byte>(15) && mo1->a >= static_cast<Ice::Byte>(15) &&
-         mo1->a <= static_cast<Ice::Byte>(16) && mo1->a >= static_cast<Ice::Byte>(14));
+    test(
+        mo1->a == static_cast<Ice::Byte>(15) && static_cast<Ice::Byte>(15) == mo1->a &&
+        mo1->a != static_cast<Ice::Byte>(16) && static_cast<Ice::Byte>(16) != mo1->a);
+    test(
+        mo1->a < static_cast<Ice::Byte>(16) && mo1->a > static_cast<Ice::Byte>(14) &&
+        mo1->a <= static_cast<Ice::Byte>(15) && mo1->a >= static_cast<Ice::Byte>(15) &&
+        mo1->a <= static_cast<Ice::Byte>(16) && mo1->a >= static_cast<Ice::Byte>(14));
     test(mo1->a > optional<Ice::Byte>() && optional<Ice::Byte>() < mo1->a);
     test(14 > optional<int>() && optional<int>() < 14);
 
-    test(mo1->h == string("test") && string("test") == mo1->h && mo1->h != string("testa") &&
-         string("testa") != mo1->h);
+    test(
+        mo1->h == string("test") && string("test") == mo1->h && mo1->h != string("testa") && string("testa") != mo1->h);
     test(mo1->h < string("test1") && mo1->h > string("tesa") && mo1->h <= string("test"));
     test(mo1->h >= string("test") && mo1->h <= string("test1") && mo1->h >= string("tesa"));
     test(mo1->h > optional<string>() && optional<string>() < mo1->h);

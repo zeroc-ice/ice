@@ -204,10 +204,11 @@ namespace Ice
          * @param adapterName The name of the adapter associated with the connection.
          * @param connectionId The connection id.
          */
-        ConnectionInfo(const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
-                       bool incoming,
-                       const ::std::string& adapterName,
-                       const ::std::string& connectionId)
+        ConnectionInfo(
+            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            bool incoming,
+            const ::std::string& adapterName,
+            const ::std::string& connectionId)
             : underlying(underlying),
               incoming(incoming),
               adapterName(adapterName),
@@ -315,9 +316,10 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        virtual ::std::function<void()> flushBatchRequestsAsync(CompressBatch compress,
-                                                                ::std::function<void(::std::exception_ptr)> exception,
-                                                                ::std::function<void(bool)> sent = nullptr) = 0;
+        virtual ::std::function<void()> flushBatchRequestsAsync(
+            CompressBatch compress,
+            ::std::function<void(::std::exception_ptr)> exception,
+            ::std::function<void(bool)> sent = nullptr) = 0;
 
         /**
          * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
@@ -354,8 +356,9 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        virtual ::std::function<void()> heartbeatAsync(::std::function<void(::std::exception_ptr)> exception,
-                                                       ::std::function<void(bool)> sent = nullptr) = 0;
+        virtual ::std::function<void()> heartbeatAsync(
+            ::std::function<void(::std::exception_ptr)> exception,
+            ::std::function<void(bool)> sent = nullptr) = 0;
 
         /**
          * Send a heartbeat message.
@@ -369,9 +372,10 @@ namespace Ice
          * @param close The close condition
          * @param heartbeat The heartbeat condition
          */
-        virtual void setACM(const std::optional<int>& timeout,
-                            const std::optional<ACMClose>& close,
-                            const std::optional<ACMHeartbeat>& heartbeat) = 0;
+        virtual void setACM(
+            const std::optional<int>& timeout,
+            const std::optional<ACMClose>& close,
+            const std::optional<ACMHeartbeat>& heartbeat) = 0;
 
         /**
          * Get the ACM parameters.
@@ -446,14 +450,15 @@ namespace Ice
          * @param remoteAddress The remote address.
          * @param remotePort The remote port.
          */
-        IPConnectionInfo(const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
-                         bool incoming,
-                         const ::std::string& adapterName,
-                         const ::std::string& connectionId,
-                         const ::std::string& localAddress,
-                         int localPort,
-                         const ::std::string& remoteAddress,
-                         int remotePort)
+        IPConnectionInfo(
+            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            bool incoming,
+            const ::std::string& adapterName,
+            const ::std::string& connectionId,
+            const ::std::string& localAddress,
+            int localPort,
+            const ::std::string& remoteAddress,
+            int remotePort)
             : ConnectionInfo(underlying, incoming, adapterName, connectionId),
               localAddress(localAddress),
               localPort(localPort),
@@ -509,18 +514,26 @@ namespace Ice
          * @param rcvSize The connection buffer receive size.
          * @param sndSize The connection buffer send size.
          */
-        TCPConnectionInfo(const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
-                          bool incoming,
-                          const ::std::string& adapterName,
-                          const ::std::string& connectionId,
-                          const ::std::string& localAddress,
-                          int localPort,
-                          const ::std::string& remoteAddress,
-                          int remotePort,
-                          int rcvSize,
-                          int sndSize)
+        TCPConnectionInfo(
+            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            bool incoming,
+            const ::std::string& adapterName,
+            const ::std::string& connectionId,
+            const ::std::string& localAddress,
+            int localPort,
+            const ::std::string& remoteAddress,
+            int remotePort,
+            int rcvSize,
+            int sndSize)
             : IPConnectionInfo(
-                  underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort),
+                  underlying,
+                  incoming,
+                  adapterName,
+                  connectionId,
+                  localAddress,
+                  localPort,
+                  remoteAddress,
+                  remotePort),
               rcvSize(rcvSize),
               sndSize(sndSize)
         {
@@ -567,20 +580,28 @@ namespace Ice
          * @param rcvSize The connection buffer receive size.
          * @param sndSize The connection buffer send size.
          */
-        UDPConnectionInfo(const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
-                          bool incoming,
-                          const ::std::string& adapterName,
-                          const ::std::string& connectionId,
-                          const ::std::string& localAddress,
-                          int localPort,
-                          const ::std::string& remoteAddress,
-                          int remotePort,
-                          const ::std::string& mcastAddress,
-                          int mcastPort,
-                          int rcvSize,
-                          int sndSize)
+        UDPConnectionInfo(
+            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            bool incoming,
+            const ::std::string& adapterName,
+            const ::std::string& connectionId,
+            const ::std::string& localAddress,
+            int localPort,
+            const ::std::string& remoteAddress,
+            int remotePort,
+            const ::std::string& mcastAddress,
+            int mcastPort,
+            int rcvSize,
+            int sndSize)
             : IPConnectionInfo(
-                  underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort),
+                  underlying,
+                  incoming,
+                  adapterName,
+                  connectionId,
+                  localAddress,
+                  localPort,
+                  remoteAddress,
+                  remotePort),
               mcastAddress(mcastAddress),
               mcastPort(mcastPort),
               rcvSize(rcvSize),
@@ -630,11 +651,12 @@ namespace Ice
          * @param connectionId The connection id.
          * @param headers The headers from the HTTP upgrade request.
          */
-        WSConnectionInfo(const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
-                         bool incoming,
-                         const ::std::string& adapterName,
-                         const ::std::string& connectionId,
-                         const ::Ice::HeaderDict& headers)
+        WSConnectionInfo(
+            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            bool incoming,
+            const ::std::string& adapterName,
+            const ::std::string& connectionId,
+            const ::Ice::HeaderDict& headers)
             : ConnectionInfo(underlying, incoming, adapterName, connectionId),
               headers(headers)
         {

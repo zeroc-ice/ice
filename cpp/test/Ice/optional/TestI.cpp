@@ -251,9 +251,10 @@ InitialI::opStringSeq(optional<Ice::StringSeq> p1, optional<Ice::StringSeq>& p3,
 }
 
 optional<SmallStructSeq>
-InitialI::opSmallStructSeq(optional<pair<const SmallStruct*, const SmallStruct*>> p1,
-                           optional<SmallStructSeq>& p3,
-                           const Current&)
+InitialI::opSmallStructSeq(
+    optional<pair<const SmallStruct*, const SmallStruct*>> p1,
+    optional<SmallStructSeq>& p3,
+    const Current&)
 {
     if (p1)
     {
@@ -263,9 +264,10 @@ InitialI::opSmallStructSeq(optional<pair<const SmallStruct*, const SmallStruct*>
 }
 
 optional<SmallStructList>
-InitialI::opSmallStructList(optional<pair<const SmallStruct*, const SmallStruct*>> p1,
-                            optional<SmallStructList>& p3,
-                            const Current&)
+InitialI::opSmallStructList(
+    optional<pair<const SmallStruct*, const SmallStruct*>> p1,
+    optional<SmallStructList>& p3,
+    const Current&)
 {
     if (p1)
     {
@@ -275,9 +277,10 @@ InitialI::opSmallStructList(optional<pair<const SmallStruct*, const SmallStruct*
 }
 
 optional<FixedStructSeq>
-InitialI::opFixedStructSeq(optional<pair<const FixedStruct*, const FixedStruct*>> p1,
-                           optional<FixedStructSeq>& p3,
-                           const Current&)
+InitialI::opFixedStructSeq(
+    optional<pair<const FixedStruct*, const FixedStruct*>> p1,
+    optional<FixedStructSeq>& p3,
+    const Current&)
 {
     if (p1)
     {
@@ -287,9 +290,10 @@ InitialI::opFixedStructSeq(optional<pair<const FixedStruct*, const FixedStruct*>
 }
 
 optional<FixedStructList>
-InitialI::opFixedStructList(optional<pair<const FixedStruct*, const FixedStruct*>> p1,
-                            optional<FixedStructList>& p3,
-                            const Current&)
+InitialI::opFixedStructList(
+    optional<pair<const FixedStruct*, const FixedStruct*>> p1,
+    optional<FixedStructList>& p3,
+    const Current&)
 {
     if (p1)
     {

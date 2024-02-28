@@ -17,12 +17,13 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
     const Test::ByteS bs1(10 * 1024);
     Test::MyClassPrxPtr batch = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
     promise<void> prom;
-    batch->ice_flushBatchRequestsAsync(nullptr,
-                                       [&](bool sentSynchronously)
-                                       {
-                                           test(sentSynchronously);
-                                           prom.set_value();
-                                       }); // Empty flush
+    batch->ice_flushBatchRequestsAsync(
+        nullptr,
+        [&](bool sentSynchronously)
+        {
+            test(sentSynchronously);
+            prom.set_value();
+        }); // Empty flush
     prom.get_future().get();
 
     for (int i = 0; i < 30; ++i)

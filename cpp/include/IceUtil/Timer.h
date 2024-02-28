@@ -42,7 +42,7 @@ namespace IceUtil
         void destroy();
 
         // Schedule a task for execution after a given delay.
-        template <class Rep, class Period>
+        template<class Rep, class Period>
         void schedule(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
         {
             std::lock_guard lock(_mutex);
@@ -77,7 +77,7 @@ namespace IceUtil
         }
 
         // Schedule a task for repeated execution with the given delay between each execution.
-        template <class Rep, class Period>
+        template<class Rep, class Period>
         void scheduleRepeated(TimerTaskPtr task, const std::chrono::duration<Rep, Period>& delay)
         {
             std::lock_guard lock(_mutex);

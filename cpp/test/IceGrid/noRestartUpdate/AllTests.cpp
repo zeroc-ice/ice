@@ -402,12 +402,12 @@ allTests(Test::TestHelper* helper)
             update.serverTemplates["ServerTemplate"] = templ;
             test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server1"))->getProperty("test") == "");
             admin->updateApplicationWithoutRestart(update);
-            test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server1"))->getProperty("test") ==
-                 "test");
+            test(
+                Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server1"))->getProperty("test") == "test");
             test(server1Pid == admin->getServerPid("Server1"));
             admin->stopServer("Server1");
-            test(Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server1"))->getProperty("test") ==
-                 "test");
+            test(
+                Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("Server1"))->getProperty("test") == "test");
             server1Pid = admin->getServerPid("Server1");
             test(hasProperty(admin->getServerInfo("Server1").descriptor, "test", "test"));
         }

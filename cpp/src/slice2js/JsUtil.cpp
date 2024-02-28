@@ -104,8 +104,8 @@ lookupKwd(const string& name)
         "interface", "let",    "new",      "null",   "package",    "private", "protected", "public",
         "return",    "static", "super",    "switch", "this",       "throw",   "true",      "try",
         "typeof",    "var",    "void",     "while",  "with",       "yield"};
-    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name,
-                               Slice::CICompare());
+    bool found = binary_search(
+        &keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name, Slice::CICompare());
     if (found)
     {
         return "_" + name;
@@ -228,9 +228,10 @@ Slice::JsGenerator::fixId(const ContainedPtr& cont)
 }
 
 string
-Slice::JsGenerator::importPrefix(const TypePtr& type,
-                                 const ContainedPtr& toplevel,
-                                 const vector<pair<string, string>>& imports)
+Slice::JsGenerator::importPrefix(
+    const TypePtr& type,
+    const ContainedPtr& toplevel,
+    const vector<pair<string, string>>& imports)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -265,10 +266,11 @@ Slice::JsGenerator::importPrefix(const TypePtr& type,
 }
 
 string
-Slice::JsGenerator::importPrefix(const ContainedPtr& contained,
-                                 const ContainedPtr& toplevel,
-                                 const vector<pair<string, string>>& imports,
-                                 const string& definedIn)
+Slice::JsGenerator::importPrefix(
+    const ContainedPtr& contained,
+    const ContainedPtr& toplevel,
+    const vector<pair<string, string>>& imports,
+    const string& definedIn)
 {
     string m1 = getModuleMetadata(contained);
     string m2 = getModuleMetadata(toplevel);
@@ -352,11 +354,12 @@ Slice::JsGenerator::getUnqualified(const string& type, const string& scope, cons
 }
 
 string
-Slice::JsGenerator::typeToString(const TypePtr& type,
-                                 const ContainedPtr& toplevel,
-                                 const vector<pair<string, string>>& imports,
-                                 bool typescript,
-                                 bool definition)
+Slice::JsGenerator::typeToString(
+    const TypePtr& type,
+    const ContainedPtr& toplevel,
+    const vector<pair<string, string>>& imports,
+    bool typescript,
+    bool definition)
 {
     if (!type)
     {
@@ -520,12 +523,13 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
 }
 
 string
-Slice::JsGenerator::typeToString(const TypePtr& type,
-                                 const ContainedPtr& toplevel,
-                                 const std::vector<std::pair<std::string, std::string>>& imports,
-                                 bool typeScript,
-                                 bool definition,
-                                 bool usealias)
+Slice::JsGenerator::typeToString(
+    const TypePtr& type,
+    const ContainedPtr& toplevel,
+    const std::vector<std::pair<std::string, std::string>>& imports,
+    bool typeScript,
+    bool definition,
+    bool usealias)
 {
     string t = typeToString(type, toplevel, imports, typeScript, definition);
     if (usealias)
@@ -782,7 +786,11 @@ Slice::JsGenerator::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, 
 
 void
 Slice::JsGenerator::writeOptionalMarshalUnmarshalCode(
-    Output& out, const TypePtr& type, const string& param, int tag, bool marshal)
+    Output& out,
+    const TypePtr& type,
+    const string& param,
+    int tag,
+    bool marshal)
 {
     string stream = marshal ? "ostr" : "istr";
 

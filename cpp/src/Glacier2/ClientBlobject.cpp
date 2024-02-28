@@ -11,10 +11,11 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::ClientBlobject::ClientBlobject(shared_ptr<Instance> instance,
-                                         shared_ptr<FilterManager> filters,
-                                         const Ice::Context& sslContext,
-                                         shared_ptr<RoutingTable> routingTable)
+Glacier2::ClientBlobject::ClientBlobject(
+    shared_ptr<Instance> instance,
+    shared_ptr<FilterManager> filters,
+    const Ice::Context& sslContext,
+    shared_ptr<RoutingTable> routingTable)
     :
 
       Glacier2::Blobject(std::move(instance), nullptr, sslContext),
@@ -25,10 +26,11 @@ Glacier2::ClientBlobject::ClientBlobject(shared_ptr<Instance> instance,
 }
 
 void
-Glacier2::ClientBlobject::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
-                                          function<void(bool, const pair<const Byte*, const Byte*>&)> response,
-                                          function<void(exception_ptr)> error,
-                                          const Current& current)
+Glacier2::ClientBlobject::ice_invokeAsync(
+    pair<const Byte*, const Byte*> inParams,
+    function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     bool matched = false;
     bool hasFilters = false;

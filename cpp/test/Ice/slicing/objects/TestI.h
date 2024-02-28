@@ -50,14 +50,16 @@ public:
     virtual ::Test::PreservedPtr PBSUnknownAsPreserved(const ::Ice::Current&);
     virtual void checkPBSUnknown(::Test::PreservedPtr, const ::Ice::Current&);
 
-    virtual void PBSUnknownAsPreservedWithGraphAsync(std::function<void(const std::shared_ptr<Test::Preserved>&)>,
-                                                     std::function<void(std::exception_ptr)>,
-                                                     const ::Ice::Current&);
+    virtual void PBSUnknownAsPreservedWithGraphAsync(
+        std::function<void(const std::shared_ptr<Test::Preserved>&)>,
+        std::function<void(std::exception_ptr)>,
+        const ::Ice::Current&);
     virtual void checkPBSUnknownWithGraph(::Test::PreservedPtr, const ::Ice::Current&);
 
-    virtual void PBSUnknown2AsPreservedWithGraphAsync(std::function<void(const std::shared_ptr<Test::Preserved>&)>,
-                                                      std::function<void(std::exception_ptr)>,
-                                                      const ::Ice::Current&);
+    virtual void PBSUnknown2AsPreservedWithGraphAsync(
+        std::function<void(const std::shared_ptr<Test::Preserved>&)>,
+        std::function<void(std::exception_ptr)>,
+        const ::Ice::Current&);
     virtual void checkPBSUnknown2WithGraph(::Test::PreservedPtr, const ::Ice::Current&);
 
     virtual ::Test::PNodePtr exchangePNode(::Test::PNodePtr, const ::Ice::Current&);

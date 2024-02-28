@@ -147,9 +147,10 @@ IceSSL::EndpointI::transceiver() const
 }
 
 void
-IceSSL::EndpointI::connectorsAsync(Ice::EndpointSelectionType selType,
-                                   function<void(vector<IceInternal::ConnectorPtr>)> response,
-                                   function<void(exception_ptr)> exception) const
+IceSSL::EndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception) const
 {
     IPEndpointInfoPtr info = getIPEndpointInfo(_delegate->getInfo());
     string host = info ? info->host : string();
@@ -170,8 +171,8 @@ IceSSL::EndpointI::connectorsAsync(Ice::EndpointSelectionType selType,
 IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(const string& adapterName) const
 {
-    return make_shared<AcceptorI>(const_cast<EndpointI*>(this)->shared_from_this(), _instance,
-                                  _delegate->acceptor(adapterName), adapterName);
+    return make_shared<AcceptorI>(
+        const_cast<EndpointI*>(this)->shared_from_this(), _instance, _delegate->acceptor(adapterName), adapterName);
 }
 
 EndpointIPtr
@@ -326,8 +327,8 @@ IceSSL::EndpointFactoryI::destroy()
 }
 
 IceInternal::EndpointFactoryPtr
-IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance,
-                                              int16_t underlying) const
+IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, int16_t underlying)
+    const
 {
     return make_shared<EndpointFactoryI>(
         make_shared<Instance>(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);

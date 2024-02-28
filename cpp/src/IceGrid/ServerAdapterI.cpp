@@ -11,12 +11,13 @@
 using namespace std;
 using namespace IceGrid;
 
-ServerAdapterI::ServerAdapterI(const shared_ptr<NodeI>& node,
-                               ServerI* server,
-                               const string& serverName,
-                               const AdapterPrxPtr& proxy,
-                               const string& id,
-                               bool enabled)
+ServerAdapterI::ServerAdapterI(
+    const shared_ptr<NodeI>& node,
+    ServerI* server,
+    const string& serverName,
+    const AdapterPrxPtr& proxy,
+    const string& id,
+    bool enabled)
     : _node(node),
       _this(proxy),
       _serverId(serverName),
@@ -29,9 +30,10 @@ ServerAdapterI::ServerAdapterI(const shared_ptr<NodeI>& node,
 ServerAdapterI::~ServerAdapterI() { assert(_activateCB.empty()); }
 
 void
-ServerAdapterI::activateAsync(function<void(const Ice::ObjectPrxPtr&)> response,
-                              function<void(exception_ptr)>,
-                              const Ice::Current&)
+ServerAdapterI::activateAsync(
+    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     {
         lock_guard lock(_mutex);

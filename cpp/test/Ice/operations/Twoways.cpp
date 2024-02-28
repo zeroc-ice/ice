@@ -63,8 +63,9 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     test(Test::s3 == "A21" && Test::s3 == Test::sw3 && Test::s3 == literals[3] && Test::s3 == literals[14]);
 
-    test(Test::s4 == "\\u0041 \\U00000041" && Test::s4 == Test::sw4 && Test::s4 == literals[4] &&
-         Test::s4 == literals[15]);
+    test(
+        Test::s4 == "\\u0041 \\U00000041" && Test::s4 == Test::sw4 && Test::s4 == literals[4] &&
+        Test::s4 == literals[15]);
 
     test(Test::s5 == "\xc3\xbf" && Test::s5 == Test::sw5 && Test::s5 == literals[5] && Test::s5 == literals[16]);
 
@@ -72,20 +73,22 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     test(Test::s7 == "\xd7\xb0" && Test::s7 == Test::sw7 && Test::s7 == literals[7] && Test::s7 == literals[18]);
 
-    test(Test::s8 == "\xf0\x90\x80\x80" && Test::s8 == Test::sw8 && Test::s8 == literals[8] &&
-         Test::s8 == literals[19]);
+    test(
+        Test::s8 == "\xf0\x90\x80\x80" && Test::s8 == Test::sw8 && Test::s8 == literals[8] && Test::s8 == literals[19]);
 
-    test(Test::s9 == "\xf0\x9f\x8d\x8c" && Test::s9 == Test::sw9 && Test::s9 == literals[9] &&
-         Test::s9 == literals[20]);
+    test(
+        Test::s9 == "\xf0\x9f\x8d\x8c" && Test::s9 == Test::sw9 && Test::s9 == literals[9] && Test::s9 == literals[20]);
 
-    test(Test::s10 == "\xe0\xb6\xa7" && Test::s10 == Test::sw10 && Test::s10 == literals[10] &&
-         Test::s10 == literals[21]);
+    test(
+        Test::s10 == "\xe0\xb6\xa7" && Test::s10 == Test::sw10 && Test::s10 == literals[10] &&
+        Test::s10 == literals[21]);
 
     test(Test::s11 == "\xe2\x82\xac\xe2\x82\xac\xe2\x82\xac");
     test(Test::s12 == "\\101");
 
-    test(Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v\006" && Test::ss0 == Test::ss1 && Test::ss0 == Test::ss2 &&
-         Test::ss0 == literals[22] && Test::ss0 == literals[23] && Test::ss0 == literals[24]);
+    test(
+        Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v\006" && Test::ss0 == Test::ss1 && Test::ss0 == Test::ss2 &&
+        Test::ss0 == literals[22] && Test::ss0 == literals[23] && Test::ss0 == literals[24]);
 
     test(Test::ss3 == "\\\\U\\u\\" && Test::ss3 == literals[25]);
 
@@ -112,8 +115,9 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     test(Test::ws3 == L"A21" && Test::ws3 == Test::wsw3 && Test::ws3 == wliterals[3] && Test::ws3 == wliterals[14]);
 
-    test(Test::ws4 == L"\\u0041 \\U00000041" && Test::ws4 == Test::wsw4 && Test::ws4 == wliterals[4] &&
-         Test::ws4 == wliterals[15]);
+    test(
+        Test::ws4 == L"\\u0041 \\U00000041" && Test::ws4 == Test::wsw4 && Test::ws4 == wliterals[4] &&
+        Test::ws4 == wliterals[15]);
 
     test(Test::ws5 == L"\u00FF" && Test::ws5 == Test::wsw5 && Test::ws5 == wliterals[5] && Test::ws5 == wliterals[16]);
 
@@ -121,17 +125,21 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     test(Test::ws7 == L"\u05F0" && Test::ws7 == Test::wsw7 && Test::ws7 == wliterals[7] && Test::ws7 == wliterals[18]);
 
-    test(Test::ws8 == L"\U00010000" && Test::ws8 == Test::wsw8 && Test::ws8 == wliterals[8] &&
-         Test::ws8 == wliterals[19]);
+    test(
+        Test::ws8 == L"\U00010000" && Test::ws8 == Test::wsw8 && Test::ws8 == wliterals[8] &&
+        Test::ws8 == wliterals[19]);
 
-    test(Test::ws9 == L"\U0001F34C" && Test::ws9 == Test::wsw9 && Test::ws9 == wliterals[9] &&
-         Test::ws9 == wliterals[20]);
+    test(
+        Test::ws9 == L"\U0001F34C" && Test::ws9 == Test::wsw9 && Test::ws9 == wliterals[9] &&
+        Test::ws9 == wliterals[20]);
 
-    test(Test::ws10 == L"\u0DA7" && Test::ws10 == Test::wsw10 && Test::ws10 == wliterals[10] &&
-         Test::ws10 == wliterals[21]);
+    test(
+        Test::ws10 == L"\u0DA7" && Test::ws10 == Test::wsw10 && Test::ws10 == wliterals[10] &&
+        Test::ws10 == wliterals[21]);
 
-    test(Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v\006" && Test::wss0 == Test::wss1 && Test::wss0 == Test::wss2 &&
-         Test::wss0 == wliterals[22] && Test::wss0 == wliterals[23] && Test::wss0 == wliterals[24]);
+    test(
+        Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v\006" && Test::wss0 == Test::wss1 && Test::wss0 == Test::wss2 &&
+        Test::wss0 == wliterals[22] && Test::wss0 == wliterals[23] && Test::wss0 == wliterals[24]);
 
     test(Test::wss3 == L"\\\\U\\u\\" && Test::wss3 == wliterals[25]);
 
@@ -139,8 +147,9 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
     test(Test::wss5 == L"\\u0041\\" && Test::wss5 == wliterals[27]);
 
-    test(Test::wsu0 == Test::wsu1 && Test::wsu0 == Test::wsu2 && Test::wsu0 == wliterals[28] &&
-         Test::wsu0 == wliterals[29] && Test::wsu0 == wliterals[30]);
+    test(
+        Test::wsu0 == Test::wsu1 && Test::wsu0 == Test::wsu2 && Test::wsu0 == wliterals[28] &&
+        Test::wsu0 == wliterals[29] && Test::wsu0 == wliterals[30]);
 
     {
         p->ice_ping();
@@ -201,15 +210,15 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         test(l == 12);
         test(r == 12);
 
-        r = p->opShortIntLong(numeric_limits<int16_t>::min(), numeric_limits<int32_t>::min(),
-                              numeric_limits<int64_t>::min(), s, i, l);
+        r = p->opShortIntLong(
+            numeric_limits<int16_t>::min(), numeric_limits<int32_t>::min(), numeric_limits<int64_t>::min(), s, i, l);
         test(s == numeric_limits<int16_t>::min());
         test(i == numeric_limits<int32_t>::min());
         test(l == numeric_limits<int64_t>::min());
         test(r == numeric_limits<int64_t>::min());
 
-        r = p->opShortIntLong(numeric_limits<int16_t>::max(), numeric_limits<int32_t>::max(),
-                              numeric_limits<int64_t>::max(), s, i, l);
+        r = p->opShortIntLong(
+            numeric_limits<int16_t>::max(), numeric_limits<int32_t>::max(), numeric_limits<int64_t>::max(), s, i, l);
         test(s == numeric_limits<int16_t>::max());
         test(i == numeric_limits<int32_t>::max());
         test(l == numeric_limits<int64_t>::max());

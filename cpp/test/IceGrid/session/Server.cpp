@@ -34,12 +34,14 @@ public:
         }
         test(info.certs.size() > 0);
         auto cert = IceSSL::Certificate::decode(info.certs[0]);
-        test(cert->getIssuerDN() ==
-             IceSSL::DistinguishedName(
-                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
-        test(cert->getSubjectDN() ==
-             IceSSL::DistinguishedName(
-                 "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
+        test(
+            cert->getIssuerDN() ==
+            IceSSL::DistinguishedName(
+                "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=Ice Tests CA"));
+        test(
+            cert->getSubjectDN() ==
+            IceSSL::DistinguishedName(
+                "emailAddress=info@zeroc.com,C=US,ST=Florida,L=Jupiter,O=ZeroC\\, Inc.,OU=Ice,CN=client"));
         test(cert->checkValidity());
 
         return true;

@@ -62,13 +62,14 @@ namespace IceObjC
     class StreamEndpointI final : public IceInternal::IPEndpointI
     {
     public:
-        StreamEndpointI(const InstancePtr&,
-                        const std::string&,
-                        std::int32_t,
-                        const IceInternal::Address&,
-                        std::int32_t,
-                        const std::string&,
-                        bool);
+        StreamEndpointI(
+            const InstancePtr&,
+            const std::string&,
+            std::int32_t,
+            const IceInternal::Address&,
+            std::int32_t,
+            const std::string&,
+            bool);
         StreamEndpointI(const InstancePtr&);
         StreamEndpointI(const InstancePtr&, Ice::InputStream*);
 
@@ -81,9 +82,10 @@ namespace IceObjC
         bool datagram() const final;
         bool secure() const final;
 
-        void connectorsAsync(Ice::EndpointSelectionType,
-                             std::function<void(std::vector<IceInternal::ConnectorPtr>)> response,
-                             std::function<void(std::exception_ptr)> exception) const;
+        void connectorsAsync(
+            Ice::EndpointSelectionType,
+            std::function<void(std::vector<IceInternal::ConnectorPtr>)> response,
+            std::function<void(std::exception_ptr)> exception) const;
         IceInternal::TransceiverPtr transceiver() const final;
         IceInternal::AcceptorPtr acceptor(const std::string&) const final;
         std::string options() const final;
@@ -105,8 +107,8 @@ namespace IceObjC
         void hashInit(std::int32_t&) const final;
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
-        IceInternal::ConnectorPtr createConnector(const IceInternal::Address&,
-                                                  const IceInternal::NetworkProxyPtr&) const final;
+        IceInternal::ConnectorPtr
+        createConnector(const IceInternal::Address&, const IceInternal::NetworkProxyPtr&) const final;
         IceInternal::IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
 
     private:

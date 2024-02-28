@@ -174,13 +174,14 @@ IceBT::AcceptorI::newConnection(int fd)
     ready(IceInternal::SocketOperationRead, true);
 }
 
-IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint,
-                            const InstancePtr& instance,
-                            const string& adapterName,
-                            const string& addr,
-                            const string& uuid,
-                            const string& name,
-                            int channel)
+IceBT::AcceptorI::AcceptorI(
+    const EndpointIPtr& endpoint,
+    const InstancePtr& instance,
+    const string& adapterName,
+    const string& addr,
+    const string& uuid,
+    const string& name,
+    int channel)
     : _endpoint(endpoint),
       _instance(instance),
       _adapterName(adapterName),
@@ -203,13 +204,13 @@ IceBT::AcceptorI::AcceptorI(const EndpointIPtr& endpoint,
     DeviceAddress da;
     if (!parseDeviceAddress(s, da))
     {
-        throw EndpointParseException(__FILE__, __LINE__,
-                                     "invalid address value `" + s + "' in endpoint " + endpoint->toString());
+        throw EndpointParseException(
+            __FILE__, __LINE__, "invalid address value `" + s + "' in endpoint " + endpoint->toString());
     }
     if (!_instance->engine()->adapterExists(s))
     {
-        throw EndpointParseException(__FILE__, __LINE__,
-                                     "no device found for `" + s + "' in endpoint " + endpoint->toString());
+        throw EndpointParseException(
+            __FILE__, __LINE__, "no device found for `" + s + "' in endpoint " + endpoint->toString());
     }
 
     const_cast<string&>(_addr) = s;

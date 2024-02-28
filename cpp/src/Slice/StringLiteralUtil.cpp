@@ -47,10 +47,11 @@ namespace
         Format _format; // The last format used for an escape.
     };
 
-    StringLiteralGenerator::StringLiteralGenerator(const string& nonPrintableEscaped,
-                                                   const string& printableEscaped,
-                                                   EscapeMode escapeMode,
-                                                   unsigned char cutOff)
+    StringLiteralGenerator::StringLiteralGenerator(
+        const string& nonPrintableEscaped,
+        const string& printableEscaped,
+        EscapeMode escapeMode,
+        unsigned char cutOff)
         : _nonPrintableEscaped(nonPrintableEscaped),
           _printableEscaped(printableEscaped + "\\"),
           _escapeMode(escapeMode),
@@ -298,11 +299,12 @@ namespace
 }
 
 string
-Slice::toStringLiteral(const string& value,
-                       const string& nonPrintableEscaped,
-                       const string& printableEscaped,
-                       EscapeMode escapeMode,
-                       unsigned char cutOff)
+Slice::toStringLiteral(
+    const string& value,
+    const string& nonPrintableEscaped,
+    const string& printableEscaped,
+    EscapeMode escapeMode,
+    unsigned char cutOff)
 {
     StringLiteralGenerator generator(nonPrintableEscaped, printableEscaped, escapeMode, cutOff);
 

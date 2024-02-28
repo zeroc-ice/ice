@@ -147,16 +147,17 @@ namespace IceInternal
         virtual ReferencePtr clone() const = 0;
 
     protected:
-        Reference(const InstancePtr&,
-                  const Ice::CommunicatorPtr&,
-                  const Ice::Identity&,
-                  const std::string&,
-                  Mode,
-                  bool,
-                  const Ice::ProtocolVersion&,
-                  const Ice::EncodingVersion&,
-                  int,
-                  const Ice::Context& ctx);
+        Reference(
+            const InstancePtr&,
+            const Ice::CommunicatorPtr&,
+            const Ice::Identity&,
+            const std::string&,
+            Mode,
+            bool,
+            const Ice::ProtocolVersion&,
+            const Ice::EncodingVersion&,
+            int,
+            const Ice::Context& ctx);
         Reference(const Reference&);
 
         virtual std::int32_t hashInit() const;
@@ -184,18 +185,19 @@ namespace IceInternal
     class FixedReference final : public Reference
     {
     public:
-        FixedReference(const InstancePtr&,
-                       const Ice::CommunicatorPtr&,
-                       const Ice::Identity&,
-                       const std::string&,
-                       Mode,
-                       bool,
-                       const Ice::ProtocolVersion&,
-                       const Ice::EncodingVersion&,
-                       const Ice::ConnectionIPtr&,
-                       int,
-                       const Ice::Context&,
-                       const std::optional<bool>&);
+        FixedReference(
+            const InstancePtr&,
+            const Ice::CommunicatorPtr&,
+            const Ice::Identity&,
+            const std::string&,
+            Mode,
+            bool,
+            const Ice::ProtocolVersion&,
+            const Ice::EncodingVersion&,
+            const Ice::ConnectionIPtr&,
+            int,
+            const Ice::Context&,
+            const std::optional<bool>&);
 
         FixedReference(const FixedReference&);
 
@@ -246,25 +248,26 @@ namespace IceInternal
     class RoutableReference final : public Reference
     {
     public:
-        RoutableReference(const InstancePtr&,
-                          const Ice::CommunicatorPtr&,
-                          const Ice::Identity&,
-                          const std::string&,
-                          Mode,
-                          bool,
-                          const Ice::ProtocolVersion&,
-                          const Ice::EncodingVersion&,
-                          const std::vector<EndpointIPtr>&,
-                          const std::string&,
-                          const LocatorInfoPtr&,
-                          const RouterInfoPtr&,
-                          bool,
-                          bool,
-                          bool,
-                          Ice::EndpointSelectionType,
-                          int,
-                          int,
-                          const Ice::Context&);
+        RoutableReference(
+            const InstancePtr&,
+            const Ice::CommunicatorPtr&,
+            const Ice::Identity&,
+            const std::string&,
+            Mode,
+            bool,
+            const Ice::ProtocolVersion&,
+            const Ice::EncodingVersion&,
+            const std::vector<EndpointIPtr>&,
+            const std::string&,
+            const LocatorInfoPtr&,
+            const RouterInfoPtr&,
+            bool,
+            bool,
+            bool,
+            Ice::EndpointSelectionType,
+            int,
+            int,
+            const Ice::Context&);
 
         RoutableReference(const RoutableReference&);
 
@@ -312,8 +315,9 @@ namespace IceInternal
         RequestHandlerPtr getRequestHandler() const final;
         const BatchRequestQueuePtr& getBatchRequestQueue() const final;
 
-        void getConnectionAsync(std::function<void(Ice::ConnectionIPtr, bool)> response,
-                                std::function<void(std::exception_ptr)> exception) const;
+        void getConnectionAsync(
+            std::function<void(Ice::ConnectionIPtr, bool)> response,
+            std::function<void(std::exception_ptr)> exception) const;
 
         void applyOverrides(std::vector<EndpointIPtr>&) const;
 
@@ -323,12 +327,14 @@ namespace IceInternal
         int hashInit() const final;
 
     private:
-        void createConnectionAsync(const std::vector<EndpointIPtr>&,
-                                   std::function<void(Ice::ConnectionIPtr, bool)> response,
-                                   std::function<void(std::exception_ptr)> exception) const;
+        void createConnectionAsync(
+            const std::vector<EndpointIPtr>&,
+            std::function<void(Ice::ConnectionIPtr, bool)> response,
+            std::function<void(std::exception_ptr)> exception) const;
 
-        void getConnectionNoRouterInfoAsync(std::function<void(Ice::ConnectionIPtr, bool)> response,
-                                            std::function<void(std::exception_ptr)> exception) const;
+        void getConnectionNoRouterInfoAsync(
+            std::function<void(Ice::ConnectionIPtr, bool)> response,
+            std::function<void(std::exception_ptr)> exception) const;
 
         // Sets or resets _batchRequestQueue based on _mode.
         void setBatchRequestQueue();

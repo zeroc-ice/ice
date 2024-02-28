@@ -35,9 +35,10 @@ namespace
 
         void setSubscriber(shared_ptr<Subscriber> subscriber) { _subscriber = std::move(subscriber); }
 
-        bool ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                        vector<Ice::Byte>&,
-                        const Ice::Current& current) override
+        bool ice_invoke(
+            pair<const Ice::Byte*, const Ice::Byte*> inParams,
+            vector<Ice::Byte>&,
+            const Ice::Current& current) override
         {
             // Use cached reads.
             CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
@@ -85,7 +86,11 @@ namespace
     {
     public:
         SubscriberOneway(
-            const shared_ptr<Instance>&, const SubscriberRecord&, const Ice::ObjectPrxPtr&, int, Ice::ObjectPrxPtr);
+            const shared_ptr<Instance>&,
+            const SubscriberRecord&,
+            const Ice::ObjectPrxPtr&,
+            int,
+            Ice::ObjectPrxPtr);
 
         void flush() override;
         void sentAsynchronously();
@@ -97,12 +102,13 @@ namespace
     class SubscriberTwoway final : public Subscriber
     {
     public:
-        SubscriberTwoway(const shared_ptr<Instance>&,
-                         const SubscriberRecord&,
-                         const Ice::ObjectPrxPtr&,
-                         int,
-                         int,
-                         Ice::ObjectPrxPtr);
+        SubscriberTwoway(
+            const shared_ptr<Instance>&,
+            const SubscriberRecord&,
+            const Ice::ObjectPrxPtr&,
+            int,
+            int,
+            Ice::ObjectPrxPtr);
 
         void flush() override;
 
@@ -123,11 +129,12 @@ namespace
 
 }
 
-SubscriberOneway::SubscriberOneway(const shared_ptr<Instance>& instance,
-                                   const SubscriberRecord& rec,
-                                   const Ice::ObjectPrxPtr& proxy,
-                                   int retryCount,
-                                   Ice::ObjectPrxPtr obj)
+SubscriberOneway::SubscriberOneway(
+    const shared_ptr<Instance>& instance,
+    const SubscriberRecord& rec,
+    const Ice::ObjectPrxPtr& proxy,
+    int retryCount,
+    Ice::ObjectPrxPtr obj)
     : Subscriber(instance, rec, proxy, retryCount, 5),
       _obj(std::move(obj))
 {
@@ -232,12 +239,13 @@ SubscriberOneway::sentAsynchronously()
     }
 }
 
-SubscriberTwoway::SubscriberTwoway(const shared_ptr<Instance>& instance,
-                                   const SubscriberRecord& rec,
-                                   const Ice::ObjectPrxPtr& proxy,
-                                   int retryCount,
-                                   int maxOutstanding,
-                                   Ice::ObjectPrxPtr obj)
+SubscriberTwoway::SubscriberTwoway(
+    const shared_ptr<Instance>& instance,
+    const SubscriberRecord& rec,
+    const Ice::ObjectPrxPtr& proxy,
+    int retryCount,
+    int maxOutstanding,
+    Ice::ObjectPrxPtr obj)
     : Subscriber(instance, rec, proxy, retryCount, maxOutstanding),
       _obj(std::move(obj))
 {
@@ -805,14 +813,18 @@ Subscriber::updateObserver()
 
     if (_instance->observer())
     {
-        _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(), _rec.topicName,
-                                                                      _rec.obj, _rec.theQoS, _rec.theTopic,
-                                                                      toSubscriberState(_state), _observer.get()));
+        _observer.attach(_instance->observer()->getSubscriberObserver(
+            _instance->serviceName(), _rec.topicName, _rec.obj, _rec.theQoS, _rec.theTopic, toSubscriberState(_state),
+            _observer.get()));
     }
 }
 
 Subscriber::Subscriber(
-    shared_ptr<Instance> instance, SubscriberRecord rec, Ice::ObjectPrxPtr proxy, int retryCount, int maxOutstanding)
+    shared_ptr<Instance> instance,
+    SubscriberRecord rec,
+    Ice::ObjectPrxPtr proxy,
+    int retryCount,
+    int maxOutstanding)
     : _instance(std::move(instance)),
       _rec(std::move(rec)),
       _retryCount(retryCount),
@@ -833,9 +845,9 @@ Subscriber::Subscriber(
 
     if (_instance->observer())
     {
-        _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(), _rec.topicName,
-                                                                      _rec.obj, _rec.theQoS, _rec.theTopic,
-                                                                      toSubscriberState(_state), 0));
+        _observer.attach(_instance->observer()->getSubscriberObserver(
+            _instance->serviceName(), _rec.topicName, _rec.obj, _rec.theQoS, _rec.theTopic, toSubscriberState(_state),
+            0));
     }
 }
 
@@ -877,9 +889,9 @@ Subscriber::setState(Subscriber::SubscriberState state)
 
         if (_instance->observer())
         {
-            _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(), _rec.topicName,
-                                                                          _rec.obj, _rec.theQoS, _rec.theTopic,
-                                                                          toSubscriberState(_state), _observer.get()));
+            _observer.attach(_instance->observer()->getSubscriberObserver(
+                _instance->serviceName(), _rec.topicName, _rec.obj, _rec.theQoS, _rec.theTopic,
+                toSubscriberState(_state), _observer.get()));
         }
     }
 }

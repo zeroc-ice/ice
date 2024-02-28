@@ -74,12 +74,13 @@ namespace
     class CollocatedRegistry final : public RegistryI
     {
     public:
-        CollocatedRegistry(const shared_ptr<Communicator>&,
-                           const shared_ptr<Activator>&,
-                           bool,
-                           bool,
-                           const std::string&,
-                           const std::string&);
+        CollocatedRegistry(
+            const shared_ptr<Communicator>&,
+            const shared_ptr<Activator>&,
+            bool,
+            bool,
+            const std::string&,
+            const std::string&);
         void shutdown() override;
 
     private:
@@ -104,12 +105,13 @@ namespace
 
 }
 
-CollocatedRegistry::CollocatedRegistry(const shared_ptr<Communicator>& com,
-                                       const shared_ptr<Activator>& activator,
-                                       bool nowarn,
-                                       bool readonly,
-                                       const string& initFromReplica,
-                                       const string& nodeName)
+CollocatedRegistry::CollocatedRegistry(
+    const shared_ptr<Communicator>& com,
+    const shared_ptr<Activator>& activator,
+    bool nowarn,
+    bool readonly,
+    const string& initFromReplica,
+    const string& nodeName)
     : RegistryI(com, make_shared<TraceLevels>(com, "IceGrid.Registry"), nowarn, readonly, initFromReplica, nodeName),
       _activator(activator)
 {
@@ -449,8 +451,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     Identity id = stringToIdentity(instanceName + "/Node-" + name);
     auto nodeProxy = uncheckedCast<NodePrx>(_adapter->createProxy(id));
-    _node = make_shared<NodeI>(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper,
-                               instanceName);
+    _node = make_shared<NodeI>(
+        _adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper, instanceName);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     _adapter->addDefaultServant(make_shared<NodeServerAdminRouter>(_node), _node->getServerAdminCategory());
@@ -752,12 +754,13 @@ NodeService::initializeCommunicator(int& argc, char* argv[], const Initializatio
 
             if (!cryptPasswords.empty())
             {
-                initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
-                                                 "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
+                initData.properties->setProperty(
+                    "Ice.Plugin.Glacier2CryptPermissionsVerifier",
+                    "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
-                initData.properties->setProperty("Glacier2CryptPermissionsVerifier.IceGrid.Registry." + type +
-                                                     "PermissionsVerifier",
-                                                 cryptPasswords);
+                initData.properties->setProperty(
+                    "Glacier2CryptPermissionsVerifier.IceGrid.Registry." + type + "PermissionsVerifier",
+                    cryptPasswords);
             }
         }
     }

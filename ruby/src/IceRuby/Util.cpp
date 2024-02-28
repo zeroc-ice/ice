@@ -13,7 +13,7 @@ using namespace IceRuby;
 namespace
 {
 
-    template <typename T> bool setVersion(VALUE p, const T& version)
+    template<typename T> bool setVersion(VALUE p, const T& version)
     {
         volatile VALUE major = callRuby(rb_int2inum, version.major);
         volatile VALUE minor = callRuby(rb_int2inum, version.minor);
@@ -23,7 +23,7 @@ namespace
         return true;
     }
 
-    template <typename T> bool getVersion(VALUE p, T& v)
+    template<typename T> bool getVersion(VALUE p, T& v)
     {
         volatile VALUE major = callRuby(rb_ivar_get, p, rb_intern("@major"));
         volatile VALUE minor = callRuby(rb_ivar_get, p, rb_intern("@minor"));
@@ -49,7 +49,7 @@ namespace
         return true;
     }
 
-    template <typename T> VALUE createVersion(const T& version, const char* type)
+    template<typename T> VALUE createVersion(const T& version, const char* type)
     {
         volatile VALUE rbType = callRuby(rb_path2class, type);
         assert(!NIL_P(rbType));
@@ -64,7 +64,7 @@ namespace
         return obj;
     }
 
-    template <typename T> VALUE versionToString(VALUE p, const char* type)
+    template<typename T> VALUE versionToString(VALUE p, const char* type)
     {
         volatile VALUE rbType = callRuby(rb_path2class, type);
         assert(!NIL_P(rbType));
@@ -88,7 +88,7 @@ namespace
         return Qnil;
     }
 
-    template <typename T> VALUE stringToVersion(VALUE p, const char* type)
+    template<typename T> VALUE stringToVersion(VALUE p, const char* type)
     {
         string str = getString(p);
 
@@ -252,7 +252,7 @@ IceRuby::createString(string_view str)
 namespace
 {
 
-    template <typename T> struct RubyCallArgs
+    template<typename T> struct RubyCallArgs
     {
         volatile VALUE val;
         T ret;
@@ -440,9 +440,10 @@ IceRuby::hashIterate(VALUE h, HashIterator& iter)
 {
     assert(TYPE(h) == T_HASH);
 
-    callRuby(::rb_block_call, h, rb_intern("each"), 0, static_cast<VALUE*>(0),
-             reinterpret_cast<ICE_RUBY_HASH_FOREACH_CALLBACK>(IceRuby_Util_hash_foreach_callback),
-             reinterpret_cast<VALUE>(&iter));
+    callRuby(
+        ::rb_block_call, h, rb_intern("each"), 0, static_cast<VALUE*>(0),
+        reinterpret_cast<ICE_RUBY_HASH_FOREACH_CALLBACK>(IceRuby_Util_hash_foreach_callback),
+        reinterpret_cast<VALUE>(&iter));
 }
 
 Ice::Identity

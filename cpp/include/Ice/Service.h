@@ -63,10 +63,11 @@ namespace Ice
          * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(int argc,
-                 const char* const argv[],
-                 const InitializationData& initData = InitializationData(),
-                 int version = ICE_INT_VERSION);
+        int main(
+            int argc,
+            const char* const argv[],
+            const InitializationData& initData = InitializationData(),
+            int version = ICE_INT_VERSION);
 
 #ifdef _WIN32
         /**
@@ -94,10 +95,11 @@ namespace Ice
          * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(int argc,
-                 const wchar_t* const argv[],
-                 const InitializationData& initData = InitializationData(),
-                 int version = ICE_INT_VERSION);
+        int main(
+            int argc,
+            const wchar_t* const argv[],
+            const InitializationData& initData = InitializationData(),
+            int version = ICE_INT_VERSION);
 #endif
 
         /**
@@ -124,9 +126,10 @@ namespace Ice
          * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int main(const StringSeq& args,
-                 const InitializationData& initData = InitializationData(),
-                 int version = ICE_INT_VERSION);
+        int main(
+            const StringSeq& args,
+            const InitializationData& initData = InitializationData(),
+            int version = ICE_INT_VERSION);
 
         /**
          * Obtains the communicator created by the service.
@@ -177,10 +180,11 @@ namespace Ice
          * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int run(int argc,
-                const wchar_t* const argv[],
-                const InitializationData& initData = InitializationData(),
-                int version = ICE_INT_VERSION);
+        int
+        run(int argc,
+            const wchar_t* const argv[],
+            const InitializationData& initData = InitializationData(),
+            int version = ICE_INT_VERSION);
 #endif
 
         /**
@@ -198,10 +202,11 @@ namespace Ice
          * specified, the version of the Ice installation is used.
          * @return The application's exit status: EXIT_FAILURE or EXIT_SUCCESS.
          */
-        int run(int argc,
-                const char* const argv[],
-                const InitializationData& initData = InitializationData(),
-                int version = ICE_INT_VERSION);
+        int
+        run(int argc,
+            const char* const argv[],
+            const InitializationData& initData = InitializationData(),
+            int version = ICE_INT_VERSION);
 
 #ifdef _WIN32
 

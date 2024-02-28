@@ -20,7 +20,7 @@ namespace IceMX
 
     /// \cond INTERNAL
     class Updater;
-    template <typename T> class MetricsHelperT;
+    template<typename T> class MetricsHelperT;
     /// \endcond
 
 }
@@ -40,7 +40,7 @@ namespace IceInternal
         public:
             RegExp(const std::string&, const std::string&);
 
-            template <typename T> bool match(const IceMX::MetricsHelperT<T>& helper, bool reject)
+            template<typename T> bool match(const IceMX::MetricsHelperT<T>& helper, bool reject)
             {
                 std::string value;
                 try
@@ -103,7 +103,7 @@ namespace IceInternal
     };
     using MetricsMapFactoryPtr = std::shared_ptr<MetricsMapFactory>;
 
-    template <class MetricsType> class MetricsMapT : public MetricsMapI
+    template<class MetricsType> class MetricsMapT : public MetricsMapI
     {
     public:
         using T = MetricsType;
@@ -143,7 +143,7 @@ namespace IceInternal
                 ++_failures[exceptionName];
             }
 
-            template <typename MemberMetricsType>
+            template<typename MemberMetricsType>
             typename MetricsMapT<MemberMetricsType>::EntryTPtr
             getMatching(const std::string& mapName, const IceMX::MetricsHelperT<MemberMetricsType>& helper)
             {
@@ -182,7 +182,7 @@ namespace IceInternal
                 }
             }
 
-            template <typename Function> void execute(Function func)
+            template<typename Function> void execute(Function func)
             {
                 std::lock_guard lock(_map->_mutex);
                 func(_object);
@@ -228,9 +228,10 @@ namespace IceInternal
             typename std::list<EntryTPtr>::iterator _detachedPos;
         };
 
-        MetricsMapT(const std::string& mapPrefix,
-                    const Ice::PropertiesPtr& properties,
-                    const std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr>>& subMaps)
+        MetricsMapT(
+            const std::string& mapPrefix,
+            const Ice::PropertiesPtr& properties,
+            const std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr>>& subMaps)
             : MetricsMapI(mapPrefix, properties),
               _destroyed(false)
         {
@@ -319,8 +320,8 @@ namespace IceInternal
                 _subMaps.find(subMapName);
             if (p != _subMaps.end())
             {
-                return std::pair<MetricsMapIPtr, SubMapMember>(p->second.second->clone()->shared_from_this(),
-                                                               p->second.first);
+                return std::pair<MetricsMapIPtr, SubMapMember>(
+                    p->second.second->clone()->shared_from_this(), p->second.first);
             }
             return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(nullptr), static_cast<SubMapMember>(0));
         }
@@ -473,7 +474,7 @@ namespace IceInternal
         mutable std::mutex _mutex;
     };
 
-    template <class MetricsType> class MetricsMapFactoryT : public MetricsMapFactory
+    template<class MetricsType> class MetricsMapFactoryT : public MetricsMapFactory
     {
     public:
         MetricsMapFactoryT(IceMX::Updater* updater) : MetricsMapFactory(updater) {}
@@ -483,7 +484,7 @@ namespace IceInternal
             return std::make_shared<MetricsMapT<MetricsType>>(mapPrefix, properties, _subMaps);
         }
 
-        template <class SubMapMetricsType>
+        template<class SubMapMetricsType>
         void registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::*member)
         {
             _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*, MetricsMapFactoryPtr>(
@@ -501,10 +502,11 @@ namespace IceInternal
 
         void destroy();
 
-        bool addOrUpdateMap(const Ice::PropertiesPtr&,
-                            const std::string&,
-                            const MetricsMapFactoryPtr&,
-                            const Ice::LoggerPtr&);
+        bool addOrUpdateMap(
+            const Ice::PropertiesPtr&,
+            const std::string&,
+            const MetricsMapFactoryPtr&,
+            const Ice::LoggerPtr&);
         bool removeMap(const std::string&);
 
         IceMX::MetricsView getMetrics();
@@ -531,7 +533,7 @@ namespace IceInternal
 
         void updateViews();
 
-        template <class MetricsType> void registerMap(const std::string& map, IceMX::Updater* updater)
+        template<class MetricsType> void registerMap(const std::string& map, IceMX::Updater* updater)
         {
             bool updated;
             MetricsMapFactoryPtr factory;
@@ -547,7 +549,7 @@ namespace IceInternal
             }
         }
 
-        template <class MemberMetricsType, class MetricsType>
+        template<class MemberMetricsType, class MetricsType>
         void registerSubMap(const std::string& map, const std::string& subMap, IceMX::MetricsMap MetricsType::*member)
         {
             bool updated;

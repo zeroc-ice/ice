@@ -61,9 +61,10 @@ ServantLocatorI::locate(const Ice::Current& current, std::shared_ptr<void>& cook
 }
 
 void
-ServantLocatorI::finished(const Ice::Current& current,
-                          const shared_ptr<Ice::Object>&,
-                          const std::shared_ptr<void>& cookie)
+ServantLocatorI::finished(
+    const Ice::Current& current,
+    const shared_ptr<Ice::Object>&,
+    const std::shared_ptr<void>& cookie)
 {
     test(!_deactivated);
     if (current.id.name == "router")

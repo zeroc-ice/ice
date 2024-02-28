@@ -56,7 +56,7 @@ namespace
 namespace Ice
 {
 
-    template <> struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
+    template<> struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
     {
         static void read(Ice::InputStream* is, IceGrid::ReplicaGroupDescriptor& v)
         {
@@ -254,13 +254,13 @@ run(const Ice::StringSeq& args)
 
             if (!serverVersion.empty())
             {
-                communicator->getValueFactoryManager()->add([serverVersion](string_view)
-                                                            { return make_shared<ServerDescriptorI>(serverVersion); },
-                                                            IceGrid::ServerDescriptor::ice_staticId());
+                communicator->getValueFactoryManager()->add(
+                    [serverVersion](string_view) { return make_shared<ServerDescriptorI>(serverVersion); },
+                    IceGrid::ServerDescriptor::ice_staticId());
 
-                communicator->getValueFactoryManager()->add([serverVersion](string_view)
-                                                            { return make_shared<IceBoxDescriptorI>(serverVersion); },
-                                                            IceGrid::IceBoxDescriptor::ice_staticId());
+                communicator->getValueFactoryManager()->add(
+                    [serverVersion](string_view) { return make_shared<IceBoxDescriptorI>(serverVersion); },
+                    IceGrid::IceBoxDescriptor::ice_staticId());
             }
 
             Ice::InputStream stream(communicator, dbContext.encoding, buf);
@@ -366,8 +366,8 @@ run(const Ice::StringSeq& args)
                     consoleOut << "Writing Serials Map:" << endl;
                 }
 
-                IceDB::Dbi<string, int64_t, IceDB::IceContext, Ice::OutputStream> srls(txn, "serials", dbContext,
-                                                                                       MDB_CREATE);
+                IceDB::Dbi<string, int64_t, IceDB::IceContext, Ice::OutputStream> srls(
+                    txn, "serials", dbContext, MDB_CREATE);
 
                 for (IceGrid::StringLongDict::const_iterator p = data.serials.begin(); p != data.serials.end(); ++p)
                 {
@@ -417,8 +417,8 @@ run(const Ice::StringSeq& args)
                     consoleOut << "Reading Adapter Map:" << endl;
                 }
 
-                IceDB::Dbi<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream> adapters(txn, "adapters",
-                                                                                                        dbContext, 0);
+                IceDB::Dbi<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream> adapters(
+                    txn, "adapters", dbContext, 0);
 
                 IceGrid::AdapterInfo adapter;
                 IceDB::ReadOnlyCursor<string, IceGrid::AdapterInfo, IceDB::IceContext, Ice::OutputStream> adapterCursor(

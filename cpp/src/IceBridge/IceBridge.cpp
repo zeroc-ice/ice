@@ -24,10 +24,11 @@ namespace
         // The pointers in p refer to the Ice marshaling buffer and won't remain valid after
         // ice_invokeAsync completes, so we have to make a copy of the in parameters
         //
-        QueuedDispatch(pair<const Byte*, const Byte*> p,
-                       function<void(bool, const pair<const Byte*, const Byte*>&)>&& r,
-                       function<void(exception_ptr)>&& e,
-                       const Current& c)
+        QueuedDispatch(
+            pair<const Byte*, const Byte*> p,
+            function<void(bool, const pair<const Byte*, const Byte*>&)>&& r,
+            function<void(exception_ptr)>&& e,
+            const Current& c)
             : inParams(p.first, p.second),
               response(std::move(r)),
               error(std::move(e)),
@@ -93,17 +94,19 @@ namespace
         void outgoingException(exception_ptr);
 
         void closed(const shared_ptr<Connection>&);
-        void dispatch(pair<const Byte*, const Byte*>,
-                      function<void(bool, const pair<const Byte*, const Byte*>&)>,
-                      function<void(exception_ptr)>,
-                      const Current&);
+        void dispatch(
+            pair<const Byte*, const Byte*>,
+            function<void(bool, const pair<const Byte*, const Byte*>&)>,
+            function<void(exception_ptr)>,
+            const Current&);
 
     private:
-        void send(const shared_ptr<Connection>&,
-                  pair<const Byte*, const Byte*>,
-                  function<void(bool, const pair<const Byte*, const Byte*>&)>,
-                  function<void(exception_ptr)>,
-                  const Current& current);
+        void send(
+            const shared_ptr<Connection>&,
+            pair<const Byte*, const Byte*>,
+            function<void(bool, const pair<const Byte*, const Byte*>&)>,
+            function<void(exception_ptr)>,
+            const Current& current);
 
         const shared_ptr<ObjectAdapter> _adapter;
         const ObjectPrxPtr _target;
@@ -130,10 +133,11 @@ namespace
     public:
         BridgeI(shared_ptr<ObjectAdapter> adapter, ObjectPrxPtr target);
 
-        void ice_invokeAsync(pair<const Byte*, const Byte*> inEncaps,
-                             function<void(bool, const pair<const Byte*, const Byte*>&)> response,
-                             function<void(exception_ptr)> error,
-                             const Current& current) override;
+        void ice_invokeAsync(
+            pair<const Byte*, const Byte*> inEncaps,
+            function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+            function<void(exception_ptr)> error,
+            const Current& current) override;
 
         void closed(const shared_ptr<Connection>&);
         void outgoingSuccess(const shared_ptr<BridgeConnection>&, shared_ptr<Connection>);
@@ -300,10 +304,11 @@ BridgeConnection::closed(const shared_ptr<Connection>& con)
 }
 
 void
-BridgeConnection::dispatch(pair<const Byte*, const Byte*> inParams,
-                           function<void(bool, const pair<const Byte*, const Byte*>&)> response,
-                           function<void(exception_ptr)> error,
-                           const Current& current)
+BridgeConnection::dispatch(
+    pair<const Byte*, const Byte*> inParams,
+    function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     //
     // We've received an invocation, either from the client via the incoming connection, or from
@@ -325,17 +330,18 @@ BridgeConnection::dispatch(pair<const Byte*, const Byte*> inParams,
     }
     else
     {
-        send(current.con == _incoming ? _outgoing : _incoming, inParams, std::move(response), std::move(error),
-             current);
+        send(
+            current.con == _incoming ? _outgoing : _incoming, inParams, std::move(response), std::move(error), current);
     }
 }
 
 void
-BridgeConnection::send(const shared_ptr<Connection>& dest,
-                       pair<const Byte*, const Byte*> inParams,
-                       function<void(bool, const pair<const Byte*, const Byte*>&)> response,
-                       function<void(exception_ptr)> error,
-                       const Current& current)
+BridgeConnection::send(
+    const shared_ptr<Connection>& dest,
+    pair<const Byte*, const Byte*> inParams,
+    function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     try
     {
@@ -361,8 +367,8 @@ BridgeConnection::send(const shared_ptr<Connection>& dest,
         else
         {
             // Twoway request
-            prx->ice_invokeAsync(current.operation, current.mode, inParams, std::move(response), error, nullptr,
-                                 current.ctx);
+            prx->ice_invokeAsync(
+                current.operation, current.mode, inParams, std::move(response), error, nullptr, current.ctx);
         }
     }
     catch (const std::exception&)
@@ -379,10 +385,11 @@ BridgeI::BridgeI(shared_ptr<ObjectAdapter> adapter, ObjectPrxPtr target)
 }
 
 void
-BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
-                         function<void(bool, const pair<const Byte*, const Byte*>&)> response,
-                         function<void(exception_ptr)> error,
-                         const Current& current)
+BridgeI::ice_invokeAsync(
+    pair<const Byte*, const Byte*> inParams,
+    function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     shared_ptr<BridgeConnection> bc;
     {
@@ -433,9 +440,9 @@ BridgeI::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
                 // Begin the connection establishment process asynchronously. This can take a while to complete,
                 // especially when using Bluetooth.
                 //
-                target->ice_getConnectionAsync([self, bc](auto outgoing)
-                                               { self->outgoingSuccess(bc, std::move(outgoing)); },
-                                               [self, bc](auto ex) { self->outgoingException(bc, ex); });
+                target->ice_getConnectionAsync(
+                    [self, bc](auto outgoing) { self->outgoingSuccess(bc, std::move(outgoing)); },
+                    [self, bc](auto ex) { self->outgoingException(bc, ex); });
             }
             catch (const std::exception&)
             {
@@ -602,10 +609,11 @@ BridgeService::stop()
 }
 
 shared_ptr<Communicator>
-BridgeService::initializeCommunicator(int& argc,
-                                      char* argv[],
-                                      const InitializationData& initializationData,
-                                      int version)
+BridgeService::initializeCommunicator(
+    int& argc,
+    char* argv[],
+    const InitializationData& initializationData,
+    int version)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);

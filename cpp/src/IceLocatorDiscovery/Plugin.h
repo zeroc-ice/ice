@@ -38,8 +38,8 @@ namespace IceLocatorDiscovery
     class ICE_LOCATOR_DISCOVERY_API Plugin : public Ice::Plugin
     {
     public:
-        virtual std::vector<Ice::LocatorPrxPtr> getLocators(const std::string&,
-                                                            const std::chrono::milliseconds&) const = 0;
+        virtual std::vector<Ice::LocatorPrxPtr>
+        getLocators(const std::string&, const std::chrono::milliseconds&) const = 0;
     };
     using PluginPtr = std::shared_ptr<Plugin>;
 

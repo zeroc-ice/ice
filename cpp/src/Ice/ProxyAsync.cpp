@@ -81,10 +81,11 @@ namespace IceInternal
     class ProxyGetConnectionLambda : public ProxyGetConnection, public LambdaInvoke
     {
     public:
-        ProxyGetConnectionLambda(ObjectPrx proxy,
-                                 std::function<void(std::shared_ptr<Ice::Connection>)> response,
-                                 std::function<void(std::exception_ptr)> ex,
-                                 std::function<void(bool)> sent)
+        ProxyGetConnectionLambda(
+            ObjectPrx proxy,
+            std::function<void(std::shared_ptr<Ice::Connection>)> response,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : ProxyGetConnection(std::move(proxy)),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
@@ -104,9 +105,10 @@ namespace IceInternal
     class ProxyFlushBatchLambda : public ProxyFlushBatchAsync, public LambdaInvoke
     {
     public:
-        ProxyFlushBatchLambda(ObjectPrx proxy,
-                              std::function<void(std::exception_ptr)> ex,
-                              std::function<void(bool)> sent)
+        ProxyFlushBatchLambda(
+            ObjectPrx proxy,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : ProxyFlushBatchAsync(std::move(proxy)),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
@@ -125,15 +127,16 @@ namespace IceInternal
         }
     };
 
-    template <typename R> class InvokeOutgoingAsyncT : public OutgoingAsync
+    template<typename R> class InvokeOutgoingAsyncT : public OutgoingAsync
     {
     public:
         using OutgoingAsync::OutgoingAsync;
 
-        void invoke(const std::string& operation,
-                    Ice::OperationMode mode,
-                    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                    const Ice::Context& context)
+        void invoke(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+            const Ice::Context& context)
         {
             _read = [](bool ok, Ice::InputStream* stream)
             {
@@ -166,13 +169,14 @@ namespace IceInternal
         std::function<R(bool, Ice::InputStream*)> _read;
     };
 
-    template <typename R> class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
+    template<typename R> class InvokeLambdaOutgoing : public InvokeOutgoingAsyncT<R>, public LambdaInvoke
     {
     public:
-        InvokeLambdaOutgoing(Ice::ObjectPrx proxy,
-                             std::function<void(R)> response,
-                             std::function<void(std::exception_ptr)> ex,
-                             std::function<void(bool)> sent)
+        InvokeLambdaOutgoing(
+            Ice::ObjectPrx proxy,
+            std::function<void(R)> response,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : InvokeOutgoingAsyncT<R>(std::move(proxy), false),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
@@ -193,7 +197,7 @@ namespace IceInternal
         }
     };
 
-    template <typename R> class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvoke<R>
+    template<typename R> class InvokePromiseOutgoing : public InvokeOutgoingAsyncT<R>, public PromiseInvoke<R>
     {
     public:
         InvokePromiseOutgoing(Ice::ObjectPrx proxy, bool synchronous) : InvokeOutgoingAsyncT<R>(std::move(proxy), false)
@@ -314,14 +318,15 @@ Ice::ObjectPrx::ice_isA(string_view typeId, const Ice::Context& context) const
 }
 
 std::function<void()>
-Ice::ObjectPrx::ice_isAAsync(string_view typeId,
-                             std::function<void(bool)> response,
-                             std::function<void(std::exception_ptr)> ex,
-                             std::function<void(bool)> sent,
-                             const Ice::Context& context) const
+Ice::ObjectPrx::ice_isAAsync(
+    string_view typeId,
+    std::function<void(bool)> response,
+    std::function<void(std::exception_ptr)> ex,
+    std::function<void(bool)> sent,
+    const Ice::Context& context) const
 {
-    return makeLambdaOutgoing<bool>(std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_isA,
-                                    typeId, context);
+    return makeLambdaOutgoing<bool>(
+        std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_isA, typeId, context);
 }
 
 std::future<bool>
@@ -331,9 +336,8 @@ Ice::ObjectPrx::ice_isAAsync(string_view typeId, const Ice::Context& context) co
 }
 
 void
-Ice::ObjectPrx::_iceI_isA(const shared_ptr<OutgoingAsyncT<bool>>& outAsync,
-                          string_view typeId,
-                          const Context& ctx) const
+Ice::ObjectPrx::_iceI_isA(const shared_ptr<OutgoingAsyncT<bool>>& outAsync, string_view typeId, const Context& ctx)
+    const
 {
     _checkTwowayOnly(ice_isA_name);
     outAsync->invoke(
@@ -348,13 +352,14 @@ Ice::ObjectPrx::ice_ping(const Ice::Context& context) const
 }
 
 std::function<void()>
-Ice::ObjectPrx::ice_pingAsync(std::function<void()> response,
-                              std::function<void(std::exception_ptr)> ex,
-                              std::function<void(bool)> sent,
-                              const Ice::Context& context) const
+Ice::ObjectPrx::ice_pingAsync(
+    std::function<void()> response,
+    std::function<void(std::exception_ptr)> ex,
+    std::function<void(bool)> sent,
+    const Ice::Context& context) const
 {
-    return makeLambdaOutgoing<void>(std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_ping,
-                                    context);
+    return makeLambdaOutgoing<void>(
+        std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_ping, context);
 }
 
 std::future<void>
@@ -376,13 +381,14 @@ Ice::ObjectPrx::ice_ids(const Ice::Context& context) const
 }
 
 std::function<void()>
-Ice::ObjectPrx::ice_idsAsync(std::function<void(vector<string>)> response,
-                             std::function<void(std::exception_ptr)> ex,
-                             std::function<void(bool)> sent,
-                             const Ice::Context& context) const
+Ice::ObjectPrx::ice_idsAsync(
+    std::function<void(vector<string>)> response,
+    std::function<void(std::exception_ptr)> ex,
+    std::function<void(bool)> sent,
+    const Ice::Context& context) const
 {
-    return makeLambdaOutgoing<vector<string>>(std::move(response), std::move(ex), std::move(sent), this,
-                                              &ObjectPrx::_iceI_ids, context);
+    return makeLambdaOutgoing<vector<string>>(
+        std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_ids, context);
 }
 
 std::future<vector<string>>
@@ -395,13 +401,14 @@ void
 Ice::ObjectPrx::_iceI_ids(const shared_ptr<OutgoingAsyncT<vector<string>>>& outAsync, const Context& ctx) const
 {
     _checkTwowayOnly(ice_ids_name);
-    outAsync->invoke(ice_ids_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
-                     [](Ice::InputStream* stream)
-                     {
-                         vector<string> v;
-                         stream->read(v, false); // no conversion
-                         return v;
-                     });
+    outAsync->invoke(
+        ice_ids_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
+        [](Ice::InputStream* stream)
+        {
+            vector<string> v;
+            stream->read(v, false); // no conversion
+            return v;
+        });
 }
 
 string
@@ -411,13 +418,14 @@ Ice::ObjectPrx::ice_id(const Ice::Context& context) const
 }
 
 std::function<void()>
-Ice::ObjectPrx::ice_idAsync(std::function<void(string)> response,
-                            std::function<void(std::exception_ptr)> ex,
-                            std::function<void(bool)> sent,
-                            const Ice::Context& context) const
+Ice::ObjectPrx::ice_idAsync(
+    std::function<void(string)> response,
+    std::function<void(std::exception_ptr)> ex,
+    std::function<void(bool)> sent,
+    const Ice::Context& context) const
 {
-    return makeLambdaOutgoing<string>(std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_id,
-                                      context);
+    return makeLambdaOutgoing<string>(
+        std::move(response), std::move(ex), std::move(sent), this, &ObjectPrx::_iceI_id, context);
 }
 
 std::future<string>
@@ -430,42 +438,46 @@ void
 Ice::ObjectPrx::_iceI_id(const shared_ptr<OutgoingAsyncT<string>>& outAsync, const Context& ctx) const
 {
     _checkTwowayOnly(ice_id_name);
-    outAsync->invoke(ice_id_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
-                     [](Ice::InputStream* stream)
-                     {
-                         string v;
-                         stream->read(v, false); // no conversion
-                         return v;
-                     });
+    outAsync->invoke(
+        ice_id_name, OperationMode::Nonmutating, FormatType::DefaultFormat, ctx, nullptr, nullptr,
+        [](Ice::InputStream* stream)
+        {
+            string v;
+            stream->read(v, false); // no conversion
+            return v;
+        });
 }
 
 bool
-Ice::ObjectPrx::ice_invoke(const string& operation,
-                           Ice::OperationMode mode,
-                           const vector<Byte>& inParams,
-                           vector<Ice::Byte>& outParams,
-                           const Ice::Context& context) const
+Ice::ObjectPrx::ice_invoke(
+    const string& operation,
+    Ice::OperationMode mode,
+    const vector<Byte>& inParams,
+    vector<Ice::Byte>& outParams,
+    const Ice::Context& context) const
 {
     return ice_invoke(operation, mode, makePair(inParams), outParams, context);
 }
 
 std::future<std::tuple<bool, vector<Byte>>>
-Ice::ObjectPrx::ice_invokeAsync(const string& operation,
-                                Ice::OperationMode mode,
-                                const vector<Byte>& inParams,
-                                const Ice::Context& context) const
+Ice::ObjectPrx::ice_invokeAsync(
+    const string& operation,
+    Ice::OperationMode mode,
+    const vector<Byte>& inParams,
+    const Ice::Context& context) const
 {
     return ice_invokeAsync(operation, mode, makePair(inParams), context);
 }
 
 std::function<void()>
-Ice::ObjectPrx::ice_invokeAsync(const string& operation,
-                                Ice::OperationMode mode,
-                                const vector<Ice::Byte>& inParams,
-                                std::function<void(bool, vector<Ice::Byte>)> response,
-                                std::function<void(std::exception_ptr)> ex,
-                                std::function<void(bool)> sent,
-                                const Ice::Context& context) const
+Ice::ObjectPrx::ice_invokeAsync(
+    const string& operation,
+    Ice::OperationMode mode,
+    const vector<Ice::Byte>& inParams,
+    std::function<void(bool, vector<Ice::Byte>)> response,
+    std::function<void(std::exception_ptr)> ex,
+    std::function<void(bool)> sent,
+    const Ice::Context& context) const
 {
     using Outgoing = InvokeLambdaOutgoing<std::tuple<bool, vector<Byte>>>;
     std::function<void(std::tuple<bool, vector<Byte>>&&)> r;
@@ -483,11 +495,12 @@ Ice::ObjectPrx::ice_invokeAsync(const string& operation,
 }
 
 bool
-Ice::ObjectPrx::ice_invoke(const string& operation,
-                           Ice::OperationMode mode,
-                           const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                           vector<Ice::Byte>& outParams,
-                           const Ice::Context& context) const
+Ice::ObjectPrx::ice_invoke(
+    const string& operation,
+    Ice::OperationMode mode,
+    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+    vector<Ice::Byte>& outParams,
+    const Ice::Context& context) const
 {
     using Outgoing = InvokePromiseOutgoing<std::tuple<bool, vector<Byte>>>;
     auto outAsync = std::make_shared<Outgoing>(*this, true);
@@ -499,10 +512,11 @@ Ice::ObjectPrx::ice_invoke(const string& operation,
 }
 
 std::future<std::tuple<bool, vector<Byte>>>
-Ice::ObjectPrx::ice_invokeAsync(const string& operation,
-                                Ice::OperationMode mode,
-                                const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                const Ice::Context& context) const
+Ice::ObjectPrx::ice_invokeAsync(
+    const string& operation,
+    Ice::OperationMode mode,
+    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+    const Ice::Context& context) const
 {
     using Outgoing = ::IceInternal::InvokePromiseOutgoing<::std::tuple<bool, vector<Byte>>>;
     auto outAsync = ::std::make_shared<Outgoing>(*this, false);
@@ -511,13 +525,14 @@ Ice::ObjectPrx::ice_invokeAsync(const string& operation,
 }
 
 std::function<void()>
-Ice::ObjectPrx::ice_invokeAsync(const string& operation,
-                                Ice::OperationMode mode,
-                                const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)> response,
-                                std::function<void(std::exception_ptr)> ex,
-                                std::function<void(bool)> sent,
-                                const Ice::Context& context) const
+Ice::ObjectPrx::ice_invokeAsync(
+    const string& operation,
+    Ice::OperationMode mode,
+    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+    std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)> response,
+    std::function<void(std::exception_ptr)> ex,
+    std::function<void(bool)> sent,
+    const Ice::Context& context) const
 {
     using Result = ::std::tuple<bool, ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>;
     using Outgoing = ::IceInternal::InvokeLambdaOutgoing<Result>;
@@ -543,9 +558,10 @@ Ice::ObjectPrx::ice_getConnection() const
 }
 
 std::function<void()>
-Ice::ObjectPrx::ice_getConnectionAsync(std::function<void(std::shared_ptr<Ice::Connection>)> response,
-                                       std::function<void(std::exception_ptr)> ex,
-                                       std::function<void(bool)> sent) const
+Ice::ObjectPrx::ice_getConnectionAsync(
+    std::function<void(std::shared_ptr<Ice::Connection>)> response,
+    std::function<void(std::exception_ptr)> ex,
+    std::function<void(bool)> sent) const
 {
     using LambdaOutgoing = ProxyGetConnectionLambda;
     auto outAsync = std::make_shared<LambdaOutgoing>(*this, std::move(response), std::move(ex), std::move(sent));
@@ -574,8 +590,8 @@ Ice::ObjectPrx::ice_flushBatchRequests() const
 }
 
 std::function<void()>
-Ice::ObjectPrx::ice_flushBatchRequestsAsync(std::function<void(std::exception_ptr)> ex,
-                                            std::function<void(bool)> sent) const
+Ice::ObjectPrx::ice_flushBatchRequestsAsync(std::function<void(std::exception_ptr)> ex, std::function<void(bool)> sent)
+    const
 {
     if (_reference->isBatch())
     {

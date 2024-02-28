@@ -1006,8 +1006,9 @@ allTests(Test::TestHelper* helper)
         info = admin->getServerInfo("Server");
         test(hasProperty(info.descriptor, "NodeProp", "updated"));
         ApplicationDescriptor updatedApplication = admin->getApplicationInfo("TestApp").descriptor;
-        test(updatedApplication.nodes["node1"].propertySets.find("NodePropertySet1") ==
-             updatedApplication.nodes["node1"].propertySets.end());
+        test(
+            updatedApplication.nodes["node1"].propertySets.find("NodePropertySet1") ==
+            updatedApplication.nodes["node1"].propertySets.end());
 
         update = empty;
         update.propertySets["ApplicationPropertySet"].properties.clear();
@@ -1223,8 +1224,9 @@ allTests(Test::TestHelper* helper)
         {
             try
             {
-                test(admin->getServerInfo("Server").node == "node-2" &&
-                     admin->getServerState("Server") == ServerState::Inactive);
+                test(
+                    admin->getServerInfo("Server").node == "node-2" &&
+                    admin->getServerState("Server") == ServerState::Inactive);
 
                 admin->startServer("Server");
                 test(admin->getServerState("Server") == ServerState::Active);

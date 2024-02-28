@@ -285,10 +285,11 @@ activatorWaitCallback(PVOID data, BOOLEAN)
 Activator::Activator(const shared_ptr<TraceLevels>& traceLevels) : _traceLevels(traceLevels), _deactivating(false)
 {
 #ifdef _WIN32
-    _hIntr = CreateEvent(nullptr, // Security attributes
-                         TRUE,    // Manual reset
-                         FALSE,   // Initial state is nonsignaled
-                         nullptr  // Unnamed
+    _hIntr = CreateEvent(
+        nullptr, // Security attributes
+        TRUE,    // Manual reset
+        FALSE,   // Initial state is nonsignaled
+        nullptr  // Unnamed
     );
 
     if (_hIntr == nullptr)
@@ -323,16 +324,17 @@ Activator::~Activator()
 }
 
 int
-Activator::activate(const string& name,
-                    const string& exePath,
-                    const string& pwdPath,
+Activator::activate(
+    const string& name,
+    const string& exePath,
+    const string& pwdPath,
 #ifndef _WIN32
-                    uid_t uid,
-                    gid_t gid,
+    uid_t uid,
+    gid_t gid,
 #endif
-                    const Ice::StringSeq& options,
-                    const Ice::StringSeq& envs,
-                    const shared_ptr<ServerI>& server)
+    const Ice::StringSeq& options,
+    const Ice::StringSeq& envs,
+    const shared_ptr<ServerI>& server)
 {
     lock_guard lock(_mutex);
 
@@ -398,8 +400,8 @@ Activator::activate(const string& name,
                 Trace out(_traceLevels->logger, _traceLevels->activatorCat);
                 out << "cannot convert `" << pwd << "' into an absolute path";
             }
-            throw runtime_error("The server working directory path `" + pwd +
-                                "' can't be converted into an absolute path.");
+            throw runtime_error(
+                "The server working directory path `" + pwd + "' can't be converted into an absolute path.");
         }
         pwd = wstringToString(absbuf);
     }
@@ -557,16 +559,17 @@ Activator::activate(const string& name,
 
     PROCESS_INFORMATION pi;
     ZeroMemory(&pi, sizeof(pi));
-    BOOL b = CreateProcessW(nullptr,                                               // Executable
-                            cmdbuf,                                                // Command line
-                            nullptr,                                               // Process attributes
-                            nullptr,                                               // Thread attributes
-                            FALSE,                                                 // Do NOT inherit handles
-                            CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT, // Process creation flags
-                            (LPVOID)env,                                           // Process environment
-                            dir,                                                   // Current directory
-                            &si,                                                   // Startup info
-                            &pi                                                    // Process info
+    BOOL b = CreateProcessW(
+        nullptr,                                               // Executable
+        cmdbuf,                                                // Command line
+        nullptr,                                               // Process attributes
+        nullptr,                                               // Thread attributes
+        FALSE,                                                 // Do NOT inherit handles
+        CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT, // Process creation flags
+        (LPVOID)env,                                           // Process environment
+        dir,                                                   // Current directory
+        &si,                                                   // Startup info
+        &pi                                                    // Process info
     );
 
     free(cmdbuf);
@@ -593,8 +596,8 @@ Activator::activate(const string& name,
     map<string, Process>::iterator it = _processes.insert(make_pair(name, process)).first;
 
     Process* pp = &it->second;
-    if (!RegisterWaitForSingleObject(&pp->waithnd, pp->hnd, activatorWaitCallback, pp, INFINITE,
-                                     WT_EXECUTEDEFAULT | WT_EXECUTEONLYONCE))
+    if (!RegisterWaitForSingleObject(
+            &pp->waithnd, pp->hnd, activatorWaitCallback, pp, INFINITE, WT_EXECUTEDEFAULT | WT_EXECUTEONLYONCE))
     {
         TerminateProcess(pp->hnd, 0);
 
@@ -740,8 +743,8 @@ Activator::activate(const string& name,
         {
             ostringstream os;
             os << gid;
-            reportChildError(getSystemErrno(), errorFds[1], "cannot set process group id", os.str().c_str(),
-                             _traceLevels);
+            reportChildError(
+                getSystemErrno(), errorFds[1], "cannot set process group id", os.str().c_str(), _traceLevels);
         }
 
         //
@@ -758,16 +761,17 @@ Activator::activate(const string& name,
                     os << ", ";
                 }
             }
-            reportChildError(getSystemErrno(), errorFds[1], "cannot set process supplementary groups", os.str().c_str(),
-                             _traceLevels);
+            reportChildError(
+                getSystemErrno(), errorFds[1], "cannot set process supplementary groups", os.str().c_str(),
+                _traceLevels);
         }
 
         if (setuid(uid) == -1)
         {
             ostringstream os;
             os << uid;
-            reportChildError(getSystemErrno(), errorFds[1], "cannot set process user id", os.str().c_str(),
-                             _traceLevels);
+            reportChildError(
+                getSystemErrno(), errorFds[1], "cannot set process user id", os.str().c_str(), _traceLevels);
         }
 
         //
@@ -927,26 +931,25 @@ Activator::deactivate(const string& name, const Ice::ProcessPrxPtr& process)
             out << "deactivating `" << name << "' using process proxy";
         }
 
-        process->shutdownAsync(nullptr,
-                               [self = shared_from_this(), name](exception_ptr ex)
-                               {
-                                   try
-                                   {
-                                       rethrow_exception(ex);
-                                   }
-                                   catch (const std::exception& e)
-                                   {
-                                       Ice::Warning out(self->_traceLevels->logger);
-                                       out << "exception occurred while deactivating `" << name
-                                           << "' using process proxy:\n"
-                                           << e;
-                                   }
+        process->shutdownAsync(
+            nullptr,
+            [self = shared_from_this(), name](exception_ptr ex)
+            {
+                try
+                {
+                    rethrow_exception(ex);
+                }
+                catch (const std::exception& e)
+                {
+                    Ice::Warning out(self->_traceLevels->logger);
+                    out << "exception occurred while deactivating `" << name << "' using process proxy:\n" << e;
+                }
 
-                                   //
-                                   // Send a SIGTERM to the process.
-                                   //
-                                   self->sendSignal(name, SIGTERM);
-                               });
+                //
+                // Send a SIGTERM to the process.
+                //
+                self->sendSignal(name, SIGTERM);
+            });
         return;
     }
 

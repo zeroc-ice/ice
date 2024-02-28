@@ -13,9 +13,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-FixedRequestHandler::FixedRequestHandler(const ReferencePtr& reference,
-                                         const Ice::ConnectionIPtr& connection,
-                                         bool compress)
+FixedRequestHandler::FixedRequestHandler(
+    const ReferencePtr& reference,
+    const Ice::ConnectionIPtr& connection,
+    bool compress)
     : RequestHandler(reference),
       _connection(connection),
       _compress(compress)

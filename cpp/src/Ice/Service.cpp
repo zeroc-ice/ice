@@ -187,9 +187,9 @@ namespace
             // Don't need to use a wide string converter as the wide string is passed
             // to Windows API.
             //
-            LONG err =
-                RegCreateKeyExW(HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str(), 0,
-                                const_cast<wchar_t*>(L"REG_SZ"), REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hKey, &d);
+            LONG err = RegCreateKeyExW(
+                HKEY_LOCAL_MACHINE, stringToWstring(createKey(source), stringConverter).c_str(), 0,
+                const_cast<wchar_t*>(L"REG_SZ"), REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hKey, &d);
 
             if (err != ERROR_SUCCESS)
             {
@@ -212,8 +212,9 @@ namespace
             // the "EventMessageFile" key should contain the path to this
             // DLL.
             //
-            err = RegSetValueExW(hKey, L"EventMessageFile", 0, REG_EXPAND_SZ, reinterpret_cast<unsigned char*>(path),
-                                 static_cast<DWORD>((wcslen(path) * sizeof(wchar_t)) + 1));
+            err = RegSetValueExW(
+                hKey, L"EventMessageFile", 0, REG_EXPAND_SZ, reinterpret_cast<unsigned char*>(path),
+                static_cast<DWORD>((wcslen(path) * sizeof(wchar_t)) + 1));
 
             if (err == ERROR_SUCCESS)
             {
@@ -222,8 +223,9 @@ namespace
                 // types.
                 //
                 DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-                err = RegSetValueExW(hKey, L"TypesSupported", 0, REG_DWORD,
-                                     reinterpret_cast<unsigned char*>(&typesSupported), sizeof(typesSupported));
+                err = RegSetValueExW(
+                    hKey, L"TypesSupported", 0, REG_DWORD, reinterpret_cast<unsigned char*>(&typesSupported),
+                    sizeof(typesSupported));
             }
             if (err != ERROR_SUCCESS)
             {

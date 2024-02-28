@@ -13,13 +13,14 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RouterI::RouterI(shared_ptr<Instance> instance,
-                           shared_ptr<Connection> connection,
-                           const string& userId,
-                           SessionPrxPtr session,
-                           const Identity& controlId,
-                           shared_ptr<FilterManager> filters,
-                           const Context& context)
+Glacier2::RouterI::RouterI(
+    shared_ptr<Instance> instance,
+    shared_ptr<Connection> connection,
+    const string& userId,
+    SessionPrxPtr session,
+    const Identity& controlId,
+    shared_ptr<FilterManager> filters,
+    const Context& context)
     : _instance(std::move(instance)),
       _routingTable(make_shared<RoutingTable>(_instance->communicator(), _instance->proxyVerifier())),
       _clientBlobject(make_shared<ClientBlobject>(_instance, std::move(filters), context, _routingTable)),
@@ -140,15 +141,20 @@ Glacier2::RouterI::getCategoryForClient(const Current&) const
 
 void
 Glacier2::RouterI::createSessionAsync(
-    string, string, function<void(const SessionPrxPtr& returnValue)>, function<void(exception_ptr)>, const Current&)
+    string,
+    string,
+    function<void(const SessionPrxPtr& returnValue)>,
+    function<void(exception_ptr)>,
+    const Current&)
 {
     assert(false); // Must not be called in this router implementation.
 }
 
 void
-Glacier2::RouterI::createSessionFromSecureConnectionAsync(function<void(const SessionPrxPtr& returnValue)>,
-                                                          function<void(exception_ptr)>,
-                                                          const Current&)
+Glacier2::RouterI::createSessionFromSecureConnectionAsync(
+    function<void(const SessionPrxPtr& returnValue)>,
+    function<void(exception_ptr)>,
+    const Current&)
 {
     assert(false); // Must not be called in this router implementation.
 }

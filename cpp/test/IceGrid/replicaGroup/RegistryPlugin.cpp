@@ -34,10 +34,11 @@ namespace
     public:
         ReplicaGroupFilterI(const shared_ptr<RegistryPluginFacade>& facade) : _facade(facade), _testFacade(true) {}
 
-        Ice::StringSeq filter(const string& id,
-                              const Ice::StringSeq& adpts,
-                              const shared_ptr<Ice::Connection>&,
-                              const Ice::Context& ctx) override
+        Ice::StringSeq filter(
+            const string& id,
+            const Ice::StringSeq& adpts,
+            const shared_ptr<Ice::Connection>&,
+            const Ice::Context& ctx) override
         {
             if (_testFacade)
             {
@@ -92,10 +93,11 @@ namespace
     public:
         TypeFilterI(const shared_ptr<RegistryPluginFacade>& facade) : _facade(facade) {}
 
-        Ice::ObjectProxySeq filter(const string&,
-                                   const Ice::ObjectProxySeq& objects,
-                                   const shared_ptr<Ice::Connection>&,
-                                   const Ice::Context& ctx) override
+        Ice::ObjectProxySeq filter(
+            const string&,
+            const Ice::ObjectProxySeq& objects,
+            const shared_ptr<Ice::Connection>&,
+            const Ice::Context& ctx) override
         {
             auto p = ctx.find("server");
             if (p == ctx.end())
@@ -128,10 +130,11 @@ namespace
         {
         }
 
-        Ice::StringSeq filter(const string&,
-                              const Ice::StringSeq& adapters,
-                              const shared_ptr<Ice::Connection>&,
-                              const Ice::Context& ctx) override
+        Ice::StringSeq filter(
+            const string&,
+            const Ice::StringSeq& adapters,
+            const shared_ptr<Ice::Connection>&,
+            const Ice::Context& ctx) override
         {
             auto p = ctx.find("server");
             if (p == ctx.end() || p->second == _exclude)

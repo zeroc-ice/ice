@@ -204,8 +204,8 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
 {
     lock_guard lock(_mutex);
     assert(obsv);
-    _observer.attach(obsv->getThreadObserver("Communicator", "Ice.Timer", Instrumentation::ThreadState::ThreadStateIdle,
-                                             _observer.get()));
+    _observer.attach(obsv->getThreadObserver(
+        "Communicator", "Ice.Timer", Instrumentation::ThreadState::ThreadStateIdle, _observer.get()));
     _hasObserver.exchange(_observer.get() ? 1 : 0);
 }
 
@@ -221,8 +221,8 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         }
         if (threadObserver)
         {
-            threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateIdle,
-                                         Instrumentation::ThreadState::ThreadStateInUseForOther);
+            threadObserver->stateChanged(
+                Instrumentation::ThreadState::ThreadStateIdle, Instrumentation::ThreadState::ThreadStateInUseForOther);
         }
         try
         {
@@ -232,16 +232,17 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         {
             if (threadObserver)
             {
-                threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
-                                             Instrumentation::ThreadState::ThreadStateIdle);
+                threadObserver->stateChanged(
+                    Instrumentation::ThreadState::ThreadStateInUseForOther,
+                    Instrumentation::ThreadState::ThreadStateIdle);
             }
             throw;
         }
 
         if (threadObserver)
         {
-            threadObserver->stateChanged(Instrumentation::ThreadState::ThreadStateInUseForOther,
-                                         Instrumentation::ThreadState::ThreadStateIdle);
+            threadObserver->stateChanged(
+                Instrumentation::ThreadState::ThreadStateInUseForOther, Instrumentation::ThreadState::ThreadStateIdle);
         }
     }
     else
@@ -702,9 +703,10 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
                 out << "the server is not known to the locator registry";
             }
 
-            throw InitializationException(__FILE__, __LINE__,
-                                          "Locator `" + _proxyFactory->proxyToString(locator) +
-                                              "' knows nothing about server `" + serverId + "'");
+            throw InitializationException(
+                __FILE__, __LINE__,
+                "Locator `" + _proxyFactory->proxyToString(locator) + "' knows nothing about server `" + serverId +
+                    "'");
         }
         catch (const LocalException& ex)
         {
@@ -1074,16 +1076,16 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 {
                     sz = 0;
                 }
-                _initData.logger = make_shared<LoggerI>(_initData.properties->getProperty("Ice.ProgramName"), logfile,
-                                                        true, static_cast<size_t>(sz));
+                _initData.logger = make_shared<LoggerI>(
+                    _initData.properties->getProperty("Ice.ProgramName"), logfile, true, static_cast<size_t>(sz));
             }
             else
             {
                 _initData.logger = getProcessLogger();
                 if (dynamic_pointer_cast<LoggerI>(_initData.logger))
                 {
-                    _initData.logger = make_shared<LoggerI>(_initData.properties->getProperty("Ice.ProgramName"), "",
-                                                            logStdErrConvert);
+                    _initData.logger = make_shared<LoggerI>(
+                        _initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
                 }
             }
         }
@@ -1168,8 +1170,8 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         else if (toStringModeStr != "Unicode")
         {
-            throw InitializationException(__FILE__, __LINE__,
-                                          "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+            throw InitializationException(
+                __FILE__, __LINE__, "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
         }
 
         const_cast<bool&>(_acceptClassCycles) = _initData.properties->getPropertyAsInt("Ice.AcceptClassCycles") > 0;

@@ -22,11 +22,12 @@ namespace
     class InvokeAllAsync final : public DispatchWorkItem
     {
     public:
-        InvokeAllAsync(const OutgoingAsyncBasePtr& outAsync,
-                       OutputStream* os,
-                       const CollocatedRequestHandlerPtr& handler,
-                       int32_t requestId,
-                       int32_t batchRequestNum)
+        InvokeAllAsync(
+            const OutgoingAsyncBasePtr& outAsync,
+            OutputStream* os,
+            const CollocatedRequestHandlerPtr& handler,
+            int32_t requestId,
+            int32_t batchRequestNum)
             : _outAsync(outAsync),
               _os(os),
               _handler(handler),

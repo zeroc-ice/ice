@@ -345,8 +345,9 @@ int yyi;
 #        ifndef YYSTACK_ALLOC_MAXIMUM
 #            define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
 #        endif
-#        if (defined __cplusplus && !defined EXIT_SUCCESS &&                                                           \
-             !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
+#        if (                                                                                                          \
+            defined __cplusplus && !defined EXIT_SUCCESS &&                                                            \
+            !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
 #            include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #            ifndef EXIT_SUCCESS
 #                define EXIT_SUCCESS 0
@@ -512,58 +513,59 @@ static const yytype_uint16 yyrline[] = {
 #if YYDEBUG || YYERROR_VERBOSE || 0
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
-static const char* const yytname[] = {"$end",
-                                      "error",
-                                      "$undefined",
-                                      "ICE_GRID_HELP",
-                                      "ICE_GRID_EXIT",
-                                      "ICE_GRID_APPLICATION",
-                                      "ICE_GRID_NODE",
-                                      "ICE_GRID_REGISTRY",
-                                      "ICE_GRID_SERVER",
-                                      "ICE_GRID_ADAPTER",
-                                      "ICE_GRID_PING",
-                                      "ICE_GRID_LOAD",
-                                      "ICE_GRID_SOCKETS",
-                                      "ICE_GRID_ADD",
-                                      "ICE_GRID_REMOVE",
-                                      "ICE_GRID_LIST",
-                                      "ICE_GRID_SHUTDOWN",
-                                      "ICE_GRID_STRING",
-                                      "ICE_GRID_START",
-                                      "ICE_GRID_STOP",
-                                      "ICE_GRID_PATCH",
-                                      "ICE_GRID_SIGNAL",
-                                      "ICE_GRID_STDOUT",
-                                      "ICE_GRID_STDERR",
-                                      "ICE_GRID_DESCRIBE",
-                                      "ICE_GRID_PROPERTIES",
-                                      "ICE_GRID_PROPERTY",
-                                      "ICE_GRID_STATE",
-                                      "ICE_GRID_PID",
-                                      "ICE_GRID_ENDPOINTS",
-                                      "ICE_GRID_ACTIVATION",
-                                      "ICE_GRID_OBJECT",
-                                      "ICE_GRID_FIND",
-                                      "ICE_GRID_SHOW",
-                                      "ICE_GRID_COPYING",
-                                      "ICE_GRID_WARRANTY",
-                                      "ICE_GRID_DIFF",
-                                      "ICE_GRID_UPDATE",
-                                      "ICE_GRID_INSTANTIATE",
-                                      "ICE_GRID_TEMPLATE",
-                                      "ICE_GRID_SERVICE",
-                                      "ICE_GRID_ENABLE",
-                                      "ICE_GRID_DISABLE",
-                                      "';'",
-                                      "$accept",
-                                      "start",
-                                      "commands",
-                                      "checkInterrupted",
-                                      "command",
-                                      "strings",
-                                      "keyword",
-                                      YY_NULL};
+static const char* const yytname[] = {
+    "$end",
+    "error",
+    "$undefined",
+    "ICE_GRID_HELP",
+    "ICE_GRID_EXIT",
+    "ICE_GRID_APPLICATION",
+    "ICE_GRID_NODE",
+    "ICE_GRID_REGISTRY",
+    "ICE_GRID_SERVER",
+    "ICE_GRID_ADAPTER",
+    "ICE_GRID_PING",
+    "ICE_GRID_LOAD",
+    "ICE_GRID_SOCKETS",
+    "ICE_GRID_ADD",
+    "ICE_GRID_REMOVE",
+    "ICE_GRID_LIST",
+    "ICE_GRID_SHUTDOWN",
+    "ICE_GRID_STRING",
+    "ICE_GRID_START",
+    "ICE_GRID_STOP",
+    "ICE_GRID_PATCH",
+    "ICE_GRID_SIGNAL",
+    "ICE_GRID_STDOUT",
+    "ICE_GRID_STDERR",
+    "ICE_GRID_DESCRIBE",
+    "ICE_GRID_PROPERTIES",
+    "ICE_GRID_PROPERTY",
+    "ICE_GRID_STATE",
+    "ICE_GRID_PID",
+    "ICE_GRID_ENDPOINTS",
+    "ICE_GRID_ACTIVATION",
+    "ICE_GRID_OBJECT",
+    "ICE_GRID_FIND",
+    "ICE_GRID_SHOW",
+    "ICE_GRID_COPYING",
+    "ICE_GRID_WARRANTY",
+    "ICE_GRID_DIFF",
+    "ICE_GRID_UPDATE",
+    "ICE_GRID_INSTANTIATE",
+    "ICE_GRID_TEMPLATE",
+    "ICE_GRID_SERVICE",
+    "ICE_GRID_ENABLE",
+    "ICE_GRID_DISABLE",
+    "';'",
+    "$accept",
+    "start",
+    "commands",
+    "checkInterrupted",
+    "command",
+    "strings",
+    "keyword",
+    YY_NULL};
 #endif
 
 #ifdef YYPRINT
@@ -1519,8 +1521,9 @@ yysetstate:
                data in use in that stack, in bytes.  This used to be a
                conditional around just the two extra args, but that might
                be undefined if yyoverflow is a macro.  */
-            yyoverflow(YY_("memory exhausted"), &yyss1, yysize * sizeof(*yyssp), &yyvs1, yysize * sizeof(*yyvsp),
-                       &yystacksize);
+            yyoverflow(
+                YY_("memory exhausted"), &yyss1, yysize * sizeof(*yyssp), &yyvs1, yysize * sizeof(*yyvsp),
+                &yystacksize);
 
             yyss = yyss1;
             yyvs = yyvs1;
@@ -2615,8 +2618,8 @@ yyreduce:
             if (((yyvsp[(2) - (5)]).front() == "server" || (yyvsp[(2) - (5)]).front() == "service") &&
                 (yyvsp[(3) - (5)]).front() == "template")
             {
-                parser->usage((yyvsp[(2) - (5)]).front() + " " + (yyvsp[(3) - (5)]).front(),
-                              (yyvsp[(4) - (5)]).front());
+                parser->usage(
+                    (yyvsp[(2) - (5)]).front() + " " + (yyvsp[(3) - (5)]).front(), (yyvsp[(4) - (5)]).front());
             }
             else
             {
@@ -2632,8 +2635,8 @@ yyreduce:
             if (((yyvsp[(2) - (6)]).front() == "server" || (yyvsp[(2) - (6)]).front() == "service") &&
                 (yyvsp[(3) - (6)]).front() == "template")
             {
-                parser->usage((yyvsp[(2) - (6)]).front() + " " + (yyvsp[(3) - (6)]).front(),
-                              (yyvsp[(4) - (6)]).front());
+                parser->usage(
+                    (yyvsp[(2) - (6)]).front() + " " + (yyvsp[(3) - (6)]).front(), (yyvsp[(4) - (6)]).front());
             }
             else
             {

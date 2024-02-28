@@ -155,12 +155,13 @@ namespace Ice
          * @param port The port number.
          * @param sourceAddress The source IP address.
          */
-        IPEndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
-                       int timeout,
-                       bool compress,
-                       const ::std::string& host,
-                       int port,
-                       const ::std::string& sourceAddress)
+        IPEndpointInfo(
+            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            int timeout,
+            bool compress,
+            const ::std::string& host,
+            int port,
+            const ::std::string& sourceAddress)
             : EndpointInfo(underlying, timeout, compress),
               host(host),
               port(port),
@@ -208,12 +209,13 @@ namespace Ice
          * @param port The port number.
          * @param sourceAddress The source IP address.
          */
-        TCPEndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
-                        int timeout,
-                        bool compress,
-                        const ::std::string& host,
-                        int port,
-                        const ::std::string& sourceAddress)
+        TCPEndpointInfo(
+            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            int timeout,
+            bool compress,
+            const ::std::string& host,
+            int port,
+            const ::std::string& sourceAddress)
             : IPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress)
         {
         }
@@ -247,14 +249,15 @@ namespace Ice
          * @param mcastInterface The multicast interface.
          * @param mcastTtl The multicast time-to-live (or hops).
          */
-        UDPEndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
-                        int timeout,
-                        bool compress,
-                        const ::std::string& host,
-                        int port,
-                        const ::std::string& sourceAddress,
-                        const ::std::string& mcastInterface,
-                        int mcastTtl)
+        UDPEndpointInfo(
+            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            int timeout,
+            bool compress,
+            const ::std::string& host,
+            int port,
+            const ::std::string& sourceAddress,
+            const ::std::string& mcastInterface,
+            int mcastTtl)
             : IPEndpointInfo(underlying, timeout, compress, host, port, sourceAddress),
               mcastInterface(mcastInterface),
               mcastTtl(mcastTtl)
@@ -294,10 +297,11 @@ namespace Ice
          * @param compress Specifies whether or not compression should be used if available when using this endpoint.
          * @param resource The URI configured with the endpoint.
          */
-        WSEndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
-                       int timeout,
-                       bool compress,
-                       const ::std::string& resource)
+        WSEndpointInfo(
+            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            int timeout,
+            bool compress,
+            const ::std::string& resource)
             : EndpointInfo(underlying, timeout, compress),
               resource(resource)
         {
@@ -334,11 +338,12 @@ namespace Ice
          * @param rawEncoding The encoding version of the opaque endpoint (to decode or encode the rawBytes).
          * @param rawBytes The raw encoding of the opaque endpoint.
          */
-        OpaqueEndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
-                           int timeout,
-                           bool compress,
-                           const ::Ice::EncodingVersion& rawEncoding,
-                           const ::Ice::ByteSeq& rawBytes)
+        OpaqueEndpointInfo(
+            const ::std::shared_ptr<::Ice::EndpointInfo>& underlying,
+            int timeout,
+            bool compress,
+            const ::Ice::EncodingVersion& rawEncoding,
+            const ::Ice::ByteSeq& rawBytes)
             : EndpointInfo(underlying, timeout, compress),
               rawEncoding(rawEncoding),
               rawBytes(rawBytes)

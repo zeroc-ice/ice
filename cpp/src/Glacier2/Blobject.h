@@ -24,11 +24,12 @@ namespace Glacier2
         void invokeException(std::exception_ptr, std::function<void(std::exception_ptr)>&&);
 
     protected:
-        void invoke(Ice::ObjectPrx&,
-                    const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                    std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
-                    std::function<void(std::exception_ptr)>,
-                    const Ice::Current&);
+        void invoke(
+            Ice::ObjectPrx&,
+            const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+            std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&);
 
         const std::shared_ptr<Instance> _instance;
         const std::shared_ptr<Ice::Connection> _reverseConnection;

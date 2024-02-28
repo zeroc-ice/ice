@@ -136,9 +136,10 @@ EndpointI::transceiver() const
 }
 
 void
-EndpointI::connectorsAsync(Ice::EndpointSelectionType selType,
-                           function<void(vector<IceInternal::ConnectorPtr>)> response,
-                           function<void(exception_ptr)> exception) const
+EndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception) const
 {
     try
     {

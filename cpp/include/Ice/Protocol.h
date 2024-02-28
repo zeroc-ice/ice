@@ -69,21 +69,21 @@ namespace IceInternal
 
     ICE_API void stringToMajorMinor(const ::std::string&, Ice::Byte&, Ice::Byte&);
 
-    template <typename T> std::string versionToString(const T& v)
+    template<typename T> std::string versionToString(const T& v)
     {
         std::ostringstream os;
         os << v;
         return os.str();
     }
 
-    template <typename T> T stringToVersion(const ::std::string& str)
+    template<typename T> T stringToVersion(const ::std::string& str)
     {
         T v;
         stringToMajorMinor(str, v.major, v.minor);
         return v;
     }
 
-    template <typename T> bool isSupported(const T& version, const T& supported)
+    template<typename T> bool isSupported(const T& version, const T& supported)
     {
         return version.major == supported.major && version.minor <= supported.minor;
     }

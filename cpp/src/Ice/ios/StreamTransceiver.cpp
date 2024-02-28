@@ -246,10 +246,10 @@ IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBu
 
         if (_fd == INVALID_SOCKET)
         {
-            if (!CFReadStreamSetProperty(_readStream.get(), kCFStreamPropertyShouldCloseNativeSocket,
-                                         kCFBooleanFalse) ||
-                !CFWriteStreamSetProperty(_writeStream.get(), kCFStreamPropertyShouldCloseNativeSocket,
-                                          kCFBooleanFalse))
+            if (!CFReadStreamSetProperty(
+                    _readStream.get(), kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanFalse) ||
+                !CFWriteStreamSetProperty(
+                    _writeStream.get(), kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanFalse))
             {
                 throw Ice::SocketException(__FILE__, __LINE__, 0);
             }
@@ -339,8 +339,8 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
         }
 
         assert(_fd != INVALID_SOCKET);
-        CFIndex ret = CFWriteStreamWrite(_writeStream.get(), reinterpret_cast<const UInt8*>(&*buf.i),
-                                         static_cast<CFIndex>(packetSize));
+        CFIndex ret = CFWriteStreamWrite(
+            _writeStream.get(), reinterpret_cast<const UInt8*>(&*buf.i), static_cast<CFIndex>(packetSize));
 
         if (ret == SOCKET_ERROR)
         {
@@ -456,11 +456,12 @@ IceObjC::StreamTransceiver::setBufferSize(int rcvSize, int sndSize)
     setTcpBufSize(_fd, rcvSize, sndSize, _instance);
 }
 
-IceObjC::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
-                                              CFReadStreamRef readStream,
-                                              CFWriteStreamRef writeStream,
-                                              const string& host,
-                                              int32_t port)
+IceObjC::StreamTransceiver::StreamTransceiver(
+    const InstancePtr& instance,
+    CFReadStreamRef readStream,
+    CFWriteStreamRef writeStream,
+    const string& host,
+    int32_t port)
     : StreamNativeInfo(INVALID_SOCKET),
       _instance(instance),
       _host(host),
@@ -484,10 +485,11 @@ IceObjC::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
     _desc = s.str();
 }
 
-IceObjC::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
-                                              CFReadStreamRef readStream,
-                                              CFWriteStreamRef writeStream,
-                                              SOCKET fd)
+IceObjC::StreamTransceiver::StreamTransceiver(
+    const InstancePtr& instance,
+    CFReadStreamRef readStream,
+    CFWriteStreamRef writeStream,
+    SOCKET fd)
     : StreamNativeInfo(fd),
       _instance(instance),
       _port(0),
@@ -505,10 +507,11 @@ IceObjC::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
 IceObjC::StreamTransceiver::~StreamTransceiver() { assert(_fd == INVALID_SOCKET); }
 
 void
-IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream,
-                                             CFReadStreamRef readStream,
-                                             const char* file,
-                                             int line)
+IceObjC::StreamTransceiver::checkErrorStatus(
+    CFWriteStreamRef writeStream,
+    CFReadStreamRef readStream,
+    const char* file,
+    int line)
 {
     assert(writeStream || readStream);
 

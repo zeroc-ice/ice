@@ -58,9 +58,10 @@ TestAMDI::cppExceptionAsync(function<void()> response, function<void(exception_p
 }
 
 void
-TestAMDI::unknownExceptionWithServantExceptionAsync(function<void()>,
-                                                    function<void(exception_ptr)> error,
-                                                    const Current&)
+TestAMDI::unknownExceptionWithServantExceptionAsync(
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const Current&)
 {
     try
     {
@@ -73,10 +74,11 @@ TestAMDI::unknownExceptionWithServantExceptionAsync(function<void()>,
 }
 
 void
-TestAMDI::impossibleExceptionAsync(bool _cpp_throw,
-                                   function<void(string_view)> response,
-                                   function<void(exception_ptr)> error,
-                                   const Current&)
+TestAMDI::impossibleExceptionAsync(
+    bool _cpp_throw,
+    function<void(string_view)> response,
+    function<void(exception_ptr)> error,
+    const Current&)
 {
     if (_cpp_throw)
     {
@@ -100,10 +102,11 @@ TestAMDI::impossibleExceptionAsync(bool _cpp_throw,
 }
 
 void
-TestAMDI::intfUserExceptionAsync(bool _cpp_throw,
-                                 function<void(string_view)> response,
-                                 function<void(exception_ptr)> error,
-                                 const Current&)
+TestAMDI::intfUserExceptionAsync(
+    bool _cpp_throw,
+    function<void(string_view)> response,
+    function<void(exception_ptr)> error,
+    const Current&)
 {
     if (_cpp_throw)
     {

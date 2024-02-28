@@ -19,11 +19,12 @@ namespace IceGrid
     protected:
         AdminRouter(const std::shared_ptr<TraceLevels>&);
 
-        void invokeOnTarget(const Ice::ObjectPrxPtr&,
-                            const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                            std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>&&,
-                            std::function<void(std::exception_ptr)>&&,
-                            const Ice::Current&);
+        void invokeOnTarget(
+            const Ice::ObjectPrxPtr&,
+            const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+            std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>&&,
+            std::function<void(std::exception_ptr)>&&,
+            const Ice::Current&);
 
         const std::shared_ptr<TraceLevels> _traceLevels;
     };

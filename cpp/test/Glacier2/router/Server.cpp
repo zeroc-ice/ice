@@ -28,8 +28,9 @@ CallbackServer::run(int argc, char** argv)
     adapter->add(make_shared<CallbackI>(), Ice::stringToIdentity("c1/callback")); // The test allows "c1" as category.
     adapter->add(make_shared<CallbackI>(), Ice::stringToIdentity("c2/callback")); // The test allows "c2" as category.
     adapter->add(make_shared<CallbackI>(), Ice::stringToIdentity("c3/callback")); // The test rejects "c3" as category.
-    adapter->add(make_shared<CallbackI>(),
-                 Ice::stringToIdentity("_userid/callback")); // The test allows the prefixed userid.
+    adapter->add(
+        make_shared<CallbackI>(),
+        Ice::stringToIdentity("_userid/callback")); // The test allows the prefixed userid.
     adapter->activate();
     communicator->waitForShutdown();
 }

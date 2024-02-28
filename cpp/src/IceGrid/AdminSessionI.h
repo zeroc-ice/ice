@@ -19,28 +19,35 @@ namespace IceGrid
     class AdminSessionI : public BaseSessionI, public AdminSession
     {
     public:
-        AdminSessionI(const std::string&,
-                      const std::shared_ptr<Database>&,
-                      std::chrono::seconds,
-                      const std::shared_ptr<RegistryI>&);
+        AdminSessionI(
+            const std::string&,
+            const std::shared_ptr<Database>&,
+            std::chrono::seconds,
+            const std::shared_ptr<RegistryI>&);
 
-        Ice::ObjectPrxPtr _register(const std::shared_ptr<SessionServantManager>&,
-                                    const std::shared_ptr<Ice::Connection>&);
+        Ice::ObjectPrxPtr
+        _register(const std::shared_ptr<SessionServantManager>&, const std::shared_ptr<Ice::Connection>&);
 
         void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
 
         AdminPrxPtr getAdmin(const Ice::Current&) const override;
         Ice::ObjectPrxPtr getAdminCallbackTemplate(const Ice::Current&) const override;
 
-        void setObservers(RegistryObserverPrxPtr,
-                          NodeObserverPrxPtr,
-                          ApplicationObserverPrxPtr,
-                          AdapterObserverPrxPtr,
-                          ObjectObserverPrxPtr,
-                          const Ice::Current&) override;
+        void setObservers(
+            RegistryObserverPrxPtr,
+            NodeObserverPrxPtr,
+            ApplicationObserverPrxPtr,
+            AdapterObserverPrxPtr,
+            ObjectObserverPrxPtr,
+            const Ice::Current&) override;
 
         void setObserversByIdentity(
-            Ice::Identity, Ice::Identity, Ice::Identity, Ice::Identity, Ice::Identity, const Ice::Current&) override;
+            Ice::Identity,
+            Ice::Identity,
+            Ice::Identity,
+            Ice::Identity,
+            Ice::Identity,
+            const Ice::Current&) override;
 
         int startUpdate(const Ice::Current&) override;
         void finishUpdate(const Ice::Current&) override;
@@ -80,10 +87,11 @@ namespace IceGrid
     class AdminSessionFactory
     {
     public:
-        AdminSessionFactory(const std::shared_ptr<SessionServantManager>&,
-                            const std::shared_ptr<Database>&,
-                            const std::shared_ptr<ReapThread>&,
-                            const std::shared_ptr<RegistryI>&);
+        AdminSessionFactory(
+            const std::shared_ptr<SessionServantManager>&,
+            const std::shared_ptr<Database>&,
+            const std::shared_ptr<ReapThread>&,
+            const std::shared_ptr<RegistryI>&);
 
         Glacier2::SessionPrxPtr createGlacier2Session(const std::string&, const Glacier2::SessionControlPrxPtr&);
         std::shared_ptr<AdminSessionI> createSessionServant(const std::string&);
@@ -125,7 +133,11 @@ namespace IceGrid
     {
     public:
         FileIteratorI(
-            const std::shared_ptr<AdminSessionI>&, const FileReaderPrxPtr&, const std::string&, std::int64_t, int);
+            const std::shared_ptr<AdminSessionI>&,
+            const FileReaderPrxPtr&,
+            const std::string&,
+            std::int64_t,
+            int);
 
         virtual bool read(int, Ice::StringSeq&, const Ice::Current&);
         virtual void destroy(const Ice::Current&);

@@ -18,14 +18,15 @@ namespace IceBT
     class EndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
     {
     public:
-        EndpointI(const InstancePtr&,
-                  const std::string&,
-                  const std::string&,
-                  const std::string&,
-                  std::int32_t,
-                  std::int32_t,
-                  const std::string&,
-                  bool);
+        EndpointI(
+            const InstancePtr&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            std::int32_t,
+            std::int32_t,
+            const std::string&,
+            bool);
         EndpointI(const InstancePtr&);
         EndpointI(const InstancePtr&, Ice::InputStream*);
 
@@ -41,9 +42,10 @@ namespace IceBT
         bool datagram() const final;
         bool secure() const final;
         IceInternal::TransceiverPtr transceiver() const final;
-        void connectorsAsync(Ice::EndpointSelectionType,
-                             std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
-                             std::function<void(std::exception_ptr)>) const final;
+        void connectorsAsync(
+            Ice::EndpointSelectionType,
+            std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
+            std::function<void(std::exception_ptr)>) const final;
         IceInternal::AcceptorPtr acceptor(const std::string&) const final;
         std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const final;
         std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const final;

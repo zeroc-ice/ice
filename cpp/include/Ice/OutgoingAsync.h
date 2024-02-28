@@ -191,11 +191,12 @@ namespace IceInternal
 
         void abort(std::exception_ptr);
         void invoke(const std::string&);
-        void invoke(const std::string&,
-                    Ice::OperationMode,
-                    Ice::FormatType,
-                    const Ice::Context&,
-                    std::function<void(Ice::OutputStream*)>);
+        void invoke(
+            const std::string&,
+            Ice::OperationMode,
+            Ice::FormatType,
+            const Ice::Context&,
+            std::function<void(Ice::OutputStream*)>);
         void throwUserException();
 
         Ice::OutputStream* startWriteParams(Ice::FormatType format)
@@ -248,7 +249,7 @@ namespace IceInternal
         std::function<void(bool)> _response;
     };
 
-    template <typename R> class PromiseInvoke : public virtual OutgoingAsyncCompletionCallback
+    template<typename R> class PromiseInvoke : public virtual OutgoingAsyncCompletionCallback
     {
     public:
         std::future<R> getFuture() { return _promise.get_future(); }
@@ -279,17 +280,18 @@ namespace IceInternal
         virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const override { assert(false); }
     };
 
-    template <typename T> class OutgoingAsyncT : public OutgoingAsync
+    template<typename T> class OutgoingAsyncT : public OutgoingAsync
     {
     public:
         using OutgoingAsync::OutgoingAsync;
 
-        void invoke(const std::string& operation,
-                    Ice::OperationMode mode,
-                    Ice::FormatType format,
-                    const Ice::Context& ctx,
-                    std::function<void(Ice::OutputStream*)> write,
-                    std::function<void(const Ice::UserException&)> userException)
+        void invoke(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            Ice::FormatType format,
+            const Ice::Context& ctx,
+            std::function<void(Ice::OutputStream*)> write,
+            std::function<void(const Ice::UserException&)> userException)
         {
             _read = [](Ice::InputStream* stream)
             {
@@ -301,13 +303,14 @@ namespace IceInternal
             OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
         }
 
-        void invoke(const std::string& operation,
-                    Ice::OperationMode mode,
-                    Ice::FormatType format,
-                    const Ice::Context& ctx,
-                    std::function<void(Ice::OutputStream*)> write,
-                    std::function<void(const Ice::UserException&)> userException,
-                    std::function<T(Ice::InputStream*)> read)
+        void invoke(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            Ice::FormatType format,
+            const Ice::Context& ctx,
+            std::function<void(Ice::OutputStream*)> write,
+            std::function<void(const Ice::UserException&)> userException,
+            std::function<T(Ice::InputStream*)> read)
         {
             _read = std::move(read);
             _userException = std::move(userException);
@@ -318,30 +321,32 @@ namespace IceInternal
         std::function<T(Ice::InputStream*)> _read;
     };
 
-    template <> class OutgoingAsyncT<void> : public OutgoingAsync
+    template<> class OutgoingAsyncT<void> : public OutgoingAsync
     {
     public:
         using OutgoingAsync::OutgoingAsync;
 
-        void invoke(const std::string& operation,
-                    Ice::OperationMode mode,
-                    Ice::FormatType format,
-                    const Ice::Context& ctx,
-                    std::function<void(Ice::OutputStream*)> write,
-                    std::function<void(const Ice::UserException&)> userException)
+        void invoke(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            Ice::FormatType format,
+            const Ice::Context& ctx,
+            std::function<void(Ice::OutputStream*)> write,
+            std::function<void(const Ice::UserException&)> userException)
         {
             _userException = std::move(userException);
             OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
         }
     };
 
-    template <typename R> class LambdaOutgoing : public OutgoingAsyncT<R>, public LambdaInvoke
+    template<typename R> class LambdaOutgoing : public OutgoingAsyncT<R>, public LambdaInvoke
     {
     public:
-        LambdaOutgoing(Ice::ObjectPrx proxy,
-                       std::function<void(R)> response,
-                       std::function<void(std::exception_ptr)> ex,
-                       std::function<void(bool)> sent)
+        LambdaOutgoing(
+            Ice::ObjectPrx proxy,
+            std::function<void(R)> response,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : OutgoingAsyncT<R>(std::move(proxy), false),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
@@ -370,13 +375,14 @@ namespace IceInternal
         }
     };
 
-    template <> class LambdaOutgoing<void> : public OutgoingAsyncT<void>, public LambdaInvoke
+    template<> class LambdaOutgoing<void> : public OutgoingAsyncT<void>, public LambdaInvoke
     {
     public:
-        LambdaOutgoing(Ice::ObjectPrx proxy,
-                       std::function<void()> response,
-                       std::function<void(std::exception_ptr)> ex,
-                       std::function<void(bool)> sent)
+        LambdaOutgoing(
+            Ice::ObjectPrx proxy,
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : OutgoingAsyncT<void>(std::move(proxy), false),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
@@ -409,10 +415,11 @@ namespace IceInternal
     class CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
     {
     public:
-        CustomLambdaOutgoing(Ice::ObjectPrx proxy,
-                             std::function<void(Ice::InputStream*)> read,
-                             std::function<void(std::exception_ptr)> ex,
-                             std::function<void(bool)> sent)
+        CustomLambdaOutgoing(
+            Ice::ObjectPrx proxy,
+            std::function<void(Ice::InputStream*)> read,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : OutgoingAsync(std::move(proxy), false),
               LambdaInvoke(std::move(ex), std::move(sent))
         {
@@ -432,19 +439,20 @@ namespace IceInternal
             };
         }
 
-        void invoke(const std::string& operation,
-                    Ice::OperationMode mode,
-                    Ice::FormatType format,
-                    const Ice::Context& ctx,
-                    std::function<void(Ice::OutputStream*)> write,
-                    std::function<void(const Ice::UserException&)> userException)
+        void invoke(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            Ice::FormatType format,
+            const Ice::Context& ctx,
+            std::function<void(Ice::OutputStream*)> write,
+            std::function<void(const Ice::UserException&)> userException)
         {
             _userException = std::move(userException);
             OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
         }
     };
 
-    template <typename R> class PromiseOutgoing : public OutgoingAsyncT<R>, public PromiseInvoke<R>
+    template<typename R> class PromiseOutgoing : public OutgoingAsyncT<R>, public PromiseInvoke<R>
     {
     public:
         PromiseOutgoing(Ice::ObjectPrx proxy, bool sync) : OutgoingAsyncT<R>(std::move(proxy), sync)
@@ -467,7 +475,7 @@ namespace IceInternal
         }
     };
 
-    template <> class PromiseOutgoing<void> : public OutgoingAsyncT<void>, public PromiseInvoke<void>
+    template<> class PromiseOutgoing<void> : public OutgoingAsyncT<void>, public PromiseInvoke<void>
     {
     public:
         PromiseOutgoing(Ice::ObjectPrx proxy, bool sync) : OutgoingAsyncT<void>(std::move(proxy), sync)
@@ -505,7 +513,7 @@ namespace IceInternal
         }
     };
 
-    template <typename R, typename Obj, typename Fn, typename... Args>
+    template<typename R, typename Obj, typename Fn, typename... Args>
     inline std::future<R> makePromiseOutgoing(bool sync, Obj obj, Fn fn, Args&&... args)
     {
         auto outAsync = std::make_shared<PromiseOutgoing<R>>(*obj, sync);
@@ -513,7 +521,7 @@ namespace IceInternal
         return outAsync->getFuture();
     }
 
-    template <typename R, typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
+    template<typename R, typename Re, typename E, typename S, typename Obj, typename Fn, typename... Args>
     inline std::function<void()> makeLambdaOutgoing(Re r, E e, S s, Obj obj, Fn fn, Args&&... args)
     {
         auto outAsync = std::make_shared<LambdaOutgoing<R>>(*obj, std::move(r), std::move(e), std::move(s));

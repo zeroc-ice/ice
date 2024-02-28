@@ -27,7 +27,11 @@ namespace IceInternal
         void clearCachedRequestHandler(const RequestHandlerPtr& handler);
 
         int handleException(
-            std::exception_ptr ex, const RequestHandlerPtr& handler, Ice::OperationMode mode, bool sent, int& cnt);
+            std::exception_ptr ex,
+            const RequestHandlerPtr& handler,
+            Ice::OperationMode mode,
+            bool sent,
+            int& cnt);
 
     private:
         const ReferencePtr _reference;

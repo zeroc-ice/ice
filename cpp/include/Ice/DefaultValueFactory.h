@@ -11,7 +11,7 @@
 namespace IceInternal
 {
 
-    template <class V>
+    template<class V>
     ::std::shared_ptr<::Ice::Value>
 #ifdef NDEBUG
     defaultValueFactory(std::string_view)

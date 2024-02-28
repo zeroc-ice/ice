@@ -726,10 +726,11 @@ InvocationObserverI::userException()
 }
 
 RemoteObserverPtr
-InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection,
-                                       const EndpointPtr& endpoint,
-                                       int requestId,
-                                       int size)
+InvocationObserverI::getRemoteObserver(
+    const ConnectionInfoPtr& connection,
+    const EndpointPtr& endpoint,
+    int requestId,
+    int size)
 {
     try
     {
@@ -838,10 +839,11 @@ CommunicatorObserverI::getEndpointLookupObserver(const EndpointPtr& endpt)
 }
 
 ConnectionObserverPtr
-CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con,
-                                             const EndpointPtr& endpt,
-                                             ConnectionState state,
-                                             const ConnectionObserverPtr& observer)
+CommunicatorObserverI::getConnectionObserver(
+    const ConnectionInfoPtr& con,
+    const EndpointPtr& endpt,
+    ConnectionState state,
+    const ConnectionObserverPtr& observer)
 {
     if (_connections.isEnabled())
     {
@@ -865,10 +867,11 @@ CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con,
 }
 
 ThreadObserverPtr
-CommunicatorObserverI::getThreadObserver(const string& parent,
-                                         const string& id,
-                                         ThreadState state,
-                                         const ThreadObserverPtr& observer)
+CommunicatorObserverI::getThreadObserver(
+    const string& parent,
+    const string& id,
+    ThreadState state,
+    const ThreadObserverPtr& observer)
 {
     if (_threads.isEnabled())
     {

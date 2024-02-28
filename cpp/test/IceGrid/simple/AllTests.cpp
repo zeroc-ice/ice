@@ -63,8 +63,8 @@ allTests(Test::TestHelper* helper)
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             initData.properties->setProperty("Ice.Default.Locator", "");
-            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                             "IceLocatorDiscovery:createIceLocatorDiscovery");
+            initData.properties->setProperty(
+                "Ice.Plugin.IceLocatorDiscovery", "IceLocatorDiscovery:createIceLocatorDiscovery");
             initData.properties->setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties->setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
@@ -145,10 +145,10 @@ allTests(Test::TestHelper* helper)
             //
             initData.properties = communicator->getProperties()->clone();
             initData.properties->setProperty("Ice.Default.Locator", "");
-            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                             "IceLocatorDiscovery:createIceLocatorDiscovery");
-            initData.properties->setProperty("IceLocatorDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown");
+            initData.properties->setProperty(
+                "Ice.Plugin.IceLocatorDiscovery", "IceLocatorDiscovery:createIceLocatorDiscovery");
+            initData.properties->setProperty(
+                "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
             com = Ice::initialize(initData);
             test(com->getDefaultLocator());
             try
@@ -164,10 +164,10 @@ allTests(Test::TestHelper* helper)
             initData.properties = communicator->getProperties()->clone();
             initData.properties->setProperty("Ice.Default.Locator", "");
             initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "0");
-            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                             "IceLocatorDiscovery:createIceLocatorDiscovery");
-            initData.properties->setProperty("IceLocatorDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown");
+            initData.properties->setProperty(
+                "Ice.Plugin.IceLocatorDiscovery", "IceLocatorDiscovery:createIceLocatorDiscovery");
+            initData.properties->setProperty(
+                "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
             com = Ice::initialize(initData);
             test(com->getDefaultLocator());
             try
@@ -183,8 +183,8 @@ allTests(Test::TestHelper* helper)
             initData.properties = communicator->getProperties()->clone();
             initData.properties->setProperty("Ice.Default.Locator", "");
             initData.properties->setProperty("IceLocatorDiscovery.RetryCount", "1");
-            initData.properties->setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                             "IceLocatorDiscovery:createIceLocatorDiscovery");
+            initData.properties->setProperty(
+                "Ice.Plugin.IceLocatorDiscovery", "IceLocatorDiscovery:createIceLocatorDiscovery");
             {
                 string intf = initData.properties->getProperty("IceLocatorDiscovery.Interface");
                 if (!intf.empty())
@@ -193,9 +193,9 @@ allTests(Test::TestHelper* helper)
                 }
                 ostringstream port;
                 port << TestHelper::getTestPort(initData.properties, 99);
-                initData.properties->setProperty("IceLocatorDiscovery.Lookup",
-                                                 "udp -h " + multicast + " --interface unknown:" + "udp -h " +
-                                                     multicast + " -p " + port.str() + intf);
+                initData.properties->setProperty(
+                    "IceLocatorDiscovery.Lookup", "udp -h " + multicast + " --interface unknown:" + "udp -h " +
+                                                      multicast + " -p " + port.str() + intf);
             }
             com = Ice::initialize(initData);
             test(com->getDefaultLocator());

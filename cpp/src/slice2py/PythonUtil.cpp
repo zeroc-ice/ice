@@ -1851,9 +1851,10 @@ Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
 }
 
 void
-Slice::Python::CodeVisitor::writeConstantValue(const TypePtr& type,
-                                               const SyntaxTreeBasePtr& valueType,
-                                               const string& value)
+Slice::Python::CodeVisitor::writeConstantValue(
+    const TypePtr& type,
+    const SyntaxTreeBasePtr& valueType,
+    const string& value)
 {
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
@@ -3065,8 +3066,9 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
             if (!builtin || builtin->kind() != Builtin::KindByte)
             {
-                dc->warning(InvalidMetaData, file, line,
-                            "ignoring invalid metadata `" + s + ": " + "`protobuf' encoding must be a byte sequence");
+                dc->warning(
+                    InvalidMetaData, file, line,
+                    "ignoring invalid metadata `" + s + ": " + "`protobuf' encoding must be a byte sequence");
             }
             else
             {
@@ -3099,10 +3101,11 @@ Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
 }
 
 StringList
-Slice::Python::MetaDataVisitor::validateSequence(const string& file,
-                                                 const string& line,
-                                                 const TypePtr& type,
-                                                 const StringList& metaData)
+Slice::Python::MetaDataVisitor::validateSequence(
+    const string& file,
+    const string& line,
+    const TypePtr& type,
+    const StringList& metaData)
 {
     const UnitPtr ut = type->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(file);

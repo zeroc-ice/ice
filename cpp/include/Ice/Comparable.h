@@ -16,7 +16,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the contents are equal, false otherwise.
      */
-    template <typename T, typename U> inline bool targetEqualTo(const T& lhs, const U& rhs)
+    template<typename T, typename U> inline bool targetEqualTo(const T& lhs, const U& rhs)
     {
         if (lhs && rhs)
         {
@@ -34,7 +34,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares less than the right-hand side, false otherwise.
      */
-    template <typename T, typename U> inline bool targetLess(const T& lhs, const U& rhs)
+    template<typename T, typename U> inline bool targetLess(const T& lhs, const U& rhs)
     {
         if (lhs && rhs)
         {
@@ -52,7 +52,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares greater than the right-hand side, false otherwise.
      */
-    template <typename T, typename U> inline bool targetGreater(const T& lhs, const U& rhs)
+    template<typename T, typename U> inline bool targetGreater(const T& lhs, const U& rhs)
     {
         return targetLess(rhs, lhs);
     }
@@ -63,7 +63,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares less than or equal to the right-hand side, false otherwise.
      */
-    template <typename T, typename U> inline bool targetLessEqual(const T& lhs, const U& rhs)
+    template<typename T, typename U> inline bool targetLessEqual(const T& lhs, const U& rhs)
     {
         return !targetGreater(lhs, rhs);
     }
@@ -74,7 +74,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares greater than or equal to the right-hand side, false otherwise.
      */
-    template <typename T, typename U> inline bool targetGreaterEqual(const T& lhs, const U& rhs)
+    template<typename T, typename U> inline bool targetGreaterEqual(const T& lhs, const U& rhs)
     {
         return !targetLess(lhs, rhs);
     }
@@ -85,7 +85,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the contents are not equal, false otherwise.
      */
-    template <typename T, typename U> inline bool targetNotEqualTo(const T& lhs, const U& rhs)
+    template<typename T, typename U> inline bool targetNotEqualTo(const T& lhs, const U& rhs)
     {
         return !targetEqualTo(lhs, rhs);
     }
@@ -95,7 +95,7 @@ namespace Ice
      * comparator.
      * \headerfile Ice/Ice.h
      */
-    template <typename T, template <typename> class Compare> struct TargetCompare
+    template<typename T, template<typename> class Compare> struct TargetCompare
     {
         /**
          * Executes the functor to compare the contents of two smart pointers.
@@ -124,7 +124,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares less than the right-hand side, false otherwise.
      */
-    template <class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
     bool operator<(const C& lhs, const C& rhs)
     {
         return lhs.ice_tuple() < rhs.ice_tuple();
@@ -136,7 +136,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares less than or equal to the right-hand side, false otherwise.
      */
-    template <class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
     bool operator<=(const C& lhs, const C& rhs)
     {
         return lhs.ice_tuple() <= rhs.ice_tuple();
@@ -148,7 +148,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares greater than the right-hand side, false otherwise.
      */
-    template <class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
     bool operator>(const C& lhs, const C& rhs)
     {
         return lhs.ice_tuple() > rhs.ice_tuple();
@@ -160,7 +160,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares greater than or equal to the right-hand side, false otherwise.
      */
-    template <class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
     bool operator>=(const C& lhs, const C& rhs)
     {
         return lhs.ice_tuple() >= rhs.ice_tuple();
@@ -172,7 +172,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side compares equal to the right-hand side, false otherwise.
      */
-    template <class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
     bool operator==(const C& lhs, const C& rhs)
     {
         return lhs.ice_tuple() == rhs.ice_tuple();
@@ -184,7 +184,7 @@ namespace Ice
      * @param rhs The right-hand side.
      * @return True if the left-hand side is not equal to the right-hand side, false otherwise.
      */
-    template <class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
+    template<class C, typename = std::enable_if<std::is_member_function_pointer<decltype(&C::ice_tuple)>::value>>
     bool operator!=(const C& lhs, const C& rhs)
     {
         return lhs.ice_tuple() != rhs.ice_tuple();

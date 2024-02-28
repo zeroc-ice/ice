@@ -37,9 +37,10 @@ namespace IceStorm
         void observerInit(const IceStormElection::LogUpdate&, const IceStormElection::TopicContentSeq&);
         void observerCreateTopic(const IceStormElection::LogUpdate&, const std::string&);
         void observerDestroyTopic(const IceStormElection::LogUpdate&, const std::string&);
-        void observerAddSubscriber(const IceStormElection::LogUpdate&,
-                                   const std::string&,
-                                   const IceStorm::SubscriberRecord&);
+        void observerAddSubscriber(
+            const IceStormElection::LogUpdate&,
+            const std::string&,
+            const IceStorm::SubscriberRecord&);
         void observerRemoveSubscriber(const IceStormElection::LogUpdate&, const std::string&, const Ice::IdentitySeq&);
 
         // Sync methods.
@@ -64,10 +65,11 @@ namespace IceStorm
         void updateTopicObservers() override;
         void updateSubscriberObservers() override;
 
-        TopicPrxPtr installTopic(const std::string&,
-                                 const Ice::Identity&,
-                                 bool,
-                                 const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
+        TopicPrxPtr installTopic(
+            const std::string&,
+            const Ice::Identity&,
+            bool,
+            const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
 
         const std::shared_ptr<PersistentInstance> _instance;
 

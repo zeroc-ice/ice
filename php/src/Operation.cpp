@@ -152,14 +152,15 @@ IcePHP::ResultCallback::unset(void)
 }
 
 // OperationI implementation.
-IcePHP::OperationI::OperationI(const char* n,
-                               Ice::OperationMode m,
-                               Ice::OperationMode sm,
-                               Ice::FormatType f,
-                               zval* in,
-                               zval* out,
-                               zval* ret,
-                               zval* ex)
+IcePHP::OperationI::OperationI(
+    const char* n,
+    Ice::OperationMode m,
+    Ice::OperationMode sm,
+    Ice::FormatType f,
+    zval* in,
+    zval* out,
+    zval* ret,
+    zval* ex)
     : name(n),
       mode(m),
       sendMode(sm),
@@ -352,10 +353,11 @@ IcePHP::TypedInvocation::TypedInvocation(Ice::ObjectPrx prx, CommunicatorInfoPtr
 }
 
 bool
-IcePHP::TypedInvocation::prepareRequest(int argc,
-                                        zval* args,
-                                        Ice::OutputStream* os,
-                                        pair<const Ice::Byte*, const Ice::Byte*>& params)
+IcePHP::TypedInvocation::prepareRequest(
+    int argc,
+    zval* args,
+    Ice::OutputStream* os,
+    pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
     // Verify that the expected number of arguments are supplied. The context argument is optional.
     if (argc != _op->numParams && argc != _op->numParams + 1)
@@ -390,8 +392,8 @@ IcePHP::TypedInvocation::prepareRequest(int argc,
 
                 if ((!info->optional || !isUnset(arg)) && !info->type->validate(arg, false))
                 {
-                    invalidArgument("invalid value for argument %d in operation `%s'", info->pos + 1,
-                                    _op->name.c_str());
+                    invalidArgument(
+                        "invalid value for argument %d in operation `%s'", info->pos + 1, _op->name.c_str());
                     return false;
                 }
             }
@@ -443,10 +445,11 @@ IcePHP::TypedInvocation::prepareRequest(int argc,
 }
 
 void
-IcePHP::TypedInvocation::unmarshalResults(int argc,
-                                          zval* args,
-                                          zval* ret,
-                                          const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
+IcePHP::TypedInvocation::unmarshalResults(
+    int argc,
+    zval* args,
+    zval* ret,
+    const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
     Ice::InputStream is(_communicator->getCommunicator(), bytes);
 
@@ -722,8 +725,9 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     zval* returnType;
     zval* exceptions;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("osllla!a!a!a!"), &cls, &name, &nameLen, &mode,
-                              &sendMode, &format, &inParams, &outParams, &returnType, &exceptions) == FAILURE)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(), const_cast<char*>("osllla!a!a!a!"), &cls, &name, &nameLen, &mode, &sendMode, &format,
+            &inParams, &outParams, &returnType, &exceptions) == FAILURE)
     {
         return;
     }
@@ -732,9 +736,9 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     auto c = dynamic_pointer_cast<ProxyInfo>(type);
     assert(c);
 
-    auto op =
-        make_shared<OperationI>(name, static_cast<Ice::OperationMode>(mode), static_cast<Ice::OperationMode>(sendMode),
-                                static_cast<Ice::FormatType>(format), inParams, outParams, returnType, exceptions);
+    auto op = make_shared<OperationI>(
+        name, static_cast<Ice::OperationMode>(mode), static_cast<Ice::OperationMode>(sendMode),
+        static_cast<Ice::FormatType>(format), inParams, outParams, returnType, exceptions);
 
     c->addOperation(name, op);
 }

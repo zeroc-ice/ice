@@ -44,7 +44,7 @@ namespace IceUtilInternal
         ConsoleErr& operator<<(ConsoleErr& (*pf)(ConsoleErr&));
     };
 
-    template <typename T> ConsoleOut& operator<<(ConsoleOut& out, const T& val)
+    template<typename T> ConsoleOut& operator<<(ConsoleOut& out, const T& val)
     {
         std::ostringstream s;
         s << val;
@@ -55,7 +55,7 @@ namespace IceUtilInternal
     ICE_API ConsoleOut& endl(ConsoleOut&);
     ICE_API ConsoleOut& flush(ConsoleOut&);
 
-    template <typename T> ConsoleErr& operator<<(ConsoleErr& err, const T& val)
+    template<typename T> ConsoleErr& operator<<(ConsoleErr& err, const T& val)
     {
         std::ostringstream s;
         s << val;

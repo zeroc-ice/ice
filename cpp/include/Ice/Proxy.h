@@ -37,7 +37,7 @@ namespace IceInternal
     class ProxyGetConnection;
     class ProxyFlushBatchAsync;
 
-    template <typename T> class OutgoingAsyncT;
+    template<typename T> class OutgoingAsyncT;
 
 }
 
@@ -51,7 +51,7 @@ namespace Ice
      * Helper template that supplies typed proxy factory functions.
      * \headerfile Ice/Ice.h
      */
-    template <typename Prx, typename... Bases> class Proxy : public virtual Bases...
+    template<typename Prx, typename... Bases> class Proxy : public virtual Bases...
     {
     public:
         /**
@@ -296,11 +296,12 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        std::function<void()> ice_isAAsync(std::string_view typeId,
-                                           std::function<void(bool)> response,
-                                           std::function<void(std::exception_ptr)> ex = nullptr,
-                                           std::function<void(bool)> sent = nullptr,
-                                           const Ice::Context& context = Ice::noExplicitContext) const;
+        std::function<void()> ice_isAAsync(
+            std::string_view typeId,
+            std::function<void(bool)> response,
+            std::function<void(std::exception_ptr)> ex = nullptr,
+            std::function<void(bool)> sent = nullptr,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Tests whether this object supports a specific Slice interface.
@@ -308,13 +309,12 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<bool> ice_isAAsync(std::string_view typeId,
-                                       const Ice::Context& context = Ice::noExplicitContext) const;
+        std::future<bool>
+        ice_isAAsync(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
-        void _iceI_isA(const std::shared_ptr<IceInternal::OutgoingAsyncT<bool>>&,
-                       std::string_view,
-                       const Ice::Context&) const;
+        void _iceI_isA(const std::shared_ptr<IceInternal::OutgoingAsyncT<bool>>&, std::string_view, const Ice::Context&)
+            const;
         /// \endcond
 
         /**
@@ -331,10 +331,11 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        std::function<void()> ice_pingAsync(std::function<void()> response,
-                                            std::function<void(std::exception_ptr)> ex = nullptr,
-                                            std::function<void(bool)> sent = nullptr,
-                                            const Ice::Context& context = Ice::noExplicitContext) const;
+        std::function<void()> ice_pingAsync(
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> ex = nullptr,
+            std::function<void(bool)> sent = nullptr,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Tests whether the target object of this proxy can be reached.
@@ -362,10 +363,11 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        std::function<void()> ice_idsAsync(std::function<void(std::vector<std::string>)> response,
-                                           std::function<void(std::exception_ptr)> ex = nullptr,
-                                           std::function<void(bool)> sent = nullptr,
-                                           const Ice::Context& context = Ice::noExplicitContext) const;
+        std::function<void()> ice_idsAsync(
+            std::function<void(std::vector<std::string>)> response,
+            std::function<void(std::exception_ptr)> ex = nullptr,
+            std::function<void(bool)> sent = nullptr,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -375,8 +377,9 @@ namespace Ice
         std::future<std::vector<std::string>> ice_idsAsync(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /// \cond INTERNAL
-        void _iceI_ids(const std::shared_ptr<IceInternal::OutgoingAsyncT<std::vector<std::string>>>&,
-                       const Ice::Context&) const;
+        void _iceI_ids(
+            const std::shared_ptr<IceInternal::OutgoingAsyncT<std::vector<std::string>>>&,
+            const Ice::Context&) const;
         /// \endcond
 
         /**
@@ -394,10 +397,11 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        std::function<void()> ice_idAsync(std::function<void(std::string)> response,
-                                          std::function<void(std::exception_ptr)> ex = nullptr,
-                                          std::function<void(bool)> sent = nullptr,
-                                          const Ice::Context& context = Ice::noExplicitContext) const;
+        std::function<void()> ice_idAsync(
+            std::function<void(std::string)> response,
+            std::function<void(std::exception_ptr)> ex = nullptr,
+            std::function<void(bool)> sent = nullptr,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -422,11 +426,12 @@ namespace Ice
          * case outParams contains the encoded user exception. If the operation raises a run-time
          * exception, it throws it directly.
          */
-        bool ice_invoke(const std::string& operation,
-                        Ice::OperationMode mode,
-                        const std::vector<Byte>& inParams,
-                        std::vector<Ice::Byte>& outParams,
-                        const Ice::Context& context = Ice::noExplicitContext) const;
+        bool ice_invoke(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            const std::vector<Byte>& inParams,
+            std::vector<Ice::Byte>& outParams,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Invokes an operation dynamically.
@@ -436,11 +441,11 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<std::tuple<bool, std::vector<Ice::Byte>>>
-        ice_invokeAsync(const std::string& operation,
-                        Ice::OperationMode mode,
-                        const std::vector<Byte>& inParams,
-                        const Ice::Context& context = Ice::noExplicitContext) const;
+        std::future<std::tuple<bool, std::vector<Ice::Byte>>> ice_invokeAsync(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            const std::vector<Byte>& inParams,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Invokes an operation dynamically.
@@ -453,13 +458,14 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        std::function<void()> ice_invokeAsync(const std::string& operation,
-                                              Ice::OperationMode mode,
-                                              const std::vector<Ice::Byte>& inParams,
-                                              std::function<void(bool, std::vector<Ice::Byte>)> response,
-                                              std::function<void(std::exception_ptr)> ex = nullptr,
-                                              std::function<void(bool)> sent = nullptr,
-                                              const Ice::Context& context = Ice::noExplicitContext) const;
+        std::function<void()> ice_invokeAsync(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            const std::vector<Ice::Byte>& inParams,
+            std::function<void(bool, std::vector<Ice::Byte>)> response,
+            std::function<void(std::exception_ptr)> ex = nullptr,
+            std::function<void(bool)> sent = nullptr,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Invokes an operation dynamically.
@@ -473,11 +479,12 @@ namespace Ice
          * case outParams contains the encoded user exception. If the operation raises a run-time
          * exception, it throws it directly.
          */
-        bool ice_invoke(const std::string& operation,
-                        Ice::OperationMode mode,
-                        const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                        std::vector<Ice::Byte>& outParams,
-                        const Ice::Context& context = Ice::noExplicitContext) const;
+        bool ice_invoke(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+            std::vector<Ice::Byte>& outParams,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Invokes an operation dynamically.
@@ -487,11 +494,11 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The future object for the invocation.
          */
-        std::future<std::tuple<bool, std::vector<Ice::Byte>>>
-        ice_invokeAsync(const std::string& operation,
-                        Ice::OperationMode mode,
-                        const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                        const Ice::Context& context = Ice::noExplicitContext) const;
+        std::future<std::tuple<bool, std::vector<Ice::Byte>>> ice_invokeAsync(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Invokes an operation dynamically.
@@ -504,14 +511,14 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        std::function<void()>
-        ice_invokeAsync(const std::string& operation,
-                        Ice::OperationMode mode,
-                        const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                        std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)> response,
-                        std::function<void(std::exception_ptr)> ex = nullptr,
-                        std::function<void(bool)> sent = nullptr,
-                        const Ice::Context& context = Ice::noExplicitContext) const;
+        std::function<void()> ice_invokeAsync(
+            const std::string& operation,
+            Ice::OperationMode mode,
+            const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+            std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)> response,
+            std::function<void(std::exception_ptr)> ex = nullptr,
+            std::function<void(bool)> sent = nullptr,
+            const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -528,9 +535,10 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        std::function<void()> ice_getConnectionAsync(std::function<void(std::shared_ptr<Ice::Connection>)> response,
-                                                     std::function<void(std::exception_ptr)> ex = nullptr,
-                                                     std::function<void(bool)> sent = nullptr) const;
+        std::function<void()> ice_getConnectionAsync(
+            std::function<void(std::shared_ptr<Ice::Connection>)> response,
+            std::function<void(std::exception_ptr)> ex = nullptr,
+            std::function<void(bool)> sent = nullptr) const;
 
         /**
          * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -562,8 +570,9 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        std::function<void()> ice_flushBatchRequestsAsync(std::function<void(std::exception_ptr)> ex,
-                                                          std::function<void(bool)> sent = nullptr) const;
+        std::function<void()> ice_flushBatchRequestsAsync(
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent = nullptr) const;
 
         /**
          * Flushes asynchronously any pending batched requests for this communicator.
@@ -776,7 +785,7 @@ namespace Ice
         /// \endcond
 
     private:
-        template <typename Prx, typename... Bases> friend class Proxy;
+        template<typename Prx, typename... Bases> friend class Proxy;
 
         // Gets a reference with the specified setting; returns _reference if the setting is already set.
         IceInternal::ReferencePtr _adapterId(const std::string&) const;

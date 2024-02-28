@@ -35,8 +35,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
         const_cast<Address&>(defaultSourceAddress) = getNumericAddress(value);
         if (!isAddressValid(defaultSourceAddress))
         {
-            throw InitializationException(__FILE__, __LINE__,
-                                          "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
+            throw InitializationException(
+                __FILE__, __LINE__, "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
         }
     }
 
@@ -110,8 +110,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
     else
     {
-        throw EndpointSelectionTypeParseException(__FILE__, __LINE__,
-                                                  "illegal value `" + value + "'; expected `Random' or `Ordered'");
+        throw EndpointSelectionTypeParseException(
+            __FILE__, __LINE__, "illegal value `" + value + "'; expected `Random' or `Ordered'");
     }
 
     const_cast<int&>(defaultTimeout) = properties->getPropertyAsIntWithDefault("Ice.Default.Timeout", 60000);

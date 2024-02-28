@@ -41,9 +41,10 @@ namespace Glacier2
     class SessionControlI final : public SessionControl
     {
     public:
-        SessionControlI(shared_ptr<SessionRouterI> sessionRouter,
-                        shared_ptr<Connection> connection,
-                        shared_ptr<FilterManager> filterManager)
+        SessionControlI(
+            shared_ptr<SessionRouterI> sessionRouter,
+            shared_ptr<Connection> connection,
+            shared_ptr<FilterManager> filterManager)
             : _sessionRouter(std::move(sessionRouter)),
               _connection(std::move(connection)),
               _filters(std::move(filterManager))
@@ -76,12 +77,13 @@ namespace Glacier2
     class UserPasswordCreateSession final : public CreateSession
     {
     public:
-        UserPasswordCreateSession(function<void(const SessionPrxPtr&)> response,
-                                  function<void(exception_ptr)> exception,
-                                  const string& user,
-                                  const string& password,
-                                  const Ice::Current& current,
-                                  const shared_ptr<SessionRouterI>& sessionRouter)
+        UserPasswordCreateSession(
+            function<void(const SessionPrxPtr&)> response,
+            function<void(exception_ptr)> exception,
+            const string& user,
+            const string& password,
+            const Ice::Current& current,
+            const shared_ptr<SessionRouterI>& sessionRouter)
             : CreateSession(sessionRouter, user, current),
               _response(std::move(response)),
               _exception(std::move(exception)),
@@ -158,12 +160,13 @@ namespace Glacier2
     class SSLCreateSession final : public CreateSession
     {
     public:
-        SSLCreateSession(function<void(const SessionPrxPtr& returnValue)> response,
-                         function<void(exception_ptr)> exception,
-                         const string& user,
-                         const SSLInfo& sslInfo,
-                         const Ice::Current& current,
-                         const shared_ptr<SessionRouterI>& sessionRouter)
+        SSLCreateSession(
+            function<void(const SessionPrxPtr& returnValue)> response,
+            function<void(exception_ptr)> exception,
+            const string& user,
+            const SSLInfo& sslInfo,
+            const Ice::Current& current,
+            const shared_ptr<SessionRouterI>& sessionRouter)
             : CreateSession(sessionRouter, user, current),
               _response(std::move(response)),
               _exception(std::move(exception)),
@@ -477,11 +480,12 @@ CreateSession::exception(exception_ptr ex)
     }
 }
 
-SessionRouterI::SessionRouterI(shared_ptr<Instance> instance,
-                               PermissionsVerifierPrxPtr verifier,
-                               SessionManagerPrxPtr sessionManager,
-                               SSLPermissionsVerifierPrxPtr sslVerifier,
-                               SSLSessionManagerPrxPtr sslSessionManager)
+SessionRouterI::SessionRouterI(
+    shared_ptr<Instance> instance,
+    PermissionsVerifierPrxPtr verifier,
+    SessionManagerPrxPtr sessionManager,
+    SSLPermissionsVerifierPrxPtr sslVerifier,
+    SSLSessionManagerPrxPtr sslSessionManager)
     : _instance(std::move(instance)),
       _sessionTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Trace.Session")),
       _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
@@ -569,11 +573,12 @@ SessionRouterI::getCategoryForClient(const Ice::Current& current) const
 }
 
 void
-SessionRouterI::createSessionAsync(string userId,
-                                   string password,
-                                   function<void(const SessionPrxPtr&)> response,
-                                   function<void(exception_ptr)> exception,
-                                   const Current& current)
+SessionRouterI::createSessionAsync(
+    string userId,
+    string password,
+    function<void(const SessionPrxPtr&)> response,
+    function<void(exception_ptr)> exception,
+    const Current& current)
 {
     if (!_verifier)
     {
@@ -581,15 +586,16 @@ SessionRouterI::createSessionAsync(string userId,
         return;
     }
 
-    auto session = make_shared<UserPasswordCreateSession>(std::move(response), std::move(exception), std::move(userId),
-                                                          std::move(password), current, shared_from_this());
+    auto session = make_shared<UserPasswordCreateSession>(
+        std::move(response), std::move(exception), std::move(userId), std::move(password), current, shared_from_this());
     session->create();
 }
 
 void
-SessionRouterI::createSessionFromSecureConnectionAsync(function<void(const SessionPrxPtr&)> response,
-                                                       function<void(std::exception_ptr)> exception,
-                                                       const Current& current)
+SessionRouterI::createSessionFromSecureConnectionAsync(
+    function<void(const SessionPrxPtr&)> response,
+    function<void(std::exception_ptr)> exception,
+    const Current& current)
 {
     if (!_sslVerifier)
     {
@@ -639,8 +645,8 @@ SessionRouterI::createSessionFromSecureConnectionAsync(function<void(const Sessi
         return;
     }
 
-    auto session = make_shared<SSLCreateSession>(std::move(response), std::move(exception), userDN, sslinfo, current,
-                                                 shared_from_this());
+    auto session = make_shared<SSLCreateSession>(
+        std::move(response), std::move(exception), userDN, sslinfo, current, shared_from_this());
     session->create();
 }
 
@@ -651,9 +657,10 @@ SessionRouterI::destroySession(const Current& current)
 }
 
 void
-SessionRouterI::refreshSessionAsync(function<void()> response,
-                                    function<void(exception_ptr)> exception,
-                                    const Ice::Current& current)
+SessionRouterI::refreshSessionAsync(
+    function<void()> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
     shared_ptr<RouterI> router;
     {
@@ -673,13 +680,14 @@ SessionRouterI::refreshSessionAsync(function<void()> response,
         // Ping the session to ensure it does not timeout.
         //
 
-        session->ice_pingAsync([responseCb = std::move(response)] { responseCb(); },
-                               [exceptionCb = std::move(exception), sessionRouter = shared_from_this(),
-                                connection = current.con](exception_ptr e)
-                               {
-                                   exceptionCb(e);
-                                   sessionRouter->destroySession(connection);
-                               });
+        session->ice_pingAsync(
+            [responseCb = std::move(response)] { responseCb(); },
+            [exceptionCb = std::move(exception), sessionRouter = shared_from_this(),
+             connection = current.con](exception_ptr e)
+            {
+                exceptionCb(e);
+                sessionRouter->destroySession(connection);
+            });
     }
     else
     {
@@ -711,16 +719,17 @@ SessionRouterI::refreshSession(const shared_ptr<Connection>& con)
         //
         // Ping the session to ensure it does not timeout.
         //
-        session->ice_pingAsync(nullptr,
-                               [sessionRouter = shared_from_this(), con](exception_ptr)
-                               {
-                                   //
-                                   // Close the connection otherwise the peer has no way to know that
-                                   // the session has gone.
-                                   //
-                                   con->close(ConnectionClose::Forcefully);
-                                   sessionRouter->destroySession(con);
-                               });
+        session->ice_pingAsync(
+            nullptr,
+            [sessionRouter = shared_from_this(), con](exception_ptr)
+            {
+                //
+                // Close the connection otherwise the peer has no way to know that
+                // the session has gone.
+                //
+                con->close(ConnectionClose::Forcefully);
+                sessionRouter->destroySession(con);
+            });
     }
 }
 

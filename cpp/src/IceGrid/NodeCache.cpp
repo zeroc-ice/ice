@@ -39,9 +39,10 @@ namespace
 
 }
 
-NodeCache::NodeCache(const shared_ptr<Ice::Communicator>& communicator,
-                     ReplicaCache& replicaCache,
-                     const string& replicaName)
+NodeCache::NodeCache(
+    const shared_ptr<Ice::Communicator>& communicator,
+    ReplicaCache& replicaCache,
+    const string& replicaName)
     : _communicator(communicator),
       _replicaName(replicaName),
       _replicaCache(replicaCache)
@@ -75,15 +76,16 @@ NodeCache::get(const string& name, bool create) const
         // the self removing shared_ptr has no more references but its deleter has yet to run (weak_ptr has expired)
         // and at the same time another thread calls NodeCache::get which refreshes the self removing ptr before
         // the cached entry can be removed.
-        entry = shared_ptr<NodeEntry>(const_cast<NodeEntry*>(cacheEntry.get()),
-                                      [cache = const_cast<NodeCache*>(this), name](NodeEntry* e)
-                                      {
-                                          lock_guard cacheLock(cache->_mutex);
-                                          if (--e->_selfRemovingRefCount == 0)
-                                          {
-                                              cache->removeImpl(name);
-                                          }
-                                      });
+        entry = shared_ptr<NodeEntry>(
+            const_cast<NodeEntry*>(cacheEntry.get()),
+            [cache = const_cast<NodeCache*>(this), name](NodeEntry* e)
+            {
+                lock_guard cacheLock(cache->_mutex);
+                if (--e->_selfRemovingRefCount == 0)
+                {
+                    cache->removeImpl(name);
+                }
+            });
         cacheEntry->_selfRemovingRefCount++;
         cacheEntry->_selfRemovingPtr = entry;
     }
@@ -309,11 +311,12 @@ NodeEntry::canRemove()
 }
 
 void
-NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry,
-                      const ServerInfo& server,
-                      const shared_ptr<SessionI>& session,
-                      chrono::seconds timeout,
-                      bool noRestart)
+NodeEntry::loadServer(
+    const shared_ptr<ServerEntry>& entry,
+    const ServerInfo& server,
+    const shared_ptr<SessionI>& session,
+    chrono::seconds timeout,
+    bool noRestart)
 {
     try
     {
@@ -379,8 +382,9 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry,
             // Add the node session timeout on the proxies to ensure the
             // timeout is large enough.
             //
-            entry->loadCallback(std::move(serverPrx), std::move(adapters), chrono::seconds(at) + sessionTimeout,
-                                chrono::seconds(dt) + sessionTimeout);
+            entry->loadCallback(
+                std::move(serverPrx), std::move(adapters), chrono::seconds(at) + sessionTimeout,
+                chrono::seconds(dt) + sessionTimeout);
         };
 
         auto exception = [traceLevels = _cache.getTraceLevels(), entry, name = _name](auto exptr)
@@ -415,8 +419,8 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry,
 
         if (noRestart)
         {
-            node->loadServerWithoutRestartAsync(desc, _cache.getReplicaName(), std::move(response),
-                                                std::move(exception));
+            node->loadServerWithoutRestartAsync(
+                desc, _cache.getReplicaName(), std::move(response), std::move(exception));
         }
         else
         {
@@ -430,10 +434,11 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry,
 }
 
 void
-NodeEntry::destroyServer(const shared_ptr<ServerEntry>& entry,
-                         const ServerInfo& info,
-                         chrono::seconds timeout,
-                         bool noRestart)
+NodeEntry::destroyServer(
+    const shared_ptr<ServerEntry>& entry,
+    const ServerInfo& info,
+    chrono::seconds timeout,
+    bool noRestart)
 {
     try
     {
@@ -503,13 +508,15 @@ NodeEntry::destroyServer(const shared_ptr<ServerEntry>& entry,
 
         if (noRestart)
         {
-            node->destroyServerWithoutRestartAsync(info.descriptor->id, info.uuid, info.revision,
-                                                   _cache.getReplicaName(), std::move(response), std::move(exception));
+            node->destroyServerWithoutRestartAsync(
+                info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(), std::move(response),
+                std::move(exception));
         }
         else
         {
-            node->destroyServerAsync(info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(),
-                                     std::move(response), std::move(exception));
+            node->destroyServerAsync(
+                info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(), std::move(response),
+                std::move(exception));
         }
     }
     catch (const NodeUnreachableException&)
@@ -724,8 +731,8 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     server->services = Ice::StringSeq();
     if (!info.descriptor->distrib.icepatch.empty())
     {
-        server->distrib = make_shared<InternalDistributionDescriptor>(info.descriptor->distrib.icepatch,
-                                                                      info.descriptor->distrib.directories);
+        server->distrib = make_shared<InternalDistributionDescriptor>(
+            info.descriptor->distrib.icepatch, info.descriptor->distrib.directories);
     }
     server->options = info.descriptor->options;
     server->envs = info.descriptor->envs;

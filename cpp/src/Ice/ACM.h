@@ -39,9 +39,10 @@ namespace IceInternal
         virtual void remove(const Ice::ConnectionIPtr&) = 0;
         virtual void reap(const Ice::ConnectionIPtr&) = 0;
 
-        virtual ACMMonitorPtr acm(const std::optional<int>&,
-                                  const std::optional<Ice::ACMClose>&,
-                                  const std::optional<Ice::ACMHeartbeat>&) = 0;
+        virtual ACMMonitorPtr
+        acm(const std::optional<int>&,
+            const std::optional<Ice::ACMClose>&,
+            const std::optional<Ice::ACMHeartbeat>&) = 0;
         virtual Ice::ACM getACM() = 0;
     };
 

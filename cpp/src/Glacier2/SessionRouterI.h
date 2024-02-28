@@ -63,11 +63,12 @@ namespace Glacier2
                                  public std::enable_shared_from_this<SessionRouterI>
     {
     public:
-        SessionRouterI(std::shared_ptr<Instance>,
-                       PermissionsVerifierPrxPtr,
-                       SessionManagerPrxPtr,
-                       SSLPermissionsVerifierPrxPtr,
-                       SSLSessionManagerPrxPtr);
+        SessionRouterI(
+            std::shared_ptr<Instance>,
+            PermissionsVerifierPrxPtr,
+            SessionManagerPrxPtr,
+            SSLPermissionsVerifierPrxPtr,
+            SSLSessionManagerPrxPtr);
         ~SessionRouterI() override;
         void destroy();
 
@@ -75,17 +76,18 @@ namespace Glacier2
         Ice::ObjectPrxPtr getServerProxy(const Ice::Current&) const override;
         Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override;
         std::string getCategoryForClient(const Ice::Current&) const override;
-        void createSessionAsync(std::string,
-                                std::string,
-                                std::function<void(const SessionPrxPtr&)>,
-                                std::function<void(std::exception_ptr)>,
-                                const ::Ice::Current&) override;
-        void createSessionFromSecureConnectionAsync(std::function<void(const SessionPrxPtr&)>,
-                                                    std::function<void(std::exception_ptr)>,
-                                                    const ::Ice::Current&) override;
-        void refreshSessionAsync(std::function<void()>,
-                                 std::function<void(std::exception_ptr)>,
-                                 const ::Ice::Current&) override;
+        void createSessionAsync(
+            std::string,
+            std::string,
+            std::function<void(const SessionPrxPtr&)>,
+            std::function<void(std::exception_ptr)>,
+            const ::Ice::Current&) override;
+        void createSessionFromSecureConnectionAsync(
+            std::function<void(const SessionPrxPtr&)>,
+            std::function<void(std::exception_ptr)>,
+            const ::Ice::Current&) override;
+        void refreshSessionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const ::Ice::Current&)
+            override;
         void destroySession(const ::Ice::Current&) override;
         std::int64_t getSessionTimeout(const ::Ice::Current&) const override;
         int getACMTimeout(const ::Ice::Current&) const override;
@@ -95,8 +97,8 @@ namespace Glacier2
         std::shared_ptr<RouterI>
         getRouter(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&, bool = true) const;
 
-        std::shared_ptr<Ice::Object> getClientBlobject(const std::shared_ptr<Ice::Connection>&,
-                                                       const Ice::Identity&) const;
+        std::shared_ptr<Ice::Object>
+        getClientBlobject(const std::shared_ptr<Ice::Connection>&, const Ice::Identity&) const;
         std::shared_ptr<Ice::Object> getServerBlobject(const std::string&) const;
 
         void refreshSession(const std::shared_ptr<Ice::Connection>&);

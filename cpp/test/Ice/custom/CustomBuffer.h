@@ -14,7 +14,7 @@
 namespace Test
 {
 
-    template <typename T> class CustomBuffer
+    template<typename T> class CustomBuffer
     {
     public:
         CustomBuffer() : _buf(0), _count(0) {}
@@ -78,7 +78,7 @@ namespace Test
         size_t _count;
     };
 
-    template <typename T> bool operator!=(const CustomBuffer<T>& lhs, const CustomBuffer<T>& rhs)
+    template<typename T> bool operator!=(const CustomBuffer<T>& lhs, const CustomBuffer<T>& rhs)
     {
         if (lhs.count() != rhs.count())
         {
@@ -95,12 +95,12 @@ namespace Test
         return false;
     }
 
-    template <typename T> bool operator==(const CustomBuffer<T>& lhs, const CustomBuffer<T>& rhs)
+    template<typename T> bool operator==(const CustomBuffer<T>& lhs, const CustomBuffer<T>& rhs)
     {
         return !operator!=(lhs, rhs);
     }
 
-    template <typename T> bool operator<(const CustomBuffer<T>& lhs, const CustomBuffer<T>& rhs)
+    template<typename T> bool operator<(const CustomBuffer<T>& lhs, const CustomBuffer<T>& rhs)
     {
         if (lhs.count() < rhs.count())
         {
@@ -126,21 +126,21 @@ namespace Test
 namespace Ice
 {
 
-    template <typename T> struct StreamableTraits<::Test::CustomBuffer<T>>
+    template<typename T> struct StreamableTraits<::Test::CustomBuffer<T>>
     {
         static const StreamHelperCategory helper = StreamHelperCategorySequence;
         static const int minWireSize = 1;
         static const bool fixedLength = false;
     };
 
-    template <typename T> struct StreamHelper<::Test::CustomBuffer<T>, StreamHelperCategorySequence>
+    template<typename T> struct StreamHelper<::Test::CustomBuffer<T>, StreamHelperCategorySequence>
     {
-        template <class S> static inline void write(S* stream, const ::Test::CustomBuffer<T>& v)
+        template<class S> static inline void write(S* stream, const ::Test::CustomBuffer<T>& v)
         {
             stream->write(v.get(), v.get() + v.count());
         }
 
-        template <class S> static inline void read(S* stream, ::Test::CustomBuffer<T>& v)
+        template<class S> static inline void read(S* stream, ::Test::CustomBuffer<T>& v)
         {
             std::pair<const T*, const T*> a;
             stream->read(a);

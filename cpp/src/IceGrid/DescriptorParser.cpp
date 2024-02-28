@@ -550,8 +550,8 @@ namespace
                     }
                     else if (_currentServerInstance.get())
                     {
-                        _currentServerInstance->addPropertySet(_currentPropertySet->getService(),
-                                                               _currentPropertySet->getDescriptor());
+                        _currentServerInstance->addPropertySet(
+                            _currentPropertySet->getService(), _currentPropertySet->getDescriptor());
                     }
                     else if (_currentCommunicator)
                     {
@@ -559,13 +559,13 @@ namespace
                     }
                     else if (_currentNode.get())
                     {
-                        _currentNode->addPropertySet(_currentPropertySet->getId(),
-                                                     _currentPropertySet->getDescriptor());
+                        _currentNode->addPropertySet(
+                            _currentPropertySet->getId(), _currentPropertySet->getDescriptor());
                     }
                     else if (_currentApplication.get())
                     {
-                        _currentApplication->addPropertySet(_currentPropertySet->getId(),
-                                                            _currentPropertySet->getDescriptor());
+                        _currentApplication->addPropertySet(
+                            _currentPropertySet->getId(), _currentPropertySet->getDescriptor());
                     }
                     else
                     {
@@ -806,11 +806,12 @@ namespace
 }
 
 ApplicationDescriptor
-DescriptorParser::parseDescriptor(const string& descriptor,
-                                  const Ice::StringSeq& targets,
-                                  const map<string, string>& variables,
-                                  const shared_ptr<Ice::Communicator>& communicator,
-                                  const IceGrid::AdminPrxPtr& admin)
+DescriptorParser::parseDescriptor(
+    const string& descriptor,
+    const Ice::StringSeq& targets,
+    const map<string, string>& variables,
+    const shared_ptr<Ice::Communicator>& communicator,
+    const IceGrid::AdminPrxPtr& admin)
 {
     string filename = IcePatch2Internal::simplify(descriptor);
     DescriptorHandler handler(filename, communicator);

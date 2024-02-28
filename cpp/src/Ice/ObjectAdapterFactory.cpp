@@ -39,8 +39,8 @@ IceInternal::ObjectAdapterFactory::shutdown()
     }
 
     // Deactivate outside the thread synchronization, to avoid deadlocks.
-    for_each(adapters.begin(), adapters.end(),
-             [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->deactivate(); });
+    for_each(
+        adapters.begin(), adapters.end(), [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->deactivate(); });
 }
 
 void
@@ -59,8 +59,9 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     }
 
     // Now we wait for deactivation of each object adapter.
-    for_each(adapters.begin(), adapters.end(),
-             [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->waitForDeactivate(); });
+    for_each(
+        adapters.begin(), adapters.end(),
+        [](const shared_ptr<ObjectAdapterI>& adapter) { adapter->waitForDeactivate(); });
 }
 
 bool
@@ -104,8 +105,8 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
         adapters = _adapters;
     }
 
-    for_each(adapters.begin(), adapters.end(),
-             [fn](const shared_ptr<ObjectAdapterI>& adapter) { (adapter.get()->*fn)(); });
+    for_each(
+        adapters.begin(), adapters.end(), [fn](const shared_ptr<ObjectAdapterI>& adapter) { (adapter.get()->*fn)(); });
 }
 
 ObjectAdapterPtr
@@ -229,8 +230,9 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
 }
 
 void
-IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync,
-                                                           CompressBatch compressBatch) const
+IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(
+    const CommunicatorFlushBatchAsyncPtr& outAsync,
+    CompressBatch compressBatch) const
 {
     list<shared_ptr<ObjectAdapterI>> adapters;
     {
@@ -245,8 +247,9 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(const CommunicatorFlu
     }
 }
 
-IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
-                                                        const CommunicatorPtr& communicator)
+IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(
+    const InstancePtr& instance,
+    const CommunicatorPtr& communicator)
     : _instance(instance),
       _communicator(communicator)
 {

@@ -44,9 +44,10 @@ namespace IceInternal
 
         const std::string& connectionId() const override;
         EndpointIPtr connectionId(const ::std::string&) const override;
-        void connectorsAsync(Ice::EndpointSelectionType,
-                             std::function<void(std::vector<ConnectorPtr>)>,
-                             std::function<void(std::exception_ptr)>) const override;
+        void connectorsAsync(
+            Ice::EndpointSelectionType,
+            std::function<void(std::vector<ConnectorPtr>)>,
+            std::function<void(std::exception_ptr)>) const override;
         std::vector<EndpointIPtr> expandIfWildcard() const override;
         std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const override;
         bool equivalent(const EndpointIPtr&) const override;
@@ -94,12 +95,13 @@ namespace IceInternal
     public:
         EndpointHostResolver(const InstancePtr&);
 
-        void resolve(const std::string&,
-                     int,
-                     Ice::EndpointSelectionType,
-                     const IPEndpointIPtr&,
-                     std::function<void(std::vector<ConnectorPtr>)>,
-                     std::function<void(std::exception_ptr)>);
+        void resolve(
+            const std::string&,
+            int,
+            Ice::EndpointSelectionType,
+            const IPEndpointIPtr&,
+            std::function<void(std::vector<ConnectorPtr>)>,
+            std::function<void(std::exception_ptr)>);
         void destroy();
 
         void run();

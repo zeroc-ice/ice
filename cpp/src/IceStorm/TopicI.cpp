@@ -39,9 +39,8 @@ namespace
         {
         }
 
-        bool ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                        Ice::ByteSeq&,
-                        const Ice::Current& current) override
+        bool ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inParams, Ice::ByteSeq&, const Ice::Current& current)
+            override
         {
             // The publish call does a cached read.
             EventData event = {current.operation, current.mode, Ice::ByteSeq(), current.ctx};
@@ -320,10 +319,11 @@ namespace
 }
 
 shared_ptr<TopicImpl>
-TopicImpl::create(shared_ptr<PersistentInstance> instance,
-                  const string& name,
-                  const Ice::Identity& id,
-                  const SubscriberRecordSeq& subscribers)
+TopicImpl::create(
+    shared_ptr<PersistentInstance> instance,
+    const string& name,
+    const Ice::Identity& id,
+    const SubscriberRecordSeq& subscribers)
 {
     shared_ptr<TopicImpl> topicImpl(new TopicImpl(instance, name, id, subscribers));
 
@@ -363,10 +363,11 @@ TopicImpl::create(shared_ptr<PersistentInstance> instance,
     return topicImpl;
 }
 
-TopicImpl::TopicImpl(shared_ptr<PersistentInstance> instance,
-                     const string& name,
-                     const Ice::Identity& id,
-                     const SubscriberRecordSeq& subscribers)
+TopicImpl::TopicImpl(
+    shared_ptr<PersistentInstance> instance,
+    const string& name,
+    const Ice::Identity& id,
+    const SubscriberRecordSeq& subscribers)
     : _instance(std::move(instance)),
       _name(name),
       _id(id),
@@ -974,24 +975,25 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
     // call ice_exception) which calls recover() on the node which
     // would result in a deadlock since the node is locked.
 
-    masterInternal->reapAsync(reap, nullptr,
-                              [instance = _instance, generation](exception_ptr ex)
-                              {
-                                  auto traceLevels = instance->traceLevels();
-                                  if (traceLevels->topic > 0)
-                                  {
-                                      try
-                                      {
-                                          rethrow_exception(ex);
-                                      }
-                                      catch (const std::exception& e)
-                                      {
-                                          Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-                                          out << "exception when calling `reap' on the master replica: " << e;
-                                      }
-                                  }
-                                  instance->node()->recovery(generation);
-                              });
+    masterInternal->reapAsync(
+        reap, nullptr,
+        [instance = _instance, generation](exception_ptr ex)
+        {
+            auto traceLevels = instance->traceLevels();
+            if (traceLevels->topic > 0)
+            {
+                try
+                {
+                    rethrow_exception(ex);
+                }
+                catch (const std::exception& e)
+                {
+                    Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
+                    out << "exception when calling `reap' on the master replica: " << e;
+                }
+            }
+            instance->node()->recovery(generation);
+        });
 }
 
 void

@@ -19,19 +19,32 @@ class ServerLocatorRegistry final : public LocatorRegistry
 {
 public:
     void setAdapterDirectProxyAsync(
-        string, ObjectPrxPtr, function<void()> response, function<void(exception_ptr)>, const Current&) override
+        string,
+        ObjectPrxPtr,
+        function<void()> response,
+        function<void(exception_ptr)>,
+        const Current&) override
     {
         response();
     }
 
     void setReplicatedAdapterDirectProxyAsync(
-        string, string, ObjectPrxPtr, function<void()> response, function<void(exception_ptr)>, const Current&) override
+        string,
+        string,
+        ObjectPrxPtr,
+        function<void()> response,
+        function<void(exception_ptr)>,
+        const Current&) override
     {
         response();
     }
 
     void setServerProcessProxyAsync(
-        string, ProcessPrxPtr, function<void()> response, function<void(exception_ptr)>, const Current&) override
+        string,
+        ProcessPrxPtr,
+        function<void()> response,
+        function<void(exception_ptr)>,
+        const Current&) override
     {
         response();
     }
@@ -48,18 +61,20 @@ public:
     {
     }
 
-    void findObjectByIdAsync(Identity id,
-                             function<void(const ObjectPrxPtr&)> response,
-                             function<void(exception_ptr)>,
-                             const Current&) const override
+    void findObjectByIdAsync(
+        Identity id,
+        function<void(const ObjectPrxPtr&)> response,
+        function<void(exception_ptr)>,
+        const Current&) const override
     {
         response(_adapter->createProxy(id));
     }
 
-    void findAdapterByIdAsync(string,
-                              function<void(const ObjectPrxPtr&)> response,
-                              function<void(exception_ptr)>,
-                              const Current&) const override
+    void findAdapterByIdAsync(
+        string,
+        function<void(const ObjectPrxPtr&)> response,
+        function<void(exception_ptr)>,
+        const Current&) const override
     {
         response(_adapter->createDirectProxy(stringToIdentity("dummy")));
     }

@@ -17,10 +17,11 @@ namespace IceGrid
     public:
         RegistryServerAdminRouter(const std::shared_ptr<Database>&);
 
-        void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
-                             std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
-                             std::function<void(std::exception_ptr)>,
-                             const Ice::Current& current) override;
+        void ice_invokeAsync(
+            std::pair<const Ice::Byte*, const Ice::Byte*>,
+            std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current& current) override;
 
     private:
         const std::shared_ptr<Database> _database;
@@ -31,10 +32,11 @@ namespace IceGrid
     public:
         RegistryNodeAdminRouter(const std::string&, const std::shared_ptr<Database>&);
 
-        void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
-                             std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
-                             std::function<void(std::exception_ptr)>,
-                             const Ice::Current& current) override;
+        void ice_invokeAsync(
+            std::pair<const Ice::Byte*, const Ice::Byte*>,
+            std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current& current) override;
 
     private:
         const std::string _collocNodeName;
@@ -46,10 +48,11 @@ namespace IceGrid
     public:
         RegistryReplicaAdminRouter(const std::string&, const std::shared_ptr<Database>&);
 
-        void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
-                             std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
-                             std::function<void(std::exception_ptr)>,
-                             const Ice::Current& current) override;
+        void ice_invokeAsync(
+            std::pair<const Ice::Byte*, const Ice::Byte*>,
+            std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current& current) override;
 
     private:
         const std::string _name;

@@ -534,8 +534,8 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
                     _childObserver.failed(ex.ice_id());
                     _childObserver.detach();
                 }
-                int interval = _proxy._getRequestHandlerCache()->handleException(current_exception(), _handler, _mode,
-                                                                                 _sent, _cnt);
+                int interval = _proxy._getRequestHandlerCache()->handleException(
+                    current_exception(), _handler, _mode, _sent, _cnt);
 
                 if (interval > 0)
                 {
@@ -889,11 +889,12 @@ OutgoingAsync::invoke(const string& operation)
 }
 
 void
-OutgoingAsync::invoke(const string& operation,
-                      Ice::OperationMode mode,
-                      Ice::FormatType format,
-                      const Ice::Context& context,
-                      function<void(Ice::OutputStream*)> write)
+OutgoingAsync::invoke(
+    const string& operation,
+    Ice::OperationMode mode,
+    Ice::FormatType format,
+    const Ice::Context& context,
+    function<void(Ice::OutputStream*)> write)
 {
     try
     {

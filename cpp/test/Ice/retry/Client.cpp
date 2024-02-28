@@ -46,8 +46,8 @@ Client::run(int argc, char** argv)
     Ice::CommunicatorHolder ich2 = Ice::initialize(initData);
 
     RetryPrxPtr allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
-    RetryPrxPtr retry = allTests(ich1.communicator(), ich2.communicator(),
-                                 "retry:" + TestHelper::getTestEndpoint(ich1->getProperties()));
+    RetryPrxPtr retry = allTests(
+        ich1.communicator(), ich2.communicator(), "retry:" + TestHelper::getTestEndpoint(ich1->getProperties()));
     retry->shutdown();
 }
 

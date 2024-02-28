@@ -81,7 +81,7 @@ namespace IceInternal
     // opening / closing iconv_t objects all the time.
     //
     //
-    template <typename charT> class IconvStringConverter : public IceUtil::BasicStringConverter<charT>
+    template<typename charT> class IconvStringConverter : public IceUtil::BasicStringConverter<charT>
     {
     public:
         IconvStringConverter(const std::string&);
@@ -145,7 +145,7 @@ namespace IceInternal
     // Implementation
     //
 
-    template <typename charT>
+    template<typename charT>
     IconvStringConverter<charT>::IconvStringConverter(const std::string& internalCode) : _internalCode(internalCode)
     {
         //
@@ -161,13 +161,13 @@ namespace IceInternal
         }
     }
 
-    template <typename charT> std::pair<iconv_t, iconv_t> IconvStringConverter<charT>::getDescriptors() const
+    template<typename charT> std::pair<iconv_t, iconv_t> IconvStringConverter<charT>::getDescriptors() const
     {
         static const thread_local DescriptorHolder descriptorHolder(_internalCode);
         return descriptorHolder.descriptor;
     }
 
-    template <typename charT>
+    template<typename charT>
     Ice::Byte*
     IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourceEnd, Ice::UTF8Buffer& buf) const
     {
@@ -204,16 +204,17 @@ namespace IceInternal
 
         if (count == size_t(-1))
         {
-            throw Ice::IllegalConversionException(__FILE__, __LINE__,
-                                                  errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
+            throw Ice::IllegalConversionException(
+                __FILE__, __LINE__, errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
         }
         return reinterpret_cast<Ice::Byte*>(outbuf);
     }
 
-    template <typename charT>
-    void IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart,
-                                               const Ice::Byte* sourceEnd,
-                                               std::basic_string<charT>& target) const
+    template<typename charT>
+    void IconvStringConverter<charT>::fromUTF8(
+        const Ice::Byte* sourceStart,
+        const Ice::Byte* sourceEnd,
+        std::basic_string<charT>& target) const
     {
         iconv_t cd = getDescriptors().first;
 
@@ -261,8 +262,8 @@ namespace IceInternal
 
         if (count == size_t(-1))
         {
-            throw Ice::IllegalConversionException(__FILE__, __LINE__,
-                                                  errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
+            throw Ice::IllegalConversionException(
+                __FILE__, __LINE__, errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
         }
 
         target.resize(target.size() - (outbytesleft / sizeof(charT)));
@@ -278,7 +279,7 @@ namespace Ice
      * @return The converter object.
      * @throws IconvInitializationException If the code is not supported.
      */
-    template <typename charT>
+    template<typename charT>
     std::shared_ptr<IceUtil::BasicStringConverter<charT>>
     createIconvStringConverter(const std::string& internalCodeWithDefault = "")
     {

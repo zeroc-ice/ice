@@ -109,12 +109,13 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) < 0;
 }
 
-IceInternal::TcpConnector::TcpConnector(const ProtocolInstancePtr& instance,
-                                        const Address& addr,
-                                        const NetworkProxyPtr& proxy,
-                                        const Address& sourceAddr,
-                                        int32_t timeout,
-                                        const string& connectionId)
+IceInternal::TcpConnector::TcpConnector(
+    const ProtocolInstancePtr& instance,
+    const Address& addr,
+    const NetworkProxyPtr& proxy,
+    const Address& sourceAddr,
+    int32_t timeout,
+    const string& connectionId)
     : _instance(instance),
       _addr(addr),
       _proxy(proxy),

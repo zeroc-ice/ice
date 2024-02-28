@@ -143,10 +143,11 @@ namespace
     //
     // Filter out messages from in/out logMessages list
     //
-    void filterLogMessages(LogMessageSeq& logMessages,
-                           const set<LogMessageType>& messageTypes,
-                           const set<string>& traceCategories,
-                           int32_t messageMax)
+    void filterLogMessages(
+        LogMessageSeq& logMessages,
+        const set<LogMessageType>& messageTypes,
+        const set<string>& traceCategories,
+        int32_t messageMax)
     {
         assert(!logMessages.empty() && messageMax != 0);
 
@@ -268,11 +269,12 @@ namespace
         _oldestTrace = _queue.end();
     }
 
-    void LoggerAdminI::attachRemoteLogger(optional<RemoteLoggerPrx> prx,
-                                          LogMessageTypeSeq messageTypes,
-                                          StringSeq categories,
-                                          int32_t messageMax,
-                                          const Current& current)
+    void LoggerAdminI::attachRemoteLogger(
+        optional<RemoteLoggerPrx> prx,
+        LogMessageTypeSeq messageTypes,
+        StringSeq categories,
+        int32_t messageMax,
+        const Current& current)
     {
         if (!prx)
         {
@@ -385,11 +387,12 @@ namespace
         return found;
     }
 
-    LogMessageSeq LoggerAdminI::getLog(LogMessageTypeSeq messageTypes,
-                                       StringSeq categories,
-                                       int32_t messageMax,
-                                       string& prefix,
-                                       const Current& current)
+    LogMessageSeq LoggerAdminI::getLog(
+        LogMessageTypeSeq messageTypes,
+        StringSeq categories,
+        int32_t messageMax,
+        string& prefix,
+        const Current& current)
     {
         LogMessageSeq logMessages;
         {
@@ -523,10 +526,11 @@ namespace
         return remoteLoggers;
     }
 
-    void LoggerAdminI::deadRemoteLogger(const RemoteLoggerPrx& remoteLogger,
-                                        const LoggerPtr& logger,
-                                        std::exception_ptr ex,
-                                        const string& operation)
+    void LoggerAdminI::deadRemoteLogger(
+        const RemoteLoggerPrx& remoteLogger,
+        const LoggerPtr& logger,
+        std::exception_ptr ex,
+        const string& operation)
     {
         //
         // No need to convert remoteLogger as we only use its identity

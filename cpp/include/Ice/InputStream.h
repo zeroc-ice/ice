@@ -26,7 +26,7 @@ namespace Ice
     class UserException;
 
     /// \cond INTERNAL
-    template <typename T> inline void patchValue(void* addr, const std::shared_ptr<Value>& v)
+    template<typename T> inline void patchValue(void* addr, const std::shared_ptr<Value>& v)
     {
         std::shared_ptr<T>* ptr = static_cast<::std::shared_ptr<T>*>(addr);
         *ptr = ::std::dynamic_pointer_cast<T>(v);
@@ -153,9 +153,10 @@ namespace Ice
          * @param version The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
-        InputStream(const CommunicatorPtr& communicator,
-                    const EncodingVersion& version,
-                    const std::vector<Byte>& bytes);
+        InputStream(
+            const CommunicatorPtr& communicator,
+            const EncodingVersion& version,
+            const std::vector<Byte>& bytes);
 
         /**
          * Constructs a stream using the given communicator and encoding version.
@@ -163,9 +164,10 @@ namespace Ice
          * @param version The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
-        InputStream(const CommunicatorPtr& communicator,
-                    const EncodingVersion& version,
-                    const std::pair<const Byte*, const Byte*>& bytes);
+        InputStream(
+            const CommunicatorPtr& communicator,
+            const EncodingVersion& version,
+            const std::pair<const Byte*, const Byte*>& bytes);
 
         /// \cond INTERNAL
         InputStream(const CommunicatorPtr&, const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -621,18 +623,19 @@ namespace Ice
          * Reads a data value from the stream.
          * @param v Holds the extracted data.
          */
-        template <typename T> void read(T& v) { StreamHelper<T, StreamableTraits<T>::helper>::read(this, v); }
+        template<typename T> void read(T& v) { StreamHelper<T, StreamableTraits<T>::helper>::read(this, v); }
 
         /**
          * Reads an optional data value from the stream. For all types except proxies.
          * @param tag The tag ID.
          * @param v Holds the extracted data (if any).
          */
-        template <typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
         void read(std::int32_t tag, std::optional<T>& v)
         {
-            if (readOptional(tag, StreamOptionalHelper<T, StreamableTraits<T>::helper,
-                                                       StreamableTraits<T>::fixedLength>::optionalFormat))
+            if (readOptional(
+                    tag, StreamOptionalHelper<
+                             T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::optionalFormat))
             {
                 v.emplace();
                 StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::read(this, *v);
@@ -650,7 +653,7 @@ namespace Ice
          * was set to nullopt (set to nullopt is supported for backward compatibility with Ice 3.7 and earlier
          * releases).
          */
-        template <typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
         void read(std::int32_t tag, std::optional<T>& v)
         {
             if (readOptional(tag, OptionalFormat::FSize))
@@ -668,7 +671,7 @@ namespace Ice
          * Extracts a sequence of data values from the stream.
          * @param v A pair of pointers representing the beginning and end of the sequence elements.
          */
-        template <typename T> void read(std::pair<const T*, const T*>& v)
+        template<typename T> void read(std::pair<const T*, const T*>& v)
         {
             auto holder = new std::vector<T>;
             _deleters.push_back([holder] { delete holder; });
@@ -688,12 +691,12 @@ namespace Ice
         /**
          * Reads a list of mandatory data values.
          */
-        template <typename T> void readAll(T& v) { read(v); }
+        template<typename T> void readAll(T& v) { read(v); }
 
         /**
          * Reads a list of mandatory data values.
          */
-        template <typename T, typename... Te> void readAll(T& v, Te&... ve)
+        template<typename T, typename... Te> void readAll(T& v, Te&... ve)
         {
             read(v);
             readAll(ve...);
@@ -702,7 +705,7 @@ namespace Ice
         /**
          * Reads a list of optional data values.
          */
-        template <typename T> void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v)
+        template<typename T> void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v)
         {
             read(*(tags.begin() + tags.size() - 1), v);
         }
@@ -710,7 +713,7 @@ namespace Ice
         /**
          * Reads a list of optional data values.
          */
-        template <typename T, typename... Te>
+        template<typename T, typename... Te>
         void readAll(std::initializer_list<std::int32_t> tags, std::optional<T>& v, std::optional<Te>&... ve)
         {
             size_t index = tags.size() - sizeof...(ve) - 1;
@@ -944,7 +947,7 @@ namespace Ice
          * Reads a typed proxy from the stream.
          * @param v The proxy as a user-defined type.
          */
-        template <typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
         void read(std::optional<Prx>& v)
         {
             IceInternal::ReferencePtr ref = readReference();
@@ -962,7 +965,7 @@ namespace Ice
          * Reads a value (instance of a Slice class) from the stream (New mapping).
          * @param v The instance.
          */
-        template <typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
+        template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
         void read(::std::shared_ptr<T>& v)
         {
             read(patchValue<T>, &v);
@@ -1114,11 +1117,12 @@ namespace Ice
             virtual void readPendingValues() {}
 
         protected:
-            EncapsDecoder(InputStream* stream,
-                          Encaps* encaps,
-                          bool sliceValues,
-                          size_t classGraphDepthMax,
-                          const Ice::ValueFactoryManagerPtr& f)
+            EncapsDecoder(
+                InputStream* stream,
+                Encaps* encaps,
+                bool sliceValues,
+                size_t classGraphDepthMax,
+                const Ice::ValueFactoryManagerPtr& f)
                 : _stream(stream),
                   _encaps(encaps),
                   _sliceValues(sliceValues),
@@ -1168,11 +1172,12 @@ namespace Ice
         class ICE_API EncapsDecoder10 : public EncapsDecoder
         {
         public:
-            EncapsDecoder10(InputStream* stream,
-                            Encaps* encaps,
-                            bool sliceValues,
-                            size_t classGraphDepthMax,
-                            const Ice::ValueFactoryManagerPtr& f)
+            EncapsDecoder10(
+                InputStream* stream,
+                Encaps* encaps,
+                bool sliceValues,
+                size_t classGraphDepthMax,
+                const Ice::ValueFactoryManagerPtr& f)
                 : EncapsDecoder(stream, encaps, sliceValues, classGraphDepthMax, f),
                   _sliceType(NoSlice)
             {
@@ -1204,11 +1209,12 @@ namespace Ice
         class ICE_API EncapsDecoder11 : public EncapsDecoder
         {
         public:
-            EncapsDecoder11(InputStream* stream,
-                            Encaps* encaps,
-                            bool sliceValues,
-                            size_t classGraphDepthMax,
-                            const Ice::ValueFactoryManagerPtr& f)
+            EncapsDecoder11(
+                InputStream* stream,
+                Encaps* encaps,
+                bool sliceValues,
+                size_t classGraphDepthMax,
+                const Ice::ValueFactoryManagerPtr& f)
                 : EncapsDecoder(stream, encaps, sliceValues, classGraphDepthMax, f),
                   _preAllocatedInstanceData(0),
                   _current(0),

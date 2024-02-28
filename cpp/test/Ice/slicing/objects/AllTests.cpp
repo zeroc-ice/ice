@@ -14,7 +14,7 @@ namespace
 
     void breakCycles(Ice::ValuePtr);
 
-    template <typename T> void breakCycles(const vector<shared_ptr<T>>& s)
+    template<typename T> void breakCycles(const vector<shared_ptr<T>>& s)
     {
         for (auto e : s)
         {
@@ -22,7 +22,7 @@ namespace
         }
     }
 
-    template <typename K, typename V> void breakCycles(const map<K, shared_ptr<V>>& d)
+    template<typename K, typename V> void breakCycles(const map<K, shared_ptr<V>>& d)
     {
         for (auto e : d)
         {

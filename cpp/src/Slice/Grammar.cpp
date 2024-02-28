@@ -564,8 +564,9 @@ typedef int yy_state_fast_t;
 #        ifndef YYSTACK_ALLOC_MAXIMUM
 #            define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
 #        endif
-#        if (defined __cplusplus && !defined EXIT_SUCCESS &&                                                           \
-             !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
+#        if (                                                                                                          \
+            defined __cplusplus && !defined EXIT_SUCCESS &&                                                            \
+            !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
 #            include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #            ifndef EXIT_SUCCESS
 #                define EXIT_SUCCESS 0
@@ -586,8 +587,9 @@ void free(void*); /* INFRINGES ON USER NAME SPACE */
 #    endif
 #endif /* !defined yyoverflow */
 
-#if (!defined yyoverflow && (!defined __cplusplus || (defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL &&              \
-                                                      defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
+#if (                                                                                                                  \
+    !defined yyoverflow && (!defined __cplusplus || (defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL &&               \
+                                                     defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
@@ -705,141 +707,142 @@ static const char* yysymbol_name(yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED;
 
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
-static const char* const yytname[] = {"\"end of file\"",
-                                      "error",
-                                      "\"invalid token\"",
-                                      "ICE_MODULE",
-                                      "ICE_CLASS",
-                                      "ICE_INTERFACE",
-                                      "ICE_EXCEPTION",
-                                      "ICE_STRUCT",
-                                      "ICE_SEQUENCE",
-                                      "ICE_DICTIONARY",
-                                      "ICE_ENUM",
-                                      "ICE_OUT",
-                                      "ICE_EXTENDS",
-                                      "ICE_THROWS",
-                                      "ICE_VOID",
-                                      "ICE_BOOL",
-                                      "ICE_BYTE",
-                                      "ICE_SHORT",
-                                      "ICE_INT",
-                                      "ICE_LONG",
-                                      "ICE_FLOAT",
-                                      "ICE_DOUBLE",
-                                      "ICE_STRING",
-                                      "ICE_OBJECT",
-                                      "ICE_CONST",
-                                      "ICE_FALSE",
-                                      "ICE_TRUE",
-                                      "ICE_IDEMPOTENT",
-                                      "ICE_TAG",
-                                      "ICE_OPTIONAL",
-                                      "ICE_VALUE",
-                                      "ICE_STRING_LITERAL",
-                                      "ICE_INTEGER_LITERAL",
-                                      "ICE_FLOATING_POINT_LITERAL",
-                                      "ICE_IDENTIFIER",
-                                      "ICE_SCOPED_IDENTIFIER",
-                                      "ICE_METADATA_OPEN",
-                                      "ICE_METADATA_CLOSE",
-                                      "ICE_GLOBAL_METADATA_OPEN",
-                                      "ICE_GLOBAL_METADATA_IGNORE",
-                                      "ICE_GLOBAL_METADATA_CLOSE",
-                                      "ICE_IDENT_OPEN",
-                                      "ICE_KEYWORD_OPEN",
-                                      "ICE_TAG_OPEN",
-                                      "ICE_OPTIONAL_OPEN",
-                                      "BAD_CHAR",
-                                      "';'",
-                                      "'{'",
-                                      "'}'",
-                                      "')'",
-                                      "':'",
-                                      "'='",
-                                      "','",
-                                      "'<'",
-                                      "'>'",
-                                      "'*'",
-                                      "$accept",
-                                      "start",
-                                      "opt_semicolon",
-                                      "global_meta_data",
-                                      "meta_data",
-                                      "definitions",
-                                      "definition",
-                                      "$@1",
-                                      "$@2",
-                                      "$@3",
-                                      "$@4",
-                                      "$@5",
-                                      "$@6",
-                                      "$@7",
-                                      "$@8",
-                                      "$@9",
-                                      "$@10",
-                                      "$@11",
-                                      "$@12",
-                                      "$@13",
-                                      "module_def",
-                                      "@14",
-                                      "exception_id",
-                                      "exception_decl",
-                                      "exception_def",
-                                      "@15",
-                                      "exception_extends",
-                                      "type_id",
-                                      "tag",
-                                      "optional",
-                                      "tagged_type_id",
-                                      "struct_id",
-                                      "struct_decl",
-                                      "struct_def",
-                                      "@16",
-                                      "class_name",
-                                      "class_id",
-                                      "class_decl",
-                                      "class_def",
-                                      "@17",
-                                      "class_extends",
-                                      "extends",
-                                      "data_members",
-                                      "data_member",
-                                      "return_type",
-                                      "operation_preamble",
-                                      "operation",
-                                      "@18",
-                                      "@19",
-                                      "interface_id",
-                                      "interface_decl",
-                                      "interface_def",
-                                      "@20",
-                                      "interface_list",
-                                      "interface_extends",
-                                      "operations",
-                                      "exception_list",
-                                      "exception",
-                                      "sequence_def",
-                                      "dictionary_def",
-                                      "enum_id",
-                                      "enum_def",
-                                      "@21",
-                                      "@22",
-                                      "enumerator_list",
-                                      "enumerator",
-                                      "enumerator_initializer",
-                                      "out_qualifier",
-                                      "parameters",
-                                      "throws",
-                                      "scoped_name",
-                                      "builtin",
-                                      "type",
-                                      "string_literal",
-                                      "string_list",
-                                      "const_initializer",
-                                      "const_def",
-                                      "keyword",
-                                      YY_NULLPTR};
+static const char* const yytname[] = {
+    "\"end of file\"",
+    "error",
+    "\"invalid token\"",
+    "ICE_MODULE",
+    "ICE_CLASS",
+    "ICE_INTERFACE",
+    "ICE_EXCEPTION",
+    "ICE_STRUCT",
+    "ICE_SEQUENCE",
+    "ICE_DICTIONARY",
+    "ICE_ENUM",
+    "ICE_OUT",
+    "ICE_EXTENDS",
+    "ICE_THROWS",
+    "ICE_VOID",
+    "ICE_BOOL",
+    "ICE_BYTE",
+    "ICE_SHORT",
+    "ICE_INT",
+    "ICE_LONG",
+    "ICE_FLOAT",
+    "ICE_DOUBLE",
+    "ICE_STRING",
+    "ICE_OBJECT",
+    "ICE_CONST",
+    "ICE_FALSE",
+    "ICE_TRUE",
+    "ICE_IDEMPOTENT",
+    "ICE_TAG",
+    "ICE_OPTIONAL",
+    "ICE_VALUE",
+    "ICE_STRING_LITERAL",
+    "ICE_INTEGER_LITERAL",
+    "ICE_FLOATING_POINT_LITERAL",
+    "ICE_IDENTIFIER",
+    "ICE_SCOPED_IDENTIFIER",
+    "ICE_METADATA_OPEN",
+    "ICE_METADATA_CLOSE",
+    "ICE_GLOBAL_METADATA_OPEN",
+    "ICE_GLOBAL_METADATA_IGNORE",
+    "ICE_GLOBAL_METADATA_CLOSE",
+    "ICE_IDENT_OPEN",
+    "ICE_KEYWORD_OPEN",
+    "ICE_TAG_OPEN",
+    "ICE_OPTIONAL_OPEN",
+    "BAD_CHAR",
+    "';'",
+    "'{'",
+    "'}'",
+    "')'",
+    "':'",
+    "'='",
+    "','",
+    "'<'",
+    "'>'",
+    "'*'",
+    "$accept",
+    "start",
+    "opt_semicolon",
+    "global_meta_data",
+    "meta_data",
+    "definitions",
+    "definition",
+    "$@1",
+    "$@2",
+    "$@3",
+    "$@4",
+    "$@5",
+    "$@6",
+    "$@7",
+    "$@8",
+    "$@9",
+    "$@10",
+    "$@11",
+    "$@12",
+    "$@13",
+    "module_def",
+    "@14",
+    "exception_id",
+    "exception_decl",
+    "exception_def",
+    "@15",
+    "exception_extends",
+    "type_id",
+    "tag",
+    "optional",
+    "tagged_type_id",
+    "struct_id",
+    "struct_decl",
+    "struct_def",
+    "@16",
+    "class_name",
+    "class_id",
+    "class_decl",
+    "class_def",
+    "@17",
+    "class_extends",
+    "extends",
+    "data_members",
+    "data_member",
+    "return_type",
+    "operation_preamble",
+    "operation",
+    "@18",
+    "@19",
+    "interface_id",
+    "interface_decl",
+    "interface_def",
+    "@20",
+    "interface_list",
+    "interface_extends",
+    "operations",
+    "exception_list",
+    "exception",
+    "sequence_def",
+    "dictionary_def",
+    "enum_id",
+    "enum_def",
+    "@21",
+    "@22",
+    "enumerator_list",
+    "enumerator",
+    "enumerator_initializer",
+    "out_qualifier",
+    "parameters",
+    "throws",
+    "scoped_name",
+    "builtin",
+    "type",
+    "string_literal",
+    "string_list",
+    "const_initializer",
+    "const_def",
+    "keyword",
+    YY_NULLPTR};
 
 static const char*
 yysymbol_name(yysymbol_kind_t yysymbol)
@@ -1170,10 +1173,11 @@ yy_location_print_(FILE* yyo, YYLTYPE const* const yylocp)
 `-----------------------------------*/
 
 static void
-yy_symbol_value_print(FILE* yyo,
-                      yysymbol_kind_t yykind,
-                      YYSTYPE const* const yyvaluep,
-                      YYLTYPE const* const yylocationp)
+yy_symbol_value_print(
+    FILE* yyo,
+    yysymbol_kind_t yykind,
+    YYSTYPE const* const yyvaluep,
+    YYLTYPE const* const yylocationp)
 {
     FILE* yyoutput = yyo;
     YY_USE(yyoutput);
@@ -1239,8 +1243,9 @@ yy_reduce_print(yy_state_t* yyssp, YYSTYPE* yyvsp, YYLTYPE* yylsp, int yyrule)
     for (yyi = 0; yyi < yynrhs; yyi++)
     {
         YYFPRINTF(stderr, "   $%d = ", yyi + 1);
-        yy_symbol_print(stderr, YY_ACCESSING_SYMBOL(+yyssp[yyi + 1 - yynrhs]), &yyvsp[(yyi + 1) - (yynrhs)],
-                        &(yylsp[(yyi + 1) - (yynrhs)]));
+        yy_symbol_print(
+            stderr, YY_ACCESSING_SYMBOL(+yyssp[yyi + 1 - yynrhs]), &yyvsp[(yyi + 1) - (yynrhs)],
+            &(yylsp[(yyi + 1) - (yynrhs)]));
         YYFPRINTF(stderr, "\n");
     }
 }
@@ -1414,8 +1419,9 @@ yysetstate:
                data in use in that stack, in bytes.  This used to be a
                conditional around just the two extra args, but that might
                be undefined if yyoverflow is a macro.  */
-            yyoverflow(YY_("memory exhausted"), &yyss1, yysize * YYSIZEOF(*yyssp), &yyvs1, yysize * YYSIZEOF(*yyvsp),
-                       &yyls1, yysize * YYSIZEOF(*yylsp), &yystacksize);
+            yyoverflow(
+                YY_("memory exhausted"), &yyss1, yysize * YYSIZEOF(*yyssp), &yyvs1, yysize * YYSIZEOF(*yyvsp), &yyls1,
+                yysize * YYSIZEOF(*yylsp), &yystacksize);
             yyss = yyss1;
             yyvs = yyvs1;
             yyls = yyls1;
@@ -1984,8 +1990,9 @@ yyreduce:
                     // Found
                     cl.push_back(enumerators.front());
                     scoped->v = enumerators.front()->scoped();
-                    currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v +
-                                                         "' without its enumeration's scope is deprecated");
+                    currentUnit->warning(
+                        Deprecated, string("referencing enumerator `") + scoped->v +
+                                        "' without its enumeration's scope is deprecated");
                 }
                 else if (enumerators.size() > 1)
                 {
@@ -2108,8 +2115,9 @@ yyreduce:
                     // Found
                     cl.push_back(enumerators.front());
                     scoped->v = enumerators.front()->scoped();
-                    currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v +
-                                                         "' without its enumeration's scope is deprecated");
+                    currentUnit->warning(
+                        Deprecated, string("referencing enumerator `") + scoped->v +
+                                        "' without its enumeration's scope is deprecated");
                 }
                 else if (enumerators.size() > 1)
                 {
@@ -2365,8 +2373,9 @@ yyreduce:
                     // Found
                     cl.push_back(enumerators.front());
                     scoped->v = enumerators.front()->scoped();
-                    currentUnit->warning(Deprecated, string("referencing enumerator `") + scoped->v +
-                                                         "' without its enumeration's scope is deprecated");
+                    currentUnit->warning(
+                        Deprecated, string("referencing enumerator `") + scoped->v +
+                                        "' without its enumeration's scope is deprecated");
                 }
                 else if (enumerators.size() > 1)
                 {
@@ -2639,8 +2648,9 @@ yyreduce:
             DataMemberPtr dm;
             if (cl)
             {
-                dm = cl->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v, value->valueAsString,
-                                          value->valueAsLiteral);
+                dm = cl->createDataMember(
+                    def->name, def->type, def->isTagged, def->tag, value->v, value->valueAsString,
+                    value->valueAsLiteral);
             }
             auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
             if (st)
@@ -2652,15 +2662,16 @@ yyreduce:
                 }
                 else
                 {
-                    dm = st->createDataMember(def->name, def->type, false, -1, value->v, value->valueAsString,
-                                              value->valueAsLiteral);
+                    dm = st->createDataMember(
+                        def->name, def->type, false, -1, value->v, value->valueAsString, value->valueAsLiteral);
                 }
             }
             auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
             if (ex)
             {
-                dm = ex->createDataMember(def->name, def->type, def->isTagged, def->tag, value->v, value->valueAsString,
-                                          value->valueAsLiteral);
+                dm = ex->createDataMember(
+                    def->name, def->type, def->isTagged, def->tag, value->v, value->valueAsString,
+                    value->valueAsLiteral);
             }
             currentUnit->currentContainer()->checkIntroduced(def->name, dm);
             yyval = dm;
@@ -2795,8 +2806,8 @@ yyreduce:
             auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
             if (interface)
             {
-                OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged,
-                                                             returnType->tag, Operation::Idempotent);
+                OperationPtr op = interface->createOperation(
+                    name, returnType->type, returnType->isTagged, returnType->tag, Operation::Idempotent);
 
                 if (op)
                 {
@@ -2854,8 +2865,8 @@ yyreduce:
             auto interface = dynamic_pointer_cast<InterfaceDef>(currentUnit->currentContainer());
             if (interface)
             {
-                OperationPtr op = interface->createOperation(name, returnType->type, returnType->isTagged,
-                                                             returnType->tag, Operation::Idempotent);
+                OperationPtr op = interface->createOperation(
+                    name, returnType->type, returnType->isTagged, returnType->tag, Operation::Idempotent);
                 if (op)
                 {
                     currentUnit->pushContainer(op);
@@ -3906,8 +3917,8 @@ yyreduce:
             auto const_type = dynamic_pointer_cast<Type>(yyvsp[-3]);
             auto ident = dynamic_pointer_cast<StringTok>(yyvsp[-2]);
             auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
-            yyval = currentUnit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v,
-                                                                 value->valueAsString, value->valueAsLiteral);
+            yyval = currentUnit->currentContainer()->createConst(
+                ident->v, const_type, metaData->v, value->v, value->valueAsString, value->valueAsLiteral);
         }
 #line 4074 "src/Slice/Grammar.cpp"
         break;
@@ -3919,9 +3930,9 @@ yyreduce:
             auto const_type = dynamic_pointer_cast<Type>(yyvsp[-2]);
             auto value = dynamic_pointer_cast<ConstDefTok>(yyvsp[0]);
             currentUnit->error("missing constant name");
-            yyval = currentUnit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v,
-                                                                 value->v, value->valueAsString, value->valueAsLiteral,
-                                                                 Dummy); // Dummy
+            yyval = currentUnit->currentContainer()->createConst(
+                IceUtil::generateUUID(), const_type, metaData->v, value->v, value->valueAsString, value->valueAsLiteral,
+                Dummy); // Dummy
         }
 #line 4087 "src/Slice/Grammar.cpp"
         break;

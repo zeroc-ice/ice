@@ -33,10 +33,11 @@ BlobjectI::flushBatch()
 }
 
 void
-BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
-                           std::function<void(bool, const std::vector<Ice::Byte>&)> response,
-                           std::function<void(std::exception_ptr)> ex,
-                           const Ice::Current& current)
+BlobjectI::ice_invokeAsync(
+    std::vector<Ice::Byte> inEncaps,
+    std::function<void(bool, const std::vector<Ice::Byte>&)> response,
+    std::function<void(std::exception_ptr)> ex,
+    const Ice::Current& current)
 {
     auto connection = getConnection(current);
     const bool twoway = current.requestId > 0;

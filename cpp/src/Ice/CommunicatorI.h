@@ -91,9 +91,10 @@ namespace Ice
 
         virtual void postToClientThreadPool(::std::function<void()> call);
 
-        virtual ::std::function<void()> flushBatchRequestsAsync(CompressBatch,
-                                                                ::std::function<void(::std::exception_ptr)>,
-                                                                ::std::function<void(bool)> = nullptr);
+        virtual ::std::function<void()> flushBatchRequestsAsync(
+            CompressBatch,
+            ::std::function<void(::std::exception_ptr)>,
+            ::std::function<void(bool)> = nullptr);
 
         virtual ObjectPrx createAdmin(const ObjectAdapterPtr&, const Identity&);
         virtual std::optional<ObjectPrx> getAdmin() const;

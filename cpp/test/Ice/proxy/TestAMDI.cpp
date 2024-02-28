@@ -11,10 +11,11 @@ using namespace std;
 MyDerivedClassI::MyDerivedClassI() {}
 
 void
-MyDerivedClassI::echoAsync(Ice::ObjectPrxPtr obj,
-                           function<void(const Ice::ObjectPrxPtr&)> response,
-                           function<void(exception_ptr)>,
-                           const Ice::Current&)
+MyDerivedClassI::echoAsync(
+    Ice::ObjectPrxPtr obj,
+    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     response(obj);
 }
@@ -27,9 +28,10 @@ MyDerivedClassI::shutdownAsync(function<void()> response, function<void(exceptio
 }
 
 void
-MyDerivedClassI::getContextAsync(function<void(const Ice::Context&)> response,
-                                 function<void(exception_ptr)>,
-                                 const Ice::Current&)
+MyDerivedClassI::getContextAsync(
+    function<void(const Ice::Context&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     response(_ctx);
 }

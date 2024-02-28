@@ -127,8 +127,9 @@ IceInternal::RouterInfo::getClientEndpoints()
 }
 
 void
-IceInternal::RouterInfo::getClientEndpointsAsync(std::function<void(vector<EndpointIPtr>)> response,
-                                                 std::function<void(std::exception_ptr)> ex)
+IceInternal::RouterInfo::getClientEndpointsAsync(
+    std::function<void(vector<EndpointIPtr>)> response,
+    std::function<void(std::exception_ptr)> ex)
 {
     vector<EndpointIPtr> clientEndpoints;
     {
@@ -143,9 +144,10 @@ IceInternal::RouterInfo::getClientEndpointsAsync(std::function<void(vector<Endpo
     }
 
     RouterInfoPtr self = shared_from_this();
-    _router->getClientProxyAsync([self, response](const optional<Ice::ObjectPrx>& proxy, optional<bool> hasRoutingTable)
-                                 { response(self->setClientEndpoints(proxy, hasRoutingTable.value_or(true))); },
-                                 ex);
+    _router->getClientProxyAsync(
+        [self, response](const optional<Ice::ObjectPrx>& proxy, optional<bool> hasRoutingTable)
+        { response(self->setClientEndpoints(proxy, hasRoutingTable.value_or(true))); },
+        ex);
 }
 
 vector<EndpointIPtr>
@@ -161,9 +163,10 @@ IceInternal::RouterInfo::getServerEndpoints()
 }
 
 bool
-IceInternal::RouterInfo::addProxyAsync(const ReferencePtr& reference,
-                                       function<void()> response,
-                                       function<void(exception_ptr)> ex)
+IceInternal::RouterInfo::addProxyAsync(
+    const ReferencePtr& reference,
+    function<void()> response,
+    function<void(exception_ptr)> ex)
 {
     assert(reference);
     Identity identity = reference->getIdentity();

@@ -19,19 +19,20 @@ namespace
 {
 
     class LocatorI; // Forward declaration
-    typedef std::pair<function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>,
-                      function<void(exception_ptr)>>
-        AMDCallback;
+    typedef std::
+        pair<function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>, function<void(exception_ptr)>>
+            AMDCallback;
 
     class Request : public std::enable_shared_from_this<Request>
     {
     public:
-        Request(LocatorI* locator,
-                const string& operation,
-                Ice::OperationMode mode,
-                const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                const Ice::Context& ctx,
-                const AMDCallback& amdCB)
+        Request(
+            LocatorI* locator,
+            const string& operation,
+            Ice::OperationMode mode,
+            const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+            const Ice::Context& ctx,
+            const AMDCallback& amdCB)
             : _locator(locator),
               _operation(operation),
               _mode(mode),
@@ -64,13 +65,18 @@ namespace
     {
     public:
         LocatorI(
-            const string&, const LookupPrxPtr&, const Ice::PropertiesPtr&, const string&, const Ice::LocatorPrxPtr&);
+            const string&,
+            const LookupPrxPtr&,
+            const Ice::PropertiesPtr&,
+            const string&,
+            const Ice::LocatorPrxPtr&);
         void setLookupReply(const LookupReplyPrxPtr&);
 
-        virtual void ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*>,
-                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>,
-                                     function<void(exception_ptr)>,
-                                     const Ice::Current&);
+        virtual void ice_invokeAsync(
+            pair<const Ice::Byte*, const Ice::Byte*>,
+            function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>,
+            function<void(exception_ptr)>,
+            const Ice::Current&);
 
         void foundLocator(const Ice::LocatorPrxPtr&);
         void invoke(const Ice::LocatorPrxPtr&, const RequestPtr&);
@@ -124,18 +130,20 @@ namespace
     class VoidLocatorI : public Ice::Locator
     {
     public:
-        virtual void findObjectByIdAsync(::Ice::Identity,
-                                         function<void(const ::Ice::ObjectPrxPtr&)> response,
-                                         function<void(exception_ptr)>,
-                                         const Ice::Current&) const
+        virtual void findObjectByIdAsync(
+            ::Ice::Identity,
+            function<void(const ::Ice::ObjectPrxPtr&)> response,
+            function<void(exception_ptr)>,
+            const Ice::Current&) const
         {
             response(nullopt);
         }
 
-        virtual void findAdapterByIdAsync(string,
-                                          function<void(const ::Ice::ObjectPrxPtr&)> response,
-                                          function<void(exception_ptr)>,
-                                          const Ice::Current&) const
+        virtual void findAdapterByIdAsync(
+            string,
+            function<void(const ::Ice::ObjectPrxPtr&)> response,
+            function<void(exception_ptr)>,
+            const Ice::Current&) const
         {
             response(nullopt);
         }
@@ -379,11 +387,12 @@ Request::exception(std::exception_ptr ex)
     }
 }
 
-LocatorI::LocatorI(const string& name,
-                   const LookupPrxPtr& lookup,
-                   const Ice::PropertiesPtr& p,
-                   const string& instanceName,
-                   const Ice::LocatorPrxPtr& voidLocator)
+LocatorI::LocatorI(
+    const string& name,
+    const LookupPrxPtr& lookup,
+    const Ice::PropertiesPtr& p,
+    const string& instanceName,
+    const Ice::LocatorPrxPtr& voidLocator)
     : _lookup(lookup),
       _timeout(chrono::milliseconds(p->getPropertyAsIntWithDefault(name + ".Timeout", 300))),
       _retryCount(p->getPropertyAsIntWithDefault(name + ".RetryCount", 3)),
@@ -459,13 +468,16 @@ LocatorI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
 }
 
 void
-LocatorI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                          function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> responseCB,
-                          function<void(exception_ptr)> exceptionCB,
-                          const Ice::Current& current)
+LocatorI::ice_invokeAsync(
+    pair<const Ice::Byte*, const Ice::Byte*> inParams,
+    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> responseCB,
+    function<void(exception_ptr)> exceptionCB,
+    const Ice::Current& current)
 {
-    invoke(nullopt, make_shared<Request>(this, current.operation, current.mode, inParams, current.ctx,
-                                         make_pair(std::move(responseCB), std::move(exceptionCB))));
+    invoke(
+        nullopt, make_shared<Request>(
+                     this, current.operation, current.mode, inParams, current.ctx,
+                     make_pair(std::move(responseCB), std::move(exceptionCB))));
 }
 
 vector<Ice::LocatorPrxPtr>
@@ -681,8 +693,8 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
                      l != _lookups.end(); ++l)
                 {
                     auto self = shared_from_this();
-                    l->first->findLocatorAsync(_instanceName, l->second, nullptr,
-                                               [self](exception_ptr ex) { self->exception(ex); });
+                    l->first->findLocatorAsync(
+                        _instanceName, l->second, nullptr, [self](exception_ptr ex) { self->exception(ex); });
                 }
                 _timer->schedule(shared_from_this(), _timeout);
             }
@@ -801,8 +813,8 @@ LocatorI::runTimerTask()
                  l != _lookups.end(); ++l)
             {
                 auto self = shared_from_this();
-                l->first->findLocatorAsync(_instanceName, l->second, nullptr,
-                                           [self](exception_ptr ex) { self->exception(ex); });
+                l->first->findLocatorAsync(
+                    _instanceName, l->second, nullptr, [self](exception_ptr ex) { self->exception(ex); });
             }
             _timer->schedule(shared_from_this(), _timeout);
             return;

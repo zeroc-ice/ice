@@ -88,10 +88,11 @@ IceSSL::AcceptorI::toDetailedString() const
     return _delegate->toDetailedString();
 }
 
-IceSSL::AcceptorI::AcceptorI(const EndpointIPtr& endpoint,
-                             const InstancePtr& instance,
-                             const IceInternal::AcceptorPtr& del,
-                             const string& adapterName)
+IceSSL::AcceptorI::AcceptorI(
+    const EndpointIPtr& endpoint,
+    const InstancePtr& instance,
+    const IceInternal::AcceptorPtr& del,
+    const string& adapterName)
     : _endpoint(endpoint),
       _instance(instance),
       _delegate(del),

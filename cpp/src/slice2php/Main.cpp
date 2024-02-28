@@ -1508,8 +1508,8 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            if (!icecpp->printMakefileDependencies(os, depend ? Preprocessor::PHP : Preprocessor::SliceXML,
-                                                   includePaths, "-D__SLICE2PHP__"))
+            if (!icecpp->printMakefileDependencies(
+                    os, depend ? Preprocessor::PHP : Preprocessor::SliceXML, includePaths, "-D__SLICE2PHP__"))
             {
                 return EXIT_FAILURE;
             }

@@ -5,10 +5,11 @@
 #include <WstringAMDI.h>
 
 void
-Test1::WstringClassI::opStringAsync(std::wstring in,
-                                    std::function<void(std::wstring_view, std::wstring_view)> response,
-                                    std::function<void(std::exception_ptr)>,
-                                    const Ice::Current&)
+Test1::WstringClassI::opStringAsync(
+    std::wstring in,
+    std::function<void(std::wstring_view, std::wstring_view)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     response(in, in);
 }
@@ -24,20 +25,22 @@ Test1::WstringClassI::opStructAsync(
 }
 
 void
-Test1::WstringClassI::throwExceptAsync(std::wstring in,
-                                       std::function<void()>,
-                                       std::function<void(std::exception_ptr)> error,
-                                       const Ice::Current&)
+Test1::WstringClassI::throwExceptAsync(
+    std::wstring in,
+    std::function<void()>,
+    std::function<void(std::exception_ptr)> error,
+    const Ice::Current&)
 {
     Test1::WstringException ex(in);
     error(std::make_exception_ptr(ex));
 }
 
 void
-Test2::WstringClassI::opStringAsync(std::wstring in,
-                                    std::function<void(std::wstring_view, std::wstring_view)> response,
-                                    std::function<void(std::exception_ptr)>,
-                                    const Ice::Current&)
+Test2::WstringClassI::opStringAsync(
+    std::wstring in,
+    std::function<void(std::wstring_view, std::wstring_view)> response,
+    std::function<void(std::exception_ptr)>,
+    const Ice::Current&)
 {
     response(in, in);
 }
@@ -53,10 +56,11 @@ Test2::WstringClassI::opStructAsync(
 }
 
 void
-Test2::WstringClassI::throwExceptAsync(std::wstring in,
-                                       std::function<void()>,
-                                       std::function<void(std::exception_ptr)> error,
-                                       const Ice::Current&)
+Test2::WstringClassI::throwExceptAsync(
+    std::wstring in,
+    std::function<void()>,
+    std::function<void(std::exception_ptr)> error,
+    const Ice::Current&)
 
 {
     Test2::WstringException ex(in);

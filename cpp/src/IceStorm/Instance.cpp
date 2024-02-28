@@ -40,13 +40,14 @@ TopicReaper::consumeReapedTopics()
     return reaped;
 }
 
-Instance::Instance(const string& instanceName,
-                   const string& name,
-                   shared_ptr<Ice::Communicator> communicator,
-                   shared_ptr<Ice::ObjectAdapter> publishAdapter,
-                   shared_ptr<Ice::ObjectAdapter> topicAdapter,
-                   shared_ptr<Ice::ObjectAdapter> nodeAdapter,
-                   NodePrxPtr nodeProxy)
+Instance::Instance(
+    const string& instanceName,
+    const string& name,
+    shared_ptr<Ice::Communicator> communicator,
+    shared_ptr<Ice::ObjectAdapter> publishAdapter,
+    shared_ptr<Ice::ObjectAdapter> topicAdapter,
+    shared_ptr<Ice::ObjectAdapter> nodeAdapter,
+    NodePrxPtr nodeProxy)
     : _instanceName(instanceName),
       _serviceName(name),
       _communicator(std::move(communicator)),
@@ -286,24 +287,27 @@ Instance::destroy()
     _observer = nullptr;
 }
 
-PersistentInstance::PersistentInstance(const string& instanceName,
-                                       const string& name,
-                                       shared_ptr<Ice::Communicator> communicator,
-                                       shared_ptr<Ice::ObjectAdapter> publishAdapter,
-                                       shared_ptr<Ice::ObjectAdapter> topicAdapter,
-                                       shared_ptr<Ice::ObjectAdapter> nodeAdapter,
-                                       NodePrxPtr nodeProxy)
-    : Instance(instanceName,
-               name,
-               communicator,
-               std::move(publishAdapter),
-               std::move(topicAdapter),
-               std::move(nodeAdapter),
-               std::move(nodeProxy)),
+PersistentInstance::PersistentInstance(
+    const string& instanceName,
+    const string& name,
+    shared_ptr<Ice::Communicator> communicator,
+    shared_ptr<Ice::ObjectAdapter> publishAdapter,
+    shared_ptr<Ice::ObjectAdapter> topicAdapter,
+    shared_ptr<Ice::ObjectAdapter> nodeAdapter,
+    NodePrxPtr nodeProxy)
+    : Instance(
+          instanceName,
+          name,
+          communicator,
+          std::move(publishAdapter),
+          std::move(topicAdapter),
+          std::move(nodeAdapter),
+          std::move(nodeProxy)),
       _dbLock(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name) + "/icedb.lock"),
-      _dbEnv(communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name),
-             2,
-             IceDB::getMapSize(communicator->getProperties()->getPropertyAsInt(name + ".LMDB.MapSize")))
+      _dbEnv(
+          communicator->getProperties()->getPropertyWithDefault(name + ".LMDB.Path", name),
+          2,
+          IceDB::getMapSize(communicator->getProperties()->getPropertyAsInt(name + ".LMDB.MapSize")))
 {
     try
     {

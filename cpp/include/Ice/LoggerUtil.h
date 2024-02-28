@@ -35,7 +35,7 @@ namespace Ice
     /// \cond INTERNAL
     ICE_API LoggerOutputBase& loggerInsert(LoggerOutputBase& out, const IceUtil::Exception& ex);
 
-    template <typename T> struct IsException
+    template<typename T> struct IsException
     {
         static char testex(IceUtil::Exception*);
         static long testex(...);
@@ -43,7 +43,7 @@ namespace Ice
         static const bool value = sizeof(testex(static_cast<T*>(0))) == sizeof(char);
     };
 
-    template <typename T, bool = false> struct LoggerOutputInserter
+    template<typename T, bool = false> struct LoggerOutputInserter
     {
         static inline LoggerOutputBase& insert(LoggerOutputBase& out, const T& val)
         {
@@ -53,17 +53,17 @@ namespace Ice
     };
 
     // Partial specialization
-    template <typename T> struct LoggerOutputInserter<T, true>
+    template<typename T> struct LoggerOutputInserter<T, true>
     {
         static inline LoggerOutputBase& insert(LoggerOutputBase& out, const T& ex) { return loggerInsert(out, ex); }
     };
 
-    template <typename T> inline LoggerOutputBase& operator<<(LoggerOutputBase& out, const T& val)
+    template<typename T> inline LoggerOutputBase& operator<<(LoggerOutputBase& out, const T& val)
     {
         return LoggerOutputInserter<T, IsException<T>::value>::insert(out, val);
     }
 
-    template <typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+    template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
     inline LoggerOutputBase& operator<<(LoggerOutputBase& os, const ::std::optional<Prx>& p)
     {
         return os << (p ? p->ice_toString() : "");
@@ -84,7 +84,7 @@ namespace Ice
      * Collects output and flushes it via a logger method.
      * \headerfile Ice/Ice.h
      */
-    template <class L, class LPtr, void (L::*output)(const std::string&)> class LoggerOutput : public LoggerOutputBase
+    template<class L, class LPtr, void (L::*output)(const std::string&)> class LoggerOutput : public LoggerOutputBase
     {
     public:
         inline LoggerOutput(const LPtr& lptr) : _logger(lptr) {}

@@ -91,7 +91,7 @@ namespace Ice
     };
 
     /// \cond INTERNAL
-    template <typename T, typename Base> class ValueHelper : public Base
+    template<typename T, typename Base> class ValueHelper : public Base
     {
     public:
         using Base::Base;

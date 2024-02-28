@@ -32,10 +32,11 @@ namespace Slice
         static std::string getNamespace(const ContainedPtr&);
 
         static std::string getUnqualified(const std::string&, const std::string&, bool builtin = false);
-        static std::string getUnqualified(const ContainedPtr&,
-                                          const std::string& package = "",
-                                          const std::string& prefix = "",
-                                          const std::string& suffix = "");
+        static std::string getUnqualified(
+            const ContainedPtr&,
+            const std::string& package = "",
+            const std::string& prefix = "",
+            const std::string& suffix = "");
 
     protected:
         //
@@ -57,36 +58,46 @@ namespace Slice
         //
         // Generate code to marshal or unmarshal a type
         //
-        void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                       const TypePtr&,
-                                       const std::string&,
-                                       const std::string&,
-                                       bool,
-                                       const std::string& = "");
-        void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                               const TypePtr&,
-                                               const std::string&,
-                                               const std::string&,
-                                               int,
-                                               bool,
-                                               const std::string& = "");
-        void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                               const SequencePtr&,
-                                               const std::string&,
-                                               const std::string&,
-                                               bool,
-                                               bool,
-                                               const std::string& = "");
-        void writeOptionalSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&,
-                                                       const SequencePtr&,
-                                                       const std::string&,
-                                                       const std::string&,
-                                                       int,
-                                                       bool,
-                                                       const std::string& = "");
+        void writeMarshalUnmarshalCode(
+            ::IceUtilInternal::Output&,
+            const TypePtr&,
+            const std::string&,
+            const std::string&,
+            bool,
+            const std::string& = "");
+        void writeOptionalMarshalUnmarshalCode(
+            ::IceUtilInternal::Output&,
+            const TypePtr&,
+            const std::string&,
+            const std::string&,
+            int,
+            bool,
+            const std::string& = "");
+        void writeSequenceMarshalUnmarshalCode(
+            ::IceUtilInternal::Output&,
+            const SequencePtr&,
+            const std::string&,
+            const std::string&,
+            bool,
+            bool,
+            const std::string& = "");
+        void writeOptionalSequenceMarshalUnmarshalCode(
+            ::IceUtilInternal::Output&,
+            const SequencePtr&,
+            const std::string&,
+            const std::string&,
+            int,
+            bool,
+            const std::string& = "");
 
         void writeSerializeDeserializeCode(
-            ::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&, bool, int, bool);
+            ::IceUtilInternal::Output&,
+            const TypePtr&,
+            const std::string&,
+            const std::string&,
+            bool,
+            int,
+            bool);
 
     private:
         class MetaDataVisitor : public ParserVisitor

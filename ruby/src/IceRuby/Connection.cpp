@@ -47,8 +47,8 @@ IceRuby_Connection_close(VALUE self, VALUE mode)
         volatile VALUE type = callRuby(rb_path2class, "Ice::ConnectionClose");
         if (callRuby(rb_obj_is_instance_of, mode, type) != Qtrue)
         {
-            throw RubyException(rb_eTypeError,
-                                "value for 'mode' argument must be an enumerator of Ice::ConnectionClose");
+            throw RubyException(
+                rb_eTypeError, "value for 'mode' argument must be an enumerator of Ice::ConnectionClose");
         }
         volatile VALUE modeValue = callRuby(rb_funcall, mode, rb_intern("to_i"), 0);
         assert(TYPE(modeValue) == T_FIXNUM);
@@ -70,8 +70,8 @@ IceRuby_Connection_flushBatchRequests(VALUE self, VALUE compress)
         volatile VALUE type = callRuby(rb_path2class, "Ice::CompressBatch");
         if (callRuby(rb_obj_is_instance_of, compress, type) != Qtrue)
         {
-            throw RubyException(rb_eTypeError,
-                                "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
+            throw RubyException(
+                rb_eTypeError, "value for 'compress' argument must be an enumerator of Ice::CompressBatch");
         }
         volatile VALUE compressValue = callRuby(rb_funcall, compress, rb_intern("to_i"), 0);
         assert(TYPE(compressValue) == T_FIXNUM);
@@ -118,8 +118,8 @@ IceRuby_Connection_setACM(VALUE self, VALUE t, VALUE c, VALUE h)
             volatile VALUE type = callRuby(rb_path2class, "Ice::ACMClose");
             if (callRuby(rb_obj_is_instance_of, c, type) != Qtrue)
             {
-                throw RubyException(rb_eTypeError,
-                                    "value for 'close' argument must be Unset or an enumerator of Ice.ACMClose");
+                throw RubyException(
+                    rb_eTypeError, "value for 'close' argument must be Unset or an enumerator of Ice.ACMClose");
             }
             volatile VALUE closeValue = callRuby(rb_funcall, c, rb_intern("to_i"), 0);
             assert(TYPE(closeValue) == T_FIXNUM);

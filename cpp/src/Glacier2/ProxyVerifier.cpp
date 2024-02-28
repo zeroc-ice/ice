@@ -233,9 +233,10 @@ namespace Glacier2
     class MatchesNumber : public AddressMatcher
     {
     public:
-        MatchesNumber(const vector<int>& values,
-                      const vector<Range>& ranges,
-                      const char* descriptionPrefix = "matches ")
+        MatchesNumber(
+            const vector<int>& values,
+            const vector<Range>& ranges,
+            const char* descriptionPrefix = "matches ")
             : _values(values),
               _ranges(ranges)
         {
@@ -438,10 +439,11 @@ namespace Glacier2
     class AddressRule final : public Glacier2::ProxyRule
     {
     public:
-        AddressRule(shared_ptr<Communicator> communicator,
-                    const vector<AddressMatcher*>& address,
-                    MatchesNumber* port,
-                    const int traceLevel)
+        AddressRule(
+            shared_ptr<Communicator> communicator,
+            const vector<AddressMatcher*>& address,
+            MatchesNumber* port,
+            const int traceLevel)
             : _communicator(std::move(communicator)),
               _addressRules(address),
               _portMatcher(port),
@@ -554,10 +556,11 @@ namespace Glacier2
         const int _traceLevel;
     };
 
-    static void parseProperty(const shared_ptr<Ice::Communicator>& communicator,
-                              const string& property,
-                              vector<ProxyRule*>& rules,
-                              const int traceLevel)
+    static void parseProperty(
+        const shared_ptr<Ice::Communicator>& communicator,
+        const string& property,
+        vector<ProxyRule*>& rules,
+        const int traceLevel)
     {
         StartFactory startsWithFactory;
         WildCardFactory wildCardFactory;

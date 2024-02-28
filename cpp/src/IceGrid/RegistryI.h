@@ -30,12 +30,13 @@ namespace IceGrid
     class RegistryI : public Registry, public std::enable_shared_from_this<RegistryI>
     {
     public:
-        RegistryI(const std::shared_ptr<Ice::Communicator>&,
-                  const std::shared_ptr<TraceLevels>&,
-                  bool,
-                  bool,
-                  const std::string&,
-                  const std::string&);
+        RegistryI(
+            const std::shared_ptr<Ice::Communicator>&,
+            const std::shared_ptr<TraceLevels>&,
+            bool,
+            bool,
+            const std::string&,
+            const std::string&);
         virtual ~RegistryI() = default;
 
         bool start();
@@ -75,10 +76,11 @@ namespace IceGrid
         InternalRegistryPrxPtr setupInternalRegistry();
         bool setupUserAccountMapper();
         std::shared_ptr<Ice::ObjectAdapter> setupClientSessionFactory(const LocatorPrxPtr&);
-        std::shared_ptr<Ice::ObjectAdapter> setupAdminSessionFactory(const std::shared_ptr<Ice::Object>&,
-                                                                     const std::shared_ptr<Ice::Object>&,
-                                                                     const std::shared_ptr<Ice::Object>&,
-                                                                     const LocatorPrxPtr&);
+        std::shared_ptr<Ice::ObjectAdapter> setupAdminSessionFactory(
+            const std::shared_ptr<Ice::Object>&,
+            const std::shared_ptr<Ice::Object>&,
+            const std::shared_ptr<Ice::Object>&,
+            const LocatorPrxPtr&);
 
         Glacier2::PermissionsVerifierPrxPtr getPermissionsVerifier(const LocatorPrxPtr&, const std::string&);
         Glacier2::SSLPermissionsVerifierPrxPtr getSSLPermissionsVerifier(const LocatorPrxPtr&, const std::string&);

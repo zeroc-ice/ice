@@ -30,11 +30,11 @@ namespace Glacier2
 
         void setObserverUpdater(const std::shared_ptr<Glacier2::Instrumentation::ObserverUpdater>&) override;
 
-        std::shared_ptr<Glacier2::Instrumentation::SessionObserver>
-        getSessionObserver(const std::string&,
-                           const std::shared_ptr<Ice::Connection>&,
-                           int,
-                           const std::shared_ptr<Glacier2::Instrumentation::SessionObserver>&) override;
+        std::shared_ptr<Glacier2::Instrumentation::SessionObserver> getSessionObserver(
+            const std::string&,
+            const std::shared_ptr<Ice::Connection>&,
+            int,
+            const std::shared_ptr<Glacier2::Instrumentation::SessionObserver>&) override;
 
     private:
         const std::shared_ptr<IceInternal::MetricsAdminI> _metrics;

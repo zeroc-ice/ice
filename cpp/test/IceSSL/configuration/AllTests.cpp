@@ -110,8 +110,8 @@ public:
             PCCERT_CONTEXT newCert = 0;
             do
             {
-                if ((next = CertFindCertificateInStore(p12, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_ANY,
-                                                       0, next)) != 0)
+                if ((next = CertFindCertificateInStore(
+                         p12, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_ANY, 0, next)) != 0)
                 {
                     if (CertAddCertificateContextToStore(_store, next, CERT_STORE_ADD_ALWAYS, &newCert))
                     {
@@ -141,11 +141,13 @@ public:
                 {
                     CRYPT_KEY_PROV_INFO* keyProvInfo = reinterpret_cast<CRYPT_KEY_PROV_INFO*>(&buf[0]);
                     HCRYPTPROV cryptProv = 0;
-                    if (CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                                             keyProvInfo->dwProvType, 0))
+                    if (CryptAcquireContextW(
+                            &cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
+                            keyProvInfo->dwProvType, 0))
                     {
-                        CryptAcquireContextW(&cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
-                                             keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
+                        CryptAcquireContextW(
+                            &cryptProv, keyProvInfo->pwszContainerName, keyProvInfo->pwszProvName,
+                            keyProvInfo->dwProvType, CRYPT_DELETEKEYSET);
                     }
                 }
             }
@@ -800,12 +802,14 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
             test(info->certs[0]->checkValidity() && info->certs[1]->checkValidity());
 
-            test(!info->certs[0]->checkValidity(std::chrono::system_clock::time_point()) &&
-                 !info->certs[1]->checkValidity(std::chrono::system_clock::time_point()));
+            test(
+                !info->certs[0]->checkValidity(std::chrono::system_clock::time_point()) &&
+                !info->certs[1]->checkValidity(std::chrono::system_clock::time_point()));
 #endif
 
-            test(info->certs.size() == 2 && info->certs[0]->getSubjectDN() == serverCert->getSubjectDN() &&
-                 info->certs[0]->getIssuerDN() == serverCert->getIssuerDN());
+            test(
+                info->certs.size() == 2 && info->certs[0]->getSubjectDN() == serverCert->getSubjectDN() &&
+                info->certs[0]->getIssuerDN() == serverCert->getIssuerDN());
         }
         catch (const LocalException& ex)
         {
@@ -1177,13 +1181,15 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         const char* certificates[] = {"/cacert1.pem", "/c_rsa_ca1_pub.pem", "/s_rsa_ca1_pub.pem", 0};
 
-        const char* authorities[] = {"", // Self signed CA cert has not X509v3 Authority Key Identifier extension
-                                     "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
-                                     "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31", 0};
+        const char* authorities[] = {
+            "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
+            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
+            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31", 0};
 
-        const char* subjects[] = {"02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
-                                  "7F:4D:BF:80:65:E0:EE:A4:18:D5:6A:87:33:63:B3:76:7D:42:82:06",
-                                  "EB:4A:7A:79:09:65:0F:45:40:E8:8C:E6:A8:27:74:34:AB:EA:AF:48", 0};
+        const char* subjects[] = {
+            "02:FD:1B:E9:6F:4E:96:8F:0C:0E:99:61:8F:45:48:6B:2B:14:3C:31",
+            "7F:4D:BF:80:65:E0:EE:A4:18:D5:6A:87:33:63:B3:76:7D:42:82:06",
+            "EB:4A:7A:79:09:65:0F:45:40:E8:8C:E6:A8:27:74:34:AB:EA:AF:48", 0};
 
         for (int i = 0; certificates[i] != 0; ++i)
         {
@@ -1194,20 +1200,23 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
         IceSSL::CertificatePtr cert = IceSSL::Certificate::load(defaultDir + "/cacert1.pem");
         unsigned int keyUsage = cert->getKeyUsage();
-        test(keyUsage ==
-             (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
+        test(
+            keyUsage ==
+            (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
 
         //  Digital Signature, Certificate Sign, CRL Sign
         cert = IceSSL::Certificate::load(defaultDir + "/cacert3.pem");
         keyUsage = cert->getKeyUsage();
-        test(keyUsage ==
-             (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
+        test(
+            keyUsage ==
+            (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
 
         //  Digital Signature, Certificate Sign, CRL Sign
         cert = IceSSL::Certificate::load(defaultDir + "/cacert4.pem");
         keyUsage = cert->getKeyUsage();
-        test(keyUsage ==
-             (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
+        test(
+            keyUsage ==
+            (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_KEY_CERT_SIGN | IceSSL::KEY_USAGE_CRL_SIGN));
     }
 
     {
@@ -1253,8 +1262,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
         // Digital Signature, Non Repudiation, Key Encipherment
         unsigned int keyUsage = cert->getKeyUsage();
-        test(keyUsage == (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_NON_REPUDIATION |
-                          IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
+        test(
+            keyUsage == (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_NON_REPUDIATION |
+                         IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
 
         expectedAltNames.clear();
         expectedAltNames.push_back(make_pair(7, "127.0.0.1"));
@@ -1262,8 +1272,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         cert = IceSSL::Certificate::load(defaultDir + "/s_rsa_ca1_pub.pem");
         test(cert->getSubjectAlternativeNames() == expectedAltNames);
         keyUsage = cert->getKeyUsage();
-        test(keyUsage == (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_NON_REPUDIATION |
-                          IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
+        test(
+            keyUsage == (IceSSL::KEY_USAGE_DIGITAL_SIGNATURE | IceSSL::KEY_USAGE_NON_REPUDIATION |
+                         IceSSL::KEY_USAGE_KEY_ENCIPHERMENT));
 
         expectedAltNames.clear();
         expectedAltNames.push_back(make_pair(2, "localhost"));
@@ -2584,8 +2595,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.TrustOnly", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
-                                                             "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+        initData.properties->setProperty(
+            "IceSSL.TrustOnly", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
+                                "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrxPtr fact = Ice::checkedCast<Test::ServerFactoryPrx>(comm->stringToProxy(factoryRef));
@@ -2608,8 +2620,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.TrustOnly", "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
-                                                             "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+        initData.properties->setProperty(
+            "IceSSL.TrustOnly", "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
+                                "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrxPtr fact = Ice::checkedCast<Test::ServerFactoryPrx>(comm->stringToProxy(factoryRef));
@@ -2630,8 +2643,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.TrustOnly", "C=US, ST=Florida, O=\"ZeroC, Inc.\","
-                                                             "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+        initData.properties->setProperty(
+            "IceSSL.TrustOnly", "C=US, ST=Florida, O=\"ZeroC, Inc.\","
+                                "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrxPtr fact = Ice::checkedCast<Test::ServerFactoryPrx>(comm->stringToProxy(factoryRef));
@@ -3062,8 +3076,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.TrustOnly.Client", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
-                                                                    "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+        initData.properties->setProperty(
+            "IceSSL.TrustOnly.Client", "C=US, ST=Florida, O=ZeroC\\, Inc.,"
+                                       "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrxPtr fact = Ice::checkedCast<Test::ServerFactoryPrx>(comm->stringToProxy(factoryRef));
@@ -3089,8 +3104,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     {
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.TrustOnly.Client", "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
-                                                                    "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+        initData.properties->setProperty(
+            "IceSSL.TrustOnly.Client", "!C=US, ST=Florida, O=ZeroC\\, Inc.,"
+                                       "OU=Ice, emailAddress=info@zeroc.com, CN=Server");
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrxPtr fact = Ice::checkedCast<Test::ServerFactoryPrx>(comm->stringToProxy(factoryRef));
@@ -3181,8 +3197,9 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         // Should have no effect.
-        initData.properties->setProperty("IceSSL.TrustOnly.Server", "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice,"
-                                                                    "emailAddress=info@zeroc.com,CN=Client");
+        initData.properties->setProperty(
+            "IceSSL.TrustOnly.Server", "C=US, ST=Florida, O=ZeroC\\, Inc., OU=Ice,"
+                                       "emailAddress=info@zeroc.com,CN=Client");
         CommunicatorPtr comm = initialize(initData);
 
         Test::ServerFactoryPrxPtr fact = Ice::checkedCast<Test::ServerFactoryPrx>(comm->stringToProxy(factoryRef));

@@ -15,10 +15,11 @@ namespace Glacier2
     public:
         ServerBlobject(std::shared_ptr<Instance>, std::shared_ptr<Ice::Connection>);
 
-        void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                             std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                             std::function<void(std::exception_ptr)> error,
-                             const Ice::Current& current) override;
+        void ice_invokeAsync(
+            std::pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+            std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+            std::function<void(std::exception_ptr)> error,
+            const Ice::Current& current) override;
     };
 
 }

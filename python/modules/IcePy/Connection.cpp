@@ -24,25 +24,25 @@ namespace
 {
 
     // P = sizeof(void*), L = sizeof(long)
-    template <int P, int L> struct Hasher;
+    template<int P, int L> struct Hasher;
 
 #ifndef _WIN64
     //
     // COMPILERFIX: With Windows 64 the templates bellow will produce trucation warnings,
     // we ifdef them out as they are never used with Windows 64.
     //
-    template <> struct Hasher<4, 4>
+    template<> struct Hasher<4, 4>
     {
         long operator()(void* ptr) const { return reinterpret_cast<long>(ptr); }
     };
 
-    template <> struct Hasher<8, 8>
+    template<> struct Hasher<8, 8>
     {
         long operator()(void* ptr) const { return reinterpret_cast<long>(ptr); }
     };
 #endif
 
-    template <> struct Hasher<8, 4>
+    template<> struct Hasher<8, 4>
     {
         long operator()(void* ptr) const
         {
@@ -655,8 +655,8 @@ extern "C"
     {
         if (PyObject_IsInstance(h, acmHeartbeatType) == 0)
         {
-            PyErr_Format(PyExc_TypeError,
-                         "value for 'heartbeat' argument must be Unset or an enumerator of Ice.ACMHeartbeat");
+            PyErr_Format(
+                PyExc_TypeError, "value for 'heartbeat' argument must be Unset or an enumerator of Ice.ACMHeartbeat");
             return 0;
         }
         PyObjectHandle v = getAttr(h, "_value", true);
@@ -1041,8 +1041,9 @@ IcePy::getConnectionArg(PyObject* p, const string& func, const string& arg, Ice:
     }
     else if (!checkConnection(p))
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("%s expects an Ice.Connection object or None for argument '%s'"),
-                     func.c_str(), arg.c_str());
+        PyErr_Format(
+            PyExc_ValueError, STRCAST("%s expects an Ice.Connection object or None for argument '%s'"), func.c_str(),
+            arg.c_str());
         return false;
     }
     else

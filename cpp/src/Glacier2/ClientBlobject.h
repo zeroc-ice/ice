@@ -17,15 +17,17 @@ namespace Glacier2
     class ClientBlobject final : public Glacier2::Blobject
     {
     public:
-        ClientBlobject(std::shared_ptr<Instance>,
-                       std::shared_ptr<FilterManager>,
-                       const Ice::Context&,
-                       std::shared_ptr<RoutingTable>);
+        ClientBlobject(
+            std::shared_ptr<Instance>,
+            std::shared_ptr<FilterManager>,
+            const Ice::Context&,
+            std::shared_ptr<RoutingTable>);
 
-        void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                             std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                             std::function<void(std::exception_ptr)> error,
-                             const Ice::Current& current) override;
+        void ice_invokeAsync(
+            std::pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+            std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+            std::function<void(std::exception_ptr)> error,
+            const Ice::Current& current) override;
 
         std::shared_ptr<StringSet> categories();
         std::shared_ptr<StringSet> adapterIds();

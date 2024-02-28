@@ -17,11 +17,12 @@ namespace
     class SynchronizationCallbackI final : public SynchronizationCallback
     {
     public:
-        SynchronizationCallbackI(const shared_ptr<RegistryServerAdminRouter>& adminRouter,
-                                 const pair<const Byte*, const Byte*>& inParams,
-                                 function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                                 function<void(exception_ptr)> exception,
-                                 const Current& current)
+        SynchronizationCallbackI(
+            const shared_ptr<RegistryServerAdminRouter>& adminRouter,
+            const pair<const Byte*, const Byte*>& inParams,
+            function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+            function<void(exception_ptr)> exception,
+            const Current& current)
             : _adminRouter(adminRouter),
               _response(std::move(response)),
               _exception(std::move(exception)),
@@ -35,8 +36,9 @@ namespace
             //
             // Retry to forward the call.
             //
-            _adminRouter->ice_invokeAsync({&_inParams[0], &_inParams[0] + _inParams.size()}, std::move(_response),
-                                          std::move(_exception), _current);
+            _adminRouter->ice_invokeAsync(
+                {&_inParams[0], &_inParams[0] + _inParams.size()}, std::move(_response), std::move(_exception),
+                _current);
         }
 
         void synchronized(exception_ptr)
@@ -111,10 +113,11 @@ RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, c
 }
 
 void
-RegistryNodeAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                                         function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                                         function<void(exception_ptr)> exception,
-                                         const Ice::Current& current)
+RegistryNodeAdminRouter::ice_invokeAsync(
+    pair<const Ice::Byte*, const Ice::Byte*> inParams,
+    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
     ObjectPrxPtr target;
 

@@ -40,7 +40,7 @@ using namespace IceInternal;
 namespace
 {
 
-    template <typename Map> void remove(Map& m, const typename Map::key_type& k, const typename Map::mapped_type& v)
+    template<typename Map> void remove(Map& m, const typename Map::key_type& k, const typename Map::mapped_type& v)
     {
         auto pr = m.equal_range(k);
         assert(pr.first != pr.second);
@@ -55,7 +55,7 @@ namespace
         assert(false); // Nothing was removed which is an error.
     }
 
-    template <typename Map, typename Predicate>
+    template<typename Map, typename Predicate>
     typename Map::mapped_type find(const Map& m, const typename Map::key_type& k, Predicate predicate)
     {
         auto pr = m.equal_range(k);
@@ -194,11 +194,12 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 }
 
 void
-IceInternal::OutgoingConnectionFactory::createAsync(const vector<EndpointIPtr>& endpts,
-                                                    bool hasMore,
-                                                    Ice::EndpointSelectionType selType,
-                                                    function<void(Ice::ConnectionIPtr, bool)> response,
-                                                    function<void(std::exception_ptr)> exception)
+IceInternal::OutgoingConnectionFactory::createAsync(
+    const vector<EndpointIPtr>& endpts,
+    bool hasMore,
+    Ice::EndpointSelectionType selType,
+    function<void(Ice::ConnectionIPtr, bool)> response,
+    function<void(std::exception_ptr)> exception)
 {
     assert(!endpts.empty());
 
@@ -226,8 +227,8 @@ IceInternal::OutgoingConnectionFactory::createAsync(const vector<EndpointIPtr>& 
         return;
     }
 
-    auto cb = make_shared<ConnectCallback>(_instance, shared_from_this(), endpoints, hasMore, std::move(response),
-                                           std::move(exception), selType);
+    auto cb = make_shared<ConnectCallback>(
+        _instance, shared_from_this(), endpoints, hasMore, std::move(response), std::move(exception), selType);
     cb->getConnectors();
 }
 
@@ -305,8 +306,9 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
 }
 
 void
-IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync,
-                                                                Ice::CompressBatch compress)
+IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(
+    const CommunicatorFlushBatchAsyncPtr& outAsync,
+    Ice::CompressBatch compress)
 {
     list<ConnectionIPtr> c;
 
@@ -335,8 +337,9 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const Communicat
     }
 }
 
-IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const CommunicatorPtr& communicator,
-                                                                  const InstancePtr& instance)
+IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
+    const CommunicatorPtr& communicator,
+    const InstancePtr& instance)
     : _communicator(communicator),
       _instance(instance),
       _monitor(new FactoryACMMonitor(instance, instance->clientACM())),
@@ -468,9 +471,10 @@ IceInternal::OutgoingConnectionFactory::decPendingConnectCount()
 }
 
 ConnectionIPtr
-IceInternal::OutgoingConnectionFactory::getConnection(const vector<ConnectorInfo>& connectors,
-                                                      const ConnectCallbackPtr& cb,
-                                                      bool& compress)
+IceInternal::OutgoingConnectionFactory::getConnection(
+    const vector<ConnectorInfo>& connectors,
+    const ConnectCallbackPtr& cb,
+    bool& compress)
 {
     {
         unique_lock lock(_mutex);
@@ -578,8 +582,8 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
             throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
         }
 
-        connection = ConnectionI::create(_communicator, _instance, _monitor, transceiver, ci.connector,
-                                         ci.endpoint->compress(false), nullptr);
+        connection = ConnectionI::create(
+            _communicator, _instance, _monitor, transceiver, ci.connector, ci.endpoint->compress(false), nullptr);
     }
     catch (const Ice::LocalException&)
     {
@@ -602,10 +606,11 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
 }
 
 void
-IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<ConnectorInfo>& connectors,
-                                                            const ConnectorInfo& ci,
-                                                            const ConnectionIPtr& connection,
-                                                            const ConnectCallbackPtr& cb)
+IceInternal::OutgoingConnectionFactory::finishGetConnection(
+    const vector<ConnectorInfo>& connectors,
+    const ConnectorInfo& ci,
+    const ConnectionIPtr& connection,
+    const ConnectCallbackPtr& cb)
 {
     ConnectCallbackSet connectionCallbacks;
     if (cb)
@@ -670,9 +675,10 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
 }
 
 void
-IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<ConnectorInfo>& connectors,
-                                                            std::exception_ptr ex,
-                                                            const ConnectCallbackPtr& cb)
+IceInternal::OutgoingConnectionFactory::finishGetConnection(
+    const vector<ConnectorInfo>& connectors,
+    std::exception_ptr ex,
+    const ConnectCallbackPtr& cb)
 {
     ConnectCallbackSet failedCallbacks;
     if (cb)
@@ -722,8 +728,9 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
 }
 
 bool
-IceInternal::OutgoingConnectionFactory::addToPending(const ConnectCallbackPtr& cb,
-                                                     const vector<ConnectorInfo>& connectors)
+IceInternal::OutgoingConnectionFactory::addToPending(
+    const ConnectCallbackPtr& cb,
+    const vector<ConnectorInfo>& connectors)
 {
     //
     // Add the callback to each connector pending list.
@@ -763,8 +770,9 @@ IceInternal::OutgoingConnectionFactory::addToPending(const ConnectCallbackPtr& c
 }
 
 void
-IceInternal::OutgoingConnectionFactory::removeFromPending(const ConnectCallbackPtr& cb,
-                                                          const vector<ConnectorInfo>& connectors)
+IceInternal::OutgoingConnectionFactory::removeFromPending(
+    const ConnectCallbackPtr& cb,
+    const vector<ConnectorInfo>& connectors)
 {
     for (auto p = connectors.begin(); p != connectors.end(); ++p)
     {
@@ -877,8 +885,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartComplete
 }
 
 void
-IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(const ConnectionIPtr& /*connection*/,
-                                                                               exception_ptr ex)
+IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(
+    const ConnectionIPtr& /*connection*/,
+    exception_ptr ex)
 {
     assert(_iter != _connectors.end());
     if (connectionStartFailedImpl(ex))
@@ -1037,9 +1046,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
             }
             Ice::ConnectionIPtr connection = _factory->createConnection(_iter->connector->connect(), *_iter);
             auto self = shared_from_this();
-            connection->startAsync([self](ConnectionIPtr conn) { self->connectionStartCompleted(std::move(conn)); },
-                                   [self](ConnectionIPtr conn, exception_ptr ex)
-                                   { self->connectionStartFailed(std::move(conn), ex); });
+            connection->startAsync(
+                [self](ConnectionIPtr conn) { self->connectionStartCompleted(std::move(conn)); },
+                [self](ConnectionIPtr conn, exception_ptr ex) { self->connectionStartFailed(std::move(conn), ex); });
         }
         catch (const Ice::LocalException& ex)
         {
@@ -1061,8 +1070,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
 }
 
 void
-IceInternal::OutgoingConnectionFactory::ConnectCallback::setConnection(const Ice::ConnectionIPtr& connection,
-                                                                       bool compress)
+IceInternal::OutgoingConnectionFactory::ConnectCallback::setConnection(
+    const Ice::ConnectionIPtr& connection,
+    bool compress)
 {
     //
     // Callback from the factory: the connection to one of the callback
@@ -1294,14 +1304,16 @@ IceInternal::IncomingConnectionFactory::connections() const
     //
     // Only copy connections which have not been destroyed.
     //
-    remove_copy_if(_connections.begin(), _connections.end(), back_inserter(result),
-                   [](const ConnectionIPtr& conn) { return !conn->isActiveOrHolding(); });
+    remove_copy_if(
+        _connections.begin(), _connections.end(), back_inserter(result),
+        [](const ConnectionIPtr& conn) { return !conn->isActiveOrHolding(); });
     return result;
 }
 
 void
-IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr& outAsync,
-                                                                Ice::CompressBatch compress)
+IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(
+    const CommunicatorFlushBatchAsyncPtr& outAsync,
+    Ice::CompressBatch compress)
 {
     list<ConnectionIPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 
@@ -1459,8 +1471,8 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 
         try
         {
-            connection = ConnectionI::create(_adapter->getCommunicator(), _instance, _monitor, transceiver, 0,
-                                             _endpoint, _adapter);
+            connection = ConnectionI::create(
+                _adapter->getCommunicator(), _instance, _monitor, transceiver, 0, _endpoint, _adapter);
         }
         catch (const LocalException& ex)
         {
@@ -1487,9 +1499,9 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
     assert(connection);
 
     auto self = shared_from_this();
-    connection->startAsync([self](ConnectionIPtr conn) { self->connectionStartCompleted(std::move(conn)); },
-                           [self](ConnectionIPtr conn, exception_ptr ex)
-                           { self->connectionStartFailed(std::move(conn), ex); });
+    connection->startAsync(
+        [self](ConnectionIPtr conn) { self->connectionStartCompleted(std::move(conn)); },
+        [self](ConnectionIPtr conn, exception_ptr ex) { self->connectionStartFailed(std::move(conn), ex); });
 }
 
 void
@@ -1605,10 +1617,11 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
 // function because when it was part of the constructor C++Builder 2007 apps would
 // crash if an execption was thrown from any calls within the constructor.
 //
-IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
-                                                                  const EndpointIPtr& endpoint,
-                                                                  const EndpointIPtr& publishedEndpoint,
-                                                                  const shared_ptr<ObjectAdapterI>& adapter)
+IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
+    const InstancePtr& instance,
+    const EndpointIPtr& endpoint,
+    const EndpointIPtr& publishedEndpoint,
+    const shared_ptr<ObjectAdapterI>& adapter)
     : _instance(instance),
       _monitor(new FactoryACMMonitor(instance, dynamic_cast<ObjectAdapterI*>(adapter.get())->getACM())),
       _endpoint(endpoint),

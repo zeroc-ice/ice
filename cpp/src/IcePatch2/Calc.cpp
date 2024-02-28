@@ -52,8 +52,8 @@ struct IFileInfoPathLess
             {
                 return true;
             }
-            else if (::tolower(static_cast<unsigned char>(lhs.path[i])) >
-                     ::tolower(static_cast<unsigned char>(rhs.path[i])))
+            else if (
+                ::tolower(static_cast<unsigned char>(lhs.path[i])) > ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return false;
             }
@@ -247,16 +247,18 @@ main(int argc, char* argv[])
                 LargeFileInfoSeq newInfoSeq;
                 newInfoSeq.reserve(infoSeq.size());
 
-                set_difference(infoSeq.begin(), infoSeq.end(), partialInfoSeq.begin(), partialInfoSeq.end(),
-                               back_inserter(newInfoSeq), FileInfoPathLess());
+                set_difference(
+                    infoSeq.begin(), infoSeq.end(), partialInfoSeq.begin(), partialInfoSeq.end(),
+                    back_inserter(newInfoSeq), FileInfoPathLess());
 
                 infoSeq.swap(newInfoSeq);
 
                 newInfoSeq.clear();
                 newInfoSeq.reserve(infoSeq.size() + partialInfoSeq.size());
 
-                set_union(infoSeq.begin(), infoSeq.end(), partialInfoSeq.begin(), partialInfoSeq.end(),
-                          back_inserter(newInfoSeq), FileInfoPathLess());
+                set_union(
+                    infoSeq.begin(), infoSeq.end(), partialInfoSeq.begin(), partialInfoSeq.end(),
+                    back_inserter(newInfoSeq), FileInfoPathLess());
 
                 infoSeq.swap(newInfoSeq);
             }

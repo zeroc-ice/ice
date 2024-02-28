@@ -155,7 +155,12 @@ namespace IcePy
         //
         virtual void marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const Ice::StringSeq* = 0) = 0;
         virtual void unmarshal(
-            Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq* = 0) = 0;
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            bool,
+            const Ice::StringSeq* = 0) = 0;
 
         virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
     };
@@ -357,12 +362,13 @@ namespace IcePy
 
         PyObject* getSequence(const PrimitiveInfoPtr&, PyObject*);
         void marshalPrimitiveSequence(const PrimitiveInfoPtr&, PyObject*, Ice::OutputStream*);
-        void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&,
-                                        Ice::InputStream*,
-                                        const UnmarshalCallbackPtr&,
-                                        PyObject*,
-                                        void*,
-                                        const SequenceMappingPtr&);
+        void unmarshalPrimitiveSequence(
+            const PrimitiveInfoPtr&,
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            PyObject*,
+            void*,
+            const SequenceMappingPtr&);
 
         PyObject* createSequenceFromMemory(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType);
 

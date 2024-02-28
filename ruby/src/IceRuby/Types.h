@@ -301,7 +301,11 @@ namespace IceRuby
     private:
         void marshalPrimitiveSequence(const PrimitiveInfoPtr&, VALUE, Ice::OutputStream*);
         void unmarshalPrimitiveSequence(
-            const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&, VALUE, void*);
+            const PrimitiveInfoPtr&,
+            Ice::InputStream*,
+            const UnmarshalCallbackPtr&,
+            VALUE,
+            void*);
     };
     using SequenceInfoPtr = std::shared_ptr<SequenceInfo>;
 

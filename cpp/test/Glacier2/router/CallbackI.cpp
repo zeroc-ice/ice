@@ -33,10 +33,11 @@ CallbackReceiverI::callbackEx(const Current& current)
 }
 
 void
-CallbackReceiverI::concurrentCallbackAsync(int number,
-                                           function<void(int)> response,
-                                           function<void(exception_ptr)> error,
-                                           const Current&)
+CallbackReceiverI::concurrentCallbackAsync(
+    int number,
+    function<void(int)> response,
+    function<void(exception_ptr)> error,
+    const Current&)
 {
     {
         lock_guard<mutex> lg(_mutex);
@@ -140,10 +141,11 @@ CallbackReceiverI::answerConcurrentCallbacks(unsigned int num)
 }
 
 void
-CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy,
-                                 function<void()> response,
-                                 function<void(exception_ptr)> error,
-                                 const Current& current)
+CallbackI::initiateCallbackAsync(
+    CallbackReceiverPrxPtr proxy,
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     if (proxy->ice_isTwoway())
     {
@@ -157,10 +159,11 @@ CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy,
 }
 
 void
-CallbackI::initiateCallbackExAsync(CallbackReceiverPrxPtr proxy,
-                                   function<void()> response,
-                                   function<void(exception_ptr)> error,
-                                   const Current& current)
+CallbackI::initiateCallbackExAsync(
+    CallbackReceiverPrxPtr proxy,
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     if (proxy->ice_isTwoway())
     {
@@ -174,29 +177,32 @@ CallbackI::initiateCallbackExAsync(CallbackReceiverPrxPtr proxy,
 }
 
 void
-CallbackI::initiateConcurrentCallbackAsync(int number,
-                                           CallbackReceiverPrxPtr proxy,
-                                           function<void(int)> response,
-                                           function<void(exception_ptr)> error,
-                                           const Current& current)
+CallbackI::initiateConcurrentCallbackAsync(
+    int number,
+    CallbackReceiverPrxPtr proxy,
+    function<void(int)> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     proxy->concurrentCallbackAsync(number, std::move(response), std::move(error), nullptr, current.ctx);
 }
 
 void
-CallbackI::initiateWaitCallbackAsync(CallbackReceiverPrxPtr proxy,
-                                     function<void()> response,
-                                     function<void(exception_ptr)> error,
-                                     const Current& current)
+CallbackI::initiateWaitCallbackAsync(
+    CallbackReceiverPrxPtr proxy,
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     proxy->waitCallbackAsync(std::move(response), std::move(error), nullptr, current.ctx);
 }
 
 void
-CallbackI::initiateCallbackWithPayloadAsync(CallbackReceiverPrxPtr proxy,
-                                            function<void()> response,
-                                            function<void(exception_ptr)> error,
-                                            const Current& current)
+CallbackI::initiateCallbackWithPayloadAsync(
+    CallbackReceiverPrxPtr proxy,
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     Ice::ByteSeq seq(1000 * 1024, 0);
     proxy->callbackWithPayloadAsync(seq, std::move(response), std::move(error), nullptr, current.ctx);

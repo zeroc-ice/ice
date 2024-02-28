@@ -679,8 +679,8 @@ namespace IceBT
                 // org.freedesktop.DBus.ObjectManager.GetManagedObjects (
                 //     out DICT<OBJPATH,DICT<STRING,DICT<STRING,VARIANT>>> objpath_interfaces_and_properties);
                 //
-                DBus::MessagePtr msg = DBus::Message::createCall("org.bluez", "/", "org.freedesktop.DBus.ObjectManager",
-                                                                 "GetManagedObjects");
+                DBus::MessagePtr msg = DBus::Message::createCall(
+                    "org.bluez", "/", "org.freedesktop.DBus.ObjectManager", "GetManagedObjects");
                 DBus::AsyncResultPtr r = _dbusConnection->callAsync(msg);
                 DBus::MessagePtr reply = r->waitUntilFinished();
                 if (reply->isError())
@@ -757,12 +757,13 @@ namespace IceBT
             }
         }
 
-        DBus::AsyncResultPtr registerProfileImpl(const DBus::ConnectionPtr& conn,
-                                                 const string& path,
-                                                 const string& uuid,
-                                                 const string& name,
-                                                 int channel,
-                                                 const ProfilePtr& profile)
+        DBus::AsyncResultPtr registerProfileImpl(
+            const DBus::ConnectionPtr& conn,
+            const string& path,
+            const string& uuid,
+            const string& name,
+            int channel,
+            const ProfilePtr& profile)
         {
             conn->addService(path, profile);
 
@@ -774,8 +775,8 @@ namespace IceBT
             vector<DBus::ValuePtr> args;
             args.push_back(make_shared<DBus::ObjectPathValue>(path));
             args.push_back(make_shared<DBus::StringValue>(uuid));
-            auto dt = make_shared<DBus::DictEntryType>(DBus::Type::getPrimitive(DBus::Type::KindString),
-                                                       make_shared<DBus::VariantType>());
+            auto dt = make_shared<DBus::DictEntryType>(
+                DBus::Type::getPrimitive(DBus::Type::KindString), make_shared<DBus::VariantType>());
             auto t = make_shared<DBus::ArrayType>(dt);
             auto options = make_shared<DBus::ArrayValue>(t);
             if (!name.empty())
@@ -1059,10 +1060,11 @@ namespace IceBT
             }
         }
 
-        void runConnectThread(const thread::id& threadId,
-                              const string& addr,
-                              const string& uuid,
-                              const ConnectCallbackPtr& cb)
+        void runConnectThread(
+            const thread::id& threadId,
+            const string& addr,
+            const string& uuid,
+            const ConnectCallbackPtr& cb)
         {
             //
             // Establishing a connection is a complicated process.
@@ -1190,8 +1192,9 @@ namespace IceBT
             {
                 lock_guard lock(_mutex);
 
-                auto p = find_if(_connectThreads.begin(), _connectThreads.end(),
-                                 [threadId](const thread& t) { return t.get_id() == threadId; });
+                auto p = find_if(
+                    _connectThreads.begin(), _connectThreads.end(),
+                    [threadId](const thread& t) { return t.get_id() == threadId; });
 
                 if (p != _connectThreads.end()) // May be missing if destroy() was called.
                 {

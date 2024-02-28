@@ -10,9 +10,10 @@
 using namespace std;
 using namespace IceGrid;
 
-NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(const InternalRegistryPrxPtr& registry,
-                                                       const shared_ptr<NodeI>& node,
-                                                       NodeSessionManager& manager)
+NodeSessionKeepAliveThread::NodeSessionKeepAliveThread(
+    const InternalRegistryPrxPtr& registry,
+    const shared_ptr<NodeI>& node,
+    NodeSessionManager& manager)
     : SessionKeepAliveThread<NodeSessionPrx>(registry, node->getTraceLevels()->logger),
       _node(node),
       _manager(manager)
@@ -100,8 +101,8 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrxPtr& registry, chro
     {
         if (traceLevels)
         {
-            traceLevels->logger->error("a node with the same name is already active with the replica `" + _replicaName +
-                                       "'");
+            traceLevels->logger->error(
+                "a node with the same name is already active with the replica `" + _replicaName + "'");
         }
         exceptionMessage = ex.what();
     }

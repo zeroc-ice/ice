@@ -35,9 +35,10 @@ public:
 
     virtual ::Test::BoolDequeList opBoolDequeList(::Test::BoolDequeList, ::Test::BoolDequeList&, const Ice::Current&);
 
-    virtual ::Test::BoolDequeList opBoolDequeListArray(::std::pair<const std::deque<bool>*, const std::deque<bool>*>,
-                                                       ::Test::BoolDequeList&,
-                                                       const ::Ice::Current&);
+    virtual ::Test::BoolDequeList opBoolDequeListArray(
+        ::std::pair<const std::deque<bool>*, const std::deque<bool>*>,
+        ::Test::BoolDequeList&,
+        const ::Ice::Current&);
 
     virtual ::Test::BoolDequeList
     opBoolDequeListRange(::Test::BoolDequeList, ::Test::BoolDequeList&, const ::Ice::Current&);
@@ -66,13 +67,15 @@ public:
     virtual std::list<::Test::Variable>
     opVariableList(std::list<::Test::Variable>, std::list<::Test::Variable>&, const Ice::Current&);
 
-    virtual std::deque<::Test::StringStringDict> opStringStringDictSeq(std::deque<::Test::StringStringDict>,
-                                                                       std::deque<::Test::StringStringDict>&,
-                                                                       const Ice::Current&);
+    virtual std::deque<::Test::StringStringDict> opStringStringDictSeq(
+        std::deque<::Test::StringStringDict>,
+        std::deque<::Test::StringStringDict>&,
+        const Ice::Current&);
 
-    virtual std::list<::Test::StringStringDict> opStringStringDictList(std::list<::Test::StringStringDict>,
-                                                                       std::list<::Test::StringStringDict>&,
-                                                                       const Ice::Current&);
+    virtual std::list<::Test::StringStringDict> opStringStringDictList(
+        std::list<::Test::StringStringDict>,
+        std::list<::Test::StringStringDict>&,
+        const Ice::Current&);
 
     virtual std::deque<::Test::E> opESeq(std::deque<::Test::E>, std::deque<::Test::E>&, const Ice::Current&);
 
@@ -94,9 +97,10 @@ public:
 
     virtual Test::IntStringDict opIntStringDict(Test::IntStringDict, Test::IntStringDict&, const Ice::Current&);
 
-    virtual Test::CustomMap<std::int64_t, std::int64_t> opVarDict(Test::CustomMap<std::string, std::int32_t>,
-                                                                  Test::CustomMap<std::string, std::int32_t>&,
-                                                                  const Ice::Current&);
+    virtual Test::CustomMap<std::int64_t, std::int64_t> opVarDict(
+        Test::CustomMap<std::string, std::int32_t>,
+        Test::CustomMap<std::string, std::int32_t>&,
+        const Ice::Current&);
 
     Test::ShortBuffer opShortBuffer(Test::ShortBuffer, Test::ShortBuffer&, const Ice::Current&);
 

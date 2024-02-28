@@ -28,8 +28,9 @@ allTests(Test::TestHelper* helper)
     test(base);
 
     Ice::ObjectPrxPtr b1 = communicator->stringToProxy("test");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getAdapterId().empty() && b1->ice_getFacet().empty());
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getAdapterId().empty() && b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy("test ");
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() && b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy(" test ");
@@ -37,8 +38,9 @@ allTests(Test::TestHelper* helper)
     b1 = communicator->stringToProxy(" test");
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() && b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy("'test -f facet'");
-    test(b1->ice_getIdentity().name == "test -f facet" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet().empty());
+    test(
+        b1->ice_getIdentity().name == "test -f facet" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet().empty());
     try
     {
         b1 = communicator->stringToProxy("\"test -f facet'");
@@ -48,14 +50,17 @@ allTests(Test::TestHelper* helper)
     {
     }
     b1 = communicator->stringToProxy("\"test -f facet\"");
-    test(b1->ice_getIdentity().name == "test -f facet" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet().empty());
+    test(
+        b1->ice_getIdentity().name == "test -f facet" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy("\"test -f facet@test\"");
-    test(b1->ice_getIdentity().name == "test -f facet@test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet().empty());
+    test(
+        b1->ice_getIdentity().name == "test -f facet@test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet().empty());
     b1 = communicator->stringToProxy("\"test -f facet@test @test\"");
-    test(b1->ice_getIdentity().name == "test -f facet@test @test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet().empty());
+    test(
+        b1->ice_getIdentity().name == "test -f facet@test @test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet().empty());
     try
     {
         b1 = communicator->stringToProxy("test test");
@@ -93,8 +98,9 @@ allTests(Test::TestHelper* helper)
     test(b1->ice_getIdentity().name == "test\b\f\n\r\t\'\"\\test" && b1->ice_getIdentity().category.empty());
 
     b1 = communicator->stringToProxy("category/test");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
-         b1->ice_getAdapterId().empty());
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
+        b1->ice_getAdapterId().empty());
 
     b1 = communicator->stringToProxy("");
     test(!b1);
@@ -120,8 +126,9 @@ allTests(Test::TestHelper* helper)
     }
 
     b1 = communicator->stringToProxy("test@adapter");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getAdapterId() == "adapter");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getAdapterId() == "adapter");
     try
     {
         b1 = communicator->stringToProxy("id@adapter test");
@@ -131,37 +138,46 @@ allTests(Test::TestHelper* helper)
     {
     }
     b1 = communicator->stringToProxy("category/test@adapter");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
-         b1->ice_getAdapterId() == "adapter");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
+        b1->ice_getAdapterId() == "adapter");
     b1 = communicator->stringToProxy("category/test@adapter:tcp");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
-         b1->ice_getAdapterId() == "adapter:tcp");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
+        b1->ice_getAdapterId() == "adapter:tcp");
     b1 = communicator->stringToProxy("'category 1/test'@adapter");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category 1" &&
-         b1->ice_getAdapterId() == "adapter");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category 1" &&
+        b1->ice_getAdapterId() == "adapter");
     b1 = communicator->stringToProxy("'category/test 1'@adapter");
-    test(b1->ice_getIdentity().name == "test 1" && b1->ice_getIdentity().category == "category" &&
-         b1->ice_getAdapterId() == "adapter");
+    test(
+        b1->ice_getIdentity().name == "test 1" && b1->ice_getIdentity().category == "category" &&
+        b1->ice_getAdapterId() == "adapter");
     b1 = communicator->stringToProxy("'category/test'@'adapter 1'");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
-         b1->ice_getAdapterId() == "adapter 1");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
+        b1->ice_getAdapterId() == "adapter 1");
     b1 = communicator->stringToProxy("\"category \\/test@foo/test\"@adapter");
 
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
-         b1->ice_getAdapterId() == "adapter");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
+        b1->ice_getAdapterId() == "adapter");
 
     b1 = communicator->stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
-         b1->ice_getAdapterId() == "adapter:tcp");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
+        b1->ice_getAdapterId() == "adapter:tcp");
 
     b1 = communicator->stringToProxy("id -f facet");
     test(b1->ice_getIdentity().name == "id" && b1->ice_getIdentity().category.empty() && b1->ice_getFacet() == "facet");
     b1 = communicator->stringToProxy("id -f 'facet x'");
-    test(b1->ice_getIdentity().name == "id" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet() == "facet x");
+    test(
+        b1->ice_getIdentity().name == "id" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet() == "facet x");
     b1 = communicator->stringToProxy("id -f \"facet x\"");
-    test(b1->ice_getIdentity().name == "id" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet() == "facet x");
+    test(
+        b1->ice_getIdentity().name == "id" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet() == "facet x");
     try
     {
         b1 = communicator->stringToProxy("id -f \"facet x");
@@ -179,20 +195,25 @@ allTests(Test::TestHelper* helper)
     {
     }
     b1 = communicator->stringToProxy("test -f facet:tcp");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet() == "facet" && b1->ice_getAdapterId().empty());
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet() == "facet" && b1->ice_getAdapterId().empty());
     b1 = communicator->stringToProxy("test -f \"facet:tcp\"");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet() == "facet:tcp" && b1->ice_getAdapterId().empty());
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet() == "facet:tcp" && b1->ice_getAdapterId().empty());
     b1 = communicator->stringToProxy("test -f facet@test");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet() == "facet" && b1->ice_getAdapterId() == "test");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet() == "facet" && b1->ice_getAdapterId() == "test");
     b1 = communicator->stringToProxy("test -f 'facet@test'");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet() == "facet@test" && b1->ice_getAdapterId().empty());
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet() == "facet@test" && b1->ice_getAdapterId().empty());
     b1 = communicator->stringToProxy("test -f 'facet@test'@test");
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getFacet() == "facet@test" && b1->ice_getAdapterId() == "test");
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getFacet() == "facet@test" && b1->ice_getAdapterId() == "test");
     try
     {
         b1 = communicator->stringToProxy("test -f facet@test @test");
@@ -417,8 +438,9 @@ allTests(Test::TestHelper* helper)
     string propertyPrefix = "Foo.Proxy";
     prop->setProperty(propertyPrefix, "test:" + endp);
     b1 = communicator->propertyToProxy(propertyPrefix);
-    test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
-         b1->ice_getAdapterId().empty() && b1->ice_getFacet().empty());
+    test(
+        b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
+        b1->ice_getAdapterId().empty() && b1->ice_getFacet().empty());
 
     string property;
 
@@ -589,8 +611,9 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing proxy methods... " << flush;
 
-    test(communicator->identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity()) ==
-         "other");
+    test(
+        communicator->identityToString(base->ice_identity(Ice::stringToIdentity("other"))->ice_getIdentity()) ==
+        "other");
     test(base->ice_facet("facet")->ice_getFacet() == "facet");
     test(base->ice_adapterId("id")->ice_getAdapterId() == "id");
     test(base->ice_twoway()->ice_isTwoway());
@@ -720,14 +743,18 @@ allTests(Test::TestHelper* helper)
     test(compObj->ice_connectionCached(false) < compObj->ice_connectionCached(true));
     test(compObj->ice_connectionCached(true) >= compObj->ice_connectionCached(false));
 
-    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) ==
-         compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random));
-    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) !=
-         compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
-    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) <
-         compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
-    test(compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered) >=
-         compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random));
+    test(
+        compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) ==
+        compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random));
+    test(
+        compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) !=
+        compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+    test(
+        compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random) <
+        compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+    test(
+        compObj->ice_endpointSelection(Ice::EndpointSelectionType::Ordered) >=
+        compObj->ice_endpointSelection(Ice::EndpointSelectionType::Random));
 
     test(compObj->ice_connectionId("id2") == compObj->ice_connectionId("id2"));
     test(compObj->ice_connectionId("id1") != compObj->ice_connectionId("id2"));
@@ -829,16 +856,22 @@ allTests(Test::TestHelper* helper)
     Ice::EndpointSeq endpts1 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
     Ice::EndpointSeq endpts2 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")->ice_getEndpoints();
 
-    test(endpts1.size() != endpts2.size() || !equal(endpts1.begin(), endpts1.end(), endpts2.begin(),
-                                                    Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
-    test(lexicographical_compare(endpts1.begin(), endpts1.end(), endpts2.begin(), endpts2.end(),
-                                 Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
-    test(!lexicographical_compare(endpts2.begin(), endpts2.end(), endpts1.begin(), endpts1.end(),
-                                  Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
+    test(
+        endpts1.size() != endpts2.size() || !equal(
+                                                endpts1.begin(), endpts1.end(), endpts2.begin(),
+                                                Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+    test(lexicographical_compare(
+        endpts1.begin(), endpts1.end(), endpts2.begin(), endpts2.end(),
+        Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
+    test(!lexicographical_compare(
+        endpts2.begin(), endpts2.end(), endpts1.begin(), endpts1.end(),
+        Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::less>()));
 
     Ice::EndpointSeq endpts3 = communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints();
-    test(endpts1.size() == endpts3.size() && equal(endpts1.begin(), endpts1.end(), endpts3.begin(),
-                                                   Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
+    test(
+        endpts1.size() == endpts3.size() && equal(
+                                                endpts1.begin(), endpts1.end(), endpts3.begin(),
+                                                Ice::TargetCompare<shared_ptr<Ice::Endpoint>, std::equal_to>()));
 
     test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) == compObj1->ice_encodingVersion(Ice::Encoding_1_0));
     test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) != compObj1->ice_encodingVersion(Ice::Encoding_1_1));
@@ -1214,8 +1247,9 @@ allTests(Test::TestHelper* helper)
         }
         else if (tcp)
         {
-            test(pstr ==
-                 "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
+            test(
+                pstr ==
+                "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
 
         //
@@ -1236,8 +1270,9 @@ allTests(Test::TestHelper* helper)
             {
                 cerr << pstr << endl;
             }
-            test(pstr ==
-                 "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
+            test(
+                pstr ==
+                "test -t -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
     }
 

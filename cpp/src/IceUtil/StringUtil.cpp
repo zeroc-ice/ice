@@ -295,8 +295,8 @@ namespace
     {
         if (codePoint >= 0xD800 && codePoint <= 0xDFFF)
         {
-            throw IllegalArgumentException(__FILE__, __LINE__,
-                                           "A universal character name cannot designate a surrogate");
+            throw IllegalArgumentException(
+                __FILE__, __LINE__, "A universal character name cannot designate a surrogate");
         }
 
         if (codePoint <= 0x7F)
@@ -337,12 +337,13 @@ namespace
     // nextStart is set to the index of the first character following the decoded
     // character or escape sequence.
     //
-    bool decodeChar(const string& s,
-                    string::size_type start,
-                    string::size_type end,
-                    string::size_type& nextStart,
-                    const string& special,
-                    string& result)
+    bool decodeChar(
+        const string& s,
+        string::size_type start,
+        string::size_type end,
+        string::size_type& nextStart,
+        const string& special,
+        string& result)
     {
         assert(start < end);
         assert(end <= s.size());
@@ -448,8 +449,8 @@ namespace
                     }
                     if (size > 0)
                     {
-                        throw IllegalArgumentException(__FILE__, __LINE__,
-                                                       "Invalid universal character name: too few hex digits");
+                        throw IllegalArgumentException(
+                            __FILE__, __LINE__, "Invalid universal character name: too few hex digits");
                     }
 
                     appendUTF8(codePoint, result);
@@ -641,8 +642,8 @@ IceUtilInternal::splitString(const string& str, const string& delim, vector<stri
             quoteChar = str[pos++];
             continue; // Skip the quote
         }
-        else if (quoteChar == '\0' && str[pos] == '\\' && pos + 1 < length &&
-                 (str[pos + 1] == '\'' || str[pos + 1] == '"'))
+        else if (
+            quoteChar == '\0' && str[pos] == '\\' && pos + 1 < length && (str[pos + 1] == '\'' || str[pos + 1] == '"'))
         {
             ++pos;
         }
@@ -811,11 +812,11 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
     {
         LPWSTR msg = 0;
 
-        DWORD stored =
-            FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
-                               (source != nullptr ? FORMAT_MESSAGE_FROM_HMODULE : 0),
-                           source, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                           reinterpret_cast<LPWSTR>(&msg), 0, nullptr);
+        DWORD stored = FormatMessageW(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS |
+                (source != nullptr ? FORMAT_MESSAGE_FROM_HMODULE : 0),
+            source, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+            reinterpret_cast<LPWSTR>(&msg), 0, nullptr);
 
         if (stored > 0)
         {

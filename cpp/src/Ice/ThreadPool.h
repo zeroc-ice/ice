@@ -236,7 +236,7 @@ namespace IceInternal
 // times.
 //
 #if !defined(ICE_USE_IOCP)
-    template <class T> class ThreadPoolMessage
+    template<class T> class ThreadPoolMessage
     {
     public:
         class IOScope
@@ -277,7 +277,7 @@ namespace IceInternal
 
 #else
 
-    template <class T> class ThreadPoolMessage
+    template<class T> class ThreadPoolMessage
     {
     public:
         class IOScope

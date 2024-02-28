@@ -212,8 +212,8 @@ extern "C"
 {
     auto info = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(*self->endpointInfo);
     assert(info);
-    return PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&info->rawBytes[0]),
-                                     static_cast<int>(info->rawBytes.size()));
+    return PyBytes_FromStringAndSize(
+        reinterpret_cast<const char*>(&info->rawBytes[0]), static_cast<int>(info->rawBytes.size()));
 }
 
 #ifdef WIN32

@@ -252,10 +252,11 @@ namespace Ice::Instrumentation
          * @param size The size of the invocation.
          * @return The observer to instrument the remote invocation.
          */
-        virtual RemoteObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr& con,
-                                                    const Ice::EndpointPtr& endpt,
-                                                    int requestId,
-                                                    int size) = 0;
+        virtual RemoteObserverPtr getRemoteObserver(
+            const Ice::ConnectionInfoPtr& con,
+            const Ice::EndpointPtr& endpt,
+            int requestId,
+            int size) = 0;
 
         /**
          * Get a collocated observer for this invocation.
@@ -319,8 +320,8 @@ namespace Ice::Instrumentation
          * connect to.
          * @return The observer to instrument the connection establishment.
          */
-        virtual ObserverPtr getConnectionEstablishmentObserver(const Ice::EndpointPtr& endpt,
-                                                               const ::std::string& connector) = 0;
+        virtual ObserverPtr
+        getConnectionEstablishmentObserver(const Ice::EndpointPtr& endpt, const ::std::string& connector) = 0;
 
         /**
          * This method should return an observer for the given endpoint information. The Ice run-time calls this method
@@ -341,10 +342,11 @@ namespace Ice::Instrumentation
          * @param o The old connection observer if one is already set or a null reference otherwise.
          * @return The connection observer to instrument the connection.
          */
-        virtual ConnectionObserverPtr getConnectionObserver(const Ice::ConnectionInfoPtr& c,
-                                                            const Ice::EndpointPtr& e,
-                                                            ConnectionState s,
-                                                            const ConnectionObserverPtr& o) = 0;
+        virtual ConnectionObserverPtr getConnectionObserver(
+            const Ice::ConnectionInfoPtr& c,
+            const Ice::EndpointPtr& e,
+            ConnectionState s,
+            const ConnectionObserverPtr& o) = 0;
 
         /**
          * This method should return a thread observer for the given thread. The Ice run-time calls this method for each
@@ -356,10 +358,11 @@ namespace Ice::Instrumentation
          * @param o The old thread observer if one is already set or a null reference otherwise.
          * @return The thread observer to instrument the thread.
          */
-        virtual ThreadObserverPtr getThreadObserver(const ::std::string& parent,
-                                                    const ::std::string& id,
-                                                    ThreadState s,
-                                                    const ThreadObserverPtr& o) = 0;
+        virtual ThreadObserverPtr getThreadObserver(
+            const ::std::string& parent,
+            const ::std::string& id,
+            ThreadState s,
+            const ThreadObserverPtr& o) = 0;
 
         /**
          * This method should return an invocation observer for the given invocation. The Ice run-time calls this method
@@ -369,9 +372,10 @@ namespace Ice::Instrumentation
          * @param ctx The context specified by the user.
          * @return The invocation observer to instrument the invocation.
          */
-        virtual InvocationObserverPtr getInvocationObserver(const std::optional<Ice::ObjectPrx>& prx,
-                                                            const ::std::string& operation,
-                                                            const ::Ice::Context& ctx) = 0;
+        virtual InvocationObserverPtr getInvocationObserver(
+            const std::optional<Ice::ObjectPrx>& prx,
+            const ::std::string& operation,
+            const ::Ice::Context& ctx) = 0;
 
         /**
          * This method should return a dispatch observer for the given dispatch. The Ice run-time calls this method each

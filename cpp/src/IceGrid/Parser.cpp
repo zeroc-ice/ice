@@ -2177,7 +2177,13 @@ Parser::show(const string& reader, const list<string>& origArgs)
 
 void
 Parser::showFile(
-    const string& id, const string& reader, const string& filename, bool head, bool tail, bool follow, int lineCount)
+    const string& id,
+    const string& reader,
+    const string& filename,
+    bool head,
+    bool tail,
+    bool follow,
+    int lineCount)
 {
 
     int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;

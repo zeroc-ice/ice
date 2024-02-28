@@ -806,10 +806,11 @@ IceInternal::WSTransceiver::setBufferSize(int rcvSize, int sndSize)
     _delegate->setBufferSize(rcvSize, sndSize);
 }
 
-IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance,
-                                          const TransceiverPtr& del,
-                                          const string& host,
-                                          const string& resource)
+IceInternal::WSTransceiver::WSTransceiver(
+    const ProtocolInstancePtr& instance,
+    const TransceiverPtr& del,
+    const string& host,
+    const string& resource)
     : _instance(instance),
       _delegate(del),
       _host(host),
@@ -1455,8 +1456,9 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
             _writeState = WriteStateControlFrame;
             _writeBuffer.i = _writeBuffer.b.begin();
         }
-        else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
-                 (_state == StateClosingResponsePending && _closingInitiator))
+        else if (
+            (_state == StateClosingRequestPending && !_closingInitiator) ||
+            (_state == StateClosingResponsePending && _closingInitiator))
         {
             prepareWriteHeader(OP_CLOSE, 2);
 
@@ -1517,8 +1519,8 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         }
         else if (_writePayloadLength == 0)
         {
-            size_t n = min(static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i),
-                           static_cast<size_t>(buf.b.end() - buf.i));
+            size_t n = min(
+                static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i), static_cast<size_t>(buf.b.end() - buf.i));
             memcpy(_writeBuffer.i, buf.i, n);
             _writeBuffer.i += n;
             buf.i += n;
@@ -1560,8 +1562,9 @@ IceInternal::WSTransceiver::postWrite(Buffer& buf)
                     out << "sent " << protocol() << " connection pong frame\n" << toString();
                 }
             }
-            else if ((_state == StateClosingRequestPending && !_closingInitiator) ||
-                     (_state == StateClosingResponsePending && _closingInitiator))
+            else if (
+                (_state == StateClosingRequestPending && !_closingInitiator) ||
+                (_state == StateClosingResponsePending && _closingInitiator))
             {
                 if (_instance->traceLevel() >= 2)
                 {

@@ -42,7 +42,7 @@
 namespace IceInternal
 {
 
-    template <typename T> class ThreadPoolMessage;
+    template<typename T> class ThreadPoolMessage;
 
 }
 
@@ -134,8 +134,9 @@ namespace Ice
             CommunicatorDestroyed
         };
 
-        void startAsync(std::function<void(ConnectionIPtr)>,
-                        std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
+        void startAsync(
+            std::function<void(ConnectionIPtr)>,
+            std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
         void activate();
         void hold();
         void destroy(DestructionReason);
@@ -157,17 +158,18 @@ namespace Ice
 
         const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
 
-        virtual std::function<void()> flushBatchRequestsAsync(CompressBatch,
-                                                              ::std::function<void(::std::exception_ptr)>,
-                                                              ::std::function<void(bool)> = nullptr);
+        virtual std::function<void()> flushBatchRequestsAsync(
+            CompressBatch,
+            ::std::function<void(::std::exception_ptr)>,
+            ::std::function<void(bool)> = nullptr);
 
         virtual void setCloseCallback(CloseCallback);
         virtual void setHeartbeatCallback(HeartbeatCallback);
 
         virtual void heartbeat();
 
-        virtual std::function<void()> heartbeatAsync(::std::function<void(::std::exception_ptr)>,
-                                                     ::std::function<void(bool)> = nullptr);
+        virtual std::function<void()>
+            heartbeatAsync(::std::function<void(::std::exception_ptr)>, ::std::function<void(bool)> = nullptr);
 
         virtual void
         setACM(const std::optional<int>&, const std::optional<ACMClose>&, const std::optional<ACMHeartbeat>&);
@@ -213,16 +215,17 @@ namespace Ice
 
         void exception(std::exception_ptr);
 
-        void dispatch(std::function<void(ConnectionIPtr)>,
-                      const std::vector<OutgoingMessage>&,
-                      Byte,
-                      std::int32_t,
-                      std::int32_t,
-                      const IceInternal::ServantManagerPtr&,
-                      const ObjectAdapterPtr&,
-                      const IceInternal::OutgoingAsyncBasePtr&,
-                      const HeartbeatCallback&,
-                      Ice::InputStream&);
+        void dispatch(
+            std::function<void(ConnectionIPtr)>,
+            const std::vector<OutgoingMessage>&,
+            Byte,
+            std::int32_t,
+            std::int32_t,
+            const IceInternal::ServantManagerPtr&,
+            const ObjectAdapterPtr&,
+            const IceInternal::OutgoingAsyncBasePtr&,
+            const HeartbeatCallback&,
+            Ice::InputStream&);
         void finish(bool);
 
         void closeCallback(const CloseCallback&);
@@ -230,21 +233,23 @@ namespace Ice
         virtual ~ConnectionI();
 
     private:
-        ConnectionI(const Ice::CommunicatorPtr&,
-                    const IceInternal::InstancePtr&,
-                    const IceInternal::ACMMonitorPtr&,
-                    const IceInternal::TransceiverPtr&,
-                    const IceInternal::ConnectorPtr&,
-                    const IceInternal::EndpointIPtr&,
-                    const std::shared_ptr<ObjectAdapterI>&);
+        ConnectionI(
+            const Ice::CommunicatorPtr&,
+            const IceInternal::InstancePtr&,
+            const IceInternal::ACMMonitorPtr&,
+            const IceInternal::TransceiverPtr&,
+            const IceInternal::ConnectorPtr&,
+            const IceInternal::EndpointIPtr&,
+            const std::shared_ptr<ObjectAdapterI>&);
 
-        static ConnectionIPtr create(const Ice::CommunicatorPtr&,
-                                     const IceInternal::InstancePtr&,
-                                     const IceInternal::ACMMonitorPtr&,
-                                     const IceInternal::TransceiverPtr&,
-                                     const IceInternal::ConnectorPtr&,
-                                     const IceInternal::EndpointIPtr&,
-                                     const std::shared_ptr<ObjectAdapterI>&);
+        static ConnectionIPtr create(
+            const Ice::CommunicatorPtr&,
+            const IceInternal::InstancePtr&,
+            const IceInternal::ACMMonitorPtr&,
+            const IceInternal::TransceiverPtr&,
+            const IceInternal::ConnectorPtr&,
+            const IceInternal::EndpointIPtr&,
+            const std::shared_ptr<ObjectAdapterI>&);
 
         enum State
         {
@@ -277,22 +282,24 @@ namespace Ice
         void doUncompress(Ice::InputStream&, Ice::InputStream&);
 #endif
 
-        IceInternal::SocketOperation parseMessage(Ice::InputStream&,
-                                                  std::int32_t&,
-                                                  std::int32_t&,
-                                                  Byte&,
-                                                  IceInternal::ServantManagerPtr&,
-                                                  ObjectAdapterPtr&,
-                                                  IceInternal::OutgoingAsyncBasePtr&,
-                                                  HeartbeatCallback&,
-                                                  int&);
+        IceInternal::SocketOperation parseMessage(
+            Ice::InputStream&,
+            std::int32_t&,
+            std::int32_t&,
+            Byte&,
+            IceInternal::ServantManagerPtr&,
+            ObjectAdapterPtr&,
+            IceInternal::OutgoingAsyncBasePtr&,
+            HeartbeatCallback&,
+            int&);
 
-        void invokeAll(Ice::InputStream&,
-                       std::int32_t,
-                       std::int32_t,
-                       Byte,
-                       const IceInternal::ServantManagerPtr&,
-                       const ObjectAdapterPtr&);
+        void invokeAll(
+            Ice::InputStream&,
+            std::int32_t,
+            std::int32_t,
+            Byte,
+            const IceInternal::ServantManagerPtr&,
+            const ObjectAdapterPtr&);
 
         void scheduleTimeout(IceInternal::SocketOperation status);
         void unscheduleTimeout(IceInternal::SocketOperation status);
@@ -372,7 +379,7 @@ namespace Ice
         mutable std::condition_variable _conditionVariable;
 
         // For locking the _mutex
-        template <typename T> friend class IceInternal::ThreadPoolMessage;
+        template<typename T> friend class IceInternal::ThreadPoolMessage;
     };
 
 }

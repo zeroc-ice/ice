@@ -86,19 +86,21 @@ BlobjectI::ice_invoke(vector<Ice::Byte> inEncaps, vector<Ice::Byte>& outEncaps, 
 }
 
 bool
-BlobjectArrayI::ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                           vector<Ice::Byte>& outEncaps,
-                           const Ice::Current& current)
+BlobjectArrayI::ice_invoke(
+    pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+    vector<Ice::Byte>& outEncaps,
+    const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     return invokeInternal(in, outEncaps, current);
 }
 
 void
-BlobjectAsyncI::ice_invokeAsync(vector<Ice::Byte> inEncaps,
-                                function<void(bool, const vector<Ice::Byte>&)> response,
-                                function<void(exception_ptr)>,
-                                const Ice::Current& current)
+BlobjectAsyncI::ice_invokeAsync(
+    vector<Ice::Byte> inEncaps,
+    function<void(bool, const vector<Ice::Byte>&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);
     vector<Ice::Byte> outEncaps;
@@ -107,16 +109,17 @@ BlobjectAsyncI::ice_invokeAsync(vector<Ice::Byte> inEncaps,
 }
 
 void
-BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                                     function<void(exception_ptr)>,
-                                     const Ice::Current& current)
+BlobjectArrayAsyncI::ice_invokeAsync(
+    pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);
     vector<Ice::Byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
-    pair<const Ice::Byte*, const Ice::Byte*> outPair(static_cast<const Ice::Byte*>(nullptr),
-                                                     static_cast<const Ice::Byte*>(nullptr));
+    pair<const Ice::Byte*, const Ice::Byte*> outPair(
+        static_cast<const Ice::Byte*>(nullptr), static_cast<const Ice::Byte*>(nullptr));
     if (outEncaps.size() != 0)
     {
         outPair.first = &outEncaps[0];

@@ -23,18 +23,19 @@ public:
     virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
     virtual void opBatch(const Ice::Current&);
     virtual std::int32_t opBatchCount(const Ice::Current&);
-    virtual void opWithArgs(std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            std::int32_t&,
-                            const Ice::Current&);
+    virtual void opWithArgs(
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        std::int32_t&,
+        const Ice::Current&);
     virtual bool waitForBatch(std::int32_t, const Ice::Current&);
     virtual void close(Test::CloseMode, const Ice::Current&);
     virtual void sleep(std::int32_t, const Ice::Current&);

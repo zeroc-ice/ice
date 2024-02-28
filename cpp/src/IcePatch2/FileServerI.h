@@ -24,13 +24,13 @@ namespace IcePatch2
 
         Ice::ByteSeq getChecksum(const Ice::Current&) const;
 
-        void
-        getFileCompressedAsync(std::string,
-                               std::int32_t,
-                               std::int32_t,
-                               std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
-                               std::function<void(std::exception_ptr)>,
-                               const Ice::Current&) const;
+        void getFileCompressedAsync(
+            std::string,
+            std::int32_t,
+            std::int32_t,
+            std::function<void(const std::pair<const Ice::Byte*, const Ice::Byte*>& returnValue)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const;
 
         void getLargeFileCompressedAsync(
             std::string,

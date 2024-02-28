@@ -347,8 +347,9 @@ RegistryObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
 }
 
 shared_ptr<NodeObserverTopic>
-NodeObserverTopic::create(const IceStorm::TopicManagerPrxPtr& topicManager,
-                          const shared_ptr<Ice::ObjectAdapter>& adapter)
+NodeObserverTopic::create(
+    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const shared_ptr<Ice::ObjectAdapter>& adapter)
 {
     shared_ptr<NodeObserverTopic> topic(new NodeObserverTopic(topicManager));
 
@@ -601,9 +602,10 @@ NodeObserverTopic::isServerEnabled(const string& server) const
     }
 }
 
-ApplicationObserverTopic::ApplicationObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager,
-                                                   const map<string, ApplicationInfo>& applications,
-                                                   int64_t serial)
+ApplicationObserverTopic::ApplicationObserverTopic(
+    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const map<string, ApplicationInfo>& applications,
+    int64_t serial)
     : ObserverTopic(topicManager, "ApplicationObserver", serial),
       _applications(applications)
 {
@@ -761,9 +763,10 @@ ApplicationObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
     observer->applicationInit(_serial, applications, getContext(_serial, _dbSerial));
 }
 
-AdapterObserverTopic::AdapterObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager,
-                                           const map<string, AdapterInfo>& adapters,
-                                           int64_t serial)
+AdapterObserverTopic::AdapterObserverTopic(
+    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const map<string, AdapterInfo>& adapters,
+    int64_t serial)
     : ObserverTopic(topicManager, "AdapterObserver", serial),
       _adapters(adapters)
 {
@@ -890,9 +893,10 @@ AdapterObserverTopic::initObserver(const Ice::ObjectPrxPtr& obsv)
     observer->adapterInit(adapters, getContext(_serial, _dbSerial));
 }
 
-ObjectObserverTopic::ObjectObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager,
-                                         const map<Ice::Identity, ObjectInfo>& objects,
-                                         int64_t serial)
+ObjectObserverTopic::ObjectObserverTopic(
+    const IceStorm::TopicManagerPrxPtr& topicManager,
+    const map<Ice::Identity, ObjectInfo>& objects,
+    int64_t serial)
     : ObserverTopic(topicManager, "ObjectObserver", serial),
       _objects(objects)
 {

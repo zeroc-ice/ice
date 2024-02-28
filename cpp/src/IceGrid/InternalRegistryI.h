@@ -21,11 +21,12 @@ namespace IceGrid
     class InternalRegistryI : public InternalRegistry
     {
     public:
-        InternalRegistryI(const std::shared_ptr<RegistryI>&,
-                          const std::shared_ptr<Database>&,
-                          const std::shared_ptr<ReapThread>&,
-                          const std::shared_ptr<WellKnownObjectsManager>&,
-                          ReplicaSessionManager&);
+        InternalRegistryI(
+            const std::shared_ptr<RegistryI>&,
+            const std::shared_ptr<Database>&,
+            const std::shared_ptr<ReapThread>&,
+            const std::shared_ptr<WellKnownObjectsManager>&,
+            ReplicaSessionManager&);
 
         NodeSessionPrxPtr
         registerNode(std::shared_ptr<InternalNodeInfo>, NodePrxPtr, LoadInfo, const Ice::Current&) override;

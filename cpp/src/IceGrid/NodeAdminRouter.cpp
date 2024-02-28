@@ -18,10 +18,11 @@ NodeServerAdminRouter::NodeServerAdminRouter(const shared_ptr<NodeI>& node)
 }
 
 void
-NodeServerAdminRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                                       function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                                       function<void(exception_ptr)> exception,
-                                       const Ice::Current& current)
+NodeServerAdminRouter::ice_invokeAsync(
+    pair<const Ice::Byte*, const Ice::Byte*> inParams,
+    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
     //
     // First, get the ServerI servant

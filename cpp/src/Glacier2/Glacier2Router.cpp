@@ -359,8 +359,9 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    _sessionRouter = make_shared<SessionRouterI>(_instance, std::move(verifier), std::move(sessionManager),
-                                                 std::move(sslVerifier), std::move(sslSessionManager));
+    _sessionRouter = make_shared<SessionRouterI>(
+        _instance, std::move(verifier), std::move(sessionManager), std::move(sslVerifier),
+        std::move(sslSessionManager));
 
     //
     // Registers session router and all required servant locators
@@ -455,10 +456,11 @@ RouterService::stop()
 }
 
 shared_ptr<Communicator>
-RouterService::initializeCommunicator(int& argc,
-                                      char* argv[],
-                                      const InitializationData& initializationData,
-                                      int version)
+RouterService::initializeCommunicator(
+    int& argc,
+    char* argv[],
+    const InitializationData& initializationData,
+    int version)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
@@ -479,11 +481,12 @@ RouterService::initializeCommunicator(int& argc,
 
         if (!cryptPasswords.empty())
         {
-            initData.properties->setProperty("Ice.Plugin.Glacier2CryptPermissionsVerifier",
-                                             "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
+            initData.properties->setProperty(
+                "Ice.Plugin.Glacier2CryptPermissionsVerifier",
+                "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
-            initData.properties->setProperty("Glacier2CryptPermissionsVerifier.Glacier2.PermissionsVerifier",
-                                             cryptPasswords);
+            initData.properties->setProperty(
+                "Glacier2CryptPermissionsVerifier.Glacier2.PermissionsVerifier", cryptPasswords);
         }
     }
 

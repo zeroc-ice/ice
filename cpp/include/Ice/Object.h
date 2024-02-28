@@ -110,9 +110,10 @@ namespace Ice
          * @return True if the request completed synchronously, false if the request will be completed asynchronously.
          * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
          */
-        virtual bool ice_dispatch(Ice::Request& request,
-                                  std::function<bool()> response = nullptr,
-                                  std::function<bool(std::exception_ptr)> error = nullptr);
+        virtual bool ice_dispatch(
+            Ice::Request& request,
+            std::function<bool()> response = nullptr,
+            std::function<bool(std::exception_ptr)> error = nullptr);
 
         /// \cond INTERNAL
         virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -171,9 +172,10 @@ namespace Ice
          * @throws UserException A user exception can be raised directly and the
          * run time will marshal it.
          */
-        virtual bool ice_invoke(std::pair<const Byte*, const Byte*> inEncaps,
-                                std::vector<Byte>& outEncaps,
-                                const Current& current) = 0;
+        virtual bool ice_invoke(
+            std::pair<const Byte*, const Byte*> inEncaps,
+            std::vector<Byte>& outEncaps,
+            const Current& current) = 0;
 
         /// \cond INTERNAL
         virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -201,10 +203,11 @@ namespace Ice
          * @throws UserException A user exception can be raised directly and the
          * run time will marshal it.
          */
-        virtual void ice_invokeAsync(std::vector<Byte> inEncaps,
-                                     std::function<void(bool, const std::vector<Byte>&)> response,
-                                     std::function<void(std::exception_ptr)> error,
-                                     const Current& current) = 0;
+        virtual void ice_invokeAsync(
+            std::vector<Byte> inEncaps,
+            std::function<void(bool, const std::vector<Byte>&)> response,
+            std::function<void(std::exception_ptr)> error,
+            const Current& current) = 0;
 
         /// \cond INTERNAL
         virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -232,10 +235,11 @@ namespace Ice
          * @throws UserException A user exception can be raised directly and the
          * run time will marshal it.
          */
-        virtual void ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
-                                     std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
-                                     std::function<void(std::exception_ptr)> error,
-                                     const Current& current) = 0;
+        virtual void ice_invokeAsync(
+            std::pair<const Byte*, const Byte*> inEncaps,
+            std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
+            std::function<void(std::exception_ptr)> error,
+            const Current& current) = 0;
         /// \cond INTERNAL
         virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
         /// \endcond

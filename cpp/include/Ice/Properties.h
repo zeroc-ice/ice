@@ -109,8 +109,8 @@ namespace Ice
          * @return The property value interpreted as list of strings, or the default value.
          * @see #setProperty
          */
-        virtual ::Ice::StringSeq getPropertyAsListWithDefault(const ::std::string& key,
-                                                              const StringSeq& value) noexcept = 0;
+        virtual ::Ice::StringSeq
+        getPropertyAsListWithDefault(const ::std::string& key, const StringSeq& value) noexcept = 0;
 
         /**
          * Get all properties whose keys begins with <em>prefix</em>. If <em>prefix</em> is an empty string, then all

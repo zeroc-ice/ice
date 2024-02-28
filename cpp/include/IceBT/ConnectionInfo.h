@@ -75,17 +75,18 @@ namespace IceBT
          * @param rcvSize The connection buffer receive size.
          * @param sndSize The connection buffer send size.
          */
-        ConnectionInfo(const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
-                       bool incoming,
-                       const ::std::string& adapterName,
-                       const ::std::string& connectionId,
-                       const ::std::string& localAddress,
-                       int localChannel,
-                       const ::std::string& remoteAddress,
-                       int remoteChannel,
-                       const ::std::string& uuid,
-                       int rcvSize,
-                       int sndSize)
+        ConnectionInfo(
+            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            bool incoming,
+            const ::std::string& adapterName,
+            const ::std::string& connectionId,
+            const ::std::string& localAddress,
+            int localChannel,
+            const ::std::string& remoteAddress,
+            int remoteChannel,
+            const ::std::string& uuid,
+            int rcvSize,
+            int sndSize)
             : ::Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
               localAddress(localAddress),
               localChannel(localChannel),

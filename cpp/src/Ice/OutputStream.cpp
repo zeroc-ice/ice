@@ -82,9 +82,10 @@ Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, const Encod
     initialize(communicator, encoding);
 }
 
-Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator,
-                                const EncodingVersion& encoding,
-                                const pair<const Byte*, const Byte*>& buf)
+Ice::OutputStream::OutputStream(
+    const CommunicatorPtr& communicator,
+    const EncodingVersion& encoding,
+    const pair<const Byte*, const Byte*>& buf)
     : Buffer(buf.first, buf.second),
       _closure(0),
       _currentEncaps(0)
@@ -268,7 +269,7 @@ Ice::OutputStream::write(const vector<bool>& v)
 namespace
 {
 
-    template <size_t boolSize> struct WriteBoolHelper
+    template<size_t boolSize> struct WriteBoolHelper
     {
         static void
         write(const bool* begin, OutputStream::Container::size_type pos, OutputStream::Container& b, int32_t sz)
@@ -280,7 +281,7 @@ namespace
         }
     };
 
-    template <> struct WriteBoolHelper<1>
+    template<> struct WriteBoolHelper<1>
     {
         static void
         write(const bool* begin, OutputStream::Container::size_type pos, OutputStream::Container& b, int32_t sz)

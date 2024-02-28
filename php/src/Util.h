@@ -28,7 +28,7 @@ namespace IcePHP
     void* extractWrapper(zval*);
 
     // Wraps a C++ pointer inside a PHP object.
-    template <typename T> struct Wrapper
+    template<typename T> struct Wrapper
     {
         T* ptr;
 
@@ -45,8 +45,8 @@ namespace IcePHP
 
         static Wrapper<T>* extract(zval* zv)
         {
-            return reinterpret_cast<Wrapper<T>*>(reinterpret_cast<char*>(extractWrapper(zv)) -
-                                                 XtOffsetOf(Wrapper<T>, zobj));
+            return reinterpret_cast<Wrapper<T>*>(
+                reinterpret_cast<char*>(extractWrapper(zv)) - XtOffsetOf(Wrapper<T>, zobj));
         }
 
         static Wrapper<T>* fetch(zend_object* object)

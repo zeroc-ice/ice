@@ -13,7 +13,7 @@
 using namespace IceUtil;
 using namespace std;
 
-template <typename T> struct TargetLess
+template<typename T> struct TargetLess
 {
     bool operator()(const T& lhs, const T& rhs) const
     {

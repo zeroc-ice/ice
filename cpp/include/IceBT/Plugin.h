@@ -41,8 +41,9 @@ namespace IceBT
          * @param address The address associated with the Bluetooth adapter.
          * @param cb The callback to invoke when a device is discovered.
          */
-        virtual void startDiscovery(const std::string& address,
-                                    std::function<void(const std::string& addr, const PropertyMap& props)> cb) = 0;
+        virtual void startDiscovery(
+            const std::string& address,
+            std::function<void(const std::string& addr, const PropertyMap& props)> cb) = 0;
 
         /**
          * Stops Bluetooth device discovery on the adapter with the specified address.

@@ -15,7 +15,7 @@ namespace IceInternal
     //
     // UniqueRef helper class for CoreFoundation classes, comparable to std::unique_ptr
     //
-    template <typename R> class UniqueRef
+    template<typename R> class UniqueRef
     {
     public:
         explicit UniqueRef(R ref = 0) : _ref(ref) {}

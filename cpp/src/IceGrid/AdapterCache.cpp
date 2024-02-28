@@ -202,8 +202,8 @@ AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const shared_ptr<S
             // Add an un-assigned replica group, the replica group will in theory be added
             // shortly after when its application is loaded.
             //
-            repEntry = make_shared<ReplicaGroupEntry>(*this, desc.replicaGroupId, "",
-                                                      make_shared<RandomLoadBalancingPolicy>("0"), "");
+            repEntry = make_shared<ReplicaGroupEntry>(
+                *this, desc.replicaGroupId, "", make_shared<RandomLoadBalancingPolicy>("0"), "");
             addImpl(desc.replicaGroupId, repEntry);
         }
         repEntry->addReplica(desc.id, entry);
@@ -346,12 +346,13 @@ AdapterEntry::getApplication() const
     return _application;
 }
 
-ServerAdapterEntry::ServerAdapterEntry(AdapterCache& cache,
-                                       const string& id,
-                                       const string& application,
-                                       const string& replicaGroupId,
-                                       int priority,
-                                       const shared_ptr<ServerEntry>& server)
+ServerAdapterEntry::ServerAdapterEntry(
+    AdapterCache& cache,
+    const string& id,
+    const string& application,
+    const string& replicaGroupId,
+    int priority,
+    const shared_ptr<ServerEntry>& server)
     : AdapterEntry(cache, id, application),
       _replicaGroupId(replicaGroupId),
       _priority(priority),
@@ -374,7 +375,12 @@ ServerAdapterEntry::addSyncCallback(const shared_ptr<SynchronizationCallback>& c
 
 void
 ServerAdapterEntry::getLocatorAdapterInfo(
-    LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup, bool& roundRobin, string&, const set<string>&)
+    LocatorAdapterInfoSeq& adapters,
+    int& nReplicas,
+    bool& replicaGroup,
+    bool& roundRobin,
+    string&,
+    const set<string>&)
 {
     nReplicas = 1;
     replicaGroup = false;
@@ -474,11 +480,12 @@ ServerAdapterEntry::getNodeName() const
     }
 }
 
-ReplicaGroupEntry::ReplicaGroupEntry(AdapterCache& cache,
-                                     const string& id,
-                                     const string& application,
-                                     const shared_ptr<LoadBalancingPolicy>& policy,
-                                     const string& filter)
+ReplicaGroupEntry::ReplicaGroupEntry(
+    AdapterCache& cache,
+    const string& id,
+    const string& application,
+    const shared_ptr<LoadBalancingPolicy>& policy,
+    const string& filter)
     : AdapterEntry(cache, id, application),
       _lastReplica(0),
       _requestInProgress(false)
@@ -564,9 +571,10 @@ ReplicaGroupEntry::removeReplica(const string& replicaId)
 }
 
 void
-ReplicaGroupEntry::update(const string& application,
-                          const shared_ptr<LoadBalancingPolicy>& policy,
-                          const string& filter)
+ReplicaGroupEntry::update(
+    const string& application,
+    const shared_ptr<LoadBalancingPolicy>& policy,
+    const string& filter)
 {
     lock_guard lock(_mutex);
 
@@ -609,12 +617,13 @@ ReplicaGroupEntry::update(const string& application,
 }
 
 void
-ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters,
-                                         int& nReplicas,
-                                         bool& replicaGroup,
-                                         bool& roundRobin,
-                                         string& filter,
-                                         const set<string>& excludes)
+ReplicaGroupEntry::getLocatorAdapterInfo(
+    LocatorAdapterInfoSeq& adapters,
+    int& nReplicas,
+    bool& replicaGroup,
+    bool& roundRobin,
+    string& filter,
+    const set<string>& excludes)
 {
     vector<shared_ptr<ServerAdapterEntry>> replicas;
     bool adaptive = false;
@@ -654,8 +663,9 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters,
         else if (dynamic_pointer_cast<OrderedLoadBalancingPolicy>(_loadBalancing))
         {
             replicas = _replicas;
-            sort(replicas.begin(), replicas.end(),
-                 [](const auto& lhs, const auto& rhs) { return lhs->getPriority() < rhs->getPriority(); });
+            sort(
+                replicas.begin(), replicas.end(),
+                [](const auto& lhs, const auto& rhs) { return lhs->getPriority() < rhs->getPriority(); });
         }
         else if (dynamic_pointer_cast<RandomLoadBalancingPolicy>(_loadBalancing))
         {
@@ -678,10 +688,11 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters,
             // each adapter and sort the snapshot.
             //
             vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
-            transform(replicas.begin(), replicas.end(), back_inserter(rl),
-                      [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
-                          return {value->getLeastLoadedNodeLoad(loadSample), value};
-                      });
+            transform(
+                replicas.begin(), replicas.end(), back_inserter(rl),
+                [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
+                    return {value->getLeastLoadedNodeLoad(loadSample), value};
+                });
             sort(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; });
             replicas.clear();
             transform(rl.begin(), rl.end(), back_inserter(replicas), [](const auto& value) { return value.second; });
@@ -768,10 +779,11 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     {
         IceUtilInternal::shuffle(replicas.begin(), replicas.end());
         vector<pair<float, shared_ptr<ServerAdapterEntry>>> rl;
-        transform(replicas.begin(), replicas.end(), back_inserter(rl),
-                  [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
-                      return {value->getLeastLoadedNodeLoad(loadSample), value};
-                  });
+        transform(
+            replicas.begin(), replicas.end(), back_inserter(rl),
+            [loadSample](const auto& value) -> pair<float, shared_ptr<ServerAdapterEntry>> {
+                return {value->getLeastLoadedNodeLoad(loadSample), value};
+            });
         return min_element(rl.begin(), rl.end(), [](const auto& lhs, const auto& rhs) { return lhs.first < rhs.first; })
             ->first;
     }

@@ -63,15 +63,17 @@ allTests(Test::TestHelper* helper)
         test(ipEndpoint->sourceAddress == "10.10.10.10");
         test(ipEndpoint->compress);
         test(!ipEndpoint->datagram());
-        test((ipEndpoint->type() == Ice::TCPEndpointType && !ipEndpoint->secure()) ||
-             (ipEndpoint->type() == Ice::SSLEndpointType && ipEndpoint->secure()) ||
-             (ipEndpoint->type() == Ice::WSEndpointType && !ipEndpoint->secure()) ||
-             (ipEndpoint->type() == Ice::WSSEndpointType && ipEndpoint->secure()));
+        test(
+            (ipEndpoint->type() == Ice::TCPEndpointType && !ipEndpoint->secure()) ||
+            (ipEndpoint->type() == Ice::SSLEndpointType && ipEndpoint->secure()) ||
+            (ipEndpoint->type() == Ice::WSEndpointType && !ipEndpoint->secure()) ||
+            (ipEndpoint->type() == Ice::WSSEndpointType && ipEndpoint->secure()));
 
-        test((ipEndpoint->type() == Ice::TCPEndpointType && dynamic_pointer_cast<Ice::TCPEndpointInfo>(info)) ||
-             (ipEndpoint->type() == Ice::SSLEndpointType && dynamic_pointer_cast<IceSSL::EndpointInfo>(info)) ||
-             (ipEndpoint->type() == Ice::WSEndpointType && dynamic_pointer_cast<Ice::WSEndpointInfo>(info)) ||
-             (ipEndpoint->type() == Ice::WSSEndpointType && dynamic_pointer_cast<Ice::WSEndpointInfo>(info)));
+        test(
+            (ipEndpoint->type() == Ice::TCPEndpointType && dynamic_pointer_cast<Ice::TCPEndpointInfo>(info)) ||
+            (ipEndpoint->type() == Ice::SSLEndpointType && dynamic_pointer_cast<IceSSL::EndpointInfo>(info)) ||
+            (ipEndpoint->type() == Ice::WSEndpointType && dynamic_pointer_cast<Ice::WSEndpointInfo>(info)) ||
+            (ipEndpoint->type() == Ice::WSSEndpointType && dynamic_pointer_cast<Ice::WSEndpointInfo>(info)));
 
         Ice::UDPEndpointInfoPtr udpEndpoint = dynamic_pointer_cast<Ice::UDPEndpointInfo>(endps[1]->getInfo());
         test(udpEndpoint);
@@ -101,8 +103,8 @@ allTests(Test::TestHelper* helper)
     {
         cout << "test object adapter endpoint information... " << flush;
         {
-            communicator->getProperties()->setProperty("TestAdapter.Endpoints",
-                                                       "default -h 127.0.0.1 -t 15000:udp -h 127.0.0.1");
+            communicator->getProperties()->setProperty(
+                "TestAdapter.Endpoints", "default -h 127.0.0.1 -t 15000:udp -h 127.0.0.1");
             Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
 
             Ice::EndpointSeq endpoints = adapter->getEndpoints();
@@ -112,8 +114,9 @@ allTests(Test::TestHelper* helper)
 
             Ice::TCPEndpointInfoPtr ipEndpoint = getTCPEndpointInfo(endpoints[0]->getInfo());
             test(ipEndpoint);
-            test(ipEndpoint->type() == Ice::TCPEndpointType || ipEndpoint->type() == Ice::SSLEndpointType ||
-                 ipEndpoint->type() == Ice::WSEndpointType || ipEndpoint->type() == Ice::WSSEndpointType);
+            test(
+                ipEndpoint->type() == Ice::TCPEndpointType || ipEndpoint->type() == Ice::SSLEndpointType ||
+                ipEndpoint->type() == Ice::WSEndpointType || ipEndpoint->type() == Ice::WSSEndpointType);
             test(ipEndpoint->host == "127.0.0.1");
             test(ipEndpoint->port > 0);
             test(ipEndpoint->timeout == 15000);

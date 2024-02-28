@@ -20,30 +20,34 @@ namespace IceGrid
     public:
         LocatorRegistryI(const std::shared_ptr<Database>&, bool, bool, ReplicaSessionManager&);
 
-        void setAdapterDirectProxyAsync(std::string,
-                                        Ice::ObjectPrxPtr,
-                                        std::function<void()>,
-                                        std::function<void(std::exception_ptr)>,
-                                        const Ice::Current&) override;
+        void setAdapterDirectProxyAsync(
+            std::string,
+            Ice::ObjectPrxPtr,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) override;
 
-        void setReplicatedAdapterDirectProxyAsync(std::string,
-                                                  std::string,
-                                                  Ice::ObjectPrxPtr,
-                                                  std::function<void()>,
-                                                  std::function<void(std::exception_ptr)>,
-                                                  const Ice::Current&) override;
+        void setReplicatedAdapterDirectProxyAsync(
+            std::string,
+            std::string,
+            Ice::ObjectPrxPtr,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) override;
 
-        void setServerProcessProxyAsync(std::string,
-                                        Ice::ProcessPrxPtr,
-                                        std::function<void()>,
-                                        std::function<void(std::exception_ptr)>,
-                                        const Ice::Current&) override;
+        void setServerProcessProxyAsync(
+            std::string,
+            Ice::ProcessPrxPtr,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) override;
 
-        void setAdapterDirectProxy(std::string,
-                                   std::string,
-                                   Ice::ObjectPrxPtr,
-                                   std::function<void()>,
-                                   std::function<void(std::exception_ptr)>);
+        void setAdapterDirectProxy(
+            std::string,
+            std::string,
+            Ice::ObjectPrxPtr,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>);
 
         const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 

@@ -29,13 +29,14 @@ namespace IceSSL
         //
         // Read certificate from a file.
         //
-        CFArrayRef loadCertificateChain(const std::string&,
-                                        const std::string&,
-                                        const std::string&,
-                                        const std::string&,
-                                        const std::string&,
-                                        const PasswordPromptPtr&,
-                                        int);
+        CFArrayRef loadCertificateChain(
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            const PasswordPromptPtr&,
+            int);
 
         SecCertificateRef loadCertificate(const std::string&);
         CFArrayRef loadCACertificates(const std::string&);

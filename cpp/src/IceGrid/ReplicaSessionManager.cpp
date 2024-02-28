@@ -17,9 +17,10 @@ namespace IceGrid
     class MasterDatabaseObserverI : public DatabaseObserver
     {
     public:
-        MasterDatabaseObserverI(const shared_ptr<ReplicaSessionManager::Thread>& thread,
-                                const shared_ptr<Database>& database,
-                                const ReplicaSessionPrxPtr& session)
+        MasterDatabaseObserverI(
+            const shared_ptr<ReplicaSessionManager::Thread>& thread,
+            const shared_ptr<Database>& database,
+            const ReplicaSessionPrxPtr& session)
             : _thread(thread),
               _database(database),
               _session(session)
@@ -103,8 +104,8 @@ namespace IceGrid
             string failure;
             try
             {
-                _database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy,
-                                                 getSerials(current.ctx, serial));
+                _database->setAdapterDirectProxy(
+                    info.id, info.replicaGroupId, info.proxy, getSerials(current.ctx, serial));
             }
             catch (const AdapterExistsException&)
             {
@@ -119,8 +120,8 @@ namespace IceGrid
             string failure;
             try
             {
-                _database->setAdapterDirectProxy(info.id, info.replicaGroupId, info.proxy,
-                                                 getSerials(current.ctx, serial));
+                _database->setAdapterDirectProxy(
+                    info.id, info.replicaGroupId, info.proxy, getSerials(current.ctx, serial));
             }
             catch (const AdapterExistsException&)
             {
@@ -264,11 +265,12 @@ namespace IceGrid
 };
 
 void
-ReplicaSessionManager::create(const string& name,
-                              const shared_ptr<InternalReplicaInfo>& info,
-                              const shared_ptr<Database>& database,
-                              const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-                              const InternalRegistryPrxPtr& internalRegistry)
+ReplicaSessionManager::create(
+    const string& name,
+    const shared_ptr<InternalReplicaInfo>& info,
+    const shared_ptr<Database>& database,
+    const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
+    const InternalRegistryPrxPtr& internalRegistry)
 {
     {
         lock_guard lock(_mutex);

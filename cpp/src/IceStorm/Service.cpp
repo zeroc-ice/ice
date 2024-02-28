@@ -35,12 +35,13 @@ namespace
     class ServiceI final : public IceStormInternal::Service
     {
     public:
-        void start(const std::shared_ptr<Ice::Communicator>&,
-                   const std::shared_ptr<Ice::ObjectAdapter>&,
-                   const std::shared_ptr<Ice::ObjectAdapter>&,
-                   const std::string&,
-                   const Ice::Identity&,
-                   const std::string&);
+        void start(
+            const std::shared_ptr<Ice::Communicator>&,
+            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const std::string&,
+            const Ice::Identity&,
+            const std::string&);
 
         IceStorm::TopicManagerPrxPtr getTopicManager() const override;
 
@@ -49,9 +50,10 @@ namespace
 
     private:
         void createDbEnv(const std::shared_ptr<Ice::Communicator>&);
-        void validateProperties(const std::string&,
-                                const std::shared_ptr<Ice::Properties>&,
-                                const std::shared_ptr<Ice::Logger>&);
+        void validateProperties(
+            const std::string&,
+            const std::shared_ptr<Ice::Properties>&,
+            const std::shared_ptr<Ice::Logger>&);
 
         std::shared_ptr<IceStorm::TopicManagerImpl> _manager;
         std::shared_ptr<IceStorm::TransientTopicManagerImpl> _transientManager;
@@ -79,12 +81,13 @@ extern "C"
 }
 
 shared_ptr<IceStormInternal::Service>
-IceStormInternal::Service::create(const shared_ptr<Communicator>& communicator,
-                                  const shared_ptr<ObjectAdapter>& topicAdapter,
-                                  const shared_ptr<ObjectAdapter>& publishAdapter,
-                                  const string& name,
-                                  const Ice::Identity& id,
-                                  const string& dbEnv)
+IceStormInternal::Service::create(
+    const shared_ptr<Communicator>& communicator,
+    const shared_ptr<ObjectAdapter>& topicAdapter,
+    const shared_ptr<ObjectAdapter>& publishAdapter,
+    const string& name,
+    const Ice::Identity& id,
+    const string& dbEnv)
 {
     shared_ptr<ServiceI> service(new ServiceI);
     service->start(communicator, topicAdapter, publishAdapter, name, id, dbEnv);
@@ -301,8 +304,8 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
             }
 
             auto nodeAdapter = communicator->createObjectAdapter(name + ".Node");
-            auto instance = make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter,
-                                                            topicAdapter, nodeAdapter, nodes[id]);
+            auto instance = make_shared<PersistentInstance>(
+                instanceName, name, communicator, publishAdapter, topicAdapter, nodeAdapter, nodes[id]);
             _instance = instance;
 
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size()) / 2);
@@ -361,20 +364,22 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
         }
     }
 
-    topicAdapter->add(make_shared<FinderI>(uncheckedCast<TopicManagerPrx>(topicAdapter->createProxy(topicManagerId))),
-                      stringToIdentity("IceStorm/Finder"));
+    topicAdapter->add(
+        make_shared<FinderI>(uncheckedCast<TopicManagerPrx>(topicAdapter->createProxy(topicManagerId))),
+        stringToIdentity("IceStorm/Finder"));
 
     topicAdapter->activate();
     publishAdapter->activate();
 }
 
 void
-ServiceI::start(const shared_ptr<Communicator>& communicator,
-                const shared_ptr<ObjectAdapter>& topicAdapter,
-                const shared_ptr<ObjectAdapter>& publishAdapter,
-                const string& name,
-                const Identity& id,
-                const string&)
+ServiceI::start(
+    const shared_ptr<Communicator>& communicator,
+    const shared_ptr<ObjectAdapter>& topicAdapter,
+    const shared_ptr<ObjectAdapter>& publishAdapter,
+    const string& name,
+    const Identity& id,
+    const string&)
 {
     //
     // For IceGrid we don't validate the properties as all sorts of
@@ -434,69 +439,71 @@ ServiceI::stop()
 }
 
 void
-ServiceI::validateProperties(const string& name,
-                             const shared_ptr<Properties>& properties,
-                             const shared_ptr<Logger>& logger)
+ServiceI::validateProperties(
+    const string& name,
+    const shared_ptr<Properties>& properties,
+    const shared_ptr<Logger>& logger)
 {
-    static const string suffixes[] = {"ReplicatedTopicManagerEndpoints",
-                                      "ReplicatedPublishEndpoints",
-                                      "Nodes.*",
-                                      "Transient",
-                                      "NodeId",
-                                      "Flush.Timeout",
-                                      "InstanceName",
-                                      "Election.MasterTimeout",
-                                      "Election.ElectionTimeout",
-                                      "Election.ResponseTimeout",
-                                      "Publish.AdapterId",
-                                      "Publish.Endpoints",
-                                      "Publish.Locator",
-                                      "Publish.PublishedEndpoints",
-                                      "Publish.ReplicaGroupId",
-                                      "Publish.Router",
-                                      "Publish.ThreadPool.Size",
-                                      "Publish.ThreadPool.SizeMax",
-                                      "Publish.ThreadPool.SizeWarn",
-                                      "Publish.ThreadPool.StackSize",
-                                      "Node.AdapterId",
-                                      "Node.Endpoints",
-                                      "Node.Locator",
-                                      "Node.PublishedEndpoints",
-                                      "Node.ReplicaGroupId",
-                                      "Node.Router",
-                                      "Node.ThreadPool.Size",
-                                      "Node.ThreadPool.SizeMax",
-                                      "Node.ThreadPool.SizeWarn",
-                                      "Node.ThreadPool.StackSize",
-                                      "TopicManager.AdapterId",
-                                      "TopicManager.Endpoints",
-                                      "TopicManager.Locator",
-                                      "TopicManager.Proxy",
-                                      "TopicManager.Proxy.EndpointSelection",
-                                      "TopicManager.Proxy.ConnectionCached",
-                                      "TopicManager.Proxy.PreferSecure",
-                                      "TopicManager.Proxy.LocatorCacheTimeout",
-                                      "TopicManager.Proxy.Locator",
-                                      "TopicManager.Proxy.Router",
-                                      "TopicManager.Proxy.CollocationOptimization",
-                                      "TopicManager.PublishedEndpoints",
-                                      "TopicManager.ReplicaGroupId",
-                                      "TopicManager.Router",
-                                      "TopicManager.ThreadPool.Size",
-                                      "TopicManager.ThreadPool.SizeMax",
-                                      "TopicManager.ThreadPool.SizeWarn",
-                                      "TopicManager.ThreadPool.StackSize",
-                                      "Trace.Election",
-                                      "Trace.Replication",
-                                      "Trace.Subscriber",
-                                      "Trace.Topic",
-                                      "Trace.TopicManager",
-                                      "Send.Timeout",
-                                      "Send.QueueSizeMax",
-                                      "Send.QueueSizeMaxPolicy",
-                                      "Discard.Interval",
-                                      "LMDB.Path",
-                                      "LMDB.MapSize"};
+    static const string suffixes[] = {
+        "ReplicatedTopicManagerEndpoints",
+        "ReplicatedPublishEndpoints",
+        "Nodes.*",
+        "Transient",
+        "NodeId",
+        "Flush.Timeout",
+        "InstanceName",
+        "Election.MasterTimeout",
+        "Election.ElectionTimeout",
+        "Election.ResponseTimeout",
+        "Publish.AdapterId",
+        "Publish.Endpoints",
+        "Publish.Locator",
+        "Publish.PublishedEndpoints",
+        "Publish.ReplicaGroupId",
+        "Publish.Router",
+        "Publish.ThreadPool.Size",
+        "Publish.ThreadPool.SizeMax",
+        "Publish.ThreadPool.SizeWarn",
+        "Publish.ThreadPool.StackSize",
+        "Node.AdapterId",
+        "Node.Endpoints",
+        "Node.Locator",
+        "Node.PublishedEndpoints",
+        "Node.ReplicaGroupId",
+        "Node.Router",
+        "Node.ThreadPool.Size",
+        "Node.ThreadPool.SizeMax",
+        "Node.ThreadPool.SizeWarn",
+        "Node.ThreadPool.StackSize",
+        "TopicManager.AdapterId",
+        "TopicManager.Endpoints",
+        "TopicManager.Locator",
+        "TopicManager.Proxy",
+        "TopicManager.Proxy.EndpointSelection",
+        "TopicManager.Proxy.ConnectionCached",
+        "TopicManager.Proxy.PreferSecure",
+        "TopicManager.Proxy.LocatorCacheTimeout",
+        "TopicManager.Proxy.Locator",
+        "TopicManager.Proxy.Router",
+        "TopicManager.Proxy.CollocationOptimization",
+        "TopicManager.PublishedEndpoints",
+        "TopicManager.ReplicaGroupId",
+        "TopicManager.Router",
+        "TopicManager.ThreadPool.Size",
+        "TopicManager.ThreadPool.SizeMax",
+        "TopicManager.ThreadPool.SizeWarn",
+        "TopicManager.ThreadPool.StackSize",
+        "Trace.Election",
+        "Trace.Replication",
+        "Trace.Subscriber",
+        "Trace.Topic",
+        "Trace.TopicManager",
+        "Send.Timeout",
+        "Send.QueueSizeMax",
+        "Send.QueueSizeMaxPolicy",
+        "Discard.Interval",
+        "LMDB.Path",
+        "LMDB.MapSize"};
 
     vector<string> unknownProps;
     string prefix = name + ".";

@@ -736,10 +736,11 @@ TopicManagerImpl::updateSubscriberObservers()
 }
 
 TopicPrxPtr
-TopicManagerImpl::installTopic(const string& name,
-                               const Ice::Identity& id,
-                               bool create,
-                               const IceStorm::SubscriberRecordSeq& subscribers)
+TopicManagerImpl::installTopic(
+    const string& name,
+    const Ice::Identity& id,
+    bool create,
+    const IceStorm::SubscriberRecordSeq& subscribers)
 {
     //
     // Called by constructor or with 'this' mutex locked.

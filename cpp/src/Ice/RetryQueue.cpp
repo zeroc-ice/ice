@@ -13,9 +13,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::RetryTask::RetryTask(const InstancePtr& instance,
-                                  const RetryQueuePtr& queue,
-                                  const ProxyOutgoingAsyncBasePtr& outAsync)
+IceInternal::RetryTask::RetryTask(
+    const InstancePtr& instance,
+    const RetryQueuePtr& queue,
+    const ProxyOutgoingAsyncBasePtr& outAsync)
     : _instance(instance),
       _queue(queue),
       _outAsync(outAsync)

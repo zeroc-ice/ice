@@ -238,8 +238,8 @@ IcePHP::endpointInit(void)
     ipEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry);
     zend_declare_property_string(ipEndpointInfoClassEntry, "host", sizeof("host") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(ipEndpointInfoClassEntry, "port", sizeof("port") - 1, 0, ZEND_ACC_PUBLIC);
-    zend_declare_property_string(ipEndpointInfoClassEntry, "sourceAddress", sizeof("sourceAddress") - 1, "",
-                                 ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        ipEndpointInfoClassEntry, "sourceAddress", sizeof("sourceAddress") - 1, "", ZEND_ACC_PUBLIC);
 
     // Define the TCPEndpointInfo class.
     INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPEndpointInfo", nullptr);
@@ -250,8 +250,8 @@ IcePHP::endpointInit(void)
     INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPEndpointInfo", nullptr);
     ce.create_object = handleEndpointInfoAlloc;
     udpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry);
-    zend_declare_property_string(udpEndpointInfoClassEntry, "mcastInterface", sizeof("mcastInterface") - 1, "",
-                                 ZEND_ACC_PUBLIC);
+    zend_declare_property_string(
+        udpEndpointInfoClassEntry, "mcastInterface", sizeof("mcastInterface") - 1, "", ZEND_ACC_PUBLIC);
     zend_declare_property_long(udpEndpointInfoClassEntry, "mcastTtl", sizeof("mcastTtl") - 1, 0, ZEND_ACC_PUBLIC);
 
     // Define the WSEndpointInfo class.

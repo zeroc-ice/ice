@@ -111,11 +111,12 @@ namespace
 
 }
 
-NodeI::NodeI(const shared_ptr<Instance>& instance,
-             shared_ptr<Replica> replica,
-             Ice::ObjectPrxPtr replicaProxy,
-             int id,
-             const map<int, NodePrxPtr>& nodes)
+NodeI::NodeI(
+    const shared_ptr<Instance>& instance,
+    shared_ptr<Replica> replica,
+    Ice::ObjectPrxPtr replicaProxy,
+    int id,
+    const map<int, NodePrxPtr>& nodes)
     : _timer(instance->timer()),
       _traceLevels(instance->traceLevels()),
       _observers(instance->observers()),
@@ -166,8 +167,8 @@ NodeI::start()
     lock_guard<recursive_mutex> lg(_mutex);
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
-    _timer->schedule(_checkTask,
-                     chrono::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
+    _timer->schedule(
+        _checkTask, chrono::seconds(static_cast<IceUtil::Int64>(_nodes.size() - static_cast<size_t>(_id)) * 2));
     recovery();
 }
 
@@ -831,13 +832,14 @@ NodeI::ready(int j, string gn, Ice::ObjectPrxPtr coordinator, int max, int64_t g
 }
 
 void
-NodeI::accept(int j,
-              string gn,
-              Ice::IntSeq forwardedInvites,
-              Ice::ObjectPrxPtr observer,
-              LogUpdate llu,
-              int max,
-              const Ice::Current&)
+NodeI::accept(
+    int j,
+    string gn,
+    Ice::IntSeq forwardedInvites,
+    Ice::ObjectPrxPtr observer,
+    LogUpdate llu,
+    int max,
+    const Ice::Current&)
 {
     // Verify that j exists in our node set.
     if (_nodes.find(j) == _nodes.end())

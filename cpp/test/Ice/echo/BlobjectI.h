@@ -16,10 +16,11 @@ public:
     void flushBatch();
     void setConnection(const Ice::ConnectionPtr&);
 
-    virtual void ice_invokeAsync(std::vector<Ice::Byte>,
-                                 std::function<void(bool, const std::vector<Ice::Byte>&)>,
-                                 std::function<void(std::exception_ptr)>,
-                                 const Ice::Current&) override;
+    virtual void ice_invokeAsync(
+        std::vector<Ice::Byte>,
+        std::function<void(bool, const std::vector<Ice::Byte>&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
 
 private:
     Ice::ConnectionPtr getConnection(const Ice::Current&);

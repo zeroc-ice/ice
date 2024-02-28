@@ -319,8 +319,8 @@ Client::run(int argc, char** argv)
         test(!_session->session());
 
         cout << "testing stringToProxy for server object... " << flush;
-        auto base = _session->communicator()->stringToProxy("callback:" +
-                                                            getTestEndpoint(_session->communicator()->getProperties()));
+        auto base = _session->communicator()->stringToProxy(
+            "callback:" + getTestEndpoint(_session->communicator()->getProperties()));
         cout << "ok" << endl;
 
         cout << "pinging server after session creation... " << flush;

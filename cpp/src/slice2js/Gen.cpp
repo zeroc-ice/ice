@@ -229,12 +229,13 @@ namespace
         OpDocAllParams
     };
 
-    void writeOpDocParams(Output& out,
-                          const OperationPtr& op,
-                          const CommentPtr& doc,
-                          OpDocParamType type,
-                          const StringList& preParams = StringList(),
-                          const StringList& postParams = StringList())
+    void writeOpDocParams(
+        Output& out,
+        const OperationPtr& op,
+        const CommentPtr& doc,
+        OpDocParamType type,
+        const StringList& preParams = StringList(),
+        const StringList& postParams = StringList())
     {
         ParamDeclList params;
         switch (type)
@@ -291,14 +292,15 @@ namespace
         }
     }
 
-    void writeOpDocSummary(Output& out,
-                           const OperationPtr& op,
-                           const CommentPtr& doc,
-                           OpDocParamType type,
-                           bool showExceptions,
-                           const StringList& preParams = StringList(),
-                           const StringList& postParams = StringList(),
-                           const StringList& returns = StringList())
+    void writeOpDocSummary(
+        Output& out,
+        const OperationPtr& op,
+        const CommentPtr& doc,
+        OpDocParamType type,
+        bool showExceptions,
+        const StringList& preParams = StringList(),
+        const StringList& postParams = StringList(),
+        const StringList& returns = StringList())
     {
         out << nl << "/**";
 
@@ -462,10 +464,11 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
 }
 
 string
-Slice::JsVisitor::writeConstantValue(const string& /*scope*/,
-                                     const TypePtr& type,
-                                     const SyntaxTreeBasePtr& valueType,
-                                     const string& value)
+Slice::JsVisitor::writeConstantValue(
+    const string& /*scope*/,
+    const TypePtr& type,
+    const SyntaxTreeBasePtr& valueType,
+    const string& value)
 {
     ostringstream os;
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
@@ -644,7 +647,11 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
 }
 
 Slice::Gen::Gen(
-    const string& base, const vector<string>& includePaths, const string& /*dir*/, bool typeScript, ostream& out)
+    const string& base,
+    const vector<string>& includePaths,
+    const string& /*dir*/,
+    bool typeScript,
+    ostream& out)
     : _jsout(out),
       _tsout(out),
       _includePaths(includePaths),
@@ -831,10 +838,11 @@ Slice::Gen::closeOutput()
     }
 }
 
-Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out,
-                                           vector<string> includePaths,
-                                           bool icejs,
-                                           bool es6modules)
+Slice::Gen::RequireVisitor::RequireVisitor(
+    IceUtilInternal::Output& out,
+    vector<string> includePaths,
+    bool icejs,
+    bool es6modules)
     : JsVisitor(out),
       _icejs(icejs),
       _es6modules(es6modules),
@@ -2579,8 +2587,9 @@ Slice::Gen::TypeScriptAliasVisitor::writeAlias(const UnitPtr&)
     }
 }
 
-Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(::IceUtilInternal::Output& out,
-                                                 const vector<pair<string, string>>& imports)
+Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(
+    ::IceUtilInternal::Output& out,
+    const vector<pair<string, string>>& imports)
     : JsVisitor(out, imports),
       _wroteImports(false)
 {
@@ -2720,8 +2729,9 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         _out << nl << fixId((*q)->name()) << spar;
         for (ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
         {
-            _out << (fixId((*r)->name()) + ((*r)->optional() ? "?" : "") + ":" +
-                     typeToString((*r)->type(), p, imports(), true, false, true));
+            _out
+                << (fixId((*r)->name()) + ((*r)->optional() ? "?" : "") + ":" +
+                    typeToString((*r)->type(), p, imports(), true, false, true));
         }
         _out << "context?:Map<string, string>";
         _out << epar;

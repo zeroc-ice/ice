@@ -140,9 +140,10 @@ ReapThread::join()
 }
 
 void
-ReapThread::add(const shared_ptr<Reapable>& reapable,
-                chrono::seconds timeout,
-                const shared_ptr<Ice::Connection>& connection)
+ReapThread::add(
+    const shared_ptr<Reapable>& reapable,
+    chrono::seconds timeout,
+    const shared_ptr<Ice::Connection>& connection)
 {
     lock_guard lock(_mutex);
     if (_terminated)

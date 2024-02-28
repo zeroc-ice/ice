@@ -158,25 +158,25 @@ namespace IceRuby
     // C++ objects are cleaned up properly. Overloadings are provided
     // to support API functions that accept multiple arguments.
     //
-    template <typename Fun> VALUE callRuby(Fun fun);
+    template<typename Fun> VALUE callRuby(Fun fun);
 
-    template <typename Fun, typename T1> VALUE callRuby(Fun fun, T1 t1);
+    template<typename Fun, typename T1> VALUE callRuby(Fun fun, T1 t1);
 
-    template <typename Fun, typename T1, typename T2> VALUE callRuby(Fun fun, T1 t1, T2 t2);
+    template<typename Fun, typename T1, typename T2> VALUE callRuby(Fun fun, T1 t1, T2 t2);
 
-    template <typename Fun, typename T1, typename T2, typename T3> VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3);
+    template<typename Fun, typename T1, typename T2, typename T3> VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3);
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4>
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4>
     VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4);
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
     VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6);
 
     extern "C" typedef VALUE (*RubyFunction)(VALUE);
 
     VALUE callProtected(RubyFunction, VALUE);
 
-    template <typename Fun> class RF_0
+    template<typename Fun> class RF_0
     {
     public:
         RF_0(Fun f) : _f(f) {}
@@ -187,14 +187,14 @@ namespace IceRuby
         Fun _f;
     };
 
-    template <typename Fun> inline VALUE callRuby(Fun fun)
+    template<typename Fun> inline VALUE callRuby(Fun fun)
     {
         typedef RF_0<Fun> RF;
         RF f(fun);
         return callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1> class RF_1
+    template<typename Fun, typename T1> class RF_1
     {
     public:
         RF_1(Fun f, T1 t1) : _f(f), _t1(t1) {}
@@ -206,14 +206,14 @@ namespace IceRuby
         T1 _t1;
     };
 
-    template <typename Fun, typename T1> inline VALUE callRuby(Fun fun, T1 t1)
+    template<typename Fun, typename T1> inline VALUE callRuby(Fun fun, T1 t1)
     {
         typedef RF_1<Fun, T1> RF;
         RF f(fun, t1);
         return callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1, typename T2> class RF_2
+    template<typename Fun, typename T1, typename T2> class RF_2
     {
     public:
         RF_2(Fun f, T1 t1, T2 t2) : _f(f), _t1(t1), _t2(t2) {}
@@ -226,14 +226,14 @@ namespace IceRuby
         T2 _t2;
     };
 
-    template <typename Fun, typename T1, typename T2> inline VALUE callRuby(Fun fun, T1 t1, T2 t2)
+    template<typename Fun, typename T1, typename T2> inline VALUE callRuby(Fun fun, T1 t1, T2 t2)
     {
         typedef RF_2<Fun, T1, T2> RF;
         RF f(fun, t1, t2);
         return callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1, typename T2, typename T3> class RF_3
+    template<typename Fun, typename T1, typename T2, typename T3> class RF_3
     {
     public:
         RF_3(Fun f, T1 t1, T2 t2, T3 t3) : _f(f), _t1(t1), _t2(t2), _t3(t3) {}
@@ -247,14 +247,14 @@ namespace IceRuby
         T3 _t3;
     };
 
-    template <typename Fun, typename T1, typename T2, typename T3> inline VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3)
+    template<typename Fun, typename T1, typename T2, typename T3> inline VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3)
     {
         typedef RF_3<Fun, T1, T2, T3> RF;
         RF f(fun, t1, t2, t3);
         return callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4> class RF_4
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4> class RF_4
     {
     public:
         RF_4(Fun f, T1 t1, T2 t2, T3 t3, T4 t4) : _f(f), _t1(t1), _t2(t2), _t3(t3), _t4(t4) {}
@@ -269,7 +269,7 @@ namespace IceRuby
         T4 _t4;
     };
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4>
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4>
     inline VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4)
     {
         typedef RF_4<Fun, T1, T2, T3, T4> RF;
@@ -277,7 +277,7 @@ namespace IceRuby
         return callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> class RF_6
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6> class RF_6
     {
     public:
         RF_6(Fun f, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6)
@@ -303,7 +303,7 @@ namespace IceRuby
         T6 _t6;
     };
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
     inline VALUE callRuby(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6)
     {
         typedef RF_6<Fun, T1, T2, T3, T4, T5, T6> RF;
@@ -317,18 +317,18 @@ namespace IceRuby
     // C++ objects are cleaned up properly. Overloadings are provided
     // to support API functions that accept multiple arguments.
     //
-    template <typename Fun> void callRubyVoid(Fun fun);
+    template<typename Fun> void callRubyVoid(Fun fun);
 
-    template <typename Fun, typename T1> void callRubyVoid(Fun fun, T1 t1);
+    template<typename Fun, typename T1> void callRubyVoid(Fun fun, T1 t1);
 
-    template <typename Fun, typename T1, typename T2> void callRubyVoid(Fun fun, T1 t1, T2 t2);
+    template<typename Fun, typename T1, typename T2> void callRubyVoid(Fun fun, T1 t1, T2 t2);
 
-    template <typename Fun, typename T1, typename T2, typename T3> void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3);
+    template<typename Fun, typename T1, typename T2, typename T3> void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3);
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4>
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4>
     void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4);
 
-    template <typename Fun> class RFV_0
+    template<typename Fun> class RFV_0
     {
     public:
         RFV_0(Fun f) : _f(f) {}
@@ -344,14 +344,14 @@ namespace IceRuby
         Fun _f;
     };
 
-    template <typename Fun> inline void callRubyVoid(Fun fun)
+    template<typename Fun> inline void callRubyVoid(Fun fun)
     {
         typedef RFV_0<Fun> RF;
         RF f(fun);
         callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1> class RFV_1
+    template<typename Fun, typename T1> class RFV_1
     {
     public:
         RFV_1(Fun f, T1 t1) : _f(f), _t1(t1) {}
@@ -367,14 +367,14 @@ namespace IceRuby
         T1 _t1;
     };
 
-    template <typename Fun, typename T1> inline void callRubyVoid(Fun fun, T1 t1)
+    template<typename Fun, typename T1> inline void callRubyVoid(Fun fun, T1 t1)
     {
         typedef RFV_1<Fun, T1> RF;
         RF f(fun, t1);
         callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1, typename T2> class RFV_2
+    template<typename Fun, typename T1, typename T2> class RFV_2
     {
     public:
         RFV_2(Fun f, T1 t1, T2 t2) : _f(f), _t1(t1), _t2(t2) {}
@@ -391,14 +391,14 @@ namespace IceRuby
         T2 _t2;
     };
 
-    template <typename Fun, typename T1, typename T2> inline void callRubyVoid(Fun fun, T1 t1, T2 t2)
+    template<typename Fun, typename T1, typename T2> inline void callRubyVoid(Fun fun, T1 t1, T2 t2)
     {
         typedef RFV_2<Fun, T1, T2> RF;
         RF f(fun, t1, t2);
         callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1, typename T2, typename T3> class RFV_3
+    template<typename Fun, typename T1, typename T2, typename T3> class RFV_3
     {
     public:
         RFV_3(Fun f, T1 t1, T2 t2, T3 t3) : _f(f), _t1(t1), _t2(t2), _t3(t3) {}
@@ -416,15 +416,14 @@ namespace IceRuby
         T3 _t3;
     };
 
-    template <typename Fun, typename T1, typename T2, typename T3>
-    inline void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3)
+    template<typename Fun, typename T1, typename T2, typename T3> inline void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3)
     {
         typedef RFV_3<Fun, T1, T2, T3> RF;
         RF f(fun, t1, t2, t3);
         callProtected(RF::call, reinterpret_cast<VALUE>(&f));
     }
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4> class RFV_4
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4> class RFV_4
     {
     public:
         RFV_4(Fun f, T1 t1, T2 t2, T3 t3, T4 t4) : _f(f), _t1(t1), _t2(t2), _t3(t3), _t4(t4) {}
@@ -443,7 +442,7 @@ namespace IceRuby
         T4 _t4;
     };
 
-    template <typename Fun, typename T1, typename T2, typename T3, typename T4>
+    template<typename Fun, typename T1, typename T2, typename T3, typename T4>
     inline void callRubyVoid(Fun fun, T1 t1, T2 t2, T3 t3, T4 t4)
     {
         typedef RFV_4<Fun, T1, T2, T3, T4> RF;

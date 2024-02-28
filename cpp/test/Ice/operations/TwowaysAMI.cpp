@@ -317,10 +317,11 @@ namespace
             called();
         }
 
-        void opShortIntLongSS(const Test::LongSS& rso,
-                              const Test::ShortSS& sso,
-                              const Test::IntSS& iso,
-                              const Test::LongSS& lso)
+        void opShortIntLongSS(
+            const Test::LongSS& rso,
+            const Test::ShortSS& sso,
+            const Test::IntSS& iso,
+            const Test::LongSS& lso)
         {
             test(rso.size() == 1);
             test(rso[0].size() == 2);

@@ -84,26 +84,29 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const Encodin
     initialize(communicator, encoding);
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator,
-                              const EncodingVersion& encoding,
-                              const vector<Byte>& v)
+Ice::InputStream::InputStream(
+    const CommunicatorPtr& communicator,
+    const EncodingVersion& encoding,
+    const vector<Byte>& v)
     : Buffer(v)
 {
     initialize(communicator, encoding);
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator,
-                              const EncodingVersion& encoding,
-                              const pair<const Byte*, const Byte*>& p)
+Ice::InputStream::InputStream(
+    const CommunicatorPtr& communicator,
+    const EncodingVersion& encoding,
+    const pair<const Byte*, const Byte*>& p)
     : Buffer(p.first, p.second)
 {
     initialize(communicator, encoding);
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator,
-                              const EncodingVersion& encoding,
-                              Buffer& buf,
-                              bool adopt)
+Ice::InputStream::InputStream(
+    const CommunicatorPtr& communicator,
+    const EncodingVersion& encoding,
+    Buffer& buf,
+    bool adopt)
     : Buffer(buf, adopt)
 {
     initialize(communicator, encoding);
@@ -434,7 +437,7 @@ Ice::InputStream::read(vector<bool>& v)
 namespace
 {
 
-    template <size_t boolSize> struct ReadBoolHelper
+    template<size_t boolSize> struct ReadBoolHelper
     {
         static bool* read(pair<const bool*, const bool*>& v, int32_t sz, InputStream::Container::iterator& i)
         {
@@ -449,7 +452,7 @@ namespace
         }
     };
 
-    template <> struct ReadBoolHelper<1>
+    template<> struct ReadBoolHelper<1>
     {
         static bool* read(pair<const bool*, const bool*>& v, int32_t sz, InputStream::Container::iterator& i)
         {
@@ -1946,8 +1949,8 @@ Ice::InputStream::EncapsDecoder10::readInstance()
         //
         if (!_sliceValues)
         {
-            throw NoValueFactoryException(__FILE__, __LINE__, "no value factory found and value slicing is disabled",
-                                          _typeId);
+            throw NoValueFactoryException(
+                __FILE__, __LINE__, "no value factory found and value slicing is disabled", _typeId);
         }
 
         //
@@ -2251,10 +2254,11 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     {
         if (_current->sliceType == ValueSlice)
         {
-            throw NoValueFactoryException(__FILE__, __LINE__,
-                                          "no value factory found and compact format prevents "
-                                          "slicing (the sender should use the sliced format instead)",
-                                          _current->typeId);
+            throw NoValueFactoryException(
+                __FILE__, __LINE__,
+                "no value factory found and compact format prevents "
+                "slicing (the sender should use the sliced format instead)",
+                _current->typeId);
         }
         else
         {
@@ -2381,8 +2385,8 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFu
         //
         if (!_sliceValues)
         {
-            throw NoValueFactoryException(__FILE__, __LINE__, "no value factory found and value slicing is disabled",
-                                          _current->typeId);
+            throw NoValueFactoryException(
+                __FILE__, __LINE__, "no value factory found and value slicing is disabled", _current->typeId);
         }
 
         //

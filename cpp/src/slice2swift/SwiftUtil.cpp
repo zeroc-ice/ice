@@ -24,85 +24,86 @@ namespace
         //
         // Keyword list. *Must* be kept in alphabetical order.
         //
-        static const string keywordList[] = {"Any",
-                                             "as",
-                                             "associatedtype",
-                                             "associativity",
-                                             "break",
-                                             "case",
-                                             "catch",
-                                             "class",
-                                             "continue",
-                                             "convenience",
-                                             "default",
-                                             "defer",
-                                             "deinit",
-                                             "didSet",
-                                             "do",
-                                             "dynamic",
-                                             "else",
-                                             "enum",
-                                             "extension",
-                                             "fallthrough",
-                                             "false",
-                                             "fileprivate",
-                                             "final",
-                                             "for",
-                                             "func",
-                                             "get",
-                                             "guard",
-                                             "if",
-                                             "import",
-                                             "in",
-                                             "indirect",
-                                             "infix",
-                                             "init",
-                                             "inout",
-                                             "internal",
-                                             "is",
-                                             "lazy",
-                                             "left",
-                                             "let",
-                                             "mutating",
-                                             "nil",
-                                             "none",
-                                             "nonmutating",
-                                             "open",
-                                             "operator",
-                                             "optional",
-                                             "override",
-                                             "postfix",
-                                             "precedence",
-                                             "prefix",
-                                             "private",
-                                             "protocol",
-                                             "public",
-                                             "repeat",
-                                             "required",
-                                             "rethrows",
-                                             "return",
-                                             "right",
-                                             "self",
-                                             "set",
-                                             "static",
-                                             "struct",
-                                             "subscript",
-                                             "super",
-                                             "switch",
-                                             "throw",
-                                             "throws",
-                                             "true",
-                                             "try",
-                                             "Type",
-                                             "typealias",
-                                             "unowned",
-                                             "var",
-                                             "weak",
-                                             "where",
-                                             "while",
-                                             "willSet"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name,
-                                   Slice::CICompare());
+        static const string keywordList[] = {
+            "Any",
+            "as",
+            "associatedtype",
+            "associativity",
+            "break",
+            "case",
+            "catch",
+            "class",
+            "continue",
+            "convenience",
+            "default",
+            "defer",
+            "deinit",
+            "didSet",
+            "do",
+            "dynamic",
+            "else",
+            "enum",
+            "extension",
+            "fallthrough",
+            "false",
+            "fileprivate",
+            "final",
+            "for",
+            "func",
+            "get",
+            "guard",
+            "if",
+            "import",
+            "in",
+            "indirect",
+            "infix",
+            "init",
+            "inout",
+            "internal",
+            "is",
+            "lazy",
+            "left",
+            "let",
+            "mutating",
+            "nil",
+            "none",
+            "nonmutating",
+            "open",
+            "operator",
+            "optional",
+            "override",
+            "postfix",
+            "precedence",
+            "prefix",
+            "private",
+            "protocol",
+            "public",
+            "repeat",
+            "required",
+            "rethrows",
+            "return",
+            "right",
+            "self",
+            "set",
+            "static",
+            "struct",
+            "subscript",
+            "super",
+            "switch",
+            "throw",
+            "throws",
+            "true",
+            "try",
+            "Type",
+            "typealias",
+            "unowned",
+            "var",
+            "weak",
+            "where",
+            "while",
+            "willSet"};
+        bool found = binary_search(
+            &keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name, Slice::CICompare());
         if (found)
         {
             return "`" + name + "`";
@@ -562,10 +563,11 @@ SwiftGenerator::parseComment(const ContainedPtr& p)
 }
 
 void
-SwiftGenerator::writeDocLines(IceUtilInternal::Output& out,
-                              const StringList& lines,
-                              bool commentFirst,
-                              const string& space)
+SwiftGenerator::writeDocLines(
+    IceUtilInternal::Output& out,
+    const StringList& lines,
+    bool commentFirst,
+    const string& space)
 {
     StringList l = lines;
     if (!commentFirst)
@@ -866,9 +868,10 @@ SwiftGenerator::writeProxyDocSummary(IceUtilInternal::Output& out, const Interfa
 }
 
 void
-SwiftGenerator::writeServantDocSummary(IceUtilInternal::Output& out,
-                                       const InterfaceDefPtr& p,
-                                       const string& swiftModule)
+SwiftGenerator::writeServantDocSummary(
+    IceUtilInternal::Output& out,
+    const InterfaceDefPtr& p,
+    const string& swiftModule)
 {
     DocElements doc = parseComment(p);
 
@@ -1049,13 +1052,14 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
 }
 
 void
-SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out,
-                                   const TypePtr& type,
-                                   const SyntaxTreeBasePtr& valueType,
-                                   const string& value,
-                                   const StringList&,
-                                   const string& swiftModule,
-                                   bool optional)
+SwiftGenerator::writeConstantValue(
+    IceUtilInternal::Output& out,
+    const TypePtr& type,
+    const SyntaxTreeBasePtr& valueType,
+    const string& value,
+    const StringList&,
+    const string& swiftModule,
+    bool optional)
 {
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
@@ -1099,7 +1103,11 @@ SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out,
 
 string
 SwiftGenerator::typeToString(
-    const TypePtr& type, const ContainedPtr& toplevel, const StringList& metadata, bool optional, int typeCtx)
+    const TypePtr& type,
+    const ContainedPtr& toplevel,
+    const StringList& metadata,
+    bool optional,
+    int typeCtx)
 {
     static const char* builtinTable[] = {
         "Swift.UInt8",   "Swift.Bool",  "Swift.Int16",  "Swift.Int32",
@@ -1470,21 +1478,23 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out, bool requi
 }
 
 void
-SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
-                                           const DataMemberList& members,
-                                           const ContainedPtr& p)
+SwiftGenerator::writeMemberwiseInitializer(
+    IceUtilInternal::Output& out,
+    const DataMemberList& members,
+    const ContainedPtr& p)
 {
     writeMemberwiseInitializer(out, members, DataMemberList(), members, p, true);
 }
 
 void
-SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
-                                           const DataMemberList& members,
-                                           const DataMemberList& baseMembers,
-                                           const DataMemberList& allMembers,
-                                           const ContainedPtr& p,
-                                           bool rootClass,
-                                           const StringPairList& extraParams)
+SwiftGenerator::writeMemberwiseInitializer(
+    IceUtilInternal::Output& out,
+    const DataMemberList& members,
+    const DataMemberList& baseMembers,
+    const DataMemberList& allMembers,
+    const ContainedPtr& p,
+    bool rootClass,
+    const StringPairList& extraParams)
 {
     if (!members.empty())
     {
@@ -1494,7 +1504,8 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
         for (DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
         {
             DataMemberPtr m = *i;
-            out << (fixIdent(m->name()) + ": " +
+            out
+                << (fixIdent(m->name()) + ": " +
                     typeToString(m->type(), p, m->getMetaData(), m->optional(), TypeContextInParam));
         }
         for (StringPairList::const_iterator q = extraParams.begin(); q != extraParams.end(); ++q)
@@ -1529,10 +1540,11 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
 }
 
 void
-SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
-                             const DataMemberList& members,
-                             const ContainedPtr& p,
-                             int typeCtx)
+SwiftGenerator::writeMembers(
+    IceUtilInternal::Output& out,
+    const DataMemberList& members,
+    const ContainedPtr& p,
+    int typeCtx)
 {
     string swiftModule = getSwiftModule(getTopLevelModule(p));
     bool protocol = (typeCtx & TypeContextProtocol) != 0;
@@ -1571,8 +1583,9 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
             out << " = ";
             if (alias.empty())
             {
-                writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
-                                   member->optional());
+                writeConstantValue(
+                    out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule,
+                    member->optional());
             }
             else
             {
@@ -1600,7 +1613,12 @@ SwiftGenerator::usesMarshalHelper(const TypePtr& type)
 
 void
 SwiftGenerator::writeMarshalUnmarshalCode(
-    Output& out, const TypePtr& type, const ContainedPtr& p, const string& param, bool marshal, int tag)
+    Output& out,
+    const TypePtr& type,
+    const ContainedPtr& p,
+    const string& param,
+    bool marshal,
+    int tag)
 {
     string swiftModule = getSwiftModule(getTopLevelModule(p));
     string stream = dynamic_pointer_cast<Struct>(p) ? "self" : marshal ? "ostr" : "istr";
@@ -2871,12 +2889,13 @@ SwiftGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 }
 
 StringList
-SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont,
-                                          const StringList& metaData,
-                                          const string& file,
-                                          const string& line,
-                                          bool local,
-                                          bool operationParameter)
+SwiftGenerator::MetaDataVisitor::validate(
+    const SyntaxTreeBasePtr& cont,
+    const StringList& metaData,
+    const string& file,
+    const string& line,
+    bool local,
+    bool operationParameter)
 {
     StringList newMetaData = metaData;
     const string prefix = "swift:";
@@ -2911,15 +2930,16 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont,
                     TypePtr returnType = op->returnType();
                     if (!returnType)
                     {
-                        dc->warning(InvalidMetaData, file, line,
-                                    "ignoring invalid metadata `" + s + "' for operation with void return type");
+                        dc->warning(
+                            InvalidMetaData, file, line,
+                            "ignoring invalid metadata `" + s + "' for operation with void return type");
                         newMetaData.remove(s);
                     }
                     else if (!isNullableType(returnType))
                     {
-                        dc->warning(InvalidMetaData, file, line,
-                                    "ignoring invalid metadata `" + s +
-                                        "' for operation with non nullable return type");
+                        dc->warning(
+                            InvalidMetaData, file, line,
+                            "ignoring invalid metadata `" + s + "' for operation with non nullable return type");
                         newMetaData.remove(s);
                     }
                     continue;
@@ -2930,8 +2950,8 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont,
             {
                 if (!isNullableType(dynamic_pointer_cast<Type>(cont)))
                 {
-                    dc->warning(InvalidMetaData, file, line,
-                                "ignoring invalid metadata `swift:nonnull' for non nullable type");
+                    dc->warning(
+                        InvalidMetaData, file, line, "ignoring invalid metadata `swift:nonnull' for non nullable type");
                     newMetaData.remove(s);
                 }
                 continue;
@@ -2947,8 +2967,9 @@ SwiftGenerator::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont,
             {
                 if (!isNullableType(seq->type()))
                 {
-                    dc->warning(InvalidMetaData, file, line,
-                                "ignoring invalid metadata `" + s + "' for sequence of non nullable type");
+                    dc->warning(
+                        InvalidMetaData, file, line,
+                        "ignoring invalid metadata `" + s + "' for sequence of non nullable type");
                     newMetaData.remove(s);
                 }
                 continue;

@@ -67,10 +67,11 @@ namespace IceGrid
          * @param ctx The context from the Ice client which is resolving the replica group endpoints.
          * @return The filtered adapter IDs.
          */
-        virtual ::Ice::StringSeq filter(const ::std::string& replicaGroupId,
-                                        const ::Ice::StringSeq& adapterIds,
-                                        const ::std::shared_ptr<::Ice::Connection>& con,
-                                        const ::Ice::Context& ctx) = 0;
+        virtual ::Ice::StringSeq filter(
+            const ::std::string& replicaGroupId,
+            const ::Ice::StringSeq& adapterIds,
+            const ::std::shared_ptr<::Ice::Connection>& con,
+            const ::Ice::Context& ctx) = 0;
     };
 
     /**
@@ -92,10 +93,11 @@ namespace IceGrid
          * @param ctx The context from the Ice client which is looking up well-known objects by type.
          * @return The filtered proxies.
          */
-        virtual ::Ice::ObjectProxySeq filter(const ::std::string& type,
-                                             const ::Ice::ObjectProxySeq& proxies,
-                                             const ::std::shared_ptr<::Ice::Connection>& con,
-                                             const ::Ice::Context& ctx) = 0;
+        virtual ::Ice::ObjectProxySeq filter(
+            const ::std::string& type,
+            const ::Ice::ObjectProxySeq& proxies,
+            const ::std::shared_ptr<::Ice::Connection>& con,
+            const ::Ice::Context& ctx) = 0;
     };
 
     /**
@@ -196,8 +198,8 @@ namespace IceGrid
          * @return The property value.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual ::std::string getPropertyForAdapter(const ::std::string& adapterId,
-                                                    const ::std::string& name) const = 0;
+        virtual ::std::string
+        getPropertyForAdapter(const ::std::string& adapterId, const ::std::string& name) const = 0;
 
         /**
          * Add a replica group filter.
@@ -206,8 +208,9 @@ namespace IceGrid
          * the empty filter id.
          * @param filter The filter implementation.
          */
-        virtual void addReplicaGroupFilter(const ::std::string& id,
-                                           const ::std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
+        virtual void addReplicaGroupFilter(
+            const ::std::string& id,
+            const ::std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
 
         /**
          * Remove a replica group filter.
@@ -215,8 +218,9 @@ namespace IceGrid
          * @param filter The filter implementation.
          * @return True of the filter was removed, false otherwise.
          */
-        virtual bool removeReplicaGroupFilter(const ::std::string& id,
-                                              const ::std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
+        virtual bool removeReplicaGroupFilter(
+            const ::std::string& id,
+            const ::std::shared_ptr<ReplicaGroupFilter>& filter) noexcept = 0;
 
         /**
          * Add a type filter.
@@ -231,8 +235,8 @@ namespace IceGrid
          * @param filter The filter implementation.
          * @return True of the filter was removed, false otherwise.
          */
-        virtual bool removeTypeFilter(const ::std::string& type,
-                                      const ::std::shared_ptr<TypeFilter>& filter) noexcept = 0;
+        virtual bool
+        removeTypeFilter(const ::std::string& type, const ::std::shared_ptr<TypeFilter>& filter) noexcept = 0;
     };
 
 }

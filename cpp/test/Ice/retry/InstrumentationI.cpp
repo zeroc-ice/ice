@@ -62,28 +62,28 @@ namespace
     class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
     {
     public:
-        virtual Ice::Instrumentation::ObserverPtr getConnectionEstablishmentObserver(const Ice::EndpointPtr&,
-                                                                                     const ::std::string&)
+        virtual Ice::Instrumentation::ObserverPtr
+        getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const ::std::string&)
         {
             return nullptr;
         }
 
         virtual Ice::Instrumentation::ObserverPtr getEndpointLookupObserver(const Ice::EndpointPtr&) { return nullptr; }
 
-        virtual Ice::Instrumentation::ConnectionObserverPtr
-        getConnectionObserver(const Ice::ConnectionInfoPtr&,
-                              const Ice::EndpointPtr&,
-                              Ice::Instrumentation::ConnectionState,
-                              const Ice::Instrumentation::ConnectionObserverPtr&)
+        virtual Ice::Instrumentation::ConnectionObserverPtr getConnectionObserver(
+            const Ice::ConnectionInfoPtr&,
+            const Ice::EndpointPtr&,
+            Ice::Instrumentation::ConnectionState,
+            const Ice::Instrumentation::ConnectionObserverPtr&)
         {
             return nullptr;
         }
 
-        virtual Ice::Instrumentation::ThreadObserverPtr
-        getThreadObserver(const ::std::string&,
-                          const ::std::string&,
-                          Ice::Instrumentation::ThreadState,
-                          const Ice::Instrumentation::ThreadObserverPtr&)
+        virtual Ice::Instrumentation::ThreadObserverPtr getThreadObserver(
+            const ::std::string&,
+            const ::std::string&,
+            Ice::Instrumentation::ThreadState,
+            const Ice::Instrumentation::ThreadObserverPtr&)
         {
             return nullptr;
         }

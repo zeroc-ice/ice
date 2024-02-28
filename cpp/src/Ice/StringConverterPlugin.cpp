@@ -27,9 +27,10 @@ namespace
         virtual void destroy();
     };
 
-    StringConverterPlugin::StringConverterPlugin(const CommunicatorPtr& /*notused*/,
-                                                 const StringConverterPtr& stringConverter,
-                                                 const WstringConverterPtr& wstringConverter)
+    StringConverterPlugin::StringConverterPlugin(
+        const CommunicatorPtr& /*notused*/,
+        const StringConverterPtr& stringConverter,
+        const WstringConverterPtr& wstringConverter)
     {
         setProcessStringConverter(stringConverter);
         setProcessWstringConverter(wstringConverter);

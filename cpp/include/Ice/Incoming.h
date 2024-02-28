@@ -69,7 +69,13 @@ namespace IceInternal
 
     protected:
         IncomingBase(
-            Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, std::int32_t);
+            Instance*,
+            ResponseHandler*,
+            Ice::Connection*,
+            const Ice::ObjectAdapterPtr&,
+            bool,
+            Ice::Byte,
+            std::int32_t);
         IncomingBase(IncomingBase&);
         IncomingBase(const IncomingBase&) = delete;
 
@@ -104,7 +110,13 @@ namespace IceInternal
     {
     public:
         Incoming(
-            Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, std::int32_t);
+            Instance*,
+            ResponseHandler*,
+            Ice::Connection*,
+            const Ice::ObjectAdapterPtr&,
+            bool,
+            Ice::Byte,
+            std::int32_t);
 
         const Ice::Current& getCurrent() { return _current; }
 

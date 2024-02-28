@@ -32,7 +32,7 @@ namespace IceInternal
         const int _compactId;
     };
 
-    template <class E> class DefaultUserExceptionFactoryInit
+    template<class E> class DefaultUserExceptionFactoryInit
     {
     public:
         DefaultUserExceptionFactoryInit(std::string_view tId) : typeId(tId)
@@ -45,7 +45,7 @@ namespace IceInternal
         const ::std::string typeId;
     };
 
-    template <class O> class DefaultValueFactoryInit
+    template<class O> class DefaultValueFactoryInit
     {
     public:
         DefaultValueFactoryInit(std::string_view tId) : typeId(tId)

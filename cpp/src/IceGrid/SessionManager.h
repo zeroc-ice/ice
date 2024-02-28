@@ -15,7 +15,7 @@
 namespace IceGrid
 {
 
-    template <class TPrx> class SessionKeepAliveThread
+    template<class TPrx> class SessionKeepAliveThread
     {
 #if defined(__clang__)
 #    pragma clang diagnostic push

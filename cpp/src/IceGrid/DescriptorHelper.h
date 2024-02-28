@@ -25,8 +25,8 @@ namespace IceGrid
         std::string operator()(const std::string&, const std::string& = std::string(), bool = true) const;
         Ice::StringSeq operator()(const Ice::StringSeq&, const std::string&) const;
         DistributionDescriptor operator()(const DistributionDescriptor&) const;
-        PropertyDescriptorSeq operator()(const PropertyDescriptorSeq&,
-                                         const std::string& = std::string("property")) const;
+        PropertyDescriptorSeq
+        operator()(const PropertyDescriptorSeq&, const std::string& = std::string("property")) const;
         PropertySetDescriptorDict operator()(const PropertySetDescriptorDict&) const;
         ObjectDescriptorSeq operator()(const ObjectDescriptorSeq&, const std::string&, const std::string&) const;
         Ice::Identity operator()(const Ice::Identity&, const std::string&) const;
@@ -93,9 +93,10 @@ namespace IceGrid
         void print(const std::shared_ptr<Ice::Communicator>&, IceUtilInternal::Output&) const;
 
     protected:
-        void printObjectAdapter(const std::shared_ptr<Ice::Communicator>&,
-                                IceUtilInternal::Output&,
-                                const AdapterDescriptor&) const;
+        void printObjectAdapter(
+            const std::shared_ptr<Ice::Communicator>&,
+            IceUtilInternal::Output&,
+            const AdapterDescriptor&) const;
         void printPropertySet(IceUtilInternal::Output&, const PropertySetDescriptor&) const;
         virtual std::string getProperty(const std::string&) const;
 
@@ -123,10 +124,11 @@ namespace IceGrid
     protected:
         using CommunicatorHelper::instantiateImpl;
 
-        void instantiateImpl(const std::shared_ptr<ServiceDescriptor>&,
-                             const Resolver&,
-                             const PropertyDescriptorSeq&,
-                             const PropertySetDescriptorDict&) const;
+        void instantiateImpl(
+            const std::shared_ptr<ServiceDescriptor>&,
+            const Resolver&,
+            const PropertyDescriptorSeq&,
+            const PropertySetDescriptorDict&) const;
 
     private:
         std::shared_ptr<ServiceDescriptor> _desc;
@@ -162,11 +164,12 @@ namespace IceGrid
     class InstanceHelper
     {
     protected:
-        std::map<std::string, std::string> instantiateParams(const Resolver&,
-                                                             const std::string&,
-                                                             const std::map<std::string, std::string>&,
-                                                             const std::vector<std::string>&,
-                                                             const std::map<std::string, std::string>&) const;
+        std::map<std::string, std::string> instantiateParams(
+            const Resolver&,
+            const std::string&,
+            const std::map<std::string, std::string>&,
+            const std::vector<std::string>&,
+            const std::map<std::string, std::string>&) const;
     };
 
     class ServiceInstanceHelper final : public InstanceHelper
@@ -206,10 +209,11 @@ namespace IceGrid
         void print(const std::shared_ptr<Ice::Communicator>&, IceUtilInternal::Output&, const ServerInfo&) const;
 
     protected:
-        void instantiateImpl(const std::shared_ptr<IceBoxDescriptor>&,
-                             const Resolver&,
-                             const PropertyDescriptorSeq&,
-                             const PropertySetDescriptorDict&) const;
+        void instantiateImpl(
+            const std::shared_ptr<IceBoxDescriptor>&,
+            const Resolver&,
+            const PropertyDescriptorSeq&,
+            const PropertySetDescriptorDict&) const;
 
     private:
         std::shared_ptr<IceBoxDescriptor> _desc;
@@ -285,10 +289,11 @@ namespace IceGrid
     class ApplicationHelper final
     {
     public:
-        ApplicationHelper(const std::shared_ptr<Ice::Communicator>&,
-                          const ApplicationDescriptor&,
-                          bool = false,
-                          bool = true);
+        ApplicationHelper(
+            const std::shared_ptr<Ice::Communicator>&,
+            const ApplicationDescriptor&,
+            bool = false,
+            bool = true);
 
         ApplicationUpdateDescriptor diff(const ApplicationHelper&) const;
         ApplicationDescriptor update(const ApplicationUpdateDescriptor&) const;

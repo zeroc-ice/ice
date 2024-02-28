@@ -443,8 +443,9 @@ Ice::ObjectPrx::_endpoints(const EndpointSeq& newEndpoints) const
 
     auto currentEndpoints = _reference->getEndpoints();
 
-    if (equal(endpoints.begin(), endpoints.end(), currentEndpoints.begin(), currentEndpoints.end(),
-              targetEqualTo<EndpointIPtr, EndpointIPtr>))
+    if (equal(
+            endpoints.begin(), endpoints.end(), currentEndpoints.begin(), currentEndpoints.end(),
+            targetEqualTo<EndpointIPtr, EndpointIPtr>))
     {
         return _reference;
     }

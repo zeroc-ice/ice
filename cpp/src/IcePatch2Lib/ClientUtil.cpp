@@ -202,12 +202,13 @@ namespace
         init(server);
     }
 
-    PatcherI::PatcherI(const FileServerPrxPtr& server,
-                       const PatcherFeedbackPtr& feedback,
-                       const string& dataDir,
-                       bool thorough,
-                       int32_t chunkSize,
-                       int32_t remove)
+    PatcherI::PatcherI(
+        const FileServerPrxPtr& server,
+        const PatcherFeedbackPtr& feedback,
+        const string& dataDir,
+        bool thorough,
+        int32_t chunkSize,
+        int32_t remove)
         : _feedback(feedback),
           _dataDir(dataDir),
           _thorough(thorough),
@@ -437,9 +438,10 @@ namespace
                             //
                             // Compute the set of files which were removed.
                             //
-                            set_difference(tree0.nodes[node0].files.begin(), tree0.nodes[node0].files.end(),
-                                           files.begin(), files.end(), back_inserter(_removeFiles),
-                                           FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
+                            set_difference(
+                                tree0.nodes[node0].files.begin(), tree0.nodes[node0].files.end(), files.begin(),
+                                files.end(), back_inserter(_removeFiles),
+                                FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
 
                             //
                             // Compute the set of files which were updated (either the file contents, flags or both).
@@ -447,8 +449,9 @@ namespace
                             LargeFileInfoSeq updatedFiles;
                             updatedFiles.reserve(files.size());
 
-                            set_difference(files.begin(), files.end(), tree0.nodes[node0].files.begin(),
-                                           tree0.nodes[node0].files.end(), back_inserter(updatedFiles), FileInfoLess());
+                            set_difference(
+                                files.begin(), files.end(), tree0.nodes[node0].files.begin(),
+                                tree0.nodes[node0].files.end(), back_inserter(updatedFiles), FileInfoLess());
 
                             //
                             // Compute the set of files whose contents was updated.
@@ -456,16 +459,18 @@ namespace
                             LargeFileInfoSeq contentsUpdatedFiles;
                             contentsUpdatedFiles.reserve(files.size());
 
-                            set_difference(files.begin(), files.end(), tree0.nodes[node0].files.begin(),
-                                           tree0.nodes[node0].files.end(), back_inserter(contentsUpdatedFiles),
-                                           FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
+                            set_difference(
+                                files.begin(), files.end(), tree0.nodes[node0].files.begin(),
+                                tree0.nodes[node0].files.end(), back_inserter(contentsUpdatedFiles),
+                                FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
                             copy(contentsUpdatedFiles.begin(), contentsUpdatedFiles.end(), back_inserter(_updateFiles));
 
                             //
                             // Compute the set of files whose flags were updated.
                             //
-                            set_difference(updatedFiles.begin(), updatedFiles.end(), contentsUpdatedFiles.begin(),
-                                           contentsUpdatedFiles.end(), back_inserter(_updateFlags), FileInfoLess());
+                            set_difference(
+                                updatedFiles.begin(), updatedFiles.end(), contentsUpdatedFiles.begin(),
+                                contentsUpdatedFiles.end(), back_inserter(_updateFlags), FileInfoLess());
                         }
 
                         if (!_feedback->fileListProgress(static_cast<int32_t>(node0 + 1) * 100 / 256))
@@ -697,15 +702,17 @@ namespace
         LargeFileInfoSeq newLocalFiles;
         newLocalFiles.reserve(_localFiles.size());
 
-        set_difference(_localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(newLocalFiles),
-                       FileInfoLess());
+        set_difference(
+            _localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(newLocalFiles),
+            FileInfoLess());
 
         _localFiles.swap(newLocalFiles);
 
         LargeFileInfoSeq newRemoveFiles;
 
-        set_difference(_removeFiles.begin(), _removeFiles.end(), files.begin(), files.end(),
-                       back_inserter(newRemoveFiles), FileInfoLess());
+        set_difference(
+            _removeFiles.begin(), _removeFiles.end(), files.begin(), files.end(), back_inserter(newRemoveFiles),
+            FileInfoLess());
 
         _removeFiles.swap(newRemoveFiles);
 
@@ -760,12 +767,13 @@ namespace
         std::future<ByteSeq> _bytesFuture;
     };
 
-    void getFileCompressed(FileServerPrxPtr serverNoCompress,
-                           std::string path,
-                           int64_t pos,
-                           int chunkSize,
-                           std::shared_ptr<GetFileCompressedCB> cb,
-                           bool useSmallFileAPI)
+    void getFileCompressed(
+        FileServerPrxPtr serverNoCompress,
+        std::string path,
+        int64_t pos,
+        int chunkSize,
+        std::shared_ptr<GetFileCompressedCB> cb,
+        bool useSmallFileAPI)
     {
         if (useSmallFileAPI)
         {
@@ -824,8 +832,8 @@ namespace
                     FILE* fp = IceUtilInternal::fopen(path, "wb");
                     if (fp == 0)
                     {
-                        throw runtime_error("cannot open `" + path + "' for writing:\n" +
-                                            IceUtilInternal::lastErrorToString());
+                        throw runtime_error(
+                            "cannot open `" + path + "' for writing:\n" + IceUtilInternal::lastErrorToString());
                     }
                     fclose(fp);
                 }
@@ -850,8 +858,8 @@ namespace
                     FILE* fileBZ2 = IceUtilInternal::fopen(pathBZ2, "wb");
                     if (fileBZ2 == 0)
                     {
-                        throw runtime_error("cannot open `" + pathBZ2 + "' for writing:\n" +
-                                            IceUtilInternal::lastErrorToString());
+                        throw runtime_error(
+                            "cannot open `" + pathBZ2 + "' for writing:\n" + IceUtilInternal::lastErrorToString());
                     }
 
                     try
@@ -875,8 +883,8 @@ namespace
                             if (pos + _chunkSize < p->size)
                             {
                                 nxtCB = std::make_shared<GetFileCompressedCB>();
-                                getFileCompressed(_serverNoCompress, p->path, pos + _chunkSize, _chunkSize, nxtCB,
-                                                  _useSmallFileAPI);
+                                getFileCompressed(
+                                    _serverNoCompress, p->path, pos + _chunkSize, _chunkSize, nxtCB, _useSmallFileAPI);
                             }
                             else
                             {
@@ -890,8 +898,8 @@ namespace
                                 if (q != files.end())
                                 {
                                     nxtCB = std::make_shared<GetFileCompressedCB>();
-                                    getFileCompressed(_serverNoCompress, q->path, 0, _chunkSize, nxtCB,
-                                                      _useSmallFileAPI);
+                                    getFileCompressed(
+                                        _serverNoCompress, q->path, 0, _chunkSize, nxtCB, _useSmallFileAPI);
                                 }
                             }
 
@@ -912,8 +920,8 @@ namespace
 
                             if (fwrite(reinterpret_cast<char*>(&bytes[0]), bytes.size(), 1, fileBZ2) != 1)
                             {
-                                throw runtime_error(": cannot write `" + pathBZ2 + "':\n" +
-                                                    IceUtilInternal::lastErrorToString());
+                                throw runtime_error(
+                                    ": cannot write `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString());
                             }
 
                             // 'bytes' is always returned with size '_chunkSize'. When a file is smaller than
@@ -956,15 +964,17 @@ namespace
         LargeFileInfoSeq newLocalFiles;
         newLocalFiles.reserve(_localFiles.size());
 
-        set_union(_localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(newLocalFiles),
-                  FileInfoLess());
+        set_union(
+            _localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(newLocalFiles),
+            FileInfoLess());
 
         _localFiles.swap(newLocalFiles);
 
         LargeFileInfoSeq newUpdateFiles;
 
-        set_difference(_updateFiles.begin(), _updateFiles.end(), files.begin(), files.end(),
-                       back_inserter(newUpdateFiles), FileInfoLess());
+        set_difference(
+            _updateFiles.begin(), _updateFiles.end(), files.begin(), files.end(), back_inserter(newUpdateFiles),
+            FileInfoLess());
 
         _updateFiles.swap(newUpdateFiles);
 
@@ -987,20 +997,23 @@ namespace
         //
         LargeFileInfoSeq localFiles;
         localFiles.reserve(_localFiles.size());
-        set_difference(_localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(localFiles),
-                       FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags.
+        set_difference(
+            _localFiles.begin(), _localFiles.end(), files.begin(), files.end(), back_inserter(localFiles),
+            FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags.
 
         //
         // Add the new files to the set of local file.
         //
         _localFiles.clear();
-        set_union(localFiles.begin(), localFiles.end(), files.begin(), files.end(), back_inserter(_localFiles),
-                  FileInfoLess());
+        set_union(
+            localFiles.begin(), localFiles.end(), files.begin(), files.end(), back_inserter(_localFiles),
+            FileInfoLess());
 
         LargeFileInfoSeq newUpdateFlags;
 
-        set_difference(_updateFlags.begin(), _updateFlags.end(), files.begin(), files.end(),
-                       back_inserter(newUpdateFlags), FileInfoLess());
+        set_difference(
+            _updateFlags.begin(), _updateFlags.end(), files.begin(), files.end(), back_inserter(newUpdateFlags),
+            FileInfoLess());
 
         _updateFlags.swap(newUpdateFlags);
 
@@ -1020,12 +1033,13 @@ PatcherFactory::create(const Ice::CommunicatorPtr& communicator, const PatcherFe
 // are equivalent to the configuration properties described above.
 //
 PatcherPtr
-PatcherFactory::create(const FileServerPrxPtr& server,
-                       const PatcherFeedbackPtr& feedback,
-                       const string& dataDir,
-                       bool thorough,
-                       int32_t chunkSize,
-                       int32_t remove)
+PatcherFactory::create(
+    const FileServerPrxPtr& server,
+    const PatcherFeedbackPtr& feedback,
+    const string& dataDir,
+    bool thorough,
+    int32_t chunkSize,
+    int32_t remove)
 {
     return make_shared<PatcherI>(server, feedback, dataDir, thorough, chunkSize, remove);
 }

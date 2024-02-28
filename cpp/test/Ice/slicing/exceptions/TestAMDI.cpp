@@ -124,9 +124,10 @@ TestI::knownMostDerivedAsBaseAsync(function<void()>, function<void(exception_ptr
 }
 
 void
-TestI::knownIntermediateAsKnownIntermediateAsync(function<void()>,
-                                                 function<void(exception_ptr)> error,
-                                                 const ::Ice::Current&)
+TestI::knownIntermediateAsKnownIntermediateAsync(
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current&)
 {
     try
     {
@@ -142,9 +143,10 @@ TestI::knownIntermediateAsKnownIntermediateAsync(function<void()>,
 }
 
 void
-TestI::knownMostDerivedAsKnownIntermediateAsync(function<void()>,
-                                                function<void(exception_ptr)> error,
-                                                const ::Ice::Current&)
+TestI::knownMostDerivedAsKnownIntermediateAsync(
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current&)
 {
     try
     {
@@ -161,9 +163,10 @@ TestI::knownMostDerivedAsKnownIntermediateAsync(function<void()>,
 }
 
 void
-TestI::knownMostDerivedAsKnownMostDerivedAsync(function<void()>,
-                                               function<void(exception_ptr)> error,
-                                               const ::Ice::Current&)
+TestI::knownMostDerivedAsKnownMostDerivedAsync(
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current&)
 {
     try
     {
@@ -197,9 +200,10 @@ TestI::unknownMostDerived1AsBaseAsync(function<void()>, function<void(exception_
 }
 
 void
-TestI::unknownMostDerived1AsKnownIntermediateAsync(function<void()>,
-                                                   function<void(exception_ptr)> error,
-                                                   const ::Ice::Current&)
+TestI::unknownMostDerived1AsKnownIntermediateAsync(
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current&)
 {
     try
     {
@@ -233,9 +237,10 @@ TestI::unknownMostDerived2AsBaseAsync(function<void()>, function<void(exception_
 }
 
 void
-TestI::unknownMostDerived2AsBaseCompactAsync(function<void()>,
-                                             function<void(exception_ptr)> error,
-                                             const ::Ice::Current&)
+TestI::unknownMostDerived2AsBaseCompactAsync(
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current&)
 {
     try
     {
@@ -285,10 +290,11 @@ TestI::knownPreservedAsKnownPreservedAsync(function<void()>, function<void(excep
 }
 
 void
-TestI::relayKnownPreservedAsBaseAsync(RelayPrxPtr r,
-                                      function<void()>,
-                                      function<void(exception_ptr)> error,
-                                      const ::Ice::Current& c)
+TestI::relayKnownPreservedAsBaseAsync(
+    RelayPrxPtr r,
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current& c)
 {
     try
     {
@@ -303,10 +309,11 @@ TestI::relayKnownPreservedAsBaseAsync(RelayPrxPtr r,
 }
 
 void
-TestI::relayKnownPreservedAsKnownPreservedAsync(RelayPrxPtr r,
-                                                function<void()>,
-                                                function<void(exception_ptr)> error,
-                                                const ::Ice::Current& c)
+TestI::relayKnownPreservedAsKnownPreservedAsync(
+    RelayPrxPtr r,
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current& c)
 {
     try
     {
@@ -340,9 +347,10 @@ TestI::unknownPreservedAsBaseAsync(function<void()>, function<void(exception_ptr
 }
 
 void
-TestI::unknownPreservedAsKnownPreservedAsync(function<void()>,
-                                             function<void(exception_ptr)> error,
-                                             const ::Ice::Current&)
+TestI::unknownPreservedAsKnownPreservedAsync(
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current&)
 {
     try
     {
@@ -361,10 +369,11 @@ TestI::unknownPreservedAsKnownPreservedAsync(function<void()>,
 }
 
 void
-TestI::relayUnknownPreservedAsBaseAsync(RelayPrxPtr r,
-                                        function<void()>,
-                                        function<void(exception_ptr)> error,
-                                        const ::Ice::Current& c)
+TestI::relayUnknownPreservedAsBaseAsync(
+    RelayPrxPtr r,
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current& c)
 {
     try
     {
@@ -379,10 +388,11 @@ TestI::relayUnknownPreservedAsBaseAsync(RelayPrxPtr r,
 }
 
 void
-TestI::relayUnknownPreservedAsKnownPreservedAsync(RelayPrxPtr r,
-                                                  function<void()>,
-                                                  function<void(exception_ptr)> error,
-                                                  const ::Ice::Current& c)
+TestI::relayUnknownPreservedAsKnownPreservedAsync(
+    RelayPrxPtr r,
+    function<void()>,
+    function<void(exception_ptr)> error,
+    const ::Ice::Current& c)
 {
     try
     {

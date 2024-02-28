@@ -42,8 +42,8 @@ namespace
             "sealed",   "short",     "sizeof",    "stackalloc", "static",    "string",   "struct",   "switch",
             "this",     "throw",     "true",      "try",        "typeof",    "uint",     "ulong",    "unchecked",
             "unsafe",   "ushort",    "using",     "virtual",    "void",      "volatile", "while"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name,
-                                   Slice::CICompare());
+        bool found = binary_search(
+            &keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name, Slice::CICompare());
         if (found)
         {
             return "@" + name;
@@ -149,10 +149,11 @@ Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool
 }
 
 string
-Slice::CsGenerator::getUnqualified(const ContainedPtr& p,
-                                   const string& package,
-                                   const string& prefix,
-                                   const string& suffix)
+Slice::CsGenerator::getUnqualified(
+    const ContainedPtr& p,
+    const string& package,
+    const string& prefix,
+    const string& suffix)
 {
     string name = fixId(prefix + p->name() + suffix);
     string contPkg = getNamespace(p);
@@ -524,12 +525,13 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
 }
 
 void
-Slice::CsGenerator::writeMarshalUnmarshalCode(Output& out,
-                                              const TypePtr& type,
-                                              const string& package,
-                                              const string& param,
-                                              bool marshal,
-                                              const string& customStream)
+Slice::CsGenerator::writeMarshalUnmarshalCode(
+    Output& out,
+    const TypePtr& type,
+    const string& package,
+    const string& param,
+    bool marshal,
+    const string& customStream)
 {
     string stream = customStream;
     if (stream.empty())
@@ -770,13 +772,14 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output& out,
 }
 
 void
-Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output& out,
-                                                      const TypePtr& type,
-                                                      const string& scope,
-                                                      const string& param,
-                                                      int tag,
-                                                      bool marshal,
-                                                      const string& customStream)
+Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
+    Output& out,
+    const TypePtr& type,
+    const string& scope,
+    const string& param,
+    int tag,
+    bool marshal,
+    const string& customStream)
 {
     string stream = customStream;
     if (stream.empty())
@@ -1139,13 +1142,14 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output& out,
 }
 
 void
-Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
-                                                      const SequencePtr& seq,
-                                                      const string& scope,
-                                                      const string& param,
-                                                      bool marshal,
-                                                      bool useHelper,
-                                                      const string& customStream)
+Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
+    Output& out,
+    const SequencePtr& seq,
+    const string& scope,
+    const string& param,
+    bool marshal,
+    bool useHelper,
+    const string& customStream)
 {
     string stream = customStream;
     if (stream.empty())
@@ -1805,13 +1809,14 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 }
 
 void
-Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
-                                                              const SequencePtr& seq,
-                                                              const string& scope,
-                                                              const string& param,
-                                                              int tag,
-                                                              bool marshal,
-                                                              const string& customStream)
+Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
+    Output& out,
+    const SequencePtr& seq,
+    const string& scope,
+    const string& param,
+    int tag,
+    bool marshal,
+    const string& customStream)
 {
     string stream = customStream;
     if (stream.empty())

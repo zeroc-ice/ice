@@ -32,9 +32,10 @@ namespace IceInternal
         virtual bool secure() const;
 
         virtual TransceiverPtr transceiver() const;
-        virtual void connectorsAsync(Ice::EndpointSelectionType,
-                                     std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
-                                     std::function<void(std::exception_ptr)>) const;
+        virtual void connectorsAsync(
+            Ice::EndpointSelectionType,
+            std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
+            std::function<void(std::exception_ptr)>) const;
         virtual AcceptorPtr acceptor(const std::string&) const;
         virtual std::vector<EndpointIPtr> expandIfWildcard() const;
         virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;

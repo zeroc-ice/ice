@@ -26,7 +26,7 @@ namespace IceGrid
         virtual void destroy(bool) = 0;
     };
 
-    template <class T> class SessionReapable : public Reapable
+    template<class T> class SessionReapable : public Reapable
     {
     public:
         SessionReapable(const std::shared_ptr<Ice::Logger>& logger, const std::shared_ptr<T>& session)
@@ -65,7 +65,7 @@ namespace IceGrid
         const std::shared_ptr<T> _session;
     };
 
-    template <class T> class SessionReapableWithHeartbeat final : public SessionReapable<T>
+    template<class T> class SessionReapableWithHeartbeat final : public SessionReapable<T>
     {
     public:
         SessionReapableWithHeartbeat(const std::shared_ptr<Ice::Logger>& logger, const std::shared_ptr<T>& session)

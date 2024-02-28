@@ -173,9 +173,10 @@ Ice::createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& def
 }
 #endif
 
-Ice::ThreadHookPlugin::ThreadHookPlugin(const CommunicatorPtr& communicator,
-                                        function<void()> threadStart,
-                                        function<void()> threadStop)
+Ice::ThreadHookPlugin::ThreadHookPlugin(
+    const CommunicatorPtr& communicator,
+    function<void()> threadStart,
+    function<void()> threadStop)
 {
     if (communicator == nullptr)
     {
@@ -493,8 +494,8 @@ Ice::stringToIdentity(const string& s)
         }
         catch (const IceUtil::IllegalArgumentException& ex)
         {
-            throw IdentityParseException(__FILE__, __LINE__,
-                                         "invalid category in identity `" + s + "': " + ex.reason());
+            throw IdentityParseException(
+                __FILE__, __LINE__, "invalid category in identity `" + s + "': " + ex.reason());
         }
 
         if (slash + 1 < s.size())
@@ -505,8 +506,8 @@ Ice::stringToIdentity(const string& s)
             }
             catch (const IceUtil::IllegalArgumentException& ex)
             {
-                throw IdentityParseException(__FILE__, __LINE__,
-                                             "invalid name in identity `" + s + "': " + ex.reason());
+                throw IdentityParseException(
+                    __FILE__, __LINE__, "invalid name in identity `" + s + "': " + ex.reason());
             }
         }
     }

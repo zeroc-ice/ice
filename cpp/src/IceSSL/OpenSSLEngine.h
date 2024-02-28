@@ -25,10 +25,9 @@ namespace IceSSL
 
             void initialize() final;
             void destroy() final;
-            IceInternal::TransceiverPtr createTransceiver(const IceSSL::InstancePtr&,
-                                                          const IceInternal::TransceiverPtr&,
-                                                          const std::string&,
-                                                          bool) final;
+            IceInternal::TransceiverPtr
+            createTransceiver(const IceSSL::InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool)
+                final;
 
 #ifndef OPENSSL_NO_DH
             DH* dhParams(int);

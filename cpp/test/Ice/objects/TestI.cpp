@@ -190,9 +190,10 @@ InitialI::getMB(const Ice::Current& current)
 }
 
 void
-InitialI::getAMDMBAsync(function<void(const GetAMDMBMarshaledResult&)> response,
-                        function<void(exception_ptr)>,
-                        const Ice::Current& current)
+InitialI::getAMDMBAsync(
+    function<void(const GetAMDMBMarshaledResult&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current& current)
 {
     response(GetAMDMBMarshaledResult(_b1, current));
 }
@@ -303,9 +304,10 @@ InitialI::opM(Test::MPtr v1, Test::MPtr& v2, const Ice::Current&)
 }
 
 bool
-UnexpectedObjectExceptionTestI::ice_invoke(std::vector<Ice::Byte>,
-                                           std::vector<Ice::Byte>& outParams,
-                                           const Ice::Current& current)
+UnexpectedObjectExceptionTestI::ice_invoke(
+    std::vector<Ice::Byte>,
+    std::vector<Ice::Byte>& outParams,
+    const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
     Ice::OutputStream out(communicator);

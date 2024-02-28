@@ -183,8 +183,8 @@ Slice::Ruby::compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            if (!icecpp->printMakefileDependencies(os, depend ? Preprocessor::Ruby : Preprocessor::SliceXML,
-                                                   includePaths, "-D__SLICE2RB__"))
+            if (!icecpp->printMakefileDependencies(
+                    os, depend ? Preprocessor::Ruby : Preprocessor::SliceXML, includePaths, "-D__SLICE2RB__"))
             {
                 return EXIT_FAILURE;
             }

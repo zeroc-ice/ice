@@ -21,9 +21,10 @@ namespace IceGrid
         class Thread : public SessionKeepAliveThread<ReplicaSessionPrx>
         {
         public:
-            Thread(ReplicaSessionManager& manager,
-                   const InternalRegistryPrxPtr& master,
-                   const std::shared_ptr<Ice::Logger>& logger)
+            Thread(
+                ReplicaSessionManager& manager,
+                const InternalRegistryPrxPtr& master,
+                const std::shared_ptr<Ice::Logger>& logger)
                 : SessionKeepAliveThread<ReplicaSessionPrx>(master, logger),
                   _manager(manager)
             {
@@ -46,11 +47,12 @@ namespace IceGrid
 
         using SessionManager::SessionManager;
 
-        void create(const std::string&,
-                    const std::shared_ptr<InternalReplicaInfo>&,
-                    const std::shared_ptr<Database>&,
-                    const std::shared_ptr<WellKnownObjectsManager>&,
-                    const InternalRegistryPrxPtr&);
+        void create(
+            const std::string&,
+            const std::shared_ptr<InternalReplicaInfo>&,
+            const std::shared_ptr<Database>&,
+            const std::shared_ptr<WellKnownObjectsManager>&,
+            const InternalRegistryPrxPtr&);
         void create(const InternalRegistryPrxPtr&);
 
         NodePrxSeq getNodes(const NodePrxSeq&) const;

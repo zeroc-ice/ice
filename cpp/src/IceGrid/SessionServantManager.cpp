@@ -11,16 +11,17 @@
 using namespace std;
 using namespace IceGrid;
 
-SessionServantManager::SessionServantManager(const shared_ptr<Ice::ObjectAdapter>& adapter,
-                                             const string& instanceName,
-                                             bool checkConnection,
-                                             const string& serverAdminCategory,
-                                             const shared_ptr<Ice::Object>& serverAdminRouter,
-                                             const string& nodeAdminCategory,
-                                             const shared_ptr<Ice::Object>& nodeAdminRouter,
-                                             const string& replicaAdminCategory,
-                                             const shared_ptr<Ice::Object>& replicaAdminRouter,
-                                             const shared_ptr<AdminCallbackRouter>& adminCallbackRouter)
+SessionServantManager::SessionServantManager(
+    const shared_ptr<Ice::ObjectAdapter>& adapter,
+    const string& instanceName,
+    bool checkConnection,
+    const string& serverAdminCategory,
+    const shared_ptr<Ice::Object>& serverAdminRouter,
+    const string& nodeAdminCategory,
+    const shared_ptr<Ice::Object>& nodeAdminRouter,
+    const string& replicaAdminCategory,
+    const shared_ptr<Ice::Object>& replicaAdminRouter,
+    const shared_ptr<AdminCallbackRouter>& adminCallbackRouter)
     : _adapter(adapter),
       _instanceName(instanceName),
       _checkConnection(checkConnection),
@@ -92,9 +93,10 @@ SessionServantManager::deactivate(const std::string&)
 }
 
 Ice::ObjectPrxPtr
-SessionServantManager::addSession(const shared_ptr<Ice::Object>& session,
-                                  const shared_ptr<Ice::Connection>& con,
-                                  const string& category)
+SessionServantManager::addSession(
+    const shared_ptr<Ice::Object>& session,
+    const shared_ptr<Ice::Connection>& con,
+    const string& category)
 {
     lock_guard lock(_mutex);
     _sessions.insert({session, SessionInfo(con, category)});
@@ -116,9 +118,10 @@ SessionServantManager::addSession(const shared_ptr<Ice::Object>& session,
 }
 
 void
-SessionServantManager::setSessionControl(const shared_ptr<Ice::Object>& session,
-                                         const Glacier2::SessionControlPrxPtr& ctl,
-                                         const Ice::IdentitySeq& ids)
+SessionServantManager::setSessionControl(
+    const shared_ptr<Ice::Object>& session,
+    const Glacier2::SessionControlPrxPtr& ctl,
+    const Ice::IdentitySeq& ids)
 {
     lock_guard lock(_mutex);
 

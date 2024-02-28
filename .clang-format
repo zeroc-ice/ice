@@ -5,6 +5,10 @@ IndentWidth: 4
 ---
 Language: Cpp
 AccessModifierOffset: -4
+AlignAfterOpenBracket: AlwaysBreak
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllConstructorInitializersOnNextLine: false
 AllowShortIfStatementsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: TopLevel
 BinPackParameters: false
@@ -18,5 +22,6 @@ NamespaceIndentation: All
 PackConstructorInitializers: CurrentLine
 PointerAlignment: Left
 SortIncludes: Never
+SpaceAfterTemplateKeyword: false
 TabWidth: 4
 UseTab: Never

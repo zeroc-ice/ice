@@ -293,12 +293,13 @@ Slice::Preprocessor::preprocess(bool keepComments, const vector<string>& extraAr
 }
 
 bool
-Slice::Preprocessor::printMakefileDependencies(ostream& out,
-                                               Language lang,
-                                               const vector<string>& includePaths,
-                                               const string& extraArg,
-                                               const string& cppSourceExt,
-                                               const string& optValue)
+Slice::Preprocessor::printMakefileDependencies(
+    ostream& out,
+    Language lang,
+    const vector<string>& includePaths,
+    const string& extraArg,
+    const string& cppSourceExt,
+    const string& optValue)
 {
     vector<string> extraArgs;
     extraArgs.push_back(extraArg);
@@ -306,12 +307,13 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out,
 }
 
 bool
-Slice::Preprocessor::printMakefileDependencies(ostream& out,
-                                               Language lang,
-                                               const vector<string>& includePaths,
-                                               const vector<string>& extraArgs,
-                                               const string& /*cppSourceExt*/,
-                                               const string& optValue)
+Slice::Preprocessor::printMakefileDependencies(
+    ostream& out,
+    Language lang,
+    const vector<string>& includePaths,
+    const vector<string>& extraArgs,
+    const string& /*cppSourceExt*/,
+    const string& optValue)
 {
     if (!checkInputFile())
     {

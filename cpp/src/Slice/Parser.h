@@ -477,17 +477,23 @@ namespace Slice
         StructPtr createStruct(const std::string&, NodeType = Real);
         SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, NodeType = Real);
         DictionaryPtr createDictionary(
-            const std::string&, const TypePtr&, const StringList&, const TypePtr&, const StringList&, NodeType = Real);
+            const std::string&,
+            const TypePtr&,
+            const StringList&,
+            const TypePtr&,
+            const StringList&,
+            NodeType = Real);
         EnumPtr createEnum(const std::string&, NodeType = Real);
         EnumeratorPtr createEnumerator(const std::string&);
         EnumeratorPtr createEnumerator(const std::string&, int);
-        ConstPtr createConst(const std::string,
-                             const TypePtr&,
-                             const StringList&,
-                             const SyntaxTreeBasePtr&,
-                             const std::string&,
-                             const std::string&,
-                             NodeType = Real);
+        ConstPtr createConst(
+            const std::string,
+            const TypePtr&,
+            const StringList&,
+            const SyntaxTreeBasePtr&,
+            const std::string&,
+            const std::string&,
+            NodeType = Real);
         TypeList lookupType(const std::string&, bool = true);
         TypeList lookupTypeNoBuiltin(const std::string&, bool = true, bool = false);
         ContainedList lookupContained(const std::string&, bool = true);
@@ -603,13 +609,14 @@ namespace Slice
     public:
         ClassDef(const ContainerPtr&, const std::string&, int, const ClassDefPtr&);
         virtual void destroy();
-        DataMemberPtr createDataMember(const std::string&,
-                                       const TypePtr&,
-                                       bool,
-                                       int,
-                                       const SyntaxTreeBasePtr&,
-                                       const std::string&,
-                                       const std::string&);
+        DataMemberPtr createDataMember(
+            const std::string&,
+            const TypePtr&,
+            bool,
+            int,
+            const SyntaxTreeBasePtr&,
+            const std::string&,
+            const std::string&);
         ClassDeclPtr declaration() const;
         ClassDefPtr base() const;
         ClassList allBases() const;
@@ -780,13 +787,14 @@ namespace Slice
     public:
         Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&);
         virtual void destroy();
-        DataMemberPtr createDataMember(const std::string&,
-                                       const TypePtr&,
-                                       bool,
-                                       int,
-                                       const SyntaxTreeBasePtr&,
-                                       const std::string&,
-                                       const std::string&);
+        DataMemberPtr createDataMember(
+            const std::string&,
+            const TypePtr&,
+            bool,
+            int,
+            const SyntaxTreeBasePtr&,
+            const std::string&,
+            const std::string&);
         DataMemberList dataMembers() const;
         DataMemberList orderedOptionalDataMembers() const;
         DataMemberList allDataMembers() const;
@@ -817,13 +825,14 @@ namespace Slice
     {
     public:
         Struct(const ContainerPtr&, const std::string&);
-        DataMemberPtr createDataMember(const std::string&,
-                                       const TypePtr&,
-                                       bool,
-                                       int,
-                                       const SyntaxTreeBasePtr&,
-                                       const std::string&,
-                                       const std::string&);
+        DataMemberPtr createDataMember(
+            const std::string&,
+            const TypePtr&,
+            bool,
+            int,
+            const SyntaxTreeBasePtr&,
+            const std::string&,
+            const std::string&);
         DataMemberList dataMembers() const;
         DataMemberList classDataMembers() const;
         virtual ContainedType containedType() const;
@@ -870,12 +879,13 @@ namespace Slice
     class Dictionary : public virtual Constructed
     {
     public:
-        Dictionary(const ContainerPtr&,
-                   const std::string&,
-                   const TypePtr&,
-                   const StringList&,
-                   const TypePtr&,
-                   const StringList&);
+        Dictionary(
+            const ContainerPtr&,
+            const std::string&,
+            const TypePtr&,
+            const StringList&,
+            const TypePtr&,
+            const StringList&);
         TypePtr keyType() const;
         TypePtr valueType() const;
         StringList keyMetaData() const;
@@ -962,13 +972,14 @@ namespace Slice
     class Const : public virtual Contained
     {
     public:
-        Const(const ContainerPtr&,
-              const std::string&,
-              const TypePtr&,
-              const StringList&,
-              const SyntaxTreeBasePtr&,
-              const std::string&,
-              const std::string&);
+        Const(
+            const ContainerPtr&,
+            const std::string&,
+            const TypePtr&,
+            const StringList&,
+            const SyntaxTreeBasePtr&,
+            const std::string&,
+            const std::string&);
         TypePtr type() const;
         StringList typeMetaData() const;
         SyntaxTreeBasePtr valueType() const;
@@ -1020,14 +1031,15 @@ namespace Slice
     class DataMember : public virtual Contained
     {
     public:
-        DataMember(const ContainerPtr&,
-                   const std::string&,
-                   const TypePtr&,
-                   bool,
-                   int,
-                   const SyntaxTreeBasePtr&,
-                   const std::string&,
-                   const std::string&);
+        DataMember(
+            const ContainerPtr&,
+            const std::string&,
+            const TypePtr&,
+            bool,
+            int,
+            const SyntaxTreeBasePtr&,
+            const std::string&,
+            const std::string&);
         TypePtr type() const;
         bool optional() const;
         int tag() const;

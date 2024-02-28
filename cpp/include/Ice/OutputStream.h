@@ -55,9 +55,10 @@ namespace Ice
          * @param bytes Application-supplied memory that the stream uses as its initial marshaling buffer. The
          * stream will reallocate if the size of the marshaled data exceeds the application's buffer.
          */
-        OutputStream(const CommunicatorPtr& communicator,
-                     const EncodingVersion& version,
-                     const std::pair<const Byte*, const Byte*>& bytes);
+        OutputStream(
+            const CommunicatorPtr& communicator,
+            const EncodingVersion& version,
+            const std::pair<const Byte*, const Byte*>& bytes);
 
         ~OutputStream()
         {
@@ -381,14 +382,14 @@ namespace Ice
          * Writes a data value to the stream.
          * @param v The data value to be written.
          */
-        template <typename T> void write(const T& v) { StreamHelper<T, StreamableTraits<T>::helper>::write(this, v); }
+        template<typename T> void write(const T& v) { StreamHelper<T, StreamableTraits<T>::helper>::write(this, v); }
 
         /**
          * Writes an optional data value to the stream. For all types except proxies.
          * @param tag The tag ID.
          * @param v The data value to be written (if any).
          */
-        template <typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
         void write(std::int32_t tag, const std::optional<T>& v)
         {
             if (!v)
@@ -396,8 +397,9 @@ namespace Ice
                 return; // Optional not set
             }
 
-            if (writeOptional(tag, StreamOptionalHelper<T, StreamableTraits<T>::helper,
-                                                        StreamableTraits<T>::fixedLength>::optionalFormat))
+            if (writeOptional(
+                    tag, StreamOptionalHelper<
+                             T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::optionalFormat))
             {
                 StreamOptionalHelper<T, StreamableTraits<T>::helper, StreamableTraits<T>::fixedLength>::write(this, *v);
             }
@@ -408,7 +410,7 @@ namespace Ice
          * @param tag The tag ID.
          * @param v The proxy to be written (if any).
          */
-        template <typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
         void write(std::int32_t tag, const std::optional<T>& v)
         {
             if (!v)
@@ -428,7 +430,7 @@ namespace Ice
          * Writes a sequence of data values to the stream.
          * @param v The sequence to be written.
          */
-        template <typename T> void write(const std::vector<T>& v)
+        template<typename T> void write(const std::vector<T>& v)
         {
             if (v.empty())
             {
@@ -445,7 +447,7 @@ namespace Ice
          * @param begin The beginning of the sequence.
          * @param end The end of the sequence.
          */
-        template <typename T> void write(const T* begin, const T* end)
+        template<typename T> void write(const T* begin, const T* end)
         {
             writeSize(static_cast<std::int32_t>(end - begin));
             for (const T* p = begin; p != end; ++p)
@@ -457,12 +459,12 @@ namespace Ice
         /**
          * Writes a list of mandatory data values.
          */
-        template <typename T> void writeAll(const T& v) { write(v); }
+        template<typename T> void writeAll(const T& v) { write(v); }
 
         /**
          * Writes a list of mandatory data values.
          */
-        template <typename T, typename... Te> void writeAll(const T& v, const Te&... ve)
+        template<typename T, typename... Te> void writeAll(const T& v, const Te&... ve)
         {
             write(v);
             writeAll(ve...);
@@ -471,7 +473,7 @@ namespace Ice
         /**
          * Writes a list of mandatory data values.
          */
-        template <size_t I = 0, typename... Te>
+        template<size_t I = 0, typename... Te>
         typename std::enable_if<I == sizeof...(Te), void>::type writeAll(std::tuple<Te...>)
         {
             // Do nothing. Either tuple is empty or we are at the end.
@@ -480,7 +482,7 @@ namespace Ice
         /**
          * Writes a list of mandatory data values.
          */
-        template <size_t I = 0, typename... Te>
+        template<size_t I = 0, typename... Te>
             typename std::enable_if < I<sizeof...(Te), void>::type writeAll(std::tuple<Te...> tuple)
         {
             write(std::get<I>(tuple));
@@ -490,7 +492,7 @@ namespace Ice
         /**
          * Writes a list of optional data values.
          */
-        template <typename T> void writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v)
+        template<typename T> void writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v)
         {
             write(*(tags.begin() + tags.size() - 1), v);
         }
@@ -498,7 +500,7 @@ namespace Ice
         /**
          * Writes a list of optional data values.
          */
-        template <typename T, typename... Te>
+        template<typename T, typename... Te>
         void
         writeAll(std::initializer_list<std::int32_t> tags, const std::optional<T>& v, const std::optional<Te>&... ve)
         {
@@ -762,7 +764,7 @@ namespace Ice
          * Writes a proxy to the stream.
          * @param v The proxy to be write.
          */
-        template <typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
         void write(const std::optional<Prx>& v)
         {
             if (v)
@@ -779,7 +781,7 @@ namespace Ice
          * Writes a value instance to the stream.
          * @param v The value to be written.
          */
-        template <typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
+        template<typename T, typename ::std::enable_if<::std::is_base_of<Value, T>::value>::type* = nullptr>
         void write(const ::std::shared_ptr<T>& v)
         {
             initEncaps();

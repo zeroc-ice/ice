@@ -188,8 +188,8 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
                     }
                 }
 
-                if (!found && IceUtilInternal::match(IceUtilInternal::toUpper(currentKey),
-                                                     IceUtilInternal::toUpper(prop.pattern)))
+                if (!found && IceUtilInternal::match(
+                                  IceUtilInternal::toUpper(currentKey), IceUtilInternal::toUpper(prop.pattern)))
                 {
                     found = true;
                     mismatchCase = true;
@@ -300,9 +300,9 @@ Ice::PropertiesI::load(const std::string& file)
         LONG err;
         if ((err = RegOpenKeyExW(key, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
-            throw InitializationException(__FILE__, __LINE__,
-                                          "could not open Windows registry key `" + file + "':\n" +
-                                              IceUtilInternal::errorToString(err));
+            throw InitializationException(
+                __FILE__, __LINE__,
+                "could not open Windows registry key `" + file + "':\n" + IceUtilInternal::errorToString(err));
         }
 
         DWORD maxNameSize; // Size in characters not including terminating null character.
@@ -310,13 +310,14 @@ Ice::PropertiesI::load(const std::string& file)
         DWORD numValues;
         try
         {
-            err = RegQueryInfoKey(iceKey, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &numValues,
-                                  &maxNameSize, &maxDataSize, nullptr, nullptr);
+            err = RegQueryInfoKey(
+                iceKey, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, &numValues, &maxNameSize, &maxDataSize,
+                nullptr, nullptr);
             if (err != ERROR_SUCCESS)
             {
-                throw InitializationException(__FILE__, __LINE__,
-                                              "could not open Windows registry key `" + file + "':\n" +
-                                                  IceUtilInternal::errorToString(err));
+                throw InitializationException(
+                    __FILE__, __LINE__,
+                    "could not open Windows registry key `" + file + "':\n" + IceUtilInternal::errorToString(err));
             }
 
             for (DWORD i = 0; i < numValues; ++i)
@@ -361,13 +362,13 @@ Ice::PropertiesI::load(const std::string& file)
                 else // keyType == REG_EXPAND_SZ
                 {
                     vector<wchar_t> expandedValue(1024);
-                    DWORD sz = ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0],
-                                                         static_cast<DWORD>(expandedValue.size()));
+                    DWORD sz = ExpandEnvironmentStringsW(
+                        valueW.c_str(), &expandedValue[0], static_cast<DWORD>(expandedValue.size()));
                     if (sz >= expandedValue.size())
                     {
                         expandedValue.resize(sz + 1);
-                        if (ExpandEnvironmentStringsW(valueW.c_str(), &expandedValue[0],
-                                                      static_cast<DWORD>(expandedValue.size())) == 0)
+                        if (ExpandEnvironmentStringsW(
+                                valueW.c_str(), &expandedValue[0], static_cast<DWORD>(expandedValue.size())) == 0)
                         {
                             ostringstream os;
                             os << "could not expand variable in property `" << name << "', key: `" + file + "':\n";

@@ -18,24 +18,27 @@ namespace IceDiscovery
     public:
         LocatorRegistryI(const Ice::CommunicatorPtr&);
 
-        virtual void setAdapterDirectProxyAsync(std::string,
-                                                Ice::ObjectPrxPtr,
-                                                std::function<void()>,
-                                                std::function<void(std::exception_ptr)>,
-                                                const Ice::Current&);
+        virtual void setAdapterDirectProxyAsync(
+            std::string,
+            Ice::ObjectPrxPtr,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&);
 
-        virtual void setReplicatedAdapterDirectProxyAsync(std::string,
-                                                          std::string,
-                                                          Ice::ObjectPrxPtr,
-                                                          std::function<void()>,
-                                                          std::function<void(std::exception_ptr)>,
-                                                          const Ice::Current&);
+        virtual void setReplicatedAdapterDirectProxyAsync(
+            std::string,
+            std::string,
+            Ice::ObjectPrxPtr,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&);
 
-        virtual void setServerProcessProxyAsync(std::string,
-                                                Ice::ProcessPrxPtr,
-                                                std::function<void()>,
-                                                std::function<void(std::exception_ptr)>,
-                                                const Ice::Current&);
+        virtual void setServerProcessProxyAsync(
+            std::string,
+            Ice::ProcessPrxPtr,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&);
         Ice::ObjectPrxPtr findObject(const Ice::Identity&) const;
         Ice::ObjectPrxPtr findAdapter(const std::string&, bool&) const;
 
@@ -55,15 +58,17 @@ namespace IceDiscovery
     public:
         LocatorI(const LookupIPtr&, const Ice::LocatorRegistryPrxPtr&);
 
-        virtual void findObjectByIdAsync(Ice::Identity,
-                                         std::function<void(const Ice::ObjectPrxPtr&)>,
-                                         std::function<void(std::exception_ptr)>,
-                                         const Ice::Current&) const;
+        virtual void findObjectByIdAsync(
+            Ice::Identity,
+            std::function<void(const Ice::ObjectPrxPtr&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const;
 
-        virtual void findAdapterByIdAsync(std::string,
-                                          std::function<void(const Ice::ObjectPrxPtr&)>,
-                                          std::function<void(std::exception_ptr)>,
-                                          const Ice::Current&) const;
+        virtual void findAdapterByIdAsync(
+            std::string,
+            std::function<void(const Ice::ObjectPrxPtr&)>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) const;
 
         virtual Ice::LocatorRegistryPrxPtr getRegistry(const Ice::Current&) const;
 

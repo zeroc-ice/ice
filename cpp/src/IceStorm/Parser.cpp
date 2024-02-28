@@ -50,9 +50,10 @@ namespace
 
 }
 
-Parser::Parser(shared_ptr<Communicator> communicator,
-               TopicManagerPrxPtr admin,
-               map<Ice::Identity, TopicManagerPrxPtr> managers)
+Parser::Parser(
+    shared_ptr<Communicator> communicator,
+    TopicManagerPrxPtr admin,
+    map<Ice::Identity, TopicManagerPrxPtr> managers)
     : _communicator(std::move(communicator)),
       _defaultManager(std::move(admin)),
       _managers(std::move(managers))
@@ -103,8 +104,9 @@ Parser::create(const list<string>& args)
         }
         catch (const std::exception&)
         {
-            exception(current_exception(),
-                      args.size() > 1); // Print a warning if we're creating multiple topics, an error otherwise.
+            exception(
+                current_exception(),
+                args.size() > 1); // Print a warning if we're creating multiple topics, an error otherwise.
         }
     }
 }
@@ -126,8 +128,9 @@ Parser::destroy(const list<string>& args)
         }
         catch (const std::exception&)
         {
-            exception(current_exception(),
-                      args.size() > 1); // Print a warning if we're destroying multiple topics, an error otherwise.
+            exception(
+                current_exception(),
+                args.size() > 1); // Print a warning if we're destroying multiple topics, an error otherwise.
         }
     }
 }

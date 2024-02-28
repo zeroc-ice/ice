@@ -126,13 +126,15 @@ AdapterRequest::finished(const ObjectPrxPtr& proxy)
 }
 
 void
-AdapterRequest::invokeWithLookup(const string& domainId,
-                                 const LookupPrxPtr& lookup,
-                                 const LookupReplyPrxPtr& lookupReply)
+AdapterRequest::invokeWithLookup(
+    const string& domainId,
+    const LookupPrxPtr& lookup,
+    const LookupReplyPrxPtr& lookupReply)
 {
     auto self = shared_from_this();
-    lookup->findAdapterByIdAsync(domainId, _id, lookupReply, nullptr,
-                                 [self](exception_ptr ex) { self->_lookup->adapterRequestException(self, ex); });
+    lookup->findAdapterByIdAsync(
+        domainId, _id, lookupReply, nullptr,
+        [self](exception_ptr ex) { self->_lookup->adapterRequestException(self, ex); });
 }
 
 void
@@ -153,13 +155,15 @@ ObjectRequest::response(const Ice::ObjectPrxPtr& proxy)
 }
 
 void
-ObjectRequest::invokeWithLookup(const string& domainId,
-                                const LookupPrxPtr& lookup,
-                                const LookupReplyPrxPtr& lookupReply)
+ObjectRequest::invokeWithLookup(
+    const string& domainId,
+    const LookupPrxPtr& lookup,
+    const LookupReplyPrxPtr& lookupReply)
 {
     auto self = shared_from_this();
-    lookup->findObjectByIdAsync(domainId, _id, lookupReply, nullptr,
-                                [self](exception_ptr ex) { self->_lookup->objectRequestException(self, ex); });
+    lookup->findObjectByIdAsync(
+        domainId, _id, lookupReply, nullptr,
+        [self](exception_ptr ex) { self->_lookup->objectRequestException(self, ex); });
 }
 
 void
@@ -330,8 +334,8 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
     if (p == _adapterRequests.end())
     {
         p = _adapterRequests
-                .insert(make_pair(adapterId,
-                                  make_shared<AdapterRequest>(LookupIPtr(shared_from_this()), adapterId, _retryCount)))
+                .insert(make_pair(
+                    adapterId, make_shared<AdapterRequest>(LookupIPtr(shared_from_this()), adapterId, _retryCount)))
                 .first;
     }
 
@@ -364,10 +368,11 @@ LookupI::foundObject(const Ice::Identity& id, const string& requestId, const Ice
 }
 
 void
-LookupI::foundAdapter(const string& adapterId,
-                      const string& requestId,
-                      const Ice::ObjectPrxPtr& proxy,
-                      bool isReplicaGroup)
+LookupI::foundAdapter(
+    const string& adapterId,
+    const string& requestId,
+    const Ice::ObjectPrxPtr& proxy,
+    bool isReplicaGroup)
 {
     lock_guard lock(_mutex);
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);

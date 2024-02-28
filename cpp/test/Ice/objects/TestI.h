@@ -69,9 +69,10 @@ public:
     virtual bool acceptsClassCycles(const Ice::Current&);
 
     virtual GetMBMarshaledResult getMB(const Ice::Current&);
-    virtual void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,
-                               std::function<void(std::exception_ptr)>,
-                               const Ice::Current&);
+    virtual void getAMDMBAsync(
+        std::function<void(const GetAMDMBMarshaledResult&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
 

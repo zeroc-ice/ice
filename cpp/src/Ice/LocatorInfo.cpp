@@ -138,8 +138,9 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
                 pair<const pair<Identity, EncodingVersion>, LocatorTablePtr>(locatorKey, new LocatorTable()));
         }
 
-        _tableHint = _table.insert(_tableHint, pair<const LocatorPrx, LocatorInfoPtr>(
-                                                   locator, new LocatorInfo(locator, t->second, _background)));
+        _tableHint = _table.insert(
+            _tableHint,
+            pair<const LocatorPrx, LocatorInfoPtr>(locator, new LocatorInfo(locator, t->second, _background)));
     }
     else
     {
@@ -309,8 +310,8 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
             //
             if (_reference->getInstance()->traceLevels()->location >= 1)
             {
-                locatorInfo->trace("retrieved adapter for well-known object from locator, adding to locator cache",
-                                   _reference, r);
+                locatorInfo->trace(
+                    "retrieved adapter for well-known object from locator, adding to locator cache", _reference, r);
             }
             locatorInfo->getEndpoints(r, _reference, _ttl, _callback);
             return;
@@ -343,9 +344,10 @@ IceInternal::LocatorInfo::RequestCallback::exception(const LocatorInfoPtr& locat
     }
 }
 
-IceInternal::LocatorInfo::RequestCallback::RequestCallback(const ReferencePtr& ref,
-                                                           int ttl,
-                                                           const GetEndpointsCallbackPtr& cb)
+IceInternal::LocatorInfo::RequestCallback::RequestCallback(
+    const ReferencePtr& ref,
+    int ttl,
+    const GetEndpointsCallbackPtr& cb)
     : _reference(ref),
       _ttl(ttl),
       _callback(cb)
@@ -353,10 +355,11 @@ IceInternal::LocatorInfo::RequestCallback::RequestCallback(const ReferencePtr& r
 }
 
 void
-IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
-                                               const ReferencePtr& wellKnownRef,
-                                               int ttl,
-                                               const GetEndpointsCallbackPtr& cb)
+IceInternal::LocatorInfo::Request::addCallback(
+    const ReferencePtr& ref,
+    const ReferencePtr& wellKnownRef,
+    int ttl,
+    const GetEndpointsCallbackPtr& cb)
 {
     RequestCallbackPtr callback = make_shared<RequestCallback>(ref, ttl, cb);
     {
@@ -503,10 +506,11 @@ IceInternal::LocatorInfo::getLocatorRegistry()
 }
 
 void
-IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref,
-                                       const ReferencePtr& wellKnownRef,
-                                       int ttl,
-                                       const GetEndpointsCallbackPtr& callback)
+IceInternal::LocatorInfo::getEndpoints(
+    const ReferencePtr& ref,
+    const ReferencePtr& wellKnownRef,
+    int ttl,
+    const GetEndpointsCallbackPtr& callback)
 {
     assert(ref->isIndirect());
     vector<EndpointIPtr> endpoints;
@@ -636,8 +640,9 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, std::ex
             out << "object = " << Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode());
         }
 
-        throw NotRegisteredException(__FILE__, __LINE__, "object",
-                                     Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode()));
+        throw NotRegisteredException(
+            __FILE__, __LINE__, "object",
+            Ice::identityToString(ref->getIdentity(), ref->getInstance()->toStringMode()));
     }
     catch (const NotRegisteredException&)
     {
@@ -726,8 +731,9 @@ IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, cons
 
     const char* sep = endpoints.size() > 1 ? ":" : "";
     ostringstream o;
-    transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
-              [](const EndpointPtr& endpoint) { return endpoint->toString(); });
+    transform(
+        endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
+        [](const EndpointPtr& endpoint) { return endpoint->toString(); });
     out << "endpoints = " << o.str();
 }
 
@@ -784,10 +790,11 @@ IceInternal::LocatorInfo::getObjectRequest(const ReferencePtr& ref)
 }
 
 void
-IceInternal::LocatorInfo::finishRequest(const ReferencePtr& ref,
-                                        const vector<ReferencePtr>& wellKnownRefs,
-                                        const std::optional<Ice::ObjectPrx>& proxy,
-                                        bool notRegistered)
+IceInternal::LocatorInfo::finishRequest(
+    const ReferencePtr& ref,
+    const vector<ReferencePtr>& wellKnownRefs,
+    const std::optional<Ice::ObjectPrx>& proxy,
+    bool notRegistered)
 {
     if (!proxy || proxy->_getReference()->isIndirect())
     {

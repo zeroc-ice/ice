@@ -26,8 +26,9 @@ namespace IceBT
         //
         // From IceBT::Plugin.
         //
-        virtual void startDiscovery(const std::string& address,
-                                    std::function<void(const std::string& addr, const PropertyMap& props)>);
+        virtual void startDiscovery(
+            const std::string& address,
+            std::function<void(const std::string& addr, const PropertyMap& props)>);
         virtual void stopDiscovery(const std::string&);
 
         virtual DeviceMap getDevices() const;

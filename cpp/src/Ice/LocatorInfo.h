@@ -149,10 +149,11 @@ namespace IceInternal
         RequestPtr getAdapterRequest(const ReferencePtr&);
         RequestPtr getObjectRequest(const ReferencePtr&);
 
-        void finishRequest(const ReferencePtr&,
-                           const std::vector<ReferencePtr>&,
-                           const std::optional<Ice::ObjectPrx>&,
-                           bool);
+        void finishRequest(
+            const ReferencePtr&,
+            const std::vector<ReferencePtr>&,
+            const std::optional<Ice::ObjectPrx>&,
+            bool);
         friend class Request;
         friend class RequestCallback;
 

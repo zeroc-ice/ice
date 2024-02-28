@@ -21,22 +21,23 @@ using namespace IceSSL;
 //
 // Map a certificate OID to its alias
 //
-const CertificateOID IceSSL::certificateOIDS[] = {{"2.5.4.3", "CN"},
-                                                  {"2.5.4.4", "SN"},
-                                                  {"2.5.4.5", "DeviceSerialNumber"},
-                                                  {"2.5.4.6", "C"},
-                                                  {"2.5.4.7", "L"},
-                                                  {"2.5.4.8", "ST"},
-                                                  {"2.5.4.9", "STREET"},
-                                                  {"2.5.4.10", "O"},
-                                                  {"2.5.4.11", "OU"},
-                                                  {"2.5.4.12", "T"},
-                                                  {"2.5.4.42", "G"},
-                                                  {"2.5.4.43", "I"},
-                                                  {"1.2.840.113549.1.9.8", "unstructuredAddress"},
-                                                  {"1.2.840.113549.1.9.2", "unstructuredName"},
-                                                  {"1.2.840.113549.1.9.1", "emailAddress"},
-                                                  {"0.9.2342.19200300.100.1.25", "DC"}};
+const CertificateOID IceSSL::certificateOIDS[] = {
+    {"2.5.4.3", "CN"},
+    {"2.5.4.4", "SN"},
+    {"2.5.4.5", "DeviceSerialNumber"},
+    {"2.5.4.6", "C"},
+    {"2.5.4.7", "L"},
+    {"2.5.4.8", "ST"},
+    {"2.5.4.9", "STREET"},
+    {"2.5.4.10", "O"},
+    {"2.5.4.11", "OU"},
+    {"2.5.4.12", "T"},
+    {"2.5.4.42", "G"},
+    {"2.5.4.43", "I"},
+    {"1.2.840.113549.1.9.8", "unstructuredAddress"},
+    {"1.2.840.113549.1.9.2", "unstructuredName"},
+    {"1.2.840.113549.1.9.1", "emailAddress"},
+    {"0.9.2342.19200300.100.1.25", "DC"}};
 const int IceSSL::certificateOIDSSize = sizeof(IceSSL::certificateOIDS) / sizeof(CertificateOID);
 
 CertificateReadException::CertificateReadException(const char* file, int line, const string& r)

@@ -70,7 +70,11 @@ MyObjectI::badSystemAdd(int, int, const Ice::Current&)
 
 void
 MyObjectI::amdAddAsync(
-    int x, int y, function<void(int)> response, function<void(exception_ptr)>, const Ice::Current& current)
+    int x,
+    int y,
+    function<void(int)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current& current)
 {
     Ice::Context::const_iterator p = current.ctx.find("retry");
     bool retry = p != current.ctx.end();
@@ -92,7 +96,11 @@ MyObjectI::amdAddAsync(
 
 void
 MyObjectI::amdAddWithRetryAsync(
-    int x, int y, function<void(int)> response, function<void(exception_ptr)> error, const Ice::Current& current)
+    int x,
+    int y,
+    function<void(int)> response,
+    function<void(exception_ptr)> error,
+    const Ice::Current& current)
 {
     std::thread t(
         [x, y, response]()

@@ -27,9 +27,10 @@ TestIntfI::opByteArray(std::pair<const Ice::Byte*, const Ice::Byte*> inSeq, Test
 }
 
 Test::VariableList
-TestIntfI::opVariableArray(std::pair<const Test::Variable*, const Test::Variable*> inSeq,
-                           Test::VariableList& outSeq,
-                           const Ice::Current&)
+TestIntfI::opVariableArray(
+    std::pair<const Test::Variable*, const Test::Variable*> inSeq,
+    Test::VariableList& outSeq,
+    const Ice::Current&)
 {
     Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
@@ -85,9 +86,10 @@ TestIntfI::opBoolDequeList(::Test::BoolDequeList inSeq, ::Test::BoolDequeList& o
 }
 
 ::Test::BoolDequeList
-TestIntfI::opBoolDequeListArray(::std::pair<const std::deque<bool>*, const std::deque<bool>*> inSeq,
-                                ::Test::BoolDequeList& outSeq,
-                                const ::Ice::Current&)
+TestIntfI::opBoolDequeListArray(
+    ::std::pair<const std::deque<bool>*, const std::deque<bool>*> inSeq,
+    ::Test::BoolDequeList& outSeq,
+    const ::Ice::Current&)
 {
     for (const std::deque<bool>* p = inSeq.first; p != inSeq.second; ++p)
     {
@@ -167,18 +169,20 @@ TestIntfI::opVariableList(std::list<::Test::Variable> inSeq, std::list<::Test::V
 }
 
 std::deque<::Test::StringStringDict>
-TestIntfI::opStringStringDictSeq(std::deque<::Test::StringStringDict> inSeq,
-                                 std::deque<::Test::StringStringDict>& outSeq,
-                                 const Ice::Current&)
+TestIntfI::opStringStringDictSeq(
+    std::deque<::Test::StringStringDict> inSeq,
+    std::deque<::Test::StringStringDict>& outSeq,
+    const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
 std::list<::Test::StringStringDict>
-TestIntfI::opStringStringDictList(std::list<::Test::StringStringDict> inSeq,
-                                  std::list<::Test::StringStringDict>& outSeq,
-                                  const Ice::Current&)
+TestIntfI::opStringStringDictList(
+    std::list<::Test::StringStringDict> inSeq,
+    std::list<::Test::StringStringDict>& outSeq,
+    const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
@@ -246,9 +250,10 @@ TestIntfI::opIntStringDict(Test::IntStringDict data, Test::IntStringDict& copy, 
 }
 
 Test::CustomMap<int64_t, int64_t>
-TestIntfI::opVarDict(Test::CustomMap<std::string, int32_t> data,
-                     Test::CustomMap<std::string, int32_t>& copy,
-                     const Ice::Current&)
+TestIntfI::opVarDict(
+    Test::CustomMap<std::string, int32_t> data,
+    Test::CustomMap<std::string, int32_t>& copy,
+    const Ice::Current&)
 {
     copy = data;
 

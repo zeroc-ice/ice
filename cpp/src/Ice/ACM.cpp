@@ -20,10 +20,11 @@ IceInternal::ACMConfig::ACMConfig(bool server)
 {
 }
 
-IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
-                                  const Ice::LoggerPtr& l,
-                                  const string& prefix,
-                                  const ACMConfig& dflt)
+IceInternal::ACMConfig::ACMConfig(
+    const Ice::PropertiesPtr& p,
+    const Ice::LoggerPtr& l,
+    const string& prefix,
+    const ACMConfig& dflt)
 {
     string timeoutProperty;
     if ((prefix == "Ice.ACM.Client" || prefix == "Ice.ACM.Server") && p->getProperty(prefix + ".Timeout").empty())
@@ -128,8 +129,8 @@ IceInternal::FactoryACMMonitor::add(const ConnectionIPtr& connection)
     if (_connections.empty())
     {
         _connections.insert(connection);
-        _instance->timer()->scheduleRepeated(shared_from_this(),
-                                             chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
+        _instance->timer()->scheduleRepeated(
+            shared_from_this(), chrono::duration_cast<chrono::nanoseconds>(_config.timeout) / 2);
     }
     else
     {
@@ -158,9 +159,10 @@ IceInternal::FactoryACMMonitor::reap(const ConnectionIPtr& connection)
 }
 
 ACMMonitorPtr
-IceInternal::FactoryACMMonitor::acm(const optional<int>& timeout,
-                                    const optional<Ice::ACMClose>& close,
-                                    const optional<Ice::ACMHeartbeat>& heartbeat)
+IceInternal::FactoryACMMonitor::acm(
+    const optional<int>& timeout,
+    const optional<Ice::ACMClose>& close,
+    const optional<Ice::ACMHeartbeat>& heartbeat)
 {
     lock_guard lock(_mutex);
     assert(_instance);
@@ -278,9 +280,10 @@ FactoryACMMonitor::handleException()
     out << "unknown exception in connection monitor";
 }
 
-IceInternal::ConnectionACMMonitor::ConnectionACMMonitor(const FactoryACMMonitorPtr& parent,
-                                                        const IceUtil::TimerPtr& timer,
-                                                        const ACMConfig& config)
+IceInternal::ConnectionACMMonitor::ConnectionACMMonitor(
+    const FactoryACMMonitorPtr& parent,
+    const IceUtil::TimerPtr& timer,
+    const ACMConfig& config)
     : _parent(parent),
       _timer(timer),
       _config(config)
@@ -323,9 +326,10 @@ IceInternal::ConnectionACMMonitor::reap(const ConnectionIPtr& connection)
 }
 
 ACMMonitorPtr
-IceInternal::ConnectionACMMonitor::acm(const optional<int>& timeout,
-                                       const optional<Ice::ACMClose>& close,
-                                       const optional<Ice::ACMHeartbeat>& heartbeat)
+IceInternal::ConnectionACMMonitor::acm(
+    const optional<int>& timeout,
+    const optional<Ice::ACMClose>& close,
+    const optional<Ice::ACMHeartbeat>& heartbeat)
 {
     return _parent->acm(timeout, close, heartbeat);
 }

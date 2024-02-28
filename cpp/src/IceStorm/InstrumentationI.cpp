@@ -74,12 +74,13 @@ namespace
         };
         static Attributes attributes;
 
-        SubscriberHelper(const string& svc,
-                         const string& topic,
-                         const Ice::ObjectPrxPtr& proxy,
-                         const IceStorm::QoS& qos,
-                         IceStorm::TopicPrxPtr link,
-                         SubscriberState state)
+        SubscriberHelper(
+            const string& svc,
+            const string& topic,
+            const Ice::ObjectPrxPtr& proxy,
+            const IceStorm::QoS& qos,
+            IceStorm::TopicPrxPtr link,
+            SubscriberState state)
             : _service(svc),
               _topic(topic),
               _proxy(proxy),
@@ -293,9 +294,10 @@ TopicManagerObserverI::setObserverUpdater(const shared_ptr<ObserverUpdater>& upd
 }
 
 shared_ptr<TopicObserver>
-TopicManagerObserverI::getTopicObserver(const string& service,
-                                        const string& topic,
-                                        const shared_ptr<TopicObserver>& old)
+TopicManagerObserverI::getTopicObserver(
+    const string& service,
+    const string& topic,
+    const shared_ptr<TopicObserver>& old)
 {
     if (_topics.isEnabled())
     {
@@ -313,13 +315,14 @@ TopicManagerObserverI::getTopicObserver(const string& service,
 }
 
 shared_ptr<SubscriberObserver>
-TopicManagerObserverI::getSubscriberObserver(const string& svc,
-                                             const string& topic,
-                                             const Ice::ObjectPrxPtr& proxy,
-                                             const IceStorm::QoS& qos,
-                                             const IceStorm::TopicPrxPtr& link,
-                                             SubscriberState state,
-                                             const shared_ptr<SubscriberObserver>& old)
+TopicManagerObserverI::getSubscriberObserver(
+    const string& svc,
+    const string& topic,
+    const Ice::ObjectPrxPtr& proxy,
+    const IceStorm::QoS& qos,
+    const IceStorm::TopicPrxPtr& link,
+    SubscriberState state,
+    const shared_ptr<SubscriberObserver>& old)
 {
     if (_subscribers.isEnabled())
     {

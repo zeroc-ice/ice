@@ -16,17 +16,19 @@ namespace IceGrid
     class ServerAdapterI : public Adapter
     {
     public:
-        ServerAdapterI(const std::shared_ptr<NodeI>&,
-                       ServerI*,
-                       const std::string&,
-                       const AdapterPrxPtr&,
-                       const std::string&,
-                       bool);
+        ServerAdapterI(
+            const std::shared_ptr<NodeI>&,
+            ServerI*,
+            const std::string&,
+            const AdapterPrxPtr&,
+            const std::string&,
+            bool);
         ~ServerAdapterI() override;
 
-        void activateAsync(std::function<void(const Ice::ObjectPrxPtr&)>, // TODO: pass by value!
-                           std::function<void(std::exception_ptr)>,
-                           const Ice::Current&) override;
+        void activateAsync(
+            std::function<void(const Ice::ObjectPrxPtr&)>, // TODO: pass by value!
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) override;
         Ice::ObjectPrxPtr getDirectProxy(const Ice::Current&) const override;
         void setDirectProxy(Ice::ObjectPrxPtr, const ::Ice::Current&) override;
 

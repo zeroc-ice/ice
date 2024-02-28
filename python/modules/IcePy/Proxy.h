@@ -35,11 +35,12 @@ namespace IcePy
     // false. The optional trailing string provides the Python class name of a derived Slice
     // interface that the caller requires.
     //
-    bool getProxyArg(PyObject*,
-                     const std::string&,
-                     const std::string&,
-                     std::optional<Ice::ObjectPrx>&,
-                     const std::string& = std::string());
+    bool getProxyArg(
+        PyObject*,
+        const std::string&,
+        const std::string&,
+        std::optional<Ice::ObjectPrx>&,
+        const std::string& = std::string());
 
     //
     // Gets the communicator associated with the proxy object.

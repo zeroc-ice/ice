@@ -76,10 +76,11 @@ namespace IceGrid
 
         void setEnabled(bool, const Ice::Current&) override;
         bool isEnabled(const Ice::Current&) const override;
-        void setProcessAsync(Ice::ProcessPrxPtr,
-                             std::function<void()>,
-                             std::function<void(std::exception_ptr)>,
-                             const Ice::Current&) override;
+        void setProcessAsync(
+            Ice::ProcessPrxPtr,
+            std::function<void()>,
+            std::function<void(std::exception_ptr)>,
+            const Ice::Current&) override;
 
         std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
         bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
@@ -91,11 +92,12 @@ namespace IceGrid
 
         void
             start(ServerActivation, std::function<void()> = nullptr, std::function<void(std::exception_ptr)> = nullptr);
-        std::shared_ptr<ServerCommand> load(const std::shared_ptr<InternalServerDescriptor>&,
-                                            const std::string&,
-                                            bool,
-                                            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
-                                            std::function<void(std::exception_ptr)>);
+        std::shared_ptr<ServerCommand> load(
+            const std::shared_ptr<InternalServerDescriptor>&,
+            const std::string&,
+            bool,
+            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(std::exception_ptr)>);
         bool checkUpdate(std::shared_ptr<InternalServerDescriptor>, bool, const Ice::Current&) override;
         void checkRemove(bool, const Ice::Current&);
         std::shared_ptr<ServerCommand>
@@ -299,9 +301,10 @@ namespace IceGrid
     class LoadCommand : public ServerCommand
     {
     public:
-        LoadCommand(const std::shared_ptr<ServerI>&,
-                    const std::shared_ptr<InternalServerDescriptor>&,
-                    const std::shared_ptr<TraceLevels>&);
+        LoadCommand(
+            const std::shared_ptr<ServerI>&,
+            const std::shared_ptr<InternalServerDescriptor>&,
+            const std::shared_ptr<TraceLevels>&);
 
         bool canExecute(ServerI::InternalServerState) override;
         ServerI::InternalServerState nextState() override;
@@ -310,16 +313,18 @@ namespace IceGrid
         void setUpdate(const std::shared_ptr<InternalServerDescriptor>&, bool);
         bool clearDir() const;
         std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor() const;
-        void addCallback(std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
-                         std::function<void(std::exception_ptr)>);
+        void addCallback(
+            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(std::exception_ptr)>);
         void startRuntimePropertiesUpdate(const Ice::ObjectPrxPtr&);
         bool finishRuntimePropertiesUpdate(const std::shared_ptr<InternalServerDescriptor>&, const Ice::ObjectPrxPtr&);
         void failed(std::exception_ptr);
         void finished(const ServerPrxPtr&, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
 
     private:
-        std::vector<std::pair<std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
-                              std::function<void(std::exception_ptr)>>>
+        std::vector<std::pair<
+            std::function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>,
+            std::function<void(std::exception_ptr)>>>
             _loadCB;
         bool _clearDir;
         std::shared_ptr<InternalServerDescriptor> _desc;

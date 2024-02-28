@@ -40,7 +40,7 @@ namespace IceInternal
     class CommunicatorFlushBatchAsync;
     using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
 
-    template <typename T> class ThreadPoolMessage;
+    template<typename T> class ThreadPoolMessage;
 
     class OutgoingConnectionFactory final : public std::enable_shared_from_this<OutgoingConnectionFactory>
     {
@@ -51,11 +51,12 @@ namespace IceInternal
 
         void waitUntilFinished();
 
-        void createAsync(const std::vector<EndpointIPtr>&,
-                         bool,
-                         Ice::EndpointSelectionType,
-                         std::function<void(Ice::ConnectionIPtr, bool)>,
-                         std::function<void(std::exception_ptr)>);
+        void createAsync(
+            const std::vector<EndpointIPtr>&,
+            bool,
+            Ice::EndpointSelectionType,
+            std::function<void(Ice::ConnectionIPtr, bool)>,
+            std::function<void(std::exception_ptr)>);
 
         void setRouterInfo(const RouterInfoPtr&);
         void removeAdapter(const Ice::ObjectAdapterPtr&);
@@ -79,13 +80,14 @@ namespace IceInternal
         class ConnectCallback final : public std::enable_shared_from_this<ConnectCallback>
         {
         public:
-            ConnectCallback(const InstancePtr&,
-                            const OutgoingConnectionFactoryPtr&,
-                            const std::vector<EndpointIPtr>&,
-                            bool,
-                            std::function<void(Ice::ConnectionIPtr, bool)>,
-                            std::function<void(std::exception_ptr)>,
-                            Ice::EndpointSelectionType);
+            ConnectCallback(
+                const InstancePtr&,
+                const OutgoingConnectionFactoryPtr&,
+                const std::vector<EndpointIPtr>&,
+                bool,
+                std::function<void(Ice::ConnectionIPtr, bool)>,
+                std::function<void(std::exception_ptr)>,
+                Ice::EndpointSelectionType);
 
             virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
             virtual void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
@@ -129,10 +131,11 @@ namespace IceInternal
         void incPendingConnectCount();
         void decPendingConnectCount();
         Ice::ConnectionIPtr getConnection(const std::vector<ConnectorInfo>&, const ConnectCallbackPtr&, bool&);
-        void finishGetConnection(const std::vector<ConnectorInfo>&,
-                                 const ConnectorInfo&,
-                                 const Ice::ConnectionIPtr&,
-                                 const ConnectCallbackPtr&);
+        void finishGetConnection(
+            const std::vector<ConnectorInfo>&,
+            const ConnectorInfo&,
+            const Ice::ConnectionIPtr&,
+            const ConnectCallbackPtr&);
         void finishGetConnection(const std::vector<ConnectorInfo>&, std::exception_ptr, const ConnectCallbackPtr&);
 
         bool addToPending(const ConnectCallbackPtr&, const std::vector<ConnectorInfo>&);
@@ -164,10 +167,11 @@ namespace IceInternal
     class IncomingConnectionFactory final : public EventHandler
     {
     public:
-        IncomingConnectionFactory(const InstancePtr&,
-                                  const EndpointIPtr&,
-                                  const EndpointIPtr&,
-                                  const std::shared_ptr<Ice::ObjectAdapterI>&);
+        IncomingConnectionFactory(
+            const InstancePtr&,
+            const EndpointIPtr&,
+            const EndpointIPtr&,
+            const std::shared_ptr<Ice::ObjectAdapterI>&);
         void activate();
         void hold();
         void destroy();
@@ -251,7 +255,7 @@ namespace IceInternal
         mutable std::condition_variable _conditionVariable;
 
         // For locking the _mutex
-        template <typename T> friend class IceInternal::ThreadPoolMessage;
+        template<typename T> friend class IceInternal::ThreadPoolMessage;
     };
 
 }

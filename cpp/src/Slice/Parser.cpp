@@ -33,7 +33,7 @@ Slice::containedEqual(const ContainedPtr& lhs, const ContainedPtr& rhs)
     return lhs->scoped() == rhs->scoped();
 }
 
-template <typename T>
+template<typename T>
 bool
 compareTag(const T& lhs, const T& rhs)
 {
@@ -229,10 +229,8 @@ Slice::DefinitionContext::warning(WarningCategory category, const string& file, 
 }
 
 void
-Slice::DefinitionContext::warning(WarningCategory category,
-                                  const string& file,
-                                  const string& line,
-                                  const string& msg) const
+Slice::DefinitionContext::warning(WarningCategory category, const string& file, const string& line, const string& msg)
+    const
 {
     if (!suppressWarning(category))
     {
@@ -1524,12 +1522,13 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
 }
 
 DictionaryPtr
-Slice::Container::createDictionary(const string& name,
-                                   const TypePtr& keyType,
-                                   const StringList& keyMetaData,
-                                   const TypePtr& valueType,
-                                   const StringList& valueMetaData,
-                                   NodeType nt)
+Slice::Container::createDictionary(
+    const string& name,
+    const TypePtr& keyType,
+    const StringList& keyMetaData,
+    const TypePtr& valueType,
+    const StringList& valueMetaData,
+    NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -1573,8 +1572,8 @@ Slice::Container::createDictionary(const string& name,
         }
     }
 
-    DictionaryPtr p = make_shared<Dictionary>(dynamic_pointer_cast<Container>(shared_from_this()), name, keyType,
-                                              keyMetaData, valueType, valueMetaData);
+    DictionaryPtr p = make_shared<Dictionary>(
+        dynamic_pointer_cast<Container>(shared_from_this()), name, keyType, keyMetaData, valueType, valueMetaData);
     p->init();
     _contents.push_back(p);
     return p;
@@ -1642,13 +1641,14 @@ Slice::Container::createEnumerator(const string& name, int value)
 }
 
 ConstPtr
-Slice::Container::createConst(const string name,
-                              const TypePtr& constType,
-                              const StringList& metaData,
-                              const SyntaxTreeBasePtr& valueType,
-                              const string& value,
-                              const string& literal,
-                              NodeType nt)
+Slice::Container::createConst(
+    const string name,
+    const TypePtr& constType,
+    const StringList& metaData,
+    const SyntaxTreeBasePtr& valueType,
+    const string& value,
+    const string& literal,
+    NodeType nt)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -1684,8 +1684,9 @@ Slice::Container::createConst(const string name,
         return nullptr;
     }
 
-    ConstPtr p = make_shared<Const>(dynamic_pointer_cast<Container>(shared_from_this()), name, constType, metaData,
-                                    resolvedValueType, value, literal);
+    ConstPtr p = make_shared<Const>(
+        dynamic_pointer_cast<Container>(shared_from_this()), name, constType, metaData, resolvedValueType, value,
+        literal);
     p->init();
     _contents.push_back(p);
     return p;
@@ -2583,7 +2584,11 @@ Slice::Container::Container(const UnitPtr& unit) : SyntaxTreeBase(unit) {}
 
 bool
 Slice::Container::validateConstant(
-    const string& name, const TypePtr& type, SyntaxTreeBasePtr& valueType, const string& value, bool isConstant)
+    const string& name,
+    const TypePtr& type,
+    SyntaxTreeBasePtr& valueType,
+    const string& value,
+    bool isConstant)
 {
     // isConstant indicates whether a constant or a data member (with a default value) is being defined.
 
@@ -2971,13 +2976,14 @@ Slice::ClassDef::destroy()
 }
 
 DataMemberPtr
-Slice::ClassDef::createDataMember(const string& name,
-                                  const TypePtr& type,
-                                  bool optional,
-                                  int tag,
-                                  const SyntaxTreeBasePtr& defaultValueType,
-                                  const string& defaultValue,
-                                  const string& defaultLiteral)
+Slice::ClassDef::createDataMember(
+    const string& name,
+    const TypePtr& type,
+    bool optional,
+    int tag,
+    const SyntaxTreeBasePtr& defaultValueType,
+    const string& defaultValue,
+    const string& defaultLiteral)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3060,8 +3066,8 @@ Slice::ClassDef::createDataMember(const string& name,
     }
 
     _hasDataMembers = true;
-    DataMemberPtr member = make_shared<DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type,
-                                                   optional, tag, dlt, dv, dl);
+    DataMemberPtr member = make_shared<DataMember>(
+        dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
     member->init();
     _contents.push_back(member);
     return member;
@@ -3373,8 +3379,9 @@ Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDef
 {
     for (const auto& i : gpl)
     {
-        if (find_if(i.begin(), i.end(),
-                    [scope = cdp->scoped()](const auto& other) { return other->scoped() == scope; }) != i.end())
+        if (find_if(
+                i.begin(), i.end(), [scope = cdp->scoped()](const auto& other) { return other->scoped() == scope; }) !=
+            i.end())
         {
             return true;
         }
@@ -3383,9 +3390,10 @@ Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDef
 }
 
 void
-Slice::InterfaceDecl::addPartition(GraphPartitionList& gpl,
-                                   GraphPartitionList::reverse_iterator tail,
-                                   const InterfaceDefPtr& base)
+Slice::InterfaceDecl::addPartition(
+    GraphPartitionList& gpl,
+    GraphPartitionList::reverse_iterator tail,
+    const InterfaceDefPtr& base)
 {
     // If this base is on one of the partition lists already, do nothing.
     if (isInList(gpl, base))
@@ -3468,8 +3476,9 @@ Slice::InterfaceDecl::checkPairIntersections(const StringPartitionList& l, const
                         ut->error(os.str());
                         reported.insert(*s1);
                     }
-                    else if (!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) && reported.find(*s1) == reported.end() &&
-                             reported.find(*s2) == reported.end())
+                    else if (
+                        !CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) && reported.find(*s1) == reported.end() &&
+                        reported.find(*s2) == reported.end())
                     {
                         ostringstream os;
                         os << "ambiguous multiple inheritance: `" << name << "' inherits operations `" << (*s1)
@@ -3499,7 +3508,11 @@ Slice::InterfaceDef::destroy()
 
 OperationPtr
 Slice::InterfaceDef::createOperation(
-    const string& name, const TypePtr& returnType, bool tagged, int tag, Operation::Mode mode)
+    const string& name,
+    const TypePtr& returnType,
+    bool tagged,
+    int tag,
+    Operation::Mode mode)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3565,8 +3578,8 @@ Slice::InterfaceDef::createOperation(
     }
 
     _hasOperations = true;
-    OperationPtr op = make_shared<Operation>(dynamic_pointer_cast<Container>(shared_from_this()), name, returnType,
-                                             tagged, tag, mode);
+    OperationPtr op = make_shared<Operation>(
+        dynamic_pointer_cast<Container>(shared_from_this()), name, returnType, tagged, tag, mode);
     op->init();
     _contents.push_back(op);
     return op;
@@ -3621,9 +3634,9 @@ Slice::InterfaceDef::allOperations() const
     {
         for (const auto& q : p->allOperations())
         {
-            if (find_if(result.begin(), result.end(),
-                        [scoped = q->scoped()](const auto& other)
-                        { return other->scoped() == scoped; }) == result.end())
+            if (find_if(
+                    result.begin(), result.end(),
+                    [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
             {
                 result.push_back(q);
             }
@@ -3632,8 +3645,9 @@ Slice::InterfaceDef::allOperations() const
 
     for (const auto& q : operations())
     {
-        if (find_if(result.begin(), result.end(),
-                    [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
+        if (find_if(
+                result.begin(), result.end(),
+                [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
         {
             result.push_back(q);
         }
@@ -3735,13 +3749,14 @@ Slice::Exception::destroy()
 }
 
 DataMemberPtr
-Slice::Exception::createDataMember(const string& name,
-                                   const TypePtr& type,
-                                   bool optional,
-                                   int tag,
-                                   const SyntaxTreeBasePtr& defaultValueType,
-                                   const string& defaultValue,
-                                   const string& defaultLiteral)
+Slice::Exception::createDataMember(
+    const string& name,
+    const TypePtr& type,
+    bool optional,
+    int tag,
+    const SyntaxTreeBasePtr& defaultValueType,
+    const string& defaultValue,
+    const string& defaultLiteral)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3825,8 +3840,8 @@ Slice::Exception::createDataMember(const string& name,
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional,
-                                              tag, dlt, dv, dl);
+    DataMemberPtr p = make_shared<DataMember>(
+        dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
     p->init();
     _contents.push_back(p);
     return p;
@@ -4030,13 +4045,14 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 // ----------------------------------------------------------------------
 
 DataMemberPtr
-Slice::Struct::createDataMember(const string& name,
-                                const TypePtr& type,
-                                bool optional,
-                                int tag,
-                                const SyntaxTreeBasePtr& defaultValueType,
-                                const string& defaultValue,
-                                const string& defaultLiteral)
+Slice::Struct::createDataMember(
+    const string& name,
+    const TypePtr& type,
+    bool optional,
+    int tag,
+    const SyntaxTreeBasePtr& defaultValueType,
+    const string& defaultValue,
+    const string& defaultLiteral)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -4084,8 +4100,8 @@ Slice::Struct::createDataMember(const string& name,
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional,
-                                              tag, dlt, dv, dl);
+    DataMemberPtr p = make_shared<DataMember>(
+        dynamic_pointer_cast<Container>(shared_from_this()), name, type, optional, tag, dlt, dv, dl);
     p->init();
     _contents.push_back(p);
     return p;
@@ -4277,10 +4293,11 @@ Slice::Sequence::visit(ParserVisitor* visitor, bool)
     visitor->visitSequence(dynamic_pointer_cast<Sequence>(shared_from_this()));
 }
 
-Slice::Sequence::Sequence(const ContainerPtr& container,
-                          const string& name,
-                          const TypePtr& type,
-                          const StringList& typeMetaData)
+Slice::Sequence::Sequence(
+    const ContainerPtr& container,
+    const string& name,
+    const TypePtr& type,
+    const StringList& typeMetaData)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
@@ -4427,12 +4444,13 @@ Slice::Dictionary::legalKeyType(const TypePtr& type, bool& containsSequence)
     return false;
 }
 
-Slice::Dictionary::Dictionary(const ContainerPtr& container,
-                              const string& name,
-                              const TypePtr& keyType,
-                              const StringList& keyMetaData,
-                              const TypePtr& valueType,
-                              const StringList& valueMetaData)
+Slice::Dictionary::Dictionary(
+    const ContainerPtr& container,
+    const string& name,
+    const TypePtr& keyType,
+    const StringList& keyMetaData,
+    const TypePtr& valueType,
+    const StringList& valueMetaData)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
@@ -4702,13 +4720,14 @@ Slice::Const::visit(ParserVisitor* visitor, bool)
     visitor->visitConst(dynamic_pointer_cast<Const>(shared_from_this()));
 }
 
-Slice::Const::Const(const ContainerPtr& container,
-                    const string& name,
-                    const TypePtr& type,
-                    const StringList& typeMetaData,
-                    const SyntaxTreeBasePtr& valueType,
-                    const string& value,
-                    const string& literal)
+Slice::Const::Const(
+    const ContainerPtr& container,
+    const string& name,
+    const TypePtr& type,
+    const StringList& typeMetaData,
+    const SyntaxTreeBasePtr& valueType,
+    const string& value,
+    const string& literal)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       _type(type),
@@ -4851,8 +4870,8 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParamDeclPtr p = make_shared<ParamDecl>(dynamic_pointer_cast<Container>(shared_from_this()), name, type, isOutParam,
-                                            optional, tag);
+    ParamDeclPtr p = make_shared<ParamDecl>(
+        dynamic_pointer_cast<Container>(shared_from_this()), name, type, isOutParam, optional, tag);
     p->init();
     _contents.push_back(p);
     return p;
@@ -4959,8 +4978,9 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
         ExceptionList tmp = el;
         tmp.sort(containedCompare);
         ExceptionList duplicates;
-        set_difference(tmp.begin(), tmp.end(), uniqueExceptions.begin(), uniqueExceptions.end(),
-                       back_inserter(duplicates), containedCompare);
+        set_difference(
+            tmp.begin(), tmp.end(), uniqueExceptions.begin(), uniqueExceptions.end(), back_inserter(duplicates),
+            containedCompare);
         ostringstream os;
         os << "operation `" << name() << "' has a throws clause with ";
         if (duplicates.size() == 1)
@@ -5095,12 +5115,13 @@ Slice::Operation::visit(ParserVisitor* visitor, bool)
     visitor->visitOperation(dynamic_pointer_cast<Operation>(Container::shared_from_this()));
 }
 
-Slice::Operation::Operation(const ContainerPtr& container,
-                            const string& name,
-                            const TypePtr& returnType,
-                            bool returnIsOptional,
-                            int returnTag,
-                            Mode mode)
+Slice::Operation::Operation(
+    const ContainerPtr& container,
+    const string& name,
+    const TypePtr& returnType,
+    bool returnIsOptional,
+    int returnTag,
+    Mode mode)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       Container(container->unit()),
@@ -5158,7 +5179,12 @@ Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
 }
 
 Slice::ParamDecl::ParamDecl(
-    const ContainerPtr& container, const string& name, const TypePtr& type, bool isOutParam, bool optional, int tag)
+    const ContainerPtr& container,
+    const string& name,
+    const TypePtr& type,
+    bool isOutParam,
+    bool optional,
+    int tag)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       _type(type),
@@ -5226,14 +5252,15 @@ Slice::DataMember::visit(ParserVisitor* visitor, bool)
     visitor->visitDataMember(dynamic_pointer_cast<DataMember>(shared_from_this()));
 }
 
-Slice::DataMember::DataMember(const ContainerPtr& container,
-                              const string& name,
-                              const TypePtr& type,
-                              bool optional,
-                              int tag,
-                              const SyntaxTreeBasePtr& defaultValueType,
-                              const string& defaultValue,
-                              const string& defaultLiteral)
+Slice::DataMember::DataMember(
+    const ContainerPtr& container,
+    const string& name,
+    const TypePtr& type,
+    bool optional,
+    int tag,
+    const SyntaxTreeBasePtr& defaultValueType,
+    const string& defaultValue,
+    const string& defaultLiteral)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       _type(type),

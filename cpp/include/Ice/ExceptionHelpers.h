@@ -17,7 +17,7 @@ namespace Ice
      * Helper template for the implementation of Ice::LocalException. It implements ice_id.
      * \headerfile Ice/Ice.h
      */
-    template <typename T, typename B> class LocalExceptionHelper : public IceUtil::ExceptionHelper<T, B>
+    template<typename T, typename B> class LocalExceptionHelper : public IceUtil::ExceptionHelper<T, B>
     {
     public:
         using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;
@@ -29,7 +29,7 @@ namespace Ice
      * Helper template for the implementation of Ice::UserException. It implements ice_id.
      * \headerfile Ice/Ice.h
      */
-    template <typename T, typename B> class UserExceptionHelper : public IceUtil::ExceptionHelper<T, B>
+    template<typename T, typename B> class UserExceptionHelper : public IceUtil::ExceptionHelper<T, B>
     {
     public:
         using IceUtil::ExceptionHelper<T, B>::ExceptionHelper;

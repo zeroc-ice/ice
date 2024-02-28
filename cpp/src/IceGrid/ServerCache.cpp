@@ -21,7 +21,11 @@ using namespace std;
 using namespace IceGrid;
 
 CheckUpdateResult::CheckUpdateResult(
-    const string& server, const string& node, bool noRestart, bool remove, future<bool>&& result)
+    const string& server,
+    const string& node,
+    bool noRestart,
+    bool remove,
+    future<bool>&& result)
     : _server(server),
       _node(node),
       _remove(remove),
@@ -66,12 +70,13 @@ CheckUpdateResult::getResult()
     }
 }
 
-ServerCache::ServerCache(const shared_ptr<Ice::Communicator>& communicator,
-                         const string& instanceName,
-                         NodeCache& nodeCache,
-                         AdapterCache& adapterCache,
-                         ObjectCache& objectCache,
-                         AllocatableObjectCache& allocatableObjectCache)
+ServerCache::ServerCache(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const string& instanceName,
+    NodeCache& nodeCache,
+    AdapterCache& adapterCache,
+    ObjectCache& objectCache,
+    AllocatableObjectCache& allocatableObjectCache)
     : _communicator(communicator),
       _instanceName(instanceName),
       _nodeCache(nodeCache),
@@ -96,8 +101,9 @@ ServerCache::add(const ServerInfo& info)
 
     _nodeCache.get(info.node, true)->addServer(entry);
 
-    forEachCommunicator(info.descriptor, [this, entry, application = info.application](const auto& descriptor)
-                        { addCommunicator(nullptr, descriptor, entry, application); });
+    forEachCommunicator(
+        info.descriptor, [this, entry, application = info.application](const auto& descriptor)
+        { addCommunicator(nullptr, descriptor, entry, application); });
 
     if (_traceLevels && _traceLevels->server > 0)
     {
@@ -164,9 +170,9 @@ ServerCache::preUpdate(const ServerInfo& newInfo, bool noRestart)
     if (!noRestart)
     {
         ServerInfo info = entry->getInfo();
-        forEachCommunicator(info.descriptor, newInfo.descriptor,
-                            [this, entry](const auto& oldDesc, const auto& newDesc)
-                            { removeCommunicator(oldDesc, newDesc, entry); });
+        forEachCommunicator(
+            info.descriptor, newInfo.descriptor,
+            [this, entry](const auto& oldDesc, const auto& newDesc) { removeCommunicator(oldDesc, newDesc, entry); });
         _nodeCache.get(info.node)->removeServer(entry);
     }
 
@@ -196,9 +202,10 @@ ServerCache::postUpdate(const ServerInfo& info, bool noRestart)
     {
         _nodeCache.get(info.node, true)->addServer(entry);
 
-        forEachCommunicator(oldInfo.descriptor, info.descriptor,
-                            [this, entry, application = info.application](const auto& oldDesc, const auto& newDesc)
-                            { addCommunicator(oldDesc, newDesc, entry, application); });
+        forEachCommunicator(
+            oldInfo.descriptor, info.descriptor,
+            [this, entry, application = info.application](const auto& oldDesc, const auto& newDesc)
+            { addCommunicator(oldDesc, newDesc, entry, application); });
     }
 
     if (_traceLevels && _traceLevels->server > 0)
@@ -224,10 +231,11 @@ ServerCache::setNodeObserverTopic(const shared_ptr<NodeObserverTopic>& nodeObser
 }
 
 void
-ServerCache::addCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDesc,
-                             const shared_ptr<CommunicatorDescriptor>& newDesc,
-                             const shared_ptr<ServerEntry>& server,
-                             const string& application)
+ServerCache::addCommunicator(
+    const shared_ptr<CommunicatorDescriptor>& oldDesc,
+    const shared_ptr<CommunicatorDescriptor>& newDesc,
+    const shared_ptr<ServerEntry>& server,
+    const string& application)
 {
     if (!newDesc)
     {
@@ -268,9 +276,10 @@ ServerCache::addCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDesc,
 }
 
 void
-ServerCache::removeCommunicator(const shared_ptr<CommunicatorDescriptor>& oldDesc,
-                                const shared_ptr<CommunicatorDescriptor>& newDesc,
-                                const shared_ptr<ServerEntry>&)
+ServerCache::removeCommunicator(
+    const shared_ptr<CommunicatorDescriptor>& oldDesc,
+    const shared_ptr<CommunicatorDescriptor>& newDesc,
+    const shared_ptr<ServerEntry>&)
 {
     if (!oldDesc)
     {
@@ -493,11 +502,12 @@ ServerEntry::getProxy(bool upToDate, chrono::seconds timeout)
 }
 
 ServerPrxPtr
-ServerEntry::getProxy(chrono::seconds& activationTimeout,
-                      chrono::seconds& deactivationTimeout,
-                      string& node,
-                      bool upToDate,
-                      chrono::seconds timeout)
+ServerEntry::getProxy(
+    chrono::seconds& activationTimeout,
+    chrono::seconds& deactivationTimeout,
+    string& node,
+    bool upToDate,
+    chrono::seconds timeout)
 {
     //
     // NOTE: this might throw ServerNotExistException, NodeUnreachableException
@@ -548,10 +558,11 @@ ServerEntry::getAdapter(const string& id, bool upToDate)
 }
 
 AdapterPrxPtr
-ServerEntry::getAdapter(chrono::seconds& activationTimeout,
-                        chrono::seconds& deactivationTimeout,
-                        const string& id,
-                        bool upToDate)
+ServerEntry::getAdapter(
+    chrono::seconds& activationTimeout,
+    chrono::seconds& deactivationTimeout,
+    const string& id,
+    bool upToDate)
 {
     //
     // NOTE: this might throw AdapterNotExistException, NodeUnreachableException
@@ -687,8 +698,8 @@ ServerEntry::syncImpl()
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load,
-                                                             session, timeout, noRestart);
+            _cache.getNodeCache().get(load.node)->loadServer(
+                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
         catch (const NodeNotExistException&)
         {
@@ -795,10 +806,11 @@ ServerEntry::synchronized(exception_ptr ex)
 }
 
 void
-ServerEntry::loadCallback(const ServerPrxPtr& proxy,
-                          const AdapterPrxDict& adpts,
-                          chrono::seconds activationTimeout,
-                          chrono::seconds deactivationTimeout)
+ServerEntry::loadCallback(
+    const ServerPrxPtr& proxy,
+    const AdapterPrxDict& adpts,
+    chrono::seconds activationTimeout,
+    chrono::seconds deactivationTimeout)
 {
     ServerInfo load;
     shared_ptr<SessionI> session;
@@ -872,8 +884,8 @@ ServerEntry::loadCallback(const ServerPrxPtr& proxy,
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load,
-                                                             session, timeout, noRestart);
+            _cache.getNodeCache().get(load.node)->loadServer(
+                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
         catch (const NodeNotExistException&)
         {
@@ -916,8 +928,8 @@ ServerEntry::destroyCallback()
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load,
-                                                             session, -1s, noRestart);
+            _cache.getNodeCache().get(load.node)->loadServer(
+                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, -1s, noRestart);
         }
         catch (const NodeNotExistException&)
         {
@@ -969,8 +981,8 @@ ServerEntry::exception(exception_ptr ex)
     {
         try
         {
-            _cache.getNodeCache().get(load.node)->loadServer(static_pointer_cast<ServerEntry>(shared_from_this()), load,
-                                                             session, timeout, noRestart);
+            _cache.getNodeCache().get(load.node)->loadServer(
+                static_pointer_cast<ServerEntry>(shared_from_this()), load, session, timeout, noRestart);
         }
         catch (const NodeNotExistException&)
         {
@@ -1065,8 +1077,8 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
         desc = node->getInternalServerDescriptor(info, session); // The new descriptor
     }
 
-    return make_shared<CheckUpdateResult>(_id, oldInfo.node, noRestart, desc != nullptr,
-                                          server->checkUpdateAsync(desc, noRestart));
+    return make_shared<CheckUpdateResult>(
+        _id, oldInfo.node, noRestart, desc != nullptr, server->checkUpdateAsync(desc, noRestart));
 }
 
 bool

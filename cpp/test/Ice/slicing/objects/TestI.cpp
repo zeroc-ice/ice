@@ -14,7 +14,7 @@ namespace
 
     void breakCycles(Ice::ValuePtr);
 
-    template <typename T> void breakCycles(const vector<shared_ptr<T>>& s)
+    template<typename T> void breakCycles(const vector<shared_ptr<T>>& s)
     {
         for (auto e : s)
         {
@@ -22,7 +22,7 @@ namespace
         }
     }
 
-    template <typename K, typename V> void breakCycles(const map<K, shared_ptr<V>>& d)
+    template<typename K, typename V> void breakCycles(const map<K, shared_ptr<V>>& d)
     {
         for (auto e : d)
         {
@@ -479,9 +479,10 @@ TestI::checkPBSUnknown(Test::PreservedPtr p, const Ice::Current& current)
 }
 
 void
-TestI::PBSUnknownAsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
-                                           function<void(exception_ptr)>,
-                                           const Ice::Current&)
+TestI::PBSUnknownAsPreservedWithGraphAsync(
+    function<void(const shared_ptr<Test::Preserved>&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     PSUnknownPtr r = make_shared<PSUnknown>();
     r->pi = 5;
@@ -519,9 +520,10 @@ TestI::checkPBSUnknownWithGraph(Test::PreservedPtr p, const Ice::Current& curren
 }
 
 void
-TestI::PBSUnknown2AsPreservedWithGraphAsync(function<void(const shared_ptr<Test::Preserved>&)> response,
-                                            function<void(exception_ptr)>,
-                                            const Ice::Current&)
+TestI::PBSUnknown2AsPreservedWithGraphAsync(
+    function<void(const shared_ptr<Test::Preserved>&)> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     PSUnknown2Ptr r = make_shared<PSUnknown2>();
     r->pi = 5;

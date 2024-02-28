@@ -1201,8 +1201,8 @@ ZEND_FUNCTION(Ice_register)
     char* s;
     size_t sLen;
     zend_long expires = 0;
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("Os|l"), &comm, communicatorClassEntry, &s, &sLen,
-                              &expires) != SUCCESS)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(), const_cast<char*>("Os|l"), &comm, communicatorClassEntry, &s, &sLen, &expires) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1438,40 +1438,58 @@ static zend_function_entry _interfaceMethods[] = {{0, 0, 0}};
 
 static zend_function_entry _classMethods[] = {
     ZEND_ME(Ice_Communicator, __construct, ice_void_arginfo, ZEND_ACC_PRIVATE | ZEND_ACC_CTOR) ZEND_ME(
-        Ice_Communicator, shutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
-        ZEND_ME(Ice_Communicator, isShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-            Ice_Communicator, waitForShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(Ice_Communicator,
-                                                                                          destroy,
-                                                                                          ice_void_arginfo,
-                                                                                          ZEND_ACC_PUBLIC)
-            ZEND_ME(Ice_Communicator, stringToProxy, Ice_Communicator_stringToProxy_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                Ice_Communicator, proxyToString, Ice_Communicator_proxyToString_arginfo, ZEND_ACC_PUBLIC)
-                ZEND_ME(Ice_Communicator, propertyToProxy, Ice_Communicator_propertyToProxy_arginfo, ZEND_ACC_PUBLIC)
-                    ZEND_ME(Ice_Communicator,
-                            proxyToProperty,
-                            Ice_Communicator_proxyToProperty_arginfo,
-                            ZEND_ACC_PUBLIC) ZEND_ME(Ice_Communicator,
-                                                     identityToString,
-                                                     Ice_Communicator_identityToString_arginfo,
-                                                     ZEND_ACC_PUBLIC)
-                        ZEND_ME(Ice_Communicator, getValueFactoryManager, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                            ZEND_ME(Ice_Communicator, getImplicitContext, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                                Ice_Communicator, getProperties, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                                ZEND_ME(Ice_Communicator, getLogger, ice_void_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                                    Ice_Communicator, getDefaultRouter, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                                    ZEND_ME(Ice_Communicator,
-                                            setDefaultRouter,
-                                            Ice_Communicator_setDefaultRouter_arginfo,
-                                            ZEND_ACC_PUBLIC)
-                                        ZEND_ME(Ice_Communicator, getDefaultLocator, ice_void_arginfo, ZEND_ACC_PUBLIC)
-                                            ZEND_ME(Ice_Communicator,
-                                                    setDefaultLocator,
-                                                    Ice_Communicator_setDefaultLocator_arginfo,
-                                                    ZEND_ACC_PUBLIC)
-                                                ZEND_ME(Ice_Communicator,
-                                                        flushBatchRequests,
-                                                        Ice_Communicator_flushBatchRequests_arginfo,
-                                                        ZEND_ACC_PUBLIC){0, 0, 0}};
+        Ice_Communicator,
+        shutdown,
+        ice_void_arginfo,
+        ZEND_ACC_PUBLIC) ZEND_ME(Ice_Communicator, isShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
+        ZEND_ME(Ice_Communicator, waitForShutdown, ice_void_arginfo, ZEND_ACC_PUBLIC)
+            ZEND_ME(Ice_Communicator, destroy, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                ZEND_ME(Ice_Communicator, stringToProxy, Ice_Communicator_stringToProxy_arginfo, ZEND_ACC_PUBLIC)
+                    ZEND_ME(Ice_Communicator, proxyToString, Ice_Communicator_proxyToString_arginfo, ZEND_ACC_PUBLIC)
+                        ZEND_ME(
+                            Ice_Communicator,
+                            propertyToProxy,
+                            Ice_Communicator_propertyToProxy_arginfo,
+                            ZEND_ACC_PUBLIC)
+                            ZEND_ME(
+                                Ice_Communicator,
+                                proxyToProperty,
+                                Ice_Communicator_proxyToProperty_arginfo,
+                                ZEND_ACC_PUBLIC)
+                                ZEND_ME(
+                                    Ice_Communicator,
+                                    identityToString,
+                                    Ice_Communicator_identityToString_arginfo,
+                                    ZEND_ACC_PUBLIC)
+                                    ZEND_ME(Ice_Communicator, getValueFactoryManager, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                        ZEND_ME(Ice_Communicator, getImplicitContext, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                            ZEND_ME(Ice_Communicator, getProperties, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                                ZEND_ME(Ice_Communicator, getLogger, ice_void_arginfo, ZEND_ACC_PUBLIC)
+                                                    ZEND_ME(
+                                                        Ice_Communicator,
+                                                        getDefaultRouter,
+                                                        ice_void_arginfo,
+                                                        ZEND_ACC_PUBLIC)
+                                                        ZEND_ME(
+                                                            Ice_Communicator,
+                                                            setDefaultRouter,
+                                                            Ice_Communicator_setDefaultRouter_arginfo,
+                                                            ZEND_ACC_PUBLIC)
+                                                            ZEND_ME(
+                                                                Ice_Communicator,
+                                                                getDefaultLocator,
+                                                                ice_void_arginfo,
+                                                                ZEND_ACC_PUBLIC)
+                                                                ZEND_ME(
+                                                                    Ice_Communicator,
+                                                                    setDefaultLocator,
+                                                                    Ice_Communicator_setDefaultLocator_arginfo,
+                                                                    ZEND_ACC_PUBLIC)
+                                                                    ZEND_ME(
+                                                                        Ice_Communicator,
+                                                                        flushBatchRequests,
+                                                                        Ice_Communicator_flushBatchRequests_arginfo,
+                                                                        ZEND_ACC_PUBLIC){0, 0, 0}};
 
 // Predefined methods for ValueFactoryManager.
 static zend_function_entry _vfmInterfaceMethods[] = {{0, 0, 0}};
@@ -1503,8 +1521,8 @@ createProfile(const string& name, const string& config, const string& options)
         {
             ostringstream ostr;
             ex.ice_print(ostr);
-            php_error_docref(0, E_WARNING, "unable to load Ice configuration file %s:\n%s", config.c_str(),
-                             ostr.str().c_str());
+            php_error_docref(
+                0, E_WARNING, "unable to load Ice configuration file %s:\n%s", config.c_str(), ostr.str().c_str());
             return false;
         }
     }
@@ -1521,8 +1539,8 @@ createProfile(const string& name, const string& config, const string& options)
             ostringstream ostr;
             ex.ice_print(ostr);
             string msg = ostr.str();
-            php_error_docref(0, E_WARNING, "error occurred while parsing the options `%s':\n%s", options.c_str(),
-                             msg.c_str());
+            php_error_docref(
+                0, E_WARNING, "error occurred while parsing the options `%s':\n%s", options.c_str(), msg.c_str());
             return false;
         }
         properties->parseCommandLineOptions("", args);

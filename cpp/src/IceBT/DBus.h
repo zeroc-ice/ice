@@ -154,7 +154,7 @@ namespace IceBT
             return ostr;
         }
 
-        template <typename E, Type::Kind K> class PrimitiveValue final : public Value
+        template<typename E, Type::Kind K> class PrimitiveValue final : public Value
         {
         public:
             PrimitiveValue() : v(E()), kind(K) {}

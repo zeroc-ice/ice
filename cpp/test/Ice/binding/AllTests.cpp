@@ -987,12 +987,13 @@ allTests(Test::TestHelper* helper)
                 }
                 catch (const Ice::SocketException&)
                 {
-                    test((*p == ipv4 && *q == ipv6) || (*p == ipv6 && *q == ipv4) ||
-                         (*p == bothPreferIPv4 && *q == ipv6) || (*p == bothPreferIPv6 && *q == ipv4) ||
-                         (*p == bothPreferIPv6 && *q == ipv6 && ipv6NotSupported) || (*p == anyipv4 && *q == ipv6) ||
-                         (*p == anyipv6 && *q == ipv4) || (*p == localipv4 && *q == ipv6) ||
-                         (*p == localipv6 && *q == ipv4) || (*p == ipv6 && *q == bothPreferIPv4) ||
-                         (*p == ipv6 && *q == bothPreferIPv6) || (*p == bothPreferIPv6 && *q == ipv6));
+                    test(
+                        (*p == ipv4 && *q == ipv6) || (*p == ipv6 && *q == ipv4) ||
+                        (*p == bothPreferIPv4 && *q == ipv6) || (*p == bothPreferIPv6 && *q == ipv4) ||
+                        (*p == bothPreferIPv6 && *q == ipv6 && ipv6NotSupported) || (*p == anyipv4 && *q == ipv6) ||
+                        (*p == anyipv6 && *q == ipv4) || (*p == localipv4 && *q == ipv6) ||
+                        (*p == localipv6 && *q == ipv4) || (*p == ipv6 && *q == bothPreferIPv4) ||
+                        (*p == ipv6 && *q == bothPreferIPv6) || (*p == bothPreferIPv6 && *q == ipv6));
                 }
             }
             serverCommunicator->destroy();

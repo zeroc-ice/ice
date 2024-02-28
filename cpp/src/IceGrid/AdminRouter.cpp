@@ -10,11 +10,12 @@ using namespace IceGrid;
 IceGrid::AdminRouter::AdminRouter(const shared_ptr<TraceLevels>& traceLevels) : _traceLevels(traceLevels) {}
 
 void
-IceGrid::AdminRouter::invokeOnTarget(const Ice::ObjectPrxPtr& target,
-                                     const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>&& response,
-                                     function<void(exception_ptr)>&& exception,
-                                     const Ice::Current& current)
+IceGrid::AdminRouter::invokeOnTarget(
+    const Ice::ObjectPrxPtr& target,
+    const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>&& response,
+    function<void(exception_ptr)>&& exception,
+    const Ice::Current& current)
 {
     assert(target);
 

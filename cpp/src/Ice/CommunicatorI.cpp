@@ -43,9 +43,10 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
     class FlushBatch : public OutgoingAsyncBase
     {
     public:
-        FlushBatch(const CommunicatorFlushBatchAsyncPtr& outAsync,
-                   const InstancePtr& instance,
-                   InvocationObserver& observer)
+        FlushBatch(
+            const CommunicatorFlushBatchAsyncPtr& outAsync,
+            const InstancePtr& instance,
+            InvocationObserver& observer)
             : OutgoingAsyncBase(instance),
               _outAsync(outAsync),
               _parentObserver(observer)
@@ -360,16 +361,18 @@ namespace
 }
 
 ::std::function<void()>
-Ice::CommunicatorI::flushBatchRequestsAsync(CompressBatch compress,
-                                            function<void(exception_ptr)> ex,
-                                            function<void(bool)> sent)
+Ice::CommunicatorI::flushBatchRequestsAsync(
+    CompressBatch compress,
+    function<void(exception_ptr)> ex,
+    function<void(bool)> sent)
 {
     class CommunicatorFlushBatchLambda : public CommunicatorFlushBatchAsync, public LambdaInvoke
     {
     public:
-        CommunicatorFlushBatchLambda(const InstancePtr& instance,
-                                     std::function<void(std::exception_ptr)> ex,
-                                     std::function<void(bool)> sent)
+        CommunicatorFlushBatchLambda(
+            const InstancePtr& instance,
+            std::function<void(std::exception_ptr)> ex,
+            std::function<void(bool)> sent)
             : CommunicatorFlushBatchAsync(instance),
               LambdaInvoke(std::move(ex), std::move(sent))
         {

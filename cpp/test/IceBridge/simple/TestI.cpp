@@ -22,20 +22,22 @@ MyClassI::callCallbackAsync(function<void()> response, function<void(exception_p
     checkConnection(current.con);
     auto prx = Ice::uncheckedCast<CallbackPrx>(current.con->createProxy(callbackId));
 
-    prx->pingAsync([response = std::move(response)]() { response(); },
-                   [error = std::move(error)](exception_ptr e) { error(e); });
+    prx->pingAsync(
+        [response = std::move(response)]() { response(); }, [error = std::move(error)](exception_ptr e) { error(e); });
 }
 
 void
-MyClassI::getCallbackCountAsync(function<void(int)> response,
-                                function<void(exception_ptr)> error,
-                                const Ice::Current& current)
+MyClassI::getCallbackCountAsync(
+    function<void(int)> response,
+    function<void(exception_ptr)> error,
+    const Ice::Current& current)
 {
     checkConnection(current.con);
     auto prx = Ice::uncheckedCast<CallbackPrx>(current.con->createProxy(callbackId));
 
-    prx->getCountAsync([response = std::move(response)](int count) { response(count); },
-                       [error = std::move(error)](exception_ptr e) { error(e); });
+    prx->getCountAsync(
+        [response = std::move(response)](int count) { response(count); },
+        [error = std::move(error)](exception_ptr e) { error(e); });
 }
 
 void
@@ -116,15 +118,17 @@ MyClassI::callDatagramCallback(const Ice::Current& current)
 }
 
 void
-MyClassI::getCallbackDatagramCountAsync(function<void(int)> response,
-                                        function<void(exception_ptr)> error,
-                                        const Ice::Current& current)
+MyClassI::getCallbackDatagramCountAsync(
+    function<void(int)> response,
+    function<void(exception_ptr)> error,
+    const Ice::Current& current)
 {
     checkConnection(current.con);
     auto prx = Ice::uncheckedCast<CallbackPrx>(current.con->createProxy(callbackId));
 
-    prx->getDatagramCountAsync([response = std::move(response)](int count) { response(count); },
-                               [error = std::move(error)](auto e) { error(e); });
+    prx->getDatagramCountAsync(
+        [response = std::move(response)](int count) { response(count); },
+        [error = std::move(error)](auto e) { error(e); });
 }
 
 int

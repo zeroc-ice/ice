@@ -44,8 +44,9 @@ checkArgs(const char* name, int numArgs, int argc, VALUE* argv, Ice::Context& ct
 {
     if (argc < numArgs || argc > numArgs + 1)
     {
-        throw RubyException(rb_eArgError, "%s expects %d argument%s including an optional context hash", name,
-                            numArgs + 1, numArgs + 1 == 1 ? "" : "s");
+        throw RubyException(
+            rb_eArgError, "%s expects %d argument%s including an optional context hash", name, numArgs + 1,
+            numArgs + 1 == 1 ? "" : "s");
     }
     if (argc == numArgs + 1)
     {
@@ -1221,17 +1222,17 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_adapterId", CAST_METHOD(IceRuby_ObjectPrx_ice_adapterId), 1);
     rb_define_method(_proxyClass, "ice_getEndpoints", CAST_METHOD(IceRuby_ObjectPrx_ice_getEndpoints), 0);
     rb_define_method(_proxyClass, "ice_endpoints", CAST_METHOD(IceRuby_ObjectPrx_ice_endpoints), 1);
-    rb_define_method(_proxyClass, "ice_getLocatorCacheTimeout",
-                     CAST_METHOD(IceRuby_ObjectPrx_ice_getLocatorCacheTimeout), 0);
-    rb_define_method(_proxyClass, "ice_getInvocationTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_getInvocationTimeout),
-                     0);
+    rb_define_method(
+        _proxyClass, "ice_getLocatorCacheTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_getLocatorCacheTimeout), 0);
+    rb_define_method(
+        _proxyClass, "ice_getInvocationTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_getInvocationTimeout), 0);
     rb_define_method(_proxyClass, "ice_getConnectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnectionId), 0);
     rb_define_method(_proxyClass, "ice_locatorCacheTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_locatorCacheTimeout), 1);
     rb_define_method(_proxyClass, "ice_invocationTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_invocationTimeout), 1);
     rb_define_method(_proxyClass, "ice_isConnectionCached", CAST_METHOD(IceRuby_ObjectPrx_ice_isConnectionCached), 0);
     rb_define_method(_proxyClass, "ice_connectionCached", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionCached), 1);
-    rb_define_method(_proxyClass, "ice_getEndpointSelection", CAST_METHOD(IceRuby_ObjectPrx_ice_getEndpointSelection),
-                     0);
+    rb_define_method(
+        _proxyClass, "ice_getEndpointSelection", CAST_METHOD(IceRuby_ObjectPrx_ice_getEndpointSelection), 0);
     rb_define_method(_proxyClass, "ice_endpointSelection", CAST_METHOD(IceRuby_ObjectPrx_ice_endpointSelection), 1);
     rb_define_method(_proxyClass, "ice_isSecure", CAST_METHOD(IceRuby_ObjectPrx_ice_isSecure), 0);
     rb_define_method(_proxyClass, "ice_secure", CAST_METHOD(IceRuby_ObjectPrx_ice_secure), 1);
@@ -1286,8 +1287,9 @@ VALUE
 IceRuby::createProxy(Ice::ObjectPrx p, VALUE cls)
 {
     // If cls is nil then the proxy has the base type Ice::ObjectPrx.
-    return Data_Wrap_Struct(NIL_P(cls) ? _proxyClass : cls, IceRuby_ObjectPrx_mark, IceRuby_ObjectPrx_free,
-                            new Ice::ObjectPrx(std::move(p)));
+    return Data_Wrap_Struct(
+        NIL_P(cls) ? _proxyClass : cls, IceRuby_ObjectPrx_mark, IceRuby_ObjectPrx_free,
+        new Ice::ObjectPrx(std::move(p)));
 }
 
 Ice::ObjectPrx

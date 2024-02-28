@@ -124,7 +124,11 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
 
 void
 IcePatch2::FileServerI::getFileCompressedInternal(
-    std::string pa, int64_t pos, int32_t num, vector<Byte>& buffer, bool largeFile) const
+    std::string pa,
+    int64_t pos,
+    int32_t num,
+    vector<Byte>& buffer,
+    bool largeFile) const
 {
     if (IceUtilInternal::isAbsolutePath(pa))
     {
@@ -148,8 +152,8 @@ IcePatch2::FileServerI::getFileCompressedInternal(
     int fd = IceUtilInternal::open(absolutePath, O_RDONLY | O_BINARY);
     if (fd == -1)
     {
-        throw FileAccessException(string("cannot open `") + path +
-                                  "' for reading: " + IceUtilInternal::errorToString(errno));
+        throw FileAccessException(
+            string("cannot open `") + path + "' for reading: " + IceUtilInternal::errorToString(errno));
     }
 
     if (!largeFile)
@@ -181,8 +185,9 @@ IcePatch2::FileServerI::getFileCompressedInternal(
         ostringstream posStr;
         posStr << pos;
 
-        throw FileAccessException("cannot seek position " + posStr.str() + " in file `" + path +
-                                  "': " + IceUtilInternal::errorToString(errno));
+        throw FileAccessException(
+            "cannot seek position " + posStr.str() + " in file `" + path +
+            "': " + IceUtilInternal::errorToString(errno));
     }
 
     buffer.resize(static_cast<size_t>(num));

@@ -84,15 +84,16 @@ namespace Ice
          * Obtains a tuple containing all of the struct's data members.
          * @return The data members in a tuple.
          */
-        std::tuple<const ::std::shared_ptr<::Ice::ObjectAdapter>&,
-                   const ::std::shared_ptr<::Ice::Connection>&,
-                   const ::Ice::Identity&,
-                   const ::std::string&,
-                   const ::std::string&,
-                   const ::Ice::OperationMode&,
-                   const ::Ice::Context&,
-                   const int&,
-                   const ::Ice::EncodingVersion&>
+        std::tuple<
+            const ::std::shared_ptr<::Ice::ObjectAdapter>&,
+            const ::std::shared_ptr<::Ice::Connection>&,
+            const ::Ice::Identity&,
+            const ::std::string&,
+            const ::std::string&,
+            const ::Ice::OperationMode&,
+            const ::Ice::Context&,
+            const int&,
+            const ::Ice::EncodingVersion&>
         ice_tuple() const
         {
             return std::tie(adapter, con, id, facet, operation, mode, ctx, requestId, encoding);

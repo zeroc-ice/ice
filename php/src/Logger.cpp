@@ -226,8 +226,9 @@ static zend_function_entry _classMethods[] = {
             ZEND_ME(Ice_Logger, print, Ice_Logger_print_arginfo, ZEND_ACC_PUBLIC)
                 ZEND_ME(Ice_Logger, trace, Ice_Logger_trace_arginfo, ZEND_ACC_PUBLIC)
                     ZEND_ME(Ice_Logger, warning, Ice_Logger_warning_arginfo, ZEND_ACC_PUBLIC)
-                        ZEND_ME(Ice_Logger, error, Ice_Logger_error_arginfo, ZEND_ACC_PUBLIC) ZEND_ME(
-                            Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC){0, 0, 0}};
+                        ZEND_ME(Ice_Logger, error, Ice_Logger_error_arginfo, ZEND_ACC_PUBLIC)
+                            ZEND_ME(Ice_Logger, cloneWithPrefix, Ice_Logger_cloneWithPrefix_arginfo, ZEND_ACC_PUBLIC){
+                                0, 0, 0}};
 
 bool
 IcePHP::loggerInit(void)

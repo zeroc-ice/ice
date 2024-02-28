@@ -22,17 +22,19 @@ namespace Glacier2
     class Request
     {
     public:
-        Request(Ice::ObjectPrxPtr,
-                const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                const Ice::Current&,
-                bool,
-                const Ice::Context&,
-                std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)>,
-                std::function<void(std::exception_ptr)>);
+        Request(
+            Ice::ObjectPrxPtr,
+            const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+            const Ice::Current&,
+            bool,
+            const Ice::Context&,
+            std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)>,
+            std::function<void(std::exception_ptr)>);
 
-        void invoke(std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)>&&,
-                    std::function<void(std::exception_ptr)>&&,
-                    std::function<void(bool)>&& = nullptr);
+        void invoke(
+            std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)>&&,
+            std::function<void(std::exception_ptr)>&&,
+            std::function<void(bool)>&& = nullptr);
         bool override(const std::shared_ptr<Request>&) const;
         bool hasOverride() const { return !_override.empty(); }
 

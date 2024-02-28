@@ -86,15 +86,19 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, int16_t type, const
 
 IceObjC::Instance::Instance(const IceObjC::InstancePtr& instance, const ProtocolInstancePtr& protocolInstance)
     : Instance(
-          instance->_communicator, protocolInstance->type(), protocolInstance->protocol(), protocolInstance->secure())
+          instance->_communicator,
+          protocolInstance->type(),
+          protocolInstance->protocol(),
+          protocolInstance->secure())
 {
 }
 
 void
-IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
-                                CFWriteStreamRef writeStream,
-                                bool server,
-                                const string& /*host*/) const
+IceObjC::Instance::setupStreams(
+    CFReadStreamRef readStream,
+    CFWriteStreamRef writeStream,
+    bool server,
+    const string& /*host*/) const
 {
     if (!server && _proxySettings)
     {
@@ -106,13 +110,14 @@ IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
     }
 }
 
-IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance,
-                                          const string& ho,
-                                          int32_t po,
-                                          const Address& sourceAddr,
-                                          int32_t ti,
-                                          const string& conId,
-                                          bool co)
+IceObjC::StreamEndpointI::StreamEndpointI(
+    const InstancePtr& instance,
+    const string& ho,
+    int32_t po,
+    const Address& sourceAddr,
+    int32_t ti,
+    const string& conId,
+    bool co)
     : IceInternal::IPEndpointI(instance, ho, po, sourceAddr, conId),
       _streamInstance(instance),
       _timeout(ti),
@@ -199,9 +204,10 @@ IceObjC::StreamEndpointI::secure() const
 }
 
 void
-IceObjC::StreamEndpointI::connectorsAsync(Ice::EndpointSelectionType /*selType*/,
-                                          function<void(vector<IceInternal::ConnectorPtr>)> response,
-                                          function<void(exception_ptr)>) const
+IceObjC::StreamEndpointI::connectorsAsync(
+    Ice::EndpointSelectionType /*selType*/,
+    function<void(vector<IceInternal::ConnectorPtr>)> response,
+    function<void(exception_ptr)>) const
 {
     vector<ConnectorPtr> connectors;
     connectors.emplace_back(make_shared<StreamConnector>(_streamInstance, _host, _port, _timeout, _connectionId));
@@ -217,8 +223,8 @@ IceObjC::StreamEndpointI::transceiver() const
 AcceptorPtr
 IceObjC::StreamEndpointI::acceptor(const string&) const
 {
-    return make_shared<StreamAcceptor>(const_cast<StreamEndpointI*>(this)->shared_from_this(), _streamInstance, _host,
-                                       _port);
+    return make_shared<StreamAcceptor>(
+        const_cast<StreamEndpointI*>(this)->shared_from_this(), _streamInstance, _host, _port);
 }
 
 IceObjC::StreamEndpointIPtr
@@ -231,8 +237,8 @@ IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
     }
     else
     {
-        return make_shared<StreamEndpointI>(_streamInstance, _host, port, _sourceAddr, _timeout, _connectionId,
-                                            _compress);
+        return make_shared<StreamEndpointI>(
+            _streamInstance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
     }
 }
 
@@ -369,8 +375,8 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
         {
             if (argument.empty())
             {
-                throw EndpointParseException(__FILE__, __LINE__,
-                                             "no argument provided for -t option in endpoint " + endpoint);
+                throw EndpointParseException(
+                    __FILE__, __LINE__, "no argument provided for -t option in endpoint " + endpoint);
             }
 
             if (argument == "infinite")
@@ -382,8 +388,8 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
                 istringstream t(argument);
                 if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
-                    throw EndpointParseException(__FILE__, __LINE__,
-                                                 "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+                    throw EndpointParseException(
+                        __FILE__, __LINE__, "invalid timeout value `" + argument + "' in endpoint " + endpoint);
                 }
             }
             return true;

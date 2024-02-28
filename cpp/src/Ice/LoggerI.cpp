@@ -87,16 +87,17 @@ Ice::LoggerI::trace(const string& category, const string& message)
 void
 Ice::LoggerI::warning(const string& message)
 {
-    write("-! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix +
-              "warning: " + message,
-          true);
+    write(
+        "-! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "warning: " + message,
+        true);
 }
 
 void
 Ice::LoggerI::error(const string& message)
 {
-    write("!! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "error: " + message,
-          true);
+    write(
+        "!! " + timePointToDateTimeString(chrono::system_clock::now()) + " " + _formattedPrefix + "error: " + message,
+        true);
 }
 
 string

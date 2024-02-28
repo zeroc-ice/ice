@@ -65,16 +65,17 @@ namespace IceIAP
          * @param hardwareRevision The accessory hardware revision.
          * @param protocol The protocol used by the accessory.
          */
-        ConnectionInfo(const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
-                       bool incoming,
-                       const ::std::string& adapterName,
-                       const ::std::string& connectionId,
-                       const ::std::string& name,
-                       const ::std::string& manufacturer,
-                       const ::std::string& modelNumber,
-                       const ::std::string& firmwareRevision,
-                       const ::std::string& hardwareRevision,
-                       const ::std::string& protocol)
+        ConnectionInfo(
+            const ::std::shared_ptr<::Ice::ConnectionInfo>& underlying,
+            bool incoming,
+            const ::std::string& adapterName,
+            const ::std::string& connectionId,
+            const ::std::string& name,
+            const ::std::string& manufacturer,
+            const ::std::string& modelNumber,
+            const ::std::string& firmwareRevision,
+            const ::std::string& hardwareRevision,
+            const ::std::string& protocol)
             : ::Ice::ConnectionInfo(underlying, incoming, adapterName, connectionId),
               name(name),
               manufacturer(manufacturer),

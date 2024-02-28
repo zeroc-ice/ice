@@ -52,7 +52,16 @@ namespace IcePy
     {
     public:
         Operation(
-            const char*, PyObject*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
+            const char*,
+            PyObject*,
+            PyObject*,
+            int,
+            PyObject*,
+            PyObject*,
+            PyObject*,
+            PyObject*,
+            PyObject*,
+            PyObject*);
 
         void marshalResult(Ice::OutputStream&, PyObject*);
 
@@ -101,7 +110,11 @@ namespace IcePy
         };
 
         bool prepareRequest(
-            const OperationPtr&, PyObject*, MappingType, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
+            const OperationPtr&,
+            PyObject*,
+            MappingType,
+            Ice::OutputStream*,
+            pair<const Ice::Byte*, const Ice::Byte*>&);
         PyObject* unmarshalResults(const OperationPtr&, const pair<const Ice::Byte*, const Ice::Byte*>&);
         PyObject* unmarshalException(const OperationPtr&, const pair<const Ice::Byte*, const Ice::Byte*>&);
         bool validateException(const OperationPtr&, PyObject*) const;
@@ -204,10 +217,11 @@ namespace IcePy
     class TypedUpcall final : public Upcall
     {
     public:
-        TypedUpcall(const OperationPtr&,
-                    function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
-                    function<void(std::exception_ptr)>,
-                    const Ice::CommunicatorPtr&);
+        TypedUpcall(
+            const OperationPtr&,
+            function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+            function<void(std::exception_ptr)>,
+            const Ice::CommunicatorPtr&);
 
         void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&) final;
         void response(PyObject*) final;
@@ -230,8 +244,9 @@ namespace IcePy
     class BlobjectUpcall final : public Upcall
     {
     public:
-        BlobjectUpcall(function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
-                       function<void(std::exception_ptr)>);
+        BlobjectUpcall(
+            function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+            function<void(std::exception_ptr)>);
 
         void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&) final;
         void response(PyObject*) final;
@@ -249,10 +264,11 @@ namespace IcePy
     public:
         TypedServantWrapper(PyObject*);
 
-        void ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                             function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                             function<void(std::exception_ptr)> error,
-                             const Ice::Current& current) final;
+        void ice_invokeAsync(
+            pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+            function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+            function<void(std::exception_ptr)> error,
+            const Ice::Current& current) final;
 
     private:
         using OperationMap = map<string, OperationPtr>;
@@ -266,10 +282,11 @@ namespace IcePy
     public:
         BlobjectServantWrapper(PyObject*);
 
-        void ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                             function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                             function<void(std::exception_ptr)> error,
-                             const Ice::Current& current) final;
+        void ice_invokeAsync(
+            pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
+            function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+            function<void(std::exception_ptr)> error,
+            const Ice::Current& current) final;
     };
 
     struct OperationObject
@@ -361,15 +378,16 @@ extern "C"
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
-    if (!PyArg_ParseTuple(args, STRCAST("sO!O!iOO!O!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd, &format,
-                          &PyTuple_Type, &metaData, &PyTuple_Type, &inParams, &PyTuple_Type, &outParams, &returnType,
-                          &PyTuple_Type, &exceptions))
+    if (!PyArg_ParseTuple(
+            args, STRCAST("sO!O!iOO!O!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd, &format,
+            &PyTuple_Type, &metaData, &PyTuple_Type, &inParams, &PyTuple_Type, &outParams, &returnType, &PyTuple_Type,
+            &exceptions))
     {
         return -1;
     }
 
-    self->op = new OperationPtr(make_shared<Operation>(name, mode, sendMode, amd, format, metaData, inParams, outParams,
-                                                       returnType, exceptions));
+    self->op = new OperationPtr(make_shared<Operation>(
+        name, mode, sendMode, amd, format, metaData, inParams, outParams, returnType, exceptions));
     return 0;
 }
 
@@ -728,16 +746,17 @@ IcePy::ParamInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 //
 // Operation implementation.
 //
-IcePy::Operation::Operation(const char* n,
-                            PyObject* m,
-                            PyObject* sm,
-                            int amdFlag,
-                            PyObject* fmt,
-                            PyObject* meta,
-                            PyObject* in,
-                            PyObject* out,
-                            PyObject* ret,
-                            PyObject* ex)
+IcePy::Operation::Operation(
+    const char* n,
+    PyObject* m,
+    PyObject* sm,
+    int amdFlag,
+    PyObject* fmt,
+    PyObject* meta,
+    PyObject* in,
+    PyObject* out,
+    PyObject* ret,
+    PyObject* ex)
 {
     name = n;
 
@@ -1316,11 +1335,12 @@ IcePy::initOperation(PyObject* module)
 IcePy::Invocation::Invocation(const Ice::ObjectPrx& prx) : _prx(prx), _communicator(prx->ice_getCommunicator()) {}
 
 bool
-IcePy::Invocation::prepareRequest(const OperationPtr& op,
-                                  PyObject* args,
-                                  MappingType mapping,
-                                  Ice::OutputStream* os,
-                                  pair<const Ice::Byte*, const Ice::Byte*>& params)
+IcePy::Invocation::prepareRequest(
+    const OperationPtr& op,
+    PyObject* args,
+    MappingType mapping,
+    Ice::OutputStream* os,
+    pair<const Ice::Byte*, const Ice::Byte*>& params)
 {
     assert(PyTuple_Check(args));
     params.first = params.second = static_cast<const Ice::Byte*>(0);
@@ -1341,8 +1361,8 @@ IcePy::Invocation::prepareRequest(const OperationPtr& op,
         {
             opName = fixIdent(op->name);
         }
-        PyErr_Format(PyExc_RuntimeError, STRCAST("%s expects %d in parameters"), opName.c_str(),
-                     static_cast<int>(paramCount));
+        PyErr_Format(
+            PyExc_RuntimeError, STRCAST("%s expects %d in parameters"), opName.c_str(), static_cast<int>(paramCount));
         return false;
     }
 
@@ -1376,9 +1396,10 @@ IcePy::Invocation::prepareRequest(const OperationPtr& op,
                     {
                         name = fixIdent(op->name);
                     }
-                    PyErr_Format(PyExc_ValueError,
-                                 STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation `%s'"),
-                                 info->pos + 1, const_cast<char*>(name.c_str()));
+                    PyErr_Format(
+                        PyExc_ValueError,
+                        STRCAST("invalid value for argument %" PY_FORMAT_SIZE_T "d in operation `%s'"), info->pos + 1,
+                        const_cast<char*>(name.c_str()));
                     return false;
                 }
             }
@@ -1657,8 +1678,8 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            status = _prx->ice_invoke(_op->name, _op->sendMode, params, result,
-                                      pyctx == Py_None ? Ice::noExplicitContext : ctx);
+            status = _prx->ice_invoke(
+                _op->name, _op->sendMode, params, result, pyctx == Py_None ? Ice::noExplicitContext : ctx);
         }
 
         //
@@ -2063,9 +2084,10 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
 }
 
 void
-IcePy::AsyncTypedInvocation::handleResponse(PyObject* future,
-                                            bool ok,
-                                            const pair<const Ice::Byte*, const Ice::Byte*>& results)
+IcePy::AsyncTypedInvocation::handleResponse(
+    PyObject* future,
+    bool ok,
+    const pair<const Ice::Byte*, const Ice::Byte*>& results)
 {
     try
     {
@@ -2137,8 +2159,8 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     PyObject* inParams;
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     PyObject* ctx = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("sO!O!|O"), &operation, operationModeType, &mode, &PyBytes_Type, &inParams,
-                          &ctx))
+    if (!PyArg_ParseTuple(
+            args, STRCAST("sO!O!|O"), &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
     {
         return 0;
     }
@@ -2171,8 +2193,8 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            ok = _prx->ice_invoke(operation, sendMode, in, out,
-                                  ctx == 0 || ctx == Py_None ? Ice::noExplicitContext : context);
+            ok = _prx->ice_invoke(
+                operation, sendMode, in, out, ctx == 0 || ctx == Py_None ? Ice::noExplicitContext : context);
         }
 
         //
@@ -2224,8 +2246,8 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     PyObject* inParams;
     PyObject* operationModeType = lookupType("Ice.OperationMode");
     PyObject* ctx = 0;
-    if (!PyArg_ParseTuple(args, STRCAST("sO!O!|O"), &operation, operationModeType, &mode, &PyBytes_Type, &inParams,
-                          &ctx))
+    if (!PyArg_ParseTuple(
+            args, STRCAST("sO!O!|O"), &operation, operationModeType, &mode, &PyBytes_Type, &inParams, &ctx))
     {
         return 0;
     }
@@ -2273,9 +2295,10 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
 }
 
 void
-IcePy::AsyncBlobjectInvocation::handleResponse(PyObject* future,
-                                               bool ok,
-                                               const pair<const Ice::Byte*, const Ice::Byte*>& results)
+IcePy::AsyncBlobjectInvocation::handleResponse(
+    PyObject* future,
+    bool ok,
+    const pair<const Ice::Byte*, const Ice::Byte*>& results)
 {
     // Prepare the args as a tuple of the bool and out param buffer.
     PyObjectHandle args = PyTuple_New(2);
@@ -2383,10 +2406,11 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
 //
 // TypedUpcall
 //
-IcePy::TypedUpcall::TypedUpcall(const OperationPtr& op,
-                                function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
-                                function<void(std::exception_ptr)> error,
-                                const Ice::CommunicatorPtr& communicator)
+IcePy::TypedUpcall::TypedUpcall(
+    const OperationPtr& op,
+    function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+    function<void(std::exception_ptr)> error,
+    const Ice::CommunicatorPtr& communicator)
     : _op(op),
       _response(std::move(response)),
       _error(std::move(error)),
@@ -2395,9 +2419,10 @@ IcePy::TypedUpcall::TypedUpcall(const OperationPtr& op,
 }
 
 void
-IcePy::TypedUpcall::dispatch(PyObject* servant,
-                             const pair<const Ice::Byte*, const Ice::Byte*>& inBytes,
-                             const Ice::Current& current)
+IcePy::TypedUpcall::dispatch(
+    PyObject* servant,
+    const pair<const Ice::Byte*, const Ice::Byte*>& inBytes,
+    const Ice::Current& current)
 {
     _encoding = current.encoding;
 
@@ -2480,8 +2505,9 @@ IcePy::TypedUpcall::dispatch(PyObject* servant,
     // Create an object to represent Ice::Current. We need to append this to the argument tuple.
     //
     PyObjectHandle curr = createCurrent(current);
-    PyTuple_SET_ITEM(args.get(), PyTuple_GET_SIZE(args.get()) - 1,
-                     curr.release()); // PyTuple_SET_ITEM steals a reference.
+    PyTuple_SET_ITEM(
+        args.get(), PyTuple_GET_SIZE(args.get()) - 1,
+        curr.release()); // PyTuple_SET_ITEM steals a reference.
 
     dispatchImpl(servant, _op->dispatchName, args.get(), current);
 }
@@ -2588,9 +2614,10 @@ IcePy::BlobjectUpcall::BlobjectUpcall(
 }
 
 void
-IcePy::BlobjectUpcall::dispatch(PyObject* servant,
-                                const pair<const Ice::Byte*, const Ice::Byte*>& inBytes,
-                                const Ice::Current& current)
+IcePy::BlobjectUpcall::dispatch(
+    PyObject* servant,
+    const pair<const Ice::Byte*, const Ice::Byte*>& inBytes,
+    const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
 
@@ -2860,8 +2887,9 @@ IcePy::FlushAsyncCallback::sent(bool sentSynchronously)
     _future = 0;
 }
 
-IcePy::GetConnectionAsyncCallback::GetConnectionAsyncCallback(const Ice::CommunicatorPtr& communicator,
-                                                              const string& op)
+IcePy::GetConnectionAsyncCallback::GetConnectionAsyncCallback(
+    const Ice::CommunicatorPtr& communicator,
+    const string& op)
     : _communicator(communicator),
       _op(op),
       _future(0),

@@ -224,10 +224,11 @@ namespace Ice
          * "replica group".
          * @param id The ID (or name) of the object that is registered already.
          */
-        AlreadyRegisteredException(const char* file,
-                                   int line,
-                                   const ::std::string& kindOfObject,
-                                   const ::std::string& id)
+        AlreadyRegisteredException(
+            const char* file,
+            int line,
+            const ::std::string& kindOfObject,
+            const ::std::string& id)
             : LocalExceptionHelper<AlreadyRegisteredException, LocalException>(file, line),
               kindOfObject(kindOfObject),
               id(id)
@@ -1283,7 +1284,11 @@ namespace Ice
          * @param operation The operation name of the request.
          */
         RequestFailedException(
-            const char* file, int line, const Identity& id, const ::std::string& facet, const ::std::string& operation)
+            const char* file,
+            int line,
+            const Identity& id,
+            const ::std::string& facet,
+            const ::std::string& operation)
             : LocalExceptionHelper<RequestFailedException, LocalException>(file, line),
               id(id),
               facet(facet),
@@ -1358,7 +1363,11 @@ namespace Ice
          * @param operation The operation name of the request.
          */
         ObjectNotExistException(
-            const char* file, int line, const Identity& id, const ::std::string& facet, const ::std::string& operation)
+            const char* file,
+            int line,
+            const Identity& id,
+            const ::std::string& facet,
+            const ::std::string& operation)
             : LocalExceptionHelper<ObjectNotExistException, RequestFailedException>(file, line, id, facet, operation)
         {
         }
@@ -1417,7 +1426,11 @@ namespace Ice
          * @param operation The operation name of the request.
          */
         FacetNotExistException(
-            const char* file, int line, const Identity& id, const ::std::string& facet, const ::std::string& operation)
+            const char* file,
+            int line,
+            const Identity& id,
+            const ::std::string& facet,
+            const ::std::string& operation)
             : LocalExceptionHelper<FacetNotExistException, RequestFailedException>(file, line, id, facet, operation)
         {
         }
@@ -1475,7 +1488,11 @@ namespace Ice
          * @param operation The operation name of the request.
          */
         OperationNotExistException(
-            const char* file, int line, const Identity& id, const ::std::string& facet, const ::std::string& operation)
+            const char* file,
+            int line,
+            const Identity& id,
+            const ::std::string& facet,
+            const ::std::string& operation)
             : LocalExceptionHelper<OperationNotExistException, RequestFailedException>(file, line, id, facet, operation)
         {
         }
@@ -2367,11 +2384,12 @@ namespace Ice
          * @param bad The version of the unsupported protocol.
          * @param supported The version of the protocol that is supported.
          */
-        UnsupportedProtocolException(const char* file,
-                                     int line,
-                                     const ::std::string& reason,
-                                     const ProtocolVersion& bad,
-                                     const ProtocolVersion& supported)
+        UnsupportedProtocolException(
+            const char* file,
+            int line,
+            const ::std::string& reason,
+            const ProtocolVersion& bad,
+            const ProtocolVersion& supported)
             : LocalExceptionHelper<UnsupportedProtocolException, ProtocolException>(file, line, reason),
               bad(bad),
               supported(supported)
@@ -2439,11 +2457,12 @@ namespace Ice
          * @param bad The version of the unsupported encoding.
          * @param supported The version of the encoding that is supported.
          */
-        UnsupportedEncodingException(const char* file,
-                                     int line,
-                                     const ::std::string& reason,
-                                     const EncodingVersion& bad,
-                                     const EncodingVersion& supported)
+        UnsupportedEncodingException(
+            const char* file,
+            int line,
+            const ::std::string& reason,
+            const EncodingVersion& bad,
+            const EncodingVersion& supported)
             : LocalExceptionHelper<UnsupportedEncodingException, ProtocolException>(file, line, reason),
               bad(bad),
               supported(supported)
@@ -3211,11 +3230,12 @@ namespace Ice
          * @param type The Slice type ID of the class instance that was unmarshaled.
          * @param expectedType The Slice type ID that was expected by the receiving operation.
          */
-        UnexpectedObjectException(const char* file,
-                                  int line,
-                                  const ::std::string& reason,
-                                  const ::std::string& type,
-                                  const ::std::string& expectedType)
+        UnexpectedObjectException(
+            const char* file,
+            int line,
+            const ::std::string& reason,
+            const ::std::string& type,
+            const ::std::string& expectedType)
             : LocalExceptionHelper<UnexpectedObjectException, MarshalException>(file, line, reason),
               type(type),
               expectedType(expectedType)

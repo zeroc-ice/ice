@@ -85,8 +85,9 @@ IceInternal::TcpAcceptor::startAccept()
     LPFN_ACCEPTEX AcceptEx = nullptr;   // a pointer to the 'AcceptEx()' function
     GUID GuidAcceptEx = WSAID_ACCEPTEX; // The Guid
     DWORD dwBytes;
-    if (WSAIoctl(_fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidAcceptEx, sizeof(GuidAcceptEx), &AcceptEx,
-                 sizeof(AcceptEx), &dwBytes, nullptr, nullptr) == SOCKET_ERROR)
+    if (WSAIoctl(
+            _fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidAcceptEx, sizeof(GuidAcceptEx), &AcceptEx, sizeof(AcceptEx),
+            &dwBytes, nullptr, nullptr) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
@@ -176,10 +177,11 @@ IceInternal::TcpAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::TcpAcceptor::TcpAcceptor(const TcpEndpointIPtr& endpoint,
-                                      const ProtocolInstancePtr& instance,
-                                      const string& host,
-                                      int port)
+IceInternal::TcpAcceptor::TcpAcceptor(
+    const TcpEndpointIPtr& endpoint,
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int port)
     : _endpoint(endpoint),
       _instance(instance),
       _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6(), true))

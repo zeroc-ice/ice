@@ -91,12 +91,14 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 }
 
 void
-IceInternal::IPEndpointI::connectorsAsync(Ice::EndpointSelectionType selType,
-                                          std::function<void(std::vector<ConnectorPtr>)> response,
-                                          std::function<void(exception_ptr)> exception) const
+IceInternal::IPEndpointI::connectorsAsync(
+    Ice::EndpointSelectionType selType,
+    std::function<void(std::vector<ConnectorPtr>)> response,
+    std::function<void(exception_ptr)> exception) const
 {
-    _instance->resolve(_host, _port, selType, const_cast<IPEndpointI*>(this)->shared_from_this(), std::move(response),
-                       std::move(exception));
+    _instance->resolve(
+        _host, _port, selType, const_cast<IPEndpointI*>(this)->shared_from_this(), std::move(response),
+        std::move(exception));
 }
 
 vector<EndpointIPtr>
@@ -142,8 +144,8 @@ IceInternal::IPEndpointI::expandHost(EndpointIPtr& publish) const
         publish = const_cast<IPEndpointI*>(this)->shared_from_this();
     }
 
-    vector<Address> addrs = getAddresses(_host, _port, _instance->protocolSupport(),
-                                         Ice::EndpointSelectionType::Ordered, _instance->preferIPv6(), true);
+    vector<Address> addrs = getAddresses(
+        _host, _port, _instance->protocolSupport(), Ice::EndpointSelectionType::Ordered, _instance->preferIPv6(), true);
 
     vector<EndpointIPtr> endpoints;
     if (addrs.size() == 1)
@@ -388,8 +390,8 @@ IceInternal::IPEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
         }
         else
         {
-            throw Ice::EndpointParseException(__FILE__, __LINE__,
-                                              "`-h *' not valid for proxy endpoint `" + toString() + "'");
+            throw Ice::EndpointParseException(
+                __FILE__, __LINE__, "`-h *' not valid for proxy endpoint `" + toString() + "'");
         }
     }
 
@@ -414,8 +416,8 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
     {
         if (argument.empty())
         {
-            throw Ice::EndpointParseException(__FILE__, __LINE__,
-                                              "no argument provided for -h option in endpoint " + endpoint);
+            throw Ice::EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -h option in endpoint " + endpoint);
         }
         const_cast<string&>(_host) = argument;
     }
@@ -423,19 +425,19 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
     {
         if (argument.empty())
         {
-            throw Ice::EndpointParseException(__FILE__, __LINE__,
-                                              "no argument provided for -p option in endpoint " + endpoint);
+            throw Ice::EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for -p option in endpoint " + endpoint);
         }
         istringstream p(argument);
         if (!(p >> const_cast<int32_t&>(_port)) || !p.eof())
         {
-            throw Ice::EndpointParseException(__FILE__, __LINE__,
-                                              "invalid port value `" + argument + "' in endpoint " + endpoint);
+            throw Ice::EndpointParseException(
+                __FILE__, __LINE__, "invalid port value `" + argument + "' in endpoint " + endpoint);
         }
         else if (_port < 0 || _port > 65535)
         {
-            throw Ice::EndpointParseException(__FILE__, __LINE__,
-                                              "port value `" + argument + "' out of range in endpoint " + endpoint);
+            throw Ice::EndpointParseException(
+                __FILE__, __LINE__, "port value `" + argument + "' out of range in endpoint " + endpoint);
         }
     }
     else if (option == "--sourceAddress")
@@ -459,11 +461,12 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
     return true;
 }
 
-IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance,
-                                      const string& host,
-                                      int port,
-                                      const Address& sourceAddr,
-                                      const string& connectionId)
+IceInternal::IPEndpointI::IPEndpointI(
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int port,
+    const Address& sourceAddr,
+    const string& connectionId)
     : _instance(instance),
       _host(host),
       _port(port),
@@ -499,12 +502,13 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 }
 
 void
-IceInternal::EndpointHostResolver::resolve(const string& host,
-                                           int port,
-                                           Ice::EndpointSelectionType selType,
-                                           const IPEndpointIPtr& endpoint,
-                                           function<void(vector<ConnectorPtr>)> response,
-                                           function<void(exception_ptr)> exception)
+IceInternal::EndpointHostResolver::resolve(
+    const string& host,
+    int port,
+    Ice::EndpointSelectionType selType,
+    const IPEndpointIPtr& endpoint,
+    function<void(vector<ConnectorPtr>)> response,
+    function<void(exception_ptr)> exception)
 {
     //
     // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
@@ -656,7 +660,7 @@ IceInternal::EndpointHostResolver::updateObserver()
     const CommunicatorObserverPtr& observer = _instance->initializationData().observer;
     if (observer)
     {
-        _observer.attach(observer->getThreadObserver("Communicator", "Ice.HostResolver", ThreadState::ThreadStateIdle,
-                                                     _observer.get()));
+        _observer.attach(observer->getThreadObserver(
+            "Communicator", "Ice.HostResolver", ThreadState::ThreadStateIdle, _observer.get()));
     }
 }

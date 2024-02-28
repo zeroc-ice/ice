@@ -58,18 +58,20 @@ namespace IceGrid
     public:
         SessionI(const std::string&, const std::shared_ptr<Database>&, const IceUtil::TimerPtr&);
 
-        Ice::ObjectPrxPtr _register(const std::shared_ptr<SessionServantManager>&,
-                                    const std::shared_ptr<Ice::Connection>&);
+        Ice::ObjectPrxPtr
+        _register(const std::shared_ptr<SessionServantManager>&, const std::shared_ptr<Ice::Connection>&);
 
         void keepAlive(const Ice::Current& current) override { BaseSessionI::keepAlive(current); }
-        void allocateObjectByIdAsync(Ice::Identity id,
-                                     std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
-                                     std::function<void(std::exception_ptr)> exception,
-                                     const Ice::Current& current) override;
-        void allocateObjectByTypeAsync(std::string,
-                                       std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
-                                       std::function<void(std::exception_ptr)> exception,
-                                       const Ice::Current& current) override;
+        void allocateObjectByIdAsync(
+            Ice::Identity id,
+            std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current& current) override;
+        void allocateObjectByTypeAsync(
+            std::string,
+            std::function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+            std::function<void(std::exception_ptr)> exception,
+            const Ice::Current& current) override;
         void releaseObject(Ice::Identity, const Ice::Current&) override;
         void setAllocationTimeout(int, const Ice::Current&) override;
         void destroy(const Ice::Current&) override;
@@ -94,10 +96,11 @@ namespace IceGrid
     class ClientSessionFactory final
     {
     public:
-        ClientSessionFactory(const std::shared_ptr<SessionServantManager>&,
-                             const std::shared_ptr<Database>&,
-                             const IceUtil::TimerPtr&,
-                             const std::shared_ptr<ReapThread>&);
+        ClientSessionFactory(
+            const std::shared_ptr<SessionServantManager>&,
+            const std::shared_ptr<Database>&,
+            const IceUtil::TimerPtr&,
+            const std::shared_ptr<ReapThread>&);
 
         Glacier2::SessionPrxPtr createGlacier2Session(const std::string&, const Glacier2::SessionControlPrxPtr&);
         std::shared_ptr<SessionI> createSessionServant(const std::string&, const Glacier2::SessionControlPrxPtr&);

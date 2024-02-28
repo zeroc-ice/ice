@@ -90,13 +90,13 @@ namespace
         {
             if (preferIPv6)
             {
-                stable_partition(addrs.begin(), addrs.end(),
-                                 [](const Address& ss) { return ss.saStorage.ss_family == AF_INET6; });
+                stable_partition(
+                    addrs.begin(), addrs.end(), [](const Address& ss) { return ss.saStorage.ss_family == AF_INET6; });
             }
             else
             {
-                stable_partition(addrs.begin(), addrs.end(),
-                                 [](const Address& ss) { return ss.saStorage.ss_family != AF_INET6; });
+                stable_partition(
+                    addrs.begin(), addrs.end(), [](const Address& ss) { return ss.saStorage.ss_family != AF_INET6; });
             }
         }
     }
@@ -647,8 +647,9 @@ namespace
                     if (wstringToString(paddrs->FriendlyName, getProcessStringConverter()) == name)
                     {
                         struct sockaddr_in addrin;
-                        memcpy(&addrin, paddrs->FirstUnicastAddress->Address.lpSockaddr,
-                               paddrs->FirstUnicastAddress->Address.iSockaddrLength);
+                        memcpy(
+                            &addrin, paddrs->FirstUnicastAddress->Address.lpSockaddr,
+                            paddrs->FirstUnicastAddress->Address.iSockaddrLength);
                         delete[] buf;
                         return addrin.sin_addr;
                     }
@@ -801,12 +802,13 @@ IceInternal::errorToStringDNS(int error)
 }
 
 vector<Address>
-IceInternal::getAddresses(const string& host,
-                          int port,
-                          ProtocolSupport protocol,
-                          Ice::EndpointSelectionType selType,
-                          bool preferIPv6,
-                          bool canBlock)
+IceInternal::getAddresses(
+    const string& host,
+    int port,
+    ProtocolSupport protocol,
+    Ice::EndpointSelectionType selType,
+    bool preferIPv6,
+    bool canBlock)
 {
     vector<Address> result;
 
@@ -1306,8 +1308,8 @@ IceInternal::inetAddrToString(const Address& ss)
 
     char namebuf[1024];
     namebuf[0] = '\0';
-    getnameinfo(&ss.sa, static_cast<socklen_t>(size), namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0,
-                NI_NUMERICHOST);
+    getnameinfo(
+        &ss.sa, static_cast<socklen_t>(size), namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0, NI_NUMERICHOST);
     return string(namebuf);
 }
 
@@ -2089,8 +2091,9 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
     LPFN_CONNECTEX ConnectEx = nullptr;   // a pointer to the 'ConnectEx()' function
     GUID GuidConnectEx = WSAID_CONNECTEX; // The Guid
     DWORD dwBytes;
-    if (WSAIoctl(fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidConnectEx, sizeof(GuidConnectEx), &ConnectEx,
-                 sizeof(ConnectEx), &dwBytes, nullptr, nullptr) == SOCKET_ERROR)
+    if (WSAIoctl(
+            fd, SIO_GET_EXTENSION_FUNCTION_POINTER, &GuidConnectEx, sizeof(GuidConnectEx), &ConnectEx,
+            sizeof(ConnectEx), &dwBytes, nullptr, nullptr) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }

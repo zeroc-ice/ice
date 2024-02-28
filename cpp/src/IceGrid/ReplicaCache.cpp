@@ -12,8 +12,9 @@
 using namespace std;
 using namespace IceGrid;
 
-ReplicaCache::ReplicaCache(const shared_ptr<Ice::Communicator>& communicator,
-                           const IceStorm::TopicManagerPrxPtr& topicManager)
+ReplicaCache::ReplicaCache(
+    const shared_ptr<Ice::Communicator>& communicator,
+    const IceStorm::TopicManagerPrxPtr& topicManager)
     : _communicator(communicator)
 {
     IceStorm::TopicPrxPtr t;

@@ -118,10 +118,11 @@ IceObjC::StreamAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceObjC::StreamAcceptor::StreamAcceptor(const StreamEndpointIPtr& endpoint,
-                                        const InstancePtr& instance,
-                                        const string& host,
-                                        int port)
+IceObjC::StreamAcceptor::StreamAcceptor(
+    const StreamEndpointIPtr& endpoint,
+    const InstancePtr& instance,
+    const string& host,
+    int port)
     : _endpoint(endpoint),
       _instance(instance),
       _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true))

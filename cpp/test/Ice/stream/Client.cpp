@@ -57,19 +57,19 @@ public:
 // Required for ValueHelper<>'s _iceReadImpl and _iceWriteIpml
 namespace Ice
 {
-    template <class S> struct StreamWriter<TestObjectWriter, S>
+    template<class S> struct StreamWriter<TestObjectWriter, S>
     {
         static void write(S*, const TestObjectWriter&) { assert(false); }
     };
-    template <class S> struct StreamReader<TestObjectWriter, S>
+    template<class S> struct StreamReader<TestObjectWriter, S>
     {
         static void read(S*, TestObjectWriter&) { assert(false); }
     };
-    template <class S> struct StreamWriter<TestObjectReader, S>
+    template<class S> struct StreamWriter<TestObjectReader, S>
     {
         static void write(S*, const TestObjectReader&) { assert(false); }
     };
-    template <class S> struct StreamReader<TestObjectReader, S>
+    template<class S> struct StreamReader<TestObjectReader, S>
     {
         static void read(S*, TestObjectReader&) { assert(false); }
     };

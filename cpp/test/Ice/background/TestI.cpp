@@ -104,8 +104,9 @@ BackgroundControllerI::buffered(bool enable, const Ice::Current&)
     _configuration->buffered(enable);
 }
 
-BackgroundControllerI::BackgroundControllerI(const Ice::ObjectAdapterPtr& adapter,
-                                             const ConfigurationPtr& configuration)
+BackgroundControllerI::BackgroundControllerI(
+    const Ice::ObjectAdapterPtr& adapter,
+    const ConfigurationPtr& configuration)
     : _adapter(adapter),
       _configuration(configuration)
 {

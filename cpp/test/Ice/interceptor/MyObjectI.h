@@ -37,13 +37,25 @@ public:
     virtual void
     amdAddAsync(int, int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&);
     virtual void amdAddWithRetryAsync(
-        int, int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+        int,
+        int,
+        std::function<void(int)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
     virtual void
     amdBadAddAsync(int, int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&);
     virtual void amdNotExistAddAsync(
-        int, int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+        int,
+        int,
+        std::function<void(int)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
     virtual void amdBadSystemAddAsync(
-        int, int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+        int,
+        int,
+        std::function<void(int)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 };
 
 #endif

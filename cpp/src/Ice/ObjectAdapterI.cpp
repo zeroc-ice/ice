@@ -89,8 +89,9 @@ Ice::ObjectAdapterI::activate()
         //
         if (_state != StateUninitialized)
         {
-            for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-                     [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
+            for_each(
+                _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+                [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
             return;
         }
 
@@ -141,8 +142,9 @@ Ice::ObjectAdapterI::activate()
     {
         lock_guard lock(_mutex);
         assert(_state == StateActivating);
-        for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-                 [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
+        for_each(
+            _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+            [](const IncomingConnectionFactoryPtr& factory) { factory->activate(); });
         _state = StateActive;
         _conditionVariable.notify_all();
     }
@@ -155,8 +157,9 @@ Ice::ObjectAdapterI::hold()
 
     checkForDeactivation();
     _state = StateHeld;
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-             [](const IncomingConnectionFactoryPtr& factory) { factory->hold(); });
+    for_each(
+        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->hold(); });
 }
 
 void
@@ -171,8 +174,9 @@ Ice::ObjectAdapterI::waitForHold()
         incomingConnectionFactories = _incomingConnectionFactories;
     }
 
-    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-             [](const IncomingConnectionFactoryPtr& factory) { factory->waitUntilHolding(); });
+    for_each(
+        incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->waitUntilHolding(); });
 }
 
 void
@@ -224,8 +228,9 @@ Ice::ObjectAdapterI::deactivate() noexcept
         //
     }
 
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-             [](const IncomingConnectionFactoryPtr& factory) { factory->destroy(); });
+    for_each(
+        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->destroy(); });
 
     _instance->outgoingConnectionFactory()->removeAdapter(shared_from_this());
 
@@ -258,8 +263,9 @@ Ice::ObjectAdapterI::waitForDeactivate() noexcept
     }
 
     // Now we wait until all incoming connection factories are finished.
-    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-             [](const IncomingConnectionFactoryPtr& factory) { factory->waitUntilFinished(); });
+    for_each(
+        incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+        [](const IncomingConnectionFactoryPtr& factory) { factory->waitUntilFinished(); });
 }
 
 bool
@@ -559,8 +565,9 @@ Ice::ObjectAdapterI::getEndpoints() const noexcept
     lock_guard lock(_mutex);
 
     EndpointSeq endpoints;
-    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
-              [](const IncomingConnectionFactoryPtr& factory) { return factory->endpoint(); });
+    transform(
+        _incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
+        [](const IncomingConnectionFactoryPtr& factory) { return factory->endpoint(); });
     return endpoints;
 }
 
@@ -740,8 +747,8 @@ Ice::ObjectAdapterI::updateConnectionObservers()
         lock_guard lock(_mutex);
         f = _incomingConnectionFactories;
     }
-    for_each(f.begin(), f.end(),
-             [](const IncomingConnectionFactoryPtr& factory) { factory->updateConnectionObservers(); });
+    for_each(
+        f.begin(), f.end(), [](const IncomingConnectionFactoryPtr& factory) { factory->updateConnectionObservers(); });
 }
 
 void
@@ -837,11 +844,12 @@ Ice::ObjectAdapterI::setAdapterOnConnection(const Ice::ConnectionIPtr& connectio
 // function because when it was part of the constructor C++Builder 2010 apps would
 // crash if an exception was thrown from any calls within the constructor.
 //
-Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance,
-                                    const CommunicatorPtr& communicator,
-                                    const ObjectAdapterFactoryPtr& objectAdapterFactory,
-                                    const string& name,
-                                    bool noConfig)
+Ice::ObjectAdapterI::ObjectAdapterI(
+    const InstancePtr& instance,
+    const CommunicatorPtr& communicator,
+    const ObjectAdapterFactoryPtr& objectAdapterFactory,
+    const string& name,
+    bool noConfig)
     : _state(StateUninitialized),
       _instance(instance),
       _communicator(communicator),
@@ -952,8 +960,9 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
             //
             if (_routerInfo->getAdapter())
             {
-                throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter with router",
-                                                 _communicator->identityToString(router->ice_getIdentity()));
+                throw AlreadyRegisteredException(
+                    __FILE__, __LINE__, "object adapter with router",
+                    _communicator->identityToString(router->ice_getIdentity()));
             }
 
             //
@@ -1320,8 +1329,9 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         {
             EndpointSeq endpts = proxy ? proxy->ice_getEndpoints() : EndpointSeq();
             ostringstream o;
-            transform(endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
-                      [](const EndpointPtr& endpoint) { return endpoint->toString(); });
+            transform(
+                endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
+                [](const EndpointPtr& endpoint) { return endpoint->toString(); });
             out << o.str();
         }
     }
@@ -1330,44 +1340,45 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
 bool
 Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 {
-    static const string suffixes[] = {"ACM",
-                                      "ACM.Close",
-                                      "ACM.Heartbeat",
-                                      "ACM.Timeout",
-                                      "AdapterId",
-                                      "Endpoints",
-                                      "Locator",
-                                      "Locator.EncodingVersion",
-                                      "Locator.EndpointSelection",
-                                      "Locator.ConnectionCached",
-                                      "Locator.PreferSecure",
-                                      "Locator.CollocationOptimized",
-                                      "Locator.Router",
-                                      "MessageSizeMax",
-                                      "PublishedEndpoints",
-                                      "ReplicaGroupId",
-                                      "Router",
-                                      "Router.EncodingVersion",
-                                      "Router.EndpointSelection",
-                                      "Router.ConnectionCached",
-                                      "Router.PreferSecure",
-                                      "Router.CollocationOptimized",
-                                      "Router.Locator",
-                                      "Router.Locator.EndpointSelection",
-                                      "Router.Locator.ConnectionCached",
-                                      "Router.Locator.PreferSecure",
-                                      "Router.Locator.CollocationOptimized",
-                                      "Router.Locator.LocatorCacheTimeout",
-                                      "Router.Locator.InvocationTimeout",
-                                      "Router.LocatorCacheTimeout",
-                                      "Router.InvocationTimeout",
-                                      "ProxyOptions",
-                                      "ThreadPool.Size",
-                                      "ThreadPool.SizeMax",
-                                      "ThreadPool.SizeWarn",
-                                      "ThreadPool.StackSize",
-                                      "ThreadPool.Serialize",
-                                      "ThreadPool.ThreadPriority"};
+    static const string suffixes[] = {
+        "ACM",
+        "ACM.Close",
+        "ACM.Heartbeat",
+        "ACM.Timeout",
+        "AdapterId",
+        "Endpoints",
+        "Locator",
+        "Locator.EncodingVersion",
+        "Locator.EndpointSelection",
+        "Locator.ConnectionCached",
+        "Locator.PreferSecure",
+        "Locator.CollocationOptimized",
+        "Locator.Router",
+        "MessageSizeMax",
+        "PublishedEndpoints",
+        "ReplicaGroupId",
+        "Router",
+        "Router.EncodingVersion",
+        "Router.EndpointSelection",
+        "Router.ConnectionCached",
+        "Router.PreferSecure",
+        "Router.CollocationOptimized",
+        "Router.Locator",
+        "Router.Locator.EndpointSelection",
+        "Router.Locator.ConnectionCached",
+        "Router.Locator.PreferSecure",
+        "Router.Locator.CollocationOptimized",
+        "Router.Locator.LocatorCacheTimeout",
+        "Router.Locator.InvocationTimeout",
+        "Router.LocatorCacheTimeout",
+        "Router.InvocationTimeout",
+        "ProxyOptions",
+        "ThreadPool.Size",
+        "ThreadPool.SizeMax",
+        "ThreadPool.SizeWarn",
+        "ThreadPool.StackSize",
+        "ThreadPool.Serialize",
+        "ThreadPool.ThreadPriority"};
 
     //
     // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc

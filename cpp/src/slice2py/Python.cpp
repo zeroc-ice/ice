@@ -369,10 +369,11 @@ namespace
         }
     }
 
-    void PackageVisitor::writeInit(const string& dir,
-                                   const string& name,
-                                   const StringList& modules,
-                                   const StringList& submodules)
+    void PackageVisitor::writeInit(
+        const string& dir,
+        const string& name,
+        const StringList& modules,
+        const StringList& submodules)
     {
         string initPath = dir + "/__init__.py";
 
@@ -576,8 +577,9 @@ Slice::Python::compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            if (!icecpp->printMakefileDependencies(os, depend ? Preprocessor::Python : Preprocessor::SliceXML,
-                                                   includePaths, "-D__SLICE2PY__", "", prefix))
+            if (!icecpp->printMakefileDependencies(
+                    os, depend ? Preprocessor::Python : Preprocessor::SliceXML, includePaths, "-D__SLICE2PY__", "",
+                    prefix))
             {
                 return EXIT_FAILURE;
             }

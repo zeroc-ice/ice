@@ -118,9 +118,10 @@ namespace
 namespace Glacier2Internal
 {
 
-    void setupNullPermissionsVerifier(const CommunicatorPtr& communicator,
-                                      const string& category,
-                                      const vector<string>& props)
+    void setupNullPermissionsVerifier(
+        const CommunicatorPtr& communicator,
+        const string& category,
+        const vector<string>& props)
     {
         Init init(communicator, category, props);
     }

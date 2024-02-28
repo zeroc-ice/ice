@@ -163,10 +163,11 @@ RouterObserverI::setObserverUpdater(const shared_ptr<ObserverUpdater>& updater)
 }
 
 shared_ptr<SessionObserver>
-RouterObserverI::getSessionObserver(const string& id,
-                                    const shared_ptr<Ice::Connection>& connection,
-                                    int routingTableSize,
-                                    const shared_ptr<SessionObserver>& old)
+RouterObserverI::getSessionObserver(
+    const string& id,
+    const shared_ptr<Ice::Connection>& connection,
+    int routingTableSize,
+    const shared_ptr<SessionObserver>& old)
 {
     if (_sessions.isEnabled())
     {

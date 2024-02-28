@@ -16,8 +16,9 @@ using namespace IceGrid;
 namespace
 {
 
-    bool compareAllocatableObjectEntry(const shared_ptr<AllocatableObjectEntry>& lhs,
-                                       const shared_ptr<AllocatableObjectEntry>& rhs)
+    bool compareAllocatableObjectEntry(
+        const shared_ptr<AllocatableObjectEntry>& lhs,
+        const shared_ptr<AllocatableObjectEntry>& rhs)
     {
         return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
     }
@@ -250,9 +251,10 @@ AllocatableObjectCache::canTryAllocate(const shared_ptr<AllocatableObjectEntry>&
     return p->second.canTryAllocate(entry, true);
 }
 
-AllocatableObjectEntry::AllocatableObjectEntry(AllocatableObjectCache& cache,
-                                               const ObjectInfo& info,
-                                               const shared_ptr<ServerEntry>& parent)
+AllocatableObjectEntry::AllocatableObjectEntry(
+    AllocatableObjectCache& cache,
+    const ObjectInfo& info,
+    const shared_ptr<ServerEntry>& parent)
     : Allocatable(true, parent),
       _cache(cache),
       _info(info),

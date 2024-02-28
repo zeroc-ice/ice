@@ -38,15 +38,16 @@ namespace Ice
 
 }
 
-IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance,
-                                        const string& host,
-                                        int32_t port,
-                                        const Address& sourceAddr,
-                                        const string& mcastInterface,
-                                        int32_t mttl,
-                                        bool conn,
-                                        const string& conId,
-                                        bool co)
+IceInternal::UdpEndpointI::UdpEndpointI(
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int32_t port,
+    const Address& sourceAddr,
+    const string& mcastInterface,
+    int32_t mttl,
+    bool conn,
+    const string& conId,
+    bool co)
     : IPEndpointI(instance, host, port, sourceAddr, conId),
       _mcastTtl(mttl),
       _mcastInterface(mcastInterface),
@@ -132,8 +133,8 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-        return make_shared<UdpEndpointI>(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                         _connectionId, compress);
+        return make_shared<UdpEndpointI>(
+            _instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connect, _connectionId, compress);
     }
 }
 
@@ -167,8 +168,8 @@ IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
     }
     else
     {
-        return make_shared<UdpEndpointI>(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                         _connectionId, _compress);
+        return make_shared<UdpEndpointI>(
+            _instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect, _connectionId, _compress);
     }
 }
 
@@ -185,8 +186,8 @@ IceInternal::UdpEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint
         }
         else
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "`--interface *' not valid for proxy endpoint `" + toString() + "'");
+            throw EndpointParseException(
+                __FILE__, __LINE__, "`--interface *' not valid for proxy endpoint `" + toString() + "'");
         }
     }
 }
@@ -391,8 +392,8 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
     {
         if (argument.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "no argument provided for " + option + " option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for " + option + " option in endpoint " + endpoint);
         }
         try
         {
@@ -405,16 +406,16 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
         }
         catch (const VersionParseException& ex)
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "invalid version `" + argument + "' in endpoint " + endpoint + ":\n" + ex.str);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "invalid version `" + argument + "' in endpoint " + endpoint + ":\n" + ex.str);
         }
     }
     else if (option == "--interface")
     {
         if (argument.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "no argument provided for --interface option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for --interface option in endpoint " + endpoint);
         }
         const_cast<string&>(_mcastInterface) = argument;
     }
@@ -422,14 +423,14 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
     {
         if (argument.empty())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "no argument provided for --ttl option in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "no argument provided for --ttl option in endpoint " + endpoint);
         }
         istringstream p(argument);
         if (!(p >> const_cast<int32_t&>(_mcastTtl)) || !p.eof())
         {
-            throw EndpointParseException(__FILE__, __LINE__,
-                                         "invalid TTL value `" + argument + "' in endpoint " + endpoint);
+            throw EndpointParseException(
+                __FILE__, __LINE__, "invalid TTL value `" + argument + "' in endpoint " + endpoint);
         }
     }
     else
@@ -448,8 +449,8 @@ IceInternal::UdpEndpointI::createConnector(const Address& address, const Network
 IPEndpointIPtr
 IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return make_shared<UdpEndpointI>(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect,
-                                     connectionId, _compress);
+    return make_shared<UdpEndpointI>(
+        _instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connect, connectionId, _compress);
 }
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance) {}

@@ -28,27 +28,30 @@ namespace Slice
         static std::string
         importPrefix(const TypePtr&, const ContainedPtr&, const std::vector<std::pair<std::string, std::string>>&);
 
-        static std::string importPrefix(const ContainedPtr&,
-                                        const ContainedPtr&,
-                                        const std::vector<std::pair<std::string, std::string>>&,
-                                        const std::string& definedIn = "");
+        static std::string importPrefix(
+            const ContainedPtr&,
+            const ContainedPtr&,
+            const std::vector<std::pair<std::string, std::string>>&,
+            const std::string& definedIn = "");
         static std::string importPrefix(const std::string&, const ContainedPtr&);
 
         static std::string getUnqualified(const std::string&, const std::string&, const std::string&);
 
-        static std::string typeToString(const TypePtr&,
-                                        const ContainedPtr& = 0,
-                                        const std::vector<std::pair<std::string, std::string>>& =
-                                            std::vector<std::pair<std::string, std::string>>(),
-                                        bool typeScript = false,
-                                        bool definition = false);
+        static std::string typeToString(
+            const TypePtr&,
+            const ContainedPtr& = 0,
+            const std::vector<std::pair<std::string, std::string>>& =
+                std::vector<std::pair<std::string, std::string>>(),
+            bool typeScript = false,
+            bool definition = false);
 
-        static std::string typeToString(const TypePtr&,
-                                        const ContainedPtr&,
-                                        const std::vector<std::pair<std::string, std::string>>&,
-                                        bool typeScript,
-                                        bool definition,
-                                        bool usealias);
+        static std::string typeToString(
+            const TypePtr&,
+            const ContainedPtr&,
+            const std::vector<std::pair<std::string, std::string>>&,
+            bool typeScript,
+            bool definition,
+            bool usealias);
 
         static std::string getLocalScope(const std::string&, const std::string& separator = ".");
 

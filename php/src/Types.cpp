@@ -447,8 +447,9 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                     zend_hash_str_find(Z_OBJPROP_P(s), "hasOptionalMembers", sizeof("hasOptionalMembers") - 1);
                 assert(Z_TYPE_P(hasOptionalMembers) == IS_INDIRECT);
                 hasOptionalMembers = Z_INDIRECT_P(hasOptionalMembers);
-                assert(hasOptionalMembers &&
-                       (Z_TYPE_P(hasOptionalMembers) == IS_TRUE || Z_TYPE_P(hasOptionalMembers) == IS_FALSE));
+                assert(
+                    hasOptionalMembers &&
+                    (Z_TYPE_P(hasOptionalMembers) == IS_TRUE || Z_TYPE_P(hasOptionalMembers) == IS_FALSE));
                 info->hasOptionalMembers = Z_TYPE_P(hasOptionalMembers) == IS_TRUE;
 
                 zval* isLastSlice = zend_hash_str_find(Z_OBJPROP_P(s), "isLastSlice", sizeof("isLastSlice") - 1);
@@ -843,7 +844,12 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
 
 void
 IcePHP::PrimitiveInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, const CommunicatorInfoPtr&, zval* target, void* closure, bool)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    const CommunicatorInfoPtr&,
+    zval* target,
+    void* closure,
+    bool)
 {
     zval zv;
     AutoDestroy destroy(&zv);
@@ -1008,7 +1014,12 @@ IcePHP::EnumInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool)
 
 void
 IcePHP::EnumInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, const CommunicatorInfoPtr&, zval* target, void* closure, bool)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    const CommunicatorInfoPtr&,
+    zval* target,
+    void* closure,
+    bool)
 {
     zval zv;
     AutoDestroy destroy(&zv);
@@ -1275,12 +1286,13 @@ IcePHP::StructInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMa
 }
 
 void
-IcePHP::StructInfo::unmarshal(Ice::InputStream* is,
-                              const UnmarshalCallbackPtr& cb,
-                              const CommunicatorInfoPtr& comm,
-                              zval* target,
-                              void* closure,
-                              bool optional)
+IcePHP::StructInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    const CommunicatorInfoPtr& comm,
+    zval* target,
+    void* closure,
+    bool optional)
 {
     zval zv;
     AutoDestroy destroy(&zv);
@@ -1461,12 +1473,13 @@ IcePHP::SequenceInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* object
 }
 
 void
-IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is,
-                                const UnmarshalCallbackPtr& cb,
-                                const CommunicatorInfoPtr& comm,
-                                zval* target,
-                                void* closure,
-                                bool optional)
+IcePHP::SequenceInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    const CommunicatorInfoPtr& comm,
+    zval* target,
+    void* closure,
+    bool optional)
 {
     if (optional)
     {
@@ -1773,7 +1786,11 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
 
 void
 IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
-    const PrimitiveInfoPtr& pi, Ice::InputStream* is, const UnmarshalCallbackPtr& cb, zval* target, void* closure)
+    const PrimitiveInfoPtr& pi,
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    zval* target,
+    void* closure)
 {
     zval zv;
     array_init(&zv);
@@ -2062,12 +2079,13 @@ IcePHP::DictionaryInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* obje
 }
 
 void
-IcePHP::DictionaryInfo::unmarshal(Ice::InputStream* is,
-                                  const UnmarshalCallbackPtr& cb,
-                                  const CommunicatorInfoPtr& comm,
-                                  zval* target,
-                                  void* closure,
-                                  bool optional)
+IcePHP::DictionaryInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    const CommunicatorInfoPtr& comm,
+    zval* target,
+    void* closure,
+    bool optional)
 {
     if (optional)
     {
@@ -2352,12 +2370,13 @@ namespace
 }
 
 void
-IcePHP::ClassInfo::unmarshal(Ice::InputStream* is,
-                             const UnmarshalCallbackPtr& cb,
-                             const CommunicatorInfoPtr& comm,
-                             zval* target,
-                             void* closure,
-                             bool)
+IcePHP::ClassInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    const CommunicatorInfoPtr& comm,
+    zval* target,
+    void* closure,
+    bool)
 {
     if (!defined)
     {
@@ -2592,12 +2611,13 @@ IcePHP::ProxyInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool opt
 }
 
 void
-IcePHP::ProxyInfo::unmarshal(Ice::InputStream* is,
-                             const UnmarshalCallbackPtr& cb,
-                             const CommunicatorInfoPtr& comm,
-                             zval* target,
-                             void* closure,
-                             bool optional)
+IcePHP::ProxyInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    const CommunicatorInfoPtr& comm,
+    zval* target,
+    void* closure,
+    bool optional)
 {
     zval zv;
     AutoDestroy destroy(&zv);
@@ -2849,8 +2869,8 @@ IcePHP::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
 {
     for (const auto& member : members)
     {
-        zval* val = zend_hash_str_find(Z_OBJPROP_P(const_cast<zval*>(&_object)), member->name.c_str(),
-                                       static_cast<int>(member->name.size()));
+        zval* val = zend_hash_str_find(
+            Z_OBJPROP_P(const_cast<zval*>(&_object)), member->name.c_str(), static_cast<int>(member->name.size()));
 
         if (!val)
         {
@@ -2994,10 +3014,11 @@ IcePHP::ValueReader::getSlicedData() const
 }
 
 // ReadObjectCallback implementation.
-IcePHP::ReadObjectCallback::ReadObjectCallback(const ClassInfoPtr& info,
-                                               const UnmarshalCallbackPtr& cb,
-                                               zval* target,
-                                               void* closure)
+IcePHP::ReadObjectCallback::ReadObjectCallback(
+    const ClassInfoPtr& info,
+    const UnmarshalCallbackPtr& cb,
+    zval* target,
+    void* closure)
     : _info(info),
       _cb(cb),
       _closure(closure)
@@ -3458,8 +3479,9 @@ ZEND_FUNCTION(IcePHP_defineClass)
     zval* base;
     zval* members;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sslbbo!a!"), &id, &idLen, &name, &nameLen, &compactId,
-                              &preserve, &interface, &base, &members) == FAILURE)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(), const_cast<char*>("sslbbo!a!"), &id, &idLen, &name, &nameLen, &compactId, &preserve,
+            &interface, &base, &members) == FAILURE)
     {
         return;
     }
@@ -3471,8 +3493,8 @@ ZEND_FUNCTION(IcePHP_defineClass)
         addClassInfoById(type);
     }
 
-    type->define(name, static_cast<int32_t>(compactId), preserve ? true : false, interface ? true : false, base,
-                 members);
+    type->define(
+        name, static_cast<int32_t>(compactId), preserve ? true : false, interface ? true : false, base, members);
 
     if (!interface)
     {
@@ -3541,8 +3563,9 @@ ZEND_FUNCTION(IcePHP_defineException)
     zval* base;
     zval* members;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ssbo!a!"), &id, &idLen, &name, &nameLen, &preserve,
-                              &base, &members) == FAILURE)
+    if (zend_parse_parameters(
+            ZEND_NUM_ARGS(), const_cast<char*>("ssbo!a!"), &id, &idLen, &name, &nameLen, &preserve, &base, &members) ==
+        FAILURE)
     {
         return;
     }

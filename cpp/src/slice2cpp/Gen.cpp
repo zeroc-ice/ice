@@ -48,8 +48,9 @@ namespace
                 }
             }
         }
-        else if (dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<InterfaceDecl>(type) ||
-                 dynamic_pointer_cast<ClassDecl>(type))
+        else if (
+            dynamic_pointer_cast<Enum>(type) || dynamic_pointer_cast<InterfaceDecl>(type) ||
+            dynamic_pointer_cast<ClassDecl>(type))
         {
             return true;
         }
@@ -88,13 +89,14 @@ namespace
         return deprecateSymbol;
     }
 
-    void writeConstantValue(IceUtilInternal::Output& out,
-                            const TypePtr& type,
-                            const SyntaxTreeBasePtr& valueType,
-                            const string& value,
-                            int typeContext,
-                            const StringList& metaData,
-                            const string& scope)
+    void writeConstantValue(
+        IceUtilInternal::Output& out,
+        const TypePtr& type,
+        const SyntaxTreeBasePtr& valueType,
+        const string& value,
+        int typeContext,
+        const StringList& metaData,
+        const string& scope)
     {
         ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
         if (constant)
@@ -196,10 +198,11 @@ namespace
         }
     }
 
-    void writeInParamsLambda(IceUtilInternal::Output& C,
-                             const OperationPtr& p,
-                             const ParamDeclList& inParams,
-                             const string& scope)
+    void writeInParamsLambda(
+        IceUtilInternal::Output& C,
+        const OperationPtr& p,
+        const ParamDeclList& inParams,
+        const string& scope)
     {
         if (inParams.empty())
         {
@@ -442,12 +445,13 @@ namespace
         OpDocAllParams
     };
 
-    void writeOpDocParams(Output& out,
-                          const OperationPtr& op,
-                          const CommentPtr& doc,
-                          OpDocParamType type,
-                          const StringList& preParams = StringList(),
-                          const StringList& postParams = StringList())
+    void writeOpDocParams(
+        Output& out,
+        const OperationPtr& op,
+        const CommentPtr& doc,
+        OpDocParamType type,
+        const StringList& preParams = StringList(),
+        const StringList& postParams = StringList())
     {
         ParamDeclList params;
         switch (type)
@@ -504,14 +508,15 @@ namespace
         }
     }
 
-    void writeOpDocSummary(Output& out,
-                           const OperationPtr& op,
-                           const CommentPtr& doc,
-                           OpDocParamType type,
-                           bool showExceptions,
-                           const StringList& preParams = StringList(),
-                           const StringList& postParams = StringList(),
-                           const StringList& returns = StringList())
+    void writeOpDocSummary(
+        Output& out,
+        const OperationPtr& op,
+        const CommentPtr& doc,
+        OpDocParamType type,
+        bool showExceptions,
+        const StringList& preParams = StringList(),
+        const StringList& postParams = StringList(),
+        const StringList& returns = StringList())
     {
         out << nl << "/**";
 
@@ -581,8 +586,8 @@ namespace
             }
             for (const auto& param : outParams)
             {
-                out << typeToString(param->type(), param->optional(), scope, param->getMetaData(),
-                                    useWstring | TypeContextCpp11);
+                out << typeToString(
+                    param->type(), param->optional(), scope, param->getMetaData(), useWstring | TypeContextCpp11);
             }
             out << eabrk;
             return os.str();
@@ -594,8 +599,8 @@ namespace
         else if (outParams.size() == 1)
         {
             const auto& param = outParams.front();
-            return typeToString(param->type(), param->optional(), scope, param->getMetaData(),
-                                useWstring | TypeContextCpp11);
+            return typeToString(
+                param->type(), param->optional(), scope, param->getMetaData(), useWstring | TypeContextCpp11);
         }
         else
         {
@@ -605,14 +610,15 @@ namespace
 
 }
 
-Slice::Gen::Gen(const string& base,
-                const string& headerExtension,
-                const string& sourceExtension,
-                const vector<string>& extraHeaders,
-                const string& include,
-                const vector<string>& includePaths,
-                const string& dllExport,
-                const string& dir)
+Slice::Gen::Gen(
+    const string& base,
+    const string& headerExtension,
+    const string& sourceExtension,
+    const vector<string>& extraHeaders,
+    const string& include,
+    const vector<string>& includePaths,
+    const string& dllExport,
+    const string& dir)
     : _base(base),
       _headerExtension(headerExtension),
       _implHeaderExtension(headerExtension),
@@ -1072,8 +1078,9 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
             string s = *q++;
             if (s.find("cpp:type:") == 0 || s.find("cpp:view-type:") == 0 || s == "cpp:array")
             {
-                dc->warning(InvalidMetaData, p->file(), p->line(),
-                            "ignoring invalid metadata `" + s + "' for operation with void return type");
+                dc->warning(
+                    InvalidMetaData, p->file(), p->line(),
+                    "ignoring invalid metadata `" + s + "' for operation with void return type");
                 metaData.remove(s);
             }
         }
@@ -1130,7 +1137,11 @@ Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
 
 StringList
 Slice::Gen::MetaDataVisitor::validate(
-    const SyntaxTreeBasePtr& cont, const StringList& metaData, const string& file, const string& line, bool operation)
+    const SyntaxTreeBasePtr& cont,
+    const StringList& metaData,
+    const string& file,
+    const string& line,
+    bool operation)
 {
     static const string cppPrefix = "cpp:";
 
@@ -1421,8 +1432,8 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
       << typeToString(p->type(), scope, p->typeMetaData(), _useWstring | TypeContextCpp11) << " " << fixKwd(p->name())
       << " = ";
-    writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring | TypeContextCpp11, p->typeMetaData(),
-                       scope);
+    writeConstantValue(
+        H, p->type(), p->valueType(), p->value(), _useWstring | TypeContextCpp11, p->typeMetaData(), scope);
     H << ';';
 }
 
@@ -1691,11 +1702,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             //
             futureOutParams.push_back(
                 typeToString((*q)->type(), (*q)->optional(), "", metaData, _useWstring | TypeContextCpp11));
-            lambdaOutParams.push_back(typeToString((*q)->type(), (*q)->optional(), "", metaData,
-                                                   _useWstring | TypeContextInParam | TypeContextCpp11));
+            lambdaOutParams.push_back(typeToString(
+                (*q)->type(), (*q)->optional(), "", metaData, _useWstring | TypeContextInParam | TypeContextCpp11));
 
-            string outputTypeString = outputTypeToString((*q)->type(), (*q)->optional(), interfaceScope, metaData,
-                                                         _useWstring | TypeContextCpp11);
+            string outputTypeString = outputTypeToString(
+                (*q)->type(), (*q)->optional(), interfaceScope, metaData, _useWstring | TypeContextCpp11);
 
             params.push_back(outputTypeString);
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
@@ -1710,8 +1721,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            string typeString = inputTypeToString((*q)->type(), (*q)->optional(), interfaceScope, metaData,
-                                                  _useWstring | TypeContextCpp11);
+            string typeString = inputTypeToString(
+                (*q)->type(), (*q)->optional(), interfaceScope, metaData, _useWstring | TypeContextCpp11);
 
             params.push_back(typeString);
             paramsDecl.push_back(typeString + ' ' + paramName);
@@ -2039,8 +2050,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", interfaceScope) << " istr)";
         C << sb;
         C << nl << futureT << " v;";
-        writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextCpp11 | TypeContextTuple, "", returnValueS,
-                           "v");
+        writeUnmarshalCode(
+            C, outParams, p, false, _useWstring | TypeContextCpp11 | TypeContextTuple, "", returnValueS, "v");
 
         if (p->returnsClasses(false))
         {
@@ -2083,9 +2094,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "/// \\endcond";
 }
 
-Slice::Gen::DataDefVisitor::DataDefVisitor(IceUtilInternal::Output& h,
-                                           IceUtilInternal::Output& c,
-                                           const std::string& dllExport)
+Slice::Gen::DataDefVisitor::DataDefVisitor(
+    IceUtilInternal::Output& h,
+    IceUtilInternal::Output& c,
+    const std::string& dllExport)
     : H(h),
       C(c),
       _dllExport(dllExport),
@@ -2191,8 +2203,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     for (DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
-        string typeName = inputTypeToString((*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(),
-                                            _useWstring | TypeContextCpp11);
+        string typeName = inputTypeToString(
+            (*q)->type(), (*q)->optional(), scope, (*q)->getMetaData(), _useWstring | TypeContextCpp11);
         allParamDecls.push_back(typeName + " " + fixKwd((*q)->name()));
 
         CommentPtr comment = (*q)->parseComment(false);
@@ -2808,23 +2820,26 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
             // = "<string literal>" doesn't work for optional<std::string>
             //
             H << '{';
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
-                               p->getMetaData(), scope);
+            writeConstantValue(
+                H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11, p->getMetaData(),
+                scope);
             H << '}';
         }
         else
         {
             H << " = ";
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11,
-                               p->getMetaData(), scope);
+            writeConstantValue(
+                H, p->type(), p->defaultValueType(), defaultValue, _useWstring | TypeContextCpp11, p->getMetaData(),
+                scope);
         }
     }
     H << ";";
 }
 
-Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceUtilInternal::Output& h,
-                                               ::IceUtilInternal::Output& c,
-                                               const std::string& dllExport)
+Slice::Gen::InterfaceVisitor::InterfaceVisitor(
+    ::IceUtilInternal::Output& h,
+    ::IceUtilInternal::Output& c,
+    const std::string& dllExport)
     : H(h),
       C(c),
       _dllExport(dllExport),
@@ -2976,8 +2991,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     if (!allOps.empty())
     {
         StringList allOpNames;
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
-                  [](const ContainedPtr& it) { return it->name(); });
+        transform(
+            allOps.begin(), allOps.end(), back_inserter(allOpNames), [](const ContainedPtr& it) { return it->name(); });
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -3083,8 +3098,8 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if (ret)
     {
-        string typeS = inputTypeToString(ret, p->returnIsOptional(), interfaceScope, p->getMetaData(),
-                                         _useWstring | TypeContextCpp11);
+        string typeS = inputTypeToString(
+            ret, p->returnIsOptional(), interfaceScope, p->getMetaData(), _useWstring | TypeContextCpp11);
         responseParams.push_back(typeS + " " + returnValueParam);
         responseParamsDecl.push_back(typeS + " ret");
         responseParamsImplDecl.push_back(typeS + " ret");
@@ -3101,8 +3116,8 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        retS = returnTypeToString(ret, p->returnIsOptional(), interfaceScope, p->getMetaData(),
-                                  _useWstring | TypeContextCpp11);
+        retS = returnTypeToString(
+            ret, p->returnIsOptional(), interfaceScope, p->getMetaData(), _useWstring | TypeContextCpp11);
     }
 
     for (ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -3116,9 +3131,10 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         if (!isOutParam)
         {
             // TODO: We need the TypeContextInParam for the view types.
-            params.push_back(typeToString(type, (*q)->optional(), interfaceScope, (*q)->getMetaData(),
-                                          typeCtx | TypeContextInParam) +
-                             " " + paramName);
+            params.push_back(
+                typeToString(
+                    type, (*q)->optional(), interfaceScope, (*q)->getMetaData(), typeCtx | TypeContextInParam) +
+                " " + paramName);
             args.push_back(condMove(isMovable(type) && !isOutParam, paramPrefix + (*q)->name()));
         }
         else

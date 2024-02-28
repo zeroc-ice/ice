@@ -224,8 +224,8 @@ IceUtilInternal::open(const string& path, int flags)
     //
     if (flags & _O_CREAT)
     {
-        return ::_wopen(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), flags,
-                        _S_IREAD | _S_IWRITE);
+        return ::_wopen(
+            stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), flags, _S_IREAD | _S_IWRITE);
     }
     else
     {
@@ -275,8 +275,9 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDL
     // Don't need to use a wide string converter, the wide string is directly passed
     // to Windows API.
     //
-    _fd = ::CreateFileW(stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), GENERIC_WRITE, 0, nullptr,
-                        OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    _fd = ::CreateFileW(
+        stringToWstring(path, IceUtil::getProcessStringConverter()).c_str(), GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS,
+        FILE_ATTRIBUTE_NORMAL, nullptr);
     _path = path;
 
     if (_fd == INVALID_HANDLE_VALUE)

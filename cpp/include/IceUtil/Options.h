@@ -57,11 +57,12 @@ namespace IceUtilInternal
         };
 
         Options();
-        void addOpt(const ::std::string&,
-                    const ::std::string& = "",
-                    ArgType = NoArg,
-                    ::std::string = "",
-                    RepeatType = NoRepeat);
+        void addOpt(
+            const ::std::string&,
+            const ::std::string& = "",
+            ArgType = NoArg,
+            ::std::string = "",
+            RepeatType = NoRepeat);
 
         typedef ::std::vector<::std::string> StringVector;
 

@@ -171,8 +171,8 @@ repeat:
         }
 
 #ifdef _WIN32
-        ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0, &_peerAddr.sa,
-                       len);
+        ret = ::sendto(
+            _fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0, &_peerAddr.sa, len);
 #else
         ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0, &_peerAddr.sa, len);
 #endif
@@ -595,11 +595,12 @@ IceInternal::UdpTransceiver::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
-                                            const Address& addr,
-                                            const Address& sourceAddr,
-                                            const string& mcastInterface,
-                                            int mcastTtl)
+IceInternal::UdpTransceiver::UdpTransceiver(
+    const ProtocolInstancePtr& instance,
+    const Address& addr,
+    const Address& sourceAddr,
+    const string& mcastInterface,
+    int mcastTtl)
     : _instance(instance),
       _incoming(false),
       _bound(false),
@@ -657,12 +658,13 @@ IceInternal::UdpTransceiver::UdpTransceiver(const ProtocolInstancePtr& instance,
 #endif
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const UdpEndpointIPtr& endpoint,
-                                            const ProtocolInstancePtr& instance,
-                                            const string& host,
-                                            int port,
-                                            const string& mcastInterface,
-                                            bool connect)
+IceInternal::UdpTransceiver::UdpTransceiver(
+    const UdpEndpointIPtr& endpoint,
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int port,
+    const string& mcastInterface,
+    bool connect)
     : _endpoint(endpoint),
       _instance(instance),
       _incoming(true),

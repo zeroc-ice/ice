@@ -272,9 +272,9 @@ IceRuby::StreamUtil::setSlicedDataMember(VALUE obj, const Ice::SlicedDataPtr& sl
         //
         // bytes
         //
-        volatile VALUE bytes =
-            callRuby(rb_str_new, (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
-                     static_cast<long>((*p)->bytes.size()));
+        volatile VALUE bytes = callRuby(
+            rb_str_new, (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
+            static_cast<long>((*p)->bytes.size()));
         callRuby(rb_iv_set, slice, "@bytes", bytes);
 
         //
@@ -354,8 +354,8 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 const long len = RSTRING_LEN(bytes);
                 if (str != 0 && len != 0)
                 {
-                    vector<Ice::Byte> vtmp(reinterpret_cast<const Ice::Byte*>(str),
-                                           reinterpret_cast<const Ice::Byte*>(str + len));
+                    vector<Ice::Byte> vtmp(
+                        reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + len));
                     info->bytes.swap(vtmp);
                 }
 
@@ -614,7 +614,11 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
 
 void
 IceRuby::PrimitiveInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure, bool)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool)
 {
     volatile VALUE val = Qnil;
     switch (kind)
@@ -1011,8 +1015,8 @@ IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap,
         volatile VALUE val = callRuby(rb_ivar_get, p, member->rubyID);
         if (!member->type->validate(val))
         {
-            throw RubyException(rb_eTypeError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()),
-                                member->name.c_str());
+            throw RubyException(
+                rb_eTypeError, "invalid value for %s member `%s'", const_cast<char*>(id.c_str()), member->name.c_str());
         }
         member->type->marshal(val, os, valueMap, false);
     }
@@ -1025,7 +1029,11 @@ IceRuby::StructInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap,
 
 void
 IceRuby::StructInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure, bool optional)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool optional)
 {
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
 
@@ -1225,8 +1233,8 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMa
         {
             if (!elementType->validate(RARRAY_AREF(arr, i)))
             {
-                throw RubyException(rb_eTypeError, "invalid value for element %ld of `%s'", i,
-                                    const_cast<char*>(id.c_str()));
+                throw RubyException(
+                    rb_eTypeError, "invalid value for element %ld of `%s'", i, const_cast<char*>(id.c_str()));
             }
             elementType->marshal(RARRAY_AREF(arr, i), os, valueMap, false);
         }
@@ -1240,7 +1248,11 @@ IceRuby::SequenceInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMa
 
 void
 IceRuby::SequenceInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure, bool optional)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool optional)
 {
     if (optional)
     {
@@ -1519,7 +1531,11 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
 
 void
 IceRuby::SequenceInfo::unmarshalPrimitiveSequence(
-    const PrimitiveInfoPtr& pi, Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure)
+    const PrimitiveInfoPtr& pi,
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure)
 {
     volatile VALUE result = Qnil;
 
@@ -1798,7 +1814,11 @@ IceRuby::DictionaryInfo::marshalElement(VALUE key, VALUE value, Ice::OutputStrea
 
 void
 IceRuby::DictionaryInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure, bool optional)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool optional)
 {
     if (optional)
     {
@@ -2334,7 +2354,11 @@ IceRuby::ProxyInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool opti
 
 void
 IceRuby::ProxyInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure, bool optional)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure,
+    bool optional)
 {
     if (optional)
     {
@@ -2515,8 +2539,8 @@ IceRuby::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& 
 
         if (!member->type->validate(val))
         {
-            throw RubyException(rb_eTypeError, "invalid value for %s member `%s'", _info->id.c_str(),
-                                member->name.c_str());
+            throw RubyException(
+                rb_eTypeError, "invalid value for %s member `%s'", _info->id.c_str(), member->name.c_str());
         }
 
         member->type->marshal(val, os, _map, member->optional);
@@ -2659,10 +2683,11 @@ IceRuby::InfoMapDestroyer::~InfoMapDestroyer()
 //
 // ReadValueCallback implementation.
 //
-IceRuby::ReadValueCallback::ReadValueCallback(const ClassInfoPtr& info,
-                                              const UnmarshalCallbackPtr& cb,
-                                              VALUE target,
-                                              void* closure)
+IceRuby::ReadValueCallback::ReadValueCallback(
+    const ClassInfoPtr& info,
+    const UnmarshalCallbackPtr& cb,
+    VALUE target,
+    void* closure)
     : _info(info),
       _cb(cb),
       _target(target),
@@ -3048,7 +3073,13 @@ IceRuby_TypeInfo_defineProxy(VALUE self, VALUE type, VALUE base, VALUE interface
 
 extern "C" VALUE
 IceRuby_TypeInfo_defineClass(
-    VALUE self, VALUE type, VALUE compactId, VALUE preserve, VALUE interface, VALUE base, VALUE members)
+    VALUE self,
+    VALUE type,
+    VALUE compactId,
+    VALUE preserve,
+    VALUE interface,
+    VALUE base,
+    VALUE members)
 {
     ICE_RUBY_TRY
     {

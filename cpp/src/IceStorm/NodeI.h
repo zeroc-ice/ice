@@ -23,11 +23,12 @@ namespace IceStormElection
     class NodeI final : public Node, public std::enable_shared_from_this<NodeI>
     {
     public:
-        NodeI(const std::shared_ptr<IceStorm::Instance>&,
-              std::shared_ptr<Replica>,
-              Ice::ObjectPrxPtr,
-              int,
-              const std::map<int, NodePrxPtr>&);
+        NodeI(
+            const std::shared_ptr<IceStorm::Instance>&,
+            std::shared_ptr<Replica>,
+            Ice::ObjectPrxPtr,
+            int,
+            const std::map<int, NodePrxPtr>&);
 
         void start();
 

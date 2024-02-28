@@ -24,7 +24,7 @@ public:
 
     void reset() { _replies = 0; }
 
-    template <class Rep, class Period> bool waitReply(int expectedReplies, const chrono::duration<Rep, Period>& timeout)
+    template<class Rep, class Period> bool waitReply(int expectedReplies, const chrono::duration<Rep, Period>& timeout)
     {
         unique_lock lock(_mutex);
         _condition.wait_for(lock, timeout, [this, expectedReplies] { return _replies == expectedReplies; });

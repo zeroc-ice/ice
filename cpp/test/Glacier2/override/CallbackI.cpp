@@ -92,11 +92,12 @@ CallbackReceiverI::checkForHold(unique_lock<mutex>& lock)
 }
 
 void
-CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy,
-                                 int token,
-                                 function<void()> response,
-                                 function<void(exception_ptr)> error,
-                                 const Current& current)
+CallbackI::initiateCallbackAsync(
+    CallbackReceiverPrxPtr proxy,
+    int token,
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     auto p = current.ctx.find("serverOvrd");
     auto ctx = current.ctx;
@@ -117,10 +118,11 @@ CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy,
 }
 
 void
-CallbackI::initiateCallbackWithPayloadAsync(CallbackReceiverPrxPtr proxy,
-                                            function<void()> response,
-                                            function<void(exception_ptr)> error,
-                                            const Current& current)
+CallbackI::initiateCallbackWithPayloadAsync(
+    CallbackReceiverPrxPtr proxy,
+    function<void()> response,
+    function<void(exception_ptr)> error,
+    const Current& current)
 {
     auto p = current.ctx.find("serverOvrd");
     auto ctx = current.ctx;

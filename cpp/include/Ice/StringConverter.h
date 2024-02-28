@@ -27,7 +27,7 @@ namespace Ice
     typedef IceUtil::IllegalConversionException IllegalConversionException;
 
     /** Base class for a string converter. */
-    template <typename charT> using BasicStringConverter = IceUtil::BasicStringConverter<charT>;
+    template<typename charT> using BasicStringConverter = IceUtil::BasicStringConverter<charT>;
 
 #ifdef _WIN32
     /**

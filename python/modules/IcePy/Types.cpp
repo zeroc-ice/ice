@@ -415,8 +415,9 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
         PyObjectHandle bytes;
         if ((*p)->bytes.size() > 0)
         {
-            bytes = PyBytes_FromStringAndSize((*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
-                                              static_cast<Py_ssize_t>((*p)->bytes.size()));
+            bytes = PyBytes_FromStringAndSize(
+                (*p)->bytes.empty() ? 0 : reinterpret_cast<const char*>(&(*p)->bytes[0]),
+                static_cast<Py_ssize_t>((*p)->bytes.size()));
         }
         else
         {
@@ -884,7 +885,12 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
 
 void
 IcePy::PrimitiveInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target, void* closure, bool, const Ice::StringSeq*)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool,
+    const Ice::StringSeq*)
 {
     switch (kind)
     {
@@ -1054,7 +1060,12 @@ IcePy::EnumInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool /*
 
 void
 IcePy::EnumInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target, void* closure, bool, const Ice::StringSeq*)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool,
+    const Ice::StringSeq*)
 {
     int32_t val = is->readEnum(maxValue);
 
@@ -1284,7 +1295,11 @@ IcePy::StructInfo::usesClasses() const
 
 void
 IcePy::StructInfo::marshal(
-    PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool optional, const Ice::StringSeq*)
+    PyObject* p,
+    Ice::OutputStream* os,
+    ObjectMap* objectMap,
+    bool optional,
+    const Ice::StringSeq*)
 {
     assert(p == Py_None || PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
 
@@ -1320,14 +1335,16 @@ IcePy::StructInfo::marshal(
         PyObjectHandle attr = getAttr(p, member->name, true);
         if (!attr.get())
         {
-            PyErr_Format(PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
-                         const_cast<char*>(id.c_str()));
+            PyErr_Format(
+                PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
+                const_cast<char*>(id.c_str()));
             throw AbortMarshaling();
         }
         if (!member->type->validate(attr.get()))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(id.c_str()),
-                         memberName);
+            PyErr_Format(
+                PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(id.c_str()),
+                memberName);
             throw AbortMarshaling();
         }
         member->type->marshal(attr.get(), os, objectMap, false, &member->metaData);
@@ -1340,12 +1357,13 @@ IcePy::StructInfo::marshal(
 }
 
 void
-IcePy::StructInfo::unmarshal(Ice::InputStream* is,
-                             const UnmarshalCallbackPtr& cb,
-                             PyObject* target,
-                             void* closure,
-                             bool optional,
-                             const Ice::StringSeq*)
+IcePy::StructInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool optional,
+    const Ice::StringSeq*)
 {
     PyObjectHandle p = instantiate(pythonType);
     if (!p.get())
@@ -1481,7 +1499,11 @@ IcePy::SequenceInfo::usesClasses() const
 
 void
 IcePy::SequenceInfo::marshal(
-    PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool optional, const Ice::StringSeq* /*metaData*/)
+    PyObject* p,
+    Ice::OutputStream* os,
+    ObjectMap* objectMap,
+    bool optional,
+    const Ice::StringSeq* /*metaData*/)
 {
     auto pi = dynamic_pointer_cast<PrimitiveInfo>(elementType);
 
@@ -1564,8 +1586,9 @@ IcePy::SequenceInfo::marshal(
             }
             if (!elementType->validate(item))
             {
-                PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of `%s'"), static_cast<int>(i),
-                             const_cast<char*>(id.c_str()));
+                PyErr_Format(
+                    PyExc_ValueError, STRCAST("invalid value for element %d of `%s'"), static_cast<int>(i),
+                    const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
             }
             elementType->marshal(item, os, objectMap, false);
@@ -1579,12 +1602,13 @@ IcePy::SequenceInfo::marshal(
 }
 
 void
-IcePy::SequenceInfo::unmarshal(Ice::InputStream* is,
-                               const UnmarshalCallbackPtr& cb,
-                               PyObject* target,
-                               void* closure,
-                               bool optional,
-                               const Ice::StringSeq* metaData)
+IcePy::SequenceInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool optional,
+    const Ice::StringSeq* metaData)
 {
     if (optional)
     {
@@ -1762,27 +1786,27 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 #ifdef ICE_BIG_ENDIAN
                 if (pybuf.format != 0 && pybuf.format[0] == '<')
                 {
-                    PyErr_Format(PyExc_ValueError,
-                                 "sequence buffer byte order doesn't match the platform native byte-order "
-                                 "`big-endian'");
+                    PyErr_Format(
+                        PyExc_ValueError, "sequence buffer byte order doesn't match the platform native byte-order "
+                                          "`big-endian'");
                     PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
 #else
                 if (pybuf.format != 0 && (pybuf.format[0] == '>' || pybuf.format[0] == '!'))
                 {
-                    PyErr_Format(PyExc_ValueError,
-                                 "sequence buffer byte order doesn't match the platform native byte-order "
-                                 "`little-endian'");
+                    PyErr_Format(
+                        PyExc_ValueError, "sequence buffer byte order doesn't match the platform native byte-order "
+                                          "`little-endian'");
                     PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
 #endif
                 if (pybuf.itemsize != itemsize[pi->kind])
                 {
-                    PyErr_Format(PyExc_ValueError,
-                                 "sequence item size doesn't match the size of the sequence type `%s'",
-                                 itemtype[pi->kind]);
+                    PyErr_Format(
+                        PyExc_ValueError, "sequence item size doesn't match the size of the sequence type `%s'",
+                        itemtype[pi->kind]);
                     PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
@@ -1866,8 +1890,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 int isTrue = PyObject_IsTrue(item);
                 if (isTrue < 0)
                 {
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<bool>"),
-                                 static_cast<int>(i));
+                    PyErr_Format(
+                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<bool>"),
+                        static_cast<int>(i));
                     throw AbortMarshaling();
                 }
                 seq[static_cast<size_t>(i)] = isTrue ? true : false;
@@ -1901,8 +1926,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
                     if (PyErr_Occurred() || val < 0 || val > 255)
                     {
-                        PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<byte>"),
-                                     static_cast<int>(i));
+                        PyErr_Format(
+                            PyExc_ValueError, STRCAST("invalid value for element %d of sequence<byte>"),
+                            static_cast<int>(i));
                         throw AbortMarshaling();
                     }
                     seq[static_cast<size_t>(i)] = static_cast<Ice::Byte>(val);
@@ -1928,8 +1954,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
                 if (PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
                 {
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<short>"),
-                                 static_cast<int>(i));
+                    PyErr_Format(
+                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<short>"),
+                        static_cast<int>(i));
                     throw AbortMarshaling();
                 }
                 seq[static_cast<size_t>(i)] = static_cast<int16_t>(val);
@@ -1954,8 +1981,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
                 if (PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
                 {
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"),
-                                 static_cast<int>(i));
+                    PyErr_Format(
+                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<int>"),
+                        static_cast<int>(i));
                     throw AbortMarshaling();
                 }
                 seq[static_cast<size_t>(i)] = static_cast<int32_t>(val);
@@ -1980,8 +2008,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
                 if (PyErr_Occurred())
                 {
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<long>"),
-                                 static_cast<int>(i));
+                    PyErr_Format(
+                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<long>"),
+                        static_cast<int>(i));
                     throw AbortMarshaling();
                 }
                 seq[static_cast<size_t>(i)] = val;
@@ -2005,8 +2034,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 float val = static_cast<float>(PyFloat_AsDouble(item));
                 if (PyErr_Occurred())
                 {
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<float>"),
-                                 static_cast<int>(i));
+                    PyErr_Format(
+                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<float>"),
+                        static_cast<int>(i));
                     throw AbortMarshaling();
                 }
 
@@ -2031,8 +2061,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 double val = PyFloat_AsDouble(item);
                 if (PyErr_Occurred())
                 {
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<double>"),
-                                 static_cast<int>(i));
+                    PyErr_Format(
+                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<double>"),
+                        static_cast<int>(i));
                     throw AbortMarshaling();
                 }
 
@@ -2056,8 +2087,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
                 if (item != Py_None && !checkString(item))
                 {
-                    PyErr_Format(PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"),
-                                 static_cast<int>(i));
+                    PyErr_Format(
+                        PyExc_ValueError, STRCAST("invalid value for element %d of sequence<string>"),
+                        static_cast<int>(i));
                     throw AbortMarshaling();
                 }
 
@@ -2073,10 +2105,11 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 }
 
 PyObject*
-IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
-                                              const char* buffer,
-                                              Py_ssize_t size,
-                                              BuiltinType type)
+IcePy::SequenceInfo::createSequenceFromMemory(
+    const SequenceMappingPtr& sm,
+    const char* buffer,
+    Py_ssize_t size,
+    BuiltinType type)
 {
     PyObjectHandle memoryview;
     char* buf = const_cast<char*>(size == 0 ? emptySeq : buffer);
@@ -2117,12 +2150,13 @@ IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
 }
 
 void
-IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi,
-                                                Ice::InputStream* is,
-                                                const UnmarshalCallbackPtr& cb,
-                                                PyObject* target,
-                                                void* closure,
-                                                const SequenceMappingPtr& sm)
+IcePy::SequenceInfo::unmarshalPrimitiveSequence(
+    const PrimitiveInfoPtr& pi,
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    const SequenceMappingPtr& sm)
 {
     PyObjectHandle result;
 
@@ -2577,7 +2611,11 @@ IcePy::CustomInfo::usesClasses() const
 
 void
 IcePy::CustomInfo::marshal(
-    PyObject* p, Ice::OutputStream* os, ObjectMap* /*objectMap*/, bool, const Ice::StringSeq* /*metaData*/)
+    PyObject* p,
+    Ice::OutputStream* os,
+    ObjectMap* /*objectMap*/,
+    bool,
+    const Ice::StringSeq* /*metaData*/)
 {
     assert(PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
 
@@ -2607,12 +2645,13 @@ IcePy::CustomInfo::marshal(
 }
 
 void
-IcePy::CustomInfo::unmarshal(Ice::InputStream* is,
-                             const UnmarshalCallbackPtr& cb,
-                             PyObject* target,
-                             void* closure,
-                             bool,
-                             const Ice::StringSeq* /*metaData*/)
+IcePy::CustomInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool,
+    const Ice::StringSeq* /*metaData*/)
 {
     //
     // Unmarshal the raw byte sequence.
@@ -2739,7 +2778,11 @@ IcePy::DictionaryInfo::usesClasses() const
 
 void
 IcePy::DictionaryInfo::marshal(
-    PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool optional, const Ice::StringSeq*)
+    PyObject* p,
+    Ice::OutputStream* os,
+    ObjectMap* objectMap,
+    bool optional,
+    const Ice::StringSeq*)
 {
     if (p != Py_None && !PyDict_Check(p))
     {
@@ -2798,12 +2841,13 @@ IcePy::DictionaryInfo::marshal(
 }
 
 void
-IcePy::DictionaryInfo::unmarshal(Ice::InputStream* is,
-                                 const UnmarshalCallbackPtr& cb,
-                                 PyObject* target,
-                                 void* closure,
-                                 bool optional,
-                                 const Ice::StringSeq*)
+IcePy::DictionaryInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool optional,
+    const Ice::StringSeq*)
 {
     if (optional)
     {
@@ -3008,7 +3052,12 @@ IcePy::ClassInfo::marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool, const
 
 void
 IcePy::ClassInfo::unmarshal(
-    Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*, void*, bool, const Ice::StringSeq*)
+    Ice::InputStream*,
+    const UnmarshalCallbackPtr&,
+    PyObject*,
+    void*,
+    bool,
+    const Ice::StringSeq*)
 {
     assert(false);
     throw AbortMarshaling();
@@ -3204,7 +3253,12 @@ namespace
 
 void
 IcePy::ValueInfo::unmarshal(
-    Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target, void* closure, bool, const Ice::StringSeq*)
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool,
+    const Ice::StringSeq*)
 {
     if (!pythonType)
     {
@@ -3402,12 +3456,13 @@ IcePy::ProxyInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool o
 }
 
 void
-IcePy::ProxyInfo::unmarshal(Ice::InputStream* is,
-                            const UnmarshalCallbackPtr& cb,
-                            PyObject* target,
-                            void* closure,
-                            bool optional,
-                            const Ice::StringSeq*)
+IcePy::ProxyInfo::unmarshal(
+    Ice::InputStream* is,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure,
+    bool optional,
+    const Ice::StringSeq*)
 {
     if (optional)
     {
@@ -3570,21 +3625,23 @@ IcePy::ValueWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& me
             }
             else
             {
-                PyErr_Format(PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
-                             const_cast<char*>(_info->id.c_str()));
+                PyErr_Format(
+                    PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
+                    const_cast<char*>(_info->id.c_str()));
                 throw AbortMarshaling();
             }
         }
-        else if (member->optional &&
-                 (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
+        else if (
+            member->optional && (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
 
         if (!member->type->validate(val.get()))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("invalid value for %s member `%s'"),
-                         const_cast<char*>(_info->id.c_str()), memberName);
+            PyErr_Format(
+                PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(_info->id.c_str()),
+                memberName);
             throw AbortMarshaling();
         }
 
@@ -3716,10 +3773,11 @@ IcePy::ValueReader::getSlicedData() const
 //
 // ReadValueCallback implementation.
 //
-IcePy::ReadValueCallback::ReadValueCallback(const ValueInfoPtr& info,
-                                            const UnmarshalCallbackPtr& cb,
-                                            PyObject* target,
-                                            void* closure)
+IcePy::ReadValueCallback::ReadValueCallback(
+    const ValueInfoPtr& info,
+    const UnmarshalCallbackPtr& cb,
+    PyObject* target,
+    void* closure)
     : _info(info),
       _cb(cb),
       _target(target),
@@ -3800,10 +3858,11 @@ IcePy::ExceptionInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* obj
 }
 
 void
-IcePy::ExceptionInfo::writeMembers(PyObject* p,
-                                   Ice::OutputStream* os,
-                                   const DataMemberList& membersP,
-                                   ObjectMap* objectMap) const
+IcePy::ExceptionInfo::writeMembers(
+    PyObject* p,
+    Ice::OutputStream* os,
+    const DataMemberList& membersP,
+    ObjectMap* objectMap) const
 {
     for (DataMemberList::const_iterator q = membersP.begin(); q != membersP.end(); ++q)
     {
@@ -3821,21 +3880,23 @@ IcePy::ExceptionInfo::writeMembers(PyObject* p,
             }
             else
             {
-                PyErr_Format(PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
-                             const_cast<char*>(id.c_str()));
+                PyErr_Format(
+                    PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
+                    const_cast<char*>(id.c_str()));
                 throw AbortMarshaling();
             }
         }
-        else if (member->optional &&
-                 (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
+        else if (
+            member->optional && (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
 
         if (!member->type->validate(val.get()))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(id.c_str()),
-                         memberName);
+            PyErr_Format(
+                PyExc_ValueError, STRCAST("invalid value for %s member `%s'"), const_cast<char*>(id.c_str()),
+                memberName);
             throw AbortMarshaling();
         }
 
@@ -4289,13 +4350,14 @@ namespace IcePy
     //
     // Unset is a singleton, similar to None.
     //
-    PyObject UnsetValue = {_PyObject_EXTRA_INIT
+    PyObject UnsetValue = {
+        _PyObject_EXTRA_INIT
 #if PY_VERSION_HEX >= 0x030c0000
-                           {1},
+        {1},
 #else
-                            1,
+        1,
 #endif
-                           &UnsetType};
+        &UnsetType};
 
     PyObject* Unset = &UnsetValue;
 
@@ -4687,8 +4749,8 @@ IcePy_defineValue(PyObject*, PyObject* args)
     int interface;
     PyObject* base;
     PyObject* members;
-    if (!PyArg_ParseTuple(args, STRCAST("sOiOiiOO"), &id, &type, &compactId, &meta, &preserve, &interface, &base,
-                          &members))
+    if (!PyArg_ParseTuple(
+            args, STRCAST("sOiOiiOO"), &id, &type, &compactId, &meta, &preserve, &interface, &base, &members))
     {
         return 0;
     }

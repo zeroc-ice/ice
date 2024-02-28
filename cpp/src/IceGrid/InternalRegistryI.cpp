@@ -21,11 +21,12 @@
 using namespace std;
 using namespace IceGrid;
 
-InternalRegistryI::InternalRegistryI(const shared_ptr<RegistryI>& registry,
-                                     const shared_ptr<Database>& database,
-                                     const shared_ptr<ReapThread>& reaper,
-                                     const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
-                                     ReplicaSessionManager& session)
+InternalRegistryI::InternalRegistryI(
+    const shared_ptr<RegistryI>& registry,
+    const shared_ptr<Database>& database,
+    const shared_ptr<ReapThread>& reaper,
+    const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
+    ReplicaSessionManager& session)
     : _registry(registry),
       _database(database),
       _reaper(reaper),
@@ -43,10 +44,11 @@ InternalRegistryI::InternalRegistryI(const shared_ptr<RegistryI>& registry,
 }
 
 NodeSessionPrxPtr
-InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info,
-                                NodePrxPtr node,
-                                LoadInfo load,
-                                const Ice::Current& current)
+InternalRegistryI::registerNode(
+    shared_ptr<InternalNodeInfo> info,
+    NodePrxPtr node,
+    LoadInfo load,
+    const Ice::Current& current)
 {
     const auto traceLevels = _database->getTraceLevels();
     const auto logger = traceLevels->logger;
@@ -110,9 +112,10 @@ InternalRegistryI::registerNode(shared_ptr<InternalNodeInfo> info,
 }
 
 ReplicaSessionPrxPtr
-InternalRegistryI::registerReplica(shared_ptr<InternalReplicaInfo> info,
-                                   InternalRegistryPrxPtr prx,
-                                   const Ice::Current& current)
+InternalRegistryI::registerReplica(
+    shared_ptr<InternalReplicaInfo> info,
+    InternalRegistryPrxPtr prx,
+    const Ice::Current& current)
 {
     const auto traceLevels = _database->getTraceLevels();
     const auto logger = traceLevels->logger;
@@ -237,7 +240,12 @@ InternalRegistryI::getOffsetFromEnd(string filename, int count, const Ice::Curre
 
 bool
 InternalRegistryI::read(
-    string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines, const Ice::Current&) const
+    string filename,
+    int64_t pos,
+    int size,
+    int64_t& newPos,
+    Ice::StringSeq& lines,
+    const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }

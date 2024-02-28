@@ -38,12 +38,13 @@ namespace IceStormInternal
     class Service : public IceBox::Service
     {
     public:
-        ICESTORM_SERVICE_API static std::shared_ptr<Service> create(const std::shared_ptr<Ice::Communicator>&,
-                                                                    const std::shared_ptr<Ice::ObjectAdapter>&,
-                                                                    const std::shared_ptr<Ice::ObjectAdapter>&,
-                                                                    const std::string&,
-                                                                    const Ice::Identity&,
-                                                                    const std::string&);
+        ICESTORM_SERVICE_API static std::shared_ptr<Service> create(
+            const std::shared_ptr<Ice::Communicator>&,
+            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const std::shared_ptr<Ice::ObjectAdapter>&,
+            const std::string&,
+            const Ice::Identity&,
+            const std::string&);
 
         ICESTORM_SERVICE_API virtual IceStorm::TopicManagerPrxPtr getTopicManager() const = 0;
     };

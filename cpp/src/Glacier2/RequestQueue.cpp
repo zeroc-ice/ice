@@ -10,13 +10,14 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::Request::Request(ObjectPrxPtr proxy,
-                           const std::pair<const Byte*, const Byte*>& inParams,
-                           const Current& current,
-                           bool forwardContext,
-                           const Ice::Context& sslContext,
-                           function<void(bool, pair<const Byte*, const Byte*>)> response,
-                           function<void(exception_ptr)> exception)
+Glacier2::Request::Request(
+    ObjectPrxPtr proxy,
+    const std::pair<const Byte*, const Byte*>& inParams,
+    const Current& current,
+    bool forwardContext,
+    const Ice::Context& sslContext,
+    function<void(bool, pair<const Byte*, const Byte*>)> response,
+    function<void(exception_ptr)> exception)
     : _proxy(std::move(proxy)),
       _inParams(inParams.first, inParams.second),
       _current(current),
@@ -33,9 +34,10 @@ Glacier2::Request::Request(ObjectPrxPtr proxy,
 }
 
 void
-Glacier2::Request::invoke(function<void(bool, pair<const Byte*, const Byte*>)>&& response,
-                          function<void(exception_ptr)>&& exception,
-                          std::function<void(bool)>&& sent)
+Glacier2::Request::invoke(
+    function<void(bool, pair<const Byte*, const Byte*>)>&& response,
+    function<void(exception_ptr)>&& exception,
+    std::function<void(bool)>&& sent)
 {
     pair<const Byte*, const Byte*> inPair;
     if (_inParams.size() == 0)
@@ -54,26 +56,29 @@ Glacier2::Request::invoke(function<void(bool, pair<const Byte*, const Byte*>)>&&
         {
             Ice::Context ctx = _current.ctx;
             ctx.insert(_sslContext.begin(), _sslContext.end());
-            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair, std::move(response),
-                                    std::move(exception), std::move(sent), ctx);
+            _proxy->ice_invokeAsync(
+                _current.operation, _current.mode, inPair, std::move(response), std::move(exception), std::move(sent),
+                ctx);
         }
         else
         {
-            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair, std::move(response),
-                                    std::move(exception), std::move(sent), _current.ctx);
+            _proxy->ice_invokeAsync(
+                _current.operation, _current.mode, inPair, std::move(response), std::move(exception), std::move(sent),
+                _current.ctx);
         }
     }
     else
     {
         if (_sslContext.size() > 0)
         {
-            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair, std::move(response),
-                                    std::move(exception), std::move(sent), _sslContext);
+            _proxy->ice_invokeAsync(
+                _current.operation, _current.mode, inPair, std::move(response), std::move(exception), std::move(sent),
+                _sslContext);
         }
         else
         {
-            _proxy->ice_invokeAsync(_current.operation, _current.mode, inPair, std::move(response),
-                                    std::move(exception), std::move(sent));
+            _proxy->ice_invokeAsync(
+                _current.operation, _current.mode, inPair, std::move(response), std::move(exception), std::move(sent));
         }
     }
 }
@@ -140,9 +145,10 @@ Glacier2::Request::queued()
     }
 }
 
-Glacier2::RequestQueue::RequestQueue(shared_ptr<RequestQueueThread> requestQueueThread,
-                                     shared_ptr<Instance> instance,
-                                     shared_ptr<Ice::Connection> connection)
+Glacier2::RequestQueue::RequestQueue(
+    shared_ptr<RequestQueueThread> requestQueueThread,
+    shared_ptr<Instance> instance,
+    shared_ptr<Ice::Connection> connection)
     : _requestQueueThread(std::move(requestQueueThread)),
       _instance(std::move(instance)),
       _connection(std::move(connection)),
@@ -218,9 +224,10 @@ Glacier2::RequestQueue::flushRequests()
                 _observer->forwarded(!_connection);
             }
             auto self = shared_from_this();
-            request->invoke([self, request](bool ok, const pair<const Byte*, const Byte*>& outParams)
-                            { self->response(ok, outParams, request); },
-                            [self, request](exception_ptr e) { self->exception(e, request); });
+            request->invoke(
+                [self, request](bool ok, const pair<const Byte*, const Byte*>& outParams)
+                { self->response(ok, outParams, request); },
+                [self, request](exception_ptr e) { self->exception(e, request); });
         }
         _requests.clear();
     }
@@ -261,18 +268,19 @@ Glacier2::RequestQueue::flush()
         auto self = shared_from_this();
         auto request = *p;
 
-        request->invoke([self, request](bool ok, const pair<const Byte*, const Byte*>& outParams)
-                        { self->response(ok, outParams, request); },
-                        [self, request, completedExceptionally](exception_ptr e)
-                        {
-                            completedExceptionally->set_value();
-                            self->exception(e, request);
-                        },
-                        [self, request, isSent](bool sentSynchronously)
-                        {
-                            isSent->set_value();
-                            self->sent(sentSynchronously, request);
-                        });
+        request->invoke(
+            [self, request](bool ok, const pair<const Byte*, const Byte*>& outParams)
+            { self->response(ok, outParams, request); },
+            [self, request, completedExceptionally](exception_ptr e)
+            {
+                completedExceptionally->set_value();
+                self->exception(e, request);
+            },
+            [self, request, isSent](bool sentSynchronously)
+            {
+                isSent->set_value();
+                self->sent(sentSynchronously, request);
+            });
 
         if ((isSent->get_future().wait_for(0s) != future_status::ready) &&
             (completedExceptionally->get_future().wait_for(0s) != future_status::ready))
@@ -294,9 +302,10 @@ Glacier2::RequestQueue::flush()
 }
 
 void
-Glacier2::RequestQueue::response(bool ok,
-                                 const pair<const Byte*, const Byte*>& outParams,
-                                 const shared_ptr<Request>& request)
+Glacier2::RequestQueue::response(
+    bool ok,
+    const pair<const Byte*, const Byte*>& outParams,
+    const shared_ptr<Request>& request)
 {
     assert(request);
     request->response(ok, outParams);

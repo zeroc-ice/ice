@@ -118,8 +118,8 @@ Ice::ConnectionInfoPtr
 IceBT::TransceiverI::getInfo() const
 {
     auto info = make_shared<IceBT::ConnectionInfo>();
-    fdToAddressAndChannel(_stream->fd(), info->localAddress, info->localChannel, info->remoteAddress,
-                          info->remoteChannel);
+    fdToAddressAndChannel(
+        _stream->fd(), info->localAddress, info->localChannel, info->remoteAddress, info->remoteChannel);
     if (_stream->fd() != INVALID_SOCKET)
     {
         info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
@@ -140,10 +140,11 @@ IceBT::TransceiverI::setBufferSize(int rcvSize, int sndSize)
     _stream->setBufferSize(_stream->fd(), rcvSize, sndSize);
 }
 
-IceBT::TransceiverI::TransceiverI(const InstancePtr& instance,
-                                  const StreamSocketPtr& stream,
-                                  const ConnectionPtr& conn,
-                                  const string& uuid)
+IceBT::TransceiverI::TransceiverI(
+    const InstancePtr& instance,
+    const StreamSocketPtr& stream,
+    const ConnectionPtr& conn,
+    const string& uuid)
     : _instance(instance),
       _stream(stream),
       _connection(conn),

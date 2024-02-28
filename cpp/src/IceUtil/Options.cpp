@@ -123,8 +123,8 @@ IceUtilInternal::Options::checkArgs(const string& shortOpt, const string& longOp
 
     if (!needArg && !dflt.empty())
     {
-        throw IllegalArgumentException(__FILE__, __LINE__,
-                                       "a default value can be specified only for options requiring an argument");
+        throw IllegalArgumentException(
+            __FILE__, __LINE__, "a default value can be specified only for options requiring an argument");
     }
 }
 
@@ -805,7 +805,11 @@ IceUtilInternal::Options::argVec(const string& opt) const
 
 void
 IceUtilInternal::Options::addValidOpt(
-    const string& shortOpt, const string& longOpt, ArgType at, const string& dflt, RepeatType rt)
+    const string& shortOpt,
+    const string& longOpt,
+    ArgType at,
+    const string& dflt,
+    RepeatType rt)
 {
     if (!shortOpt.empty() && _validOpts.find(shortOpt) != _validOpts.end())
     {

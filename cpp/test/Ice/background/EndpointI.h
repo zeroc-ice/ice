@@ -27,9 +27,10 @@ public:
     virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
     virtual IceInternal::EndpointIPtr compress(bool) const;
     virtual IceInternal::TransceiverPtr transceiver() const;
-    virtual void connectorsAsync(Ice::EndpointSelectionType,
-                                 std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
-                                 std::function<void(std::exception_ptr)>) const;
+    virtual void connectorsAsync(
+        Ice::EndpointSelectionType,
+        std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
+        std::function<void(std::exception_ptr)>) const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const;
     virtual std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const;

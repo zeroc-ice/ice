@@ -43,18 +43,20 @@ namespace Slice
             Swift
         };
 
-        bool printMakefileDependencies(std::ostream&,
-                                       Language,
-                                       const std::vector<std::string>&,
-                                       const std::string& = "",
-                                       const std::string& = "cpp",
-                                       const std::string& = "");
-        bool printMakefileDependencies(std::ostream&,
-                                       Language,
-                                       const std::vector<std::string>&,
-                                       const std::vector<std::string>&,
-                                       const std::string& = "cpp",
-                                       const std::string& = "");
+        bool printMakefileDependencies(
+            std::ostream&,
+            Language,
+            const std::vector<std::string>&,
+            const std::string& = "",
+            const std::string& = "cpp",
+            const std::string& = "");
+        bool printMakefileDependencies(
+            std::ostream&,
+            Language,
+            const std::vector<std::string>&,
+            const std::vector<std::string>&,
+            const std::string& = "cpp",
+            const std::string& = "");
 
         std::string getFileName();
         std::string getBaseName();

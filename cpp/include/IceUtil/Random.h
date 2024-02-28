@@ -16,7 +16,7 @@ namespace IceUtilInternal
     ICE_API void generateRandom(char*, size_t);
     ICE_API unsigned int random(unsigned int = 0);
 
-    template <class T> void shuffle(T first, T last)
+    template<class T> void shuffle(T first, T last)
     {
         thread_local static std::random_device rd;
         thread_local static std::mt19937 rng(rd());

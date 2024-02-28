@@ -62,14 +62,16 @@ namespace IceInternal
 
         std::vector<EndpointIPtr> getClientEndpoints();
 
-        void getClientEndpointsAsync(std::function<void(std::vector<EndpointIPtr>)> response,
-                                     std::function<void(std::exception_ptr)> ex);
+        void getClientEndpointsAsync(
+            std::function<void(std::vector<EndpointIPtr>)> response,
+            std::function<void(std::exception_ptr)> ex);
 
         std::vector<EndpointIPtr> getServerEndpoints();
 
-        bool addProxyAsync(const ReferencePtr& proxy,
-                           std::function<void()> response,
-                           std::function<void(std::exception_ptr)> ex);
+        bool addProxyAsync(
+            const ReferencePtr& proxy,
+            std::function<void()> response,
+            std::function<void(std::exception_ptr)> ex);
 
         void setAdapter(const Ice::ObjectAdapterPtr&);
         Ice::ObjectAdapterPtr getAdapter() const;

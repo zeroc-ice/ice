@@ -51,7 +51,12 @@ namespace IceGrid
         virtual bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&) = 0;
 
         virtual void getLocatorAdapterInfo(
-            LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, const std::set<std::string>&) = 0;
+            LocatorAdapterInfoSeq&,
+            int&,
+            bool&,
+            bool&,
+            std::string&,
+            const std::set<std::string>&) = 0;
         virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
         virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const = 0;
         virtual std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const = 0;
@@ -71,17 +76,19 @@ namespace IceGrid
     class ServerAdapterEntry final : public AdapterEntry
     {
     public:
-        ServerAdapterEntry(AdapterCache&,
-                           const std::string&,
-                           const std::string&,
-                           const std::string&,
-                           int,
-                           const std::shared_ptr<ServerEntry>&);
+        ServerAdapterEntry(
+            AdapterCache&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            int,
+            const std::shared_ptr<ServerEntry>&);
 
         bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&) override;
 
-        void getLocatorAdapterInfo(
-            LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, const std::set<std::string>&) override;
+        void
+        getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, const std::set<std::string>&)
+            override;
 
         float getLeastLoadedNodeLoad(LoadSample) const override;
         AdapterInfoSeq getAdapterInfoNoEndpoints() const override;
@@ -104,11 +111,12 @@ namespace IceGrid
     class ReplicaGroupEntry final : public AdapterEntry
     {
     public:
-        ReplicaGroupEntry(AdapterCache&,
-                          const std::string&,
-                          const std::string&,
-                          const std::shared_ptr<LoadBalancingPolicy>&,
-                          const std::string&);
+        ReplicaGroupEntry(
+            AdapterCache&,
+            const std::string&,
+            const std::string&,
+            const std::shared_ptr<LoadBalancingPolicy>&,
+            const std::string&);
 
         virtual bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&);
 

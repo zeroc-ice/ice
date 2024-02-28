@@ -52,10 +52,11 @@ TestControllerI::TestControllerI(const string& endpoint)
 };
 
 void
-TestControllerI::step(Glacier2::SessionPrxPtr currentSession,
-                      TestToken currentState,
-                      TestToken& newState,
-                      const Ice::Current&)
+TestControllerI::step(
+    Glacier2::SessionPrxPtr currentSession,
+    TestToken currentState,
+    TestToken& newState,
+    const Ice::Current&)
 {
     switch (currentState.code)
     {

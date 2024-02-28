@@ -20,7 +20,7 @@ namespace IceGrid
         virtual void synchronized(std::exception_ptr) = 0;
     };
 
-    template <typename Key, typename Value> class Cache
+    template<typename Key, typename Value> class Cache
     {
         using ValueType = std::shared_ptr<Value>;
         using ValueMap = std::map<Key, ValueType>;
@@ -116,7 +116,7 @@ namespace IceGrid
         std::condition_variable _condVar;
     };
 
-    template <typename T> class CacheByString : public Cache<std::string, T>
+    template<typename T> class CacheByString : public Cache<std::string, T>
     {
     public:
         std::vector<std::string> getAll(const std::string& expr)

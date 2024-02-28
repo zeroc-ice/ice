@@ -20,9 +20,10 @@ namespace Glacier2
     class Instance
     {
     public:
-        Instance(std::shared_ptr<Ice::Communicator>,
-                 std::shared_ptr<Ice::ObjectAdapter>,
-                 std::shared_ptr<Ice::ObjectAdapter>);
+        Instance(
+            std::shared_ptr<Ice::Communicator>,
+            std::shared_ptr<Ice::ObjectAdapter>,
+            std::shared_ptr<Ice::ObjectAdapter>);
 
         std::shared_ptr<Ice::Communicator> communicator() const { return _communicator; }
         std::shared_ptr<Ice::ObjectAdapter> clientObjectAdapter() const { return _clientAdapter; }

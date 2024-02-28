@@ -232,8 +232,9 @@ allTests(Test::TestHelper* helper, int num)
                 intf = " --interface \"" + intf + "\"";
             }
             string port = initData.properties->getProperty("IceDiscovery.Port");
-            initData.properties->setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown:" +
-                                                                        "udp -h " + multicast + " -p " + port + intf);
+            initData.properties->setProperty(
+                "IceDiscovery.Lookup",
+                "udp -h " + multicast + " --interface unknown:" + "udp -h " + multicast + " -p " + port + intf);
             Ice::CommunicatorPtr com = Ice::initialize(initData);
             test(com->getDefaultLocator());
             com->stringToProxy("controller0@control0")->ice_ping();

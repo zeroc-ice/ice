@@ -1107,8 +1107,8 @@ allTests(TestHelper* helper)
         auto no1 = adpt1->addWithUUID(nodeObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(), no1->ice_getIdentity(), app1->ice_getIdentity(),
-                                         Ice::Identity(), Ice::Identity());
+        session1->setObserversByIdentity(
+            Ice::Identity(), no1->ice_getIdentity(), app1->ice_getIdentity(), Ice::Identity(), Ice::Identity());
 
         auto adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "tcp");
         auto appObs2 = make_shared<ApplicationObserverI>("appObs2");
@@ -1116,8 +1116,9 @@ allTests(TestHelper* helper)
         auto nodeObs2 = make_shared<NodeObserverI>("nodeObs1");
         auto no2 = adpt2->addWithUUID(nodeObs2);
         adpt2->activate();
-        session2->setObservers(nullopt, Ice::uncheckedCast<NodeObserverPrx>(no2),
-                               Ice::uncheckedCast<ApplicationObserverPrx>(app2), nullopt, nullopt);
+        session2->setObservers(
+            nullopt, Ice::uncheckedCast<NodeObserverPrx>(no2), Ice::uncheckedCast<ApplicationObserverPrx>(app2),
+            nullopt, nullopt);
 
         appObs1->waitForUpdate(__LINE__);
         appObs2->waitForUpdate(__LINE__);
@@ -1351,8 +1352,8 @@ allTests(TestHelper* helper)
         auto app1 = adpt1->addWithUUID(appObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(), Ice::Identity(), app1->ice_getIdentity(), Ice::Identity(),
-                                         Ice::Identity());
+        session1->setObserversByIdentity(
+            Ice::Identity(), Ice::Identity(), app1->ice_getIdentity(), Ice::Identity(), Ice::Identity());
 
         appObs1->waitForUpdate(__LINE__);
 
@@ -1444,8 +1445,8 @@ allTests(TestHelper* helper)
         auto adapter1 = adpt1->addWithUUID(adptObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(), Ice::Identity(), Ice::Identity(), adapter1->ice_getIdentity(),
-                                         Ice::Identity());
+        session1->setObserversByIdentity(
+            Ice::Identity(), Ice::Identity(), Ice::Identity(), adapter1->ice_getIdentity(), Ice::Identity());
 
         adptObs1->waitForUpdate(__LINE__); // init
 
@@ -1525,8 +1526,8 @@ allTests(TestHelper* helper)
         auto object1 = adpt1->addWithUUID(objectObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(), Ice::Identity(), Ice::Identity(), Ice::Identity(),
-                                         object1->ice_getIdentity());
+        session1->setObserversByIdentity(
+            Ice::Identity(), Ice::Identity(), Ice::Identity(), Ice::Identity(), object1->ice_getIdentity());
 
         objectObs1->waitForUpdate(__LINE__); // init
 
@@ -1576,8 +1577,8 @@ allTests(TestHelper* helper)
         auto no1 = adpt1->addWithUUID(nodeObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(Ice::Identity(), no1->ice_getIdentity(), app1->ice_getIdentity(),
-                                         Ice::Identity(), Ice::Identity());
+        session1->setObserversByIdentity(
+            Ice::Identity(), no1->ice_getIdentity(), app1->ice_getIdentity(), Ice::Identity(), Ice::Identity());
 
         appObs1->waitForUpdate(__LINE__);
         nodeObs1->waitForUpdate(__LINE__); // init
@@ -1722,8 +1723,8 @@ allTests(TestHelper* helper)
         auto ro1 = adpt1->addWithUUID(registryObs1);
         adpt1->activate();
         registry->ice_getConnection()->setAdapter(adpt1);
-        session1->setObserversByIdentity(ro1->ice_getIdentity(), Ice::Identity(), app1->ice_getIdentity(),
-                                         Ice::Identity(), Ice::Identity());
+        session1->setObserversByIdentity(
+            ro1->ice_getIdentity(), Ice::Identity(), app1->ice_getIdentity(), Ice::Identity(), Ice::Identity());
 
         appObs1->waitForUpdate(__LINE__);
         registryObs1->waitForUpdate(__LINE__); // init

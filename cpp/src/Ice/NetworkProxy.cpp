@@ -297,8 +297,8 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     proxyHost = properties->getProperty("Ice.HTTPProxyHost");
     if (!proxyHost.empty())
     {
-        return make_shared<HTTPNetworkProxy>(proxyHost,
-                                             properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
+        return make_shared<HTTPNetworkProxy>(
+            proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
     }
 
     return nullptr;

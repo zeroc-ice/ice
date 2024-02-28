@@ -70,8 +70,8 @@ public:
     void run()
     {
         auto communicator = initialize(initData);
-        auto routerBase = communicator->stringToProxy("Glacier2/router:" +
-                                                      TestHelper::getTestEndpoint(communicator->getProperties(), 50));
+        auto routerBase = communicator->stringToProxy(
+            "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
         auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
         communicator->setDefaultRouter(router);
 
@@ -161,8 +161,8 @@ public:
     void run()
     {
         auto communicator = initialize(initData);
-        auto routerBase = communicator->stringToProxy("Glacier2/router:" +
-                                                      TestHelper::getTestEndpoint(communicator->getProperties(), 50));
+        auto routerBase = communicator->stringToProxy(
+            "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
         _router = checkedCast<Glacier2::RouterPrx>(routerBase);
         communicator->setDefaultRouter(_router);
 

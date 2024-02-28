@@ -39,22 +39,23 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     {
         for (int i = 0; i < 10; ++i)
         {
-            _lastStatus = _servant->ice_dispatch(request, nullptr,
-                                                 [](exception_ptr ex)
-                                                 {
-                                                     try
-                                                     {
-                                                         rethrow_exception(ex);
-                                                     }
-                                                     catch (const MyRetryException&)
-                                                     {
-                                                     }
-                                                     catch (...)
-                                                     {
-                                                         test(false);
-                                                     }
-                                                     return false;
-                                                 });
+            _lastStatus = _servant->ice_dispatch(
+                request, nullptr,
+                [](exception_ptr ex)
+                {
+                    try
+                    {
+                        rethrow_exception(ex);
+                    }
+                    catch (const MyRetryException&)
+                    {
+                    }
+                    catch (...)
+                    {
+                        test(false);
+                    }
+                    return false;
+                });
             test(!_lastStatus);
         }
 

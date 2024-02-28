@@ -31,7 +31,13 @@ public:
     virtual bool opBool(bool, bool, bool&, const Ice::Current&);
 
     virtual std::int64_t opShortIntLong(
-        std::int16_t, std::int32_t, std::int64_t, std::int16_t&, std::int32_t&, std::int64_t&, const Ice::Current&);
+        std::int16_t,
+        std::int32_t,
+        std::int64_t,
+        std::int16_t&,
+        std::int32_t&,
+        std::int64_t&,
+        const Ice::Current&);
 
     virtual double opFloatDouble(float, double, float&, double&, const Ice::Current&);
 
@@ -49,7 +55,13 @@ public:
     virtual Test::BoolS opBoolS(Test::BoolS, Test::BoolS, Test::BoolS&, const Ice::Current&);
 
     virtual Test::LongS opShortIntLongS(
-        Test::ShortS, Test::IntS, Test::LongS, Test::ShortS&, Test::IntS&, Test::LongS&, const Ice::Current&);
+        Test::ShortS,
+        Test::IntS,
+        Test::LongS,
+        Test::ShortS&,
+        Test::IntS&,
+        Test::LongS&,
+        const Ice::Current&);
 
     virtual Test::DoubleS
     opFloatDoubleS(Test::FloatS, Test::DoubleS, Test::FloatS&, Test::DoubleS&, const Ice::Current&);
@@ -61,7 +73,13 @@ public:
     virtual Test::BoolSS opBoolSS(Test::BoolSS, Test::BoolSS, Test::BoolSS&, const Ice::Current&);
 
     virtual Test::LongSS opShortIntLongSS(
-        Test::ShortSS, Test::IntSS, Test::LongSS, Test::ShortSS&, Test::IntSS&, Test::LongSS&, const Ice::Current&);
+        Test::ShortSS,
+        Test::IntSS,
+        Test::LongSS,
+        Test::ShortSS&,
+        Test::IntSS&,
+        Test::LongSS&,
+        const Ice::Current&);
 
     virtual Test::DoubleSS
     opFloatDoubleSS(Test::FloatSS, Test::DoubleSS, Test::FloatSS&, Test::DoubleSS&, const Ice::Current&);

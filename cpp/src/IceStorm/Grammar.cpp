@@ -317,8 +317,9 @@ int yyi;
 #        ifndef YYSTACK_ALLOC_MAXIMUM
 #            define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
 #        endif
-#        if (defined __cplusplus && !defined EXIT_SUCCESS &&                                                           \
-             !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
+#        if (                                                                                                          \
+            defined __cplusplus && !defined EXIT_SUCCESS &&                                                            \
+            !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
 #            include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #            ifndef EXIT_SUCCESS
 #                define EXIT_SUCCESS 0
@@ -445,29 +446,30 @@ static const yytype_uint8 yyrline[] = {0,   70,  70,  74,  81,  84,  92,  96,  1
 #if YYDEBUG || YYERROR_VERBOSE || 0
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
-static const char* const yytname[] = {"$end",
-                                      "error",
-                                      "$undefined",
-                                      "ICE_STORM_HELP",
-                                      "ICE_STORM_EXIT",
-                                      "ICE_STORM_CURRENT",
-                                      "ICE_STORM_CREATE",
-                                      "ICE_STORM_DESTROY",
-                                      "ICE_STORM_LINK",
-                                      "ICE_STORM_UNLINK",
-                                      "ICE_STORM_LINKS",
-                                      "ICE_STORM_TOPICS",
-                                      "ICE_STORM_REPLICA",
-                                      "ICE_STORM_SUBSCRIBERS",
-                                      "ICE_STORM_STRING",
-                                      "';'",
-                                      "$accept",
-                                      "start",
-                                      "commands",
-                                      "command",
-                                      "strings",
-                                      "keyword",
-                                      YY_NULL};
+static const char* const yytname[] = {
+    "$end",
+    "error",
+    "$undefined",
+    "ICE_STORM_HELP",
+    "ICE_STORM_EXIT",
+    "ICE_STORM_CURRENT",
+    "ICE_STORM_CREATE",
+    "ICE_STORM_DESTROY",
+    "ICE_STORM_LINK",
+    "ICE_STORM_UNLINK",
+    "ICE_STORM_LINKS",
+    "ICE_STORM_TOPICS",
+    "ICE_STORM_REPLICA",
+    "ICE_STORM_SUBSCRIBERS",
+    "ICE_STORM_STRING",
+    "';'",
+    "$accept",
+    "start",
+    "commands",
+    "command",
+    "strings",
+    "keyword",
+    YY_NULL};
 #endif
 
 #ifdef YYPRINT
@@ -1152,8 +1154,9 @@ yysetstate:
                data in use in that stack, in bytes.  This used to be a
                conditional around just the two extra args, but that might
                be undefined if yyoverflow is a macro.  */
-            yyoverflow(YY_("memory exhausted"), &yyss1, yysize * sizeof(*yyssp), &yyvs1, yysize * sizeof(*yyvsp),
-                       &yystacksize);
+            yyoverflow(
+                YY_("memory exhausted"), &yyss1, yysize * sizeof(*yyssp), &yyvs1, yysize * sizeof(*yyvsp),
+                &yystacksize);
 
             yyss = yyss1;
             yyvs = yyvs1;

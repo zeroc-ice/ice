@@ -40,7 +40,7 @@ namespace IceUtil
      * by UTF8Buffer.
      * \headerfile Ice/Ice.h
      */
-    template <typename charT> class BasicStringConverter
+    template<typename charT> class BasicStringConverter
     {
     public:
         /**

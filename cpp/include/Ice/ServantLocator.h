@@ -64,9 +64,10 @@ namespace Ice
          * @see Current
          * @see #locate
          */
-        virtual void finished(const Current& curr,
-                              const ::std::shared_ptr<Object>& servant,
-                              const ::std::shared_ptr<void>& cookie) = 0;
+        virtual void finished(
+            const Current& curr,
+            const ::std::shared_ptr<Object>& servant,
+            const ::std::shared_ptr<void>& cookie) = 0;
 
         /**
          * Called when the object adapter in which this servant locator is installed is destroyed.

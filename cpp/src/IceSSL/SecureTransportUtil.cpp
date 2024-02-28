@@ -121,8 +121,8 @@ namespace
                 CFStringRef label = static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyLabel));
                 if (CFEqual(label, CFSTR("Certificate Authority")))
                 {
-                    return CFEqual(static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue)),
-                                   CFSTR("Yes"));
+                    return CFEqual(
+                        static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue)), CFSTR("Yes"));
                 }
             }
         }
@@ -133,12 +133,13 @@ namespace
     // Load keychain items (Certificates or Private Keys) from a file. On return items param contain
     // the list of items, the caller must release it.
     //
-    CFArrayRef loadKeychainItems(const string& file,
-                                 SecExternalItemType type,
-                                 SecKeychainRef keychain,
-                                 const string& passphrase,
-                                 const PasswordPromptPtr& prompt,
-                                 int retryMax)
+    CFArrayRef loadKeychainItems(
+        const string& file,
+        SecExternalItemType type,
+        SecKeychainRef keychain,
+        const string& passphrase,
+        const PasswordPromptPtr& prompt,
+        int retryMax)
     {
         UniqueRef<CFMutableDataRef> data(readCertFile(file));
 
@@ -239,9 +240,9 @@ namespace
 
             if ((err = SecKeychainOpen(keychainPath.c_str(), &keychain.get())))
             {
-                throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: unable to open keychain: `" + keychainPath + "'\n" +
-                                                        sslErrorToString(err));
+                throw PluginInitializationException(
+                    __FILE__, __LINE__,
+                    "IceSSL: unable to open keychain: `" + keychainPath + "'\n" + sslErrorToString(err));
             }
         }
 
@@ -253,25 +254,26 @@ namespace
             if ((err =
                      SecKeychainUnlock(keychain.get(), static_cast<UInt32>(keychainPassword.size()), pass, pass != 0)))
             {
-                throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: unable to unlock keychain:\n" + sslErrorToString(err));
+                throw PluginInitializationException(
+                    __FILE__, __LINE__, "IceSSL: unable to unlock keychain:\n" + sslErrorToString(err));
             }
         }
         else if (err == errSecNoSuchKeychain)
         {
             const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
             keychain.reset(0);
-            if ((err = SecKeychainCreate(keychainPath.c_str(), static_cast<UInt32>(keychainPassword.size()), pass,
-                                         pass == 0, 0, &keychain.get())))
+            if ((err = SecKeychainCreate(
+                     keychainPath.c_str(), static_cast<UInt32>(keychainPassword.size()), pass, pass == 0, 0,
+                     &keychain.get())))
             {
-                throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: unable to create keychain:\n" + sslErrorToString(err));
+                throw PluginInitializationException(
+                    __FILE__, __LINE__, "IceSSL: unable to create keychain:\n" + sslErrorToString(err));
             }
         }
         else
         {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: unable to open keychain:\n" + sslErrorToString(err));
+            throw PluginInitializationException(
+                __FILE__, __LINE__, "IceSSL: unable to open keychain:\n" + sslErrorToString(err));
         }
 
         //
@@ -284,8 +286,8 @@ namespace
         settings.lockInterval = INT_MAX;
         if ((err = SecKeychainSetSettings(keychain.get(), &settings)))
         {
-            throw PluginInitializationException(__FILE__, __LINE__,
-                                                "IceSSL: error setting keychain settings:\n" + sslErrorToString(err));
+            throw PluginInitializationException(
+                __FILE__, __LINE__, "IceSSL: error setting keychain settings:\n" + sslErrorToString(err));
         }
 
         return keychain.release();
@@ -294,12 +296,13 @@ namespace
     //
     // Imports a certificate private key and optionally add it to a keychain.
     //
-    SecIdentityRef loadPrivateKey(const string& file,
-                                  SecCertificateRef cert,
-                                  SecKeychainRef keychain,
-                                  const string& password,
-                                  const PasswordPromptPtr& prompt,
-                                  int retryMax)
+    SecIdentityRef loadPrivateKey(
+        const string& file,
+        SecCertificateRef cert,
+        SecKeychainRef keychain,
+        const string& password,
+        const PasswordPromptPtr& prompt,
+        int retryMax)
     {
         //
         // Check if we already imported the certificate
@@ -385,8 +388,8 @@ namespace
         //
         // Add the certificate to the keychain
         //
-        query.reset(CFDictionaryCreateMutable(kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks,
-                                              &kCFTypeDictionaryValueCallBacks));
+        query.reset(CFDictionaryCreateMutable(
+            kCFAllocatorDefault, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
 
         CFDictionarySetValue(query.get(), kSecUseKeychain, keychain);
         CFDictionarySetValue(query.get(), kSecClass, kSecClassCertificate);
@@ -476,9 +479,9 @@ namespace
                     endpos = strbuf.find("-----END CERTIFICATE-----", startpos);
                     if (endpos == string::npos)
                     {
-                        throw InitializationException(__FILE__, __LINE__,
-                                                      "IceSSL: certificate " + file +
-                                                          " is not a valid PEM-encoded certificate");
+                        throw InitializationException(
+                            __FILE__, __LINE__,
+                            "IceSSL: certificate " + file + " is not a valid PEM-encoded certificate");
                     }
                     size = endpos - startpos;
                 }
@@ -528,19 +531,20 @@ namespace
 // Imports a certificate (it might contain an identity or certificate depending on the format).
 //
 CFArrayRef
-IceSSL::SecureTransport::loadCertificateChain(const string& file,
+IceSSL::SecureTransport::loadCertificateChain(
+    const string& file,
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS)
-                                              const string& /*keyFile*/,
-                                              const std::string& /*keychainPath*/,
-                                              const string& /*keychainPassword*/,
+    const string& /*keyFile*/,
+    const std::string& /*keychainPath*/,
+    const string& /*keychainPassword*/,
 #else
-                                              const string& keyFile,
-                                              const std::string& keychainPath,
-                                              const string& keychainPassword,
+    const string& keyFile,
+    const std::string& keychainPath,
+    const string& keychainPassword,
 #endif
-                                              const string& password,
-                                              const PasswordPromptPtr& prompt,
-                                              int retryMax)
+    const string& password,
+    const PasswordPromptPtr& prompt,
+    int retryMax)
 {
     UniqueRef<CFArrayRef> chain;
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS)
@@ -663,9 +667,10 @@ CFArrayRef
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS)
 IceSSL::SecureTransport::findCertificateChain(const std::string&, const std::string&, const string& value)
 #else
-IceSSL::SecureTransport::findCertificateChain(const std::string& keychainPath,
-                                              const std::string& keychainPassword,
-                                              const string& value)
+IceSSL::SecureTransport::findCertificateChain(
+    const std::string& keychainPath,
+    const std::string& keychainPassword,
+    const string& value)
 #endif
 {
     //
@@ -764,8 +769,8 @@ IceSSL::SecureTransport::findCertificateChain(const std::string& keychainPath,
                 throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid value `" + value + "'");
             }
             UniqueRef<CFDataRef> v(CFDataCreate(kCFAllocatorDefault, &buffer[0], static_cast<CFIndex>(buffer.size())));
-            CFDictionarySetValue(query.get(), field == "SUBJECTKEYID" ? kSecAttrSubjectKeyID : kSecAttrSerialNumber,
-                                 v.get());
+            CFDictionarySetValue(
+                query.get(), field == "SUBJECTKEYID" ? kSecAttrSubjectKeyID : kSecAttrSerialNumber, v.get());
             valid = true;
         }
     }
@@ -798,8 +803,8 @@ IceSSL::SecureTransport::findCertificateChain(const std::string& keychainPath,
     SecTrustResultType trustResult;
     if ((err = SecTrustEvaluate(trust.get(), &trustResult)))
     {
-        throw PluginInitializationException(__FILE__, __LINE__,
-                                            "IceSSL: error evaluating trust:\n" + sslErrorToString(err));
+        throw PluginInitializationException(
+            __FILE__, __LINE__, "IceSSL: error evaluating trust:\n" + sslErrorToString(err));
     }
 
     CFIndex chainLength = SecTrustGetCertificateCount(trust.get());

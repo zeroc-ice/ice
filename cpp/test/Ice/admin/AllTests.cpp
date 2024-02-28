@@ -133,10 +133,11 @@ RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
 }
 
 void
-RemoteLoggerI::checkNextInit(const string& prefix,
-                             Ice::LogMessageType type,
-                             const string& message,
-                             const string& category)
+RemoteLoggerI::checkNextInit(
+    const string& prefix,
+    Ice::LogMessageType type,
+    const string& message,
+    const string& category)
 {
     lock_guard lock(_mutex);
     test(_prefix == prefix);
@@ -454,8 +455,9 @@ allTests(Test::TestHelper* helper)
         p = logMessages.begin();
         while (p != logMessages.end())
         {
-            test(p->type == LogMessageType::ErrorMessage ||
-                 (p->type == LogMessageType::TraceMessage && p->traceCategory == "testCat"));
+            test(
+                p->type == LogMessageType::ErrorMessage ||
+                (p->type == LogMessageType::TraceMessage && p->traceCategory == "testCat"));
             ++p;
         }
 

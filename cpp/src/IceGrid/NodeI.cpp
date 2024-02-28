@@ -180,8 +180,9 @@ NodeI::Update::send()
     auto self = shared_from_this();
     try
     {
-        _func([self] { self->_node->dequeueUpdate(self->_observer, self, false); },
-              [self](exception_ptr) { self->_node->dequeueUpdate(self->_observer, self, true); });
+        _func(
+            [self] { self->_node->dequeueUpdate(self->_observer, self, false); },
+            [self](exception_ptr) { self->_node->dequeueUpdate(self->_observer, self, true); });
 
         return true;
     }
@@ -191,15 +192,16 @@ NodeI::Update::send()
     }
 }
 
-NodeI::NodeI(const shared_ptr<Ice::ObjectAdapter>& adapter,
-             NodeSessionManager& sessions,
-             const shared_ptr<Activator>& activator,
-             const IceUtil::TimerPtr& timer,
-             const shared_ptr<TraceLevels>& traceLevels,
-             const NodePrxPtr& proxy,
-             const string& name,
-             const UserAccountMapperPrxPtr& mapper,
-             const string& instanceName)
+NodeI::NodeI(
+    const shared_ptr<Ice::ObjectAdapter>& adapter,
+    NodeSessionManager& sessions,
+    const shared_ptr<Activator>& activator,
+    const IceUtil::TimerPtr& timer,
+    const shared_ptr<TraceLevels>& traceLevels,
+    const NodePrxPtr& proxy,
+    const string& name,
+    const UserAccountMapperPrxPtr& mapper,
+    const string& instanceName)
     : _communicator(adapter->getCommunicator()),
       _adapter(adapter),
       _sessions(sessions),
@@ -253,61 +255,68 @@ NodeI::NodeI(const shared_ptr<Ice::ObjectAdapter>& adapter,
 }
 
 void
-NodeI::loadServerAsync(shared_ptr<InternalServerDescriptor> descriptor,
-                       string replicaName,
-                       function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
-                       function<void(exception_ptr)> exception,
-                       const Ice::Current& current)
+NodeI::loadServerAsync(
+    shared_ptr<InternalServerDescriptor> descriptor,
+    string replicaName,
+    function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    loadServer(std::move(descriptor), std::move(replicaName), false, std::move(response), std::move(exception),
-               current);
+    loadServer(
+        std::move(descriptor), std::move(replicaName), false, std::move(response), std::move(exception), current);
 }
 
 void
-NodeI::loadServerWithoutRestartAsync(shared_ptr<InternalServerDescriptor> descriptor,
-                                     string replicaName,
-                                     function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
-                                     function<void(exception_ptr)> exception,
-                                     const Ice::Current& current)
+NodeI::loadServerWithoutRestartAsync(
+    shared_ptr<InternalServerDescriptor> descriptor,
+    string replicaName,
+    function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
     loadServer(std::move(descriptor), std::move(replicaName), true, std::move(response), std::move(exception), current);
 }
 
 void
-NodeI::destroyServerAsync(string serverId,
-                          string uuid,
-                          int revision,
-                          string replicaName,
-                          function<void()> response,
-                          function<void(exception_ptr)> exception,
-                          const Ice::Current& current)
+NodeI::destroyServerAsync(
+    string serverId,
+    string uuid,
+    int revision,
+    string replicaName,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    destroyServer(std::move(serverId), std::move(uuid), std::move(revision), std::move(replicaName), false,
-                  std::move(response), std::move(exception), current);
+    destroyServer(
+        std::move(serverId), std::move(uuid), std::move(revision), std::move(replicaName), false, std::move(response),
+        std::move(exception), current);
 }
 
 void
-NodeI::destroyServerWithoutRestartAsync(string serverId,
-                                        string uuid,
-                                        int revision,
-                                        string replicaName,
-                                        function<void()> response,
-                                        function<void(exception_ptr)> exception,
-                                        const Ice::Current& current)
+NodeI::destroyServerWithoutRestartAsync(
+    string serverId,
+    string uuid,
+    int revision,
+    string replicaName,
+    function<void()> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current& current)
 {
-    destroyServer(std::move(serverId), std::move(uuid), std::move(revision), std::move(replicaName), true,
-                  std::move(response), std::move(exception), current);
+    destroyServer(
+        std::move(serverId), std::move(uuid), std::move(revision), std::move(replicaName), true, std::move(response),
+        std::move(exception), current);
 }
 
 void
-NodeI::patchAsync(PatcherFeedbackPrxPtr feedback,
-                  std::string application,
-                  std::string server,
-                  std::shared_ptr<InternalDistributionDescriptor> appDistrib,
-                  bool shutdown,
-                  std::function<void()> response,
-                  std::function<void(exception_ptr)>,
-                  const Ice::Current&)
+NodeI::patchAsync(
+    PatcherFeedbackPrxPtr feedback,
+    std::string application,
+    std::string server,
+    std::shared_ptr<InternalDistributionDescriptor> appDistrib,
+    bool shutdown,
+    std::function<void()> response,
+    std::function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     response();
 
@@ -735,8 +744,9 @@ NodeI::addObserver(const NodeSessionPrxPtr& session, const NodeObserverPrxPtr& o
     AdapterDynamicInfoSeq adapterInfos;
     for (const auto& info : _serversDynamicInfo)
     {
-        assert(info.second.state != ServerState::Destroyed &&
-               (info.second.state != ServerState::Inactive || !info.second.enabled));
+        assert(
+            info.second.state != ServerState::Destroyed &&
+            (info.second.state != ServerState::Inactive || !info.second.enabled));
         serverInfos.push_back(info.second);
     }
 
@@ -747,8 +757,9 @@ NodeI::addObserver(const NodeSessionPrxPtr& session, const NodeObserverPrxPtr& o
     }
 
     NodeDynamicInfo info = {_platform.getNodeInfo(), std::move(serverInfos), std::move(adapterInfos)};
-    queueUpdate(observer, [observer, info = std::move(info)](auto&& response, auto&& exception)
-                { observer->nodeUpAsync(info, std::move(response), std::move(exception)); });
+    queueUpdate(
+        observer, [observer, info = std::move(info)](auto&& response, auto&& exception)
+        { observer->nodeUpAsync(info, std::move(response), std::move(exception)); });
 }
 
 void
@@ -784,9 +795,10 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
         if (sent.find(observer.second) == sent.end())
         {
 
-            queueUpdate(observer.second, [observer = observer.second, info,
-                                          name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)
-                        { observer->updateServerAsync(name, info, std::move(response), std::move(exception)); });
+            queueUpdate(
+                observer.second,
+                [observer = observer.second, info, name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)
+                { observer->updateServerAsync(name, info, std::move(response), std::move(exception)); });
 
             sent.insert(observer.second);
         }
@@ -818,9 +830,10 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
     {
         if (sent.find(observer.second) == sent.end())
         {
-            queueUpdate(observer.second, [observer = observer.second, info,
-                                          name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)
-                        { observer->updateAdapterAsync(name, info, std::move(response), std::move(exception)); });
+            queueUpdate(
+                observer.second,
+                [observer = observer.second, info, name = getName(Ice::emptyCurrent)](auto&& response, auto&& exception)
+                { observer->updateAdapterAsync(name, info, std::move(response), std::move(exception)); });
             sent.insert(observer.second);
         }
     }
@@ -1188,12 +1201,13 @@ NodeI::getFilePath(const string& filename) const
 }
 
 void
-NodeI::loadServer(shared_ptr<InternalServerDescriptor> descriptor,
-                  string replicaName,
-                  bool noRestart,
-                  function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>&& response,
-                  function<void(exception_ptr)>&& exception,
-                  const Ice::Current& current)
+NodeI::loadServer(
+    shared_ptr<InternalServerDescriptor> descriptor,
+    string replicaName,
+    bool noRestart,
+    function<void(const ServerPrxPtr&, const AdapterPrxDict&, int, int)>&& response,
+    function<void(exception_ptr)>&& exception,
+    const Ice::Current& current)
 {
     shared_ptr<ServerCommand> command;
     {
@@ -1270,14 +1284,15 @@ NodeI::loadServer(shared_ptr<InternalServerDescriptor> descriptor,
 }
 
 void
-NodeI::destroyServer(string serverId,
-                     string uuid,
-                     int revision,
-                     string replicaName,
-                     bool noRestart,
-                     function<void()> response,
-                     function<void(exception_ptr)>,
-                     const Ice::Current& current)
+NodeI::destroyServer(
+    string serverId,
+    string uuid,
+    int revision,
+    string replicaName,
+    bool noRestart,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Ice::Current& current)
 {
     shared_ptr<ServerCommand> command;
     {

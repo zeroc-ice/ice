@@ -352,10 +352,11 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(int& argc,
-                                       const char* argv[],
-                                       const InitializationData& initData = InitializationData(),
-                                       int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(
+        int& argc,
+        const char* argv[],
+        const InitializationData& initData = InitializationData(),
+        int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -372,10 +373,11 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    inline CommunicatorPtr initialize(int& argc,
-                                      char* argv[],
-                                      const InitializationData& initData = InitializationData(),
-                                      int version = ICE_INT_VERSION)
+    inline CommunicatorPtr initialize(
+        int& argc,
+        char* argv[],
+        const InitializationData& initData = InitializationData(),
+        int version = ICE_INT_VERSION)
     {
         return initialize(argc, const_cast<const char**>(argv), initData, version);
     }
@@ -395,10 +397,8 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(int& argc,
-                                       const char* argv[],
-                                       ICE_CONFIG_FILE_STRING configFile,
-                                       int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr
+    initialize(int& argc, const char* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -437,10 +437,11 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(int& argc,
-                                       const wchar_t* argv[],
-                                       const InitializationData& initData = InitializationData(),
-                                       int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(
+        int& argc,
+        const wchar_t* argv[],
+        const InitializationData& initData = InitializationData(),
+        int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -457,10 +458,11 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    inline CommunicatorPtr initialize(int& argc,
-                                      wchar_t* argv[],
-                                      const InitializationData& initData = InitializationData(),
-                                      int version = ICE_INT_VERSION)
+    inline CommunicatorPtr initialize(
+        int& argc,
+        wchar_t* argv[],
+        const InitializationData& initData = InitializationData(),
+        int version = ICE_INT_VERSION)
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), initData, version);
     }
@@ -480,10 +482,8 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(int& argc,
-                                       const wchar_t* argv[],
-                                       ICE_CONFIG_FILE_STRING configFile,
-                                       int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr
+    initialize(int& argc, const wchar_t* argv[], ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -520,9 +520,10 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(StringSeq& seq,
-                                       const InitializationData& initData = InitializationData(),
-                                       int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr initialize(
+        StringSeq& seq,
+        const InitializationData& initData = InitializationData(),
+        int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -537,9 +538,8 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(StringSeq& seq,
-                                       ICE_CONFIG_FILE_STRING configFile,
-                                       int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr
+    initialize(StringSeq& seq, ICE_CONFIG_FILE_STRING configFile, int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -548,8 +548,8 @@ namespace Ice
      * specified, the version of the Ice installation is used.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr initialize(const InitializationData& initData = InitializationData(),
-                                       int version = ICE_INT_VERSION);
+    ICE_API CommunicatorPtr
+    initialize(const InitializationData& initData = InitializationData(), int version = ICE_INT_VERSION);
 
     /**
      * Initializes a new communicator.
@@ -581,9 +581,10 @@ namespace Ice
      * @param args Additional arguments included in the plug-in's configuration.
      * @return The new plug-in object. Returning nil will cause the run time to raise PluginInitializationException.
      */
-    typedef Ice::Plugin* (*PluginFactory)(const ::Ice::CommunicatorPtr& communicator,
-                                          const std::string& name,
-                                          const ::Ice::StringSeq& args);
+    typedef Ice::Plugin* (*PluginFactory)(
+        const ::Ice::CommunicatorPtr& communicator,
+        const std::string& name,
+        const ::Ice::StringSeq& args);
 
     /**
      * Manually registers a plug-in factory function.
@@ -613,7 +614,7 @@ namespace Ice
          * This constructor accepts all of the same overloaded argument styles as
          * initialize.
          */
-        template <class... T>
+        template<class... T>
         explicit CommunicatorHolder(T&&... args) : _communicator(std::move(initialize(std::forward<T>(args)...)))
         {
         }

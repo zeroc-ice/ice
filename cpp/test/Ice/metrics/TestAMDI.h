@@ -17,9 +17,10 @@ public:
     virtual void
     opWithUserExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
 
-    virtual void opWithRequestFailedExceptionAsync(std::function<void()>,
-                                                   std::function<void(std::exception_ptr)>,
-                                                   const Ice::Current&);
+    virtual void opWithRequestFailedExceptionAsync(
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
     virtual void
     opWithLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);

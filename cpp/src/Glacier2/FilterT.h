@@ -16,7 +16,7 @@
 namespace Glacier2
 {
 
-    template <typename T, class P> class FilterT : public P
+    template<typename T, class P> class FilterT : public P
     {
     public:
         FilterT(const std::vector<T>&);
@@ -57,13 +57,13 @@ namespace Glacier2
         mutable std::mutex _mutex;
     };
 
-    template <class T, class P> FilterT<T, P>::FilterT(const std::vector<T>& accept) : _items(accept)
+    template<class T, class P> FilterT<T, P>::FilterT(const std::vector<T>& accept) : _items(accept)
     {
         sort(_items.begin(), _items.end());
         _items.erase(unique(_items.begin(), _items.end()), _items.end());
     }
 
-    template <class T, class P> void FilterT<T, P>::add(std::vector<T> additions, const Ice::Current&)
+    template<class T, class P> void FilterT<T, P>::add(std::vector<T> additions, const Ice::Current&)
     {
         //
         // Sort the filter elements first, erasing duplicates. Then we can
@@ -80,7 +80,7 @@ namespace Glacier2
         swap(_items, merged);
     }
 
-    template <class T, class P> void FilterT<T, P>::remove(std::vector<T> deletions, const Ice::Current&)
+    template<class T, class P> void FilterT<T, P>::remove(std::vector<T> deletions, const Ice::Current&)
     {
         //
         // Our removal algorithm depends on the filter elements to be
@@ -139,7 +139,7 @@ namespace Glacier2
         }
     }
 
-    template <class T, class P> std::vector<T> FilterT<T, P>::get(const Ice::Current&)
+    template<class T, class P> std::vector<T> FilterT<T, P>::get(const Ice::Current&)
     {
         std::lock_guard<std::mutex> lg(_mutex);
         return _items;

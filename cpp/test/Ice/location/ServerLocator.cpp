@@ -15,11 +15,12 @@ using namespace std;
 ServerLocatorRegistry::ServerLocatorRegistry() {}
 
 void
-ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter,
-                                                  ::Ice::ObjectPrxPtr object,
-                                                  function<void()> response,
-                                                  function<void(exception_ptr)>,
-                                                  const ::Ice::Current&)
+ServerLocatorRegistry::setAdapterDirectProxyAsync(
+    string adapter,
+    ::Ice::ObjectPrxPtr object,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const ::Ice::Current&)
 {
     if (!object)
     {
@@ -33,12 +34,13 @@ ServerLocatorRegistry::setAdapterDirectProxyAsync(string adapter,
 }
 
 void
-ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter,
-                                                            string replicaGroup,
-                                                            Ice::ObjectPrxPtr object,
-                                                            function<void()> response,
-                                                            function<void(exception_ptr)>,
-                                                            const ::Ice::Current&)
+ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(
+    string adapter,
+    string replicaGroup,
+    Ice::ObjectPrxPtr object,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const ::Ice::Current&)
 {
     if (!object)
     {
@@ -55,7 +57,11 @@ ServerLocatorRegistry::setReplicatedAdapterDirectProxyAsync(string adapter,
 
 void
 ServerLocatorRegistry::setServerProcessProxyAsync(
-    string, Ice::ProcessPrxPtr, function<void()> response, function<void(exception_ptr)>, const ::Ice::Current&)
+    string,
+    Ice::ProcessPrxPtr,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const ::Ice::Current&)
 {
     response();
 }
@@ -103,10 +109,11 @@ ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const ::I
 }
 
 void
-ServerLocator::findObjectByIdAsync(::Ice::Identity id,
-                                   function<void(const Ice::ObjectPrxPtr&)> response,
-                                   function<void(exception_ptr)>,
-                                   const ::Ice::Current&) const
+ServerLocator::findObjectByIdAsync(
+    ::Ice::Identity id,
+    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(exception_ptr)>,
+    const ::Ice::Current&) const
 {
     ++const_cast<int&>(_requestCount);
     // We add a small delay to make sure locator request queuing gets tested when
@@ -116,10 +123,11 @@ ServerLocator::findObjectByIdAsync(::Ice::Identity id,
 }
 
 void
-ServerLocator::findAdapterByIdAsync(string id,
-                                    function<void(const Ice::ObjectPrxPtr&)> response,
-                                    function<void(exception_ptr)>,
-                                    const ::Ice::Current& current) const
+ServerLocator::findAdapterByIdAsync(
+    string id,
+    function<void(const Ice::ObjectPrxPtr&)> response,
+    function<void(exception_ptr)>,
+    const ::Ice::Current& current) const
 {
     ++const_cast<int&>(_requestCount);
     if (id == "TestAdapter10" || id == "TestAdapter10-2")

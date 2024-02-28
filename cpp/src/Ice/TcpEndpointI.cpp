@@ -31,13 +31,14 @@ extern "C"
     }
 }
 
-IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance,
-                                        const string& host,
-                                        int32_t port,
-                                        const Address& sourceAddr,
-                                        int32_t timeout,
-                                        const string& connectionId,
-                                        bool compress)
+IceInternal::TcpEndpointI::TcpEndpointI(
+    const ProtocolInstancePtr& instance,
+    const string& host,
+    int32_t port,
+    const Address& sourceAddr,
+    int32_t timeout,
+    const string& connectionId,
+    bool compress)
     : IPEndpointI(instance, host, port, sourceAddr, connectionId),
       _timeout(timeout),
       _compress(compress)
@@ -280,8 +281,8 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
         {
             if (argument.empty())
             {
-                throw EndpointParseException(__FILE__, __LINE__,
-                                             "no argument provided for -t option in endpoint " + endpoint);
+                throw EndpointParseException(
+                    __FILE__, __LINE__, "no argument provided for -t option in endpoint " + endpoint);
             }
 
             if (argument == "infinite")
@@ -293,8 +294,8 @@ IceInternal::TcpEndpointI::checkOption(const string& option, const string& argum
                 istringstream t(argument);
                 if (!(t >> const_cast<int32_t&>(_timeout)) || !t.eof() || _timeout < 1)
                 {
-                    throw EndpointParseException(__FILE__, __LINE__,
-                                                 "invalid timeout value `" + argument + "' in endpoint " + endpoint);
+                    throw EndpointParseException(
+                        __FILE__, __LINE__, "invalid timeout value `" + argument + "' in endpoint " + endpoint);
                 }
             }
             return true;

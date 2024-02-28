@@ -22,9 +22,10 @@ namespace IceGrid
     {
 
     public:
-        AllocateObject(const shared_ptr<SessionI>& session,
-                       function<void(const Ice::ObjectPrxPtr& returnValue)>&& response,
-                       function<void(exception_ptr)>&& exception)
+        AllocateObject(
+            const shared_ptr<SessionI>& session,
+            function<void(const Ice::ObjectPrxPtr& returnValue)>&& response,
+            function<void(exception_ptr)>&& exception)
             : ObjectAllocationRequest(session),
               _response(std::move(response)),
               _exception(std::move(exception))
@@ -151,24 +152,26 @@ SessionI::_register(const shared_ptr<SessionServantManager>& servantManager, con
 }
 
 void
-SessionI::allocateObjectByIdAsync(Ice::Identity id,
-                                  function<void(const Ice::ObjectPrxPtr& returnValue)> response,
-                                  function<void(exception_ptr)> exception,
-                                  const Ice::Current&)
+SessionI::allocateObjectByIdAsync(
+    Ice::Identity id,
+    function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current&)
 {
-    auto allocatedObject = make_shared<AllocateObject>(static_pointer_cast<SessionI>(shared_from_this()),
-                                                       std::move(response), std::move(exception));
+    auto allocatedObject = make_shared<AllocateObject>(
+        static_pointer_cast<SessionI>(shared_from_this()), std::move(response), std::move(exception));
     _database->getAllocatableObject(id)->allocate(std::move(allocatedObject));
 }
 
 void
-SessionI::allocateObjectByTypeAsync(string type,
-                                    function<void(const Ice::ObjectPrxPtr& returnValue)> response,
-                                    function<void(exception_ptr)> exception,
-                                    const Ice::Current&)
+SessionI::allocateObjectByTypeAsync(
+    string type,
+    function<void(const Ice::ObjectPrxPtr& returnValue)> response,
+    function<void(exception_ptr)> exception,
+    const Ice::Current&)
 {
-    auto allocatedObject = make_shared<AllocateObject>(static_pointer_cast<SessionI>(shared_from_this()),
-                                                       std::move(response), std::move(exception));
+    auto allocatedObject = make_shared<AllocateObject>(
+        static_pointer_cast<SessionI>(shared_from_this()), std::move(response), std::move(exception));
     _database->getAllocatableObjectCache().allocateByType(type, std::move(allocatedObject));
 }
 
@@ -274,10 +277,11 @@ SessionI::destroyImpl(bool shutdown)
     _allocations.clear();
 }
 
-ClientSessionFactory::ClientSessionFactory(const shared_ptr<SessionServantManager>& servantManager,
-                                           const shared_ptr<Database>& database,
-                                           const IceUtil::TimerPtr& timer,
-                                           const shared_ptr<ReapThread>& reaper)
+ClientSessionFactory::ClientSessionFactory(
+    const shared_ptr<SessionServantManager>& servantManager,
+    const shared_ptr<Database>& database,
+    const IceUtil::TimerPtr& timer,
+    const shared_ptr<ReapThread>& reaper)
     : _servantManager(servantManager),
       _database(database),
       _timer(timer),

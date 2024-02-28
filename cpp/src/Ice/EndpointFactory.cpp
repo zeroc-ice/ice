@@ -21,8 +21,9 @@ IceInternal::EndpointFactory::initialize()
     // Nothing to do, can be overridden by specialization to finish initialization.
 }
 
-IceInternal::EndpointFactoryPlugin::EndpointFactoryPlugin(const CommunicatorPtr& communicator,
-                                                          const EndpointFactoryPtr& factory)
+IceInternal::EndpointFactoryPlugin::EndpointFactoryPlugin(
+    const CommunicatorPtr& communicator,
+    const EndpointFactoryPtr& factory)
 {
     assert(communicator);
     getInstance(communicator)->endpointFactoryManager()->add(factory);
@@ -38,8 +39,9 @@ IceInternal::EndpointFactoryPlugin::destroy()
 {
 }
 
-IceInternal::EndpointFactoryWithUnderlying::EndpointFactoryWithUnderlying(const ProtocolInstancePtr& instance,
-                                                                          int16_t type)
+IceInternal::EndpointFactoryWithUnderlying::EndpointFactoryWithUnderlying(
+    const ProtocolInstancePtr& instance,
+    int16_t type)
     : _instance(instance),
       _type(type)
 {
@@ -108,9 +110,10 @@ IceInternal::EndpointFactoryWithUnderlying::clone(const ProtocolInstancePtr& ins
     return cloneWithUnderlying(instance, _type);
 }
 
-IceInternal::UnderlyingEndpointFactory::UnderlyingEndpointFactory(const ProtocolInstancePtr& instance,
-                                                                  int16_t type,
-                                                                  int16_t underlying)
+IceInternal::UnderlyingEndpointFactory::UnderlyingEndpointFactory(
+    const ProtocolInstancePtr& instance,
+    int16_t type,
+    int16_t underlying)
     : _instance(instance),
       _type(type),
       _underlying(underlying)

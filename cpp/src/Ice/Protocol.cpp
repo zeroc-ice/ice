@@ -100,18 +100,20 @@ namespace IceInternal
         minor = static_cast<Ice::Byte>(minVersion);
     }
 
-    void throwUnsupportedProtocolException(const char* f,
-                                           int l,
-                                           const Ice::ProtocolVersion& v,
-                                           const Ice::ProtocolVersion& s)
+    void throwUnsupportedProtocolException(
+        const char* f,
+        int l,
+        const Ice::ProtocolVersion& v,
+        const Ice::ProtocolVersion& s)
     {
         throw Ice::UnsupportedProtocolException(f, l, "", v, s);
     }
 
-    void throwUnsupportedEncodingException(const char* f,
-                                           int l,
-                                           const Ice::EncodingVersion& v,
-                                           const Ice::EncodingVersion& s)
+    void throwUnsupportedEncodingException(
+        const char* f,
+        int l,
+        const Ice::EncodingVersion& v,
+        const Ice::EncodingVersion& s)
     {
         throw Ice::UnsupportedEncodingException(f, l, "", v, s);
     }
@@ -128,8 +130,8 @@ namespace Ice
     // the protocol version.
     //
 
-    const EncodingVersion currentProtocolEncoding = {IceInternal::protocolEncodingMajor,
-                                                     IceInternal::protocolEncodingMinor};
+    const EncodingVersion currentProtocolEncoding = {
+        IceInternal::protocolEncodingMajor, IceInternal::protocolEncodingMinor};
 
     const ProtocolVersion Protocol_1_0 = {1, 0};
 

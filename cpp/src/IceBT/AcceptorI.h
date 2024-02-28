@@ -21,13 +21,14 @@ namespace IceBT
                             public std::enable_shared_from_this<AcceptorI>
     {
     public:
-        AcceptorI(const EndpointIPtr&,
-                  const InstancePtr&,
-                  const std::string&,
-                  const std::string&,
-                  const std::string&,
-                  const std::string&,
-                  int);
+        AcceptorI(
+            const EndpointIPtr&,
+            const InstancePtr&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            const std::string&,
+            int);
         ~AcceptorI();
         IceInternal::NativeInfoPtr getNativeInfo() final;
 

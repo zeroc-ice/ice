@@ -180,8 +180,8 @@ extern "C"
 
     if (initData && configFile)
     {
-        PyErr_Format(PyExc_ValueError,
-                     STRCAST("initialize accepts either Ice.InitializationData or a configuration filename"));
+        PyErr_Format(
+            PyExc_ValueError, STRCAST("initialize accepts either Ice.InitializationData or a configuration filename"));
         return -1;
     }
 
