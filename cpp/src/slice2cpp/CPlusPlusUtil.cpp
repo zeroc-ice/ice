@@ -775,8 +775,6 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const Operat
 void
 Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, const string& clScope, int typeCtx)
 {
-    const string returnValueS = "ret";
-
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         writeParamAllocateCode(out, (*p)->type(), (*p)->optional(), clScope, fixKwd(paramPrefix + (*p)->name()),
@@ -785,7 +783,7 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
 
     if(op && op->returnType())
     {
-        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), clScope, returnValueS, op->getMetaData(),
+        writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), clScope, "ret", op->getMetaData(),
                                typeCtx);
     }
 }

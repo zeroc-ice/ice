@@ -193,7 +193,7 @@ writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const Par
     {
         C << "[&](" << getUnqualified("::Ice::OutputStream*", scope) << " ostr)";
         C << sb;
-        writeMarshalCode(C, inParams, nullptr, TypeContextInParam);
+        writeMarshalCode(C, inParams, nullptr);
         if(p->sendsClasses(false))
         {
             C << nl << "ostr->writePendingValues();";
