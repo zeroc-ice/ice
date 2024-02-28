@@ -444,51 +444,16 @@ public:
                 {
                     response();
                 }
-                catch(...)
+                catch (const std::exception& ex)
                 {
-                    throw std::current_exception();
+                    this->warning(ex);
+                }
+                catch (...)
+                {
+                    this->warning();
                 }
             }
         };
-    }
-};
-
-class CustomLambdaOutgoing : public OutgoingAsync, public LambdaInvoke
-{
-public:
-
-    CustomLambdaOutgoing(Ice::ObjectPrx proxy,
-                         std::function<void(Ice::InputStream*)> read,
-                         std::function<void(std::exception_ptr)> ex,
-                         std::function<void(bool)> sent) :
-        OutgoingAsync(std::move(proxy), false), LambdaInvoke(std::move(ex), std::move(sent))
-    {
-        _response = [this, read = std::move(read)](bool ok)
-        {
-            if(!ok)
-            {
-                this->throwUserException();
-            }
-            else if(read)
-            {
-                //
-                // Read and respond
-                //
-                read(&this->_is);
-            }
-        };
-    }
-
-    void
-    invoke(const std::string& operation,
-           Ice::OperationMode mode,
-           Ice::FormatType format,
-           const Ice::Context& ctx,
-           std::function<void(Ice::OutputStream*)> write,
-           std::function<void(const Ice::UserException&)> userException)
-    {
-        _userException = std::move(userException);
-        OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
     }
 };
 

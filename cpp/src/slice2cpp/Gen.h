@@ -129,6 +129,11 @@ private:
 
     private:
 
+        void emitOperationImpl(const OperationPtr& p,
+                               const std::string& prefix,
+                               const std::vector<std::string>& returnTypeList,
+                               const std::vector<std::string>& absReturnTypeList);
+
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
 
