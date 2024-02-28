@@ -1941,8 +1941,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     C << inParamsImplDecl << ("const " + getUnqualified("::Ice::Context&", interfaceScope) + " context");
     C << epar << " const";
     C << sb;
-    // TODO: switch to string_view and constexpr.
-    C << nl << "static const ::std::string operationName = \"" << name << "\";";
+    C << nl << "static constexpr ::std::string_view operationName = \"" << name << "\";";
     C << sp;
     if(p->returnsData())
     {

@@ -9,6 +9,8 @@
 #include <Ice/ConnectionF.h>
 #include <Ice/CommunicatorF.h>
 
+#include <string>
+
 namespace IcePy
 {
 

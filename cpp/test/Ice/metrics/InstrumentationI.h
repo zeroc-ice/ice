@@ -323,7 +323,7 @@ public:
    }
 
     virtual Ice::Instrumentation::InvocationObserverPtr
-    getInvocationObserver(const Ice::ObjectPrxPtr&, const std::string&, const Ice::Context&)
+    getInvocationObserver(const Ice::ObjectPrxPtr&, std::string_view, const Ice::Context&)
     {
         std::lock_guard lock(_mutex);
         if(!invocationObserver)

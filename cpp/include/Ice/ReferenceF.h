@@ -5,14 +5,13 @@
 #ifndef ICE_REFERENCE_F_H
 #define ICE_REFERENCE_F_H
 
-#include <Ice/Config.h>
 #include <memory>
 
 namespace IceInternal
 {
 
 class Reference;
-using ReferencePtr = ::std::shared_ptr<Reference>;
+using ReferencePtr = std::shared_ptr<Reference>;
 
 }
 

@@ -146,7 +146,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
 }
 
 void
-CommunicatorFlushBatchAsync::invoke(const string& operation, CompressBatch compressBatch)
+CommunicatorFlushBatchAsync::invoke(string_view operation, CompressBatch compressBatch)
 {
     _observer.attach(_instance.get(), operation);
     _instance->outgoingConnectionFactory()->flushAsyncBatchRequests(shared_from_this(), compressBatch);
@@ -377,13 +377,6 @@ Ice::CommunicatorI::postToClientThreadPool(function<void()> call)
     _instance->clientThreadPool()->dispatch(call);
 }
 
-namespace
-{
-
-const ::std::string flushBatchRequests_name = "flushBatchRequests";
-
-}
-
 ::std::function<void()>
 Ice::CommunicatorI::flushBatchRequestsAsync(CompressBatch compress,
                                             function<void(exception_ptr)> ex,
@@ -401,7 +394,8 @@ Ice::CommunicatorI::flushBatchRequestsAsync(CompressBatch compress,
         }
     };
     auto outAsync = make_shared<CommunicatorFlushBatchLambda>(_instance, ex, sent);
-    outAsync->invoke(flushBatchRequests_name, compress);
+    static constexpr string_view operationName = "flushBatchRequests";
+    outAsync->invoke(operationName, compress);
     return [outAsync]() { outAsync->cancel(); };
 }
 

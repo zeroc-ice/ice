@@ -1426,7 +1426,7 @@ ServiceStatusManager::startUpdate(DWORD state)
     lock_guard lock(_mutex);
 
     assert(state == SERVICE_START_PENDING || state == SERVICE_STOP_PENDING);
-    assert(!_thread);
+    assert(!_thread.joinable());
 
     _status.dwCurrentState = state;
     _status.dwControlsAccepted = 0; // Don't accept any other control messages while pending.

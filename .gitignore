@@ -132,3 +132,6 @@ Carthage
 
 # Clang's compilation database file
 /compile_commands.json
+
+# Python Formatter cache
+.ruff_cache

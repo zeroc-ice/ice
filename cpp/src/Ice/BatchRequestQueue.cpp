@@ -17,47 +17,31 @@ namespace
 
 const int udpOverhead = 20 + 8;
 
-class BatchRequestI : public Ice::BatchRequest
+class BatchRequestI final : public Ice::BatchRequest
 {
 public:
-
-    BatchRequestI(BatchRequestQueue& queue, const Ice::ObjectPrx& proxy, const string& operation, int size) :
-        _queue(queue), _proxy(proxy), _operation(operation), _size(size)
+    BatchRequestI(BatchRequestQueue& queue, const Ice::ObjectPrx& proxy, string_view operation, int size)
+        : _queue(queue),
+          _proxy(proxy),
+          _operation(operation),
+          _size(size)
     {
     }
 
-    virtual void
-    enqueue() const
-    {
-        _queue.enqueueBatchRequest(_proxy);
-    }
+    void enqueue() const final { _queue.enqueueBatchRequest(_proxy); }
 
-    virtual int
-    getSize() const
-    {
-        return _size;
-    }
+    int getSize() const final { return _size; }
 
-    virtual const std::string&
-    getOperation() const
-    {
-        return _operation;
-    }
+    string_view getOperation() const { return _operation; }
 
-    virtual const Ice::ObjectPrx&
-    getProxy() const
-    {
-        return _proxy;
-    }
+    const Ice::ObjectPrx& getProxy() const final { return _proxy; }
 
 private:
-
     BatchRequestQueue& _queue;
     const Ice::ObjectPrx& _proxy;
-    const std::string& _operation;
+    const string_view _operation;
     const int _size;
 };
-
 }
 
 BatchRequestQueue::BatchRequestQueue(const InstancePtr& instance, bool datagram) :
@@ -100,7 +84,7 @@ BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 void
 BatchRequestQueue::finishBatchRequest(OutputStream* os,
                                       const Ice::ObjectPrx& proxy,
-                                      const std::string& operation)
+                                      string_view operation)
 {
     //
     // No need for synchronization, no other threads are supposed
