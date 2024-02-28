@@ -25,10 +25,10 @@ IceInternal::HttpParser::HttpParser() :
 {
 }
 
-const Ice::Byte*
-IceInternal::HttpParser::isCompleteMessage(const Ice::Byte* begin, const Ice::Byte* end) const
+const uint8_t*
+IceInternal::HttpParser::isCompleteMessage(const uint8_t* begin, const uint8_t* end) const
 {
-    const Ice::Byte* p = begin;
+    const uint8_t* p = begin;
 
     //
     // Skip any leading CR-LF characters.
@@ -71,10 +71,10 @@ IceInternal::HttpParser::isCompleteMessage(const Ice::Byte* begin, const Ice::By
 }
 
 bool
-IceInternal::HttpParser::parse(const Ice::Byte* begin, const Ice::Byte* end)
+IceInternal::HttpParser::parse(const uint8_t* begin, const uint8_t* end)
 {
-    const Ice::Byte* p = begin;
-    const Ice::Byte* start = 0;
+    const uint8_t* p = begin;
+    const uint8_t* start = 0;
     const string::value_type CR = '\r';
     const string::value_type LF = '\n';
 

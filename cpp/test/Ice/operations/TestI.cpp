@@ -63,10 +63,10 @@ MyDerivedClassI::opVoid(const Ice::Current& current)
     test(current.mode == OperationMode::Normal);
 }
 
-Ice::Byte
-MyDerivedClassI::opByte(Ice::Byte p1,
-                        Ice::Byte p2,
-                        Ice::Byte& p3,
+uint8_tce::Byte
+MyDerivedClassI::opByte(uint8_t p1,
+                        uint8_t p2,
+                        uint8_t& p3,
                         const Ice::Current&)
 {
     p3 = p1 ^ p2;
@@ -659,8 +659,8 @@ MyDerivedClassI::opDerived(const Ice::Current&)
 {
 }
 
-Ice::Byte
-MyDerivedClassI::opByte1(Ice::Byte b, const Ice::Current&)
+uint8_tce::Byte
+MyDerivedClassI::opByte1(uint8_t b, const Ice::Current&)
 {
     return b;
 }

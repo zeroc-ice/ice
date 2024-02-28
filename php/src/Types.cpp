@@ -869,7 +869,7 @@ IcePHP::PrimitiveInfo::unmarshal(
     }
     case PrimitiveInfo::KindByte:
     {
-        Ice::Byte val;
+        uint8_t val;
         is->read(val);
         ZVAL_LONG(&zv, val & 0xff);
         break;
@@ -1820,9 +1820,9 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindByte:
     {
-        pair<const Ice::Byte*, const Ice::Byte*> pr;
+        pair<const uint8_t*, const uint8_t*> pr;
         is->read(pr);
-        for (const Ice::Byte* p = pr.first; p != pr.second; ++p)
+        for (const uint8_t* p = pr.first; p != pr.second; ++p)
         {
             add_next_index_long(&zv, *p & 0xff);
         }

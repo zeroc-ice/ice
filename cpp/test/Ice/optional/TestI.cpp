@@ -182,7 +182,7 @@ InitialI::opMyInterfaceProxy(optional<MyInterfacePrx> p1, optional<MyInterfacePr
 }
 
 optional<Test::ByteSeq>
-InitialI::opByteSeq(optional<pair<const Ice::Byte*, const Ice::Byte*> > p1, optional<Test::ByteSeq>& p3,
+InitialI::opByteSeq(optional<pair<const uint8_t*, const uint8_t*> > p1, optional<Test::ByteSeq>& p3,
                     const Current&)
 {
     if(p1)

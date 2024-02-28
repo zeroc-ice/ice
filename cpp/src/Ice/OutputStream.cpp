@@ -33,7 +33,7 @@ public:
     {
     }
 
-    Ice::Byte* getMoreBytes(size_t howMany, Ice::Byte* firstUnused)
+    uint8_t* getMoreBytes(size_t howMany, uint8_t* firstUnused)
     {
         assert(howMany > 0);
 
@@ -837,7 +837,7 @@ Ice::OutputStream::finished()
 {
     if(b.empty())
     {
-        return pair<const Byte*, const Byte*>(reinterpret_cast<Ice::Byte*>(0), reinterpret_cast<Ice::Byte*>(0));
+        return pair<const Byte*, const Byte*>(reinterpret_cast<uint8_t*>(0), reinterpret_cast<uint8_t*>(0));
     }
     else
     {

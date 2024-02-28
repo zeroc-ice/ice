@@ -63,7 +63,7 @@ allTests(Test::TestHelper* helper)
         }
 
         // ice_invoke with array mapping
-        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+        pair<const ::uint8_t*, const ::uint8_t*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
         if(cl->ice_invoke("opString", Ice::OperationMode::Normal, inPair, outEncaps))
         {
             Ice::InputStream in(communicator, out.getEncoding(), outEncaps);
@@ -255,7 +255,7 @@ allTests(Test::TestHelper* helper)
         auto inPair = make_pair(inEncaps.data(), inEncaps.data() + inEncaps.size());
 
         cl->ice_invokeAsync("opString", Ice::OperationMode::Normal, inPair,
-            [&](bool ok, pair<const Ice::Byte*, const Ice::Byte*> outParams)
+            [&](bool ok, pair<const uint8_t*, const uint8_t*> outParams)
             {
                 vector<Ice::Byte>(outParams.first, outParams.second).swap(outEncaps);
                 completed.set_value(ok);

@@ -70,7 +70,7 @@ IcePatch2::FileServerI::getFileCompressedAsync(
     string pa,
     int32_t pos,
     int32_t num,
-    function<void(const pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)> response,
+    function<void(const pair<const ::uint8_t*, const ::uint8_t*>& returnValue)> response,
     function<void(exception_ptr)> exception,
     const Current&) const
 {
@@ -98,7 +98,7 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
     string pa,
     int64_t pos,
     int32_t num,
-    function<void(const pair<const ::Ice::Byte*, const ::Ice::Byte*>& returnValue)> response,
+    function<void(const pair<const ::uint8_t*, const ::uint8_t*>& returnValue)> response,
     function<void(exception_ptr)> exception,
     const Current&) const
 {

@@ -67,7 +67,7 @@ public:
     Ice::OutputStream* startWriteParams();
     void endWriteParams();
     void writeEmptyParams();
-    void writeParamEncaps(const Ice::Byte*, std::int32_t, bool);
+    void writeParamEncaps(const std::uint8_t*, std::int32_t, bool);
     void setMarshaledResult(const Ice::MarshaledResult&);
 
     void response(bool);
@@ -92,7 +92,7 @@ protected:
     ::std::shared_ptr<void> _cookie;
     DispatchObserver _observer;
     bool _response;
-    Ice::Byte _compress;
+    std::uint8_t _compress;
     Ice::FormatType _format;
     Ice::OutputStream _os;
 
@@ -157,7 +157,7 @@ public:
     {
         _current.encoding = _is->skipEmptyEncapsulation();
     }
-    void readParamEncaps(const Ice::Byte*& v, std::int32_t& sz)
+    void readParamEncaps(const std::uint8_t*& v, std::int32_t& sz)
     {
         _current.encoding = _is->readEncapsulation(v, sz);
     }
@@ -167,7 +167,7 @@ private:
     friend class IncomingAsync;
 
     Ice::InputStream* _is;
-    Ice::Byte* _inParamPos;
+    std::uint8_t* _inParamPos;
 
     IncomingAsyncPtr _inAsync;
 };

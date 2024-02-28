@@ -407,7 +407,7 @@ Ice::InputStream::readBlob(vector<Byte>& v, int32_t sz)
 void
 Ice::InputStream::read(std::vector<Ice::Byte>& v)
 {
-    std::pair<const Ice::Byte*, const Ice::Byte*> p;
+    std::pair<const uint8_t*, const uint8_t*> p;
     read(p);
     if(p.first != p.second)
     {

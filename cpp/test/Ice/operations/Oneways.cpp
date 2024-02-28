@@ -63,7 +63,7 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        Ice::Byte b;
+        uint8_t b;
 
         try
         {

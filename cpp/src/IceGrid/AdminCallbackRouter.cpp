@@ -34,8 +34,8 @@ AdminCallbackRouter::removeMapping(const string& category)
 }
 
 void
-AdminCallbackRouter::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+AdminCallbackRouter::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
+                                     function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
                                      function<void(exception_ptr)> exception,
                                      const Ice::Current& current)
 {

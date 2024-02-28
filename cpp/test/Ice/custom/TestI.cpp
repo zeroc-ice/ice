@@ -24,7 +24,7 @@ TestIntfI::opBoolArray(std::pair<const bool*, const bool*> inSeq,
 }
 
 Test::ByteList
-TestIntfI::opByteArray(std::pair<const Ice::Byte*, const Ice::Byte*> inSeq,
+TestIntfI::opByteArray(std::pair<const uint8_t*, const uint8_t*> inSeq,
                        Test::ByteList& outSeq,
                        const Ice::Current&)
 {

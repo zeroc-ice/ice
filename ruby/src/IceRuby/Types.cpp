@@ -358,8 +358,8 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 const long len = RSTRING_LEN(bytes);
                 if(str != 0 && len != 0)
                 {
-                    vector<Ice::Byte> vtmp(reinterpret_cast<const Ice::Byte*>(str),
-                                           reinterpret_cast<const Ice::Byte*>(str + len));
+                    vector<Ice::Byte> vtmp(reinterpret_cast<const uint8_t*>(str),
+                                           reinterpret_cast<const uint8_t*>(str + len));
                     info->bytes.swap(vtmp);
                 }
 
@@ -640,7 +640,7 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
     }
     case PrimitiveInfo::KindByte:
     {
-        Ice::Byte b;
+        uint8_t b;
         is->read(b);
         val = callRuby(rb_int2inum, b);
         break;
@@ -1420,7 +1420,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             else
             {
-                os->write(reinterpret_cast<const Ice::Byte*>(s), reinterpret_cast<const Ice::Byte*>(s + len));
+                os->write(reinterpret_cast<const uint8_t*>(s), reinterpret_cast<const uint8_t*>(s + len));
             }
         }
         else
@@ -1568,7 +1568,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
     }
     case PrimitiveInfo::KindByte:
     {
-        pair<const Ice::Byte*, const Ice::Byte*> p;
+        pair<const uint8_t*, const uint8_t*> p;
         is->read(p);
         result = callRuby(rb_str_new, reinterpret_cast<const char*>(p.first), static_cast<long>(p.second - p.first));
         break;

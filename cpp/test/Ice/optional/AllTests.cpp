@@ -946,7 +946,7 @@ allTests(Test::TestHelper* helper, bool)
         optional<Ice::Byte> p2 = initial->opByte(p1, p3);
         test(!p2 && !p3);
 
-        const Ice::Byte bval = 56;
+        const uint8_t bval = 56;
 
         p1 = bval;
         p2 = initial->opByte(p1, p3);
@@ -1386,7 +1386,7 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing optional parameters and custom sequences... " << flush;
     {
-        optional<std::pair<const Ice::Byte*, const Ice::Byte*> > p1;
+        optional<std::pair<const uint8_t*, const uint8_t*> > p1;
         optional<ByteSeq> p3;
         optional<ByteSeq> p2 = initial->opByteSeq(p1, p3);
         test(!p2 && !p3);

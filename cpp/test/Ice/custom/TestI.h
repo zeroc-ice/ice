@@ -19,7 +19,7 @@ public:
                                       Test::BoolSeq&,
                                       const Ice::Current&);
 
-    virtual Test::ByteList opByteArray(std::pair<const Ice::Byte*, const Ice::Byte*>,
+    virtual Test::ByteList opByteArray(std::pair<const std::uint8_t*, const std::uint8_t*>,
                                        Test::ByteList&,
                                        const Ice::Current&);
 

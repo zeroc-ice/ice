@@ -72,8 +72,8 @@ class ConnectionI : public Connection,
 
     private:
 
-        Ice::Byte* _readStreamPos;
-        Ice::Byte* _writeStreamPos;
+        std::uint8_t* _readStreamPos;
+        std::uint8_t* _writeStreamPos;
     };
 
 public:

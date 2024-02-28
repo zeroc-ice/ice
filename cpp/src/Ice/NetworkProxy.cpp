@@ -86,23 +86,23 @@ SOCKSNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
     //
     buf.b.resize(9);
     buf.i = buf.b.begin();
-    Ice::Byte* dest = &buf.b[0];
+    uint8_t* dest = &buf.b[0];
     *dest++ = 0x04; // SOCKS version 4.
     *dest++ = 0x01; // Command, establish a TCP/IP stream connection
 
-    const Ice::Byte* src;
+    const uint8_t* src;
 
     //
     // Port (already in big-endian order)
     //
-    src = reinterpret_cast<const Ice::Byte*>(&addr.saIn.sin_port);
+    src = reinterpret_cast<const uint8_t*>(&addr.saIn.sin_port);
     *dest++ = *src++;
     *dest++ = *src;
 
     //
     // IPv4 address (already in big-endian order)
     //
-    src = reinterpret_cast<const Ice::Byte*>(&addr.saIn.sin_addr.s_addr);
+    src = reinterpret_cast<const uint8_t*>(&addr.saIn.sin_addr.s_addr);
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -145,9 +145,9 @@ SOCKSNetworkProxy::finish(Buffer& readBuffer, Buffer&)
         throw Ice::UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
 
-    const Ice::Byte* src = &(*readBuffer.i);
-    const Ice::Byte b1 = *src++;
-    const Ice::Byte b2 = *src++;
+    const uint8_t* src = &(*readBuffer.i);
+    const uint8_t b1 = *src++;
+    const uint8_t b2 = *src++;
     if(b1 != 0x00 || b2 != 0x5a)
     {
         throw Ice::ConnectFailedException(__FILE__, __LINE__);
@@ -229,7 +229,7 @@ HTTPNetworkProxy::endRead(Buffer& buf)
     // Check if we received the full HTTP response, if not, continue
     // reading otherwise we're done.
     //
-    const Ice::Byte* end = HttpParser().isCompleteMessage(buf.b.begin(), buf.i);
+    const uint8_t* end = HttpParser().isCompleteMessage(buf.b.begin(), buf.i);
     if(!end && buf.i == buf.b.end())
     {
         //

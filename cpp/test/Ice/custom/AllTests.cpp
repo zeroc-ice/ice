@@ -107,7 +107,7 @@ allTests(Test::TestHelper* helper)
 
     {
         Test::ByteList in;
-        Ice::Byte inArray[5];
+        uint8_t inArray[5];
         inArray[0] = '1';
         in.push_back(inArray[0]);
         inArray[1] = '2';
@@ -118,7 +118,7 @@ allTests(Test::TestHelper* helper)
         in.push_back(inArray[3]);
         inArray[4] = '5';
         in.push_back(inArray[4]);
-        pair<const Ice::Byte*, const Ice::Byte*> inPair(inArray, inArray + 5);
+        pair<const uint8_t*, const uint8_t*> inPair(inArray, inArray + 5);
 
         Test::ByteList out;
         Test::ByteList ret = t->opByteArray(inPair, out);
@@ -579,7 +579,7 @@ allTests(Test::TestHelper* helper)
 
         {
             Test::ByteList in;
-            Ice::Byte inArray[5];
+            uint8_t inArray[5];
             inArray[0] = '1';
             in.push_back(inArray[0]);
             inArray[1] = '2';
@@ -590,7 +590,7 @@ allTests(Test::TestHelper* helper)
             in.push_back(inArray[3]);
             inArray[4] = '5';
             in.push_back(inArray[4]);
-            pair<const Ice::Byte*, const Ice::Byte*> inPair(inArray, inArray + 5);
+            pair<const uint8_t*, const uint8_t*> inPair(inArray, inArray + 5);
 
             auto r = t->opByteArrayAsync(inPair).get();
             test(std::get<1>(r) == in);
@@ -985,19 +985,19 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Ice::Byte in[5];
+        uint8_t in[5];
         in[0] = '1';
         in[1] = '2';
         in[2] = '3';
         in[3] = '4';
         in[4] = '5';
-        pair<const Ice::Byte*, const Ice::Byte*> inPair(in, in + 5);
+        pair<const uint8_t*, const uint8_t*> inPair(in, in + 5);
 
         promise<bool> done;
 
         t->opByteArrayAsync(inPair,
-                            [&](pair<const Ice::Byte*, const Ice::Byte*> ret,
-                                pair<const Ice::Byte*, const Ice::Byte*> out)
+                            [&](pair<const uint8_t*, const uint8_t*> ret,
+                                pair<const uint8_t*, const uint8_t*> out)
                             {
                                 test(arrayRangeEquals<Ice::Byte>(out, inPair));
                                 test(arrayRangeEquals<Ice::Byte>(ret, inPair));
@@ -1553,10 +1553,10 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opOutArrayByteSeqAsync(in,
-                                  [&](pair<const Ice::Byte*, const Ice::Byte*> out)
+                                  [&](pair<const uint8_t*, const uint8_t*> out)
                                   {
                                       test(arrayRangeEquals<Ice::Byte>(
-                                               make_pair<const Ice::Byte*>(&in[0], &in[0] + in.size()), out));
+                                               make_pair<const uint8_t*>(&in[0], &in[0] + in.size()), out));
                                       done.set_value(true);
                                   },
                                   [&](std::exception_ptr)

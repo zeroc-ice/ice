@@ -101,9 +101,9 @@ protected:
     enum MappingType { SyncMapping, AsyncMapping };
 
     bool prepareRequest(const OperationPtr&, PyObject*, MappingType, Ice::OutputStream*,
-                        pair<const Ice::Byte*, const Ice::Byte*>&);
-    PyObject* unmarshalResults(const OperationPtr&, const pair<const Ice::Byte*, const Ice::Byte*>&);
-    PyObject* unmarshalException(const OperationPtr&, const pair<const Ice::Byte*, const Ice::Byte*>&);
+                        pair<const uint8_t*, const uint8_t*>&);
+    PyObject* unmarshalResults(const OperationPtr&, const pair<const uint8_t*, const uint8_t*>&);
+    PyObject* unmarshalException(const OperationPtr&, const pair<const uint8_t*, const uint8_t*>&);
     bool validateException(const OperationPtr&, PyObject*) const;
     void checkTwowayOnly(const OperationPtr&, const Ice::ObjectPrx&) const;
 
@@ -134,14 +134,14 @@ public:
 
     PyObject* invoke(PyObject*, PyObject* = 0) final;
 
-    void response(bool, const pair<const Ice::Byte*, const Ice::Byte*>&);
+    void response(bool, const pair<const uint8_t*, const uint8_t*>&);
     void exception(const Ice::Exception&);
     void sent(bool);
 
 protected:
 
     virtual function<void()> handleInvoke(PyObject*, PyObject*) = 0;
-    virtual void handleResponse(PyObject*, bool, const pair<const Ice::Byte*, const Ice::Byte*>&) = 0;
+    virtual void handleResponse(PyObject*, bool, const pair<const uint8_t*, const uint8_t*>&) = 0;
 
     PyObject* _pyProxy;
     string _operation;
@@ -165,7 +165,7 @@ public:
 protected:
 
     function<void()> handleInvoke(PyObject*, PyObject*) final;
-    void handleResponse(PyObject*, bool, const pair<const Ice::Byte*, const Ice::Byte*>&) final;
+    void handleResponse(PyObject*, bool, const pair<const uint8_t*, const uint8_t*>&) final;
 
 private:
 
@@ -190,7 +190,7 @@ public:
 protected:
 
     function<void()> handleInvoke(PyObject*, PyObject*) final;
-    void handleResponse(PyObject*, bool, const pair<const Ice::Byte*, const Ice::Byte*>&) final;
+    void handleResponse(PyObject*, bool, const pair<const uint8_t*, const uint8_t*>&) final;
 
     string _op;
 };
@@ -200,7 +200,7 @@ class Upcall : public enable_shared_from_this<Upcall>
 {
 public:
 
-    virtual void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&) = 0;
+    virtual void dispatch(PyObject*, const pair<const uint8_t*, const uint8_t*>&, const Ice::Current&) = 0;
     virtual void response(PyObject*) = 0;
     virtual void exception(PyException&) = 0;
 
@@ -217,11 +217,11 @@ public:
 
     TypedUpcall(
         const OperationPtr&,
-        function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+        function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)>,
         function<void(std::exception_ptr)>,
         const Ice::CommunicatorPtr&);
 
-    void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&) final;
+    void dispatch(PyObject*, const pair<const uint8_t*, const uint8_t*>&, const Ice::Current&) final;
     void response(PyObject*) final;
     void exception(PyException&) final;
 
@@ -229,7 +229,7 @@ private:
 
     OperationPtr _op;
 
-    function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> _response;
+    function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)> _response;
     function<void(std::exception_ptr)> _error;
 
     Ice::CommunicatorPtr _communicator;
@@ -245,16 +245,16 @@ class BlobjectUpcall final : public Upcall
 public:
 
     BlobjectUpcall(
-        function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+        function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)>,
         function<void(std::exception_ptr)>);
 
-    void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&) final;
+    void dispatch(PyObject*, const pair<const uint8_t*, const uint8_t*>&, const Ice::Current&) final;
     void response(PyObject*) final;
     void exception(PyException&) final;
 
 private:
 
-    function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> _response;
+    function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)> _response;
     function<void(std::exception_ptr)> _error;
 };
 
@@ -266,8 +266,8 @@ public:
     TypedServantWrapper(PyObject*);
 
     void ice_invokeAsync(
-        pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-        function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+        pair<const uint8_t*, const uint8_t*> inEncaps,
+        function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)> response,
         function<void(std::exception_ptr)> error,
         const Ice::Current& current) final;
 
@@ -286,8 +286,8 @@ public:
     BlobjectServantWrapper(PyObject*);
 
     void ice_invokeAsync(
-        pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-        function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+        pair<const uint8_t*, const uint8_t*> inEncaps,
+        function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)> response,
         function<void(std::exception_ptr)> error,
         const Ice::Current& current) final;
 };
@@ -1379,10 +1379,10 @@ IcePy::Invocation::Invocation(const Ice::ObjectPrx& prx) :
 
 bool
 IcePy::Invocation::prepareRequest(const OperationPtr& op, PyObject* args, MappingType mapping, Ice::OutputStream* os,
-                                  pair<const Ice::Byte*, const Ice::Byte*>& params)
+                                  pair<const uint8_t*, const uint8_t*>& params)
 {
     assert(PyTuple_Check(args));
-    params.first = params.second = static_cast<const Ice::Byte*>(0);
+    params.first = params.second = static_cast<const uint8_t*>(0);
 
     //
     // Validate the number of arguments.
@@ -1489,7 +1489,7 @@ IcePy::Invocation::prepareRequest(const OperationPtr& op, PyObject* args, Mappin
 }
 
 PyObject*
-IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
+IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const uint8_t*, const uint8_t*>& bytes)
 {
     Py_ssize_t numResults = static_cast<Py_ssize_t>(op->outParams.size());
     if(op->returnType)
@@ -1568,7 +1568,7 @@ IcePy::Invocation::unmarshalResults(const OperationPtr& op, const pair<const Ice
 }
 
 PyObject*
-IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
+IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const uint8_t*, const uint8_t*>& bytes)
 {
     Ice::InputStream is(_communicator, bytes);
 
@@ -1682,7 +1682,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     // Marshal the input parameters to a byte sequence.
     //
     Ice::OutputStream os(_communicator);
-    pair<const Ice::Byte*, const Ice::Byte*> params;
+    pair<const uint8_t*, const uint8_t*> params;
     if(!prepareRequest(_op, pyparams, SyncMapping, &os, params))
     {
         return 0;
@@ -1727,7 +1727,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         //
         if(_prx->ice_isTwoway())
         {
-            pair<const Ice::Byte*, const Ice::Byte*> rb { 0, 0 };
+            pair<const uint8_t*, const uint8_t*> rb { 0, 0 };
             if(!result.empty())
             {
                 rb.first = &result[0];
@@ -1915,7 +1915,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
                 //
                 // Delegate to the subclass.
                 //
-                pair<const Ice::Byte*, const Ice::Byte*> p(&_results[0], &_results[0] + _results.size());
+                pair<const uint8_t*, const uint8_t*> p(&_results[0], &_results[0] + _results.size());
                 handleResponse(future.get(), _ok, p);
                 if(PyErr_Occurred())
                 {
@@ -1938,7 +1938,7 @@ IcePy::AsyncInvocation::invoke(PyObject* args, PyObject* kwds)
 }
 
 void
-IcePy::AsyncInvocation::response(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& results)
+IcePy::AsyncInvocation::response(bool ok, const pair<const uint8_t*, const uint8_t*>& results)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -2083,7 +2083,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
 
     // Marshal the input parameters to a byte sequence.
     Ice::OutputStream os(_communicator);
-    pair<const Ice::Byte*, const Ice::Byte*> params;
+    pair<const uint8_t*, const uint8_t*> params;
     if(!prepareRequest(_op, pyparams, AsyncMapping, &os, params))
     {
         return 0;
@@ -2112,7 +2112,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
         _op->name,
         _op->sendMode,
         params,
-        [self](bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& results)
+        [self](bool ok, const pair<const uint8_t*, const uint8_t*>& results)
         {
             self->response(ok, results);
         },
@@ -2138,7 +2138,7 @@ void
 IcePy::AsyncTypedInvocation::handleResponse(
     PyObject* future,
     bool ok,
-    const pair<const Ice::Byte*, const Ice::Byte*>& results)
+    const pair<const uint8_t*, const uint8_t*>& results)
 {
     try
     {
@@ -2224,12 +2224,12 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     assert(!PyErr_Occurred());
 
     Py_ssize_t sz = PyBytes_GET_SIZE(inParams);
-    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(
-        static_cast<const Ice::Byte*>(0),
-        static_cast<const Ice::Byte*>(0));
+    pair<const ::uint8_t*, const ::uint8_t*> in(
+        static_cast<const uint8_t*>(0),
+        static_cast<const uint8_t*>(0));
     if(sz > 0)
     {
-        in.first = reinterpret_cast<Ice::Byte*>(PyBytes_AS_STRING(inParams));
+        in.first = reinterpret_cast<uint8_t*>(PyBytes_AS_STRING(inParams));
         in.second = in.first + sz;
     }
 
@@ -2319,10 +2319,10 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
     assert(!PyErr_Occurred());
 
     Py_ssize_t sz = PyBytes_GET_SIZE(inParams);
-    pair<const ::Ice::Byte*, const ::Ice::Byte*> params { 0, 0 };
+    pair<const ::uint8_t*, const ::uint8_t*> params { 0, 0 };
     if(sz > 0)
     {
-        params.first = reinterpret_cast<Ice::Byte*>(PyBytes_AS_STRING(inParams));
+        params.first = reinterpret_cast<uint8_t*>(PyBytes_AS_STRING(inParams));
         params.second = params.first + sz;
     }
 
@@ -2340,7 +2340,7 @@ IcePy::AsyncBlobjectInvocation::handleInvoke(PyObject* args, PyObject* /* kwds *
         operation,
         sendMode,
         params,
-        [self](bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& results)
+        [self](bool ok, const pair<const uint8_t*, const uint8_t*>& results)
         {
             self->response(ok, results);
         },
@@ -2366,7 +2366,7 @@ void
 IcePy::AsyncBlobjectInvocation::handleResponse(
     PyObject* future,
     bool ok,
-    const pair<const Ice::Byte*, const Ice::Byte*>& results)
+    const pair<const uint8_t*, const uint8_t*>& results)
 {
      // Prepare the args as a tuple of the bool and out param buffer.
     PyObjectHandle args = PyTuple_New(2);
@@ -2476,7 +2476,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
 //
 IcePy::TypedUpcall::TypedUpcall(
     const OperationPtr& op,
-    function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+    function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)> response,
     function<void(std::exception_ptr)> error,
     const Ice::CommunicatorPtr& communicator) :
     _op(op),
@@ -2489,7 +2489,7 @@ IcePy::TypedUpcall::TypedUpcall(
 void
 IcePy::TypedUpcall::dispatch(
     PyObject* servant,
-    const pair<const Ice::Byte*, const Ice::Byte*>& inBytes,
+    const pair<const uint8_t*, const uint8_t*>& inBytes,
     const Ice::Current& current)
 {
     _encoding = current.encoding;
@@ -2673,7 +2673,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
 // BlobjectUpcall
 //
 IcePy::BlobjectUpcall::BlobjectUpcall(
-    function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+    function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)> response,
     function<void(std::exception_ptr)> error) :
     _response(std::move(response)),
     _error(std::move(error))
@@ -2683,7 +2683,7 @@ IcePy::BlobjectUpcall::BlobjectUpcall(
 void
 IcePy::BlobjectUpcall::dispatch(
     PyObject* servant,
-    const pair<const Ice::Byte*, const Ice::Byte*>& inBytes,
+    const pair<const uint8_t*, const uint8_t*>& inBytes,
     const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
@@ -2746,10 +2746,10 @@ IcePy::BlobjectUpcall::response(PyObject* result)
         }
 
         Py_ssize_t sz = PyBytes_GET_SIZE(arg);
-        pair<const ::Ice::Byte*, const ::Ice::Byte*> r { 0, 0 };
+        pair<const ::uint8_t*, const ::uint8_t*> r { 0, 0 };
         if(sz > 0)
         {
-            r.first = reinterpret_cast<Ice::Byte*>(PyBytes_AS_STRING(arg));
+            r.first = reinterpret_cast<uint8_t*>(PyBytes_AS_STRING(arg));
             r.second = r.first + sz;
         }
 
@@ -3077,8 +3077,8 @@ IcePy::TypedServantWrapper::TypedServantWrapper(PyObject* servant) :
 
 void
 IcePy::TypedServantWrapper::ice_invokeAsync(
-    pair<const Ice::Byte*, const Ice::Byte*> inParams,
-    function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+    pair<const uint8_t*, const uint8_t*> inParams,
+    function<void(bool, const std::pair<const uint8_t*, const uint8_t*>&)> response,
     function<void(std::exception_ptr)> error,
     const Ice::Current& current)
 {
@@ -3160,8 +3160,8 @@ IcePy::BlobjectServantWrapper::BlobjectServantWrapper(PyObject* servant) :
 
 void
 IcePy::BlobjectServantWrapper::ice_invokeAsync(
-    pair<const Ice::Byte*, const Ice::Byte*> inParams,
-    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+    pair<const uint8_t*, const uint8_t*> inParams,
+    function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
     function<void(exception_ptr)> error,
     const Ice::Current& current)
 {

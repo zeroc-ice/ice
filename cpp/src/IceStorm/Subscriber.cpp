@@ -47,7 +47,7 @@ public:
     }
 
     bool
-    ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inParams,
+    ice_invoke(pair<const uint8_t*, const uint8_t*> inParams,
                vector<Ice::Byte>&,
                const Ice::Current& current) override
     {

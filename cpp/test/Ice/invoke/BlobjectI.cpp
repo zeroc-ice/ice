@@ -86,7 +86,7 @@ BlobjectI::ice_invoke(vector<Ice::Byte> inEncaps, vector<Ice::Byte>& outEncaps, 
 }
 
 bool
-BlobjectArrayI::ice_invoke(pair<const Ice::Byte*, const Ice::Byte*> inEncaps, vector<Ice::Byte>& outEncaps,
+BlobjectArrayI::ice_invoke(pair<const uint8_t*, const uint8_t*> inEncaps, vector<Ice::Byte>& outEncaps,
                            const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
@@ -106,15 +106,15 @@ BlobjectAsyncI::ice_invokeAsync(vector<Ice::Byte> inEncaps,
 }
 
 void
-BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inEncaps,
-                                     function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> response,
+BlobjectArrayAsyncI::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inEncaps,
+                                     function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
                                      function<void(exception_ptr)>,
                                      const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), inEncaps);
     vector<Ice::Byte> outEncaps;
     bool ok = invokeInternal(in, outEncaps, current);
-    pair<const Ice::Byte*, const Ice::Byte*> outPair(static_cast<const Ice::Byte*>(nullptr), static_cast<const Ice::Byte*>(nullptr));
+    pair<const uint8_t*, const uint8_t*> outPair(static_cast<const uint8_t*>(nullptr), static_cast<const uint8_t*>(nullptr));
     if(outEncaps.size() != 0)
     {
         outPair.first = &outEncaps[0];

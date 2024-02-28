@@ -33,7 +33,7 @@ const string ice_flushBatchRequests_name = "ice_flushBatchRequests";
 namespace IceInternal
 {
 
-inline std::pair<const Ice::Byte*, const Ice::Byte*>
+inline std::pair<const uint8_t*, const uint8_t*>
 makePair(const Ice::ByteSeq& seq)
 {
     if(seq.empty())
@@ -147,12 +147,12 @@ public:
     void
     invoke(const std::string& operation,
            Ice::OperationMode mode,
-           const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+           const std::pair<const uint8_t*, const uint8_t*>& inParams,
            const Ice::Context& context)
     {
         _read = [](bool ok, Ice::InputStream* stream)
         {
-            const Ice::Byte* encaps;
+            const uint8_t* encaps;
             std::int32_t sz;
             stream->readEncapsulation(encaps, sz);
             return R { ok, { encaps, encaps + sz } };
@@ -514,7 +514,7 @@ Ice::ObjectPrx::ice_invokeAsync(const string &operation,
 
 bool Ice::ObjectPrx::ice_invoke(const string &operation,
                                 Ice::OperationMode mode,
-                                const std::pair<const Ice::Byte *, const Ice::Byte *> &inParams,
+                                const std::pair<const uint8_t *, const uint8_t *> &inParams,
                                 vector<Ice::Byte> &outParams,
                                 const Ice::Context &context) const
 {
@@ -530,7 +530,7 @@ bool Ice::ObjectPrx::ice_invoke(const string &operation,
 std::future<std::tuple<bool, vector<Byte>>>
 Ice::ObjectPrx::ice_invokeAsync(const string &operation,
                                 Ice::OperationMode mode,
-                                const std::pair<const Ice::Byte *, const Ice::Byte *> &inParams,
+                                const std::pair<const uint8_t *, const uint8_t *> &inParams,
                                 const Ice::Context &context) const
 {
     using Outgoing =
@@ -543,13 +543,13 @@ Ice::ObjectPrx::ice_invokeAsync(const string &operation,
 std::function<void()>
 Ice::ObjectPrx::ice_invokeAsync(const string &operation,
                                 Ice::OperationMode mode,
-                                const std::pair<const Ice::Byte *, const Ice::Byte *> &inParams,
-                                std::function<void(bool, std::pair<const Ice::Byte *, const Ice::Byte *>)> response,
+                                const std::pair<const uint8_t *, const uint8_t *> &inParams,
+                                std::function<void(bool, std::pair<const uint8_t *, const uint8_t *>)> response,
                                 std::function<void(std::exception_ptr)> ex,
                                 std::function<void(bool)> sent,
                                 const Ice::Context &context) const
 {
-    using Result = ::std::tuple<bool, ::std::pair<const ::Ice::Byte *, const ::Ice::Byte *>>;
+    using Result = ::std::tuple<bool, ::std::pair<const ::uint8_t *, const ::uint8_t *>>;
     using Outgoing = ::IceInternal::InvokeLambdaOutgoing<Result>;
 
     ::std::function<void(Result &&)> r;

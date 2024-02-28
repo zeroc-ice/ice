@@ -185,8 +185,8 @@ InitialI::opMyInterfaceProxyAsync(optional<::MyInterfacePrx> p1,
 }
 
 void
-InitialI::opByteSeqAsync(optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>> p1,
-                              ::std::function<void(const optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&, const optional<::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>>&)> response,
+InitialI::opByteSeqAsync(optional<::std::pair<const ::uint8_t*, const ::uint8_t*>> p1,
+                              ::std::function<void(const optional<::std::pair<const ::uint8_t*, const ::uint8_t*>>&, const optional<::std::pair<const ::uint8_t*, const ::uint8_t*>>&)> response,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);

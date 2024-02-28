@@ -112,7 +112,7 @@ public:
         called();
     }
 
-    void opByte(Ice::Byte r, Ice::Byte b)
+    void opByte(uint8_t r, uint8_t b)
     {
         test(b == Ice::Byte(0xf0));
         test(r == Ice::Byte(0xff));
@@ -1105,7 +1105,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     {
         CallbackPtr cb = make_shared<Callback>();
         p->opByteAsync(Ice::Byte(0xff), Ice::Byte(0x0f),
-            [&](Ice::Byte b1, Ice::Byte b2)
+            [&](uint8_t b1, uint8_t b2)
             {
                 cb->opByte(b1, b2);
             },

@@ -252,8 +252,8 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     }
 
     {
-        Ice::Byte b;
-        Ice::Byte r;
+        uint8_t b;
+        uint8_t r;
 
         r = p->opByte(Ice::Byte(0xff), Ice::Byte(0x0f), b);
         test(b == Ice::Byte(0xf0));

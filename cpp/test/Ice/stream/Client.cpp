@@ -152,7 +152,7 @@ allTests(Test::TestHelper* helper)
         out.write(true);
         out.endEncapsulation();
         out.finished(data);
-        pair<const Ice::Byte*, const Ice::Byte*> d = out.finished();
+        pair<const uint8_t*, const uint8_t*> d = out.finished();
         test(d.second - d.first == static_cast<int>(data.size()));
         test(vector<Ice::Byte>(d.first, d.second) == data);
 
@@ -190,10 +190,10 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::OutputStream out(communicator);
-        out.write((Ice::Byte)1);
+        out.write((uint8_t)1);
         out.finished(data);
         Ice::InputStream in(communicator, data);
-        Ice::Byte v;
+        uint8_t v;
         in.read(v);
         test(v == 1);
     }
@@ -1095,8 +1095,8 @@ allTests(Test::TestHelper* helper)
     // Test marshaling to user-supplied buffer.
     //
     {
-        Ice::Byte buf[128];
-        pair<Ice::Byte*, Ice::Byte*> p(&buf[0], &buf[0] + sizeof(buf));
+        uint8_t buf[128];
+        pair<uint8_t*, uint8_t*> p(&buf[0], &buf[0] + sizeof(buf));
         Ice::OutputStream out(communicator, Ice::currentEncoding, p);
         vector<Ice::Byte> v;
         v.resize(127);
@@ -1105,8 +1105,8 @@ allTests(Test::TestHelper* helper)
         test(out.b.begin() == buf); // Verify the stream hasn't reallocated.
     }
     {
-        Ice::Byte buf[128];
-        pair<Ice::Byte*, Ice::Byte*> p(&buf[0], &buf[0] + sizeof(buf));
+        uint8_t buf[128];
+        pair<uint8_t*, uint8_t*> p(&buf[0], &buf[0] + sizeof(buf));
         Ice::OutputStream out(communicator, Ice::currentEncoding, p);
         vector<Ice::Byte> v;
         v.resize(127);

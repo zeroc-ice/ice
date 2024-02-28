@@ -90,9 +90,9 @@ public:
 
     IconvStringConverter(const std::string&);
 
-    virtual Ice::Byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
+    virtual std::uint8_t* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
 
-    virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, std::basic_string<charT>&) const;
+    virtual void fromUTF8(const std::uint8_t*, const std::uint8_t*, std::basic_string<charT>&) const;
 
 private:
 
@@ -175,7 +175,7 @@ IconvStringConverter<charT>::getDescriptors() const
     return descriptorHolder.descriptor;
 }
 
-template<typename charT> Ice::Byte*
+template<typename charT> std::uint8_t*
 IconvStringConverter<charT>::toUTF8(const charT* sourceStart,
                                     const charT* sourceEnd,
                                     Ice::UTF8Buffer& buf) const
@@ -208,7 +208,7 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart,
     {
         size_t howMany = std::max(inbytesleft, size_t(4));
         outbuf = reinterpret_cast<char*>(buf.getMoreBytes(howMany,
-                                                          reinterpret_cast<Ice::Byte*>(outbuf)));
+                                                          reinterpret_cast<std::uint8_t*>(outbuf)));
         count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &howMany);
     } while(count == size_t(-1) && errno == E2BIG);
 
@@ -217,11 +217,11 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart,
         throw Ice::IllegalConversionException(__FILE__, __LINE__,
                                               errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
     }
-    return reinterpret_cast<Ice::Byte*>(outbuf);
+    return reinterpret_cast<std::uint8_t*>(outbuf);
 }
 
 template<typename charT> void
-IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd,
+IconvStringConverter<charT>::fromUTF8(const std::uint8_t* sourceStart, const std::uint8_t* sourceEnd,
                                       std::basic_string<charT>& target) const
 {
     iconv_t cd = getDescriptors().first;
@@ -239,7 +239,7 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 #ifdef ICE_CONST_ICONV_INBUF
     const char* inbuf = reinterpret_cast<const char*>(sourceStart);
 #else
-    char* inbuf = reinterpret_cast<char*>(const_cast<Ice::Byte*>(sourceStart));
+    char* inbuf = reinterpret_cast<char*>(const_cast<std::uint8_t*>(sourceStart));
 #endif
     assert(sourceEnd > sourceStart);
     size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart);

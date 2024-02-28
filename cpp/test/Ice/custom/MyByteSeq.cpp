@@ -49,7 +49,7 @@ void
 MyByteSeq::swap(MyByteSeq& seq)
 {
     size_t tmpSize = seq._size;
-    Ice::Byte* tmpData = seq._data;
+    uint8_t* tmpData = seq._data;
     seq._size = _size;
     seq._data = _data;
     _size = tmpSize;

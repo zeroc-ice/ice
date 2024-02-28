@@ -183,7 +183,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
         try
         {
             p->opByteAsync(Ice::Byte(0xff), Ice::Byte(0x0f),
-                [](Ice::Byte, Ice::Byte)
+                [](Ice::Byte, uint8_t)
                 {
                     test(false);
                 });

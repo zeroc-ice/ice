@@ -18,7 +18,7 @@ class BlobjectArrayI : public Ice::BlobjectArray
 {
 public:
 
-    virtual bool ice_invoke(std::pair<const Ice::Byte*, const Ice::Byte*>, std::vector<Ice::Byte>&,
+    virtual bool ice_invoke(std::pair<const std::uint8_t*, const std::uint8_t*>, std::vector<Ice::Byte>&,
                             const Ice::Current&);
 };
 
@@ -36,8 +36,8 @@ class BlobjectArrayAsyncI : public Ice::BlobjectArrayAsync
 {
 public:
 
-    virtual void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
-                                 std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+    virtual void ice_invokeAsync(std::pair<const std::uint8_t*, const std::uint8_t*>,
+                                 std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Ice::Current&);
 };

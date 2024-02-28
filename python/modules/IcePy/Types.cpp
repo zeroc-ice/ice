@@ -534,7 +534,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 Py_ssize_t strsz;
                 assert(PyBytes_Check(bytes.get()));
                 PyBytes_AsStringAndSize(bytes.get(), &str, &strsz);
-                vector<Ice::Byte> vtmp(reinterpret_cast<Ice::Byte*>(str), reinterpret_cast<Ice::Byte*>(str + strsz));
+                vector<Ice::Byte> vtmp(reinterpret_cast<uint8_t*>(str), reinterpret_cast<uint8_t*>(str + strsz));
                 info->bytes.swap(vtmp);
 
                 PyObjectHandle instances = getAttr(s.get(), "instances", false);
@@ -917,7 +917,7 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     }
     case PrimitiveInfo::KindByte:
     {
-        Ice::Byte val;
+        uint8_t val;
         is->read(val);
         PyObjectHandle p = PyLong_FromLong(val);
         cb->unmarshaled(p.get(), target, closure);
@@ -1800,7 +1800,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                     throw AbortMarshaling();
                 }
             }
-            const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(pybuf.buf);
+            const uint8_t* b = reinterpret_cast<const uint8_t*>(pybuf.buf);
             Py_ssize_t sz = pybuf.len;
 
             switch(pi->kind)
@@ -1813,8 +1813,8 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
                 case PrimitiveInfo::KindByte:
                 {
-                    os->write(reinterpret_cast<const Ice::Byte*>(b),
-                              reinterpret_cast<const Ice::Byte*>(b + sz));
+                    os->write(reinterpret_cast<const uint8_t*>(b),
+                              reinterpret_cast<const uint8_t*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindShort:
@@ -1902,7 +1902,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
             assert(PyBytes_Check(p));
             char* str;
             PyBytes_AsStringAndSize(p, &str, &sz);
-            os->write(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
+            os->write(reinterpret_cast<const uint8_t*>(str), reinterpret_cast<const uint8_t*>(str + sz));
         }
         else
         {
@@ -2174,7 +2174,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     }
     case PrimitiveInfo::KindByte:
     {
-        pair<const Ice::Byte*, const Ice::Byte*> p;
+        pair<const uint8_t*, const uint8_t*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory)
@@ -2627,7 +2627,7 @@ IcePy::CustomInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* /*obje
     char* str;
     Py_ssize_t sz;
     PyBytes_AsStringAndSize(obj.get(), &str, &sz);
-    os->write(reinterpret_cast<const Ice::Byte*>(str), reinterpret_cast<const Ice::Byte*>(str + sz));
+    os->write(reinterpret_cast<const uint8_t*>(str), reinterpret_cast<const uint8_t*>(str + sz));
 }
 
 void
@@ -2637,7 +2637,7 @@ IcePy::CustomInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
     //
     // Unmarshal the raw byte sequence.
     //
-    pair<const Ice::Byte*, const Ice::Byte*> seq;
+    pair<const uint8_t*, const uint8_t*> seq;
     is->read(seq);
     int sz = static_cast<int>(seq.second - seq.first);
 

@@ -236,7 +236,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 //
                 // Check if we have enough data for a complete message.
                 //
-                const Ice::Byte* p = _parser->isCompleteMessage(&_readBuffer.b[0], _readBuffer.i);
+                const uint8_t* p = _parser->isCompleteMessage(&_readBuffer.b[0], _readBuffer.i);
                 if(!p)
                 {
                     if(_readBuffer.i < _readBuffer.b.end())
