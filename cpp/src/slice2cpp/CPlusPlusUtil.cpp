@@ -929,7 +929,6 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
         os << customStream;
     }
 
-    string deref;
     if(pointer)
     {
         os << "->";
@@ -1230,9 +1229,8 @@ Slice::findMetaData(const string& prefix, const ClassDeclPtr& cl, string& value)
 bool
 Slice::findMetaData(const string& prefix, const StringList& metaData, string& value)
 {
-    for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); i++)
+    for (const auto& s : metaData)
     {
-        string s = *i;
         if(s.find(prefix) == 0)
         {
             value = s.substr(prefix.size());
