@@ -7,14 +7,15 @@
 NS_ASSUME_NONNULL_BEGIN
 
 ICEIMPL_API @interface ICEProcess : ICELocalObject
--(void) shutdown;
--(void) writeMessage:(NSString*)message fd:(int32_t)fd;
+- (void)shutdown;
+- (void)writeMessage:(NSString*)message fd:(int32_t)fd;
 @end
 
 #ifdef __cplusplus
 
-@interface ICEProcess()
-@property (nonatomic, readonly) std::shared_ptr<Ice::Process> process;
+@interface
+ICEProcess ()
+@property(nonatomic, readonly) std::shared_ptr<Ice::Process> process;
 @end
 
 #endif

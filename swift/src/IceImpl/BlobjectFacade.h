@@ -10,11 +10,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^ICEBlobjectResponse) (bool, const void*, long);
-typedef void (^ICEBlobjectException) (ICERuntimeException*);
+typedef void (^ICEBlobjectResponse)(bool, const void*, long);
+typedef void (^ICEBlobjectException)(ICERuntimeException*);
 
 ICEIMPL_API @protocol ICEBlobjectFacade
--(void) facadeInvoke:(ICEObjectAdapter*)adapter
+- (void)facadeInvoke:(ICEObjectAdapter*)adapter
        inEncapsBytes:(void*)inEncapsBytes
        inEncapsCount:(long)inEncapsCount
                  con:(ICEConnection* _Nullable)con
@@ -29,7 +29,7 @@ ICEIMPL_API @protocol ICEBlobjectFacade
        encodingMinor:(uint8_t)encodingMinor
             response:(ICEBlobjectResponse)response
            exception:(ICEBlobjectException)exception;
--(void) facadeRemoved;
+- (void)facadeRemoved;
 @end
 
 #ifdef __cplusplus
@@ -37,26 +37,17 @@ ICEIMPL_API @protocol ICEBlobjectFacade
 class BlobjectFacade : public Ice::BlobjectArrayAsync
 {
 public:
+    BlobjectFacade(id<ICEBlobjectFacade> facade) : _facade(facade) {}
 
-    BlobjectFacade(id<ICEBlobjectFacade> facade): _facade(facade)
-    {
-    }
+    ~BlobjectFacade() { [_facade facadeRemoved]; }
 
-    ~BlobjectFacade()
-    {
-        [_facade facadeRemoved];
-    }
+    virtual void ice_invokeAsync(
+        std::pair<const Byte*, const Byte*> inEncaps,
+        std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
+        std::function<void(std::exception_ptr)> error,
+        const Ice::Current& current);
 
-    virtual void
-    ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
-                    std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
-                    std::function<void(std::exception_ptr)> error,
-                    const Ice::Current& current);
-
-    id<ICEBlobjectFacade> getFacade() const
-    {
-        return _facade;
-    }
+    id<ICEBlobjectFacade> getFacade() const { return _facade; }
 
 private:
     id<ICEBlobjectFacade> _facade;

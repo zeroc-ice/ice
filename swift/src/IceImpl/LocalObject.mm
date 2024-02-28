@@ -13,11 +13,11 @@ namespace
 
 @implementation ICELocalObject
 
--(instancetype) initWithCppObject:(std::shared_ptr<void>)cppObject
+- (instancetype)initWithCppObject:(std::shared_ptr<void>)cppObject
 {
     assert(cppObject);
     self = [super init];
-    if(!self)
+    if (!self)
     {
         return nil;
     }
@@ -32,16 +32,16 @@ namespace
     return self;
 }
 
-+(nullable instancetype) getHandle:(std::shared_ptr<void>)cppObject
++ (nullable instancetype)getHandle:(std::shared_ptr<void>)cppObject
 {
-    if(cppObject == nullptr)
+    if (cppObject == nullptr)
     {
         return nil;
     }
     @synchronized([ICELocalObject class])
     {
         std::unordered_map<void*, __weak ICELocalObject*>::const_iterator p = cachedObjects.find(cppObject.get());
-        if(p != cachedObjects.end())
+        if (p != cachedObjects.end())
         {
             return p->second;
         }
@@ -52,7 +52,8 @@ namespace
     }
 }
 
--(void) dealloc {
+- (void)dealloc
+{
     assert(_cppObject != nullptr);
     @synchronized([ICELocalObject class])
     {
