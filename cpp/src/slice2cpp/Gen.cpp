@@ -1945,7 +1945,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         C << sb;
         C << nl << returnT << " v;";
 
-        writeUnmarshalCode(C, outParams, p, _useWstring | TypeContextTuple);
+        writeUnmarshalCode(C, outParams, p, TypeContextTuple);
 
         if(p->returnsClasses(false))
         {
@@ -1965,7 +1965,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         C << sb;
 
         writeAllocateCode(C, outParams, p, interfaceScope, _useWstring);
-        writeUnmarshalCode(C, outParams, p, _useWstring);
+        writeUnmarshalCode(C, outParams, p);
 
         if(p->returnsClasses(false))
         {
@@ -3137,8 +3137,8 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     if(!inParams.empty())
     {
         C << nl << "auto istr = inS.startReadParams();";
-        writeAllocateCode(C, inParams, 0, interfaceScope, _useWstring | TypeContextInParam);
-        writeUnmarshalCode(C, inParams, 0, _useWstring | TypeContextInParam);
+        writeAllocateCode(C, inParams, nullptr, interfaceScope, _useWstring | TypeContextInParam);
+        writeUnmarshalCode(C, inParams, nullptr);
         if(p->sendsClasses(false))
         {
             C << nl << "istr->readPendingValues();";
