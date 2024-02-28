@@ -574,7 +574,7 @@ createOutgoingAsyncParams(const OperationPtr& p, const string& scope, int typeCo
     TypePtr ret = p->returnType();
     if (ret)
     {
-        elements.push_back(returnTypeToString(ret, p->returnIsOptional(), scope, p->getMetaData(), typeContext));
+        elements.push_back(typeToString(ret, p->returnIsOptional(), scope, p->getMetaData(), typeContext));
     }
     for (const auto& param : p->outParameters())
     {
@@ -1353,7 +1353,7 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     string scope = fixKwd(p->scope());
     TypePtr type = p->type();
     int typeCtx = _useWstring;
-    string s = typeToString(type, scope, p->typeMetaData(), typeCtx);
+    string s = typeToString(type, false, scope, p->typeMetaData(), typeCtx);
     StringList metaData = p->getMetaData();
 
     string seqType = findMetaData(metaData, _useWstring);
@@ -1388,8 +1388,8 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
         //
         TypePtr keyType = p->keyType();
         TypePtr valueType = p->valueType();
-        string ks = typeToString(keyType, scope, p->keyMetaData(), typeCtx);
-        string vs = typeToString(valueType, scope, p->valueMetaData(), typeCtx);
+        string ks = typeToString(keyType, false, scope, p->keyMetaData(), typeCtx);
+        string vs = typeToString(valueType, false, scope, p->valueMetaData(), typeCtx);
 
         H << nl << "using " << name << " = ::std::map<" << ks << ", " << vs << ">;";
     }
@@ -1409,7 +1409,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     H << sp;
     writeDocSummary(H, p);
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
-      << typeToString(p->type(), scope, p->typeMetaData(), _useWstring) << " " << fixKwd(p->name())
+      << typeToString(p->type(), false, scope, p->typeMetaData(), _useWstring) << " " << fixKwd(p->name())
       << " = ";
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetaData(),
                        scope);
@@ -1632,8 +1632,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
 
     bool retIsOpt = p->returnIsOptional();
-    string retS = returnTypeToString(ret, retIsOpt, interfaceScope, p->getMetaData(), _useWstring);
-    string retSImpl = returnTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring);
+    string retS = ret ? typeToString(ret, retIsOpt, interfaceScope, p->getMetaData(), _useWstring) : "void";
+    string retSImpl = ret ? typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring) : "void";
 
     // All parameters
     vector<string> paramsDecl;
@@ -1867,8 +1867,8 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     TypePtr ret = p->returnType();
 
     bool retIsOpt = p->returnIsOptional();
-    string retS = returnTypeToString(ret, retIsOpt, interfaceScope, p->getMetaData(), _useWstring);
-    string retSImpl = returnTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring);
+    string retS = ret ? typeToString(ret, retIsOpt, interfaceScope, p->getMetaData(), _useWstring) : "void";
+    string retSImpl = ret ? typeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring) : "void";
 
     vector<string> inParamsS;
     vector<string> inParamsImplDecl;
@@ -2976,7 +2976,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
 
     string retS;
-    if(amd)
+    if (amd || !ret)
     {
         retS = "void";
     }
@@ -2986,7 +2986,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        retS = returnTypeToString(ret, p->returnIsOptional(), interfaceScope, p->getMetaData(), _useWstring);
+        retS = typeToString(ret, p->returnIsOptional(), interfaceScope, p->getMetaData(), _useWstring);
     }
 
     for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)

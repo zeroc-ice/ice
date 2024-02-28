@@ -29,11 +29,18 @@ const int TypeContextTuple = 32;
 bool isMovable(const TypePtr&);
 
 std::string getUnqualified(const std::string&, const std::string&);
-std::string typeToString(const TypePtr&, const std::string& = "", const StringList& = StringList(), int = 0);
+
+// Gets the C++ type for a Slice parameter or field.
 std::string typeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
-std::string returnTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+
+// TODO: find a better name.
+// Gets the C++ type for a Slice parameter to be marshaled.
 std::string inputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+
+// TODO: find a better name.
+// Gets the C++ type for a Slice out parameter when mapped to a C++ out parameter.
 std::string outputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+
 std::string operationModeToString(Operation::Mode);
 std::string opFormatTypeToString(const OperationPtr&);
 
@@ -50,7 +57,6 @@ void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const 
 void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
                        int = 0, const std::string& = "");
 
-void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
 void writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, bool);
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool);

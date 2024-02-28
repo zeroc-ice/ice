@@ -26,11 +26,11 @@ toOptional(const TypePtr& type, const string& scope, const StringList& metaData,
     if (isProxyType(type))
     {
         // We map optional proxies like regular proxies, as optional<XxxPrx>.
-        return typeToString(type, scope, metaData, typeCtx);
+        return typeToString(type, false, scope, metaData, typeCtx);
     }
     else
     {
-        return "::std::optional<" + typeToString(type, scope, metaData, typeCtx) + '>';
+        return "::std::optional<" + typeToString(type, false, scope, metaData, typeCtx) + '>';
     }
 }
 
@@ -62,7 +62,7 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
         if(seqType == "%array")
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            string s = typeToString(seq->type(), scope, seq->typeMetaData(),
+            string s = typeToString(seq->type(), false, scope, seq->typeMetaData(),
                                     typeCtx | (inWstringModule(seq) ? TypeContextUseWstring : 0));
             return "::std::pair<const " + s + "*, const " + s + "*>";
         }
@@ -99,6 +99,7 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
     out << nl << s << ' ' << fixedName << ';';
 }
 
+// This function is used only for unmarshaling.
 void
 writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string& fixedName, const StringList& metaData,
                   const string& obj = "")
@@ -487,8 +488,15 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
 }
 
 string
-Slice::typeToString(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
+Slice::typeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData, int typeCtx)
 {
+    assert(type);
+
+    if (optional)
+    {
+        return toOptional(type, scope, metaData, typeCtx);
+    }
+
     static const char* builtinTable[] =
     {
         "::std::uint8_t",
@@ -564,39 +572,11 @@ Slice::typeToString(const TypePtr& type, const string& scope, const StringList& 
 }
 
 string
-Slice::typeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData, int typeCtx)
-{
-    if(optional)
-    {
-        return toOptional(type, scope, metaData, typeCtx);
-    }
-    else
-    {
-        return typeToString(type, scope, metaData, typeCtx);
-    }
-}
-
-string
-Slice::returnTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
-                          int typeCtx)
-{
-    if(!type)
-    {
-        return "void";
-    }
-
-    if(optional)
-    {
-        return toOptional(type, scope, metaData, typeCtx);
-    }
-
-    return typeToString(type, scope, metaData, typeCtx);
-}
-
-string
 Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
                          int typeCtx)
 {
+    assert(type);
+
     static const char* InputBuiltinTable[] =
     {
         "::std::uint8_t",
@@ -683,6 +663,8 @@ string
 Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
                           int typeCtx)
 {
+    assert(type);
+
     static const char* outputBuiltinTable[] =
     {
         "::std::uint8_t&",
@@ -968,20 +950,6 @@ Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const Operati
     {
         writeParamAllocateCode(out, op->returnType(), op->returnIsOptional(), clScope, returnValueS, op->getMetaData(),
                                typeCtx);
-    }
-}
-
-void
-Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend)
-{
-    string prefix = prepend ? paramPrefix : "";
-    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
-    {
-        writeParamEndCode(out, (*p)->type(), (*p)->optional(), fixKwd(prefix + (*p)->name()), (*p)->getMetaData());
-    }
-    if(op && op->returnType())
-    {
-        writeParamEndCode(out, op->returnType(), op->returnIsOptional(), "ret", op->getMetaData());
     }
 }
 
