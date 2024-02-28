@@ -32,6 +32,17 @@ jobs:
         working-directory: ./cpp
         run: make -j3 V=1 srcs
 
+      - name: Generate Doxygen Documentation for Slice
+        working-directory: ./doxygen
+        run: doxygen
+
+      - name: Generate Doxygen Documentation for C++
+        working-directory: ./cpp
+        run: |
+          make generate-srcs
+          cd doxygen
+          doxygen
+
       - name: Generate Documentation for Swift
         working-directory: ./swift
         run: |
