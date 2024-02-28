@@ -9,7 +9,7 @@
 #include <TestHelper.h>
 #include <Ice/NativePropertiesAdmin.h>
 
-class RemoteCommunicatorI final : public virtual Test::RemoteCommunicator
+class RemoteCommunicatorI final : public Test::RemoteCommunicator
 {
 public:
 

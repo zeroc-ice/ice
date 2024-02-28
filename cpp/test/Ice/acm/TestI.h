@@ -31,7 +31,7 @@ public:
 private:
 
     const Ice::ObjectAdapterPtr _adapter;
-    const Test::TestIntfPrxPtr _testIntf;
+    const std::optional<Test::TestIntfPrx> _testIntf;
 };
 
 class TestI final : public Test::TestIntf
