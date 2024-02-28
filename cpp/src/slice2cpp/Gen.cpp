@@ -1643,11 +1643,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string retS = returnTypeToString(ret, retIsOpt, interfaceScope, p->getMetaData(), _useWstring);
     string retSImpl = returnTypeToString(ret, retIsOpt, "", p->getMetaData(), _useWstring);
 
-    vector<string> params;
+    // All parameters
     vector<string> paramsDecl;
     vector<string> paramsImplDecl;
 
-    vector<string> inParamsS;
+    // Only the parameters marshaled into the request.
     vector<string> inParamsDecl;
     vector<string> inParamsImplDecl;
 
@@ -1668,8 +1668,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList inParams = p->inParameters();
     ParamDeclList outParams = p->outParameters();
 
-    string returnValueS = "returnValue";
-
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         string paramName = fixKwd((*q)->name());
@@ -1680,25 +1678,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             string outputTypeString = outputTypeToString((*q)->type(), (*q)->optional(), interfaceScope, metaData,
                                                          _useWstring);
 
-            params.push_back(outputTypeString);
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
             paramsImplDecl.push_back(outputTypeString + ' ' +  paramPrefix + (*q)->name());
-
-            if((*q)->name() == "returnValue")
-            {
-                returnValueS = "_returnValue";
-            }
         }
         else
         {
             string typeString = inputTypeToString((*q)->type(), (*q)->optional(), interfaceScope, metaData,
                                                   _useWstring);
 
-            params.push_back(typeString);
             paramsDecl.push_back(typeString + ' ' + paramName);
             paramsImplDecl.push_back(typeString + ' ' +  paramPrefix + (*q)->name());
 
-            inParamsS.push_back(typeString);
             inParamsDecl.push_back(typeString + ' ' + paramName);
             inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + (*q)->name());
         }
