@@ -684,7 +684,7 @@ IcePHP::SyncTypedInvocation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         checkTwowayOnly(_prx);
 
         // Invoke the operation.
-        vector<Ice::Byte> result;
+        vector<uint8_t> result;
         bool status;
         {
             if(hasCtx)

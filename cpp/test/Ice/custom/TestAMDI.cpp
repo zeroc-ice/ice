@@ -58,8 +58,8 @@ TestIntfI::opBoolListAsync(Test::BoolList in,
 }
 
 void
-TestIntfI::opByteSeqAsync(std::deque<Ice::Byte> in,
-                          std::function<void(const std::deque<Ice::Byte>&, const std::deque<Ice::Byte>&)> response,
+TestIntfI::opByteSeqAsync(std::deque<uint8_t> in,
+                          std::function<void(const std::deque<uint8_t>&, const std::deque<uint8_t>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);

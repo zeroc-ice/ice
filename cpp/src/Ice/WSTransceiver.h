@@ -133,7 +133,7 @@ private:
     bool _closingInitiator;
     int _closingReason;
 
-    std::vector<Ice::Byte> _pingPayload;
+    std::vector<std::uint8_t> _pingPayload;
 };
 
 }

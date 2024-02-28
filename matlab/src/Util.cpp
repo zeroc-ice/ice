@@ -38,14 +38,14 @@ getMajorMinor(mxArray* p, uint8_t& major, uint8_t& minor)
     {
         throw std::invalid_argument("major is not a scalar");
     }
-    major = static_cast<Ice::Byte>(mxGetScalar(maj));
+    major = static_cast<uint8_t>(mxGetScalar(maj));
     auto min = mxGetProperty(p, 0, "minor");
     assert(min);
     if(!mxIsScalar(min))
     {
         throw std::invalid_argument("minor is not a scalar");
     }
-    minor = static_cast<Ice::Byte>(mxGetScalar(min));
+    minor = static_cast<uint8_t>(mxGetScalar(min));
 }
 
 }
@@ -595,7 +595,7 @@ IceMatlab::createByteArray(const uint8_t* begin, const uint8_t* end)
 }
 
 mxArray*
-IceMatlab::createByteList(const vector<Ice::Byte>& bytes)
+IceMatlab::createByteList(const vector<uint8_t>& bytes)
 {
     auto r = mxCreateCellMatrix(1, static_cast<int>(bytes.size()));
     mwIndex i = 0;

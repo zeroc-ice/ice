@@ -83,8 +83,8 @@ InitialI::opRequiredException(optional<int32_t> a,
     throw ex;
 }
 
-optional<Ice::Byte>
-InitialI::opByte(optional<Ice::Byte> p1, optional<Ice::Byte>& p3, const Current&)
+optional<uint8_t>
+InitialI::opByte(optional<uint8_t> p1, optional<uint8_t>& p3, const Current&)
 {
     p3 = p1;
     return p1;

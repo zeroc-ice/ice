@@ -49,7 +49,7 @@ private:
         std::string,
         std::int64_t,
         std::int32_t,
-        std::vector<Ice::Byte>&,
+        std::vector<std::uint8_t>&,
         bool) const;
 
     const std::string _dataDir;

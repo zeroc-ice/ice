@@ -53,7 +53,7 @@ getVersion(PyObject* p, T& v)
             PyErr_Format(PyExc_ValueError, STRCAST("version major must be a value between 0 and 255"));
             return false;
         }
-        v.major = static_cast<Ice::Byte>(m);
+        v.major = static_cast<uint8_t>(m);
     }
     else
     {
@@ -74,7 +74,7 @@ getVersion(PyObject* p, T& v)
             PyErr_Format(PyExc_ValueError, STRCAST("version minor must be a value between 0 and 255"));
             return false;
         }
-        v.minor = static_cast<Ice::Byte>(m);
+        v.minor = static_cast<uint8_t>(m);
     }
     else
     {

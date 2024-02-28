@@ -833,13 +833,13 @@ public:
         const std::uint8_t* src = &(*i);
         i += sizeof(std::int32_t);
 #ifdef ICE_BIG_ENDIAN
-        std::uint8_t* dest = reinterpret_cast<Byte*>(&v) + sizeof(std::int32_t) - 1;
+        std::uint8_t* dest = reinterpret_cast<std::uint8_t*>(&v) + sizeof(std::int32_t) - 1;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest = *src;
 #else
-        std::uint8_t* dest = reinterpret_cast<Byte*>(&v);
+        std::uint8_t* dest = reinterpret_cast<std::uint8_t*>(&v);
         *dest++ = *src++;
         *dest++ = *src++;
         *dest++ = *src++;

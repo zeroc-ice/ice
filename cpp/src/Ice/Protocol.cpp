@@ -85,8 +85,8 @@ stringToMajorMinor(const std::string& str, uint8_t& major, uint8_t& minor)
         throw Ice::VersionParseException(__FILE__, __LINE__, "range error in version `" + str + "'");
     }
 
-    major = static_cast<Ice::Byte>(majVersion);
-    minor = static_cast<Ice::Byte>(minVersion);
+    major = static_cast<uint8_t>(majVersion);
+    minor = static_cast<uint8_t>(minVersion);
 }
 
 void

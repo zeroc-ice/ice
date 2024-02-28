@@ -571,8 +571,8 @@
          error:(NSError**)error
 {
 
-    std::pair<const Ice::Byte*, const Ice::Byte*> p;
-    p.first = static_cast<const Ice::Byte*>(data.bytes);
+    std::pair<const uint8_t*, const uint8_t*> p;
+    p.first = static_cast<const uint8_t*>(data.bytes);
     p.second = p.first + data.length;
 
     auto comm = [communicator communicator];
@@ -623,8 +623,8 @@
       response:(void (^)(bool, void*, long))response
          error:(NSError**)error
 {
-    std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    std::pair<const uint8_t*, const uint8_t*> params(0, 0);
+    params.first = static_cast<const uint8_t*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -634,7 +634,7 @@
         {
             fromNSDictionary(context, ctx);
         }
-        std::vector<Ice::Byte> outParams;
+        std::vector<uint8_t> outParams;
 
         // We use a std::promise and invokeAsync to avoid making an extra copy of the outParam buffer
         // and to avoid calling PromiseKit wait. PromiseKit issues a warning if wait() is called on the main thread.
@@ -642,13 +642,13 @@
         std::promise<void> p;
 
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
-                              [response, &p](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
+                              [response, &p](bool ok, std::pair<const uint8_t*, const uint8_t*> outParams)
                               {
                                   // We need an autorelease pool as the unmarshaling (in the response) can
                                   // create autorelease objects, typically when unmarshaling proxies
                                   @autoreleasepool
                                   {
-                                      response(ok, const_cast<Ice::Byte*>(outParams.first),
+                                      response(ok, const_cast<uint8_t*>(outParams.first),
                                                static_cast<long>(outParams.second - outParams.first));
                                   }
                                   p.set_value();
@@ -676,8 +676,8 @@
              context:(NSDictionary*)context
                error:(NSError**)error
 {
-    std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    std::pair<const uint8_t*, const uint8_t*> params(0, 0);
+    params.first = static_cast<const uint8_t*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -688,7 +688,7 @@
             fromNSDictionary(context, ctx);
         }
 
-        std::vector<Ice::Byte> ignored;
+        std::vector<uint8_t> ignored;
         _prx->ice_invoke(fromNSString(op), static_cast<Ice::OperationMode>(mode), params, ignored,
                          context ? ctx : Ice::noExplicitContext);
         return YES;
@@ -708,8 +708,8 @@
           exception:(void (^)(NSError*))exception
                sent:(void (^_Nullable)(bool))sent
 {
-    std::pair<const Ice::Byte*, const Ice::Byte*> params(0, 0);
-    params.first = static_cast<const Ice::Byte*>(inParams.bytes);
+    std::pair<const uint8_t*, const uint8_t*> params(0, 0);
+    params.first = static_cast<const uint8_t*>(inParams.bytes);
     params.second = params.first + inParams.length;
 
     try
@@ -721,7 +721,7 @@
         }
 
         _prx->ice_invokeAsync(fromNSString(op), static_cast<Ice::OperationMode>(mode), params,
-                                            [response](bool ok, std::pair<const Ice::Byte*, const Ice::Byte*> outParams)
+                                            [response](bool ok, std::pair<const uint8_t*, const uint8_t*> outParams)
                                             {
                                                 // We need an autorelease pool in case the unmarshaling creates auto
                                                 // release objects, and in case the application attaches a handler to
@@ -729,7 +729,7 @@
                                                 // executes response)
                                                 @autoreleasepool
                                                 {
-                                                    response(ok, const_cast<Ice::Byte*>(outParams.first),
+                                                    response(ok, const_cast<uint8_t*>(outParams.first),
                                                              static_cast<long>(outParams.second - outParams.first));
                                                 }
                                             },

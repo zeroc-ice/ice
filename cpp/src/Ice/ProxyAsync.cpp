@@ -472,7 +472,7 @@ Ice::ObjectPrx::_iceI_id(const shared_ptr<OutgoingAsyncT<string>>& outAsync, con
 bool Ice::ObjectPrx::ice_invoke(const string &operation,
                                 Ice::OperationMode mode,
                                 const vector<uint8_t> &inParams,
-                                vector<Ice::Byte> &outParams,
+                                vector<uint8_t> &outParams,
                                 const Ice::Context &context) const
 {
     return ice_invoke(operation, mode, makePair(inParams), outParams, context);
@@ -490,8 +490,8 @@ Ice::ObjectPrx::ice_invokeAsync(const string &operation,
 std::function<void()>
 Ice::ObjectPrx::ice_invokeAsync(const string &operation,
                                 Ice::OperationMode mode,
-                                const vector<Ice::Byte> &inParams,
-                                std::function<void(bool, vector<Ice::Byte>)> response,
+                                const vector<uint8_t> &inParams,
+                                std::function<void(bool, vector<uint8_t>)> response,
                                 std::function<void(std::exception_ptr)> ex,
                                 std::function<void(bool)> sent,
                                 const Ice::Context &context) const
@@ -515,7 +515,7 @@ Ice::ObjectPrx::ice_invokeAsync(const string &operation,
 bool Ice::ObjectPrx::ice_invoke(const string &operation,
                                 Ice::OperationMode mode,
                                 const std::pair<const uint8_t *, const uint8_t *> &inParams,
-                                vector<Ice::Byte> &outParams,
+                                vector<uint8_t> &outParams,
                                 const Ice::Context &context) const
 {
     using Outgoing = InvokePromiseOutgoing<std::tuple<bool, vector<uint8_t>>>;

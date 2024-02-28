@@ -1248,7 +1248,7 @@ readWriteTests(const ConfigurationPtr& configuration,
     seq.resize(10024); // Make sure the request doesn't compress too well.
     for(Ice::ByteSeq::iterator p = seq.begin(); p != seq.end(); ++p)
     {
-        *p = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+        *p = static_cast<uint8_t>(IceUtilInternal::random(255));
     }
 
     // Fill up the receive and send buffers

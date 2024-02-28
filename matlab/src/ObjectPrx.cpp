@@ -35,7 +35,7 @@ private:
     const bool _twoway;
     State _state;
     bool _ok; // True for success, false for user exception.
-    vector<Ice::Byte> _data;
+    vector<uint8_t> _data;
 };
 
 InvocationFuture::InvocationFuture(bool twoway, bool batch) :
@@ -75,7 +75,7 @@ InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& /*communica
     _token = nullptr;
     if(p.second > p.first)
     {
-        vector<Ice::Byte> data(p.first, p.second); // Makes a copy.
+        vector<uint8_t> data(p.first, p.second); // Makes a copy.
         _data.swap(data); // Avoids another copy.
     }
     _cond.notify_all();
@@ -252,7 +252,7 @@ Ice_ObjectPrx_ice_invoke(void* self, const char* op, int m, mxArray* inParams, u
         params.second = params.first + size;
     }
     auto mode = static_cast<Ice::OperationMode>(m);
-    vector<Ice::Byte> v;
+    vector<uint8_t> v;
 
     try
     {
@@ -283,7 +283,7 @@ Ice_ObjectPrx_ice_invokeNC(void* self, const char* op, int m, mxArray* inParams,
         params.second = params.first + size;
     }
     auto mode = static_cast<Ice::OperationMode>(m);
-    vector<Ice::Byte> v;
+    vector<uint8_t> v;
 
     try
     {

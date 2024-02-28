@@ -44,10 +44,10 @@ using namespace std;
 using namespace Ice;
 
 string
-toHexString(vector<Ice::Byte> data)
+toHexString(vector<uint8_t> data)
 {
     ostringstream os;
-    for(vector<Ice::Byte>::const_iterator i = data.begin(); i != data.end();)
+    for(vector<uint8_t>::const_iterator i = data.begin(); i != data.end();)
     {
         unsigned char c = *i;
         os.fill('0');

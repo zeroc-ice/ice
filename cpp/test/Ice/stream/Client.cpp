@@ -134,7 +134,7 @@ allTests(Test::TestHelper* helper)
         std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
     communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
 
-    vector<Ice::Byte> data;
+    vector<uint8_t> data;
 
     //
     // Test the stream API.
@@ -142,7 +142,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing primitive types... " << flush;
 
     {
-        vector<Ice::Byte> byte;
+        vector<uint8_t> byte;
         Ice::InputStream in(communicator, byte);
     }
 
@@ -154,7 +154,7 @@ allTests(Test::TestHelper* helper)
         out.finished(data);
         pair<const uint8_t*, const uint8_t*> d = out.finished();
         test(d.second - d.first == static_cast<int>(data.size()));
-        test(vector<Ice::Byte>(d.first, d.second) == data);
+        test(vector<uint8_t>(d.first, d.second) == data);
 
         Ice::InputStream in(communicator, data);
         in.startEncapsulation();
@@ -165,7 +165,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        vector<Ice::Byte> byte;
+        vector<uint8_t> byte;
         Ice::InputStream in(communicator, byte);
         try
         {
@@ -1098,7 +1098,7 @@ allTests(Test::TestHelper* helper)
         uint8_t buf[128];
         pair<uint8_t*, uint8_t*> p(&buf[0], &buf[0] + sizeof(buf));
         Ice::OutputStream out(communicator, Ice::currentEncoding, p);
-        vector<Ice::Byte> v;
+        vector<uint8_t> v;
         v.resize(127);
         out.write(v);
         test(out.pos() == 128); // 127 bytes + leading size (1 byte)
@@ -1108,7 +1108,7 @@ allTests(Test::TestHelper* helper)
         uint8_t buf[128];
         pair<uint8_t*, uint8_t*> p(&buf[0], &buf[0] + sizeof(buf));
         Ice::OutputStream out(communicator, Ice::currentEncoding, p);
-        vector<Ice::Byte> v;
+        vector<uint8_t> v;
         v.resize(127);
         ::memset(&v[0], 0xFF, v.size());
         out.write(v);
@@ -1118,7 +1118,7 @@ allTests(Test::TestHelper* helper)
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
-        vector<Ice::Byte> v2;
+        vector<uint8_t> v2;
         in.read(v2);
         test(v2.size() == 127);
         test(v == v2); // Make sure the original buffer was preserved.

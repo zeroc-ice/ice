@@ -405,7 +405,7 @@ Ice::InputStream::readBlob(vector<uint8_t>& v, int32_t sz)
 }
 
 void
-Ice::InputStream::read(std::vector<Ice::Byte>& v)
+Ice::InputStream::read(std::vector<uint8_t>& v)
 {
     std::pair<const uint8_t*, const uint8_t*> p;
     read(p);

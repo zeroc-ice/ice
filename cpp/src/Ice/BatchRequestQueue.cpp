@@ -176,10 +176,10 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress)
 
     _conditionVariable.wait(lock, [this] { return !_batchStreamInUse || _batchStreamCanFlush; });
 
-    vector<Ice::Byte> lastRequest;
+    vector<uint8_t> lastRequest;
     if(_batchMarker < _batchStream.b.size())
     {
-        vector<Ice::Byte>(_batchStream.b.begin() + _batchMarker, _batchStream.b.end()).swap(lastRequest);
+        vector<uint8_t>(_batchStream.b.begin() + _batchMarker, _batchStream.b.end()).swap(lastRequest);
         _batchStream.b.resize(_batchMarker);
     }
 

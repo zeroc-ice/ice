@@ -484,7 +484,7 @@ public:
     ice_invoke(const std::string& operation,
                Ice::OperationMode mode,
                const std::vector<std::uint8_t>& inParams,
-               std::vector<Ice::Byte>& outParams,
+               std::vector<std::uint8_t>& outParams,
                const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -495,7 +495,7 @@ public:
      * @param context The context map for the invocation.
      * @return The future object for the invocation.
      */
-    std::future<std::tuple<bool, std::vector<Ice::Byte>>>
+    std::future<std::tuple<bool, std::vector<std::uint8_t>>>
     ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
                     const std::vector<std::uint8_t>& inParams,
@@ -515,8 +515,8 @@ public:
     std::function<void()>
     ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
-                    const std::vector<Ice::Byte>& inParams,
-                    std::function<void(bool, std::vector<Ice::Byte>)> response,
+                    const std::vector<std::uint8_t>& inParams,
+                    std::function<void(bool, std::vector<std::uint8_t>)> response,
                     std::function<void(std::exception_ptr)> ex = nullptr,
                     std::function<void(bool)> sent = nullptr,
                     const Ice::Context& context = Ice::noExplicitContext) const;
@@ -537,7 +537,7 @@ public:
     ice_invoke(const std::string& operation,
                Ice::OperationMode mode,
                const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
-               std::vector<Ice::Byte>& outParams,
+               std::vector<std::uint8_t>& outParams,
                const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -548,7 +548,7 @@ public:
      * @param context The context map for the invocation.
      * @return The future object for the invocation.
      */
-    std::future<std::tuple<bool, std::vector<Ice::Byte>>>
+    std::future<std::tuple<bool, std::vector<std::uint8_t>>>
     ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
                     const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,

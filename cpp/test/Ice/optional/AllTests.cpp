@@ -345,7 +345,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!oon->a);
 
     MultiOptionalPtr mo1 = make_shared<MultiOptional>();
-    mo1->a = static_cast<Ice::Byte>(15);
+    mo1->a = static_cast<uint8_t>(15);
     mo1->b = true;
     mo1->c = static_cast<int16_t>(19);
     mo1->d = 78;
@@ -408,7 +408,7 @@ allTests(Test::TestHelper* helper, bool)
     MultiOptionalPtr mo3 = make_shared<MultiOptional>();
     *mo3 = *mo2;
 
-    test(mo3->a == static_cast<Ice::Byte>(15));
+    test(mo3->a == static_cast<uint8_t>(15));
     test(mo3->b == true);
     test(mo3->c == static_cast<short>(19));
     test(mo3->d == 78);
@@ -445,12 +445,12 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing comparison operators... " << flush;
 
-    test(mo1->a == static_cast<Ice::Byte>(15) && static_cast<Ice::Byte>(15) == mo1->a &&
-        mo1->a != static_cast<Ice::Byte>(16) && static_cast<Ice::Byte>(16) != mo1->a);
-    test(mo1->a < static_cast<Ice::Byte>(16) && mo1->a > static_cast<Ice::Byte>(14) &&
-        mo1->a <= static_cast<Ice::Byte>(15) && mo1->a >= static_cast<Ice::Byte>(15) &&
-        mo1->a <= static_cast<Ice::Byte>(16) && mo1->a >= static_cast<Ice::Byte>(14));
-    test(mo1->a > optional<Ice::Byte>() && optional<Ice::Byte>() < mo1->a);
+    test(mo1->a == static_cast<uint8_t>(15) && static_cast<uint8_t>(15) == mo1->a &&
+        mo1->a != static_cast<uint8_t>(16) && static_cast<uint8_t>(16) != mo1->a);
+    test(mo1->a < static_cast<uint8_t>(16) && mo1->a > static_cast<uint8_t>(14) &&
+        mo1->a <= static_cast<uint8_t>(15) && mo1->a >= static_cast<uint8_t>(15) &&
+        mo1->a <= static_cast<uint8_t>(16) && mo1->a >= static_cast<uint8_t>(14));
+    test(mo1->a > optional<uint8_t>() && optional<uint8_t>() < mo1->a);
     test(14 > optional<int>() && optional<int>() < 14);
 
     test(mo1->h == string("test") && string("test") == mo1->h && mo1->h != string("testa") && string("testa") != mo1->h);
@@ -941,9 +941,9 @@ allTests(Test::TestHelper* helper, bool)
 
     cout << "testing optional parameters... " << flush;
     {
-        optional<Ice::Byte> p1;
-        optional<Ice::Byte> p3;
-        optional<Ice::Byte> p2 = initial->opByte(p1, p3);
+        optional<uint8_t> p1;
+        optional<uint8_t> p3;
+        optional<uint8_t> p2 = initial->opByte(p1, p3);
         test(!p2 && !p3);
 
         const uint8_t bval = 56;
@@ -963,7 +963,7 @@ allTests(Test::TestHelper* helper, bool)
         in.read(1, p2);
         in.read(3, p3);
 
-        optional<Ice::Byte> p4 = static_cast<Ice::Byte>(0x08);
+        optional<uint8_t> p4 = static_cast<uint8_t>(0x08);
         in.read(89, p4);
 
         in.endEncapsulation();
@@ -1391,7 +1391,7 @@ allTests(Test::TestHelper* helper, bool)
         optional<ByteSeq> p2 = initial->opByteSeq(p1, p3);
         test(!p2 && !p3);
 
-        vector<Ice::Byte> bs(100);
+        vector<uint8_t> bs(100);
         fill(bs.begin(), bs.end(), 56);
         p1 = toArrayRange(bs);
         p2 = initial->opByteSeq(p1, p3);

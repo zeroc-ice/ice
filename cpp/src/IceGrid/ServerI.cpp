@@ -41,7 +41,7 @@ namespace IceGrid
 void
 chownRecursive(const string& path, uid_t uid, gid_t gid)
 {
-    vector<vector<Ice::Byte> > namelist;
+    vector<vector<uint8_t> > namelist;
     DIR* d;
     if((d = opendir(path.c_str())) == 0)
     {

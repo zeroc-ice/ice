@@ -534,7 +534,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 Py_ssize_t strsz;
                 assert(PyBytes_Check(bytes.get()));
                 PyBytes_AsStringAndSize(bytes.get(), &str, &strsz);
-                vector<Ice::Byte> vtmp(reinterpret_cast<uint8_t*>(str), reinterpret_cast<uint8_t*>(str + strsz));
+                vector<uint8_t> vtmp(reinterpret_cast<uint8_t*>(str), reinterpret_cast<uint8_t*>(str + strsz));
                 info->bytes.swap(vtmp);
 
                 PyObjectHandle instances = getAttr(s.get(), "instances", false);
@@ -835,7 +835,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bo
         long val = PyLong_AsLong(p);
         assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= 0 && val <= 255); // validate() should have caught this.
-        os->write(static_cast<Ice::Byte>(val));
+        os->write(static_cast<uint8_t>(val));
         break;
     }
     case PrimitiveInfo::KindShort:
@@ -1925,7 +1925,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                                  static_cast<int>(i));
                     throw AbortMarshaling();
                 }
-                seq[static_cast<size_t>(i)] = static_cast<Ice::Byte>(val);
+                seq[static_cast<size_t>(i)] = static_cast<uint8_t>(val);
             }
             os->write(seq);
         }

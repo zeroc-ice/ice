@@ -325,7 +325,7 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
         {
             auto self = shared_from_this();
             l->ice_invokeAsync(_operation, _mode, _inParams,
-                               [self](bool ok, vector<Ice::Byte> outParams)
+                               [self](bool ok, vector<uint8_t> outParams)
                                {
                                    pair<const uint8_t*, const uint8_t*> outPair;
                                    if(outParams.empty())

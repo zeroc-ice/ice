@@ -16,7 +16,7 @@ public:
 
     Buffer() : i(b.begin()) { }
     Buffer(const std::uint8_t* beg, const std::uint8_t* end) : b(beg, end), i(b.begin()) { }
-    Buffer(const std::vector<Ice::Byte>& v) : b(v), i(b.begin()) { }
+    Buffer(const std::vector<std::uint8_t>& v) : b(v), i(b.begin()) { }
     Buffer(Buffer& o, bool adopt) : b(o.b, adopt), i(b.begin()) { }
 
     void swapBuffer(Buffer&);

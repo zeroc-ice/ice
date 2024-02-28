@@ -151,7 +151,7 @@ protected:
     bool _done;
     PyObject* _future;
     bool _ok;
-    vector<Ice::Byte> _results;
+    vector<uint8_t> _results;
     PyObject* _exception;
 };
 using AsyncInvocationPtr = shared_ptr<AsyncInvocation>;
@@ -1695,7 +1695,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         //
         // Invoke the operation.
         //
-        vector<Ice::Byte> result;
+        vector<uint8_t> result;
         bool status;
         Ice::Context ctx;
         if(pyctx != Py_None)
@@ -1948,7 +1948,7 @@ IcePy::AsyncInvocation::response(bool ok, const pair<const uint8_t*, const uint8
         // The future hasn't been created yet, which means invoke() is still running. Save the results for later.
         //
         _ok = ok;
-        vector<Ice::Byte> v(results.first, results.second);
+        vector<uint8_t> v(results.first, results.second);
         _results.swap(v);
         _done = true;
         return;
@@ -2235,7 +2235,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 
     try
     {
-        vector<Ice::Byte> out;
+        vector<uint8_t> out;
 
         bool ok;
         Ice::Context context;

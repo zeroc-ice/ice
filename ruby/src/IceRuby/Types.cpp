@@ -358,7 +358,7 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 const long len = RSTRING_LEN(bytes);
                 if(str != 0 && len != 0)
                 {
-                    vector<Ice::Byte> vtmp(reinterpret_cast<const uint8_t*>(str),
+                    vector<uint8_t> vtmp(reinterpret_cast<const uint8_t*>(str),
                                            reinterpret_cast<const uint8_t*>(str + len));
                     info->bytes.swap(vtmp);
                 }
@@ -554,7 +554,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
         long i = getInteger(p);
         if(i >= 0 && i <= 255)
         {
-            os->write(static_cast<Ice::Byte>(i));
+            os->write(static_cast<uint8_t>(i));
             break;
         }
         throw RubyException(rb_eTypeError, "value is out of range for a byte");
@@ -1434,7 +1434,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 {
                     throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<byte>", i);
                 }
-                seq[static_cast<size_t>(i)] = static_cast<Ice::Byte>(val);
+                seq[static_cast<size_t>(i)] = static_cast<uint8_t>(val);
             }
             os->write(seq);
         }

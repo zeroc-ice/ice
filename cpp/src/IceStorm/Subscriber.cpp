@@ -48,7 +48,7 @@ public:
 
     bool
     ice_invoke(pair<const uint8_t*, const uint8_t*> inParams,
-               vector<Ice::Byte>&,
+               vector<uint8_t>&,
                const Ice::Current& current) override
     {
         // Use cached reads.
@@ -296,7 +296,7 @@ SubscriberTwoway::flush()
         {
             auto self = static_pointer_cast<SubscriberTwoway>(shared_from_this());
             _obj->ice_invokeAsync(e.op, e.mode, e.data,
-                [self](bool, vector<Ice::Byte>)
+                [self](bool, vector<uint8_t>)
                 {
                     self->completed();
                 },
