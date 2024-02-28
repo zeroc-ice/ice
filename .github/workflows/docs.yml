@@ -28,16 +28,24 @@ jobs:
       - name: Install doxygen and graphviz (a dependency of Doxygen for generating diagrams)
         run: brew install doxygen graphviz || true
 
-      - name: Generate Doxygen Documentation for Slice
-        working-directory: ./doxygen
-        run: doxygen
-
-      - name: Generate Doxygen Documentation for C++
+      - name: Build C++
         working-directory: ./cpp
+        run: make -j3 V=1 srcs
+
+      - name: Generate Documentation for Swift
+        working-directory: ./swift
         run: |
-          make generate-srcs
-          cd doxygen
-          doxygen
+          make -j3 V=1
+
+          xcodebuild docbuild \
+            -project ice.xcodeproj \
+            -scheme 'Ice macOS' \
+            -derivedDataPath /tmp/docbuild \
+            -destination 'generic/platform=macOS'
+
+          $(xcrun --find docc) process-archive \
+            transform-for-static-hosting /tmp/docbuild/Build/Products/Debug/Ice.doccarchive \
+            --output-path docs;
 
       # This will perform a full sync of the documentation to S3 every time the workflow is run since
       # the timestamps will always be different. Using --size-only is not sufficient since the
@@ -51,6 +59,8 @@ jobs:
 
           aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_DOC_BUCKET}/api/ice/main/cpp --delete
           aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_DOC_BUCKET}/api/ice/main/icecpp.tag
+
+          aws s3 sync ./swift/docs s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
