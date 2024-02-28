@@ -37,7 +37,7 @@ public:
      * Obtains the name of the operation.
      * @return The operation name.
      */
-    virtual const std::string& getOperation() const = 0;
+    virtual std::string_view getOperation() const = 0;
 
     /**
      * Obtains the proxy on which the batch request was invoked.

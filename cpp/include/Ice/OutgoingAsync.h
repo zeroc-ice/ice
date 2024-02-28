@@ -197,7 +197,7 @@ public:
 
     OutgoingAsync(Ice::ObjectPrx, bool);
 
-    void prepare(const std::string&, Ice::OperationMode, const Ice::Context&);
+    void prepare(std::string_view operation, Ice::OperationMode mode, const Ice::Context& context);
 
     virtual bool sent();
     virtual bool response();
@@ -206,8 +206,8 @@ public:
     virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
 
     void abort(std::exception_ptr);
-    void invoke(const std::string&);
-    void invoke(const std::string&, Ice::OperationMode, Ice::FormatType, const Ice::Context&,
+    void invoke(std::string_view);
+    void invoke(std::string_view, Ice::OperationMode, Ice::FormatType, const Ice::Context&,
                 std::function<void(Ice::OutputStream*)>);
     void throwUserException();
 
@@ -324,7 +324,7 @@ public:
     using OutgoingAsync::OutgoingAsync;
 
     void
-    invoke(const std::string& operation,
+    invoke(std::string_view operation,
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
@@ -342,7 +342,7 @@ public:
     }
 
     void
-    invoke(const std::string& operation,
+    invoke(std::string_view operation,
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
@@ -368,7 +368,7 @@ public:
     using OutgoingAsync::OutgoingAsync;
 
     void
-    invoke(const std::string& operation,
+    invoke(std::string_view operation,
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,
@@ -480,7 +480,7 @@ public:
     }
 
     void
-    invoke(const std::string& operation,
+    invoke(std::string_view operation,
            Ice::OperationMode mode,
            Ice::FormatType format,
            const Ice::Context& ctx,

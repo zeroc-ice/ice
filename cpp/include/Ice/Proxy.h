@@ -481,7 +481,7 @@ public:
      * exception, it throws it directly.
      */
     bool
-    ice_invoke(const std::string& operation,
+    ice_invoke(std::string_view operation,
                Ice::OperationMode mode,
                const std::vector<std::uint8_t>& inParams,
                std::vector<std::uint8_t>& outParams,
@@ -513,7 +513,7 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     std::function<void()>
-    ice_invokeAsync(const std::string& operation,
+    ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
                     const std::vector<std::uint8_t>& inParams,
                     std::function<void(bool, std::vector<std::uint8_t>)> response,
@@ -534,7 +534,7 @@ public:
      * exception, it throws it directly.
      */
     bool
-    ice_invoke(const std::string& operation,
+    ice_invoke(std::string_view operation,
                Ice::OperationMode mode,
                const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
                std::vector<std::uint8_t>& outParams,
@@ -566,7 +566,7 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     std::function<void()>
-    ice_invokeAsync(const std::string& operation,
+    ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
                     const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
                     std::function<void(bool, std::pair<const std::uint8_t*, const std::uint8_t*>)> response,

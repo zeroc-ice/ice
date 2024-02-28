@@ -35,8 +35,6 @@ using namespace IceInternal;
 namespace
 {
 
-const ::std::string flushBatchRequests_name = "flushBatchRequests";
-
 class TimeoutCallback final : public IceUtil::TimerTask
 {
 public:
@@ -139,7 +137,7 @@ public:
 
     virtual Ice::ConnectionPtr getConnection() const;
 
-    void invoke(const std::string&, Ice::CompressBatch);
+    void invoke(std::string_view, Ice::CompressBatch);
 
 private:
 
@@ -171,7 +169,7 @@ ConnectionFlushBatchAsync::getConnection() const
 }
 
 void
-ConnectionFlushBatchAsync::invoke(const string& operation, Ice::CompressBatch compressBatch)
+ConnectionFlushBatchAsync::invoke(string_view operation, Ice::CompressBatch compressBatch)
 {
     _observer.attach(_instance.get(), operation);
     try
@@ -791,14 +789,13 @@ Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
         }
     };
     auto outAsync = make_shared<ConnectionFlushBatchLambda>(shared_from_this(), _instance, ex, sent);
-    outAsync->invoke(flushBatchRequests_name, compress);
+    static constexpr string_view operationName = "flushBatchRequests";
+    outAsync->invoke(operationName, compress);
     return [outAsync]() { outAsync->cancel(); };
 }
 
 namespace
 {
-
-const string heartbeat_name = "heartbeat";
 
 class HeartbeatAsync : public OutgoingAsyncBase
 {
@@ -823,14 +820,14 @@ public:
         return _connection;
     }
 
-    virtual const string& getOperation() const
+    virtual string_view getOperation() const
     {
-        return heartbeat_name;
+        return _operationName;
     }
 
     void invoke()
     {
-        _observer.attach(_instance.get(), heartbeat_name);
+        _observer.attach(_instance.get(), _operationName);
         try
         {
             _os.write(magic[0]);
@@ -874,6 +871,7 @@ private:
 
     CommunicatorPtr _communicator;
     ConnectionIPtr _connection;
+    static constexpr string_view _operationName = "heartbeat";
 };
 
 }

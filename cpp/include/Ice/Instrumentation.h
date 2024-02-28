@@ -369,7 +369,7 @@ public:
      * @param ctx The context specified by the user.
      * @return The invocation observer to instrument the invocation.
      */
-    virtual InvocationObserverPtr getInvocationObserver(const std::optional<Ice::ObjectPrx>& prx, const ::std::string& operation, const ::Ice::Context& ctx) = 0;
+    virtual InvocationObserverPtr getInvocationObserver(const std::optional<Ice::ObjectPrx>& prx, std::string_view operation, const ::Ice::Context& ctx) = 0;
 
     /**
      * This method should return a dispatch observer for the given dispatch. The Ice run-time calls this method each
