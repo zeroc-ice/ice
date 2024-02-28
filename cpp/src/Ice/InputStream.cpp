@@ -37,7 +37,7 @@ Ice::InputStream::InputStream()
     initialize(currentEncoding);
 }
 
-Ice::InputStream::InputStream(const vector<Byte>& v) :
+Ice::InputStream::InputStream(const vector<uint8_t>& v) :
     Buffer(v)
 {
     initialize(currentEncoding);
@@ -60,7 +60,7 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator)
     initialize(communicator);
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<Byte>& v) :
+Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<uint8_t>& v) :
     Buffer(v)
 {
     initialize(communicator);
@@ -83,7 +83,7 @@ Ice::InputStream::InputStream(const EncodingVersion& encoding)
     initialize(encoding);
 }
 
-Ice::InputStream::InputStream(const EncodingVersion& encoding, const vector<Byte>& v) :
+Ice::InputStream::InputStream(const EncodingVersion& encoding, const vector<uint8_t>& v) :
     Buffer(v)
 {
     initialize(encoding);
@@ -107,7 +107,7 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const Encodin
 }
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const EncodingVersion& encoding,
-                              const vector<Byte>& v) :
+                              const vector<uint8_t>& v) :
     Buffer(v)
 {
     initialize(communicator, encoding);
@@ -387,7 +387,7 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
 }
 
 void
-Ice::InputStream::readBlob(vector<Byte>& v, int32_t sz)
+Ice::InputStream::readBlob(vector<uint8_t>& v, int32_t sz)
 {
     if(sz > 0)
     {
@@ -395,7 +395,7 @@ Ice::InputStream::readBlob(vector<Byte>& v, int32_t sz)
         {
             throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        vector<Byte>(i, i + sz).swap(v);
+        vector<uint8_t>(i, i + sz).swap(v);
         i += sz;
     }
     else
@@ -2300,11 +2300,11 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         // Don't include the optional member end marker. It will be re-written by
         // endSlice when the sliced data is re-written.
         //
-        vector<Byte>(start, _stream->i - 1).swap(info->bytes);
+        vector<uint8_t>(start, _stream->i - 1).swap(info->bytes);
     }
     else
     {
-        vector<Byte>(start, _stream->i).swap(info->bytes);
+        vector<uint8_t>(start, _stream->i).swap(info->bytes);
     }
 
     _current->indirectionTables.push_back(IndexList());

@@ -196,7 +196,7 @@ IcePatch2Internal::stringToBytes(const string& str)
             }
         }
 
-        bytes.push_back(static_cast<Byte>(byte));
+        bytes.push_back(static_cast<uint8_t>(byte));
     }
 
     return bytes;

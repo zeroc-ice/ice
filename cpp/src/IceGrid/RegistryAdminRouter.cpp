@@ -50,7 +50,7 @@ private:
     const shared_ptr<RegistryServerAdminRouter> _adminRouter;
     function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> _response;
     function<void(exception_ptr)> _exception;
-    const vector<Byte> _inParams;
+    const vector<uint8_t> _inParams;
     const Current _current;
 };
 

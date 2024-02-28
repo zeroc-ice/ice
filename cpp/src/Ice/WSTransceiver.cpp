@@ -1667,21 +1667,21 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
     //
     // Set the opcode - this is the one and only data frame.
     //
-    *_writeBuffer.i++ = static_cast<Byte>(opCode | FLAG_FINAL);
+    *_writeBuffer.i++ = static_cast<uint8_t>(opCode | FLAG_FINAL);
 
     //
     // Set the payload length.
     //
     if(payloadLength <= 125)
     {
-        *_writeBuffer.i++ = static_cast<Byte>(payloadLength);
+        *_writeBuffer.i++ = static_cast<uint8_t>(payloadLength);
     }
     else if(payloadLength > 125 && payloadLength <= USHRT_MAX)
     {
         //
         // Use an extra 16 bits to encode the payload length.
         //
-        *_writeBuffer.i++ = static_cast<Byte>(126);
+        *_writeBuffer.i++ = static_cast<uint8_t>(126);
         *reinterpret_cast<uint16_t*>(_writeBuffer.i) = htons(static_cast<uint16_t>(payloadLength));
         _writeBuffer.i += 2;
     }
@@ -1690,7 +1690,7 @@ IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buff
         //
         // Use an extra 64 bits to encode the payload length.
         //
-        *_writeBuffer.i++ = static_cast<Byte>(127);
+        *_writeBuffer.i++ = static_cast<uint8_t>(127);
         ice_htonll(static_cast<int64_t>(payloadLength), _writeBuffer.i);
         _writeBuffer.i += 8;
     }

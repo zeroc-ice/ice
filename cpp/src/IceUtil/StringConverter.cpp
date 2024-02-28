@@ -355,7 +355,7 @@ typedef char16_t Char16T;
 typedef char32_t Char32T;
 
 vector<unsigned short>
-IceUtilInternal::toUTF16(const vector<Byte>& source)
+IceUtilInternal::toUTF16(const vector<uint8_t>& source)
 {
     vector<unsigned short> result;
     if(!source.empty())
@@ -383,7 +383,7 @@ IceUtilInternal::toUTF16(const vector<Byte>& source)
 }
 
 vector<unsigned int>
-IceUtilInternal::toUTF32(const vector<Byte>& source)
+IceUtilInternal::toUTF32(const vector<uint8_t>& source)
 {
     vector<unsigned int> result;
     if(!source.empty())
@@ -409,10 +409,10 @@ IceUtilInternal::toUTF32(const vector<Byte>& source)
     return result;
 }
 
-vector<Byte>
+vector<uint8_t>
 IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
 {
-    vector<Byte> result;
+    vector<uint8_t> result;
     if(!source.empty())
     {
         assert(sizeof(Char32T) == sizeof(unsigned int));
@@ -425,7 +425,7 @@ IceUtilInternal::fromUTF32(const vector<unsigned int>& source)
             Convert::byte_string bs = convert.to_bytes(reinterpret_cast<const Char32T*>(&source.front()),
                                                        reinterpret_cast<const Char32T*>(&source.front() + source.size()));
 
-            result = vector<Byte>(reinterpret_cast<const uint8_t*>(bs.data()),
+            result = vector<uint8_t>(reinterpret_cast<const uint8_t*>(bs.data()),
                                   reinterpret_cast<const uint8_t*>(bs.data()) + bs.length());
         }
         catch(const std::range_error& ex)

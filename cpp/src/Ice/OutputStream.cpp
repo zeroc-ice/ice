@@ -237,7 +237,7 @@ Ice::OutputStream::writePendingValues()
 }
 
 void
-Ice::OutputStream::writeBlob(const vector<Byte>& v)
+Ice::OutputStream::writeBlob(const vector<uint8_t>& v)
 {
     if(!v.empty())
     {
@@ -283,7 +283,7 @@ struct WriteBoolHelper
     {
         for(size_t idx = 0; idx < static_cast<size_t>(sz); ++idx)
         {
-            b[pos + idx] = static_cast<Byte>(*(begin + idx));
+            b[pos + idx] = static_cast<uint8_t>(*(begin + idx));
         }
     }
 };
@@ -779,7 +779,7 @@ Ice::OutputStream::writeEnum(int32_t v, int32_t maxValue)
     {
         if(maxValue < 127)
         {
-            write(static_cast<Byte>(v));
+            write(static_cast<uint8_t>(v));
         }
         else if(maxValue < 32767)
         {
@@ -811,10 +811,10 @@ Ice::OutputStream::writeOptImpl(int32_t tag, OptionalFormat type)
         return false; // Optional members aren't supported with the 1.0 encoding.
     }
 
-    uint8_t v = static_cast<Byte>(type);
+    uint8_t v = static_cast<uint8_t>(type);
     if(tag < 30)
     {
-        v |= static_cast<Byte>(tag << 3);
+        v |= static_cast<uint8_t>(tag << 3);
         write(v);
     }
     else
@@ -827,9 +827,9 @@ Ice::OutputStream::writeOptImpl(int32_t tag, OptionalFormat type)
 }
 
 void
-Ice::OutputStream::finished(vector<Byte>& bytes)
+Ice::OutputStream::finished(vector<uint8_t>& bytes)
 {
-    vector<Byte>(b.begin(), b.end()).swap(bytes);
+    vector<uint8_t>(b.begin(), b.end()).swap(bytes);
 }
 
 pair<const uint8_t*, const uint8_t*>

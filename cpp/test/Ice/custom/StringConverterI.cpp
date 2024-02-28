@@ -16,7 +16,7 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, U
 
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = static_cast<Byte>(tolower(sourceStart[i]));
+        targetStart[i] = static_cast<uint8_t>(tolower(sourceStart[i]));
     }
 
     return targetEnd;
@@ -46,7 +46,7 @@ Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourc
 
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = static_cast<Byte>(tolower(s[i]));
+        targetStart[i] = static_cast<uint8_t>(tolower(s[i]));
     }
     return targetEnd;
 }

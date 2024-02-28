@@ -676,7 +676,7 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
 
     _os.write(operation, false);
 
-    _os.write(static_cast<Byte>(_mode));
+    _os.write(static_cast<uint8_t>(_mode));
 
     if(&context != &Ice::noExplicitContext)
     {

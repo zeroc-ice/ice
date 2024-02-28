@@ -70,7 +70,7 @@ public:
      * You can supply a communicator later by calling initialize().
      * @param bytes The encoded data.
      */
-    InputStream(const std::vector<Byte>& bytes);
+    InputStream(const std::vector<std::uint8_t>& bytes);
 
     /**
      * Constructs a stream using the latest encoding version but without a communicator.
@@ -96,7 +96,7 @@ public:
      * @param communicator The communicator to use for unmarshaling tasks.
      * @param bytes The encoded data.
      */
-    InputStream(const CommunicatorPtr& communicator, const std::vector<Byte>& bytes);
+    InputStream(const CommunicatorPtr& communicator, const std::vector<std::uint8_t>& bytes);
 
     /**
      * Constructs a stream using the communicator's default encoding version.
@@ -126,7 +126,7 @@ public:
      * @param version The encoding version used to encode the data to be unmarshaled.
      * @param bytes The encoded data.
      */
-    InputStream(const EncodingVersion& version, const std::vector<Byte>& bytes);
+    InputStream(const EncodingVersion& version, const std::vector<std::uint8_t>& bytes);
 
     /**
      * Constructs a stream using the given encoding version but without a communicator.
@@ -155,7 +155,7 @@ public:
      * @param version The encoding version used to encode the data to be unmarshaled.
      * @param bytes The encoded data.
      */
-    InputStream(const CommunicatorPtr& communicator, const EncodingVersion& version, const std::vector<Byte>& bytes);
+    InputStream(const CommunicatorPtr& communicator, const EncodingVersion& version, const std::vector<std::uint8_t>& bytes);
 
     /**
      * Constructs a stream using the given communicator and encoding version.
@@ -594,7 +594,7 @@ public:
      * @param bytes The vector to hold a copy of the bytes from the marshaling buffer.
      * @param sz The number of bytes to read.
      */
-    void readBlob(std::vector<Byte>& bytes, std::int32_t sz);
+    void readBlob(std::vector<std::uint8_t>& bytes, std::int32_t sz);
 
     /**
      * Reads a blob of bytes from the stream.
@@ -766,7 +766,7 @@ public:
      * Reads a sequence of bytes from the stream.
      * @param v A vector to hold a copy of the bytes.
      */
-    void read(std::vector<Byte>& v);
+    void read(std::vector<std::uint8_t>& v);
 
     /**
      * Reads a sequence of bytes from the stream.

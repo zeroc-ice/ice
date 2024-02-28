@@ -37,7 +37,7 @@ struct QueuedDispatch final
     // Make sure we don't copy this struct by accident
     QueuedDispatch(const QueuedDispatch&) = delete;
 
-    const vector<Byte> inParams;
+    const vector<uint8_t> inParams;
     function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response;
     function<void(exception_ptr)> error;
     const Current current;

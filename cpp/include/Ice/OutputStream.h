@@ -318,7 +318,7 @@ public:
         }
         else
         {
-            write(static_cast<Byte>(v));
+            write(static_cast<std::uint8_t>(v));
         }
     }
 
@@ -338,7 +338,7 @@ public:
         }
         else
         {
-            *dest = static_cast<Byte>(v);
+            *dest = static_cast<std::uint8_t>(v);
         }
     }
 
@@ -369,7 +369,7 @@ public:
      * Copies the specified blob of bytes to the stream without modification.
      * @param v The bytes to be copied.
      */
-    void writeBlob(const std::vector<Byte>& v);
+    void writeBlob(const std::vector<std::uint8_t>& v);
 
     /**
      * Copies the specified blob of bytes to the stream without modification.
@@ -569,7 +569,7 @@ public:
      */
     void write(bool v)
     {
-        b.push_back(static_cast<Byte>(v));
+        b.push_back(static_cast<std::uint8_t>(v));
     }
 
     /**
@@ -852,7 +852,7 @@ public:
      * Indicates that marshaling is complete. This function must only be called once.
      * @param v Filled with a copy of the encoded data.
      */
-    void finished(std::vector<Byte>& v);
+    void finished(std::vector<std::uint8_t>& v);
 
     /**
      * Indicates that marshaling is complete. This function must only be called once.

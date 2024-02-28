@@ -483,7 +483,7 @@ public:
     bool
     ice_invoke(const std::string& operation,
                Ice::OperationMode mode,
-               const std::vector<Byte>& inParams,
+               const std::vector<std::uint8_t>& inParams,
                std::vector<Ice::Byte>& outParams,
                const Ice::Context& context = Ice::noExplicitContext) const;
 
@@ -498,7 +498,7 @@ public:
     std::future<std::tuple<bool, std::vector<Ice::Byte>>>
     ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
-                    const std::vector<Byte>& inParams,
+                    const std::vector<std::uint8_t>& inParams,
                     const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**

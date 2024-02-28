@@ -840,7 +840,7 @@ public:
             _os.write(currentProtocol);
             _os.write(currentProtocolEncoding);
             _os.write(validateConnectionMsg);
-            _os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
+            _os.write(static_cast<uint8_t>(0)); // Compression status (always zero for validate connection).
             _os.write(headerSize); // Message size.
             _os.i = _os.b.begin();
 
@@ -2527,7 +2527,7 @@ Ice::ConnectionI::initiateShutdown()
         os.write(currentProtocol);
         os.write(currentProtocolEncoding);
         os.write(closeConnectionMsg);
-        os.write(static_cast<Byte>(1)); // compression status: compression supported but not used.
+        os.write(static_cast<uint8_t>(1)); // compression status: compression supported but not used.
         os.write(headerSize); // Message size.
 
         OutgoingMessage message(&os, false);
@@ -2563,7 +2563,7 @@ Ice::ConnectionI::sendHeartbeatNow()
         os.write(currentProtocol);
         os.write(currentProtocolEncoding);
         os.write(validateConnectionMsg);
-        os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
+        os.write(static_cast<uint8_t>(0)); // Compression status (always zero for validate connection).
         os.write(headerSize); // Message size.
         os.i = os.b.begin();
         try
@@ -2615,7 +2615,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 _writeStream.write(currentProtocol);
                 _writeStream.write(currentProtocolEncoding);
                 _writeStream.write(validateConnectionMsg);
-                _writeStream.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
+                _writeStream.write(static_cast<uint8_t>(0)); // Compression status (always zero for validate connection).
                 _writeStream.write(headerSize); // Message size.
                 _writeStream.i = _writeStream.b.begin();
                 traceSend(_writeStream, _logger, _traceLevels);

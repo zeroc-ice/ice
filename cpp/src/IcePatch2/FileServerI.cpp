@@ -76,7 +76,7 @@ IcePatch2::FileServerI::getFileCompressedAsync(
 {
     try
     {
-        vector<Byte> buffer;
+        vector<uint8_t> buffer;
         getFileCompressedInternal(std::move(pa), pos, num, buffer, false);
         if(buffer.empty())
         {
@@ -104,7 +104,7 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
 {
     try
     {
-        vector<Byte> buffer;
+        vector<uint8_t> buffer;
         getFileCompressedInternal(std::move(pa), pos, num, buffer, true);
         if(buffer.empty())
         {
@@ -127,7 +127,7 @@ IcePatch2::FileServerI::getFileCompressedInternal(
     std::string pa,
     int64_t pos,
     int32_t num,
-    vector<Byte>& buffer,
+    vector<uint8_t>& buffer,
     bool largeFile) const
 {
     if(IceUtilInternal::isAbsolutePath(pa))
