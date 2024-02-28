@@ -761,9 +761,9 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, int typeCtx)
+Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op)
 {
-    writeMarshalUnmarshalParams(out, params, op, true, typeCtx);
+    writeMarshalUnmarshalParams(out, params, op, true, 0);
 }
 
 void
