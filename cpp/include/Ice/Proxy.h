@@ -481,7 +481,7 @@ public:
      * exception, it throws it directly.
      */
     bool
-    ice_invoke(const std::string& operation,
+    ice_invoke(std::string_view operation,
                Ice::OperationMode mode,
                const std::vector<Byte>& inParams,
                std::vector<Ice::Byte>& outParams,
@@ -496,7 +496,7 @@ public:
      * @return The future object for the invocation.
      */
     std::future<std::tuple<bool, std::vector<Ice::Byte>>>
-    ice_invokeAsync(const std::string& operation,
+    ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
                     const std::vector<Byte>& inParams,
                     const Ice::Context& context = Ice::noExplicitContext) const;
@@ -513,7 +513,7 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     std::function<void()>
-    ice_invokeAsync(const std::string& operation,
+    ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
                     const std::vector<Ice::Byte>& inParams,
                     std::function<void(bool, std::vector<Ice::Byte>)> response,
@@ -534,7 +534,7 @@ public:
      * exception, it throws it directly.
      */
     bool
-    ice_invoke(const std::string& operation,
+    ice_invoke(std::string_view operation,
                Ice::OperationMode mode,
                const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                std::vector<Ice::Byte>& outParams,
@@ -549,7 +549,7 @@ public:
      * @return The future object for the invocation.
      */
     std::future<std::tuple<bool, std::vector<Ice::Byte>>>
-    ice_invokeAsync(const std::string& operation,
+    ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
                     const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                     const Ice::Context& context = Ice::noExplicitContext) const;
@@ -566,7 +566,7 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     std::function<void()>
-    ice_invokeAsync(const std::string& operation,
+    ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
                     const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
                     std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)> response,

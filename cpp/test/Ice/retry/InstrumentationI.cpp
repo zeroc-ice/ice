@@ -105,7 +105,7 @@ public:
     }
 
     virtual Ice::Instrumentation::InvocationObserverPtr
-    getInvocationObserver(const Ice::ObjectPrxPtr&, const ::std::string&, const Ice::Context&)
+    getInvocationObserver(const Ice::ObjectPrxPtr&, std::string_view, const Ice::Context&)
     {
         return invocationObserver;
     }

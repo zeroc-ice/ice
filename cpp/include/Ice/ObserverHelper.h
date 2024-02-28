@@ -117,12 +117,12 @@ class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::
 {
 public:
 
-    InvocationObserver(const Ice::ObjectPrx&, const std::string&, const Ice::Context&);
-    InvocationObserver(Instance*, const std::string&);
+    InvocationObserver(const Ice::ObjectPrx& proxy, std::string_view operation, const Ice::Context& context);
+    InvocationObserver(Instance* instance, std::string_view operation);
     InvocationObserver() = default;
 
-    void attach(const Ice::ObjectPrx&, const std::string&, const Ice::Context&);
-    void attach(Instance*, const std::string&);
+    void attach(const Ice::ObjectPrx&, std::string_view operation, const Ice::Context&);
+    void attach(Instance*, std::string_view operation);
 
     void retried()
     {

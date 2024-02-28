@@ -28,7 +28,7 @@ public:
     CommunicatorFlushBatchAsync(const InstancePtr&);
 
     void flushConnection(const Ice::ConnectionIPtr&, Ice::CompressBatch);
-    void invoke(const std::string&, Ice::CompressBatch);
+    void invoke(std::string_view, Ice::CompressBatch);
 
     std::shared_ptr<CommunicatorFlushBatchAsync> shared_from_this()
     {
