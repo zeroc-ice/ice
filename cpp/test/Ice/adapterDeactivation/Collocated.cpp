@@ -32,7 +32,7 @@ Collocated::run(int argc, char** argv)
     ServantLocatorPtr locator = make_shared<ServantLocatorI>();
     adapter->addServantLocator(locator, "");
 
-    TestIntfPrxPtr allTests(TestHelper*);
+    void allTests(TestHelper*);
     allTests(this);
 
     adapter->waitForDeactivate();

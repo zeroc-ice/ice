@@ -9,19 +9,19 @@ using namespace std;
 using namespace Ice;
 
 void
-BackgroundI::op(const Ice::Current& current)
+BackgroundI::op(const Current& current)
 {
     _controller->checkCallPause(current);
 }
 
 void
-BackgroundI::opWithPayload(Ice::ByteSeq, const Ice::Current& current)
+BackgroundI::opWithPayload(ByteSeq, const Current& current)
 {
     _controller->checkCallPause(current);
 }
 
 void
-BackgroundI::shutdown(const Ice::Current& current)
+BackgroundI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
@@ -32,14 +32,14 @@ BackgroundI::BackgroundI(const BackgroundControllerIPtr& controller) :
 }
 
 void
-BackgroundControllerI::pauseCall(string opName, const Ice::Current&)
+BackgroundControllerI::pauseCall(string opName, const Current&)
 {
     lock_guard lock(_mutex);
     _pausedCalls.insert(opName);
 }
 
 void
-BackgroundControllerI::resumeCall(string opName, const Ice::Current&)
+BackgroundControllerI::resumeCall(string opName, const Current&)
 {
     lock_guard lock(_mutex);
     _pausedCalls.erase(opName);
@@ -47,67 +47,67 @@ BackgroundControllerI::resumeCall(string opName, const Ice::Current&)
 }
 
 void
-BackgroundControllerI::checkCallPause(const Ice::Current& current)
+BackgroundControllerI::checkCallPause(const Current& current)
 {
     unique_lock lock(_mutex);
     _condition.wait(lock, [this, &current] { return _pausedCalls.find(current.operation) == _pausedCalls.end(); });
 }
 
 void
-BackgroundControllerI::holdAdapter(const Ice::Current&)
+BackgroundControllerI::holdAdapter(const Current&)
 {
     _adapter->hold();
 }
 
 void
-BackgroundControllerI::resumeAdapter(const Ice::Current&)
+BackgroundControllerI::resumeAdapter(const Current&)
 {
     _adapter->activate();
 }
 
 void
-BackgroundControllerI::initializeSocketOperation(int status, const Ice::Current&)
+BackgroundControllerI::initializeSocketOperation(int status, const Current&)
 {
     _configuration->initializeSocketOperation(static_cast<IceInternal::SocketOperation>(status));
 }
 
 void
-BackgroundControllerI::initializeException(bool enable, const Ice::Current&)
+BackgroundControllerI::initializeException(bool enable, const Current&)
 {
-    _configuration->initializeException(enable ? new Ice::SocketException(__FILE__, __LINE__) : 0);
+    _configuration->initializeException(enable ? new SocketException(__FILE__, __LINE__) : 0);
 }
 
 void
-BackgroundControllerI::readReady(bool enable, const Ice::Current&)
+BackgroundControllerI::readReady(bool enable, const Current&)
 {
     _configuration->readReady(enable);
 }
 
 void
-BackgroundControllerI::readException(bool enable, const Ice::Current&)
+BackgroundControllerI::readException(bool enable, const Current&)
 {
-    _configuration->readException(enable ? new Ice::SocketException(__FILE__, __LINE__) : 0);
+    _configuration->readException(enable ? new SocketException(__FILE__, __LINE__) : 0);
 }
 
 void
-BackgroundControllerI::writeReady(bool enable, const Ice::Current&)
+BackgroundControllerI::writeReady(bool enable, const Current&)
 {
     _configuration->writeReady(enable);
 }
 
 void
-BackgroundControllerI::writeException(bool enable, const Ice::Current&)
+BackgroundControllerI::writeException(bool enable, const Current&)
 {
-    _configuration->writeException(enable ? new Ice::SocketException(__FILE__, __LINE__) : 0);
+    _configuration->writeException(enable ? new SocketException(__FILE__, __LINE__) : 0);
 }
 
 void
-BackgroundControllerI::buffered(bool enable, const Ice::Current&)
+BackgroundControllerI::buffered(bool enable, const Current&)
 {
     _configuration->buffered(enable);
 }
 
-BackgroundControllerI::BackgroundControllerI(const Ice::ObjectAdapterPtr& adapter,
+BackgroundControllerI::BackgroundControllerI(const ObjectAdapterPtr& adapter,
                                              const ConfigurationPtr& configuration) :
     _adapter(adapter),
     _configuration(configuration)

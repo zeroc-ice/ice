@@ -9,28 +9,28 @@
 #include <TestHelper.h>
 #include <Ice/NativePropertiesAdmin.h>
 
-class RemoteCommunicatorI : public virtual Test::RemoteCommunicator
+class RemoteCommunicatorI final : public Test::RemoteCommunicator
 {
 public:
 
     RemoteCommunicatorI(const Ice::CommunicatorPtr&);
 
-    virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
-    virtual Ice::PropertyDict getChanges(const Ice::Current&);
+    std::optional<Ice::ObjectPrx> getAdmin(const Ice::Current&) final;
+    Ice::PropertyDict getChanges(const Ice::Current&) final;
 
-    virtual void addUpdateCallback(const Ice::Current&);
-    virtual void removeUpdateCallback(const Ice::Current&);
+    void addUpdateCallback(const Ice::Current&) final;
+    void removeUpdateCallback(const Ice::Current&) final;
 
-    virtual void print(std::string, const Ice::Current&);
-    virtual void trace(std::string, std::string, const Ice::Current&);
-    virtual void warning(std::string, const Ice::Current&);
-    virtual void error(std::string, const Ice::Current&);
+    void print(std::string, const Ice::Current&) final;
+    void trace(std::string, std::string, const Ice::Current&) final;
+    void warning(std::string, const Ice::Current&) final;
+    void error(std::string, const Ice::Current&) final;
 
-    virtual void shutdown(const Ice::Current&);
-    virtual void waitForShutdown(const Ice::Current&);
-    virtual void destroy(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
+    void waitForShutdown(const Ice::Current&) final;
+    void destroy(const Ice::Current&) final;
 
-    virtual void updated(const Ice::PropertyDict&);
+    void updated(const Ice::PropertyDict&);
 
 private:
 
@@ -42,19 +42,19 @@ private:
 };
 using RemoteCommunicatorIPtr = std::shared_ptr<RemoteCommunicatorI>;
 
-class RemoteCommunicatorFactoryI : public Test::RemoteCommunicatorFactory
+class RemoteCommunicatorFactoryI final : public Test::RemoteCommunicatorFactory
 {
 public:
 
-    virtual Test::RemoteCommunicatorPrxPtr createCommunicator(Ice::PropertyDict, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    std::optional<Test::RemoteCommunicatorPrx> createCommunicator(Ice::PropertyDict, const Ice::Current&) final;
+    void shutdown(const Ice::Current&) final;
 };
 
-class TestFacetI : public Test::TestFacet
+class TestFacetI final : public Test::TestFacet
 {
 public:
 
-    virtual void op(const Ice::Current&)
+    void op(const Ice::Current&) final
     {
     }
 };

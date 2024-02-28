@@ -80,17 +80,8 @@ allTests(Test::TestHelper* helper, bool collocated)
     Ice::CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
 
-    string sref = "test:" + helper->getTestEndpoint();
-    auto prx = communicator->stringToProxy(sref);
-    test(prx);
-
-    auto p = Ice::uncheckedCast<Test::TestIntfPrx>(prx);
-
-    sref = "testController:" + helper->getTestEndpoint(1);
-    prx = communicator->stringToProxy(sref);
-    test(prx);
-
-    auto testController = Ice::uncheckedCast<Test::TestIntfControllerPrx>(prx);
+    Test::TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
+    Test::TestIntfControllerPrx testController(communicator, "testController:" + helper->getTestEndpoint(1));
 
     Ice::Context ctx;
     cout << "testing lambda API... " << flush;
@@ -578,7 +569,7 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     cout << "testing local exceptions with lambda API... " << flush;
     {
-        auto indirect = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
+        Test::TestIntfPrx indirect = p->ice_adapterId("dummy");
 
         {
             promise<void> promise;
@@ -629,8 +620,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             Ice::CommunicatorPtr ic = Ice::initialize(initData);
-            auto obj = ic->stringToProxy(p->ice_toString());
-            auto p2 = Ice::checkedCast<Test::TestIntfPrx>(obj);
+            Test::TestIntfPrx p2(ic, p->ice_toString());
             ic->destroy();
 
             try
@@ -657,7 +647,7 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     cout << "testing local exceptions with future API... " << flush;
     {
-        auto indirect = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
+        Test::TestIntfPrx indirect = p->ice_adapterId("dummy");
         auto r = indirect->opAsync();
         try
         {
@@ -685,8 +675,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
             Ice::CommunicatorPtr ic = Ice::initialize(initData);
-            auto obj = ic->stringToProxy(p->ice_toString());
-            auto p2 = Ice::checkedCast<Test::TestIntfPrx>(obj);
+            Test::TestIntfPrx p2(ic, p->ice_toString());
             ic->destroy();
 
             try
@@ -704,7 +693,7 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     cout << "testing exception callback with lambda API... " << flush;
     {
-        auto i = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
+        Test::TestIntfPrx i = p->ice_adapterId("dummy");
 
         {
             promise<bool> promise;
@@ -992,7 +981,7 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     cout << "testing unexpected exceptions from callback... " << flush;
     {
-        auto q = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
+        Test::TestIntfPrx q = p->ice_adapterId("dummy");
 
         for(int i = 0; i < 4; ++i)
         {
@@ -1098,8 +1087,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         {
             {
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
                 b1->opBatch();
 
@@ -1144,8 +1132,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             if(protocol != "bt")
             {
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
                 b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
@@ -1181,8 +1168,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // 1 connection. Test future
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
                 b1->opBatch();
 
@@ -1195,8 +1181,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // 1 connection.
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
                 b1->opBatch();
 
@@ -1224,8 +1209,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // Exception - 1 connection.
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
                 b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
 
@@ -1253,11 +1237,8 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // 2 connections.
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                auto b2 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
+                auto b2 = p->ice_fixed(p->ice_connectionId("2")->ice_getConnection())->ice_batchOneway();
                 b2->ice_getConnection(); // Ensure connection is established.
                 b1->opBatch();
                 b1->opBatch();
@@ -1290,11 +1271,8 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // The sent callback should be invoked even if all connections fail.
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                auto b2 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
+                auto b2 = p->ice_fixed(p->ice_connectionId("2")->ice_getConnection())->ice_batchOneway();
 
                 b2->ice_getConnection(); // Ensure connection is established.
                 b1->opBatch();
@@ -1596,8 +1574,7 @@ allTests(Test::TestHelper* helper, bool collocated)
     {
         cout << "testing result tuple... " << flush;
 
-        auto q = Ice::uncheckedCast<Test::Outer::Inner::TestIntfPrx>(
-            communicator->stringToProxy("test2:" + helper->getTestEndpoint()));
+        Test::Outer::Inner::TestIntfPrx q(communicator, "test2:" + helper->getTestEndpoint());
 
         promise<void> promise;
         q->opAsync(1,
@@ -1633,7 +1610,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         cout << "testing bidir... " << flush;
         auto adapter = communicator->createObjectAdapter("");
         auto replyI = make_shared<PingReplyI>();
-        auto reply = Ice::uncheckedCast<Test::PingReplyPrx>(adapter->addWithUUID(replyI));
+        auto reply = Test::PingReplyPrx(adapter->addWithUUID(replyI));
         adapter->activate();
 
         p->ice_getConnection()->setAdapter(adapter);

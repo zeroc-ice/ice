@@ -13,7 +13,7 @@ using namespace Test;
 namespace
 {
 
-class RouterI : public Ice::Router
+class RouterI final : public Router
 {
 public:
 
@@ -21,24 +21,21 @@ public:
     {
     }
 
-    virtual Ice::ObjectPrxPtr
-    getClientProxy(optional<bool>&, const Ice::Current&) const
+    optional<ObjectPrx> getClientProxy(optional<bool>&, const Current&) const final
     {
         return nullopt;
     }
 
-    virtual Ice::ObjectPrxPtr
-    getServerProxy(const Ice::Current& c) const
+    optional<ObjectPrx> getServerProxy(const Current& c) const final
     {
         ostringstream os;
         os << "dummy:tcp -h localhost -p " << _nextPort++ << " -t 30000";
         return c.adapter->getCommunicator()->stringToProxy(os.str());
     }
 
-    virtual Ice::ObjectProxySeq
-    addProxies(Ice::ObjectProxySeq, const Ice::Current&)
+    ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final
     {
-        return Ice::ObjectProxySeq();
+        return ObjectProxySeq();
     }
 
 private:
@@ -57,8 +54,8 @@ ServantLocatorI::~ServantLocatorI()
     test(_deactivated);
 }
 
-std::shared_ptr<Ice::Object>
-ServantLocatorI::locate(const Ice::Current& current, std::shared_ptr<void>& cookie)
+shared_ptr<Object>
+ServantLocatorI::locate(const Current& current, shared_ptr<void>& cookie)
 {
     test(!_deactivated);
 
@@ -76,7 +73,7 @@ ServantLocatorI::locate(const Ice::Current& current, std::shared_ptr<void>& cook
 }
 
 void
-ServantLocatorI::finished(const Ice::Current& current, const shared_ptr<Ice::Object>&, const std::shared_ptr<void>& cookie)
+ServantLocatorI::finished(const Current& current, const shared_ptr<Object>&, const shared_ptr<void>& cookie)
 {
     test(!_deactivated);
     if(current.id.name == "router")
