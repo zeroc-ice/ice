@@ -14,54 +14,16 @@
 #include <chrono>
 
 using namespace std;
+using namespace Ice;
 using namespace Test;
-
-class Callback
-{
-public:
-
-    Callback() : _called(false)
-    {
-    }
-
-    void
-    check()
-    {
-        unique_lock lock(_mutex);
-        _condition.wait(lock, [this]{ return _called; });
-        _called = false;
-    }
-
-    void
-    called()
-    {
-        lock_guard lock(_mutex);
-        assert(!_called);
-        _called = true;
-        _condition.notify_one();
-    }
-
-    bool
-    isCalled()
-    {
-        lock_guard lock(_mutex);
-        return _called;
-    }
-
-private:
-
-    bool _called;
-    mutex _mutex;
-    condition_variable _condition;
-};
 
 class OpThread final
 {
 public:
 
-    OpThread(const BackgroundPrxPtr& background) :
+    OpThread(const BackgroundPrx& background) :
         _destroyed(false),
-        _background(Ice::uncheckedCast<BackgroundPrx>(background->ice_oneway()))
+        _background(background->ice_oneway())
     {
     }
 
@@ -104,32 +66,26 @@ public:
 private:
 
     bool _destroyed;
-    BackgroundPrxPtr _background;
+    BackgroundPrx _background;
     mutex _mutex;
 };
 using OpThreadPtr = shared_ptr<OpThread>;
 
-void connectTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&);
-void initializeTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
-void validationTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
-void readWriteTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
+void connectTests(const ConfigurationPtr&, const Test::BackgroundPrx&);
+void initializeTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
+void validationTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
+void readWriteTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
 
-BackgroundPrxPtr
+BackgroundPrx
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     const string endp = helper->getTestEndpoint();
-    string sref = "background:" + endp;
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
-    test(obj);
 
-    BackgroundPrxPtr background = Ice::uncheckedCast<BackgroundPrx>(obj);
-
-    sref = "backgroundController:" + helper->getTestEndpoint(1, "tcp");
-    obj = communicator->stringToProxy(sref);
-    test(obj);
-
-    BackgroundControllerPrxPtr backgroundController = Ice::uncheckedCast<BackgroundControllerPrx>(obj);
+    BackgroundPrx background(communicator, "background:" + endp);
+    BackgroundControllerPrx backgroundController(
+        communicator,
+        "backgroundController:" + helper->getTestEndpoint(1, "tcp"));
 
     auto plugin = dynamic_pointer_cast<PluginI>(communicator->getPluginManager()->getPlugin("Test"));
     assert(plugin);
@@ -161,10 +117,8 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing locator... " << flush;
     {
-        Ice::LocatorPrxPtr locator;
-        obj = communicator->stringToProxy("locator:" + endp)->ice_invocationTimeout(250);
-        locator = Ice::uncheckedCast<Ice::LocatorPrx>(obj);
-        obj = communicator->stringToProxy("background@Test")->ice_locator(locator)->ice_oneway();
+        auto locator = LocatorPrx(communicator, "locator:" + endp)->ice_invocationTimeout(250);
+        auto obj = ObjectPrx(communicator, "background@Test")->ice_locator(locator)->ice_oneway();
 
         backgroundController->pauseCall("findAdapterById");
         try
@@ -177,12 +131,10 @@ allTests(Test::TestHelper* helper)
         }
         backgroundController->resumeCall("findAdapterById");
 
-        obj = communicator->stringToProxy("locator:" + endp);
-        locator = Ice::uncheckedCast<Ice::LocatorPrx>(obj);
+        locator = LocatorPrx(communicator, "locator:" + endp);
         obj = obj->ice_locator(locator);
         obj->ice_ping();
-        obj = communicator->stringToProxy("background@Test")->ice_locator(locator);
-        BackgroundPrxPtr bg = Ice::uncheckedCast<BackgroundPrx>(obj);
+        auto bg = BackgroundPrx(communicator, "background@Test")->ice_locator(locator);
 
         backgroundController->pauseCall("findAdapterById");
 
@@ -207,10 +159,8 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing router... " << flush;
     {
-        Ice::RouterPrxPtr router;
-        obj = communicator->stringToProxy("router:" + endp)->ice_invocationTimeout(250);
-        router = Ice::uncheckedCast<Ice::RouterPrx>(obj);
-        obj = communicator->stringToProxy("background@Test")->ice_router(router)->ice_oneway();
+        auto router = RouterPrx(communicator, "router:" + endp)->ice_invocationTimeout(250);
+        auto obj = ObjectPrx(communicator, "background@Test")->ice_router(router)->ice_oneway();
 
         backgroundController->pauseCall("getClientProxy");
         try
@@ -223,10 +173,8 @@ allTests(Test::TestHelper* helper)
         }
         backgroundController->resumeCall("getClientProxy");
 
-        obj = communicator->stringToProxy("router:" + endp);
-        router = Ice::uncheckedCast<Ice::RouterPrx>(obj);
-        obj = communicator->stringToProxy("background@Test")->ice_router(router);
-        BackgroundPrxPtr bg = Ice::uncheckedCast<BackgroundPrx>(obj);
+        router = RouterPrx(communicator, "router:" + endp);
+        auto bg = BackgroundPrx(communicator, "background@Test")->ice_router(router);
         test(bg->ice_getRouter());
         backgroundController->pauseCall("getClientProxy");
 
@@ -291,7 +239,7 @@ allTests(Test::TestHelper* helper)
 }
 
 void
-connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr& background)
+connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& background)
 {
     try
     {
@@ -313,7 +261,7 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
         {
             configuration->connectException(new Ice::SocketException(__FILE__, __LINE__));
         }
-        BackgroundPrxPtr prx = (i == 1 || i == 3) ? background : background->ice_oneway();
+        BackgroundPrx prx = (i == 1 || i == 3) ? background : background->ice_oneway();
 
         try
         {
@@ -414,8 +362,8 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrxPtr
 
 void
 initializeTests(const ConfigurationPtr& configuration,
-                const Test::BackgroundPrxPtr& background,
-                const Test::BackgroundControllerPrxPtr& ctl)
+                const Test::BackgroundPrx& background,
+                const Test::BackgroundControllerPrx& ctl)
 {
     try
     {
@@ -444,7 +392,7 @@ initializeTests(const ConfigurationPtr& configuration,
             configuration->initializeException(new Ice::SocketException(__FILE__, __LINE__));
 #endif
         }
-        BackgroundPrxPtr prx = (i == 1 || i == 3) ? background : background->ice_oneway();
+        BackgroundPrx prx = (i == 1 || i == 3) ? background : background->ice_oneway();
 
         try
         {
@@ -664,8 +612,8 @@ initializeTests(const ConfigurationPtr& configuration,
 
 void
 validationTests(const ConfigurationPtr& configuration,
-                const Test::BackgroundPrxPtr& background,
-                const Test::BackgroundControllerPrxPtr& ctl)
+                const Test::BackgroundPrx& background,
+                const Test::BackgroundControllerPrx& ctl)
 {
     try
     {
@@ -698,7 +646,7 @@ validationTests(const ConfigurationPtr& configuration,
     for(int i = 0; i < 2; i++)
     {
         configuration->readException(new Ice::SocketException(__FILE__, __LINE__));
-        BackgroundPrxPtr prx = i == 0 ? background : background->ice_oneway();
+        BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
         promise<bool> sent;
         promise<void> completed;
 
@@ -902,7 +850,7 @@ validationTests(const ConfigurationPtr& configuration,
     Ice::ByteSeq seq;
     seq.resize(512 * 1024);
 
-    BackgroundPrxPtr backgroundBatchOneway = Ice::uncheckedCast<BackgroundPrx>(background->ice_batchOneway());
+    BackgroundPrx backgroundBatchOneway(background->ice_batchOneway());
 
     //
     // First send small requests to test without auto-flushing.
@@ -969,8 +917,8 @@ validationTests(const ConfigurationPtr& configuration,
 
 void
 readWriteTests(const ConfigurationPtr& configuration,
-               const Test::BackgroundPrxPtr& background,
-               const Test::BackgroundControllerPrxPtr& ctl)
+               const Test::BackgroundPrx& background,
+               const Test::BackgroundControllerPrx& ctl)
 {
     try
     {
@@ -985,7 +933,7 @@ readWriteTests(const ConfigurationPtr& configuration,
 
     for(int i = 0; i < 2; i++)
     {
-        BackgroundPrxPtr prx = i == 0 ? background : background->ice_oneway();
+        BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
 
         try
         {
@@ -1121,7 +1069,7 @@ readWriteTests(const ConfigurationPtr& configuration,
 
         for(int i = 0; i < 2; ++i)
         {
-            BackgroundPrxPtr prx = i == 0 ? background : background->ice_oneway();
+            BackgroundPrx prx = i == 0 ? background : background->ice_oneway();
 
             background->ice_ping();
             configuration->writeReady(false);
@@ -1239,7 +1187,7 @@ readWriteTests(const ConfigurationPtr& configuration,
 
     background->ice_ping(); // Establish the connection
 
-    BackgroundPrxPtr backgroundOneway = Ice::uncheckedCast<BackgroundPrx>(background->ice_oneway());
+    BackgroundPrx backgroundOneway(background->ice_oneway());
     test(backgroundOneway->ice_getConnection() == background->ice_getConnection());
 
     ctl->holdAdapter(); // Hold to block in request send.

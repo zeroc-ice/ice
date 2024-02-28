@@ -23,7 +23,7 @@ toString(int value)
 
 }
 
-RemoteObjectAdapterPrxPtr
+optional<RemoteObjectAdapterPrx>
 RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, const Current& current)
 {
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
@@ -51,8 +51,7 @@ RemoteCommunicatorI::createObjectAdapter(int timeout, int close, int heartbeat, 
     properties->setProperty(name + ".ThreadPool.Size", "2");
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, protocol + opts);
 
-    return Ice::uncheckedCast<RemoteObjectAdapterPrx>(
-        current.adapter->addWithUUID(make_shared<RemoteObjectAdapterI>(adapter)));
+    return RemoteObjectAdapterPrx(current.adapter->addWithUUID(make_shared<RemoteObjectAdapterI>(adapter)));
 }
 
 void
@@ -63,13 +62,12 @@ RemoteCommunicatorI::shutdown(const Ice::Current& current)
 
 RemoteObjectAdapterI::RemoteObjectAdapterI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter),
-    _testIntf(Ice::uncheckedCast<TestIntfPrx>(_adapter->add(make_shared<TestI>(),
-                                         stringToIdentity("test"))))
+    _testIntf(TestIntfPrx(_adapter->add(make_shared<TestI>(), stringToIdentity("test"))))
 {
     _adapter->activate();
 }
 
-TestIntfPrxPtr
+optional<TestIntfPrx>
 RemoteObjectAdapterI::getTestIntf(const Ice::Current&)
 {
     return _testIntf;

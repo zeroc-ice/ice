@@ -7,20 +7,19 @@
 
 #include <Ice/EndpointFactory.h>
 
-class EndpointFactory : public IceInternal::EndpointFactory, public std::enable_shared_from_this<EndpointFactory>
+class EndpointFactory final : public IceInternal::EndpointFactory, public std::enable_shared_from_this<EndpointFactory>
 {
 public:
 
     EndpointFactory(const IceInternal::EndpointFactoryPtr&);
-    virtual ~EndpointFactory() { }
 
-    virtual std::int16_t type() const;
-    virtual ::std::string protocol() const;
-    virtual IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
-    virtual void destroy();
+    std::int16_t type() const final;
+    std::string protocol() const final;
+    IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
+    IceInternal::EndpointIPtr read(Ice::InputStream*) const final;
+    void destroy() final;
 
-    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
+    IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
 protected:
 

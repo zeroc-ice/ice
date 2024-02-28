@@ -5,6 +5,8 @@
 #include <TestI.h>
 #include <Ice/Ice.h>
 
+using namespace Ice;
+using namespace Test;
 using namespace std;
 
 namespace
@@ -14,32 +16,32 @@ namespace
 // A no-op Logger, used when testing the Logger Admin
 //
 
-class NullLogger : public Ice::Logger, public std::enable_shared_from_this<NullLogger>
+class NullLogger final : public Logger, public enable_shared_from_this<NullLogger>
 {
 public:
 
-    virtual void print(const string&)
+    void print(const string&) final
     {
     }
 
-    virtual void trace(const string&, const string&)
+    void trace(const string&, const string&) final
     {
     }
 
-    virtual void warning(const string&)
+    void warning(const string&) final
     {
     }
 
-    virtual void error(const string&)
+    void error(const string&) final
     {
     }
 
-    virtual string getPrefix()
+    string getPrefix() final
     {
         return "NullLogger";
     }
 
-    virtual Ice::LoggerPtr cloneWithPrefix(const string&)
+    LoggerPtr cloneWithPrefix(const string&) final
     {
         return shared_from_this();
     }
@@ -47,20 +49,20 @@ public:
 
 }
 
-RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator) :
+RemoteCommunicatorI::RemoteCommunicatorI(const CommunicatorPtr& communicator) :
     _communicator(communicator),
     _removeCallback(nullptr)
 {
 }
 
-Ice::ObjectPrxPtr
-RemoteCommunicatorI::getAdmin(const Ice::Current&)
+optional<ObjectPrx>
+RemoteCommunicatorI::getAdmin(const Current&)
 {
     return _communicator->getAdmin();
 }
 
-Ice::PropertyDict
-RemoteCommunicatorI::getChanges(const Ice::Current&)
+PropertyDict
+RemoteCommunicatorI::getChanges(const Current&)
 {
     lock_guard lock(_mutex);
 
@@ -70,34 +72,34 @@ RemoteCommunicatorI::getChanges(const Ice::Current&)
     }
     else
     {
-        return Ice::PropertyDict();
+        return PropertyDict();
     }
 }
 
 void
-RemoteCommunicatorI::addUpdateCallback(const Ice::Current&)
+RemoteCommunicatorI::addUpdateCallback(const Current&)
 {
     lock_guard lock(_mutex);
 
-    Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
+    ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
     if(propFacet)
     {
-        Ice::NativePropertiesAdminPtr admin = dynamic_pointer_cast<Ice::NativePropertiesAdmin>(propFacet);
+        NativePropertiesAdminPtr admin = dynamic_pointer_cast<NativePropertiesAdmin>(propFacet);
         assert(admin);
         _removeCallback =
-            admin->addUpdateCallback([this](const Ice::PropertyDict& changes) { updated(changes); });
+            admin->addUpdateCallback([this](const PropertyDict& changes) { updated(changes); });
     }
 }
 
 void
-RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
+RemoteCommunicatorI::removeUpdateCallback(const Current&)
 {
     lock_guard lock(_mutex);
 
-    Ice::ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
+    ObjectPtr propFacet = _communicator->findAdminFacet("Properties");
     if(propFacet)
     {
-        Ice::NativePropertiesAdminPtr admin = dynamic_pointer_cast<Ice::NativePropertiesAdmin>(propFacet);
+        NativePropertiesAdminPtr admin = dynamic_pointer_cast<NativePropertiesAdmin>(propFacet);
         assert(admin);
         if(_removeCallback)
         {
@@ -109,35 +111,35 @@ RemoteCommunicatorI::removeUpdateCallback(const Ice::Current&)
 }
 
 void
-RemoteCommunicatorI::print(std::string message, const Ice::Current&)
+RemoteCommunicatorI::print(string message, const Current&)
 {
     _communicator->getLogger()->print(message);
 }
 void
-RemoteCommunicatorI::trace(std::string category,
-                           std::string message, const Ice::Current&)
+RemoteCommunicatorI::trace(string category,
+                           string message, const Current&)
 {
     _communicator->getLogger()->trace(category, message);
 }
 void
-RemoteCommunicatorI::warning(std::string message, const Ice::Current&)
+RemoteCommunicatorI::warning(string message, const Current&)
 {
     _communicator->getLogger()->warning(message);
 }
 void
-RemoteCommunicatorI::error(std::string message, const Ice::Current&)
+RemoteCommunicatorI::error(string message, const Current&)
 {
     _communicator->getLogger()->error(message);
 }
 
 void
-RemoteCommunicatorI::shutdown(const Ice::Current&)
+RemoteCommunicatorI::shutdown(const Current&)
 {
     _communicator->shutdown();
 }
 
 void
-RemoteCommunicatorI::waitForShutdown(const Ice::Current&)
+RemoteCommunicatorI::waitForShutdown(const Current&)
 {
     //
     // Note that we are executing in a thread of the *main* communicator,
@@ -147,27 +149,27 @@ RemoteCommunicatorI::waitForShutdown(const Ice::Current&)
 }
 
 void
-RemoteCommunicatorI::destroy(const Ice::Current&)
+RemoteCommunicatorI::destroy(const Current&)
 {
     _communicator->destroy();
 }
 
 void
-RemoteCommunicatorI::updated(const Ice::PropertyDict& changes)
+RemoteCommunicatorI::updated(const PropertyDict& changes)
 {
     lock_guard lock(_mutex);
     _changes = changes;
 }
 
-Test::RemoteCommunicatorPrxPtr
-RemoteCommunicatorFactoryI::createCommunicator(Ice::PropertyDict props, const Ice::Current& current)
+optional<RemoteCommunicatorPrx>
+RemoteCommunicatorFactoryI::createCommunicator(PropertyDict props, const Current& current)
 {
     //
     // Prepare the property set using the given properties.
     //
-    Ice::InitializationData init;
-    init.properties = Ice::createProperties();
-    for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    InitializationData init;
+    init.properties = createProperties();
+    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         init.properties->setProperty(p->first, p->second);
     }
@@ -180,7 +182,7 @@ RemoteCommunicatorFactoryI::createCommunicator(Ice::PropertyDict props, const Ic
     //
     // Initialize a new communicator.
     //
-    Ice::CommunicatorPtr communicator = Ice::initialize(init);
+    CommunicatorPtr communicator = initialize(init);
 
     //
     // Install a custom admin facet.
@@ -191,14 +193,13 @@ RemoteCommunicatorFactoryI::createCommunicator(Ice::PropertyDict props, const Ic
     // Set the callback on the admin facet.
     //
     RemoteCommunicatorIPtr servant = make_shared<RemoteCommunicatorI>(communicator);
-    servant->addUpdateCallback(Ice::emptyCurrent);
+    servant->addUpdateCallback(emptyCurrent);
 
-    Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);
-    return Ice::uncheckedCast<Test::RemoteCommunicatorPrx>(proxy);
+    return RemoteCommunicatorPrx(current.adapter->addWithUUID(servant));
 }
 
 void
-RemoteCommunicatorFactoryI::shutdown(const Ice::Current& current)
+RemoteCommunicatorFactoryI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }

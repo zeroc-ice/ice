@@ -12,7 +12,7 @@
 class EndpointI;
 using EndpointIPtr = std::shared_ptr<EndpointI>;
 
-class EndpointI : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
+class EndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
 {
 public:
 
@@ -21,36 +21,36 @@ public:
     EndpointI(const IceInternal::EndpointIPtr&);
 
     // From EndpointI
-    virtual void streamWriteImpl(Ice::OutputStream*) const;
-    virtual std::int16_t type() const;
-    virtual const std::string& protocol() const;
-    virtual IceInternal::EndpointIPtr timeout(std::int32_t) const;
-    virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
-    virtual IceInternal::EndpointIPtr compress(bool) const;
-    virtual IceInternal::TransceiverPtr transceiver() const;
-    virtual void connectorsAsync(
+    void streamWriteImpl(Ice::OutputStream*) const final;
+    std::int16_t type() const final;
+    const std::string& protocol() const final;
+    IceInternal::EndpointIPtr timeout(std::int32_t) const final;
+    IceInternal::EndpointIPtr connectionId(const ::std::string&) const final;
+    IceInternal::EndpointIPtr compress(bool) const final;
+    IceInternal::TransceiverPtr transceiver() const final;
+    void connectorsAsync(
         Ice::EndpointSelectionType,
         std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
-        std::function<void(std::exception_ptr)>) const;
-    virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
-    virtual std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const;
-    virtual std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const;
-    virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
+        std::function<void(std::exception_ptr)>) const final;
+    IceInternal::AcceptorPtr acceptor(const std::string&) const final;
+    std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const final;
+    std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const final;
+    bool equivalent(const IceInternal::EndpointIPtr&) const final;
 
     // From TestEndpoint
-    virtual std::string toString() const noexcept;
-    virtual Ice::EndpointInfoPtr getInfo() const noexcept;
-    virtual std::int32_t timeout() const;
-    virtual const std::string& connectionId() const;
-    virtual bool compress() const;
-    virtual bool datagram() const;
-    virtual bool secure() const;
+    std::string toString() const noexcept final;
+    Ice::EndpointInfoPtr getInfo() const noexcept final;
+    std::int32_t timeout() const final;
+    const std::string& connectionId() const final;
+    bool compress() const final;
+    bool datagram() const final;
+    bool secure() const final;
 
-    virtual bool operator==(const Ice::Endpoint&) const;
-    virtual bool operator<(const Ice::Endpoint&) const;
+    bool operator==(const Ice::Endpoint&) const final;
+    bool operator<(const Ice::Endpoint&) const final;
 
-    virtual int hash() const;
-    virtual std::string options() const;
+    int hash() const final;
+    std::string options() const final;
 
     IceInternal::EndpointIPtr delegate() const;
     EndpointIPtr endpoint(const IceInternal::EndpointIPtr&) const;
