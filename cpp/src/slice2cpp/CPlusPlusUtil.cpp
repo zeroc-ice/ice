@@ -100,18 +100,10 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
 }
 
 void
-writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal,
-                            bool prepend, int typeCtx, const string& customStream = "", const string& retP = "")
+writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal, int typeCtx)
 {
-    string prefix = prepend ? paramPrefix : "";
-    string returnValueS = retP.empty() ? string("ret") : retP;
-
-    string stream = customStream;
-    if(stream.empty())
-    {
-        stream = marshal ? "ostr" : "istr";
-    }
-
+    const string returnValueS = "ret";
+    const string stream = marshal ? "ostr" : "istr";
     bool tuple = (typeCtx & TypeContextTuple) != 0;
 
     //
@@ -154,7 +146,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
             }
             else
             {
-                out << fixKwd(prefix + (*p)->name());
+                out << fixKwd(paramPrefix + (*p)->name());
             }
         }
         if(op && op->returnType() && !op->returnIsOptional())
@@ -251,7 +243,7 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
                 }
                 else
                 {
-                    out << fixKwd(prefix + (*p)->name());
+                    out << fixKwd(paramPrefix + (*p)->name());
                 }
             }
             if(checkReturnType)
@@ -771,13 +763,13 @@ Slice::fixKwd(const string& name)
 void
 Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, int typeCtx)
 {
-    writeMarshalUnmarshalParams(out, params, op, true, /*prepend*/ true, typeCtx, "");
+    writeMarshalUnmarshalParams(out, params, op, true, typeCtx);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, bool prepend, int typeCtx)
+Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op, int typeCtx)
 {
-    writeMarshalUnmarshalParams(out, params, op, false, prepend, typeCtx, "", "");
+    writeMarshalUnmarshalParams(out, params, op, false, typeCtx);
 }
 
 void
