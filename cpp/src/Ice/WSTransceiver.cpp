@@ -59,13 +59,13 @@ const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 //
 // Rename to avoid conflict with OS 10.10 htonll
 //
-void ice_htonll(int64_t v, Byte* dest)
+void ice_htonll(int64_t v, uint8_t* dest)
 {
     //
     // Transfer a 64-bit integer in network (big-endian) order.
     //
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v);
+    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -75,7 +75,7 @@ void ice_htonll(int64_t v, Byte* dest)
     *dest++ = *src++;
     *dest = *src;
 #else
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(int64_t) - 1;
+    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(int64_t) - 1;
     *dest++ = *src--;
     *dest++ = *src--;
     *dest++ = *src--;
@@ -90,7 +90,7 @@ void ice_htonll(int64_t v, Byte* dest)
 //
 // Rename to avoid conflict with OS 10.10 nlltoh
 //
-int64_t ice_nlltoh(const Byte* src)
+int64_t ice_nlltoh(const uint8_t* src)
 {
     int64_t v;
 
@@ -98,7 +98,7 @@ int64_t ice_nlltoh(const Byte* src)
     // Extract a 64-bit integer in network (big-endian) order.
     //
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v);
+    uint8_t* dest = reinterpret_cast<Byte*>(&v);
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -108,7 +108,7 @@ int64_t ice_nlltoh(const Byte* src)
     *dest++ = *src++;
     *dest = *src;
 #else
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(int64_t) - 1;
+    uint8_t* dest = reinterpret_cast<Byte*>(&v) + sizeof(int64_t) - 1;
     *dest-- = *src++;
     *dest-- = *src++;
     *dest-- = *src++;
@@ -1656,7 +1656,7 @@ IceInternal::WSTransceiver::readBuffered(IceInternal::Buffer::Container::size_ty
 }
 
 void
-IceInternal::WSTransceiver::prepareWriteHeader(Byte opCode, IceInternal::Buffer::Container::size_type payloadLength)
+IceInternal::WSTransceiver::prepareWriteHeader(uint8_t opCode, IceInternal::Buffer::Container::size_type payloadLength)
 {
     //
     // We need to prepare the frame header.

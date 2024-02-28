@@ -230,11 +230,11 @@ certificateAltNames(CERT_INFO* certInfo, LPCSTR altNameOID)
                         // IPv4 address
                         //
                         ostringstream os;
-                        Byte* src = reinterpret_cast<Byte*>(entry->IPAddress.pbData);
+                        uint8_t* src = reinterpret_cast<Byte*>(entry->IPAddress.pbData);
                         for(int j = 0; j < 4;)
                         {
                             int value = 0;
-                            Byte* dest = reinterpret_cast<Byte*>(&value);
+                            uint8_t* dest = reinterpret_cast<Byte*>(&value);
                             *dest = *src++;
                             os << value;
                             if(++j < 4)

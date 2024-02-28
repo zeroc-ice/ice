@@ -597,7 +597,7 @@ SChannel::TransceiverI::decryptMessage(IceInternal::Buffer& buffer)
         // If we have filled the buffer or if nothing left to read from
         // the read buffer, we're done.
         //
-        Byte* i = buffer.i + length;
+        uint8_t* i = buffer.i + length;
         if(i == buffer.b.end() || _readBuffer.i == _readBuffer.b.begin())
         {
             break;

@@ -725,7 +725,7 @@ OutgoingAsync::response()
         _childObserver.detach();
     }
 
-    Byte replyStatus;
+    uint8_t replyStatus;
     try
     {
         _is.read(replyStatus);

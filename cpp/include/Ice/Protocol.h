@@ -15,12 +15,12 @@ namespace IceInternal
 // Size of the Ice protocol header
 //
 // Magic number (4 Bytes)
-// Protocol version major (Byte)
-// Protocol version minor (Byte)
-// Encoding version major (Byte)
-// Encoding version minor (Byte)
-// Message type (Byte)
-// Compression status (Byte)
+// Protocol version major (std::uint8_t)
+// Protocol version minor (std::uint8_t)
+// Encoding version major (std::uint8_t)
+// Encoding version minor (std::uint8_t)
+// Message type (std::uint8_t)
+// Compression status (std::uint8_t)
 // Message size (Int)
 //
 const ::std::int32_t headerSize = 14;

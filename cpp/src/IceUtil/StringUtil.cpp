@@ -17,7 +17,7 @@ namespace
 {
 
 char
-toHexDigit(Byte b)
+toHexDigit(uint8_t b)
 {
     assert(b < 16);
     if(b < 10)
@@ -38,7 +38,7 @@ addContinuationByte(string::iterator& p, string::iterator end, unsigned int code
         throw IllegalArgumentException(__FILE__, __LINE__, "UTF-8 sequence too short");
     }
 
-    Byte b = static_cast<Byte>(*p++);
+    uint8_t b = static_cast<Byte>(*p++);
 
     if((b >> 6) != 2)
     {
@@ -55,7 +55,7 @@ appendUniversalName(char c, string::iterator& p, string::iterator end, string& r
 {
     unsigned int codePoint;
 
-    Byte b = static_cast<Byte>(c);
+    uint8_t b = static_cast<Byte>(c);
     if((b >> 5) == 0x06)
     {
         // 2 bytes

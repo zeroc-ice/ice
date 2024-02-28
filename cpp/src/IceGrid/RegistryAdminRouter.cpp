@@ -19,7 +19,7 @@ class SynchronizationCallbackI final : public SynchronizationCallback
 public:
 
     SynchronizationCallbackI(const shared_ptr<RegistryServerAdminRouter>& adminRouter,
-                             const pair<const Byte*, const Byte*>& inParams,
+                             const pair<const uint8_t*, const uint8_t*>& inParams,
                              function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
                              function<void(exception_ptr)> exception,
                              const Current& current) :

@@ -79,7 +79,7 @@ public:
      * You can supply a communicator later by calling initialize().
      * @param bytes The encoded data.
      */
-    InputStream(const std::pair<const Byte*, const Byte*>& bytes);
+    InputStream(const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     /// \cond INTERNAL
     InputStream(IceInternal::Buffer&, bool = false);
@@ -103,7 +103,7 @@ public:
      * @param communicator The communicator to use for unmarshaling tasks.
      * @param bytes The encoded data.
      */
-    InputStream(const CommunicatorPtr& communicator, const std::pair<const Byte*, const Byte*>& bytes);
+    InputStream(const CommunicatorPtr& communicator, const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     /// \cond INTERNAL
     InputStream(const CommunicatorPtr& communicator, IceInternal::Buffer&, bool = false);
@@ -136,7 +136,7 @@ public:
      * @param version The encoding version used to encode the data to be unmarshaled.
      * @param bytes The encoded data.
      */
-    InputStream(const EncodingVersion& version, const std::pair<const Byte*, const Byte*>& bytes);
+    InputStream(const EncodingVersion& version, const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     /// \cond INTERNAL
     InputStream(const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -164,7 +164,7 @@ public:
      * @param bytes The encoded data.
      */
     InputStream(const CommunicatorPtr& communicator, const EncodingVersion& version,
-                const std::pair<const Byte*, const Byte*>& bytes);
+                const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     /// \cond INTERNAL
     InputStream(const CommunicatorPtr&, const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -475,7 +475,7 @@ public:
      * @param sz The number of bytes in the encapsulation.
      * @return encoding The encapsulation's encoding version.
      */
-    EncodingVersion readEncapsulation(const Byte*& v, std::int32_t& sz)
+    EncodingVersion readEncapsulation(const std::uint8_t*& v, std::int32_t& sz)
     {
         EncodingVersion encoding;
         v = i;
@@ -561,7 +561,7 @@ public:
      */
     std::int32_t readSize() // Inlined for performance reasons.
     {
-        Byte byte;
+        std::uint8_t byte;
         read(byte);
         unsigned char val = static_cast<unsigned char>(byte);
         if(val == 255)
@@ -602,7 +602,7 @@ public:
      * @param v A pointer into the internal marshaling buffer representing the start of the blob.
      * @param sz The number of bytes to read.
      */
-    void readBlob(const Byte*& v, Container::size_type sz)
+    void readBlob(const std::uint8_t*& v, Container::size_type sz)
     {
         if(sz > 0)
         {
@@ -753,7 +753,7 @@ public:
      * Reads a byte from the stream.
      * @param v The extracted byte.
      */
-    void read(Byte& v)
+    void read(std::uint8_t& v)
     {
         if(i >= b.end())
         {
@@ -773,7 +773,7 @@ public:
      * @param v A pair of pointers into the internal marshaling buffer representing the start and end of the
      * sequence elements.
      */
-    void read(std::pair<const Byte*, const Byte*>& v);
+    void read(std::pair<const std::uint8_t*, const std::uint8_t*>& v);
 
     /**
      * Reads a bool from the stream.
@@ -830,16 +830,16 @@ public:
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        const Byte* src = &(*i);
+        const std::uint8_t* src = &(*i);
         i += sizeof(std::int32_t);
 #ifdef ICE_BIG_ENDIAN
-        Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(std::int32_t) - 1;
+        std::uint8_t* dest = reinterpret_cast<Byte*>(&v) + sizeof(std::int32_t) - 1;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest-- = *src++;
         *dest = *src;
 #else
-        Byte* dest = reinterpret_cast<Byte*>(&v);
+        std::uint8_t* dest = reinterpret_cast<Byte*>(&v);
         *dest++ = *src++;
         *dest++ = *src++;
         *dest++ = *src++;
@@ -1035,7 +1035,7 @@ public:
      */
     void skipSize()
     {
-        Byte bt;
+        std::uint8_t bt;
         read(bt);
         if(static_cast<unsigned char>(bt) == 255)
         {
@@ -1276,7 +1276,7 @@ private:
             IndexListList indirectionTables;
 
             // Slice attributes
-            Byte sliceFlags;
+            std::uint8_t sliceFlags;
             std::int32_t sliceSize;
             std::string typeId;
             int compactId;

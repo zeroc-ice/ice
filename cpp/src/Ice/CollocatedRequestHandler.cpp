@@ -52,7 +52,7 @@ private:
 void
 fillInValue(OutputStream* os, int pos, int32_t value)
 {
-    const Byte* p = reinterpret_cast<const Byte*>(&value);
+    const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
 #else

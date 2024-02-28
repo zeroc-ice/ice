@@ -662,7 +662,7 @@ IcePatch2Internal::decompressFile(const string& pa)
         }
 
         const int32_t numBZ2 = 64 * 1024;
-        Byte bytesBZ2[numBZ2];
+        uint8_t bytesBZ2[numBZ2];
 
         while(bzError != BZ_STREAM_END)
         {

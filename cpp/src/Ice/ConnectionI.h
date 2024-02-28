@@ -265,7 +265,7 @@ private:
     void doUncompress(Ice::InputStream&, Ice::InputStream&);
 #endif
 
-    IceInternal::SocketOperation parseMessage(Ice::InputStream&, std::int32_t&, std::int32_t&, Byte&,
+    IceInternal::SocketOperation parseMessage(Ice::InputStream&, std::int32_t&, std::int32_t&, std::uint8_t&,
                                               IceInternal::ServantManagerPtr&, ObjectAdapterPtr&,
                                               IceInternal::OutgoingAsyncBasePtr&, HeartbeatCallback&, int&);
 

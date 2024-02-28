@@ -57,7 +57,7 @@ public:
      * stream will reallocate if the size of the marshaled data exceeds the application's buffer.
      */
     OutputStream(const CommunicatorPtr& communicator, const EncodingVersion& version,
-                 const std::pair<const Byte*, const Byte*>& bytes);
+                 const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     ~OutputStream()
     {
@@ -252,7 +252,7 @@ public:
      * @param v The start of the buffer.
      * @param sz The number of bytes to copy.
      */
-    void writeEncapsulation(const Byte* v, std::int32_t sz)
+    void writeEncapsulation(const std::uint8_t* v, std::int32_t sz)
     {
         if(sz < 6)
         {
@@ -376,7 +376,7 @@ public:
      * @param v The start of the buffer to be copied.
      * @param sz The number of bytes to be copied.
      */
-    void writeBlob(const Byte* v, Container::size_type sz)
+    void writeBlob(const std::uint8_t* v, Container::size_type sz)
     {
         if(sz > 0)
         {
@@ -551,7 +551,7 @@ public:
      * Writes a byte to the stream.
      * @param v The byte to write.
      */
-    void write(Byte v)
+    void write(std::uint8_t v)
     {
         b.push_back(v);
     }
@@ -561,7 +561,7 @@ public:
      * @param start The beginning of the sequence.
      * @param end The end of the sequence.
      */
-    void write(const Byte* start, const Byte* end);
+    void write(const std::uint8_t* start, const std::uint8_t* end);
 
     /**
      * Writes a boolean to the stream.
@@ -618,13 +618,13 @@ public:
     void write(std::int32_t v, Container::iterator dest)
     {
 #ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(std::) - 1;
+        const std::uint8_t* src = reinterpret_cast<const std::uint8_t*>(&v) + sizeof(std::) - 1;
         *dest++ = *src--;
         *dest++ = *src--;
         *dest++ = *src--;
         *dest = *src;
 #else
-        const Byte* src = reinterpret_cast<const Byte*>(&v);
+        const std::uint8_t* src = reinterpret_cast<const std::uint8_t*>(&v);
         *dest++ = *src++;
         *dest++ = *src++;
         *dest++ = *src++;
@@ -859,7 +859,7 @@ public:
      * @return A pair of pointers into the internal marshaling buffer. These pointers are
      * valid for the lifetime of the stream.
      */
-    std::pair<const Byte*, const Byte*> finished();
+    std::pair<const std::uint8_t*, const std::uint8_t*> finished();
 
     /// \cond INTERNAL
     OutputStream(IceInternal::Instance*, const EncodingVersion&);
@@ -1028,7 +1028,7 @@ private:
             bool firstSlice;
 
             // Slice attributes
-            Byte sliceFlags;
+            std::uint8_t sliceFlags;
             Container::size_type writeSlice;    // Position of the slice data members
             Container::size_type sliceFlagsPos; // Position of the slice flags
             PtrToIndexMap indirectionMap;

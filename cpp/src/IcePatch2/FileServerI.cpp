@@ -80,11 +80,11 @@ IcePatch2::FileServerI::getFileCompressedAsync(
         getFileCompressedInternal(std::move(pa), pos, num, buffer, false);
         if(buffer.empty())
         {
-            response(make_pair<const Byte*, const Byte*>(0, 0));
+            response(make_pair<const uint8_t*, const uint8_t*>(0, 0));
         }
         else
         {
-            response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
+            response(make_pair<const uint8_t*, const uint8_t*>(&buffer[0], &buffer[0] + buffer.size()));
         }
     }
     catch(const std::exception&)
@@ -108,11 +108,11 @@ IcePatch2::FileServerI::getLargeFileCompressedAsync(
         getFileCompressedInternal(std::move(pa), pos, num, buffer, true);
         if(buffer.empty())
         {
-            response(make_pair<const Byte*, const Byte*>(0, 0));
+            response(make_pair<const uint8_t*, const uint8_t*>(0, 0));
         }
         else
         {
-            response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
+            response(make_pair<const uint8_t*, const uint8_t*>(&buffer[0], &buffer[0] + buffer.size()));
         }
 
     }

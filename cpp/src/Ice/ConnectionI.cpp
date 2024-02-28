@@ -63,7 +63,7 @@ public:
         const ConnectionIPtr& connection,
         function<void (ConnectionIPtr)> connectionStartCompleted,
         const vector<ConnectionI::OutgoingMessage>& sentCBs,
-        Byte compress,
+        uint8_t compress,
         int32_t requestId,
         int32_t invokeNum,
         const ServantManagerPtr& servantManager,
@@ -98,7 +98,7 @@ private:
     const ConnectionIPtr _connection;
     const function<void(Ice::ConnectionIPtr)> _connectionStartCompleted;
     const vector<ConnectionI::OutgoingMessage> _sentCBs;
-    const Byte _compress;
+    const uint8_t _compress;
     const int32_t _requestId;
     const int32_t _invokeNum;
     const ServantManagerPtr _servantManager;
@@ -724,7 +724,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
         //
         // Fill in the request ID.
         //
-        const Byte* p = reinterpret_cast<const Byte*>(&requestId);
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(&requestId);
 #ifdef ICE_BIG_ENDIAN
         reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
 #else
@@ -733,7 +733,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     }
     else if(batchRequestNum > 0)
     {
-        const Byte* p = reinterpret_cast<const Byte*>(&batchRequestNum);
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(&batchRequestNum);
 #ifdef ICE_BIG_ENDIAN
         reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
 #else
@@ -1121,7 +1121,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
 }
 
 void
-Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, Byte compressFlag, bool /*amd*/)
+Ice::ConnectionI::sendResponse(int32_t, OutputStream* os, uint8_t compressFlag, bool /*amd*/)
 {
     std::unique_lock lock(_mutex);
     assert(_state > StateNotValidated);
@@ -1404,7 +1404,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 {
     function<void(ConnectionIPtr)> connectionStartCompleted;
     vector<OutgoingMessage> sentCBs;
-    Byte compress = 0;
+    uint8_t compress = 0;
     int32_t requestId = 0;
     int32_t invokeNum = 0;
     ServantManagerPtr servantManager;
@@ -1494,7 +1494,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     }
 
                     _readStream.i = _readStream.b.begin();
-                    const Byte* m;
+                    const uint8_t* m;
                     _readStream.readBlob(m, static_cast<int32_t>(sizeof(magic)));
                     if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
                     {
@@ -1507,9 +1507,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     _readStream.read(ev);
                     checkSupportedProtocolEncoding(ev);
 
-                    Byte messageType;
+                    uint8_t messageType;
                     _readStream.read(messageType);
-                    Byte compressByte;
+                    uint8_t compressByte;
                     _readStream.read(compressByte);
                     int32_t size;
                     _readStream.read(size);
@@ -1721,7 +1721,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 void
 ConnectionI::dispatch(function<void(ConnectionIPtr)> connectionStartCompleted, const vector<OutgoingMessage>& sentCBs,
-                      Byte compress, int32_t requestId, int32_t invokeNum, const ServantManagerPtr& servantManager,
+                      uint8_t compress, int32_t requestId, int32_t invokeNum, const ServantManagerPtr& servantManager,
                       const ObjectAdapterPtr& adapter, const OutgoingAsyncBasePtr& outAsync,
                       const HeartbeatCallback& heartbeatCallback, InputStream& stream)
 {
@@ -2675,7 +2675,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
 
             assert(_readStream.i == _readStream.b.end());
             _readStream.i = _readStream.b.begin();
-            Byte m[4];
+            uint8_t m[4];
             _readStream.read(m[0]);
             _readStream.read(m[1]);
             _readStream.read(m[2]);
@@ -2690,13 +2690,13 @@ Ice::ConnectionI::validate(SocketOperation operation)
             EncodingVersion ev;
             _readStream.read(ev);
             checkSupportedProtocolEncoding(ev);
-            Byte messageType;
+            uint8_t messageType;
             _readStream.read(messageType);
             if(messageType != validateConnectionMsg)
             {
                 throw ConnectionNotValidatedException(__FILE__, __LINE__);
             }
-            Byte compress;
+            uint8_t compress;
             _readStream.read(compress); // Ignore compression status for validate connection.
             int32_t size;
             _readStream.read(size);
@@ -2826,7 +2826,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
                 // No compression, just fill in the message size.
                 //
                 int32_t sz = static_cast<int32_t>(message->stream->b.size());
-                const Byte* p = reinterpret_cast<const Byte*>(&sz);
+                const uint8_t* p = reinterpret_cast<const uint8_t*>(&sz);
 #ifdef ICE_BIG_ENDIAN
                 reverse_copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
 #else
@@ -2966,7 +2966,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         // No compression, just fill in the message size.
         //
         int32_t sz = static_cast<int32_t>(message.stream->b.size());
-        const Byte* p = reinterpret_cast<const Byte*>(&sz);
+        const uint8_t* p = reinterpret_cast<const uint8_t*>(&sz);
 #ifdef ICE_BIG_ENDIAN
         reverse_copy(p, p + sizeof(int32_t), message.stream->b.begin() + 10);
 #else
@@ -3079,7 +3079,7 @@ getBZ2Error(int bzError)
 void
 Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compressed)
 {
-    const Byte* p;
+    const uint8_t* p;
 
     //
     // Compress the message body, but not the header.
@@ -3104,7 +3104,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     // will also be in the header of the compressed stream.
     //
     int32_t compressedSize = static_cast<int32_t>(compressed.b.size());
-    p = reinterpret_cast<const Byte*>(&compressedSize);
+    p = reinterpret_cast<const uint8_t*>(&compressedSize);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
 #else
@@ -3116,7 +3116,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     // of the compressed stream.
     //
     int32_t uncompressedSize = static_cast<int32_t>(uncompressed.b.size());
-    p = reinterpret_cast<const Byte*>(&uncompressedSize);
+    p = reinterpret_cast<const uint8_t*>(&uncompressedSize);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
 #else
@@ -3163,7 +3163,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 #endif
 
 SocketOperation
-Ice::ConnectionI::parseMessage(InputStream& stream, int32_t& invokeNum, int32_t& requestId, Byte& compress,
+Ice::ConnectionI::parseMessage(InputStream& stream, int32_t& invokeNum, int32_t& requestId, uint8_t& compress,
                                ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter,
                                OutgoingAsyncBasePtr& outAsync, HeartbeatCallback& heartbeatCallback,
                                int& dispatchCount)
@@ -3186,7 +3186,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, int32_t& invokeNum, int32_t&
         //
         assert(stream.i == stream.b.end());
         stream.i = stream.b.begin() + 8;
-        Byte messageType;
+        uint8_t messageType;
         stream.read(messageType);
         stream.read(compress);
 
@@ -3385,7 +3385,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, int32_t& invokeNum, int32_t&
 }
 
 void
-Ice::ConnectionI::invokeAll(InputStream& stream, int32_t invokeNum, int32_t requestId, Byte compress,
+Ice::ConnectionI::invokeAll(InputStream& stream, int32_t invokeNum, int32_t requestId, uint8_t compress,
                             const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter)
 {
     //
