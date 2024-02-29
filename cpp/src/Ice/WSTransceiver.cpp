@@ -64,27 +64,30 @@ void ice_htonll(int64_t v, uint8_t* dest)
     //
     // Transfer a 64-bit integer in network (big-endian) order.
     //
-#ifdef ICE_BIG_ENDIAN
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#else
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(int64_t) - 1;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest = *src;
-#endif
+    if (endian::native == endian::big)
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+    }
+    else
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(int64_t) - 1;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest = *src;
+    }
 }
 
 //
@@ -97,27 +100,30 @@ int64_t ice_nlltoh(const uint8_t* src)
     //
     // Extract a 64-bit integer in network (big-endian) order.
     //
-#ifdef ICE_BIG_ENDIAN
-    uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#else
-    uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest = *src;
-#endif
+    if (endian::native == endian::big)
+    {
+        uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+    }
+    else
+    {
+        uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest = *src;
+    }
 
     return v;
 }

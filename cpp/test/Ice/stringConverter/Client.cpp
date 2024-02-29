@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <locale.h>
+#include "../../../../src/Ice/Endian.h"
 
 #ifdef _MSC_VER
 #   pragma warning(disable:4127) // conditional expression is constant
@@ -74,19 +75,25 @@ Client::run(int argc, char** argv)
 
         if(sizeof(wchar_t) == 4)
         {
-#  ifdef ICE_BIG_ENDIAN
-            wideEncoding = "UTF-32BE";
-#  else
-            wideEncoding = "UTF-32LE";
-#  endif
+            if (endian::native == endian::big)
+            {
+                wideEncoding = "UTF-32BE";
+            }
+            else
+            {
+                wideEncoding = "UTF-32LE";
+            }
         }
         else
         {
-#  ifdef ICE_BIG_ENDIAN
-            wideEncoding = "UTF-16BE";
-#  else
-            wideEncoding = "UTF-16LE";
-#  endif
+            if (endian::native == endian::big)
+            {
+                wideEncoding = "UTF-16BE";
+            }
+            else
+            {
+                wideEncoding = "UTF-16LE";
+            }
         }
 #endif
     }

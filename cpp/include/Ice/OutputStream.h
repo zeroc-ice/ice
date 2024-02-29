@@ -615,22 +615,7 @@ public:
      * @param v The integer value to be written.
      * @param dest The buffer destination for the integer value.
      */
-    void write(std::int32_t v, Container::iterator dest)
-    {
-#ifdef ICE_BIG_ENDIAN
-        const std::uint8_t* src = reinterpret_cast<const std::uint8_t*>(&v) + sizeof(std::) - 1;
-        *dest++ = *src--;
-        *dest++ = *src--;
-        *dest++ = *src--;
-        *dest = *src;
-#else
-        const std::uint8_t* src = reinterpret_cast<const std::uint8_t*>(&v);
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest = *src;
-#endif
-    }
+    void write(std::int32_t v, Container::iterator dest);
 
     /**
      * Writes an int sequence to the stream.

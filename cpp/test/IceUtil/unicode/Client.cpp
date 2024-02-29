@@ -4,6 +4,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <TestHelper.h>
+#include "../../../src/Ice/Endian.h"
 
 #ifdef _WIN32
 #   include <io.h>
@@ -55,11 +56,14 @@ main(int argc, char* argv[])
 
     ostringstream os;
     os << "utf" << sizeof(wchar_t) * 8;
-#ifdef ICE_LITTLE_ENDIAN
-    os << "le";
-#else
-    os << "be";
-#endif
+    if (endian::native == endian::little)
+    {
+        os << "le";
+    }
+    else
+    {
+        os << "be";
+    }
     string wstringEncoding = os.str();
     string wcoeurFile = string("coeur.") + wstringEncoding;
 
