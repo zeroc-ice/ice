@@ -61,7 +61,7 @@ public:
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opStringAsync(std::optional<::std::string>,
-                               ::std::function<void(const std::optional<::std::string>&, const std::optional<::std::string>&)>,
+                               ::std::function<void(const std::optional<::std::string_view>&, const std::optional<::std::string_view>&)>,
                                ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
     virtual void opMyEnumAsync(std::optional<::Test::MyEnum>,

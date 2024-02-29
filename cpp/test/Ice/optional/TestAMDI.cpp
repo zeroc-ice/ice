@@ -130,7 +130,7 @@ InitialI::opDoubleAsync(optional<double> p1,
 
 void
 InitialI::opStringAsync(optional<::std::string> p1,
-                             ::std::function<void(const optional<::std::string>&, const optional<::std::string>&)> response,
+                             ::std::function<void(const optional<::std::string_view>&, const optional<::std::string_view>&)> response,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(p1, p1);
