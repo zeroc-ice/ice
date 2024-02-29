@@ -86,11 +86,10 @@ allTests(Test::TestHelper* helper)
 
     {
         cout << "Testing IceStorm stub... " << flush;
-        auto manager =
-            Ice::uncheckedCast<IceStorm::TopicManagerPrx>(communicator->stringToProxy("test:default -p 12010"));
+        IceStorm::TopicManagerPrx manager(communicator, "test:default -p 12010");
 
         IceStorm::QoS qos;
-        IceStorm::TopicPrxPtr topic;
+        optional<IceStorm::TopicPrx> topic;
         string topicName = "time";
 
         try
@@ -107,7 +106,7 @@ allTests(Test::TestHelper* helper)
         }
 
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("subscriber" ,"tcp");
-        Ice::ObjectPrxPtr subscriber = adapter->addWithUUID(std::make_shared<ClockI>());
+        Ice::ObjectPrx subscriber(adapter->addWithUUID(std::make_shared<ClockI>()));
         adapter->activate();
         assert(!topic);
         cout << "ok" << endl;
@@ -116,10 +115,9 @@ allTests(Test::TestHelper* helper)
     {
         cout << "Testing IceGrid stub... " << flush;
 
-        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + helper->getTestEndpoint());
-        auto registry = Ice::uncheckedCast<IceGrid::RegistryPrx>(base);
-        IceGrid::AdminSessionPrxPtr session;
-        IceGrid::AdminPrxPtr admin;
+        IceGrid::RegistryPrx registry(communicator, "test:" + helper->getTestEndpoint());
+        optional<IceGrid::AdminSessionPrx> session;
+        optional<IceGrid::AdminPrx> admin;
         try
         {
             session = registry->createAdminSession("username", "password");

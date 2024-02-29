@@ -7,42 +7,42 @@
 
 #include <TestAMD.h>
 
-class MetricsI : public Test::Metrics
+class MetricsI final : public Test::Metrics
 {
 public:
 
-    virtual void opAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void opAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
-    virtual void failAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void failAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
-    virtual void opWithUserExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
-                                           const Ice::Current&);
+    void opWithUserExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
+                                           const Ice::Current&) final;
 
-    virtual void opWithRequestFailedExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
-                                                    const Ice::Current&);
+    void opWithRequestFailedExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
+                                                    const Ice::Current&) final;
 
-    virtual void opWithLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
-                                            const Ice::Current&);
+    void opWithLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
+                                            const Ice::Current&) final;
 
-    virtual void opWithUnknownExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
-                                              const Ice::Current&);
+    void opWithUnknownExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
+                                              const Ice::Current&) final;
 
-    virtual void opByteSAsync(Test::ByteSeq, std::function<void()>, std::function<void(std::exception_ptr)>,
-                               const Ice::Current&);
-    virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
+    void opByteSAsync(Test::ByteSeq, std::function<void()>, std::function<void(std::exception_ptr)>,
+                               const Ice::Current&) final;
+    Ice::ObjectPrxPtr getAdmin(const Ice::Current&) final;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
 };
 
-class ControllerI : public Test::Controller
+class ControllerI final : public Test::Controller
 {
 public:
 
     ControllerI(const Ice::ObjectAdapterPtr&);
 
-    virtual void hold(const Ice::Current&);
+    void hold(const Ice::Current&) final;
 
-    virtual void resume(const Ice::Current&);
+    void resume(const Ice::Current&) final;
 
 private:
 
