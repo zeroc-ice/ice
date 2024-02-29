@@ -21,20 +21,6 @@ namespace
 {
 
 string
-toOptional(const TypePtr& type, const string& scope, const StringList& metaData, int typeCtx)
-{
-    if (isProxyType(type))
-    {
-        // We map optional proxies like regular proxies, as optional<XxxPrx>.
-        return typeToString(type, false, scope, metaData, typeCtx);
-    }
-    else
-    {
-        return "::std::optional<" + typeToString(type, false, scope, metaData, typeCtx) + '>';
-    }
-}
-
-string
 stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
 {
     string strType = findMetaData(metaData, typeCtx);
@@ -48,6 +34,7 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
         assert(strType == "string" || strType == "wstring");
         strType = "::std::" + strType;
     }
+
     if (typeCtx & TypeContextMarshalParam)
     {
         strType += "_view";
@@ -409,10 +396,18 @@ Slice::typeToString(const TypePtr& type, bool optional, const string& scope, con
 
     if (optional)
     {
-        return toOptional(type, scope, metaData, typeCtx);
+        if (isProxyType(type))
+        {
+            // We map optional proxies like regular proxies, as optional<XxxPrx>.
+            return typeToString(type, false, scope, metaData, typeCtx);
+        }
+        else
+        {
+            return "::std::optional<" + typeToString(type, false, scope, metaData, typeCtx) + '>';
+        }
     }
 
-    static const char* builtinTable[] =
+    static constexpr string_view builtinTable[] =
     {
         "::std::uint8_t",
         "bool",
@@ -438,11 +433,11 @@ Slice::typeToString(const TypePtr& type, bool optional, const string& scope, con
         {
             if(builtin->kind() == Builtin::KindObject)
             {
-                return getUnqualified(builtinTable[Builtin::KindValue], scope);
+                return getUnqualified(string{builtinTable[Builtin::KindValue]}, scope);
             }
             else
             {
-                return getUnqualified(builtinTable[builtin->kind()], scope);
+                return getUnqualified(string{builtinTable[builtin->kind()]}, scope);
             }
         }
     }
@@ -492,86 +487,21 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 {
     assert(type);
     assert(typeCtx == 0 || typeCtx == TypeContextUseWstring);
-
-    static const char* InputBuiltinTable[] =
-    {
-        "::std::uint8_t",
-        "bool",
-        "::std::int16_t",
-        "::std::int32_t",
-        "::std::int64_t",
-        "float",
-        "double",
-        "****", // string_view or wstring_view, see below
-        "const ::std::shared_ptr<::Ice::Value>&",
-        "const ::std::optional<::Ice::ObjectPrx>&",
-        "const ::std::shared_ptr<::Ice::Value>&"
-    };
-
     typeCtx |= TypeContextMarshalParam;
 
-    if(optional)
+    if (!optional)
     {
-        return "const " + toOptional(type, scope, metaData, typeCtx) + '&';
-    }
-
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
-    {
-        if(builtin->kind() == Builtin::KindString)
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+        if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)) ||
+            dynamic_pointer_cast<Enum>(type))
         {
-            return stringTypeToString(type, metaData, typeCtx);
-        }
-        else
-        {
-            if(builtin->kind() == Builtin::KindObject)
-            {
-                return getUnqualified(InputBuiltinTable[Builtin::KindValue], scope);
-            }
-            else
-            {
-                return getUnqualified(InputBuiltinTable[builtin->kind()], scope);
-            }
+            // pass by value
+            return typeToString(type, optional, scope, metaData, typeCtx);
         }
     }
 
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
-    {
-        return "const ::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
-    }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
-    {
-        return "const " + getUnqualified(fixKwd(st->scoped()), scope) + "&";
-    }
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(proxy)
-    {
-        return "const ::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
-    }
-
-    EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
-    {
-        return getUnqualified(fixKwd(en->scoped()), scope);
-    }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
-    {
-        return "const " + sequenceTypeToString(seq, scope, metaData, typeCtx) + "&";
-    }
-
-    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if(dict)
-    {
-        return "const " + dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
-    }
-
-    return "???";
+    // For all other types, pass by const reference.
+    return "const " + typeToString(type, optional, scope, metaData, typeCtx) + '&';
 }
 
 string
@@ -579,84 +509,9 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scop
                           int typeCtx)
 {
     assert(type);
+    assert(typeCtx == 0 || typeCtx == TypeContextUseWstring);
 
-    static const char* outputBuiltinTable[] =
-    {
-        "::std::uint8_t&",
-        "bool&",
-        "::std::int16_t&",
-        "::std::int32_t&",
-        "::std::int64_t&",
-        "float&",
-        "double&",
-        "****", // string& or wstring&, see below
-        "::std::shared_ptr<::Ice::Value>&",
-        "::std::optional<::Ice::ObjectPrx>&",
-        "::std::shared_ptr<::Ice::Value>&"
-    };
-
-    if(optional)
-    {
-        return toOptional(type, scope, metaData, typeCtx) + '&';
-    }
-
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if(builtin)
-    {
-        if(builtin->kind() == Builtin::KindString)
-        {
-            return stringTypeToString(type, metaData, typeCtx) + "&";
-        }
-        else
-        {
-            if(builtin->kind() == Builtin::KindObject)
-            {
-                return getUnqualified(outputBuiltinTable[Builtin::KindValue], scope);
-            }
-            else
-            {
-                return getUnqualified(outputBuiltinTable[builtin->kind()], scope);
-            }
-        }
-    }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    if(cl)
-    {
-        return "::std::shared_ptr<" + getUnqualified(fixKwd(cl->scoped()), scope) + ">&";
-    }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if(st)
-    {
-        return getUnqualified(fixKwd(st->scoped()), scope) + "&";
-    }
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    if(proxy)
-    {
-        return "::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">&";
-    }
-
-    EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if(en)
-    {
-        return getUnqualified(fixKwd(en->scoped()), scope) + "&";
-    }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if(seq)
-    {
-        return sequenceTypeToString(seq, scope, metaData, typeCtx) + "&";
-    }
-
-    DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
-    if(dict)
-    {
-        return dictionaryTypeToString(dict, scope, metaData, typeCtx) + "&";
-    }
-
-    return "???";
+    return typeToString(type, optional, scope, metaData, typeCtx) + '&';
 }
 
 string
