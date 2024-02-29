@@ -1046,11 +1046,6 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     const UnitPtr ut = p->unit();
     const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
     assert(dc);
-    if(p->hasMetaData("cpp:noexcept"))
-    {
-        dc->warning(InvalidMetaData, p->file(), p->line(), "ignoring metadata `cpp:noexcept' for non local interface");
-        metaData.remove("cpp:noexcept");
-    }
 
     TypePtr returnType = p->returnType();
     if(!returnType)
@@ -1144,7 +1139,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             continue;
         }
 
-        if(operation && (s == "cpp:const" || s == "cpp:noexcept"))
+        if(operation && s == "cpp:const")
         {
             continue;
         }
@@ -1159,13 +1154,6 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             StructPtr strct = dynamic_pointer_cast<Struct>(cont);
             ExceptionPtr exception = dynamic_pointer_cast<Exception>(cont);
             if((builtin && builtin->kind() == Builtin::KindString) || module || clss || strct || interface || exception)
-            {
-                continue;
-            }
-        }
-        if(dynamic_pointer_cast<Builtin>(cont) && (ss.find("type:") == 0 || ss.find("view-type:") == 0))
-        {
-            if(dynamic_pointer_cast<Builtin>(cont)->kind() == Builtin::KindString)
             {
                 continue;
             }
