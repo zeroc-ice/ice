@@ -22,8 +22,8 @@ Client::run(int argc, char** argv)
     setProcessStringConverter(make_shared<Test::StringConverterI>());
     setProcessWstringConverter(make_shared<Test::WstringConverterI>());
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    Test::TestIntfPrxPtr allTests(Test::TestHelper*);
-    Test::TestIntfPrxPtr test = allTests(this);
+    Test::TestIntfPrx allTests(Test::TestHelper*);
+    Test::TestIntfPrx test = allTests(this);
     test->shutdown();
 }
 

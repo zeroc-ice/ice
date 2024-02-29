@@ -7,19 +7,20 @@
 #include <TestHelper.h>
 
 using namespace std;
+using namespace Ice;
 
-InterceptorI::InterceptorI(const Ice::ObjectPtr& servant) :
+InterceptorI::InterceptorI(const ObjectPtr& servant) :
     _servant(servant),
     _lastStatus(false)
 {
 }
 
 bool
-InterceptorI::dispatch(Ice::Request& request)
+InterceptorI::dispatch(Request& request)
 {
-    Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
+    Current& current = const_cast<Current&>(request.getCurrent());
 
-    Ice::Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
+    Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
     if(p != current.ctx.end())
     {
         if(p->second == "user")
@@ -28,7 +29,7 @@ InterceptorI::dispatch(Ice::Request& request)
         }
         else if(p->second == "notExist")
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__);
         }
         else if(p->second == "system")
         {
@@ -69,7 +70,7 @@ InterceptorI::dispatch(Ice::Request& request)
         }
         else if(p->second == "notExist")
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__);
         }
         else if(p->second == "system")
         {
@@ -86,7 +87,7 @@ InterceptorI::getLastStatus() const
     return _lastStatus;
 }
 
-const std::string&
+const string&
 InterceptorI::getLastOperation() const
 {
     return _lastOperation;

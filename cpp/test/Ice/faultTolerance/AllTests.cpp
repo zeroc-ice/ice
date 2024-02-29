@@ -13,22 +13,13 @@ void
 allTests(Test::TestHelper* helper, const vector<int>& ports)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    cout << "testing stringToProxy... " << flush;
     ostringstream ref;
     ref << "test";
     for(vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
         ref << ":" << helper->getTestEndpoint(*p);
     }
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref.str());
-    test(base);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
-    test(obj);
-    test(obj == base);
-    cout << "ok" << endl;
+    TestIntfPrx obj(communicator, ref.str());
 
     int oldPid = 0;
     bool ami = false;

@@ -8,15 +8,15 @@
 #include <InterceptorI.h>
 #include <IceUtil/IceUtil.h>
 
-class AMDInterceptorI : public InterceptorI
+class AMDInterceptorI final : public InterceptorI
 {
 public:
 
     AMDInterceptorI(const Ice::ObjectPtr&);
 
-    virtual bool dispatch(Ice::Request&);
+    bool dispatch(Ice::Request&) final;
 
-    virtual void clear();
+    void clear() final;
 
     std::exception_ptr getException() const;
     void setException(std::exception_ptr);

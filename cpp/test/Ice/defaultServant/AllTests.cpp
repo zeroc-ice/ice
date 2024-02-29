@@ -44,13 +44,13 @@ allTests(Test::TestHelper* helper)
     for(idx = 0; idx < 5; ++idx)
     {
         identity.name = names[idx];
-        MyObjectPrxPtr prx = Ice::uncheckedCast<MyObjectPrx>(oa->createProxy(identity));
+        MyObjectPrx prx(oa->createProxy(identity));
         prx->ice_ping();
         test(prx->getName() == names[idx]);
     }
 
     identity.name = "ObjectNotExist";
-    MyObjectPrxPtr prx = Ice::uncheckedCast<MyObjectPrx>(oa->createProxy(identity));
+    MyObjectPrx prx(oa->createProxy(identity));
     try
     {
         prx->ice_ping();

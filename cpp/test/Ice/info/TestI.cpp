@@ -14,12 +14,12 @@ using namespace Test;
 namespace
 {
 
-Ice::IPEndpointInfoPtr
-getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
+IPEndpointInfoPtr
+getIPEndpointInfo(const EndpointInfoPtr& info)
 {
-    for(Ice::EndpointInfoPtr p = info; p; p = p->underlying)
+    for(EndpointInfoPtr p = info; p; p = p->underlying)
     {
-        Ice::IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPEndpointInfo>(p);
+        IPEndpointInfoPtr ipInfo = dynamic_pointer_cast<IPEndpointInfo>(p);
         if(ipInfo)
         {
             return ipInfo;
@@ -28,12 +28,12 @@ getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
     return nullptr;
 }
 
-Ice::IPConnectionInfoPtr
-getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
+IPConnectionInfoPtr
+getIPConnectionInfo(const ConnectionInfoPtr& info)
 {
-    for(Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
+    for(ConnectionInfoPtr p = info; p; p = p->underlying)
     {
-        Ice::IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(p);
+        IPConnectionInfoPtr ipInfo = dynamic_pointer_cast<IPConnectionInfo>(p);
         if(ipInfo)
         {
             return ipInfo;
@@ -45,18 +45,18 @@ getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
 }
 
 void
-TestI::shutdown(const Ice::Current& current)
+TestI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
 
-Ice::Context
-TestI::getEndpointInfoAsContext(const Ice::Current& c)
+Context
+TestI::getEndpointInfoAsContext(const Current& c)
 {
     ostringstream os;
 
-    Ice::Context ctx;
-    Ice::EndpointInfoPtr info = c.con->getEndpoint()->getInfo();
+    Context ctx;
+    EndpointInfoPtr info = c.con->getEndpoint()->getInfo();
     os << info->timeout;
     ctx["timeout"] = os.str();
     ctx["compress"] = info->compress ? "true" : "false";
@@ -66,16 +66,16 @@ TestI::getEndpointInfoAsContext(const Ice::Current& c)
     os << info->type();
     ctx["type"] = os.str();
 
-    Ice::IPEndpointInfoPtr ipinfo = getIPEndpointInfo(info);
+    IPEndpointInfoPtr ipinfo = getIPEndpointInfo(info);
     test(ipinfo);
     ctx["host"] = ipinfo->host;
     os.str("");
     os << ipinfo->port;
     ctx["port"] = os.str();
 
-    if(dynamic_pointer_cast<Ice::UDPEndpointInfo>(ipinfo))
+    if(dynamic_pointer_cast<UDPEndpointInfo>(ipinfo))
     {
-        Ice::UDPEndpointInfoPtr udp = dynamic_pointer_cast<Ice::UDPEndpointInfo>(ipinfo);
+        UDPEndpointInfoPtr udp = dynamic_pointer_cast<UDPEndpointInfo>(ipinfo);
         ctx["mcastInterface"] = udp->mcastInterface;
         ctx["mcastTtl"] = static_cast<char>(udp->mcastTtl);
     }
@@ -83,16 +83,16 @@ TestI::getEndpointInfoAsContext(const Ice::Current& c)
     return ctx;
 }
 
-Ice::Context
-TestI::getConnectionInfoAsContext(const Ice::Current& c)
+Context
+TestI::getConnectionInfoAsContext(const Current& c)
 {
-    Ice::Context ctx;
-    Ice::ConnectionInfoPtr info = c.con->getInfo();
+    Context ctx;
+    ConnectionInfoPtr info = c.con->getInfo();
     ctx["adapterName"] = info->adapterName;
     ctx["incoming"] = info->incoming ? "true" : "false";
     ostringstream os;
 
-    Ice::IPConnectionInfoPtr ipinfo = getIPConnectionInfo(info);
+    IPConnectionInfoPtr ipinfo = getIPConnectionInfo(info);
     test(ipinfo);
     ctx["localAddress"] = ipinfo->localAddress;
     os.str("");
@@ -103,10 +103,10 @@ TestI::getConnectionInfoAsContext(const Ice::Current& c)
     os << ipinfo->remotePort;
     ctx["remotePort"] = os.str();
 
-    Ice::WSConnectionInfoPtr wsinfo = dynamic_pointer_cast<Ice::WSConnectionInfo>(info);
+    WSConnectionInfoPtr wsinfo = dynamic_pointer_cast<WSConnectionInfo>(info);
     if(wsinfo)
     {
-        for(Ice::HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
+        for(HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
         {
             ctx["ws." + p->first] = p->second;
         }

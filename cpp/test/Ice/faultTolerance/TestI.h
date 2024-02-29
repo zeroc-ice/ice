@@ -7,16 +7,16 @@
 
 #include <Test.h>
 
-class TestI : public Test::TestIntf
+class TestI final : public Test::TestIntf
 {
 public:
 
     TestI();
 
-    virtual void shutdown(const Ice::Current&);
-    virtual void abort(const Ice::Current&);
-    virtual void idempotentAbort(const Ice::Current&);
-    virtual std::int32_t pid(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
+    void abort(const Ice::Current&) final;
+    void idempotentAbort(const Ice::Current&) final;
+    std::int32_t pid(const Ice::Current&) final;
 };
 
 #endif

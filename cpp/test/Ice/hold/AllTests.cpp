@@ -8,6 +8,7 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Ice;
 using namespace Test;
 
 namespace
@@ -47,25 +48,9 @@ using ConditionPtr = shared_ptr<Condition>;
 void
 allTests(Test::TestHelper* helper)
 {
-    Ice::CommunicatorPtr communicator = helper->communicator();
-    cout << "testing stringToProxy... " << flush;
-    string ref = "hold:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    test(base);
-    string refSerialized = "hold:" + helper->getTestEndpoint(1);
-    Ice::ObjectPrxPtr baseSerialized = communicator->stringToProxy(refSerialized);
-    test(base);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-    HoldPrxPtr hold = Ice::checkedCast<HoldPrx>(base);
-    test(hold);
-    test(hold == base);
-    HoldPrxPtr holdSerialized = Ice::checkedCast<HoldPrx>(baseSerialized);
-    test(holdSerialized);
-
-    test(holdSerialized == baseSerialized);
-    cout << "ok" << endl;
+    CommunicatorPtr communicator = helper->communicator();
+    HoldPrx hold(communicator, "hold:" + helper->getTestEndpoint());
+    HoldPrx holdSerialized(communicator, "hold:" + helper->getTestEndpoint(1));
 
     cout << "changing state between active and hold rapidly... " << flush;
     for(int i = 0; i < 100; ++i)
@@ -206,7 +191,7 @@ allTests(Test::TestHelper* helper)
             {
                 completed->get_future().get();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+                holdSerialized->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
             }
         }
         completed->get_future().get();

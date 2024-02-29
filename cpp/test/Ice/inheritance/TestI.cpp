@@ -5,66 +5,68 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
+using namespace std;
+using namespace Ice;
 using namespace Test;
 
-MA::IAPrxPtr
-IAI::iaop(MA::IAPrxPtr p, const Ice::Current&)
+optional<MA::IAPrx>
+IAI::iaop(optional<MA::IAPrx> p, const Current&)
 {
     return p;
 }
 
-MB::IB1PrxPtr
-IB1I::ib1op(MB::IB1PrxPtr p, const Ice::Current&)
+optional<MB::IB1Prx>
+IB1I::ib1op(optional<MB::IB1Prx> p, const Current&)
 {
     return p;
 }
 
-MB::IB2PrxPtr
-IB2I::ib2op(MB::IB2PrxPtr p, const Ice::Current&)
+optional<MB::IB2Prx>
+IB2I::ib2op(optional<MB::IB2Prx> p, const Current&)
 {
     return p;
 }
 
-MA::ICPrxPtr
-ICI::icop(MA::ICPrxPtr p, const Ice::Current&)
+optional<MA::ICPrx>
+ICI::icop(optional<MA::ICPrx> p, const Current&)
 {
     return p;
 }
 
-InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter)
+InitialI::InitialI(const ObjectAdapterPtr& adapter)
 {
-    _ia = Ice::uncheckedCast<MA::IAPrx>(adapter->addWithUUID(std::make_shared<IAI>()));
-    _ib1 = Ice::uncheckedCast<MB::IB1Prx>(adapter->addWithUUID(std::make_shared<IB1I>()));
-    _ib2 = Ice::uncheckedCast<MB::IB2Prx>(adapter->addWithUUID(std::make_shared<IB2I>()));
-    _ic = Ice::uncheckedCast<MA::ICPrx>(adapter->addWithUUID(std::make_shared<ICI>()));
+    _ia = MA::IAPrx(adapter->addWithUUID(std::make_shared<IAI>()));
+    _ib1 = MB::IB1Prx(adapter->addWithUUID(std::make_shared<IB1I>()));
+    _ib2 = MB::IB2Prx(adapter->addWithUUID(std::make_shared<IB2I>()));
+    _ic = MA::ICPrx(adapter->addWithUUID(std::make_shared<ICI>()));
 }
 
 void
-InitialI::shutdown(const Ice::Current& current)
+InitialI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
 
-MA::IAPrxPtr
-InitialI::iaop(const Ice::Current&)
+optional<MA::IAPrx>
+InitialI::iaop(const Current&)
 {
     return _ia;
 }
 
-MB::IB1PrxPtr
-InitialI::ib1op(const Ice::Current&)
+optional<MB::IB1Prx>
+InitialI::ib1op(const Current&)
 {
     return _ib1;
 }
 
-MB::IB2PrxPtr
-InitialI::ib2op(const Ice::Current&)
+optional<MB::IB2Prx>
+InitialI::ib2op(const Current&)
 {
     return _ib2;
 }
 
-MA::ICPrxPtr
-InitialI::icop(const Ice::Current&)
+optional<MA::ICPrx>
+InitialI::icop(const Current&)
 {
     return _ic;
 }

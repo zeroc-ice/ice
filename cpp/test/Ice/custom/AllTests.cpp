@@ -13,6 +13,8 @@
 #endif
 
 using namespace std;
+using namespace Ice;
+using namespace Test;
 
 namespace
 {
@@ -39,34 +41,25 @@ arrayRangeEquals(pair<const T*, const T*> lhs, pair<const T*, const T*> rhs)
 
 }
 
-Test::TestIntfPrxPtr
-allTests(Test::TestHelper* helper)
+TestIntfPrx
+allTests(TestHelper* helper)
 {
-    Ice::CommunicatorPtr communicator = helper->communicator();
+    CommunicatorPtr communicator = helper->communicator();
     const string endp = helper->getTestEndpoint();
-    cout << "testing stringToProxy... " << flush;
-    string ref = communicator->getProperties()->getPropertyWithDefault("Custom.Proxy", "test:" + endp);
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    test(base);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-
-    Test::TestIntfPrxPtr t = Ice::checkedCast<Test::TestIntfPrx>(base);
-    test(t);
-    test(t == base);
-    cout << "ok" << endl;
+    TestIntfPrx t(
+        communicator,
+        communicator->getProperties()->getPropertyWithDefault("Custom.Proxy", "test:" + endp));
 
     cout << "testing ice_id and ice_ids with string converter... " << flush;
-    test(t->ice_id() == Test::TestIntfPrx::ice_staticId());
-    test(t->ice_ids()[0] == Ice::ObjectPrx::ice_staticId());
-    test(t->ice_ids()[1] == Test::TestIntfPrx::ice_staticId());
+    test(t->ice_id() == TestIntfPrx::ice_staticId());
+    test(t->ice_ids()[0] == ObjectPrx::ice_staticId());
+    test(t->ice_ids()[1] == TestIntfPrx::ice_staticId());
     cout << "ok" << endl;
 
     cout << "testing alternate sequences... " << flush;
 
     {
-        Test::DoubleSeq in(5);
+        DoubleSeq in(5);
         in[0] = 3.14;
         in[1] = 1 / 3;
         in[2] = 0.375;
@@ -79,14 +72,14 @@ allTests(Test::TestHelper* helper)
         }
         pair<const double*, const double*> inPair(inArray, inArray + 5);
 
-        Test::DoubleSeq out;
-        Test::DoubleSeq ret = t->opDoubleArray(inPair, out);
+        DoubleSeq out;
+        DoubleSeq ret = t->opDoubleArray(inPair, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        Test::BoolSeq in(5);
+        BoolSeq in(5);
         in[0] = false;
         in[1] = true;
         in[2] = true;
@@ -99,14 +92,14 @@ allTests(Test::TestHelper* helper)
         }
         pair<const bool*, const bool*> inPair(inArray, inArray + 5);
 
-        Test::BoolSeq out;
-        Test::BoolSeq ret = t->opBoolArray(inPair, out);
+        BoolSeq out;
+        BoolSeq ret = t->opBoolArray(inPair, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        Test::ByteList in;
+        ByteList in;
         uint8_t inArray[5];
         inArray[0] = '1';
         in.push_back(inArray[0]);
@@ -120,15 +113,15 @@ allTests(Test::TestHelper* helper)
         in.push_back(inArray[4]);
         pair<const uint8_t*, const uint8_t*> inPair(inArray, inArray + 5);
 
-        Test::ByteList out;
-        Test::ByteList ret = t->opByteArray(inPair, out);
+        ByteList out;
+        ByteList ret = t->opByteArray(inPair, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        Test::VariableList in;
-        Test::Variable inArray[5];
+        VariableList in;
+        Variable inArray[5];
         inArray[0].s = "THESE";
         in.push_back(inArray[0]);
         inArray[1].s = "ARE";
@@ -139,10 +132,10 @@ allTests(Test::TestHelper* helper)
         in.push_back(inArray[3]);
         inArray[4].s = "STRINGS.";
         in.push_back(inArray[4]);
-        pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
+        pair<const Variable*, const Variable*> inPair(inArray, inArray + 5);
 
-        Test::VariableList out;
-        Test::VariableList ret = t->opVariableArray(inPair, out);
+        VariableList out;
+        VariableList ret = t->opVariableArray(inPair, out);
 
         test(out == in);
         test(ret == in);
@@ -247,50 +240,50 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque<Test::Fixed> in(5);
+        deque<Fixed> in(5);
         in[0].s = 1;
         in[1].s = 2;
         in[2].s = 3;
         in[3].s = 4;
         in[4].s = 5;
 
-        deque<Test::Fixed> out;
-        deque<Test::Fixed> ret = t->opFixedSeq(in, out);
+        deque<Fixed> out;
+        deque<Fixed> ret = t->opFixedSeq(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        list<Test::Fixed> in(5);
+        list<Fixed> in(5);
         short num = 1;
-        for(list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for(list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
         {
             (*p).s = num++;
         }
 
-        list<Test::Fixed> out;
-        list<Test::Fixed> ret = t->opFixedList(in, out);
+        list<Fixed> out;
+        list<Fixed> ret = t->opFixedList(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        deque<Test::Variable> in(5);
+        deque<Variable> in(5);
         in[0].s = "THESE";
         in[1].s = "ARE";
         in[2].s = "FIVE";
         in[3].s = "SHORT";
         in[4].s = "STRINGS.";
 
-        deque<Test::Variable> out;
-        deque<Test::Variable> ret = t->opVariableSeq(in, out);
+        deque<Variable> out;
+        deque<Variable> ret = t->opVariableSeq(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        list<Test::Variable> in;
-        Test::Variable v;
+        list<Variable> in;
+        Variable v;
         v.s = "THESE";
         in.push_back(v);
         v.s = "ARE";
@@ -302,29 +295,29 @@ allTests(Test::TestHelper* helper)
         v.s = "STRINGS.";
         in.push_back(v);
 
-        list<Test::Variable> out;
-        list<Test::Variable> ret = t->opVariableList(in, out);
+        list<Variable> out;
+        list<Variable> ret = t->opVariableList(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        deque<Test::StringStringDict> in(5);
+        deque<StringStringDict> in(5);
         in[0]["A"] = "A";
         in[1]["B"] = "B";
         in[2]["C"] = "C";
         in[3]["D"] = "D";
         in[4]["E"] = "E";
 
-        deque<Test::StringStringDict> out;
-        deque<Test::StringStringDict> ret = t->opStringStringDictSeq(in, out);
+        deque<StringStringDict> out;
+        deque<StringStringDict> ret = t->opStringStringDictSeq(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        list<Test::StringStringDict> in;
-        Test::StringStringDict ssd;
+        list<StringStringDict> in;
+        StringStringDict ssd;
         ssd["A"] = "A";
         in.push_back(ssd);
         ssd["B"] = "B";
@@ -336,50 +329,50 @@ allTests(Test::TestHelper* helper)
         ssd["E"] = "E";
         in.push_back(ssd);
 
-        list<Test::StringStringDict> out;
-        list<Test::StringStringDict> ret = t->opStringStringDictList(in, out);
+        list<StringStringDict> out;
+        list<StringStringDict> ret = t->opStringStringDictList(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        deque<Test::E> in(5);
-        in[0] = Test:: E::E1;
-        in[1] = Test:: E::E2;
-        in[2] = Test:: E::E3;
-        in[3] = Test:: E::E1;
-        in[4] = Test:: E::E3;
+        deque<E> in(5);
+        in[0] =  E::E1;
+        in[1] =  E::E2;
+        in[2] =  E::E3;
+        in[3] =  E::E1;
+        in[4] =  E::E3;
 
-        deque<Test::E> out;
-        deque<Test::E> ret = t->opESeq(in, out);
+        deque<E> out;
+        deque<E> ret = t->opESeq(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        list<Test::E> in;
-        in.push_back(Test:: E::E1);
-        in.push_back(Test:: E::E2);
-        in.push_back(Test:: E::E3);
-        in.push_back(Test:: E::E1);
-        in.push_back(Test:: E::E3);
+        list<E> in;
+        in.push_back( E::E1);
+        in.push_back( E::E2);
+        in.push_back( E::E3);
+        in.push_back( E::E1);
+        in.push_back( E::E3);
 
-        list<Test::E> out;
-        list<Test::E> ret = t->opEList(in, out);
+        list<E> out;
+        list<E> ret = t->opEList(in, out);
         test(out == in);
         test(ret == in);
     }
 
     {
-        deque<Test::DPrxPtr> in(5);
-        in[0] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        deque<optional<DPrx>> in(5);
+        in[0] = DPrx(communicator, "C1:" + endp + " -t 10000");
+        in[1] = DPrx(communicator, "C2:" + endp + " -t 10001");
+        in[2] = DPrx(communicator, "C3:" + endp + " -t 10002");
+        in[3] = DPrx(communicator, "C4:" + endp + " -t 10003");
+        in[4] = DPrx(communicator, "C5:" + endp + " -t 10004");
 
-        deque<Test::DPrxPtr> out;
-        deque<Test::DPrxPtr> ret = t->opDPrxSeq(in, out);
+        deque<optional<DPrx>> out;
+        deque<optional<DPrx>> ret = t->opDPrxSeq(in, out);
 
         auto op = out.begin();
         auto rp = ret.begin();
@@ -392,15 +385,15 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list<Test::DPrxPtr> in;
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        list<optional<DPrx>> in;
+        in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+        in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+        in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+        in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+        in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
-        list<Test::DPrxPtr> out;
-        list<Test::DPrxPtr> ret = t->opDPrxList(in, out);
+        list<optional<DPrx>> out;
+        list<optional<DPrx>> ret = t->opDPrxList(in, out);
         auto op = out.begin();
         auto rp = ret.begin();
 
@@ -412,15 +405,15 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque<Test::CPtr> in(5);
-        in[0] = make_shared<Test::C>();
+        deque<CPtr> in(5);
+        in[0] = make_shared<C>();
         in[1] = in[0];
         in[2] = in[0];
         in[3] = in[0];
         in[4] = in[0];
 
-        deque<Test::CPtr> out;
-        deque<Test::CPtr> ret = t->opCSeq(in, out);
+        deque<CPtr> out;
+        deque<CPtr> ret = t->opCSeq(in, out);
         test(out.size() == in.size());
         test(ret.size() == in.size());
         for(unsigned int i = 1; i < in.size(); ++i)
@@ -431,19 +424,19 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list<Test::CPtr> in;
-        in.push_back(make_shared<Test::C>());
-        in.push_back(make_shared<Test::C>());
-        in.push_back(make_shared<Test::C>());
-        in.push_back(make_shared<Test::C>());
-        in.push_back(make_shared<Test::C>());
+        list<CPtr> in;
+        in.push_back(make_shared<C>());
+        in.push_back(make_shared<C>());
+        in.push_back(make_shared<C>());
+        in.push_back(make_shared<C>());
+        in.push_back(make_shared<C>());
 
-        list<Test::CPtr> out;
-        list<Test::CPtr> ret = t->opCList(in, out);
+        list<CPtr> out;
+        list<CPtr> ret = t->opCList(in, out);
         test(out.size() == in.size());
         test(ret.size() == in.size());
-        list<Test::CPtr>::const_iterator p1;
-        list<Test::CPtr>::const_iterator p2;
+        list<CPtr>::const_iterator p1;
+        list<CPtr>::const_iterator p2;
         for(p1 = out.begin(), p2 = ret.begin(); p1 != out.end(); ++p1, ++p2)
         {
             test(*p1 == *p2);
@@ -455,39 +448,39 @@ allTests(Test::TestHelper* helper)
     cout << "testing alternate dictionaries... " << flush;
 
     {
-        Test::IntStringDict idict;
+        IntStringDict idict;
 
         idict[1] = "ONE";
         idict[2] = "TWO";
         idict[3] = "THREE";
         idict[-1] = "MINUS ONE";
 
-        Test::IntStringDict out;
+        IntStringDict out;
         out[5] = "FIVE";
 
-        Test::IntStringDict ret = t->opIntStringDict(idict, out);
+        IntStringDict ret = t->opIntStringDict(idict, out);
 
         test(out == idict);
         test(ret == idict);
     }
 
     {
-        Test::CustomMap<std::string, int32_t> idict;
+        CustomMap<std::string, int32_t> idict;
 
         idict["ONE"] = 1;
         idict["TWO"] = 2;
         idict["THREE"] = 3;
         idict["MINUS ONE"] = -1;
 
-        Test::CustomMap<std::string, int32_t> out;
+        CustomMap<std::string, int32_t> out;
         out["FIVE"] = 5;
 
-        Test::CustomMap<int64_t, int64_t> ret = t->opVarDict(idict, out);
+        CustomMap<int64_t, int64_t> ret = t->opVarDict(idict, out);
 
         test(out == idict);
 
         test(ret.size() == 1000);
-        for(Test::CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        for(CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
         {
             test(i->second == i->first * i->first);
         }
@@ -497,24 +490,24 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing alternate custom sequences... " << flush;
     {
-        Test::ShortBuffer inS;
+        ShortBuffer inS;
         inS.setAndInit(new int16_t[3], 3);
-        Test::ShortBuffer outS;
-        Test::ShortBuffer ret = t->opShortBuffer(inS, outS);
+        ShortBuffer outS;
+        ShortBuffer ret = t->opShortBuffer(inS, outS);
 
         test(outS == inS);
         test(ret == inS);
 
-        Test::CustomBuffer<bool> inBS;
+        CustomBuffer<bool> inBS;
         inBS.setAndInit(new bool[2], 2);
 
-        Test::CustomBuffer<bool> outBS;
-        Test::CustomBuffer<bool> retBS = t->opBoolBuffer(inBS, outBS);
+        CustomBuffer<bool> outBS;
+        CustomBuffer<bool> retBS = t->opBoolBuffer(inBS, outBS);
 
         test(outBS == inBS);
         test(retBS == inBS);
 
-        Test::BufferStruct bs;
+        BufferStruct bs;
         bs.byteBuf.setAndInit(new uint8_t[10], 10);
         bs.boolBuf.setAndInit(new bool[10], 10);
         bs.shortBuf.setAndInit(new int16_t[10], 10);
@@ -523,16 +516,16 @@ allTests(Test::TestHelper* helper)
         bs.floatBuf.setAndInit(new float[10], 10);
         bs.doubleBuf.setAndInit(new double[10], 10);
 
-        Test::BufferStruct rs = t->opBufferStruct(bs);
+        BufferStruct rs = t->opBufferStruct(bs);
         test(rs == bs);
 
-        Ice::OutputStream os(communicator);
+        OutputStream os(communicator);
         os.write(rs);
-        Ice::ByteSeq bytes;
+        ByteSeq bytes;
         os.finished(bytes);
 
-        Ice::InputStream is(communicator, os.getEncoding(), bytes);
-        Test::BufferStruct rs2;
+        InputStream is(communicator, os.getEncoding(), bytes);
+        BufferStruct rs2;
         is.read(rs2);
         test(rs == rs2);
     }
@@ -541,7 +534,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing alternate sequences with AMI... " << flush;
     {
         {
-            Test::DoubleSeq in(5);
+            DoubleSeq in(5);
             in[0] = 3.14;
             in[1] = 1 / 3;
             in[2] = 0.375;
@@ -559,7 +552,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::BoolSeq in(5);
+            BoolSeq in(5);
             in[0] = false;
             in[1] = true;
             in[2] = true;
@@ -578,7 +571,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::ByteList in;
+            ByteList in;
             uint8_t inArray[5];
             inArray[0] = '1';
             in.push_back(inArray[0]);
@@ -598,8 +591,8 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::VariableList in;
-            Test::Variable inArray[5];
+            VariableList in;
+            Variable inArray[5];
             inArray[0].s = "THESE";
             in.push_back(inArray[0]);
             inArray[1].s = "ARE";
@@ -610,7 +603,7 @@ allTests(Test::TestHelper* helper)
             in.push_back(inArray[3]);
             inArray[4].s = "STRINGS.";
             in.push_back(inArray[4]);
-            pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
+            pair<const Variable*, const Variable*> inPair(inArray, inArray + 5);
 
             auto r = t->opVariableArrayAsync(inPair).get();
             test(std::get<1>(r) == in);
@@ -709,7 +702,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            deque<Test::Fixed> in(5);
+            deque<Fixed> in(5);
             in[0].s = 1;
             in[1].s = 2;
             in[2].s = 3;
@@ -722,9 +715,9 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            list<Test::Fixed> in(5);
+            list<Fixed> in(5);
             short num = 1;
-            for(list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+            for(list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
             {
                 (*p).s = num++;
             }
@@ -735,7 +728,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            deque<Test::Variable> in(5);
+            deque<Variable> in(5);
             in[0].s = "THESE";
             in[1].s = "ARE";
             in[2].s = "FIVE";
@@ -748,8 +741,8 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            list<Test::Variable> in;
-            Test::Variable v;
+            list<Variable> in;
+            Variable v;
             v.s = "THESE";
             in.push_back(v);
             v.s = "ARE";
@@ -767,7 +760,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            deque<Test::StringStringDict> in(5);
+            deque<StringStringDict> in(5);
             in[0]["A"] = "A";
             in[1]["B"] = "B";
             in[2]["C"] = "C";
@@ -780,8 +773,8 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            list<Test::StringStringDict> in;
-            Test::StringStringDict ssd;
+            list<StringStringDict> in;
+            StringStringDict ssd;
             ssd["A"] = "A";
             in.push_back(ssd);
             ssd["B"] = "B";
@@ -799,12 +792,12 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            deque<Test::E> in(5);
-            in[0] = Test:: E::E1;
-            in[1] = Test:: E::E2;
-            in[2] = Test:: E::E3;
-            in[3] = Test:: E::E1;
-            in[4] = Test:: E::E3;
+            deque<E> in(5);
+            in[0] =  E::E1;
+            in[1] =  E::E2;
+            in[2] =  E::E3;
+            in[3] =  E::E1;
+            in[4] =  E::E3;
 
             auto r = t->opESeqAsync(in).get();
             test(std::get<1>(r) == in);
@@ -812,12 +805,12 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            list<Test::E> in;
-            in.push_back(Test:: E::E1);
-            in.push_back(Test:: E::E2);
-            in.push_back(Test:: E::E3);
-            in.push_back(Test:: E::E1);
-            in.push_back(Test:: E::E3);
+            list<E> in;
+            in.push_back( E::E1);
+            in.push_back( E::E2);
+            in.push_back( E::E3);
+            in.push_back( E::E1);
+            in.push_back( E::E3);
 
             auto r = t->opEListAsync(in).get();
             test(std::get<1>(r) == in);
@@ -825,12 +818,12 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            deque<Test::DPrxPtr> in(5);
-            in[0] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000"));
-            in[1] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001"));
-            in[2] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002"));
-            in[3] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003"));
-            in[4] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004"));
+            deque<optional<DPrx>> in(5);
+            in[0] = DPrx(communicator, "C1:" + endp + " -t 10000");
+            in[1] = DPrx(communicator, "C2:" + endp + " -t 10001");
+            in[2] = DPrx(communicator, "C3:" + endp + " -t 10002");
+            in[3] = DPrx(communicator, "C4:" + endp + " -t 10003");
+            in[4] = DPrx(communicator, "C5:" + endp + " -t 10004");
 
             auto r = t->opDPrxSeqAsync(in).get();
 
@@ -848,12 +841,12 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            list<Test::DPrxPtr> in;
-            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000")));
-            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001")));
-            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002")));
-            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003")));
-            in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004")));
+            list<optional<DPrx>> in;
+            in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+            in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+            in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+            in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+            in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
             auto r = t->opDPrxListAsync(in).get();
 
@@ -871,8 +864,8 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            deque<Test::CPtr> in(5);
-            in[0] = make_shared<Test::C>();
+            deque<CPtr> in(5);
+            in[0] = make_shared<C>();
             in[1] = in[0];
             in[2] = in[0];
             in[3] = in[0];
@@ -891,12 +884,12 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            list<Test::CPtr> in;
-            in.push_back(make_shared<Test::C>());
-            in.push_back(make_shared<Test::C>());
-            in.push_back(make_shared<Test::C>());
-            in.push_back(make_shared<Test::C>());
-            in.push_back(make_shared<Test::C>());
+            list<CPtr> in;
+            in.push_back(make_shared<C>());
+            in.push_back(make_shared<C>());
+            in.push_back(make_shared<C>());
+            in.push_back(make_shared<C>());
+            in.push_back(make_shared<C>());
 
             auto r = t->opCListAsync(in).get();
             test(std::get<1>(r).size() == in.size());
@@ -905,7 +898,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::ByteSeq in;
+            ByteSeq in;
             in.push_back('1');
             in.push_back('2');
             in.push_back('3');
@@ -921,7 +914,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing alternate sequences with AMI callbacks... " << flush;
 
     {
-        Test::DoubleSeq in(5);
+        DoubleSeq in(5);
         in[0] = 3.14;
         in[1] = 1 / 3;
         in[2] = 0.375;
@@ -953,7 +946,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::BoolSeq in(5);
+        BoolSeq in(5);
         in[0] = false;
         in[1] = true;
         in[2] = true;
@@ -1012,8 +1005,8 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::VariableList in;
-        Test::Variable inArray[5];
+        VariableList in;
+        Variable inArray[5];
         inArray[0].s = "THESE";
         in.push_back(inArray[0]);
         inArray[1].s = "ARE";
@@ -1024,16 +1017,16 @@ allTests(Test::TestHelper* helper)
         in.push_back(inArray[3]);
         inArray[4].s = "STRINGS.";
         in.push_back(inArray[4]);
-        pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
+        pair<const Variable*, const Variable*> inPair(inArray, inArray + 5);
 
         promise<bool> done;
 
         t->opVariableArrayAsync(inPair,
-                                [&](pair<const Test::Variable*, const Test::Variable*> ret,
-                                    pair<const Test::Variable*, const Test::Variable*> out)
+                                [&](pair<const Variable*, const Variable*> ret,
+                                    pair<const Variable*, const Variable*> out)
                                 {
-                                    test(arrayRangeEquals<Test::Variable>(out, inPair));
-                                    test(arrayRangeEquals<Test::Variable>(ret, inPair));
+                                    test(arrayRangeEquals<Variable>(out, inPair));
+                                    test(arrayRangeEquals<Variable>(ret, inPair));
                                     done.set_value(true);
                                 },
                                 [&](std::exception_ptr)
@@ -1220,7 +1213,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque<Test::Fixed> in(5);
+        deque<Fixed> in(5);
         in[0].s = 1;
         in[1].s = 2;
         in[2].s = 3;
@@ -1230,7 +1223,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opFixedSeqAsync(in,
-                           [&](deque<Test::Fixed> ret, deque<Test::Fixed> out)
+                           [&](deque<Fixed> ret, deque<Fixed> out)
                            {
                                test(ret == out);
                                test(ret == in);
@@ -1245,9 +1238,9 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list<Test::Fixed> in(5);
+        list<Fixed> in(5);
         short num = 1;
-        for(list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for(list<Fixed>::iterator p = in.begin(); p != in.end(); ++p)
         {
             (*p).s = num++;
         }
@@ -1255,7 +1248,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opFixedListAsync(in,
-                            [&](list<Test::Fixed> ret, list<Test::Fixed> out)
+                            [&](list<Fixed> ret, list<Fixed> out)
                             {
                                 test(ret == out);
                                 test(ret == in);
@@ -1270,7 +1263,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque<Test::Variable> in(5);
+        deque<Variable> in(5);
         in[0].s = "THESE";
         in[1].s = "ARE";
         in[2].s = "FIVE";
@@ -1280,7 +1273,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opVariableSeqAsync(in,
-                              [&](deque<Test::Variable> ret, deque<Test::Variable> out)
+                              [&](deque<Variable> ret, deque<Variable> out)
                               {
                                   test(ret == out);
                                   test(ret == in);
@@ -1295,8 +1288,8 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list<Test::Variable> in;
-        Test::Variable v;
+        list<Variable> in;
+        Variable v;
         v.s = "THESE";
         in.push_back(v);
         v.s = "ARE";
@@ -1311,7 +1304,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opVariableListAsync(in,
-                               [&](list<Test::Variable> ret, list<Test::Variable> out)
+                               [&](list<Variable> ret, list<Variable> out)
                                {
                                    test(ret == out);
                                    test(ret == in);
@@ -1326,7 +1319,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque<Test::StringStringDict> in(5);
+        deque<StringStringDict> in(5);
         in[0]["A"] = "A";
         in[1]["B"] = "B";
         in[2]["C"] = "C";
@@ -1336,7 +1329,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opStringStringDictSeqAsync(in,
-                                      [&](deque<Test::StringStringDict> ret, deque<Test::StringStringDict> out)
+                                      [&](deque<StringStringDict> ret, deque<StringStringDict> out)
                                       {
                                           test(ret == out);
                                           test(ret == in);
@@ -1351,8 +1344,8 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list<Test::StringStringDict> in;
-        Test::StringStringDict ssd;
+        list<StringStringDict> in;
+        StringStringDict ssd;
         ssd["A"] = "A";
         in.push_back(ssd);
         ssd["B"] = "B";
@@ -1367,7 +1360,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opStringStringDictListAsync(in,
-                                   [&](list<Test::StringStringDict> ret, list<Test::StringStringDict> out)
+                                   [&](list<StringStringDict> ret, list<StringStringDict> out)
                                    {
                                        test(ret == out);
                                        test(ret == in);
@@ -1382,17 +1375,17 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque<Test::E> in(5);
-        in[0] = Test:: E::E1;
-        in[1] = Test:: E::E2;
-        in[2] = Test:: E::E3;
-        in[3] = Test:: E::E1;
-        in[4] = Test:: E::E3;
+        deque<E> in(5);
+        in[0] =  E::E1;
+        in[1] =  E::E2;
+        in[2] =  E::E3;
+        in[3] =  E::E1;
+        in[4] =  E::E3;
 
         promise<bool> done;
 
         t->opESeqAsync(in,
-                       [&](deque<Test::E> ret, deque<Test::E> out)
+                       [&](deque<E> ret, deque<E> out)
                        {
                            test(ret == out);
                            test(ret == in);
@@ -1407,17 +1400,17 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list<Test::E> in;
-        in.push_back(Test:: E::E1);
-        in.push_back(Test:: E::E2);
-        in.push_back(Test:: E::E3);
-        in.push_back(Test:: E::E1);
-        in.push_back(Test:: E::E3);
+        list<E> in;
+        in.push_back( E::E1);
+        in.push_back( E::E2);
+        in.push_back( E::E3);
+        in.push_back( E::E1);
+        in.push_back( E::E3);
 
         promise<bool> done;
 
         t->opEListAsync(in,
-                        [&](list<Test::E> ret, list<Test::E> out)
+                        [&](list<E> ret, list<E> out)
                         {
                             test(ret == out);
                             test(ret == in);
@@ -1432,17 +1425,17 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque<Test::DPrxPtr> in(5);
-        in[0] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        deque<optional<DPrx>> in(5);
+        in[0] = DPrx(communicator, "C1:" + endp + " -t 10000");
+        in[1] = DPrx(communicator, "C2:" + endp + " -t 10001");
+        in[2] = DPrx(communicator, "C3:" + endp + " -t 10002");
+        in[3] = DPrx(communicator, "C4:" + endp + " -t 10003");
+        in[4] = DPrx(communicator, "C5:" + endp + " -t 10004");
 
         promise<bool> done;
 
         t->opDPrxSeqAsync(in,
-                          [&](deque<Test::DPrxPtr> ret, deque<Test::DPrxPtr> out)
+                          [&](deque<optional<DPrx>> ret, deque<optional<DPrx>> out)
                           {
                               test(ret.size() == in.size());
                               auto op = out.begin();
@@ -1463,17 +1456,17 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list<Test::DPrxPtr> in;
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(Ice::uncheckedCast<Test::DPrx>(communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        list<optional<DPrx>> in;
+        in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+        in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+        in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+        in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+        in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
         promise<bool> done;
 
         t->opDPrxListAsync(in,
-                           [&](list<Test::DPrxPtr> ret, list<Test::DPrxPtr> out)
+                           [&](list<optional<DPrx>> ret, list<optional<DPrx>> out)
                            {
                                test(ret.size() == in.size());
                               auto op = out.begin();
@@ -1494,8 +1487,8 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        deque<Test::CPtr> in(5);
-        in[0] = make_shared<Test::C>();
+        deque<CPtr> in(5);
+        in[0] = make_shared<C>();
         in[1] = in[0];
         in[2] = in[0];
         in[3] = in[0];
@@ -1504,7 +1497,7 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         t->opCSeqAsync(in,
-                       [&](deque<shared_ptr<Test::C>> ret, deque<shared_ptr<Test::C>> out)
+                       [&](deque<shared_ptr<C>> ret, deque<shared_ptr<C>> out)
                        {
                            test(ret == out);
                            test(ret.size() == in.size());
@@ -1519,17 +1512,17 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        list<Test::CPtr> in;
-        in.push_back(make_shared<Test::C>());
-        in.push_back(make_shared<Test::C>());
-        in.push_back(make_shared<Test::C>());
-        in.push_back(make_shared<Test::C>());
-        in.push_back(make_shared<Test::C>());
+        list<CPtr> in;
+        in.push_back(make_shared<C>());
+        in.push_back(make_shared<C>());
+        in.push_back(make_shared<C>());
+        in.push_back(make_shared<C>());
+        in.push_back(make_shared<C>());
 
         promise<bool> done;
 
         t->opCListAsync(in,
-                        [&](list<shared_ptr<Test::C>> ret, list<shared_ptr<Test::C>> out)
+                        [&](list<shared_ptr<C>> ret, list<shared_ptr<C>> out)
                         {
                             test(ret == out);
                             test(ret.size() == in.size());
@@ -1544,7 +1537,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::ByteSeq in;
+        ByteSeq in;
         in.push_back('1');
         in.push_back('2');
         in.push_back('3');
@@ -1572,7 +1565,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing alternate dictionaries with new AMI... " << flush;
     {
         {
-            Test::IntStringDict idict;
+            IntStringDict idict;
 
             idict[1] = "ONE";
             idict[2] = "TWO";
@@ -1585,7 +1578,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::CustomMap<std::string, int32_t> idict;
+            CustomMap<std::string, int32_t> idict;
 
             idict["ONE"] = 1;
             idict["TWO"] = 2;
@@ -1606,7 +1599,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing alternate dictionaries with new AMI callbacks... " << flush;
     {
         {
-            Test::IntStringDict idict;
+            IntStringDict idict;
 
             idict[1] = "ONE";
             idict[2] = "TWO";
@@ -1631,7 +1624,7 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::CustomMap<std::string, int32_t> idict;
+            CustomMap<std::string, int32_t> idict;
 
             idict["ONE"] = 1;
             idict["TWO"] = 2;
@@ -1641,7 +1634,7 @@ allTests(Test::TestHelper* helper)
             promise<bool> done;
 
             t->opVarDictAsync(idict,
-                              [&](Test::CustomMap<int64_t, int64_t> ret, Test::CustomMap<string, int> out)
+                              [&](CustomMap<int64_t, int64_t> ret, CustomMap<string, int> out)
                               {
                                   test(out == idict);
                                   for(auto i: ret)
@@ -1675,17 +1668,13 @@ allTests(Test::TestHelper* helper)
     Test2::WstringWStringDict wdict2;
     wdict2 = wdict1;
 
-    ref = communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy1", "wstring1:" + endp);
-    base = communicator->stringToProxy(ref);
-    test(base);
-    Test1::WstringClassPrxPtr wsc1 = Ice::checkedCast<Test1::WstringClassPrx>(base);
-    test(t);
+    Test1::WstringClassPrx wsc1(
+        communicator,
+        communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy1", "wstring1:" + endp));
 
-    ref = communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy2", "wstring2:" + endp);
-    base = communicator->stringToProxy(ref);
-    test(base);
-    Test2::WstringClassPrxPtr wsc2 = Ice::checkedCast<Test2::WstringClassPrx>(base);
-    test(t);
+    Test2::WstringClassPrx wsc2(
+        communicator,
+        communicator->getProperties()->getPropertyWithDefault("Custom.WstringProxy2", "wstring2:" + endp));
 
     wstring wstr = L"A WIDE STRING";
     wstring out;

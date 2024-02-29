@@ -33,9 +33,9 @@ public:
 
 private:
 
-    void runTest(const Test::MyObjectPrxPtr&, const InterceptorIPtr&);
-    void runAmdTest(const Test::MyObjectPrxPtr&, const AMDInterceptorIPtr&);
-    void testInterceptorExceptions(const Test::MyObjectPrxPtr&);
+    void runTest(const Test::MyObjectPrx&, const InterceptorIPtr&);
+    void runAmdTest(const Test::MyObjectPrx&, const AMDInterceptorIPtr&);
+    void testInterceptorExceptions(const Test::MyObjectPrx&);
 };
 
 void
@@ -63,8 +63,8 @@ Client::run(int argc, char* argv[])
     InterceptorIPtr interceptor = make_shared<InterceptorI>(servant);
     AMDInterceptorIPtr amdInterceptor = make_shared<AMDInterceptorI>(servant);
 
-    Test::MyObjectPrxPtr prx = Ice::uncheckedCast<Test::MyObjectPrx>(oa->addWithUUID(interceptor));
-    Test::MyObjectPrxPtr prxForAMD = Ice::uncheckedCast<Test::MyObjectPrx>(oa->addWithUUID(amdInterceptor));
+    Test::MyObjectPrx prx(oa->addWithUUID(interceptor));
+    Test::MyObjectPrx prxForAMD(oa->addWithUUID(amdInterceptor));
 
     cout << "Collocation optimization on" << endl;
     runTest(prx, interceptor);
@@ -76,12 +76,12 @@ Client::run(int argc, char* argv[])
 
     cout << "Collocation optimization off" << endl;
     interceptor->clear();
-    prx = Ice::uncheckedCast<Test::MyObjectPrx>(prx->ice_collocationOptimized(false));
+    prx = prx->ice_collocationOptimized(false);
     runTest(prx, interceptor);
 
     cout << "Now with AMD" << endl;
     amdInterceptor->clear();
-    prxForAMD = Ice::uncheckedCast<Test::MyObjectPrx>(prxForAMD->ice_collocationOptimized(false));
+    prxForAMD = prxForAMD->ice_collocationOptimized(false);
     runAmdTest(prxForAMD, amdInterceptor);
 #ifndef _WIN32
     //
@@ -94,7 +94,7 @@ Client::run(int argc, char* argv[])
 }
 
 void
-Client::runTest(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
+Client::runTest(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
@@ -177,7 +177,7 @@ Client::runTest(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& intercep
 }
 
 void
-Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interceptor)
+Client::runAmdTest(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
@@ -281,7 +281,7 @@ Client::runAmdTest(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& in
 }
 
 void
-Client::testInterceptorExceptions(const Test::MyObjectPrxPtr& prx)
+Client::testInterceptorExceptions(const Test::MyObjectPrx& prx)
 {
     vector<pair<string, string> > exceptions;
     exceptions.push_back(make_pair("raiseBeforeDispatch", "user"));
@@ -316,7 +316,7 @@ Client::testInterceptorExceptions(const Test::MyObjectPrxPtr& prx)
             test(p->second == "system"); // collocated
         }
         {
-            Ice::ObjectPrxPtr batch = prx->ice_batchOneway();
+            Ice::ObjectPrx batch = prx->ice_batchOneway();
             batch->ice_ping(ctx);
             batch->ice_ping();
             batch->ice_flushBatchRequests();
