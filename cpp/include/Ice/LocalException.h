@@ -1539,7 +1539,7 @@ public:
      * @param file The file name in which the exception was raised, typically __FILE__.
      * @param line The line number at which the exception was raised, typically __LINE__.
      */
-    SyscallException(const char *file, int line);
+    ICE_MEMBER(ICE_API) SyscallException(const char *file, int line);
 
     /**
      * One-shot constructor to initialize all data members.
