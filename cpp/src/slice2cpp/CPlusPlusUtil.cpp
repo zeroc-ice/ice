@@ -489,19 +489,18 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     assert(typeCtx == TypeContext::None || typeCtx == TypeContext::UseWstring);
     typeCtx = (typeCtx | TypeContext::MarshalParam);
 
-    if (!optional)
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
+    if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)) ||
+        dynamic_pointer_cast<Enum>(type))
     {
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        if ((builtin && (!builtin->isVariableLength() || builtin->kind() == Builtin::KindString)) ||
-            dynamic_pointer_cast<Enum>(type))
-        {
-            // pass by value
-            return typeToString(type, optional, scope, metaData, typeCtx);
-        }
+        // Pass by value, even if it's optional.
+        return typeToString(type, optional, scope, metaData, typeCtx);
     }
-
-    // For all other types, pass by const reference.
-    return "const " + typeToString(type, optional, scope, metaData, typeCtx) + '&';
+    else
+    {
+        // For all other types, pass by const reference.
+        return "const " + typeToString(type, optional, scope, metaData, typeCtx) + '&';
+    }
 }
 
 string
