@@ -4,14 +4,10 @@
 
 #include <IceUtil/UUID.h>
 #include <IceUtil/Exception.h>
-// On Windows, we use Windows's RPC UUID generator. On other platforms, we use a high quality random number generator
+// We use a high quality random number generator
 // (std::random_device) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
-#ifdef _WIN32
-#   include <rpc.h>
-#else
-#   include <IceUtil/Random.h>
-#endif
+#include <IceUtil/Random.h>
 
 using namespace std;
 
