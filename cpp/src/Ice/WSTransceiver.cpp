@@ -15,6 +15,7 @@
 #include <IceUtil/Random.h>
 #include <Ice/SHA1.h>
 #include <IceUtil/StringUtil.h>
+#include "Endian.h"
 
 #include <stdint.h>
 #include <climits>
