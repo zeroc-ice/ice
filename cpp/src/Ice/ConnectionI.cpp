@@ -724,7 +724,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
         // Fill in the request ID.
         //
         const uint8_t* p = reinterpret_cast<const uint8_t*>(&requestId);
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
         }
@@ -736,7 +736,7 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
     else if(batchRequestNum > 0)
     {
         const uint8_t* p = reinterpret_cast<const uint8_t*>(&batchRequestNum);
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
         }
@@ -2832,7 +2832,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
                 //
                 int32_t sz = static_cast<int32_t>(message->stream->b.size());
                 const uint8_t* p = reinterpret_cast<const uint8_t*>(&sz);
-                if (endian::native == endian::big)
+                if constexpr (endian::native == endian::big)
                 {
                     reverse_copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
                 }
@@ -2975,7 +2975,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         int32_t sz = static_cast<int32_t>(message.stream->b.size());
         const uint8_t* p = reinterpret_cast<const uint8_t*>(&sz);
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             reverse_copy(p, p + sizeof(int32_t), message.stream->b.begin() + 10);
         }
@@ -3116,7 +3116,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     //
     int32_t compressedSize = static_cast<int32_t>(compressed.b.size());
     p = reinterpret_cast<const uint8_t*>(&compressedSize);
-    if (endian::native == endian::big)
+    if constexpr (endian::native == endian::big)
     {
         reverse_copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
     }
@@ -3131,7 +3131,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     //
     int32_t uncompressedSize = static_cast<int32_t>(uncompressed.b.size());
     p = reinterpret_cast<const uint8_t*>(&uncompressedSize);
-    if (endian::native == endian::big)
+    if constexpr (endian::native == endian::big)
     {
         reverse_copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
     }

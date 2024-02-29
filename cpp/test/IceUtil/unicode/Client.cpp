@@ -56,7 +56,7 @@ main(int argc, char* argv[])
 
     ostringstream os;
     os << "utf" << sizeof(wchar_t) * 8;
-    if (endian::native == endian::little)
+    if constexpr (endian::native == endian::little)
     {
         os << "le";
     }

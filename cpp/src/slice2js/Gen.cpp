@@ -501,7 +501,7 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
             // need to swap the word bytes as we just write each word as a number to the
             // output file.
             //
-            if (endian::native == endian::big)
+            if constexpr (endian::native == endian::big)
             {
                 os << "new Ice.Long(" << (l & 0xFFFFFFFF) << ", " << ((l >> 32) & 0xFFFFFFFF) << ")";
             }

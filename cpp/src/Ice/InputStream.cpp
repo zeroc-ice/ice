@@ -493,7 +493,7 @@ Ice::InputStream::read(int16_t& v)
     }
     const uint8_t* src = &(*i);
     i += sizeof(int16_t);
-    if (endian::native == endian::big)
+    if constexpr (endian::native == endian::big)
     {
         uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int16_t) - 1;
         *dest-- = *src++;
@@ -516,7 +516,7 @@ Ice::InputStream::read(vector<int16_t>& v)
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(int16_t));
         v.resize(static_cast<size_t>(sz));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(int16_t) - 1;
@@ -557,7 +557,7 @@ Ice::InputStream::read(pair<const short*, const short*>& v)
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(int16_t));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(int16_t) - 1;
@@ -589,7 +589,7 @@ Ice::InputStream::read(int32_t& v)
     }
     const uint8_t* src = &(*i);
     i += sizeof(int32_t);
-    if (endian::native == endian::big)
+    if constexpr (endian::native == endian::big)
     {
         uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int32_t) - 1;
         *dest-- = *src++;
@@ -616,7 +616,7 @@ Ice::InputStream::read(vector<int32_t>& v)
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(int32_t));
         v.resize(static_cast<size_t>(sz));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(int32_t) - 1;
@@ -658,7 +658,7 @@ Ice::InputStream::read(pair<const int32_t*, const int32_t*>& v)
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(int32_t));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(int32_t) - 1;
@@ -692,7 +692,7 @@ Ice::InputStream::read(int64_t& v)
     }
     const uint8_t* src = &(*i);
     i += sizeof(int64_t);
-    if (endian::native == endian::big)
+    if constexpr (endian::native == endian::big)
     {
         uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
         *dest-- = *src++;
@@ -727,7 +727,7 @@ Ice::InputStream::read(vector<int64_t>& v)
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(int64_t));
         v.resize(static_cast<size_t>(sz));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(int64_t) - 1;
@@ -774,7 +774,7 @@ Ice::InputStream::read(pair<const int64_t*, const int64_t*>& v)
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(int64_t));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(int64_t) - 1;
@@ -812,7 +812,7 @@ Ice::InputStream::read(float& v)
     }
     const uint8_t* src = &(*i);
     i += sizeof(float);
-    if (endian::native == endian::big)
+    if constexpr (endian::native == endian::big)
     {
         uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(float) - 1;
         *dest-- = *src++;
@@ -839,7 +839,7 @@ Ice::InputStream::read(vector<float>& v)
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(float));
         v.resize(static_cast<size_t>(sz));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(float) - 1;
@@ -882,7 +882,7 @@ Ice::InputStream::read(pair<const float*, const float*>& v)
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(float));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(float) - 1;
@@ -916,7 +916,7 @@ Ice::InputStream::read(double& v)
     }
     const uint8_t* src = &(*i);
     i += sizeof(double);
-    if (endian::native == endian::big)
+    if constexpr (endian::native == endian::big)
     {
         uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(double) - 1;
         *dest-- = *src++;
@@ -951,7 +951,7 @@ Ice::InputStream::read(vector<double>& v)
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(double));
         v.resize(static_cast<size_t>(sz));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&v[0]) + sizeof(double) - 1;
@@ -997,7 +997,7 @@ Ice::InputStream::read(pair<const double*, const double*>& v)
 
         Container::iterator begin = i;
         i += sz * static_cast<int>(sizeof(double));
-        if (endian::native == endian::big)
+        if constexpr (endian::native == endian::big)
         {
             const uint8_t* src = &(*begin);
             uint8_t* dest = reinterpret_cast<uint8_t*>(&result[0]) + sizeof(double) - 1;

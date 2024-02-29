@@ -75,7 +75,7 @@ Client::run(int argc, char** argv)
 
         if(sizeof(wchar_t) == 4)
         {
-            if (endian::native == endian::big)
+            if constexpr (endian::native == endian::big)
             {
                 wideEncoding = "UTF-32BE";
             }
@@ -86,7 +86,7 @@ Client::run(int argc, char** argv)
         }
         else
         {
-            if (endian::native == endian::big)
+            if constexpr (endian::native == endian::big)
             {
                 wideEncoding = "UTF-16BE";
             }
