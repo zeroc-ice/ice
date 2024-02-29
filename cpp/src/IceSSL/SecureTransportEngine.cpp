@@ -58,7 +58,7 @@ RegExp::RegExp(const string& regexp)
     int err = regcomp(&_preg, regexp.c_str(), REG_EXTENDED | REG_NOSUB);
     if(err)
     {
-        throw IceUtil::SyscallException(__FILE__, __LINE__, err);
+        throw SyscallException(__FILE__, __LINE__, err);
     }
 }
 
