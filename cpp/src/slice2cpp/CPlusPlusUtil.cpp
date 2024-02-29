@@ -21,13 +21,13 @@ namespace
 {
 
 string
-stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
+stringTypeToString(const TypePtr&, const StringList& metaData, TypeContext typeCtx)
 {
     string strType = findMetaData(metaData, typeCtx);
 
     if (strType == "")
     {
-        strType = (typeCtx & TypeContextUseWstring) != 0 ? "::std::wstring" : "::std::string";
+        strType = (typeCtx & TypeContext::UseWstring) != TypeContext::None ? "::std::wstring" : "::std::string";
     }
     else
     {
@@ -35,7 +35,7 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
         strType = "::std::" + strType;
     }
 
-    if (typeCtx & TypeContextMarshalParam)
+    if ((typeCtx & TypeContext::MarshalParam) != TypeContext::None)
     {
         strType += "_view";
     }
@@ -43,7 +43,7 @@ stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
 }
 
 string
-sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metaData, int typeCtx)
+sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringList& metaData, TypeContext typeCtx)
 {
     string seqType = findMetaData(metaData, typeCtx);
     if(!seqType.empty())
@@ -52,7 +52,7 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
         {
             BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
             string s = typeToString(seq->type(), false, scope, seq->typeMetaData(),
-                                    typeCtx | (inWstringModule(seq) ? TypeContextUseWstring : 0));
+                                    typeCtx | (inWstringModule(seq) ? TypeContext::UseWstring : TypeContext::None));
             return "::std::pair<const " + s + "*, const " + s + "*>";
         }
         else
@@ -67,7 +67,7 @@ sequenceTypeToString(const SequencePtr& seq, const string& scope, const StringLi
 }
 
 string
-dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const StringList& metaData, int typeCtx)
+dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const StringList& metaData, TypeContext typeCtx)
 {
     const string dictType = findMetaData(metaData, typeCtx);
     if(dictType.empty())
@@ -82,7 +82,7 @@ dictionaryTypeToString(const DictionaryPtr& dict, const string& scope, const Str
 
 void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& scope, const string& fixedName,
-                       const StringList& metaData, int typeCtx)
+                       const StringList& metaData, TypeContext typeCtx)
 {
     string s = typeToString(type, optional, scope, metaData, typeCtx);
     out << nl << s << ' ' << fixedName << ';';
@@ -390,7 +390,7 @@ Slice::getUnqualified(const std::string& type, const std::string& scope)
 }
 
 string
-Slice::typeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData, int typeCtx)
+Slice::typeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData, TypeContext typeCtx)
 {
     assert(type);
 
@@ -483,11 +483,11 @@ Slice::typeToString(const TypePtr& type, bool optional, const string& scope, con
 
 string
 Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
-                         int typeCtx)
+                         TypeContext typeCtx)
 {
     assert(type);
-    assert(typeCtx == 0 || typeCtx == TypeContextUseWstring);
-    typeCtx |= TypeContextMarshalParam;
+    assert(typeCtx == TypeContext::None || typeCtx == TypeContext::UseWstring);
+    typeCtx = (typeCtx | TypeContext::MarshalParam);
 
     if (!optional)
     {
@@ -506,10 +506,10 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
 
 string
 Slice::outputTypeToString(const TypePtr& type, bool optional, const string& scope, const StringList& metaData,
-                          int typeCtx)
+                          TypeContext typeCtx)
 {
     assert(type);
-    assert(typeCtx == 0 || typeCtx == TypeContextUseWstring);
+    assert(typeCtx == TypeContext::None || typeCtx == TypeContext::UseWstring);
 
     return typeToString(type, optional, scope, metaData, typeCtx) + '&';
 }
@@ -632,7 +632,7 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const Operat
 }
 
 void
-Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, const string& clScope, int typeCtx)
+Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const OperationPtr& op, const string& clScope, TypeContext typeCtx)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
@@ -789,7 +789,7 @@ Slice::writeStreamHelpers(Output& out,
 }
 
 void
-Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, int typeCtx)
+Slice::writeIceTuple(::IceUtilInternal::Output& out, DataMemberList dataMembers, TypeContext typeCtx)
 {
     //
     // Use an empty scope to get full qualified names from calls to typeToString.
@@ -848,7 +848,7 @@ Slice::findMetaData(const string& prefix, const StringList& metaData, string& va
 }
 
 string
-Slice::findMetaData(const StringList& metaData, int typeCtx)
+Slice::findMetaData(const StringList& metaData, TypeContext typeCtx)
 {
     static const string prefix = "cpp:";
 
@@ -867,7 +867,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             {
                 string ss = str.substr(prefix.size());
 
-                if(typeCtx & TypeContextMarshalParam)
+                if ((typeCtx & TypeContext::MarshalParam) != TypeContext::None)
                 {
                     if(ss.find("view-type:") == 0)
                     {
@@ -880,7 +880,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                     return str.substr(pos + 1);
                 }
             }
-            else if (typeCtx & (TypeContextMarshalParam | TypeContextUnmarshalParamZeroCopy))
+            else if ((typeCtx & (TypeContext::MarshalParam | TypeContext::UnmarshalParamZeroCopy)) != TypeContext::None)
             {
                 string ss = str.substr(prefix.size());
                 if(ss == "array")
