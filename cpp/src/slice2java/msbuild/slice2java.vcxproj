@@ -68,7 +68,7 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -79,7 +79,7 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -90,7 +90,7 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -101,7 +101,7 @@
       <AdditionalIncludeDirectories>..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
