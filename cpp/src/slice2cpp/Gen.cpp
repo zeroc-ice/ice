@@ -1646,7 +1646,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> inParamsImpl;
 
     vector<string> futureOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring);
-    vector<string> lambdaOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring | TypeContextInParam);
+    vector<string> lambdaOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring | TypeContextAcceptArrayParam);
 
     const string futureImplPrefix = "_iceI_";
     const string lambdaImplPrefix = futureOutParams == lambdaOutParams ? "_iceI_" : "_iceIL_";
@@ -1785,7 +1785,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string responseParam = escapeParam(inParams, "response");
     const string exParam = escapeParam(inParams, "ex");
     const string sentParam = escapeParam(inParams, "sent");
-    const string lambdaResponse = createLambdaResponse(p, _useWstring | TypeContextInParam);
+    const string lambdaResponse = createLambdaResponse(p, _useWstring | TypeContextAcceptArrayParam);
 
     H << sp;
     if(comment)
@@ -2998,10 +2998,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 
         if(!isOutParam)
         {
-            // TODO: We need the TypeContextInParam for the view types.
             params.push_back(typeToString(type, (*q)->optional(), interfaceScope, (*q)->getMetaData(),
-                                          _useWstring | TypeContextInParam) + " " + paramName);
-            args.push_back(condMove(isMovable(type) && !isOutParam, paramPrefix + (*q)->name()));
+                                          _useWstring | TypeContextAcceptArrayParam) + " " + paramName);
+            args.push_back(condMove(isMovable(type), paramPrefix + (*q)->name()));
         }
         else
         {
@@ -3137,7 +3136,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     if(!inParams.empty())
     {
         C << nl << "auto istr = inS.startReadParams();";
-        writeAllocateCode(C, inParams, nullptr, interfaceScope, _useWstring | TypeContextInParam);
+        writeAllocateCode(C, inParams, nullptr, interfaceScope, _useWstring | TypeContextAcceptArrayParam);
         writeUnmarshalCode(C, inParams, nullptr);
         if(p->sendsClasses(false))
         {
@@ -3162,7 +3161,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            writeAllocateCode(C, outParams, 0, interfaceScope, _useWstring);
+            writeAllocateCode(C, outParams, nullptr, interfaceScope, _useWstring);
             if(ret)
             {
                 C << nl << retS << " ret = ";

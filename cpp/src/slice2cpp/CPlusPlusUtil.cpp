@@ -505,7 +505,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "const ::std::shared_ptr<::Ice::Value>&"
     };
 
-    typeCtx |= TypeContextInParam;
+    typeCtx |= (TypeContextAcceptViewParam | TypeContextAcceptArrayParam);
 
     if(optional)
     {
@@ -1012,7 +1012,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             {
                 string ss = str.substr(prefix.size());
 
-                if(typeCtx & TypeContextInParam)
+                if(typeCtx & TypeContextAcceptViewParam)
                 {
                     if(ss.find("view-type:") == 0)
                     {
@@ -1025,7 +1025,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                     return str.substr(pos + 1);
                 }
             }
-            else if(typeCtx & TypeContextInParam)
+            else if(typeCtx & TypeContextAcceptArrayParam)
             {
                 string ss = str.substr(prefix.size());
                 if(ss == "array")

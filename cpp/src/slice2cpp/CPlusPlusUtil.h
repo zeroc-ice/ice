@@ -22,8 +22,9 @@ void printHeader(::IceUtilInternal::Output&);
 void printVersionCheck(::IceUtilInternal::Output&);
 void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
 
-const int TypeContextInParam = 1;
-const int TypeContextUseWstring = 16;
+const int TypeContextAcceptArrayParam = 1;
+const int TypeContextAcceptViewParam = 2;
+const int TypeContextUseWstring = 4;
 
 bool isMovable(const TypePtr&);
 
