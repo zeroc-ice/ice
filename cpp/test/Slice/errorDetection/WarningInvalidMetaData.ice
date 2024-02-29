@@ -28,17 +28,18 @@ module Test
 
 interface I
 {
-    // ["cpp:noexcept"]
-    // void op();
+    ["cpp:noexcept"]
+    void op();
 
-    ["cpp:type:std::list< ::std::string>"]
+    ["cpp:type:std::list<::std::string>"]
     void op1();
 
-    ["cpp:view-type:std::string_view"]
+    ["cpp:array"]
     void op2();
 
-    ["cpp:array"]
-    void op3();
+    void op3(["cpp:type:my_string"] string s);
+
+    void op4(["cpp:view-type:my_string"] string s);
 }
 
 ["cpp:const", "cpp:ice_print"]
