@@ -51,7 +51,7 @@ IceUtil::generateUUID()
     RPC_STATUS ret = UuidCreate(&uuid);
     if(ret != RPC_S_OK && ret != RPC_S_UUID_LOCAL_ONLY && ret != RPC_S_UUID_NO_ADDRESS)
     {
-        throw SyscallException(__FILE__, __LINE__, GetLastError());
+        throw SyscallException(__FILE__, __LINE__);
     }
 
     unsigned char* str;
@@ -59,7 +59,7 @@ IceUtil::generateUUID()
     ret = UuidToString(&uuid, &str);
     if(ret != RPC_S_OK)
     {
-        throw SyscallException(__FILE__, __LINE__, GetLastError());
+        throw SyscallException(__FILE__, __LINE__);
     }
     string result = reinterpret_cast<char*>(str);
 
