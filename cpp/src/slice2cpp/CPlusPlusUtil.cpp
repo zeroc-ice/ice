@@ -38,19 +38,21 @@ string
 stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
 {
     string strType = findMetaData(metaData, typeCtx);
-    if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
+
+    if (strType == "")
     {
-        return "::std::wstring";
-    }
-    else if(strType != "" && strType != "string")
-    {
-        // The user provided a type name, we use it as-is.
-        return strType;
+        strType = (typeCtx & TypeContextUseWstring) != 0 ? "::std::wstring" : "::std::string";
     }
     else
     {
-        return "::std::string";
+        assert(strType == "string" || strType == "wstring");
+        strType = "::std::" + strType;
     }
+    if (typeCtx & TypeContextMarshalParam)
+    {
+        strType += "_view";
+    }
+    return strType;
 }
 
 string
@@ -489,6 +491,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
                          int typeCtx)
 {
     assert(type);
+    assert(typeCtx == 0 || typeCtx == TypeContextUseWstring);
 
     static const char* InputBuiltinTable[] =
     {
@@ -505,7 +508,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
         "const ::std::shared_ptr<::Ice::Value>&"
     };
 
-    typeCtx |= (TypeContextAcceptViewParam | TypeContextAcceptArrayParam);
+    typeCtx |= TypeContextMarshalParam;
 
     if(optional)
     {
@@ -517,8 +520,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const string& scope
     {
         if(builtin->kind() == Builtin::KindString)
         {
-            // TODO: temporary, stringTypeToString should return the correct string.
-            return stringTypeToString(type, metaData, typeCtx) + "_view";
+            return stringTypeToString(type, metaData, typeCtx);
         }
         else
         {
@@ -1002,17 +1004,15 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
         {
             string::size_type pos = str.find(':', prefix.size());
 
-            // If the form is cpp:type:<...> the data after cpp:type:
-            // is returned.
-            // If the form is cpp:view-type:<...> the data after the
-            // cpp:view-type: is returned
-            // If the form is cpp:array, the return value is % followed by the string after cpp:.
+            // If a marshal param, we first check view-type then type. Otherwise, we check type.
+            // Then, if a marshal param or an unmarshal param where the underlying InputStream buffer remains valid for
+            // a while, we check for "array".
 
             if(pos != string::npos)
             {
                 string ss = str.substr(prefix.size());
 
-                if(typeCtx & TypeContextAcceptViewParam)
+                if(typeCtx & TypeContextMarshalParam)
                 {
                     if(ss.find("view-type:") == 0)
                     {
@@ -1025,7 +1025,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                     return str.substr(pos + 1);
                 }
             }
-            else if(typeCtx & TypeContextAcceptArrayParam)
+            else if (typeCtx & (TypeContextMarshalParam | TypeContextUnmarshalParamZeroCopy))
             {
                 string ss = str.substr(prefix.size());
                 if(ss == "array")

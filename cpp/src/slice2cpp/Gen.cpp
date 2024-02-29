@@ -1646,7 +1646,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> inParamsImpl;
 
     vector<string> futureOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring);
-    vector<string> lambdaOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring | TypeContextAcceptArrayParam);
+    vector<string> lambdaOutParams = createOutgoingAsyncParams(p, interfaceScope, _useWstring | TypeContextUnmarshalParamZeroCopy);
 
     const string futureImplPrefix = "_iceI_";
     const string lambdaImplPrefix = futureOutParams == lambdaOutParams ? "_iceI_" : "_iceIL_";
@@ -1785,7 +1785,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string responseParam = escapeParam(inParams, "response");
     const string exParam = escapeParam(inParams, "ex");
     const string sentParam = escapeParam(inParams, "sent");
-    const string lambdaResponse = createLambdaResponse(p, _useWstring | TypeContextAcceptArrayParam);
+    const string lambdaResponse = createLambdaResponse(p, _useWstring | TypeContextUnmarshalParamZeroCopy);
 
     H << sp;
     if(comment)
@@ -2999,7 +2999,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         if(!isOutParam)
         {
             params.push_back(typeToString(type, (*q)->optional(), interfaceScope, (*q)->getMetaData(),
-                                          _useWstring | TypeContextAcceptArrayParam) + " " + paramName);
+                                          _useWstring | TypeContextUnmarshalParamZeroCopy) + " " + paramName);
             args.push_back(condMove(isMovable(type), paramPrefix + (*q)->name()));
         }
         else
@@ -3136,7 +3136,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     if(!inParams.empty())
     {
         C << nl << "auto istr = inS.startReadParams();";
-        writeAllocateCode(C, inParams, nullptr, interfaceScope, _useWstring | TypeContextAcceptArrayParam);
+        writeAllocateCode(C, inParams, nullptr, interfaceScope, _useWstring | TypeContextUnmarshalParamZeroCopy);
         writeUnmarshalCode(C, inParams, nullptr);
         if(p->sendsClasses(false))
         {
