@@ -944,13 +944,13 @@ OutgoingAsync::throwUserException()
 }
 
 bool
-LambdaInvoke::handleSent(bool, bool alreadySent)
+LambdaInvoke::handleSent(bool, bool alreadySent) noexcept
 {
     return _sent != nullptr && !alreadySent; // Invoke the sent callback only if not already invoked.
 }
 
 bool
-LambdaInvoke::handleException(std::exception_ptr)
+LambdaInvoke::handleException(std::exception_ptr) noexcept
 {
     return _exception != nullptr; // Invoke the callback
 }

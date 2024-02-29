@@ -33,8 +33,14 @@ public:
 
 protected:
 
-    virtual bool handleSent(bool, bool) = 0;
-    virtual bool handleException(std::exception_ptr) = 0;
+    // Returns true if handleInvokeSent handles sent callbacks.
+    virtual bool handleSent(bool done, bool alreadySent) noexcept = 0;
+
+    // Returns true if handleInvokeException handles exception callbacks.
+    virtual bool handleException(std::exception_ptr) noexcept = 0;
+
+    // Returns true if handleInvokeResponse handles response callbacks.
+    // This function can unmarshal the response and throw an exception.
     virtual bool handleResponse(bool) = 0;
 
     virtual void handleInvokeSent(bool, OutgoingAsyncBase*) const = 0;
@@ -255,13 +261,13 @@ public:
 
 protected:
 
-    virtual bool handleSent(bool, bool) override;
-    virtual bool handleException(std::exception_ptr) override;
-    virtual bool handleResponse(bool) override;
+    bool handleSent(bool, bool) noexcept final;
+    bool handleException(std::exception_ptr) noexcept final;
+    bool handleResponse(bool) final;
 
-    virtual void handleInvokeSent(bool, OutgoingAsyncBase*) const override;
-    virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const override;
-    virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const override;
+    void handleInvokeSent(bool, OutgoingAsyncBase*) const final;
+    void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const final;
+    void handleInvokeResponse(bool, OutgoingAsyncBase*) const final;
 
     std::function<void(std::exception_ptr)> _exception;
     std::function<void(bool)> _sent;
@@ -277,42 +283,40 @@ public:
 
 protected:
 
-    std::promise<R> _promise;
-    std::function<void(bool)> _response;
-
-private:
-
-    virtual bool handleSent(bool, bool) override
+    bool handleSent(bool, bool) noexcept override
     {
         return false;
     }
 
-    virtual bool handleException(std::exception_ptr ex) override
+    bool handleException(std::exception_ptr ex) noexcept final
     {
         _promise.set_exception(ex);
         return false;
     }
 
-    virtual bool handleResponse(bool ok) override
+    bool handleResponse(bool ok) final
     {
         _response(ok);
         return false;
     }
 
-    virtual void handleInvokeSent(bool, OutgoingAsyncBase*) const override
+    void handleInvokeSent(bool, OutgoingAsyncBase*) const final
     {
         assert(false);
     }
 
-    virtual void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const override
+    void handleInvokeException(std::exception_ptr, OutgoingAsyncBase*) const final
     {
         assert(false);
     }
 
-    virtual void handleInvokeResponse(bool, OutgoingAsyncBase*) const override
+    void handleInvokeResponse(bool, OutgoingAsyncBase*) const final
     {
         assert(false);
     }
+
+    std::promise<R> _promise;
+    std::function<void(bool)> _response;
 };
 
 template<typename T>
@@ -508,7 +512,7 @@ public:
         };
     }
 
-    virtual bool handleSent(bool done, bool) override
+    bool handleSent(bool done, bool) noexcept final
     {
         if(done)
         {
