@@ -6,7 +6,7 @@
 
 #if defined(_WIN32)
 #   include <Wincrypt.h>
-#   include <IceUtil/Exception.h>
+#   include <Ice/LocalException.h>
 #elif defined(__APPLE__)
 #   include <CommonCrypto/CommonDigest.h>
 #else
@@ -16,7 +16,6 @@
 #endif
 
 using namespace std;
-using namespace IceUtil;
 
 namespace IceInternal
 {

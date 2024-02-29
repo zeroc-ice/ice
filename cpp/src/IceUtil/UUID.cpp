@@ -41,43 +41,43 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 string
 IceUtil::generateUUID()
 {
-struct UUID
-{
-    unsigned char timeLow[4];
-    unsigned char timeMid[2];
-    unsigned char timeHighAndVersion[2];
-    unsigned char clockSeqHiAndReserved;
-    unsigned char clockSeqLow;
-    unsigned char node[6];
-};
-UUID uuid;
+    struct UUID
+    {
+        unsigned char timeLow[4];
+        unsigned char timeMid[2];
+        unsigned char timeHighAndVersion[2];
+        unsigned char clockSeqHiAndReserved;
+        unsigned char clockSeqLow;
+        unsigned char node[6];
+    };
+    UUID uuid;
 
-assert(sizeof(UUID) == 16);
+    assert(sizeof(UUID) == 16);
 
-// Get a random sequence of bytes.
-char* buffer = reinterpret_cast<char*>(&uuid);
-IceUtilInternal::generateRandom(buffer, sizeof(UUID));
+    // Get a random sequence of bytes.
+    char* buffer = reinterpret_cast<char*>(&uuid);
+    IceUtilInternal::generateRandom(buffer, sizeof(UUID));
 
-// Adjust the bits that say "version 4" UUID
-uuid.timeHighAndVersion[0] &= 0x0F;
-uuid.timeHighAndVersion[0] |= (4 << 4);
-uuid.clockSeqHiAndReserved &= 0x3F;
-uuid.clockSeqHiAndReserved |= 0x80;
+    // Adjust the bits that say "version 4" UUID
+    uuid.timeHighAndVersion[0] &= 0x0F;
+    uuid.timeHighAndVersion[0] |= (4 << 4);
+    uuid.clockSeqHiAndReserved &= 0x3F;
+    uuid.clockSeqHiAndReserved |= 0x80;
 
-// Convert to a UUID string
-char uuidString[16 * 2 + 4 + 1]; // 16 bytes, 4 '-' and a final '\0'
-char* uuidIndex = uuidString;
-bytesToHex(uuid.timeLow, sizeof(uuid.timeLow), uuidIndex);
-*uuidIndex++ = '-';
-bytesToHex(uuid.timeMid, sizeof(uuid.timeMid), uuidIndex);
-*uuidIndex++ = '-';
-bytesToHex(uuid.timeHighAndVersion, sizeof(uuid.timeHighAndVersion), uuidIndex);
-*uuidIndex++ = '-';
-bytesToHex(&uuid.clockSeqHiAndReserved, sizeof(uuid.clockSeqHiAndReserved), uuidIndex);
-bytesToHex(&uuid.clockSeqLow, sizeof(uuid.clockSeqLow), uuidIndex);
-*uuidIndex++ = '-';
-bytesToHex(uuid.node, sizeof(uuid.node), uuidIndex);
-*uuidIndex = '\0';
+    // Convert to a UUID string
+    char uuidString[16 * 2 + 4 + 1]; // 16 bytes, 4 '-' and a final '\0'
+    char* uuidIndex = uuidString;
+    bytesToHex(uuid.timeLow, sizeof(uuid.timeLow), uuidIndex);
+    *uuidIndex++ = '-';
+    bytesToHex(uuid.timeMid, sizeof(uuid.timeMid), uuidIndex);
+    *uuidIndex++ = '-';
+    bytesToHex(uuid.timeHighAndVersion, sizeof(uuid.timeHighAndVersion), uuidIndex);
+    *uuidIndex++ = '-';
+    bytesToHex(&uuid.clockSeqHiAndReserved, sizeof(uuid.clockSeqHiAndReserved), uuidIndex);
+    bytesToHex(&uuid.clockSeqLow, sizeof(uuid.clockSeqLow), uuidIndex);
+    *uuidIndex++ = '-';
+    bytesToHex(uuid.node, sizeof(uuid.node), uuidIndex);
+    *uuidIndex = '\0';
 
-return uuidString;
+    return uuidString;
 }
