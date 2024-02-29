@@ -184,33 +184,6 @@ private:
 };
 
 /**
- * This exception indicates the failure of a system call.
- * \headerfile Ice/Ice.h
- */
-class ICE_API SyscallException : public ExceptionHelper<SyscallException>
-{
-public:
-
-    SyscallException(const char*, int, int);
-
-    virtual std::string ice_id() const;
-    virtual void ice_print(std::ostream&) const;
-
-    /**
-     * Provides the error number returned by the system call.
-     * @return The error number.
-     */
-    int error() const;
-
-private:
-
-    const int _error;
-};
-
-template<typename E>
-using SyscallExceptionHelper = ExceptionHelper<E, SyscallException>;
-
-/**
  * This exception indicates the failure to lock a file.
  * \headerfile Ice/Ice.h
  */
