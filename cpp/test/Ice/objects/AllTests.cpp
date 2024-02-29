@@ -15,11 +15,10 @@ namespace
 void
 testUOE(const Ice::CommunicatorPtr& communicator)
 {
-    string ref = "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties());
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    test(base);
-    UnexpectedObjectExceptionTestPrxPtr uoet = Ice::uncheckedCast<UnexpectedObjectExceptionTestPrx>(base);
-    test(uoet);
+    UnexpectedObjectExceptionTestPrx uoet(
+        communicator,
+        "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties()));
+
     try
     {
         uoet->op();
@@ -82,21 +81,11 @@ clear(const DPtr& d)
 
 }
 
-InitialPrxPtr
+InitialPrx
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    cout << "testing stringToProxy... " << flush;
-    string ref = "initial:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    test(base);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-    InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
-    test(initial);
-    test(initial == base);
-    cout << "ok" << endl;
+    InitialPrx initial(communicator, "initial:" + helper->getTestEndpoint());
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
 
@@ -387,8 +376,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         Ice::PropertiesPtr properties = communicator->getProperties();
-        TestIntfPrxPtr p = Ice::checkedCast<TestIntfPrx>(
-            communicator->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
+        TestIntfPrx p(communicator, "test:" + TestHelper::getTestEndpoint(properties));
 
         cout << "testing Object factory registration... " << flush;
         {
@@ -451,10 +439,10 @@ allTests(Test::TestHelper* helper)
         test(f11->name == "F11");
         test(f12->name == "F12");
 
-        F2PrxPtr f22;
-        F2PrxPtr f21 = initial->opF2(Ice::uncheckedCast<F2Prx>(
-                                         communicator->stringToProxy("F21:" + helper->getTestEndpoint())),
-                                     f22);
+        optional<F2Prx> f22;
+        optional<F2Prx> f21 = initial->opF2(
+            F2Prx(communicator, "F21:" + helper->getTestEndpoint()),
+            f22);
         test(f21->ice_getIdentity().name == "F21");
         f21->op();
         test(f22->ice_getIdentity().name == "F22");

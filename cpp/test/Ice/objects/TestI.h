@@ -8,31 +8,31 @@
 #include <Test.h>
 #include <Forward.h>
 
-class BI : public Test::B
+class BI final : public Test::B
 {
 public:
 
-    virtual void ice_preMarshal();
-    virtual void ice_postUnmarshal();
+    void ice_preMarshal() final;
+    void ice_postUnmarshal() final;
 };
 
-class CI : public Test::C
+class CI final : public Test::C
 {
 public:
 
-    virtual void ice_preMarshal();
-    virtual void ice_postUnmarshal();
+    void ice_preMarshal() final;
+    void ice_postUnmarshal() final;
 };
 
 class DI : public Test::D
 {
 public:
 
-    virtual void ice_preMarshal();
-    virtual void ice_postUnmarshal();
+    void ice_preMarshal() final;
+    void ice_postUnmarshal() final;
 };
 
-class EI : public Test::E
+class EI final : public Test::E
 {
 public:
 
@@ -53,61 +53,61 @@ public:
 };
 using FIPtr = std::shared_ptr<FI>;
 
-class InitialI : public Test::Initial
+class InitialI final : public Test::Initial
 {
 public:
 
     InitialI(const Ice::ObjectAdapterPtr&);
-    virtual ~InitialI();
+    ~InitialI();
 
-    virtual void shutdown(const Ice::Current&);
-    virtual Test::BPtr getB1(const Ice::Current&);
-    virtual Test::BPtr getB2(const Ice::Current&);
-    virtual Test::CPtr getC(const Ice::Current&);
-    virtual Test::DPtr getD(const Ice::Current&);
-    virtual Test::EPtr getE(const Ice::Current&);
-    virtual Test::FPtr getF(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
+    Test::BPtr getB1(const Ice::Current&) final;
+    Test::BPtr getB2(const Ice::Current&) final;
+    Test::CPtr getC(const Ice::Current&) final;
+    Test::DPtr getD(const Ice::Current&) final;
+    Test::EPtr getE(const Ice::Current&) final;
+    Test::FPtr getF(const Ice::Current&) final;
 
-    virtual void setRecursive(Test::RecursivePtr, const Ice::Current&);
-    virtual bool supportsClassGraphDepthMax(const Ice::Current&);
+    void setRecursive(Test::RecursivePtr, const Ice::Current&) final;
+    bool supportsClassGraphDepthMax(const Ice::Current&) final;
 
-    virtual void setCycle(Test::RecursivePtr, const Ice::Current&);
-    virtual bool acceptsClassCycles(const Ice::Current&);
+    void setCycle(Test::RecursivePtr, const Ice::Current&) final;
+    bool acceptsClassCycles(const Ice::Current&) final;
 
-    virtual GetMBMarshaledResult getMB(const Ice::Current&);
-    virtual void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,
+    GetMBMarshaledResult getMB(const Ice::Current&) final;
+    void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,
                                std::function<void(std::exception_ptr)>,
-                               const Ice::Current&);
+                               const Ice::Current&) final;
 
-    virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
+    void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&) final;
 
-    virtual Test::KPtr getK(const Ice::Current&);
+    Test::KPtr getK(const Ice::Current&) final;
 
-    virtual Ice::ValuePtr opValue(Ice::ValuePtr, Ice::ValuePtr&, const Ice::Current&);
-    virtual Test::ValueSeq opValueSeq(Test::ValueSeq, Test::ValueSeq&, const Ice::Current&);
-    virtual Test::ValueMap opValueMap(Test::ValueMap, Test::ValueMap&, const Ice::Current&);
+    Ice::ValuePtr opValue(Ice::ValuePtr, Ice::ValuePtr&, const Ice::Current&) final;
+    Test::ValueSeq opValueSeq(Test::ValueSeq, Test::ValueSeq&, const Ice::Current&) final;
+    Test::ValueMap opValueMap(Test::ValueMap, Test::ValueMap&, const Ice::Current&) final;
 
-    virtual Test::D1Ptr getD1(Test::D1Ptr, const Ice::Current&);
-    virtual void throwEDerived(const Ice::Current&);
+    Test::D1Ptr getD1(Test::D1Ptr, const Ice::Current&) final;
+    void throwEDerived(const Ice::Current&) final;
 
-    virtual void setG(Test::GPtr, const Ice::Current&);
+    void setG(Test::GPtr, const Ice::Current&) final;
 
-    virtual Test::BaseSeq opBaseSeq(Test::BaseSeq, Test::BaseSeq&, const Ice::Current&);
+    Test::BaseSeq opBaseSeq(Test::BaseSeq, Test::BaseSeq&, const Ice::Current&) final;
 
-    virtual Test::CompactPtr getCompact(const Ice::Current&);
+    Test::CompactPtr getCompact(const Ice::Current&) final;
 
-    virtual Test::Inner::APtr getInnerA(const Ice::Current&);
-    virtual Test::Inner::Sub::APtr getInnerSubA(const Ice::Current&);
+    Test::Inner::APtr getInnerA(const Ice::Current&) final;
+    Test::Inner::Sub::APtr getInnerSubA(const Ice::Current&) final;
 
-    virtual void throwInnerEx(const Ice::Current&);
-    virtual void throwInnerSubEx(const Ice::Current&);
+    void throwInnerEx(const Ice::Current&) final;
+    void throwInnerSubEx(const Ice::Current&) final;
 
-    virtual Test::MPtr opM(Test::MPtr, Test::MPtr&, const Ice::Current&);
+    Test::MPtr opM(Test::MPtr, Test::MPtr&, const Ice::Current&) final;
 
-    virtual Test::F1Ptr opF1(Test::F1Ptr, Test::F1Ptr&, const Ice::Current&);
-    virtual Test::F2PrxPtr opF2(Test::F2PrxPtr, Test::F2PrxPtr&, const Ice::Current&);
-    virtual Test::F3Ptr opF3(Test::F3Ptr, Test::F3Ptr&, const Ice::Current&);
-    virtual bool hasF3(const Ice::Current&);
+    Test::F1Ptr opF1(Test::F1Ptr, Test::F1Ptr&, const Ice::Current&) final;
+    Test::F2PrxPtr opF2(Test::F2PrxPtr, Test::F2PrxPtr&, const Ice::Current&) final;
+    Test::F3Ptr opF3(Test::F3Ptr, Test::F3Ptr&, const Ice::Current&) final;
+    bool hasF3(const Ice::Current&) final;
 
 private:
 
@@ -124,7 +124,7 @@ class UnexpectedObjectExceptionTestI : public Ice::Blobject
 {
 public:
 
-    virtual bool ice_invoke(std::vector<std::uint8_t>, std::vector<std::uint8_t>&, const Ice::Current&);
+    bool ice_invoke(std::vector<std::uint8_t>, std::vector<std::uint8_t>&, const Ice::Current&) final;
 };
 using UnexpectedObjectExceptionTestIPtr = std::shared_ptr<UnexpectedObjectExceptionTestI>;
 
@@ -132,15 +132,15 @@ class TestIntfI : public Test::TestIntf
 {
 public:
 
-    virtual Test::BasePtr opDerived(const Ice::Current&);
-    virtual void throwDerived(const Ice::Current&);
+    Test::BasePtr opDerived(const Ice::Current&) final;
+    void throwDerived(const Ice::Current&) final;
 };
 
 class F2I : public Test::F2
 {
 public:
 
-    virtual void op(const Ice::Current&)
+    void op(const Ice::Current&)
     {
     }
 };
