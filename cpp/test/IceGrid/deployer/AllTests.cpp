@@ -90,7 +90,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionP
     {
     }
 
-    TestIntfPrx obj(comm, "LogServer");
+    TestIntfPrx(comm, "LogServer")->ice_ping();
     try
     {
         session->openServerStdErr("LogServer", -1)->destroy();
