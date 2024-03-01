@@ -35,7 +35,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                 )
                 output = slice2cpp.getOutput(current)
 
-                regex1 = re.compile("\.ice$", re.IGNORECASE)
+                regex1 = re.compile(r"\.ice$", re.IGNORECASE)
                 lines1 = output.strip().splitlines()
                 with open(os.path.join(testdir, regex1.sub(".err", file)), "r") as f:
                     lines2 = f.readlines()
