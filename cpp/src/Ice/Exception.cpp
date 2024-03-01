@@ -356,6 +356,17 @@ Ice::OperationNotExistException::ice_print(ostream& out) const
     printFailedRequestData(out, *this);
 }
 
+Ice::SyscallException::SyscallException(const char* file, int line) :
+    LocalExceptionHelper<SyscallException, LocalException>(file, line),
+#ifdef _WIN32
+    error(GetLastError())
+#else
+    error(errno)
+#endif
+{
+
+}
+
 void
 Ice::SyscallException::ice_print(ostream& out) const
 {

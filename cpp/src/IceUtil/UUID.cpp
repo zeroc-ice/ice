@@ -4,14 +4,10 @@
 
 #include <IceUtil/UUID.h>
 #include <IceUtil/Exception.h>
-// On Windows, we use Windows's RPC UUID generator. On other platforms, we use a high quality random number generator
+// We use a high quality random number generator
 // (std::random_device) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
-#ifdef _WIN32
-#   include <rpc.h>
-#else
-#   include <IceUtil/Random.h>
-#endif
+#include <IceUtil/Random.h>
 
 using namespace std;
 
@@ -45,28 +41,6 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 string
 IceUtil::generateUUID()
 {
-#if defined(_WIN32)
-
-    UUID uuid;
-    RPC_STATUS ret = UuidCreate(&uuid);
-    if(ret != RPC_S_OK && ret != RPC_S_UUID_LOCAL_ONLY && ret != RPC_S_UUID_NO_ADDRESS)
-    {
-        throw SyscallException(__FILE__, __LINE__, GetLastError());
-    }
-
-    unsigned char* str;
-
-    ret = UuidToString(&uuid, &str);
-    if(ret != RPC_S_OK)
-    {
-        throw SyscallException(__FILE__, __LINE__, GetLastError());
-    }
-    string result = reinterpret_cast<char*>(str);
-
-    RpcStringFree(&str);
-    return result;
-
-#else
     struct UUID
     {
         unsigned char timeLow[4];
@@ -106,6 +80,4 @@ IceUtil::generateUUID()
     *uuidIndex = '\0';
 
     return uuidString;
-
-#endif
 }

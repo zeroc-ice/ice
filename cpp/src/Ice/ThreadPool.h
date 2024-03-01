@@ -382,7 +382,7 @@ public:
             // of the event handler. We need to lock the event handler here to call
             // finishMessage.
             //
-            lock_guard lock(_eventHandler._mutex);
+            std::lock_guard lock(_eventHandler._mutex);
             _current.finishMessage();
         }
     }

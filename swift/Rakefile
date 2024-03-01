@@ -113,6 +113,8 @@ def create_project(name, bindist)
         config.build_settings["CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER"] = "YES"
         # Disable header maps as they cause problems with parallel builds on Xcode 12
         config.build_settings["USE_HEADERMAP"] = "NO"
+        # The big-endian code is unreachable
+        config.build_settings["CLANG_WARN_UNREACHABLE_CODE"] = "NO"
     end
 
     [:osx, :ios].each do |platform|

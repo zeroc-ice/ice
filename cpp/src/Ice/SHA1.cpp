@@ -6,7 +6,7 @@
 
 #if defined(_WIN32)
 #   include <Wincrypt.h>
-#   include <IceUtil/Exception.h>
+#   include <Ice/LocalException.h>
 #elif defined(__APPLE__)
 #   include <CommonCrypto/CommonDigest.h>
 #else
@@ -16,7 +16,6 @@
 #endif
 
 using namespace std;
-using namespace IceUtil;
 
 namespace IceInternal
 {
@@ -64,12 +63,12 @@ IceInternal::SHA1::Hasher::Hasher() :
 {
     if(!CryptAcquireContext(&_ctx, 0, MS_DEF_PROV, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
     {
-        throw IceUtil::SyscallException(__FILE__, __LINE__, GetLastError());
+        throw Ice::SyscallException(__FILE__, __LINE__);
     }
 
     if(!CryptCreateHash(_ctx, CALG_SHA1, 0, 0, &_hash))
     {
-        throw IceUtil::SyscallException(__FILE__, __LINE__, GetLastError());
+        throw Ice::SyscallException(__FILE__, __LINE__);
     }
 }
 
@@ -103,7 +102,7 @@ IceInternal::SHA1::Hasher::update(const unsigned char* data, size_t length)
 #if defined(_WIN32)
     if(!CryptHashData(_hash, data, static_cast<DWORD>(length), 0))
     {
-        throw IceUtil::SyscallException(__FILE__, __LINE__, GetLastError());
+        throw Ice::SyscallException(__FILE__, __LINE__);
     }
 #elif defined(__APPLE__)
     CC_SHA1_Update(&_ctx, reinterpret_cast<const void*>(data), static_cast<CC_LONG>(length));
@@ -120,7 +119,7 @@ IceInternal::SHA1::Hasher::finalize(vector<unsigned char>& md)
     DWORD length = SHA_DIGEST_LENGTH;
     if(!CryptGetHashParam(_hash, HP_HASHVAL, &md[0], &length, 0))
     {
-        throw IceUtil::SyscallException(__FILE__, __LINE__, GetLastError());
+        throw Ice::SyscallException(__FILE__, __LINE__);
     }
 #elif defined(__APPLE__)
     md.resize(CC_SHA1_DIGEST_LENGTH);

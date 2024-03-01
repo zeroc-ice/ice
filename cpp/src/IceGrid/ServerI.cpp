@@ -2519,7 +2519,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         }
         if(!success)
         {
-            throw Ice::SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+            throw Ice::SyscallException(__FILE__, __LINE__);
         }
         if(user != string(&buf[0]))
         {

@@ -824,28 +824,7 @@ public:
      * Reads an int from the stream.
      * @param v The extracted int.
      */
-    void read(std::int32_t& v) // Inlined for performance reasons.
-    {
-        if(b.end() - i < static_cast<int>(sizeof(std::int32_t)))
-        {
-            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
-        const std::uint8_t* src = &(*i);
-        i += sizeof(std::int32_t);
-#ifdef ICE_BIG_ENDIAN
-        std::uint8_t* dest = reinterpret_cast<std::uint8_t*>(&v) + sizeof(std::int32_t) - 1;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest = *src;
-#else
-        std::uint8_t* dest = reinterpret_cast<std::uint8_t*>(&v);
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest = *src;
-#endif
-    }
+    void read(std::int32_t& v);
 
     /**
      * Reads a sequence of ints from the stream.

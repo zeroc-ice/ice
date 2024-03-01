@@ -46,6 +46,25 @@ using namespace IceGrid;
 
 #define ICE_STRING(X) #X
 
+namespace
+{
+
+#ifdef _WIN32
+int
+getSystemErrno()
+{
+    return GetLastError();
+}
+#else
+int
+getSystemErrno()
+{
+    return errno;
+}
+#endif
+
+}
+
 namespace IceGrid
 {
 
@@ -299,14 +318,14 @@ Activator::Activator(const shared_ptr<TraceLevels>& traceLevels) :
 
     if(_hIntr == nullptr)
     {
-        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+        throw SyscallException(__FILE__, __LINE__);
 
     }
 #else
     int fds[2];
     if(pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+        throw SyscallException(__FILE__, __LINE__);
     }
     _fdIntrRead = fds[0];
     _fdIntrWrite = fds[1];
@@ -653,7 +672,7 @@ Activator::activate(const string& name,
     char* grouplist = getgrset(pw->pw_name);
     if(grouplist == 0)
     {
-        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+        throw SyscallException(__FILE__, __LINE__);
     }
     vector<string> grps;
     if(IceUtilInternal::splitString(grouplist, ",", grps))
@@ -699,13 +718,13 @@ Activator::activate(const string& name,
     int fds[2];
     if(pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+        throw SyscallException(__FILE__, __LINE__);
     }
 
     int errorFds[2];
     if(pipe(errorFds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+        throw SyscallException(__FILE__, __LINE__);
     }
 
     //
@@ -722,7 +741,7 @@ Activator::activate(const string& name,
     pid_t pid = fork();
     if(pid == -1)
     {
-        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+        throw SyscallException(__FILE__, __LINE__);
     }
 
     if(pid == 0) // Child process.
@@ -1009,7 +1028,7 @@ Activator::sendSignal(const string& name, int signal)
         }
         else if(GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
         {
-            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+            throw SyscallException(__FILE__, __LINE__);
         }
     }
     else if(signal == SIGKILL)
@@ -1017,7 +1036,7 @@ Activator::sendSignal(const string& name, int signal)
         HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
         if(hnd == nullptr)
         {
-            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+            throw SyscallException(__FILE__, __LINE__);
         }
 
         TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
@@ -1038,7 +1057,7 @@ Activator::sendSignal(const string& name, int signal)
     int ret = ::kill(static_cast<pid_t>(pid), signal);
     if(ret != 0 && getSystemErrno() != ESRCH)
     {
-        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+        throw SyscallException(__FILE__, __LINE__);
     }
 
     if(_traceLevels->activator > 1)
@@ -1191,7 +1210,7 @@ Activator::terminationListener()
         DWORD ret = WaitForSingleObject(_hIntr, INFINITE);
         if(ret == WAIT_FAILED)
         {
-            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+            throw SyscallException(__FILE__, __LINE__);
         }
         clearInterrupt();
 
@@ -1294,7 +1313,7 @@ Activator::terminationListener()
             }
 #endif
 
-            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+            throw SyscallException(__FILE__, __LINE__);
         }
 
         vector<Process> terminated;
@@ -1346,7 +1365,7 @@ Activator::terminationListener()
                 {
                     if(errno != EAGAIN || message.empty())
                     {
-                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+                        throw SyscallException(__FILE__, __LINE__);
                     }
 
                     ++p;
@@ -1431,7 +1450,7 @@ Activator::setInterrupt()
     ssize_t sz = write(_fdIntrWrite, &c, 1);
     if(sz == -1)
     {
-        throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+        throw SyscallException(__FILE__, __LINE__);
     }
 #endif
 }
@@ -1463,7 +1482,7 @@ Activator::waitPid(pid_t processPid)
                     ++nRetry;
                     continue;
                 }
-                throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+                throw SyscallException(__FILE__, __LINE__);
             }
             assert(pid == processPid);
             break;
@@ -1472,7 +1491,7 @@ Activator::waitPid(pid_t processPid)
         pid_t pid = waitpid(processPid, &status, 0);
         if(pid < 0)
         {
-            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+            throw SyscallException(__FILE__, __LINE__);
         }
         assert(pid == processPid);
 #endif
