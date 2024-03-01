@@ -15,7 +15,7 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
- 
+
     TestIntfPrx obj(communicator, "test @ TestAdapter");
     IceGrid::LocatorPrx locator(obj);
 

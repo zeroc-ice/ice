@@ -36,7 +36,7 @@ public:
 
     void
     setServerProcessProxyAsync(
-        string, 
+        string,
         optional<ProcessPrx>,
         function<void()> response, function<void(exception_ptr)>,
         const Current&) override

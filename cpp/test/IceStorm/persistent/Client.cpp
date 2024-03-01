@@ -34,7 +34,6 @@ Client::run(int argc, char** argv)
 
     IceStorm::TopicManagerPrx manager(communicator, managerProxy);
 
-
     if(argc != 2)
     {
         throw invalid_argument("client create|check");

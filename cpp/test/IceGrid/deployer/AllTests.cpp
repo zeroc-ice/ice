@@ -735,16 +735,16 @@ allTestsWithTarget(Test::TestHelper* helper)
 
     TestIntfPrx obj(comm, "Server3@Server3.Server");
     obj->ice_ping();
-    
+
     obj = TestIntfPrx(comm, "IceBox3-Service1@IceBox3.Service1.Service1");
     obj->ice_ping();
 
     obj = TestIntfPrx(comm, "IceBox3-Service3@IceBox3.Service3.Service3");
     obj->ice_ping();
- 
+
     obj = TestIntfPrx(comm, "IceBox3-Service4@IceBox3.Service4.Service4");
     obj->ice_ping();
-    
+
     obj = TestIntfPrx(comm, "Server3@Server3.Server");
     obj->ice_ping();
 
