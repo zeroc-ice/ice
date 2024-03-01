@@ -8,35 +8,36 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Test;
 
 void
-TestIntfI::ping(Test::PingReplyPrxPtr reply, const Current&)
+TestIntfI::ping(optional<PingReplyPrx> reply, const Current&)
 {
     try
     {
         reply->reply();
     }
-    catch(const Ice::Exception&)
+    catch(const Exception&)
     {
         assert(false);
     }
 }
 
 void
-TestIntfI::sendByteSeq(Test::ByteSeq, Test::PingReplyPrxPtr reply, const Current&)
+TestIntfI::sendByteSeq(ByteSeq, optional<PingReplyPrx> reply, const Current&)
 {
     try
     {
         reply->reply();
     }
-    catch(const Ice::Exception&)
+    catch(const Exception&)
     {
         assert(false);
     }
 }
 
 void
-TestIntfI::pingBiDir(Ice::Identity id, const Ice::Current& current)
+TestIntfI::pingBiDir(Identity id, const Current& current)
 {
     try
     {
@@ -46,9 +47,9 @@ TestIntfI::pingBiDir(Ice::Identity id, const Ice::Current& current)
         //
         try
         {
-            Test::ByteSeq seq;
+            ByteSeq seq;
             seq.resize(32 * 1024);
-            Ice::uncheckedCast<Test::TestIntfPrx>(current.con->createProxy(id))->sendByteSeq(seq, nullopt);
+            TestIntfPrx(current.con->createProxy(id))->sendByteSeq(seq, nullopt);
         }
         catch(const DatagramLimitException&)
         {
@@ -58,9 +59,9 @@ TestIntfI::pingBiDir(Ice::Identity id, const Ice::Current& current)
         //
         // Send the reply through the incoming connection.
         //
-        Ice::uncheckedCast<Test::PingReplyPrx>(current.con->createProxy(id))->replyAsync();
+        PingReplyPrx(current.con->createProxy(id))->replyAsync();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Exception& ex)
     {
         cerr << ex << endl;
         assert(false);

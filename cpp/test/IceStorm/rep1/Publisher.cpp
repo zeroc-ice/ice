@@ -56,7 +56,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    TopicPrxPtr topic;
+    optional<TopicPrx> topic;
     while(true)
     {
         try
@@ -85,8 +85,8 @@ Publisher::run(int argc, char** argv)
     //
     if(opts.isSet("cycle"))
     {
-        auto prx = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
-        vector<SinglePrxPtr> single;
+        optional<SinglePrx> prx(topic->getPublisher()->ice_twoway());
+        vector<optional<SinglePrx>> single;
         auto endpoints = prx->ice_getEndpoints();
         for(const auto& p: endpoints)
         {

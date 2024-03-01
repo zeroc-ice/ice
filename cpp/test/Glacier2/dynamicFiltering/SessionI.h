@@ -8,8 +8,6 @@
 #include <Test.h>
 #include <TestControllerI.h>
 
-// XXX
-
 //
 // The session manager essentially has to be the test controller since
 // it will be the entity that is notified of session creation. Can it be
@@ -22,8 +20,8 @@ class SessionManagerI final : public Glacier2::SessionManager
 public:
     SessionManagerI(const std::shared_ptr<TestControllerI>&);
 
-    Glacier2::SessionPrxPtr
-    create(std::string, Glacier2::SessionControlPrxPtr, const Ice::Current&) override;
+    std::optional<Glacier2::SessionPrx>
+    create(std::string, std::optional<Glacier2::SessionControlPrx>, const Ice::Current&) override;
 
 private:
     std::shared_ptr<TestControllerI> _controller;
@@ -33,13 +31,13 @@ class SessionI final : public Test::TestSession
 {
 public:
 
-    SessionI(Glacier2::SessionControlPrxPtr, std::shared_ptr<TestControllerI>);
+    SessionI(std::optional<Glacier2::SessionControlPrx>, std::shared_ptr<TestControllerI>);
     void shutdown(const Ice::Current&) override;
     void destroy(const Ice::Current&) override;
 
 private:
 
-    Glacier2::SessionControlPrxPtr _sessionControl;
+    std::optional<Glacier2::SessionControlPrx> _sessionControl;
     std::shared_ptr<TestControllerI> _controller;
 };
 

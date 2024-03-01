@@ -21,7 +21,8 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    auto communicator = ich.communicator();
     auto properties = communicator->getProperties();
     auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
@@ -31,14 +32,8 @@ Client::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    auto manager =
-        checkedCast<IceStorm::TopicManagerPrx>(communicator->stringToProxy(managerProxy));
-    if(!manager)
-    {
-        ostringstream os;
-        os << argv[0] << ": `" << managerProxy << "' is not running";
-        throw invalid_argument(os.str());
-    }
+    IceStorm::TopicManagerPrx manager(communicator, managerProxy);
+
 
     if(argc != 2)
     {
@@ -52,7 +47,7 @@ Client::run(int argc, char** argv)
         // Create topics
         //
         cerr << "creating topics and links..." << flush;
-        TopicPrxPtr linkTo;
+        optional<TopicPrx> linkTo;
         for(int i = 0; i < 10; ++i)
         {
             ostringstream topicName;
@@ -79,7 +74,7 @@ Client::run(int argc, char** argv)
 
             ostringstream subscriber;
             subscriber << "subscriber" << i << ":default -h 10000";
-            topic->subscribeAndGetPublisher(IceStorm::QoS(), communicator->stringToProxy(subscriber.str()));
+            topic->subscribeAndGetPublisher(IceStorm::QoS(), ObjectPrx(communicator, subscriber.str()));
         }
         cerr << "ok" << endl;
     }

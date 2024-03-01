@@ -7,129 +7,130 @@
 
 #include <ServerPrivateAMD.h>
 
-class TestI : public virtual Test::TestIntf
+class TestI final : public Test::TestIntf
 {
 public:
 
     TestI();
-    virtual void baseAsBaseAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
 
-    virtual void unknownDerivedAsBaseAsync(
+    void baseAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownDerivedAsBaseAsync(
+    void unknownDerivedAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownDerivedAsKnownDerivedAsync(
+    void knownDerivedAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void unknownIntermediateAsBaseAsync(
+    void knownDerivedAsKnownDerivedAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownIntermediateAsBaseAsync(
+    void unknownIntermediateAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownMostDerivedAsBaseAsync(
+    void knownIntermediateAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownIntermediateAsKnownIntermediateAsync(
+    void knownMostDerivedAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownMostDerivedAsKnownIntermediateAsync(
+    void knownIntermediateAsKnownIntermediateAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownMostDerivedAsKnownMostDerivedAsync(
+    void knownMostDerivedAsKnownIntermediateAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void unknownMostDerived1AsBaseAsync(
+    void knownMostDerivedAsKnownMostDerivedAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void unknownMostDerived1AsKnownIntermediateAsync(
+    void unknownMostDerived1AsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void unknownMostDerived2AsBaseAsync(
+    void unknownMostDerived1AsKnownIntermediateAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void unknownMostDerived2AsBaseCompactAsync(
+    void unknownMostDerived2AsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownPreservedAsBaseAsync(
+    void unknownMostDerived2AsBaseCompactAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void knownPreservedAsKnownPreservedAsync(
+    void knownPreservedAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void relayKnownPreservedAsBaseAsync(
-        ::Test::RelayPrxPtr,
+    void knownPreservedAsKnownPreservedAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void relayKnownPreservedAsKnownPreservedAsync(
-        ::Test::RelayPrxPtr,
+    void relayKnownPreservedAsBaseAsync(
+        std::optional<Test::RelayPrx>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void unknownPreservedAsBaseAsync(
+    void relayKnownPreservedAsKnownPreservedAsync(
+        std::optional<Test::RelayPrx>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void unknownPreservedAsKnownPreservedAsync(
+    void unknownPreservedAsBaseAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void relayUnknownPreservedAsBaseAsync(
-        ::Test::RelayPrxPtr,
+    void unknownPreservedAsKnownPreservedAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void relayUnknownPreservedAsKnownPreservedAsync(
-        ::Test::RelayPrxPtr,
+    void relayUnknownPreservedAsBaseAsync(
+        std::optional<Test::RelayPrx>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
 
-    virtual void shutdownAsync(
+    void relayUnknownPreservedAsKnownPreservedAsync(
+        std::optional<Test::RelayPrx>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&);
+        const ::Ice::Current&) final;
+
+    void shutdownAsync(
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const ::Ice::Current&) final;
 };
 
 #endif

@@ -275,7 +275,8 @@ void notifyClient()
 void
 Client::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    auto communicator = ich.communicator();
     instance = this;
     string protocol = getTestProtocol();
     string host = getTestHost();
@@ -429,22 +430,8 @@ Client::run(int argc, char** argv)
         communicator->setDefaultRouter(nullopt);
         cout << "ok" << endl;
 
-        Ice::ObjectPrxPtr processBase;
-        {
-            cout << "testing stringToProxy for process object... " << flush;
-            processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-            cout << "ok" << endl;
-        }
-
-        Ice::ProcessPrxPtr process;
-        {
-            cout << "testing checked cast for admin object... " << flush;
-            process = Ice::checkedCast<Ice::ProcessPrx>(processBase);
-            test(process);
-            cout << "ok" << endl;
-        }
-
         cout << "testing Glacier2 shutdown... " << flush;
+        Ice::ProcessPrx process(communicator, "Glacier2/admin -f Process:" + getTestEndpoint(51));
         process->shutdown();
         try
         {

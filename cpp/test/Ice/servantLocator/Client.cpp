@@ -20,8 +20,8 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    TestIntfPrxPtr allTests(Test::TestHelper*);
-    TestIntfPrxPtr obj = allTests(this);
+    TestIntfPrx allTests(Test::TestHelper*);
+    TestIntfPrx obj = allTests(this);
     obj->shutdown();
 }
 

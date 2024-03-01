@@ -84,7 +84,7 @@ namespace
 
         ProcessControllerI(id<ControllerView>, NSString*, NSString*);
 
-        virtual ProcessPrxPtr start(string, string, StringSeq, const Ice::Current&);
+        virtual optional<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
         virtual string getHost(string, bool, const Ice::Current&);
 
     private:
@@ -330,7 +330,7 @@ ProcessControllerI::ProcessControllerI(id<ControllerView> controller, NSString* 
 {
 }
 
-ProcessPrxPtr
+optional<ProcessPrx>
 ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ice::Current& c)
 {
     StringSeq newArgs = args;

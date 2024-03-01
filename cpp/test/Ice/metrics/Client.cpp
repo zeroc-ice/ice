@@ -30,8 +30,8 @@ Client::run(int argc, char** argv)
     initData.observer = observer;
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
-    MetricsPrxPtr allTests(Test::TestHelper*, const CommunicatorObserverIPtr&);
-    MetricsPrxPtr metrics = allTests(this, observer);
+    MetricsPrx allTests(Test::TestHelper*, const CommunicatorObserverIPtr&);
+    MetricsPrx metrics = allTests(this, observer);
     metrics->shutdown();
 }
 

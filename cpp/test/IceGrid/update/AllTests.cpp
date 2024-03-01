@@ -63,16 +63,17 @@ void
 allTests(Test::TestHelper* helper)
 {
     const Ice::CommunicatorPtr& communicator = helper->communicator();
-    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
-        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
-    test(registry);
-    AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
+    IceGrid::RegistryPrx registry(
+        communicator,
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+
+    optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          nullopt,
                                          Ice::ACMHeartbeat::HeartbeatAlways);
 
-    AdminPrxPtr admin = session->getAdmin();
+    optional<AdminPrx> admin = session->getAdmin();
     test(admin);
 
     Ice::PropertiesPtr properties = communicator->getProperties();

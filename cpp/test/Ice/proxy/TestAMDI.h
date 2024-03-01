@@ -14,8 +14,8 @@ public:
     MyDerivedClassI();
 
     virtual void echoAsync(
-        Ice::ObjectPrxPtr,
-        ::std::function<void(const Ice::ObjectPrxPtr&)>,
+        std::optional<Ice::ObjectPrx>,
+        ::std::function<void(const std::optional<Ice::ObjectPrx>&)>,
         ::std::function<void(::std::exception_ptr)>,
         const Ice::Current&);
 

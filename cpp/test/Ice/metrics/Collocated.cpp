@@ -41,8 +41,8 @@ Collocated::run(int argc, char** argv)
     controllerAdapter->add(make_shared<ControllerI>(adapter), Ice::stringToIdentity("controller"));
     //controllerAdapter->activate(); // Don't activate OA to ensure collocation is used.
 
-    MetricsPrxPtr allTests(Test::TestHelper*, const CommunicatorObserverIPtr&);
-    MetricsPrxPtr metrics = allTests(this, observer);
+    MetricsPrx allTests(Test::TestHelper*, const CommunicatorObserverIPtr&);
+    MetricsPrx metrics = allTests(this, observer);
     metrics->shutdown();
 }
 

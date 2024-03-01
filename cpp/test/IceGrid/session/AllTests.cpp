@@ -10,6 +10,7 @@
 #include <thread>
 
 using namespace std;
+using namespace Ice;
 using namespace IceGrid;
 using namespace Test;
 
@@ -469,8 +470,9 @@ allTests(TestHelper* helper)
     auto communicator = helper->communicator();
     bool encoding10 = communicator->getProperties()->getProperty("Ice.Default.EncodingVersion") == "1.0";
 
-    auto registry = Ice::checkedCast<RegistryPrx>(communicator->stringToProxy(
-        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
+    RegistryPrx registry(
+        communicator,
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
     auto session = registry->createAdminSession("admin3", "test3");
     session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
@@ -504,19 +506,17 @@ allTests(TestHelper* helper)
 
     auto properties = communicator->getProperties();
 
-    auto registry1 = Ice::uncheckedCast<RegistryPrx>(registry->ice_connectionId("reg1"));
-    auto registry2 = Ice::uncheckedCast<RegistryPrx>(registry->ice_connectionId("reg2"));
+    auto registry1 = registry->ice_connectionId("reg1");
+    auto registry2 = registry->ice_connectionId("reg2");
 
-    auto router = Ice::uncheckedCast<Glacier2::RouterPrx>(
-        communicator->stringToProxy("Glacier2/router:default -p 12347 -h 127.0.0.1"));
-    auto adminRouter = Ice::uncheckedCast<Glacier2::RouterPrx>(
-        communicator->stringToProxy("Glacier2/router:default -p 12348 -h 127.0.0.1"));
+    Glacier2::RouterPrx router(communicator, "Glacier2/router:default -p 12347 -h 127.0.0.1");
+    Glacier2::RouterPrx adminRouter(communicator, "Glacier2/router:default -p 12348 -h 127.0.0.1");
 
-    auto router1 = Ice::uncheckedCast<Glacier2::RouterPrx>(router->ice_connectionId("router1"));
-    auto router2 = Ice::uncheckedCast<Glacier2::RouterPrx>(router->ice_connectionId("router2"));
+    Glacier2::RouterPrx router1 = router->ice_connectionId("router1");
+    Glacier2::RouterPrx router2 = router->ice_connectionId("router2");
 
-    auto adminRouter1 = Ice::uncheckedCast<Glacier2::RouterPrx>(adminRouter->ice_connectionId("admRouter1"));
-    auto adminRouter2 = Ice::uncheckedCast<Glacier2::RouterPrx>(adminRouter->ice_connectionId("admRouter2"));
+    Glacier2::RouterPrx adminRouter1 = adminRouter->ice_connectionId("admRouter1");
+    Glacier2::RouterPrx adminRouter2 = adminRouter->ice_connectionId("admRouter2");
 
     //
     // TODO: Find a better way to wait for the Glacier2 router to be
@@ -538,10 +538,9 @@ allTests(TestHelper* helper)
 
     {
         cout << "testing username/password sessions... " << flush;
-        SessionPrxPtr session1, session2;
 
-        session1 = Ice::uncheckedCast<SessionPrx>(registry1->createSession("client1", "test1")->ice_connectionId("reg1"));
-        session2 = Ice::uncheckedCast<SessionPrx>(registry2->createSession("client2", "test2")->ice_connectionId("reg2"));
+        SessionPrx session1(registry1->createSession("client1", "test1")->ice_connectionId("reg1"));
+        SessionPrx session2(registry2->createSession("client2", "test2")->ice_connectionId("reg2"));
         try
         {
             registry1->createSession("client3", "test1");
@@ -602,12 +601,12 @@ allTests(TestHelper* helper)
         session1->destroy();
         session2->destroy();
 
-        AdminSessionPrxPtr adminSession1, adminSession2;
-
-        adminSession1 = Ice::uncheckedCast<AdminSessionPrx>(
+        AdminSessionPrx adminSession1(
             registry1->createAdminSession("admin1", "test1")->ice_connectionId("reg1"));
-        adminSession2 = Ice::uncheckedCast<AdminSessionPrx>(
+
+        AdminSessionPrx adminSession2(
             registry2->createAdminSession("admin2", "test2")->ice_connectionId("reg2"));
+
         try
         {
             registry1->createAdminSession("admin3", "test1");
@@ -678,10 +677,8 @@ allTests(TestHelper* helper)
     {
         cout << "testing sessions from secure connection... " << flush;
 
-        SessionPrxPtr session1, session2;
-
-        session1 = Ice::uncheckedCast<SessionPrx>(registry1->createSessionFromSecureConnection()->ice_connectionId("reg1"));
-        session2 = Ice::uncheckedCast<SessionPrx>(registry2->createSessionFromSecureConnection()->ice_connectionId("reg2"));
+        SessionPrx session1(registry1->createSessionFromSecureConnection()->ice_connectionId("reg1"));
+        SessionPrx session2(registry2->createSessionFromSecureConnection()->ice_connectionId("reg2"));
 
         session1->ice_ping();
         session2->ice_ping();
@@ -718,11 +715,9 @@ allTests(TestHelper* helper)
         session1->destroy();
         session2->destroy();
 
-        AdminSessionPrxPtr adminSession1, adminSession2;
-
-        adminSession1 = Ice::uncheckedCast<AdminSessionPrx>(
+        AdminSessionPrx adminSession1(
             registry1->createAdminSessionFromSecureConnection()->ice_connectionId("reg1"));
-        adminSession2 = Ice::uncheckedCast<AdminSessionPrx>(
+        AdminSessionPrx adminSession2(
             registry2->createAdminSessionFromSecureConnection()->ice_connectionId("reg2"));
 
         adminSession1->ice_ping();
@@ -787,17 +782,11 @@ allTests(TestHelper* helper)
     {
         cout << "testing Glacier2 username/password sessions... " << flush;
 
-        SessionPrxPtr session1, session2;
+        SessionPrx session1(
+            router1->createSession("client1", "test1")->ice_connectionId("router1")->ice_router(router1));
 
-        Glacier2::SessionPrxPtr base;
-
-        base = router1->createSession("client1", "test1");
-        test(base);
-        session1 = Ice::uncheckedCast<SessionPrx>(base->ice_connectionId("router1")->ice_router(router1));
-
-        base = router2->createSession("client2", "test2");
-        test(base);
-        session2 = Ice::uncheckedCast<SessionPrx>(base->ice_connectionId("router2")->ice_router(router2));
+        SessionPrx session2(
+            router2->createSession("client2", "test2")->ice_connectionId("router2")->ice_router(router2));
 
         try
         {
@@ -843,11 +832,11 @@ allTests(TestHelper* helper)
         {
         }
 
-        auto obj = communicator->stringToProxy("TestIceGrid/Query");
+        ObjectPrx obj(communicator, "TestIceGrid/Query");
         obj->ice_connectionId("router1")->ice_router(router1)->ice_ping();
         obj->ice_connectionId("router2")->ice_router(router2)->ice_ping();
 
-        obj = communicator->stringToProxy("TestIceGrid/Registry");
+        obj = ObjectPrx(communicator, "TestIceGrid/Registry");
         try
         {
             obj->ice_connectionId("router1")->ice_router(router1)->ice_ping();
@@ -868,13 +857,11 @@ allTests(TestHelper* helper)
         router1->destroySession();
         router2->destroySession();
 
-        AdminSessionPrxPtr admSession1, admSession2;
+        AdminSessionPrx admSession1(
+            adminRouter1->createSession("admin1", "test1")->ice_connectionId("admRouter1")->ice_router(adminRouter1));
 
-        base = adminRouter1->createSession("admin1", "test1");
-        admSession1 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter1")->ice_router(adminRouter1));
-
-        base = adminRouter2->createSession("admin2", "test2");
-        admSession2 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter2")->ice_router(adminRouter2));
+        AdminSessionPrx admSession2(
+            adminRouter2->createSession("admin2", "test2")->ice_connectionId("admRouter2")->ice_router(adminRouter2));
 
         try
         {
@@ -909,7 +896,7 @@ allTests(TestHelper* helper)
         admin1->ice_ping();
         admin2->ice_ping();
 
-        obj = communicator->stringToProxy("TestIceGrid/Query");
+        obj = ObjectPrx(communicator, "TestIceGrid/Query");
         obj->ice_connectionId("admRouter1")->ice_router(adminRouter1)->ice_ping();
         obj->ice_connectionId("admRouter2")->ice_router(adminRouter2)->ice_ping();
 
@@ -957,21 +944,17 @@ allTests(TestHelper* helper)
     {
         cout << "testing Glacier2 sessions from secure connection... " << flush;
 
-        SessionPrxPtr session1, session2;
-
-        Glacier2::SessionPrxPtr base;
-
         //
         // BUGFIX: We can't re-use the same router proxies because of bug 1034.
         //
-        router1 = Ice::uncheckedCast<Glacier2::RouterPrx>(router1->ice_connectionId("router11"));
-        router2 = Ice::uncheckedCast<Glacier2::RouterPrx>(router2->ice_connectionId("router21"));
+        router1 = router1->ice_connectionId("router11");
+        router2 = router2->ice_connectionId("router21");
 
-        base = router1->createSessionFromSecureConnection();
-        session1 = Ice::uncheckedCast<SessionPrx>(base->ice_connectionId("router11")->ice_router(router1));
+        SessionPrx session1(
+            router1->createSessionFromSecureConnection()->ice_connectionId("router11")->ice_router(router1));
 
-        base = router2->createSessionFromSecureConnection();
-        session2 = Ice::uncheckedCast<SessionPrx>(base->ice_connectionId("router21")->ice_router(router2));
+        SessionPrx session2(
+            router2->createSessionFromSecureConnection()->ice_connectionId("router21")->ice_router(router2));
 
         session1->ice_ping();
         session2->ice_ping();
@@ -1009,11 +992,11 @@ allTests(TestHelper* helper)
         {
         }
 
-        Ice::ObjectPrxPtr obj = communicator->stringToProxy("TestIceGrid/Query");
+        Ice::ObjectPrx obj(communicator, "TestIceGrid/Query");
         obj->ice_connectionId("router11")->ice_router(router1)->ice_ping();
         obj->ice_connectionId("router21")->ice_router(router2)->ice_ping();
 
-        obj = communicator->stringToProxy("TestIceGrid/Registry");
+        obj = Ice::ObjectPrx(communicator, "TestIceGrid/Registry");
         try
         {
             obj->ice_connectionId("router11")->ice_router(router1)->ice_ping();
@@ -1034,17 +1017,15 @@ allTests(TestHelper* helper)
         router1->destroySession();
         router2->destroySession();
 
-        AdminSessionPrxPtr admSession1, admSession2;
-
         // BUGFIX: We can't re-use the same router proxies because of bug 1034.
-        adminRouter1 = Ice::uncheckedCast<Glacier2::RouterPrx>(adminRouter->ice_connectionId("admRouter11"));
-        adminRouter2 = Ice::uncheckedCast<Glacier2::RouterPrx>(adminRouter->ice_connectionId("admRouter21"));
+        adminRouter1 = adminRouter->ice_connectionId("admRouter11");
+        adminRouter2 = adminRouter->ice_connectionId("admRouter21");
 
-        base = adminRouter1->createSessionFromSecureConnection();
-        admSession1 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter11")->ice_router(adminRouter1));
+        AdminSessionPrx admSession1(
+            adminRouter1->createSessionFromSecureConnection()->ice_connectionId("admRouter11")->ice_router(adminRouter1));
 
-        base = adminRouter2->createSessionFromSecureConnection();
-        admSession2 = Ice::uncheckedCast<AdminSessionPrx>(base->ice_connectionId("admRouter21")->ice_router(adminRouter2));
+        AdminSessionPrx admSession2(
+            adminRouter2->createSessionFromSecureConnection()->ice_connectionId("admRouter21")->ice_router(adminRouter2));
 
         admSession1->ice_ping();
         admSession2->ice_ping();
@@ -1071,7 +1052,7 @@ allTests(TestHelper* helper)
         admin1->ice_ping();
         admin2->ice_ping();
 
-        obj = communicator->stringToProxy("TestIceGrid/Query");
+        obj = ObjectPrx(communicator, "TestIceGrid/Query");
         obj->ice_connectionId("admRouter11")->ice_router(adminRouter1)->ice_ping();
         obj->ice_connectionId("admRouter21")->ice_router(adminRouter2)->ice_ping();
 
@@ -1162,15 +1143,11 @@ allTests(TestHelper* helper)
 
         auto adpt2 = communicator->createObjectAdapterWithEndpoints("Observer2", "tcp");
         auto appObs2 = make_shared<ApplicationObserverI>("appObs2");
-        auto app2 = adpt2->addWithUUID(appObs2);
+        ApplicationObserverPrx app2(adpt2->addWithUUID(appObs2));
         auto nodeObs2 = make_shared<NodeObserverI>("nodeObs1");
-        auto no2 = adpt2->addWithUUID(nodeObs2);
+        NodeObserverPrx no2(adpt2->addWithUUID(nodeObs2));
         adpt2->activate();
-        session2->setObservers(nullopt,
-                               Ice::uncheckedCast<NodeObserverPrx>(no2),
-                               Ice::uncheckedCast<ApplicationObserverPrx>(app2),
-                               nullopt,
-                               nullopt);
+        session2->setObservers(nullopt, no2, app2, nullopt, nullopt);
 
         appObs1->waitForUpdate(__LINE__);
         appObs2->waitForUpdate(__LINE__);
@@ -1361,7 +1338,7 @@ allTests(TestHelper* helper)
         {
         }
 
-        auto obj = communicator->stringToProxy("dummy:tcp -p 10000");
+        ObjectPrx obj(communicator, "dummy:tcp -p 10000");
         try
         {
             locatorRegistry->setAdapterDirectProxy(string(512, 'A'), obj);
@@ -1490,7 +1467,7 @@ allTests(TestHelper* helper)
     {
         cout << "testing adapter observer... " << flush;
 
-        auto session1 = Ice::uncheckedCast<AdminSessionPrx>(registry->createAdminSession("admin1", "test1"));
+        optional<AdminSessionPrx> session1(registry->createAdminSession("admin1", "test1"));
         auto admin1 = session1->getAdmin();
 
         session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
@@ -1510,7 +1487,7 @@ allTests(TestHelper* helper)
 
         try
         {
-            auto obj = communicator->stringToProxy("dummy:tcp -p 10000");
+            ObjectPrx obj(communicator, "dummy:tcp -p 10000");
 
             auto locatorRegistry = communicator->getDefaultLocator()->getRegistry();
             locatorRegistry->setAdapterDirectProxy("DummyAdapter", obj);
@@ -1518,27 +1495,27 @@ allTests(TestHelper* helper)
             test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
             test(adptObs1->adapters["DummyAdapter"].proxy == obj);
 
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
+            obj = ObjectPrx(communicator, "dummy:tcp -p 10000 -h localhost");
             locatorRegistry->setAdapterDirectProxy("DummyAdapter", obj);
             adptObs1->waitForUpdate(__LINE__);
             test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
             test(adptObs1->adapters["DummyAdapter"].proxy == obj);
 
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
+            obj = ObjectPrx(communicator, "dummy:tcp -p 10000 -h localhost");
             locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter", "DummyReplicaGroup", obj);
             adptObs1->waitForUpdate(__LINE__);
             test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
             test(adptObs1->adapters["DummyAdapter"].proxy == obj);
             test(adptObs1->adapters["DummyAdapter"].replicaGroupId == "DummyReplicaGroup");
 
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
+            obj = ObjectPrx(communicator, "dummy:tcp -p 10000 -h localhost");
             locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter1", "DummyReplicaGroup", obj);
             adptObs1->waitForUpdate(__LINE__);
             test(adptObs1->adapters.find("DummyAdapter1") != adptObs1->adapters.end());
             test(adptObs1->adapters["DummyAdapter1"].proxy == obj);
             test(adptObs1->adapters["DummyAdapter1"].replicaGroupId == "DummyReplicaGroup");
 
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
+            obj = ObjectPrx(communicator, "dummy:tcp -p 10000 -h localhost");
             locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter2", "DummyReplicaGroup", obj);
             adptObs1->waitForUpdate(__LINE__);
             test(adptObs1->adapters.find("DummyAdapter2") != adptObs1->adapters.end());
@@ -1594,7 +1571,7 @@ allTests(TestHelper* helper)
 
         try
         {
-            auto obj = communicator->stringToProxy("dummy:tcp -p 10000");
+            ObjectPrx obj(communicator, "dummy:tcp -p 10000");
 
             admin->addObjectWithType(obj, "::Dummy");
             objectObs1->waitForUpdate(__LINE__);
@@ -1602,7 +1579,7 @@ allTests(TestHelper* helper)
             test(objectObs1->objects[Ice::stringToIdentity("dummy")].type == "::Dummy");
             test(objectObs1->objects[Ice::stringToIdentity("dummy")].proxy == obj);
 
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
+            obj = ObjectPrx(communicator, "dummy:tcp -p 10000 -h localhost");
             admin->updateObject(obj);
             objectObs1->waitForUpdate(__LINE__);
             test(objectObs1->objects.find(Ice::stringToIdentity("dummy")) != objectObs1->objects.end());
@@ -1800,7 +1777,7 @@ allTests(TestHelper* helper)
         test(registryObs1->registries.find("Master") != registryObs1->registries.end());
         test(appObs1->applications.empty());
 
-        auto query = Ice::uncheckedCast<QueryPrx>(communicator->stringToProxy("TestIceGrid/Query"));
+        QueryPrx query(communicator, "TestIceGrid/Query");
         auto registries = query->findAllObjectsByType("::IceGrid::Registry");
         const string prefix("Registry-");
         for(const auto& p : registries)
