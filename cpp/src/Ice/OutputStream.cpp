@@ -15,6 +15,8 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/SlicedData.h>
 #include <Ice/StringConverter.h>
+#include "Endian.h"
+
 #include <iterator>
 
 using namespace std;
@@ -318,15 +320,18 @@ Ice::OutputStream::write(int16_t v)
     Container::size_type pos = b.size();
     resize(pos + sizeof(int16_t));
     uint8_t* dest = &b[pos];
-#ifdef ICE_BIG_ENDIAN
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(int16_t) - 1;
-    *dest++ = *src--;
-    *dest = *src;
-#else
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
-    *dest++ = *src++;
-    *dest = *src;
-#endif
+    if constexpr (endian::native == endian::big)
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(int16_t) - 1;
+        *dest++ = *src--;
+        *dest = *src;
+    }
+    else
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
+        *dest++ = *src++;
+        *dest = *src;
+    }
 }
 
 void
@@ -338,18 +343,42 @@ Ice::OutputStream::write(const int16_t* begin, const int16_t* end)
     {
         Container::size_type pos = b.size();
         resize(pos + static_cast<size_t>(sz) * sizeof(int16_t));
-#ifdef ICE_BIG_ENDIAN
-        const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(int16_t) - 1;
-        uint8_t* dest = &(*(b.begin() + pos));
-        for(int j = 0 ; j < sz ; ++j)
+        if constexpr (endian::native == endian::big)
         {
-            *dest++ = *src--;
-            *dest++ = *src--;
-            src += 2 * sizeof(int16_t);
+            const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(int16_t) - 1;
+            uint8_t* dest = &(*(b.begin() + pos));
+            for(int j = 0 ; j < sz ; ++j)
+            {
+                *dest++ = *src--;
+                *dest++ = *src--;
+                src += 2 * sizeof(int16_t);
+            }
         }
-#else
-        memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(int16_t));
-#endif
+        else
+        {
+            memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(int16_t));
+        }
+    }
+}
+
+void
+Ice::OutputStream::write(int32_t v, Container::iterator dest)
+{
+    if constexpr (endian::native == endian::big)
+    {
+        const std::uint8_t* src = reinterpret_cast<const std::uint8_t*>(&v) + sizeof(std::int32_t) - 1;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest = *src;
+    }
+    else
+    {
+        const std::uint8_t* src = reinterpret_cast<const std::uint8_t*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
     }
 }
 
@@ -362,20 +391,23 @@ Ice::OutputStream::write(const int32_t* begin, const int32_t* end)
     {
         Container::size_type pos = b.size();
         resize(pos + static_cast<size_t>(sz) * sizeof(int32_t));
-#ifdef ICE_BIG_ENDIAN
-        const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(int32_t) - 1;
-        uint8_t* dest = &(*(b.begin() + pos));
-        for(int j = 0 ; j < sz ; ++j)
+        if constexpr (endian::native == endian::big)
         {
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            src += 2 * sizeof(int32_t);
+            const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(int32_t) - 1;
+            uint8_t* dest = &(*(b.begin() + pos));
+            for(int j = 0 ; j < sz ; ++j)
+            {
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                src += 2 * sizeof(int32_t);
+            }
         }
-#else
-        memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(int32_t));
-#endif
+        else
+        {
+            memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(int32_t));
+        }
     }
 }
 
@@ -385,27 +417,30 @@ Ice::OutputStream::write(int64_t v)
     Container::size_type pos = b.size();
     resize(pos + sizeof(int64_t));
     uint8_t* dest = &b[pos];
-#ifdef ICE_BIG_ENDIAN
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(Long) - 1;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest = *src;
-#else
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#endif
+    if constexpr (endian::native == endian::big)
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(std::int64_t) - 1;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest = *src;
+    }
+    else
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+    }
 }
 
 void
@@ -417,24 +452,27 @@ Ice::OutputStream::write(const int64_t* begin, const int64_t* end)
     {
         Container::size_type pos = b.size();
         resize(pos + static_cast<size_t>(sz) * sizeof(int64_t));
-#ifdef ICE_BIG_ENDIAN
-        const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(int64_t) - 1;
-        uint8_t* dest = &(*(b.begin() + pos));
-        for(int j = 0 ; j < sz ; ++j)
+        if constexpr (endian::native == endian::big)
         {
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            src += 2 * sizeof(int64_t);
+            const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(int64_t) - 1;
+            uint8_t* dest = &(*(b.begin() + pos));
+            for (int j = 0; j < sz; ++j)
+            {
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                src += 2 * sizeof(int64_t);
+            }
         }
-#else
-        memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(int64_t));
-#endif
+        else
+        {
+            memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(int64_t));
+        }
     }
 }
 
@@ -444,19 +482,22 @@ Ice::OutputStream::write(float v)
     Container::size_type pos = b.size();
     resize(pos + sizeof(float));
     uint8_t* dest = &b[pos];
-#ifdef ICE_BIG_ENDIAN
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(float) - 1;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest = *src;
-#else
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#endif
+    if constexpr (endian::native == endian::big)
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(float) - 1;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest = *src;
+    }
+    else
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+    }
 }
 
 void
@@ -464,24 +505,27 @@ Ice::OutputStream::write(const float* begin, const float* end)
 {
     int32_t sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
-    if(sz > 0)
+    if (sz > 0)
     {
         Container::size_type pos = b.size();
         resize(pos + static_cast<size_t>(sz) * sizeof(float));
-#ifdef ICE_BIG_ENDIAN
-        const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(float) - 1;
-        uint8_t* dest = &(*(b.begin() + pos));
-        for(int j = 0 ; j < sz ; ++j)
+        if constexpr (endian::native == endian::big)
         {
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            src += 2 * sizeof(float);
+            const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(float) - 1;
+            uint8_t* dest = &(*(b.begin() + pos));
+            for (int j = 0; j < sz; ++j)
+            {
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                src += 2 * sizeof(float);
+            }
         }
-#else
-        memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(float));
-#endif
+        else
+        {
+            memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(float));
+        }
     }
 }
 
@@ -491,27 +535,30 @@ Ice::OutputStream::write(double v)
     Container::size_type pos = b.size();
     resize(pos + sizeof(double));
     uint8_t* dest = &b[pos];
-#ifdef ICE_BIG_ENDIAN
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(double) - 1;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest++ = *src--;
-    *dest = *src;
-#else
-    const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#endif
+    if constexpr (endian::native == endian::big)
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v) + sizeof(double) - 1;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest++ = *src--;
+        *dest = *src;
+    }
+    else
+    {
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+    }
 }
 
 void
@@ -523,24 +570,27 @@ Ice::OutputStream::write(const double* begin, const double* end)
     {
         Container::size_type pos = b.size();
         resize(pos + static_cast<size_t>(sz) * sizeof(double));
-#ifdef ICE_BIG_ENDIAN
-        const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(double) - 1;
-        uint8_t* dest = &(*(b.begin() + pos));
-        for(int j = 0 ; j < sz ; ++j)
+        if constexpr (endian::native == endian::big)
         {
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            src += 2 * sizeof(double);
+            const uint8_t* src = reinterpret_cast<const uint8_t*>(begin) + sizeof(double) - 1;
+            uint8_t* dest = &(*(b.begin() + pos));
+            for(int j = 0 ; j < sz ; ++j)
+            {
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                *dest++ = *src--;
+                src += 2 * sizeof(double);
+            }
         }
-#else
-        memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(double));
-#endif
+        else
+        {
+            memcpy(&b[pos], reinterpret_cast<const uint8_t*>(begin), static_cast<size_t>(sz) * sizeof(double));
+        }
     }
 }
 

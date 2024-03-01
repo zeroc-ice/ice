@@ -1772,7 +1772,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
             if(pi->kind != PrimitiveInfo::KindByte)
             {
-#   ifdef ICE_BIG_ENDIAN
+#   ifdef WORDS_BIGENDIAN
                 if(pybuf.format != 0 && pybuf.format[0] == '<')
                 {
                     PyErr_Format(PyExc_ValueError,

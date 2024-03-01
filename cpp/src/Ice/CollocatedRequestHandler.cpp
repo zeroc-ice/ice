@@ -9,6 +9,7 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include "Ice/OutgoingAsync.h"
+#include "Endian.h"
 
 #include <Ice/TraceUtil.h>
 
@@ -53,13 +54,15 @@ void
 fillInValue(OutputStream* os, int pos, int32_t value)
 {
     const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
-#ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
-#else
-    copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
-#endif
+    if constexpr (endian::native == endian::big)
+    {
+        reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
+    }
+    else
+    {
+        copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
+    }
 }
-
 }
 
 CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, const ObjectAdapterPtr& adapter) :

@@ -22,6 +22,7 @@
 #include <Ice/ProxyFactory.h> // For createProxy().
 #include <Ice/BatchRequestQueue.h>
 #include "CheckIdentity.h"
+#include "Endian.h"
 
 #ifdef ICE_HAS_BZIP2
 #  include <bzlib.h>
@@ -723,20 +724,26 @@ Ice::ConnectionI::sendAsyncRequest(const OutgoingAsyncBasePtr& out, bool compres
         // Fill in the request ID.
         //
         const uint8_t* p = reinterpret_cast<const uint8_t*>(&requestId);
-#ifdef ICE_BIG_ENDIAN
-        reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
-#else
-        copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
-#endif
+        if constexpr (endian::native == endian::big)
+        {
+            reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
+        }
+        else
+        {
+            copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
+        }
     }
     else if(batchRequestNum > 0)
     {
         const uint8_t* p = reinterpret_cast<const uint8_t*>(&batchRequestNum);
-#ifdef ICE_BIG_ENDIAN
-        reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
-#else
-        copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
-#endif
+        if constexpr (endian::native == endian::big)
+        {
+            reverse_copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
+        }
+        else
+        {
+            copy(p, p + sizeof(int32_t), os->b.begin() + headerSize);
+        }
     }
 
     out->attachRemoteObserver(initConnectionInfo(), _endpoint, requestId);
@@ -2825,11 +2832,14 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingMessage>& callbacks)
                 //
                 int32_t sz = static_cast<int32_t>(message->stream->b.size());
                 const uint8_t* p = reinterpret_cast<const uint8_t*>(&sz);
-#ifdef ICE_BIG_ENDIAN
-                reverse_copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
-#else
-                copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
-#endif
+                if constexpr (endian::native == endian::big)
+                {
+                    reverse_copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
+                }
+                else
+                {
+                    copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
+                }
                 message->stream->i = message->stream->b.begin();
                 traceSend(*message->stream, _logger, _traceLevels);
 
@@ -2965,11 +2975,14 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         int32_t sz = static_cast<int32_t>(message.stream->b.size());
         const uint8_t* p = reinterpret_cast<const uint8_t*>(&sz);
-#ifdef ICE_BIG_ENDIAN
-        reverse_copy(p, p + sizeof(int32_t), message.stream->b.begin() + 10);
-#else
-        copy(p, p + sizeof(int32_t), message.stream->b.begin() + 10);
-#endif
+        if constexpr (endian::native == endian::big)
+        {
+            reverse_copy(p, p + sizeof(int32_t), message.stream->b.begin() + 10);
+        }
+        else
+        {
+            copy(p, p + sizeof(int32_t), message.stream->b.begin() + 10);
+        }
         message.stream->i = message.stream->b.begin();
 
         traceSend(*message.stream, _logger, _traceLevels);
@@ -3103,11 +3116,14 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     //
     int32_t compressedSize = static_cast<int32_t>(compressed.b.size());
     p = reinterpret_cast<const uint8_t*>(&compressedSize);
-#ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
-#else
-    copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
-#endif
+    if constexpr (endian::native == endian::big)
+    {
+        reverse_copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
+    }
+    else
+    {
+        copy(p, p + sizeof(int32_t), uncompressed.b.begin() + 10);
+    }
 
     //
     // Add the size of the uncompressed stream before the message body
@@ -3115,11 +3131,14 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     //
     int32_t uncompressedSize = static_cast<int32_t>(uncompressed.b.size());
     p = reinterpret_cast<const uint8_t*>(&uncompressedSize);
-#ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
-#else
-    copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
-#endif
+    if constexpr (endian::native == endian::big)
+    {
+        reverse_copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
+    }
+    else
+    {
+        copy(p, p + sizeof(int32_t), compressed.b.begin() + headerSize);
+    }
 
     //
     // Copy the header from the uncompressed stream to the compressed one.
