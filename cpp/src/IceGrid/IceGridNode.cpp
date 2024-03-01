@@ -97,11 +97,11 @@ setNoIndexingAttribute(const string& path)
     DWORD attrs = GetFileAttributesW(wpath.c_str());
     if(attrs == INVALID_FILE_ATTRIBUTES)
     {
-        throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
+        throw FileException(__FILE__, __LINE__, path);
     }
     if(!SetFileAttributesW(wpath.c_str(), attrs | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
     {
-        throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
+        throw FileException(__FILE__, __LINE__, path);
     }
 }
 #endif
@@ -328,7 +328,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     {
         if(!IceUtilInternal::directoryExists(dataPath))
         {
-            FileException ex(__FILE__, __LINE__, IceInternal::getSystemErrno(), dataPath);
+            FileException ex(__FILE__, __LINE__, dataPath);
             ServiceError err(this);
             err << "property `IceGrid.Node.Data' is set to an invalid path:\n" << ex;
             return false;

@@ -655,34 +655,6 @@ IceUtil::IllegalConversionException::reason() const
     return _reason;
 }
 
-IceUtil::SyscallException::SyscallException(const char* file, int line, int err ):
-    ExceptionHelper<SyscallException>(file, line),
-    _error(err)
-{
-}
-
-void
-IceUtil::SyscallException::ice_print(ostream& os) const
-{
-    Exception::ice_print(os);
-    if(_error != 0)
-    {
-        os << ":\nsyscall exception: " << IceUtilInternal::errorToString(_error);
-    }
-}
-
-string
-IceUtil::SyscallException::ice_id() const
-{
-    return "::IceUtil::SyscallException";
-}
-
-int
-IceUtil::SyscallException::error() const
-{
-    return _error;
-}
-
 IceUtil::FileLockException::FileLockException(const char* file, int line, int err, const string& path):
     ExceptionHelper<FileLockException>(file, line),
     _error(err),

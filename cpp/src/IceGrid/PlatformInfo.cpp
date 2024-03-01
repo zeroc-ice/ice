@@ -177,7 +177,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     size_t sz = sizeof(_nProcessorThreads);
     if(sysctl(ncpu, 2, &_nProcessorThreads, &sz, 0, 0) == -1)
     {
-        throw Ice::SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+        throw Ice::SyscallException(__FILE__, __LINE__);
     }
 #else
     _nProcessorThreads = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
