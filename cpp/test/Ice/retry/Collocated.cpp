@@ -59,8 +59,8 @@ Collocated::run(int argc, char** argv)
     setupObjectAdapter(ich1.communicator());
     setupObjectAdapter(ich2.communicator());
 
-    RetryPrxPtr allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
-    RetryPrxPtr retry = allTests(ich1.communicator(), ich2.communicator(), "retry");
+    RetryPrx allTests(const Ice::CommunicatorPtr&, const Ice::CommunicatorPtr&, const string&);
+    RetryPrx retry = allTests(ich1.communicator(), ich2.communicator(), "retry");
     retry->shutdown();
 }
 
