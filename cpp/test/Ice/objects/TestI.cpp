@@ -340,7 +340,7 @@ InitialI::opF1(F1Ptr f11, F1Ptr& f12, const Current&)
 optional<F2Prx>
 InitialI::opF2(optional<F2Prx> f21, optional<F2Prx>& f22, const Current& current)
 {
-    f22 = uncheckedCast<F2Prx>(current.adapter->getCommunicator()->stringToProxy("F22"));
+    f22 = F2Prx(current.adapter->getCommunicator(), "F22");
     return f21;
 }
 
@@ -349,7 +349,7 @@ InitialI::opF3(F3Ptr f31, F3Ptr& f32, const Current& current)
 {
     f32 = make_shared<F3>();
     f32->f1 = make_shared<F1>("F12");
-    f32->f2 = uncheckedCast<F2Prx>(current.adapter->getCommunicator()->stringToProxy("F22"));
+    f32->f2 = F2Prx(current.adapter->getCommunicator(), "F22");
     return f31;
 }
 

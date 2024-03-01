@@ -1551,7 +1551,7 @@ allTests(TestHelper* helper)
     {
         cout << "testing object observer... " << flush;
 
-        auto session1 = Ice::uncheckedCast<AdminSessionPrx>(registry->createAdminSession("admin1", "test1"));
+        optional<AdminSessionPrx> session1(registry->createAdminSession("admin1", "test1"));
         auto admin1 = session1->getAdmin();
 
         session1->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
@@ -1801,10 +1801,10 @@ allTests(TestHelper* helper)
 
         auto adpt1 = communicator->createObjectAdapterWithEndpoints("", "tcp");
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");
-        auto no1 = adpt1->addWithUUID(nodeObs1);
+        NodeObserverPrx no1(adpt1->addWithUUID(nodeObs1));
         adpt1->activate();
 
-        session1->setObservers(nullopt, Ice::uncheckedCast<NodeObserverPrx>(no1), nullopt, nullopt, nullopt);
+        session1->setObservers(nullopt, no1, nullopt, nullopt, nullopt);
         nodeObs1->waitForUpdate(__LINE__); // init
 
         session1->destroy();
@@ -1822,11 +1822,11 @@ allTests(TestHelper* helper)
         test(communicator->getDefaultLocator());
         auto nodeObs1 = make_shared<NodeObserverI>("nodeObs1");
 
-        auto no1 = adpt1->addWithUUID(nodeObs1);
+        NodeObserverPrx no1(adpt1->addWithUUID(nodeObs1));
         assert(no1->ice_getAdapterId() == "adapter1");
         adpt1->activate();
 
-        session1->setObservers(nullopt, Ice::uncheckedCast<NodeObserverPrx>(no1), nullopt, nullopt, nullopt);
+        session1->setObservers(nullopt, no1, nullopt, nullopt, nullopt);
         nodeObs1->waitForUpdate(__LINE__); // init
 
         session1->destroy();

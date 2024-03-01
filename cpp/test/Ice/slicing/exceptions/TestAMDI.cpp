@@ -291,7 +291,7 @@ TestI::relayKnownPreservedAsBaseAsync(optional<RelayPrx> r,
 {
     try
     {
-        optional<RelayPrx> p = uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+        RelayPrx p(c.con->createProxy(r->ice_getIdentity()));
         p->knownPreservedAsBase();
         test(false);
     }
@@ -308,7 +308,7 @@ TestI::relayKnownPreservedAsKnownPreservedAsync(optional<RelayPrx> r,
 {
     try
     {
-        optional<RelayPrx> p = uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+        RelayPrx p(c.con->createProxy(r->ice_getIdentity()));
         p->knownPreservedAsKnownPreserved();
         test(false);
     }
@@ -364,7 +364,7 @@ TestI::relayUnknownPreservedAsBaseAsync(optional<RelayPrx> r,
 {
     try
     {
-        optional<RelayPrx> p = uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+        RelayPrx p(c.con->createProxy(r->ice_getIdentity()));
         p->unknownPreservedAsBase();
         test(false);
     }
@@ -381,7 +381,7 @@ TestI::relayUnknownPreservedAsKnownPreservedAsync(optional<RelayPrx> r,
 {
     try
     {
-        optional<RelayPrx> p = uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+        RelayPrx p(c.con->createProxy(r->ice_getIdentity()));
         p->unknownPreservedAsKnownPreserved();
         test(false);
     }

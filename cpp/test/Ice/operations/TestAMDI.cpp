@@ -158,9 +158,9 @@ MyDerivedClassI::opMyClassAsync(optional<MyClassPrx> p1,
                                 const Current& current)
 {
     auto p2 = p1;
-    auto p3 = uncheckedCast<MyClassPrx>(current.adapter->createProxy(
+    auto p3 =MyClassPrx(current.adapter->createProxy(
                                                   stringToIdentity("noSuchIdentity")));
-    response(uncheckedCast<MyClassPrx>(current.adapter->createProxy(current.id)), p2, p3);
+    response(MyClassPrx(current.adapter->createProxy(current.id)), p2, p3);
 }
 
 void

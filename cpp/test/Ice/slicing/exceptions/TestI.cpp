@@ -170,7 +170,7 @@ TestI::knownPreservedAsKnownPreserved(const Current&)
 void
 TestI::relayKnownPreservedAsBase(optional<RelayPrx> r, const Current& c)
 {
-    optional<RelayPrx> p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+    RelayPrx p(c.con->createProxy(r->ice_getIdentity()));
     p->knownPreservedAsBase();
     test(false);
 }
@@ -178,7 +178,7 @@ TestI::relayKnownPreservedAsBase(optional<RelayPrx> r, const Current& c)
 void
 TestI::relayKnownPreservedAsKnownPreserved(optional<RelayPrx> r, const Current& c)
 {
-    optional<RelayPrx> p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+    RelayPrx p(c.con->createProxy(r->ice_getIdentity()));
     p->knownPreservedAsKnownPreserved();
     test(false);
 }

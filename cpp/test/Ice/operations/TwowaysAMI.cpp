@@ -2149,8 +2149,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                 ctx["three"] = "THREE";
 
                 PropertiesPtr properties = ic->getProperties();
-                auto q = uncheckedCast<MyClassPrx>(
-                    ic->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
+                MyClassPrx q(ic, "test:" + TestHelper::getTestEndpoint(properties));
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 {
@@ -2202,7 +2201,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
 
-                q = uncheckedCast<MyClassPrx>(q->ice_context(prxContext));
+                q = q->ice_context(prxContext);
 
                 ic->getImplicitContext()->setContext(Context());
                 {

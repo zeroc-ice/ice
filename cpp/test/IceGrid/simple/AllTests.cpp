@@ -104,7 +104,7 @@ allTests(Test::TestHelper* helper)
             test(!Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
             try
             {
-                test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
+                test(optional<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
             }
             catch(const Ice::OperationNotExistException&)
             {
