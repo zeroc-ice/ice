@@ -51,32 +51,32 @@ public:
     {
     }
 
-    StringSetPrxPtr
-    categories(const Current&) override
+    optional<StringSetPrx>
+    categories(const Current&) final
     {
         return _filters->categoriesPrx();
     }
 
-    StringSetPrxPtr
-    adapterIds(const Current&) override
+    optional<StringSetPrx>
+    adapterIds(const Current&) final
     {
         return _filters->adapterIdsPrx();
     }
 
-    IdentitySetPrxPtr
-    identities(const Current&) override
+    optional<IdentitySetPrx>
+    identities(const Current&) final
     {
         return _filters->identitiesPrx();
     }
 
     int
-    getSessionTimeout(const Current& current) override
+    getSessionTimeout(const Current& current) final
     {
         return static_cast<int>(_sessionRouter->getSessionTimeout(current));
     }
 
     void
-    destroy(const Current&) override
+    destroy(const Current&) final
     {
         _sessionRouter->destroySession(_connection);
         _filters->destroy();
@@ -93,7 +93,7 @@ class UserPasswordCreateSession final : public CreateSession
 {
 public:
 
-    UserPasswordCreateSession(function<void(const SessionPrxPtr&)> response,
+    UserPasswordCreateSession(function<void(const optional<SessionPrx>&)> response,
                               function<void(exception_ptr)> exception,
                               const string& user, const string& password,
                               const Ice::Current& current, const shared_ptr<SessionRouterI>& sessionRouter) :
@@ -156,19 +156,19 @@ public:
     }
 
     shared_ptr<FilterManager>
-    createFilterManager() override
+    createFilterManager() final
     {
         return FilterManager::create(_instance, _user, true);
     }
 
     void
-    createSession() override
+    createSession() final
     {
         auto ctx = _current.ctx;
         ctx.insert(_context.begin(), _context.end());
         auto self = shared_from_this();
         _sessionRouter->_sessionManager->createAsync(_user, _control,
-                                                     [self](SessionPrxPtr response)
+                                                     [self](optional<SessionPrx> response)
                                                      {
                                                          self->sessionCreated(std::move(response));
                                                      },
@@ -182,20 +182,20 @@ public:
     }
 
     void
-    finished(const SessionPrxPtr& session) override
+    finished(const optional<SessionPrx>& session) final
     {
         _response(session);
     }
 
     void
-    finished(exception_ptr ex) override
+    finished(exception_ptr ex) final
     {
         _exception(ex);
     }
 
 private:
 
-    const function<void(SessionPrxPtr)> _response;
+    const function<void(optional<SessionPrx>)> _response;
     const function<void(exception_ptr)> _exception;
     const string _password;
 };
@@ -204,7 +204,7 @@ class SSLCreateSession final : public CreateSession
 {
 public:
 
-    SSLCreateSession(function<void(const SessionPrxPtr& returnValue)> response,
+    SSLCreateSession(function<void(const optional<SessionPrx>& returnValue)> response,
                      function<void(exception_ptr)> exception,
                      const string& user,
                      const SSLInfo& sslInfo, const Ice::Current& current, const shared_ptr<SessionRouterI>& sessionRouter) :
@@ -268,20 +268,20 @@ public:
     }
 
     shared_ptr<FilterManager>
-    createFilterManager() override
+    createFilterManager() final
     {
         return FilterManager::create(_instance, _user, false);
     }
 
     void
-    createSession() override
+    createSession() final
     {
         auto ctx = _current.ctx;
         ctx.insert(_context.begin(), _context.end());
 
         auto self = static_pointer_cast<SSLCreateSession>(shared_from_this());
         _sessionRouter->_sslSessionManager->createAsync(_sslInfo, _control,
-                                                        [self](SessionPrxPtr response)
+                                                        [self](optional<SessionPrx> response)
                                                         {
                                                             self->sessionCreated(std::move(response));
                                                         },
@@ -294,20 +294,20 @@ public:
     }
 
     void
-    finished(const SessionPrxPtr& session) override
+    finished(const optional<SessionPrx>& session) final
     {
         _response(session);
     }
 
     void
-    finished(exception_ptr ex) override
+    finished(exception_ptr ex) final
     {
         _exception(ex);
     }
 
 private:
 
-    const function<void(const SessionPrxPtr)> _response;
+    const function<void(const optional<SessionPrx>)> _response;
     const function<void(exception_ptr)> _exception;
     const SSLInfo _sslInfo;
 };
@@ -400,7 +400,7 @@ CreateSession::authorized(bool createSession)
         if(_instance->serverObjectAdapter())
         {
             auto obj = make_shared<SessionControlI>(_sessionRouter, _current.con, _filterManager);
-            _control = uncheckedCast<SessionControlPrx>(_instance->serverObjectAdapter()->addWithUUID(obj));
+            _control = SessionControlPrx(_instance->serverObjectAdapter()->addWithUUID(obj));
         }
         this->createSession();
     }
@@ -449,7 +449,7 @@ CreateSession::createException(exception_ptr sex)
 }
 
 void
-CreateSession::sessionCreated(const SessionPrxPtr& session)
+CreateSession::sessionCreated(const optional<SessionPrx>& session)
 {
     //
     // Create the session router object.
@@ -550,10 +550,10 @@ CreateSession::exception(exception_ptr ex)
 }
 
 SessionRouterI::SessionRouterI(shared_ptr<Instance> instance,
-                               PermissionsVerifierPrxPtr verifier,
-                               SessionManagerPrxPtr sessionManager,
-                               SSLPermissionsVerifierPrxPtr sslVerifier,
-                               SSLSessionManagerPrxPtr sslSessionManager) :
+                               optional<PermissionsVerifierPrx> verifier,
+                               optional<SessionManagerPrx> sessionManager,
+                               optional<SSLPermissionsVerifierPrx> sslVerifier,
+                               optional<SSLSessionManagerPrx> sslSessionManager) :
     _instance(std::move(instance)),
     _sessionTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Trace.Session")),
     _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
@@ -604,13 +604,13 @@ SessionRouterI::destroy()
     }
 }
 
-ObjectPrxPtr
+optional<ObjectPrx>
 SessionRouterI::getClientProxy(optional<bool>& hasRoutingTable, const Current& current) const
 {
     return getRouter(current.con, current.id)->getClientProxy(hasRoutingTable, current); // Forward to the per-client router.
 }
 
-ObjectPrxPtr
+optional<ObjectPrx>
 SessionRouterI::getServerProxy(const Current& current) const
 {
     return getRouter(current.con, current.id)->getServerProxy(current); // Forward to the per-client router.
@@ -641,7 +641,7 @@ SessionRouterI::getCategoryForClient(const Ice::Current& current) const
 
 void
 SessionRouterI::createSessionAsync(string userId, string password,
-                                   function<void(const SessionPrxPtr&)> response,
+                                   function<void(const optional<SessionPrx>&)> response,
                                    function<void(exception_ptr)> exception,
                                    const Current& current)
 {
@@ -661,7 +661,7 @@ SessionRouterI::createSessionAsync(string userId, string password,
 }
 
 void
-SessionRouterI::createSessionFromSecureConnectionAsync(function<void(const SessionPrxPtr&)> response,
+SessionRouterI::createSessionFromSecureConnectionAsync(function<void(const optional<SessionPrx>&)> response,
                                                        function<void(std::exception_ptr)> exception,
                                                        const Current& current)
 {

@@ -103,19 +103,19 @@ class FinderI : public Ice::RouterFinder
 {
 public:
 
-    FinderI(Glacier2::RouterPrxPtr router) : _router(std::move(router))
+    FinderI(Glacier2::RouterPrx router) :
+        _router(std::move(router))
     {
     }
 
-    Ice::RouterPrxPtr
-    getRouter(const Ice::Current&) override
+    optional<Ice::RouterPrx> getRouter(const Ice::Current&) override
     {
         return _router;
     }
 
 private:
 
-    const Glacier2::RouterPrxPtr _router;
+    const Glacier2::RouterPrx _router;
 };
 
 };
@@ -206,8 +206,8 @@ RouterService::start(int argc, char* argv[], int& status)
     Glacier2Internal::setupNullPermissionsVerifier(communicator(), instanceName, verifierProperties);
 
     string verifierProperty = verifierProperties[0];
-    PermissionsVerifierPrxPtr verifier;
-    ObjectPrxPtr obj;
+    optional<PermissionsVerifierPrx> verifier;
+    optional<ObjectPrx> obj;
     try
     {
         //
@@ -228,6 +228,7 @@ RouterService::start(int argc, char* argv[], int& status)
     {
         try
         {
+            // TODO remove this checkedCast?
             verifier = Ice::checkedCast<PermissionsVerifierPrx>(obj);
             if(!verifier)
             {
@@ -245,7 +246,7 @@ RouterService::start(int argc, char* argv[], int& status)
                 warn << "unable to contact permissions verifier `"
                      << communicator()->getProperties()->getProperty(verifierProperty) << "'\n" << ex;
             }
-            verifier = Ice::uncheckedCast<PermissionsVerifierPrx>(obj);
+            verifier = PermissionsVerifierPrx(*obj);
         }
     }
 
@@ -254,7 +255,7 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     string sessionManagerProperty = "Glacier2.SessionManager";
     string sessionManagerPropertyValue = properties->getProperty(sessionManagerProperty);
-    SessionManagerPrxPtr sessionManager;
+    optional<SessionManagerPrx> sessionManager;
     if(!sessionManagerPropertyValue.empty())
     {
         try
@@ -267,6 +268,8 @@ RouterService::start(int argc, char* argv[], int& status)
             err << "session manager `" << sessionManagerPropertyValue << "' is invalid\n:" << ex;
             return false;
         }
+        assert(obj);
+
         try
         {
             sessionManager = Ice::checkedCast<SessionManagerPrx>(obj);
@@ -283,18 +286,18 @@ RouterService::start(int argc, char* argv[], int& status)
                 ServiceWarning warn(this);
                 warn << "unable to contact session manager `" << sessionManagerPropertyValue << "'\n" << ex;
             }
-            sessionManager = Ice::uncheckedCast<SessionManagerPrx>(obj);
+            sessionManager = SessionManagerPrx(*obj);
         }
-        sessionManager =
-            Ice::uncheckedCast<SessionManagerPrx>(sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
-                properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600)));
+
+        sessionManager = sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+            properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600));
     }
 
     //
     // Check for an SSL permissions verifier.
     //
     string sslVerifierProperty = verifierProperties[1];
-    SSLPermissionsVerifierPrxPtr sslVerifier;
+    optional<SSLPermissionsVerifierPrx> sslVerifier;
 
     try
     {
@@ -330,7 +333,7 @@ RouterService::start(int argc, char* argv[], int& status)
                      <<  communicator()->getProperties()->getProperty(sslVerifierProperty) << "'\n"
                      << ex;
             }
-            sslVerifier = Ice::uncheckedCast<SSLPermissionsVerifierPrx>(obj);
+            sslVerifier = SSLPermissionsVerifierPrx(*obj);
         }
     }
 
@@ -339,7 +342,7 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     string sslSessionManagerProperty = "Glacier2.SSLSessionManager";
     string sslSessionManagerPropertyValue = properties->getProperty(sslSessionManagerProperty);
-    SSLSessionManagerPrxPtr sslSessionManager;
+    optional<SSLSessionManagerPrx> sslSessionManager;
     if(!sslSessionManagerPropertyValue.empty())
     {
         try
@@ -352,6 +355,8 @@ RouterService::start(int argc, char* argv[], int& status)
             err << "ssl session manager `" << sslSessionManagerPropertyValue << "' is invalid:\n" << ex;
             return false;
         }
+
+        assert(obj);
         try
         {
             sslSessionManager = Ice::checkedCast<SSLSessionManagerPrx>(obj);
@@ -369,11 +374,10 @@ RouterService::start(int argc, char* argv[], int& status)
                 warn << "unable to contact ssl session manager `" << sslSessionManagerPropertyValue
                      << "'\n" << ex;
             }
-            sslSessionManager = Ice::uncheckedCast<SSLSessionManagerPrx>(obj);
+            sslSessionManager = SSLSessionManagerPrx(*obj);
         }
-        sslSessionManager =
-            Ice::uncheckedCast<SSLSessionManagerPrx>(sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
-                properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600)));
+        sslSessionManager = sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+            properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600));
     }
 
     if(!verifier && !sslVerifier)
@@ -430,7 +434,7 @@ RouterService::start(int argc, char* argv[], int& status)
     // The session router is used directly as a servant for the main
     // Glacier2 router Ice object.
     //
-    auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(clientAdapter->add(_sessionRouter, {"router", instanceName}));
+    Glacier2::RouterPrx routerPrx(clientAdapter->add(_sessionRouter, {"router", instanceName}));
 
     //
     // Add the Ice router finder object to allow retrieving the router

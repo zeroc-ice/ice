@@ -58,7 +58,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             continue;
         }
 
-        if(!_verifier->verify(prx))
+        if(!_verifier->verify(*prx))
         {
             current.con->close(ConnectionClose::Forcefully);
             throw ObjectNotExistException(__FILE__, __LINE__);
@@ -125,7 +125,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     return evictedProxies;
 }
 
-ObjectPrxPtr
+optional<ObjectPrx>
 Glacier2::RoutingTable::get(const Identity& ident)
 {
     if(ident.name.empty())
