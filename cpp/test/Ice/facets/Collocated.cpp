@@ -30,7 +30,7 @@ Collocated::run(int argc, char** argv)
     Ice::ObjectPtr h = std::make_shared<HI>();
     adapter->addFacet(h, Ice::stringToIdentity("d"), "facetGH");
 
-    GPrxPtr allTests(Test::TestHelper*);
+    GPrx allTests(Test::TestHelper*);
     allTests(this);
 }
 
