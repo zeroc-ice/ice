@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace Test;
+using namespace Ice;
 
 class HelloI : public virtual Hello
 {
@@ -30,34 +31,32 @@ void
 allTests(Test::TestHelper* helper, const string& ref)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    ServerManagerPrxPtr manager = Ice::checkedCast<ServerManagerPrx>(communicator->stringToProxy(ref));
-    TestLocatorPrxPtr locator = Ice::uncheckedCast<TestLocatorPrx>(communicator->getDefaultLocator());
-    test(manager);
+    ServerManagerPrx manager(communicator, ref);
+    TestLocatorPrx locator(communicator->getDefaultLocator().value());
 
-    TestLocatorRegistryPrxPtr registry = Ice::checkedCast<TestLocatorRegistryPrx>(locator->getRegistry());
-    test(registry);
+    TestLocatorRegistryPrx registry(locator->getRegistry().value());
 
     cout << "testing stringToProxy... " << flush;
-    Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
-    Ice::ObjectPrxPtr base2 = communicator->stringToProxy("test @ TestAdapter");
-    Ice::ObjectPrxPtr base3 = communicator->stringToProxy("test");
-    Ice::ObjectPrxPtr base4 = communicator->stringToProxy("ServerManager");
-    Ice::ObjectPrxPtr base5 = communicator->stringToProxy("test2");
-    Ice::ObjectPrxPtr base6 = communicator->stringToProxy("test @ ReplicatedAdapter");
+    ObjectPrx base(communicator, "test @ TestAdapter");
+    ObjectPrx base2(communicator, "test @ TestAdapter");
+    ObjectPrx base3(communicator, "test");
+    ObjectPrx base4(communicator, "ServerManager");
+    ObjectPrx base5(communicator, "test2");
+    ObjectPrx base6(communicator, "test @ ReplicatedAdapter");
     cout << "ok" << endl;
 
     cout << "testing ice_locator and ice_getLocator... " << flush;
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
-    auto anotherLocator = Ice::uncheckedCast<Ice::LocatorPrx>(communicator->stringToProxy("anotherLocator"));
+    auto anotherLocator = Ice::LocatorPrx(communicator, "anotherLocator");
     base = base->ice_locator(anotherLocator);
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
     communicator->setDefaultLocator(nullopt);
-    base = communicator->stringToProxy("test @ TestAdapter");
+    base = ObjectPrx(communicator, "test @ TestAdapter");
     test(!base->ice_getLocator());
     base = base->ice_locator(anotherLocator);
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
     communicator->setDefaultLocator(locator);
-    base = communicator->stringToProxy("test @ TestAdapter");
+    base = ObjectPrx(communicator, "test @ TestAdapter");
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
 
     //
@@ -65,15 +64,15 @@ allTests(Test::TestHelper* helper, const string& ref)
     // test/Ice/router test?)
     //
     test(!base->ice_getRouter());
-    Ice::RouterPrxPtr anotherRouter = Ice::uncheckedCast<Ice::RouterPrx>(communicator->stringToProxy("anotherRouter"));
+    Ice::RouterPrx anotherRouter(communicator, "anotherRouter");
     base = base->ice_router(anotherRouter);
     test(Ice::proxyIdentityEqual(base->ice_getRouter(), anotherRouter));
-    Ice::RouterPrxPtr router = Ice::uncheckedCast<Ice::RouterPrx>(communicator->stringToProxy("dummyrouter"));
+    Ice::RouterPrx router(communicator, "dummyrouter");
     communicator->setDefaultRouter(router);
-    base = communicator->stringToProxy("test @ TestAdapter");
+    base = ObjectPrx(communicator, "test @ TestAdapter");
     test(Ice::proxyIdentityEqual(base->ice_getRouter(), communicator->getDefaultRouter()));
     communicator->setDefaultRouter(nullopt);
-    base = communicator->stringToProxy("test @ TestAdapter");
+    base = ObjectPrx(communicator, "test @ TestAdapter");
     test(!base->ice_getRouter());
     cout << "ok" << endl;
 
@@ -82,17 +81,17 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
+    optional<TestIntfPrx> obj = Ice::checkedCast<TestIntfPrx>(base);
     test(obj);
-    TestIntfPrxPtr obj2 = Ice::checkedCast<TestIntfPrx>(base2);
+    optional<TestIntfPrx> obj2 = Ice::checkedCast<TestIntfPrx>(base2);
     test(obj2);
-    TestIntfPrxPtr obj3 = Ice::checkedCast<TestIntfPrx>(base3);
+    optional<TestIntfPrx> obj3 = Ice::checkedCast<TestIntfPrx>(base3);
     test(obj3);
-    ServerManagerPrxPtr obj4 = Ice::checkedCast<ServerManagerPrx>(base4);
+    optional<ServerManagerPrx> obj4 = Ice::checkedCast<ServerManagerPrx>(base4);
     test(obj4);
-    TestIntfPrxPtr obj5 = Ice::checkedCast<TestIntfPrx>(base5);
+    optional<TestIntfPrx> obj5 = Ice::checkedCast<TestIntfPrx>(base5);
     test(obj5);
-    TestIntfPrxPtr obj6 = Ice::checkedCast<TestIntfPrx>(base6);
+    optional<TestIntfPrx> obj6 = Ice::checkedCast<TestIntfPrx>(base6);
     test(obj6);
     cout << "ok" << endl;
 
@@ -216,7 +215,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "testing proxy with unknown identity... " << flush;
     try
     {
-        base = communicator->stringToProxy("unknown/unknown");
+        base = ObjectPrx(communicator, "unknown/unknown");
         base->ice_ping();
         test(false);
     }
@@ -230,7 +229,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "testing proxy with unknown adapter... " << flush;
     try
     {
-        base = communicator->stringToProxy("test @ TestAdapterUnknown");
+        base = ObjectPrx(communicator, "test @ TestAdapterUnknown");
         base->ice_ping();
         test(false);
     }
@@ -244,7 +243,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "testing locator cache timeout... " << flush;
 
     int count = locator->getRequestCount();
-    Ice::ObjectPrxPtr basencc = communicator->stringToProxy("test@TestAdapter")->ice_connectionCached(false);
+    auto basencc = ObjectPrx(communicator, "test@TestAdapter")->ice_connectionCached(false);
     basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     test(++count == locator->getRequestCount());
     basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
@@ -255,32 +254,32 @@ allTests(Test::TestHelper* helper, const string& ref)
     basencc->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(++count == locator->getRequestCount());
 
-    communicator->stringToProxy("test")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
+    ObjectPrx(communicator, "test")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     count += 2;
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test")->ice_locatorCacheTimeout(2)->ice_ping(); // 2s timeout
+    ObjectPrx(communicator, "test")->ice_locatorCacheTimeout(2)->ice_ping(); // 2s timeout
     test(count == locator->getRequestCount());
     this_thread::sleep_for(chrono::milliseconds(1300));
-    communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
+    ObjectPrx(communicator, "test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
     count += 2;
     test(count == locator->getRequestCount());
 
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(-1)->ice_ping();
+    ObjectPrx(communicator, "test@TestAdapter")->ice_locatorCacheTimeout(-1)->ice_ping();
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test")->ice_locatorCacheTimeout(-1)->ice_ping();
+    ObjectPrx(communicator, "test")->ice_locatorCacheTimeout(-1)->ice_ping();
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test@TestAdapter")->ice_ping();
+    ObjectPrx(communicator, "test@TestAdapter")->ice_ping();
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test")->ice_ping();
+    ObjectPrx(communicator, "test")->ice_ping();
     test(count == locator->getRequestCount());
 
-    test(communicator->stringToProxy("test")->ice_locatorCacheTimeout(99)->ice_getLocatorCacheTimeout() == 99);
+    test(ObjectPrx(communicator, "test")->ice_locatorCacheTimeout(99)->ice_getLocatorCacheTimeout() == 99);
 
     cout << "ok" << endl;
 
     cout << "testing proxy from server... " << flush;
-    obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("test@TestAdapter"));
-    HelloPrxPtr hello = obj->getHello();
+    obj = TestIntfPrx(communicator, "test@TestAdapter");
+    optional<HelloPrx> hello = obj->getHello();
     test(hello->ice_getAdapterId() == "TestAdapter");
     hello->sayHello();
     hello = obj->getReplicatedHello();
@@ -363,7 +362,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "testing adapter locator cache... " << flush;
     try
     {
-        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+        ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
         test(false);
     }
     catch(const Ice::NotRegisteredException& ex)
@@ -374,10 +373,10 @@ allTests(Test::TestHelper* helper, const string& ref)
     registry->setAdapterDirectProxy("TestAdapter3", locator->findAdapterById("TestAdapter"));
     try
     {
-        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+        ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
         registry->setAdapterDirectProxy("TestAdapter3",
-                                        communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
-        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+                                        ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
+        ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
@@ -386,7 +385,7 @@ allTests(Test::TestHelper* helper, const string& ref)
 
     try
     {
-        communicator->stringToProxy("test@TestAdapter3")->ice_locatorCacheTimeout(0)->ice_ping();
+        ObjectPrx(communicator, "test@TestAdapter3")->ice_locatorCacheTimeout(0)->ice_ping();
         test(false);
     }
     catch(const Ice::LocalException&)
@@ -394,7 +393,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
     try
     {
-        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+        ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
         test(false);
     }
     catch(const Ice::LocalException&)
@@ -403,7 +402,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     registry->setAdapterDirectProxy("TestAdapter3", locator->findAdapterById("TestAdapter"));
     try
     {
-        communicator->stringToProxy("test@TestAdapter3")->ice_ping();
+        ObjectPrx(communicator, "test@TestAdapter3")->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
@@ -413,10 +412,10 @@ allTests(Test::TestHelper* helper, const string& ref)
 
     cout << "testing well-known object locator cache... " << flush;
 
-    registry->addObject(communicator->stringToProxy("test3@TestUnknown"));
+    registry->addObject(ObjectPrx(communicator, "test3@TestUnknown"));
     try
     {
-        communicator->stringToProxy("test3")->ice_ping();
+        ObjectPrx(communicator, "test3")->ice_ping();
         test(false);
     }
     catch(const Ice::NotRegisteredException& ex)
@@ -424,12 +423,12 @@ allTests(Test::TestHelper* helper, const string& ref)
         test(ex.kindOfObject == "object adapter");
         test(ex.id == "TestUnknown");
     }
-    registry->addObject(communicator->stringToProxy("test3@TestAdapter4")); // Update
+    registry->addObject(ObjectPrx(communicator, "test3@TestAdapter4")); // Update
     registry->setAdapterDirectProxy("TestAdapter4",
-                                    communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
+                                    ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
     try
     {
-        communicator->stringToProxy("test3")->ice_ping();
+        ObjectPrx(communicator, "test3")->ice_ping();
         test(false);
     }
     catch(const Ice::LocalException&)
@@ -438,7 +437,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     registry->setAdapterDirectProxy("TestAdapter4", locator->findAdapterById("TestAdapter"));
     try
     {
-        communicator->stringToProxy("test3")->ice_ping();
+        ObjectPrx(communicator, "test3")->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
@@ -446,10 +445,10 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
 
     registry->setAdapterDirectProxy("TestAdapter4",
-                                    communicator->stringToProxy("dummy:" + helper->getTestEndpoint(99)));
+                                    ObjectPrx(communicator, "dummy:" + helper->getTestEndpoint(99)));
     try
     {
-        communicator->stringToProxy("test3")->ice_ping();
+        ObjectPrx(communicator, "test3")->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
@@ -458,7 +457,7 @@ allTests(Test::TestHelper* helper, const string& ref)
 
     try
     {
-        communicator->stringToProxy("test@TestAdapter4")->ice_locatorCacheTimeout(0)->ice_ping();
+        ObjectPrx(communicator, "test@TestAdapter4")->ice_locatorCacheTimeout(0)->ice_ping();
         test(false);
     }
     catch(const Ice::LocalException&)
@@ -466,7 +465,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
     try
     {
-        communicator->stringToProxy("test@TestAdapter4")->ice_ping();
+        ObjectPrx(communicator, "test@TestAdapter4")->ice_ping();
         test(false);
     }
     catch(const Ice::LocalException&)
@@ -474,26 +473,26 @@ allTests(Test::TestHelper* helper, const string& ref)
     }
     try
     {
-        communicator->stringToProxy("test3")->ice_ping();
+        ObjectPrx(communicator, "test3")->ice_ping();
         test(false);
     }
     catch(const Ice::LocalException&)
     {
     }
-    registry->addObject(communicator->stringToProxy("test3@TestAdapter"));
+    registry->addObject(ObjectPrx(communicator, "test3@TestAdapter"));
     try
     {
-        communicator->stringToProxy("test3")->ice_ping();
+        ObjectPrx(communicator, "test3")->ice_ping();
     }
     catch(const Ice::LocalException&)
     {
         test(false);
     }
 
-    registry->addObject(communicator->stringToProxy("test4"));
+    registry->addObject(ObjectPrx(communicator, "test4"));
     try
     {
-        communicator->stringToProxy("test4")->ice_ping();
+        ObjectPrx(communicator, "test4")->ice_ping();
         test(false);
     }
     catch(const Ice::NoEndpointException&)
@@ -509,7 +508,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
         registry->setAdapterDirectProxy("TestAdapter5", locator->findAdapterById("TestAdapter"));
-        registry->addObject(communicator->stringToProxy("test3@TestAdapter"));
+        registry->addObject(ObjectPrx(communicator, "test3@TestAdapter"));
 
         count = locator->getRequestCount();
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
@@ -517,7 +516,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         count += 3;
         test(count == locator->getRequestCount());
         registry->setAdapterDirectProxy("TestAdapter5", nullopt);
-        registry->addObject(communicator->stringToProxy("test3:" + helper->getTestEndpoint(99)));
+        registry->addObject(ObjectPrx(communicator, "test3:" + helper->getTestEndpoint(99)));
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
         ic->stringToProxy("test3")->ice_locatorCacheTimeout(10)->ice_ping(); // 10s timeout.
         test(count == locator->getRequestCount());
@@ -564,7 +563,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     cout << "ok" << endl;
 
     cout << "testing object migration... " << flush;
-    hello = Ice::checkedCast<HelloPrx>(communicator->stringToProxy("hello"));
+    hello = HelloPrx(communicator, "hello");
     obj->migrateHello();
     hello->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
     hello->sayHello();
@@ -576,13 +575,13 @@ allTests(Test::TestHelper* helper, const string& ref)
 
     cout << "testing locator encoding resolution... " << flush;
 
-    hello = Ice::checkedCast<HelloPrx>(communicator->stringToProxy("hello"));
+    hello = HelloPrx(communicator, "hello");
     count = locator->getRequestCount();
-    communicator->stringToProxy("test@TestAdapter")->ice_encodingVersion(Ice::Encoding_1_1)->ice_ping();
+    ObjectPrx(communicator, "test@TestAdapter")->ice_encodingVersion(Ice::Encoding_1_1)->ice_ping();
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test@TestAdapter10")->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
+    ObjectPrx(communicator, "test@TestAdapter10")->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
     test(++count == locator->getRequestCount());
-    communicator->stringToProxy("test -e 1.0@TestAdapter10-2")->ice_ping();
+    ObjectPrx(communicator, "test -e 1.0@TestAdapter10-2")->ice_ping();
     test(++count == locator->getRequestCount());
 
     cout << "ok" << endl;
@@ -629,15 +628,15 @@ allTests(Test::TestHelper* helper, const string& ref)
         adapter->add(std::make_shared<HelloI>(), id);
 
         // Ensure that calls on the well-known proxy is collocated.
-        HelloPrxPtr helloPrx = Ice::checkedCast<HelloPrx>(communicator->stringToProxy(communicator->identityToString(id)));
+        HelloPrx helloPrx(communicator, communicator->identityToString(id));
         test(!helloPrx->ice_getConnection());
 
         // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-        helloPrx = Ice::checkedCast<HelloPrx>(adapter->createIndirectProxy(id));
+        helloPrx = HelloPrx(adapter->createIndirectProxy(id));
         test(!helloPrx->ice_getConnection());
 
         // Ensure that calls on the direct proxy is collocated
-        helloPrx = Ice::checkedCast<HelloPrx>(adapter->createDirectProxy(id));
+        helloPrx = HelloPrx(adapter->createDirectProxy(id));
         test(!helloPrx->ice_getConnection());
 
         cout << "ok" << endl;

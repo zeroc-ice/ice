@@ -24,7 +24,7 @@ Collocated::run(int argc, char** argv)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = make_shared<InitialI>(adapter);
     adapter->add(object, Ice::stringToIdentity("initial"));
-    InitialPrxPtr allTests(Test::TestHelper*);
+    InitialPrx allTests(Test::TestHelper*);
     allTests(this);
 }
 

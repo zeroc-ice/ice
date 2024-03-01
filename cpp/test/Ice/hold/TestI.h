@@ -7,17 +7,17 @@
 
 #include <Test.h>
 
-class HoldI : public Test::Hold
+class HoldI final : public Test::Hold
 {
 public:
 
     HoldI(const IceUtil::TimerPtr&, const Ice::ObjectAdapterPtr&);
 
-    virtual void putOnHold(std::int32_t, const Ice::Current&);
-    virtual void waitForHold(const Ice::Current&);
-    virtual std::int32_t set(std::int32_t, std::int32_t, const Ice::Current&);
-    virtual void setOneway(std::int32_t, std::int32_t, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void putOnHold(std::int32_t, const Ice::Current&) final;
+    void waitForHold(const Ice::Current&) final;
+    std::int32_t set(std::int32_t, std::int32_t, const Ice::Current&) final;
+    void setOneway(std::int32_t, std::int32_t, const Ice::Current&) final;
+    void shutdown(const Ice::Current&) final;
 
 private:
 

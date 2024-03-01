@@ -158,7 +158,7 @@ TestIntfI::supportsFunctionalTests(const Ice::Current&)
 }
 
 void
-TestIntfI::pingBiDir(Test::PingReplyPrxPtr reply, const Ice::Current& current)
+TestIntfI::pingBiDir(optional<Test::PingReplyPrx> reply, const Ice::Current& current)
 {
     reply->ice_fixed(current.con)->replyAsync().get();
 }

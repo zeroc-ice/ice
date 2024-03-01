@@ -5,64 +5,67 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-Test::ByteEnum
-TestIntfI::opByte(Test::ByteEnum b1, Test::ByteEnum& b2, const Ice::Current&)
+using namespace Ice;
+using namespace Test;
+
+ByteEnum
+TestIntfI::opByte(ByteEnum b1, ByteEnum& b2, const Current&)
 {
     b2 = b1;
     return b1;
 }
 
-Test::ShortEnum
-TestIntfI::opShort(Test::ShortEnum s1, Test::ShortEnum& s2, const Ice::Current&)
+ShortEnum
+TestIntfI::opShort(ShortEnum s1, ShortEnum& s2, const Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::IntEnum
-TestIntfI::opInt(Test::IntEnum i1, Test::IntEnum& i2, const Ice::Current&)
+IntEnum
+TestIntfI::opInt(IntEnum i1, IntEnum& i2, const Current&)
 {
     i2 = i1;
     return i1;
 }
 
-Test::SimpleEnum
-TestIntfI::opSimple(Test::SimpleEnum s1, Test::SimpleEnum& s2, const Ice::Current&)
+SimpleEnum
+TestIntfI::opSimple(SimpleEnum s1, SimpleEnum& s2, const Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::ByteEnumSeq
-TestIntfI::opByteSeq(Test::ByteEnumSeq bs1, Test::ByteEnumSeq& bs2, const Ice::Current&)
+ByteEnumSeq
+TestIntfI::opByteSeq(ByteEnumSeq bs1, ByteEnumSeq& bs2, const Current&)
 {
     bs2 = bs1;
     return bs1;
 }
 
-Test::ShortEnumSeq
-TestIntfI::opShortSeq(Test::ShortEnumSeq ss1, Test::ShortEnumSeq& ss2, const ::Ice::Current&)
+ShortEnumSeq
+TestIntfI::opShortSeq(ShortEnumSeq ss1, ShortEnumSeq& ss2, const ::Current&)
 {
     ss2 = ss1;
     return ss1;
 }
 
-Test::IntEnumSeq
-TestIntfI::opIntSeq(Test::IntEnumSeq is1, Test::IntEnumSeq& is2, const ::Ice::Current&)
+IntEnumSeq
+TestIntfI::opIntSeq(IntEnumSeq is1, IntEnumSeq& is2, const ::Current&)
 {
     is2 = is1;
     return is1;
 }
 
-Test::SimpleEnumSeq
-TestIntfI::opSimpleSeq(Test::SimpleEnumSeq ss1, Test::SimpleEnumSeq& ss2, const ::Ice::Current&)
+SimpleEnumSeq
+TestIntfI::opSimpleSeq(SimpleEnumSeq ss1, SimpleEnumSeq& ss2, const ::Current&)
 {
     ss2 = ss1;
     return ss1;
 }
 
 void
-TestIntfI::shutdown(const Ice::Current& current)
+TestIntfI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }

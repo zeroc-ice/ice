@@ -13,23 +13,23 @@ module Test
 sequence<bool> BoolSeq;
 ["cpp:type:std::list<bool>"] sequence<bool> BoolList;
 
-["cpp:type:std::list< ::Test::BoolList>"] sequence<BoolList> BoolListList;
+["cpp:type:std::list<::Test::BoolList>"] sequence<BoolList> BoolListList;
 sequence<BoolList> BoolListSeq;
-["cpp:type:std::list< ::Test::BoolSeq>"] sequence<BoolSeq> BoolSeqList;
+["cpp:type:std::list<::Test::BoolSeq>"] sequence<BoolSeq> BoolSeqList;
 
 sequence<byte> ByteSeq;
 ["cpp:type:std::list<std::uint8_t>"] sequence<byte> ByteList;
 
-["cpp:type:std::list< ::Test::ByteList>"] sequence<ByteList> ByteListList;
+["cpp:type:std::list<::Test::ByteList>"] sequence<ByteList> ByteListList;
 sequence<ByteList> ByteListSeq;
-["cpp:type:std::list< ::Test::ByteSeq>"] sequence<ByteSeq> ByteSeqList;
+["cpp:type:std::list<::Test::ByteSeq>"] sequence<ByteSeq> ByteSeqList;
 
 sequence<string> StringSeq;
 ["cpp:type:std::list<std::string>"] sequence<string> StringList;
 
-["cpp:type:std::list< ::Test::StringList>"] sequence<StringList> StringListList;
+["cpp:type:std::list<::Test::StringList>"] sequence<StringList> StringListList;
 sequence<StringList> StringListSeq;
-["cpp:type:std::list< ::Test::StringSeq>"] sequence<StringSeq> StringSeqList;
+["cpp:type:std::list<::Test::StringSeq>"] sequence<StringSeq> StringSeqList;
 
 struct Fixed
 {
@@ -37,11 +37,11 @@ struct Fixed
 }
 
 sequence<Fixed> FixedSeq;
-["cpp:type:std::list< ::Test::Fixed>"] sequence<Fixed> FixedList;
+["cpp:type:std::list<::Test::Fixed>"] sequence<Fixed> FixedList;
 
-["cpp:type:std::list< ::Test::FixedList>"] sequence<FixedList> FixedListList;
+["cpp:type:std::list<::Test::FixedList>"] sequence<FixedList> FixedListList;
 sequence<FixedList> FixedListSeq;
-["cpp:type:std::list< ::Test::FixedSeq>"] sequence<FixedSeq> FixedSeqList;
+["cpp:type:std::list<::Test::FixedSeq>"] sequence<FixedSeq> FixedSeqList;
 
 struct Variable
 {
@@ -51,43 +51,43 @@ struct Variable
 }
 
 sequence<Variable> VariableSeq;
-["cpp:type:std::list< ::Test::Variable>"] sequence<Variable> VariableList;
+["cpp:type:std::list<::Test::Variable>"] sequence<Variable> VariableList;
 
-["cpp:type:std::list< ::Test::VariableList>"] sequence<VariableList> VariableListList;
+["cpp:type:std::list<::Test::VariableList>"] sequence<VariableList> VariableListList;
 sequence<VariableList> VariableListSeq;
-["cpp:type:std::list< ::Test::VariableSeq>"] sequence<VariableSeq> VariableSeqList;
+["cpp:type:std::list<::Test::VariableSeq>"] sequence<VariableSeq> VariableSeqList;
 
 dictionary<string, string> StringStringDict;
 sequence<StringStringDict> StringStringDictSeq;
-["cpp:type:std::list< ::Test::StringStringDict>"] sequence<StringStringDict> StringStringDictList;
+["cpp:type:std::list<::Test::StringStringDict>"] sequence<StringStringDict> StringStringDictList;
 
-["cpp:type:std::list< ::Test::StringStringDictList>"] sequence<StringStringDictList> StringStringDictListList;
+["cpp:type:std::list<::Test::StringStringDictList>"] sequence<StringStringDictList> StringStringDictListList;
 sequence<StringStringDictList> StringStringDictListSeq;
-["cpp:type:std::list< ::Test::StringStringDictSeq>"] sequence<StringStringDictSeq> StringStringDictSeqList;
+["cpp:type:std::list<::Test::StringStringDictSeq>"] sequence<StringStringDictSeq> StringStringDictSeqList;
 
 enum E { E1, E2, E3 }
 sequence<E> ESeq;
-["cpp:type:std::list< ::Test::E>"] sequence<E> EList;
+["cpp:type:std::list<::Test::E>"] sequence<E> EList;
 
-["cpp:type:std::list< ::Test::EList>"] sequence<EList> EListList;
+["cpp:type:std::list<::Test::EList>"] sequence<EList> EListList;
 sequence<EList> EListSeq;
-["cpp:type:std::list< ::Test::ESeq>"] sequence<ESeq> ESeqList;
+["cpp:type:std::list<::Test::ESeq>"] sequence<ESeq> ESeqList;
 
 class C {}
 sequence<C> CSeq;
 ["cpp:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
 
-["cpp:type:std::list< ::Test::CList>"] sequence<CList> CListList;
+["cpp:type:std::list<::Test::CList>"] sequence<CList> CListList;
 sequence<CList> CListSeq;
-["cpp:type:std::list< ::Test::CSeq>"] sequence<CSeq> CSeqList;
+["cpp:type:std::list<::Test::CSeq>"] sequence<CSeq> CSeqList;
 
 interface D{}
 sequence<D*> DPrxSeq;
-["cpp:type:std::list<::Test::DPrxPtr>"] sequence<D*> DPrxList;
+["cpp:type:std::list<::std::optional<::Test::DPrx>>"] sequence<D*> DPrxList;
 
-["cpp:type:std::list< ::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
+["cpp:type:std::list<::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
 sequence<DPrxList> DPrxListSeq;
-["cpp:type:std::list< ::Test::DPrxSeq>"] sequence<DPrxSeq> DPrxSeqList;
+["cpp:type:std::list<::Test::DPrxSeq>"] sequence<DPrxSeq> DPrxSeqList;
 
 sequence<double> DoubleSeq;
 
@@ -148,32 +148,32 @@ struct BufferStruct
 
     StringList opStringList(StringList inSeq, out StringList outSeq);
 
-    ["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq
-    opFixedSeq(["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq inSeq,
-               out ["cpp:type:std::deque< ::Test::Fixed>"] FixedSeq outSeq);
+    ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq
+    opFixedSeq(["cpp:type:std::deque<::Test::Fixed>"] FixedSeq inSeq,
+               out ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq outSeq);
 
     FixedList opFixedList(FixedList inSeq, out FixedList outSeq);
 
-    ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq
-    opVariableSeq(["cpp:type:std::deque< ::Test::Variable>"] VariableSeq inSeq,
-                  out ["cpp:type:std::deque< ::Test::Variable>"] VariableSeq outSeq);
+    ["cpp:type:std::deque<::Test::Variable>"] VariableSeq
+    opVariableSeq(["cpp:type:std::deque<::Test::Variable>"] VariableSeq inSeq,
+                  out ["cpp:type:std::deque<::Test::Variable>"] VariableSeq outSeq);
 
     VariableList opVariableList(VariableList inSeq, out VariableList outSeq);
 
-    ["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq
-    opStringStringDictSeq(["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq inSeq,
-                          out ["cpp:type:std::deque< ::Test::StringStringDict>"] StringStringDictSeq outSeq);
+    ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq
+    opStringStringDictSeq(["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq inSeq,
+                          out ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq outSeq);
 
     StringStringDictList opStringStringDictList(StringStringDictList inSeq, out StringStringDictList outSeq);
 
-    ["cpp:type:std::deque< ::Test::E>"] ESeq
-    opESeq(["cpp:type:std::deque< ::Test::E>"] ESeq inSeq, out ["cpp:type:std::deque< ::Test::E>"] ESeq outSeq);
+    ["cpp:type:std::deque<::Test::E>"] ESeq
+    opESeq(["cpp:type:std::deque<::Test::E>"] ESeq inSeq, out ["cpp:type:std::deque<::Test::E>"] ESeq outSeq);
 
     EList opEList(EList inSeq, out EList outSeq);
 
-    ["cpp:type:std::deque<::Test::DPrxPtr>"] DPrxSeq
-    opDPrxSeq(["cpp:type:std::deque<::Test::DPrxPtr>"] DPrxSeq inSeq,
-              out ["cpp:type:std::deque<::Test::DPrxPtr>"] DPrxSeq outSeq);
+    ["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq
+    opDPrxSeq(["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq inSeq,
+              out ["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq outSeq);
 
     DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 

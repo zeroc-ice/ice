@@ -82,31 +82,17 @@ public:
 };
 using CallbackFailPtr = shared_ptr<CallbackFail>;
 
-RetryPrxPtr
+RetryPrx
 allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& communicator2, const string& ref)
 {
-    cout << "testing stringToProxy... " << flush;
-    Ice::ObjectPrxPtr base1 = communicator->stringToProxy(ref);
-    test(base1);
-    Ice::ObjectPrxPtr base2 = communicator->stringToProxy(ref);
-    test(base2);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-    RetryPrxPtr retry1 = Ice::checkedCast<RetryPrx>(base1);
-    test(retry1);
-    test(retry1 == base1);
-
-    RetryPrxPtr retry2 = Ice::checkedCast<RetryPrx>(base2);
-    test(retry2);
-    test(retry2 == base2);
-    cout << "ok" << endl;
+    RetryPrx retry1(communicator, ref);
+    RetryPrx retry2(communicator, ref);
 
     cout << "calling regular operation with first proxy... " << flush;
     retry1->op(false);
     cout << "ok" << endl;
 
-    testInvocationCount(3);
+    testInvocationCount(1);
 
     cout << "calling operation to kill connection with second proxy... " << flush;
     try
@@ -293,7 +279,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
 
     {
         cout << "testing invocation timeout and retries... " << flush;
-        retry2 = Ice::checkedCast<RetryPrx>(communicator2->stringToProxy(retry1->ice_toString()));
+        retry2 = RetryPrx(communicator2, retry1->ice_toString());
         try
         {
             retry2->ice_invocationTimeout(500)->opIdempotent(4);  // No more than 2 retries before timeout kicks-in
@@ -308,7 +294,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
         try
         {
             // No more than 2 retries before timeout kicks-in
-            RetryPrxPtr prx = retry2->ice_invocationTimeout(500);
+            RetryPrx prx = retry2->ice_invocationTimeout(500);
             prx->opIdempotentAsync(4).get();
             test(false);
         }
@@ -324,7 +310,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::CommunicatorPtr& c
             // The timeout might occur on connection establishment or because of the sleep. What's
             // important here is to make sure there are 4 retries and that no calls succeed to
             // ensure retries with the old connection timeout semantics work.
-            RetryPrxPtr retryWithTimeout = retry1->ice_invocationTimeout(-2)->ice_timeout(200);
+            RetryPrx retryWithTimeout = retry1->ice_invocationTimeout(-2)->ice_timeout(200);
             try
             {
                 retryWithTimeout->sleep(1000);

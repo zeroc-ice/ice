@@ -7,54 +7,57 @@
 
 #include <Test.h>
 
-class InitialI : public Test::Initial
+class InitialI final : public Test::Initial
 {
 public:
 
     InitialI(const Ice::ObjectAdapterPtr&);
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
 
-    virtual Test::MA::IAPrxPtr iaop(const Ice::Current&);
-    virtual Test::MB::IB1PrxPtr ib1op(const Ice::Current&);
-    virtual Test::MB::IB2PrxPtr ib2op(const Ice::Current&);
-    virtual Test::MA::ICPrxPtr icop(const Ice::Current&);
+    std::optional<Test::MA::IAPrx> iaop(const Ice::Current&) final;
+    std::optional<Test::MB::IB1Prx> ib1op(const Ice::Current&) final;
+    std::optional<Test::MB::IB2Prx> ib2op(const Ice::Current&) final;
+    std::optional<Test::MA::ICPrx> icop(const Ice::Current&) final;
 
 private:
 
-    Test::MA::IAPrxPtr _ia;
-    Test::MB::IB1PrxPtr _ib1;
-    Test::MB::IB2PrxPtr _ib2;
-    Test::MA::ICPrxPtr _ic;
+    std::optional<Test::MA::IAPrx> _ia;
+    std::optional<Test::MB::IB1Prx> _ib1;
+    std::optional<Test::MB::IB2Prx> _ib2;
+    std::optional<Test::MA::ICPrx> _ic;
 };
 
 class IAI : public virtual Test::MA::IA
 {
 public:
 
-    virtual Test::MA::IAPrxPtr iaop(Test::MA::IAPrxPtr, const Ice::Current&);
+    std::optional<Test::MA::IAPrx> iaop(std::optional<Test::MA::IAPrx>, const Ice::Current&) override;
 };
 
-class IB1I : public virtual Test::MB::IB1,
-             public virtual IAI
+class IB1I : public virtual Test::MB::IB1, public virtual IAI
 {
 public:
 
-    virtual Test::MB::IB1PrxPtr ib1op(Test::MB::IB1PrxPtr, const Ice::Current&);
+    std::optional<Test::MB::IB1Prx> ib1op(
+        std::optional<Test::MB::IB1Prx>,
+        const Ice::Current&) override;
 };
 
 class IB2I : public virtual Test::MB::IB2, public virtual IAI
 {
 public:
 
-    virtual Test::MB::IB2PrxPtr ib2op(Test::MB::IB2PrxPtr, const Ice::Current&);
+    std::optional<Test::MB::IB2Prx> ib2op(
+        std::optional<Test::MB::IB2Prx>,
+        const Ice::Current&) override;
 };
 
-class ICI : public virtual Test::MA::IC, public virtual IB1I, public virtual IB2I
+class ICI final : public virtual Test::MA::IC, public virtual IB1I, public virtual IB2I
 {
 public:
 
-    virtual Test::MA::ICPrxPtr icop(Test::MA::ICPrxPtr, const Ice::Current&);
+    std::optional<Test::MA::ICPrx> icop(std::optional<Test::MA::ICPrx>, const Ice::Current&) final;
 };
 
 #endif

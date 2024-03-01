@@ -16,7 +16,7 @@ namespace
 {
 
 string
-getPort(const Ice::PropertiesAdminPrxPtr& p)
+getPort(const Ice::PropertiesAdminPrx& p)
 {
     ostringstream os;
     os << TestHelper::getTestPort(p->ice_getCommunicator()->getProperties(), 0);
@@ -24,7 +24,7 @@ getPort(const Ice::PropertiesAdminPrxPtr& p)
 }
 
 Ice::PropertyDict
-getClientProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& orig, const string& m = string())
+getClientProps(const Ice::PropertiesAdminPrx& pa, const Ice::PropertyDict& orig, const string& m = string())
 {
     Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
     for(Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
@@ -47,7 +47,7 @@ getClientProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& or
 }
 
 Ice::PropertyDict
-getServerProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& orig, const string& m = string())
+getServerProps(const Ice::PropertiesAdminPrx& pa, const Ice::PropertyDict& orig, const string& m = string())
 {
     Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
     for(Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
@@ -69,7 +69,7 @@ getServerProps(const Ice::PropertiesAdminPrxPtr& pa, const Ice::PropertyDict& or
 }
 
 IceMX::ConnectionMetricsPtr
-getServerConnectionMetrics(const IceMX::MetricsAdminPrxPtr& metrics, int64_t expected)
+getServerConnectionMetrics(const IceMX::MetricsAdminPrx& metrics, int64_t expected)
 {
     IceMX::ConnectionMetricsPtr s;
     int nRetry = 30;
@@ -91,7 +91,7 @@ class UpdateCallbackI
 {
 public:
 
-    UpdateCallbackI(const Ice::PropertiesAdminPrxPtr& serverProps) :
+    UpdateCallbackI(const Ice::PropertiesAdminPrx& serverProps) :
         _updated(false),
         _serverProps(serverProps)
     {
@@ -126,14 +126,14 @@ public:
 private:
 
     bool _updated;
-    Ice::PropertiesAdminPrxPtr _serverProps;
+    Ice::PropertiesAdminPrx _serverProps;
     std::mutex _mutex;
     std::condition_variable _condition;
 };
 using UpdateCallbackIPtr = std::shared_ptr<UpdateCallbackI>;
 
 void
-waitForCurrent(const IceMX::MetricsAdminPrxPtr& metrics, const string& viewName, const string& map, int value)
+waitForCurrent(const IceMX::MetricsAdminPrx& metrics, const string& viewName, const string& map, int value)
 {
     while(true)
     {
@@ -174,8 +174,8 @@ waitForCurrent(const ObserverIPtr& observer, int value)
 };
 
 template<typename T> void
-testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
-              const Ice::PropertiesAdminPrxPtr& props,
+testAttribute(const IceMX::MetricsAdminPrx& metrics,
+              const Ice::PropertiesAdminPrx& props,
               UpdateCallbackI* update,
               const string& map,
               const string& attr,
@@ -235,7 +235,7 @@ struct Void
 
 struct Connect
 {
-    Connect(const Ice::ObjectPrxPtr& proxyP) : proxy(proxyP)
+    Connect(const Ice::ObjectPrx& proxyP) : proxy(proxyP)
     {
     }
 
@@ -259,12 +259,12 @@ struct Connect
         }
     }
 
-    Ice::ObjectPrxPtr proxy;
+    Ice::ObjectPrx proxy;
 };
 
 struct InvokeOp
 {
-    InvokeOp(const Test::MetricsPrxPtr& proxyP) : proxy(proxyP)
+    InvokeOp(const Test::MetricsPrx& proxyP) : proxy(proxyP)
     {
     }
 
@@ -277,12 +277,12 @@ struct InvokeOp
         proxy->op(ctx);
     }
 
-    Test::MetricsPrxPtr proxy;
+    Test::MetricsPrx proxy;
 };
 
 void
-testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
-              const Ice::PropertiesAdminPrxPtr& props,
+testAttribute(const IceMX::MetricsAdminPrx& metrics,
+              const Ice::PropertiesAdminPrx& props,
               UpdateCallbackI* update,
               const string& map,
               const string& attr,
@@ -292,8 +292,8 @@ testAttribute(const IceMX::MetricsAdminPrxPtr& metrics,
 }
 
 void
-updateProps(const Ice::PropertiesAdminPrxPtr& cprops,
-            const Ice::PropertiesAdminPrxPtr& sprops,
+updateProps(const Ice::PropertiesAdminPrx& cprops,
+            const Ice::PropertiesAdminPrx& sprops,
             UpdateCallbackI* callback,
             const Ice::PropertyDict& props,
             const string& map = string())
@@ -315,7 +315,7 @@ updateProps(const Ice::PropertiesAdminPrxPtr& cprops,
 }
 
 void
-clearView(const Ice::PropertiesAdminPrxPtr& cprops, const Ice::PropertiesAdminPrxPtr& sprops, UpdateCallbackI* callback)
+clearView(const Ice::PropertiesAdminPrx& cprops, const Ice::PropertiesAdminPrx& sprops, UpdateCallbackI* callback)
 {
     Ice::PropertyDict dict;
 
@@ -341,7 +341,7 @@ clearView(const Ice::PropertiesAdminPrxPtr& cprops, const Ice::PropertiesAdminPr
 }
 
 void
-checkFailure(const IceMX::MetricsAdminPrxPtr& m, const string& map, const string& id, const string& failure,
+checkFailure(const IceMX::MetricsAdminPrx& m, const string& map, const string& id, const string& failure,
              int count = 0)
 {
     IceMX::MetricsFailures f = m->getMetricsFailures("View", map, id);
@@ -371,7 +371,7 @@ toMap(const IceMX::MetricsMap& mmap)
 
 }
 
-MetricsPrxPtr
+MetricsPrx
 allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
@@ -391,20 +391,20 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         endpoint = os.str();
     }
 
-    MetricsPrxPtr metrics = Ice::checkedCast<MetricsPrx>(communicator->stringToProxy("metrics:" + endpoint));
+    MetricsPrx metrics(communicator, "metrics:" + endpoint);
     bool collocated = !metrics->ice_getConnection();
 
     cout << "testing metrics admin facet checkedCast... " << flush;
-    Ice::ObjectPrxPtr admin = communicator->getAdmin();
+    optional<Ice::ObjectPrx> admin = communicator->getAdmin();
+    test(admin);
 
-    Ice::PropertiesAdminPrxPtr clientProps =  Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
-    IceMX::MetricsAdminPrxPtr clientMetrics = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics");
-    test(clientProps && clientMetrics);
+    Ice::PropertiesAdminPrx clientProps =  Ice::PropertiesAdminPrx(admin->ice_facet("Properties"));
+    IceMX::MetricsAdminPrx clientMetrics = IceMX::MetricsAdminPrx(admin->ice_facet("Metrics"));
 
     admin = metrics->getAdmin();
-    Ice::PropertiesAdminPrxPtr serverProps = Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "Properties");
-    IceMX::MetricsAdminPrxPtr serverMetrics = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics");
-    test(serverProps && serverMetrics);
+
+    Ice::PropertiesAdminPrx serverProps = Ice::PropertiesAdminPrx(admin->ice_facet("Properties"));
+    IceMX::MetricsAdminPrx serverMetrics = IceMX::MetricsAdminPrx(admin->ice_facet("Metrics"));
 
     UpdateCallbackIPtr update = make_shared<UpdateCallbackI>(serverProps);
 
@@ -587,8 +587,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["active"]->current == 1);
 
-        Ice::ObjectPrxPtr cprx = communicator->stringToProxy("controller:" + helper->getTestEndpoint(1));
-        ControllerPrxPtr controller = Ice::checkedCast<ControllerPrx>(cprx);
+        ControllerPrx controller(communicator, "controller:" + helper->getTestEndpoint(1));
         controller->hold();
 
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
@@ -644,7 +643,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         checkFailure(clientMetrics, "Connection", cm1->id, "::Ice::ConnectTimeoutException", 1);
         checkFailure(serverMetrics, "Connection", sm1->id, "::Ice::ConnectionLostException");
 
-        MetricsPrxPtr m = metrics->ice_timeout(500)->ice_connectionId("Con1");
+        MetricsPrx m = metrics->ice_timeout(500)->ice_connectionId("Con1");
         m->ice_ping();
 
         testAttribute(clientMetrics, clientProps, update.get(), "Connection", "parent", "Communicator");
@@ -734,7 +733,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         updateProps(clientProps, serverProps, update.get(), props, "EndpointLookup");
         test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].empty());
 
-        Ice::ObjectPrxPtr prx = communicator->stringToProxy("metrics:" + protocol + " -h localhost -t 500 -p " + port);
+        Ice::ObjectPrx prx(communicator, "metrics:" + protocol + " -h localhost -t 500 -p " + port);
         try
         {
             prx->ice_ping();
@@ -1228,7 +1227,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
     props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
     updateProps(clientProps, serverProps, update.get(), props, "Invocation");
-    MetricsPrxPtr metricsOneway = metrics->ice_oneway();
+    MetricsPrx metricsOneway = metrics->ice_oneway();
     metricsOneway->op();
     metricsOneway->opAsync().get();
     promise<void> sent;
@@ -1256,7 +1255,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
     updateProps(clientProps, serverProps, update.get(), props, "Invocation");
 
-    MetricsPrxPtr metricsBatchOneway = metrics->ice_batchOneway();
+    MetricsPrx metricsBatchOneway = metrics->ice_batchOneway();
     metricsBatchOneway->op();
     metricsBatchOneway->opAsync().get();
     metricsBatchOneway->opAsync([]() {}, [](exception_ptr) { test(false); });

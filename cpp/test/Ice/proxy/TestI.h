@@ -7,15 +7,16 @@
 
 #include <Test.h>
 
-class MyDerivedClassI : public Test::MyDerivedClass
+class MyDerivedClassI final : public Test::MyDerivedClass
 {
 public:
 
     MyDerivedClassI();
-    virtual Ice::ObjectPrxPtr echo(Ice::ObjectPrxPtr, const Ice::Current&);
-    virtual bool ice_isA(std::string, const Ice::Current&) const;
-    virtual void shutdown(const Ice::Current&);
-    virtual Ice::Context getContext(const Ice::Current&);
+
+    std::optional<Ice::ObjectPrx> echo(Ice::ObjectPrxPtr, const Ice::Current&) final;
+    bool ice_isA(std::string, const Ice::Current&) const final;
+    void shutdown(const Ice::Current&) final;
+    Ice::Context getContext(const Ice::Current&) final;
 
 private:
 

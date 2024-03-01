@@ -8,27 +8,29 @@
 #include <TestHelper.h>
 
 using namespace std;
+using namespace Test;
+using namespace Ice;
 
-AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) :
+AMDInterceptorI::AMDInterceptorI(const ObjectPtr& servant) :
     InterceptorI(servant)
 {
 }
 
 bool
-AMDInterceptorI::dispatch(Ice::Request& request)
+AMDInterceptorI::dispatch(Request& request)
 {
-    Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
+    Current& current = const_cast<Current&>(request.getCurrent());
 
-    Ice::Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
+    Context::const_iterator p = current.ctx.find("raiseBeforeDispatch");
     if(p != current.ctx.end())
     {
         if(p->second == "user")
         {
-            throw Test::InvalidInputException();
+            throw InvalidInputException();
         }
         else if(p->second == "notExist")
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__);
         }
         else if(p->second == "system")
         {
@@ -81,11 +83,11 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     {
         if(p->second == "user")
         {
-            throw Test::InvalidInputException();
+            throw InvalidInputException();
         }
         else if(p->second == "notExist")
         {
-            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+            throw ObjectNotExistException(__FILE__, __LINE__);
         }
         else if(p->second == "system")
         {
@@ -97,13 +99,13 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 }
 
 void
-AMDInterceptorI::setException(std::exception_ptr e)
+AMDInterceptorI::setException(exception_ptr e)
 {
     lock_guard lock(_mutex);
     _exception = e;
 }
 
-std::exception_ptr
+exception_ptr
 AMDInterceptorI::getException() const
 {
     lock_guard lock(_mutex);

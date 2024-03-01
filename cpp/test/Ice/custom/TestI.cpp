@@ -5,322 +5,239 @@
 #include <Ice/Communicator.h>
 #include <TestI.h>
 
-Test::DoubleSeq
-TestIntfI::opDoubleArray(std::pair<const double*, const double*> inSeq,
-                         Test::DoubleSeq& outSeq,
-                         const Ice::Current&)
+using namespace std;
+using namespace Ice;
+using namespace Test;
+
+DoubleSeq
+TestIntfI::opDoubleArray(pair<const double*, const double*> inSeq, DoubleSeq& outSeq, const Current&)
 {
-    Test::DoubleSeq(inSeq.first, inSeq.second).swap(outSeq);
+    DoubleSeq(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }
 
-Test::BoolSeq
-TestIntfI::opBoolArray(std::pair<const bool*, const bool*> inSeq,
-                       Test::BoolSeq& outSeq,
-                       const Ice::Current&)
+BoolSeq
+TestIntfI::opBoolArray(pair<const bool*, const bool*> inSeq, BoolSeq& outSeq, const Current&)
 {
-    Test::BoolSeq(inSeq.first, inSeq.second).swap(outSeq);
+    BoolSeq(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }
 
-Test::ByteList
-TestIntfI::opByteArray(std::pair<const uint8_t*, const uint8_t*> inSeq,
-                       Test::ByteList& outSeq,
-                       const Ice::Current&)
+ByteList
+TestIntfI::opByteArray(pair<const uint8_t*, const uint8_t*> inSeq, ByteList& outSeq, const Current&)
 {
-    Test::ByteList(inSeq.first, inSeq.second).swap(outSeq);
+    ByteList(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }
 
-Test::VariableList
-TestIntfI::opVariableArray(std::pair<const Test::Variable*, const Test::Variable*> inSeq,
-                           Test::VariableList& outSeq,
-                           const Ice::Current&)
+VariableList
+TestIntfI::opVariableArray(pair<const Variable*, const Variable*> inSeq, VariableList& outSeq, const Current&)
 {
-    Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
+    VariableList(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }
 
-Test::ByteList
-TestIntfI::opByteRange(Test::ByteList inSeq, Test::ByteList& outSeq, const Ice::Current&)
-{
-    outSeq.swap(inSeq);
-    return outSeq;
-}
-
-Test::VariableList
-TestIntfI::opVariableRange(Test::VariableList inSeq, Test::VariableList& outSeq, const Ice::Current&)
-{
-    outSeq.swap(inSeq);
-    return outSeq;
-}
-
-Test::ByteList
-TestIntfI::opByteRangeType(Test::ByteList inSeq, Test::ByteList& outSeq, const Ice::Current&)
-{
-    outSeq.swap(inSeq);
-    return outSeq;
-}
-
-Test::VariableList
-TestIntfI::opVariableRangeType(Test::VariableList inSeq, Test::VariableList& outSeq, const Ice::Current&)
-{
-    outSeq.swap(inSeq);
-    return outSeq;
-}
-
-std::deque<bool>
-TestIntfI::opBoolSeq(std::deque<bool> inSeq,
-                     std::deque<bool>& outSeq,
-                     const Ice::Current&)
+deque<bool>
+TestIntfI::opBoolSeq(deque<bool> inSeq, deque<bool>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list<bool>
-TestIntfI::opBoolList(std::list<bool> inSeq,
-                      std::list<bool>& outSeq,
-                      const Ice::Current&)
+list<bool>
+TestIntfI::opBoolList(list<bool> inSeq, list<bool>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-::Test::BoolDequeList
-TestIntfI::opBoolDequeList(::Test::BoolDequeList inSeq, ::Test::BoolDequeList& outSeq, const Ice::Current&)
+BoolDequeList
+TestIntfI::opBoolDequeList(BoolDequeList inSeq, BoolDequeList& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-::Test::BoolDequeList
-TestIntfI::opBoolDequeListArray(::std::pair<const std::deque<bool>*, const std::deque<bool>*> inSeq,
-                                ::Test::BoolDequeList& outSeq,
-                                const ::Ice::Current&)
+BoolDequeList
+TestIntfI::opBoolDequeListArray(
+    pair<const deque<bool>*, const deque<bool>*> inSeq,
+    BoolDequeList& outSeq,
+    const Current&)
 {
-    for(const std::deque<bool>* p = inSeq.first; p != inSeq.second; ++p)
+    for (const std::deque<bool>* p = inSeq.first; p != inSeq.second; ++p)
     {
         outSeq.push_back(*p);
     }
     return outSeq;
 }
 
-Test::BoolDequeList
-TestIntfI::opBoolDequeListRange(Test::BoolDequeList inSeq, Test::BoolDequeList& outSeq, const ::Ice::Current&)
-{
-    outSeq.swap(inSeq);
-    return outSeq;
-}
-
-std::deque< uint8_t>
-TestIntfI::opByteSeq(std::deque< uint8_t> inSeq,
-                     std::deque< uint8_t>& outSeq,
-                     const Ice::Current&)
+deque<uint8_t>
+TestIntfI::opByteSeq(deque<uint8_t> inSeq, deque<uint8_t>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< uint8_t>
-TestIntfI::opByteList(std::list< uint8_t> inSeq,
-                      std::list< uint8_t>& outSeq,
-                      const Ice::Current&)
+list<uint8_t>
+TestIntfI::opByteList(list<uint8_t> inSeq, list<uint8_t>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
 MyByteSeq
-TestIntfI::opMyByteSeq(MyByteSeq inSeq,
-                       MyByteSeq& outSeq,
-                       const Ice::Current&)
+TestIntfI::opMyByteSeq(MyByteSeq inSeq, MyByteSeq& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::deque< ::std::string>
-TestIntfI::opStringSeq(std::deque< ::std::string> inSeq,
-                       std::deque< ::std::string>& outSeq,
-                       const Ice::Current&)
+deque<string>
+TestIntfI::opStringSeq(deque<string> inSeq, deque<string>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::std::string>
-TestIntfI::opStringList(std::list< ::std::string> inSeq,
-                        std::list< ::std::string>& outSeq,
-                        const Ice::Current&)
+list<string>
+TestIntfI::opStringList(list<string> inSeq, list<string>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::deque< ::Test::Fixed>
-TestIntfI::opFixedSeq(std::deque< ::Test::Fixed> inSeq,
-                      std::deque< ::Test::Fixed>& outSeq,
-                      const Ice::Current&)
+deque<Fixed>
+TestIntfI::opFixedSeq(deque<Fixed> inSeq, deque<Fixed>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Test::Fixed>
-TestIntfI::opFixedList(std::list< ::Test::Fixed> inSeq,
-                       std::list< ::Test::Fixed>& outSeq,
-                       const Ice::Current&)
+list<Fixed>
+TestIntfI::opFixedList(list<Fixed> inSeq, list<Fixed>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::deque< ::Test::Variable>
-TestIntfI::opVariableSeq(std::deque< ::Test::Variable> inSeq,
-                         std::deque< ::Test::Variable>& outSeq,
-                         const Ice::Current&)
+deque<Variable>
+TestIntfI::opVariableSeq(deque<Variable> inSeq, deque<Variable>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Test::Variable>
-TestIntfI::opVariableList(std::list< ::Test::Variable> inSeq,
-                          std::list< ::Test::Variable>& outSeq,
-                          const Ice::Current&)
+list<Variable>
+TestIntfI::opVariableList(list<Variable> inSeq, list<Variable>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::deque< ::Test::StringStringDict>
-TestIntfI::opStringStringDictSeq(std::deque< ::Test::StringStringDict> inSeq,
-                                       std::deque< ::Test::StringStringDict>& outSeq,
-                                       const Ice::Current&)
+deque<StringStringDict>
+TestIntfI::opStringStringDictSeq(deque<StringStringDict> inSeq, deque<StringStringDict>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Test::StringStringDict>
-TestIntfI::opStringStringDictList(std::list< ::Test::StringStringDict> inSeq,
-                                        std::list< ::Test::StringStringDict>& outSeq,
-                                        const Ice::Current&)
+list<StringStringDict>
+TestIntfI::opStringStringDictList(list<StringStringDict> inSeq, list<StringStringDict>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::deque< ::Test::E>
-TestIntfI::opESeq(std::deque< ::Test::E> inSeq,
-                        std::deque< ::Test::E>& outSeq,
-                        const Ice::Current&)
+deque<E>
+TestIntfI::opESeq(deque<E> inSeq, deque<E>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Test::E>
-TestIntfI::opEList(std::list< ::Test::E> inSeq,
-                         std::list< ::Test::E>& outSeq,
-                         const Ice::Current&)
+list<E>
+TestIntfI::opEList(list<E> inSeq, list<E>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::deque< ::Test::DPrxPtr>
-TestIntfI::opDPrxSeq(std::deque< ::Test::DPrxPtr> inSeq,
-                           std::deque< ::Test::DPrxPtr>& outSeq,
-                           const Ice::Current&)
+deque<optional<DPrx>>
+TestIntfI::opDPrxSeq(deque<optional<DPrx>> inSeq, deque<optional<DPrx>>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Test::DPrxPtr>
-TestIntfI::opDPrxList(std::list< ::Test::DPrxPtr> inSeq,
-                            std::list< ::Test::DPrxPtr>& outSeq,
-                            const Ice::Current&)
+Test::DPrxList
+TestIntfI::opDPrxList(Test::DPrxList inSeq, Test::DPrxList& outSeq, const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::deque< ::Test::CPtr>
-TestIntfI::opCSeq(std::deque< ::Test::CPtr> inSeq,
-                  std::deque< ::Test::CPtr>& outSeq,
-                  const Ice::Current&)
+deque<CPtr>
+TestIntfI::opCSeq(deque<CPtr> inSeq, deque<CPtr>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Test::CPtr>
-TestIntfI::opCList(std::list< ::Test::CPtr> inSeq,
-                   std::list< ::Test::CPtr>& outSeq,
-                   const Ice::Current&)
+list<CPtr>
+TestIntfI::opCList(list<CPtr> inSeq, list<CPtr>& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
 void
-TestIntfI::opOutArrayByteSeq(Test::ByteSeq data, Test::ByteSeq& copy, const Ice::Current&)
+TestIntfI::opOutArrayByteSeq(ByteSeq data, ByteSeq& copy, const Current&)
 {
     copy = data;
 }
 
-void
-TestIntfI::opOutRangeByteSeq(Test::ByteSeq data, Test::ByteSeq& copy, const Ice::Current&)
-{
-    copy = data;
-}
-
-Test::IntStringDict
-TestIntfI::opIntStringDict(Test::IntStringDict data, Test::IntStringDict& copy, const Ice::Current&)
+IntStringDict
+TestIntfI::opIntStringDict(IntStringDict data, IntStringDict& copy, const Current&)
 {
     copy = data;
     return data;
 }
 
-Test::CustomMap<int64_t, int64_t>
-TestIntfI::opVarDict(Test::CustomMap<std::string, int32_t> data,
-                     Test::CustomMap<std::string, int32_t>& copy, const Ice::Current&)
+CustomMap<int64_t, int64_t>
+TestIntfI::opVarDict(CustomMap<string, int32_t> data, CustomMap<string, int32_t>& copy, const Current&)
 {
     copy = data;
 
-    Test::CustomMap<int64_t, int64_t> result;
-    for(int64_t i = 0; i < 1000; ++i)
+    CustomMap<int64_t, int64_t> result;
+    for(int64_t i = 0; i <1000; ++i)
     {
-        result[i] = i*i;
+        result[i] = i * i;
     }
     return result;
 }
 
-Test::ShortBuffer
-TestIntfI::opShortBuffer(Test::ShortBuffer inS, Test::ShortBuffer& outS, const Ice::Current&)
+ShortBuffer
+TestIntfI::opShortBuffer(ShortBuffer inS, ShortBuffer& outS, const Current&)
 {
     outS = inS;
     return outS;
 }
 
-Test::CustomBuffer<bool>
-TestIntfI::opBoolBuffer(Test::CustomBuffer<bool> inS, Test::CustomBuffer<bool>& outS, const Ice::Current&)
+CustomBuffer<bool>
+TestIntfI::opBoolBuffer(CustomBuffer<bool> inS, CustomBuffer<bool>& outS, const Current&)
 {
     outS = inS;
     return outS;
 }
 
-Test::BufferStruct
-TestIntfI::opBufferStruct(Test::BufferStruct bs, const Ice::Current&)
+BufferStruct
+TestIntfI::opBufferStruct(BufferStruct bs, const Current&)
 {
     return bs;
 }
 
 void
-TestIntfI::shutdown(const Ice::Current& current)
+TestIntfI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }

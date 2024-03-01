@@ -43,8 +43,8 @@ Collocated::run(int argc, char** argv)
     adapter->add(make_shared<TestIntfI>(), Ice::stringToIdentity("test"));
     adapter->add(make_shared<F2I>(), Ice::stringToIdentity("F21"));
     adapter->add(make_shared<UnexpectedObjectExceptionTestI>(), Ice::stringToIdentity("uoet"));
-    InitialPrxPtr allTests(Test::TestHelper*);
-    InitialPrxPtr initial = allTests(this);
+    InitialPrx allTests(Test::TestHelper*);
+    InitialPrx initial = allTests(this);
     // We must call shutdown even in the collocated case for cyclic dependency cleanup
     initial->shutdown();
 }

@@ -7,27 +7,27 @@
 
 #include <Test.h>
 
-class TestIntfI : public virtual Test::TestIntf
+class TestIntfI final : public Test::TestIntf
 {
 public:
 
-    virtual Test::ByteEnum opByte(Test::ByteEnum, Test::ByteEnum&, const Ice::Current&);
+    Test::ByteEnum opByte(Test::ByteEnum, Test::ByteEnum&, const Ice::Current&) final;
 
-    virtual Test::ShortEnum opShort(Test::ShortEnum, Test::ShortEnum&, const Ice::Current&);
+    Test::ShortEnum opShort(Test::ShortEnum, Test::ShortEnum&, const Ice::Current&) final;
 
-    virtual Test::IntEnum opInt(Test::IntEnum, Test::IntEnum&, const Ice::Current&);
+    Test::IntEnum opInt(Test::IntEnum, Test::IntEnum&, const Ice::Current&) final;
 
-    virtual Test::SimpleEnum opSimple(Test::SimpleEnum, Test::SimpleEnum&, const Ice::Current&);
+    Test::SimpleEnum opSimple(Test::SimpleEnum, Test::SimpleEnum&, const Ice::Current&) final;
 
-    virtual Test::ByteEnumSeq opByteSeq(Test::ByteEnumSeq, Test::ByteEnumSeq&, const Ice::Current&);
+    Test::ByteEnumSeq opByteSeq(Test::ByteEnumSeq, Test::ByteEnumSeq&, const Ice::Current&) final;
 
-    virtual Test::ShortEnumSeq opShortSeq(Test::ShortEnumSeq, Test::ShortEnumSeq&, const ::Ice::Current&);
+    Test::ShortEnumSeq opShortSeq(Test::ShortEnumSeq, Test::ShortEnumSeq&, const ::Ice::Current&) final;
 
-    virtual Test::IntEnumSeq opIntSeq(Test::IntEnumSeq, Test::IntEnumSeq&, const ::Ice::Current&);
+    Test::IntEnumSeq opIntSeq(Test::IntEnumSeq, Test::IntEnumSeq&, const ::Ice::Current&) final;
 
-    virtual Test::SimpleEnumSeq opSimpleSeq(Test::SimpleEnumSeq, Test::SimpleEnumSeq&, const ::Ice::Current&);
+    Test::SimpleEnumSeq opSimpleSeq(Test::SimpleEnumSeq, Test::SimpleEnumSeq&, const ::Ice::Current&) final;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
 };
 
 #endif
