@@ -565,7 +565,16 @@ RegistryI::startImpl()
     verifierProperties.push_back("IceGrid.Registry.AdminPermissionsVerifier");
     verifierProperties.push_back("IceGrid.Registry.AdminSSLPermissionsVerifier");
 
-    Glacier2Internal::setupNullPermissionsVerifier(_communicator, _instanceName, verifierProperties);
+    try
+    {
+        Glacier2Internal::setupNullPermissionsVerifier(_communicator, _instanceName, verifierProperties);
+    }
+    catch(const std::exception& ex)
+    {
+        ServiceError err(this);
+        err << "unable to setup null permissions verifier:\n" << ex;
+        return false;
+    }
 
     auto sessionAdpt = setupClientSessionFactory(internalLocator);
     auto admSessionAdpt = setupAdminSessionFactory(serverAdminRouter, nodeAdminRouter, replicaAdminRouter,

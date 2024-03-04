@@ -32,18 +32,6 @@ public:
     }
 };
 
-void setupObjectAdapter(
-    const Ice::CommunicatorPtr& communicator,
-    Ice::ObjectAdapterPtr& adapter)
-{
-    if (adapter == nullptr)
-    {
-        // Create collocated object adapter
-        adapter = communicator->createObjectAdapter("");
-        adapter->activate();
-    }
-}
-
 }
 
 namespace Glacier2Internal
@@ -58,55 +46,42 @@ setupNullPermissionsVerifier(
     const Ice::Identity nullPermissionsVerifierId { "NullPermissionsVerifier", category };
     const Ice::Identity nullSSLPermissionsVerifierId { "NullSSLPermissionsVerifier",  category };
 
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    ObjectAdapterPtr adapter;
+    const Ice::PropertiesPtr properties = communicator->getProperties();
 
     shared_ptr<Glacier2::PermissionsVerifier> nullPermissionsVerifier;
     shared_ptr<Glacier2::SSLPermissionsVerifier> nullSSLPermissionsVerifier;
 
     for (const auto& propertyName : permissionsVerifierPropertyNames)
     {
-        string val = properties->getProperty(propertyName);
-        if (!val.empty())
+        string propertyValue = properties->getProperty(propertyName);
+        if (!propertyValue.empty())
         {
-            try
+            ObjectPrx prx(communicator, propertyValue);
+            if (prx->ice_getIdentity() == nullPermissionsVerifierId && nullPermissionsVerifier == nullptr)
             {
-                ObjectPrx prx(communicator, val);
-                if (prx->ice_getIdentity() == nullPermissionsVerifierId && nullPermissionsVerifier == nullptr)
-                {
-                    setupObjectAdapter(communicator, adapter);
-                    nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
-                    adapter->add(nullPermissionsVerifier, nullPermissionsVerifierId);
-                }
-                else if (prx->ice_getIdentity() == nullSSLPermissionsVerifierId && nullSSLPermissionsVerifier == nullptr)
-                {
-                    setupObjectAdapter(communicator, adapter);
-                    nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
-                    adapter->add(nullSSLPermissionsVerifier, nullSSLPermissionsVerifierId);
-                }
+                nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
             }
-            catch(const ProxyParseException&)
+            else if (prx->ice_getIdentity() == nullSSLPermissionsVerifierId && nullSSLPermissionsVerifier == nullptr)
             {
-                // check if it's actually a stringified identity
-                // (with typically missing " " because the category contains a space)
-
-                if(val == communicator->identityToString(nullPermissionsVerifierId) && nullPermissionsVerifier == nullptr)
-                {
-                    setupObjectAdapter(communicator, adapter);
-                    nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
-                    ObjectPrx prx = adapter->add(nullPermissionsVerifier, nullPermissionsVerifierId);
-                    properties->setProperty(propertyName, prx->ice_toString());
-                }
-                else if(val == communicator->identityToString(nullSSLPermissionsVerifierId) && nullSSLPermissionsVerifier == nullptr)
-                {
-                    setupObjectAdapter(communicator, adapter);
-                    nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
-                    ObjectPrx prx = adapter->add(nullSSLPermissionsVerifier, nullSSLPermissionsVerifierId);
-                    properties->setProperty(propertyName, prx->ice_toString());
-                }
-                // Otherwise let the service report this incorrectly formatted proxy
+                nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
             }
         }
+    }
+
+    if (nullPermissionsVerifier != nullptr || nullSSLPermissionsVerifier != nullptr)
+    {
+        // Create collocated object adapter for the null permissions verifier
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
+        if (nullPermissionsVerifier != nullptr)
+        {
+            adapter->add(std::move(nullPermissionsVerifier), nullPermissionsVerifierId);
+        }
+
+        if (nullSSLPermissionsVerifier != nullptr)
+        {
+            adapter->add(std::move(nullSSLPermissionsVerifier), nullSSLPermissionsVerifierId);
+        }
+        adapter->activate();
     }
 }
 
