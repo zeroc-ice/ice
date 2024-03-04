@@ -167,17 +167,27 @@ public:
         auto ctx = _current.ctx;
         ctx.insert(_context.begin(), _context.end());
         auto self = shared_from_this();
-        _sessionRouter->_sessionManager->createAsync(_user, _control,
-                                                     [self](optional<SessionPrx> response)
-                                                     {
-                                                         self->sessionCreated(std::move(response));
-                                                     },
-                                                     [self](exception_ptr e)
-                                                     {
-                                                         self->createException(e);
-                                                     },
-                                                     nullptr,
-                                                     ctx);
+        _sessionRouter->_sessionManager->createAsync(
+            _user,
+            _control,
+            [self](optional<SessionPrx> session)
+            {
+                if (session)
+                {
+                    self->sessionCreated(std::move(session));
+                }
+                else
+                {
+                    exception(make_exception_ptr(
+                        CannotCreateSessionException("Session manager returned a null session proxy")));
+                }
+            },
+            [self](exception_ptr e)
+            {
+                self->createException(e);
+            },
+            nullptr,
+            ctx);
 
     }
 
@@ -280,17 +290,27 @@ public:
         ctx.insert(_context.begin(), _context.end());
 
         auto self = static_pointer_cast<SSLCreateSession>(shared_from_this());
-        _sessionRouter->_sslSessionManager->createAsync(_sslInfo, _control,
-                                                        [self](optional<SessionPrx> response)
-                                                        {
-                                                            self->sessionCreated(std::move(response));
-                                                        },
-                                                        [self](exception_ptr e)
-                                                        {
-                                                            self->createException(e);
-                                                        },
-                                                        nullptr,
-                                                        ctx);
+        _sessionRouter->_sslSessionManager->createAsync(
+            _sslInfo,
+            _control,
+            [self](optional<SessionPrx> session)
+            {
+                if (session)
+                {
+                    self->sessionCreated(std::move(session));
+                }
+                else
+                {
+                    exception(make_exception_ptr(
+                        CannotCreateSessionException("Session manager returned a null session proxy")));
+                }
+            },
+            [self](exception_ptr e)
+            {
+                self->createException(e);
+            },
+            nullptr,
+            ctx);
     }
 
     void
@@ -413,7 +433,6 @@ CreateSession::authorized(bool createSession)
 void
 CreateSession::unexpectedAuthorizeException(exception_ptr ex)
 {
-
     if(_sessionRouter->sessionTraceLevel() >= 1)
     {
         try
@@ -432,11 +451,11 @@ CreateSession::unexpectedAuthorizeException(exception_ptr ex)
 }
 
 void
-CreateSession::createException(exception_ptr sex)
+CreateSession::createException(exception_ptr ex)
 {
     try
     {
-        rethrow_exception(sex);
+        rethrow_exception(ex);
     }
     catch(const CannotCreateSessionException&)
     {
@@ -1076,7 +1095,6 @@ SessionRouterI::finishCreateSession(const shared_ptr<Connection>& connection, co
             catch(const std::exception&)
             {
             }
-
         });
 
     connection->setHeartbeatCallback([self = shared_from_this()](const shared_ptr<Connection>& c)

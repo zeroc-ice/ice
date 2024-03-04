@@ -84,15 +84,15 @@ module Glacier2
     interface SessionControl
     {
         /// Access the object that manages the allowable categories for object identities for this session.
-        /// @return A StringSet object.
+        /// @return A StringSet object. The returned proxy is never null.
         StringSet* categories();
 
         /// Access the object that manages the allowable adapter identities for objects for this session.
-        /// @return A StringSet object.
+        /// @return A StringSet object. The returned proxy is never null.
         StringSet* adapterIds();
 
         /// Access the object that manages the allowable object identities for this session.
-        /// @return An IdentitySet object.
+        /// @return An IdentitySet object. The returned proxy is never null.
         IdentitySet* identities();
 
         /// Get the session timeout.
@@ -111,9 +111,11 @@ module Glacier2
     /// @see Session
     interface SessionManager
     {
-        /// Create a new session.
+        /// Create a new session. The implementation must return a non-null proxy or raise
+        /// {@link CannotCreateSessionException} if the session cannot be created.
         /// @param userId The user id for the session.
-        /// @param control A proxy to the session control object.
+        /// @param control A proxy to the session control object. The control proxy is null if Glacier2.Server.Endpoints
+        /// are not configured, otherwise is a non-null proxy.
         /// @return A proxy to the newly created session.
         /// @throws CannotCreateSessionException Raised if the session cannot be created.
         ["format:sliced"]

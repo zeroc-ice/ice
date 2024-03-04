@@ -121,7 +121,7 @@ interface LocatorRegistry
 interface LocatorFinder
 {
     /// Get the locator proxy implemented by the process hosting this finder object. The proxy might point to several
-    /// replicas.
+    /// replicas. The implementation must return a non-null proxy.
     /// @return The locator proxy.
     Locator* getLocator();
 }

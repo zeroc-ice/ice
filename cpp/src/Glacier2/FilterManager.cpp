@@ -152,7 +152,7 @@ Glacier2::FilterManager::FilterManager(shared_ptr<Instance> instance, shared_ptr
     try
     {
         auto adapter = _instance->serverObjectAdapter();
-        if(adapter)
+        if (adapter)
         {
             _categoriesPrx = Glacier2::StringSetPrx(adapter->addWithUUID(_categories));
             _adapterIdsPrx = Glacier2::StringSetPrx(adapter->addWithUUID(_adapters));

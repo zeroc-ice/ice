@@ -40,8 +40,8 @@ interface Router
     ["nonmutating", "cpp:const"] idempotent Object* getServerProxy();
 
     /// Add new proxy information to the router's routing table.
-    /// @param proxies The proxies to add.
-    /// @return Proxies discarded by the router.
+    /// @param proxies The proxies to add. The proxies sequence must not contain any null proxies.
+    /// @return Proxies discarded by the router. The returned sequence must not contain null proxies.
     idempotent ObjectProxySeq addProxies(ObjectProxySeq proxies);
 }
 
@@ -51,7 +51,7 @@ interface Router
 interface RouterFinder
 {
     /// Get the router proxy implemented by the process hosting this finder object. The proxy might point to several
-    /// replicas.
+    /// replicas. The implementation must return a non-null proxy.
     /// @return The router proxy.
     Router* getRouter();
 }
