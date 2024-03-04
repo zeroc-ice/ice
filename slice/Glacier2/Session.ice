@@ -115,7 +115,7 @@ module Glacier2
         /// {@link CannotCreateSessionException} if the session cannot be created.
         /// @param userId The user id for the session.
         /// @param control A proxy to the session control object. The control proxy is null if Glacier2.Server.Endpoints
-        /// are not configured, otherwise is a non-null proxy.
+        /// are not configured.
         /// @return A proxy to the newly created session.
         /// @throws CannotCreateSessionException Raised if the session cannot be created.
         ["format:sliced"]
