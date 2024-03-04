@@ -178,7 +178,7 @@ public:
                 }
                 else
                 {
-                    exception(make_exception_ptr(
+                    self->exception(make_exception_ptr(
                         CannotCreateSessionException("Session manager returned a null session proxy")));
                 }
             },
@@ -301,7 +301,7 @@ public:
                 }
                 else
                 {
-                    exception(make_exception_ptr(
+                    self->exception(make_exception_ptr(
                         CannotCreateSessionException("Session manager returned a null session proxy")));
                 }
             },
