@@ -64,6 +64,10 @@ setupNullPermissionsVerifier(
 
     Ice::PropertiesPtr properties = communicator->getProperties();
     ObjectAdapterPtr adapter;
+
+    shared_ptr<Glacier2::PermissionsVerifier> nullPermissionsVerifier;
+    shared_ptr<Glacier2::SSLPermissionsVerifier> nullSSLPermissionsVerifier;
+
     for (const auto& propertyName : permissionsVerifierPropertyNames)
     {
         string val = properties->getProperty(propertyName);
@@ -72,15 +76,17 @@ setupNullPermissionsVerifier(
             try
             {
                 ObjectPrx prx(communicator, val);
-                if (prx->ice_getIdentity() == nullPermissionsVerifierId)
+                if (prx->ice_getIdentity() == nullPermissionsVerifierId && nullPermissionsVerifier == nullptr)
                 {
                     adapter = createObjectAdapter(communicator, adapter);
-                    adapter->add(make_shared<NullPermissionsVerifier>(), nullPermissionsVerifierId);
+                    nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
+                    adapter->add(nullPermissionsVerifier, nullPermissionsVerifierId);
                 }
-                else if (prx->ice_getIdentity() == nullSSLPermissionsVerifierId)
+                else if (prx->ice_getIdentity() == nullSSLPermissionsVerifierId && nullSSLPermissionsVerifier == nullptr)
                 {
                     adapter = createObjectAdapter(communicator, adapter);
-                    adapter->add(make_shared<NullSSLPermissionsVerifier>(), nullSSLPermissionsVerifierId);
+                    nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
+                    adapter->add(nullSSLPermissionsVerifier, nullSSLPermissionsVerifierId);
                 }
             }
             catch(const ProxyParseException&)
@@ -88,18 +94,18 @@ setupNullPermissionsVerifier(
                 // check if it's actually a stringified identity
                 // (with typically missing " " because the category contains a space)
 
-                if(val == communicator->identityToString(nullPermissionsVerifierId))
+                if(val == communicator->identityToString(nullPermissionsVerifierId) && nullPermissionsVerifier == nullptr)
                 {
                     adapter = createObjectAdapter(communicator, adapter);
-                    ObjectPrx prx = adapter->add(make_shared<NullPermissionsVerifier>(), nullPermissionsVerifierId);
+                    nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
+                    ObjectPrx prx = adapter->add(nullPermissionsVerifier, nullPermissionsVerifierId);
                     properties->setProperty(propertyName, prx->ice_toString());
                 }
-                else if(val == communicator->identityToString(nullSSLPermissionsVerifierId))
+                else if(val == communicator->identityToString(nullSSLPermissionsVerifierId) && nullSSLPermissionsVerifier == nullptr)
                 {
                     adapter = createObjectAdapter(communicator, adapter);
-                    ObjectPrx prx = adapter->add(
-                        make_shared<NullSSLPermissionsVerifier>(),
-                        nullSSLPermissionsVerifierId);
+                    nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
+                    ObjectPrx prx = adapter->add(nullSSLPermissionsVerifier, nullSSLPermissionsVerifierId);
                     properties->setProperty(propertyName, prx->ice_toString());
                 }
                 // Otherwise let the service report this incorrectly formatted proxy
