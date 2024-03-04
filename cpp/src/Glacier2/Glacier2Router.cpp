@@ -28,19 +28,16 @@ public:
     {
     }
 
-    shared_ptr<Object>
-    locate(const Current& current, shared_ptr<void>&) override
+    shared_ptr<Object> locate(const Current& current, shared_ptr<void>&) final
     {
         return _sessionRouter->getClientBlobject(current.con, current.id);
     }
 
-    void
-    finished(const Current&, const shared_ptr<Object>&, const shared_ptr<void>&) override
+    void finished(const Current&, const shared_ptr<Object>&, const shared_ptr<void>&) final
     {
     }
 
-    void
-    deactivate(const string&) override
+    void deactivate(const string&) final
     {
     }
 
@@ -58,19 +55,16 @@ public:
     {
     }
 
-    shared_ptr<Object>
-    locate(const Current& current, shared_ptr<void>&) override
+    shared_ptr<Object> locate(const Current& current, shared_ptr<void>&) final
     {
         return _sessionRouter->getServerBlobject(current.id.category);
     }
 
-    void
-    finished(const Current&, const shared_ptr<Object>&, const shared_ptr<void>&) override
+    void finished(const Current&, const shared_ptr<Object>&, const shared_ptr<void>&) final
     {
     }
 
-    void
-    deactivate(const string&) override
+    void deactivate(const string&) final
     {
     }
 
