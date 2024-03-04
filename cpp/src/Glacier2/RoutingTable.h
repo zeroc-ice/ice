@@ -41,13 +41,13 @@ private:
     const std::shared_ptr<ProxyVerifier> _verifier;
 
     struct EvictorEntry;
-    using EvictorMap = std::map<Ice::Identity, std::shared_ptr<EvictorEntry>>;
+    using EvictorMap = std::map<Ice::Identity, EvictorEntry>;
     using EvictorQueue = std::list<EvictorMap::iterator>;
 
     friend struct EvictorEntry;
     struct EvictorEntry
     {
-        std::optional<Ice::ObjectPrx> proxy;
+        Ice::ObjectPrx proxy;
         EvictorQueue::iterator pos;
     };
 

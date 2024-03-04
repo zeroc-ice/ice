@@ -205,105 +205,86 @@ RouterService::start(int argc, char* argv[], int& status)
 
     Glacier2Internal::setupNullPermissionsVerifier(communicator(), instanceName, verifierProperties);
 
-    string verifierProperty = verifierProperties[0];
+    const string verifierProperty = verifierProperties[0];
     optional<PermissionsVerifierPrx> verifier;
-    optional<ObjectPrx> obj;
     try
     {
-        //
-        // We use propertyToProxy instead of stringToProxy because the property
-        // can provide proxy attributes
-        //
-        obj = communicator()->propertyToProxy(verifierProperty);
+        verifier = optional<PermissionsVerifierPrx>(communicator()->propertyToProxy(verifierProperty));
+        if (verifier)
+        {
+            verifier->ice_ping();
+        }
     }
-    catch(const std::exception& ex)
+    catch (const Ice::Exception& ex)
+    {
+        if (!nowarn)
+        {
+            ServiceWarning warn(this);
+            warn << "unable to contact permissions verifier `" << properties->getProperty(verifierProperty) << "'\n"
+                << ex;
+        }
+    }
+    catch (const std::exception& ex)
     {
         ServiceError err(this);
-        err << "permissions verifier `" << communicator()->getProperties()->getProperty(verifierProperty)
-            << "' is invalid:\n" << ex;
+        err << "permissions verifier `" << properties->getProperty(verifierProperty) << "' is invalid:\n" << ex;
         return false;
-    }
-
-    if(obj)
-    {
-        try
-        {
-            // TODO remove this checkedCast?
-            verifier = Ice::checkedCast<PermissionsVerifierPrx>(obj);
-            if(!verifier)
-            {
-                ServiceError err(this);
-                err << "permissions verifier `" << communicator()->getProperties()->getProperty(verifierProperty)
-                    << "' is invalid";
-                return false;
-            }
-        }
-        catch(const Ice::Exception& ex)
-        {
-            if(!nowarn)
-            {
-                ServiceWarning warn(this);
-                warn << "unable to contact permissions verifier `"
-                     << communicator()->getProperties()->getProperty(verifierProperty) << "'\n" << ex;
-            }
-            verifier = PermissionsVerifierPrx(*obj);
-        }
     }
 
     //
     // Get the session manager if specified.
     //
-    string sessionManagerProperty = "Glacier2.SessionManager";
-    string sessionManagerPropertyValue = properties->getProperty(sessionManagerProperty);
+    const string sessionManagerProperty = "Glacier2.SessionManager";
     optional<SessionManagerPrx> sessionManager;
-    if(!sessionManagerPropertyValue.empty())
+    try
     {
-        try
+        sessionManager = optional<SessionManagerPrx>(communicator()->propertyToProxy(sessionManagerProperty));
+        if (sessionManager)
         {
-            obj = communicator()->propertyToProxy(sessionManagerProperty);
+            sessionManager->ice_ping();
+            sessionManager = sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+                properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600));
         }
-        catch(const std::exception& ex)
+    }
+    catch (const Ice::Exception& ex)
+    {
+        if (!nowarn)
         {
-            ServiceError err(this);
-            err << "session manager `" << sessionManagerPropertyValue << "' is invalid\n:" << ex;
-            return false;
+            ServiceWarning warn(this);
+            warn << "unable to contact session manager `" << properties->getProperty(sessionManagerProperty) << "'\n"
+                << ex;
         }
-        assert(obj);
-
-        try
-        {
-            sessionManager = Ice::checkedCast<SessionManagerPrx>(obj);
-            if(!sessionManager)
-            {
-                error("session manager `" + sessionManagerPropertyValue + "' is invalid");
-                return false;
-            }
-        }
-        catch(const std::exception& ex)
-        {
-            if(!nowarn)
-            {
-                ServiceWarning warn(this);
-                warn << "unable to contact session manager `" << sessionManagerPropertyValue << "'\n" << ex;
-            }
-            sessionManager = SessionManagerPrx(*obj);
-        }
-
-        sessionManager = sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
-            properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600));
+    }
+    catch (const std::exception& ex)
+    {
+        ServiceError err(this);
+        err << "session manager `" << properties->getProperty(sessionManagerProperty) << "' is invalid:\n" << ex;
+        return false;
     }
 
     //
     // Check for an SSL permissions verifier.
     //
-    string sslVerifierProperty = verifierProperties[1];
+    const string sslVerifierProperty = verifierProperties[1];
     optional<SSLPermissionsVerifierPrx> sslVerifier;
-
     try
     {
-        obj = communicator()->propertyToProxy(sslVerifierProperty);
+        sslVerifier = optional<SSLPermissionsVerifierPrx>(communicator()->propertyToProxy(sslVerifierProperty));
+        if (sslVerifier)
+        {
+            sslVerifier->ice_ping();
+        }
     }
-    catch(const std::exception& ex)
+    catch (const Ice::Exception& ex)
+    {
+        if(!nowarn)
+        {
+            ServiceWarning warn(this);
+            warn << "unable to contact ssl permissions verifier `" <<  properties->getProperty(sslVerifierProperty)
+                << "'\n" << ex;
+        }
+    }
+    catch (const std::exception& ex)
     {
         ServiceError err(this);
         err << "ssl permissions verifier `" << communicator()->getProperties()->getProperty(sslVerifierProperty)
@@ -311,78 +292,41 @@ RouterService::start(int argc, char* argv[], int& status)
         return false;
     }
 
-    if(obj)
+    if (!verifier && !sslVerifier)
     {
-        try
-        {
-            sslVerifier = Ice::checkedCast<SSLPermissionsVerifierPrx>(obj);
-            if(!sslVerifier)
-            {
-                ServiceError err(this);
-                err << "ssl permissions verifier `"
-                    << communicator()->getProperties()->getProperty(sslVerifierProperty)
-                    << "' is invalid";
-            }
-        }
-        catch(const Ice::Exception& ex)
-        {
-            if(!nowarn)
-            {
-                ServiceWarning warn(this);
-                warn << "unable to contact ssl permissions verifier `"
-                     <<  communicator()->getProperties()->getProperty(sslVerifierProperty) << "'\n"
-                     << ex;
-            }
-            sslVerifier = SSLPermissionsVerifierPrx(*obj);
-        }
+        error("Glacier2 requires a permissions verifier or password file");
+        return false;
     }
 
     //
     // Get the SSL session manager if specified.
     //
-    string sslSessionManagerProperty = "Glacier2.SSLSessionManager";
-    string sslSessionManagerPropertyValue = properties->getProperty(sslSessionManagerProperty);
+    const string sslSessionManagerProperty = "Glacier2.SSLSessionManager";
     optional<SSLSessionManagerPrx> sslSessionManager;
-    if(!sslSessionManagerPropertyValue.empty())
+    try
     {
-        try
+        sslSessionManager = optional<SSLSessionManagerPrx>(communicator()->propertyToProxy(sslSessionManagerProperty));
+        if (sslSessionManager)
         {
-            obj = communicator()->propertyToProxy(sslSessionManagerProperty);
+            sslSessionManager->ice_ping();
+            sslSessionManager = sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+                properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600));
         }
-        catch(const std::exception& ex)
-        {
-            ServiceError err(this);
-            err << "ssl session manager `" << sslSessionManagerPropertyValue << "' is invalid:\n" << ex;
-            return false;
-        }
-
-        assert(obj);
-        try
-        {
-            sslSessionManager = Ice::checkedCast<SSLSessionManagerPrx>(obj);
-            if(!sslSessionManager)
-            {
-                error("ssl session manager `" + sslSessionManagerPropertyValue + "' is invalid");
-                return false;
-            }
-        }
-        catch(const Ice::Exception& ex)
-        {
-            if(!nowarn)
-            {
-                ServiceWarning warn(this);
-                warn << "unable to contact ssl session manager `" << sslSessionManagerPropertyValue
-                     << "'\n" << ex;
-            }
-            sslSessionManager = SSLSessionManagerPrx(*obj);
-        }
-        sslSessionManager = sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
-            properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600));
     }
-
-    if(!verifier && !sslVerifier)
+    catch (const Ice::Exception& ex)
     {
-        error("Glacier2 requires a permissions verifier or password file");
+        if (!nowarn)
+        {
+            ServiceWarning warn(this);
+            warn << "unable to contact ssl session manager `" << properties->getProperty(sslSessionManagerProperty)
+                << "'\n" << ex;
+        }
+    }
+    catch (const std::exception& ex)
+    {
+        ServiceError err(this);
+        err << "ssl session manager `" << properties->getProperty(sslSessionManagerProperty) << "' is invalid:\n"
+            << ex;
         return false;
     }
 

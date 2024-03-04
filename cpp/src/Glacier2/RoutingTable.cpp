@@ -20,7 +20,7 @@ Glacier2::RoutingTable::RoutingTable(shared_ptr<Communicator> communicator, shar
 void
 Glacier2::RoutingTable::destroy()
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard<mutex> lock(_mutex);
     if(_observer)
     {
         _observer->routingTableSize(-static_cast<int>(_map.size()));
@@ -33,7 +33,7 @@ Glacier2::RoutingTable::updateObserver(const shared_ptr<Glacier2::Instrumentatio
                                        const string& userId,
                                        const shared_ptr<Ice::Connection>& connection)
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard<mutex> lock(_mutex);
     _observer.attach(obsv->getSessionObserver(userId, connection, static_cast<int>(_map.size()), _observer.get()));
     return _observer.get();
 }
@@ -41,7 +41,7 @@ Glacier2::RoutingTable::updateObserver(const shared_ptr<Glacier2::Instrumentatio
 ObjectProxySeq
 Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& current)
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard<mutex> lock(_mutex);
 
     size_t sz = _map.size();
 
@@ -50,8 +50,8 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     // ensures that our state is not modified if this operation results
     // in a rejection.
     //
-    ObjectProxySeq proxies;
-    for(const auto& prx : unfiltered)
+    vector<ObjectPrx> proxies;
+    for (const auto& prx : unfiltered)
     {
         if(!prx) // We ignore null proxies.
         {
@@ -63,12 +63,13 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             current.con->close(ConnectionClose::Forcefully);
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
-        auto proxy = prx->ice_twoway()->ice_secure(false)->ice_facet(""); // We add proxies in default form.
+
+        ObjectPrx proxy = prx->ice_twoway()->ice_secure(false)->ice_facet(""); // We add proxies in default form.
         proxies.push_back(proxy);
     }
 
     ObjectProxySeq evictedProxies;
-    for(const auto& proxy : proxies)
+    for (const auto& proxy : proxies)
     {
         EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
 
@@ -80,11 +81,9 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
                 out << "adding proxy to routing table:\n" << proxy;
             }
 
-            auto entry = make_shared<EvictorEntry>();
-            p = _map.insert(_map.begin(), {proxy->ice_getIdentity(), entry});
+            p = _map.insert(_map.begin(), make_pair(proxy->ice_getIdentity(), EvictorEntry { proxy, _queue.end() }));
             EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
-            entry->proxy = proxy;
-            entry->pos = q;
+            p->second.pos = q;
         }
         else
         {
@@ -94,10 +93,10 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
                 out << "proxy already in routing table:\n" << proxy;
             }
 
-            auto entry = p->second;
-            _queue.erase(entry->pos);
+            auto& entry = p->second;
+            _queue.erase(entry.pos);
             EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
-            entry->pos = q;
+            entry.pos = q;
         }
 
         while(static_cast<int>(_map.size()) > _maxSize)
@@ -107,10 +106,10 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             if(_traceLevel >= 2)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
-                out << "evicting proxy from routing table:\n" << p->second->proxy;
+                out << "evicting proxy from routing table:\n" << p->second.proxy;
             }
 
-            evictedProxies.push_back(p->second->proxy);
+            evictedProxies.push_back(p->second.proxy);
 
             _map.erase(p);
             _queue.pop_front();
@@ -128,12 +127,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
 optional<ObjectPrx>
 Glacier2::RoutingTable::get(const Identity& ident)
 {
-    if(ident.name.empty())
-    {
-        return nullopt;
-    }
-
-    lock_guard<mutex> lg(_mutex);
+    lock_guard<mutex> lock(_mutex);
 
     EvictorMap::iterator p = _map.find(ident);
 
@@ -143,11 +137,11 @@ Glacier2::RoutingTable::get(const Identity& ident)
     }
     else
     {
-        auto entry = p->second;
-        _queue.erase(entry->pos);
+        auto& entry = p->second;
+        _queue.erase(entry.pos);
         EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
-        entry->pos = q;
+        entry.pos = q;
 
-        return entry->proxy;
+        return entry.proxy;
     }
 }
