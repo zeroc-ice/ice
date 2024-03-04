@@ -32,19 +32,15 @@ public:
     }
 };
 
-Ice::ObjectAdapterPtr createObjectAdapter(
+void setupObjectAdapter(
     const Ice::CommunicatorPtr& communicator,
-    const Ice::ObjectAdapterPtr& adapter)
+    Ice::ObjectAdapterPtr& adapter)
 {
     if (adapter == nullptr)
     {
-        Ice::ObjectAdapterPtr newAdapter = communicator->createObjectAdapter("");
-        newAdapter->activate();
-        return newAdapter;
-    }
-    else
-    {
-        return adapter;
+        // Create collocated object adapter
+        adapter = communicator->createObjectAdapter("");
+        adapter->activate();
     }
 }
 
@@ -78,13 +74,13 @@ setupNullPermissionsVerifier(
                 ObjectPrx prx(communicator, val);
                 if (prx->ice_getIdentity() == nullPermissionsVerifierId && nullPermissionsVerifier == nullptr)
                 {
-                    adapter = createObjectAdapter(communicator, adapter);
+                    setupObjectAdapter(communicator, adapter);
                     nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
                     adapter->add(nullPermissionsVerifier, nullPermissionsVerifierId);
                 }
                 else if (prx->ice_getIdentity() == nullSSLPermissionsVerifierId && nullSSLPermissionsVerifier == nullptr)
                 {
-                    adapter = createObjectAdapter(communicator, adapter);
+                    setupObjectAdapter(communicator, adapter);
                     nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
                     adapter->add(nullSSLPermissionsVerifier, nullSSLPermissionsVerifierId);
                 }
@@ -96,14 +92,14 @@ setupNullPermissionsVerifier(
 
                 if(val == communicator->identityToString(nullPermissionsVerifierId) && nullPermissionsVerifier == nullptr)
                 {
-                    adapter = createObjectAdapter(communicator, adapter);
+                    setupObjectAdapter(communicator, adapter);
                     nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
                     ObjectPrx prx = adapter->add(nullPermissionsVerifier, nullPermissionsVerifierId);
                     properties->setProperty(propertyName, prx->ice_toString());
                 }
                 else if(val == communicator->identityToString(nullSSLPermissionsVerifierId) && nullSSLPermissionsVerifier == nullptr)
                 {
-                    adapter = createObjectAdapter(communicator, adapter);
+                    setupObjectAdapter(communicator, adapter);
                     nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
                     ObjectPrx prx = adapter->add(nullSSLPermissionsVerifier, nullSSLPermissionsVerifierId);
                     properties->setProperty(propertyName, prx->ice_toString());
