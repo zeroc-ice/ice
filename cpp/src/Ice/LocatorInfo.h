@@ -6,7 +6,6 @@
 #define ICE_LOCATOR_INFO_H
 
 #include <Ice/LocatorInfoF.h>
-#include <Ice/LocatorF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/Identity.h>
 #include <Ice/EndpointIF.h>

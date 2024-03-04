@@ -43,10 +43,10 @@ static zend_object* handleExceptionInfoAlloc(zend_class_entry*);
 static void handleExceptionInfoFreeStorage(zend_object*);
 }
 
-typedef map<string, ProxyInfoPtr> ProxyInfoMap;
-typedef map<string, ClassInfoPtr> ClassInfoMap;
+typedef map<string, ProxyInfoPtr, std::less<>> ProxyInfoMap;
+typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;
 
-typedef map<string, ExceptionInfoPtr> ExceptionInfoMap;
+typedef map<string, ExceptionInfoPtr, std::less<>> ExceptionInfoMap;
 
 static void
 addProxyInfo(const ProxyInfoPtr& p)
@@ -71,7 +71,7 @@ addPropertyZval(zval* arg, const char* key, zval* value)
 }
 
 IcePHP::ProxyInfoPtr
-IcePHP::getProxyInfo(const string& id)
+IcePHP::getProxyInfo(string_view id)
 {
     if(ICE_G(proxyInfoMap))
     {
@@ -143,7 +143,7 @@ getClassInfoByClass(zend_class_entry* cls, zend_class_entry* formal)
 }
 
 IcePHP::ClassInfoPtr
-IcePHP::getClassInfoById(const string& id)
+IcePHP::getClassInfoById(string_view id)
 {
     if (ICE_G(idToClassInfoMap))
     {
@@ -181,7 +181,7 @@ IcePHP::getClassInfoByName(const string& name)
 }
 
 IcePHP::ExceptionInfoPtr
-IcePHP::getExceptionInfo(const string& id)
+IcePHP::getExceptionInfo(string_view id)
 {
     if(ICE_G(exceptionInfoMap))
     {
@@ -396,12 +396,12 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
 #   pragma clang diagnostic push
 #   pragma clang diagnostic ignored "-Wshadow"
 #endif
-                vector<Ice::Byte>::size_type i = 0;
+                vector<uint8_t>::size_type i = 0;
                 ZEND_HASH_FOREACH_VAL(barr, e)
                 {
                     long l = static_cast<long>(Z_LVAL_P(e));
                     assert(l >= 0 && l <= 255);
-                    info->bytes[i++] = static_cast<Ice::Byte>(l);
+                    info->bytes[i++] = static_cast<uint8_t>(l);
                 }
                 ZEND_HASH_FOREACH_END();
 #if defined(__clang__)
@@ -757,7 +757,7 @@ IcePHP::PrimitiveInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap*, bool
         assert(Z_TYPE_P(zv) == IS_LONG);
         long val = static_cast<long>(Z_LVAL_P(zv));
         assert(val >= 0 && val <= 255); // validate() should have caught this.
-        os->write(static_cast<Ice::Byte>(val));
+        os->write(static_cast<uint8_t>(val));
         break;
     }
     case PrimitiveInfo::KindShort:
@@ -869,7 +869,7 @@ IcePHP::PrimitiveInfo::unmarshal(
     }
     case PrimitiveInfo::KindByte:
     {
-        Ice::Byte val;
+        uint8_t val;
         is->read(val);
         ZVAL_LONG(&zv, val & 0xff);
         break;
@@ -944,8 +944,8 @@ IcePHP::PrimitiveInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObject
 }
 
 // EnumInfo implementation.
-IcePHP::EnumInfo::EnumInfo(const string& ident, zval* en) :
-    id(ident),
+IcePHP::EnumInfo::EnumInfo(string ident, zval* en) :
+    id(std::move(ident)),
     maxValue(0)
 {
     HashTable* arr = Z_ARRVAL_P(en);
@@ -1140,8 +1140,8 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
 }
 
 // StructInfo implementation.
-IcePHP::StructInfo::StructInfo(const string& ident, const string& n, zval* m) :
-    id(ident), name(n)
+IcePHP::StructInfo::StructInfo(string ident, const string& n, zval* m) :
+    id(std::move(ident)), name(n)
 {
     // Set to undefined
     ZVAL_UNDEF(&_nullMarshalValue);
@@ -1381,8 +1381,8 @@ IcePHP::StructInfo::destroy()
 }
 
 // SequenceInfo implementation.
-IcePHP::SequenceInfo::SequenceInfo(const string& ident, zval* e) :
-    id(ident)
+IcePHP::SequenceInfo::SequenceInfo(string ident, zval* e) :
+    id(std::move(ident))
 {
     const_cast<TypeInfoPtr&>(elementType) = Wrapper<TypeInfoPtr>::value(e);
 }
@@ -1625,7 +1625,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             }
             long l = static_cast<long>(Z_LVAL_P(val));
             assert(l >= 0 && l <= 255);
-            seq[i++] = static_cast<Ice::Byte>(l);
+            seq[i++] = static_cast<uint8_t>(l);
         }
         ZEND_HASH_FOREACH_END();
 
@@ -1820,9 +1820,9 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
     }
     case PrimitiveInfo::KindByte:
     {
-        pair<const Ice::Byte*, const Ice::Byte*> pr;
+        pair<const uint8_t*, const uint8_t*> pr;
         is->read(pr);
-        for (const Ice::Byte* p = pr.first; p != pr.second; ++p)
+        for (const uint8_t* p = pr.first; p != pr.second; ++p)
         {
             add_next_index_long(&zv, *p & 0xff);
         }
@@ -1916,8 +1916,8 @@ IcePHP::SequenceInfo::unmarshalPrimitiveSequence(
 }
 
 // DictionaryInfo implementation.
-IcePHP::DictionaryInfo::DictionaryInfo(const string& ident, zval* k, zval* v) :
-    id(ident)
+IcePHP::DictionaryInfo::DictionaryInfo(string ident, zval* k, zval* v) :
+    id(std::move(ident))
 {
     const_cast<TypeInfoPtr&>(keyType) = Wrapper<TypeInfoPtr>::value(k);
     const_cast<TypeInfoPtr&>(valueType) = Wrapper<TypeInfoPtr>::value(v);
@@ -2264,8 +2264,8 @@ IcePHP::DictionaryInfo::destroy()
 }
 
 // ClassInfo implementation.
-IcePHP::ClassInfo::ClassInfo(const string& ident) :
-    id(ident), compactId(-1), interface(false), zce(0), defined(false)
+IcePHP::ClassInfo::ClassInfo(string ident) :
+    id(std::move(ident)), compactId(-1), interface(false), zce(0), defined(false)
 {
 }
 
@@ -2511,7 +2511,7 @@ IcePHP::ClassInfo::printMembers(zval* zv, IceUtilInternal::Output& out, PrintObj
 }
 
 bool
-IcePHP::ClassInfo::isA(const string& typeId) const
+IcePHP::ClassInfo::isA(string_view typeId) const
 {
     if(id == typeId)
     {
@@ -2522,8 +2522,8 @@ IcePHP::ClassInfo::isA(const string& typeId) const
 }
 
 // ProxyInfo implementation.
-IcePHP::ProxyInfo::ProxyInfo(const string& ident) :
-    id(ident),
+IcePHP::ProxyInfo::ProxyInfo(string ident) :
+    id(std::move(ident)),
     defined(false)
 {
 }
@@ -2719,7 +2719,7 @@ IcePHP::ProxyInfo::destroy()
 }
 
 bool
-IcePHP::ProxyInfo::isA(const string& typeId) const
+IcePHP::ProxyInfo::isA(string_view typeId) const
 {
     if(id == typeId)
     {
@@ -3221,7 +3221,7 @@ IcePHP::ExceptionInfo::printMembers(zval* zv, IceUtilInternal::Output& out, Prin
 }
 
 bool
-IcePHP::ExceptionInfo::isA(const string& typeId) const
+IcePHP::ExceptionInfo::isA(string_view typeId) const
 {
     if(id == typeId)
     {

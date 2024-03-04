@@ -41,7 +41,7 @@ Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
 
 IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* responseHandler,
                                         Ice::Connection* connection, const ObjectAdapterPtr& adapter,
-                                        bool response, Byte compress, int32_t requestId) :
+                                        bool response, uint8_t compress, int32_t requestId) :
     _response(response),
     _compress(compress),
     _format(Ice::FormatType::DefaultFormat),
@@ -111,7 +111,7 @@ IncomingBase::writeEmptyParams()
 }
 
 void
-IncomingBase::writeParamEncaps(const Byte* v, int32_t sz, bool ok)
+IncomingBase::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 {
     if(!ok)
     {
@@ -504,7 +504,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
 }
 
 IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection,
-                                const ObjectAdapterPtr& adapter, bool response, Byte compress, int32_t requestId) :
+                                const ObjectAdapterPtr& adapter, bool response, uint8_t compress, int32_t requestId) :
     IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
     _inParamPos(0)
 {
@@ -579,7 +579,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
 
     _is->read(_current.operation, false);
 
-    Byte b;
+    uint8_t b;
     _is->read(b);
     _current.mode = static_cast<OperationMode>(b);
 

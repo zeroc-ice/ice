@@ -12,14 +12,14 @@ using namespace std;
 // If the factory is present already, increment its reference count.
 //
 void
-IceInternal::FactoryTable::addExceptionFactory(const string& t, Ice::UserExceptionFactory f)
+IceInternal::FactoryTable::addExceptionFactory(string_view t, Ice::UserExceptionFactory f)
 {
     lock_guard lock(_mutex);
     assert(f);
     EFTable::iterator i = _eft.find(t);
     if(i == _eft.end())
     {
-        _eft[t] = EFPair(f, 1);
+        _eft[string{t}] = EFPair(f, 1);
     }
     else
     {
@@ -31,7 +31,7 @@ IceInternal::FactoryTable::addExceptionFactory(const string& t, Ice::UserExcepti
 // Return the exception factory for a given type ID
 //
 Ice::UserExceptionFactory
-IceInternal::FactoryTable::getExceptionFactory(const string& t) const
+IceInternal::FactoryTable::getExceptionFactory(string_view t) const
 {
     lock_guard lock(_mutex);
     EFTable::const_iterator i = _eft.find(t);
@@ -45,7 +45,7 @@ IceInternal::FactoryTable::getExceptionFactory(const string& t) const
 // entry from the table.
 //
 void
-IceInternal::FactoryTable::removeExceptionFactory(const string& t)
+IceInternal::FactoryTable::removeExceptionFactory(string_view t)
 {
     lock_guard lock(_mutex);
     EFTable::iterator i = _eft.find(t);
@@ -62,14 +62,14 @@ IceInternal::FactoryTable::removeExceptionFactory(const string& t)
 // Add a factory to the value factory table.
 //
 void
-IceInternal::FactoryTable::addValueFactory(const string& t, ::Ice::ValueFactoryFunc f)
+IceInternal::FactoryTable::addValueFactory(string_view t, ::Ice::ValueFactoryFunc f)
 {
     lock_guard lock(_mutex);
     assert(f);
     VFTable::iterator i = _vft.find(t);
     if(i == _vft.end())
     {
-        _vft[t] = VFPair(f, 1);
+        _vft[string{t}] = VFPair(f, 1);
     }
     else
     {
@@ -81,7 +81,7 @@ IceInternal::FactoryTable::addValueFactory(const string& t, ::Ice::ValueFactoryF
 // Return the value factory for a given type ID
 //
 ::Ice::ValueFactoryFunc
-IceInternal::FactoryTable::getValueFactory(const string& t) const
+IceInternal::FactoryTable::getValueFactory(string_view t) const
 {
     lock_guard lock(_mutex);
     VFTable::const_iterator i = _vft.find(t);
@@ -95,7 +95,7 @@ IceInternal::FactoryTable::getValueFactory(const string& t) const
 // entry from the table.
 //
 void
-IceInternal::FactoryTable::removeValueFactory(const string& t)
+IceInternal::FactoryTable::removeValueFactory(string_view t)
 {
     lock_guard lock(_mutex);
     VFTable::iterator i = _vft.find(t);
@@ -112,14 +112,14 @@ IceInternal::FactoryTable::removeValueFactory(const string& t)
 // Add a factory to the value factory table.
 //
 void
-IceInternal::FactoryTable::addTypeId(int compactId, const string& typeId)
+IceInternal::FactoryTable::addTypeId(int compactId, string_view typeId)
 {
     lock_guard lock(_mutex);
     assert(!typeId.empty() && compactId >= 0);
     TypeIdTable::iterator i = _typeIdTable.find(compactId);
     if(i == _typeIdTable.end())
     {
-        _typeIdTable[compactId] = TypeIdPair(typeId, 1);
+        _typeIdTable[compactId] = TypeIdPair(string{typeId}, 1);
     }
     else
     {
@@ -135,7 +135,7 @@ IceInternal::FactoryTable::getTypeId(int compactId) const
 {
     lock_guard lock(_mutex);
     TypeIdTable::const_iterator i = _typeIdTable.find(compactId);
-    return i != _typeIdTable.end() ? i->second.first : string();
+    return i != _typeIdTable.end() ? i->second.first : string{};
 }
 
 void

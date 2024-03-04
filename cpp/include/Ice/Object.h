@@ -99,7 +99,7 @@ public:
      * Obtains the Slice type ID of this type.
      * @return The return value is always "::Ice::Object".
      */
-    static const std::string& ice_staticId();
+    static std::string_view ice_staticId();
 
     /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
@@ -148,7 +148,7 @@ public:
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      */
-    virtual bool ice_invoke(std::vector<Byte> inEncaps, std::vector<Byte>& outEncaps, const Current& current) = 0;
+    virtual bool ice_invoke(std::vector<std::uint8_t> inEncaps, std::vector<std::uint8_t>& outEncaps, const Current& current) = 0;
 
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
@@ -176,7 +176,7 @@ public:
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      */
-    virtual bool ice_invoke(std::pair<const Byte*, const Byte*> inEncaps, std::vector<Byte>& outEncaps,
+    virtual bool ice_invoke(std::pair<const std::uint8_t*, const std::uint8_t*> inEncaps, std::vector<std::uint8_t>& outEncaps,
                             const Current& current) = 0;
 
     /// \cond INTERNAL
@@ -206,8 +206,8 @@ public:
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      */
-    virtual void ice_invokeAsync(std::vector<Byte> inEncaps,
-                                 std::function<void(bool, const std::vector<Byte>&)> response,
+    virtual void ice_invokeAsync(std::vector<std::uint8_t> inEncaps,
+                                 std::function<void(bool, const std::vector<std::uint8_t>&)> response,
                                  std::function<void(std::exception_ptr)> error,
                                  const Current& current) = 0;
 
@@ -238,8 +238,8 @@ public:
      * @throws UserException A user exception can be raised directly and the
      * run time will marshal it.
      */
-    virtual void ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
-                                 std::function<void(bool, const std::pair<const Byte*, const Byte*>&)> response,
+    virtual void ice_invokeAsync(std::pair<const std::uint8_t*, const std::uint8_t*> inEncaps,
+                                 std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)> response,
                                  std::function<void(std::exception_ptr)> error,
                                  const Current& current) = 0;
     /// \cond INTERNAL

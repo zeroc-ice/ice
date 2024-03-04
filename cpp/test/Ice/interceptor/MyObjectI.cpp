@@ -10,10 +10,11 @@
 #include <thread>
 
 using namespace IceUtil;
+using namespace Ice;
 using namespace std;
 
 MySystemException::MySystemException(const char* file, int line) :
-    Ice::SystemException(file, line)
+    SystemException(file, line)
 {
 }
 
@@ -36,15 +37,15 @@ MySystemException::ice_throw() const
 }
 
 int
-MyObjectI::add(int x, int y, const Ice::Current&)
+MyObjectI::add(int x, int y, const Current&)
 {
     return x + y;
 }
 
 int
-MyObjectI::addWithRetry(int x, int y, const Ice::Current& current)
+MyObjectI::addWithRetry(int x, int y, const Current& current)
 {
-    Ice::Context::const_iterator p = current.ctx.find("retry");
+    Context::const_iterator p = current.ctx.find("retry");
 
     if(p == current.ctx.end() || p->second != "no")
     {
@@ -54,19 +55,19 @@ MyObjectI::addWithRetry(int x, int y, const Ice::Current& current)
 }
 
 int
-MyObjectI::badAdd(int, int, const Ice::Current&)
+MyObjectI::badAdd(int, int, const Current&)
 {
     throw Test::InvalidInputException();
 }
 
 int
-MyObjectI::notExistAdd(int, int, const Ice::Current&)
+MyObjectI::notExistAdd(int, int, const Current&)
 {
-    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    throw ObjectNotExistException(__FILE__, __LINE__);
 }
 
 int
-MyObjectI::badSystemAdd(int, int, const Ice::Current&)
+MyObjectI::badSystemAdd(int, int, const Current&)
 {
     throw MySystemException(__FILE__, __LINE__);
 }
@@ -76,11 +77,11 @@ MyObjectI::amdAddAsync(int x,
                        int y,
                        function<void(int)> response,
                        function<void(exception_ptr)>,
-                       const Ice::Current& current)
+                       const Current& current)
 {
-    Ice::Context::const_iterator p = current.ctx.find("retry");
+    Context::const_iterator p = current.ctx.find("retry");
     bool retry = p != current.ctx.end();
-    std::thread t(
+    thread t(
         [x, y, response, retry]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
@@ -88,7 +89,7 @@ MyObjectI::amdAddAsync(int x,
             {
                 response(x + y);
             }
-            catch(const Ice::ResponseSentException&)
+            catch(const ResponseSentException&)
             {
                 test(retry);
             }
@@ -101,9 +102,9 @@ MyObjectI::amdAddWithRetryAsync(int x,
                                 int y,
                                 function<void(int)> response,
                                 function<void(exception_ptr)> error,
-                                const Ice::Current& current)
+                                const Current& current)
 {
-    std::thread t(
+    thread t(
         [x, y, response]()
         {
             try
@@ -111,13 +112,13 @@ MyObjectI::amdAddWithRetryAsync(int x,
                 this_thread::sleep_for(chrono::milliseconds(10));
                 response(x + y);
             }
-            catch(const Ice::ResponseSentException&)
+            catch(const ResponseSentException&)
             {
             }
         });
     t.detach();
 
-    Ice::Context::const_iterator p = current.ctx.find("retry");
+    Context::const_iterator p = current.ctx.find("retry");
 
     if(p == current.ctx.end() || p->second != "no")
     {
@@ -130,9 +131,9 @@ MyObjectI::amdBadAddAsync(int,
                           int,
                           function<void(int)>,
                           function<void(exception_ptr)> error,
-                          const Ice::Current&)
+                          const Current&)
 {
-    std::thread t(
+    thread t(
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
@@ -146,13 +147,13 @@ MyObjectI::amdNotExistAddAsync(int,
                                int,
                                function<void(int)>,
                                function<void(exception_ptr)> error,
-                               const Ice::Current&)
+                               const Current&)
 {
-    std::thread t(
+    thread t(
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
-            error(make_exception_ptr(Ice::ObjectNotExistException(__FILE__, __LINE__)));
+            error(make_exception_ptr(ObjectNotExistException(__FILE__, __LINE__)));
         });
     t.detach();
 }
@@ -162,9 +163,9 @@ MyObjectI::amdBadSystemAddAsync(int,
                                 int,
                                 function<void(int)>,
                                 function<void(exception_ptr)> error,
-                                const Ice::Current&)
+                                const Current&)
 {
-    std::thread t(
+    thread t(
         [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));

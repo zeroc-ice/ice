@@ -61,8 +61,8 @@ Client::run(int argc, char** argv)
     properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    BackgroundPrxPtr allTests(Test::TestHelper*);
-    BackgroundPrxPtr background = allTests(this);
+    BackgroundPrx allTests(Test::TestHelper*);
+    BackgroundPrx background = allTests(this);
     background->shutdown();
 }
 

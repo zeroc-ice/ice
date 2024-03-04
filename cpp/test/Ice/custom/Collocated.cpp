@@ -31,7 +31,7 @@ Collocated::run(int argc, char** argv)
     adapter->add(make_shared<Test1::WstringClassI>(), Ice::stringToIdentity("WSTRING1"));
     adapter->add(make_shared<Test2::WstringClassI>(), Ice::stringToIdentity("WSTRING2"));
 
-    Test::TestIntfPrxPtr allTests(Test::TestHelper*);
+    Test::TestIntfPrx allTests(Test::TestHelper*);
     allTests(this);
 }
 

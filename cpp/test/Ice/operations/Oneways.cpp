@@ -63,11 +63,11 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
     }
 
     {
-        Ice::Byte b;
+        uint8_t b;
 
         try
         {
-            p->opByte(Ice::Byte(0xff), Ice::Byte(0x0f), b);
+            p->opByte(uint8_t(0xff), uint8_t(0x0f), b);
             test(false);
         }
         catch(const Ice::TwowayOnlyException&)

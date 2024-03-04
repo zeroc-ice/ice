@@ -7,6 +7,7 @@
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
+#include "TypeContext.h"
 
 namespace Slice
 {
@@ -22,51 +23,39 @@ void printHeader(::IceUtilInternal::Output&);
 void printVersionCheck(::IceUtilInternal::Output&);
 void printDllExportStuff(::IceUtilInternal::Output&, const std::string&);
 
-const int TypeContextInParam = 1;
-const int TypeContextAMIEnd = 2;
-const int TypeContextAMIPrivateEnd = 4;
-const int TypeContextAMICallPrivateEnd = 8;
-const int TypeContextUseWstring = 16;
-const int TypeContextTuple = 32;
-const int TypeContextCpp11 = 64;
-
 bool isMovable(const TypePtr&);
 
 std::string getUnqualified(const std::string&, const std::string&);
-std::string typeToString(const TypePtr&, const std::string& = "", const StringList& = StringList(), int = 0);
-std::string typeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
-std::string returnTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
-std::string inputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
-std::string outputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
-std::string operationModeToString(Operation::Mode, bool = false);
-std::string opFormatTypeToString(const OperationPtr&, bool);
+
+// Gets the C++ type for a Slice parameter or field.
+std::string typeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), TypeContext = TypeContext::None);
+
+// TODO: find a better name.
+// Gets the C++ type for a Slice parameter to be marshaled.
+std::string inputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), TypeContext = TypeContext::None);
+
+// TODO: find a better name.
+// Gets the C++ type for a Slice out parameter when mapped to a C++ out parameter.
+std::string outputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), TypeContext = TypeContext::None);
+
+std::string operationModeToString(Operation::Mode);
+std::string opFormatTypeToString(const OperationPtr&);
 
 std::string fixKwd(const std::string&);
 
-void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, int, const std::string&,
-                               bool, const StringList& = StringList(), int = 0, const std::string& = "",
-                               bool = true, const std::string& = "");
+void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);
+void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);
+void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, const std::string&, TypeContext);
 
-void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
-                      int = 0, const std::string& = "", const std::string& = "");
-void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
-                        const std::string& = "", const std::string& = "", const std::string& = "");
-void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
-                       int = 0, const std::string& = "");
-
-std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
-void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
-void writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, bool);
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
-void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool, bool, bool);
-void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, int);
+void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool);
+void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, TypeContext);
 
 bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);
 bool findMetaData(const std::string&, const StringList&, std::string&);
-std::string findMetaData(const StringList&, int = 0);
+std::string findMetaData(const StringList&, TypeContext = TypeContext::None);
 bool inWstringModule(const SequencePtr&);
 
-std::string getDataMemberRef(const DataMemberPtr&);
 }
 
 #endif

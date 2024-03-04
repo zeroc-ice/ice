@@ -15,16 +15,15 @@
 
 using namespace std;
 
-class TestPluginI : public PluginI
+class TestPluginI final : public PluginI
 {
 public:
 
     TestPluginI(const Ice::CommunicatorPtr&);
 
-    virtual void initialize();
-    virtual void destroy();
-
-    virtual ConfigurationPtr getConfiguration();
+    void initialize() final;
+    void destroy() final;
+    ConfigurationPtr getConfiguration() final;
 
 private:
 

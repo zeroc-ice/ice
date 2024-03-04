@@ -16,13 +16,11 @@ class C
     int i;
 }
 
-["cpp:class"]
 struct S1
 {
     string name;
 }
 
-["cpp:comparable"]
 struct S2
 {
     bool bo;

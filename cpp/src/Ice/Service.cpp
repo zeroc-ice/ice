@@ -197,7 +197,7 @@ public:
         _source = RegisterEventSourceW(0, stringToWstring(mangleSource(source), _stringConverter).c_str());
         if(_source == 0)
         {
-            throw SyscallException(__FILE__, __LINE__, GetLastError());
+            throw SyscallException(__FILE__, __LINE__);
         }
     }
 
@@ -233,7 +233,7 @@ public:
         if(!GetModuleFileNameW(_module, path, _MAX_PATH))
         {
             RegCloseKey(hKey);
-            throw SyscallException(__FILE__, __LINE__, GetLastError());
+            throw SyscallException(__FILE__, __LINE__);
         }
 
         //
@@ -1426,7 +1426,7 @@ ServiceStatusManager::startUpdate(DWORD state)
     lock_guard lock(_mutex);
 
     assert(state == SERVICE_START_PENDING || state == SERVICE_STOP_PENDING);
-    assert(!_thread);
+    assert(!_thread.joinable());
 
     _status.dwCurrentState = state;
     _status.dwControlsAccepted = 0; // Don't accept any other control messages while pending.
@@ -1603,7 +1603,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         //
         if(setsid() == -1)
         {
-            throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+            throw SyscallException(__FILE__, __LINE__);
         }
 
         //
@@ -1618,7 +1618,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         pid = fork();
         if(pid < 0)
         {
-            throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+            throw SyscallException(__FILE__, __LINE__);
         }
         if(pid != 0)
         {
@@ -1632,7 +1632,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             //
             if(chdir("/") != 0)
             {
-                throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+                throw SyscallException(__FILE__, __LINE__);
             }
         }
 
@@ -1648,7 +1648,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             int fdMax = static_cast<int>(sysconf(_SC_OPEN_MAX));
             if(fdMax <= 0)
             {
-                throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+                throw SyscallException(__FILE__, __LINE__);
             }
 
             for(int i = 0; i < fdMax; ++i)
@@ -1708,7 +1708,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             assert(fd == 0);
             if(fd != 0)
             {
-                throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+                throw SyscallException(__FILE__, __LINE__);
             }
             if(stdOut.empty())
             {
@@ -1716,7 +1716,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 assert(fd == 1);
                 if(fd != 1)
                 {
-                    throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+                    throw SyscallException(__FILE__, __LINE__);
                 }
             }
             if(stdErr.empty())
@@ -1725,7 +1725,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 assert(fd == 2);
                 if(fd != 2)
                 {
-                    throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
+                    throw SyscallException(__FILE__, __LINE__);
                 }
             }
         }

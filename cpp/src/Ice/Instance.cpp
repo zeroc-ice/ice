@@ -946,7 +946,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     FILE* file = IceUtilInternal::freopen(stdOutFilename, "a", stdout);
                     if(file == 0)
                     {
-                        throw FileException(__FILE__, __LINE__, getSystemErrno(), stdOutFilename);
+                        throw FileException(__FILE__, __LINE__, stdOutFilename);
                     }
                 }
 
@@ -955,13 +955,8 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     FILE* file = IceUtilInternal::freopen(stdErrFilename, "a", stderr);
                     if(file == 0)
                     {
-                        throw FileException(__FILE__, __LINE__, getSystemErrno(), stdErrFilename);
+                        throw FileException(__FILE__, __LINE__, stdErrFilename);
                     }
-                }
-
-                if(_initData.properties->getPropertyAsInt("Ice.NullHandleAbort") > 0)
-                {
-                    IceUtilInternal::nullHandleAbort = true;
                 }
 
 #ifdef NDEBUG
@@ -1000,17 +995,17 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
                     if(setgid(pw->pw_gid) == -1)
                     {
-                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+                        throw SyscallException(__FILE__, __LINE__);
                     }
 
                     if(initgroups(pw->pw_name, static_cast<int>(pw->pw_gid)) == -1)
                     {
-                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+                        throw SyscallException(__FILE__, __LINE__);
                     }
 
                     if(setuid(pw->pw_uid) == -1)
                     {
-                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+                        throw SyscallException(__FILE__, __LINE__);
                     }
                 }
 #endif

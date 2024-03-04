@@ -9,65 +9,74 @@
 #include <Test.h>
 #include <Ice/ProxyF.h>
 
-class ServerLocatorRegistry : public Test::TestLocatorRegistry
+class ServerLocatorRegistry final : public Test::TestLocatorRegistry
 {
 public:
 
     ServerLocatorRegistry();
 
-    virtual void setAdapterDirectProxyAsync(std::string, ::Ice::ObjectPrxPtr,
-                                            std::function<void()>,
-                                            std::function<void(std::exception_ptr)>,
-                                            const ::Ice::Current&);
-    virtual void setReplicatedAdapterDirectProxyAsync(std::string, std::string, Ice::ObjectPrxPtr,
-                                                      std::function<void()>,
-                                                      std::function<void(std::exception_ptr)>,
-                                                      const ::Ice::Current&);
+    void setAdapterDirectProxyAsync(
+        std::string,
+        std::optional<Ice::ObjectPrx>,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
 
-    virtual void setServerProcessProxyAsync(std::string, Ice::ProcessPrxPtr,
-                                            std::function<void()>,
-                                            std::function<void(std::exception_ptr)>,
-                                            const ::Ice::Current&);
-    void addObject(::Ice::ObjectPrxPtr, const ::Ice::Current&);
+    void setReplicatedAdapterDirectProxyAsync(
+        std::string,
+        std::string,
+        std::optional<Ice::ObjectPrx>,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
+
+    void setServerProcessProxyAsync(
+        std::string,
+        std::optional<Ice::ProcessPrx>,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
+
+    void addObject(std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
 
     //
     // Internal method
     //
-    ::Ice::ObjectPrxPtr getAdapter(const ::std::string&) const;
-    ::Ice::ObjectPrxPtr getObject(const ::Ice::Identity&) const;
-    void addObject(const ::Ice::ObjectPrxPtr&);
+    std::optional<Ice::ObjectPrx> getAdapter(const ::std::string&) const;
+    std::optional<Ice::ObjectPrx> getObject(const Ice::Identity&) const;
+    void addObject(const std::optional<Ice::ObjectPrx>&);
 
 private:
 
-    ::std::map< ::std::string, ::Ice::ObjectPrxPtr> _adapters;
-    ::std::map< ::Ice::Identity, ::Ice::ObjectPrxPtr> _objects;
+    ::std::map< ::std::string, std::optional<Ice::ObjectPrx>> _adapters;
+    ::std::map< Ice::Identity, std::optional<Ice::ObjectPrx>> _objects;
 };
 using ServerLocatorRegistryPtr = std::shared_ptr<ServerLocatorRegistry>;
 
-class ServerLocator : public Test::TestLocator
+class ServerLocator final : public Test::TestLocator
 {
 public:
 
-    ServerLocator(const ::ServerLocatorRegistryPtr&, const ::Ice::LocatorRegistryPrxPtr&);
+    ServerLocator(const ::ServerLocatorRegistryPtr&, const std::optional<Ice::LocatorRegistryPrx>&);
 
-    virtual void findObjectByIdAsync(::Ice::Identity,
-                                      std::function<void(const Ice::ObjectPrxPtr&)>,
+    void findObjectByIdAsync(Ice::Identity,
+                                      std::function<void(const std::optional<Ice::ObjectPrx>&)>,
                                       std::function<void(std::exception_ptr)>,
-                                      const ::Ice::Current&) const;
+                                      const Ice::Current&) const final;
 
-    virtual void findAdapterByIdAsync(::std::string,
-                                       std::function<void(const Ice::ObjectPrxPtr&)>,
+    void findAdapterByIdAsync(::std::string,
+                                       std::function<void(const std::optional<Ice::ObjectPrx>&)>,
                                        std::function<void(std::exception_ptr)>,
-                                       const ::Ice::Current&) const;
+                                       const Ice::Current&) const final;
 
-    virtual ::Ice::LocatorRegistryPrxPtr getRegistry(const ::Ice::Current&) const;
+    std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
 
-    virtual int getRequestCount(const Ice::Current&) const;
+    int getRequestCount(const Ice::Current&) const final;
 
 private:
 
     ServerLocatorRegistryPtr _registry;
-    ::Ice::LocatorRegistryPrxPtr _registryPrx;
+    std::optional<Ice::LocatorRegistryPrx> _registryPrx;
     int _requestCount;
 };
 

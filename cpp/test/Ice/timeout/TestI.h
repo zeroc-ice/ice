@@ -7,24 +7,24 @@
 
 #include <Test.h>
 
-class TimeoutI : public virtual Test::Timeout
+class TimeoutI final : public Test::Timeout
 {
 public:
 
-    virtual void op(const Ice::Current&);
-    virtual void sendData(Test::ByteSeq, const Ice::Current&);
-    virtual void sleep(std::int32_t, const Ice::Current&);
+    void op(const Ice::Current&) final;
+    void sendData(Test::ByteSeq, const Ice::Current&) final;
+    void sleep(std::int32_t, const Ice::Current&) final;
 };
 
-class ControllerI : public virtual Test::Controller
+class ControllerI final : public Test::Controller
 {
 public:
 
     ControllerI(const Ice::ObjectAdapterPtr&);
 
-    virtual void holdAdapter(std::int32_t, const Ice::Current&);
-    virtual void resumeAdapter(const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void holdAdapter(std::int32_t, const Ice::Current&) final;
+    void resumeAdapter(const Ice::Current&) final;
+    void shutdown(const Ice::Current&) final;
 
 private:
 

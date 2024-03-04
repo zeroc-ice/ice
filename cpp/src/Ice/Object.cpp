@@ -46,13 +46,13 @@ Ice::Object::ice_ids(const Current&) const
 string
 Ice::Object::ice_id(const Current&) const
 {
-    return ice_staticId();
+    return string{ice_staticId()};
 }
 
-const string&
+string_view
 Ice::Object::ice_staticId()
 {
-    static const ::std::string typeId = "::Ice::Object";
+    static constexpr std::string_view typeId = "::Ice::Object";
     return typeId;
 }
 
@@ -231,11 +231,11 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 bool
 Ice::Blobject::_iceDispatch(Incoming& in, const Current& current)
 {
-    const Byte* inEncaps;
+    const uint8_t* inEncaps;
     int32_t sz;
     in.readParamEncaps(inEncaps, sz);
-    vector<Byte> outEncaps;
-    bool ok = ice_invoke(vector<Byte>(inEncaps, inEncaps + sz), outEncaps, current);
+    vector<uint8_t> outEncaps;
+    bool ok = ice_invoke(vector<uint8_t>(inEncaps, inEncaps + sz), outEncaps, current);
     if(outEncaps.empty())
     {
         in.writeParamEncaps(0, 0, ok);
@@ -250,11 +250,11 @@ Ice::Blobject::_iceDispatch(Incoming& in, const Current& current)
 bool
 Ice::BlobjectArray::_iceDispatch(Incoming& in, const Current& current)
 {
-    pair<const Byte*, const Byte*> inEncaps;
+    pair<const uint8_t*, const uint8_t*> inEncaps;
     int32_t sz;
     in.readParamEncaps(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
-    vector<Byte> outEncaps;
+    vector<uint8_t> outEncaps;
     bool ok = ice_invoke(inEncaps, outEncaps, current);
     if(outEncaps.empty())
     {
@@ -270,12 +270,12 @@ Ice::BlobjectArray::_iceDispatch(Incoming& in, const Current& current)
 bool
 Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
 {
-    const Byte* inEncaps;
+    const uint8_t* inEncaps;
     int32_t sz;
     in.readParamEncaps(inEncaps, sz);
     auto async = IncomingAsync::create(in);
-    ice_invokeAsync(vector<Byte>(inEncaps, inEncaps + sz),
-                    [async](bool ok, const vector<Byte>& outEncaps)
+    ice_invokeAsync(vector<uint8_t>(inEncaps, inEncaps + sz),
+                    [async](bool ok, const vector<uint8_t>& outEncaps)
                     {
                         if(outEncaps.empty())
                         {
@@ -294,13 +294,13 @@ Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
 bool
 Ice::BlobjectArrayAsync::_iceDispatch(Incoming& in, const Current& current)
 {
-    pair<const Byte*, const Byte*> inEncaps;
+    pair<const uint8_t*, const uint8_t*> inEncaps;
     int32_t sz;
     in.readParamEncaps(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
     auto async = IncomingAsync::create(in);
     ice_invokeAsync(inEncaps,
-                    [async](bool ok, const pair<const Byte*, const Byte*>& outE)
+                    [async](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
                     {
                         async->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
                         async->completed();

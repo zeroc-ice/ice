@@ -207,7 +207,7 @@ public:
     ~OpenSSLX509ExtensionI();
     virtual bool isCritical() const;
     virtual string getOID() const;
-    virtual vector<Ice::Byte> getData() const;
+    virtual vector<uint8_t> getData() const;
 
 private:
 
@@ -227,8 +227,8 @@ public:
 
     virtual bool operator==(const IceSSL::Certificate&) const;
 
-    virtual vector<Ice::Byte> getAuthorityKeyIdentifier() const;
-    virtual vector<Ice::Byte> getSubjectKeyIdentifier() const;
+    virtual vector<uint8_t> getAuthorityKeyIdentifier() const;
+    virtual vector<uint8_t> getSubjectKeyIdentifier() const;
     virtual bool verify(const IceSSL::CertificatePtr&) const;
     virtual string encode() const;
 
@@ -285,10 +285,10 @@ OpenSSLX509ExtensionI::getOID() const
     return _oid;
 }
 
-vector<Ice::Byte>
+vector<uint8_t>
 OpenSSLX509ExtensionI::getData() const
 {
-    vector<Ice::Byte> data;
+    vector<uint8_t> data;
     ASN1_OCTET_STRING* buffer = X509_EXTENSION_get_data(_extension);
     assert(buffer);
     data.resize(buffer->length);
@@ -327,10 +327,10 @@ OpenSSLCertificateI::operator==(const IceSSL::Certificate& r) const
     return X509_cmp(_cert, p->_cert) == 0;
 }
 
-vector<Ice::Byte>
+vector<uint8_t>
 OpenSSLCertificateI::getAuthorityKeyIdentifier() const
 {
-    vector<Ice::Byte> keyid;
+    vector<uint8_t> keyid;
     int index = X509_get_ext_by_NID(_cert, NID_authority_key_identifier, -1);
     if(index >= 0)
     {
@@ -350,10 +350,10 @@ OpenSSLCertificateI::getAuthorityKeyIdentifier() const
     return keyid;
 }
 
-vector<Ice::Byte>
+vector<uint8_t>
 OpenSSLCertificateI::getSubjectKeyIdentifier() const
 {
-    vector<Ice::Byte> keyid;
+    vector<uint8_t> keyid;
     int index = X509_get_ext_by_NID(_cert, NID_subject_key_identifier, -1);
     if(index >= 0)
     {

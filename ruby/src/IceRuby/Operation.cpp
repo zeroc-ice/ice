@@ -69,9 +69,9 @@ private:
 
     void convertParams(VALUE, ParamInfoList&, long, bool&);
     ParamInfoPtr convertParam(VALUE, long);
-    void prepareRequest(const Ice::ObjectPrx&, VALUE, Ice::OutputStream*, pair<const Ice::Byte*, const Ice::Byte*>&);
-    VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
-    VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
+    void prepareRequest(const Ice::ObjectPrx&, VALUE, Ice::OutputStream*, pair<const uint8_t*, const uint8_t*>&);
+    VALUE unmarshalResults(const vector<uint8_t>&, const Ice::CommunicatorPtr&);
+    VALUE unmarshalException(const vector<uint8_t>&, const Ice::CommunicatorPtr&);
     bool validateException(VALUE) const;
     void checkTwowayOnly(const Ice::ObjectPrx&) const;
 };
@@ -283,7 +283,7 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
     // Marshal the input parameters to a byte sequence.
     //
     Ice::OutputStream os(communicator);
-    pair<const Ice::Byte*, const Ice::Byte*> params;
+    pair<const uint8_t*, const uint8_t*> params;
     prepareRequest(proxy, args, &os, params);
 
     if(!_deprecateMessage.empty())
@@ -396,9 +396,9 @@ IceRuby::OperationI::prepareRequest(
     const Ice::ObjectPrx& proxy,
     VALUE args,
     Ice::OutputStream* os,
-    pair<const Ice::Byte*, const Ice::Byte*>& params)
+    pair<const uint8_t*, const uint8_t*>& params)
 {
-    params.first = params.second = static_cast<const Ice::Byte*>(0);
+    params.first = params.second = static_cast<const uint8_t*>(0);
 
     //
     // Validate the number of arguments.
@@ -473,7 +473,7 @@ IceRuby::OperationI::prepareRequest(
 }
 
 VALUE
-IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
+IceRuby::OperationI::unmarshalResults(const vector<uint8_t>& bytes, const Ice::CommunicatorPtr& communicator)
 {
     int numResults = static_cast<int>(_outParams.size());
     if(_returnType)
@@ -555,7 +555,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 }
 
 VALUE
-IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
+IceRuby::OperationI::unmarshalException(const vector<uint8_t>& bytes, const Ice::CommunicatorPtr& communicator)
 {
     Ice::InputStream is(communicator, bytes);
 

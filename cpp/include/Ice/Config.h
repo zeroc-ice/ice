@@ -30,34 +30,4 @@
 #   include <dispatch/dispatch.h>
 #endif
 
-//
-// Define the Ice and IceInternal namespace, so that we can use the following
-// everywhere in our code:
-//
-// using namespace Ice;
-// using namespace IceInternal;
-//
-namespace Ice
-{
-}
-
-namespace IceInternal
-{
-}
-
-namespace Ice
-{
-
-/** The mapping for the Slice byte type. */
-typedef unsigned char Byte;
-
-}
-
-namespace IceInternal
-{
-
-ICE_API int getSystemErrno();
-
-}
-
 #endif

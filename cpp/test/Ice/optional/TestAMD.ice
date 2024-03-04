@@ -39,11 +39,6 @@ struct VarStruct
     string m;
 }
 
-["cpp:class"] struct ClassVarStruct
-{
-    int a;
-}
-
 sequence<byte> ByteSeq;
 sequence<bool> BoolSeq;
 sequence<short> ShortSeq;
@@ -163,7 +158,6 @@ class OptionalWithCustom
 {
     optional(1) SmallStructList l;
     ["protected"] optional(2) SmallStructList lp;
-    optional(3) ClassVarStruct s;
 }
 
 class E
@@ -268,9 +262,7 @@ interface Initial
     ["cpp:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:array"] optional(2) DoubleSeq p1,
                                                     out ["cpp:array"] optional(3) DoubleSeq p3);
 
-    ["cpp:range"] optional(1) StringSeq opStringSeq(["cpp:range"] optional(2) StringSeq p1,
-                                                    out ["cpp:range"] optional(3) StringSeq p3);
-
+    optional(1) StringSeq opStringSeq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
     ["cpp:array"] optional(1) SmallStructSeq opSmallStructSeq(["cpp:array"] optional(2) SmallStructSeq p1,
                                                               out ["cpp:array"] optional(3) SmallStructSeq p3);
 
@@ -283,8 +275,7 @@ interface Initial
     ["cpp:array"] optional(1) FixedStructList opFixedStructList(["cpp:array"] optional(2) FixedStructList p1,
                                                                 out ["cpp:array"] optional(3) FixedStructList p3);
 
-    ["cpp:range"] optional(1) VarStructSeq opVarStructSeq(["cpp:range"] optional(2) VarStructSeq p1,
-                                                          out ["cpp:range"] optional(3) VarStructSeq p3);
+    optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
     optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
 

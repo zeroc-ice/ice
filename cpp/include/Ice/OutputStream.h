@@ -57,7 +57,7 @@ public:
      * stream will reallocate if the size of the marshaled data exceeds the application's buffer.
      */
     OutputStream(const CommunicatorPtr& communicator, const EncodingVersion& version,
-                 const std::pair<const Byte*, const Byte*>& bytes);
+                 const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     ~OutputStream()
     {
@@ -250,7 +250,7 @@ public:
      * @param v The start of the buffer.
      * @param sz The number of bytes to copy.
      */
-    void writeEncapsulation(const Byte* v, std::int32_t sz)
+    void writeEncapsulation(const std::uint8_t* v, std::int32_t sz)
     {
         if(sz < 6)
         {
@@ -279,7 +279,7 @@ public:
      * @param compactId The compact ID corresponding to the type, or -1 if no compact ID is used.
      * @param last True if this is the last slice, false otherwise.
      */
-    void startSlice(const std::string& typeId, int compactId, bool last)
+    void startSlice(std::string_view typeId, int compactId, bool last)
     {
         assert(_currentEncaps && _currentEncaps->encoder);
         _currentEncaps->encoder->startSlice(typeId, compactId, last);
@@ -311,12 +311,12 @@ public:
         assert(v >= 0);
         if(v > 254)
         {
-            write(Byte(255));
+            write(std::uint8_t(255));
             write(v);
         }
         else
         {
-            write(static_cast<Byte>(v));
+            write(static_cast<std::uint8_t>(v));
         }
     }
 
@@ -331,12 +331,12 @@ public:
         assert(v >= 0);
         if(v > 254)
         {
-            *dest++ = Byte(255);
+            *dest++ = std::uint8_t(255);
             write(v, dest);
         }
         else
         {
-            *dest = static_cast<Byte>(v);
+            *dest = static_cast<std::uint8_t>(v);
         }
     }
 
@@ -367,14 +367,14 @@ public:
      * Copies the specified blob of bytes to the stream without modification.
      * @param v The bytes to be copied.
      */
-    void writeBlob(const std::vector<Byte>& v);
+    void writeBlob(const std::vector<std::uint8_t>& v);
 
     /**
      * Copies the specified blob of bytes to the stream without modification.
      * @param v The start of the buffer to be copied.
      * @param sz The number of bytes to be copied.
      */
-    void writeBlob(const Byte* v, Container::size_type sz)
+    void writeBlob(const std::uint8_t* v, Container::size_type sz)
     {
         if(sz > 0)
         {
@@ -549,7 +549,7 @@ public:
      * Writes a byte to the stream.
      * @param v The byte to write.
      */
-    void write(Byte v)
+    void write(std::uint8_t v)
     {
         b.push_back(v);
     }
@@ -559,7 +559,7 @@ public:
      * @param start The beginning of the sequence.
      * @param end The end of the sequence.
      */
-    void write(const Byte* start, const Byte* end);
+    void write(const std::uint8_t* start, const std::uint8_t* end);
 
     /**
      * Writes a boolean to the stream.
@@ -567,7 +567,7 @@ public:
      */
     void write(bool v)
     {
-        b.push_back(static_cast<Byte>(v));
+        b.push_back(static_cast<std::uint8_t>(v));
     }
 
     /**
@@ -613,22 +613,7 @@ public:
      * @param v The integer value to be written.
      * @param dest The buffer destination for the integer value.
      */
-    void write(std::int32_t v, Container::iterator dest)
-    {
-#ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(std::) - 1;
-        *dest++ = *src--;
-        *dest++ = *src--;
-        *dest++ = *src--;
-        *dest = *src;
-#else
-        const Byte* src = reinterpret_cast<const Byte*>(&v);
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest = *src;
-#endif
-    }
+    void write(std::int32_t v, Container::iterator dest);
 
     /**
      * Writes an int sequence to the stream.
@@ -850,14 +835,14 @@ public:
      * Indicates that marshaling is complete. This function must only be called once.
      * @param v Filled with a copy of the encoded data.
      */
-    void finished(std::vector<Byte>& v);
+    void finished(std::vector<std::uint8_t>& v);
 
     /**
      * Indicates that marshaling is complete. This function must only be called once.
      * @return A pair of pointers into the internal marshaling buffer. These pointers are
      * valid for the lifetime of the stream.
      */
-    std::pair<const Byte*, const Byte*> finished();
+    std::pair<const std::uint8_t*, const std::uint8_t*> finished();
 
     /// \cond INTERNAL
     OutputStream(IceInternal::Instance*, const EncodingVersion&);
@@ -909,7 +894,7 @@ private:
 
         virtual void startInstance(SliceType, const SlicedDataPtr&) = 0;
         virtual void endInstance() = 0;
-        virtual void startSlice(const std::string&, int, bool) = 0;
+        virtual void startSlice(std::string_view, int, bool) = 0;
         virtual void endSlice() = 0;
 
         virtual bool writeOptional(std::int32_t, OptionalFormat)
@@ -927,13 +912,13 @@ private:
         {
         }
 
-        std::int32_t registerTypeId(const std::string&);
+        std::int32_t registerTypeId(std::string_view);
 
         OutputStream* _stream;
         Encaps* _encaps;
 
         typedef std::map<std::shared_ptr<Value>, std::int32_t> PtrToIndexMap;
-        typedef std::map<std::string, std::int32_t> TypeIdMap;
+        typedef std::map<std::string, std::int32_t, std::less<>> TypeIdMap;
 
         // Encapsulation attributes for value marshaling.
         PtrToIndexMap _marshaledMap;
@@ -959,7 +944,7 @@ private:
 
         virtual void startInstance(SliceType, const SlicedDataPtr&);
         virtual void endInstance();
-        virtual void startSlice(const std::string&, int, bool);
+        virtual void startSlice(std::string_view, int, bool);
         virtual void endSlice();
 
         virtual void writePendingValues();
@@ -993,7 +978,7 @@ private:
 
         virtual void startInstance(SliceType, const SlicedDataPtr&);
         virtual void endInstance();
-        virtual void startSlice(const std::string&, int, bool);
+        virtual void startSlice(std::string_view, int, bool);
         virtual void endSlice();
 
         virtual bool writeOptional(std::int32_t, OptionalFormat);
@@ -1026,7 +1011,7 @@ private:
             bool firstSlice;
 
             // Slice attributes
-            Byte sliceFlags;
+            std::uint8_t sliceFlags;
             Container::size_type writeSlice;    // Position of the slice data members
             Container::size_type sliceFlagsPos; // Position of the slice flags
             PtrToIndexMap indirectionMap;

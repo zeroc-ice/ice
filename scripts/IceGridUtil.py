@@ -138,8 +138,7 @@ class IceGridNode(ProcessFromBinDir, Server):
             "IceGrid.Node.Name": self.name,
             "IceGrid.Node.Data": "{testdir}/node-{process.name}",
             "IceGrid.Node.PropertiesOverride": self.getPropertiesOverride(current),
-            "Ice.Default.Locator": current.testcase.getLocator(current),
-            "Ice.NullHandleAbort": 1,
+            "Ice.Default.Locator": current.testcase.getLocator(current)
         }
         return props
 

@@ -20,7 +20,6 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
-    properties->setProperty("Ice.NullHandleAbort", "0");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     void allTests(Test::TestHelper*);
     allTests(this);

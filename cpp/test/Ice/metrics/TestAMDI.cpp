@@ -72,7 +72,7 @@ MetricsI::opByteSAsync(Test::ByteSeq, function<void()> response, function<void(e
     response();
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 MetricsI::getAdmin(const Ice::Current& current)
 {
     return current.adapter->getCommunicator()->getAdmin();

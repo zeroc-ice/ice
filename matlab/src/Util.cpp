@@ -30,7 +30,7 @@ replace(string s, string patt, string val)
 }
 
 void
-getMajorMinor(mxArray* p, Ice::Byte& major, Ice::Byte& minor)
+getMajorMinor(mxArray* p, uint8_t& major, uint8_t& minor)
 {
     auto maj = mxGetProperty(p, 0, "major");
     assert(maj);
@@ -38,14 +38,14 @@ getMajorMinor(mxArray* p, Ice::Byte& major, Ice::Byte& minor)
     {
         throw std::invalid_argument("major is not a scalar");
     }
-    major = static_cast<Ice::Byte>(mxGetScalar(maj));
+    major = static_cast<uint8_t>(mxGetScalar(maj));
     auto min = mxGetProperty(p, 0, "minor");
     assert(min);
     if(!mxIsScalar(min))
     {
         throw std::invalid_argument("minor is not a scalar");
     }
-    minor = static_cast<Ice::Byte>(mxGetScalar(min));
+    minor = static_cast<uint8_t>(mxGetScalar(min));
 }
 
 }
@@ -112,10 +112,10 @@ IceMatlab::createBool(bool v)
 }
 
 mxArray*
-IceMatlab::createByte(Ice::Byte v)
+IceMatlab::createByte(uint8_t v)
 {
     auto r = mxCreateNumericMatrix(1, 1, mxUINT8_CLASS, mxREAL);
-    auto p = reinterpret_cast<Ice::Byte*>(mxGetPr(r));
+    auto p = reinterpret_cast<uint8_t*>(mxGetPr(r));
     *p = v;
     return r;
 }
@@ -587,15 +587,15 @@ IceMatlab::getStringList(mxArray* m, vector<string>& v)
 }
 
 mxArray*
-IceMatlab::createByteArray(const Ice::Byte* begin, const Ice::Byte* end)
+IceMatlab::createByteArray(const uint8_t* begin, const uint8_t* end)
 {
     mxArray* r = mxCreateUninitNumericMatrix(1, end - begin, mxUINT8_CLASS, mxREAL);
-    memcpy(reinterpret_cast<Ice::Byte*>(mxGetData(r)), begin, end - begin);
+    memcpy(reinterpret_cast<uint8_t*>(mxGetData(r)), begin, end - begin);
     return r;
 }
 
 mxArray*
-IceMatlab::createByteList(const vector<Ice::Byte>& bytes)
+IceMatlab::createByteList(const vector<uint8_t>& bytes)
 {
     auto r = mxCreateCellMatrix(1, static_cast<int>(bytes.size()));
     mwIndex i = 0;

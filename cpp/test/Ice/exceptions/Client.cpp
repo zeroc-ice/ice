@@ -24,8 +24,8 @@ Client::run(int argc, char** argv)
     properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    ThrowerPrxPtr allTests(Test::TestHelper*);
-    ThrowerPrxPtr thrower = allTests(this);
+    ThrowerPrx allTests(Test::TestHelper*);
+    ThrowerPrx thrower = allTests(this);
     thrower->shutdown();
 }
 

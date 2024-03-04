@@ -267,20 +267,20 @@ run(const Ice::StringSeq& args)
 
             fs.seekg(0, ios::beg);
 
-            vector<Ice::Byte> buf;
+            vector<uint8_t> buf;
             buf.reserve(static_cast<size_t>(fileSize));
-            buf.insert(buf.begin(), istream_iterator<Ice::Byte>(fs), istream_iterator<Ice::Byte>());
+            buf.insert(buf.begin(), istream_iterator<uint8_t>(fs), istream_iterator<uint8_t>());
 
             fs.close();
 
             if(!serverVersion.empty())
             {
-                communicator->getValueFactoryManager()->add([serverVersion](const string&)
+                communicator->getValueFactoryManager()->add([serverVersion](string_view)
                     {
                         return make_shared<ServerDescriptorI>(serverVersion);
                     }, IceGrid::ServerDescriptor::ice_staticId());
 
-                communicator->getValueFactoryManager()->add([serverVersion](const string&)
+                communicator->getValueFactoryManager()->add([serverVersion](string_view)
                     {
                         return make_shared<IceBoxDescriptorI>(serverVersion);
                     }, IceGrid::IceBoxDescriptor::ice_staticId());

@@ -347,7 +347,7 @@ RegistryI::startImpl()
     {
         if(!IceUtilInternal::directoryExists(dbPath))
         {
-            Ice::SyscallException ex(__FILE__, __LINE__, IceInternal::getSystemErrno());
+            Ice::SyscallException ex(__FILE__, __LINE__);
             Ice::Error out(_communicator->getLogger());
             out << "property `IceGrid.Registry.LMDB.Path' is set to an invalid path:\n" << ex;
             return false;
@@ -495,7 +495,7 @@ RegistryI::startImpl()
     // shutdown.
     //
     NodePrxSeq nodes;
-    ObjectProxySeq proxies = _database->getInternalObjectsByType(Node::ice_staticId());
+    ObjectProxySeq proxies = _database->getInternalObjectsByType(string{Node::ice_staticId()});
     for(const auto& proxy : proxies)
     {
         nodes.push_back(uncheckedCast<NodePrx>(proxy));
@@ -698,7 +698,7 @@ RegistryI::setupRegistry()
     }
 
     auto proxy = uncheckedCast<RegistryPrx>(_clientAdapter->add(shared_from_this(), std::move(registryId)));
-    _wellKnownObjects->add(proxy, Registry::ice_staticId());
+    _wellKnownObjects->add(proxy, string{Registry::ice_staticId()});
     return proxy;
 }
 
@@ -713,7 +713,7 @@ RegistryI::setupInternalRegistry()
                                                            *_session);
     auto proxy = _registryAdapter->add(internalRegistry, internalRegistryId);
 
-    _wellKnownObjects->add(proxy, InternalRegistry::ice_staticId());
+    _wellKnownObjects->add(proxy, string{InternalRegistry::ice_staticId()});
 
     //
     // Create Admin
@@ -753,7 +753,7 @@ RegistryI::setupUserAccountMapper()
             }
 
             _registryAdapter->add(make_shared<FileUserAccountMapperI>(userAccountFileProperty), mapperId);
-            _wellKnownObjects->add(_registryAdapter->createProxy(mapperId), UserAccountMapper::ice_staticId());
+            _wellKnownObjects->add(_registryAdapter->createProxy(mapperId), string{UserAccountMapper::ice_staticId()});
         }
         catch(const string& msg)
         {
@@ -792,8 +792,9 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrxPtr& locator)
         adapter->add(make_shared<ClientSessionManagerI>(_clientSessionFactory), sessionMgrId);
         adapter->add(make_shared<ClientSSLSessionManagerI>(_clientSessionFactory), sslSessionMgrId);
 
-        _wellKnownObjects->add(adapter->createProxy(sessionMgrId), Glacier2::SessionManager::ice_staticId());
-        _wellKnownObjects->add(adapter->createProxy(sslSessionMgrId), Glacier2::SSLSessionManager::ice_staticId());
+        _wellKnownObjects->add(adapter->createProxy(sessionMgrId), string{Glacier2::SessionManager::ice_staticId()});
+        _wellKnownObjects->add(adapter->createProxy(sslSessionMgrId),
+                               string{Glacier2::SSLSessionManager::ice_staticId()});
     }
 
     if(adapter)
@@ -844,8 +845,9 @@ RegistryI::setupAdminSessionFactory(const shared_ptr<Object>& serverAdminRouter,
         adapter->add(make_shared<AdminSessionManagerI>(_adminSessionFactory), sessionMgrId);
         adapter->add(make_shared<AdminSSLSessionManagerI>(_adminSessionFactory), sslSessionMgrId);
 
-        _wellKnownObjects->add(adapter->createProxy(sessionMgrId), Glacier2::SessionManager::ice_staticId());
-        _wellKnownObjects->add(adapter->createProxy(sslSessionMgrId), Glacier2::SSLSessionManager::ice_staticId());
+        _wellKnownObjects->add(adapter->createProxy(sessionMgrId), string{Glacier2::SessionManager::ice_staticId()});
+        _wellKnownObjects->add(adapter->createProxy(sslSessionMgrId),
+                               string{Glacier2::SSLSessionManager::ice_staticId()});
     }
 
     if(adapter)
@@ -1333,12 +1335,12 @@ RegistryI::registerReplicas(const InternalRegistryPrxPtr& internalRegistry, cons
     //
     map<InternalRegistryPrxPtr, RegistryPrxPtr> replicas;
 
-    for(const auto& p : _database->getObjectsByType(InternalRegistry::ice_staticId()))
+    for(const auto& p : _database->getObjectsByType(string{InternalRegistry::ice_staticId()}))
     {
         replicas.insert({ uncheckedCast<InternalRegistryPrx>(p), nullopt });
     }
 
-    for(const auto& p : _database->getObjectsByType(Registry::ice_staticId()))
+    for(const auto& p : _database->getObjectsByType(string{Registry::ice_staticId()}))
     {
         Ice::Identity id = p->ice_getIdentity();
         const string prefix("Registry-");

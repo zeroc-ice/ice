@@ -21,7 +21,7 @@ public:
 
     FactoryWrapper(VALUE);
 
-    virtual std::shared_ptr<Ice::Value> create(const std::string&);
+    virtual std::shared_ptr<Ice::Value> create(std::string_view);
 
     VALUE getObject() const;
 
@@ -39,7 +39,7 @@ class DefaultValueFactory : public Ice::ValueFactory
 {
 public:
 
-    virtual std::shared_ptr<Ice::Value> create(const std::string&);
+    virtual std::shared_ptr<Ice::Value> create(std::string_view);
 
     void setDelegate(const Ice::ValueFactoryPtr&);
     Ice::ValueFactoryPtr getDelegate() const { return _delegate; }
@@ -64,12 +64,12 @@ public:
 
     ~ValueFactoryManager();
 
-    void add(Ice::ValueFactoryFunc, const std::string&) final;
-    void add(const Ice::ValueFactoryPtr&, const std::string&) final;
-    Ice::ValueFactoryFunc find(const std::string&) const noexcept final;
+    void add(Ice::ValueFactoryFunc, std::string_view) final;
+    void add(Ice::ValueFactoryPtr, std::string_view) final;
+    Ice::ValueFactoryFunc find(std::string_view) const noexcept final;
 
-    void addValueFactory(VALUE, const std::string&);
-    VALUE findValueFactory(const std::string&) const;
+    void addValueFactory(VALUE, std::string_view);
+    VALUE findValueFactory(std::string_view) const;
 
     void mark();
     void markSelf();
@@ -80,11 +80,11 @@ public:
 
 private:
 
-    using FactoryMap = std::map<std::string, Ice::ValueFactoryPtr>;
+    using FactoryMap = std::map<std::string, Ice::ValueFactoryPtr, std::less<>>;
 
     ValueFactoryManager();
 
-    Ice::ValueFactoryPtr findCore(const std::string&) const noexcept;
+    Ice::ValueFactoryPtr findCore(std::string_view) const noexcept;
 
     VALUE _self;
     FactoryMap _factories;

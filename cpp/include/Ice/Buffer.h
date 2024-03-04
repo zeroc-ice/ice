@@ -15,8 +15,8 @@ class ICE_API Buffer : private IceUtil::noncopyable
 public:
 
     Buffer() : i(b.begin()) { }
-    Buffer(const Ice::Byte* beg, const Ice::Byte* end) : b(beg, end), i(b.begin()) { }
-    Buffer(const std::vector<Ice::Byte>& v) : b(v), i(b.begin()) { }
+    Buffer(const std::uint8_t* beg, const std::uint8_t* end) : b(beg, end), i(b.begin()) { }
+    Buffer(const std::vector<std::uint8_t>& v) : b(v), i(b.begin()) { }
     Buffer(Buffer& o, bool adopt) : b(o.b, adopt), i(b.begin()) { }
 
     void swapBuffer(Buffer&);
@@ -29,12 +29,12 @@ public:
         // Standard vector-like operations.
         //
 
-        typedef Ice::Byte value_type;
-        typedef Ice::Byte* iterator;
-        typedef const Ice::Byte* const_iterator;
-        typedef Ice::Byte& reference;
-        typedef const Ice::Byte& const_reference;
-        typedef Ice::Byte* pointer;
+        typedef std::uint8_t value_type;
+        typedef std::uint8_t* iterator;
+        typedef const std::uint8_t* const_iterator;
+        typedef std::uint8_t& reference;
+        typedef const std::uint8_t& const_reference;
+        typedef std::uint8_t* pointer;
         typedef size_t size_type;
 
         Container();

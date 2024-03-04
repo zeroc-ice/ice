@@ -14,9 +14,9 @@ namespace IceInternal
 template<class V>
 ::std::shared_ptr<::Ice::Value>
 #ifdef NDEBUG
-defaultValueFactory(const std::string&)
+defaultValueFactory(std::string_view)
 #else
-defaultValueFactory(const std::string& typeId)
+defaultValueFactory(std::string_view typeId)
 #endif
 {
     assert(typeId == V::ice_staticId());

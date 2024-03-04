@@ -53,29 +53,6 @@ public:
 };
 using ConnectStrategyPtr = std::shared_ptr<ConnectStrategy>;
 
-class Disconnected : public Ice::DispatcherCall
-{
-
-public:
-
-    Disconnected(const Glacier2::SessionHelperPtr& session, const Glacier2::SessionCallbackPtr& callback) :
-        _session(session),
-        _callback(callback)
-    {
-    }
-
-    virtual
-    void run()
-    {
-        _callback->disconnected(_session);
-    }
-
-private:
-
-    const Glacier2::SessionHelperPtr _session;
-    const Glacier2::SessionCallbackPtr _callback;
-};
-
 class SessionHelperI : public Glacier2::SessionHelper, public std::enable_shared_from_this<SessionHelperI>
 {
 
@@ -97,7 +74,7 @@ private:
 
     Ice::ObjectAdapterPtr internalObjectAdapter();
     void connected(const Glacier2::RouterPrxPtr&, const Glacier2::SessionPrxPtr&);
-    void destroyInternal(const Ice::DispatcherCallPtr&);
+    void destroyInternal(function<void()>);
     void destroyCommunicator();
     void connectFailed();
 
@@ -105,8 +82,8 @@ private:
     void connect(const std::string&, const std::string&, const std::map<std::string, std::string>&);
 
     void connectImpl(const ConnectStrategyPtr&);
-    void dispatchCallback(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
-    void dispatchCallbackAndWait(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
+    void dispatchCallback(function<void()>, const Ice::ConnectionPtr&);
+    void dispatchCallbackAndWait(function<void()>, const Ice::ConnectionPtr&);
 
     mutable std::mutex _mutex;
     Ice::CommunicatorPtr _communicator;
@@ -175,7 +152,11 @@ SessionHelperI::destroy()
         auto destroyThread = std::thread(
             [session = shared_from_this(), previous = _threadCB->remove(this)]() mutable
             {
-                session->destroyInternal(make_shared<Disconnected>(session, session->_callback));
+                session->destroyInternal(
+                    [session]()
+                    {
+                        session->_callback->disconnected(session);
+                    });
 
                 // Join the connect thread to free resources.
                 if (previous.joinable())
@@ -332,7 +313,7 @@ SessionHelperI::connect(const string& user, const string& password, const map<st
 }
 
 void
-SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
+SessionHelperI::destroyInternal(function<void()> disconnected)
 {
     assert(_destroy);
     Ice::CommunicatorPtr communicator;
@@ -414,60 +395,6 @@ SessionHelperI::connectFailed()
     }
 }
 
-namespace
-{
-
-class ConnectFailed : public Ice::DispatcherCall
-{
-
-public:
-
-    ConnectFailed(const Glacier2::SessionCallbackPtr& callback, const Glacier2::SessionHelperPtr& session,
-                  std::exception_ptr ex) :
-        _callback(callback),
-        _session(session)
-    {
-        _ex = ex;
-    }
-
-    virtual void
-    run()
-    {
-        _callback->connectFailed(_session, _ex);
-    }
-
-private:
-
-    const Glacier2::SessionCallbackPtr _callback;
-    const Glacier2::SessionHelperPtr _session;
-    std::exception_ptr _ex;
-};
-
-class CreatedCommunicator : public Ice::DispatcherCall
-{
-
-public:
-
-    CreatedCommunicator(const Glacier2::SessionCallbackPtr& callback, const Glacier2::SessionHelperPtr& session) :
-        _callback(callback),
-        _session(session)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        _callback->createdCommunicator(_session);
-    }
-
-private:
-
-    const Glacier2::SessionCallbackPtr _callback;
-    const Glacier2::SessionHelperPtr _session;
-};
-
-}
-
 void
 SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
 {
@@ -495,7 +422,12 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     lock_guard lock(session->_mutex);
                     session->_destroy = true;
                 }
-                session->dispatchCallback(make_shared<ConnectFailed>(callback, session, current_exception()), nullptr);
+                session->dispatchCallback(
+                    [callback, session, ex = current_exception()]()
+                    {
+                        callback->connectFailed(session, ex);
+                    },
+                    nullptr);
                 return;
             }
 
@@ -511,7 +443,12 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     }
                     catch(const Ice::CommunicatorDestroyedException&)
                     {
-                        session->dispatchCallback(make_shared<ConnectFailed>(callback, session, current_exception()), 0);
+                        session->dispatchCallback(
+                            [callback, session, ex = current_exception()]()
+                            {
+                                callback->connectFailed(session, ex);
+                            },
+                            nullptr);
                         return;
                     }
                     catch(const Ice::Exception&)
@@ -526,7 +463,13 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                         communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(finder->ice_identity(ident)));
                     }
                 }
-                session->dispatchCallbackAndWait(make_shared<CreatedCommunicator>(callback, session), nullptr);
+
+                session->dispatchCallbackAndWait(
+                    [callback, session]()
+                    {
+                        callback->createdCommunicator(session);
+                    },
+                    nullptr);
                 auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter());
                 Glacier2::SessionPrxPtr sessionPrx = factory->connect(routerPrx);
                 session->connected(routerPrx, sessionPrx);
@@ -541,46 +484,16 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                 {
                 }
 
-                session->dispatchCallback(make_shared<ConnectFailed>(session->_callback, session, current_exception()), nullptr);
+                session->dispatchCallback(
+                    [session, ex = current_exception()]()
+                    {
+                        session->_callback->connectFailed(session, ex);
+                    },
+                    nullptr);
             }
         });
     _threadCB->add(this, std::move(thread));
     startPromise.set_value();
-}
-
-namespace
-{
-
-class Connected : public Ice::DispatcherCall
-{
-
-public:
-
-    Connected(const Glacier2::SessionCallbackPtr& callback, const Glacier2::SessionHelperPtr& session) :
-        _callback(callback),
-        _session(session)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        try
-        {
-            _callback->connected(_session);
-        }
-        catch(const Glacier2::SessionNotExistException&)
-        {
-            _session->destroy();
-        }
-    }
-
-private:
-
-    const Glacier2::SessionCallbackPtr _callback;
-    const Glacier2::SessionHelperPtr _session;
-};
-
 }
 
 void
@@ -657,33 +570,38 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
         // connected() is only called from the ConnectThread so it is ok to
         // call destroyInternal here.
         //
-        destroyInternal(make_shared<Disconnected>(shared_from_this(), _callback));
+        destroyInternal(
+            [callback = _callback, session = shared_from_this()]()
+            {
+                callback->disconnected(session);
+            });
     }
     else
     {
-        dispatchCallback(make_shared<Connected>(_callback, shared_from_this()), conn);
-    }
-}
-
-void
-SessionHelperI::dispatchCallback(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& conn)
-{
-    if(_initData.dispatcher)
-    {
-        _initData.dispatcher([call]()
+        dispatchCallback(
+            [callback = _callback, session = shared_from_this()]()
             {
-                call->run();
+                callback->connected(session);
             },
             conn);
     }
+}
+
+void
+SessionHelperI::dispatchCallback(function<void()> call, const Ice::ConnectionPtr& conn)
+{
+    if(_initData.dispatcher)
+    {
+        _initData.dispatcher(std::move(call), conn);
+    }
     else
     {
-        call->run();
+        call();
     }
 }
 
 void
-SessionHelperI::dispatchCallbackAndWait(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& conn)
+SessionHelperI::dispatchCallbackAndWait(function<void()> call, const Ice::ConnectionPtr& conn)
 {
     if(_initData.dispatcher)
     {
@@ -692,15 +610,23 @@ SessionHelperI::dispatchCallbackAndWait(const Ice::DispatcherCallPtr& call, cons
         _initData.dispatcher(
             [&dispatchPromise, call = std::move(call)]()
             {
-                call->run();
-                dispatchPromise.set_value();
+                try
+                {
+                    call();
+                    dispatchPromise.set_value();
+                }
+                catch(...)
+                {
+                    dispatchPromise.set_exception(current_exception());
+                    return;
+                }
             },
             conn);
         dispatchPromise.get_future().wait();
     }
     else
     {
-        call->run();
+        call();
     }
 }
 

@@ -48,7 +48,7 @@ printIdentityFacetOperation(ostream& s, InputStream& stream)
 }
 
 static string
-getMessageTypeAsString(Byte type)
+getMessageTypeAsString(uint8_t type)
 {
     switch(type)
     {
@@ -72,7 +72,7 @@ printRequestHeader(ostream& s, InputStream& stream)
 {
     printIdentityFacetOperation(s, stream);
 
-    Byte mode;
+    uint8_t mode;
     stream.read(mode);
     s << "\nmode = " << static_cast<int>(mode) << ' ';
     switch(static_cast<OperationMode>(mode))
@@ -123,34 +123,34 @@ printRequestHeader(ostream& s, InputStream& stream)
     }
 }
 
-static Byte
+static uint8_t
 printHeader(ostream& s, InputStream& stream)
 {
-    Byte magicNumber;
+    uint8_t magicNumber;
     stream.read(magicNumber);   // Don't bother printing the magic number
     stream.read(magicNumber);
     stream.read(magicNumber);
     stream.read(magicNumber);
 
-    Byte pMajor;
-    Byte pMinor;
+    uint8_t pMajor;
+    uint8_t pMinor;
     stream.read(pMajor);
     stream.read(pMinor);
 //    s << "\nprotocol version = " << static_cast<unsigned>(pMajor)
 //      << "." << static_cast<unsigned>(pMinor);
 
-    Byte eMajor;
-    Byte eMinor;
+    uint8_t eMajor;
+    uint8_t eMinor;
     stream.read(eMajor);
     stream.read(eMinor);
 //    s << "\nencoding version = " << static_cast<unsigned>(eMajor)
 //      << "." << static_cast<unsigned>(eMinor);
 
-    Byte type;
+    uint8_t type;
     stream.read(type);
     s << "\nmessage type = "  << static_cast<int>(type) << " (" << getMessageTypeAsString(type) << ')';
 
-    Byte compress;
+    uint8_t compress;
     stream.read(compress);
     s << "\ncompression status = "  << static_cast<int>(compress) << ' ';
 
@@ -223,7 +223,7 @@ printReply(ostream& s, InputStream& stream)
     stream.read(requestId);
     s << "\nrequest id = " << requestId;
 
-    Byte replyStatus;
+    uint8_t replyStatus;
     stream.read(replyStatus);
     s << "\nreply status = " << static_cast<int>(replyStatus) << ' ';
     switch(replyStatus)
@@ -329,10 +329,10 @@ printReply(ostream& s, InputStream& stream)
     }
 }
 
-static Byte
+static uint8_t
 printMessage(ostream& s, InputStream& stream)
 {
-    Byte type = printHeader(s, stream);
+    uint8_t type = printHeader(s, stream);
 
     switch(type)
     {
@@ -378,15 +378,17 @@ mutex slicingMutex;
 }
 
 void
-IceInternal::traceSlicing(const char* kind, const string& typeId, const char* slicingCat, const LoggerPtr& logger)
+IceInternal::traceSlicing(const char* kind, string_view typeId, const char* slicingCat, const LoggerPtr& logger)
 {
     lock_guard lock(slicingMutex);
-    static set<string> slicingIds;
-    if(slicingIds.insert(typeId).second)
+    static set<string, std::less<>> slicingIds;
+    if (slicingIds.find(typeId) == slicingIds.end())
     {
+        string newTypeId(typeId);
+        slicingIds.insert(newTypeId);
         string s("unknown ");
         s += kind;
-        s += " type `" + typeId + "'";
+        s += " type `" + newTypeId + "'";
         logger->trace(slicingCat, s);
     }
 }
@@ -401,7 +403,7 @@ IceInternal::traceSend(const OutputStream& str, const LoggerPtr& logger, const T
         is.i = is.b.begin();
 
         ostringstream s;
-        Byte type = printMessage(s, is);
+        uint8_t type = printMessage(s, is);
 
         logger->trace(tl->protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.str());
     }
@@ -417,7 +419,7 @@ IceInternal::traceRecv(const InputStream& str, const LoggerPtr& logger, const Tr
         stream.i = stream.b.begin();
 
         ostringstream s;
-        Byte type = printMessage(s, stream);
+        uint8_t type = printMessage(s, stream);
 
         logger->trace(tl->protocolCat, "received " + getMessageTypeAsString(type) + " " + s.str());
         stream.i = p;

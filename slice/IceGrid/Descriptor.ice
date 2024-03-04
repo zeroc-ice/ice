@@ -45,7 +45,6 @@ struct PropertyDescriptor
 ["java:type:java.util.LinkedList<PropertyDescriptor>"] sequence<PropertyDescriptor> PropertyDescriptorSeq;
 
 /// A property set descriptor.
-["cpp:comparable"]
 struct PropertySetDescriptor
 {
     /// References to named property sets.
@@ -76,7 +75,6 @@ struct ObjectDescriptor
 ["java:type:java.util.LinkedList<ObjectDescriptor>"] sequence<ObjectDescriptor> ObjectDescriptorSeq;
 
 /// An Ice object adapter descriptor.
-["cpp:comparable"]
 struct AdapterDescriptor
 {
     /// The object adapter name.
@@ -130,7 +128,6 @@ class CommunicatorDescriptor
 }
 
 /// A distribution descriptor defines an IcePatch2 server and the directories to retrieve from the patch server.
-["cpp:comparable"]
 struct DistributionDescriptor
 {
     /// The proxy of the IcePatch2 server.
@@ -202,7 +199,6 @@ class ServiceDescriptor extends CommunicatorDescriptor
 ["java:type:java.util.LinkedList<ServiceDescriptor>"] sequence<ServiceDescriptor> ServiceDescriptorSeq;
 
 /// A server template instance descriptor.
-["cpp:comparable"]
 struct ServerInstanceDescriptor
 {
     /// The template used by this instance.

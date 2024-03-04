@@ -10,11 +10,13 @@
 #include <thread>
 
 using namespace std;
+using namespace Ice;
+using namespace Test;
 
 namespace
 {
 
-class PingReplyI : public Test::PingReply
+class PingReplyI : public PingReply
 {
 public:
     PingReplyI() :
@@ -22,7 +24,7 @@ public:
     {
     }
 
-    virtual void reply(const Ice::Current&)
+    virtual void reply(const Current&)
     {
         _received = true;
     }
@@ -45,22 +47,22 @@ auto thrower = [](ThrowType t)
     {
         switch(t)
         {
-            case LocalException:
+            case ThrowType::LocalException:
             {
-                throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+                throw ObjectNotExistException(__FILE__, __LINE__);
                 break;
             }
-            case UserException:
+            case ThrowType::UserException:
             {
-                throw Test::TestIntfException();
+                throw TestIntfException();
                 break;
             }
-            case StandardException:
+            case ThrowType::StandardException:
             {
                 throw ::std::bad_alloc();
                 break;
             }
-            case OtherException:
+            case ThrowType::OtherException:
             {
                 throw 99;
                 break;
@@ -75,32 +77,23 @@ auto thrower = [](ThrowType t)
 }
 
 void
-allTests(Test::TestHelper* helper, bool collocated)
+allTests(TestHelper* helper, bool collocated)
 {
-    Ice::CommunicatorPtr communicator = helper->communicator();
+    CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
 
-    string sref = "test:" + helper->getTestEndpoint();
-    auto prx = communicator->stringToProxy(sref);
-    test(prx);
+    TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
+    TestIntfControllerPrx testController(communicator, "testController:" + helper->getTestEndpoint(1));
 
-    auto p = Ice::uncheckedCast<Test::TestIntfPrx>(prx);
-
-    sref = "testController:" + helper->getTestEndpoint(1);
-    prx = communicator->stringToProxy(sref);
-    test(prx);
-
-    auto testController = Ice::uncheckedCast<Test::TestIntfControllerPrx>(prx);
-
-    Ice::Context ctx;
+    Context ctx;
     cout << "testing lambda API... " << flush;
     {
         {
-            p->ice_isAAsync(Test::TestIntf::ice_staticId(), nullptr);
+            p->ice_isAAsync(TestIntf::ice_staticId(), nullptr);
         }
         {
             promise<bool> promise;
-            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
+            p->ice_isAAsync(TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -109,7 +102,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
         {
             promise<bool> promise;
-            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
+            p->ice_isAAsync(TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -123,7 +116,7 @@ allTests(Test::TestHelper* helper, bool collocated)
 
         {
             promise<bool> promise;
-            p->ice_isAAsync(Test::TestIntf::ice_staticId(),
+            p->ice_isAAsync(TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -178,7 +171,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 {
                     promise.set_value(id);
                 });
-            test(promise.get_future().get() == Test::TestIntf::ice_staticId());
+            test(promise.get_future().get() == TestIntf::ice_staticId());
         }
         {
             promise<string> promise;
@@ -191,7 +184,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 {
                     promise.set_exception(ex);
                 });
-            test(promise.get_future().get() == Test::TestIntf::ice_staticId());
+            test(promise.get_future().get() == TestIntf::ice_staticId());
         }
         {
             promise<string> promise;
@@ -201,7 +194,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     promise.set_value(id);
                 },
                 nullptr, nullptr, ctx);
-            test(promise.get_future().get() == Test::TestIntf::ice_staticId());
+            test(promise.get_future().get() == TestIntf::ice_staticId());
         }
 
         {
@@ -246,18 +239,18 @@ allTests(Test::TestHelper* helper, bool collocated)
                 p->ice_getConnectionAsync(nullptr);
             }
             {
-                promise<Ice::ConnectionPtr> promise;
+                promise<ConnectionPtr> promise;
                 p->ice_getConnectionAsync(
-                    [&](const Ice::ConnectionPtr& connection)
+                    [&](const ConnectionPtr& connection)
                     {
                         promise.set_value(connection);
                     });
                 test(promise.get_future().get());
             }
             {
-                promise<Ice::ConnectionPtr> promise;
+                promise<ConnectionPtr> promise;
                 p->ice_getConnectionAsync(
-                    [&](const Ice::ConnectionPtr& connection)
+                    [&](const ConnectionPtr& connection)
                     {
                         promise.set_value(connection);
                     },
@@ -391,7 +384,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch(const TestIntfException&)
             {
             }
         }
@@ -412,7 +405,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch(const TestIntfException&)
             {
             }
         }
@@ -431,7 +424,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch(const TestIntfException&)
             {
             }
         }
@@ -453,10 +446,10 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch(const TestIntfException&)
             {
             }
-            catch(const Ice::OperationNotExistException&)
+            catch(const OperationNotExistException&)
             {
             }
         }
@@ -477,10 +470,10 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch(const TestIntfException&)
             {
             }
-            catch(const Ice::OperationNotExistException&)
+            catch(const OperationNotExistException&)
             {
             }
         }
@@ -499,10 +492,10 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch(const TestIntfException&)
             {
             }
-            catch(const Ice::OperationNotExistException&)
+            catch(const OperationNotExistException&)
             {
             }
         }
@@ -512,8 +505,8 @@ allTests(Test::TestHelper* helper, bool collocated)
     cout << "testing future API... " << flush;
     {
 
-        test(p->ice_isAAsync(Test::TestIntf::ice_staticId()).get());
-        test(p->ice_isAAsync(Test::TestIntf::ice_staticId(), ctx).get());
+        test(p->ice_isAAsync(TestIntf::ice_staticId()).get());
+        test(p->ice_isAAsync(TestIntf::ice_staticId(), ctx).get());
 
         p->ice_pingAsync().get();
         p->ice_pingAsync(ctx).get();
@@ -537,7 +530,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->opWithUEAsync().get();
             test(false);
         }
-        catch(const Test::TestIntfException&)
+        catch(const TestIntfException&)
         {
         }
 
@@ -546,7 +539,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->opWithUEAsync(ctx).get();
             test(false);
         }
-        catch(const Test::TestIntfException&)
+        catch(const TestIntfException&)
         {
         }
 
@@ -555,10 +548,10 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->opWithResultAndUEAsync().get();
             test(false);
         }
-        catch(const Test::TestIntfException&)
+        catch(const TestIntfException&)
         {
         }
-        catch(const Ice::OperationNotExistException&)
+        catch(const OperationNotExistException&)
         {
         }
 
@@ -567,10 +560,10 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->opWithResultAndUEAsync(ctx).get();
             test(false);
         }
-        catch(const Test::TestIntfException&)
+        catch(const TestIntfException&)
         {
         }
-        catch(const Ice::OperationNotExistException&)
+        catch(const OperationNotExistException&)
         {
         }
     }
@@ -578,7 +571,7 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     cout << "testing local exceptions with lambda API... " << flush;
     {
-        auto indirect = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
+        TestIntfPrx indirect = p->ice_adapterId("dummy");
 
         {
             promise<void> promise;
@@ -596,7 +589,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch(const NoEndpointException&)
             {
             }
         }
@@ -616,7 +609,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     });
                 test(false);
             }
-            catch(const Ice::TwowayOnlyException&)
+            catch(const TwowayOnlyException&)
             {
             }
         }
@@ -626,11 +619,10 @@ allTests(Test::TestHelper* helper, bool collocated)
         //
         if(p->ice_getConnection() && protocol != "bt")
         {
-            Ice::InitializationData initData;
+            InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
-            Ice::CommunicatorPtr ic = Ice::initialize(initData);
-            auto obj = ic->stringToProxy(p->ice_toString());
-            auto p2 = Ice::checkedCast<Test::TestIntfPrx>(obj);
+            CommunicatorPtr ic = initialize(initData);
+            TestIntfPrx p2(ic, p->ice_toString());
             ic->destroy();
 
             try
@@ -647,7 +639,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                     });
                 test(false);
             }
-            catch(const Ice::CommunicatorDestroyedException&)
+            catch(const CommunicatorDestroyedException&)
             {
                 // Expected.
             }
@@ -657,14 +649,14 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     cout << "testing local exceptions with future API... " << flush;
     {
-        auto indirect = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
+        TestIntfPrx indirect = p->ice_adapterId("dummy");
         auto r = indirect->opAsync();
         try
         {
             r.get();
             test(false);
         }
-        catch(const Ice::NoEndpointException&)
+        catch(const NoEndpointException&)
         {
         }
 
@@ -673,7 +665,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             p->ice_oneway()->opWithResultAsync().get();
             test(false);
         }
-        catch(const Ice::TwowayOnlyException&)
+        catch(const TwowayOnlyException&)
         {
         }
 
@@ -682,11 +674,10 @@ allTests(Test::TestHelper* helper, bool collocated)
         //
         if(p->ice_getConnection())
         {
-            Ice::InitializationData initData;
+            InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
-            Ice::CommunicatorPtr ic = Ice::initialize(initData);
-            auto obj = ic->stringToProxy(p->ice_toString());
-            auto p2 = Ice::checkedCast<Test::TestIntfPrx>(obj);
+            CommunicatorPtr ic = initialize(initData);
+            TestIntfPrx p2(ic, p->ice_toString());
             ic->destroy();
 
             try
@@ -694,7 +685,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 p2->opAsync();
                 test(false);
             }
-            catch(const Ice::CommunicatorDestroyedException&)
+            catch(const CommunicatorDestroyedException&)
             {
                 // Expected.
             }
@@ -704,11 +695,11 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     cout << "testing exception callback with lambda API... " << flush;
     {
-        auto i = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
+        TestIntfPrx i = p->ice_adapterId("dummy");
 
         {
             promise<bool> promise;
-            i->ice_isAAsync(Test::TestIntf::ice_staticId(),
+            i->ice_isAAsync(TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -722,7 +713,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch(const NoEndpointException&)
             {
             }
         }
@@ -744,7 +735,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch(const NoEndpointException&)
             {
             }
         }
@@ -766,7 +757,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Ice::NoEndpointException&)
+            catch(const NoEndpointException&)
             {
             }
         }
@@ -775,7 +766,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         {
             promise<bool> promise;
             p->ice_isAAsync(
-                Test::TestIntf::ice_staticId(),
+                TestIntf::ice_staticId(),
                 [&](bool value)
                 {
                     promise.set_value(value);
@@ -833,7 +824,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise.get_future().get();
                 test(false);
             }
-            catch(const Test::TestIntfException&)
+            catch(const TestIntfException&)
             {
             }
         }
@@ -953,7 +944,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         }
 
         vector<future<bool>> futures;
-        Ice::ByteSeq seq;
+        ByteSeq seq;
         seq.resize(1024);
         testController->holdAdapter();
         try
@@ -992,7 +983,7 @@ allTests(Test::TestHelper* helper, bool collocated)
 
     cout << "testing unexpected exceptions from callback... " << flush;
     {
-        auto q = Ice::uncheckedCast<Test::TestIntfPrx>(p->ice_adapterId("dummy"));
+        TestIntfPrx q = p->ice_adapterId("dummy");
 
         for(int i = 0; i < 4; ++i)
         {
@@ -1071,7 +1062,7 @@ allTests(Test::TestHelper* helper, bool collocated)
             test(p->opBatchCount() == 0);
             auto b1 = p->ice_batchOneway();
             b1->opBatch();
-            b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+            b1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
 
             auto id = this_thread::get_id();
             promise<void> promise;
@@ -1098,8 +1089,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         {
             {
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
                 b1->opBatch();
 
@@ -1107,7 +1097,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise<void> promise;
 
                 b1->ice_getConnection()->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
+                    CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(ex);
@@ -1127,7 +1117,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 auto id = this_thread::get_id();
                 promise<void> promise;
                 p->ice_getConnection()->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
+                    CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(ex);
@@ -1144,14 +1134,13 @@ allTests(Test::TestHelper* helper, bool collocated)
             if(protocol != "bt")
             {
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
-                b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+                b1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
 
                 promise<void> promise;
                 b1->ice_getConnection()->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
+                    CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(std::move(ex));
@@ -1181,12 +1170,11 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // 1 connection. Test future
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
                 b1->opBatch();
 
-                communicator->flushBatchRequestsAsync(Ice::CompressBatch::BasedOnProxy).get();
+                communicator->flushBatchRequestsAsync(CompressBatch::BasedOnProxy).get();
                 test(p->waitForBatch(2));
             }
 
@@ -1195,15 +1183,14 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // 1 connection.
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
                 b1->opBatch();
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
+                    CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(std::move(ex));
@@ -1224,15 +1211,14 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // Exception - 1 connection.
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
                 b1->opBatch();
-                b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+                b1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
+                    CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(std::move(ex));
@@ -1253,11 +1239,8 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // 2 connections.
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                auto b2 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
+                auto b2 = p->ice_fixed(p->ice_connectionId("2")->ice_getConnection())->ice_batchOneway();
                 b2->ice_getConnection(); // Ensure connection is established.
                 b1->opBatch();
                 b1->opBatch();
@@ -1267,7 +1250,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
+                    CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(std::move(ex));
@@ -1290,22 +1273,19 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // The sent callback should be invoked even if all connections fail.
                 //
                 test(p->opBatchCount() == 0);
-                auto b1 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_getConnection()->createProxy(p->ice_getIdentity())->ice_batchOneway());
-                auto b2 = Ice::uncheckedCast<Test::TestIntfPrx>(
-                    p->ice_connectionId("2")->ice_getConnection()->createProxy(
-                        p->ice_getIdentity())->ice_batchOneway());
+                auto b1 = p->ice_fixed(p->ice_getConnection())->ice_batchOneway();
+                auto b2 = p->ice_fixed(p->ice_connectionId("2")->ice_getConnection())->ice_batchOneway();
 
                 b2->ice_getConnection(); // Ensure connection is established.
                 b1->opBatch();
                 b2->opBatch();
-                b1->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
-                b2->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
+                b1->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
+                b2->ice_getConnection()->close(ConnectionClose::GracefullyWithWait);
 
                 promise<void> promise;
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
-                    Ice::CompressBatch::BasedOnProxy,
+                    CompressBatch::BasedOnProxy,
                     [&](exception_ptr ex)
                     {
                         promise.set_exception(std::move(ex));
@@ -1345,7 +1325,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                         promise.get_future().get();
                         test(false);
                     }
-                    catch(const Ice::InvocationCanceledException&)
+                    catch(const InvocationCanceledException&)
                     {
                     }
                     catch(...)
@@ -1373,7 +1353,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                         promise.get_future().get();
                         test(false);
                     }
-                    catch(const Ice::InvocationCanceledException&)
+                    catch(const InvocationCanceledException&)
                     {
                     }
                     catch(...)
@@ -1398,7 +1378,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 auto con = p->ice_getConnection();
                 auto sc = make_shared<promise<void>>();
                 con->setCloseCallback(
-                    [sc](Ice::ConnectionPtr)
+                    [sc](ConnectionPtr)
                     {
                         sc->set_value();
                     });
@@ -1409,7 +1389,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                               [s](exception_ptr ex) { s->set_exception(ex); });
                 auto f = s->get_future();
                 // Blocks until the request completes.
-                con->close(Ice::ConnectionClose::GracefullyWithWait);
+                con->close(ConnectionClose::GracefullyWithWait);
                 f.get(); // Should complete successfully.
                 fc.get();
             }
@@ -1417,11 +1397,11 @@ allTests(Test::TestHelper* helper, bool collocated)
                 //
                 // Remote case.
                 //
-                Ice::ByteSeq seq;
+                ByteSeq seq;
                 seq.resize(1024 * 10);
-                for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+                for(ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
                 {
-                    *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+                    *q = static_cast<uint8_t>(IceUtilInternal::random(255));
                 }
 
                 //
@@ -1446,7 +1426,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                         results.push_back(s->get_future());
                     }
                     atomic_flag sent = ATOMIC_FLAG_INIT;
-                    p->closeAsync(Test::CloseMode::GracefullyWithWait, nullptr, nullptr,
+                    p->closeAsync(CloseMode::GracefullyWithWait, nullptr, nullptr,
                                   [&sent](bool) { sent.test_and_set(); });
                     if(!sent.test_and_set())
                     {
@@ -1505,13 +1485,13 @@ allTests(Test::TestHelper* helper, bool collocated)
                                       [sent](bool) { sent->set_value(); });
                 auto f = s->get_future();
                 sent->get_future().get(); // Ensure the request was sent before we close the connection.
-                con->close(Ice::ConnectionClose::Gracefully);
+                con->close(ConnectionClose::Gracefully);
                 try
                 {
                     f.get();
                     test(false);
                 }
-                catch(const Ice::ConnectionManuallyClosedException& ex)
+                catch(const ConnectionManuallyClosedException& ex)
                 {
                     test(ex.graceful);
                 }
@@ -1524,7 +1504,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                 con = p->ice_getConnection();
                 auto sc = make_shared<promise<void>>();
                 con->setCloseCallback(
-                    [sc](Ice::ConnectionPtr)
+                    [sc](ConnectionPtr)
                     {
                         sc->set_value();
                     });
@@ -1534,7 +1514,7 @@ allTests(Test::TestHelper* helper, bool collocated)
                               [s]() { s->set_value(); },
                               [s](exception_ptr ex) { s->set_exception(ex); });
                 f = s->get_future();
-                p->close(Test::CloseMode::Gracefully); // Close is delayed until sleep completes.
+                p->close(CloseMode::Gracefully); // Close is delayed until sleep completes.
                 fc.get(); // Ensure connection was closed.
                 try
                 {
@@ -1562,13 +1542,13 @@ allTests(Test::TestHelper* helper, bool collocated)
                                       [sent](bool) { sent->set_value(); });
                 auto f = s->get_future();
                 sent->get_future().get(); // Ensure the request was sent before we close the connection.
-                con->close(Ice::ConnectionClose::Forcefully);
+                con->close(ConnectionClose::Forcefully);
                 try
                 {
                     f.get();
                     test(false);
                 }
-                catch(const Ice::ConnectionManuallyClosedException& ex)
+                catch(const ConnectionManuallyClosedException& ex)
                 {
                     test(!ex.graceful);
                 }
@@ -1581,10 +1561,10 @@ allTests(Test::TestHelper* helper, bool collocated)
                 //
                 try
                 {
-                    p->close(Test::CloseMode::Forcefully);
+                    p->close(CloseMode::Forcefully);
                     test(false);
                 }
-                catch(const Ice::ConnectionLostException&)
+                catch(const ConnectionLostException&)
                 {
                     // Expected.
                 }
@@ -1596,8 +1576,7 @@ allTests(Test::TestHelper* helper, bool collocated)
     {
         cout << "testing result tuple... " << flush;
 
-        auto q = Ice::uncheckedCast<Test::Outer::Inner::TestIntfPrx>(
-            communicator->stringToProxy("test2:" + helper->getTestEndpoint()));
+        Outer::Inner::TestIntfPrx q(communicator, "test2:" + helper->getTestEndpoint());
 
         promise<void> promise;
         q->opAsync(1,
@@ -1633,7 +1612,7 @@ allTests(Test::TestHelper* helper, bool collocated)
         cout << "testing bidir... " << flush;
         auto adapter = communicator->createObjectAdapter("");
         auto replyI = make_shared<PingReplyI>();
-        auto reply = Ice::uncheckedCast<Test::PingReplyPrx>(adapter->addWithUUID(replyI));
+        auto reply = PingReplyPrx(adapter->addWithUUID(replyI));
         adapter->activate();
 
         p->ice_getConnection()->setAdapter(adapter);

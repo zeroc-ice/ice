@@ -10,40 +10,40 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::ValueFactoryManagerI::add(ValueFactoryFunc factoryFunc, const string& id)
+IceInternal::ValueFactoryManagerI::add(ValueFactoryFunc factoryFunc, string_view id)
 {
     lock_guard lock(_mutex);
 
     if((_factoryFuncMapHint != _factoryFuncMap.end() && _factoryFuncMapHint->first == id)
        || _factoryFuncMap.find(id) != _factoryFuncMap.end())
     {
-        throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
+        throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
     }
 
-    _factoryFuncMapHint = _factoryFuncMap.insert(_factoryFuncMapHint, make_pair(id, factoryFunc));
+    _factoryFuncMapHint = _factoryFuncMap.insert(_factoryFuncMapHint, make_pair(string{id}, factoryFunc));
 }
 
 void
-IceInternal::ValueFactoryManagerI::add(const ValueFactoryPtr& factory, const string& id)
+IceInternal::ValueFactoryManagerI::add(ValueFactoryPtr factory, string_view id)
 {
     lock_guard lock(_mutex);
 
     if((_factoryFuncMapHint != _factoryFuncMap.end() && _factoryFuncMapHint->first == id)
        || _factoryFuncMap.find(id) != _factoryFuncMap.end())
     {
-        throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
+        throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
     }
 
-    ValueFactoryFunc func = [factory](const string& type) -> shared_ptr<Value>
+    ValueFactoryFunc func = [factory = std::move(factory)](string_view type) -> shared_ptr<Value>
     {
         return factory->create(type);
     };
 
-    _factoryFuncMapHint = _factoryFuncMap.insert(_factoryFuncMapHint, make_pair(id, func));
+    _factoryFuncMapHint = _factoryFuncMap.insert(_factoryFuncMapHint, make_pair(string{id}, func));
 }
 
 ValueFactoryFunc
-IceInternal::ValueFactoryManagerI::find(const string& id) const noexcept
+IceInternal::ValueFactoryManagerI::find(string_view id) const noexcept
 {
     lock_guard lock(_mutex);
 

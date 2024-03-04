@@ -8,9 +8,9 @@
 namespace IceInternal
 {
 
-const Ice::Byte magic[] = { 0x49, 0x63, 0x65, 0x50 };   // 'I', 'c', 'e', 'P'
+const uint8_t magic[] = { 0x49, 0x63, 0x65, 0x50 };   // 'I', 'c', 'e', 'P'
 
-const Ice::Byte requestHdr[] =
+const uint8_t requestHdr[] =
 {
     magic[0],
     magic[1],
@@ -26,7 +26,7 @@ const Ice::Byte requestHdr[] =
     0, 0, 0, 0 // Request id (placeholder)
 };
 
-const Ice::Byte requestBatchHdr[] =
+const uint8_t requestBatchHdr[] =
 {
     magic[0],
     magic[1],
@@ -42,7 +42,7 @@ const Ice::Byte requestBatchHdr[] =
     0, 0, 0, 0  // Number of requests in batch (placeholder)
 };
 
-const Ice::Byte replyHdr[] =
+const uint8_t replyHdr[] =
 {
     magic[0],
     magic[1],
@@ -58,7 +58,7 @@ const Ice::Byte replyHdr[] =
 };
 
 void
-stringToMajorMinor(const std::string& str, Ice::Byte& major, Ice::Byte& minor)
+stringToMajorMinor(const std::string& str, uint8_t& major, uint8_t& minor)
 {
     std::string::size_type pos = str.find_first_of(".");
     if(pos == std::string::npos)
@@ -85,8 +85,8 @@ stringToMajorMinor(const std::string& str, Ice::Byte& major, Ice::Byte& minor)
         throw Ice::VersionParseException(__FILE__, __LINE__, "range error in version `" + str + "'");
     }
 
-    major = static_cast<Ice::Byte>(majVersion);
-    minor = static_cast<Ice::Byte>(minVersion);
+    major = static_cast<uint8_t>(majVersion);
+    minor = static_cast<uint8_t>(minVersion);
 }
 
 void

@@ -33,22 +33,15 @@ interface I
     ["cpp:noexcept"]
     void op();
 
-    ["cpp:type:std::list< ::std::string>"]
+    ["cpp:type:std::list<::std::string>"]
     void op1();
 
-    ["cpp:view-type:std::string_view"]
+    ["cpp:array"]
     void op2();
 
-    ["cpp:array"]
-    void op3();
+    void op3(["cpp:type:my_string"] string s);
 
-    ["cpp:range"]
-    void op4();
-}
-
-["cpp:class", "cpp:comparable"]
-class C
-{
+    void op4(["cpp:view-type:my_string"] string s);
 }
 
 ["cpp:const", "cpp:ice_print"]
@@ -59,6 +52,11 @@ struct S
 
 ["cpp:virtual"]
 exception E
+{
+}
+
+["cpp98:foo", "cpp11:bar"] // The cpp98 and cpp11 attributes were removed in 3.8. We issue a friendly warning.
+class P
 {
 }
 

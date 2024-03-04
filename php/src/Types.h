@@ -197,7 +197,7 @@ class EnumInfo final : public TypeInfo
 {
 public:
 
-    EnumInfo(const std::string&, zval*);
+    EnumInfo(std::string, zval*);
 
     std::string getId() const final;
 
@@ -245,7 +245,7 @@ class StructInfo final : public TypeInfo
 {
 public:
 
-    StructInfo(const std::string&, const std::string&, zval*);
+    StructInfo(std::string, const std::string&, zval*);
 
     std::string getId() const final;
     bool validate(zval*, bool) final;
@@ -287,7 +287,7 @@ class SequenceInfo final : public TypeInfo
 {
 public:
 
-    SequenceInfo(const std::string&, zval*);
+    SequenceInfo(std::string, zval*);
 
     std::string getId() const final;
 
@@ -331,7 +331,7 @@ class DictionaryInfo final : public TypeInfo
 {
 public:
 
-    DictionaryInfo(const std::string&, zval*, zval*);
+    DictionaryInfo(std::string, zval*, zval*);
 
     std::string getId() const final;
 
@@ -400,7 +400,7 @@ class ClassInfo final : public TypeInfo
 {
 public:
 
-    ClassInfo(const std::string&);
+    ClassInfo(std::string);
 
     void define(const std::string&, std::int32_t, bool, zval*, zval*);
 
@@ -426,7 +426,7 @@ public:
     void destroy() final;
     void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    bool isA(const std::string&) const;
+    bool isA(std::string_view) const;
 
     const std::string id;
     const std::string name; // PHP class name
@@ -448,7 +448,7 @@ class ProxyInfo final : public TypeInfo
 {
 public:
 
-    ProxyInfo(const std::string&);
+    ProxyInfo(std::string);
 
     void define(zval*, zval*);
 
@@ -471,7 +471,7 @@ public:
     void print(zval*, IceUtilInternal::Output&, PrintObjectHistory*) final;
 
     void destroy() final;
-    bool isA(const std::string&) const;
+    bool isA(std::string_view) const;
 
     void addOperation(const std::string&, const OperationPtr&);
     OperationPtr getOperation(const std::string&) const;
@@ -494,7 +494,7 @@ public:
     void print(zval*, IceUtilInternal::Output&);
     void printMembers(zval*, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    bool isA(const std::string&) const;
+    bool isA(std::string_view) const;
 
     std::string id;
     std::string name; // PHP class name
@@ -505,10 +505,10 @@ public:
     zend_class_entry* zce;
 };
 
-ClassInfoPtr getClassInfoById(const std::string&);
+ClassInfoPtr getClassInfoById(std::string_view);
 ClassInfoPtr getClassInfoByName(const std::string&);
-ProxyInfoPtr getProxyInfo(const std::string&);
-ExceptionInfoPtr getExceptionInfo(const std::string&);
+ProxyInfoPtr getProxyInfo(std::string_view);
+ExceptionInfoPtr getExceptionInfo(std::string_view);
 
 bool isUnset(zval*);
 void assignUnset(zval*);

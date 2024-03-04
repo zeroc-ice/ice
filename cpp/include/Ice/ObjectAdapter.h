@@ -7,7 +7,6 @@
 
 #include "Config.h"
 #include "CommunicatorF.h"
-#include "Ice/LocatorF.h"
 #include "Endpoint.h"
 #include "FacetMap.h"
 #include "ServantLocator.h"

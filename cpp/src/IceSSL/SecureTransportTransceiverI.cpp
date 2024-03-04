@@ -659,7 +659,7 @@ IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length
 
     try
     {
-        IceInternal::Buffer buf(reinterpret_cast<const Ice::Byte*>(data), reinterpret_cast<const Ice::Byte*>(data) + *length);
+        IceInternal::Buffer buf(reinterpret_cast<const uint8_t*>(data), reinterpret_cast<const uint8_t*>(data) + *length);
         IceInternal::SocketOperation op = _delegate->write(buf);
         if(op == IceInternal::SocketOperationWrite)
         {
@@ -692,7 +692,7 @@ IceSSL::SecureTransport::TransceiverI::readRaw(char* data, size_t* length) const
 
     try
     {
-        IceInternal::Buffer buf(reinterpret_cast<Ice::Byte*>(data), reinterpret_cast<Ice::Byte*>(data) + *length);
+        IceInternal::Buffer buf(reinterpret_cast<uint8_t*>(data), reinterpret_cast<uint8_t*>(data) + *length);
         IceInternal::SocketOperation op = _delegate->read(buf);
         if(op == IceInternal::SocketOperationRead)
         {

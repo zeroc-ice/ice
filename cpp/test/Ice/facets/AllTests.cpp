@@ -8,21 +8,22 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Ice;
 using namespace Test;
 
 class EmptyI : public virtual Empty
 {
 };
 
-GPrxPtr
+GPrx
 allTests(Test::TestHelper* helper)
 {
-    Ice::CommunicatorPtr communicator = helper->communicator();
+    CommunicatorPtr communicator = helper->communicator();
 
     cout << "testing Ice.Admin.Facets property... " << flush;
     test(communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets").empty());
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "foobar");
-    Ice::StringSeq facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    StringSeq facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
     test(facetFilter.size() == 1 && facetFilter[0] == "foobar");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "foo\\'bar");
     facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
@@ -58,107 +59,104 @@ allTests(Test::TestHelper* helper)
     if(communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
        communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
     {
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
-        Ice::ObjectPtr obj = std::make_shared<EmptyI>();
-        adapter->add(obj, Ice::stringToIdentity("d"));
-        adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
+        ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
+        ObjectPtr obj = std::make_shared<EmptyI>();
+        adapter->add(obj, stringToIdentity("d"));
+        adapter->addFacet(obj, stringToIdentity("d"), "facetABCD");
         try
         {
-            adapter->addFacet(obj, Ice::stringToIdentity("d"), "facetABCD");
+            adapter->addFacet(obj, stringToIdentity("d"), "facetABCD");
             test(false);
         }
-        catch(const Ice::AlreadyRegisteredException&)
+        catch(const AlreadyRegisteredException&)
         {
         }
-        adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
+        adapter->removeFacet(stringToIdentity("d"), "facetABCD");
         try
         {
-            adapter->removeFacet(Ice::stringToIdentity("d"), "facetABCD");
+            adapter->removeFacet(stringToIdentity("d"), "facetABCD");
             test(false);
         }
-        catch(const Ice::NotRegisteredException&)
+        catch(const NotRegisteredException&)
         {
         }
         cout << "ok" << endl;
 
         cout << "testing removeAllFacets... " << flush;
-        Ice::ObjectPtr obj1 = std::make_shared<EmptyI>();
-        Ice::ObjectPtr obj2 = std::make_shared<EmptyI>();
-        adapter->addFacet(obj1, Ice::stringToIdentity("id1"), "f1");
-        adapter->addFacet(obj2, Ice::stringToIdentity("id1"), "f2");
-        Ice::ObjectPtr obj3 = std::make_shared<EmptyI>();
-        adapter->addFacet(obj1, Ice::stringToIdentity("id2"), "f1");
-        adapter->addFacet(obj2, Ice::stringToIdentity("id2"), "f2");
-        adapter->addFacet(obj3, Ice::stringToIdentity("id2"), "");
-        Ice::FacetMap fm = adapter->removeAllFacets(Ice::stringToIdentity("id1"));
+        ObjectPtr obj1 = std::make_shared<EmptyI>();
+        ObjectPtr obj2 = std::make_shared<EmptyI>();
+        adapter->addFacet(obj1, stringToIdentity("id1"), "f1");
+        adapter->addFacet(obj2, stringToIdentity("id1"), "f2");
+        ObjectPtr obj3 = std::make_shared<EmptyI>();
+        adapter->addFacet(obj1, stringToIdentity("id2"), "f1");
+        adapter->addFacet(obj2, stringToIdentity("id2"), "f2");
+        adapter->addFacet(obj3, stringToIdentity("id2"), "");
+        FacetMap fm = adapter->removeAllFacets(stringToIdentity("id1"));
         test(fm.size() == 2);
-        test(Ice::ObjectPtr(fm["f1"]) == obj1);
-        test(Ice::ObjectPtr(fm["f2"]) == obj2);
+        test(ObjectPtr(fm["f1"]) == obj1);
+        test(ObjectPtr(fm["f2"]) == obj2);
         try
         {
-            adapter->removeAllFacets(Ice::stringToIdentity("id1"));
+            adapter->removeAllFacets(stringToIdentity("id1"));
             test(false);
         }
-        catch(const Ice::NotRegisteredException&)
+        catch(const NotRegisteredException&)
         {
         }
-        fm = adapter->removeAllFacets(Ice::stringToIdentity("id2"));
+        fm = adapter->removeAllFacets(stringToIdentity("id2"));
         test(fm.size() == 3);
-        test(Ice::ObjectPtr(fm["f1"]) == obj1);
-        test(Ice::ObjectPtr(fm["f2"]) == obj2);
-        test(Ice::ObjectPtr(fm[""]) == obj3);
+        test(ObjectPtr(fm["f1"]) == obj1);
+        test(ObjectPtr(fm["f2"]) == obj2);
+        test(ObjectPtr(fm[""]) == obj3);
         cout << "ok" << endl;
 
         adapter->deactivate();
     }
 
-    cout << "testing stringToProxy... " << flush;
     string ref = "d:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr db = communicator->stringToProxy(ref);
-    test(db);
-    cout << "ok" << endl;
+    ObjectPrx db(communicator, ref);
 
     cout << "testing unchecked cast... " << flush;
-    Ice::ObjectPrxPtr prx = Ice::uncheckedCast<Ice::ObjectPrx>(db);
+    optional<ObjectPrx> prx = uncheckedCast<ObjectPrx>(db);
     test(prx->ice_getFacet().empty());
-    prx = Ice::uncheckedCast<Ice::ObjectPrx>(db, "facetABCD");
+    prx = uncheckedCast<ObjectPrx>(db, "facetABCD");
     test(prx->ice_getFacet() == "facetABCD");
-    Ice::ObjectPrxPtr prx2 = Ice::uncheckedCast<Ice::ObjectPrx>(prx);
+    optional<ObjectPrx> prx2 = uncheckedCast<ObjectPrx>(prx);
     test(prx2->ice_getFacet() == "facetABCD");
 
-    Ice::ObjectPrxPtr prx3 = Ice::uncheckedCast<Ice::ObjectPrx>(prx, "");
+    optional<ObjectPrx> prx3 = uncheckedCast<ObjectPrx>(prx, "");
     test(prx3->ice_getFacet().empty());
-    DPrxPtr d = Ice::uncheckedCast<Test::DPrx>(db);
+    optional<DPrx> d = uncheckedCast<Test::DPrx>(db);
     test(d->ice_getFacet().empty());
-    DPrxPtr df = Ice::uncheckedCast<Test::DPrx>(db, "facetABCD");
+    optional<DPrx> df = uncheckedCast<Test::DPrx>(db, "facetABCD");
     test(df->ice_getFacet() == "facetABCD");
-    DPrxPtr df2 = Ice::uncheckedCast<Test::DPrx>(df);
+    optional<DPrx> df2 = uncheckedCast<Test::DPrx>(df);
     test(df2->ice_getFacet() == "facetABCD");
-    DPrxPtr df3 = Ice::uncheckedCast<Test::DPrx>(df, "");
+    optional<DPrx> df3 = uncheckedCast<Test::DPrx>(df, "");
     test(df3->ice_getFacet().empty());
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    prx = Ice::checkedCast<Ice::ObjectPrx>(db);
+    prx = checkedCast<ObjectPrx>(db);
     test(prx->ice_getFacet().empty());
-    prx = Ice::checkedCast<Ice::ObjectPrx>(db, "facetABCD");
+    prx = checkedCast<ObjectPrx>(db, "facetABCD");
     test(prx->ice_getFacet() == "facetABCD");
-    prx2 = Ice::checkedCast<Ice::ObjectPrx>(prx);
+    prx2 = checkedCast<ObjectPrx>(prx);
     test(prx2->ice_getFacet() == "facetABCD");
-    prx3 = Ice::checkedCast<Ice::ObjectPrx>(prx, "");
+    prx3 = checkedCast<ObjectPrx>(prx, "");
     test(prx3->ice_getFacet().empty());
-    d = Ice::checkedCast<Test::DPrx>(db);
+    d = checkedCast<Test::DPrx>(db);
     test(d->ice_getFacet().empty());
-    df = Ice::checkedCast<Test::DPrx>(db, "facetABCD");
+    df = checkedCast<Test::DPrx>(db, "facetABCD");
     test(df->ice_getFacet() == "facetABCD");
-    df2 = Ice::checkedCast<Test::DPrx>(df);
+    df2 = checkedCast<Test::DPrx>(df);
     test(df2->ice_getFacet() == "facetABCD");
-    df3 = Ice::checkedCast<Test::DPrx>(df, "");
+    df3 = checkedCast<Test::DPrx>(df, "");
     test(df3->ice_getFacet().empty());
     cout << "ok" << endl;
 
     cout << "testing non-facets A, B, C, and D... " << flush;
-    d = Ice::checkedCast<DPrx>(db);
+    d = checkedCast<DPrx>(db);
     test(d);
     test(d == db);
     test(d->callA() == "A");
@@ -168,7 +166,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing facets A, B, C, and D... " << flush;
-    df = Ice::checkedCast<DPrx>(d, "facetABCD");
+    df = checkedCast<DPrx>(d, "facetABCD");
     test(df);
     test(df->callA() == "A");
     test(df->callB() == "B");
@@ -177,24 +175,24 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing facets E and F... " << flush;
-    auto ff = Ice::checkedCast<FPrx>(d, "facetEF");
+    auto ff = checkedCast<FPrx>(d, "facetEF");
     test(ff);
     test(ff->callE() == "E");
     test(ff->callF() == "F");
     cout << "ok" << endl;
 
     cout << "testing facet G... " << flush;
-    auto gf = Ice::checkedCast<GPrx>(ff, "facetGH");
+    auto gf = checkedCast<GPrx>(ff, "facetGH");
     test(gf);
     test(gf->callG() == "G");
     cout << "ok" << endl;
 
     cout << "testing whether casting preserves the facet... " << flush;
-    HPrxPtr hf = Ice::checkedCast<HPrx>(gf);
+    optional<HPrx> hf = checkedCast<HPrx>(gf);
     test(hf);
     test(hf->callG() == "G");
     test(hf->callH() == "H");
     cout << "ok" << endl;
 
-    return gf;
+    return gf.value();
 }

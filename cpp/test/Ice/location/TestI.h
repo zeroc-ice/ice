@@ -10,14 +10,14 @@
 #include <vector>
 #include <ServerLocator.h>
 
-class ServerManagerI : public Test::ServerManager
+class ServerManagerI final : public Test::ServerManager
 {
 public:
 
     ServerManagerI(const ServerLocatorRegistryPtr&, const Ice::InitializationData&);
 
-    virtual void startServer(const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void startServer(const Ice::Current&) final;
+    void shutdown(const Ice::Current&) final;
 
 private:
 
@@ -27,23 +27,23 @@ private:
     int _nextPort;
 };
 
-class HelloI : public Test::Hello
+class HelloI final : public Test::Hello
 {
 public:
 
-    virtual void sayHello(const Ice::Current&);
+    void sayHello(const Ice::Current&) final;
 };
 
-class TestI : public Test::TestIntf
+class TestI final : public Test::TestIntf
 {
 public:
 
     TestI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ServerLocatorRegistryPtr&);
 
-    virtual void shutdown(const Ice::Current&);
-    virtual ::Test::HelloPrxPtr getHello(const Ice::Current&);
-    virtual ::Test::HelloPrxPtr getReplicatedHello(const Ice::Current&);
-    virtual void migrateHello(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
+    std::optional<Test::HelloPrx> getHello(const Ice::Current&) final;
+    std::optional<Test::HelloPrx> getReplicatedHello(const Ice::Current&) final;
+    void migrateHello(const Ice::Current&) final;
 
 private:
 

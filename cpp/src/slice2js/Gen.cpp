@@ -8,6 +8,7 @@
 #include <IceUtil/UUID.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
+#include "../Ice/Endian.h"
 #include <algorithm>
 #include <iterator>
 
@@ -500,11 +501,14 @@ Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& typ
             // need to swap the word bytes as we just write each word as a number to the
             // output file.
             //
-#ifdef ICE_BIG_ENDIAN
-            os << "new Ice.Long(" << (l & 0xFFFFFFFF) << ", " << ((l >> 32) & 0xFFFFFFFF)  << ")";
-#else
-            os << "new Ice.Long(" << ((l >> 32) & 0xFFFFFFFF) << ", " << (l & 0xFFFFFFFF)  << ")";
-#endif
+            if constexpr (endian::native == endian::big)
+            {
+                os << "new Ice.Long(" << (l & 0xFFFFFFFF) << ", " << ((l >> 32) & 0xFFFFFFFF) << ")";
+            }
+            else
+            {
+                os << "new Ice.Long(" << ((l >> 32) & 0xFFFFFFFF) << ", " << (l & 0xFFFFFFFF) << ")";
+            }
         }
         else if((ep = dynamic_pointer_cast<Enum>(type)))
         {

@@ -132,19 +132,6 @@ protected:
 };
 
 /**
- * This exception indicates an attempt to dereference a null IceUtil::Handle or
- * IceInternal::Handle.
- * \headerfile Ice/Ice.h
- */
-class ICE_API NullHandleException : public ExceptionHelper<NullHandleException>
-{
-public:
-
-    NullHandleException(const char*, int);
-    virtual std::string ice_id() const;
-};
-
-/**
  * This exception indicates that a function was called with an illegal parameter
  * value. It is used only by the Slice to C++98 mapping; std::invalid_argument is
  * used by the Slice to C++11 mapping.
@@ -197,33 +184,6 @@ private:
 };
 
 /**
- * This exception indicates the failure of a system call.
- * \headerfile Ice/Ice.h
- */
-class ICE_API SyscallException : public ExceptionHelper<SyscallException>
-{
-public:
-
-    SyscallException(const char*, int, int);
-
-    virtual std::string ice_id() const;
-    virtual void ice_print(std::ostream&) const;
-
-    /**
-     * Provides the error number returned by the system call.
-     * @return The error number.
-     */
-    int error() const;
-
-private:
-
-    const int _error;
-};
-
-template<typename E>
-using SyscallExceptionHelper = ExceptionHelper<E, SyscallException>;
-
-/**
  * This exception indicates the failure to lock a file.
  * \headerfile Ice/Ice.h
  */
@@ -252,19 +212,6 @@ private:
 
     const int _error;
     std::string _path;
-};
-
-/**
- * This exception indicates an IceUtil::Optional is not set.
- * Used only by the Slice to C++98 mapping.
- * \headerfile Ice/Ice.h
- */
-class ICE_API OptionalNotSetException : public ExceptionHelper<OptionalNotSetException>
-{
-public:
-
-    OptionalNotSetException(const char*, int);
-    virtual std::string ice_id() const;
 };
 
 }

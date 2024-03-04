@@ -17,7 +17,7 @@ namespace
 {
 
 ClassInfoPtr
-getClassInfo(const string& id)
+getClassInfo(string_view id)
 {
     ClassInfoPtr info;
 
@@ -79,13 +79,13 @@ IceRuby::ValueFactoryManager::~ValueFactoryManager()
 }
 
 void
-IceRuby::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
+IceRuby::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 {
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__);
 }
 
 void
-IceRuby::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
+IceRuby::ValueFactoryManager::add(Ice::ValueFactoryPtr f, string_view id)
 {
     std::lock_guard lock(_mutex);
 
@@ -93,7 +93,7 @@ IceRuby::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& i
     {
         if(_defaultFactory->getDelegate())
         {
-            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
+            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
         }
 
         _defaultFactory->setDelegate(f);
@@ -103,21 +103,21 @@ IceRuby::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& i
         FactoryMap::iterator p = _factories.find(id);
         if(p != _factories.end())
         {
-            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
+            throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "value factory", string{id});
         }
 
-        _factories.insert(FactoryMap::value_type(id, f));
+        _factories.insert(FactoryMap::value_type(string{id}, f));
     }
 }
 
 Ice::ValueFactoryFunc
-IceRuby::ValueFactoryManager::find(const string& id) const noexcept
+IceRuby::ValueFactoryManager::find(string_view id) const noexcept
 {
     Ice::ValueFactoryPtr factory = findCore(id);
 
     if (factory)
     {
-        return [factory](const string& type) { return factory->create(type); };
+        return [factory](string_view type) { return factory->create(type); };
     }
     else
     {
@@ -126,7 +126,7 @@ IceRuby::ValueFactoryManager::find(const string& id) const noexcept
 }
 
 Ice::ValueFactoryPtr
-IceRuby::ValueFactoryManager::findCore(const string& id) const noexcept
+IceRuby::ValueFactoryManager::findCore(string_view id) const noexcept
 {
     std::lock_guard lock(_mutex);
 
@@ -147,7 +147,7 @@ IceRuby::ValueFactoryManager::findCore(const string& id) const noexcept
 }
 
 void
-IceRuby::ValueFactoryManager::addValueFactory(VALUE f, const string& id)
+IceRuby::ValueFactoryManager::addValueFactory(VALUE f, string_view id)
 {
     ICE_RUBY_TRY
     {
@@ -157,7 +157,7 @@ IceRuby::ValueFactoryManager::addValueFactory(VALUE f, const string& id)
 }
 
 VALUE
-IceRuby::ValueFactoryManager::findValueFactory(const string& id) const
+IceRuby::ValueFactoryManager::findValueFactory(string_view id) const
 {
     Ice::ValueFactoryPtr f = findCore(id);
     if(f)
@@ -250,7 +250,7 @@ IceRuby::FactoryWrapper::FactoryWrapper(VALUE factory) :
 }
 
 shared_ptr<Ice::Value>
-IceRuby::FactoryWrapper::create(const string& id)
+IceRuby::FactoryWrapper::create(string_view id)
 {
     //
     // Get the type information.
@@ -293,7 +293,7 @@ IceRuby::FactoryWrapper::destroy()
 }
 
 shared_ptr<Ice::Value>
-IceRuby::DefaultValueFactory::create(const string& id)
+IceRuby::DefaultValueFactory::create(string_view id)
 {
     shared_ptr<Ice::Value> v;
 

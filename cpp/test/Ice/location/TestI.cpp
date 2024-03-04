@@ -8,10 +8,10 @@
 #include <TestHelper.h>
 
 using namespace std;
+using namespace Ice;
 using namespace Test;
 
-ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
-                               const Ice::InitializationData& initData) :
+ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry, const InitializationData& initData) :
     _registry(registry),
     _initData(initData),
     _nextPort(1)
@@ -23,12 +23,12 @@ ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
 }
 
 void
-ServerManagerI::startServer(const Ice::Current&)
+ServerManagerI::startServer(const Current&)
 {
-    for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
+    for (const auto& communicator : _communicators)
     {
-        (*i)->waitForShutdown();
-        (*i)->destroy();
+        communicator->waitForShutdown();
+        communicator->destroy();
     }
     _communicators.clear();
 
@@ -40,7 +40,7 @@ ServerManagerI::startServer(const Ice::Current&)
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
-    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(_initData);
+    CommunicatorPtr serverCommunicator = initialize(_initData);
     _communicators.push_back(serverCommunicator);
 
     //
@@ -50,11 +50,11 @@ ServerManagerI::startServer(const Ice::Current&)
     int nRetry = 10;
     while(--nRetry > 0)
     {
-        Ice::ObjectAdapterPtr adapter;
-        Ice::ObjectAdapterPtr adapter2;
+        ObjectAdapterPtr adapter;
+        ObjectAdapterPtr adapter2;
         try
         {
-            Ice::PropertiesPtr props = _initData.properties;
+            PropertiesPtr props = _initData.properties;
             serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints",
                                                              TestHelper::getTestEndpoint(props, _nextPort++));
             serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints",
@@ -63,21 +63,22 @@ ServerManagerI::startServer(const Ice::Current&)
             adapter = serverCommunicator->createObjectAdapter("TestAdapter");
             adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
-            Ice::ObjectPrxPtr locator =
-                serverCommunicator->stringToProxy("locator:" + TestHelper::getTestEndpoint(props));
-            adapter->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
-            adapter2->setLocator(Ice::uncheckedCast<Ice::LocatorPrx>(locator));
+            LocatorPrx locator(
+                serverCommunicator,
+                "locator:" + TestHelper::getTestEndpoint(props));
+            adapter->setLocator(locator);
+            adapter2->setLocator(locator);
 
-            Ice::ObjectPtr object = make_shared<TestI>(adapter, adapter2, _registry);
-            _registry->addObject(adapter->add(object, Ice::stringToIdentity("test")));
-            _registry->addObject(adapter->add(object, Ice::stringToIdentity("test2")));
-            adapter->add(object, Ice::stringToIdentity("test3"));
+            ObjectPtr object = make_shared<TestI>(adapter, adapter2, _registry);
+            _registry->addObject(adapter->add(object, stringToIdentity("test")));
+            _registry->addObject(adapter->add(object, stringToIdentity("test2")));
+            adapter->add(object, stringToIdentity("test3"));
 
             adapter->activate();
             adapter2->activate();
             break;
         }
-        catch(const Ice::SocketException&)
+        catch(const SocketException&)
         {
             if(nRetry == 0)
             {
@@ -99,56 +100,56 @@ ServerManagerI::startServer(const Ice::Current&)
 }
 
 void
-ServerManagerI::shutdown(const Ice::Current& current)
+ServerManagerI::shutdown(const Current& current)
 {
-    for(::std::vector<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
+    for (const auto& communicator : _communicators)
     {
-        (*i)->destroy();
+        communicator->destroy();
     }
     current.adapter->getCommunicator()->shutdown();
 }
 
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
-             const Ice::ObjectAdapterPtr& adapter2,
+TestI::TestI(const ObjectAdapterPtr& adapter,
+             const ObjectAdapterPtr& adapter2,
              const ServerLocatorRegistryPtr& registry) :
     _adapter1(adapter), _adapter2(adapter2), _registry(registry)
 {
-    _registry->addObject(_adapter1->add(make_shared<HelloI>(), Ice::stringToIdentity("hello")));
+    _registry->addObject(_adapter1->add(make_shared<HelloI>(), stringToIdentity("hello")));
 }
 
 void
-TestI::shutdown(const Ice::Current&)
+TestI::shutdown(const Current&)
 {
     _adapter1->getCommunicator()->shutdown();
 }
 
-HelloPrxPtr
-TestI::getHello(const Ice::Current&)
+optional<HelloPrx>
+TestI::getHello(const Current&)
 {
-    return Ice::uncheckedCast<HelloPrx>(_adapter1->createIndirectProxy(Ice::stringToIdentity("hello")));
+    return HelloPrx(_adapter1->createIndirectProxy(stringToIdentity("hello")));
 }
 
-HelloPrxPtr
-TestI::getReplicatedHello(const Ice::Current&)
+optional<HelloPrx>
+TestI::getReplicatedHello(const Current&)
 {
-    return Ice::uncheckedCast<HelloPrx>(_adapter1->createProxy(Ice::stringToIdentity("hello")));
+    return HelloPrx(_adapter1->createProxy(stringToIdentity("hello")));
 }
 
 void
-TestI::migrateHello(const Ice::Current&)
+TestI::migrateHello(const Current&)
 {
-    const Ice::Identity id = Ice::stringToIdentity("hello");
+    const Identity id = stringToIdentity("hello");
     try
     {
         _registry->addObject(_adapter2->add(_adapter1->remove(id), id));
     }
-    catch(const Ice::NotRegisteredException&)
+    catch(const NotRegisteredException&)
     {
         _registry->addObject(_adapter1->add(_adapter2->remove(id), id));
     }
 }
 
 void
-HelloI::sayHello(const Ice::Current&)
+HelloI::sayHello(const Current&)
 {
 }

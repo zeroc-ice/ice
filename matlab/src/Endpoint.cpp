@@ -92,7 +92,7 @@ createInfo(const shared_ptr<Ice::EndpointInfo>& info)
     if(opaqueInfo)
     {
         mxSetFieldByNumber(r, 0, Field::RawEncoding, createEncodingVersion(opaqueInfo->rawEncoding));
-        Ice::Byte* p = &opaqueInfo->rawBytes[0];
+        uint8_t* p = &opaqueInfo->rawBytes[0];
         mxSetFieldByNumber(r, 0, Field::RawBytes, createByteArray(p, p + opaqueInfo->rawBytes.size()));
     }
 

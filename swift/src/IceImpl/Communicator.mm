@@ -216,7 +216,7 @@
     }
 }
 
--(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error
+-(BOOL) flushBatchRequests:(std::uint8_t)compress error:(NSError**)error
 {
     try
     {
@@ -230,7 +230,7 @@
     }
 }
 
--(void) flushBatchRequestsAsync:(uint8_t)compress
+-(void) flushBatchRequestsAsync:(std::uint8_t)compress
                       exception:(void (^)(NSError*))exception
                            sent:(void (^_Nullable)(bool))sent
 {
@@ -399,16 +399,16 @@
     }
 }
 
--(void) getDefaultEncoding:(uint8_t*)major minor:(uint8_t*)minor
+-(void) getDefaultEncoding:(std::uint8_t*)major minor:(std::uint8_t*)minor
 {
     auto defaultEncoding = IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultEncoding;
     *major = defaultEncoding.major;
     *minor = defaultEncoding.minor;
 }
 
--(uint8_t) getDefaultFormat
+-(std::uint8_t) getDefaultFormat
 {
-    return static_cast<uint8_t>(IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultFormat);
+    return static_cast<std::uint8_t>(IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultFormat);
 }
 
 -(id<ICEBlobjectFacade>) facetToFacade:(const std::shared_ptr<Ice::Object>&) servant

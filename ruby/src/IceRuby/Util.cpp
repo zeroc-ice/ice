@@ -277,12 +277,12 @@ IceRuby::getString(VALUE val)
 }
 
 VALUE
-IceRuby::createString(const string& str)
+IceRuby::createString(string_view str)
 {
 #ifdef HAVE_RUBY_ENCODING_H
-    return callRuby(rb_enc_str_new, str.c_str(), static_cast<long>(str.size()), rb_utf8_encoding());
+    return callRuby(rb_enc_str_new, str.data(), static_cast<long>(str.size()), rb_utf8_encoding());
 #else
-    return callRuby(rb_str_new, str.c_str(), static_cast<long>(str.size()));
+    return callRuby(rb_str_new, str.data(), static_cast<long>(str.size()));
 #endif
 }
 
@@ -378,13 +378,13 @@ IceRuby::stringSeqToArray(const vector<string>& seq)
 }
 
 VALUE
-IceRuby::createNumSeq(const vector<Ice::Byte>& v)
+IceRuby::createNumSeq(const vector<uint8_t>& v)
 {
     volatile VALUE result = createArray(v.size());
     long i = 0;
     if(v.size() > 0)
     {
-        for(vector<Ice::Byte>::const_iterator p = v.begin(); p != v.end(); ++p, ++i)
+        for(vector<uint8_t>::const_iterator p = v.begin(); p != v.end(); ++p, ++i)
         {
             RARRAY_ASET(result, i, INT2FIX(*p));
         }

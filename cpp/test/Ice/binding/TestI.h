@@ -8,42 +8,41 @@
 #include <Test.h>
 #include <TestHelper.h>
 
-class RemoteCommunicatorI : public Test::RemoteCommunicator
+class RemoteCommunicatorI final : public Test::RemoteCommunicator
 {
 public:
 
     RemoteCommunicatorI();
 
-    virtual Test::RemoteObjectAdapterPrxPtr createObjectAdapter(std::string, std::string,
-                                                                              const Ice::Current&);
-    virtual void deactivateObjectAdapter(Test::RemoteObjectAdapterPrxPtr, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    std::optional<Test::RemoteObjectAdapterPrx> createObjectAdapter(std::string, std::string, const Ice::Current&) final;
+    void deactivateObjectAdapter(std::optional<Test::RemoteObjectAdapterPrx>, const Ice::Current&) final;
+    void shutdown(const Ice::Current&) final;
 
 private:
 
     int _nextPort;
 };
 
-class RemoteObjectAdapterI : public Test::RemoteObjectAdapter
+class RemoteObjectAdapterI final : public Test::RemoteObjectAdapter
 {
 public:
 
     RemoteObjectAdapterI(const Ice::ObjectAdapterPtr&);
 
-    virtual Test::TestIntfPrxPtr getTestIntf(const Ice::Current&);
-    virtual void deactivate(const Ice::Current&);
+    std::optional<Test::TestIntfPrx> getTestIntf(const Ice::Current&) final;
+    void deactivate(const Ice::Current&) final;
 
 private:
 
     const Ice::ObjectAdapterPtr _adapter;
-    const Test::TestIntfPrxPtr _testIntf;
+    const Test::TestIntfPrx _testIntf;
 };
 
-class TestI : public Test::TestIntf
+class TestI final : public Test::TestIntf
 {
 public:
 
-    virtual std::string getAdapterName(const Ice::Current&);
+    std::string getAdapterName(const Ice::Current&) final;
 };
 
 #endif

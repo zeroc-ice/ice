@@ -40,15 +40,15 @@ class ICE_API FactoryTable : private IceUtil::noncopyable
 {
 public:
 
-    void addExceptionFactory(const ::std::string&, ::Ice::UserExceptionFactory);
-    ::Ice::UserExceptionFactory getExceptionFactory(const ::std::string&) const;
-    void removeExceptionFactory(const ::std::string&);
+    void addExceptionFactory(std::string_view, ::Ice::UserExceptionFactory);
+    ::Ice::UserExceptionFactory getExceptionFactory(std::string_view) const;
+    void removeExceptionFactory(std::string_view);
 
-    void addValueFactory(const ::std::string&, ::Ice::ValueFactoryFunc);
-    ::Ice::ValueFactoryFunc getValueFactory(const ::std::string&) const;
-    void removeValueFactory(const ::std::string&);
+    void addValueFactory(std::string_view, ::Ice::ValueFactoryFunc);
+    ::Ice::ValueFactoryFunc getValueFactory(std::string_view) const;
+    void removeValueFactory(std::string_view);
 
-    void addTypeId(int, const ::std::string&);
+    void addTypeId(int, std::string_view);
     std::string getTypeId(int) const;
     void removeTypeId(int);
 
@@ -57,11 +57,11 @@ private:
     mutable std::mutex _mutex;
 
     typedef ::std::pair<::Ice::UserExceptionFactory, int> EFPair;
-    typedef ::std::map<::std::string, EFPair> EFTable;
+    typedef ::std::map<::std::string, EFPair, std::less<>> EFTable;
     EFTable _eft;
 
     typedef ::std::pair<::Ice::ValueFactoryFunc, int> VFPair;
-    typedef ::std::map<::std::string, VFPair> VFTable;
+    typedef ::std::map<::std::string, VFPair, std::less<>> VFTable;
     VFTable _vft;
 
     typedef ::std::pair<::std::string, int> TypeIdPair;

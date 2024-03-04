@@ -78,8 +78,8 @@ public:
 
     Ice::CommunicatorPtr getCommunicator() const final;
 
-    bool addFactory(zval*, const string&);
-    FactoryWrapperPtr findFactory(const string&) const;
+    bool addFactory(zval*, string_view);
+    FactoryWrapperPtr findFactory(string_view) const;
     void setDefaultFactory(DefaultValueFactoryPtr defaultFactory);
     DefaultValueFactoryPtr defaultFactory() const { return _defaultFactory; }
     void destroyFactories();
@@ -89,7 +89,7 @@ public:
 
 private:
 
-    typedef map<string, FactoryWrapperPtr> FactoryMap;
+    typedef map<string, FactoryWrapperPtr, std::less<>> FactoryMap;
 
     FactoryMap _factories;
     DefaultValueFactoryPtr _defaultFactory;
@@ -103,7 +103,7 @@ public:
 
     FactoryWrapper(zval*, const CommunicatorInfoIPtr&);
 
-    shared_ptr<Ice::Value> create(const string&) final;
+    shared_ptr<Ice::Value> create(string_view) final;
 
     void getZval(zval*);
 
@@ -122,7 +122,7 @@ public:
 
     DefaultValueFactory(const CommunicatorInfoIPtr&);
 
-    shared_ptr<Ice::Value> create(const string&) final;
+    shared_ptr<Ice::Value> create(string_view) final;
 
     void setDelegate(const FactoryWrapperPtr& d) { _delegate = d; }
     FactoryWrapperPtr getDelegate() const { return _delegate; }
@@ -159,9 +159,9 @@ class ValueFactoryManager final : public Ice::ValueFactoryManager
 {
 public:
 
-    void add(Ice::ValueFactoryFunc, const string&) final;
-    void add(const Ice::ValueFactoryPtr&, const string&) final;
-    Ice::ValueFactoryFunc find(const string&) const noexcept final;
+    void add(Ice::ValueFactoryFunc, string_view) final;
+    void add(Ice::ValueFactoryPtr, string_view) final;
+    Ice::ValueFactoryFunc find(string_view) const noexcept final;
 
     void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
@@ -1832,7 +1832,7 @@ IcePHP::FactoryWrapper::FactoryWrapper(zval* factory, const CommunicatorInfoIPtr
 }
 
 shared_ptr<Ice::Value>
-IcePHP::FactoryWrapper::create(const string& id)
+IcePHP::FactoryWrapper::create(string_view id)
 {
     // Get the TSRM id for the current request.
 
@@ -1856,7 +1856,7 @@ IcePHP::FactoryWrapper::create(const string& id)
 
     zval arg;
     AutoDestroy destroyArg(&arg);
-    ZVAL_STRINGL(&arg, id.c_str(), static_cast<int>(id.length()));
+    ZVAL_STRINGL(&arg, id.data(), static_cast<int>(id.length()));
 
     zval obj;
     ZVAL_UNDEF(&obj);
@@ -1906,7 +1906,7 @@ IcePHP::DefaultValueFactory::DefaultValueFactory(const CommunicatorInfoIPtr& inf
 }
 
 shared_ptr<Ice::Value>
-IcePHP::DefaultValueFactory::create(const string& id)
+IcePHP::DefaultValueFactory::create(string_view id)
 {
     // Get the TSRM id for the current request.
     if(_delegate)
@@ -2007,7 +2007,7 @@ IcePHP::CommunicatorInfoI::getCommunicator() const
 }
 
 bool
-IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
+IcePHP::CommunicatorInfoI::addFactory(zval* factory, string_view id)
 {
     if(id.empty())
     {
@@ -2040,7 +2040,7 @@ IcePHP::CommunicatorInfoI::addFactory(zval* factory, const string& id)
 }
 
 FactoryWrapperPtr
-IcePHP::CommunicatorInfoI::findFactory(const string& id) const
+IcePHP::CommunicatorInfoI::findFactory(string_view id) const
 {
     if(id.empty())
     {
@@ -2070,21 +2070,21 @@ IcePHP::CommunicatorInfoI::destroyFactories(void)
 }
 
 void
-IcePHP::ValueFactoryManager::add(Ice::ValueFactoryFunc, const string&)
+IcePHP::ValueFactoryManager::add(Ice::ValueFactoryFunc, string_view)
 {
     // We don't support factories registered in C++.
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
 }
 
 void
-IcePHP::ValueFactoryManager::add(const Ice::ValueFactoryPtr&, const string&)
+IcePHP::ValueFactoryManager::add(Ice::ValueFactoryPtr, string_view)
 {
     // We don't support factories registered in C++.
     throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "C++ value factory");
 }
 
 Ice::ValueFactoryFunc
-IcePHP::ValueFactoryManager::find(const string& id) const noexcept
+IcePHP::ValueFactoryManager::find(string_view id) const noexcept
 {
     // Get the TSRM id for the current request.
     CommunicatorMap* m = static_cast<CommunicatorMap*>(ICE_G(communicatorMap));
@@ -2106,7 +2106,7 @@ IcePHP::ValueFactoryManager::find(const string& id) const noexcept
 
     if (factory)
     {
-        return [factory](const string& id) -> shared_ptr<Ice::Value>
+        return [factory](string_view id) -> shared_ptr<Ice::Value>
         {
             return factory->create(id);
         };

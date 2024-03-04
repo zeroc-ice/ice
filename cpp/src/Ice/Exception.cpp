@@ -85,7 +85,7 @@ const string userException_ids[] =
 
 }
 
-const std::string&
+std::string_view
 Ice::UserException::ice_staticId()
 {
     return userException_ids[0];
@@ -145,7 +145,7 @@ const string localException_ids[] =
 
 }
 
-const std::string&
+std::string_view
 Ice::LocalException::ice_staticId()
 {
     return localException_ids[0];
@@ -176,7 +176,7 @@ const string systemException_ids[] =
 
 }
 
-const std::string&
+std::string_view
 Ice::SystemException::ice_staticId()
 {
     return systemException_ids[0];
@@ -348,6 +348,17 @@ Ice::OperationNotExistException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\noperation does not exist";
     printFailedRequestData(out, *this);
+}
+
+Ice::SyscallException::SyscallException(const char* file, int line) :
+    LocalExceptionHelper<SyscallException, LocalException>(file, line),
+#ifdef _WIN32
+    error(GetLastError())
+#else
+    error(errno)
+#endif
+{
+
 }
 
 void

@@ -24,8 +24,8 @@ public:
     void addMapping(const std::string&, const std::shared_ptr<Ice::Connection>&);
     void removeMapping(const std::string&);
 
-    void ice_invokeAsync(std::pair<const Ice::Byte*, const Ice::Byte*>,
-                         std::function<void(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&)>,
+    void ice_invokeAsync(std::pair<const std::uint8_t*, const std::uint8_t*>,
+                         std::function<void(bool, const std::pair<const std::uint8_t*, const std::uint8_t*>&)>,
                          std::function<void(std::exception_ptr)>,
                          const Ice::Current& current) override;
 

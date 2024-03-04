@@ -12,20 +12,18 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class PingReplyI : public PingReply
+class PingReplyI final : public PingReply
 {
 public:
 
-    virtual void
-    reply(const Ice::Current&)
+    void reply(const Ice::Current&) final
     {
         std::lock_guard lock(_mutex);
         ++_replies;
         _condition.notify_one();
     }
 
-    void
-    reset()
+    void reset()
     {
          _replies = 0;
     }
@@ -56,12 +54,12 @@ allTests(Test::TestHelper* helper)
     communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ReplyAdapter");
     PingReplyIPtr replyI = std::make_shared<PingReplyI>();
-    PingReplyPrxPtr reply = Ice::uncheckedCast<PingReplyPrx>(adapter->addWithUUID(replyI))->ice_datagram();
+    auto reply = PingReplyPrx(adapter->addWithUUID(replyI))->ice_datagram();
     adapter->activate();
 
     cout << "testing udp... " << flush;
-    ObjectPrxPtr base = communicator->stringToProxy("test -d:" + helper->getTestEndpoint("udp"));
-    TestIntfPrxPtr obj = Ice::uncheckedCast<TestIntfPrx>(base);
+
+    TestIntfPrx obj(communicator, "test -d:" + helper->getTestEndpoint("udp"));
 
     int nRetry = 5;
     bool ret = false;
@@ -140,8 +138,8 @@ allTests(Test::TestHelper* helper)
         endpoint << " --interface 127.0.0.1"; // Use loopback to prevent other machines to answer.
 #endif
     }
-    base = communicator->stringToProxy("test -d:" + endpoint.str());
-    TestIntfPrxPtr objMcast = Ice::uncheckedCast<TestIntfPrx>(base);
+
+    TestIntfPrx objMcast(communicator, "test -d:" + endpoint.str());
 #if (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
     cout << "testing udp multicast... " << flush;
 

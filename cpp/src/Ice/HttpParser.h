@@ -40,9 +40,9 @@ public:
         TypeResponse
     };
 
-    const Ice::Byte* isCompleteMessage(const Ice::Byte*, const Ice::Byte*) const;
+    const std::uint8_t* isCompleteMessage(const std::uint8_t*, const std::uint8_t*) const;
 
-    bool parse(const Ice::Byte*, const Ice::Byte*);
+    bool parse(const std::uint8_t*, const std::uint8_t*);
 
     Type type() const;
 

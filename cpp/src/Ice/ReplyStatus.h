@@ -10,14 +10,14 @@
 namespace IceInternal
 {
 
-static const Ice::Byte replyOK = 0;
-static const Ice::Byte replyUserException = 1;
-static const Ice::Byte replyObjectNotExist = 2;
-static const Ice::Byte replyFacetNotExist = 3;
-static const Ice::Byte replyOperationNotExist = 4;
-static const Ice::Byte replyUnknownLocalException = 5;
-static const Ice::Byte replyUnknownUserException = 6;
-static const Ice::Byte replyUnknownException = 7;
+static const std::uint8_t replyOK = 0;
+static const std::uint8_t replyUserException = 1;
+static const std::uint8_t replyObjectNotExist = 2;
+static const std::uint8_t replyFacetNotExist = 3;
+static const std::uint8_t replyOperationNotExist = 4;
+static const std::uint8_t replyUnknownLocalException = 5;
+static const std::uint8_t replyUnknownUserException = 6;
+static const std::uint8_t replyUnknownException = 7;
 
 }
 

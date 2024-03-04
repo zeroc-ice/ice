@@ -14,8 +14,8 @@ Glacier2::ServerBlobject::ServerBlobject(shared_ptr<Instance> instance, shared_p
 }
 
 void
-Glacier2::ServerBlobject::ice_invokeAsync(pair<const Byte*, const Byte*> inParams,
-                                          function<void(bool, const pair<const Byte*, const Byte*>&)> response,
+Glacier2::ServerBlobject::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
+                                          function<void(bool, const pair<const uint8_t*, const uint8_t*>&)> response,
                                           function<void(exception_ptr)> error,
                                           const Current& current)
 {

@@ -22,7 +22,7 @@ class Value;
  * @param type The value type.
  * @return The value created for the given type, or nil if the factory is unable to create the value.
  */
-using ValueFactoryFunc = ::std::function<::std::shared_ptr<Value>(const ::std::string& type)>;
+using ValueFactoryFunc = ::std::function<::std::shared_ptr<Value>(std::string_view type)>;
 
 /**
  * A factory for values. Value factories are used in several places, such as when Ice receives a class instance. Value
@@ -46,7 +46,7 @@ public:
      * @param type The value type.
      * @return The value created for the given type, or nil if the factory is unable to create the value.
      */
-    virtual std::shared_ptr<Value> create(const std::string& type) = 0;
+    virtual std::shared_ptr<Value> create(std::string_view type) = 0;
 };
 
 using ValueFactoryPtr = std::shared_ptr<ValueFactory>;
@@ -85,7 +85,7 @@ public:
      * @param factory The factory to add.
      * @param id The type id for which the factory can create instances, or an empty string for the default factory.
      */
-    virtual void add(ValueFactoryFunc factory, const ::std::string& id) = 0;
+    virtual void add(ValueFactoryFunc factory, std::string_view id) = 0;
 
     /**
      * Add a value factory. Attempting to add a factory with an id for which a factory is already registered throws
@@ -109,14 +109,14 @@ public:
      * @param factory The factory to add.
      * @param id The type id for which the factory can create instances, or an empty string for the default factory.
      */
-    virtual void add(const ValueFactoryPtr& factory, const ::std::string& id) = 0;
+    virtual void add(ValueFactoryPtr factory, std::string_view id) = 0;
 
     /**
      * Find an value factory registered with this communicator.
      * @param id The type id for which the factory can create instances, or an empty string for the default factory.
      * @return The value factory, or null if no value factory was found for the given id.
      */
-    virtual ::Ice::ValueFactoryFunc find(const ::std::string& id) const noexcept = 0;
+    virtual ::Ice::ValueFactoryFunc find(std::string_view id) const noexcept = 0;
 };
 
 using ValueFactoryManagerPtr = ::std::shared_ptr<ValueFactoryManager>;

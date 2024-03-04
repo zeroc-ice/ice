@@ -11,7 +11,7 @@ using namespace Test;
 using namespace Ice;
 
 static void
-testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
+testFacets(const CommunicatorPtr& com, bool builtInFacets = true)
 {
     if(builtInFacets)
     {
@@ -29,12 +29,12 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
     com->addAdminFacet(f2, "Facet2");
     com->addAdminFacet(f3, "Facet3");
 
-    test(Ice::ObjectPtr(com->findAdminFacet("Facet1")) == f1);
-    test(Ice::ObjectPtr(com->findAdminFacet("Facet2")) == f2);
-    test(Ice::ObjectPtr(com->findAdminFacet("Facet3")) == f3);
+    test(ObjectPtr(com->findAdminFacet("Facet1")) == f1);
+    test(ObjectPtr(com->findAdminFacet("Facet2")) == f2);
+    test(ObjectPtr(com->findAdminFacet("Facet3")) == f3);
     test(!com->findAdminFacet("Bogus"));
 
-    const Ice::FacetMap facetMap = com->findAllAdminFacets();
+    const FacetMap facetMap = com->findAllAdminFacets();
 
     if(builtInFacets)
     {
@@ -57,7 +57,7 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
         com->addAdminFacet(f1, "Facet1");
         test(false);
     }
-    catch(const Ice::AlreadyRegisteredException&)
+    catch(const AlreadyRegisteredException&)
     {
         // Expected
     }
@@ -67,7 +67,7 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
         com->removeAdminFacet("Bogus");
         test(false);
     }
-    catch(const Ice::NotRegisteredException&)
+    catch(const NotRegisteredException&)
     {
         // Expected
     }
@@ -81,23 +81,23 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
         com->removeAdminFacet("Facet1");
         test(false);
     }
-    catch(const Ice::NotRegisteredException&)
+    catch(const NotRegisteredException&)
     {
         // Expected
     }
 }
 
-class RemoteLoggerI : public Ice::RemoteLogger
+class RemoteLoggerI final : public RemoteLogger
 {
 public:
 
     RemoteLoggerI();
 
-    virtual void init(string, Ice::LogMessageSeq, const Ice::Current&);
-    virtual void log(Ice::LogMessage, const Ice::Current&);
+    void init(string, LogMessageSeq, const Current&) final;
+    void log(LogMessage, const Current&) final;
 
-    void checkNextInit(const string&, Ice::LogMessageType, const string&, const string& = "");
-    void checkNextLog(Ice::LogMessageType, const string&, const string& = "");
+    void checkNextInit(const string&, LogMessageType, const string&, const string& = "");
+    void checkNextLog(LogMessageType, const string&, const string& = "");
 
     bool wait(int);
 
@@ -107,8 +107,8 @@ private:
     condition_variable _condition;
     int _receivedCalls;
     string _prefix;
-    Ice::LogMessageSeq _initMessages;
-    Ice::LogMessageSeq _logMessages;
+    LogMessageSeq _initMessages;
+    LogMessageSeq _logMessages;
 };
 
 using RemoteLoggerIPtr = std::shared_ptr<RemoteLoggerI>;
@@ -118,7 +118,7 @@ RemoteLoggerI::RemoteLoggerI() : _receivedCalls(0)
 }
 
 void
-RemoteLoggerI::init(string prefix, Ice::LogMessageSeq logMessages, const Ice::Current&)
+RemoteLoggerI::init(string prefix, LogMessageSeq logMessages, const Current&)
 {
     lock_guard lock(_mutex);
     _prefix = prefix;
@@ -128,7 +128,7 @@ RemoteLoggerI::init(string prefix, Ice::LogMessageSeq logMessages, const Ice::Cu
 }
 
 void
-RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
+RemoteLoggerI::log(LogMessage logMessage, const Current&)
 {
     lock_guard lock(_mutex);
     _logMessages.push_back(logMessage);
@@ -137,13 +137,13 @@ RemoteLoggerI::log(Ice::LogMessage logMessage, const Ice::Current&)
 }
 
 void
-RemoteLoggerI::checkNextInit(const string& prefix, Ice::LogMessageType type, const string& message,
+RemoteLoggerI::checkNextInit(const string& prefix, LogMessageType type, const string& message,
                              const string& category)
 {
     lock_guard lock(_mutex);
     test(_prefix == prefix);
     test(_initMessages.size() > 0);
-    Ice::LogMessage front = _initMessages.front();
+    LogMessage front = _initMessages.front();
     test(front.type == type);
     test(front.message == message);
     test(front.traceCategory == category);
@@ -151,11 +151,11 @@ RemoteLoggerI::checkNextInit(const string& prefix, Ice::LogMessageType type, con
 }
 
 void
-RemoteLoggerI::checkNextLog(Ice::LogMessageType type, const string& message, const string& category)
+RemoteLoggerI::checkNextLog(LogMessageType type, const string& message, const string& category)
 {
     lock_guard lock(_mutex);
     test(_logMessages.size() > 0);
-    Ice::LogMessage front = _logMessages.front();
+    LogMessage front = _logMessages.front();
     test(front.type == type);
     test(front.message == message);
     test(front.traceCategory == category);
@@ -187,28 +187,28 @@ RemoteLoggerI::wait(int calls)
 void
 allTests(Test::TestHelper* helper)
 {
-    Ice::CommunicatorPtr communicator = helper->communicator();
+    CommunicatorPtr communicator = helper->communicator();
     cout << "testing communicator operations... " << flush;
     {
         //
         // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
         //
-        Ice::InitializationData init;
-        init.properties = Ice::createProperties();
+        InitializationData init;
+        init.properties = createProperties();
         init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
-        Ice::CommunicatorHolder ich(init);
+        CommunicatorHolder ich(init);
         testFacets(ich.communicator());
 
         // Test move assignment on CommunicatorHolder
-        Ice::CommunicatorHolder ich2;
+        CommunicatorHolder ich2;
         test(!ich2.communicator());
         ich2 = std::move(ich);
         test(ich2.communicator());
         test(!ich.communicator());
 
         // Equivalent with = and release
-        Ice::CommunicatorHolder ich3;
+        CommunicatorHolder ich3;
         test(!ich3.communicator());
         ich3 = ich2.release();
         test(ich3.communicator());
@@ -218,12 +218,12 @@ allTests(Test::TestHelper* helper)
         //
         // Test: Verify that the operations work correctly in the presence of facet filters.
         //
-        Ice::InitializationData init;
-        init.properties = Ice::createProperties();
+        InitializationData init;
+        init.properties = createProperties();
         init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         init.properties->setProperty("Ice.Admin.Facets", "Properties");
-        Ice::CommunicatorPtr com = Ice::initialize(init);
+        CommunicatorPtr com = initialize(init);
         testFacets(com, false);
         com->destroy();
     }
@@ -231,7 +231,7 @@ allTests(Test::TestHelper* helper)
         //
         // Test: Verify that the operations work correctly with the Admin object disabled.
         //
-        Ice::CommunicatorPtr com = Ice::initialize();
+        CommunicatorPtr com = initialize();
         testFacets(com, false);
         com->destroy();
     }
@@ -239,23 +239,23 @@ allTests(Test::TestHelper* helper)
         //
         // Test: Verify that the operations work correctly when Ice.Admin.Enabled is set
         //
-        Ice::InitializationData init;
-        init.properties = Ice::createProperties();
+        InitializationData init;
+        init.properties = createProperties();
         init.properties->setProperty("Ice.Admin.Enabled", "1");
-        Ice::CommunicatorPtr com = Ice::initialize(init);
+        CommunicatorPtr com = initialize(init);
         test(!com->getAdmin());
 
-        Ice::Identity id = stringToIdentity("test-admin");
+        Identity id = stringToIdentity("test-admin");
         try
         {
             com->createAdmin(0, id);
             test(false);
         }
-        catch(const Ice::InitializationException&)
+        catch(const InitializationException&)
         {
         }
 
-        Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("");
+        ObjectAdapterPtr adapter = com->createObjectAdapter("");
         com->createAdmin(adapter, id);
         test(com->getAdmin());
 
@@ -266,12 +266,12 @@ allTests(Test::TestHelper* helper)
         //
         // Test: Verify that the operations work correctly when creation of the Admin object is delayed.
         //
-        Ice::InitializationData init;
-        init.properties = Ice::createProperties();
+        InitializationData init;
+        init.properties = createProperties();
         init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         init.properties->setProperty("Ice.Admin.DelayCreation", "1");
-        Ice::CommunicatorPtr com = Ice::initialize(init);
+        CommunicatorPtr com = initialize(init);
         testFacets(com);
         com->getAdmin();
         testFacets(com);
@@ -279,9 +279,7 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    string ref = "factory:" + helper->getTestEndpoint() + " -t 10000";
-    RemoteCommunicatorFactoryPrxPtr factory =
-        Ice::uncheckedCast<RemoteCommunicatorFactoryPrx>(communicator->stringToProxy(ref));
+    RemoteCommunicatorFactoryPrx factory(communicator, "factory:" + helper->getTestEndpoint() + " -t 10000");
 
     string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
 
@@ -290,12 +288,12 @@ allTests(Test::TestHelper* helper)
         //
         // Test: Verify that Process::shutdown() operation shuts down the communicator.
         //
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+        optional<ObjectPrx> obj = com->getAdmin();
+        ProcessPrx proc(obj->ice_facet("Process"));
         proc->shutdown();
         com->waitForShutdown();
         com->destroy();
@@ -304,15 +302,15 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing properties facet... " << flush;
     {
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         props["Prop1"] = "1";
         props["Prop2"] = "2";
         props["Prop3"] = "3";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+        optional<ObjectPrx> obj = com->getAdmin();
+        PropertiesAdminPrx pa(obj->ice_facet("Properties"));
         //
         // Test: PropertiesAdmin::getProperty()
         //
@@ -322,7 +320,7 @@ allTests(Test::TestHelper* helper)
         //
         // Test: PropertiesAdmin::getProperties()
         //
-        Ice::PropertyDict pd = pa->getPropertiesForPrefix("");
+        PropertyDict pd = pa->getPropertiesForPrefix("");
         test(pd.size() == 5);
         test(pd["Ice.Admin.Endpoints"] == "tcp -h " + defaultHost);
         test(pd["Ice.Admin.InstanceName"] == "Test");
@@ -330,12 +328,12 @@ allTests(Test::TestHelper* helper)
         test(pd["Prop2"] == "2");
         test(pd["Prop3"] == "3");
 
-        Ice::PropertyDict changes;
+        PropertyDict changes;
 
         //
         // Test: PropertiesAdmin::setProperties()
         //
-        Ice::PropertyDict setProps;
+        PropertyDict setProps;
         setProps["Prop1"] = "10"; // Changed
         setProps["Prop2"] = "20"; // Changed
         setProps["Prop3"] = ""; // Removed
@@ -359,7 +357,7 @@ allTests(Test::TestHelper* helper)
         test(changes.empty());
 
         com->removeUpdateCallback();
-        Ice::PropertyDict moreProps;
+        PropertyDict moreProps;
         moreProps["Prop1"] = "11"; // Changed
         moreProps["Prop2"] = ""; // Removed
         moreProps["Prop6"] = "6"; // Added
@@ -382,32 +380,30 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing logger facet... " << flush;
     {
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         props["NullLogger"] = "1";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
 
         com->trace("testCat", "trace");
         com->warning("warning");
         com->error("error");
         com->print("print");
 
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Ice::LoggerAdminPrxPtr logger = Ice::checkedCast<Ice::LoggerAdminPrx>(obj, "Logger");
-        test(logger);
-
+        optional<ObjectPrx> obj = com->getAdmin();
+        LoggerAdminPrx logger(obj->ice_facet("Logger"));
         string prefix;
 
         //
         // Get all
         //
-        Ice::LogMessageSeq logMessages =
-            logger->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1, prefix);
+        LogMessageSeq logMessages =
+            logger->getLog(LogMessageTypeSeq(), StringSeq(), -1, prefix);
 
         test(logMessages.size() == 4);
         test(prefix == "NullLogger");
-        Ice::LogMessageSeq::const_iterator p = logMessages.begin();
+        LogMessageSeq::const_iterator p = logMessages.begin();
         test(p->traceCategory == "testCat" && p++->message == "trace");
         test(p++->message == "warning");
         test(p++->message == "error");
@@ -421,12 +417,12 @@ allTests(Test::TestHelper* helper)
         com->trace("testCat", "trace2");
         com->warning("warning2");
 
-        Ice::LogMessageTypeSeq messageTypes;
+        LogMessageTypeSeq messageTypes;
         messageTypes.push_back(LogMessageType::ErrorMessage);
         messageTypes.push_back(LogMessageType::WarningMessage);
 
         logMessages =
-            logger->getLog(messageTypes, Ice::StringSeq(), -1, prefix);
+            logger->getLog(messageTypes, StringSeq(), -1, prefix);
         test(logMessages.size() == 4);
         test(prefix == "NullLogger");
 
@@ -448,7 +444,7 @@ allTests(Test::TestHelper* helper)
         messageTypes.push_back(LogMessageType::ErrorMessage);
         messageTypes.push_back(LogMessageType::TraceMessage);
 
-        Ice::StringSeq categories;
+        StringSeq categories;
         categories.push_back("testCat");
 
         logMessages =
@@ -482,20 +478,20 @@ allTests(Test::TestHelper* helper)
         // Now, test RemoteLogger
         //
 
-        Ice::ObjectAdapterPtr adapter =
+        ObjectAdapterPtr adapter =
             communicator->createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
 
         RemoteLoggerIPtr remoteLogger = std::make_shared<RemoteLoggerI>();
 
-        auto myProxy = Ice::uncheckedCast<Ice::RemoteLoggerPrx>(adapter->addWithUUID(remoteLogger));
+        auto myProxy = uncheckedCast<RemoteLoggerPrx>(adapter->addWithUUID(remoteLogger));
 
         adapter->activate();
 
         //
         // No filtering
         //
-        logMessages = logger->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1, prefix);
-        logger->attachRemoteLogger(myProxy, Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1);
+        logMessages = logger->getLog(LogMessageTypeSeq(), StringSeq(), -1, prefix);
+        logger->attachRemoteLogger(myProxy, LogMessageTypeSeq(), StringSeq(), -1);
         test(remoteLogger->wait(1));
 
         for(LogMessageSeq::const_iterator i = logMessages.begin(); i != logMessages.end(); ++i)
@@ -548,7 +544,7 @@ allTests(Test::TestHelper* helper)
             logger->attachRemoteLogger(myProxy->ice_oneway(), messageTypes, categories, 4);
             test(false);
         }
-        catch(const Ice::RemoteLoggerAlreadyAttachedException&)
+        catch(const RemoteLoggerAlreadyAttachedException&)
         {
             // expected
         }
@@ -562,12 +558,12 @@ allTests(Test::TestHelper* helper)
         //
         // Test: Verify that the custom facet is present.
         //
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+        optional<ObjectPrx> obj = com->getAdmin();
+        Test::TestFacetPrx tf(obj->ice_facet("TestFacet"));
         tf->op();
         com->destroy();
     }
@@ -579,15 +575,15 @@ allTests(Test::TestHelper* helper)
         // Test: Set Ice.Admin.Facets to expose only the Properties facet,
         // meaning no other facet is available.
         //
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Properties";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+        optional<ObjectPrx> obj = com->getAdmin();
+        auto proc = checkedCast<ProcessPrx>(obj, "Process");
         test(!proc);
-        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        auto tf = checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         test(!tf);
         com->destroy();
     }
@@ -596,15 +592,15 @@ allTests(Test::TestHelper* helper)
         // Test: Set Ice.Admin.Facets to expose only the Process facet,
         // meaning no other facet is available.
         //
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Process";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+        optional<ObjectPrx> obj = com->getAdmin();
+        auto pa = checkedCast<PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        auto tf = checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
         test(!tf);
         com->destroy();
     }
@@ -613,15 +609,15 @@ allTests(Test::TestHelper* helper)
         // Test: Set Ice.Admin.Facets to expose only the TestFacet facet,
         // meaning no other facet is available.
         //
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "TestFacet";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+        optional<ObjectPrx> obj = com->getAdmin();
+        auto pa = checkedCast<PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        auto proc = checkedCast<ProcessPrx>(obj, "Process");
         test(!proc);
         com->destroy();
     }
@@ -630,17 +626,17 @@ allTests(Test::TestHelper* helper)
         // Test: Set Ice.Admin.Facets to expose two facets. Use whitespace to separate the
         // facet names.
         //
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Properties TestFacet";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+        optional<ObjectPrx> obj = com->getAdmin();
+        PropertiesAdminPrx pa(obj->ice_facet("Properties"));
         test(pa->getProperty("Ice.Admin.InstanceName") == "Test");
-        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrx tf(obj->ice_facet("TestFacet"));
         tf->op();
-        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        auto proc = checkedCast<ProcessPrx>(obj, "Process");
         test(!proc);
         com->destroy();
     }
@@ -649,17 +645,17 @@ allTests(Test::TestHelper* helper)
         // Test: Set Ice.Admin.Facets to expose two facets. Use a comma to separate the
         // facet names.
         //
-        Ice::PropertyDict props;
+        PropertyDict props;
         props["Ice.Admin.Endpoints"] = "tcp -h " + defaultHost;
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "TestFacet, Process";
-        RemoteCommunicatorPrxPtr com = factory->createCommunicator(props);
-        Ice::ObjectPrxPtr obj = com->getAdmin();
-        Ice::PropertiesAdminPrxPtr pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(obj, "Properties");
+        optional<RemoteCommunicatorPrx> com = factory->createCommunicator(props);
+        optional<ObjectPrx> obj = com->getAdmin();
+        auto pa = checkedCast<PropertiesAdminPrx>(obj, "Properties");
         test(!pa);
-        Test::TestFacetPrxPtr tf = Ice::checkedCast<Test::TestFacetPrx>(obj, "TestFacet");
+        Test::TestFacetPrx tf(obj->ice_facet("TestFacet"));
         tf->op();
-        Ice::ProcessPrxPtr proc = Ice::checkedCast<Ice::ProcessPrx>(obj, "Process");
+        ProcessPrx proc(obj->ice_facet("Process"));
         proc->shutdown();
         com->waitForShutdown();
         com->destroy();

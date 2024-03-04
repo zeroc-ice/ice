@@ -12,8 +12,6 @@
 #include "Ice/BuiltinSequences.h"
 #include "ReferenceF.h"
 #include "BatchRequestQueueF.h"
-#include "Ice/RouterF.h"
-#include "Ice/LocatorF.h"
 #include "Current.h"
 #include "CommunicatorF.h"
 #include "LocalException.h"
@@ -340,7 +338,7 @@ public:
      * @return true if the target object has the interface
      * specified by id or derives from the interface specified by id.
      */
-    bool ice_isA(const std::string& typeId, const Ice::Context& context = Ice::noExplicitContext) const;
+    bool ice_isA(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
      * Tests whether this object supports a specific Slice interface.
@@ -352,7 +350,7 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     std::function<void()>
-    ice_isAAsync(const std::string& typeId,
+    ice_isAAsync(std::string_view  typeId,
                  std::function<void(bool)> response,
                  std::function<void(std::exception_ptr)> ex = nullptr,
                  std::function<void(bool)> sent = nullptr,
@@ -365,11 +363,11 @@ public:
      * @return The future object for the invocation.
      */
     std::future<bool>
-    ice_isAAsync(const std::string& typeId, const Ice::Context& context = Ice::noExplicitContext) const;
+    ice_isAAsync(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
     /// \cond INTERNAL
     void
-    _iceI_isA(const std::shared_ptr<IceInternal::OutgoingAsyncT<bool>>&, const std::string&, const Ice::Context&) const;
+    _iceI_isA(const std::shared_ptr<IceInternal::OutgoingAsyncT<bool>>&, std::string_view, const Ice::Context&) const;
     /// \endcond
 
     /**
@@ -483,10 +481,10 @@ public:
      * exception, it throws it directly.
      */
     bool
-    ice_invoke(const std::string& operation,
+    ice_invoke(std::string_view operation,
                Ice::OperationMode mode,
-               const std::vector<Byte>& inParams,
-               std::vector<Ice::Byte>& outParams,
+               const std::vector<std::uint8_t>& inParams,
+               std::vector<std::uint8_t>& outParams,
                const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -497,10 +495,10 @@ public:
      * @param context The context map for the invocation.
      * @return The future object for the invocation.
      */
-    std::future<std::tuple<bool, std::vector<Ice::Byte>>>
+    std::future<std::tuple<bool, std::vector<std::uint8_t>>>
     ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
-                    const std::vector<Byte>& inParams,
+                    const std::vector<std::uint8_t>& inParams,
                     const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -515,10 +513,10 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     std::function<void()>
-    ice_invokeAsync(const std::string& operation,
+    ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
-                    const std::vector<Ice::Byte>& inParams,
-                    std::function<void(bool, std::vector<Ice::Byte>)> response,
+                    const std::vector<std::uint8_t>& inParams,
+                    std::function<void(bool, std::vector<std::uint8_t>)> response,
                     std::function<void(std::exception_ptr)> ex = nullptr,
                     std::function<void(bool)> sent = nullptr,
                     const Ice::Context& context = Ice::noExplicitContext) const;
@@ -536,10 +534,10 @@ public:
      * exception, it throws it directly.
      */
     bool
-    ice_invoke(const std::string& operation,
+    ice_invoke(std::string_view operation,
                Ice::OperationMode mode,
-               const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-               std::vector<Ice::Byte>& outParams,
+               const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
+               std::vector<std::uint8_t>& outParams,
                const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -550,10 +548,10 @@ public:
      * @param context The context map for the invocation.
      * @return The future object for the invocation.
      */
-    std::future<std::tuple<bool, std::vector<Ice::Byte>>>
+    std::future<std::tuple<bool, std::vector<std::uint8_t>>>
     ice_invokeAsync(const std::string& operation,
                     Ice::OperationMode mode,
-                    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+                    const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
                     const Ice::Context& context = Ice::noExplicitContext) const;
 
     /**
@@ -568,10 +566,10 @@ public:
      * @return A function that can be called to cancel the invocation locally.
      */
     std::function<void()>
-    ice_invokeAsync(const std::string& operation,
+    ice_invokeAsync(std::string_view operation,
                     Ice::OperationMode mode,
-                    const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-                    std::function<void(bool, std::pair<const Ice::Byte*, const Ice::Byte*>)> response,
+                    const std::pair<const std::uint8_t*, const std::uint8_t*>& inParams,
+                    std::function<void(bool, std::pair<const std::uint8_t*, const std::uint8_t*>)> response,
                     std::function<void(std::exception_ptr)> ex = nullptr,
                     std::function<void(bool)> sent = nullptr,
                     const Ice::Context& context = Ice::noExplicitContext) const;
@@ -802,7 +800,7 @@ public:
      * Returns the Slice type ID associated with this type.
      * @return The Slice type ID.
      */
-    static const std::string& ice_staticId();
+    static std::string_view ice_staticId();
 
     /**
      * Obtains the communicator that created this proxy.

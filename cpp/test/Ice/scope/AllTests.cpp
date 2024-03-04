@@ -17,7 +17,7 @@ allTests(Test::TestHelper* helper)
     // Scoped types
     //
     {
-        Test::IPrxPtr i = Ice::checkedCast<Test::IPrx>(communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
+        Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
 
         Test::S s1;
         s1.v = 0;
@@ -76,7 +76,7 @@ allTests(Test::TestHelper* helper)
     // C++ 11 Future-Based Async Function
     //
     {
-        Test::IPrxPtr i = Ice::checkedCast<Test::IPrx>(communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
+        Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
 
         Test::S s1;
         s1.v = 0;
@@ -147,7 +147,7 @@ allTests(Test::TestHelper* helper)
     // C++11 Callback-Based Async Function
     //
     {
-        Test::IPrxPtr i = Ice::checkedCast<Test::IPrx>(communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
+        Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
 
         Test::S s1;
         s1.v = 0;
@@ -395,8 +395,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::Inner::Inner2::IPrxPtr i =
-            Ice::checkedCast<Test::Inner::Inner2::IPrx>(communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
+        Test::Inner::Inner2::IPrx i(communicator, "i2:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -444,8 +443,7 @@ allTests(Test::TestHelper* helper)
     // C++ 11 Future-Based Async Function
     //
     {
-        Test::Inner::Inner2::IPrxPtr i =
-            Ice::checkedCast<Test::Inner::Inner2::IPrx>(communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
+        Test::Inner::Inner2::IPrx i(communicator, "i2:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -499,8 +497,7 @@ allTests(Test::TestHelper* helper)
     // C++11 Callback-Based Async Function
     //
     {
-        Test::Inner::Inner2::IPrxPtr i =
-            Ice::checkedCast<Test::Inner::Inner2::IPrx>(communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
+        Test::Inner::Inner2::IPrx i(communicator, "i2:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -672,8 +669,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::Inner::IPrxPtr i =
-            Ice::checkedCast<Test::Inner::IPrx>(communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
+        Test::Inner::IPrx i(communicator, "i3:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -721,8 +717,7 @@ allTests(Test::TestHelper* helper)
     // C++ 11 Future-Based Async Function
     //
     {
-        Test::Inner::IPrxPtr i =
-            Ice::checkedCast<Test::Inner::IPrx>(communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
+        Test::Inner::IPrx i(communicator, "i3:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -776,8 +771,7 @@ allTests(Test::TestHelper* helper)
     // C++11 Callback-Based Async Function
     //
     {
-        Test::Inner::IPrxPtr i =
-            Ice::checkedCast<Test::Inner::IPrx>(communicator->stringToProxy("i3:" + helper->getTestEndpoint()));
+        Test::Inner::IPrx i(communicator, "i3:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
@@ -949,8 +943,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Inner::Test::Inner2::IPrxPtr i =
-            Ice::checkedCast<Inner::Test::Inner2::IPrx>(communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
+        Inner::Test::Inner2::IPrx i(communicator, "i4:" + helper->getTestEndpoint());
 
         Test::S s1;
         s1.v = 0;
@@ -998,8 +991,7 @@ allTests(Test::TestHelper* helper)
     // C++ 11 Future-Based Async Function
     //
     {
-        Inner::Test::Inner2::IPrxPtr i =
-            Ice::checkedCast<Inner::Test::Inner2::IPrx>(communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
+        Inner::Test::Inner2::IPrx i(communicator, "i4:" + helper->getTestEndpoint());
 
         Test::S s1;
         s1.v = 0;
@@ -1053,8 +1045,7 @@ allTests(Test::TestHelper* helper)
     // C++11 Callback-Based Async Function
     //
     {
-        Inner::Test::Inner2::IPrxPtr i =
-            Ice::checkedCast<Inner::Test::Inner2::IPrx>(communicator->stringToProxy("i4:" + helper->getTestEndpoint()));
+        Inner::Test::Inner2::IPrx i(communicator, "i4:" + helper->getTestEndpoint());
 
         Test::S s1;
         s1.v = 0;
@@ -1225,6 +1216,6 @@ allTests(Test::TestHelper* helper)
         }
     }
 
-    Test::IPrxPtr i = Ice::checkedCast<Test::IPrx>(communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
+    Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
     i->shutdown();
 }

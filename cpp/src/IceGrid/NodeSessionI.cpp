@@ -145,7 +145,7 @@ NodeSessionI::create(const shared_ptr<Database>& database,
     {
         database->getNode(info->name, true)->setSession(nodeSession);
 
-        ObjectInfo objInfo = { node, Node::ice_staticId() };
+        ObjectInfo objInfo = { node, string{Node::ice_staticId()} };
         database->addInternalObject(objInfo, true); // Add or update previous node proxy.
 
         nodeSession->_proxy = Ice::uncheckedCast<NodeSessionPrx>(

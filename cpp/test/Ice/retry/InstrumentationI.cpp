@@ -10,6 +10,7 @@
 #include <mutex>
 
 using namespace std;
+using namespace Ice;
 
 namespace
 {
@@ -19,110 +20,104 @@ int nFailure = 0;
 int nInvocation = 0;
 mutex staticMutex;
 
-class InvocationObserverI : public Ice::Instrumentation::InvocationObserver
+class InvocationObserverI final : public Instrumentation::InvocationObserver
 {
 public:
 
-    virtual void
-    attach()
+    void attach() final
     {
     }
 
-    virtual void
-    detach()
+    void detach() final
     {
         lock_guard lock(staticMutex);
         ++nInvocation;
     }
 
-    virtual void
-    failed(const ::std::string&)
+    void failed(const string&) final
     {
         lock_guard lock(staticMutex);
         ++nFailure;
     }
 
-    virtual void
-    retried()
+    void retried() final
     {
         lock_guard lock(staticMutex);
         ++nRetry;
     }
 
-    virtual void
-    userException()
+    void userException() final
     {
     }
 
-    virtual ::Ice::Instrumentation::RemoteObserverPtr
-    getRemoteObserver(const ::Ice::ConnectionInfoPtr&, const ::Ice::EndpointPtr&, ::int32_t, ::int32_t)
+    Instrumentation::RemoteObserverPtr getRemoteObserver(
+        const ConnectionInfoPtr&,
+        const EndpointPtr&,
+        int32_t,
+        int32_t) final
     {
         return nullptr;
     }
 
-    virtual ::Ice::Instrumentation::CollocatedObserverPtr
-    getCollocatedObserver(const Ice::ObjectAdapterPtr&, ::int32_t, ::int32_t)
+    Instrumentation::CollocatedObserverPtr getCollocatedObserver(const ObjectAdapterPtr&, int32_t, int32_t) final
     {
         return nullptr;
     }
 
 };
 
-Ice::Instrumentation::InvocationObserverPtr invocationObserver = make_shared<InvocationObserverI>();
+Instrumentation::InvocationObserverPtr invocationObserver = make_shared<InvocationObserverI>();
 
-class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
+class CommunicatorObserverI final : public Instrumentation::CommunicatorObserver
 {
 public:
 
-    virtual Ice::Instrumentation::ObserverPtr
-    getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const ::std::string&)
+    Instrumentation::ObserverPtr
+    getConnectionEstablishmentObserver(const EndpointPtr&, const string&) final
     {
         return nullptr;
     }
 
-    virtual Ice::Instrumentation::ObserverPtr
-    getEndpointLookupObserver(const Ice::EndpointPtr&)
+    Instrumentation::ObserverPtr getEndpointLookupObserver(const EndpointPtr&) final
     {
         return nullptr;
     }
 
-    virtual Ice::Instrumentation::ConnectionObserverPtr
-    getConnectionObserver(const Ice::ConnectionInfoPtr&,
-                          const Ice::EndpointPtr&,
-                          Ice::Instrumentation::ConnectionState,
-                          const Ice::Instrumentation::ConnectionObserverPtr&)
+    Instrumentation::ConnectionObserverPtr getConnectionObserver(const ConnectionInfoPtr&,
+        const EndpointPtr&,
+        Instrumentation::ConnectionState,
+        const Instrumentation::ConnectionObserverPtr&) final
     {
         return nullptr;
     }
 
-    virtual Ice::Instrumentation::ThreadObserverPtr
-    getThreadObserver(const ::std::string&,
-                      const ::std::string&,
-                      Ice::Instrumentation::ThreadState,
-                      const Ice::Instrumentation::ThreadObserverPtr&)
+    Instrumentation::ThreadObserverPtr getThreadObserver(const string&,
+        const string&,
+        Instrumentation::ThreadState,
+        const Instrumentation::ThreadObserverPtr&) final
     {
         return nullptr;
     }
 
-    virtual Ice::Instrumentation::InvocationObserverPtr
-    getInvocationObserver(const Ice::ObjectPrxPtr&, const ::std::string&, const Ice::Context&)
+    Instrumentation::InvocationObserverPtr getInvocationObserver(
+        const optional<ObjectPrx>&,
+        string_view,
+        const Context&) final
     {
         return invocationObserver;
     }
 
-    virtual Ice::Instrumentation::DispatchObserverPtr
-    getDispatchObserver(const Ice::Current&, int32_t)
+    Instrumentation::DispatchObserverPtr getDispatchObserver(const Current&, int32_t) final
     {
         return nullptr;
     }
 
-    virtual void
-    setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&)
+    void setObserverUpdater(const Instrumentation::ObserverUpdaterPtr&) final
     {
     }
 };
 
-Ice::Instrumentation::CommunicatorObserverPtr communicatorObserver = make_shared<CommunicatorObserverI>();
+Instrumentation::CommunicatorObserverPtr communicatorObserver = make_shared<CommunicatorObserverI>();
 
 void
 testEqual(int& value, int expected)
@@ -147,7 +142,7 @@ testEqual(int& value, int expected)
     }
     if(value != expected)
     {
-        std::cerr << "value = " << value << ", expected = " << expected << std::endl;
+        cerr << "value = " << value << ", expected = " << expected << endl;
         test(false);
     }
     value = 0;
@@ -162,7 +157,7 @@ void initCounts()
     nInvocation = 0;
 }
 
-Ice::Instrumentation::CommunicatorObserverPtr
+Instrumentation::CommunicatorObserverPtr
 getObserver()
 {
     return communicatorObserver;

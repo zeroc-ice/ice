@@ -34,16 +34,16 @@ using namespace IceUtilInternal;
 
 static VALUE _typeInfoClass, _exceptionInfoClass, _unsetTypeClass;
 
-typedef map<string, ClassInfoPtr> ClassInfoMap;
+typedef map<string, ClassInfoPtr, std::less<>> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
 
 typedef map<int32_t, ClassInfoPtr> CompactIdMap;
 static CompactIdMap _compactIdMap;
 
-typedef map<string, ProxyInfoPtr> ProxyInfoMap;
+typedef map<string, ProxyInfoPtr, std::less<>> ProxyInfoMap;
 static ProxyInfoMap _proxyInfoMap;
 
-typedef map<string, ExceptionInfoPtr> ExceptionInfoMap;
+typedef map<string, ExceptionInfoPtr, std::less<>> ExceptionInfoMap;
 static ExceptionInfoMap _exceptionInfoMap;
 
 string
@@ -145,7 +145,7 @@ addProxyInfo(const string& id, const ProxyInfoPtr& info)
 // lookupProxyInfo()
 //
 static IceRuby::ProxyInfoPtr
-lookupProxyInfo(const string& id)
+lookupProxyInfo(string_view id)
 {
     ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
     if(p != _proxyInfoMap.end())
@@ -358,8 +358,8 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
                 const long len = RSTRING_LEN(bytes);
                 if(str != 0 && len != 0)
                 {
-                    vector<Ice::Byte> vtmp(reinterpret_cast<const Ice::Byte*>(str),
-                                           reinterpret_cast<const Ice::Byte*>(str + len));
+                    vector<uint8_t> vtmp(reinterpret_cast<const uint8_t*>(str),
+                                           reinterpret_cast<const uint8_t*>(str + len));
                     info->bytes.swap(vtmp);
                 }
 
@@ -554,7 +554,7 @@ IceRuby::PrimitiveInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap*, bool)
         long i = getInteger(p);
         if(i >= 0 && i <= 255)
         {
-            os->write(static_cast<Ice::Byte>(i));
+            os->write(static_cast<uint8_t>(i));
             break;
         }
         throw RubyException(rb_eTypeError, "value is out of range for a byte");
@@ -640,7 +640,7 @@ IceRuby::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackP
     }
     case PrimitiveInfo::KindByte:
     {
-        Ice::Byte b;
+        uint8_t b;
         is->read(b);
         val = callRuby(rb_int2inum, b);
         break;
@@ -1420,7 +1420,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
             }
             else
             {
-                os->write(reinterpret_cast<const Ice::Byte*>(s), reinterpret_cast<const Ice::Byte*>(s + len));
+                os->write(reinterpret_cast<const uint8_t*>(s), reinterpret_cast<const uint8_t*>(s + len));
             }
         }
         else
@@ -1434,7 +1434,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
                 {
                     throw RubyException(rb_eTypeError, "invalid value for element %ld of sequence<byte>", i);
                 }
-                seq[static_cast<size_t>(i)] = static_cast<Ice::Byte>(val);
+                seq[static_cast<size_t>(i)] = static_cast<uint8_t>(val);
             }
             os->write(seq);
         }
@@ -1568,7 +1568,7 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ic
     }
     case PrimitiveInfo::KindByte:
     {
-        pair<const Ice::Byte*, const Ice::Byte*> p;
+        pair<const uint8_t*, const uint8_t*> p;
         is->read(p);
         result = callRuby(rb_str_new, reinterpret_cast<const char*>(p.first), static_cast<long>(p.second - p.first));
         break;
@@ -3148,7 +3148,7 @@ IceRuby_stringifyException(VALUE /*self*/, VALUE exc)
 // lookupClassInfo()
 //
 IceRuby::ClassInfoPtr
-IceRuby::lookupClassInfo(const string& id)
+IceRuby::lookupClassInfo(string_view id)
 {
     ClassInfoMap::iterator p = _classInfoMap.find(id);
     if(p != _classInfoMap.end())
@@ -3162,7 +3162,7 @@ IceRuby::lookupClassInfo(const string& id)
 // lookupExceptionInfo()
 //
 IceRuby::ExceptionInfoPtr
-IceRuby::lookupExceptionInfo(const string& id)
+IceRuby::lookupExceptionInfo(string_view id)
 {
     ExceptionInfoMap::iterator p = _exceptionInfoMap.find(id);
     if(p != _exceptionInfoMap.end())

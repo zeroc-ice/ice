@@ -51,7 +51,7 @@ OutgoingAsyncBase::response()
 void
 OutgoingAsyncBase::invokeSentAsync()
 {
-    class AsynchronousSent : public DispatchWorkItem
+    class AsynchronousSent final : public DispatchWorkItem
     {
     public:
 
@@ -60,8 +60,7 @@ OutgoingAsyncBase::invokeSentAsync()
         {
         }
 
-        virtual void
-        run()
+        void run() final
         {
             _outAsync->invokeSent();
         }
@@ -88,7 +87,7 @@ OutgoingAsyncBase::invokeSentAsync()
 void
 OutgoingAsyncBase::invokeExceptionAsync()
 {
-    class AsynchronousException : public DispatchWorkItem
+    class AsynchronousException final : public DispatchWorkItem
     {
     public:
 
@@ -97,8 +96,7 @@ OutgoingAsyncBase::invokeExceptionAsync()
         {
         }
 
-        virtual void
-        run()
+        void run() final
         {
             _outAsync->invokeException();
         }
@@ -117,7 +115,7 @@ OutgoingAsyncBase::invokeExceptionAsync()
 void
 OutgoingAsyncBase::invokeResponseAsync()
 {
-    class AsynchronousResponse : public DispatchWorkItem
+    class AsynchronousResponse final : public DispatchWorkItem
     {
     public:
 
@@ -126,8 +124,7 @@ OutgoingAsyncBase::invokeResponseAsync()
         {
         }
 
-        virtual void
-        run()
+        void run() final
         {
             _outAsync->invokeResponse();
         }
@@ -150,13 +147,9 @@ OutgoingAsyncBase::invokeSent()
     {
         handleInvokeSent(_sentSynchronously, this);
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        warning(ex);
-    }
-    catch(...)
-    {
-        warning();
+        warning("sent", current_exception());
     }
 
     if(_observer && _doneInSent)
@@ -172,13 +165,9 @@ OutgoingAsyncBase::invokeException()
     {
         handleInvokeException(_ex, this);
     }
-    catch(const std::exception& ex)
+    catch (...)
     {
-        warning(ex);
-    }
-    catch(...)
-    {
-        warning();
+        warning("exception", current_exception());
     }
 
     _observer.detach();
@@ -195,25 +184,25 @@ OutgoingAsyncBase::invokeResponse()
 
     try
     {
-        try
+        handleInvokeResponse(_state & OK, this);
+    }
+    catch (...)
+    {
+        // TODO: make handleException noexcept
+        // With the lambda async API, lambdaInvokeResponse throws _before_ reaching the application's response when the
+        // unmarshaling fails or when the response contains a user exception. We want to call handleInvokeException
+        // in this situation.
+        if (handleException(current_exception()))
         {
-            handleInvokeResponse(_state & OK, this);
-        }
-        catch(const Ice::Exception&)
-        {
-            if(handleException(current_exception()))
+            try
             {
                 handleInvokeException(current_exception(), this);
             }
+            catch (...)
+            {
+                warning("exception", current_exception());
+            }
         }
-    }
-    catch(const std::exception& ex)
-    {
-        warning(ex);
-    }
-    catch(...)
-    {
-        warning();
     }
 
     _observer.detach();
@@ -340,30 +329,27 @@ OutgoingAsyncBase::cancel(std::exception_ptr ex)
 }
 
 void
-OutgoingAsyncBase::warning(const std::exception& exc) const
+OutgoingAsyncBase::warning(string_view callbackName, std::exception_ptr eptr) const
 {
-    if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    if (_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
     {
         Ice::Warning out(_instance->initializationData().logger);
-        const Ice::Exception* ex = dynamic_cast<const Ice::Exception*>(&exc);
-        if(ex)
+        try
         {
-            out << "Ice::Exception raised by AMI callback:\n" << *ex;
+            rethrow_exception(eptr);
         }
-        else
+        catch (const Ice::Exception& ex)
         {
-            out << "std::exception raised by AMI callback:\n" << exc.what();
+            out << "Ice::Exception raised by " << callbackName << " callback:\n" << ex;
         }
-    }
-}
-
-void
-OutgoingAsyncBase::warning() const
-{
-    if(_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-    {
-        Ice::Warning out(_instance->initializationData().logger);
-        out << "unknown exception raised by AMI callback";
+        catch (const std::exception& ex)
+        {
+            out << "std::exception raised by " << callbackName << " callback:\n" << ex.what();
+        }
+        catch (...)
+        {
+            out << "unknown exception raised by " << callbackName << " callback";
+        }
     }
 }
 
@@ -641,7 +627,7 @@ OutgoingAsync::OutgoingAsync(ObjectPrx proxy, bool synchronous) :
 }
 
 void
-OutgoingAsync::prepare(const string& operation, OperationMode mode, const Context& context)
+OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context& context)
 {
     checkSupportedProtocol(getCompatibleProtocol(_proxy._getReference()->getProtocol()));
 
@@ -679,7 +665,7 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
 
     _os.write(operation, false);
 
-    _os.write(static_cast<Byte>(_mode));
+    _os.write(static_cast<uint8_t>(_mode));
 
     if(&context != &Ice::noExplicitContext)
     {
@@ -728,7 +714,7 @@ OutgoingAsync::response()
         _childObserver.detach();
     }
 
-    Byte replyStatus;
+    uint8_t replyStatus;
     try
     {
         _is.read(replyStatus);
@@ -889,7 +875,7 @@ OutgoingAsync::abort(std::exception_ptr ex)
 }
 
 void
-OutgoingAsync::invoke(const string& operation)
+OutgoingAsync::invoke(string_view operation)
 {
     if (_proxy._getReference()->isBatch())
     {
@@ -911,7 +897,7 @@ OutgoingAsync::invoke(const string& operation)
 }
 
 void
-OutgoingAsync::invoke(const string& operation,
+OutgoingAsync::invoke(string_view operation,
                       Ice::OperationMode mode,
                       Ice::FormatType format,
                       const Ice::Context& context,
@@ -958,13 +944,13 @@ OutgoingAsync::throwUserException()
 }
 
 bool
-LambdaInvoke::handleSent(bool, bool alreadySent)
+LambdaInvoke::handleSent(bool, bool alreadySent) noexcept
 {
     return _sent != nullptr && !alreadySent; // Invoke the sent callback only if not already invoked.
 }
 
 bool
-LambdaInvoke::handleException(std::exception_ptr)
+LambdaInvoke::handleException(std::exception_ptr) noexcept
 {
     return _exception != nullptr; // Invoke the callback
 }

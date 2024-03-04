@@ -15,7 +15,7 @@ namespace
 const bool printException = false;
 }
 
-class EmptyI : public virtual Empty
+class EmptyI final : public Empty
 {
 };
 
@@ -38,7 +38,7 @@ endsWith(const string& s, const string& findme)
     return false;
 }
 
-ThrowerPrxPtr
+ThrowerPrx
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
@@ -272,39 +272,19 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing value factory registration exception... " << flush;
     {
-        communicator->getValueFactoryManager()->add(
-            [](const std::string&)
-            {
-                return nullptr;
-            },
-            "x");
+        communicator->getValueFactoryManager()->add([](string_view) { return nullptr; }, "x");
         try
         {
-            communicator->getValueFactoryManager()->add(
-                [](const std::string&)
-                {
-                    return nullptr;
-                },
-                "x");
+            communicator->getValueFactoryManager()->add([](string_view) { return nullptr; }, "x");
             test(false);
         }
-        catch(const Ice::AlreadyRegisteredException&)
+        catch (const Ice::AlreadyRegisteredException&)
         {
         }
     }
     cout << "ok" << endl;
 
-    cout << "testing stringToProxy... " << flush;
-    string ref = "thrower:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    test(base);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-    ThrowerPrxPtr thrower = Ice::checkedCast<ThrowerPrx>(base);
-    test(thrower);
-    test(thrower == base);
-    cout << "ok" << endl;
+    ThrowerPrx thrower(communicator, "thrower:" + helper->getTestEndpoint());
 
     cout << "catching exact types... " << flush;
 
@@ -601,8 +581,7 @@ allTests(Test::TestHelper* helper)
 
         try
         {
-            ThrowerPrxPtr thrower2 =
-                Ice::uncheckedCast<ThrowerPrx>(communicator->stringToProxy("thrower:" + helper->getTestEndpoint(1)));
+            ThrowerPrx thrower2(communicator, "thrower:" + helper->getTestEndpoint(1));
             try
             {
                 thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
@@ -610,8 +589,8 @@ allTests(Test::TestHelper* helper)
             catch(const Ice::MemoryLimitException&)
             {
             }
-            ThrowerPrxPtr thrower3 =
-                Ice::uncheckedCast<ThrowerPrx>(communicator->stringToProxy("thrower:" + helper->getTestEndpoint(2)));
+
+            ThrowerPrx thrower3(communicator, "thrower:" + helper->getTestEndpoint(2));
             try
             {
                 thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit
@@ -633,9 +612,8 @@ allTests(Test::TestHelper* helper)
     Ice::Identity id = Ice::stringToIdentity("does not exist");
     try
     {
-        ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
+        ThrowerPrx thrower2(thrower->ice_identity(id));
         thrower2->throwAasA(1);
-//      thrower2->ice_ping();
         test(false);
     }
     catch(const Ice::ObjectNotExistException& ex)
@@ -653,7 +631,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower, "no such facet");
+        ThrowerPrx thrower2(thrower->ice_facet("no such facet"));
         try
         {
             thrower2->ice_ping();
@@ -675,7 +653,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        WrongOperationPrxPtr thrower2 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
+        WrongOperationPrx thrower2(thrower);
         thrower2->noSuchOperation();
         test(false);
     }
@@ -1087,7 +1065,7 @@ allTests(Test::TestHelper* helper)
     cout << "catching object not exist exception with new AMI mapping... " << flush;
     {
         id = Ice::stringToIdentity("does not exist");
-        ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower->ice_identity(id));
+        ThrowerPrx thrower2(thrower->ice_identity(id));
         auto f = thrower2->throwAasAAsync(1);
         try
         {
@@ -1108,7 +1086,7 @@ allTests(Test::TestHelper* helper)
     cout << "catching facet not exist exception with new AMI mapping... " << flush;
 
     {
-        ThrowerPrxPtr thrower2 = Ice::uncheckedCast<ThrowerPrx>(thrower, "no such facet");
+        ThrowerPrx thrower2(thrower->ice_facet("no such facet"));
         auto f = thrower2->throwAasAAsync(1);
         try
         {
@@ -1125,7 +1103,7 @@ allTests(Test::TestHelper* helper)
     cout << "catching operation not exist exception with new AMI mapping... " << flush;
 
     {
-        WrongOperationPrxPtr thrower4 = Ice::uncheckedCast<WrongOperationPrx>(thrower);
+        WrongOperationPrx thrower4(thrower);
         auto f = thrower4->noSuchOperationAsync();
         try
         {

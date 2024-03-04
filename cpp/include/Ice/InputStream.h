@@ -33,7 +33,7 @@ patchValue(void* addr, const std::shared_ptr<Value>& v)
     *ptr = ::std::dynamic_pointer_cast<T>(v);
     if(v && !(*ptr))
     {
-        IceInternal::Ex::throwUOE(T::ice_staticId(), v);
+        IceInternal::Ex::throwUOE(std::string{T::ice_staticId()}, v);
     }
 }
 /// \endcond
@@ -70,7 +70,7 @@ public:
      * You can supply a communicator later by calling initialize().
      * @param bytes The encoded data.
      */
-    InputStream(const std::vector<Byte>& bytes);
+    InputStream(const std::vector<std::uint8_t>& bytes);
 
     /**
      * Constructs a stream using the latest encoding version but without a communicator.
@@ -79,7 +79,7 @@ public:
      * You can supply a communicator later by calling initialize().
      * @param bytes The encoded data.
      */
-    InputStream(const std::pair<const Byte*, const Byte*>& bytes);
+    InputStream(const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     /// \cond INTERNAL
     InputStream(IceInternal::Buffer&, bool = false);
@@ -96,14 +96,14 @@ public:
      * @param communicator The communicator to use for unmarshaling tasks.
      * @param bytes The encoded data.
      */
-    InputStream(const CommunicatorPtr& communicator, const std::vector<Byte>& bytes);
+    InputStream(const CommunicatorPtr& communicator, const std::vector<std::uint8_t>& bytes);
 
     /**
      * Constructs a stream using the communicator's default encoding version.
      * @param communicator The communicator to use for unmarshaling tasks.
      * @param bytes The encoded data.
      */
-    InputStream(const CommunicatorPtr& communicator, const std::pair<const Byte*, const Byte*>& bytes);
+    InputStream(const CommunicatorPtr& communicator, const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     /// \cond INTERNAL
     InputStream(const CommunicatorPtr& communicator, IceInternal::Buffer&, bool = false);
@@ -126,7 +126,7 @@ public:
      * @param version The encoding version used to encode the data to be unmarshaled.
      * @param bytes The encoded data.
      */
-    InputStream(const EncodingVersion& version, const std::vector<Byte>& bytes);
+    InputStream(const EncodingVersion& version, const std::vector<std::uint8_t>& bytes);
 
     /**
      * Constructs a stream using the given encoding version but without a communicator.
@@ -136,7 +136,7 @@ public:
      * @param version The encoding version used to encode the data to be unmarshaled.
      * @param bytes The encoded data.
      */
-    InputStream(const EncodingVersion& version, const std::pair<const Byte*, const Byte*>& bytes);
+    InputStream(const EncodingVersion& version, const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     /// \cond INTERNAL
     InputStream(const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -155,7 +155,7 @@ public:
      * @param version The encoding version used to encode the data to be unmarshaled.
      * @param bytes The encoded data.
      */
-    InputStream(const CommunicatorPtr& communicator, const EncodingVersion& version, const std::vector<Byte>& bytes);
+    InputStream(const CommunicatorPtr& communicator, const EncodingVersion& version, const std::vector<std::uint8_t>& bytes);
 
     /**
      * Constructs a stream using the given communicator and encoding version.
@@ -164,7 +164,7 @@ public:
      * @param bytes The encoded data.
      */
     InputStream(const CommunicatorPtr& communicator, const EncodingVersion& version,
-                const std::pair<const Byte*, const Byte*>& bytes);
+                const std::pair<const std::uint8_t*, const std::uint8_t*>& bytes);
 
     /// \cond INTERNAL
     InputStream(const CommunicatorPtr&, const EncodingVersion&, IceInternal::Buffer&, bool = false);
@@ -469,7 +469,7 @@ public:
      * @param sz The number of bytes in the encapsulation.
      * @return encoding The encapsulation's encoding version.
      */
-    EncodingVersion readEncapsulation(const Byte*& v, std::int32_t& sz)
+    EncodingVersion readEncapsulation(const std::uint8_t*& v, std::int32_t& sz)
     {
         EncodingVersion encoding;
         v = i;
@@ -520,7 +520,7 @@ public:
     std::string startSlice()
     {
         assert(_currentEncaps && _currentEncaps->decoder);
-        return _currentEncaps->decoder->startSlice();
+        return std::string{_currentEncaps->decoder->startSlice()};
     }
 
     /**
@@ -555,7 +555,7 @@ public:
      */
     std::int32_t readSize() // Inlined for performance reasons.
     {
-        Byte byte;
+        std::uint8_t byte;
         read(byte);
         unsigned char val = static_cast<unsigned char>(byte);
         if(val == 255)
@@ -588,7 +588,7 @@ public:
      * @param bytes The vector to hold a copy of the bytes from the marshaling buffer.
      * @param sz The number of bytes to read.
      */
-    void readBlob(std::vector<Byte>& bytes, std::int32_t sz);
+    void readBlob(std::vector<std::uint8_t>& bytes, std::int32_t sz);
 
     /**
      * Reads a blob of bytes from the stream.
@@ -596,7 +596,7 @@ public:
      * @param v A pointer into the internal marshaling buffer representing the start of the blob.
      * @param sz The number of bytes to read.
      */
-    void readBlob(const Byte*& v, Container::size_type sz)
+    void readBlob(const std::uint8_t*& v, Container::size_type sz)
     {
         if(sz > 0)
         {
@@ -747,7 +747,7 @@ public:
      * Reads a byte from the stream.
      * @param v The extracted byte.
      */
-    void read(Byte& v)
+    void read(std::uint8_t& v)
     {
         if(i >= b.end())
         {
@@ -760,14 +760,14 @@ public:
      * Reads a sequence of bytes from the stream.
      * @param v A vector to hold a copy of the bytes.
      */
-    void read(std::vector<Byte>& v);
+    void read(std::vector<std::uint8_t>& v);
 
     /**
      * Reads a sequence of bytes from the stream.
      * @param v A pair of pointers into the internal marshaling buffer representing the start and end of the
      * sequence elements.
      */
-    void read(std::pair<const Byte*, const Byte*>& v);
+    void read(std::pair<const std::uint8_t*, const std::uint8_t*>& v);
 
     /**
      * Reads a bool from the stream.
@@ -818,28 +818,7 @@ public:
      * Reads an int from the stream.
      * @param v The extracted int.
      */
-    void read(std::int32_t& v) // Inlined for performance reasons.
-    {
-        if(b.end() - i < static_cast<int>(sizeof(std::int32_t)))
-        {
-            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
-        const Byte* src = &(*i);
-        i += sizeof(std::int32_t);
-#ifdef ICE_BIG_ENDIAN
-        Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(std::int32_t) - 1;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest = *src;
-#else
-        Byte* dest = reinterpret_cast<Byte*>(&v);
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest = *src;
-#endif
-    }
+    void read(std::int32_t& v);
 
     /**
      * Reads a sequence of ints from the stream.
@@ -1029,7 +1008,7 @@ public:
      */
     void skipSize()
     {
-        Byte bt;
+        std::uint8_t bt;
         read(bt);
         if(static_cast<unsigned char>(bt) == 255)
         {
@@ -1092,7 +1071,7 @@ private:
     class Encaps;
     enum SliceType { NoSlice, ValueSlice, ExceptionSlice };
 
-    void traceSkipSlice(const std::string&, SliceType) const;
+    void traceSkipSlice(std::string_view, SliceType) const;
 
     ValueFactoryManagerPtr valueFactoryManager() const;
 
@@ -1113,7 +1092,7 @@ private:
 
         virtual void startInstance(SliceType) = 0;
         virtual SlicedDataPtr endInstance() = 0;
-        virtual const std::string& startSlice() = 0;
+        virtual std::string_view startSlice() = 0;
         virtual void endSlice() = 0;
         virtual void skipSlice() = 0;
 
@@ -1136,7 +1115,7 @@ private:
         }
 
         std::string readTypeId(bool);
-        std::shared_ptr<Value> newInstance(const std::string&);
+        std::shared_ptr<Value> newInstance(std::string_view);
 
         void addPatchEntry(std::int32_t, PatchFunc, void*);
         void unmarshal(std::int32_t, const std::shared_ptr<Value>&);
@@ -1188,7 +1167,7 @@ private:
 
         virtual void startInstance(SliceType);
         virtual SlicedDataPtr endInstance();
-        virtual const std::string& startSlice();
+        virtual std::string_view startSlice();
         virtual void endSlice();
         virtual void skipSlice();
 
@@ -1223,7 +1202,7 @@ private:
 
         virtual void startInstance(SliceType);
         virtual SlicedDataPtr endInstance();
-        virtual const std::string& startSlice();
+        virtual std::string_view startSlice();
         virtual void endSlice();
         virtual void skipSlice();
 
@@ -1270,7 +1249,7 @@ private:
             IndexListList indirectionTables;
 
             // Slice attributes
-            Byte sliceFlags;
+            std::uint8_t sliceFlags;
             std::int32_t sliceSize;
             std::string typeId;
             int compactId;

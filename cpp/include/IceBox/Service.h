@@ -91,7 +91,7 @@ public:
      * Obtains the Slice type ID of this exception.
      * @return The fully-scoped type ID.
      */
-    ICE_MEMBER(ICEBOX_API) static const ::std::string& ice_staticId();
+    ICE_MEMBER(ICEBOX_API) static ::std::string_view ice_staticId();
     /**
      * Prints this exception to the given stream.
      * @param stream The target stream.

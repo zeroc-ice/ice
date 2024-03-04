@@ -9,56 +9,6 @@
 
 #include <stdlib.h>
 
-#if defined(__GLIBC__)
-#   include <endian.h>
-#elif defined(__APPLE__)
-#   include <machine/endian.h>
-#elif defined(__FreeBSD__)
-#   include <sys/endian.h>
-#endif
-
-#if (defined(__BYTE_ORDER) && defined(__LITTLE_ENDIAN) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || \
-    (defined(_BYTE_ORDER) && defined(_LITTLE_ENDIAN) && (_BYTE_ORDER == _LITTLE_ENDIAN)) || \
-    (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
-
-#   define ICE_LITTLE_ENDIAN
-
-#elif (defined(__BYTE_ORDER) && defined(__BIG_ENDIAN) && (__BYTE_ORDER == __BIG_ENDIAN)) || \
-      (defined(_BYTE_ORDER) && defined(_BIG_ENDIAN) && (_BYTE_ORDER == _BIG_ENDIAN)) || \
-      (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__))
-
-#   define ICE_BIG_ENDIAN
-
-#elif defined(__i386)      || \
-      defined(_M_IX86)     || \
-      defined(__x86_64)    || \
-      defined(_M_X64)      || \
-      defined(_M_IA64)     || \
-      defined(__alpha__)   || \
-      defined(__ARMEL__)   || \
-      defined(_M_ARM64)    || \
-      defined(_M_ARM_FP)   || \
-      defined(__arm64)     || \
-      defined(__MIPSEL__)
-
-#   define ICE_LITTLE_ENDIAN
-
-#elif defined(__sparc)   || \
-      defined(__sparc__) || \
-      defined(__hppa)    || \
-      defined(__ppc__)   || \
-      defined(__powerpc) || \
-      defined(_ARCH_COM) || \
-      defined(__MIPSEB__)
-
-#   define ICE_BIG_ENDIAN
-
-#else
-
-#   error "Unknown architecture"
-
-#endif
-
 #ifdef _MSC_VER
 
 #   ifdef _WIN64
@@ -220,8 +170,6 @@ private:
     noncopyable(const noncopyable&);
     const noncopyable& operator=(const noncopyable&);
 };
-
-typedef unsigned char Byte;
 
 //
 // Int64 typedef and ICE_INT64 macro for Int64 literal values

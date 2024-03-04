@@ -9,15 +9,11 @@
 using namespace std;
 using namespace Test;
 
-TestIntfPrxPtr
+TestIntfPrx
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    string ref = "test:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy(ref);
-    test(obj);
-    TestIntfPrxPtr proxy = Ice::checkedCast<TestIntfPrx>(obj);
-    test(proxy);
+    TestIntfPrx proxy(communicator, "test:" + helper->getTestEndpoint());
 
     cout << "testing enum values... " << flush;
 

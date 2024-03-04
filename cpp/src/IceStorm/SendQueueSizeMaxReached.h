@@ -41,7 +41,7 @@ public:
      * Obtains the Slice type ID of this exception.
      * @return The fully-scoped type ID.
      */
-    static const ::std::string& ice_staticId();
+    static ::std::string_view ice_staticId();
 };
 
 }

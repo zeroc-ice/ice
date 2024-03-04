@@ -9,6 +9,7 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include "Ice/OutgoingAsync.h"
+#include "Endian.h"
 
 #include <Ice/TraceUtil.h>
 
@@ -19,7 +20,7 @@ using namespace IceInternal;
 namespace
 {
 
-class InvokeAllAsync : public DispatchWorkItem
+class InvokeAllAsync final : public DispatchWorkItem
 {
 public:
 
@@ -32,8 +33,7 @@ public:
     {
     }
 
-    virtual void
-    run()
+    void run() final
     {
         if(_handler->sentAsync(_outAsync.get()))
         {
@@ -53,14 +53,16 @@ private:
 void
 fillInValue(OutputStream* os, int pos, int32_t value)
 {
-    const Byte* p = reinterpret_cast<const Byte*>(&value);
-#ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
-#else
-    copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
-#endif
+    const uint8_t* p = reinterpret_cast<const uint8_t*>(&value);
+    if constexpr (endian::native == endian::big)
+    {
+        reverse_copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
+    }
+    else
+    {
+        copy(p, p + sizeof(std::int32_t), os->b.begin() + pos);
+    }
 }
-
 }
 
 CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, const ObjectAdapterPtr& adapter) :
@@ -192,7 +194,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 }
 
 void
-CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, Byte, bool amd)
+CollocatedRequestHandler::sendResponse(int32_t requestId, OutputStream* os, uint8_t, bool amd)
 {
     OutgoingAsyncBasePtr outAsync;
     {

@@ -9,10 +9,10 @@ namespace Ice::Instrumentation
 {
 
 class Observer;
-class CommunicatorObserver;
+using ObserverPtr = std::shared_ptr<Observer>;
 
-using ObserverPtr = ::std::shared_ptr<Observer>;
-using CommunicatorObserverPtr = ::std::shared_ptr<CommunicatorObserver>;
+class CommunicatorObserver;
+using CommunicatorObserverPtr = std::shared_ptr<CommunicatorObserver>;
 
 }
 

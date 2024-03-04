@@ -26,7 +26,7 @@ Collocated::run(int argc, char** argv)
     adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
-    Test::MyClassPrxPtr allTests(Test::TestHelper*);
+    Test::MyClassPrx allTests(Test::TestHelper*);
     allTests(this);
 }
 

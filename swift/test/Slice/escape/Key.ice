@@ -19,7 +19,7 @@ struct guard
     int default;
 }
 
-["cpp:class"] struct defer
+struct defer
 {
     string else;
 }

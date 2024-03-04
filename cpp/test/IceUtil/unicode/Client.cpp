@@ -4,6 +4,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <TestHelper.h>
+#include "../../../src/Ice/Endian.h"
 
 #ifdef _WIN32
 #   include <io.h>
@@ -55,11 +56,14 @@ main(int argc, char* argv[])
 
     ostringstream os;
     os << "utf" << sizeof(wchar_t) * 8;
-#ifdef ICE_LITTLE_ENDIAN
-    os << "le";
-#else
-    os << "be";
-#endif
+    if constexpr (endian::native == endian::little)
+    {
+        os << "le";
+    }
+    else
+    {
+        os << "be";
+    }
     string wstringEncoding = os.str();
     string wcoeurFile = string("coeur.") + wstringEncoding;
 
@@ -209,8 +213,8 @@ main(int argc, char* argv[])
 
         cout << "testing IceUtilInternal::toUTF16, toUTF32 and fromUTF32... ";
 
-        vector<Byte> u8 = vector<Byte>(reinterpret_cast<const Byte*>(ns.data()),
-                                       reinterpret_cast<const Byte*>(ns.data() + ns.length()));
+        vector<uint8_t> u8 = vector<uint8_t>(reinterpret_cast<const uint8_t*>(ns.data()),
+                                       reinterpret_cast<const uint8_t*>(ns.data() + ns.length()));
 
         vector<unsigned short> u16 = IceUtilInternal::toUTF16(u8);
         test(u16.size() == 4);
@@ -225,7 +229,7 @@ main(int argc, char* argv[])
         test(u32[1] == 0x20ac);
         test(u32[2] == 0x10437);
 
-        vector<Byte> nu8 = IceUtilInternal::fromUTF32(u32);
+        vector<uint8_t> nu8 = IceUtilInternal::fromUTF32(u32);
         test(nu8 == u8);
 
         cout << "ok" << endl;

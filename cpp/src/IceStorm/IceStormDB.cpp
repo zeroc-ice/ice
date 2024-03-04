@@ -174,9 +174,9 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
 
             fs.seekg(0, ios::beg);
 
-            vector<Ice::Byte> buf;
+            vector<uint8_t> buf;
             buf.reserve(static_cast<size_t>(fileSize));
-            buf.insert(buf.begin(), istream_iterator<Ice::Byte>(fs), istream_iterator<Ice::Byte>());
+            buf.insert(buf.begin(), istream_iterator<uint8_t>(fs), istream_iterator<uint8_t>());
 
             fs.close();
 

@@ -7,6 +7,7 @@
 
 #include "Slice/Parser.h"
 #include "IceUtil/OutputUtil.h"
+#include "TypeContext.h"
 
 namespace Slice
 {
@@ -30,8 +31,8 @@ public:
     void generate(const UnitPtr&);
     void closeOutput();
 
-    static int setUseWstring(ContainedPtr, std::list<int>&, int);
-    static int resetUseWstring(std::list<int>&);
+    static TypeContext setUseWstring(ContainedPtr, std::list<TypeContext>&, TypeContext);
+    static TypeContext resetUseWstring(std::list<TypeContext>&);
 
 private:
 
@@ -90,8 +91,8 @@ private:
 
         ::IceUtilInternal::Output& H;
 
-        int _useWstring;
-        std::list<int> _useWstringHist;
+        TypeContext _useWstring;
+        std::list<TypeContext> _useWstringHist;
     };
 
     // Generates the code that registers the default class and exception factories.
@@ -129,12 +130,16 @@ private:
 
     private:
 
+        void emitOperationImpl(const OperationPtr& p,
+                               const std::string& prefix,
+                               const std::vector<std::string>& outgoingAsyncParams);
+
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
-        int _useWstring;
-        std::list<int> _useWstringHist;
+        TypeContext _useWstring;
+        std::list<TypeContext> _useWstringHist;
     };
 
     // Generates code for definitions with data members - structs, classes and exceptions.
@@ -168,8 +173,8 @@ private:
         std::string _dllClassExport;
         std::string _dllMemberExport;
         bool _doneStaticSymbol;
-        int _useWstring;
-        std::list<int> _useWstringHist;
+        TypeContext _useWstring;
+        std::list<TypeContext> _useWstringHist;
     };
 
     // Generates the server-side classes that applications use to implement Ice objects.
@@ -192,8 +197,8 @@ private:
         ::IceUtilInternal::Output& C;
 
         std::string _dllExport;
-        int _useWstring;
-        std::list<int> _useWstringHist;
+        TypeContext _useWstring;
+        std::list<TypeContext> _useWstringHist;
     };
 
     // Generates internal StreamHelper template specializations for enums, structs, classes and exceptions.
@@ -244,38 +249,7 @@ private:
                             bool = false);
     };
 
-    class NormalizeMetaDataVisitor final : public ParserVisitor
-    {
-    public:
-
-        NormalizeMetaDataVisitor(bool);
-
-        bool visitUnitStart(const UnitPtr&) final;
-        bool visitModuleStart(const ModulePtr&) final;
-        void visitModuleEnd(const ModulePtr&) final;
-        void visitClassDecl(const ClassDeclPtr&) final;
-        bool visitClassDefStart(const ClassDefPtr&) final;
-        void visitClassDefEnd(const ClassDefPtr&) final;
-        bool visitExceptionStart(const ExceptionPtr&) final;
-        void visitExceptionEnd(const ExceptionPtr&) final;
-        bool visitStructStart(const StructPtr&) final;
-        void visitStructEnd(const StructPtr&) final;
-        void visitOperation(const OperationPtr&) final;
-        void visitDataMember(const DataMemberPtr&) final;
-        void visitSequence(const SequencePtr&) final;
-        void visitDictionary(const DictionaryPtr&) final;
-        void visitEnum(const EnumPtr&) final;
-        void visitConst(const ConstPtr&) final;
-
-    private:
-
-        StringList normalize(const StringList&);
-
-        bool _cpp11;
-    };
-
     static void validateMetaData(const UnitPtr&);
-    static void normalizeMetaData(const UnitPtr&, bool);
 };
 
 }

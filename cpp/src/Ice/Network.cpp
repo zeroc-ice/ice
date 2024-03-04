@@ -55,20 +55,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifdef _WIN32
-int
-IceInternal::getSystemErrno()
-{
-    return GetLastError();
-}
-#else
-int
-IceInternal::getSystemErrno()
-{
-    return errno;
-}
-#endif
-
 namespace
 {
 
@@ -2063,7 +2049,7 @@ IceInternal::createPipe(SOCKET fds[2])
 
     if(::pipe(fds) != 0)
     {
-        throw SyscallException(__FILE__, __LINE__, getSocketErrno());
+        throw SyscallException(__FILE__, __LINE__);
     }
 
     try

@@ -99,7 +99,7 @@ getVersion(zval* zv, T& v, const char* type)
         invalidArgument("version major must be a value between 0 and 255");
         return false;
     }
-    v.major = static_cast<Ice::Byte>(m);
+    v.major = static_cast<uint8_t>(m);
 
     m = static_cast<long>(Z_LVAL_P(&minorVal));
     if(m < 0 || m > 255)
@@ -107,7 +107,7 @@ getVersion(zval* zv, T& v, const char* type)
         invalidArgument("version minor must be a value between 0 and 255");
         return false;
     }
-    v.minor = static_cast<Ice::Byte>(m);
+    v.minor = static_cast<uint8_t>(m);
 
     return true;
 }
