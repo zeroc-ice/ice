@@ -43,8 +43,8 @@ setupNullPermissionsVerifier(
     const string& category,
     const vector<string>& permissionsVerifierPropertyNames)
 {
-    const Ice::Identity nullPermissionsVerifierId { "NullPermissionsVerifier", category };
-    const Ice::Identity nullSSLPermissionsVerifierId { "NullSSLPermissionsVerifier",  category };
+    const Ice::Identity nullPermissionsVerifierId {"NullPermissionsVerifier", category};
+    const Ice::Identity nullSSLPermissionsVerifierId {"NullSSLPermissionsVerifier",  category};
 
     const Ice::PropertiesPtr properties = communicator->getProperties();
 
