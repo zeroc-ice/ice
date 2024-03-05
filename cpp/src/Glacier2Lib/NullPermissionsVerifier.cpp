@@ -57,31 +57,30 @@ setupNullPermissionsVerifier(
         if (!propertyValue.empty())
         {
             ObjectPrx prx(communicator, propertyValue);
-            if (prx->ice_getIdentity() == nullPermissionsVerifierId && nullPermissionsVerifier == nullptr)
+            if (prx->ice_getIdentity() == nullPermissionsVerifierId && !nullPermissionsVerifier)
             {
                 nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
             }
-            else if (prx->ice_getIdentity() == nullSSLPermissionsVerifierId && nullSSLPermissionsVerifier == nullptr)
+            else if (prx->ice_getIdentity() == nullSSLPermissionsVerifierId && !nullSSLPermissionsVerifier)
             {
                 nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
             }
         }
     }
 
-    if (nullPermissionsVerifier != nullptr || nullSSLPermissionsVerifier != nullptr)
+    if (nullPermissionsVerifier || nullSSLPermissionsVerifier)
     {
         // Create collocated object adapter for the null permissions verifier
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
-        if (nullPermissionsVerifier != nullptr)
+        if (nullPermissionsVerifier)
         {
             adapter->add(std::move(nullPermissionsVerifier), nullPermissionsVerifierId);
         }
 
-        if (nullSSLPermissionsVerifier != nullptr)
+        if (nullSSLPermissionsVerifier)
         {
             adapter->add(std::move(nullSSLPermissionsVerifier), nullSSLPermissionsVerifierId);
         }
-        adapter->activate();
     }
 }
 
