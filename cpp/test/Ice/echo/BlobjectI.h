@@ -7,7 +7,7 @@
 
 #include <Ice/Object.h>
 
-class BlobjectI : public Ice::BlobjectAsync
+class BlobjectI final : public Ice::BlobjectAsync
 {
 public:
 
@@ -17,17 +17,18 @@ public:
     void flushBatch();
     void setConnection(const Ice::ConnectionPtr&);
 
-    virtual void ice_invokeAsync(std::vector<std::uint8_t>,
-                                 std::function<void(bool, const std::vector<std::uint8_t>&)>,
-                                 std::function<void(std::exception_ptr)>,
-                                 const Ice::Current&) override;
+    void ice_invokeAsync(
+        std::vector<std::uint8_t>,
+        std::function<void(bool, const std::vector<std::uint8_t>&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
 
 private:
 
     Ice::ConnectionPtr getConnection(const Ice::Current&);
 
     bool _startBatch;
-    Ice::ObjectPrxPtr _batchProxy;
+    std::optional<Ice::ObjectPrx> _batchProxy;
     Ice::ConnectionPtr _connection;
     std::mutex _mutex;
     std::condition_variable _condition;

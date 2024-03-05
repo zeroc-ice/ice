@@ -49,10 +49,11 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing proxy endpoint information... " << flush;
     {
-        Ice::ObjectPrxPtr p1 =
-            communicator->stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
-                                        "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
-                                        "opaque -e 1.8 -t 100 -v ABCD");
+        Ice::ObjectPrx p1(
+            communicator,
+            "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
+                "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
+                "opaque -e 1.8 -t 100 -v ABCD");
 
         Ice::EndpointSeq endps = p1->ice_getEndpoints();
 
@@ -161,14 +162,14 @@ allTests(Test::TestHelper* helper)
         cout << "ok" << endl;
     }
 
-    string endpoints = helper->getTestEndpoint() + ":" + helper->getTestEndpoint("udp") + " -c";
     int port = helper->getTestPort();
-    Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + endpoints);
-    TestIntfPrxPtr testIntf = Ice::checkedCast<TestIntfPrx>(base);
+    TestIntfPrx testIntf(
+        communicator,
+        "test:" + helper->getTestEndpoint() + ":" + helper->getTestEndpoint("udp") + " -c");
 
     cout << "test connection endpoint information... " << flush;
     {
-        Ice::EndpointInfoPtr info = base->ice_getConnection()->getEndpoint()->getInfo();
+        Ice::EndpointInfoPtr info = testIntf->ice_getConnection()->getEndpoint()->getInfo();
         Ice::TCPEndpointInfoPtr tcpinfo = getTCPEndpointInfo(info);
         test(tcpinfo->port == port);
         test(!tcpinfo->compress);
@@ -184,7 +185,7 @@ allTests(Test::TestHelper* helper)
         is >> portCtx;
         test(portCtx > 0);
 
-        info = base->ice_datagram()->ice_getConnection()->getEndpoint()->getInfo();
+        info = testIntf->ice_datagram()->ice_getConnection()->getEndpoint()->getInfo();
         Ice::UDPEndpointInfoPtr udp = dynamic_pointer_cast<Ice::UDPEndpointInfo>(info);
         test(udp);
         test(udp->port == portCtx);
@@ -194,7 +195,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing connection information... " << flush;
     {
-        Ice::ConnectionPtr connection = base->ice_getConnection();
+        Ice::ConnectionPtr connection = testIntf->ice_getConnection();
         connection->setBufferSize(1024, 2048);
 
         Ice::TCPConnectionInfoPtr info = getTCPConnectionInfo(connection->getInfo());
@@ -225,7 +226,7 @@ allTests(Test::TestHelper* helper)
         os << info->remotePort;
         test(ctx["localPort"] == os.str());
 
-        if(base->ice_getConnection()->type() == "ws" || base->ice_getConnection()->type() == "wss")
+        if(testIntf->ice_getConnection()->type() == "ws" || testIntf->ice_getConnection()->type() == "wss")
         {
             Ice::HeaderDict headers;
 
@@ -233,7 +234,7 @@ allTests(Test::TestHelper* helper)
             test(wsinfo);
             headers = wsinfo->headers;
 
-            if(base->ice_getConnection()->type() == "wss")
+            if(testIntf->ice_getConnection()->type() == "wss")
             {
                 IceSSL::ConnectionInfoPtr wssinfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(wsinfo->underlying);
                 test(wssinfo->verified);
@@ -254,7 +255,7 @@ allTests(Test::TestHelper* helper)
             test(ctx.find("ws.Sec-WebSocket-Key") != ctx.end());
         }
 
-        connection = base->ice_datagram()->ice_getConnection();
+        connection = testIntf->ice_datagram()->ice_getConnection();
         connection->setBufferSize(2048, 1024);
 
         Ice::UDPConnectionInfoPtr udpinfo = dynamic_pointer_cast<Ice::UDPConnectionInfo>(connection->getInfo());

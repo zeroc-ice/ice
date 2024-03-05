@@ -9,27 +9,17 @@
 using namespace std;
 using namespace Test;
 
-InitialPrxPtr
+InitialPrx
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    cout << "testing stringToProxy... " << flush;
-    string ref = "initial:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    test(base);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-    InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
-    test(initial);
-    test(initial == base);
-    cout << "ok" << endl;
+    InitialPrx initial(communicator, "initial:" + helper->getTestEndpoint());
 
     cout << "getting proxies for interface hierarchy... " << flush;
-    MA::IAPrxPtr ia = initial->iaop();
-    MB::IB1PrxPtr ib1 = initial->ib1op();
-    MB::IB2PrxPtr ib2 = initial->ib2op();
-    MA::ICPrxPtr ic = initial->icop();
+    optional<MA::IAPrx> ia = initial->iaop();
+    optional<MB::IB1Prx> ib1 = initial->ib1op();
+    optional<MB::IB2Prx> ib2 = initial->ib2op();
+    optional<MA::ICPrx> ic = initial->icop();
     test(ia != ib1);
     test(ia != ib2);
     test(ia != ic);
@@ -38,10 +28,10 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "invoking proxy operations on interface hierarchy... " << flush;
-    MA::IAPrxPtr iao;
-    MB::IB1PrxPtr ib1o;
-    MB::IB2PrxPtr ib2o;
-    MA::ICPrxPtr ico;
+    optional<MA::IAPrx> iao;
+    optional<MB::IB1Prx> ib1o;
+    optional<MB::IB2Prx> ib2o;
+    optional<MA::ICPrx> ico;
 
     iao = ia->iaop(ia);
     test(iao == ia);

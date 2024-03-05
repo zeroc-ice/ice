@@ -31,7 +31,7 @@ Collocated::run(int argc, char** argv)
     Ice::ObjectPtr object = std::make_shared<ThrowerI>();
     adapter->add(object, Ice::stringToIdentity("thrower"));
 
-    ThrowerPrxPtr allTests(Test::TestHelper*);
+    ThrowerPrx allTests(Test::TestHelper*);
     allTests(this);
 }
 

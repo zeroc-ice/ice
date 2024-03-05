@@ -12,6 +12,7 @@
 #endif
 
 using namespace std;
+using namespace Ice;
 using namespace Test;
 
 class Client : public Test::TestHelper
@@ -24,14 +25,15 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
+    PropertiesPtr properties = createProperties(argc, argv);
     properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
     properties->setProperty("IceSSL.Keychain", "client.keychain");
     properties->setProperty("IceSSL.KeychainPassword", "password");
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    CommunicatorHolder holder = initialize(argc, argv, properties);
+    auto communicator = holder.communicator();
     cout << "testing proxy hash algorithm collisions... " << flush;
-    map<int32_t, Ice::ObjectPrxPtr> seenProxy;
-    map<int32_t, Ice::EndpointPtr> seenEndpoint;
+    map<int32_t, optional<ObjectPrx>> seenProxy;
+    map<int32_t, EndpointPtr> seenEndpoint;
     unsigned int proxyCollisions = 0;
     unsigned int i = 0;
     unsigned int maxCollisions = 10;
@@ -43,8 +45,8 @@ Client::run(int argc, char** argv)
         os << i << ":tcp -p " << IceUtilInternal::random(65536) << " -t 10" << IceUtilInternal::random(1000000)
                 << ":udp -p " << IceUtilInternal::random(65536) << " -h " << IceUtilInternal::random(100);
 
-        Ice::ObjectPrxPtr obj = communicator->stringToProxy(os.str());
-        Ice::EndpointSeq endpoints = obj->ice_getEndpoints();
+        ObjectPrx obj(communicator, os.str());
+        EndpointSeq endpoints = obj->ice_getEndpoints();
         if(!seenProxy.insert(make_pair(obj->_hash(), obj)).second)
         {
             ++proxyCollisions;
@@ -56,16 +58,16 @@ Client::run(int argc, char** argv)
     //
     // Check the same proxy produce the same hash, even when we recreate the proxy.
     //
-    Ice::ObjectPrxPtr prx1 = communicator->stringToProxy("Glacier2/router:tcp -p 10010");
-    Ice::ObjectPrxPtr prx2 = communicator->stringToProxy("Glacier2/router:ssl -p 10011");
-    Ice::ObjectPrxPtr prx3 = communicator->stringToProxy("Glacier2/router:udp -p 10012");
-    Ice::ObjectPrxPtr prx4 = communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010");
-    Ice::ObjectPrxPtr prx5 = communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011");
-    Ice::ObjectPrxPtr prx6 = communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012");
-    Ice::ObjectPrxPtr prx7 = communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000");
-    Ice::ObjectPrxPtr prx8 = communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000");
-    Ice::ObjectPrxPtr prx9 = communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
-    Ice::ObjectPrxPtr prx10 = communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
+    ObjectPrx prx1(communicator, "Glacier2/router:tcp -p 10010");
+    ObjectPrx prx2(communicator, "Glacier2/router:ssl -p 10011");
+    ObjectPrx prx3(communicator, "Glacier2/router:udp -p 10012");
+    ObjectPrx prx4(communicator, "Glacier2/router:tcp -h zeroc.com -p 10010");
+    ObjectPrx prx5(communicator, "Glacier2/router:ssl -h zeroc.com -p 10011");
+    ObjectPrx prx6(communicator, "Glacier2/router:udp -h zeroc.com -p 10012");
+    ObjectPrx prx7(communicator, "Glacier2/router:tcp -p 10010 -t 10000");
+    ObjectPrx prx8(communicator, "Glacier2/router:ssl -p 10011 -t 10000");
+    ObjectPrx prx9(communicator, "Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
+    ObjectPrx prx10(communicator, "Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
 
     map<string, int> proxyMap;
     proxyMap["prx1"] = prx1->_hash();

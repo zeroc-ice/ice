@@ -7,14 +7,14 @@
 
 #include <Test.h>
 
-class TestI : public Test::TestIntf
+class TestI final : public Test::TestIntf
 {
 public:
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
 
-    virtual Ice::Context getEndpointInfoAsContext(const Ice::Current&);
-    virtual Ice::Context getConnectionInfoAsContext(const Ice::Current&);
+    Ice::Context getEndpointInfoAsContext(const Ice::Current&) final;
+    Ice::Context getConnectionInfoAsContext(const Ice::Current&) final;
 };
 
 #endif

@@ -14,31 +14,31 @@ using namespace std;
 using namespace Test;
 
 string
-getAdapterNameWithAMI(const TestIntfPrxPtr& test)
+getAdapterNameWithAMI(const TestIntfPrx& test)
 {
     return test->getAdapterNameAsync().get();
 }
 
-TestIntfPrxPtr
-createTestIntfPrx(vector<RemoteObjectAdapterPrxPtr>& adapters)
+TestIntfPrx
+createTestIntfPrx(vector<optional<RemoteObjectAdapterPrx>>& adapters)
 {
     Ice::EndpointSeq endpoints;
-    TestIntfPrxPtr test;
-    for(vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    optional<TestIntfPrx> test;
+    for (const auto& adapter : adapters)
     {
-        test = (*p)->getTestIntf();
+        test = adapter->getTestIntf();
         Ice::EndpointSeq edpts = test->ice_getEndpoints();
         endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
     }
-    return Ice::uncheckedCast<TestIntfPrx>(test->ice_endpoints(endpoints));
+    return test->ice_endpoints(endpoints);
 }
 
 void
-deactivate(const RemoteCommunicatorPrxPtr& com, vector<RemoteObjectAdapterPrxPtr>& adapters)
+deactivate(const RemoteCommunicatorPrx& com, vector<optional<RemoteObjectAdapterPrx>>& adapters)
 {
-    for(vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for (const auto& adapter : adapters)
     {
-        com->deactivateObjectAdapter(*p);
+        com->deactivateObjectAdapter(adapter);
     }
 }
 
@@ -46,15 +46,14 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    string ref = "communicator:" + helper->getTestEndpoint();
-    RemoteCommunicatorPrxPtr com = Ice::uncheckedCast<RemoteCommunicatorPrx>(communicator->stringToProxy(ref));
+    RemoteCommunicatorPrx com(communicator, "communicator:" + helper->getTestEndpoint());
 
     cout << "testing binding with single endpoint... " << flush;
     {
-        RemoteObjectAdapterPrxPtr adapter = com->createObjectAdapter("Adapter", "default");
+        optional<RemoteObjectAdapterPrx> adapter = com->createObjectAdapter("Adapter", "default");
 
-        TestIntfPrxPtr test1 = adapter->getTestIntf();
-        TestIntfPrxPtr test2 = adapter->getTestIntf();
+        optional<TestIntfPrx> test1 = adapter->getTestIntf();
+        optional<TestIntfPrx> test2 = adapter->getTestIntf();
         test(test1->ice_getConnection() == test2->ice_getConnection());
 
         test1->ice_ping();
@@ -62,7 +61,7 @@ allTests(Test::TestHelper* helper)
 
         com->deactivateObjectAdapter(adapter);
 
-        TestIntfPrxPtr test3 = Ice::uncheckedCast<TestIntfPrx>(test1);
+        TestIntfPrx test3(test1.value());
         test(test3->ice_getConnection() == test1->ice_getConnection());
         test(test3->ice_getConnection() == test2->ice_getConnection());
 
@@ -82,7 +81,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing binding with multiple endpoints... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("Adapter11", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter12", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter13", "default"));
@@ -97,13 +96,13 @@ allTests(Test::TestHelper* helper)
         names.insert("Adapter13");
         while(!names.empty())
         {
-            vector<RemoteObjectAdapterPrxPtr> adpts = adapters;
+            vector<optional<RemoteObjectAdapterPrx>> adpts = adapters;
 
-            TestIntfPrxPtr test1 = createTestIntfPrx(adpts);
+            TestIntfPrx test1 = createTestIntfPrx(adpts);
             IceUtilInternal::shuffle(adpts.begin(), adpts.end());
-            TestIntfPrxPtr test2 = createTestIntfPrx(adpts);
+            TestIntfPrx test2 = createTestIntfPrx(adpts);
             IceUtilInternal::shuffle(adpts.begin(), adpts.end());
-            TestIntfPrxPtr test3 = createTestIntfPrx(adpts);
+            TestIntfPrx test3 = createTestIntfPrx(adpts);
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
             test(test2->ice_getConnection() == test3->ice_getConnection());
@@ -117,22 +116,21 @@ allTests(Test::TestHelper* helper)
         // always send the request over the same connection.)
         //
         {
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+            for (const auto& adapter : adapters)
             {
-                (*p)->getTestIntf()->ice_ping();
+                adapter->getTestIntf()->ice_ping();
             }
 
-            TestIntfPrxPtr test = createTestIntfPrx(adapters);
+            TestIntfPrx test = createTestIntfPrx(adapters);
             string name = test->getAdapterName();
             const int nRetry = 10;
             int i;
             for(i = 0; i < nRetry &&  test->getAdapterName() == name; i++);
             test(i == nRetry);
 
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+            for (const auto& adapter : adapters)
             {
-                (*q)->getTestIntf()->ice_getConnection()->close(
-                    Ice::ConnectionClose::GracefullyWithWait);
+                adapter->getTestIntf()->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
         }
 
@@ -145,13 +143,13 @@ allTests(Test::TestHelper* helper)
         names.insert("Adapter13");
         while(!names.empty())
         {
-            vector<RemoteObjectAdapterPrxPtr> adpts = adapters;
+            vector<optional<RemoteObjectAdapterPrx>> adpts = adapters;
 
-            TestIntfPrxPtr test1 = createTestIntfPrx(adpts);
+            TestIntfPrx test1 = createTestIntfPrx(adpts);
             IceUtilInternal::shuffle(adpts.begin(), adpts.end());
-            TestIntfPrxPtr test2 = createTestIntfPrx(adpts);
+            TestIntfPrx test2 = createTestIntfPrx(adpts);
             IceUtilInternal::shuffle(adpts.begin(), adpts.end());
-            TestIntfPrxPtr test3 = createTestIntfPrx(adpts);
+            TestIntfPrx test3 = createTestIntfPrx(adpts);
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
             test(test2->ice_getConnection() == test3->ice_getConnection());
@@ -165,7 +163,7 @@ allTests(Test::TestHelper* helper)
         // establish the connection to the remaining adapter.
         //
         com->deactivateObjectAdapter(adapters[2]);
-        TestIntfPrxPtr test = createTestIntfPrx(adapters);
+        TestIntfPrx test = createTestIntfPrx(adapters);
         test(test->getAdapterName() == "Adapter12");
 
         deactivate(com, adapters);
@@ -174,7 +172,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing binding with multiple random endpoints... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("AdapterRandom11", "default"));
         adapters.push_back(com->createObjectAdapter("AdapterRandom12", "default"));
         adapters.push_back(com->createObjectAdapter("AdapterRandom13", "default"));
@@ -198,18 +196,18 @@ allTests(Test::TestHelper* helper)
                 --adapterCount;
             }
 #endif
-            vector<TestIntfPrxPtr> proxies;
+            vector<optional<TestIntfPrx>> proxies;
             proxies.resize(10);
             unsigned int i;
             for(i = 0; i < proxies.size(); ++i)
             {
-                vector<RemoteObjectAdapterPrxPtr> adpts;
+                vector<optional<RemoteObjectAdapterPrx>> adpts;
                 adpts.resize(IceUtilInternal::random(static_cast<unsigned int>(adapters.size())));
                 if(adpts.empty())
                 {
                     adpts.resize(1);
                 }
-                for(vector<RemoteObjectAdapterPrxPtr>::iterator p = adpts.begin(); p != adpts.end(); ++p)
+                for(vector<optional<RemoteObjectAdapterPrx>>::iterator p = adpts.begin(); p != adpts.end(); ++p)
                 {
                     *p = adapters[IceUtilInternal::random(static_cast<unsigned int>(adapters.size()))];
                 }
@@ -240,12 +238,11 @@ allTests(Test::TestHelper* helper)
             }
             test(static_cast<int>(connections.size()) <= adapterCount);
 
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+            for (const auto& adapter : adapters)
             {
                 try
                 {
-                    (*q)->getTestIntf()->ice_getConnection()->close(
-                        Ice::ConnectionClose::GracefullyWithWait);
+                    adapter->getTestIntf()->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
                 }
                 catch(const Ice::LocalException&)
                 {
@@ -258,7 +255,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing binding with multiple endpoints and AMI... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("AdapterAMI11", "default"));
         adapters.push_back(com->createObjectAdapter("AdapterAMI12", "default"));
         adapters.push_back(com->createObjectAdapter("AdapterAMI13", "default"));
@@ -273,13 +270,13 @@ allTests(Test::TestHelper* helper)
         names.insert("AdapterAMI13");
         while(!names.empty())
         {
-            vector<RemoteObjectAdapterPrxPtr> adpts = adapters;
+            vector<optional<RemoteObjectAdapterPrx>> adpts = adapters;
 
-            TestIntfPrxPtr test1 = createTestIntfPrx(adpts);
+            TestIntfPrx test1 = createTestIntfPrx(adpts);
             IceUtilInternal::shuffle(adpts.begin(), adpts.end());
-            TestIntfPrxPtr test2 = createTestIntfPrx(adpts);
+            TestIntfPrx test2 = createTestIntfPrx(adpts);
             IceUtilInternal::shuffle(adpts.begin(), adpts.end());
-            TestIntfPrxPtr test3 = createTestIntfPrx(adpts);
+            TestIntfPrx test3 = createTestIntfPrx(adpts);
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
             test(test2->ice_getConnection() == test3->ice_getConnection());
@@ -293,22 +290,21 @@ allTests(Test::TestHelper* helper)
         // always send the request over the same connection.)
         //
         {
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+            for(vector<optional<RemoteObjectAdapterPrx>>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
             {
                 (*p)->getTestIntf()->ice_ping();
             }
 
-            TestIntfPrxPtr test = createTestIntfPrx(adapters);
+            TestIntfPrx test = createTestIntfPrx(adapters);
             string name = getAdapterNameWithAMI(test);
             const int nRetry = 10;
             int i;
             for(i = 0; i < nRetry && getAdapterNameWithAMI(test) == name; i++);
             test(i == nRetry);
 
-            for(vector<RemoteObjectAdapterPrxPtr>::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+            for (const auto& adapter : adapters)
             {
-                (*q)->getTestIntf()->ice_getConnection()->close(
-                    Ice::ConnectionClose::GracefullyWithWait);
+                adapter->getTestIntf()->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
         }
 
@@ -321,13 +317,13 @@ allTests(Test::TestHelper* helper)
         names.insert("AdapterAMI13");
         while(!names.empty())
         {
-            vector<RemoteObjectAdapterPrxPtr> adpts = adapters;
+            vector<optional<RemoteObjectAdapterPrx>> adpts = adapters;
 
-            TestIntfPrxPtr test1 = createTestIntfPrx(adpts);
+            TestIntfPrx test1 = createTestIntfPrx(adpts);
             IceUtilInternal::shuffle(adpts.begin(), adpts.end());
-            TestIntfPrxPtr test2 = createTestIntfPrx(adpts);
+            TestIntfPrx test2 = createTestIntfPrx(adpts);
             IceUtilInternal::shuffle(adpts.begin(), adpts.end());
-            TestIntfPrxPtr test3 = createTestIntfPrx(adpts);
+            TestIntfPrx test3 = createTestIntfPrx(adpts);
 
             test(test1->ice_getConnection() == test2->ice_getConnection());
             test(test2->ice_getConnection() == test3->ice_getConnection());
@@ -341,7 +337,7 @@ allTests(Test::TestHelper* helper)
         // establish the connection to the remaining adapter.
         //
         com->deactivateObjectAdapter(adapters[2]);
-        TestIntfPrxPtr test = createTestIntfPrx(adapters);
+        TestIntfPrx test = createTestIntfPrx(adapters);
         test(test->getAdapterName() == "AdapterAMI12");
 
         deactivate(com, adapters);
@@ -350,12 +346,12 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing random endpoint selection... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("Adapter21", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter22", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter23", "default"));
 
-        TestIntfPrxPtr test = createTestIntfPrx(adapters);
+        TestIntfPrx test = createTestIntfPrx(adapters);
         test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Random);
 
         set<string> names;
@@ -368,7 +364,7 @@ allTests(Test::TestHelper* helper)
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
 
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_endpointSelection(Ice::EndpointSelectionType::Random));
+        test = test->ice_endpointSelection(Ice::EndpointSelectionType::Random);
         test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Random);
 
         names.insert("Adapter21");
@@ -386,13 +382,13 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing ordered endpoint selection... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("Adapter31", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter32", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter33", "default"));
 
-        TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+        TestIntfPrx test = createTestIntfPrx(adapters);
+        test = test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
         test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
         const int nRetry = 5;
         int i;
@@ -489,10 +485,10 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing per request binding with single endpoint... " << flush;
     {
-        RemoteObjectAdapterPrxPtr adapter = com->createObjectAdapter("Adapter41", "default");
+        optional<RemoteObjectAdapterPrx> adapter = com->createObjectAdapter("Adapter41", "default");
 
-        TestIntfPrxPtr test1 = Ice::uncheckedCast<TestIntfPrx>(adapter->getTestIntf()->ice_connectionCached(false));
-        TestIntfPrxPtr test2 = Ice::uncheckedCast<TestIntfPrx>(adapter->getTestIntf()->ice_connectionCached(false));
+        TestIntfPrx test1 = adapter->getTestIntf()->ice_connectionCached(false);
+        TestIntfPrx test2 = adapter->getTestIntf()->ice_connectionCached(false);
         test(!test1->ice_isConnectionCached());
         test(!test2->ice_isConnectionCached());
         test(test1->ice_getConnection() && test2->ice_getConnection());
@@ -502,7 +498,7 @@ allTests(Test::TestHelper* helper)
 
         com->deactivateObjectAdapter(adapter);
 
-        TestIntfPrxPtr test3 = Ice::uncheckedCast<TestIntfPrx>(test1);
+        TestIntfPrx test3(test1);
         try
         {
             test(test3->ice_getConnection() == test1->ice_getConnection());
@@ -519,12 +515,12 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing per request binding with multiple endpoints... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("Adapter51", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter52", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter53", "default"));
 
-        TestIntfPrxPtr test = Ice::uncheckedCast<TestIntfPrx>(createTestIntfPrx(adapters)->ice_connectionCached(false));
+        auto test = createTestIntfPrx(adapters)->ice_connectionCached(false);
         test(!test->ice_isConnectionCached());
 
         set<string> names;
@@ -555,12 +551,12 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing per request binding with multiple endpoints and AMI... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("AdapterAMI51", "default"));
         adapters.push_back(com->createObjectAdapter("AdapterAMI52", "default"));
         adapters.push_back(com->createObjectAdapter("AdapterAMI53", "default"));
 
-        TestIntfPrxPtr test = Ice::uncheckedCast<TestIntfPrx>(createTestIntfPrx(adapters)->ice_connectionCached(false));
+        TestIntfPrx test = createTestIntfPrx(adapters)->ice_connectionCached(false);
         test(!test->ice_isConnectionCached());
 
         set<string> names;
@@ -591,15 +587,15 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing per request binding and ordered endpoint selection... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("Adapter61", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter62", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter63", "default"));
 
-        TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+        TestIntfPrx test = createTestIntfPrx(adapters);
+        test = test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
         test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_connectionCached(false));
+        test = test->ice_connectionCached(false);
         test(!test->ice_isConnectionCached());
         const int nRetry = 5;
         int i;
@@ -676,15 +672,15 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing per request binding and ordered endpoint selection and AMI... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("AdapterAMI61", "default"));
         adapters.push_back(com->createObjectAdapter("AdapterAMI62", "default"));
         adapters.push_back(com->createObjectAdapter("AdapterAMI63", "default"));
 
-        TestIntfPrxPtr test = createTestIntfPrx(adapters);
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+        TestIntfPrx test = createTestIntfPrx(adapters);
+        test = test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
         test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_connectionCached(false));
+        test = test->ice_connectionCached(false);
         test(!test->ice_isConnectionCached());
         const int nRetry = 5;
         int i;
@@ -754,14 +750,14 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing endpoint mode filtering... " << flush;
     {
-        vector<RemoteObjectAdapterPrxPtr> adapters;
+        vector<optional<RemoteObjectAdapterPrx>> adapters;
         adapters.push_back(com->createObjectAdapter("Adapter71", "default"));
         adapters.push_back(com->createObjectAdapter("Adapter72", "udp"));
 
-        TestIntfPrxPtr test = createTestIntfPrx(adapters);
+        TestIntfPrx test = createTestIntfPrx(adapters);
         test(test->getAdapterName() == "Adapter71");
 
-        TestIntfPrxPtr testUDP = Ice::uncheckedCast<TestIntfPrx>(test->ice_datagram());
+        TestIntfPrx testUDP = test->ice_datagram();
         test(test->ice_getConnection() != testUDP->ice_getConnection());
         try
         {
@@ -778,11 +774,11 @@ allTests(Test::TestHelper* helper)
     {
         cout << "testing unsecure vs. secure endpoints... " << flush;
         {
-            vector<RemoteObjectAdapterPrxPtr> adapters;
+            vector<optional<RemoteObjectAdapterPrx>> adapters;
             adapters.push_back(com->createObjectAdapter("Adapter81", "ssl"));
             adapters.push_back(com->createObjectAdapter("Adapter82", "tcp"));
 
-            TestIntfPrxPtr test = createTestIntfPrx(adapters);
+            TestIntfPrx test = createTestIntfPrx(adapters);
             int i;
             for(i = 0; i < 5; i++)
             {
@@ -790,11 +786,11 @@ allTests(Test::TestHelper* helper)
                 test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
 
-            TestIntfPrxPtr testSecure = Ice::uncheckedCast<TestIntfPrx>(test->ice_secure(true));
+            TestIntfPrx testSecure = test->ice_secure(true);
             test(testSecure->ice_isSecure());
-            testSecure = Ice::uncheckedCast<TestIntfPrx>(test->ice_secure(false));
+            testSecure = test->ice_secure(false);
             test(!testSecure->ice_isSecure());
-            testSecure = Ice::uncheckedCast<TestIntfPrx>(test->ice_secure(true));
+            testSecure = test->ice_secure(true);
             test(testSecure->ice_isSecure());
             test(test->ice_getConnection() != testSecure->ice_getConnection());
 
@@ -927,7 +923,7 @@ allTests(Test::TestHelper* helper)
             // Ensure the published endpoints are actually valid. On
             // Fedora, binding to "localhost" with IPv6 only works but
             // resolving localhost don't return the IPv6 adress.
-            Ice::ObjectPrxPtr prx = oa->createProxy(Ice::stringToIdentity("dummy"));
+            Ice::ObjectPrx prx = oa->createProxy(Ice::stringToIdentity("dummy"));
             try
             {
                 prx->ice_collocationOptimized(false)->ice_ping();
@@ -944,7 +940,7 @@ allTests(Test::TestHelper* helper)
                 Ice::InitializationData clientInitData;
                 clientInitData.properties = *q;
                 Ice::CommunicatorHolder clientCommunicator(clientInitData);
-                Ice::ObjectPrxPtr clientPrx = clientCommunicator->stringToProxy(strPrx);
+                Ice::ObjectPrx clientPrx(clientCommunicator.communicator(), strPrx);
                 try
                 {
                     clientPrx->ice_ping();

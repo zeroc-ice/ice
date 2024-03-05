@@ -72,7 +72,7 @@ ServerFactoryI::ServerFactoryI(const string& defaultDir) : _defaultDir(defaultDi
 {
 }
 
-Test::ServerPrxPtr
+optional<Test::ServerPrx>
 ServerFactoryI::createServer(Test::Properties props, const Current&)
 {
     InitializationData initData;
@@ -86,15 +86,15 @@ ServerFactoryI::createServer(Test::Properties props, const Current&)
     CommunicatorPtr communicator = initialize(initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
     ServerIPtr server = make_shared<ServerI>(communicator);
-    ObjectPrxPtr obj = adapter->addWithUUID(server);
+    Test::ServerPrx obj(adapter->addWithUUID(server));
     _servers[obj->ice_getIdentity()] = server;
     adapter->activate();
 
-    return Ice::uncheckedCast<Test::ServerPrx>(obj);
+    return obj;
 }
 
 void
-ServerFactoryI::destroyServer(Test::ServerPrxPtr srv, const Ice::Current&)
+ServerFactoryI::destroyServer(optional<Test::ServerPrx> srv, const Ice::Current&)
 {
     map<Identity, ServerIPtr>::iterator p = _servers.find(srv->ice_getIdentity());
     if(p != _servers.end())

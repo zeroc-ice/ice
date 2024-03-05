@@ -24,12 +24,12 @@ Collocated::run(int argc, char** argv)
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     communicator->getProperties()->setProperty("TestAdapter.AdapterId", "test");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPrxPtr prx = adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
+    Ice::ObjectPrx prx = adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
     //adapter->activate(); // Don't activate OA to ensure collocation is used.
 
     test(!prx->ice_getConnection());
 
-    Test::MyClassPrxPtr allTests(Test::TestHelper*);
+    Test::MyClassPrx allTests(Test::TestHelper*);
     allTests(this);
 }
 

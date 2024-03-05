@@ -46,8 +46,8 @@ Client::run(int argc, char** argv)
     communicator->getValueFactoryManager()->add(makeFactory<EI>(), "::Test::E");
     communicator->getValueFactoryManager()->add(makeFactory<FI>(), "::Test::F");
 
-    InitialPrxPtr allTests(Test::TestHelper*);
-    InitialPrxPtr initial = allTests(this);
+    InitialPrx allTests(Test::TestHelper*);
+    InitialPrx initial = allTests(this);
     initial->shutdown();
 }
 

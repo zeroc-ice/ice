@@ -22,10 +22,10 @@ Client::run(int argc, char** argv)
 {
     auto properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.Warn.Connections", "0");
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
+    auto communicator = ich.communicator();
 
-    auto router = uncheckedCast<Glacier2::RouterPrx>(
-        communicator->stringToProxy("Glacier2/router:" + getTestEndpoint("tcp")));
+    Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint("tcp"));
     communicator->setDefaultRouter(router);
 
     //
@@ -60,8 +60,7 @@ Client::run(int argc, char** argv)
     // set a new SSL based router.
     //
     communicator->setDefaultRouter(nullopt);
-    router = uncheckedCast<Glacier2::RouterPrx>(
-        communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(1, "ssl")));
+    router = Glacier2::RouterPrx(communicator, "Glacier2/router:" + getTestEndpoint(1, "ssl"));
     communicator->setDefaultRouter(router);
 
     //

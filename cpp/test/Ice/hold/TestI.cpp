@@ -75,7 +75,7 @@ HoldI::putOnHold(int32_t milliSeconds, const Ice::Current&)
 void
 HoldI::waitForHold(const Ice::Current& current)
 {
-    class WaitForHold : public IceUtil::TimerTask
+    class WaitForHold final : public IceUtil::TimerTask
     {
     public:
 
@@ -83,8 +83,7 @@ HoldI::waitForHold(const Ice::Current& current)
         {
         }
 
-        void
-        runTimerTask()
+        void runTimerTask() final
         {
             try
             {

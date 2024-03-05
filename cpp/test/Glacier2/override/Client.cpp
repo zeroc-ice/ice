@@ -29,21 +29,21 @@ CallbackClient::run(int argc, char** argv)
     properties->setProperty("Ice.Warn.Connections", "0");
     properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    auto routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-    auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
+    auto communicator = ich.communicator();
+    Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint(50));
     communicator->setDefaultRouter(router);
 
-    auto base = communicator->stringToProxy("c/callback:" + getTestEndpoint());
+    ObjectPrx base(communicator, "c/callback:" + getTestEndpoint());
     auto session = router->createSession("userid", "abc123");
     base->ice_ping();
 
-    auto twoway = checkedCast<CallbackPrx>(base);
-    auto oneway = twoway->ice_oneway();
-    auto batchOneway = twoway->ice_batchOneway();
+    CallbackPrx twoway(base);
+    CallbackPrx oneway = twoway->ice_oneway();
+    CallbackPrx batchOneway = twoway->ice_batchOneway();
 
     communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
-    auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router.value());
+    auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
     adapter->activate();
 
     string category = router->getCategoryForClient();
@@ -53,8 +53,7 @@ CallbackClient::run(int argc, char** argv)
     Identity callbackReceiverIdent;
     callbackReceiverIdent.name = "callbackReceiver";
     callbackReceiverIdent.category = category;
-    auto twowayR =
-        uncheckedCast<CallbackReceiverPrx>(adapter->add(callbackReceiver, callbackReceiverIdent));
+    CallbackReceiverPrx twowayR(adapter->add(callbackReceiver, callbackReceiverIdent));
     auto onewayR = twowayR->ice_oneway();
 
     {

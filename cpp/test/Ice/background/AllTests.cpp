@@ -71,13 +71,13 @@ private:
 };
 using OpThreadPtr = shared_ptr<OpThread>;
 
-void connectTests(const ConfigurationPtr&, const Test::BackgroundPrx&);
-void initializeTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
-void validationTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
-void readWriteTests(const ConfigurationPtr&, const Test::BackgroundPrx&, const Test::BackgroundControllerPrx&);
+void connectTests(const ConfigurationPtr&, const BackgroundPrx&);
+void initializeTests(const ConfigurationPtr&, const BackgroundPrx&, const BackgroundControllerPrx&);
+void validationTests(const ConfigurationPtr&, const BackgroundPrx&, const BackgroundControllerPrx&);
+void readWriteTests(const ConfigurationPtr&, const BackgroundPrx&, const BackgroundControllerPrx&);
 
 BackgroundPrx
-allTests(Test::TestHelper* helper)
+allTests(TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     const string endp = helper->getTestEndpoint();
@@ -239,7 +239,7 @@ allTests(Test::TestHelper* helper)
 }
 
 void
-connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& background)
+connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& background)
 {
     try
     {
@@ -324,10 +324,10 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
     }
 
     auto opThread1 = make_shared<OpThread>(background);
-    auto worker1 = std::thread([opThread1] { opThread1->run(); });
+    auto worker1 = thread([opThread1] { opThread1->run(); });
 
     OpThreadPtr opThread2 = make_shared<OpThread>(background);
-    auto worker2 = std::thread([opThread2] { opThread2->run(); });
+    auto worker2 = thread([opThread2] { opThread2->run(); });
 
     for(int i = 0; i < 5; i++)
     {
@@ -362,8 +362,8 @@ connectTests(const ConfigurationPtr& configuration, const Test::BackgroundPrx& b
 
 void
 initializeTests(const ConfigurationPtr& configuration,
-                const Test::BackgroundPrx& background,
-                const Test::BackgroundControllerPrx& ctl)
+                const BackgroundPrx& background,
+                const BackgroundControllerPrx& ctl)
 {
     try
     {
@@ -612,8 +612,8 @@ initializeTests(const ConfigurationPtr& configuration,
 
 void
 validationTests(const ConfigurationPtr& configuration,
-                const Test::BackgroundPrx& background,
-                const Test::BackgroundControllerPrx& ctl)
+                const BackgroundPrx& background,
+                const BackgroundControllerPrx& ctl)
 {
     try
     {
@@ -917,8 +917,8 @@ validationTests(const ConfigurationPtr& configuration,
 
 void
 readWriteTests(const ConfigurationPtr& configuration,
-               const Test::BackgroundPrx& background,
-               const Test::BackgroundControllerPrx& ctl)
+               const BackgroundPrx& background,
+               const BackgroundControllerPrx& ctl)
 {
     try
     {

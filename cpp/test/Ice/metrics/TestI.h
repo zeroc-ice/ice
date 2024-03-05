@@ -7,36 +7,36 @@
 
 #include <Test.h>
 
-class MetricsI : public Test::Metrics
+class MetricsI final : public Test::Metrics
 {
-    virtual void op(const Ice::Current&);
+    void op(const Ice::Current&) final;
 
-    virtual void fail(const Ice::Current&);
+    void fail(const Ice::Current&) final;
 
-    virtual void opWithUserException(const Ice::Current&);
+    void opWithUserException(const Ice::Current&) final;
 
-    virtual void opWithRequestFailedException(const Ice::Current&);
+    void opWithRequestFailedException(const Ice::Current&) final;
 
-    virtual void opWithLocalException(const Ice::Current&);
+    void opWithLocalException(const Ice::Current&) final;
 
-    virtual void opWithUnknownException(const Ice::Current&);
+    void opWithUnknownException(const Ice::Current&) final;
 
-    virtual void opByteS(Test::ByteSeq, const Ice::Current&);
+    void opByteS(Test::ByteSeq, const Ice::Current&) final;
 
-    virtual Ice::ObjectPrxPtr getAdmin(const Ice::Current&);
+    std::optional<Ice::ObjectPrx> getAdmin(const Ice::Current&) final;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) final;
 };
 
-class ControllerI : public Test::Controller
+class ControllerI final : public Test::Controller
 {
 public:
 
     ControllerI(const Ice::ObjectAdapterPtr&);
 
-    virtual void hold(const Ice::Current&);
+    void hold(const Ice::Current&) final;
 
-    virtual void resume(const Ice::Current&);
+    void resume(const Ice::Current&) final;
 
 private:
 

@@ -33,6 +33,6 @@ ICE_DECLSPEC_EXPORT
 void allTests(const Ice::ObjectAdapterPtr& oa)
 {
     Test::MyInterfacePtr servant = std::make_shared<TestI>();
-    Test::MyInterfacePrx proxy = Ice::uncheckedCast<Test::MyInterfacePrx>(oa->addWithUUID(servant));
+    Test::MyInterfacePrx proxy(oa->addWithUUID(servant));
     consume(servant, proxy);
 }

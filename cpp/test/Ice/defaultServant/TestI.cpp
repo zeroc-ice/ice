@@ -22,7 +22,7 @@ MyObjectI::ice_ping(const Ice::Current& current) const
     }
 }
 
-std::string
+string
 MyObjectI::getName(const Ice::Current& current)
 {
     string name = current.id.name;

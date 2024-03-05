@@ -129,21 +129,21 @@ MyDerivedClassI::opMyEnum(Test::MyEnum p1,
     return MyEnum::enum3;
 }
 
-Test::MyClassPrxPtr
-MyDerivedClassI::opMyClass(Test::MyClassPrxPtr p1,
-                           Test::MyClassPrxPtr& p2,
-                           Test::MyClassPrxPtr& p3,
+optional<Test::MyClassPrx>
+MyDerivedClassI::opMyClass(optional<Test::MyClassPrx> p1,
+                           optional<Test::MyClassPrx>& p2,
+                           optional<Test::MyClassPrx>& p3,
                            const Ice::Current& current)
 {
     p2 = p1;
-    p3 = Ice::uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(stringToIdentity("noSuchIdentity")));
-    return Ice::uncheckedCast<Test::MyClassPrx>(current.adapter->createProxy(current.id));
+    p3 = Test::MyClassPrx(current.adapter->createProxy(stringToIdentity("noSuchIdentity")));
+    return Test::MyClassPrx(current.adapter->createProxy(current.id));
 }
 
 Test::Structure
 MyDerivedClassI::opStruct(Test::Structure p1,
                           Test::Structure p2,
-                          ::Test::Structure& p3,
+                          Test::Structure& p3,
                           const Ice::Current&)
 {
     p3 = p1;

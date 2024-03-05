@@ -40,7 +40,7 @@ class switchI: public _cpp_and::_cpp_switch
 {
 public:
 
-    virtual void foo(_cpp_and::charPrxPtr, int32_t&, const ::Ice::Current&)
+    virtual void foo(optional<_cpp_and::charPrx>, int32_t&, const ::Ice::Current&)
     {
     }
 };
@@ -77,10 +77,10 @@ public:
               const _cpp_and::_cpp_delete&,
               const _cpp_and::switchPtr&,
               const ::std::shared_ptr<::Ice::Value>&,
-              const _cpp_and::breakPrxPtr&,
-              const _cpp_and::charPrxPtr&,
-              const ::Ice::ObjectPrxPtr&,
-              const _cpp_and::doPrxPtr&,
+              const optional<_cpp_and::breakPrx>&,
+              const optional<_cpp_and::charPrx>&,
+              const optional<::Ice::ObjectPrx>&,
+              const optional<_cpp_and::doPrx>&,
               ::int32_t, ::int32_t,
               ::int32_t, ::int32_t,
               const ::Ice::Current&)
@@ -107,20 +107,18 @@ void testtypes(const Ice::CommunicatorPtr& communicator)
     _cpp_and::_cpp_delete c;
     c._cpp_else = "";
 
-    _cpp_and::breakPrxPtr d =
-        Ice::uncheckedCast<_cpp_and::breakPrx>(communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
+    _cpp_and::breakPrx d(communicator, "hello:tcp -h 127.0.0.1 -p 12010");
     int d2;
     d->_cpp_case(0, d2);
     _cpp_and::breakPtr d1 = std::make_shared<breakI>();
 
-    _cpp_and::charPrxPtr e =
-        Ice::uncheckedCast<_cpp_and::charPrx>(communicator->stringToProxy("hello:tcp -h 127.0.0.1 -p 12010"));
+    _cpp_and::charPrx e(communicator, "hello:tcp -h 127.0.0.1 -p 12010");
     e->_cpp_explicit();
     _cpp_and::charPtr e1 = std::make_shared<charI>();
 
     _cpp_and::switchPtr f1 = std::make_shared<switchI>();
 
-    _cpp_and::doPrxPtr g;
+    optional<_cpp_and::doPrx> g;
 
 // Work-around for:
 // error: array subscript -6 is outside array bounds of ‘int (* [1152921504606846975])(...)’ [-Werror=array-bounds]
@@ -170,7 +168,7 @@ Client::run(int argc, char** argv)
     adapter->activate();
 
     cout << "Testing operation name... " << flush;
-    _cpp_and::charPrxPtr p = Ice::uncheckedCast<_cpp_and::charPrx>(adapter->createProxy(Ice::stringToIdentity("test")));
+    _cpp_and::charPrx p(adapter->createProxy(Ice::stringToIdentity("test")));
     p->_cpp_explicit();
     cout << "ok" << endl;
 }

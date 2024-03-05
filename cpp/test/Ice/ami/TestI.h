@@ -11,33 +11,33 @@
 class TestIntfControllerI;
 using TestIntfControllerIPtr = std::shared_ptr<TestIntfControllerI>;
 
-class TestIntfI : public virtual Test::TestIntf
+class TestIntfI final : public Test::TestIntf
 {
 public:
 
     TestIntfI();
 
-    virtual void op(const Ice::Current&);
-    virtual int opWithResult(const Ice::Current&);
-    virtual void opWithUE(const Ice::Current&);
-    virtual int opWithResultAndUE(const Ice::Current&);
-    virtual void opWithPayload(Ice::ByteSeq, const Ice::Current&);
-    virtual void opBatch(const Ice::Current&);
-    virtual std::int32_t opBatchCount(const Ice::Current&);
-    virtual void opWithArgs(std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&,
-                            std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, const Ice::Current&);
-    virtual bool waitForBatch(std::int32_t, const Ice::Current&);
-    virtual void close(Test::CloseMode, const Ice::Current&);
-    virtual void sleep(std::int32_t, const Ice::Current&);
-    virtual void startDispatchAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
-                                    const Ice::Current&);
-    virtual void finishDispatch(const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void op(const Ice::Current&) final;
+    int opWithResult(const Ice::Current&) final;
+    void opWithUE(const Ice::Current&) final;
+    int opWithResultAndUE(const Ice::Current&) final;
+    void opWithPayload(Ice::ByteSeq, const Ice::Current&) final;
+    void opBatch(const Ice::Current&) final;
+    std::int32_t opBatchCount(const Ice::Current&) final;
+    void opWithArgs(std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&,
+                            std::int32_t&, std::int32_t&, std::int32_t&, std::int32_t&, const Ice::Current&) final;
+    bool waitForBatch(std::int32_t, const Ice::Current&) final;
+    void close(Test::CloseMode, const Ice::Current&) final;
+    void sleep(std::int32_t, const Ice::Current&) final;
+    void startDispatchAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
+                                    const Ice::Current&) final;
+    void finishDispatch(const Ice::Current&) final;
+    void shutdown(const Ice::Current&) final;
 
-    virtual bool supportsAMD(const Ice::Current&);
-    virtual bool supportsFunctionalTests(const Ice::Current&);
+    bool supportsAMD(const Ice::Current&) final;
+    bool supportsFunctionalTests(const Ice::Current&) final;
 
-    virtual void pingBiDir(Test::PingReplyPrxPtr, const Ice::Current&);
+    void pingBiDir(std::optional<Test::PingReplyPrx>, const Ice::Current&) final;
 
 private:
 
@@ -52,8 +52,8 @@ class TestIntfControllerI : public Test::TestIntfController
 {
 public:
 
-    virtual void holdAdapter(const Ice::Current&);
-    virtual void resumeAdapter(const Ice::Current&);
+    void holdAdapter(const Ice::Current&) final;
+    void resumeAdapter(const Ice::Current&) final;
 
     TestIntfControllerI(const Ice::ObjectAdapterPtr&);
 
@@ -63,11 +63,11 @@ private:
     std::mutex _mutex;
 };
 
-class TestIntfII : public virtual Test::Outer::Inner::TestIntf
+class TestIntfII : public Test::Outer::Inner::TestIntf
 {
 public:
 
-    std::int32_t op(std::int32_t, std::int32_t&, const Ice::Current&);
+    std::int32_t op(std::int32_t, std::int32_t&, const Ice::Current&) final;
 };
 
 #endif

@@ -20,7 +20,8 @@ public:
 void
 Client::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    auto communicator = ich.communicator();
 
     void allTests(Test::TestHelper*);
     allTests(this);
@@ -28,8 +29,7 @@ Client::run(int argc, char** argv)
     //
     // Shutdown the IceBox server.
     //
-    Ice::uncheckedCast<Ice::ProcessPrx>(
-        communicator->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
+    Ice::ProcessPrx(communicator, "DemoIceBox/admin -f Process:default -p 9996")->shutdown();
 }
 
 DEFINE_TEST(Client)

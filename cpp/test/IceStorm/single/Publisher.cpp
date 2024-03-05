@@ -48,7 +48,7 @@ Publisher::run(int argc, char** argv)
     // Get a publisher object, create a twoway proxy and then cast to
     // a Single object.
     //
-    auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
+    optional<SinglePrx> single(topic->getPublisher()->ice_twoway());
     for(int i = 0; i < 1000; ++i)
     {
         single->event(i);

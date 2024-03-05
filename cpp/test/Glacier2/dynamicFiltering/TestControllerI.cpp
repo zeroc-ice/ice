@@ -52,8 +52,11 @@ TestControllerI::TestControllerI(const string& endpoint)
 };
 
 void
-TestControllerI::step(Glacier2::SessionPrxPtr currentSession, TestToken currentState, TestToken& newState,
-                      const Ice::Current&)
+TestControllerI::step(
+    std::optional<Glacier2::SessionPrx> currentSession,
+    TestToken currentState,
+    TestToken& newState,
+    const Ice::Current&)
 {
     switch(currentState.code)
     {
@@ -162,7 +165,7 @@ TestControllerI::addSession(SessionTuple&& s)
 }
 
 void
-TestControllerI::notifyDestroy(const Glacier2::SessionControlPrxPtr& control)
+TestControllerI::notifyDestroy(const optional<Glacier2::SessionControlPrx>& control)
 {
     lock_guard lock(_mutex);
     for(auto i = _sessions.begin(); i != _sessions.end(); ++i)

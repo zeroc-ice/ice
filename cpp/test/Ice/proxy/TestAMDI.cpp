@@ -14,8 +14,8 @@ MyDerivedClassI::MyDerivedClassI()
 
 void
 MyDerivedClassI::echoAsync(
-    Ice::ObjectPrxPtr obj,
-    function<void(const Ice::ObjectPrxPtr&)> response,
+    optional<Ice::ObjectPrx> obj,
+    function<void(const optional<Ice::ObjectPrx>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {
