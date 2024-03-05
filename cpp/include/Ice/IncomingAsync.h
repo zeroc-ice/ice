@@ -55,10 +55,6 @@ private:
 
     void checkResponseSent();
     std::atomic_flag _responseSent = ATOMIC_FLAG_INIT;
-
-    // We need a ResponseHandlerPtr, because IncomingBase only holds a pointer to its ResponseHandler as an
-    // optimization.
-    const ResponseHandlerPtr _responseHandlerCopy;
 };
 
 }

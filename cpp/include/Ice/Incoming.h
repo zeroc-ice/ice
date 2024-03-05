@@ -75,7 +75,7 @@ public:
 
 protected:
 
-    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
+    IncomingBase(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
     IncomingBase(IncomingBase&);
     IncomingBase(const IncomingBase&) = delete;
 
@@ -96,18 +96,14 @@ protected:
     Ice::FormatType _format;
     Ice::OutputStream _os;
 
-    //
-    // Optimization. The request handler may not be deleted while a
-    // stack-allocated Incoming still holds it.
-    //
-    ResponseHandler* _responseHandler;
+    ResponseHandlerPtr _responseHandler;
 };
 
 class ICE_API Incoming final : public IncomingBase
 {
 public:
 
-    Incoming(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
+    Incoming(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
 
     const Ice::Current& getCurrent()
     {

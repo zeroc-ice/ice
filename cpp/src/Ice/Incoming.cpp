@@ -39,14 +39,14 @@ Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
     ostr->write(replyOK);
 }
 
-IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* responseHandler,
+IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandlerPtr responseHandler,
                                         Ice::Connection* connection, const ObjectAdapterPtr& adapter,
                                         bool response, uint8_t compress, int32_t requestId) :
     _response(response),
     _compress(compress),
     _format(Ice::FormatType::DefaultFormat),
     _os(instance, Ice::currentProtocolEncoding),
-    _responseHandler(responseHandler)
+    _responseHandler(std::move(responseHandler))
 {
     _current.adapter = adapter;
     ::Ice::ConnectionI* conn = dynamic_cast<::Ice::ConnectionI*>(connection);
@@ -502,9 +502,9 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
     _responseHandler = 0;
 }
 
-IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection,
+IceInternal::Incoming::Incoming(Instance* instance, ResponseHandlerPtr responseHandler, Ice::Connection* connection,
                                 const ObjectAdapterPtr& adapter, bool response, uint8_t compress, int32_t requestId) :
-    IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId)
+    IncomingBase(instance, std::move(responseHandler), connection, adapter, response, compress, requestId)
 {
 }
 

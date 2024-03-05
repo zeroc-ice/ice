@@ -19,8 +19,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
-    IncomingBase(in),
-    _responseHandlerCopy(_responseHandler->shared_from_this())
+    IncomingBase(in)
 {
 }
 
