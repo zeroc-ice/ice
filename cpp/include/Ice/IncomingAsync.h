@@ -13,48 +13,13 @@ namespace IceInternal
 {
 
 // Represents an incoming request dispatched with AMD.
-class ICE_API IncomingAsync final : public IncomingBase, public std::enable_shared_from_this<IncomingAsync>
+class ICE_API IncomingAsync final : public IncomingBase
 {
 public:
 
     IncomingAsync(IncomingBase&);
 
     static std::shared_ptr<IncomingAsync> create(IncomingBase&);
-
-    std::function<void()> response()
-    {
-        return [self = shared_from_this()]
-        {
-            self->writeEmptyParams();
-            self->completed();
-        };
-    }
-
-    template<class T>
-    std::function<void(const T&)> response()
-    {
-        return [self = shared_from_this()](const T& marshaledResult)
-        {
-            self->setMarshaledResult(marshaledResult);
-            self->completed();
-        };
-    }
-
-    std::function<void(std::exception_ptr)> exception()
-    {
-        return [self = shared_from_this()](std::exception_ptr ex) { self->completed(ex); };
-    }
-
-    void kill(IncomingBase&);
-
-    void completed();
-
-    void completed(std::exception_ptr);
-
-private:
-
-    void checkResponseSent();
-    std::atomic_flag _responseSent = ATOMIC_FLAG_INIT;
 };
 
 }

@@ -60,7 +60,7 @@ namespace Ice
 namespace IceInternal
 {
 
-class ICE_API IncomingBase
+class ICE_API IncomingBase : public std::enable_shared_from_this<IncomingBase>
 {
 public:
 
@@ -120,10 +120,46 @@ public:
         _current.encoding = _is->readEncapsulation(v, sz);
     }
 
+    std::function<void()> response()
+    {
+        return [self = shared_from_this()]
+        {
+            self->writeEmptyParams();
+            self->completed();
+        };
+    }
+
+    template<class T>
+    std::function<void(const T&)> response()
+    {
+        return [self = shared_from_this()](const T& marshaledResult)
+        {
+            self->setMarshaledResult(marshaledResult);
+            self->completed();
+        };
+    }
+
+    std::function<void(std::exception_ptr)> exception()
+    {
+        return [self = shared_from_this()](std::exception_ptr ex) { self->completed(ex); };
+    }
+
+    void kill(IncomingBase&);
+
+    void completed();
+
+    void completed(std::exception_ptr);
+
 protected:
 
     IncomingBase(IncomingBase&);
     IncomingBase(const IncomingBase&) = delete;
+
+    friend class IncomingAsync;
+
+private:
+
+    void checkResponseSent();
 
     void warning(const Ice::Exception&) const;
     void warning(std::exception_ptr) const;
@@ -144,11 +180,11 @@ protected:
 
     ResponseHandlerPtr _responseHandler;
 
-    friend class IncomingAsync;
-
     // _is points to an object allocated on the stack of the dispatch thread.
     Ice::InputStream* _is;
     IncomingAsyncPtr _inAsync;
+
+    std::atomic_flag _responseSent = ATOMIC_FLAG_INIT;
 };
 
 }

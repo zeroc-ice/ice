@@ -655,3 +655,33 @@ IceInternal::IncomingRequest::getCurrent()
 {
     return _in.getCurrent();
 }
+
+void
+IceInternal::IncomingBase::kill(IncomingBase& in)
+{
+    checkResponseSent();
+    in._observer.adopt(_observer); // Give back the observer to incoming.
+}
+
+void
+IceInternal::IncomingBase::completed()
+{
+    checkResponseSent();
+    response(true); // User thread
+}
+
+void
+IceInternal::IncomingBase::completed(exception_ptr ex)
+{
+    checkResponseSent();
+    exception(ex, true); // true = amd
+}
+
+void
+IceInternal::IncomingBase::checkResponseSent()
+{
+    if (_responseSent.test_and_set())
+    {
+        throw ResponseSentException(__FILE__, __LINE__);
+    }
+}

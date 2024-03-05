@@ -30,33 +30,3 @@ IceInternal::IncomingAsync::create(IncomingBase& in)
     in.setAsync(async);
     return async;
 }
-
-void
-IceInternal::IncomingAsync::kill(IncomingBase& in)
-{
-    checkResponseSent();
-    in._observer.adopt(_observer); // Give back the observer to incoming.
-}
-
-void
-IceInternal::IncomingAsync::completed()
-{
-    checkResponseSent();
-    IncomingBase::response(true); // User thread
-}
-
-void
-IceInternal::IncomingAsync::completed(exception_ptr ex)
-{
-    checkResponseSent();
-    IncomingBase::exception(ex, true); // true = amd
-}
-
-void
-IceInternal::IncomingAsync::checkResponseSent()
-{
-    if (_responseSent.test_and_set())
-    {
-        throw ResponseSentException(__FILE__, __LINE__);
-    }
-}
