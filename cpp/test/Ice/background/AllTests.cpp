@@ -132,8 +132,7 @@ allTests(TestHelper* helper)
         backgroundController->resumeCall("findAdapterById");
 
         locator = LocatorPrx(communicator, "locator:" + endp);
-        obj = obj->ice_locator(locator);
-        obj->ice_ping();
+        locator->ice_ping();
         auto bg = BackgroundPrx(communicator, "background@Test")->ice_locator(locator);
 
         backgroundController->pauseCall("findAdapterById");
@@ -147,8 +146,8 @@ allTests(TestHelper* helper)
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
 
-        test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
-        test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
+        test(f1.wait_for(chrono::milliseconds(10)) != future_status::ready);
+        test(f2.wait_for(chrono::milliseconds(10)) != future_status::ready);
 
         backgroundController->resumeCall("findAdapterById");
 
