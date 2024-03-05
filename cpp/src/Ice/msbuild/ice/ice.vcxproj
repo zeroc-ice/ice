@@ -515,7 +515,6 @@
     <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp" />
-    <ClCompile Include="..\..\DispatchInterceptor.cpp" />
     <ClCompile Include="..\..\DLLMain.cpp" />
     <ClCompile Include="..\..\DynamicLibrary.cpp" />
     <ClCompile Include="..\..\EndpointFactory.cpp" />
