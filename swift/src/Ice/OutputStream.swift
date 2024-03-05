@@ -519,7 +519,7 @@ public extension OutputStream {
     func write(_ v: UserException) {
         initEncaps()
         // Exceptions are always encoded with the sliced format.
-        self.encaps.format = FormatType.SlicedFormat;
+        self.encaps.format = FormatType.SlicedFormat
         encaps.encoder.writeException(v: v)
     }
 

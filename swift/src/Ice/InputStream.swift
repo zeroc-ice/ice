@@ -1605,8 +1605,7 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
         //
-        if (current.sliceType == .ValueSlice)
-        {
+        if current.sliceType == .ValueSlice {
             let hasOptionalMembers = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)
             let isLastSlice = current.sliceFlags.contains(.FLAG_IS_LAST_SLICE)
             var dataEnd = stream.pos

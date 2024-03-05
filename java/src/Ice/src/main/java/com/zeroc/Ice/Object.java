@@ -116,7 +116,6 @@ public interface Object
         return _iceIds[0];
     }
 
-
     /** @hidden */
     final static String[] _iceOps =
     {
