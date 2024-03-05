@@ -87,7 +87,7 @@ private:
     void runTimerTask() final;
 
     LookupPrxPtr _lookup;
-    vector<pair<LookupPrx, optional<LookupReplyPrx>> > _lookups;
+    vector<pair<LookupPrx, LookupReplyPrx>> _lookups;
     chrono::milliseconds _timeout;
     int _retryCount;
     chrono::milliseconds _retryDelay;
@@ -97,7 +97,7 @@ private:
     string _instanceName;
     bool _warned;
     optional<Ice::LocatorPrx> _locator;
-    map<string, optional<Ice::LocatorPrx>> _locators;
+    map<string, Ice::LocatorPrx> _locators;
     Ice::LocatorPrx _voidLocator;
 
     chrono::steady_clock::time_point _nextRetry;
@@ -208,7 +208,8 @@ registerIceLocatorDiscovery(bool loadOnInitialize)
 }
 
 PluginI::PluginI(const string& name, const Ice::CommunicatorPtr& communicator) :
-    _name(name), _communicator(communicator)
+    _name(name),
+    _communicator(communicator)
 {
 }
 
@@ -430,42 +431,33 @@ LocatorI::LocatorI(const string& name,
     {
         _retryDelay = chrono::milliseconds::zero();
     }
-
-    // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
-    // endpoint.
-    for (const auto& endpoint : lookup->ice_getEndpoints())
-    {
-        _lookups.push_back(make_pair(lookup->ice_endpoints(Ice::EndpointSeq{endpoint}), nullopt));
-    }
-    assert(!_lookups.empty());
 }
 
 void
 LocatorI::setLookupReply(const LookupReplyPrx& lookupReply)
 {
-    //
-    // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
-    //
-    for (auto& p : _lookups)
+    // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
+    // endpoint.
+    for (const auto& lookupEndpoint : _lookup->ice_getEndpoints())
     {
-        Ice::UDPEndpointInfoPtr info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(p.first->ice_getEndpoints()[0]->getInfo());
+        LookupReplyPrx reply = lookupReply;
+        auto info = dynamic_pointer_cast<Ice::UDPEndpointInfo>(lookupEndpoint->getInfo());
+        // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
         if(info && !info->mcastInterface.empty())
         {
-            for (const auto& endpoint : lookupReply->ice_getEndpoints())
+            for (const auto& replyEndpoint : reply->ice_getEndpoints())
             {
-                Ice::IPEndpointInfoPtr r = dynamic_pointer_cast<Ice::IPEndpointInfo>(endpoint->getInfo());
+                Ice::IPEndpointInfoPtr r = dynamic_pointer_cast<Ice::IPEndpointInfo>(replyEndpoint->getInfo());
                 if (r && r->host == info->mcastInterface)
                 {
-                    p.second = lookupReply->ice_endpoints(Ice::EndpointSeq{endpoint});
+                    reply = reply->ice_endpoints(Ice::EndpointSeq{replyEndpoint});
                 }
             }
         }
 
-        if (!p.second)
-        {
-            p.second = lookupReply; // Fallback: just use the given lookup reply proxy if no matching endpoint found.
-        }
+        _lookups.push_back(make_pair(_lookup->ice_endpoints(Ice::EndpointSeq{lookupEndpoint}), reply));
     }
+    assert(!_lookups.empty());
 }
 
 void
@@ -528,8 +520,7 @@ LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& wa
     vector<Ice::LocatorPrx> locators;
     for (const auto& [ _, locator ] : _locators)
     {
-        assert(locator);
-        locators.push_back(*locator);
+        locators.push_back(locator);
     }
     return locators;
 }
@@ -539,7 +530,7 @@ LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
 {
     lock_guard lock(_mutex);
 
-    if(!reply)
+    if (!reply)
     {
         if(_traceLevel > 2)
         {
@@ -598,46 +589,30 @@ LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
         }
     }
 
-    optional<Ice::LocatorPrx> l = _pendingRequests.empty() ? _locators[locator->ice_getIdentity().category] : _locator;
-    if (l)
+    auto i = _locators.find(locator->ice_getIdentity().category);
+    if (i != _locators.end())
     {
-        //
-        // We found another locator replica, append its endpoints to the
-        // current locator proxy endpoints.
-        //
-        Ice::EndpointSeq newEndpoints = l->ice_getEndpoints();
+        // We found another locator replica, append its endpoints to the current locator proxy endpoints.
+        Ice::EndpointSeq newEndpoints = i->second->ice_getEndpoints();
         Ice::EndpointSeq endpts = locator->ice_getEndpoints();
-        for(Ice::EndpointSeq::const_iterator p = endpts.begin(); p != endpts.end(); ++p)
+        for (const auto& endpoint : locator->ice_getEndpoints())
         {
-            //
-            // Only add endpoints if not already in the locator proxy endpoints
-            //
-            bool found = false;
-            for(Ice::EndpointSeq::const_iterator q = newEndpoints.begin(); q != newEndpoints.end(); ++q)
+            if (std::find(newEndpoints.begin(), newEndpoints.end(), endpoint) == newEndpoints.end())
             {
-                if(*p == *q)
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if(!found)
-            {
-                newEndpoints.push_back(*p);
+                newEndpoints.push_back(endpoint);
             }
         }
-        l = l->ice_endpoints(newEndpoints);
+        i->second = i->second->ice_endpoints(newEndpoints);
     }
     else
     {
-        l = locator;
+        _locators.insert(make_pair(locator->ice_getIdentity().category, locator));
     }
 
-    assert(l);
+    Ice::LocatorPrx l = i == _locators.end() ? locator : i->second;
 
     if (_pendingRequests.empty())
     {
-        _locators[locator->ice_getIdentity().category] = *l;
         _conditionVariable.notify_one();
     }
     else
@@ -648,12 +623,10 @@ LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
             _instanceName = _locator->ice_getIdentity().category; // Stick to the first discovered locator.
         }
 
-        //
         // Send pending requests if any.
-        //
         for (const auto& pendingRequest : _pendingRequests)
         {
-            pendingRequest->invoke(*_locator);
+            pendingRequest->invoke(l);
         }
         _pendingRequests.clear();
     }
