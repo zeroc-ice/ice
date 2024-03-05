@@ -2186,6 +2186,7 @@ Ice::InputStream::EncapsDecoder11::endInstance()
 {
     SlicedDataPtr slicedData = readSlicedData();
     _current->indirectionTables.clear();
+    _current->slices.clear();
     _current = _current->previous;
     return slicedData;
 }
@@ -2331,8 +2332,6 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         }
     }
 
-    _current->indirectionTables.push_back(IndexList());
-
     //
     // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
     //
@@ -2357,6 +2356,8 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         }
         _current->slices.push_back(info);
     }
+
+    _current->indirectionTables.push_back(IndexList());
 
     //
     // Read the indirect object table. We read the instances or their
