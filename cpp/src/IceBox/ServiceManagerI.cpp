@@ -786,7 +786,7 @@ IceBox::ServiceManagerI::stopAll()
         }
 
         // Release the service and then the service communicator. The order is important, the service must be released
-        //  before destroying the communicator so that the communicator leak detector doesn't report potential leaks.
+        // before destroying the communicator so that the communicator leak detector doesn't report potential leaks.
         info.service = nullptr;
         if(info.communicator)
         {
