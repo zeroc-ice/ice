@@ -18,8 +18,9 @@
 
 using namespace std;
 using namespace IceInternal;
+using namespace IcePatch2;
 
-class TextPatcherFeedback : public IcePatch2::PatcherFeedback
+class TextPatcherFeedback final : public IcePatch2::PatcherFeedback
 {
 public:
 
@@ -33,7 +34,7 @@ public:
 #endif
     }
 
-    virtual ~TextPatcherFeedback()
+    ~TextPatcherFeedback()
     {
 #ifndef _WIN32
         tcsetattr(0, TCSANOW, &_savedTerm);
@@ -41,8 +42,7 @@ public:
 #endif
     }
 
-    virtual bool
-    noFileSummary(const string& reason)
+    bool noFileSummary(const string& reason) final
     {
         consoleOut << "Cannot load file summary:\n" << reason << endl;
         string answer;
@@ -60,8 +60,7 @@ public:
         return true;
     }
 
-    virtual bool
-    checksumStart()
+    bool checksumStart() final
     {
         if(!_pressAnyKeyMessage)
         {
@@ -72,21 +71,18 @@ public:
         return !keyPressed();
     }
 
-    virtual bool
-    checksumProgress(const string& path)
+    bool checksumProgress(const string& path) final
     {
         consoleOut << "Calculating checksum for " << IcePatch2Internal::getBasename(path) << endl;
         return !keyPressed();
     }
 
-    virtual bool
-    checksumEnd()
+    bool checksumEnd() final
     {
         return !keyPressed();
     }
 
-    virtual bool
-    fileListStart()
+    bool fileListStart() final
     {
         if(!_pressAnyKeyMessage)
         {
@@ -99,8 +95,7 @@ public:
         return !keyPressed();
     }
 
-    virtual bool
-    fileListProgress(int32_t percent)
+    bool fileListProgress(int32_t percent) final
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
@@ -113,15 +108,13 @@ public:
         return !keyPressed();
     }
 
-    virtual bool
-    fileListEnd()
+    bool fileListEnd() final
     {
         consoleOut << endl;
         return !keyPressed();
     }
 
-    virtual bool
-    patchStart(const string& path, int64_t size, int64_t totalProgress, int64_t totalSize)
+    bool patchStart(const string& path, int64_t size, int64_t totalProgress, int64_t totalSize) final
     {
         if(!_pressAnyKeyMessage)
         {
@@ -136,8 +129,7 @@ public:
         return !keyPressed();
     }
 
-    virtual bool
-    patchProgress(int64_t progress, int64_t size, int64_t totalProgress, int64_t totalSize)
+    bool patchProgress(int64_t progress, int64_t size, int64_t totalProgress, int64_t totalSize) final
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
@@ -150,8 +142,7 @@ public:
         return !keyPressed();
     }
 
-    virtual bool
-    patchEnd()
+    bool patchEnd() final
     {
         consoleOut << endl;
         return !keyPressed();
@@ -351,7 +342,22 @@ run(const Ice::StringSeq& args)
     try
     {
         IcePatch2::PatcherFeedbackPtr feedback = make_shared<TextPatcherFeedback>();
-        IcePatch2::PatcherPtr patcher = IcePatch2::PatcherFactory::create(communicator, feedback);
+
+        const string dataDir = properties->getPropertyWithDefault("IcePatch2Client.Directory", ".");
+        const bool thorough = properties->getPropertyAsIntWithDefault("IcePatch2Client.Thorough", 0) > 0;
+        const int32_t chunkSize = properties->getPropertyAsIntWithDefault("IcePatch2Client.ChunkSize", 100);
+        const int32_t remove = properties->getPropertyAsIntWithDefault("IcePatch2Client.Remove", 1);
+
+        const string clientProxyPropertyName = "IcePatch2Client.Proxy";
+        string clientProxyPropertyValue = properties->getProperty(clientProxyPropertyName);
+        if (clientProxyPropertyValue.empty())
+        {
+            throw runtime_error("property `" + clientProxyPropertyName + "' is not set");
+        }
+
+        FileServerPrx server(communicator, clientProxyPropertyValue);
+
+        PatcherPtr patcher = PatcherFactory::create(server, feedback, dataDir, thorough, chunkSize, remove);
 
         aborted = !patcher->prepare();
 
