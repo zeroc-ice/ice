@@ -42,20 +42,6 @@ IceInternal::IncomingAsync::kill(Incoming& in)
 void
 IceInternal::IncomingAsync::completed()
 {
-    for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
-    {
-        try
-        {
-            if(p->first && !p->first())
-            {
-                return;
-            }
-        }
-        catch(...)
-        {
-        }
-    }
-
     checkResponseSent();
     IncomingBase::response(true); // User thread
 }
@@ -63,20 +49,6 @@ IceInternal::IncomingAsync::completed()
 void
 IceInternal::IncomingAsync::completed(exception_ptr ex)
 {
-    for(DispatchInterceptorCallbacks::iterator p = _interceptorCBs.begin(); p != _interceptorCBs.end(); ++p)
-    {
-        try
-        {
-            if(p->second && !p->second(ex))
-            {
-                return;
-            }
-        }
-        catch(...)
-        {
-        }
-    }
-
     checkResponseSent();
     IncomingBase::exception(ex, true); // true = amd
 }

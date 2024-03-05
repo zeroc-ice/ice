@@ -101,9 +101,6 @@ protected:
     // stack-allocated Incoming still holds it.
     //
     ResponseHandler* _responseHandler;
-    using DispatchInterceptorCallbacks = std::deque<std::pair<std::function<bool()>,
-                                                              std::function<bool(std::exception_ptr)>>>;
-    DispatchInterceptorCallbacks _interceptorCBs;
 };
 
 class ICE_API Incoming final : public IncomingBase
@@ -117,16 +114,11 @@ public:
         return _current;
     }
 
-    void push(std::function<bool()>, std::function<bool(std::exception_ptr)>);
-    void pop();
-
     void setAsync(const IncomingAsyncPtr& in)
     {
         assert(!_inAsync);
         _inAsync = in;
     }
-
-    void startOver();
 
     void setFormat(Ice::FormatType format)
     {
@@ -167,8 +159,6 @@ private:
     friend class IncomingAsync;
 
     Ice::InputStream* _is;
-    std::uint8_t* _inParamPos;
-
     IncomingAsyncPtr _inAsync;
 };
 

@@ -65,8 +65,7 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& other) :
     _compress(other._compress),
     _format(other._format),
     _os(other._os.instance(), Ice::currentProtocolEncoding),
-    _responseHandler(other._responseHandler),
-    _interceptorCBs(other._interceptorCBs)
+    _responseHandler(other._responseHandler)
 {
     _observer.adopt(other._observer);
 }
@@ -505,46 +504,8 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
 
 IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection,
                                 const ObjectAdapterPtr& adapter, bool response, uint8_t compress, int32_t requestId) :
-    IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
-    _inParamPos(0)
+    IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId)
 {
-}
-
-void
-IceInternal::Incoming::push(function<bool()> response, function<bool(exception_ptr)> exception)
-{
-    _interceptorCBs.push_front(make_pair(response, exception));
-}
-
-void
-IceInternal::Incoming::pop()
-{
-    _interceptorCBs.pop_front();
-}
-
-void
-IceInternal::Incoming::startOver()
-{
-    if(_inParamPos == 0)
-    {
-        //
-        // That's the first startOver, so almost nothing to do
-        //
-        _inParamPos = _is->i;
-    }
-    else
-    {
-        // Reset input stream's position and clear response
-        if(_inAsync)
-        {
-            _inAsync->kill(*this);
-            _inAsync = 0;
-        }
-        _os.clear();
-        _os.b.clear();
-
-        _is->i = _inParamPos;
-    }
 }
 
 void
