@@ -56,21 +56,19 @@ private:
 };
 using DecompressorPtr = std::shared_ptr<Decompressor>;
 
-class PatcherI : public Patcher
+class PatcherI final : public Patcher
 {
 public:
 
-    PatcherI(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
-    PatcherI(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, int32_t, int32_t);
-    virtual ~PatcherI();
+    PatcherI(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, int32_t, int32_t);
+    ~PatcherI();
 
-    virtual bool prepare();
-    virtual bool patch(const std::string&);
-    virtual void finish();
+    bool prepare() final;
+    bool patch(const std::string&) final;
+    void finish() final;
 
 private:
 
-    void init(const FileServerPrxPtr&);
     bool removeFiles(const LargeFileInfoSeq&);
     bool updateFiles(const LargeFileInfoSeq&);
     bool updateFilesInternal(const LargeFileInfoSeq&, const DecompressorPtr&);
@@ -81,8 +79,8 @@ private:
     const bool _thorough;
     const int32_t _chunkSize;
     const int32_t _remove;
-    const FileServerPrxPtr _serverCompress;
-    const FileServerPrxPtr _serverNoCompress;
+    const FileServerPrx _serverCompress;
+    const FileServerPrx _serverNoCompress;
 
     LargeFileInfoSeq _localFiles;
     LargeFileInfoSeq _updateFiles;
@@ -192,31 +190,7 @@ Decompressor::run()
     }
 }
 
-PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
-    _feedback(feedback),
-    _dataDir(communicator->getProperties()->getPropertyWithDefault("IcePatch2Client.Directory", ".")),
-    _thorough(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Thorough", 0) > 0),
-    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.ChunkSize", 100)),
-    _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Remove", 1)),
-    _log(0)
-{
-    const char* clientProxyProperty = "IcePatch2Client.Proxy";
-    string clientProxy = communicator->getProperties()->getProperty(clientProxyProperty);
-    if(clientProxy.empty())
-    {
-        throw runtime_error("property `IcePatch2Client.Proxy' is not set");
-    }
-
-    FileServerPrxPtr server = Ice::checkedCast<FileServerPrx>(communicator->stringToProxy(clientProxy));
-    if(!server)
-    {
-        throw runtime_error("proxy `" + clientProxy + "' is not a file server.");
-    }
-
-    init(server);
-}
-
-PatcherI::PatcherI(const FileServerPrxPtr& server,
+PatcherI::PatcherI(const FileServerPrx& server,
                    const PatcherFeedbackPtr& feedback,
                    const string& dataDir,
                    bool thorough,
@@ -226,9 +200,48 @@ PatcherI::PatcherI(const FileServerPrxPtr& server,
     _dataDir(dataDir),
     _thorough(thorough),
     _chunkSize(chunkSize),
-    _remove(remove)
+    _remove(remove),
+    _serverCompress(server->ice_compress(true)),
+    _serverNoCompress(server->ice_compress(false))
 {
-    init(server);
+    if(_dataDir.empty())
+    {
+        throw runtime_error("no data directory specified");
+    }
+
+    Ice::CommunicatorPtr communicator = server->ice_getCommunicator();
+
+    const_cast<string&>(_dataDir) = simplify(_dataDir);
+
+    // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise it won't work at all.
+    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
+    if(_chunkSize < 1)
+    {
+        const_cast<int32_t&>(_chunkSize) = 1;
+    }
+    else if(_chunkSize > sizeMax)
+    {
+        const_cast<int32_t&>(_chunkSize) = sizeMax;
+    }
+
+    if(_chunkSize == sizeMax)
+    {
+        const_cast<int32_t&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
+    }
+    else
+    {
+        const_cast<int32_t&>(_chunkSize) *= 1024;
+    }
+
+    if(!IceUtilInternal::isAbsolutePath(_dataDir))
+    {
+        string cwd;
+        if(IceUtilInternal::getcwd(cwd) != 0)
+        {
+            throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
+        }
+        const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
+    }
 }
 
 PatcherI::~PatcherI()
@@ -240,12 +253,11 @@ PatcherI::~PatcherI()
     }
 }
 
-class GetFileInfoSeqAsyncCB
+class GetFileInfoSeqAsyncCB final
 {
 public:
 
     GetFileInfoSeqAsyncCB()
-
     {
         _largeFileInfoSeqFuture = _largeFileInfoSeqPromise.get_future();
     }
@@ -272,7 +284,7 @@ private:
 
 };
 
-class PatcherGetFileInfoSeqCB : public GetFileInfoSeqCB
+class PatcherGetFileInfoSeqCB final : public GetFileInfoSeqCB
 {
 public:
 
@@ -281,17 +293,17 @@ public:
     {
     }
 
-    virtual bool remove(const string&)
+    bool remove(const string&) final
     {
         return true;
     }
 
-    virtual bool checksum(const string& path)
+    bool checksum(const string& path) final
     {
         return _feedback->checksumProgress(path);
     }
 
-    virtual bool compress(const string&)
+    bool compress(const string&) final
     {
         assert(false); // Nothing must get compressed when we are patching.
         return true;
@@ -592,56 +604,6 @@ PatcherI::finish()
     saveFileInfoSeq(_dataDir, _localFiles);
 }
 
-void
-PatcherI::init(const FileServerPrxPtr& server)
-{
-    if(_dataDir.empty())
-    {
-        throw runtime_error("no data directory specified");
-    }
-
-    Ice::CommunicatorPtr communicator = server->ice_getCommunicator();
-
-    const_cast<string&>(_dataDir) = simplify(_dataDir);
-
-    //
-    // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise
-    // it won't work at all.
-    //
-    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
-    if(_chunkSize < 1)
-    {
-        const_cast<int32_t&>(_chunkSize) = 1;
-    }
-    else if(_chunkSize > sizeMax)
-    {
-        const_cast<int32_t&>(_chunkSize) = sizeMax;
-    }
-    if(_chunkSize == sizeMax)
-    {
-        const_cast<int32_t&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
-    }
-    else
-    {
-        const_cast<int32_t&>(_chunkSize) *= 1024;
-    }
-
-    if(!IceUtilInternal::isAbsolutePath(_dataDir))
-    {
-        string cwd;
-        if(IceUtilInternal::getcwd(cwd) != 0)
-        {
-            throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
-        }
-        const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
-    }
-
-    const_cast<FileServerPrxPtr&>(_serverCompress) =
-        Ice::uncheckedCast<FileServerPrx>(server->ice_compress(true));
-    const_cast<FileServerPrxPtr&>(_serverNoCompress) =
-        Ice::uncheckedCast<FileServerPrx>(server->ice_compress(false));
-}
-
 bool
 PatcherI::removeFiles(const LargeFileInfoSeq& files)
 {
@@ -759,7 +721,7 @@ private:
 };
 
 void getFileCompressed(
-    FileServerPrxPtr serverNoCompress,
+    FileServerPrx serverNoCompress,
     std::string path,
     int64_t pos,
     int chunkSize,
@@ -1012,18 +974,12 @@ PatcherI::updateFlags(const LargeFileInfoSeq& files)
 
 }
 
-PatcherPtr
-PatcherFactory::create(const Ice::CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback)
-{
-    return make_shared<PatcherI>(communicator, feedback);
-}
-
 //
 // Create a patcher with the given parameters. These parameters
 // are equivalent to the configuration properties described above.
 //
 PatcherPtr
-PatcherFactory::create(const FileServerPrxPtr& server,
+PatcherFactory::create(const FileServerPrx& server,
                        const PatcherFeedbackPtr& feedback,
                        const string& dataDir,
                        bool thorough,

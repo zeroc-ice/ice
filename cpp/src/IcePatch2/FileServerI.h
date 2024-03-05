@@ -11,7 +11,7 @@
 namespace IcePatch2
 {
 
-class FileServerI : public FileServer
+class FileServerI final : public FileServer
 {
 public:
 
@@ -20,11 +20,11 @@ public:
     FileInfoSeq getFileInfoSeq(std::int32_t, const Ice::Current&) const;
 
     LargeFileInfoSeq
-    getLargeFileInfoSeq(std::int32_t, const Ice::Current&) const;
+    getLargeFileInfoSeq(std::int32_t, const Ice::Current&) const final;
 
-    ByteSeqSeq getChecksumSeq(const Ice::Current&) const;
+    ByteSeqSeq getChecksumSeq(const Ice::Current&) const final;
 
-    Ice::ByteSeq getChecksum(const Ice::Current&) const;
+    Ice::ByteSeq getChecksum(const Ice::Current&) const final;
 
     void getFileCompressedAsync(
         std::string,
@@ -40,12 +40,11 @@ public:
         std::int32_t,
         std::function<void(const std::pair<const std::uint8_t*, const std::uint8_t*>& returnValue)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&) const;
+        const Ice::Current&) const final;
 
 private:
 
-    void
-    getFileCompressedInternal(
+    void getFileCompressedInternal(
         std::string,
         std::int64_t,
         std::int32_t,

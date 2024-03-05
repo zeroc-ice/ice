@@ -438,15 +438,10 @@ NodeI::patchAsync(
             //
             // Patch the application.
             //
-            FileServerPrxPtr icepatch;
             if(patchApplication)
             {
                 assert(!appDistrib->icepatch.empty());
-                icepatch = Ice::checkedCast<FileServerPrx>(_communicator->stringToProxy(appDistrib->icepatch));
-                if(!icepatch)
-                {
-                    throw runtime_error("proxy `" + appDistrib->icepatch + "' is not a file server.");
-                }
+                FileServerPrx icepatch(_communicator, appDistrib->icepatch);
                 patch(icepatch, "distrib/" + application, appDistrib->directories);
             }
 
@@ -458,11 +453,7 @@ NodeI::patchAsync(
                 InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
                 if(dist && (server.empty() || (*s)->getId() == server))
                 {
-                    icepatch = Ice::checkedCast<FileServerPrx>(_communicator->stringToProxy(dist->icepatch));
-                    if(!icepatch)
-                    {
-                        throw runtime_error("proxy `" + dist->icepatch + "' is not a file server.");
-                    }
+                    FileServerPrx icepatch(_communicator, dist->icepatch);
                     patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
 
                     if(!server.empty())
@@ -1129,7 +1120,7 @@ NodeI::canRemoveServerDirectory(const string& name)
 }
 
 void
-NodeI::patch(const FileServerPrxPtr& icepatch, const string& dest, const vector<string>& directories)
+NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<string>& directories)
 {
     IcePatch2::PatcherFeedbackPtr feedback = make_shared<LogPatcherFeedback>(_traceLevels, dest);
     IcePatch2Internal::createDirectory(_dataDir + "/" + dest);
