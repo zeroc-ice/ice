@@ -9,9 +9,9 @@
 using namespace std;
 
 void
-oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
+oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
 {
-    Test::MyClassPrxPtr p = Ice::uncheckedCast<Test::MyClassPrx>(proxy->ice_oneway());
+    Test::MyClassPrx p = proxy->ice_oneway();
 
     {
         p->ice_ping();

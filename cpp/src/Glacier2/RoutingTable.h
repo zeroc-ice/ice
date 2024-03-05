@@ -31,7 +31,7 @@ public:
 
     // Returns evicted proxies.
     Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&);
-    Ice::ObjectPrxPtr get(const Ice::Identity&); // Returns null if no proxy can be found.
+    std::optional<Ice::ObjectPrx> get(const Ice::Identity&); // Returns nullopt if no proxy can be found.
 
 private:
 
@@ -41,13 +41,13 @@ private:
     const std::shared_ptr<ProxyVerifier> _verifier;
 
     struct EvictorEntry;
-    using EvictorMap = std::map<Ice::Identity, std::shared_ptr<EvictorEntry>>;
+    using EvictorMap = std::map<Ice::Identity, EvictorEntry>;
     using EvictorQueue = std::list<EvictorMap::iterator>;
 
     friend struct EvictorEntry;
     struct EvictorEntry
     {
-        Ice::ObjectPrxPtr proxy;
+        Ice::ObjectPrx proxy;
         EvictorQueue::iterator pos;
     };
 

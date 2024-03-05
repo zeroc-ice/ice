@@ -13,24 +13,23 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    string ref = "DemoIceBox/admin:default -p 9996 -t 10000";
-    Ice::ObjectPrxPtr admin = communicator->stringToProxy(ref);
+    Ice::ObjectPrx admin(communicator, "DemoIceBox/admin:default -p 9996 -t 10000");
 
-    TestFacetPrxPtr facet;
+    optional<TestFacetPrx> facet;
 
     cout << "testing custom facet... " << flush;
     {
         //
         // Test: Verify that the custom facet is present.
         //
-        facet = Ice::checkedCast<Test::TestFacetPrx>(admin, "TestFacet");
+        facet = Test::TestFacetPrx(admin->ice_facet("TestFacet"));
         facet->ice_ping();
     }
     cout << "ok" << endl;
 
     cout << "testing properties facet... " << flush;
     {
-        auto pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.Service.TestService.Properties");
+        Ice::PropertiesAdminPrx pa(admin->ice_facet("IceBox.Service.TestService.Properties"));
         //
         // Test: PropertiesAdmin::getProperty()
         //
@@ -81,8 +80,8 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing metrics admin facet... " << flush;
     {
-        auto ma = Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "IceBox.Service.TestService.Metrics");
-        auto pa = Ice::checkedCast<Ice::PropertiesAdminPrx>(admin, "IceBox.Service.TestService.Properties");
+        IceMX::MetricsAdminPrx ma(admin->ice_facet("IceBox.Service.TestService.Metrics"));
+        Ice::PropertiesAdminPrx pa(admin->ice_facet("IceBox.Service.TestService.Properties"));
         Ice::StringSeq views;
         Ice::StringSeq disabledViews;
         views = ma->getMetricsViewNames(disabledViews);
@@ -99,7 +98,7 @@ allTests(Test::TestHelper* helper)
         test(views.size() == 3);
 
         // Make sure that the IceBox communicator metrics admin is a separate instance.
-        test(Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics")->getMetricsViewNames(disabledViews).empty());
+        test(IceMX::MetricsAdminPrx(admin->ice_facet("Metrics"))->getMetricsViewNames(disabledViews).empty());
     }
     cout << "ok" << endl;
 }

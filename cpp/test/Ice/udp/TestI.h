@@ -7,14 +7,14 @@
 
 #include <Test.h>
 
-class TestIntfI : public Test::TestIntf
+class TestIntfI final : public Test::TestIntf
 {
 public:
 
-    virtual void ping(Test::PingReplyPrxPtr, const Ice::Current&);
-    virtual void sendByteSeq(Test::ByteSeq, Test::PingReplyPrxPtr, const Ice::Current&);
-    virtual void pingBiDir(Ice::Identity, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void ping(std::optional<Test::PingReplyPrx>, const Ice::Current&) final;
+    void sendByteSeq(Test::ByteSeq, std::optional<Test::PingReplyPrx>, const Ice::Current&) final;
+    void pingBiDir(Ice::Identity, const Ice::Current&) final;
+    void shutdown(const Ice::Current&) final;
 };
 
 #endif

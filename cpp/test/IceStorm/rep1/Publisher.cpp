@@ -23,7 +23,8 @@ public:
 void
 Publisher::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    auto communicator = ich.communicator();
     IceUtilInternal::Options opts;
     opts.addOpt("", "cycle");
 
@@ -38,8 +39,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    auto properties = communicator->getProperties();
-    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    auto managerProxy = communicator->getProperties()->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
         ostringstream os;
@@ -47,16 +47,8 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
-        communicator->stringToProxy(managerProxy));
-    if(!manager)
-    {
-        ostringstream os;
-        os << argv[0] << ": `" << managerProxy << "' is not running";
-        throw invalid_argument(os.str());
-    }
-
-    TopicPrxPtr topic;
+    IceStorm::TopicManagerPrx manager(communicator, managerProxy);
+    optional<TopicPrx> topic;
     while(true)
     {
         try
@@ -85,8 +77,8 @@ Publisher::run(int argc, char** argv)
     //
     if(opts.isSet("cycle"))
     {
-        auto prx = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
-        vector<SinglePrxPtr> single;
+        optional<SinglePrx> prx(topic->getPublisher()->ice_twoway());
+        vector<optional<SinglePrx>> single;
         auto endpoints = prx->ice_getEndpoints();
         for(const auto& p: endpoints)
         {
@@ -112,7 +104,7 @@ Publisher::run(int argc, char** argv)
     }
     else
     {
-        auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway());
+        SinglePrx single(topic->getPublisher()->ice_twoway());
         for(int i = 0; i < 1000; ++i)
         {
             single->event(i);

@@ -31,18 +31,16 @@ SessionControlClient::run(int argc, char** argv)
     properties->setProperty("Ice.RetryIntervals", "-1");
     properties->setProperty("Ice.Warn.Connections", "0");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
+    auto communicator = ich.communicator();
 
-    cout << "getting router... " << flush;
-    auto routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-    auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
-    test(router);
+    cout << "setting router... " << flush;
+    Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint(50));
     communicator->setDefaultRouter(router);
     cout << "ok" << endl;
 
     cout << "creating session... " << flush;
-    auto sessionBase = router->createSession("userid", "abc123");
-    auto session = uncheckedCast<Test::SessionPrx>(sessionBase);
+    optional<Test::SessionPrx> session(router->createSession("userid", "abc123"));
     test(session);
     cout << "ok" << endl;
 
@@ -85,12 +83,10 @@ SessionControlClient::run(int argc, char** argv)
     cout << "ok" << endl;
 
     cout << "testing shutdown... " << flush;
-    session = uncheckedCast<Test::SessionPrx>(router->createSession("userid", "abc123"));
+    session = optional<Test::SessionPrx>(router->createSession("userid", "abc123"));
     session->shutdown();
     communicator->setDefaultRouter(nullopt);
-    auto processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-    auto process = checkedCast<Ice::ProcessPrx>(processBase);
-    test(process);
+    Ice::ProcessPrx process(communicator, "Glacier2/admin -f Process:" + getTestEndpoint(51));
     process->shutdown();
     try
     {

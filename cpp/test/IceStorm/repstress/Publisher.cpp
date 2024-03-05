@@ -28,7 +28,7 @@ class PublishThread final
 {
 public:
 
-    explicit PublishThread(SinglePrxPtr single) :
+    explicit PublishThread(SinglePrx single) :
         _single(std::move(single)),
         _published(0),
         _destroy(false)
@@ -70,7 +70,7 @@ public:
 
 private:
 
-    const SinglePrxPtr _single;
+    const SinglePrx _single;
     int _published;
     bool _destroy;
     mutex _mutex;
@@ -86,7 +86,8 @@ public:
 void
 Publisher::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    auto communicator = ich.communicator();
     auto properties = communicator->getProperties();
     string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
@@ -96,14 +97,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
-        communicator->stringToProxy(managerProxy));
-    if(!manager)
-    {
-        ostringstream os;
-        os << argv[0] << ": `" << managerProxy << "' is not running";
-        throw invalid_argument(os.str());
-    }
+    IceStorm::TopicManagerPrx manager(communicator, managerProxy);
 
     auto topic = manager->retrieve("single");
     assert(topic);
@@ -112,7 +106,7 @@ Publisher::run(int argc, char** argv)
     // Get a publisher object, create a twoway proxy, disable
     // connection caching and then cast to a Single object.
     //
-    auto single = uncheckedCast<SinglePrx>(topic->getPublisher()->ice_twoway()->ice_connectionCached(false));
+    SinglePrx single(topic->getPublisher()->ice_twoway()->ice_connectionCached(false));
     auto adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "tcp");
     auto controller = adapter->addWithUUID(make_shared<ControllerI>());
     adapter->activate();

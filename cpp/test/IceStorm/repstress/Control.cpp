@@ -20,7 +20,7 @@ public:
 void
 Control::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
     if(argc < 2)
     {
         ostringstream os;
@@ -28,7 +28,7 @@ Control::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    auto control = uncheckedCast<ControllerPrx>(communicator->stringToProxy(argv[1]));
+    ControllerPrx control(ich.communicator(), argv[1]);
     control->stop();
 }
 

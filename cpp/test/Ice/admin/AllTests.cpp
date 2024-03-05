@@ -483,7 +483,7 @@ allTests(Test::TestHelper* helper)
 
         RemoteLoggerIPtr remoteLogger = std::make_shared<RemoteLoggerI>();
 
-        auto myProxy = uncheckedCast<RemoteLoggerPrx>(adapter->addWithUUID(remoteLogger));
+        RemoteLoggerPrx myProxy(adapter->addWithUUID(remoteLogger));
 
         adapter->activate();
 

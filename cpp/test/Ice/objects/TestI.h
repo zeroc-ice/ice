@@ -105,7 +105,10 @@ public:
     Test::MPtr opM(Test::MPtr, Test::MPtr&, const Ice::Current&) final;
 
     Test::F1Ptr opF1(Test::F1Ptr, Test::F1Ptr&, const Ice::Current&) final;
-    Test::F2PrxPtr opF2(Test::F2PrxPtr, Test::F2PrxPtr&, const Ice::Current&) final;
+    std::optional<Test::F2Prx> opF2(
+        std::optional<Test::F2Prx>,
+        std::optional<Test::F2Prx>&,
+        const Ice::Current&) final;
     Test::F3Ptr opF3(Test::F3Ptr, Test::F3Ptr&, const Ice::Current&) final;
     bool hasF3(const Ice::Current&) final;
 

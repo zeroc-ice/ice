@@ -25,16 +25,6 @@ IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const LargeFileI
     getFileTree0(infoSeq, tree0);
 }
 
-FileInfoSeq
-IcePatch2::FileServerI::getFileInfoSeq(int32_t node0, const Current& c) const
-{
-   LargeFileInfoSeq largeFiles = getLargeFileInfoSeq(node0, c);
-   FileInfoSeq files;
-   files.resize(largeFiles.size());
-   transform(largeFiles.begin(), largeFiles.end(), files.begin(), toFileInfo);
-   return files;
-}
-
 LargeFileInfoSeq
 IcePatch2::FileServerI::getLargeFileInfoSeq(int32_t node0, const Current&) const
 {
@@ -63,34 +53,6 @@ ByteSeq
 IcePatch2::FileServerI::getChecksum(const Current&) const
 {
     return _tree0.checksum;
-}
-
-void
-IcePatch2::FileServerI::getFileCompressedAsync(
-    string pa,
-    int32_t pos,
-    int32_t num,
-    function<void(const pair<const ::uint8_t*, const ::uint8_t*>& returnValue)> response,
-    function<void(exception_ptr)> exception,
-    const Current&) const
-{
-    try
-    {
-        vector<uint8_t> buffer;
-        getFileCompressedInternal(std::move(pa), pos, num, buffer, false);
-        if(buffer.empty())
-        {
-            response(make_pair<const uint8_t*, const uint8_t*>(0, 0));
-        }
-        else
-        {
-            response(make_pair<const uint8_t*, const uint8_t*>(&buffer[0], &buffer[0] + buffer.size()));
-        }
-    }
-    catch(const std::exception&)
-    {
-        exception(current_exception());
-    }
 }
 
 void

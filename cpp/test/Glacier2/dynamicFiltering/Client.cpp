@@ -29,7 +29,8 @@ SessionControlClient::run(int argc, char** argv)
     properties->setProperty("Ice.RetryIntervals", "-1");
     properties->setProperty("Ice.Warn.Connections", "0");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
+    auto communicator = ich.communicator();
 
     //
     // We initialize the controller on a separate port because we want
@@ -92,7 +93,7 @@ SessionControlClient::run(int argc, char** argv)
 
         if(currentState.expectedResult)
         {
-            auto prx = uncheckedCast<BackendPrx>(communicator->stringToProxy(currentState.testReference));
+            BackendPrx prx(communicator, currentState.testReference);
             try
             {
                 prx->check();
@@ -105,7 +106,7 @@ SessionControlClient::run(int argc, char** argv)
         }
         else
         {
-            auto prx = uncheckedCast<BackendPrx>(communicator->stringToProxy(currentState.testReference));
+            BackendPrx prx(communicator, currentState.testReference);
             try
             {
                 prx->check();
@@ -134,7 +135,7 @@ SessionControlClient::run(int argc, char** argv)
         //
         // Shut down the test server.
         //
-        currentSession = uncheckedCast<Test::TestSessionPrx>(router->createSession("userid", "abc123"));
+        currentSession = optional<Test::TestSessionPrx>(router->createSession("userid", "abc123"));
         currentSession->shutdown();
     }
     catch(const Glacier2::CannotCreateSessionException& ex)
@@ -147,9 +148,7 @@ SessionControlClient::run(int argc, char** argv)
     // Shut down the router.
     //
     communicator->setDefaultRouter(nullopt);
-    auto processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-    auto process = checkedCast<Ice::ProcessPrx>(processBase);
-    test(process);
+    Ice::ProcessPrx process(communicator, "Glacier2/admin -f Process:" + getTestEndpoint(51));
     process->shutdown();
     try
     {
