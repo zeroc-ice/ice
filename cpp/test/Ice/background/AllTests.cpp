@@ -146,8 +146,8 @@ allTests(TestHelper* helper)
         auto f1 = p1.get_future();
         auto f2 = p2.get_future();
 
-        test(f1.wait_for(chrono::milliseconds(10)) != future_status::ready);
-        test(f2.wait_for(chrono::milliseconds(10)) != future_status::ready);
+        test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
+        test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
 
         backgroundController->resumeCall("findAdapterById");
 
