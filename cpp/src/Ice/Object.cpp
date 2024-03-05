@@ -57,7 +57,7 @@ Ice::Object::ice_staticId()
 }
 
 bool
-Ice::Object::_iceD_ice_isA(Incoming& inS, const Current& current)
+Ice::Object::_iceD_ice_isA(IncomingBase& inS, const Current& current)
 {
     InputStream* istr = inS.startReadParams();
     string iceP_id;
@@ -71,7 +71,7 @@ Ice::Object::_iceD_ice_isA(Incoming& inS, const Current& current)
 }
 
 bool
-Ice::Object::_iceD_ice_ping(Incoming& inS, const Current& current)
+Ice::Object::_iceD_ice_ping(IncomingBase& inS, const Current& current)
 {
     inS.readEmptyParams();
     ice_ping(current);
@@ -80,7 +80,7 @@ Ice::Object::_iceD_ice_ping(Incoming& inS, const Current& current)
 }
 
 bool
-Ice::Object::_iceD_ice_ids(Incoming& inS, const Current& current)
+Ice::Object::_iceD_ice_ids(IncomingBase& inS, const Current& current)
 {
     inS.readEmptyParams();
     vector<string> ret = ice_ids(current);
@@ -98,7 +98,7 @@ Ice::Object::_iceD_ice_ids(Incoming& inS, const Current& current)
 }
 
 bool
-Ice::Object::_iceD_ice_id(Incoming& inS, const Current& current)
+Ice::Object::_iceD_ice_id(IncomingBase& inS, const Current& current)
 {
     inS.readEmptyParams();
     string ret = ice_id(current);
@@ -109,7 +109,7 @@ Ice::Object::_iceD_ice_id(Incoming& inS, const Current& current)
 }
 
 bool
-Ice::Object::_iceDispatch(Incoming& in, const Current& current)
+Ice::Object::_iceDispatch(IncomingBase& in, const Current& current)
 {
     static constexpr string_view allOperations[] =
     {
@@ -203,7 +203,7 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 }
 
 bool
-Ice::Blobject::_iceDispatch(Incoming& in, const Current& current)
+Ice::Blobject::_iceDispatch(IncomingBase& in, const Current& current)
 {
     const uint8_t* inEncaps;
     int32_t sz;
@@ -222,7 +222,7 @@ Ice::Blobject::_iceDispatch(Incoming& in, const Current& current)
 }
 
 bool
-Ice::BlobjectArray::_iceDispatch(Incoming& in, const Current& current)
+Ice::BlobjectArray::_iceDispatch(IncomingBase& in, const Current& current)
 {
     pair<const uint8_t*, const uint8_t*> inEncaps;
     int32_t sz;
@@ -242,7 +242,7 @@ Ice::BlobjectArray::_iceDispatch(Incoming& in, const Current& current)
 }
 
 bool
-Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
+Ice::BlobjectAsync::_iceDispatch(IncomingBase& in, const Current& current)
 {
     const uint8_t* inEncaps;
     int32_t sz;
@@ -266,7 +266,7 @@ Ice::BlobjectAsync::_iceDispatch(Incoming& in, const Current& current)
 }
 
 bool
-Ice::BlobjectArrayAsync::_iceDispatch(Incoming& in, const Current& current)
+Ice::BlobjectArrayAsync::_iceDispatch(IncomingBase& in, const Current& current)
 {
     pair<const uint8_t*, const uint8_t*> inEncaps;
     int32_t sz;

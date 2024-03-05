@@ -46,7 +46,8 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandlerPtr r
     _compress(compress),
     _format(Ice::FormatType::DefaultFormat),
     _os(instance, Ice::currentProtocolEncoding),
-    _responseHandler(std::move(responseHandler))
+    _responseHandler(std::move(responseHandler)),
+    _is(nullptr)
 {
     _current.adapter = adapter;
     ::Ice::ConnectionI* conn = dynamic_cast<::Ice::ConnectionI*>(connection);
@@ -502,14 +503,8 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
     _responseHandler = 0;
 }
 
-IceInternal::Incoming::Incoming(Instance* instance, ResponseHandlerPtr responseHandler, Ice::Connection* connection,
-                                const ObjectAdapterPtr& adapter, bool response, uint8_t compress, int32_t requestId) :
-    IncomingBase(instance, std::move(responseHandler), connection, adapter, response, compress, requestId)
-{
-}
-
 void
-IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
+IceInternal::IncomingBase::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
 {
     _is = stream;
 

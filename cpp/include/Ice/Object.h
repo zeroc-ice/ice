@@ -15,7 +15,7 @@
 namespace IceInternal
 {
 
-class Incoming;
+class IncomingBase;
 class Direct;
 
 }
@@ -63,7 +63,7 @@ public:
      */
     virtual bool ice_isA(std::string s, const Current& current) const;
     /// \cond INTERNAL
-    bool _iceD_ice_isA(IceInternal::Incoming&, const Current&);
+    bool _iceD_ice_isA(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 
     /**
@@ -72,7 +72,7 @@ public:
      */
     virtual void ice_ping(const Current& current) const;
     /// \cond INTERNAL
-    bool _iceD_ice_ping(IceInternal::Incoming&, const Current&);
+    bool _iceD_ice_ping(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 
     /**
@@ -82,7 +82,7 @@ public:
      */
     virtual std::vector< std::string> ice_ids(const Current& current) const;
     /// \cond INTERNAL
-    bool _iceD_ice_ids(IceInternal::Incoming&, const Current&);
+    bool _iceD_ice_ids(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 
     /**
@@ -92,7 +92,7 @@ public:
      */
     virtual std::string ice_id(const Current& current) const;
     /// \cond INTERNAL
-    bool _iceD_ice_id(IceInternal::Incoming&, const Current&);
+    bool _iceD_ice_id(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 
     /**
@@ -102,7 +102,7 @@ public:
     static std::string_view ice_staticId();
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    virtual bool _iceDispatch(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 
 protected:
@@ -136,7 +136,7 @@ public:
     virtual bool ice_invoke(std::vector<std::uint8_t> inEncaps, std::vector<std::uint8_t>& outEncaps, const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    virtual bool _iceDispatch(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 };
 
@@ -165,7 +165,7 @@ public:
                             const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    virtual bool _iceDispatch(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 };
 
@@ -197,7 +197,7 @@ public:
                                  const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    virtual bool _iceDispatch(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 };
 
@@ -228,7 +228,7 @@ public:
                                  std::function<void(std::exception_ptr)> error,
                                  const Current& current) = 0;
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    virtual bool _iceDispatch(IceInternal::IncomingBase&, const Current&);
     /// \endcond
 };
 

@@ -348,7 +348,7 @@ CollocatedRequestHandler::invokeAll(OutputStream* os, int32_t requestId, int32_t
                 break;
             }
 
-            Incoming in(_reference->getInstance().get(), shared_from_this(), nullptr, _adapter, _response, 0, requestId);
+            IncomingBase in(_reference->getInstance().get(), shared_from_this(), nullptr, _adapter, _response, 0, requestId);
             in.invoke(servantManager, &is);
             --invokeNum;
         }

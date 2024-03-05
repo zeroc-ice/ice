@@ -3420,7 +3420,7 @@ Ice::ConnectionI::invokeAll(InputStream& stream, int32_t invokeNum, int32_t requ
             bool response = !_endpoint->datagram() && requestId != 0;
             assert(!response || invokeNum == 1);
 
-            Incoming in(_instance.get(), shared_from_this(), this, adapter, response, compress, requestId);
+            IncomingBase in(_instance.get(), shared_from_this(), this, adapter, response, compress, requestId);
 
             //
             // Dispatch the invocation.

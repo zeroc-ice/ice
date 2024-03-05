@@ -19,13 +19,13 @@ class ICE_API IncomingRequest : public Ice::Request
 {
 public:
 
-    IncomingRequest(Incoming& in) : _in(in)
+    IncomingRequest(IncomingBase& in) : _in(in)
     {
     }
 
     virtual const Ice::Current& getCurrent();
 
-    Incoming& _in;
+    IncomingBase& _in;
 };
 
 }

@@ -18,13 +18,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
+IceInternal::IncomingAsync::IncomingAsync(IncomingBase& in) :
     IncomingBase(in)
 {
 }
 
 shared_ptr<IncomingAsync>
-IceInternal::IncomingAsync::create(Incoming& in)
+IceInternal::IncomingAsync::create(IncomingBase& in)
 {
     auto async = make_shared<IncomingAsync>(in);
     in.setAsync(async);
@@ -32,7 +32,7 @@ IceInternal::IncomingAsync::create(Incoming& in)
 }
 
 void
-IceInternal::IncomingAsync::kill(Incoming& in)
+IceInternal::IncomingAsync::kill(IncomingBase& in)
 {
     checkResponseSent();
     in._observer.adopt(_observer); // Give back the observer to incoming.

@@ -17,9 +17,9 @@ class ICE_API IncomingAsync final : public IncomingBase, public std::enable_shar
 {
 public:
 
-    IncomingAsync(Incoming&);
+    IncomingAsync(IncomingBase&);
 
-    static std::shared_ptr<IncomingAsync> create(Incoming&);
+    static std::shared_ptr<IncomingAsync> create(IncomingBase&);
 
     std::function<void()> response()
     {
@@ -45,7 +45,7 @@ public:
         return [self = shared_from_this()](std::exception_ptr ex) { self->completed(ex); };
     }
 
-    void kill(Incoming&);
+    void kill(IncomingBase&);
 
     void completed();
 

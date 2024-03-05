@@ -64,6 +64,8 @@ class ICE_API IncomingBase
 {
 public:
 
+    IncomingBase(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
+
     Ice::OutputStream* startWriteParams();
     void endWriteParams();
     void writeEmptyParams();
@@ -72,38 +74,6 @@ public:
 
     void response(bool);
     void exception(std::exception_ptr, bool);
-
-protected:
-
-    IncomingBase(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
-    IncomingBase(IncomingBase&);
-    IncomingBase(const IncomingBase&) = delete;
-
-    void warning(const Ice::Exception&) const;
-    void warning(std::exception_ptr) const;
-
-    bool servantLocatorFinished(bool);
-
-    void handleException(std::exception_ptr, bool);
-
-    Ice::Current _current;
-    std::shared_ptr<Ice::Object> _servant;
-    std::shared_ptr<Ice::ServantLocator> _locator;
-    ::std::shared_ptr<void> _cookie;
-    DispatchObserver _observer;
-    bool _response;
-    std::uint8_t _compress;
-    Ice::FormatType _format;
-    Ice::OutputStream _os;
-
-    ResponseHandlerPtr _responseHandler;
-};
-
-class ICE_API Incoming final : public IncomingBase
-{
-public:
-
-    Incoming(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
 
     const Ice::Current& getCurrent()
     {
@@ -150,10 +120,33 @@ public:
         _current.encoding = _is->readEncapsulation(v, sz);
     }
 
-private:
+protected:
+
+    IncomingBase(IncomingBase&);
+    IncomingBase(const IncomingBase&) = delete;
+
+    void warning(const Ice::Exception&) const;
+    void warning(std::exception_ptr) const;
+
+    bool servantLocatorFinished(bool);
+
+    void handleException(std::exception_ptr, bool);
+
+    Ice::Current _current;
+    std::shared_ptr<Ice::Object> _servant;
+    std::shared_ptr<Ice::ServantLocator> _locator;
+    ::std::shared_ptr<void> _cookie;
+    DispatchObserver _observer;
+    bool _response;
+    std::uint8_t _compress;
+    Ice::FormatType _format;
+    Ice::OutputStream _os;
+
+    ResponseHandlerPtr _responseHandler;
 
     friend class IncomingAsync;
 
+    // _is points to an object allocated on the stack of the dispatch thread.
     Ice::InputStream* _is;
     IncomingAsyncPtr _inAsync;
 };

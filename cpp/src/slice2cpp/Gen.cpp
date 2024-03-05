@@ -2863,14 +2863,14 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
         H << sp;
         H << nl << "/// \\cond INTERNAL";
-        H << nl << "virtual bool _iceDispatch(::IceInternal::Incoming&, const "
+        H << nl << "virtual bool _iceDispatch(::IceInternal::IncomingBase&, const "
           << getUnqualified("::Ice::Current&", scope) << ") override;";
         H << nl << "/// \\endcond";
 
         C << sp;
         C << nl << "/// \\cond INTERNAL";
         C << nl << "bool";
-        C << nl << scoped.substr(2) << "::_iceDispatch(::IceInternal::Incoming& in, const "
+        C << nl << scoped.substr(2) << "::_iceDispatch(::IceInternal::IncomingBase& in, const "
           << getUnqualified("::Ice::Current&", scope) << " current)";
         C << sb;
 
@@ -3107,7 +3107,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl << deprecateSymbol << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "/// \\cond INTERNAL";
-    H << nl << "bool _iceD_" << name << "(::IceInternal::Incoming&, const "
+    H << nl << "bool _iceD_" << name << "(::IceInternal::IncomingBase&, const "
       << getUnqualified("::Ice::Current&", interfaceScope) << ")" << isConst << ';';
     H << nl << "/// \\endcond";
 
@@ -3115,7 +3115,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     C << nl << "/// \\cond INTERNAL";
     C << nl << "bool";
     C << nl << scope.substr(2);
-    C << "_iceD_" << name << "(::IceInternal::Incoming& inS, const "
+    C << "_iceD_" << name << "(::IceInternal::IncomingBase& inS, const "
       << getUnqualified("::Ice::Current&", interfaceScope) << " current)" << isConst;
     C << sb;
     C << nl << "_iceCheckMode(" << getUnqualified(operationModeToString(p->mode()), interfaceScope)
