@@ -75,8 +75,8 @@ public:
         function<void(exception_ptr)>,
         const Ice::Current&) final;
 
-    void foundLocator(const Ice::LocatorPrxPtr&);
-    void invoke(const Ice::LocatorPrxPtr&, const RequestPtr&);
+    void foundLocator(const optional<Ice::LocatorPrx>&);
+    void invoke(const optional<Ice::LocatorPrx>&, const RequestPtr&);
 
     vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&);
 
@@ -86,7 +86,7 @@ private:
 
     void runTimerTask() final;
 
-    LookupPrxPtr _lookup;
+    LookupPrx _lookup;
     vector<pair<LookupPrx, LookupReplyPrx>> _lookups;
     chrono::milliseconds _timeout;
     int _retryCount;
@@ -119,7 +119,7 @@ public:
     {
     }
 
-    void foundLocator(Ice::LocatorPrxPtr, const Ice::Current&) final;
+    void foundLocator(optional<Ice::LocatorPrx>, const Ice::Current&) final;
 
 private:
 
