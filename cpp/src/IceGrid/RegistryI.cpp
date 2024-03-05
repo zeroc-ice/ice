@@ -571,8 +571,8 @@ RegistryI::startImpl()
     }
     catch(const std::exception& ex)
     {
-        ServiceError err(this);
-        err << "unable to setup null permissions verifier:\n" << ex;
+        Error out(_communicator->getLogger());
+        out << "unable to setup null permissions verifier:\n" << ex;
         return false;
     }
 
