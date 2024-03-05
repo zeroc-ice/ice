@@ -442,13 +442,6 @@ Ice::CommunicatorI::create(const InitializationData& initData)
     try
     {
         const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, initData);
-
-        //
-        // Keep a reference to the dynamic library list to ensure
-        // the libraries are not unloaded until this Communicator's
-        // destructor is invoked.
-        //
-        const_cast<DynamicLibraryListPtr&>(communicator->_dynamicLibraryList) = communicator->_instance->dynamicLibraryList();
     }
     catch(...)
     {
