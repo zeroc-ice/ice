@@ -113,12 +113,12 @@ class ICEPATCH2_API PatcherFactory
 public:
 
     /// Create a patcher with the given parameters.
-    /// @server The proxy to the IcePath2 server.
-    /// @feedback The feedback object to use to report progress.
-    /// @dataDir The local data directory to patch.
-    /// @thorough If true, a thorough patch is performed and IcePatch2 client recomputes all checksums.
-    /// @chunkSize The size (in kilobytes) of the chunks to use when downloading files.
-    /// @remove Whether to delete files that exist locally, but not on the server. A negative or zero value prevents
+    /// @param server The proxy to the IcePath2 server.
+    /// @param feedback The feedback object to use to report progress.
+    /// @param dataDir The local data directory to patch.
+    /// @param thorough If true, a thorough patch is performed and IcePatch2 client recomputes all checksums.
+    /// @param chunkSize The size (in kilobytes) of the chunks to use when downloading files.
+    /// @param remove Whether to delete files that exist locally, but not on the server. A negative or zero value prevents
     /// removal of files. A value of 1 enables removal and causes the client to halt with an error if removal of a file
     /// fails. A value of 2 or greater also enables removal, but causes the client to silently ignore errors during
     /// removal.
