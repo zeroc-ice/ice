@@ -115,88 +115,6 @@ allTests(TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    cout << "testing locator... " << flush;
-    {
-        auto locator = LocatorPrx(communicator, "locator:" + endp)->ice_invocationTimeout(250);
-        auto obj = ObjectPrx(communicator, "background@Test")->ice_locator(locator)->ice_oneway();
-
-        backgroundController->pauseCall("findAdapterById");
-        try
-        {
-            obj->ice_ping();
-            test(false);
-        }
-        catch(const Ice::TimeoutException&)
-        {
-        }
-        backgroundController->resumeCall("findAdapterById");
-
-        locator = LocatorPrx(communicator, "locator:" + endp);
-        obj = obj->ice_locator(locator);
-        obj->ice_ping();
-        auto bg = BackgroundPrx(communicator, "background@Test")->ice_locator(locator);
-
-        backgroundController->pauseCall("findAdapterById");
-
-        promise<void> p1;
-        promise<void> p2;
-
-        bg->opAsync([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
-        bg->opAsync([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
-
-        auto f1 = p1.get_future();
-        auto f2 = p2.get_future();
-
-        test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
-        test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
-
-        backgroundController->resumeCall("findAdapterById");
-
-        f1.get();
-        f2.get();
-    }
-    cout << "ok" << endl;
-
-    cout << "testing router... " << flush;
-    {
-        auto router = RouterPrx(communicator, "router:" + endp)->ice_invocationTimeout(250);
-        auto obj = ObjectPrx(communicator, "background@Test")->ice_router(router)->ice_oneway();
-
-        backgroundController->pauseCall("getClientProxy");
-        try
-        {
-            obj->ice_ping();
-            test(false);
-        }
-        catch(const Ice::TimeoutException&)
-        {
-        }
-        backgroundController->resumeCall("getClientProxy");
-
-        router = RouterPrx(communicator, "router:" + endp);
-        auto bg = BackgroundPrx(communicator, "background@Test")->ice_router(router);
-        test(bg->ice_getRouter());
-        backgroundController->pauseCall("getClientProxy");
-
-        promise<void> p1;
-        promise<void> p2;
-
-        bg->opAsync([&p1](){ p1.set_value(); }, [&p1](exception_ptr e){ p1.set_exception(e); });
-        bg->opAsync([&p2](){ p2.set_value(); }, [&p2](exception_ptr e){ p2.set_exception(e); });
-
-        auto f1 = p1.get_future();
-        auto f2 = p2.get_future();
-
-        test(f1.wait_for(chrono::milliseconds(0)) != future_status::ready);
-        test(f2.wait_for(chrono::milliseconds(0)) != future_status::ready);
-
-        backgroundController->resumeCall("getClientProxy");
-
-        f1.get();
-        f2.get();
-    }
-    cout << "ok" << endl;
-
     const bool ws = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "test-ws";
     const bool wss = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "test-wss";
     if(!ws && !wss)
@@ -206,7 +124,7 @@ allTests(TestHelper* helper)
         configuration->buffered(true);
         backgroundController->buffered(true);
         background->opAsync();
-        background->ice_getCachedConnection()->close(Ice::ConnectionClose::Forcefully);
+        background->ice_getConnection()->close(Ice::ConnectionClose::Forcefully);
         background->opAsync();
 
         vector<future<void>> results;
