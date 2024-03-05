@@ -4,7 +4,7 @@
 
 #include <Ice/UUID.h>
 #include <Ice/ObjectAdapterI.h>
-#include <Ice/CommunicatorI.h>
+#include <Ice/Communicator.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>

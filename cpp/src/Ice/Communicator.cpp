@@ -2,11 +2,17 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Communicator.h>
+#include "Ice/Communicator.h"
+#include "CommunicatorFlushBatchAsync.h"
+#include "Instance.h"
+#include "ObjectAdapterFactory.h"
+#include "ProxyFactory.h"
+#include "ReferenceFactory.h"
+#include "ThreadPool.h"
 
-Ice::Communicator::~Communicator()
-{
-}
+using namespace std;
+using namespace Ice;
+using namespace IceInternal;
 
 void
 Ice::Communicator::flushBatchRequests(CompressBatch compress)
@@ -29,4 +35,298 @@ Ice::Communicator::flushBatchRequestsAsync(CompressBatch compress)
             promise->set_value();
         });
     return promise->get_future();
+}
+
+void
+Ice::Communicator::destroy() noexcept
+{
+    if(_instance)
+    {
+        _instance->destroy();
+    }
+}
+
+void
+Ice::Communicator::shutdown() noexcept
+{
+    try
+    {
+        _instance->objectAdapterFactory()->shutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
+}
+
+void
+Ice::Communicator::waitForShutdown() noexcept
+{
+    try
+    {
+        _instance->objectAdapterFactory()->waitForShutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        // Ignore
+    }
+}
+
+bool
+Ice::Communicator::isShutdown() const noexcept
+{
+    try
+    {
+        return _instance->objectAdapterFactory()->isShutdown();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+        return true;
+    }
+}
+
+std::optional<ObjectPrx>
+Ice::Communicator::stringToProxy(const string& s) const
+{
+    return _instance->proxyFactory()->stringToProxy(s);
+}
+
+string
+Ice::Communicator::proxyToString(const std::optional<ObjectPrx>& proxy) const
+{
+    return _instance->proxyFactory()->proxyToString(proxy);
+}
+
+std::optional<ObjectPrx>
+Ice::Communicator::propertyToProxy(const string& p) const
+{
+    return _instance->proxyFactory()->propertyToProxy(p);
+}
+
+PropertyDict
+Ice::Communicator::proxyToProperty(const std::optional<ObjectPrx>& proxy, const string& property) const
+{
+    return _instance->proxyFactory()->proxyToProperty(proxy, property);
+}
+
+string
+Ice::Communicator::identityToString(const Identity& ident) const
+{
+    return Ice::identityToString(ident, _instance->toStringMode());
+}
+
+ObjectAdapterPtr
+Ice::Communicator::createObjectAdapter(const string& name)
+{
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, nullopt);
+}
+
+ObjectAdapterPtr
+Ice::Communicator::createObjectAdapterWithEndpoints(const string& name, const string& endpoints)
+{
+    string oaName = name;
+    if(oaName.empty())
+    {
+        oaName = Ice::generateUUID();
+    }
+
+    getProperties()->setProperty(oaName + ".Endpoints", endpoints);
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, nullopt);
+}
+
+ObjectAdapterPtr
+Ice::Communicator::createObjectAdapterWithRouter(const string& name, const RouterPrx& router)
+{
+    string oaName = name;
+    if(oaName.empty())
+    {
+        oaName = Ice::generateUUID();
+    }
+
+    PropertyDict properties = proxyToProperty(router, oaName + ".Router");
+    for(PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+    {
+        getProperties()->setProperty(p->first, p->second);
+    }
+
+    return _instance->objectAdapterFactory()->createObjectAdapter(oaName, router);
+}
+
+PropertiesPtr
+Ice::Communicator::getProperties() const noexcept
+{
+    return _instance->initializationData().properties;
+}
+
+LoggerPtr
+Ice::Communicator::getLogger() const noexcept
+{
+    return _instance->initializationData().logger;
+}
+
+Ice::Instrumentation::CommunicatorObserverPtr
+Ice::Communicator::getObserver() const noexcept
+{
+    return _instance->initializationData().observer;
+}
+
+std::optional<RouterPrx>
+Ice::Communicator::getDefaultRouter() const
+{
+    return _instance->referenceFactory()->getDefaultRouter();
+}
+
+void
+Ice::Communicator::setDefaultRouter(const std::optional<RouterPrx>& router)
+{
+    _instance->setDefaultRouter(router);
+}
+
+optional<LocatorPrx>
+Ice::Communicator::getDefaultLocator() const
+{
+    return _instance->referenceFactory()->getDefaultLocator();
+}
+
+void
+Ice::Communicator::setDefaultLocator(const optional<LocatorPrx>& locator)
+{
+    _instance->setDefaultLocator(locator);
+}
+
+Ice::ImplicitContextPtr
+Ice::Communicator::getImplicitContext() const noexcept
+{
+    return _instance->getImplicitContext();
+}
+
+PluginManagerPtr
+Ice::Communicator::getPluginManager() const
+{
+    return _instance->pluginManager();
+}
+
+ValueFactoryManagerPtr
+Ice::Communicator::getValueFactoryManager() const noexcept
+{
+    return _instance->initializationData().valueFactoryManager;
+}
+
+#ifdef ICE_SWIFT
+
+dispatch_queue_t
+Ice::Communicator::getClientDispatchQueue() const
+{
+    return _instance->clientThreadPool()->getDispatchQueue();
+}
+
+dispatch_queue_t
+Ice::Communicator::getServerDispatchQueue() const
+{
+    return _instance->serverThreadPool()->getDispatchQueue();
+}
+
+#endif
+
+void
+Ice::Communicator::postToClientThreadPool(function<void()> call)
+{
+    _instance->clientThreadPool()->dispatch(call);
+}
+
+::std::function<void()>
+Ice::Communicator::flushBatchRequestsAsync(CompressBatch compress,
+                                            function<void(exception_ptr)> ex,
+                                            function<void(bool)> sent)
+{
+    class CommunicatorFlushBatchLambda : public CommunicatorFlushBatchAsync, public LambdaInvoke
+    {
+    public:
+
+        CommunicatorFlushBatchLambda(const InstancePtr& instance,
+                                     std::function<void(std::exception_ptr)> ex,
+                                     std::function<void(bool)> sent) :
+            CommunicatorFlushBatchAsync(instance), LambdaInvoke(std::move(ex), std::move(sent))
+        {
+        }
+    };
+    auto outAsync = make_shared<CommunicatorFlushBatchLambda>(_instance, ex, sent);
+    static constexpr string_view operationName = "flushBatchRequests";
+    outAsync->invoke(operationName, compress);
+    return [outAsync]() { outAsync->cancel(); };
+}
+
+ObjectPrx
+Ice::Communicator::createAdmin(const ObjectAdapterPtr& adminAdapter, const Identity& adminId)
+{
+    return _instance->createAdmin(adminAdapter, adminId);
+}
+
+std::optional<ObjectPrx>
+Ice::Communicator::getAdmin() const
+{
+    return _instance->getAdmin();
+}
+
+void
+Ice::Communicator::addAdminFacet(const shared_ptr<Object>& servant, const string& facet)
+{
+    _instance->addAdminFacet(servant, facet);
+}
+
+shared_ptr<Object>
+Ice::Communicator::removeAdminFacet(const string& facet)
+{
+    return _instance->removeAdminFacet(facet);
+}
+
+shared_ptr<Object>
+Ice::Communicator::findAdminFacet(const string& facet)
+{
+    return _instance->findAdminFacet(facet);
+}
+
+Ice::FacetMap
+Ice::Communicator::findAllAdminFacets()
+{
+    return _instance->findAllAdminFacets();
+}
+
+CommunicatorPtr
+Ice::Communicator::create(const InitializationData& initData)
+{
+    Ice::CommunicatorPtr communicator = make_shared<Communicator>();
+    try
+    {
+        const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, initData);
+    }
+    catch(...)
+    {
+        communicator->destroy();
+        throw;
+    }
+    return communicator;
+}
+
+Ice::Communicator::~Communicator()
+{
+    if(_instance && !_instance->destroyed())
+    {
+        Warning out(_instance->initializationData().logger);
+        out << "Ice::Communicator::destroy() has not been called";
+    }
+}
+
+void
+Ice::Communicator::finishSetup(int& argc, const char* argv[])
+{
+    try
+    {
+        _instance->finishSetup(argc, argv, shared_from_this());
+    }
+    catch(...)
+    {
+        destroy();
+        throw;
+    }
 }
