@@ -14,7 +14,7 @@ using namespace std;
 using namespace Test;
 
 void waitForServerState(
-    IceGrid::AdminPrxPtr admin,
+    optional<IceGrid::AdminPrx> admin,
     std::string server,
     IceGrid::ServerState state)
 {
@@ -36,7 +36,7 @@ class Pinger
 {
 public:
 
-    Pinger(Ice::ObjectPrxPtr proxy, int nRepetitions) :
+    Pinger(Ice::ObjectPrx proxy, int nRepetitions) :
         _proxy(std::move(proxy)),
         _finished(false),
         _nRepetitions(nRepetitions)
@@ -80,7 +80,7 @@ public:
 
 private:
 
-    Ice::ObjectPrxPtr _proxy;
+    Ice::ObjectPrx _proxy;
     exception_ptr _exception;
     bool _finished;
     int _nRepetitions;
@@ -92,20 +92,22 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
-        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
-    test(registry);
+    IceGrid::RegistryPrx registry(
+        communicator,
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
-    IceGrid::QueryPrxPtr query = Ice::checkedCast<IceGrid::QueryPrx>(
-        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Query"));
+    IceGrid::QueryPrx query(
+        communicator,
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Query");
 
-    IceGrid::AdminSessionPrxPtr adminSession = registry->createAdminSession("foo", "bar");
+    optional<IceGrid::AdminSessionPrx> adminSession = registry->createAdminSession("foo", "bar");
 
-    adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
-                                         nullopt,
-                                         Ice::ACMHeartbeat::HeartbeatAlways);
+    adminSession->ice_getConnection()->setACM(
+        registry->getACMTimeout(),
+        nullopt,
+        Ice::ACMHeartbeat::HeartbeatAlways);
 
-    IceGrid::AdminPrxPtr admin = adminSession->getAdmin();
+    optional<IceGrid::AdminPrx> admin = adminSession->getAdmin();
     test(admin);
 
     admin->startServer("node-1");
@@ -129,7 +131,8 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
-        TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server"));
+        TestIntfPrx obj(communicator, "server");
+        obj->ice_ping();
         waitForServerState(admin, "server", IceGrid::ServerState::Active);
         obj->shutdown();
         waitForServerState(admin, "server", IceGrid::ServerState::Inactive);
@@ -151,10 +154,9 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
-        TestIntfPrxPtr obj;
         try
         {
-            obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server-manual"));
+            TestIntfPrx(communicator, "server-manual")->ice_ping();
             test(false);
         }
         catch(const Ice::NoEndpointException&)
@@ -163,7 +165,8 @@ allTests(Test::TestHelper* helper)
         test(admin->getServerState("server-manual") == IceGrid::ServerState::Inactive);
         admin->startServer("server-manual");
         test(admin->getServerState("server-manual") == IceGrid::ServerState::Active);
-        obj = Ice::checkedCast< TestIntfPrx>(communicator->stringToProxy("server-manual"));
+        TestIntfPrx obj(communicator, "server-manual");
+        obj->ice_ping();
         test(admin->getServerState("server-manual") == IceGrid::ServerState::Active);
         obj->shutdown();
         waitForServerState(admin, "server-manual", IceGrid::ServerState::Inactive);
@@ -179,7 +182,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
-        TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server-always"));
+        TestIntfPrx obj(communicator, "server-always");
         admin->stopServer("server-always");
         waitForServerState(admin, "server-always", IceGrid::ServerState::Active);
         obj->shutdown();
@@ -201,10 +204,10 @@ allTests(Test::TestHelper* helper)
     cout << "testing session activation... " << flush;
     try
     {
-        IceGrid::SessionPrxPtr session = registry->createSession("test", "");
+        optional<IceGrid::SessionPrx> session = registry->createSession("test", "");
 
         test(admin->getServerState("server-session") == IceGrid::ServerState::Inactive);
-        TestIntfPrxPtr obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server-session"));
+        TestIntfPrx obj(communicator, "server-session");
         try
         {
             obj->ice_ping();
@@ -268,7 +271,7 @@ allTests(Test::TestHelper* helper)
         admin->enableServer("server", false);
         try
         {
-            communicator->stringToProxy("server")->ice_ping();
+            Ice::ObjectPrx(communicator, "server")->ice_ping();
             test(false);
         }
         catch(const Ice::NoEndpointException&)
@@ -296,7 +299,7 @@ allTests(Test::TestHelper* helper)
         admin->enableServer("server-manual", false);
         try
         {
-            communicator->stringToProxy("server-manual")->ice_ping();
+            Ice::ObjectPrx(communicator, "server-manual")->ice_ping();
             test(false);
         }
         catch(const Ice::NoEndpointException&)
@@ -324,7 +327,7 @@ allTests(Test::TestHelper* helper)
         test(admin->getServerState("server-always") == IceGrid::ServerState::Inactive);
         try
         {
-            communicator->stringToProxy("server-always")->ice_ping();
+            Ice::ObjectPrx(communicator, "server-always")->ice_ping();
             test(false);
         }
         catch(const Ice::NoEndpointException&)
@@ -348,20 +351,20 @@ allTests(Test::TestHelper* helper)
 
         test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
         admin->enableServer("server", true);
-        communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
+        Ice::ObjectPrx(communicator, "server")->ice_locatorCacheTimeout(0)->ice_ping();
         int pid = admin->getServerPid("server");
         admin->enableServer("server", false);
         test(admin->getServerState("server") == IceGrid::ServerState::Active);
         try
         {
-            communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
+            Ice::ObjectPrx(communicator, "server")->ice_locatorCacheTimeout(0)->ice_ping();
             test(false);
         }
         catch(const Ice::NoEndpointException&)
         {
         }
         admin->enableServer("server", true);
-        communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
+        Ice::ObjectPrx(communicator, "server")->ice_locatorCacheTimeout(0)->ice_ping();
         test(admin->getServerPid("server") == pid);
         admin->stopServer("server");
         test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
@@ -385,7 +388,7 @@ allTests(Test::TestHelper* helper)
     {
         test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
         admin->enableServer("server", true);
-        communicator->stringToProxy("server")->ice_ping();
+        Ice::ObjectPrx(communicator, "server")->ice_ping();
         admin->stopServer("server");
         test(admin->getServerState("server") == IceGrid::ServerState::Inactive);
         admin->startServer("server");
@@ -397,7 +400,7 @@ allTests(Test::TestHelper* helper)
         admin->enableServer("server-manual", true);
         try
         {
-            communicator->stringToProxy("server-manual")->ice_ping();
+            Ice::ObjectPrx(communicator, "server-manual")->ice_ping();
             test(false);
         }
         catch(const Ice::NoEndpointException&)
@@ -435,7 +438,7 @@ allTests(Test::TestHelper* helper)
     {
         int i;
         const int nThreads = 3;
-        Ice::ObjectPrxPtr invalid = communicator->stringToProxy("invalid-exe");
+        Ice::ObjectPrx invalid(communicator, "invalid-exe");
         vector<pair<shared_ptr<Pinger>, thread>> pingers;
         for(i = 0; i < nThreads; i++)
         {
@@ -470,7 +473,7 @@ allTests(Test::TestHelper* helper)
         }
         pingers.clear();
 
-        invalid = communicator->stringToProxy("invalid-pwd");
+        invalid = Ice::ObjectPrx(communicator, "invalid-pwd");
         for(i = 0; i < nThreads; i++)
         {
             auto pinger = make_shared<Pinger>(invalid, 10);
@@ -504,7 +507,7 @@ allTests(Test::TestHelper* helper)
         }
         pingers.clear();
 
-        invalid = communicator->stringToProxy("fail-on-startup");
+        invalid = Ice::ObjectPrx(communicator, "fail-on-startup");
         for (i = 0; i < nThreads; i++)
         {
             auto pinger = make_shared<Pinger>(invalid, 5);
@@ -570,7 +573,7 @@ allTests(Test::TestHelper* helper)
     {
         test(admin->getServerState("server-activation-timeout") == IceGrid::ServerState::Inactive);
         const int nThreads = 5;
-        Ice::ObjectPrxPtr proxy = communicator->stringToProxy("server-activation-timeout");
+        Ice::ObjectPrx proxy(communicator, "server-activation-timeout");
         vector<pair<shared_ptr<Pinger>, thread>> pingers;
         for (int i = 0; i < nThreads; i++)
         {
@@ -621,7 +624,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server-deactivation-timeout") == IceGrid::ServerState::Inactive);
-        communicator->stringToProxy("server-deactivation-timeout")->ice_ping();
+        Ice::ObjectPrx(communicator, "server-deactivation-timeout")->ice_ping();
         admin->stopServer("server-deactivation-timeout");
     }
     catch(const Ice::LocalException& ex)
@@ -635,7 +638,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server1") == IceGrid::ServerState::Inactive);
-        TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server1"));
+        TestIntfPrx obj(communicator, "server1");
         waitForServerState(admin, "server1", IceGrid::ServerState::Active);
         obj->fail();
         waitForServerState(admin, "server1", IceGrid::ServerState::Inactive);
@@ -652,14 +655,16 @@ allTests(Test::TestHelper* helper)
         test(admin->getServerState("server1-manual") == IceGrid::ServerState::Inactive);
         admin->startServer("server1-manual");
         test(admin->getServerState("server1-manual") == IceGrid::ServerState::Active);
-        obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server1-manual"));
+        obj = TestIntfPrx(communicator, "server1-manual");
+        obj->ice_ping();
         test(admin->getServerState("server1-manual") == IceGrid::ServerState::Active);
         obj->fail();
         waitForServerState(admin, "server1-manual", IceGrid::ServerState::Inactive);
         test(!admin->isServerEnabled("server1-manual"));
 
         test(admin->getServerState("server1-always") == IceGrid::ServerState::Active);
-        obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server1-always"));
+        obj = TestIntfPrx(communicator, "server1-always");
+        obj->ice_ping();
         obj->fail();
         waitForServerState(admin, "server1-always", IceGrid::ServerState::Inactive);
         test(!admin->isServerEnabled("server1-always"));
@@ -675,7 +680,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server2") == IceGrid::ServerState::Inactive);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy("server2"));
+        auto obj = TestIntfPrx(communicator, "server2");
         obj = obj->ice_locatorCacheTimeout(0);
         while(true)
         {
@@ -719,7 +724,7 @@ allTests(Test::TestHelper* helper)
         test(admin->getServerState("server2-manual") == IceGrid::ServerState::Inactive);
         admin->startServer("server2-manual");
         test(admin->getServerState("server2-manual") == IceGrid::ServerState::Active);
-        obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server2-manual"));
+        obj = TestIntfPrx(communicator, "server2-manual");
         obj->fail();
         waitForServerState(admin, "server2-manual", IceGrid::ServerState::Inactive);
         test(!admin->isServerEnabled("server2-manual"));
@@ -729,7 +734,7 @@ allTests(Test::TestHelper* helper)
         admin->stopServer("server2-manual");
 
         test(admin->getServerState("server2-always") == IceGrid::ServerState::Active);
-        obj = Ice::checkedCast<TestIntfPrx>(communicator->stringToProxy("server2-always"));
+        obj = TestIntfPrx(communicator, "server2-always");
         obj->fail();
         waitForServerState(admin, "server2-always", IceGrid::ServerState::Inactive);
         test(!admin->isServerEnabled("server2-always"));

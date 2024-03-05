@@ -30,11 +30,10 @@ AttackClient::run(int argc, char** argv)
     //
     properties->setProperty("Ice.RetryIntervals", "-1");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    cout << "getting router... " << flush;
-    auto routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-    auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
-    test(router);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
+    auto communicator = ich.communicator();
+    cout << "setting router... " << flush;
+    Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint(50));
     communicator->setDefaultRouter(router);
     cout << "ok" << endl;
 
@@ -43,11 +42,10 @@ AttackClient::run(int argc, char** argv)
     cout << "ok" << endl;
 
     cout << "making thousands of invocations on proxies... " << flush;
-    auto backendBase = communicator->stringToProxy("dummy:" + getTestEndpoint());
-    auto backend = checkedCast<BackendPrx>(backendBase);
+    BackendPrx backend(communicator, "dummy:" + getTestEndpoint());
     backend->ice_ping();
 
-    set<BackendPrxPtr> backends;
+    set<optional<BackendPrx>> backends;
 
     string msg;
     for(int i = 1; i <= 10000; ++i)
@@ -80,7 +78,7 @@ AttackClient::run(int argc, char** argv)
             *p = static_cast<char>('a' + rd() % 26);
         }
 
-        auto newBackend = uncheckedCast<BackendPrx>(backendBase->ice_identity(ident));
+        BackendPrx newBackend(backend->ice_identity(ident));
 
         auto q = backends.find(newBackend);
 
@@ -91,7 +89,7 @@ AttackClient::run(int argc, char** argv)
         }
         else
         {
-            backend = *q;
+            backend = q->value();
         }
 
         backend->ice_ping();
@@ -102,9 +100,7 @@ AttackClient::run(int argc, char** argv)
     cout << "testing server and router shutdown... " << flush;
     backend->shutdown();
     communicator->setDefaultRouter(nullopt);
-    auto adminBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-    auto process = checkedCast<Ice::ProcessPrx>(adminBase);
-    test(process);
+    Ice::ProcessPrx process(communicator, "Glacier2/admin -f Process:" + getTestEndpoint(51));
     process->shutdown();
     try
     {

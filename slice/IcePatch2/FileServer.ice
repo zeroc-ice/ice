@@ -50,16 +50,6 @@ exception FileSizeRangeException extends FileAccessException
 /// The interface that provides access to files.
 interface FileServer
 {
-    /// Return file information for the specified partition. <p class="Deprecated"> This operation is deprecated and
-    /// only present for compatibility with old Ice clients (older than version 3.6).
-    /// @param partition The partition number in the range 0-255.
-    /// @return A sequence containing information about the files in the specified partition.
-    /// @throws PartitionOutOfRangeException If the partition number is out of range.
-    /// @throws FileSizeRangeException If a file is larger than 2.1GB.
-    ["deprecate:getFileInfoSeq() is deprecated, use getLargeFileInfoSeq() instead.",
-     "nonmutating", "cpp:const"] idempotent FileInfoSeq getFileInfoSeq(int partition)
-        throws PartitionOutOfRangeException, FileSizeRangeException;
-
     /// Returns file information for the specified partition.
     /// @param partition The partition number in the range 0-255.
     /// @return A sequence containing information about the files in the specified partition.
@@ -77,20 +67,6 @@ interface FileServer
     /// file set is up-to-date.
     /// @return The master checksum for the file set.
     ["nonmutating", "cpp:const"] idempotent Ice::ByteSeq getChecksum();
-
-    /// Read the specified file. This operation may only return fewer bytes than requested in case there was an end-of-file
-    /// condition. <p class="Deprecated"> This operation is deprecated and only present for compatibility with old Ice
-    /// clients (older than version 3.6).
-    /// @param path The pathname (relative to the data directory) for the file to be read.
-    /// @param pos The file offset at which to begin reading.
-    /// @param num The number of bytes to be read.
-    /// @return A sequence containing the compressed file contents.
-    /// @throws FileAccessException If an error occurred while trying to read the file.
-    /// @throws FileSizeRangeException If a file is larger than 2.1GB.
-    ["deprecate:getFileCompressed() is deprecated, use getLargeFileCompressed() instead.",
-     "amd", "nonmutating", "cpp:const", "cpp:array"]
-    idempotent Ice::ByteSeq getFileCompressed(string path, int pos, int num)
-        throws FileAccessException, FileSizeRangeException;
 
     /// Read the specified file. This operation may only return fewer bytes than requested in case there was an
     /// end-of-file condition.

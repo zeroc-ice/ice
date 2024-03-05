@@ -7,6 +7,7 @@
 
 using namespace Test;
 using namespace std;
+using namespace Ice;
 
 void
 BI::ice_preMarshal()
@@ -70,7 +71,7 @@ FI::checkValues()
     return e1 && e1 == e2;
 }
 
-InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
+InitialI::InitialI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter),
     _b1(new BI),
     _b2(new BI),
@@ -112,13 +113,13 @@ InitialI::~InitialI()
 }
 
 void
-InitialI::shutdown(const Ice::Current&)
+InitialI::shutdown(const Current&)
 {
     _adapter->getCommunicator()->shutdown();
 }
 
 BPtr
-InitialI::getB1(const Ice::Current&)
+InitialI::getB1(const Current&)
 {
     _b1->preMarshalInvoked = false;
     _b2->preMarshalInvoked = false;
@@ -127,7 +128,7 @@ InitialI::getB1(const Ice::Current&)
 }
 
 BPtr
-InitialI::getB2(const Ice::Current&)
+InitialI::getB2(const Current&)
 {
     _b1->preMarshalInvoked = false;
     _b2->preMarshalInvoked = false;
@@ -136,7 +137,7 @@ InitialI::getB2(const Ice::Current&)
 }
 
 CPtr
-InitialI::getC(const Ice::Current&)
+InitialI::getC(const Current&)
 {
     _b1->preMarshalInvoked = false;
     _b2->preMarshalInvoked = false;
@@ -145,7 +146,7 @@ InitialI::getC(const Ice::Current&)
 }
 
 DPtr
-InitialI::getD(const Ice::Current&)
+InitialI::getD(const Current&)
 {
     _b1->preMarshalInvoked = false;
     _b2->preMarshalInvoked = false;
@@ -155,30 +156,30 @@ InitialI::getD(const Ice::Current&)
 }
 
 EPtr
-InitialI::getE(const Ice::Current&)
+InitialI::getE(const Current&)
 {
     return _e;
 }
 
 FPtr
-InitialI::getF(const Ice::Current&)
+InitialI::getF(const Current&)
 {
     return _f;
 }
 
 void
-InitialI::setRecursive(RecursivePtr, const Ice::Current&)
+InitialI::setRecursive(RecursivePtr, const Current&)
 {
 }
 
 bool
-InitialI::supportsClassGraphDepthMax(const Ice::Current&)
+InitialI::supportsClassGraphDepthMax(const Current&)
 {
     return true;
 }
 
 void
-InitialI::setCycle(RecursivePtr r, const Ice::Current&)
+InitialI::setCycle(RecursivePtr r, const Current&)
 {
     // break the cycle
     assert(r);
@@ -186,13 +187,13 @@ InitialI::setCycle(RecursivePtr r, const Ice::Current&)
 }
 
 bool
-InitialI::acceptsClassCycles(const Ice::Current& c)
+InitialI::acceptsClassCycles(const Current& c)
 {
     return c.adapter->getCommunicator()->getProperties()->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
 }
 
 InitialI::GetMBMarshaledResult
-InitialI::getMB(const Ice::Current& current)
+InitialI::getMB(const Current& current)
 {
     return GetMBMarshaledResult(_b1, current);
 }
@@ -200,13 +201,13 @@ InitialI::getMB(const Ice::Current& current)
 void
 InitialI::getAMDMBAsync(function<void(const GetAMDMBMarshaledResult&)> response,
                         function<void(exception_ptr)>,
-                        const Ice::Current& current)
+                        const Current& current)
 {
     response(GetAMDMBMarshaledResult(_b1, current));
 }
 
 void
-InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
+InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Current&)
 {
     _b1->preMarshalInvoked = false;
     _b2->preMarshalInvoked = false;
@@ -219,37 +220,37 @@ InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
 }
 
 void
-InitialI::setG(Test::GPtr, const Ice::Current&)
+InitialI::setG(GPtr, const Current&)
 {
 }
 
 BaseSeq
-InitialI::opBaseSeq(BaseSeq inSeq, BaseSeq& outSeq, const Ice::Current&)
+InitialI::opBaseSeq(BaseSeq inSeq, BaseSeq& outSeq, const Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
 CompactPtr
-InitialI::getCompact(const Ice::Current&)
+InitialI::getCompact(const Current&)
 {
     return make_shared<CompactExt>();
 }
 
-Test::Inner::APtr
-InitialI::getInnerA(const Ice::Current&)
+Inner::APtr
+InitialI::getInnerA(const Current&)
 {
     return make_shared<Inner::A>(_b1);
 }
 
-Test::Inner::Sub::APtr
-InitialI::getInnerSubA(const Ice::Current&)
+Inner::Sub::APtr
+InitialI::getInnerSubA(const Current&)
 {
     return make_shared<Inner::Sub::A>(make_shared<Inner::A>(_b1));
 }
 
 void
-InitialI::throwInnerEx(const Ice::Current&)
+InitialI::throwInnerEx(const Current&)
 {
     Inner::Ex ex;
     ex.reason = "Inner::Ex";
@@ -257,7 +258,7 @@ InitialI::throwInnerEx(const Ice::Current&)
 }
 
 void
-InitialI::throwInnerSubEx(const Ice::Current&)
+InitialI::throwInnerSubEx(const Current&)
 {
     Inner::Sub::Ex ex;
     ex.reason = "Inner::Sub::Ex";
@@ -265,40 +266,40 @@ InitialI::throwInnerSubEx(const Ice::Current&)
 }
 
 KPtr
-InitialI::getK(const Ice::Current&)
+InitialI::getK(const Current&)
 {
     return make_shared<K>(make_shared<L>("l"));
 }
 
-Ice::ValuePtr
-InitialI::opValue(Ice::ValuePtr v1, Ice::ValuePtr& v2, const Ice::Current&)
+ValuePtr
+InitialI::opValue(ValuePtr v1, ValuePtr& v2, const Current&)
 {
     v2 = v1;
     return v1;
 }
 
-Test::ValueSeq
-InitialI::opValueSeq(Test::ValueSeq v1, Test::ValueSeq& v2, const Ice::Current&)
+ValueSeq
+InitialI::opValueSeq(ValueSeq v1, ValueSeq& v2, const Current&)
 {
     v2 = v1;
     return v1;
 }
 
-Test::ValueMap
-InitialI::opValueMap(Test::ValueMap v1, Test::ValueMap& v2, const Ice::Current&)
+ValueMap
+InitialI::opValueMap(ValueMap v1, ValueMap& v2, const Current&)
 {
     v2 = v1;
     return v1;
 }
 
 D1Ptr
-InitialI::getD1(Test::D1Ptr d1, const Ice::Current&)
+InitialI::getD1(D1Ptr d1, const Current&)
 {
     return d1;
 }
 
 void
-InitialI::throwEDerived(const Ice::Current&)
+InitialI::throwEDerived(const Current&)
 {
     throw EDerived(make_shared<A1>("a1"),
                    make_shared<A1>("a2"),
@@ -306,21 +307,21 @@ InitialI::throwEDerived(const Ice::Current&)
                    make_shared<A1>("a4"));
 }
 
-Test::MPtr
-InitialI::opM(Test::MPtr v1, Test::MPtr& v2, const Ice::Current&)
+MPtr
+InitialI::opM(MPtr v1, MPtr& v2, const Current&)
 {
     v2 = v1;
     return v1;
 }
 
 bool
-UnexpectedObjectExceptionTestI::ice_invoke(std::vector<uint8_t>,
-                                           std::vector<uint8_t>& outParams,
-                                           const Ice::Current& current)
+UnexpectedObjectExceptionTestI::ice_invoke(vector<uint8_t>,
+                                           vector<uint8_t>& outParams,
+                                           const Current& current)
 {
-    Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-    Ice::OutputStream out(communicator);
-    out.startEncapsulation(current.encoding, Ice::FormatType::DefaultFormat);
+    CommunicatorPtr communicator = current.adapter->getCommunicator();
+    OutputStream out(communicator);
+    out.startEncapsulation(current.encoding, FormatType::DefaultFormat);
     AlsoEmptyPtr obj = make_shared<AlsoEmpty>();
     out.write(obj);
     out.writePendingValues();
@@ -329,31 +330,31 @@ UnexpectedObjectExceptionTestI::ice_invoke(std::vector<uint8_t>,
     return true;
 }
 
-Test::F1Ptr
-InitialI::opF1(Test::F1Ptr f11, Test::F1Ptr& f12, const Ice::Current&)
+F1Ptr
+InitialI::opF1(F1Ptr f11, F1Ptr& f12, const Current&)
 {
     f12 = make_shared<F1>("F12");
     return f11;
 }
 
-Test::F2PrxPtr
-InitialI::opF2(Test::F2PrxPtr f21, Test::F2PrxPtr& f22, const Ice::Current& current)
+optional<F2Prx>
+InitialI::opF2(optional<F2Prx> f21, optional<F2Prx>& f22, const Current& current)
 {
-    f22 = Ice::uncheckedCast<F2Prx>(current.adapter->getCommunicator()->stringToProxy("F22"));
+    f22 = F2Prx(current.adapter->getCommunicator(), "F22");
     return f21;
 }
 
-Test::F3Ptr
-InitialI::opF3(Test::F3Ptr f31, Test::F3Ptr& f32, const Ice::Current& current)
+F3Ptr
+InitialI::opF3(F3Ptr f31, F3Ptr& f32, const Current& current)
 {
     f32 = make_shared<F3>();
     f32->f1 = make_shared<F1>("F12");
-    f32->f2 = Ice::uncheckedCast<F2Prx>(current.adapter->getCommunicator()->stringToProxy("F22"));
+    f32->f2 = F2Prx(current.adapter->getCommunicator(), "F22");
     return f31;
 }
 
 bool
-InitialI::hasF3(const Ice::Current&)
+InitialI::hasF3(const Current&)
 {
     return true;
 }

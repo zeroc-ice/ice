@@ -11,15 +11,15 @@ class SessionManagerI final : public Glacier2::SessionManager
 {
 public:
 
-    Glacier2::SessionPrxPtr
-    create(std::string, Glacier2::SessionControlPrxPtr, const Ice::Current&) override;
+    std::optional<Glacier2::SessionPrx>
+    create(std::string, std::optional<Glacier2::SessionControlPrx>, const Ice::Current&) override;
 };
 
 class SessionI final : public Test::Session
 {
 public:
 
-    explicit SessionI(Glacier2::SessionControlPrxPtr);
+    explicit SessionI(std::optional<Glacier2::SessionControlPrx>);
 
     void
     destroyFromClientAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
@@ -29,7 +29,7 @@ public:
 
 private:
 
-    Glacier2::SessionControlPrxPtr _sessionControl;
+    std::optional<Glacier2::SessionControlPrx> _sessionControl;
 };
 
 #endif

@@ -78,16 +78,16 @@ public:
     void run()
     {
         auto communicator = initialize(initData);
-        auto routerBase = communicator->stringToProxy(
+        Glacier2::RouterPrx router(
+            communicator,
             "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
-        auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
         communicator->setDefaultRouter(router);
 
         ostringstream os;
         os << "userid-" << _id;
         auto session = router->createSession(os.str(), "abc123");
         communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "");
-        auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router.value());
+        auto adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
         adapter->activate();
 
         string category = router->getCategoryForClient();
@@ -98,12 +98,13 @@ public:
         _condVar.notify_one();
 
         Identity ident = {"callbackReceiver", category};
-        auto receiver = uncheckedCast<CallbackReceiverPrx>(adapter->add(_callbackReceiver, ident));
+        CallbackReceiverPrx receiver(adapter->add(_callbackReceiver, ident));
 
-        auto base = communicator->stringToProxy(
+        ObjectPrx base(
+            communicator,
             "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
         base = base->ice_oneway();
-        auto callback = uncheckedCast<CallbackPrx>(base);
+        CallbackPrx callback(base);
 
         //
         // Block the CallbackReceiver in wait() to prevent the client from
@@ -178,9 +179,9 @@ public:
     void run()
     {
         auto communicator = initialize(initData);
-        auto routerBase = communicator->stringToProxy(
+        _router = Glacier2::RouterPrx(
+            communicator,
             "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
-        _router = checkedCast<Glacier2::RouterPrx>(routerBase);
         communicator->setDefaultRouter(_router);
 
         ostringstream os;
@@ -193,12 +194,11 @@ public:
         string category = _router->getCategoryForClient();
         _callbackReceiver = make_shared<CallbackReceiverI>();
         Identity ident = {"callbackReceiver", category};
-        auto receiver = uncheckedCast<CallbackReceiverPrx>(adapter->add(_callbackReceiver, ident));
+        CallbackReceiverPrx receiver(adapter->add(_callbackReceiver, ident));
 
-        auto base = communicator->stringToProxy(
-            "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
-        base = base->ice_oneway();
-        auto callback = uncheckedCast<CallbackPrx>(base);
+        auto callback = CallbackPrx(
+            communicator,
+            "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()))->ice_oneway();
 
         {
             lock_guard<mutex> lg(_mutex);
@@ -221,7 +221,7 @@ public:
         communicator->destroy();
     }
 
-    virtual void stress(CallbackPrxPtr callback, CallbackReceiverPrxPtr) = 0;
+    virtual void stress(CallbackPrx callback, CallbackReceiverPrx) = 0;
 
     void
     notifyThread()
@@ -261,7 +261,7 @@ public:
 
 protected:
 
-    Glacier2::RouterPrxPtr _router;
+    optional<Glacier2::RouterPrx> _router;
     int _id;
     shared_ptr<CallbackReceiverI> _callbackReceiver;
     bool _initialized = false;
@@ -279,7 +279,7 @@ public:
     }
 
     void
-    stress(CallbackPrxPtr callback, CallbackReceiverPrxPtr) override
+    stress(CallbackPrx callback, CallbackReceiverPrx) override
     {
         try
         {
@@ -318,7 +318,7 @@ public:
     }
 
     void
-    stress(CallbackPrxPtr callback, CallbackReceiverPrxPtr receiver) override
+    stress(CallbackPrx callback, CallbackReceiverPrx receiver) override
     {
         try
         {
@@ -362,7 +362,7 @@ public:
     }
 
     void
-    stress(CallbackPrxPtr callback, CallbackReceiverPrxPtr receiver) override
+    stress(CallbackPrx callback, CallbackReceiverPrx receiver) override
     {
         try
         {
@@ -415,30 +415,14 @@ CallbackClient::run(int argc, char** argv)
     initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
-    ObjectPrxPtr routerBase;
-    {
-        cout << "testing stringToProxy for router... " << flush;
-        routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-        cout << "ok" << endl;
-    }
+    Ice::CommunicatorHolder ich = initialize(argc, argv, initData);
+    auto communicator = ich.communicator();
+    Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint(50));
 
-    Glacier2::RouterPrxPtr router;
-
-    {
-        cout << "testing checked cast for router... " << flush;
-        router = checkedCast<Glacier2::RouterPrx>(routerBase);
-        test(router);
-        cout << "ok" << endl;
-    }
-
-    {
-        cout << "testing router finder... " << flush;
-        auto finder =
-            uncheckedCast<RouterFinderPrx>(communicator->stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
-        test(finder->getRouter()->ice_getIdentity() == router->ice_getIdentity());
-        cout << "ok" << endl;
-    }
+    cout << "testing router finder... " << flush;
+    RouterFinderPrx finder(communicator, "Ice/RouterFinder:" + getTestEndpoint(50));
+    test(finder->getRouter()->ice_getIdentity() == router->ice_getIdentity());
+    cout << "ok" << endl;
 
     {
         cout << "installing router with communicator... " << flush;
@@ -454,13 +438,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    ObjectPrxPtr base;
-
-    {
-        cout << "testing stringToProxy for server object... " << flush;
-        base = communicator->stringToProxy("c1/callback:" + getTestEndpoint());
-        cout << "ok" << endl;
-    }
+    ObjectPrx base(communicator, "c1/callback:" + getTestEndpoint());
 
     {
         cout << "trying to ping server before session creation... " << flush;
@@ -475,7 +453,7 @@ CallbackClient::run(int argc, char** argv)
         }
     }
 
-    Glacier2::SessionPrxPtr session;
+    optional<Glacier2::SessionPrx> session;
 
     {
         cout << "trying to create session with wrong password... " << flush;
@@ -549,21 +527,14 @@ CallbackClient::run(int argc, char** argv)
         cout << "ok" << endl;
     }
 
-    CallbackPrxPtr twoway;
-
-    {
-        cout << "testing checked cast for server object... " << flush;
-        twoway = checkedCast<CallbackPrx>(base);
-        test(twoway);
-        cout << "ok" << endl;
-    }
+    CallbackPrx twoway(base);
 
     shared_ptr<ObjectAdapter> adapter;
 
     {
         cout << "creating and activating callback receiver adapter with router... " << flush;
         communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
-        adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router.value());
+        adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
         adapter->activate();
         cout << "ok" << endl;
     }
@@ -577,16 +548,16 @@ CallbackClient::run(int argc, char** argv)
     }
 
     shared_ptr<CallbackReceiverI> callbackReceiver;
-    CallbackReceiverPrxPtr twowayR;
-    CallbackReceiverPrxPtr fakeTwowayR;
+    optional<CallbackReceiverPrx> twowayR;
+    optional<CallbackReceiverPrx> fakeTwowayR;
 
     {
         cout << "creating and adding callback receiver object... " << flush;
         callbackReceiver = make_shared<CallbackReceiverI>();
         Identity callbackReceiverIdent = {"callbackReceiver", category};
-        twowayR = uncheckedCast<CallbackReceiverPrx>(adapter->add(callbackReceiver, callbackReceiverIdent));
+        twowayR = CallbackReceiverPrx(adapter->add(callbackReceiver, callbackReceiverIdent));
         Identity fakeCallbackReceiverIdent = {"callbackReceiver", "dummy"};
-        fakeTwowayR = uncheckedCast<CallbackReceiverPrx>(adapter->add(callbackReceiver, fakeCallbackReceiverIdent));
+        fakeTwowayR = CallbackReceiverPrx(adapter->add(callbackReceiver, fakeCallbackReceiverIdent));
         cout << "ok" << endl;
     }
 
@@ -705,8 +676,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing whether other allowed category is accepted... " << flush;
         Context context;
         context["_fwd"] = "t";
-        auto otherCategoryTwoway = uncheckedCast<CallbackPrx>(
-            twoway->ice_identity(stringToIdentity("c2/callback")));
+        CallbackPrx otherCategoryTwoway(twoway->ice_identity(stringToIdentity("c2/callback")));
         otherCategoryTwoway->initiateCallback(twowayR, context);
         callbackReceiver->callbackOK();
         cout << "ok" << endl;
@@ -718,8 +688,7 @@ CallbackClient::run(int argc, char** argv)
         context["_fwd"] = "t";
         try
         {
-            auto otherCategoryTwoway = uncheckedCast<CallbackPrx>(
-                twoway->ice_identity(stringToIdentity("c3/callback")));
+            CallbackPrx otherCategoryTwoway(twoway->ice_identity(stringToIdentity("c3/callback")));
             otherCategoryTwoway->initiateCallback(twowayR, context);
             test(false);
         }
@@ -733,8 +702,7 @@ CallbackClient::run(int argc, char** argv)
         cout << "testing whether user-id as category is accepted... " << flush;
         Context context;
         context["_fwd"] = "t";
-        auto otherCategoryTwoway = uncheckedCast<CallbackPrx>(
-            twoway->ice_identity(stringToIdentity("_userid/callback")));
+        CallbackPrx otherCategoryTwoway(twoway->ice_identity(stringToIdentity("_userid/callback")));
         otherCategoryTwoway->initiateCallback(twowayR, context);
         callbackReceiver->callbackOK();
         cout << "ok" << endl;
@@ -904,23 +872,8 @@ CallbackClient::run(int argc, char** argv)
             cout << "ok" << endl;
         }
 
-        ObjectPrxPtr processBase;
-
-        {
-            cout << "testing stringToProxy for admin process facet... " << flush;
-            processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
-            cout << "ok" << endl;
-        }
-
-        Ice::ProcessPrxPtr process;
-
-        {
-            cout << "testing checked cast for process facet... " << flush;
-            process = checkedCast<Ice::ProcessPrx>(processBase);
-            test(process);
-            cout << "ok" << endl;
-        }
-
+        cout << "testing checked cast for process facet... " << flush;
+        Ice::ProcessPrx process(communicator, "Glacier2/admin -f Process:" + getTestEndpoint(51));
         cout << "testing Glacier2 shutdown... " << flush;
         process->shutdown();
         try

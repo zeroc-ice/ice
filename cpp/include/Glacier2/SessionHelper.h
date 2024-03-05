@@ -35,6 +35,7 @@ const int GLACIER2_TCP_PORT = 4063;
 class GLACIER2_API SessionHelper
 {
 public:
+
     virtual ~SessionHelper();
 
     /**
@@ -67,9 +68,9 @@ public:
 
     /**
      * Obtains a proxy for the Glacier2 session.
-     * @return The session proxy, or a nil proxy if no session is currently active.
+     * @return The session proxy, or a nullopt proxy if no session is currently active.
      */
-    virtual SessionPrxPtr session() const = 0;
+    virtual std::optional<SessionPrx> session() const = 0;
 
     /**
      * Determines whether the session is active.

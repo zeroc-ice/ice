@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <Ice/CheckIdentity.h>
+
 #include <Glacier2/ClientBlobject.h>
 #include <Glacier2/FilterManager.h>
 #include <Glacier2/FilterT.h>
@@ -32,6 +34,8 @@ Glacier2::ClientBlobject::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> i
     bool matched = false;
     bool hasFilters = false;
     string rejectedFilters;
+
+    Ice::checkIdentity(current.id, __FILE__, __LINE__);
 
     if(!_filters->categories()->empty())
     {

@@ -23,8 +23,8 @@ Client::run(int argc, char** argv)
     properties->setProperty("Ice.AcceptClassCycles", "1");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    TestIntfPrxPtr allTests(Test::TestHelper*);
-    TestIntfPrxPtr prx = allTests(this);
+    TestIntfPrx allTests(Test::TestHelper*);
+    TestIntfPrx prx = allTests(this);
     prx->shutdown();
 }
 

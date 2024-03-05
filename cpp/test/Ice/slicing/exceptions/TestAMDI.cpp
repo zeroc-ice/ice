@@ -8,13 +8,14 @@
 
 using namespace Test;
 using namespace std;
+using namespace Ice;
 
 TestI::TestI()
 {
 }
 
 void
-TestI::baseAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::baseAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -29,7 +30,7 @@ TestI::baseAsBaseAsync(function<void()>, function<void(exception_ptr)> error, co
 }
 
 void
-TestI::unknownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::unknownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -45,7 +46,7 @@ TestI::unknownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)>
 }
 
 void
-TestI::knownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::knownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -61,7 +62,7 @@ TestI::knownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> e
 }
 
 void
-TestI::knownDerivedAsKnownDerivedAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::knownDerivedAsKnownDerivedAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -77,7 +78,7 @@ TestI::knownDerivedAsKnownDerivedAsync(function<void()>, function<void(exception
 }
 
 void
-TestI::unknownIntermediateAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::unknownIntermediateAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -93,7 +94,7 @@ TestI::unknownIntermediateAsBaseAsync(function<void()>, function<void(exception_
 }
 
 void
-TestI::knownIntermediateAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::knownIntermediateAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -109,7 +110,7 @@ TestI::knownIntermediateAsBaseAsync(function<void()>, function<void(exception_pt
 }
 
 void
-TestI::knownMostDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::knownMostDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -127,7 +128,7 @@ TestI::knownMostDerivedAsBaseAsync(function<void()>, function<void(exception_ptr
 
 void
 TestI::knownIntermediateAsKnownIntermediateAsync(function<void()>, function<void(exception_ptr)> error,
-                                                 const ::Ice::Current&)
+                                                 const Current&)
 {
     try
     {
@@ -144,7 +145,7 @@ TestI::knownIntermediateAsKnownIntermediateAsync(function<void()>, function<void
 
 void
 TestI::knownMostDerivedAsKnownIntermediateAsync(function<void()>, function<void(exception_ptr)> error,
-                                                const ::Ice::Current&)
+                                                const Current&)
 {
     try
     {
@@ -163,7 +164,7 @@ TestI::knownMostDerivedAsKnownIntermediateAsync(function<void()>, function<void(
 void
 TestI::
 knownMostDerivedAsKnownMostDerivedAsync(function<void()>, function<void(exception_ptr)> error,
-                                        const ::Ice::Current&)
+                                        const Current&)
 {
     try
     {
@@ -180,7 +181,7 @@ knownMostDerivedAsKnownMostDerivedAsync(function<void()>, function<void(exceptio
 }
 
 void
-TestI::unknownMostDerived1AsBaseAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::unknownMostDerived1AsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {
@@ -198,7 +199,7 @@ TestI::unknownMostDerived1AsBaseAsync(function<void()>, function<void(exception_
 
 void
 TestI::unknownMostDerived1AsKnownIntermediateAsync(function<void()>, function<void(exception_ptr)> error,
-                                                   const ::Ice::Current&)
+                                                   const Current&)
 {
     try
     {
@@ -215,7 +216,7 @@ TestI::unknownMostDerived1AsKnownIntermediateAsync(function<void()>, function<vo
 }
 
 void
-TestI::unknownMostDerived2AsBaseAsync(function<void()>, function<void(exception_ptr)> error, const ::Ice::Current&)
+TestI::unknownMostDerived2AsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)
 {
     try
     {

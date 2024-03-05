@@ -638,22 +638,22 @@ public:
 using CallbackPtr = std::shared_ptr<Callback>;
 
 void
-testUOO(const TestIntfPrxPtr& test)
+testUOO(const TestIntfPrx& testPrx)
 {
     Ice::ValuePtr o;
     try
     {
-        o = test->SUnknownAsObject();
-        test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
+        o = testPrx->SUnknownAsObject();
+        test(testPrx->ice_getEncodingVersion() != Ice::Encoding_1_0);
         test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o));
         test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_id() == "::Test::SUnknown");
         test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData());
-        test->checkSUnknown(o);
+        testPrx->checkSUnknown(o);
         dynamic_pointer_cast<Ice::UnknownSlicedValue>(o)->ice_getSlicedData()->clear();
     }
     catch(const Ice::NoValueFactoryException&)
     {
-        test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
+        test(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0);
     }
     catch(const std::exception& ex)
     {
@@ -668,19 +668,18 @@ testUOO(const TestIntfPrxPtr& test)
 
 }
 
-TestIntfPrxPtr
+TestIntfPrx
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:" + helper->getTestEndpoint());
-    TestIntfPrxPtr test = Ice::checkedCast<TestIntfPrx>(obj);
+    TestIntfPrx testPrx(communicator, "Test:" + helper->getTestEndpoint());
 
     cout << "base as Object... " << flush;
     {
         Ice::ValuePtr o;
         try
         {
-            o = test->SBaseAsObject();
+            o = testPrx->SBaseAsObject();
             test(o);
             test(o->ice_id() == "::Test::SBase");
         }
@@ -701,7 +700,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "base as Object (AMI)... " << flush;
     {
-        auto f = test->SBaseAsObjectAsync();
+        auto f = testPrx->SBaseAsObjectAsync();
         try
         {
             auto o = f.get();
@@ -723,7 +722,7 @@ allTests(Test::TestHelper* helper)
         SBasePtr sb;
         try
         {
-            sb = test->SBaseAsSBase();
+            sb = testPrx->SBaseAsSBase();
             test(sb->sb == "SBase.sb");
         }
         catch(...)
@@ -737,7 +736,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            auto sb = test->SBaseAsSBaseAsync().get();
+            auto sb = testPrx->SBaseAsSBaseAsync().get();
             test(sb->sb == "SBase.sb");
         }
         catch(...)
@@ -752,7 +751,7 @@ allTests(Test::TestHelper* helper)
         SBasePtr sb;
         try
         {
-            sb = test->SBSKnownDerivedAsSBase();
+            sb = testPrx->SBSKnownDerivedAsSBase();
             test(sb->sb == "SBSKnownDerived.sb");
         }
         catch(...)
@@ -767,11 +766,11 @@ allTests(Test::TestHelper* helper)
 
     cout << "base with known derived as base (AMI)... " << flush;
     {
-        auto f = test->SBSKnownDerivedAsSBaseAsync();
+        auto f = testPrx->SBSKnownDerivedAsSBaseAsync();
         try
         {
             shared_ptr<SBase> sb = f.get();
-            sb = test->SBSKnownDerivedAsSBase();
+            sb = testPrx->SBSKnownDerivedAsSBase();
             test(sb->sb == "SBSKnownDerived.sb");
             SBSKnownDerivedPtr sbskd = dynamic_pointer_cast<SBSKnownDerived>(sb);
             test(sbskd);
@@ -789,7 +788,7 @@ allTests(Test::TestHelper* helper)
         SBSKnownDerivedPtr sbskd;
         try
         {
-            sbskd = test->SBSKnownDerivedAsSBSKnownDerived();
+            sbskd = testPrx->SBSKnownDerivedAsSBSKnownDerived();
             test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         }
         catch(...)
@@ -801,10 +800,10 @@ allTests(Test::TestHelper* helper)
 
     cout << "base with known derived as known derived (AMI)... " << flush;
     {
-        auto f = test->SBSKnownDerivedAsSBSKnownDerivedAsync();
+        auto f = testPrx->SBSKnownDerivedAsSBSKnownDerivedAsync();
         try
         {
-            SBSKnownDerivedPtr sbskd = test->SBSKnownDerivedAsSBSKnownDerived();
+            SBSKnownDerivedPtr sbskd = testPrx->SBSKnownDerivedAsSBSKnownDerived();
             test(sbskd->sbskd == "SBSKnownDerived.sbskd");
         }
         catch(...)
@@ -819,7 +818,7 @@ allTests(Test::TestHelper* helper)
         SBasePtr sb;
         try
         {
-            sb = test->SBSUnknownDerivedAsSBase();
+            sb = testPrx->SBSUnknownDerivedAsSBase();
             test(sb->sb == "SBSUnknownDerived.sb");
         }
         catch(...)
@@ -827,14 +826,14 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
     }
-    if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+    if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
     {
         try
         {
             //
             // This test succeeds for the 1.0 encoding.
             //
-            SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
+            SBasePtr sb = testPrx->SBSUnknownDerivedAsSBaseCompact();
             test(sb->sb == "SBSUnknownDerived.sb");
         }
         catch(const Ice::OperationNotExistException&)
@@ -853,7 +852,7 @@ allTests(Test::TestHelper* helper)
             // This test fails when using the compact format because the instance cannot
             // be sliced to a known type.
             //
-            SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
+            SBasePtr sb = testPrx->SBSUnknownDerivedAsSBaseCompact();
             test(false);
         }
         catch(const Ice::OperationNotExistException&)
@@ -872,7 +871,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "base with unknown derived as base (AMI)... " << flush;
     {
-        auto f = test->SBSUnknownDerivedAsSBaseAsync();
+        auto f = testPrx->SBSUnknownDerivedAsSBaseAsync();
         try
         {
             SBasePtr sb = f.get();
@@ -883,12 +882,12 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
     }
-    if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+    if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
     {
         //
         // This test succeeds for the 1.0 encoding.
         //
-        auto f = test->SBSUnknownDerivedAsSBaseCompactAsync();
+        auto f = testPrx->SBSUnknownDerivedAsSBaseCompactAsync();
         try
         {
             SBasePtr sb = f.get();
@@ -905,7 +904,7 @@ allTests(Test::TestHelper* helper)
         // This test fails when using the compact format because the instance cannot
         // be sliced to a known type.
         //
-        auto f = test->SBSUnknownDerivedAsSBaseCompactAsync();
+        auto f = testPrx->SBSUnknownDerivedAsSBaseCompactAsync();
         try
         {
             f.get();
@@ -923,7 +922,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "unknown with Object as Object... " << flush;
     {
-        testUOO(test);
+        testUOO(testPrx);
     }
     cout << "ok" << endl;
 
@@ -931,9 +930,9 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
-                auto f = test->SUnknownAsObjectAsync();
+                auto f = testPrx->SUnknownAsObjectAsync();
                 try
                 {
                     f.get();
@@ -949,7 +948,7 @@ allTests(Test::TestHelper* helper)
             }
             else
             {
-                auto f = test->SUnknownAsObjectAsync();
+                auto f = testPrx->SUnknownAsObjectAsync();
                 try
                 {
                     shared_ptr<Ice::Value> v = f.get();
@@ -974,7 +973,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            BPtr b = test->oneElementCycle();
+            BPtr b = testPrx->oneElementCycle();
             test(b);
             test(b->ice_id() == "::Test::B");
             test(b->sb == "B1.sb");
@@ -991,7 +990,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "one-element cycle (AMI)... " << flush;
     {
-        auto f = test->oneElementCycleAsync();
+        auto f = testPrx->oneElementCycleAsync();
         try
         {
             auto b = f.get();
@@ -1013,7 +1012,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            BPtr b1 = test->twoElementCycle();
+            BPtr b1 = testPrx->twoElementCycle();
             test(b1);
             test(b1->ice_id() == "::Test::B");
             test(b1->sb == "B1.sb");
@@ -1036,7 +1035,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "two-element cycle (AMI)... " << flush;
     {
-        auto f = test->twoElementCycleAsync();
+        auto f = testPrx->twoElementCycleAsync();
         try
         {
             auto b1 = f.get();
@@ -1065,7 +1064,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             BPtr b1;
-            b1 = test->D1AsB();
+            b1 = testPrx->D1AsB();
             test(b1);
             test(b1->ice_id() == "::Test::D1");
             test(b1->sb == "D1.sb");
@@ -1095,7 +1094,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "known derived pointer slicing as base (AMI)... " << flush;
     {
-        auto f = test->D1AsBAsync();
+        auto f = testPrx->D1AsBAsync();
         try
         {
             auto b1 = f.get();
@@ -1131,7 +1130,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             D1Ptr d1;
-            d1 = test->D1AsD1();
+            d1 = testPrx->D1AsD1();
             test(d1);
             test(d1->ice_id() == "::Test::D1");
             test(d1->sb == "D1.sb");
@@ -1155,7 +1154,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "known derived pointer slicing as derived (AMI)... " << flush;
     {
-        auto f = test->D1AsD1Async();
+        auto f = testPrx->D1AsD1Async();
         try
         {
             auto d1 = f.get();
@@ -1185,7 +1184,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             BPtr b2;
-            b2 = test->D2AsB();
+            b2 = testPrx->D2AsB();
             test(b2);
             test(b2->ice_id() == "::Test::B");
             test(b2->sb == "D2.sb");
@@ -1214,7 +1213,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "unknown derived pointer slicing as base (AMI)... " << flush;
     {
-        auto f = test->D2AsBAsync();
+        auto f = testPrx->D2AsBAsync();
         try
         {
             auto b2 = f.get();
@@ -1250,7 +1249,7 @@ allTests(Test::TestHelper* helper)
         {
             BPtr b1;
             BPtr b2;
-            test->paramTest1(b1, b2);
+            testPrx->paramTest1(b1, b2);
 
             test(b1);
             test(b1->ice_id() == "::Test::D1");
@@ -1278,7 +1277,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "param ptr slicing with known first (AMI)... " << flush;
     {
-        auto f = test->paramTest1Async();
+        auto f = testPrx->paramTest1Async();
         try
         {
             auto result = f.get();
@@ -1315,7 +1314,7 @@ allTests(Test::TestHelper* helper)
         {
             BPtr b2;
             BPtr b1;
-            test->paramTest2(b2, b1);
+            testPrx->paramTest2(b2, b1);
 
             test(b1);
             test(b1->ice_id() == "::Test::D1");
@@ -1347,7 +1346,7 @@ allTests(Test::TestHelper* helper)
         {
             BPtr p1;
             BPtr p2;
-            BPtr r = test->returnTest1(p1, p2);
+            BPtr r = testPrx->returnTest1(p1, p2);
             test(r == p1);
 
             breakCycles(r);
@@ -1362,7 +1361,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "return value identity with known first (AMI)... " << flush;
     {
-        auto f = test->returnTest1Async();
+        auto f = testPrx->returnTest1Async();
         try
         {
             auto result = f.get();
@@ -1384,7 +1383,7 @@ allTests(Test::TestHelper* helper)
         {
             BPtr p1;
             BPtr p2;
-            BPtr r = test->returnTest2(p1, p2);
+            BPtr r = testPrx->returnTest2(p1, p2);
             test(r == p1);
 
             breakCycles(r);
@@ -1399,7 +1398,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "return value identity with unknown first (AMI)... " << flush;
     {
-        auto f = test->returnTest2Async();
+        auto f = testPrx->returnTest2Async();
         try
         {
             auto result = f.get();
@@ -1430,7 +1429,7 @@ allTests(Test::TestHelper* helper)
             d1->pb = d3;
             d1->pd1 = d3;
 
-            BPtr b1 = test->returnTest3(d1, d3);
+            BPtr b1 = testPrx->returnTest3(d1, d3);
 
             test(b1);
             test(b1->sb == "D1.sb");
@@ -1445,7 +1444,7 @@ allTests(Test::TestHelper* helper)
             test(b2->sb == "D3.sb");
             test(b2->pb == b1);
             D3Ptr p3 = dynamic_pointer_cast<D3>(b2);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
             }
@@ -1487,7 +1486,7 @@ allTests(Test::TestHelper* helper)
             d1->pb = d3;
             d1->pd1 = d3;
 
-            auto f = test->returnTest3Async(d1, d3);
+            auto f = testPrx->returnTest3Async(d1, d3);
             auto b1 = f.get();
 
             test(b1);
@@ -1503,7 +1502,7 @@ allTests(Test::TestHelper* helper)
             test(b2->sb == "D3.sb");
             test(b2->pb == b1);
             D3Ptr p3 = dynamic_pointer_cast<D3>(b2);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
             }
@@ -1545,7 +1544,7 @@ allTests(Test::TestHelper* helper)
             d1->pb = d3;
             d1->pd1 = d3;
 
-            BPtr b1 = test->returnTest3(d3, d1);
+            BPtr b1 = testPrx->returnTest3(d3, d1);
 
             test(b1);
             test(b1->sb == "D3.sb");
@@ -1562,7 +1561,7 @@ allTests(Test::TestHelper* helper)
             test(p3->pd1 == b1);
 
             D3Ptr p1 = dynamic_pointer_cast<D3>(b1);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p1);
             }
@@ -1604,7 +1603,7 @@ allTests(Test::TestHelper* helper)
             d1->pb = d3;
             d1->pd1 = d3;
 
-            auto f = test->returnTest3Async(d3, d1);
+            auto f = testPrx->returnTest3Async(d3, d1);
             auto b1 = f.get();
 
             test(b1);
@@ -1620,7 +1619,7 @@ allTests(Test::TestHelper* helper)
             test(p3->pd1 == b1);
 
             D3Ptr p1 = dynamic_pointer_cast<D3>(b1);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p1);
             }
@@ -1653,7 +1652,7 @@ allTests(Test::TestHelper* helper)
         {
             BPtr p1;
             BPtr p2;
-            BPtr ret = test->paramTest3(p1, p2);
+            BPtr ret = testPrx->paramTest3(p1, p2);
 
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
@@ -1683,7 +1682,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "remainder unmarshaling (3 instances) (AMI)... " << flush;
     {
-        auto f = test->paramTest3Async();
+        auto f = testPrx->paramTest3Async();
         try
         {
             auto result = f.get();
@@ -1722,7 +1721,7 @@ allTests(Test::TestHelper* helper)
         try
         {
             BPtr b;
-            BPtr ret = test->paramTest4(b);
+            BPtr ret = testPrx->paramTest4(b);
 
             test(b);
             test(b->sb == "D4.sb (1)");
@@ -1746,7 +1745,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "remainder unmarshaling (4 instances) (AMI)... " << flush;
     {
-        auto f = test->paramTest4Async();
+        auto f = testPrx->paramTest4Async();
         try
         {
             auto result = f.get();
@@ -1791,12 +1790,12 @@ allTests(Test::TestHelper* helper)
             b2->sb = "B.sb(2)";
             b2->pb = b1;
 
-            BPtr r = test->returnTest3(d3, b2);
+            BPtr r = testPrx->returnTest3(d3, b2);
 
             test(r);
 
             D3Ptr p3 = dynamic_pointer_cast<D3>(r);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
             }
@@ -1841,10 +1840,10 @@ allTests(Test::TestHelper* helper)
             b2->sb = "B.sb(2)";
             b2->pb = b1;
 
-            auto r = test->returnTest3Async(d3, b2).get();
+            auto r = testPrx->returnTest3Async(d3, b2).get();
             test(r);
             D3Ptr p3 = dynamic_pointer_cast<D3>(r);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
             }
@@ -1893,12 +1892,12 @@ allTests(Test::TestHelper* helper)
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
 
-            BPtr r = test->returnTest3(d3, d12);
+            BPtr r = testPrx->returnTest3(d3, d12);
             test(r);
             test(r->sb == "D3.sb");
             test(r->pb == r);
             D3Ptr p3 = dynamic_pointer_cast<D3>(r);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
             }
@@ -1943,12 +1942,12 @@ allTests(Test::TestHelper* helper)
             d12->sd1 = "D1.sd1(2)";
             d12->pd1 = d11;
 
-            auto r = test->returnTest3Async(d3, d12).get();
+            auto r = testPrx->returnTest3Async(d3, d12).get();
             test(r);
             test(r->sb == "D3.sb");
             test(r->pb == r);
             D3Ptr p3 = dynamic_pointer_cast<D3>(r);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p3);
             }
@@ -2021,7 +2020,7 @@ allTests(Test::TestHelper* helper)
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
 
-                ss = test->sequenceTest(ss1, ss2);
+                ss = testPrx->sequenceTest(ss1, ss2);
 
                 breakCycles(ss1);
                 breakCycles(ss2);
@@ -2052,7 +2051,7 @@ allTests(Test::TestHelper* helper)
             test(ss2b->ice_id() == "::Test::B");
             test(ss2d1->ice_id() == "::Test::D1");
 
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(ss1d3->ice_id() == "::Test::B");
                 test(ss2d3->ice_id() == "::Test::B");
@@ -2123,7 +2122,7 @@ allTests(Test::TestHelper* helper)
                 ss2->s.push_back(ss2d1);
                 ss2->s.push_back(ss2d3);
 
-                ss = test->sequenceTestAsync(ss1, ss2).get();
+                ss = testPrx->sequenceTestAsync(ss1, ss2).get();
                 breakCycles(ss1);
                 breakCycles(ss2);
             }
@@ -2153,7 +2152,7 @@ allTests(Test::TestHelper* helper)
             test(ss2b->ice_id() == "::Test::B");
             test(ss2d1->ice_id() == "::Test::D1");
 
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(ss1d3->ice_id() == "::Test::B");
                 test(ss2d3->ice_id() == "::Test::B");
@@ -2193,7 +2192,7 @@ allTests(Test::TestHelper* helper)
                 bin[i] = d1;
             }
 
-            r = test->dictionaryTest(bin, bout);
+            r = testPrx->dictionaryTest(bin, bout);
 
             test(bout.size() == 10);
             for(i = 0; i < 10; ++i)
@@ -2254,7 +2253,7 @@ allTests(Test::TestHelper* helper)
                 bin[i] = d1;
             }
 
-            auto result = test->dictionaryTestAsync(bin).get();
+            auto result = testPrx->dictionaryTestAsync(bin).get();
             r = std::get<0>(result);
             bout = std::get<1>(result);
 
@@ -2302,7 +2301,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->throwBaseAsBase();
+            testPrx->throwBaseAsBase();
             test(false);
         }
         catch(const BaseException& e)
@@ -2325,7 +2324,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->throwBaseAsBaseAsync().get();
+            testPrx->throwBaseAsBaseAsync().get();
             test(false);
         }
         catch(const BaseException& ex)
@@ -2348,7 +2347,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->throwDerivedAsBase();
+            testPrx->throwDerivedAsBase();
             test(false);
         }
         catch(const DerivedException& e)
@@ -2378,7 +2377,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->throwDerivedAsBaseAsync().get();
+            testPrx->throwDerivedAsBaseAsync().get();
             test(false);
         }
         catch(const DerivedException& ex)
@@ -2408,7 +2407,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->throwDerivedAsDerived();
+            testPrx->throwDerivedAsDerived();
             test(false);
         }
         catch(const DerivedException& e)
@@ -2438,7 +2437,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->throwDerivedAsDerivedAsync().get();
+            testPrx->throwDerivedAsDerivedAsync().get();
             test(false);
         }
         catch(const DerivedException& e)
@@ -2468,7 +2467,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->throwUnknownDerivedAsBase();
+            testPrx->throwUnknownDerivedAsBase();
             test(false);
         }
         catch(const BaseException& e)
@@ -2491,7 +2490,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->throwUnknownDerivedAsBaseAsync().get();
+            testPrx->throwUnknownDerivedAsBaseAsync().get();
             test(false);
         }
         catch(const BaseException& e)
@@ -2519,7 +2518,7 @@ allTests(Test::TestHelper* helper)
         pd->pi = 3;
         pd->ps = "preserved";
         pd->pb = pd;
-        PBasePtr r = test->exchangePBase(pd);
+        PBasePtr r = testPrx->exchangePBase(pd);
         PDerivedPtr p2 = dynamic_pointer_cast<PDerived>(r);
         test(p2);
         test(p2->pi == 3);
@@ -2542,10 +2541,10 @@ allTests(Test::TestHelper* helper)
         pu->pi = 3;
         pu->pu = "preserved";
 
-        PBasePtr r = test->exchangePBase(pu);
+        PBasePtr r = testPrx->exchangePBase(pu);
         test(r->pi == 3);
         PCUnknownPtr p2 = dynamic_pointer_cast<PCUnknown>(r);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
         }
@@ -2570,9 +2569,9 @@ allTests(Test::TestHelper* helper)
         PCDerivedPtr pcd = std::make_shared<PCDerived>();
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
-        PBasePtr r = test->exchangePBase(pcd);
+        PBasePtr r = testPrx->exchangePBase(pcd);
         PCDerivedPtr p2 = dynamic_pointer_cast<PCDerived>(r);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
             test(r->pi == 3);
@@ -2601,9 +2600,9 @@ allTests(Test::TestHelper* helper)
         CompactPCDerivedPtr pcd = std::make_shared<CompactPCDerived>();
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
-        PBasePtr r = test->exchangePBase(pcd);
+        PBasePtr r = testPrx->exchangePBase(pcd);
         CompactPCDerivedPtr p2 = dynamic_pointer_cast<CompactPCDerived>(r);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p2);
             test(r->pi == 3);
@@ -2646,9 +2645,9 @@ allTests(Test::TestHelper* helper)
         pcd->pcd2 = pcd->pi;
         pcd->pcd3 = pcd->pbs[10];
 
-        PBasePtr r = test->exchangePBase(pcd);
+        PBasePtr r = testPrx->exchangePBase(pcd);
         PCDerived3Ptr p3 = dynamic_pointer_cast<PCDerived3>(r);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
             test(!p3);
             test(dynamic_pointer_cast<Preserved>(r));
@@ -2685,15 +2684,15 @@ allTests(Test::TestHelper* helper)
         // The preserved slices should be excluded for the 1.0 encoding, otherwise
         // they should be included.
         //
-        PreservedPtr p = test->PBSUnknownAsPreserved();
-        test->checkPBSUnknown(p);
-        if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
+        PreservedPtr p = testPrx->PBSUnknownAsPreserved();
+        testPrx->checkPBSUnknown(p);
+        if(testPrx->ice_getEncodingVersion() != Ice::Encoding_1_0)
         {
             Ice::SlicedDataPtr slicedData = p->ice_getSlicedData();
             test(slicedData);
             test(slicedData->slices.size() == 1);
             test(slicedData->slices[0]->typeId == "::Test::PSUnknown");
-            test->ice_encodingVersion(Ice::Encoding_1_0)->checkPBSUnknown(p);
+            testPrx->ice_encodingVersion(Ice::Encoding_1_0)->checkPBSUnknown(p);
         }
         else
         {
@@ -2721,7 +2720,7 @@ allTests(Test::TestHelper* helper)
 
         try
         {
-            auto r = dynamic_pointer_cast<PDerived>(test->exchangePBaseAsync(pd).get());
+            auto r = dynamic_pointer_cast<PDerived>(testPrx->exchangePBaseAsync(pd).get());
             test(r);
             test(r->pi == 3);
             test(r->ps == "preserved");
@@ -2744,11 +2743,11 @@ allTests(Test::TestHelper* helper)
         pu->pu = "preserved";
         try
         {
-            auto r = test->exchangePBaseAsync(pu).get();
+            auto r = testPrx->exchangePBaseAsync(pu).get();
             test(r->pi == 3);
 
             auto p2 = dynamic_pointer_cast<PCUnknown>(r);
-            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
                 test(!p2);
             }
@@ -2774,9 +2773,9 @@ allTests(Test::TestHelper* helper)
         PCDerivedPtr pcd = std::make_shared<PCDerived>();
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
-            auto r = test->exchangePBaseAsync(pcd).get();
+            auto r = testPrx->exchangePBaseAsync(pcd).get();
             auto p2 = dynamic_pointer_cast<PCDerived>(r);
             test(!p2);
             test(r->pi == 3);
@@ -2785,7 +2784,7 @@ allTests(Test::TestHelper* helper)
         }
         else
         {
-            auto r = test->exchangePBaseAsync(pcd).get();
+            auto r = testPrx->exchangePBaseAsync(pcd).get();
             auto p2 = dynamic_pointer_cast<PCDerived>(r);
             test(p2);
             test(p2->pi == 3);
@@ -2805,9 +2804,9 @@ allTests(Test::TestHelper* helper)
         pcd->pi = 3;
         pcd->pbs.push_back(pcd);
 
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
-            auto r = test->exchangePBaseAsync(pcd).get();
+            auto r = testPrx->exchangePBaseAsync(pcd).get();
             auto p2 = dynamic_pointer_cast<CompactPCDerived>(r);
             test(!p2);
             test(r->pi == 3);
@@ -2816,7 +2815,7 @@ allTests(Test::TestHelper* helper)
         }
         else
         {
-            auto r = test->exchangePBaseAsync(pcd).get();
+            auto r = testPrx->exchangePBaseAsync(pcd).get();
             auto p2 = dynamic_pointer_cast<CompactPCDerived>(r);
             test(p2);
             test(p2->pi == 3);
@@ -2848,9 +2847,9 @@ allTests(Test::TestHelper* helper)
         pcd->pcd2 = pcd->pi;
         pcd->pcd3 = pcd->pbs[10];
 
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        if(testPrx->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
-            auto r = test->exchangePBaseAsync(pcd).get();
+            auto r = testPrx->exchangePBaseAsync(pcd).get();
             auto p2 = dynamic_pointer_cast<PCDerived>(r);
             test(!p2);
             test(r->pi == 3);
@@ -2859,7 +2858,7 @@ allTests(Test::TestHelper* helper)
         }
         else
         {
-            auto r = test->exchangePBaseAsync(pcd).get();
+            auto r = testPrx->exchangePBaseAsync(pcd).get();
             auto p3 = dynamic_pointer_cast<PCDerived3>(r);
             test(p3);
             test(p3->pi == 3);
@@ -2879,5 +2878,5 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    return test;
+    return testPrx;
 }

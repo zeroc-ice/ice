@@ -139,7 +139,7 @@ CallbackReceiverI::answerConcurrentCallbacks(unsigned int num)
 }
 
 void
-CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy,
+CallbackI::initiateCallbackAsync(optional<CallbackReceiverPrx> proxy,
                                  function<void()> response,
                                  function<void(exception_ptr)> error,
                                  const Current& current)
@@ -156,7 +156,7 @@ CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy,
 }
 
 void
-CallbackI::initiateCallbackExAsync(CallbackReceiverPrxPtr proxy,
+CallbackI::initiateCallbackExAsync(optional<CallbackReceiverPrx> proxy,
                                    function<void()> response,
                                    function<void(exception_ptr)> error,
                                    const Current& current)
@@ -173,7 +173,7 @@ CallbackI::initiateCallbackExAsync(CallbackReceiverPrxPtr proxy,
 }
 
 void
-CallbackI::initiateConcurrentCallbackAsync(int number, CallbackReceiverPrxPtr proxy,
+CallbackI::initiateConcurrentCallbackAsync(int number, optional<CallbackReceiverPrx> proxy,
                                            function<void(int)> response,
                                            function<void(exception_ptr)> error,
                                            const Current& current)
@@ -182,7 +182,7 @@ CallbackI::initiateConcurrentCallbackAsync(int number, CallbackReceiverPrxPtr pr
 }
 
 void
-CallbackI::initiateWaitCallbackAsync(CallbackReceiverPrxPtr proxy,
+CallbackI::initiateWaitCallbackAsync(optional<CallbackReceiverPrx> proxy,
                                    function<void()> response,
                                    function<void(exception_ptr)> error,
                                    const Current& current)
@@ -191,7 +191,7 @@ CallbackI::initiateWaitCallbackAsync(CallbackReceiverPrxPtr proxy,
 }
 
 void
-CallbackI::initiateCallbackWithPayloadAsync(CallbackReceiverPrxPtr proxy,
+CallbackI::initiateCallbackWithPayloadAsync(optional<CallbackReceiverPrx> proxy,
                                             function<void()> response,
                                             function<void(exception_ptr)> error,
                                             const Current& current)

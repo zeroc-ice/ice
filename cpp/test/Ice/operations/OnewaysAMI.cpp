@@ -71,9 +71,9 @@ using CallbackPtr = std::shared_ptr<Callback>;
 }
 
 void
-onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrxPtr& proxy)
+onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
 {
-    Test::MyClassPrxPtr p = Ice::uncheckedCast<Test::MyClassPrx>(proxy->ice_oneway());
+    Test::MyClassPrx p = proxy->ice_oneway();
 
     {
         CallbackPtr cb = std::make_shared<Callback>();

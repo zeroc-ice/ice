@@ -7,28 +7,29 @@
 
 #include <ServerPrivate.h>
 
-class TestI : public virtual Test::TestIntf
+class TestI final : public Test::TestIntf
 {
 public:
 
     TestI();
-    virtual void baseAsBase(const ::Ice::Current&);
-    virtual void unknownDerivedAsBase(const ::Ice::Current&);
-    virtual void knownDerivedAsBase(const ::Ice::Current&);
-    virtual void knownDerivedAsKnownDerived(const ::Ice::Current&);
 
-    virtual void unknownIntermediateAsBase(const ::Ice::Current&);
-    virtual void knownIntermediateAsBase(const ::Ice::Current&);
-    virtual void knownMostDerivedAsBase(const ::Ice::Current&);
-    virtual void knownIntermediateAsKnownIntermediate(const ::Ice::Current&);
-    virtual void knownMostDerivedAsKnownIntermediate(const ::Ice::Current&);
-    virtual void knownMostDerivedAsKnownMostDerived(const ::Ice::Current&);
+    void baseAsBase(const Ice::Current&) final;
+    void unknownDerivedAsBase(const Ice::Current&) final;
+    void knownDerivedAsBase(const Ice::Current&) final;
+    void knownDerivedAsKnownDerived(const Ice::Current&) final;
 
-    virtual void unknownMostDerived1AsBase(const ::Ice::Current&);
-    virtual void unknownMostDerived1AsKnownIntermediate(const ::Ice::Current&);
-    virtual void unknownMostDerived2AsBase(const ::Ice::Current&);
+    void unknownIntermediateAsBase(const Ice::Current&) final;
+    void knownIntermediateAsBase(const Ice::Current&) final;
+    void knownMostDerivedAsBase(const Ice::Current&) final;
+    void knownIntermediateAsKnownIntermediate(const Ice::Current&) final;
+    void knownMostDerivedAsKnownIntermediate(const Ice::Current&) final;
+    void knownMostDerivedAsKnownMostDerived(const Ice::Current&) final;
 
-    virtual void shutdown(const ::Ice::Current&);
+    void unknownMostDerived1AsBase(const Ice::Current&) final;
+    void unknownMostDerived1AsKnownIntermediate(const Ice::Current&) final;
+    void unknownMostDerived2AsBase(const Ice::Current&) final;
+
+    void shutdown(const Ice::Current&) final;
 };
 
 #endif

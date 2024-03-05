@@ -84,7 +84,7 @@ namespace
 
         ProcessControllerI(id<ControllerView>, NSString*, NSString*);
 
-        virtual ProcessPrxPtr start(string, string, StringSeq, const Ice::Current&);
+        virtual optional<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
         virtual string getHost(string, bool, const Ice::Current&);
 
     private:
@@ -330,7 +330,7 @@ ProcessControllerI::ProcessControllerI(id<ControllerView> controller, NSString* 
 {
 }
 
-ProcessPrxPtr
+optional<ProcessPrx>
 ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ice::Current& c)
 {
     StringSeq newArgs = args;
@@ -339,7 +339,7 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     newArgs.insert(newArgs.begin(), testSuite + ' ' + exe);
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
     auto helper = make_shared<ControllerHelperI>(_controller, prefix + '/' + exe + ".bundle", newArgs);
-    return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper)));
+    return ProcessPrx(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper)));
 }
 
 string

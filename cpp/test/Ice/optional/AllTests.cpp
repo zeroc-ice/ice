@@ -301,7 +301,7 @@ public:
     }
 };
 
-InitialPrxPtr
+InitialPrx
 allTests(Test::TestHelper* helper, bool)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
@@ -313,17 +313,7 @@ allTests(Test::TestHelper* helper, bool)
                                                 },
                                                 "");
 
-    cout << "testing stringToProxy... " << flush;
-    string ref = "initial:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
-    test(base);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-    InitialPrxPtr initial = Ice::checkedCast<InitialPrx>(base);
-    test(initial);
-    test(initial == base);
-    cout << "ok" << endl;
+    InitialPrx initial(communicator, "initial:" + helper->getTestEndpoint());
 
     cout << "testing constructor, copy constructor, and assignment operator... " << flush;
 
@@ -354,7 +344,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->g = 1.0;
     mo1->h = string("test");
     mo1->i = MyEnum::MyEnumMember;
-    mo1->j = Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test"));
+    mo1->j = MyInterfacePrx(communicator, "test");
     mo1->k = mo1;
     mo1->bs = ByteSeq();
     (*mo1->bs).push_back(5);
@@ -384,7 +374,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->oos = OneOptionalSeq();
     mo1->oos->push_back(oo1);
     mo1->mips = MyInterfacePrxSeq();
-    mo1->mips->push_back(Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test")));
+    mo1->mips->push_back(MyInterfacePrx(communicator, "test"));
 
     mo1->ied = IntEnumDict();
     mo1->ied.value()[4] = MyEnum::MyEnumMember;
@@ -396,7 +386,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->iood.value()[5] = make_shared<OneOptional>();
     mo1->iood.value()[5]->a = 15;
     mo1->imipd = IntMyInterfacePrxDict();
-    mo1->imipd.value()[5] = Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test"));
+    mo1->imipd.value()[5] = MyInterfacePrx(communicator, "test");
 
     mo1->bos = BoolSeq();
     mo1->bos->push_back(false);
@@ -417,7 +407,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo3->g == 1.0);
     test(mo3->h == string("test"));
     test(mo3->i = MyEnum::MyEnumMember);
-    test(mo3->j = Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test")));
+    test(mo3->j = MyInterfacePrx(communicator, "test"));
     test(mo3->k == mo1);
     test(mo3->bs == mo1->bs);
     test(mo3->ss == mo1->ss);
@@ -1338,7 +1328,7 @@ allTests(Test::TestHelper* helper, bool)
         optional<MyInterfacePrx> p2 = initial->opMyInterfaceProxy(p1, p3);
         test(!p2 && !p3);
 
-        p1 = Ice::uncheckedCast<MyInterfacePrx>(communicator->stringToProxy("test"));
+        p1 = MyInterfacePrx(communicator, "test");
         p2 = initial->opMyInterfaceProxy(p1, p3);
 
         test(p2.value() == p1.value() && p3.value() == p1.value());

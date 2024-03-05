@@ -15,29 +15,16 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    cout << "testing stringToProxy... " << flush;
-    Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
-    test(base);
-    cout << "ok" << endl;
 
-    cout << "testing IceGrid.Locator is present... " << flush;
-    IceGrid::LocatorPrxPtr locator = Ice::uncheckedCast<IceGrid::LocatorPrx>(base);
-    test(locator);
-    cout << "ok" << endl;
-
-    cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
-    test(obj);
-    test(obj == base);
-    cout << "ok" << endl;
+    TestIntfPrx obj(communicator, "test @ TestAdapter");
+    IceGrid::LocatorPrx locator(obj);
 
     cout << "pinging server... " << flush;
-    obj->ice_ping();
+    locator->ice_ping();
     cout << "ok" << endl;
 
     cout << "testing locator finder... " << flush;
-
-    auto finder = Ice::checkedCast<Ice::LocatorFinderPrx>(
+    Ice::LocatorFinderPrx finder(
         communicator->getDefaultLocator()->ice_identity(Ice::Identity{ "LocatorFinder", "Ice" }));
     test(finder->getLocator());
     cout << "ok" << endl;
@@ -48,13 +35,12 @@ allTests(Test::TestHelper* helper)
         cout << "testing discovery... " << flush;
         {
             // Add test well-known object
-            IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
-                communicator->stringToProxy(
-                    communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
-            test(registry);
+            IceGrid::RegistryPrx registry(
+                communicator,
+                communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
-            IceGrid::AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
-            session->getAdmin()->addObjectWithType(base, "::Test");
+            optional<IceGrid::AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
+            session->getAdmin()->addObjectWithType(locator, "::Test");
             session->destroy();
 
             //
@@ -75,9 +61,8 @@ allTests(Test::TestHelper* helper)
             com->stringToProxy("test @ TestAdapter")->ice_ping();
             com->stringToProxy("test")->ice_ping();
             test(com->getDefaultLocator()->getRegistry());
-            test(Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
-            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalRegistry());
-            test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
+            test(IceGrid::LocatorPrx(com->getDefaultLocator().value())->getLocalRegistry());
+            test(IceGrid::LocatorPrx(com->getDefaultLocator().value())->getLocalQuery());
 
             Ice::ObjectAdapterPtr adapter = com->createObjectAdapter("AdapterForDiscoveryTest");
             adapter->activate();
@@ -119,7 +104,7 @@ allTests(Test::TestHelper* helper)
             test(!Ice::checkedCast<IceGrid::LocatorPrx>(com->getDefaultLocator()));
             try
             {
-                test(Ice::uncheckedCast<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
+                test(optional<IceGrid::LocatorPrx>(com->getDefaultLocator())->getLocalQuery());
             }
             catch(const Ice::OperationNotExistException&)
             {
@@ -226,21 +211,9 @@ void
 allTestsWithDeploy(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    cout << "testing stringToProxy... " << flush;
-    Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
-    test(base);
-    Ice::ObjectPrxPtr base2 = communicator->stringToProxy("test");
-    test(base2);
-    cout << "ok" << endl;
 
-    cout << "testing checked cast... " << flush;
-    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(base);
-    test(obj);
-    test(obj == base);
-    TestIntfPrxPtr obj2 = Ice::checkedCast<TestIntfPrx>(base2);
-    test(obj2);
-    test(obj2 == base2);
-    cout << "ok" << endl;
+    TestIntfPrx obj(communicator, "test @ TestAdapter");
+    TestIntfPrx obj2(communicator, "test");
 
     cout << "pinging server... " << flush;
     obj->ice_ping();
@@ -248,10 +221,9 @@ allTestsWithDeploy(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing encoding versioning... " << flush;
-    Ice::ObjectPrxPtr base10 = communicator->stringToProxy("test10 @ TestAdapter10");
-    test(base10);
-    Ice::ObjectPrxPtr base102 = communicator->stringToProxy("test10");
-    test(base102);
+    Ice::ObjectPrx base10(communicator, "test10 @ TestAdapter10");
+    Ice::ObjectPrx base102(communicator, "test10");
+
     try
     {
         base10->ice_ping();
@@ -277,7 +249,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     cout << "testing reference with unknown identity... " << flush;
     try
     {
-        communicator->stringToProxy("unknown/unknown")->ice_ping();
+        Ice::ObjectPrx(communicator, "unknown/unknown")->ice_ping();
         test(false);
     }
     catch (const Ice::NotRegisteredException& ex)
@@ -290,7 +262,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     cout << "testing reference with unknown adapter... " << flush;
     try
     {
-        communicator->stringToProxy("test @ TestAdapterUnknown")->ice_ping();
+        Ice::ObjectPrx(communicator, "test @ TestAdapterUnknown")->ice_ping();
         test(false);
     }
     catch (const Ice::NotRegisteredException& ex)
@@ -300,24 +272,22 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
-        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
-    test(registry);
+    IceGrid::RegistryPrx registry(
+        communicator,
+        communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry");
 
-    IceGrid::AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
+    optional<IceGrid::AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatAlways);
 
-    IceGrid::AdminPrxPtr admin = session->getAdmin();
-    test(admin);
-
+    optional<IceGrid::AdminPrx> admin = session->getAdmin();
     admin->enableServer("server", false);
     admin->stopServer("server");
 
     cout << "testing whether server is still reachable... " << flush;
     try
     {
-        obj = Ice::checkedCast<TestIntfPrx>(base);
+        obj->ice_ping();
         test(false);
     }
     catch(const Ice::NoEndpointException&)
@@ -325,7 +295,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     try
     {
-        obj2 = Ice::checkedCast<TestIntfPrx>(base2);
+        obj2->ice_ping();
         test(false);
     }
     catch(const Ice::NoEndpointException&)
@@ -336,7 +306,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
 
     try
     {
-        obj = Ice::checkedCast<TestIntfPrx>(base);
+        obj->ice_ping();
     }
     catch(const Ice::NoEndpointException&)
     {
@@ -344,7 +314,7 @@ allTestsWithDeploy(Test::TestHelper* helper)
     }
     try
     {
-        obj2 = Ice::checkedCast<TestIntfPrx>(base2);
+        obj2->ice_ping();
     }
     catch(const Ice::NoEndpointException&)
     {

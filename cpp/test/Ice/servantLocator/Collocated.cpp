@@ -80,7 +80,7 @@ Collocated::run(int argc, char** argv)
     adapter->add(make_shared<TestI>(), Ice::stringToIdentity("asm"));
     adapter->add(make_shared<TestActivationI>(), Ice::stringToIdentity("test/activation"));
 
-    Test::TestIntfPrxPtr allTests(Test::TestHelper*);
+    Test::TestIntfPrx allTests(Test::TestHelper*);
     allTests(this);
 }
 

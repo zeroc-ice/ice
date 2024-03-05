@@ -13,14 +13,13 @@ TestIntfPrxPtr
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy("Test:" + helper->getTestEndpoint());
-    TestIntfPrxPtr test = Ice::checkedCast<TestIntfPrx>(obj);
+    TestIntfPrx testPrx(communicator, "Test:" + helper->getTestEndpoint());
 
     cout << "base... " << flush;
     {
         try
         {
-            test->baseAsBase();
+            testPrx->baseAsBase();
             test(false);
         }
         catch(const Base& b)
@@ -37,7 +36,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "base (AMI)... " << flush;
     {
-        auto result = test->baseAsBaseAsync();
+        auto result = testPrx->baseAsBaseAsync();
         try
         {
             result.get();
@@ -59,7 +58,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->unknownDerivedAsBase();
+            testPrx->unknownDerivedAsBase();
             test(false);
         }
         catch(const Base& b)
@@ -76,7 +75,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown derived (AMI)... " << flush;
     {
-        auto result = test->unknownDerivedAsBaseAsync();
+        auto result = testPrx->unknownDerivedAsBaseAsync();
         try
         {
             result.get();
@@ -98,7 +97,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->knownDerivedAsBase();
+            testPrx->knownDerivedAsBase();
             test(false);
         }
         catch(const KnownDerived& k)
@@ -116,7 +115,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known derived as base (AMI)... " << flush;
     {
-        auto result = test->knownDerivedAsBaseAsync();
+        auto result = testPrx->knownDerivedAsBaseAsync();
         try
         {
             result.get();
@@ -139,7 +138,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->knownDerivedAsKnownDerived();
+            testPrx->knownDerivedAsKnownDerived();
             test(false);
         }
         catch(const KnownDerived& k)
@@ -157,7 +156,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known derived as derived (AMI)... " << flush;
     {
-        auto result = test->knownDerivedAsKnownDerivedAsync();
+        auto result = testPrx->knownDerivedAsKnownDerivedAsync();
         try
         {
             result.get();
@@ -179,7 +178,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->unknownIntermediateAsBase();
+            testPrx->unknownIntermediateAsBase();
             test(false);
         }
         catch(const Base& b)
@@ -196,7 +195,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown intermediate as base (AMI)... " << flush;
     {
-        auto result = test->unknownIntermediateAsBaseAsync();
+        auto result = testPrx->unknownIntermediateAsBaseAsync();
         try
         {
             result.get();
@@ -218,7 +217,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->knownIntermediateAsBase();
+            testPrx->knownIntermediateAsBase();
             test(false);
         }
         catch(const KnownIntermediate& ki)
@@ -236,7 +235,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of known intermediate as base (AMI)... " << flush;
     {
-        auto result = test->knownIntermediateAsBaseAsync();
+        auto result = testPrx->knownIntermediateAsBaseAsync();
         try
         {
             result.get();
@@ -259,7 +258,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->knownMostDerivedAsBase();
+            testPrx->knownMostDerivedAsBase();
             test(false);
         }
         catch(const KnownMostDerived& kmd)
@@ -278,7 +277,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of known most derived as base (AMI)... " << flush;
     {
-        auto result = test->knownMostDerivedAsBaseAsync();
+        auto result = testPrx->knownMostDerivedAsBaseAsync();
         try
         {
             result.get();
@@ -302,7 +301,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->knownIntermediateAsKnownIntermediate();
+            testPrx->knownIntermediateAsKnownIntermediate();
             test(false);
         }
         catch(const KnownIntermediate& ki)
@@ -320,7 +319,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known intermediate as intermediate (AMI)... " << flush;
     {
-        auto result = test->knownIntermediateAsKnownIntermediateAsync();
+        auto result = testPrx->knownIntermediateAsKnownIntermediateAsync();
         try
         {
             result.get();
@@ -343,7 +342,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->knownMostDerivedAsKnownIntermediate();
+            testPrx->knownMostDerivedAsKnownIntermediate();
             test(false);
         }
         catch(const KnownMostDerived& kmd)
@@ -362,7 +361,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known most derived as intermediate (AMI)... " << flush;
     {
-        auto result = test->knownMostDerivedAsKnownIntermediateAsync();
+        auto result = testPrx->knownMostDerivedAsKnownIntermediateAsync();
         try
         {
             result.get();
@@ -386,7 +385,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->knownMostDerivedAsKnownMostDerived();
+            testPrx->knownMostDerivedAsKnownMostDerived();
             test(false);
         }
         catch(const KnownMostDerived& kmd)
@@ -405,7 +404,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "non-slicing of known most derived as most derived (AMI)... " << flush;
     {
-        auto result = test->knownMostDerivedAsKnownMostDerivedAsync();
+        auto result = testPrx->knownMostDerivedAsKnownMostDerivedAsync();
         try
         {
             result.get();
@@ -429,7 +428,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->unknownMostDerived1AsBase();
+            testPrx->unknownMostDerived1AsBase();
             test(false);
         }
         catch(const KnownIntermediate& ki)
@@ -447,7 +446,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown most derived, known intermediate as base (AMI)... " << flush;
     {
-        auto result = test->unknownMostDerived1AsBaseAsync();
+        auto result = testPrx->unknownMostDerived1AsBaseAsync();
         try
         {
             result.get();
@@ -470,7 +469,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->unknownMostDerived1AsKnownIntermediate();
+            testPrx->unknownMostDerived1AsKnownIntermediate();
             test(false);
         }
         catch(const KnownIntermediate& ki)
@@ -488,7 +487,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown most derived, known intermediate as intermediate (AMI)... " << flush;
     {
-        auto result = test->unknownMostDerived1AsKnownIntermediateAsync();
+        auto result = testPrx->unknownMostDerived1AsKnownIntermediateAsync();
         try
         {
             result.get();
@@ -511,7 +510,7 @@ allTests(Test::TestHelper* helper)
     {
         try
         {
-            test->unknownMostDerived2AsBase();
+            testPrx->unknownMostDerived2AsBase();
             test(false);
         }
         catch(const Base& b)
@@ -528,7 +527,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "slicing of unknown most derived, unknown intermediate as base (AMI)... " << flush;
     {
-        auto result = test->unknownMostDerived2AsBaseAsync();
+        auto result = testPrx->unknownMostDerived2AsBaseAsync();
         try
         {
             result.get();
@@ -546,5 +545,5 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    return test;
+    return testPrx;
 }

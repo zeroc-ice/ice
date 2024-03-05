@@ -47,10 +47,10 @@ protected:
 struct Subscription final
 {
     shared_ptr<Ice::ObjectAdapter> adapter;
-    Ice::ObjectPrxPtr obj;
+    optional<Ice::ObjectPrx> obj;
     shared_ptr<EventI> servant;
     IceStorm::QoS qos;
-    Ice::ObjectPrxPtr publisher;
+    optional<Ice::ObjectPrx> publisher;
     bool activate = true;
 };
 
@@ -271,7 +271,8 @@ public:
 void
 Subscriber::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    auto communicator = ich.communicator();
     IceUtilInternal::Options opts;
     opts.addOpt("", "events", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "qos", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
@@ -347,14 +348,7 @@ Subscriber::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    auto manager = checkedCast<IceStorm::TopicManagerPrx>(
-        communicator->stringToProxy(managerProxy));
-    if(!manager)
-    {
-        ostringstream os;
-        os << argv[0] << ": `" << managerProxy << "' is not running";
-        throw invalid_argument(os.str());
-    }
+    IceStorm::TopicManagerPrx manager(communicator, managerProxy);
 
     vector<Subscription> subs;
 
@@ -366,7 +360,7 @@ Subscriber::run(int argc, char** argv)
             os << "SubscriberAdapter" << i;
             Subscription item;
             item.adapter = communicator->createObjectAdapterWithEndpoints(os.str(), "default");
-            item.servant = make_shared<ErraticEventI>(communicator.communicator(), events);
+            item.servant = make_shared<ErraticEventI>(communicator, events);
             item.qos["reliability"] = "twoway";
             subs.push_back(item);
         }
@@ -375,7 +369,7 @@ Subscriber::run(int argc, char** argv)
     {
         Subscription item;
         item.adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
-        item.servant = make_shared<SlowEventI>(communicator.communicator(), events);
+        item.servant = make_shared<SlowEventI>(communicator, events);
         item.qos = cmdLineQos;
         subs.push_back(item);
     }
@@ -385,11 +379,11 @@ Subscriber::run(int argc, char** argv)
         item1.adapter = communicator->createObjectAdapterWithEndpoints("MaxQueueAdapter", "default");
         if(maxQueueDropEvents)
         {
-            item1.servant = make_shared<MaxQueueEventI>(communicator.communicator(), maxQueueDropEvents, events, false);
+            item1.servant = make_shared<MaxQueueEventI>(communicator, maxQueueDropEvents, events, false);
         }
         else
         {
-            item1.servant = make_shared<MaxQueueEventI>(communicator.communicator(), maxQueueRemoveSub, events, true);
+            item1.servant = make_shared<MaxQueueEventI>(communicator, maxQueueRemoveSub, events, true);
         }
         item1.qos = cmdLineQos;
         item1.activate = false;
@@ -397,7 +391,7 @@ Subscriber::run(int argc, char** argv)
 
         Subscription item2;
         item2.adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "default");
-        item2.servant = make_shared<ControllerEventI>(communicator.communicator(), events, item1.adapter);
+        item2.servant = make_shared<ControllerEventI>(communicator, events, item1.adapter);
         item2.qos["reliability"] = "oneway";
         subs.push_back(item2);
     }
@@ -409,11 +403,11 @@ Subscriber::run(int argc, char** argv)
         auto p = item.qos.find("reliability");
         if(p != item.qos.end() && p->second == "ordered")
         {
-            item.servant = make_shared<OrderEventI>(communicator.communicator(), events);
+            item.servant = make_shared<OrderEventI>(communicator, events);
         }
         else
         {
-            item.servant = make_shared<CountEventI>(communicator.communicator(), events);
+            item.servant = make_shared<CountEventI>(communicator, events);
         }
         subs.push_back(item);
     }

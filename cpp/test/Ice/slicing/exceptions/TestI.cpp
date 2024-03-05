@@ -8,13 +8,14 @@
 
 using namespace std;
 using namespace Test;
+using namespace Ice;
 
 TestI::TestI()
 {
 }
 
 void
-TestI::baseAsBase(const ::Ice::Current&)
+TestI::baseAsBase(const Current&)
 {
     Base b;
     b.b = "Base.b";
@@ -22,7 +23,7 @@ TestI::baseAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::unknownDerivedAsBase(const ::Ice::Current&)
+TestI::unknownDerivedAsBase(const Current&)
 {
     UnknownDerived d;
     d.b = "UnknownDerived.b";
@@ -31,7 +32,7 @@ TestI::unknownDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownDerivedAsBase(const ::Ice::Current&)
+TestI::knownDerivedAsBase(const Current&)
 {
     KnownDerived d;
     d.b = "KnownDerived.b";
@@ -40,7 +41,7 @@ TestI::knownDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownDerivedAsKnownDerived(const ::Ice::Current&)
+TestI::knownDerivedAsKnownDerived(const Current&)
 {
     KnownDerived d;
     d.b = "KnownDerived.b";
@@ -49,7 +50,7 @@ TestI::knownDerivedAsKnownDerived(const ::Ice::Current&)
 }
 
 void
-TestI::unknownIntermediateAsBase(const ::Ice::Current&)
+TestI::unknownIntermediateAsBase(const Current&)
 {
     UnknownIntermediate ui;
     ui.b = "UnknownIntermediate.b";
@@ -58,7 +59,7 @@ TestI::unknownIntermediateAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownIntermediateAsBase(const ::Ice::Current&)
+TestI::knownIntermediateAsBase(const Current&)
 {
     KnownIntermediate ki;
     ki.b = "KnownIntermediate.b";
@@ -67,7 +68,7 @@ TestI::knownIntermediateAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownMostDerivedAsBase(const ::Ice::Current&)
+TestI::knownMostDerivedAsBase(const Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -77,7 +78,7 @@ TestI::knownMostDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownIntermediateAsKnownIntermediate(const ::Ice::Current&)
+TestI::knownIntermediateAsKnownIntermediate(const Current&)
 {
     KnownIntermediate ki;
     ki.b = "KnownIntermediate.b";
@@ -86,7 +87,7 @@ TestI::knownIntermediateAsKnownIntermediate(const ::Ice::Current&)
 }
 
 void
-TestI::knownMostDerivedAsKnownIntermediate(const ::Ice::Current&)
+TestI::knownMostDerivedAsKnownIntermediate(const Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -97,7 +98,7 @@ TestI::knownMostDerivedAsKnownIntermediate(const ::Ice::Current&)
 
 void
 TestI::
-knownMostDerivedAsKnownMostDerived(const ::Ice::Current&)
+knownMostDerivedAsKnownMostDerived(const Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -107,7 +108,7 @@ knownMostDerivedAsKnownMostDerived(const ::Ice::Current&)
 }
 
 void
-TestI::unknownMostDerived1AsBase(const ::Ice::Current&)
+TestI::unknownMostDerived1AsBase(const Current&)
 {
     UnknownMostDerived1 umd1;
     umd1.b = "UnknownMostDerived1.b";
@@ -117,7 +118,7 @@ TestI::unknownMostDerived1AsBase(const ::Ice::Current&)
 }
 
 void
-TestI::unknownMostDerived1AsKnownIntermediate(const ::Ice::Current&)
+TestI::unknownMostDerived1AsKnownIntermediate(const Current&)
 {
     UnknownMostDerived1 umd1;
     umd1.b = "UnknownMostDerived1.b";
@@ -127,7 +128,7 @@ TestI::unknownMostDerived1AsKnownIntermediate(const ::Ice::Current&)
 }
 
 void
-TestI::unknownMostDerived2AsBase(const ::Ice::Current&)
+TestI::unknownMostDerived2AsBase(const Current&)
 {
     UnknownMostDerived2 umd2;
     umd2.b = "UnknownMostDerived2.b";

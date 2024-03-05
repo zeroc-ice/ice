@@ -24,7 +24,8 @@ public:
 void
 Publisher::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    auto communicator = ich.communicator();
     IceUtilInternal::Options opts;
     opts.addOpt("", "count", IceUtilInternal::Options::NeedArg);
     opts.parse(argc, (const char**)argv);
@@ -36,15 +37,10 @@ Publisher::run(int argc, char** argv)
         throw runtime_error("property `IceStormAdmin.TopicManager.Default' is not set");
     }
 
-    auto base = communicator->stringToProxy(managerProxy);
-    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
-    {
-        throw runtime_error("`" + managerProxy + "' is not running");
-    }
+    IceStorm::TopicManagerPrx manager(communicator, managerProxy);
 
     auto fed1 = manager->retrieve("fed1");
-    auto eventFed1 = uncheckedCast<EventPrx>(fed1->getPublisher()->ice_oneway());
+    optional<EventPrx> eventFed1(fed1->getPublisher()->ice_oneway());
 
     string arg = opts.optArg("count");
     int count = 1;
