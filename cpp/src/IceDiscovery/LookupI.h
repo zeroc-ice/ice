@@ -27,7 +27,7 @@ public:
     Request(const LookupIPtr&, int);
 
     virtual bool retry();
-    void invoke(const std::string&, const std::vector<std::pair<LookupPrxPtr, LookupReplyPrxPtr> >&);
+    void invoke(const std::string&, const std::vector<std::pair<LookupPrx, LookupReplyPrx> >&);
     bool exception();
     std::string getRequestId() const;
 
@@ -35,7 +35,7 @@ public:
 
 protected:
 
-    virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&) = 0;
+    virtual void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&) = 0;
 
     LookupIPtr _lookup;
     const std::string _requestId;
@@ -94,7 +94,7 @@ public:
 
 private:
 
-    virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&);
+    virtual void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&);
     virtual void runTimerTask();
 };
 using ObjectRequestPtr = std::shared_ptr<ObjectRequest>;
@@ -112,7 +112,7 @@ public:
 
 private:
 
-    virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&);
+    virtual void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&);
     virtual void runTimerTask();
 
     //
@@ -130,12 +130,12 @@ class LookupI : public Lookup, public std::enable_shared_from_this<LookupI>
 {
 public:
 
-    LookupI(const LocatorRegistryIPtr&, const LookupPrxPtr&, const Ice::PropertiesPtr&);
+    LookupI(const LocatorRegistryIPtr&, const LookupPrx&, const Ice::PropertiesPtr&);
     virtual ~LookupI();
 
     void destroy();
 
-    void setLookupReply(const LookupReplyPrxPtr&);
+    void setLookupReply(const LookupReplyPrx&);
 
     virtual void findObjectById(std::string, Ice::Identity, IceDiscovery::LookupReplyPrxPtr,
                                 const Ice::Current&);
@@ -167,15 +167,15 @@ public:
 private:
 
     LocatorRegistryIPtr _registry;
-    LookupPrxPtr _lookup;
-    std::vector<std::pair<LookupPrxPtr, LookupReplyPrxPtr> > _lookups;
+    LookupPrx _lookup;
+    std::vector<std::pair<LookupPrx, LookupReplyPrx>> _lookups;
     const std::chrono::milliseconds _timeout;
     const int _retryCount;
     const int _latencyMultiplier;
     const std::string _domainId;
 
     IceUtil::TimerPtr _timer;
-    Ice::ObjectPrxPtr _wellKnownProxy;
+    Ice::ObjectPrx _wellKnownProxy;
     bool _warnOnce;
 
     std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
@@ -183,14 +183,14 @@ private:
     std::mutex _mutex;
 };
 
-class LookupReplyI : public LookupReply
+class LookupReplyI final : public LookupReply
 {
 public:
 
     LookupReplyI(const LookupIPtr&);
 
-    virtual void foundObjectById(Ice::Identity, Ice::ObjectPrxPtr, const Ice::Current&);
-    virtual void foundAdapterById(std::string, Ice::ObjectPrxPtr, bool, const Ice::Current&);
+    void foundObjectById(Ice::Identity, Ice::ObjectPrxPtr, const Ice::Current&) final;
+    void foundAdapterById(std::string, Ice::ObjectPrxPtr, bool, const Ice::Current&) final;
 
 private:
 

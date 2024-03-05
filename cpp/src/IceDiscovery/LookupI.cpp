@@ -18,7 +18,7 @@ using namespace Ice;
 using namespace IceDiscovery;
 
 IceDiscovery::Request::Request(const LookupIPtr& lookup, int retryCount) :
-    _lookup(lookup), _requestId(Ice::generateUUID()), _retryCount(retryCount), _lookupCount(0), _failureCount(0)
+    _lookup(lookup),_requestId(Ice::generateUUID()), _retryCount(retryCount), _lookupCount(0), _failureCount(0)
 {
 }
 
@@ -29,15 +29,16 @@ IceDiscovery::Request::retry()
 }
 
 void
-IceDiscovery::Request::invoke(const string& domainId, const vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >& lookups)
+IceDiscovery::Request::invoke(const string& domainId, const vector<pair<LookupPrx, LookupReplyPrx> >& lookups)
 {
     _lookupCount = lookups.size();
     _failureCount = 0;
     Ice::Identity id;
     id.name = _requestId;
-    for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::const_iterator p = lookups.begin(); p != lookups.end(); ++p)
+
+    for (const auto& p : lookups)
     {
-        invokeWithLookup(domainId, p->first, Ice::uncheckedCast<LookupReplyPrx>(p->second->ice_identity(id)));
+        invokeWithLookup(domainId, p.first, LookupReplyPrx(p.second->ice_identity(id)));
     }
 }
 
@@ -122,13 +123,17 @@ AdapterRequest::finished(const ObjectPrxPtr& proxy)
 }
 
 void
-AdapterRequest::invokeWithLookup(const string& domainId, const LookupPrxPtr& lookup, const LookupReplyPrxPtr& lookupReply)
+AdapterRequest::invokeWithLookup(const string& domainId, const LookupPrx& lookup, const LookupReplyPrx& lookupReply)
 {
-    auto self = shared_from_this();
-    lookup->findAdapterByIdAsync(domainId, _id, lookupReply, nullptr, [self](exception_ptr ex)
-    {
-        self->_lookup->adapterRequestException(self, ex);
-    });
+    lookup->findAdapterByIdAsync(
+        domainId,
+        _id,
+        lookupReply,
+        nullptr,
+        [self = shared_from_this()](exception_ptr ex)
+        {
+            self->_lookup->adapterRequestException(self, ex);
+        });
 }
 
 void
@@ -143,19 +148,23 @@ ObjectRequest::ObjectRequest(const LookupIPtr& lookup, const Ice::Identity& id, 
 }
 
 void
-ObjectRequest::response(const Ice::ObjectPrxPtr& proxy)
+ObjectRequest::response(const optional<ObjectPrx>& proxy)
 {
     finished(proxy);
 }
 
 void
-ObjectRequest::invokeWithLookup(const string& domainId, const LookupPrxPtr& lookup, const LookupReplyPrxPtr& lookupReply)
+ObjectRequest::invokeWithLookup(const string& domainId, const LookupPrx& lookup, const LookupReplyPrx& lookupReply)
 {
-    auto self = shared_from_this();
-    lookup->findObjectByIdAsync(domainId, _id, lookupReply, nullptr, [self](exception_ptr ex)
-    {
-        self->_lookup->objectRequestException(self, ex);
-    });
+    lookup->findObjectByIdAsync(
+        domainId,
+        _id,
+        lookupReply,
+        nullptr,
+        [self = shared_from_this()](exception_ptr ex)
+        {
+            self->_lookup->objectRequestException(self, ex);
+        });
 }
 
 void
@@ -164,7 +173,7 @@ ObjectRequest::runTimerTask()
     _lookup->objectRequestTimedOut(shared_from_this());
 }
 
-LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrxPtr& lookup, const Ice::PropertiesPtr& properties) :
+LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrx& lookup, const Ice::PropertiesPtr& properties) :
     _registry(registry),
     _lookup(lookup),
     _timeout(chrono::milliseconds(properties->getPropertyAsIntWithDefault("IceDiscovery.Timeout", 300))),
@@ -212,7 +221,7 @@ LookupI::destroy()
 }
 
 void
-LookupI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
+LookupI::setLookupReply(const LookupReplyPrx& lookupReply)
 {
     //
     // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
