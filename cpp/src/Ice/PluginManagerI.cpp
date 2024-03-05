@@ -225,12 +225,10 @@ Ice::PluginManagerI::destroy() noexcept
     }
 
     _plugins.clear();
-    _libraries = 0;
 }
 
-Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator, const DynamicLibraryListPtr& libraries) :
+Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator) :
     _communicator(communicator),
-    _libraries(libraries),
     _initialized(false)
 {
 }
@@ -423,7 +421,6 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     }
 
     PluginFactory factory = 0;
-    DynamicLibraryPtr library;
 
     //
     // Always check the static plugin factory table first, it takes
@@ -446,12 +443,12 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     if(!factory)
     {
         assert(!entryPoint.empty());
-        library = make_shared<DynamicLibrary>();
-        DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
+        DynamicLibrary library;
+        DynamicLibrary::symbol_type sym = library.loadEntryPoint(entryPoint);
         if(sym == 0)
         {
             ostringstream os;
-            string msg = library->getErrorMessage();
+            string msg = library.getErrorMessage();
             os << "unable to load entry point `" << entryPoint << "'";
             if(!msg.empty())
             {
@@ -477,11 +474,6 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     info.name = name;
     info.plugin = plugin;
     _plugins.push_back(info);
-
-    if(library)
-    {
-        _libraries->add(library);
-    }
 }
 
 Ice::PluginPtr

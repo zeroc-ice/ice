@@ -6,17 +6,19 @@
 #define ICE_DYNAMIC_LIBRARY_H
 
 #include <Ice/Config.h>
-#include <Ice/DynamicLibraryF.h>
 
 namespace IceInternal
 {
 
-class ICE_API DynamicLibrary
+class ICE_API DynamicLibrary final
 {
 public:
 
     DynamicLibrary();
-    virtual ~DynamicLibrary();
+    ~DynamicLibrary();
+
+    DynamicLibrary(const DynamicLibrary&) = delete;
+    DynamicLibrary& operator=(const DynamicLibrary&) = delete;
 
 #ifdef _WIN32
     typedef FARPROC symbol_type;
@@ -82,19 +84,6 @@ private:
     void* _hnd;
 #endif
     std::string _err;
-};
-
-class ICE_API DynamicLibraryList
-{
-public:
-
-    virtual ~DynamicLibraryList();
-
-    void add(const DynamicLibraryPtr&);
-
-private:
-
-    std::vector<DynamicLibraryPtr> _libraries;
 };
 
 }

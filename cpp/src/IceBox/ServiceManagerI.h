@@ -8,7 +8,6 @@
 #include <IceBox/IceBox.h>
 #include <Ice/LoggerF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/DynamicLibraryF.h>
 #include <map>
 
 namespace IceBox
@@ -55,7 +54,6 @@ private:
     {
         ::std::string name;
         ServicePtr service;
-        ::IceInternal::DynamicLibraryPtr library;
         ::Ice::CommunicatorPtr communicator;
         ::std::string envName;
         ServiceStatus status;

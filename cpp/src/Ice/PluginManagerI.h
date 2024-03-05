@@ -8,7 +8,6 @@
 #include <Ice/Plugin.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/DynamicLibraryF.h>
 #include <Ice/BuiltinSequences.h>
 
 #include <map>
@@ -30,7 +29,7 @@ public:
     virtual PluginPtr getPlugin(const std::string&);
     virtual void addPlugin(const std::string&, const PluginPtr&);
     virtual void destroy() noexcept;
-    PluginManagerI(const CommunicatorPtr&, const IceInternal::DynamicLibraryListPtr&);
+    PluginManagerI(const CommunicatorPtr&);
 
 private:
 
@@ -42,7 +41,6 @@ private:
     PluginPtr findPlugin(const std::string&) const;
 
     CommunicatorPtr _communicator;
-    IceInternal::DynamicLibraryListPtr _libraries;
 
     struct PluginInfo
     {

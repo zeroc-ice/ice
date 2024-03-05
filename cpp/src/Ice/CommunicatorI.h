@@ -5,7 +5,6 @@
 #ifndef ICE_COMMUNICATOR_I_H
 #define ICE_COMMUNICATOR_I_H
 
-#include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 #include "Ice/OutgoingAsync.h"
@@ -124,12 +123,6 @@ private:
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
     friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
     const ::IceInternal::InstancePtr _instance;
-
-    //
-    // We don't want the dynamic libraries to be unloaded until the
-    // Communicator's destructor is invoked.
-    //
-    const ::IceInternal::DynamicLibraryListPtr _dynamicLibraryList;
 };
 
 }
