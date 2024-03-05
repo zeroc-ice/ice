@@ -50,17 +50,17 @@ bool isLongLineEnd(const string& line)
 
 }
 
-function<bool(const Ice::ObjectPrxPtr&)>
+function<bool(const optional<Ice::ObjectPrx>&)>
 proxyIdentityEqual(const string& strId)
 {
-    return [id = Ice::stringToIdentity(strId)](const Ice::ObjectPrxPtr& obj)
+    return [id = Ice::stringToIdentity(strId)](const optional<Ice::ObjectPrx>& obj)
     {
         return obj->ice_getIdentity() == id;
     };
 }
 
 void
-logTests(const shared_ptr<Ice::Communicator>& comm, const AdminSessionPrxPtr& session)
+logTests(const shared_ptr<Ice::Communicator>& comm, const optional<AdminSessionPrx>& session)
 {
     cout << "testing stderr/stdout/log files... " << flush;
     string testDir = comm->getProperties()->getProperty("TestDir");
@@ -90,7 +90,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const AdminSessionPrxPtr& se
     {
     }
 
-    Ice::ObjectPrxPtr obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("LogServer"));
+    TestIntfPrx(comm, "LogServer")->ice_ping();
     try
     {
         session->openServerStdErr("LogServer", -1)->destroy();
@@ -102,7 +102,7 @@ logTests(const shared_ptr<Ice::Communicator>& comm, const AdminSessionPrxPtr& se
         test(false);
     }
 
-    FileIteratorPrxPtr it;
+    optional<FileIteratorPrx> it;
     Ice::StringSeq lines;
     try
     {
@@ -362,20 +362,16 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr comm = helper->communicator();
-    IceGrid::RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
-        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
-    test(registry);
-    IceGrid::QueryPrxPtr query = Ice::checkedCast<IceGrid::QueryPrx>(
-        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Query"));
-    test(query);
+    IceGrid::RegistryPrx registry(comm, comm->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+    IceGrid::QueryPrx query(comm, comm->getDefaultLocator()->ice_getIdentity().category + "/Query");
 
-    AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
+    optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          nullopt,
                                          Ice::ACMHeartbeat::HeartbeatAlways);
 
-    AdminPrxPtr admin = session->getAdmin();
+    optional<AdminPrx> admin = session->getAdmin();
     test(admin);
 
     cout << "testing server registration... "  << flush;
@@ -424,21 +420,21 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Ice::ObjectPrxPtr obj = query->findObjectByType("::Test");
+        optional<Ice::ObjectPrx> obj = query->findObjectByType("::Test");
         string id = comm->identityToString(obj->ice_getIdentity());
         test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
              id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
-        Ice::ObjectPrxPtr obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample::LoadSample5);
+        optional<Ice::ObjectPrx> obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample::LoadSample5);
         string id = comm->identityToString(obj->ice_getIdentity());
         test(id.find("Server") == 0 || id.find("IceBox") == 0 ||
              id == "SimpleServer" || id == "SimpleIceBox-SimpleService" || id == "ReplicatedObject");
     }
 
     {
-        Ice::ObjectPrxPtr obj = query->findObjectByType("::Foo");
+        optional<Ice::ObjectPrx> obj = query->findObjectByType("::Foo");
         test(!obj);
 
         obj = query->findObjectByTypeOnLeastLoadedNode("::Foo", LoadSample::LoadSample15);
@@ -474,7 +470,8 @@ allTests(Test::TestHelper* helper)
     replicated14.name = "ReplicatedObject14";
     test(query->findObjectById(replicated14)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.4"));
 
-    Ice::LocatorPrxPtr locator = comm->getDefaultLocator();
+    optional<Ice::LocatorPrx> locator = comm->getDefaultLocator();
+    test(locator);
     test(query->findObjectById(encoding10_oneway) == locator->findObjectById(encoding10_oneway));
     test(query->findObjectById(encoding10_secure) == locator->findObjectById(encoding10_secure));
     test(query->findObjectById(oaoptions) == locator->findObjectById(oaoptions));
@@ -495,20 +492,18 @@ allTests(Test::TestHelper* helper)
     // server. Ensure we can reach each object.
     //
     cout << "pinging server objects... " << flush;
-    TestIntfPrxPtr obj;
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server1@Server1.Server"));
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server2@Server2.Server"));
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("SimpleServer@SimpleServer.Server"));
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
-    obj = Ice::checkedCast<TestIntfPrx>(
-        comm->stringToProxy("SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService"));
+    TestIntfPrx(comm, "Server1@Server1.Server")->ice_ping();
+    TestIntfPrx(comm, "Server2@Server2.Server")->ice_ping();
+    TestIntfPrx(comm, "SimpleServer@SimpleServer.Server")->ice_ping();
+    TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1")->ice_ping();
+    TestIntfPrx(comm, "IceBox1-Service2@IceBox1Service2Adapter")->ice_ping();
+    TestIntfPrx(comm, "IceBox2-Service1@IceBox2.Service1.Service1")->ice_ping();
+    TestIntfPrx(comm, "IceBox2-Service2@IceBox2Service2Adapter")->ice_ping();
+    TestIntfPrx(comm, "SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService")->ice_ping();
     cout << "ok" << endl;
 
     cout << "testing server configuration... " << flush;
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server1@Server1.Server"));
+    TestIntfPrx obj(comm, "Server1@Server1.Server");
     test(obj->getProperty("Type") == "Server");
     test(obj->getProperty("Name") == "Server1");
     test(obj->getProperty("NameName") == "Server1Server1");
@@ -531,7 +526,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    obj = TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1");
     test(obj->getProperty("Service1.Type") == "standard");
     test(obj->getProperty("Service1.ServiceName") == "Service1");
     test(obj->getProperty("TestService1Identity") == "IceBox1-Service1");
@@ -547,7 +542,7 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("PropertyWithEscapeSpace") == "foo\\ ");
     test(obj->getProperty("PropertyWithProperty") == "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+    obj = TestIntfPrx(comm, "IceBox2-Service2@IceBox2Service2Adapter");
     test(obj->getProperty("Service2.Type") == "nonstandard");
     test(obj->getProperty("Service2.ServiceName") == "Service2");
     test(obj->getProperty("Service2.DebugProperty") == "");
@@ -555,21 +550,20 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing server options... " << flush;
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server1@Server1.Server"));
+    obj = TestIntfPrx(comm, "Server1@Server1.Server");
     test(obj->getProperty("Test.Test") == "2");
     test(obj->getProperty("Test.Test1") == "0");
     cout << "ok" << endl;
 
     cout << "testing variables... " << flush;
-    vector<TestIntfPrxPtr> proxies;
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server1@Server1.Server"));
+    vector<optional<TestIntfPrx>> proxies;
+    obj = TestIntfPrx(comm, "Server1@Server1.Server");
     proxies.push_back(obj);
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    obj = TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1");
     proxies.push_back(obj);
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("SimpleServer@SimpleServer.Server"));
+    obj = TestIntfPrx(comm, "SimpleServer@SimpleServer.Server");
     proxies.push_back(obj);
-    obj = Ice::checkedCast<TestIntfPrx>(
-        comm->stringToProxy("SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService"));
+    obj = TestIntfPrx(comm, "SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService");
     proxies.push_back(obj);
 
     for(const auto& p : proxies)
@@ -589,7 +583,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing parameters... " << flush;
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server1@Server1.Server"));
+    obj = TestIntfPrx(comm, "Server1@Server1.Server");
     test(obj->getProperty("Param1Prop") == "Param1");
     test(obj->getProperty("Param2Prop") == "AppVar");
     test(obj->getProperty("ParamEscapedProp") == "${escaped}");
@@ -597,7 +591,7 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("AppVarOverridedByParamProp") == "Overrided");
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
     test(obj->getProperty("DefaultParamProp") == "VALUE");
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server2@Server2.Server"));
+    obj = TestIntfPrx(comm, "Server2@Server2.Server");
     test(obj->getProperty("Param1Prop") == "Param12");
     test(obj->getProperty("Param2Prop") == "OverridedInNode");
     test(obj->getProperty("ParamEscapedProp") == "${escaped}");
@@ -606,16 +600,16 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
     test(obj->getProperty("DefaultParamProp") == "OTHERVALUE");
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    obj = TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1");
     test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Overrided");
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
+    obj = TestIntfPrx(comm, "IceBox1-Service2@IceBox1Service2Adapter");
     test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
+    obj = TestIntfPrx(comm, "IceBox2-Service1@IceBox2.Service1.Service1");
     test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Overrided");
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+    obj = TestIntfPrx(comm, "IceBox2-Service2@IceBox2Service2Adapter");
     test(obj->getProperty("AppVarOverridedByParamProp") == "Test");
     test(obj->getProperty("NodeVarOverridedByParamProp") == "Test");
 
@@ -640,33 +634,33 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing property sets..." << flush;
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server1@Server1.Server"));
+    obj = TestIntfPrx(comm, "Server1@Server1.Server");
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverrideMe");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server2@Server2.Server"));
+    obj = TestIntfPrx(comm, "Server2@Server2.Server");
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverrideMe");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
     test(obj->getProperty("ServerInstanceProperty") == "Server2");
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    obj = TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1");
     test(obj->getProperty("AppProperty") == ""); // IceBox server properties aren't inherited for IceBox1
     test(obj->getProperty("AppProperty2") == "");
     test(obj->getProperty("AppProperty21") == "");
     test(obj->getProperty("NodeProperty") == "");
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
+    obj = TestIntfPrx(comm, "IceBox2-Service1@IceBox2.Service1.Service1");
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverrideMe");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
     test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+    obj = TestIntfPrx(comm, "IceBox2-Service2@IceBox2Service2Adapter");
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverrideMe");
     test(obj->getProperty("AppProperty21") == "Override");
@@ -674,17 +668,17 @@ allTests(Test::TestHelper* helper)
     test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
     test(obj->getProperty("ServiceInstanceProperty") == "Service2");
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("SimpleServer@SimpleServer.Server"));
+    obj = TestIntfPrx(comm, "SimpleServer@SimpleServer.Server");
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverrideMe");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    obj = TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1");
     test(obj->getProperty("ServerInstanceServiceProperty") == "service1");
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox1-Service4@IceBox1.Service4.Service4"));
+    obj = TestIntfPrx(comm, "IceBox1-Service4@IceBox1.Service4.Service4");
     test(obj->getProperty("ServerInstanceServiceProperty") == "service4");
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox2-Service4@IceBox2.Service4.Service4"));
+    obj = TestIntfPrx(comm, "IceBox2-Service4@IceBox2.Service4.Service4");
     test(obj->getProperty("IceBoxInstanceProperty") == "overridden");
 
     cout << "ok" << endl;
@@ -729,25 +723,31 @@ void
 allTestsWithTarget(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr comm = helper->communicator();
-    RegistryPrxPtr registry = Ice::checkedCast<IceGrid::RegistryPrx>(
-        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
-    test(registry);
-    AdminSessionPrxPtr session = registry->createAdminSession("foo", "bar");
+    RegistryPrx registry(comm, comm->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+    optional<AdminSessionPrx> session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(), nullopt, Ice::ACMHeartbeat::HeartbeatOnIdle);
 
-    AdminPrxPtr admin = session->getAdmin();
+    optional<AdminPrx> admin = session->getAdmin();
     test(admin);
 
     cout << "testing targets... " << flush;
 
-    TestIntfPrxPtr obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server3@Server3.Server"));
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox3-Service1@IceBox3.Service1.Service1"));
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox3-Service3@IceBox3.Service3.Service3"));
+    TestIntfPrx obj(comm, "Server3@Server3.Server");
+    obj->ice_ping();
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("IceBox3-Service4@IceBox3.Service4.Service4"));
+    obj = TestIntfPrx(comm, "IceBox3-Service1@IceBox3.Service1.Service1");
+    obj->ice_ping();
 
-    obj = Ice::checkedCast<TestIntfPrx>(comm->stringToProxy("Server3@Server3.Server"));
+    obj = TestIntfPrx(comm, "IceBox3-Service3@IceBox3.Service3.Service3");
+    obj->ice_ping();
+
+    obj = TestIntfPrx(comm, "IceBox3-Service4@IceBox3.Service4.Service4");
+    obj->ice_ping();
+
+    obj = TestIntfPrx(comm, "Server3@Server3.Server");
+    obj->ice_ping();
+
     test(obj->getProperty("TargetProp") == "1");
 
     cout << "ok" << endl;

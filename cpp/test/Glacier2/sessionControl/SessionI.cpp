@@ -9,8 +9,8 @@
 using namespace std;
 using namespace Test;
 
-Glacier2::SessionPrxPtr
-SessionManagerI::create(string userId, Glacier2::SessionControlPrxPtr sessionControl,
+optional<Glacier2::SessionPrx>
+SessionManagerI::create(string userId, optional<Glacier2::SessionControlPrx> sessionControl,
                         const Ice::Current& current)
 {
     if(userId == "rejectme")
@@ -21,10 +21,10 @@ SessionManagerI::create(string userId, Glacier2::SessionControlPrxPtr sessionCon
     {
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
-    return Ice::uncheckedCast<Glacier2::SessionPrx>(current.adapter->addWithUUID(make_shared<SessionI>(sessionControl)));
+    return Glacier2::SessionPrx(current.adapter->addWithUUID(make_shared<SessionI>(sessionControl)));
 }
 
-SessionI::SessionI(Glacier2::SessionControlPrxPtr sessionControl) :
+SessionI::SessionI(optional<Glacier2::SessionControlPrx> sessionControl) :
     _sessionControl(std::move(sessionControl))
 {
     assert(_sessionControl);

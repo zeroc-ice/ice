@@ -28,11 +28,10 @@ AttackClient::run(int argc, char** argv)
     //
     properties->setProperty("Ice.RetryIntervals", "-1");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
+    auto communicator = ich.communicator();
 
-    auto routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
-    auto router = checkedCast<Glacier2::RouterPrx>(routerBase);
-    test(router);
+    Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint(50));
     communicator->setDefaultRouter(router);
 
     auto badProxies = communicator->getProperties()->getPropertiesForPrefix("Reject.Proxy.");
@@ -46,7 +45,7 @@ AttackClient::run(int argc, char** argv)
         {
             test(false);
         }
-        auto backend = uncheckedCast<BackendPrx>(communicator->stringToProxy(p.second));
+        BackendPrx backend(communicator, p.second);
         try
         {
             backend->ice_ping();
@@ -96,7 +95,7 @@ AttackClient::run(int argc, char** argv)
         {
             test(false);
         }
-        auto backend = uncheckedCast<BackendPrx>(communicator->stringToProxy(p.second));
+        BackendPrx backend(communicator, p.second);
         try
         {
             backend->ice_ping();

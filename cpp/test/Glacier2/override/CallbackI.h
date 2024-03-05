@@ -39,10 +39,10 @@ class CallbackI final : public Test::Callback
 {
 public:
 
-    void initiateCallbackAsync(Test::CallbackReceiverPrxPtr, int,
+    void initiateCallbackAsync(std::optional<Test::CallbackReceiverPrx>, int,
                                std::function<void()>, std::function<void(std::exception_ptr)>,
                                const Ice::Current&) override;
-    void initiateCallbackWithPayloadAsync(Test::CallbackReceiverPrxPtr,
+    void initiateCallbackWithPayloadAsync(std::optional<Test::CallbackReceiverPrx>,
                                           std::function<void()>, std::function<void(std::exception_ptr)>,
                                           const ::Ice::Current&) override;
     void shutdown(const Ice::Current&) override;

@@ -12,7 +12,8 @@
 #include <chrono>
 
 using namespace std;
-
+using namespace Ice;
+using namespace Test;
 namespace
 {
 
@@ -40,9 +41,9 @@ public:
     }
 
     void
-    exception(const Ice::Exception& ex)
+    exception(const Exception& ex)
     {
-        test(dynamic_cast<const Ice::NoEndpointException*>(&ex));
+        test(dynamic_cast<const NoEndpointException*>(&ex));
         test(Dispatcher::isDispatcherThread());
         called();
     }
@@ -52,9 +53,9 @@ public:
         test(false);
     }
 
-    void exceptionEx(const ::Ice::Exception& ex)
+    void exceptionEx(const ::Exception& ex)
     {
-        test(dynamic_cast<const Ice::InvocationTimeoutException*>(&ex));
+        test(dynamic_cast<const InvocationTimeoutException*>(&ex));
         test(Dispatcher::isDispatcherThread());
         called();
     }
@@ -66,9 +67,9 @@ public:
     }
 
     void
-    ignoreEx(const Ice::Exception& ex)
+    ignoreEx(const Exception& ex)
     {
-        test(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex));
+        test(dynamic_cast<const CommunicatorDestroyedException*>(&ex));
     }
 
     void
@@ -101,31 +102,23 @@ private:
     bool _called;
     bool _sentSynchronously;
 };
-using CallbackPtr = std::shared_ptr<Callback>;
+using CallbackPtr = shared_ptr<Callback>;
 
 }
 
 void
-allTests(Test::TestHelper* helper)
+allTests(TestHelper* helper)
 {
-    Ice::CommunicatorPtr communicator = helper->communicator();
-    string sref = "test:" + helper->getTestEndpoint();
-    Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
-    test(obj);
+    CommunicatorPtr communicator = helper->communicator();
 
-    auto p = Ice::uncheckedCast<Test::TestIntfPrx>(obj);
-
-    sref = "testController:" + helper->getTestEndpoint(1, "tcp");
-    obj = communicator->stringToProxy(sref);
-    test(obj);
-
-    Test::TestIntfControllerPrxPtr testController = Ice::uncheckedCast<Test::TestIntfControllerPrx>(obj);
+    TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
+    TestIntfControllerPrx testController(communicator, "testController:" + helper->getTestEndpoint(1, "tcp"));
 
     cout << "testing dispatcher... " << flush;
     {
         p->op();
 
-        CallbackPtr cb = std::make_shared<Callback>();
+        CallbackPtr cb = make_shared<Callback>();
         p->opAsync(
             [cb]()
             {
@@ -137,7 +130,7 @@ allTests(Test::TestHelper* helper)
                 {
                     rethrow_exception(err);
                 }
-                catch(const Ice::Exception& ex)
+                catch(const Exception& ex)
                 {
                     cb->exception(ex);
                 }
@@ -156,7 +149,7 @@ allTests(Test::TestHelper* helper)
                 {
                     rethrow_exception(err);
                 }
-                catch(const Ice::Exception& ex)
+                catch(const Exception& ex)
                 {
                     cb->exception(ex);
                 }
@@ -179,7 +172,7 @@ allTests(Test::TestHelper* helper)
                     {
                         rethrow_exception(err);
                     }
-                    catch(const Ice::Exception& ex)
+                    catch(const Exception& ex)
                     {
                         cb->exceptionEx(ex);
                     }
@@ -188,9 +181,9 @@ allTests(Test::TestHelper* helper)
         }
         testController->holdAdapter();
 
-        Ice::ByteSeq seq;
+        ByteSeq seq;
         seq.resize(1024); // Make sure the request doesn't compress too well.
-        for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+        for(ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
         {
             *q = static_cast<uint8_t>(IceUtilInternal::random(255));
         }

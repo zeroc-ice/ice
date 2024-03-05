@@ -24,7 +24,8 @@ Client::run(int argc, char** argv)
     properties->setProperty("Ice.UDP.RcvSize", "16384");
     properties->setProperty("Ice.UDP.SndSize", "16384");
 
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
+    auto communicator = ich.communicator();
     void allTests(Test::TestHelper*);
     allTests(this);
 
@@ -33,7 +34,7 @@ Client::run(int argc, char** argv)
     {
         ostringstream os;
         os << "control:" << getTestEndpoint(i, "tcp");
-        Ice::uncheckedCast<TestIntfPrx>(communicator->stringToProxy(os.str()))->shutdown();
+        TestIntfPrx(communicator, os.str())->shutdown();
     }
 }
 

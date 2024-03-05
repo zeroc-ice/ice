@@ -20,14 +20,14 @@ class ServerLocatorRegistry final : public LocatorRegistry
 public:
 
     void
-    setAdapterDirectProxyAsync(string, ObjectPrxPtr, function<void()> response, function<void(exception_ptr)>,
+    setAdapterDirectProxyAsync(string, optional<ObjectPrx>, function<void()> response, function<void(exception_ptr)>,
                                const Current&) override
     {
         response();
     }
 
     void
-    setReplicatedAdapterDirectProxyAsync(string, string, ObjectPrxPtr,
+    setReplicatedAdapterDirectProxyAsync(string, string, optional<ObjectPrx>,
                                          function<void()> response, function<void(exception_ptr)>,
                                          const Current&) override
     {
@@ -35,9 +35,11 @@ public:
     }
 
     void
-    setServerProcessProxyAsync(string, ProcessPrxPtr,
-                               function<void()> response, function<void(exception_ptr)>,
-                               const Current&) override
+    setServerProcessProxyAsync(
+        string,
+        optional<ProcessPrx>,
+        function<void()> response, function<void(exception_ptr)>,
+        const Current&) override
     {
         response();
     }
@@ -50,14 +52,13 @@ public:
     ServerLocatorI(shared_ptr<Backend> backend, const shared_ptr<ObjectAdapter>& adapter) :
         _backend(std::move(backend)),
         _adapter(adapter),
-        _registryPrx(uncheckedCast<LocatorRegistryPrx>(
-                         adapter->add(make_shared<ServerLocatorRegistry>(), Ice::stringToIdentity("registry"))))
+        _registryPrx(_adapter->add(make_shared<ServerLocatorRegistry>(), Ice::stringToIdentity("registry")))
     {
     }
 
     void
     findObjectByIdAsync(Identity id,
-                        function<void(const ObjectPrxPtr&)> response, function<void(exception_ptr)>,
+                        function<void(const optional<ObjectPrx>&)> response, function<void(exception_ptr)>,
                         const Current&) const override
     {
         response(_adapter->createProxy(id));
@@ -65,13 +66,13 @@ public:
 
     void
     findAdapterByIdAsync(string,
-                         function<void(const ObjectPrxPtr&)> response, function<void(exception_ptr)>,
+                         function<void(const optional<ObjectPrx>&)> response, function<void(exception_ptr)>,
                          const Current&) const override
     {
         response(_adapter->createDirectProxy(stringToIdentity("dummy")));
     }
 
-    LocatorRegistryPrxPtr
+    optional<LocatorRegistryPrx>
     getRegistry(const Current&) const override
     {
         return _registryPrx;
@@ -80,7 +81,7 @@ public:
 private:
     const shared_ptr<Backend> _backend;
     const shared_ptr<ObjectAdapter> _adapter;
-    const LocatorRegistryPrxPtr _registryPrx;
+    const LocatorRegistryPrx _registryPrx;
 };
 
 class BackendServer final : public Test::TestHelper

@@ -34,7 +34,7 @@ class PerThreadContextInvokeThread final
 {
 public:
 
-    PerThreadContextInvokeThread(const Test::MyClassPrxPtr& proxy) :
+    PerThreadContextInvokeThread(const Test::MyClassPrx& proxy) :
         _proxy(proxy)
     {
     }
@@ -50,13 +50,13 @@ public:
 
 private:
 
-    Test::MyClassPrxPtr _proxy;
+    Test::MyClassPrx _proxy;
 };
 
 }
 
 void
-twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test::MyClassPrxPtr& p)
+twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test::MyClassPrx& p)
 {
     Test::StringS literals = p->opStringLiterals();
 
@@ -336,9 +336,9 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     }
 
     {
-        Test::MyClassPrxPtr c1;
-        Test::MyClassPrxPtr c2;
-        Test::MyClassPrxPtr r;
+        optional<MyClassPrx> c1;
+        optional<MyClassPrx> c2;
+        optional<MyClassPrx> r;
 
         r = p->opMyClass(p, c1, c2);
         test(Ice::proxyIdentityAndFacetEqual(c1, p));
@@ -1716,7 +1716,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
                 test(r == ctx);
             }
             {
-                Test::MyClassPrxPtr p2 = Ice::checkedCast<Test::MyClassPrx>(p->ice_context(ctx));
+                MyClassPrx p2 = p->ice_context(ctx);
                 test(p2->ice_getContext() == ctx);
                 Test::StringStringD r = p2->opContext();
                 test(r == ctx);
@@ -1746,8 +1746,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
                 ctx["three"] = "THREE";
 
                 Ice::PropertiesPtr properties = ic->getProperties();
-                Test::MyClassPrxPtr q = Ice::uncheckedCast<Test::MyClassPrx>(
-                    ic->stringToProxy("test:" + TestHelper::getTestEndpoint(properties, 0)));
+                Test::MyClassPrx q(ic, "test:" + TestHelper::getTestEndpoint(properties, 0));
 
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
@@ -1769,7 +1768,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
 
-                q = Ice::uncheckedCast<Test::MyClassPrx>(q->ice_context(prxContext));
+                q = q->ice_context(prxContext);
 
                 ic->getImplicitContext()->setContext(Ice::Context());
                 test(q->opContext() == prxContext);
@@ -1810,7 +1809,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     test(p->opDouble1(1.0) == 1.0);
     test(p->opString1("opString1") == "opString1");
 
-    auto d = Ice::uncheckedCast<Test::MyDerivedClassPrx>(p);
+    MyDerivedClassPrx d(p);
 
     Test::MyStruct1 s;
     s.tesT = "Test::MyStruct1::s";

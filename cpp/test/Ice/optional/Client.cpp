@@ -22,8 +22,8 @@ Client::run(int argc, char** argv)
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.AcceptClassCycles", "1");
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-    InitialPrxPtr allTests(Test::TestHelper*, bool);
-    InitialPrxPtr initial = allTests(this, false);
+    InitialPrx allTests(Test::TestHelper*, bool);
+    InitialPrx initial = allTests(this, false);
     initial->shutdown();
 }
 

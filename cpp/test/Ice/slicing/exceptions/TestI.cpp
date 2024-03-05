@@ -8,13 +8,14 @@
 
 using namespace std;
 using namespace Test;
+using namespace Ice;
 
 TestI::TestI()
 {
 }
 
 void
-TestI::baseAsBase(const ::Ice::Current&)
+TestI::baseAsBase(const Current&)
 {
     Base b;
     b.b = "Base.b";
@@ -22,7 +23,7 @@ TestI::baseAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::unknownDerivedAsBase(const ::Ice::Current&)
+TestI::unknownDerivedAsBase(const Current&)
 {
     UnknownDerived d;
     d.b = "UnknownDerived.b";
@@ -31,7 +32,7 @@ TestI::unknownDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownDerivedAsBase(const ::Ice::Current&)
+TestI::knownDerivedAsBase(const Current&)
 {
     KnownDerived d;
     d.b = "KnownDerived.b";
@@ -40,7 +41,7 @@ TestI::knownDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownDerivedAsKnownDerived(const ::Ice::Current&)
+TestI::knownDerivedAsKnownDerived(const Current&)
 {
     KnownDerived d;
     d.b = "KnownDerived.b";
@@ -49,7 +50,7 @@ TestI::knownDerivedAsKnownDerived(const ::Ice::Current&)
 }
 
 void
-TestI::unknownIntermediateAsBase(const ::Ice::Current&)
+TestI::unknownIntermediateAsBase(const Current&)
 {
     UnknownIntermediate ui;
     ui.b = "UnknownIntermediate.b";
@@ -58,7 +59,7 @@ TestI::unknownIntermediateAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownIntermediateAsBase(const ::Ice::Current&)
+TestI::knownIntermediateAsBase(const Current&)
 {
     KnownIntermediate ki;
     ki.b = "KnownIntermediate.b";
@@ -67,7 +68,7 @@ TestI::knownIntermediateAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownMostDerivedAsBase(const ::Ice::Current&)
+TestI::knownMostDerivedAsBase(const Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -77,7 +78,7 @@ TestI::knownMostDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownIntermediateAsKnownIntermediate(const ::Ice::Current&)
+TestI::knownIntermediateAsKnownIntermediate(const Current&)
 {
     KnownIntermediate ki;
     ki.b = "KnownIntermediate.b";
@@ -86,7 +87,7 @@ TestI::knownIntermediateAsKnownIntermediate(const ::Ice::Current&)
 }
 
 void
-TestI::knownMostDerivedAsKnownIntermediate(const ::Ice::Current&)
+TestI::knownMostDerivedAsKnownIntermediate(const Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -97,7 +98,7 @@ TestI::knownMostDerivedAsKnownIntermediate(const ::Ice::Current&)
 
 void
 TestI::
-knownMostDerivedAsKnownMostDerived(const ::Ice::Current&)
+knownMostDerivedAsKnownMostDerived(const Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -107,7 +108,7 @@ knownMostDerivedAsKnownMostDerived(const ::Ice::Current&)
 }
 
 void
-TestI::unknownMostDerived1AsBase(const ::Ice::Current&)
+TestI::unknownMostDerived1AsBase(const Current&)
 {
     UnknownMostDerived1 umd1;
     umd1.b = "UnknownMostDerived1.b";
@@ -117,7 +118,7 @@ TestI::unknownMostDerived1AsBase(const ::Ice::Current&)
 }
 
 void
-TestI::unknownMostDerived1AsKnownIntermediate(const ::Ice::Current&)
+TestI::unknownMostDerived1AsKnownIntermediate(const Current&)
 {
     UnknownMostDerived1 umd1;
     umd1.b = "UnknownMostDerived1.b";
@@ -127,7 +128,7 @@ TestI::unknownMostDerived1AsKnownIntermediate(const ::Ice::Current&)
 }
 
 void
-TestI::unknownMostDerived2AsBase(const ::Ice::Current&)
+TestI::unknownMostDerived2AsBase(const Current&)
 {
     UnknownMostDerived2 umd2;
     umd2.b = "UnknownMostDerived2.b";
@@ -137,7 +138,7 @@ TestI::unknownMostDerived2AsBase(const ::Ice::Current&)
 }
 
 void
-TestI::unknownMostDerived2AsBaseCompact(const ::Ice::Current&)
+TestI::unknownMostDerived2AsBaseCompact(const Current&)
 {
     UnknownMostDerived2 umd2;
     umd2.b = "UnknownMostDerived2.b";
@@ -147,7 +148,7 @@ TestI::unknownMostDerived2AsBaseCompact(const ::Ice::Current&)
 }
 
 void
-TestI::knownPreservedAsBase(const ::Ice::Current&)
+TestI::knownPreservedAsBase(const Current&)
 {
     KnownPreservedDerived ex;
     ex.b = "base";
@@ -157,7 +158,7 @@ TestI::knownPreservedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::knownPreservedAsKnownPreserved(const ::Ice::Current&)
+TestI::knownPreservedAsKnownPreserved(const Current&)
 {
     KnownPreservedDerived ex;
     ex.b = "base";
@@ -167,23 +168,23 @@ TestI::knownPreservedAsKnownPreserved(const ::Ice::Current&)
 }
 
 void
-TestI::relayKnownPreservedAsBase(RelayPrxPtr r, const ::Ice::Current& c)
+TestI::relayKnownPreservedAsBase(optional<RelayPrx> r, const Current& c)
 {
-    RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+    RelayPrx p(c.con->createProxy(r->ice_getIdentity()));
     p->knownPreservedAsBase();
     test(false);
 }
 
 void
-TestI::relayKnownPreservedAsKnownPreserved(RelayPrxPtr r, const ::Ice::Current& c)
+TestI::relayKnownPreservedAsKnownPreserved(optional<RelayPrx> r, const Current& c)
 {
-    RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+    RelayPrx p(c.con->createProxy(r->ice_getIdentity()));
     p->knownPreservedAsKnownPreserved();
     test(false);
 }
 
 void
-TestI::unknownPreservedAsBase(const ::Ice::Current&)
+TestI::unknownPreservedAsBase(const Current&)
 {
     SPreserved2 ex;
     ex.b = "base";
@@ -195,7 +196,7 @@ TestI::unknownPreservedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::unknownPreservedAsKnownPreserved(const ::Ice::Current&)
+TestI::unknownPreservedAsKnownPreserved(const Current&)
 {
     SPreserved2 ex;
     ex.b = "base";
@@ -207,23 +208,23 @@ TestI::unknownPreservedAsKnownPreserved(const ::Ice::Current&)
 }
 
 void
-TestI::relayUnknownPreservedAsBase(RelayPrxPtr r, const ::Ice::Current& c)
+TestI::relayUnknownPreservedAsBase(optional<RelayPrx> r, const Current& c)
 {
-    RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+    RelayPrx p = r->ice_fixed(c.con);
     p->unknownPreservedAsBase();
     test(false);
 }
 
 void
-TestI::relayUnknownPreservedAsKnownPreserved(RelayPrxPtr r, const ::Ice::Current& c)
+TestI::relayUnknownPreservedAsKnownPreserved(optional<RelayPrx> r, const Current& c)
 {
-    RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+    RelayPrx p = r->ice_fixed(c.con);
     p->unknownPreservedAsKnownPreserved();
     test(false);
 }
 
 void
-TestI::shutdown(const ::Ice::Current& current)
+TestI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }

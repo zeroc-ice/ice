@@ -17,7 +17,7 @@ using namespace Test;
 using namespace IceGrid;
 
 void
-instantiateServer(const AdminPrxPtr& admin, const string& templ, const string& node,
+instantiateServer(const optional<AdminPrx>& admin, const string& templ, const string& node,
                   const map<string, string>& params,
                   const string& application = string("Test"), bool startServer = true)
 {
@@ -64,7 +64,7 @@ instantiateServer(const AdminPrxPtr& admin, const string& templ, const string& n
 }
 
 void
-removeServer(const AdminPrxPtr& admin, const string& id)
+removeServer(const optional<AdminPrx>& admin, const string& id)
 {
     try
     {
@@ -106,12 +106,11 @@ void
 allTests(Test::TestHelper* helper)
 {
     auto comm = helper->communicator();
-    auto registry = Ice::checkedCast<IceGrid::RegistryPrx>(
-        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
-    test(registry);
-    auto query = Ice::checkedCast<IceGrid::QueryPrx>(
-        comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Query"));
-    test(query);
+    IceGrid::RegistryPrx registry(
+        comm,
+        comm->getDefaultLocator()->ice_getIdentity().category + "/Registry");
+
+    IceGrid::QueryPrx query(comm, comm->getDefaultLocator()->ice_getIdentity().category + "/Query");
     auto session = registry->createAdminSession("foo", "bar");
 
     session->ice_getConnection()->setACM(registry->getACMTimeout(),
@@ -141,33 +140,33 @@ allTests(Test::TestHelper* helper)
         params["id"] = "Server3";
         instantiateServer(admin, "Server", "localnode", params);
 
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("dummy@RoundRobin"));
+        TestIntfPrx obj(comm, "dummy@RoundRobin");
         Ice::ObjectProxySeq objs = query->findAllReplicas(obj);
         test(objs.size() == 3);
         test(serverReplicaIds.find(objs[0]->ice_getAdapterId()) != serverReplicaIds.end());
         test(serverReplicaIds.find(objs[1]->ice_getAdapterId()) != serverReplicaIds.end());
         test(serverReplicaIds.find(objs[2]->ice_getAdapterId()) != serverReplicaIds.end());
 
-        obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("RoundRobin"));
+        obj = TestIntfPrx(comm, "RoundRobin");
         objs = query->findAllReplicas(obj);
         test(objs.size() == 3);
         test(serverReplicaIds.find(objs[0]->ice_getAdapterId()) != serverReplicaIds.end());
         test(serverReplicaIds.find(objs[1]->ice_getAdapterId()) != serverReplicaIds.end());
         test(serverReplicaIds.find(objs[2]->ice_getAdapterId()) != serverReplicaIds.end());
 
-        obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("dummy@dummy"));
+        obj = TestIntfPrx(comm, "dummy@dummy");
         objs = query->findAllReplicas(obj);
         test(objs.empty());
 
-        obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("dummy@Server1.ReplicatedAdapter"));
+        obj = TestIntfPrx(comm, "dummy@Server1.ReplicatedAdapter");
         objs = query->findAllReplicas(obj);
         test(objs.empty());
 
-        obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("dummy:tcp"));
+        obj = TestIntfPrx(comm, "dummy:tcp");
         objs = query->findAllReplicas(obj);
         test(objs.empty());
 
-        obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("dummy@Ordered"));
+        obj = TestIntfPrx(comm, "dummy@Ordered");
         objs = query->findAllReplicas(obj);
         test(objs.empty());
 
@@ -187,9 +186,9 @@ allTests(Test::TestHelper* helper)
         instantiateServer(admin, "Server", "localnode", params);
         params["id"] = "Server3";
         instantiateServer(admin, "Server", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("RoundRobin"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "RoundRobin");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         try
         {
             test(obj->getReplicaIdAndShutdown() == "Server1.ReplicatedAdapter");
@@ -264,9 +263,9 @@ allTests(Test::TestHelper* helper)
         params["replicaGroup"] = "RoundRobin";
         params["id"] = "IceBox1";
         instantiateServer(admin, "IceBox", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("RoundRobin"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "RoundRobin");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         try
         {
             test(obj->getReplicaIdAndShutdown() == "IceBox1.Service1.Service1");
@@ -295,7 +294,7 @@ allTests(Test::TestHelper* helper)
         params["id"] = "Server3";
         params["priority"] = "2";
         instantiateServer(admin, "Server", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Ordered"));
+        TestIntfPrx obj(comm, "Ordered");
         try
         {
             test(obj->getReplicaIdAndShutdown() == "Server2.ReplicatedAdapter");
@@ -318,9 +317,9 @@ allTests(Test::TestHelper* helper)
         params["replicaGroup"] = "Ordered";
         params["id"] = "IceBox1";
         instantiateServer(admin, "IceBox", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Ordered"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "Ordered");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         try
         {
             test(obj->getReplicaIdAndShutdown() == "IceBox1.Service3.Service3");
@@ -346,9 +345,9 @@ allTests(Test::TestHelper* helper)
         instantiateServer(admin, "Server", "localnode", params);
         params["id"] = "Server3";
         instantiateServer(admin, "Server", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Random"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "Random");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         set<string> replicaIds = serverReplicaIds;
         while(!replicaIds.empty())
         {
@@ -407,9 +406,9 @@ allTests(Test::TestHelper* helper)
         params["replicaGroup"] = "Random";
         params["id"] = "IceBox1";
         instantiateServer(admin, "IceBox", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Random"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "Random");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         set<string> replicaIds = svcReplicaIds;
         while(!replicaIds.empty())
         {
@@ -440,9 +439,9 @@ allTests(Test::TestHelper* helper)
         instantiateServer(admin, "Server", "localnode", params);
         params["id"] = "Server3";
         instantiateServer(admin, "Server", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Adaptive"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "Adaptive");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         set<string> replicaIds = serverReplicaIds;
         while(!replicaIds.empty())
         {
@@ -465,9 +464,9 @@ allTests(Test::TestHelper* helper)
         params["replicaGroup"] = "Adaptive";
         params["id"] = "IceBox1";
         instantiateServer(admin, "IceBox", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Adaptive"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "Adaptive");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         set<string> replicaIds = svcReplicaIds;
         while(!replicaIds.empty())
         {
@@ -504,9 +503,9 @@ allTests(Test::TestHelper* helper)
         ctx["server"] = "Server3";
         locator->ice_context(ctx);
 
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Ordered-Filtered"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "Ordered-Filtered");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         try
         {
             ctx["server"] = "Server3";
@@ -585,7 +584,7 @@ allTests(Test::TestHelper* helper)
         params["id"] = "UnknownServer";
         instantiateServer(admin, "Server", "localnode", params);
 
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Unknown"));
+        TestIntfPrx obj(comm, "Unknown");
         obj->getReplicaId();
 
         removeServer(admin, "UnknownServer");
@@ -596,9 +595,9 @@ allTests(Test::TestHelper* helper)
         params["id"] = "ExcludeServer";
         instantiateServer(admin, "Server", "localnode", params);
 
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Exclude"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "Exclude");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         try
         {
             obj->getReplicaId();
@@ -640,9 +639,9 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing load balancing n-replicas... " << flush;
     {
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("RoundRobin-2"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(-1));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "RoundRobin-2");
+        obj = obj->ice_locatorCacheTimeout(-1);
+        obj = obj->ice_connectionCached(false);
         try
         {
             obj->ice_ping();
@@ -717,9 +716,9 @@ allTests(Test::TestHelper* helper)
 
     }
     {
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("RoundRobin-All"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(-1));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "RoundRobin-All");
+        obj = obj->ice_locatorCacheTimeout(-1);
+        obj = obj->ice_connectionCached(false);
         try
         {
             obj->ice_ping();
@@ -784,14 +783,13 @@ allTests(Test::TestHelper* helper)
         instantiateServer(admin, "Server", "inactivenode", params);
         params["id"] = "Server2";
         instantiateServer(admin, "Server", "localnode", params);
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Random"));
+        TestIntfPrx obj(comm, "Random");
         test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
 
         //
         // Also make sure that findObjectByTypeOnLeastLoadedNode still work.
         //
-        obj = Ice::uncheckedCast<TestIntfPrx>(query->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf",
-                                                                                       LoadSample::LoadSample1));
+        obj = TestIntfPrx(query->findObjectByTypeOnLeastLoadedNode("::Test::TestIntf", LoadSample::LoadSample1).value());
         test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
 
         removeServer(admin, "Server1");
@@ -802,7 +800,7 @@ allTests(Test::TestHelper* helper)
         instantiateServer(admin, "Server", "inactivenode", params);
         params["id"] = "Server2";
         instantiateServer(admin, "Server", "localnode", params);
-        obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("RoundRobin"));
+        obj = TestIntfPrx(comm, "RoundRobin");
         test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
@@ -812,7 +810,7 @@ allTests(Test::TestHelper* helper)
         instantiateServer(admin, "Server", "inactivenode", params);
         params["id"] = "Server2";
         instantiateServer(admin, "Server", "localnode", params);
-        obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Adaptive"));
+        obj = TestIntfPrx(comm, "Adaptive");
         test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
         removeServer(admin, "Server1");
         removeServer(admin, "Server2");
@@ -822,7 +820,7 @@ allTests(Test::TestHelper* helper)
         instantiateServer(admin, "IceBox", "localnode", params);
         params["id"] = "Server1";
         instantiateServer(admin, "Server", "inactivenode", params);
-        obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Random"));
+        obj = TestIntfPrx(comm, "Random");
         test(svcReplicaIds.find(obj->getReplicaId()) != svcReplicaIds.end());
         removeServer(admin, "IceBox1");
         removeServer(admin, "Server1");
@@ -879,9 +877,9 @@ allTests(Test::TestHelper* helper)
             // Test has a replica group referenced by the Test1 application.
         }
 
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("Random"));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_locatorCacheTimeout(0));
-        obj = Ice::uncheckedCast<TestIntfPrx>(obj->ice_connectionCached(false));
+        TestIntfPrx obj(comm, "Random");
+        obj = obj->ice_locatorCacheTimeout(0);
+        obj = obj->ice_connectionCached(false);
         set<string> replicaIds;
         replicaIds.insert("Server1.ReplicatedAdapter");
         replicaIds.insert("Server2.ReplicatedAdapter");
@@ -982,7 +980,7 @@ allTests(Test::TestHelper* helper)
             params["encoding"] = "1.0";
             instantiateServer(admin, "Server", "localnode", params);
 
-            auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy(*p));
+            TestIntfPrx obj(comm, *p);
             obj = obj->ice_locatorCacheTimeout(0);
             obj = obj->ice_connectionCached(false);
 
@@ -1025,7 +1023,7 @@ allTests(Test::TestHelper* helper)
         params["encoding"] = "1.0";
         instantiateServer(admin, "DynamicallyRegisteredServer", "localnode", params);
 
-        auto obj = Ice::uncheckedCast<TestIntfPrx>(comm->stringToProxy("DynamicRandom@DynamicRandom"));
+        TestIntfPrx obj(comm, "DynamicRandom@DynamicRandom");
         obj = obj->ice_locatorCacheTimeout(0);
         obj = obj->ice_connectionCached(false);
         obj = obj->ice_encodingVersion(Ice::Encoding_1_1);

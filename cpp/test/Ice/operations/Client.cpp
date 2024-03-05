@@ -29,8 +29,8 @@ Client::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    Test::MyClassPrxPtr allTests(Test::TestHelper*);
-    Test::MyClassPrxPtr myClass = allTests(this);
+    Test::MyClassPrx allTests(Test::TestHelper*);
+    Test::MyClassPrx myClass = allTests(this);
 
     myClass->shutdown();
     cout << "testing server shutdown... " << flush;

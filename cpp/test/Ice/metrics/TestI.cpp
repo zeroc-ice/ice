@@ -5,71 +5,75 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
+using namespace std;
+using namespace Ice;
+using namespace Test;
+
 void
-MetricsI::op(const Ice::Current&)
+MetricsI::op(const Current&)
 {
 }
 
 void
-MetricsI::fail(const Ice::Current& current)
+MetricsI::fail(const Current& current)
 {
-    current.con->close(Ice::ConnectionClose::Forcefully);
+    current.con->close(ConnectionClose::Forcefully);
 }
 
 void
-MetricsI::opWithUserException(const Ice::Current&)
+MetricsI::opWithUserException(const Current&)
 {
-    throw Test::UserEx();
+    throw UserEx();
 }
 
 void
-MetricsI::opWithRequestFailedException(const Ice::Current&)
+MetricsI::opWithRequestFailedException(const Current&)
 {
-    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    throw ObjectNotExistException(__FILE__, __LINE__);
 }
 
 void
-MetricsI::opWithLocalException(const Ice::Current&)
+MetricsI::opWithLocalException(const Current&)
 {
-    throw Ice::SyscallException(__FILE__, __LINE__);
+    throw SyscallException(__FILE__, __LINE__);
 }
 
 void
-MetricsI::opWithUnknownException(const Ice::Current&)
+MetricsI::opWithUnknownException(const Current&)
 {
     throw "TEST";
 }
 
 void
-MetricsI::opByteS(Test::ByteSeq, const Ice::Current&)
+MetricsI::opByteS(ByteSeq, const Current&)
 {
 }
 
-Ice::ObjectPrxPtr
-MetricsI::getAdmin(const Ice::Current& current)
+optional<ObjectPrx>
+MetricsI::getAdmin(const Current& current)
 {
     return current.adapter->getCommunicator()->getAdmin();
 }
 
 void
-MetricsI::shutdown(const Ice::Current& current)
+MetricsI::shutdown(const Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
 
-ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
+ControllerI::ControllerI(const ObjectAdapterPtr& adapter) : _adapter(adapter)
 {
 }
 
 void
-ControllerI::hold(const Ice::Current&)
+ControllerI::hold(const Current&)
 {
     _adapter->hold();
     _adapter->waitForHold();
 }
 
 void
-ControllerI::resume(const Ice::Current&)
+ControllerI::resume(const Current&)
 {
     _adapter->activate();
 }

@@ -17,13 +17,13 @@ class CallbackI final : public Callback
 public:
 
     void
-    initiateCallback(CallbackReceiverPrxPtr proxy, const Ice::Current& current) override
+    initiateCallback(optional<CallbackReceiverPrx> proxy, const Ice::Current& current) override
     {
         proxy->callback(current.ctx);
     }
 
     void
-    initiateCallbackEx(CallbackReceiverPrxPtr proxy, const Ice::Current& current) override
+    initiateCallbackEx(optional<CallbackReceiverPrx> proxy, const Ice::Current& current) override
     {
         proxy->callbackEx(current.ctx);
     }

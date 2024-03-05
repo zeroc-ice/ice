@@ -29,7 +29,7 @@ public:
 
     void opByteSAsync(Test::ByteSeq, std::function<void()>, std::function<void(std::exception_ptr)>,
                                const Ice::Current&) final;
-    Ice::ObjectPrxPtr getAdmin(const Ice::Current&) final;
+    std::optional<Ice::ObjectPrx> getAdmin(const Ice::Current&) final;
 
     void shutdown(const Ice::Current&) final;
 };

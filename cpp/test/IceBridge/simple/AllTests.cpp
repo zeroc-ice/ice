@@ -58,10 +58,10 @@ allTests(Test::TestHelper* helper)
 {
     auto communicator = helper->communicator();
     cout << "testing connection to bridge... " << flush;
-    auto prx = communicator->stringToProxy("test:" + helper->getTestEndpoint(1) + ":" +
-                                           helper->getTestEndpoint(1, "udp"));
-    test(prx);
-    auto cl = Ice::checkedCast<Test::MyClassPrx>(prx);
+
+    Test::MyClassPrx cl(
+        communicator,
+        "test:" + helper->getTestEndpoint(1) + ":" + helper->getTestEndpoint(1, "udp"));
     cl->ice_ping();
     cout << "ok" << endl;
 
@@ -82,8 +82,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing connection close... " << flush;
     {
-        auto clc =
-            Ice::checkedCast<Test::MyClassPrx>(cl->ice_getConnection()->createProxy(cl->ice_getIdentity()));
+        Test::MyClassPrx clc = cl->ice_fixed(cl->ice_getConnection());
         clc->ice_ping();
         clc->closeConnection(false);
         int nRetry = 20;
@@ -209,11 +208,9 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing router... " << flush;
     {
-        auto base = communicator->stringToProxy("Ice/RouterFinder:" + helper->getTestEndpoint(1));
-        auto finder = Ice::checkedCast<Ice::RouterFinderPrx>(base);
+        Ice::RouterFinderPrx finder(communicator, "Ice/RouterFinder:" + helper->getTestEndpoint(1));
         auto router = finder->getRouter();
-        base = communicator->stringToProxy("test")->ice_router(router);
-        auto p = Ice::checkedCast<Test::MyClassPrx>(base);
+        auto p = Test::MyClassPrx(communicator, "test")->ice_router(router);
         p->ice_ping();
     }
     cout << "ok" << endl;
@@ -247,8 +244,8 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing bridge shutdown... " << flush;
-    auto admin = communicator->stringToProxy("IceBridge/admin:" + helper->getTestEndpoint(2, "tcp"));
-    auto process = Ice::checkedCast<Ice::ProcessPrx>(admin, "Process");
+    Ice::ObjectPrx admin(communicator, "IceBridge/admin:" + helper->getTestEndpoint(2, "tcp"));
+    Ice::ProcessPrx process(admin->ice_facet("Process"));
     process->shutdown();
     cout << "ok" << endl;
 }

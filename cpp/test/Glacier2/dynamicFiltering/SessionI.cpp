@@ -13,16 +13,16 @@ SessionManagerI::SessionManagerI(const shared_ptr<TestControllerI>& controller):
 {
 }
 
-Glacier2::SessionPrxPtr
-SessionManagerI::create(string, Glacier2::SessionControlPrxPtr sessionControl, const Ice::Current& current)
+optional<Glacier2::SessionPrx>
+SessionManagerI::create(string, optional<Glacier2::SessionControlPrx> sessionControl, const Ice::Current& current)
 {
-    auto newSession = Ice::uncheckedCast<Glacier2::SessionPrx>(
+    auto newSession = Glacier2::SessionPrx(
         current.adapter->addWithUUID(make_shared<SessionI>(sessionControl, _controller)));
     _controller->addSession(SessionTuple(newSession, std::move(sessionControl)));
     return newSession;
 }
 
-SessionI::SessionI(Glacier2::SessionControlPrxPtr sessionControl,
+SessionI::SessionI(optional<Glacier2::SessionControlPrx> sessionControl,
                    shared_ptr<TestControllerI> controller) :
     _sessionControl(std::move(sessionControl)),
     _controller(std::move(controller))
