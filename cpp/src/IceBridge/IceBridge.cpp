@@ -410,7 +410,6 @@ BridgeI::ice_invokeAsync(pair<const uint8_t*, const uint8_t*> inParams,
             // Create a target proxy that matches the configuration of the incoming connection.
             //
             ObjectPrx target = _target;
-
             if (info->datagram())
             {
                 target = target->ice_datagram();
