@@ -76,12 +76,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\AllTests.cpp"/>
     <ClCompile Include="..\..\Client.cpp"/>
-    <ClCompile Include="Win32\Debug\ClientPrivate.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <SliceCompileSource>..\..\ClientPrivate.ice</SliceCompileSource>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

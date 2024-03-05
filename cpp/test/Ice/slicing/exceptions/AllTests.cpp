@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Test;
 
-TestIntfPrxPtr
+TestIntfPrx
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
