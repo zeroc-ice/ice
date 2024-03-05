@@ -134,7 +134,7 @@ public:
 private:
 
     std::vector<std::shared_ptr<ServerCommand>> checkConsistencyNoSync(const Ice::StringSeq&);
-    void patch(const IcePatch2::FileServerPrxPtr&, const std::string&, const std::vector<std::string>&);
+    void patch(const IcePatch2::FileServerPrx&, const std::string&, const std::vector<std::string>&);
 
     std::set<std::shared_ptr<ServerI>> getApplicationServers(const std::string&) const;
     std::string getFilePath(const std::string&) const;

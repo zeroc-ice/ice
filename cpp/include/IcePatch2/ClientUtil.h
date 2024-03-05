@@ -107,34 +107,28 @@ public:
 };
 typedef std::shared_ptr<Patcher> PatcherPtr;
 
-//
-// IcePatch2 clients instantiate the IcePatch2::Patcher class
-// using the patcher factory.
-//
+// IcePatch2 clients instantiate the IcePatch2::Patcher class using the patcher factory.
 class ICEPATCH2_API PatcherFactory
 {
 public:
 
-    //
-    // Create a patcher using configuration properties. The following
-    // properties are used to configure the patcher:
-    //
-    // - IcePatch2.InstanceName
-    // - IcePatch2.Endpoints
-    // - IcePatch2.Directory
-    // - IcePatch2.Thorough
-    // - IcePatch2.ChunkSize
-    // - IcePatch2.Remove
-    //
-    // See the Ice manual for more information on these properties.
-    //
-    static PatcherPtr create(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
-
-    //
-    // Create a patcher with the given parameters. These parameters
-    // are equivalent to the configuration properties described above.
-    //
-    static PatcherPtr create(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, std::int32_t, std::int32_t);
+    /// Create a patcher with the given parameters.
+    /// @param server The proxy to the IcePath2 server.
+    /// @param feedback The feedback object to use to report progress.
+    /// @param dataDir The local data directory to patch.
+    /// @param thorough If true, a thorough patch is performed and IcePatch2 client recomputes all checksums.
+    /// @param chunkSize The size (in kilobytes) of the chunks to use when downloading files.
+    /// @param remove Whether to delete files that exist locally, but not on the server. A negative or zero value prevents
+    /// removal of files. A value of 1 enables removal and causes the client to halt with an error if removal of a file
+    /// fails. A value of 2 or greater also enables removal, but causes the client to silently ignore errors during
+    /// removal.
+    static PatcherPtr create(
+        const FileServerPrx& server,
+        const PatcherFeedbackPtr&feedback,
+        const std::string& dataDir,
+        bool thorough,
+        std::int32_t chunkSize,
+        std::int32_t remove);
 };
 
 }
