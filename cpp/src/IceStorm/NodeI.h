@@ -24,8 +24,12 @@ class NodeI final : public Node, public std::enable_shared_from_this<NodeI>
 {
 public:
 
-    NodeI(const std::shared_ptr<IceStorm::Instance>&, std::shared_ptr<Replica>, Ice::ObjectPrxPtr,
-          int, const std::map<int, NodePrxPtr>&);
+    NodeI(
+        const std::shared_ptr<IceStorm::Instance>&,
+        std::shared_ptr<Replica>,
+        Ice::ObjectPrx,
+        int,
+        const std::map<int, NodePrx>&);
 
     void start();
 
@@ -33,15 +37,15 @@ public:
     void timeout();
     void merge(const std::set<int>&);
     void mergeContinue();
-    void invitation(int, std::string, const Ice::Current&) override;
-    void ready(int, std::string, Ice::ObjectPrxPtr, int, std::int64_t, const Ice::Current&) override;
+    void invitation(int, std::string, const Ice::Current&) final;
+    void ready(int, std::string, Ice::ObjectPrxPtr, int, std::int64_t, const Ice::Current&) final;
     void accept(int, std::string, Ice::IntSeq, Ice::ObjectPrxPtr, LogUpdate, int,
-                const Ice::Current&) override;
-    bool areYouCoordinator(const Ice::Current&) const override;
-    bool areYouThere(std::string, int, const Ice::Current&) const override;
-    Ice::ObjectPrxPtr sync(const Ice::Current&) const override;
-    NodeInfoSeq nodes(const Ice::Current&) const override;
-    QueryInfo query(const Ice::Current&) const override;
+                const Ice::Current&) final;
+    bool areYouCoordinator(const Ice::Current&) const final;
+    bool areYouThere(std::string, int, const Ice::Current&) const final;
+    Ice::ObjectPrxPtr sync(const Ice::Current&) const final;
+    NodeInfoSeq nodes(const Ice::Current&) const final;
+    QueryInfo query(const Ice::Current&) const final;
     void recovery(std::int64_t = -1);
 
     void destroy();
@@ -64,10 +68,10 @@ private:
     const std::shared_ptr<IceStorm::TraceLevels> _traceLevels;
     const std::shared_ptr<IceStormElection::Observers> _observers;
     const std::shared_ptr<Replica> _replica; // The replica.
-    const Ice::ObjectPrxPtr _replicaProxy; // A proxy to the individual replica.
+    const Ice::ObjectPrx _replicaProxy; // A proxy to the individual replica.
 
     const int _id; // My node id.
-    const std::map<int, NodePrxPtr> _nodes; // The nodes indexed by their id.
+    const std::map<int, NodePrx> _nodes; // The nodes indexed by their id.
     const std::map<int, NodePrxPtr> _nodesOneway; // The nodes indexed by their id (as oneway proxies).
 
     const std::chrono::seconds _masterTimeout;
@@ -87,7 +91,7 @@ private:
     unsigned int _max; // The highest group count I've seen.
     std::int64_t _generation; // The current generation (or -1 if not set).
 
-    Ice::ObjectPrxPtr _coordinatorProxy;
+    std::optional<Ice::ObjectPrx> _coordinatorProxy;
     bool _destroy;
 
     IceUtil::TimerTaskPtr _mergeTask;
@@ -142,7 +146,7 @@ public:
         }
     }
 
-    Ice::ObjectPrxPtr
+    std::optional<Ice::ObjectPrx>
     getMaster() const
     {
         return _master;
@@ -163,7 +167,7 @@ public:
 private:
 
     const std::shared_ptr<NodeI> _node;
-    Ice::ObjectPrxPtr _master;
+    std::optional<Ice::ObjectPrx> _master;
     std::int64_t _generation;
 };
 

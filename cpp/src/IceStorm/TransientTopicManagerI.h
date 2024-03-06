@@ -20,10 +20,10 @@ public:
     TransientTopicManagerImpl(std::shared_ptr<Instance>);
 
     // TopicManager methods.
-    TopicPrxPtr create(std::string, const Ice::Current&) override;
-    TopicPrxPtr retrieve(std::string, const Ice::Current&) override;
-    TopicDict retrieveAll(const Ice::Current&) override;
-    IceStormElection::NodePrxPtr getReplicaNode(const Ice::Current&) const override;
+    std::optional<TopicPrx> create(std::string, const Ice::Current&) final;
+    std::optional<TopicPrx> retrieve(std::string, const Ice::Current&) final;
+    TopicDict retrieveAll(const Ice::Current&) final;
+    std::optional<IceStormElection::NodePrx> getReplicaNode(const Ice::Current&) const final;
 
     void reap();
     void shutdown();

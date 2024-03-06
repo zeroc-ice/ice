@@ -81,7 +81,7 @@ GroupNodeInfo::GroupNodeInfo(int i) :
 {
 }
 
-GroupNodeInfo::GroupNodeInfo(int i, LogUpdate l, Ice::ObjectPrxPtr o) :
+GroupNodeInfo::GroupNodeInfo(int i, LogUpdate l, optional<Ice::ObjectPrx> o) :
     id(i), llu(l), observer(std::move(o))
 {
 }
@@ -135,10 +135,12 @@ toString(const set<int>& s)
 
 }
 
-NodeI::NodeI(const shared_ptr<Instance>& instance,
-             shared_ptr<Replica> replica,
-             Ice::ObjectPrxPtr replicaProxy,
-             int id, const map<int, NodePrxPtr>& nodes) :
+NodeI::NodeI(
+    const shared_ptr<Instance>& instance,
+    shared_ptr<Replica> replica,
+    Ice::ObjectPrx replicaProxy,
+    int id,
+    const map<int, NodePrx>& nodes) :
     _timer(instance->timer()),
     _traceLevels(instance->traceLevels()),
     _observers(instance->observers()),
@@ -155,10 +157,9 @@ NodeI::NodeI(const shared_ptr<Instance>& instance,
     _generation(-1),
     _destroy(false)
 {
-    for(const auto& node : _nodes)
+    for (const auto& node : _nodes)
     {
-        auto prx = Ice::uncheckedCast<NodePrx>(node.second->ice_oneway());
-        const_cast<map<int, NodePrxPtr>& >(_nodesOneway)[node.first] = std::move(prx);
+        const_cast<map<int, NodePrxPtr>& >(_nodesOneway)[node.first] = NodePrx(node.second->ice_oneway());
     }
 }
 
@@ -577,6 +578,7 @@ NodeI::mergeContinue()
             Ice::Trace out(_traceLevels->logger, _traceLevels->electionCat);
             out << "node " << _id << ": syncing database state with node " << maxid;
         }
+
         try
         {
             auto node = _nodes.find(maxid);
@@ -855,8 +857,14 @@ NodeI::ready(int j, string gn, Ice::ObjectPrxPtr coordinator, int max, int64_t g
 }
 
 void
-NodeI::accept(int j, string gn, Ice::IntSeq forwardedInvites, Ice::ObjectPrxPtr observer, LogUpdate llu,
-              int max, const Ice::Current&)
+NodeI::accept(
+    int j,
+    string gn,
+    Ice::IntSeq forwardedInvites,
+    optional<Ice::ObjectPrx> observer,
+    LogUpdate llu,
+    int max,
+    const Ice::Current&)
 {
     // Verify that j exists in our node set.
     if(_nodes.find(j) == _nodes.end())
@@ -933,7 +941,7 @@ NodeI::areYouThere(string gn, int j, const Ice::Current&) const
     return _group == gn && _coord == _id && _up.find(GroupNodeInfo(j)) != _up.end();
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 NodeI::sync(const Ice::Current&) const
 {
     return _replica->getSync();
@@ -1075,7 +1083,7 @@ NodeI::checkObserverInit(int64_t)
 }
 
 // Notify the node that we're about to start an update.
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 NodeI::startUpdate(int64_t& generation, const char* file, int line)
 {
     bool majority = _observers->check();

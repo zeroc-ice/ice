@@ -119,9 +119,10 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
     return topicImpl;
 }
 
-TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance,
-                                       const std::string& name,
-                                       const Ice::Identity& id) :
+TransientTopicImpl::TransientTopicImpl(
+    shared_ptr<Instance> instance,
+    const std::string& name,
+    const Ice::Identity& id) :
     _instance(std::move(instance)),
     _name(name),
     _id(id),
@@ -136,24 +137,26 @@ TransientTopicImpl::getName(const Ice::Current&) const
     return _name;
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 TransientTopicImpl::getPublisher(const Ice::Current&) const
 {
     // Immutable
+    assert(_publisherPrx);
     return _publisherPrx;
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&) const
 {
     // Immutable
+    assert(_publisherPrx);
     return _publisherPrx;
 }
 
-Ice::ObjectPrxPtr
-TransientTopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrxPtr obj, const Ice::Current&)
+optional<Ice::ObjectPrx>
+TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> obj, const Ice::Current&)
 {
-    if(!obj)
+    if (!obj)
     {
         auto traceLevels = _instance->traceLevels();
         if(traceLevels->topic > 0)
@@ -208,7 +211,7 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrxPtr obj, con
 }
 
 void
-TransientTopicImpl::unsubscribe(Ice::ObjectPrxPtr subscriber, const Ice::Current&)
+TransientTopicImpl::unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::Current&)
 {
     auto traceLevels = _instance->traceLevels();
     if(!subscriber)
@@ -246,17 +249,18 @@ TransientTopicImpl::unsubscribe(Ice::ObjectPrxPtr subscriber, const Ice::Current
     }
 }
 
-TopicLinkPrxPtr
+optional<TopicLinkPrx>
 TransientTopicImpl::getLinkProxy(const Ice::Current&)
 {
     // immutable
+    assert(_linkPrx);
     return _linkPrx;
 }
 
 void
-TransientTopicImpl::link(TopicPrxPtr topic, int cost, const Ice::Current&)
+TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&)
 {
-    auto internal = Ice::uncheckedCast<TopicInternalPrx>(topic);
+    optional<TopicInternalPrx> internal(topic);
     auto link = internal->getLinkProxy();
 
     auto traceLevels = _instance->traceLevels();
@@ -289,7 +293,7 @@ TransientTopicImpl::link(TopicPrxPtr topic, int cost, const Ice::Current&)
 }
 
 void
-TransientTopicImpl::unlink(TopicPrxPtr topic, const Ice::Current&)
+TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
 {
     lock_guard<mutex> lg(_mutex);
 

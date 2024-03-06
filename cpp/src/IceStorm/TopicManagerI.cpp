@@ -37,9 +37,9 @@ public:
     {
     }
 
-    TopicPrxPtr create(string id, const Ice::Current&) override
+    optional<TopicPrx> create(string id, const Ice::Current&) final
     {
-        while(true)
+        while (true)
         {
             int64_t generation;
             auto master = getMaster(generation, __FILE__, __LINE__);
@@ -68,21 +68,21 @@ public:
         }
     }
 
-    TopicPrxPtr retrieve(string id, const Ice::Current&) override
+    optional<TopicPrx> retrieve(string id, const Ice::Current&) final
     {
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
         return _impl->retrieve(std::move(id));
     }
 
-    TopicDict retrieveAll(const Ice::Current&) override
+    TopicDict retrieveAll(const Ice::Current&) final
     {
         // Use cached reads.
         CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
         return _impl->retrieveAll();
     }
 
-    NodePrxPtr getReplicaNode(const Ice::Current&) const override
+    optional<NodePrx> getReplicaNode(const Ice::Current&) const final
     {
         // This doesn't require the replication to be running.
         return _instance->nodeProxy();
@@ -90,17 +90,10 @@ public:
 
 private:
 
-    TopicManagerPrxPtr getMaster(int64_t& generation, const char* file, int line) const
+    optional<TopicManagerPrx> getMaster(int64_t& generation, const char* file, int line) const
     {
         auto node = _instance->node();
-        if(node)
-        {
-            return Ice::uncheckedCast<TopicManagerPrx>(node->startUpdate(generation, file, line));
-        }
-        else
-        {
-            return nullopt;
-        }
+        return optional<TopicManagerPrx>(node ? node->startUpdate(generation, file, line) : nullopt);
     }
 
     const shared_ptr<PersistentInstance> _instance;
@@ -117,7 +110,7 @@ public:
     {
     }
 
-    void init(LogUpdate llu, TopicContentSeq content, const Ice::Current&) override
+    void init(LogUpdate llu, TopicContentSeq content, const Ice::Current&) final
     {
         auto node = _instance->node();
         if(node)
@@ -127,7 +120,7 @@ public:
         _impl->observerInit(std::move(llu), std::move(content));
     }
 
-    void createTopic(LogUpdate llu, string name, const Ice::Current&) override
+    void createTopic(LogUpdate llu, string name, const Ice::Current&) final
     {
         try
         {
@@ -143,7 +136,7 @@ public:
         }
     }
 
-    void destroyTopic(LogUpdate llu, string name, const Ice::Current&) override
+    void destroyTopic(LogUpdate llu, string name, const Ice::Current&) final
     {
         try
         {
@@ -159,7 +152,7 @@ public:
         }
     }
 
-    void addSubscriber(LogUpdate llu, string name, SubscriberRecord rec, const Ice::Current&) override
+    void addSubscriber(LogUpdate llu, string name, SubscriberRecord rec, const Ice::Current&) final
     {
         try
         {
@@ -175,7 +168,7 @@ public:
         }
     }
 
-    void removeSubscriber(LogUpdate llu, string name, Ice::IdentitySeq id, const Ice::Current&) override
+    void removeSubscriber(LogUpdate llu, string name, Ice::IdentitySeq id, const Ice::Current&) final
     {
         try
         {
@@ -206,7 +199,7 @@ public:
     {
     }
 
-    void getContent(LogUpdate& llu, TopicContentSeq& content, const Ice::Current&) override
+    void getContent(LogUpdate& llu, TopicContentSeq& content, const Ice::Current&) final
     {
         _impl->getContent(llu, content);
     }
@@ -292,10 +285,10 @@ TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance) :
     }
 }
 
-TopicPrxPtr
+optional<TopicPrx>
 TopicManagerImpl::create(const string& name)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     reap();
     if(_topics.find(name) != _topics.end())
@@ -333,10 +326,10 @@ TopicManagerImpl::create(const string& name)
     return installTopic(name, id, true);
 }
 
-TopicPrxPtr
+optional<TopicPrx>
 TopicManagerImpl::retrieve(const string& name)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     reap();
 
@@ -352,7 +345,7 @@ TopicManagerImpl::retrieve(const string& name)
 TopicDict
 TopicManagerImpl::retrieveAll()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     reap();
 
@@ -368,7 +361,7 @@ TopicManagerImpl::retrieveAll()
 void
 TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& content)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     auto traceLevels = _instance->traceLevels();
     if(traceLevels->topicMgr > 0)
@@ -487,7 +480,7 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 void
 TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     Ice::Identity id = nameToIdentity(_instance, name);
 
     try
@@ -522,7 +515,7 @@ TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
 void
 TopicManagerImpl::observerDestroyTopic(const LogUpdate& llu, const string& name)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     auto q = _topics.find(name);
     if(q == _topics.end())
@@ -539,7 +532,7 @@ TopicManagerImpl::observerAddSubscriber(const LogUpdate& llu, const string& name
 {
     shared_ptr<TopicImpl> topic;
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
 
         auto q = _topics.find(name);
         if(q == _topics.end())
@@ -557,7 +550,7 @@ TopicManagerImpl::observerRemoveSubscriber(const LogUpdate& llu, const string& n
 {
     shared_ptr<TopicImpl> topic;
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
 
         auto q = _topics.find(name);
         if(q == _topics.end())
@@ -574,7 +567,7 @@ void
 TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
 {
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         reap();
     }
 
@@ -616,9 +609,9 @@ TopicManagerImpl::getLastLogUpdate() const
 }
 
 void
-TopicManagerImpl::sync(const Ice::ObjectPrxPtr& master)
+TopicManagerImpl::sync(const Ice::ObjectPrx& master)
 {
-    auto sync = Ice::uncheckedCast<TopicManagerSyncPrx>(master);
+    TopicManagerSyncPrx sync(master);
 
     LogUpdate llu;
     TopicContentSeq content;
@@ -630,7 +623,7 @@ TopicManagerImpl::sync(const Ice::ObjectPrxPtr& master)
 void
 TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& llu)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     reap();
 
@@ -673,13 +666,13 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
     _instance->observers()->init(slaves, llu, content);
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 TopicManagerImpl::getObserver() const
 {
     return _observer;
 }
 
-Ice::ObjectPrxPtr
+std::optional<Ice::ObjectPrx>
 TopicManagerImpl::getSync() const
 {
     return _sync;
@@ -705,7 +698,7 @@ TopicManagerImpl::reap()
 void
 TopicManagerImpl::shutdown()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     for(const auto& topic : _topics)
     {
@@ -725,7 +718,7 @@ TopicManagerImpl::getServant() const
 void
 TopicManagerImpl::updateTopicObservers()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     for(const auto& topic : _topics)
     {
@@ -736,7 +729,7 @@ TopicManagerImpl::updateTopicObservers()
 void
 TopicManagerImpl::updateSubscriberObservers()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     for(const auto& topic : _topics)
     {
@@ -744,9 +737,12 @@ TopicManagerImpl::updateSubscriberObservers()
     }
 }
 
-TopicPrxPtr
-TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool create,
-                               const IceStorm::SubscriberRecordSeq& subscribers)
+TopicPrx
+TopicManagerImpl::installTopic(
+    const string& name,
+    const Ice::Identity& id,
+    bool create,
+    const IceStorm::SubscriberRecordSeq& subscribers)
 {
     //
     // Called by constructor or with 'this' mutex locked.

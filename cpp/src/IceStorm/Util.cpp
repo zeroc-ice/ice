@@ -39,10 +39,10 @@ IceStormInternal::nameToIdentity(const shared_ptr<Instance>& instance, const str
 }
 
 string
-IceStormInternal::describeEndpoints(const Ice::ObjectPrxPtr& proxy)
+IceStormInternal::describeEndpoints(const optional<ObjectPrx>& proxy)
 {
     ostringstream os;
-    if(proxy)
+    if (proxy)
     {
         Ice::EndpointSeq endpoints = proxy->ice_getEndpoints();
         for(auto i = endpoints.cbegin(); i != endpoints.cend(); ++i)

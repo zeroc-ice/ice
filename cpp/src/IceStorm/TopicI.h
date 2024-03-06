@@ -29,13 +29,13 @@ public:
                                              const SubscriberRecordSeq&);
 
     std::string getName() const;
-    Ice::ObjectPrxPtr getPublisher() const;
-    Ice::ObjectPrxPtr getNonReplicatedPublisher() const;
-    Ice::ObjectPrxPtr subscribeAndGetPublisher(QoS, Ice::ObjectPrxPtr);
-    void unsubscribe(const Ice::ObjectPrxPtr&);
-    TopicLinkPrxPtr getLinkProxy();
-    void link(const TopicPrxPtr&, int);
-    void unlink(const TopicPrxPtr&);
+    Ice::ObjectPrx getPublisher() const;
+    Ice::ObjectPrx getNonReplicatedPublisher() const;
+    std::optional<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, std::optional<Ice::ObjectPrx>);
+    void unsubscribe(const std::optional<Ice::ObjectPrx>&);
+    TopicLinkPrx getLinkProxy();
+    void link(const std::optional<TopicPrx>&, int);
+    void unlink(const std::optional<TopicPrx>&);
     LinkInfoSeq getLinkInfoSeq() const;
     Ice::IdentitySeq getSubscribers() const;
     void reap(const Ice::IdentitySeq&);
@@ -48,7 +48,7 @@ public:
     // Internal methods
     bool destroyed() const;
     Ice::Identity id() const;
-    TopicPrxPtr proxy() const;
+    TopicPrx proxy() const;
     void shutdown();
     void publish(bool, const EventDataSeq&);
 
@@ -79,8 +79,8 @@ private:
 
     IceInternal::ObserverHelperT<IceStorm::Instrumentation::TopicObserver> _observer;
 
-    Ice::ObjectPrxPtr _publisherPrxPtr; // The actual publisher proxy.
-    TopicLinkPrxPtr _linkPrxPtr; // The link proxy.
+    std::optional<Ice::ObjectPrx> _publisherPrx; // The actual publisher proxy.
+    std::optional<TopicLinkPrx> _linkPrx; // The link proxy.
 
     std::shared_ptr<Ice::Object> _servant; // The topic implementation servant.
 

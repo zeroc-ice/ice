@@ -89,7 +89,7 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
         {
             assert(slave.observer);
 
-            auto observer = Ice::uncheckedCast<ReplicaObserverPrx>(slave.observer);
+            ReplicaObserverPrx observer(*slave.observer);
 
             auto future = observer->initAsync(llu, content);
 

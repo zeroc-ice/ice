@@ -90,7 +90,7 @@ public:
     };
     static Attributes attributes;
 
-    SubscriberHelper(const string& svc, const string& topic, const Ice::ObjectPrxPtr& proxy,
+    SubscriberHelper(const string& svc, const string& topic, const Ice::ObjectPrx& proxy,
                      const IceStorm::QoS& qos, IceStorm::TopicPrxPtr link, SubscriberState state) :
         _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(std::move(link)), _state(state)
     {
@@ -176,7 +176,7 @@ public:
         return _id;
     }
 
-    const Ice::ObjectPrxPtr&
+    const Ice::ObjectPrx&
     getProxy() const
     {
         return _proxy;
@@ -209,9 +209,9 @@ private:
 
     const string& _service;
     const string& _topic;
-    const Ice::ObjectPrxPtr& _proxy;
+    const Ice::ObjectPrx& _proxy;
     const IceStorm::QoS& _qos;
-    const IceStorm::TopicPrxPtr _link;
+    const optional<IceStorm::TopicPrx> _link;
     const SubscriberState _state;
     mutable string _id;
 };
@@ -347,13 +347,14 @@ TopicManagerObserverI::getTopicObserver(const string& service, const string& top
 }
 
 shared_ptr<SubscriberObserver>
-TopicManagerObserverI::getSubscriberObserver(const string& svc,
-                                             const string& topic,
-                                             const Ice::ObjectPrxPtr& proxy,
-                                             const IceStorm::QoS& qos,
-                                             const IceStorm::TopicPrxPtr& link,
-                                             SubscriberState state,
-                                             const shared_ptr<SubscriberObserver>& old)
+TopicManagerObserverI::getSubscriberObserver(
+    const string& svc,
+    const string& topic,
+    const Ice::ObjectPrx& proxy,
+    const IceStorm::QoS& qos,
+    const optional<IceStorm::TopicPrx>& link,
+    SubscriberState state,
+    const shared_ptr<SubscriberObserver>& old)
 {
     if(_subscribers.isEnabled())
     {
