@@ -197,7 +197,16 @@ RouterService::start(int argc, char* argv[], int& status)
     verifierProperties.push_back("Glacier2.PermissionsVerifier");
     verifierProperties.push_back("Glacier2.SSLPermissionsVerifier");
 
-    Glacier2Internal::setupNullPermissionsVerifier(communicator(), instanceName, verifierProperties);
+    try
+    {
+        Glacier2Internal::setupNullPermissionsVerifier(communicator(), instanceName, verifierProperties);
+    }
+    catch(const std::exception& ex)
+    {
+        ServiceError err(this);
+        err << "unable to setup null permissions verifier:\n" << ex;
+        return false;
+    }
 
     const string verifierProperty = verifierProperties[0];
     optional<PermissionsVerifierPrx> verifier;
