@@ -134,6 +134,7 @@ protected:
         Base::_iceReadImpl(is);
     }
 };
+/// \endcond
 
 }
 

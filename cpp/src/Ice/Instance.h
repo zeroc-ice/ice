@@ -23,7 +23,6 @@
 #include <Ice/EndpointFactoryManagerF.h>
 #include <Ice/IPEndpointIF.h>
 #include <Ice/RetryQueueF.h>
-#include <Ice/DynamicLibraryF.h>
 #include <Ice/PluginF.h>
 #include <Ice/NetworkF.h>
 #include <Ice/NetworkProxyF.h>
@@ -96,7 +95,6 @@ public:
     const std::vector<int>& retryIntervals() const { return _retryIntervals; }
     IceUtil::TimerPtr timer();
     EndpointFactoryManagerPtr endpointFactoryManager() const;
-    DynamicLibraryListPtr dynamicLibraryList() const;
     Ice::PluginManagerPtr pluginManager() const;
     size_t messageSizeMax() const { return _messageSizeMax; }
     size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
@@ -134,7 +132,7 @@ private:
     void initialize(const Ice::CommunicatorPtr&);
     void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
     void destroy();
-    friend class Ice::CommunicatorI;
+    friend class Ice::Communicator;
 
     void updateConnectionObservers();
     void updateThreadObservers();
@@ -179,7 +177,6 @@ private:
     std::vector<int> _retryIntervals;
     TimerPtr _timer;
     EndpointFactoryManagerPtr _endpointFactoryManager;
-    DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
     const Ice::ImplicitContextPtr _implicitContext;
     Ice::StringConverterPtr _stringConverter;

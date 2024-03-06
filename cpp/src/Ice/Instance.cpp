@@ -26,7 +26,6 @@
 #include <Ice/IPEndpointI.h> // For EndpointHostResolver
 #include <Ice/WSEndpoint.h>
 #include <Ice/RetryQueue.h>
-#include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LoggerUtil.h>
@@ -491,20 +490,6 @@ IceInternal::Instance::endpointFactoryManager() const
 
     assert(_endpointFactoryManager);
     return _endpointFactoryManager;
-}
-
-DynamicLibraryListPtr
-IceInternal::Instance::dynamicLibraryList() const
-{
-    lock_guard lock(_mutex);
-
-    if(_state == StateDestroyed)
-    {
-        throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
-    assert(_dynamicLibraryList);
-    return _dynamicLibraryList;
 }
 
 PluginManagerPtr
@@ -1241,9 +1226,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
         _endpointFactoryManager = make_shared<EndpointFactoryManager>(shared_from_this());
 
-        _dynamicLibraryList = make_shared<DynamicLibraryList>();
-
-        _pluginManager = make_shared<PluginManagerI>(communicator, _dynamicLibraryList);
+        _pluginManager = make_shared<PluginManagerI>(communicator);
 
         if(!_initData.valueFactoryManager)
         {
@@ -1346,7 +1329,6 @@ IceInternal::Instance::~Instance()
     assert(!_routerManager);
     assert(!_locatorManager);
     assert(!_endpointFactoryManager);
-    assert(!_dynamicLibraryList);
     assert(!_pluginManager);
 
     lock_guard lock(staticMutex);
@@ -1747,7 +1729,6 @@ IceInternal::Instance::destroy()
         _locatorManager = nullptr;
         _endpointFactoryManager = nullptr;
         _pluginManager = nullptr;
-        _dynamicLibraryList = nullptr;
 
         _adminAdapter = nullptr;
         _adminFacets.clear();

@@ -15,7 +15,6 @@
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
 #include <Ice/Value.h>
-#include <Ice/Incoming.h>
 #include <Ice/FactoryTableInit.h>
 #include <optional>
 #include <Ice/PropertyDict.h>
@@ -38,6 +37,7 @@ class Properties;
 
 }
 
+/// \cond INTERNAL
 namespace Ice
 {
 

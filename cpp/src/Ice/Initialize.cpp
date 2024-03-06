@@ -3,7 +3,7 @@
 //
 
 #include <Ice/ArgVector.h>
-#include <Ice/CommunicatorI.h>
+#include "Ice/Communicator.h"
 #include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
@@ -252,7 +252,7 @@ Ice::initialize(int& argc, const char* argv[], const InitializationData& initial
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
 
-    CommunicatorIPtr communicator = CommunicatorI::create(initData);
+    CommunicatorPtr communicator = Communicator::create(initData);
     communicator->finishSetup(argc, argv);
     return communicator;
 }
@@ -313,7 +313,7 @@ Ice::initialize(const InitializationData& initData, int version)
     //
     checkIceVersion(version);
 
-    CommunicatorIPtr communicator = CommunicatorI::create(initData);
+    CommunicatorPtr communicator = Communicator::create(initData);
     int argc = 0;
     const char* argv[] = { 0 };
     communicator->finishSetup(argc, argv);
@@ -427,17 +427,13 @@ Ice::CommunicatorHolder::release()
 InstancePtr
 IceInternal::getInstance(const CommunicatorPtr& communicator)
 {
-    CommunicatorIPtr p = dynamic_pointer_cast<Ice::CommunicatorI>(communicator);
-    assert(p);
-    return p->_instance;
+    return communicator->_instance;
 }
 
 IceUtil::TimerPtr
 IceInternal::getInstanceTimer(const CommunicatorPtr& communicator)
 {
-    CommunicatorIPtr p = dynamic_pointer_cast<Ice::CommunicatorI>(communicator);
-    assert(p);
-    return p->_instance->timer();
+    return communicator->_instance->timer();
 }
 
 Identity

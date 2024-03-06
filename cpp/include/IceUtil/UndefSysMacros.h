@@ -2,6 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+/*! \file
+    \hideincludedbygraph
+*/
+
 #ifndef ICE_UTIL_UNDEF_SYS_MACROS_H
 #define ICE_UTIL_UNDEF_SYS_MACROS_H
 

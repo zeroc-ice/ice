@@ -7,7 +7,6 @@
 
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/IncomingAsyncF.h>
 #include <Ice/SlicedDataF.h>
 #include <Ice/Current.h>
 #include <Ice/Format.h>
@@ -25,23 +24,6 @@ namespace Ice
 
 /** A default-initialized Current instance. */
 ICE_API extern const Current emptyCurrent;
-
-/**
- * Encapsulates details about a dispatch request.
- * \headerfile Ice/Ice.h
- */
-class ICE_API Request
-{
-public:
-
-    virtual ~Request();
-
-    /**
-     * Obtains the Current object associated with the request.
-     * @return The Current object.
-     */
-    virtual const Current& getCurrent() = 0;
-};
 
 /**
  * The base class for servants.
@@ -63,7 +45,7 @@ public:
      */
     virtual bool ice_isA(std::string s, const Current& current) const;
     /// \cond INTERNAL
-    bool _iceD_ice_isA(IceInternal::Incoming&, const Current&);
+    bool _iceD_ice_isA(IceInternal::Incoming&);
     /// \endcond
 
     /**
@@ -72,7 +54,7 @@ public:
      */
     virtual void ice_ping(const Current& current) const;
     /// \cond INTERNAL
-    bool _iceD_ice_ping(IceInternal::Incoming&, const Current&);
+    bool _iceD_ice_ping(IceInternal::Incoming&);
     /// \endcond
 
     /**
@@ -82,7 +64,7 @@ public:
      */
     virtual std::vector< std::string> ice_ids(const Current& current) const;
     /// \cond INTERNAL
-    bool _iceD_ice_ids(IceInternal::Incoming&, const Current&);
+    bool _iceD_ice_ids(IceInternal::Incoming&);
     /// \endcond
 
     /**
@@ -92,7 +74,7 @@ public:
      */
     virtual std::string ice_id(const Current& current) const;
     /// \cond INTERNAL
-    bool _iceD_ice_id(IceInternal::Incoming&, const Current&);
+    bool _iceD_ice_id(IceInternal::Incoming&);
     /// \endcond
 
     /**
@@ -101,23 +83,8 @@ public:
      */
     static std::string_view ice_staticId();
 
-    /**
-     * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
-     * to a servant (or to another interceptor).
-     * @param request The details of the invocation.
-     * @param response A function that should return true if Ice should send the response to the client. A null
-     * value is equivalent to a function that returns true.
-     * @param error A function that should return true if Ice should send the exception to the client. A null
-     * value is equivalent to a function that returns true.
-     * @return True if the request completed synchronously, false if the request will be completed asynchronously.
-     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
-     */
-    virtual bool ice_dispatch(Ice::Request& request,
-                              std::function<bool()> response = nullptr,
-                              std::function<bool(std::exception_ptr)> error = nullptr);
-
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    virtual bool _iceDispatch(IceInternal::Incoming&);
     /// \endcond
 
 protected:
@@ -132,7 +99,7 @@ protected:
  * from Blobject that implements the ice_invoke method.
  * \headerfile Ice/Ice.h
  */
-class ICE_API Blobject : public virtual Object
+class ICE_API Blobject : public Object
 {
 public:
 
@@ -151,7 +118,7 @@ public:
     virtual bool ice_invoke(std::vector<std::uint8_t> inEncaps, std::vector<std::uint8_t>& outEncaps, const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -160,7 +127,7 @@ public:
  * derives a concrete servant class from Blobject that implements the ice_invoke method.
  * \headerfile Ice/Ice.h
  */
-class ICE_API BlobjectArray : public virtual Object
+class ICE_API BlobjectArray : public Object
 {
 public:
 
@@ -180,7 +147,7 @@ public:
                             const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -189,7 +156,7 @@ public:
  * servant class from Blobject that implements the ice_invokeAsync method.
  * \headerfile Ice/Ice.h
  */
-class ICE_API BlobjectAsync : public virtual Object
+class ICE_API BlobjectAsync : public Object
 {
 public:
 
@@ -212,7 +179,7 @@ public:
                                  const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -221,7 +188,7 @@ public:
  * derives a concrete servant class from Blobject that implements the ice_invokeAsync method.
  * \headerfile Ice/Ice.h
  */
-class ICE_API BlobjectArrayAsync : public virtual Object
+class ICE_API BlobjectArrayAsync : public Object
 {
 public:
 
@@ -243,7 +210,7 @@ public:
                                  std::function<void(std::exception_ptr)> error,
                                  const Current& current) = 0;
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 

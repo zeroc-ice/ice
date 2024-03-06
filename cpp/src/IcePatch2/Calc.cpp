@@ -67,26 +67,23 @@ struct IFileInfoPathLess
     }
 };
 
-class CalcCB : public GetFileInfoSeqCB
+class CalcCB final : public GetFileInfoSeqCB
 {
 public:
 
-    virtual bool
-    remove(const string& path)
+    bool remove(const string& path) final
     {
         consoleOut << "removing: " << path << endl;
         return true;
     }
 
-    virtual bool
-    checksum(const string& path)
+    bool checksum(const string& path) final
     {
         consoleOut << "checksum: " << path << endl;
         return true;
     }
 
-    virtual bool
-    compress(const string& path)
+    bool compress(const string& path) final
     {
         consoleOut << "compress: " << path << endl;
         return true;

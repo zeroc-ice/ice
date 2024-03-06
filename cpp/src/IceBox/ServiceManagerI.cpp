@@ -516,13 +516,13 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     //
     // Load the entry point.
     //
-    IceInternal::DynamicLibraryPtr library = make_shared<IceInternal::DynamicLibrary>();
-    IceInternal::DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint, false);
+    IceInternal::DynamicLibrary library;
+    IceInternal::DynamicLibrary::symbol_type sym = library.loadEntryPoint(entryPoint, false);
     if(sym == 0)
     {
         ostringstream os;
         os << "ServiceManager: unable to load entry point `" << entryPoint << "'";
-        const string msg = library->getErrorMessage();
+        const string msg = library.getErrorMessage();
         if(!msg.empty())
         {
             os << ": " + msg;
@@ -699,7 +699,6 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             throw FailureException(__FILE__, __LINE__, s.str());
         }
 
-        info.library = library;
         info.status = Started;
         _services.push_back(info);
     }
@@ -786,12 +785,8 @@ IceBox::ServiceManagerI::stopAll()
             }
         }
 
-        //
-        // Release the service, the service communicator and then the library. The order is important,
-        // the service must be released before destroying the communicator so that the communicator
-        // leak detector doesn't report potential leaks, and the communicator must be destroyed before
-        // the library is released since the library will destroy its global state.
-        //
+        // Release the service and then the service communicator. The order is important, the service must be released
+        // before destroying the communicator so that the communicator leak detector doesn't report potential leaks.
         info.service = nullptr;
         if(info.communicator)
         {
@@ -799,22 +794,6 @@ IceBox::ServiceManagerI::stopAll()
 
             info.communicator->destroy();
             info.communicator = 0;
-        }
-
-        try
-        {
-            info.library = 0;
-        }
-        catch(const Exception& ex)
-        {
-            Warning out(_logger);
-            out << "ServiceManager: exception while stopping service " << info.name << ":\n";
-            out << ex;
-        }
-        catch(...)
-        {
-            Warning out(_logger);
-            out << "ServiceManager: unknown exception while stopping service " << info.name;
         }
     }
 

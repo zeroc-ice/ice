@@ -15,7 +15,7 @@
 #include <optional>
 #include <Ice/Object.h>
 #include <Ice/SlicedData.h>
-#include <Ice/IncomingAsync.h>
+#include <Ice/MarshaledResult.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/FactoryTableInit.h>
 
@@ -37,7 +37,6 @@
 #   endif
 #   include <Ice/Connection.h>
 #   include <Ice/ImplicitContext.h>
-#   include <Ice/DispatchInterceptor.h>
 #   include <Ice/Plugin.h>
 #   include <Ice/NativePropertiesAdmin.h>
 #   include <Ice/Instrumentation.h>

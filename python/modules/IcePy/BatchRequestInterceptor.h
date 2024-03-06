@@ -7,7 +7,7 @@
 
 #include <Config.h>
 #include <Util.h>
-#include <Ice/BatchRequestInterceptor.h>
+#include <Ice/Ice.h>
 
 #include <memory>
 

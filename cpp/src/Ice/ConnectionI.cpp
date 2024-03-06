@@ -3415,17 +3415,17 @@ Ice::ConnectionI::invokeAll(InputStream& stream, int32_t invokeNum, int32_t requ
         while(invokeNum > 0)
         {
             //
-            // Prepare the invocation.
+            // Prepare the dispatch.
             //
             bool response = !_endpoint->datagram() && requestId != 0;
             assert(!response || invokeNum == 1);
 
-            Incoming in(_instance.get(), this, this, adapter, response, compress, requestId);
+            Incoming incoming(_instance.get(), shared_from_this(), shared_from_this(), adapter, response, compress, requestId);
 
             //
-            // Dispatch the invocation.
+            // Dispatch the incoming request.
             //
-            in.invoke(servantManager, &stream);
+            incoming.invoke(servantManager, &stream);
 
             --invokeNum;
         }
