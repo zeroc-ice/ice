@@ -99,7 +99,7 @@ protected:
  * from Blobject that implements the ice_invoke method.
  * \headerfile Ice/Ice.h
  */
-class ICE_API Blobject : public virtual Object
+class ICE_API Blobject : public Object
 {
 public:
 
@@ -118,7 +118,7 @@ public:
     virtual bool ice_invoke(std::vector<std::uint8_t> inEncaps, std::vector<std::uint8_t>& outEncaps, const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -127,7 +127,7 @@ public:
  * derives a concrete servant class from Blobject that implements the ice_invoke method.
  * \headerfile Ice/Ice.h
  */
-class ICE_API BlobjectArray : public virtual Object
+class ICE_API BlobjectArray : public Object
 {
 public:
 
@@ -147,7 +147,7 @@ public:
                             const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -156,7 +156,7 @@ public:
  * servant class from Blobject that implements the ice_invokeAsync method.
  * \headerfile Ice/Ice.h
  */
-class ICE_API BlobjectAsync : public virtual Object
+class ICE_API BlobjectAsync : public Object
 {
 public:
 
@@ -179,7 +179,7 @@ public:
                                  const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -188,7 +188,7 @@ public:
  * derives a concrete servant class from Blobject that implements the ice_invokeAsync method.
  * \headerfile Ice/Ice.h
  */
-class ICE_API BlobjectArrayAsync : public virtual Object
+class ICE_API BlobjectArrayAsync : public Object
 {
 public:
 
@@ -210,7 +210,7 @@ public:
                                  std::function<void(std::exception_ptr)> error,
                                  const Current& current) = 0;
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 

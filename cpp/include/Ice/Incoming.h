@@ -107,7 +107,7 @@ private:
     Ice::Current _current;
     std::shared_ptr<Ice::Object> _servant;
     std::shared_ptr<Ice::ServantLocator> _locator;
-    ::std::shared_ptr<void> _cookie;
+    std::shared_ptr<void> _cookie;
     DispatchObserver _observer;
     bool _isTwoWay;
     std::uint8_t _compress;
