@@ -16,7 +16,6 @@
 #include <Ice/Object.h>
 #include <Ice/Value.h>
 #include <Ice/Incoming.h>
-#include <Ice/IncomingAsync.h>
 #include <Ice/FactoryTableInit.h>
 #include <optional>
 #include <Ice/ExceptionHelpers.h>

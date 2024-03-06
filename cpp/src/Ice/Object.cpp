@@ -2,12 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <Ice/Object.h>
-#include <Ice/Incoming.h>
-#include <Ice/IncomingAsync.h>
-#include <Ice/IncomingRequest.h>
-#include <Ice/LocalException.h>
-#include <Ice/SlicedData.h>
+#include "Ice/Object.h"
+#include "Ice/Incoming.h"
+#include "Ice/LocalException.h"
+#include "Ice/SlicedData.h"
 
 using namespace std;
 using namespace Ice;
@@ -16,11 +14,6 @@ using namespace IceInternal;
 namespace Ice
 {
 const Current emptyCurrent = Current();
-}
-
-Ice::Request::~Request()
-{
-    // Out of line to avoid weak vtable
 }
 
 bool
@@ -57,34 +50,34 @@ Ice::Object::ice_staticId()
 }
 
 bool
-Ice::Object::_iceD_ice_isA(IncomingBase& inS, const Current& current)
+Ice::Object::_iceD_ice_isA(Incoming& incoming)
 {
-    InputStream* istr = inS.startReadParams();
+    InputStream* istr = incoming.startReadParams();
     string iceP_id;
     istr->read(iceP_id, false);
-    inS.endReadParams();
-    bool ret = ice_isA(std::move(iceP_id), current);
-    OutputStream* ostr = inS.startWriteParams();
+    incoming.endReadParams();
+    bool ret = ice_isA(std::move(iceP_id), incoming.current());
+    OutputStream* ostr = incoming.startWriteParams();
     ostr->write(ret);
-    inS.endWriteParams();
+    incoming.endWriteParams();
     return true;
 }
 
 bool
-Ice::Object::_iceD_ice_ping(IncomingBase& inS, const Current& current)
+Ice::Object::_iceD_ice_ping(Incoming& incoming)
 {
-    inS.readEmptyParams();
-    ice_ping(current);
-    inS.writeEmptyParams();
+    incoming.readEmptyParams();
+    ice_ping(incoming.current());
+    incoming.writeEmptyParams();
     return true;
 }
 
 bool
-Ice::Object::_iceD_ice_ids(IncomingBase& inS, const Current& current)
+Ice::Object::_iceD_ice_ids(Incoming& incoming)
 {
-    inS.readEmptyParams();
-    vector<string> ret = ice_ids(current);
-    OutputStream* ostr = inS.startWriteParams();
+    incoming.readEmptyParams();
+    vector<string> ret = ice_ids(incoming.current());
+    OutputStream* ostr = incoming.startWriteParams();
     if(ret.empty())
     {
         ostr->write(ret);
@@ -93,23 +86,23 @@ Ice::Object::_iceD_ice_ids(IncomingBase& inS, const Current& current)
     {
         ostr->write(&ret[0], &ret[0] + ret.size(), false);
     }
-    inS.endWriteParams();
+    incoming.endWriteParams();
     return true;
 }
 
 bool
-Ice::Object::_iceD_ice_id(IncomingBase& inS, const Current& current)
+Ice::Object::_iceD_ice_id(Incoming& incoming)
 {
-    inS.readEmptyParams();
-    string ret = ice_id(current);
-    OutputStream* ostr = inS.startWriteParams();
+    incoming.readEmptyParams();
+    string ret = ice_id(incoming.current());
+    OutputStream* ostr = incoming.startWriteParams();
     ostr->write(ret, false);
-    inS.endWriteParams();
+    incoming.endWriteParams();
     return true;
 }
 
 bool
-Ice::Object::_iceDispatch(IncomingBase& in, const Current& current)
+Ice::Object::_iceDispatch(Incoming& incoming)
 {
     static constexpr string_view allOperations[] =
     {
@@ -118,6 +111,8 @@ Ice::Object::_iceDispatch(IncomingBase& in, const Current& current)
         "ice_isA",
         "ice_ping"
     };
+
+    const Current& current = incoming.current();
 
     pair<const string_view*, const string_view*> r = equal_range(allOperations, allOperations + 4, current.operation);
 
@@ -130,19 +125,19 @@ Ice::Object::_iceDispatch(IncomingBase& in, const Current& current)
     {
         case 0:
         {
-            return _iceD_ice_id(in, current);
+            return _iceD_ice_id(incoming);
         }
         case 1:
         {
-            return _iceD_ice_ids(in, current);
+            return _iceD_ice_ids(incoming);
         }
         case 2:
         {
-            return _iceD_ice_isA(in, current);
+            return _iceD_ice_isA(incoming);
         }
         case 3:
         {
-            return _iceD_ice_ping(in, current);
+            return _iceD_ice_ping(incoming);
         }
         default:
         {
@@ -203,96 +198,98 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 }
 
 bool
-Ice::Blobject::_iceDispatch(IncomingBase& in, const Current& current)
+Ice::Blobject::_iceDispatch(Incoming& incoming)
 {
+    const Current& current = incoming.current();
     const uint8_t* inEncaps;
     int32_t sz;
-    in.readParamEncaps(inEncaps, sz);
+    incoming.readParamEncaps(inEncaps, sz);
     vector<uint8_t> outEncaps;
     bool ok = ice_invoke(vector<uint8_t>(inEncaps, inEncaps + sz), outEncaps, current);
     if(outEncaps.empty())
     {
-        in.writeParamEncaps(0, 0, ok);
+        incoming.writeParamEncaps(0, 0, ok);
     }
     else
     {
-        in.writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
+        incoming.writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
     }
     return true;
 }
 
 bool
-Ice::BlobjectArray::_iceDispatch(IncomingBase& in, const Current& current)
+Ice::BlobjectArray::_iceDispatch(Incoming& incoming)
 {
+    const Current& current = incoming.current();
     pair<const uint8_t*, const uint8_t*> inEncaps;
     int32_t sz;
-    in.readParamEncaps(inEncaps.first, sz);
+    incoming.readParamEncaps(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
     vector<uint8_t> outEncaps;
     bool ok = ice_invoke(inEncaps, outEncaps, current);
     if(outEncaps.empty())
     {
-        in.writeParamEncaps(0, 0, ok);
+        incoming.writeParamEncaps(0, 0, ok);
     }
     else
     {
-        in.writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
+        incoming.writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
     }
     return true;
 }
 
 bool
-Ice::BlobjectAsync::_iceDispatch(IncomingBase& in, const Current& current)
+Ice::BlobjectAsync::_iceDispatch(Incoming& incoming)
 {
     const uint8_t* inEncaps;
     int32_t sz;
-    in.readParamEncaps(inEncaps, sz);
-    auto async = IncomingAsync::create(in);
+    incoming.readParamEncaps(inEncaps, sz);
+    auto incomingPtr = make_shared<Incoming>(std::move(incoming));
     try
     {
         ice_invokeAsync(vector<uint8_t>(inEncaps, inEncaps + sz),
-                        [async](bool ok, const vector<uint8_t>& outEncaps)
+                        [incomingPtr](bool ok, const vector<uint8_t>& outEncaps)
                         {
                             if(outEncaps.empty())
                             {
-                                async->writeParamEncaps(0, 0, ok);
+                                incomingPtr->writeParamEncaps(0, 0, ok);
                             }
                             else
                             {
-                                async->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
+                                incomingPtr->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
                             }
-                            async->completed();
+                            incomingPtr->completed();
                         },
-                        [async](std::exception_ptr ex) { async->completed(ex); }, current);
+                        [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
     }
     catch (...)
     {
-        async->failed(std::current_exception());
+        incomingPtr->failed(std::current_exception());
     }
     return false;
 }
 
 bool
-Ice::BlobjectArrayAsync::_iceDispatch(IncomingBase& in, const Current& current)
+Ice::BlobjectArrayAsync::_iceDispatch(Incoming& incoming)
 {
     pair<const uint8_t*, const uint8_t*> inEncaps;
     int32_t sz;
-    in.readParamEncaps(inEncaps.first, sz);
+    incoming.readParamEncaps(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
-    auto async = IncomingAsync::create(in);
+    auto incomingPtr = make_shared<Incoming>(std::move(incoming));
     try
     {
         ice_invokeAsync(inEncaps,
-                        [async](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
+                        [incomingPtr](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
                         {
-                            async->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
-                            async->completed();
+                            incomingPtr->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
+                            incomingPtr->completed();
                         },
-                        [async](std::exception_ptr ex) { async->completed(ex); }, current);
+                        [incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }, incomingPtr->current());
     }
     catch (...)
     {
-        async->failed(std::current_exception());
+        incomingPtr->failed(std::current_exception());
     }
     return false;
 }

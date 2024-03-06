@@ -3,8 +3,6 @@
 //
 
 #include <Ice/Incoming.h>
-#include <Ice/IncomingAsync.h>
-#include <Ice/IncomingRequest.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/ServantManager.h>
@@ -31,18 +29,10 @@ extern bool printStackTraces;
 
 }
 
-Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
-    ostr(make_shared<Ice::OutputStream>(current.adapter->getCommunicator(), Ice::currentProtocolEncoding))
-{
-    ostr->writeBlob(replyHdr, sizeof(replyHdr));
-    ostr->write(current.requestId);
-    ostr->write(replyOK);
-}
-
-IncomingBase::IncomingBase(Instance* instance, ResponseHandlerPtr responseHandler,
+Incoming::Incoming(Instance* instance, ResponseHandlerPtr responseHandler,
                                         Ice::Connection* connection, const ObjectAdapterPtr& adapter,
-                                        bool response, uint8_t compress, int32_t requestId) :
-    _response(response),
+                                        bool twoWay, uint8_t compress, int32_t requestId) :
+    _isTwoWay(twoWay),
     _compress(compress),
     _format(Ice::FormatType::DefaultFormat),
     _os(instance, Ice::currentProtocolEncoding),
@@ -57,12 +47,12 @@ IncomingBase::IncomingBase(Instance* instance, ResponseHandlerPtr responseHandle
     _current.encoding.minor = 0;
 }
 
-IncomingBase::IncomingBase(IncomingBase&& other) :
+Incoming::Incoming(Incoming&& other) :
     _current(std::move(other._current)),
     _servant(std::move(other._servant)),
     _locator(std::move(other._locator)),
     _cookie(std::move(other._cookie)),
-    _response(std::move(other._response)), // TODO: rename
+    _isTwoWay(std::move(other._isTwoWay)),
     _compress(std::move(other._compress)),
     _format(std::move(other._format)),
     _os(other._os.instance(), Ice::currentProtocolEncoding), // TODO: make movable
@@ -72,25 +62,10 @@ IncomingBase::IncomingBase(IncomingBase&& other) :
     _observer.adopt(other._observer); // TODO: make movable
 }
 
-IncomingBase::IncomingBase(IncomingBase& other) :
-    _current(other._current),
-    _servant(other._servant),
-    _locator(other._locator),
-    _cookie(other._cookie),
-    _response(other._response),
-    _compress(other._compress),
-    _format(other._format),
-    _os(other._os.instance(), Ice::currentProtocolEncoding),
-    _responseHandler(other._responseHandler),
-    _is(other._is)
-{
-    _observer.adopt(other._observer);
-}
-
 OutputStream*
-IncomingBase::startWriteParams()
+Incoming::startWriteParams()
 {
-    if(!_response)
+    if(!_isTwoWay)
     {
         throw MarshalException(__FILE__, __LINE__, "can't marshal out parameters for oneway dispatch");
     }
@@ -105,18 +80,18 @@ IncomingBase::startWriteParams()
 }
 
 void
-IncomingBase::endWriteParams()
+Incoming::endWriteParams()
 {
-    if(_response)
+    if(_isTwoWay)
     {
         _os.endEncapsulation();
     }
 }
 
 void
-IncomingBase::writeEmptyParams()
+Incoming::writeEmptyParams()
 {
-    if(_response)
+    if(_isTwoWay)
     {
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.writeBlob(replyHdr, sizeof(replyHdr));
@@ -127,14 +102,14 @@ IncomingBase::writeEmptyParams()
 }
 
 void
-IncomingBase::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
+Incoming::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 {
     if(!ok)
     {
         _observer.userException();
     }
 
-    if(_response)
+    if(_isTwoWay)
     {
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.writeBlob(replyHdr, sizeof(replyHdr));
@@ -152,13 +127,13 @@ IncomingBase::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 }
 
 void
-IncomingBase::setMarshaledResult(const Ice::MarshaledResult& result)
+Incoming::setMarshaledResult(const Ice::MarshaledResult& result)
 {
     result.getOutputStream()->swap(_os);
 }
 
 void
-IncomingBase::response(bool amd)
+Incoming::response(bool amd)
 {
     try
     {
@@ -168,7 +143,7 @@ IncomingBase::response(bool amd)
         }
 
         assert(_responseHandler);
-        if(_response)
+        if(_isTwoWay)
         {
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
@@ -188,7 +163,7 @@ IncomingBase::response(bool amd)
 }
 
 void
-IncomingBase::exception(std::exception_ptr exc, bool amd)
+Incoming::exception(std::exception_ptr exc, bool amd)
 {
     try
     {
@@ -205,21 +180,21 @@ IncomingBase::exception(std::exception_ptr exc, bool amd)
 }
 
 void
-IncomingBase::response()
+Incoming::response()
 {
     writeEmptyParams();
     completed();
 }
 
 void
-IncomingBase::response(const MarshaledResult& result)
+Incoming::response(const MarshaledResult& result)
 {
     setMarshaledResult(result);
     completed();
 }
 
 void
-IncomingBase::warning(const Exception& ex) const
+Incoming::warning(const Exception& ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
 
@@ -253,7 +228,7 @@ IncomingBase::warning(const Exception& ex) const
 }
 
 void
-IncomingBase::warning(std::exception_ptr ex) const
+Incoming::warning(std::exception_ptr ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
     ToStringMode toStringMode = _os.instance()->toStringMode();
@@ -291,7 +266,7 @@ IncomingBase::warning(std::exception_ptr ex) const
 }
 
 bool
-IncomingBase::servantLocatorFinished(bool amd)
+Incoming::servantLocatorFinished(bool amd)
 {
     assert(_locator && _servant);
     try
@@ -307,7 +282,7 @@ IncomingBase::servantLocatorFinished(bool amd)
 }
 
 void
-IncomingBase::handleException(std::exception_ptr exc, bool amd)
+Incoming::handleException(std::exception_ptr exc, bool amd)
 {
     assert(_responseHandler);
 
@@ -347,7 +322,7 @@ IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _observer.failed(rfe.ice_id());
         }
 
-        if(_response)
+        if(_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -399,7 +374,7 @@ IncomingBase::handleException(std::exception_ptr exc, bool amd)
         //
         // The operation may have already marshaled a reply; we must overwrite that reply.
         //
-        if(_response)
+        if(_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -436,7 +411,7 @@ IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _observer.failed(ex.ice_id());
         }
 
-        if(_response)
+        if(_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -511,7 +486,7 @@ IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _observer.failed(exceptionId);
         }
 
-        if(_response)
+        if(_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -530,11 +505,11 @@ IncomingBase::handleException(std::exception_ptr exc, bool amd)
     }
 
     _observer.detach();
-    _responseHandler = 0;
+    _responseHandler = nullptr;
 }
 
 void
-IncomingBase::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
+Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
 {
     _is = stream;
 
@@ -647,7 +622,7 @@ IncomingBase::invoke(const ServantManagerPtr& servantManager, InputStream* strea
     try
     {
         // Dispatch the request to the servant.
-        if (_servant->_iceDispatch(*this, _current))
+        if (_servant->_iceDispatch(*this))
         {
             // If the request was dispatched synchronously, send the response.
             response(amd);
@@ -661,14 +636,8 @@ IncomingBase::invoke(const ServantManagerPtr& servantManager, InputStream* strea
     }
 }
 
-const Current&
-IceInternal::IncomingRequest::getCurrent()
-{
-    return _in.getCurrent();
-}
-
 void
-IncomingBase::completed()
+Incoming::completed()
 {
     const bool amd = true;
     setResponseSent();
@@ -679,7 +648,7 @@ IncomingBase::completed()
 }
 
 void
-IncomingBase::completed(exception_ptr ex)
+Incoming::completed(exception_ptr ex)
 {
     const bool amd = true;
     setResponseSent();
@@ -690,7 +659,7 @@ IncomingBase::completed(exception_ptr ex)
 }
 
 void
-IncomingBase::failed(exception_ptr ex) noexcept
+Incoming::failed(exception_ptr ex) noexcept
 {
     const bool amd = true;
     if (!_completed.test_and_set()) // we're completing this dispatch
@@ -708,7 +677,7 @@ IncomingBase::failed(exception_ptr ex) noexcept
 }
 
 void
-IncomingBase::setResponseSent()
+Incoming::setResponseSent()
 {
     if (_responseSent)
     {

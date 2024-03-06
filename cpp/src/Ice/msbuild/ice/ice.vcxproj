@@ -527,7 +527,6 @@
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IconvStringConverter.cpp" />
     <ClCompile Include="..\..\Incoming.cpp" />
-    <ClCompile Include="..\..\IncomingAsync.cpp" />
     <ClCompile Include="..\..\Initialize.cpp" />
     <ClCompile Include="..\..\InputStream.cpp" />
     <ClCompile Include="..\..\Instance.cpp" />

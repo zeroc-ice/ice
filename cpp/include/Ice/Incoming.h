@@ -12,46 +12,13 @@
 #include <Ice/InputStream.h>
 #include <Ice/Object.h>
 #include <Ice/Current.h>
-#include <Ice/IncomingAsyncF.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/ResponseHandlerF.h>
 
+#include "MarshaledResult.h"
+
 #include <atomic>
 #include <deque> // TODO: remove
-
-namespace Ice
-{
-
-/**
- * Base class for marshaled result structures, which are generated for operations having the
- * marshaled-result metadata tag.
- * \headerfile Ice/Ice.h
- */
-class ICE_API MarshaledResult
-{
-public:
-
-    /**
-     * The constructor requires the Current object that was passed to the servant.
-     */
-    MarshaledResult(const Current& current);
-
-    /**
-     * Obtains the output stream that is used to marshal the results.
-     * @return The output stream.
-     */
-    std::shared_ptr<OutputStream> getOutputStream() const
-    {
-        return ostr;
-    }
-
-protected:
-
-    /** The output stream used to marshal the results. */
-    std::shared_ptr<OutputStream> ostr;
-};
-
-}
 
 namespace Ice
 {
@@ -61,15 +28,14 @@ namespace Ice
 namespace IceInternal
 {
 
-class ICE_API IncomingBase
+class ICE_API Incoming
 {
 public:
 
-    IncomingBase(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
-    IncomingBase(IncomingBase&&);
-
-    IncomingBase(const IncomingBase&) = delete;
-    IncomingBase& operator=(const IncomingBase&) = delete;
+    Incoming(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
+    Incoming(Incoming&&);
+    Incoming(const Incoming&) = delete;
+    Incoming& operator=(const Incoming&) = delete;
 
     Ice::OutputStream* startWriteParams();
     void endWriteParams();
@@ -79,11 +45,6 @@ public:
 
     void response(bool amd);
     void exception(std::exception_ptr, bool amd);
-
-    const Ice::Current& getCurrent()
-    {
-        return _current;
-    }
 
     void setFormat(Ice::FormatType format)
     {
@@ -119,7 +80,7 @@ public:
         _current.encoding = _is->readEncapsulation(v, sz);
     }
 
-    // Callbacks used by AMD dispatches
+    const Ice::Current& current() const { return _current; }
 
     // Async dispatch writes an empty response and completes successfully.
     void response();
@@ -135,12 +96,6 @@ public:
 
     // Handle an exception that was thrown by an async dispatch. Use this function when in the dispatch thread.
     void failed(std::exception_ptr) noexcept;
-
-protected:
-
-    IncomingBase(IncomingBase&);
-
-    friend class IncomingAsync;
 
 private:
 
@@ -158,7 +113,7 @@ private:
     std::shared_ptr<Ice::ServantLocator> _locator;
     ::std::shared_ptr<void> _cookie;
     DispatchObserver _observer;
-    bool _response;
+    bool _isTwoWay;
     std::uint8_t _compress;
     Ice::FormatType _format;
     Ice::OutputStream _os;

@@ -15,7 +15,7 @@
 #include <optional>
 #include <Ice/Object.h>
 #include <Ice/SlicedData.h>
-#include <Ice/IncomingAsync.h>
+#include <Ice/MarshaledResult.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/FactoryTableInit.h>
 
