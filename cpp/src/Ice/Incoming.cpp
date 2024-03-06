@@ -30,7 +30,7 @@ extern bool printStackTraces;
 }
 
 Incoming::Incoming(Instance* instance, ResponseHandlerPtr responseHandler,
-                                        Ice::Connection* connection, const ObjectAdapterPtr& adapter,
+                                        Ice::ConnectionPtr connection, ObjectAdapterPtr adapter,
                                         bool twoWay, uint8_t compress, int32_t requestId) :
     _isTwoWay(twoWay),
     _compress(compress),
@@ -39,9 +39,8 @@ Incoming::Incoming(Instance* instance, ResponseHandlerPtr responseHandler,
     _responseHandler(std::move(responseHandler)),
     _is(nullptr)
 {
-    _current.adapter = adapter;
-    ::Ice::ConnectionI* conn = dynamic_cast<::Ice::ConnectionI*>(connection);
-    _current.con = conn ? conn->shared_from_this() : nullptr;
+    _current.adapter = std::move(adapter);
+    _current.con = std::move(connection);
     _current.requestId = requestId;
     _current.encoding.major = 0;
     _current.encoding.minor = 0;
@@ -641,10 +640,7 @@ Incoming::completed()
 {
     const bool amd = true;
     setResponseSent();
-    if (!_completed.test_and_set()) // we're completing this dispatch
-    {
-        response(amd);
-    }
+    response(amd);
 }
 
 void
@@ -652,27 +648,20 @@ Incoming::completed(exception_ptr ex)
 {
     const bool amd = true;
     setResponseSent();
-    if (!_completed.test_and_set()) // we're completing this dispatch
-    {
-        exception(ex, amd);
-    }
+    exception(ex, amd);
 }
 
 void
 Incoming::failed(exception_ptr ex) noexcept
 {
-    const bool amd = true;
-    if (!_completed.test_and_set()) // we're completing this dispatch
+    try
     {
-        try
-        {
-            exception(ex, amd);
-        }
-        catch (...)
-        {
-            // Ignore all exceptions. The caller in the dispatch thread can't handle any exception because its memory
-            // was moved to a new "async" incoming object.
-        }
+        completed(ex);
+    }
+    catch (...)
+    {
+        // Ignore all exceptions. The caller in the dispatch thread can't handle any exception because its memory
+        // was moved to a new "async" incoming object.
     }
 }
 
@@ -681,7 +670,8 @@ Incoming::setResponseSent()
 {
     if (_responseSent)
     {
-        // application must not call callbacks twice
+        // The application must not call the callbacks twice, or call a callback after throwing an exception from the
+        // dispatch thread.
         throw ResponseSentException(__FILE__, __LINE__);
     }
     else

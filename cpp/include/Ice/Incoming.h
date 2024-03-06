@@ -5,20 +5,15 @@
 #ifndef ICE_INCOMING_H
 #define ICE_INCOMING_H
 
-#include <Ice/InstanceF.h>
-#include <Ice/ConnectionIF.h>
-#include <Ice/ServantManagerF.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/Object.h>
-#include <Ice/Current.h>
-#include <Ice/ObserverHelper.h>
-#include <Ice/ResponseHandlerF.h>
-
+#include "Current.h"
+#include "InputStream.h"
+#include "InstanceF.h"
 #include "MarshaledResult.h"
-
-#include <atomic>
-#include <deque> // TODO: remove
+#include "Object.h"
+#include "ObserverHelper.h"
+#include "OutputStream.h"
+#include "ResponseHandlerF.h"
+#include "ServantManagerF.h"
 
 namespace Ice
 {
@@ -28,11 +23,11 @@ namespace Ice
 namespace IceInternal
 {
 
-class ICE_API Incoming
+class ICE_API Incoming final
 {
 public:
 
-    Incoming(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
+    Incoming(Instance*, ResponseHandlerPtr, Ice::ConnectionPtr, Ice::ObjectAdapterPtr, bool, std::uint8_t, std::int32_t);
     Incoming(Incoming&&);
     Incoming(const Incoming&) = delete;
     Incoming& operator=(const Incoming&) = delete;
@@ -94,7 +89,7 @@ public:
     // Async dispatch completes with an exception. This can throw, for example, if the response has already been sent.
     void completed(std::exception_ptr ex);
 
-    // Handle an exception that was thrown by an async dispatch. Use this function when in the dispatch thread.
+    // Handle an exception that was thrown by an async dispatch. Use this function from the dispatch thread.
     void failed(std::exception_ptr) noexcept;
 
 private:
@@ -125,13 +120,8 @@ private:
 
     // This flag is set when the user calls an async response or exception callback. A second call is incorrect and
     // results in ResponseSentException.
-    // We don't need an atomic flag since it's purely for error detection - something that should never happen in
-    // correctly written code.
+    // We don't need an atomic flag since it's purely to detect logic errors in the application code.
     bool _responseSent = false;
-
-    // This flag is set when an async dispatch has completed, for example because the connection dropped. A subsequent
-    // call is no-op (succeeds silently).
-    std::atomic_flag _completed = ATOMIC_FLAG_INIT;
 };
 
 }

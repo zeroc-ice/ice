@@ -11,6 +11,8 @@
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/UserAccountMapper.h>
 #include <IceGrid/FileCache.h>
+
+#include <deque>
 #include <set>
 #include <exception>
 
