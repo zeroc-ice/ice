@@ -617,38 +617,35 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
         }
     }
 
-    const bool amd = false;
     try
     {
         // Dispatch the request to the servant.
         if (_servant->_iceDispatch(*this))
         {
             // If the request was dispatched synchronously, send the response.
-            response(amd);
+            response(false); // amd: false
         }
     }
     catch (...)
     {
         // An async dispatch is not allowed to throw any exception because it moves "this" memory into a new Incoming
         // object.
-        exception(current_exception(), amd);
+        exception(current_exception(), false); // amd: false
     }
 }
 
 void
 Incoming::completed()
 {
-    const bool amd = true;
     setResponseSent();
-    response(amd);
+    response(true); // amd: true
 }
 
 void
 Incoming::completed(exception_ptr ex)
 {
-    const bool amd = true;
     setResponseSent();
-    exception(ex, amd);
+    exception(ex, true); // amd: true
 }
 
 void
