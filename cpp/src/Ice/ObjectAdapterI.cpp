@@ -966,8 +966,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
         if (!router)
         {
-            router = Ice::uncheckedCast<RouterPrx>(
-                _instance->proxyFactory()->propertyToProxy(_name + ".Router"));
+            router = _communicator->propertyToProxy<RouterPrx>(_name + ".Router");
         }
         if(router)
         {
@@ -1034,7 +1033,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
 
         if(!properties->getProperty(_name + ".Locator").empty())
         {
-            setLocator(Ice::uncheckedCast<LocatorPrx>(_instance->proxyFactory()->propertyToProxy(_name + ".Locator")));
+            setLocator(_communicator->propertyToProxy<LocatorPrx>(_name + ".Locator"));
         }
         else
         {

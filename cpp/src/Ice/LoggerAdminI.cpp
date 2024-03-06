@@ -222,8 +222,7 @@ filterLogMessages(LogMessageSeq& logMessages, const set<LogMessageType>& message
 RemoteLoggerPrx
 changeCommunicator(const RemoteLoggerPrx& prx, const CommunicatorPtr& communicator)
 {
-    optional<RemoteLoggerPrx> result = Ice::uncheckedCast<RemoteLoggerPrx>(communicator->stringToProxy(prx->ice_toString()));
-    assert(result);
+    RemoteLoggerPrx result{communicator, prx->ice_toString()};
     return result->ice_invocationTimeout(prx->ice_getInvocationTimeout());
 }
 
