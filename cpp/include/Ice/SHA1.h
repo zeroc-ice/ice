@@ -16,6 +16,9 @@ namespace IceInternal
 ICE_API void
 sha1(const unsigned char*, std::size_t, std::vector<unsigned char>&);
 
+ICE_API void
+sha1(const std::byte*, std::size_t, std::vector<std::byte>&);
+
 class ICE_API SHA1
 {
 public:

@@ -15,7 +15,6 @@
 #include <IceUtil/Random.h>
 #include <Ice/SHA1.h>
 #include <IceUtil/StringUtil.h>
-#include "Endian.h"
 
 #include <stdint.h>
 #include <climits>
@@ -101,30 +100,27 @@ int64_t ice_nlltoh(const uint8_t* src)
     //
     // Extract a 64-bit integer in network (big-endian) order.
     //
-    if constexpr (endian::native == endian::big)
-    {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest = *src;
-    }
-    else
-    {
-        uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest-- = *src++;
-        *dest = *src;
-    }
+#ifdef ICE_BIG_ENDIAN
+    uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest = *src;
+#else
+    uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest = *src;
+#endif
 
     return v;
 }
@@ -194,7 +190,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                 // The value for Sec-WebSocket-Key is a 16-byte random number,
                 // encoded with Base64.
                 //
-                vector<unsigned char> key(16);
+                vector<byte> key(16);
                 IceUtilInternal::generateRandom(reinterpret_cast<char*>(&key[0]), key.size());
                 _key = IceInternal::Base64::encode(key);
                 out << _key << "\r\n\r\n"; // EOM
@@ -959,7 +955,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         throw WebSocketException("missing value for WebSocket key");
     }
 
-    vector<unsigned char> decodedKey = Base64::decode(key);
+    vector<byte> decodedKey = Base64::decode(key);
     if(decodedKey.size() != 16)
     {
         throw WebSocketException("invalid value `" + key + "' for WebSocket key");
@@ -994,8 +990,8 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     //
     out << "Sec-WebSocket-Accept: ";
     string input = key + _wsUUID;
-    vector<unsigned char> hash;
-    sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
+    vector<byte> hash;
+    sha1(reinterpret_cast<const byte*>(&input[0]), input.size(), hash);
     out << IceInternal::Base64::encode(hash) << "\r\n" << "\r\n"; // EOM
 
     string str = out.str();
@@ -1092,8 +1088,8 @@ IceInternal::WSTransceiver::handleResponse()
         throw WebSocketException("missing value for Sec-WebSocket-Accept");
     }
     string input = _key + _wsUUID;
-    vector<unsigned char> hash;
-    sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
+    vector<byte> hash;
+    sha1(reinterpret_cast<const byte*>(&input[0]), input.size(), hash);
     if(val != IceInternal::Base64::encode(hash))
     {
         throw WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");

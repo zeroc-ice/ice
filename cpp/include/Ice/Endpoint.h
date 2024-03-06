@@ -321,21 +321,21 @@ public:
      * @param rawEncoding The encoding version of the opaque endpoint (to decode or encode the rawBytes).
      * @param rawBytes The raw encoding of the opaque endpoint.
      */
-    OpaqueEndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying, int timeout, bool compress, const ::Ice::EncodingVersion& rawEncoding, const ::Ice::ByteSeq& rawBytes) :
+    OpaqueEndpointInfo(const ::std::shared_ptr<::Ice::EndpointInfo>& underlying, int timeout, bool compress, const ::Ice::EncodingVersion& rawEncoding, std::vector<std::byte> rawBytes) :
         EndpointInfo(underlying, timeout, compress),
         rawEncoding(rawEncoding),
-        rawBytes(rawBytes)
+        rawBytes(std::move(rawBytes))
     {
     }
 
     /**
      * The encoding version of the opaque endpoint (to decode or encode the rawBytes).
      */
-    ::Ice::EncodingVersion rawEncoding;
+    Ice::EncodingVersion rawEncoding;
     /**
      * The raw encoding of the opaque endpoint.
      */
-    ::Ice::ByteSeq rawBytes;
+    std::vector<std::byte> rawBytes;
 };
 
 }

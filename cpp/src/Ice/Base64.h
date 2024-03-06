@@ -16,14 +16,14 @@ class ICE_API Base64
 {
 public:
 
-    static std::string encode(const std::vector<unsigned char>&);
-    static std::vector<unsigned char> decode(const std::string&);
+    static std::string encode(const std::vector<std::byte>&);
+    static std::vector<std::byte> decode(const std::string&);
     static bool isBase64(char);
 
 private:
 
-    static char encode(unsigned char);
-    static unsigned char decode(char);
+    static char encode(std::byte);
+    static std::byte decode(char);
 };
 
 }

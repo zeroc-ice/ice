@@ -5,56 +5,58 @@
 #include <Ice/Protocol.h>
 #include <Ice/LocalException.h>
 
+using namespace std;
+
 namespace IceInternal
 {
 
-const uint8_t magic[] = { 0x49, 0x63, 0x65, 0x50 };   // 'I', 'c', 'e', 'P'
+const byte magic[] = { byte{0x49}, byte{0x63}, byte{0x65}, byte{0x50} };   // 'I', 'c', 'e', 'P'
 
-const uint8_t requestHdr[] =
+const byte requestHdr[] =
 {
     magic[0],
     magic[1],
     magic[2],
     magic[3],
-    protocolMajor,
-    protocolMinor,
-    protocolEncodingMajor,
-    protocolEncodingMinor,
-    requestMsg,
-    0, // Compression status
-    0, 0, 0, 0, // Message size (placeholder)
-    0, 0, 0, 0 // Request id (placeholder)
+    byte{protocolMajor},
+    byte{protocolMinor},
+    byte{protocolEncodingMajor},
+    byte{protocolEncodingMinor},
+    byte{requestMsg},
+    byte{0}, // Compression status
+    byte{0}, byte{0}, byte{0}, byte{0}, // Message size (placeholder)
+    byte{0}, byte{0}, byte{0}, byte{0} // Request id (placeholder)
 };
 
-const uint8_t requestBatchHdr[] =
+const byte requestBatchHdr[] =
 {
     magic[0],
     magic[1],
     magic[2],
     magic[3],
-    protocolMajor,
-    protocolMinor,
-    protocolEncodingMajor,
-    protocolEncodingMinor,
-    requestBatchMsg,
-    0, // Compression status
-    0, 0, 0, 0, // Message size (place holder)
-    0, 0, 0, 0  // Number of requests in batch (placeholder)
+    byte{protocolMajor},
+    byte{protocolMinor},
+    byte{protocolEncodingMajor},
+    byte{protocolEncodingMinor},
+    byte{requestBatchMsg},
+    byte{0}, // Compression status
+    byte{0}, byte{0}, byte{0}, byte{0}, // Message size (place holder)
+    byte{0}, byte{0}, byte{0}, byte{0}  // Number of requests in batch (placeholder)
 };
 
-const uint8_t replyHdr[] =
+const byte replyHdr[] =
 {
     magic[0],
     magic[1],
     magic[2],
     magic[3],
-    protocolMajor,
-    protocolMinor,
-    protocolEncodingMajor,
-    protocolEncodingMinor,
-    replyMsg,
-    0, // Compression status
-    0, 0, 0, 0 // Message size (placeholder)
+    byte{protocolMajor},
+    byte{protocolMinor},
+    byte{protocolEncodingMajor},
+    byte{protocolEncodingMinor},
+    byte{replyMsg},
+    byte{0}, // Compression status
+    byte{0}, byte{0}, byte{0}, byte{0} // Message size (placeholder)
 };
 
 void

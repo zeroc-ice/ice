@@ -370,7 +370,7 @@ Ice::InputStream::readAndCheckSeqSize(int minSize)
 }
 
 void
-Ice::InputStream::readBlob(vector<uint8_t>& v, int32_t sz)
+Ice::InputStream::readBlob(vector<byte>& v, int32_t sz)
 {
     if (sz > 0)
     {
@@ -378,7 +378,7 @@ Ice::InputStream::readBlob(vector<uint8_t>& v, int32_t sz)
         {
             throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        vector<uint8_t>(i, i + sz).swap(v);
+        vector<byte>(reinterpret_cast<byte*>(i), reinterpret_cast<byte*>(i) + sz).swap(v);
         i += sz;
     }
     else

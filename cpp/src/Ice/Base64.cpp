@@ -8,7 +8,7 @@
 using namespace std;
 
 string
-IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
+IceInternal::Base64::encode(const vector<byte>& plainSeq)
 {
     string retval;
 
@@ -24,19 +24,19 @@ IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
 
     retval.reserve(totalBytes);
 
-    unsigned char by1 = 0;
-    unsigned char by2 = 0;
-    unsigned char by3 = 0;
-    unsigned char by4 = 0;
-    unsigned char by5 = 0;
-    unsigned char by6 = 0;
-    unsigned char by7 = 0;
+    byte by1 = byte{0};
+    byte by2 = byte{0};
+    byte by3 = byte{0};
+    byte by4 = byte{0};
+    byte by5 = byte{0};
+    byte by6 = byte{0};
+    byte by7 = byte{0};
 
     for(size_t i = 0; i < plainSeq.size(); i += 3)
     {
         by1 = plainSeq[i];
-        by2 = 0;
-        by3 = 0;
+        by2 = byte{0};
+        by3 = byte{0};
 
         if((i + 1) < plainSeq.size())
         {
@@ -49,9 +49,9 @@ IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
         }
 
         by4 = by1 >> 2;
-        by5 = static_cast<unsigned char>((by1 & 0x3) << 4) | (by2 >> 4);
-        by6 = static_cast<unsigned char>((by2 & 0xf) << 2) | (by3 >> 6);
-        by7 = by3 & 0x3f;
+        by5 = static_cast<byte>((by1 & byte{0x3}) << 4) | (by2 >> 4);
+        by6 = static_cast<byte>((by2 & byte{0xf}) << 2) | (by3 >> 6);
+        by7 = by3 & byte{0x3f};
 
         retval += encode(by4);
         retval += encode(by5);
@@ -91,7 +91,7 @@ IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
     return outString;
 }
 
-vector<unsigned char>
+vector<byte>
 IceInternal::Base64::decode(const string& str)
 {
     string newStr;
@@ -106,7 +106,7 @@ IceInternal::Base64::decode(const string& str)
         }
     }
 
-    vector<unsigned char> retval;
+    vector<byte> retval;
 
     if(newStr.length() == 0)
     {
@@ -123,10 +123,10 @@ IceInternal::Base64::decode(const string& str)
 
     retval.reserve(totalBytes);
 
-    unsigned char by1 = 0;
-    unsigned char by2 = 0;
-    unsigned char by3 = 0;
-    unsigned char by4 = 0;
+    byte by1 = byte{0};
+    byte by2 = byte{0};
+    byte by3 = byte{0};
+    byte by4 = byte{0};
 
     char c1, c2, c3, c4;
 
@@ -158,16 +158,16 @@ IceInternal::Base64::decode(const string& str)
         by3 = decode(c3);
         by4 = decode(c4);
 
-        retval.push_back(static_cast<unsigned char>(by1 << 2) | (by2 >> 4));
+        retval.push_back((by1 << 2) | by2 >> 4);
 
         if(c3 != '=')
         {
-            retval.push_back(static_cast<unsigned char>((by2 & 0xf) << 4) | (by3 >> 2));
+            retval.push_back(((by2 & byte{0xf}) << 4) | (by3 >> 2));
         }
 
         if(c4 != '=')
         {
-            retval.push_back(static_cast<unsigned char>((by3 & 0x3) << 6) | by4);
+            retval.push_back(((by3 & byte{0x3}) << 6) | by4);
         }
     }
 
@@ -211,24 +211,24 @@ IceInternal::Base64::isBase64(char c)
 }
 
 char
-IceInternal::Base64::encode(unsigned char uc)
+IceInternal::Base64::encode(byte uc)
 {
-    if(uc < 26)
+    if(uc < byte{26})
     {
         return 'A' + static_cast<char>(uc);
     }
 
-    if(uc < 52)
+    if(uc < byte{52})
     {
         return 'a' + static_cast<char>(uc) - 26;
     }
 
-    if(uc < 62)
+    if(uc < byte{62})
     {
         return '0' + static_cast<char>(uc) - 52;
     }
 
-    if(uc == 62)
+    if(uc == byte{62})
     {
         return '+';
     }
@@ -236,28 +236,28 @@ IceInternal::Base64::encode(unsigned char uc)
     return '/';
 }
 
-unsigned char
+byte
 IceInternal::Base64::decode(char c)
 {
     if(c >= 'A' && c <= 'Z')
     {
-        return static_cast<unsigned char>(c - 'A');
+        return static_cast<byte>(c - 'A');
     }
 
     if(c >= 'a' && c <= 'z')
     {
-        return static_cast<unsigned char>(c - 'a' + 26);
+        return static_cast<byte>(c - 'a' + 26);
     }
 
     if(c >= '0' && c <= '9')
     {
-        return static_cast<unsigned char>(c - '0' + 52);
+        return static_cast<byte>(c - '0' + 52);
     }
 
     if(c == '+')
     {
-        return 62;
+        return byte{62};
     }
 
-    return 63;
+    return byte{63};
 }

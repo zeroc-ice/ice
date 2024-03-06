@@ -21,6 +21,13 @@ hashAdd(std::int32_t& hashCode, bool value)
 }
 
 inline void
+hashAdd(std::int32_t& hashCode, std::byte value)
+{
+    // TODO: better hash function for std::byte
+    hashAdd(hashCode, static_cast<std::int32_t>(value));
+}
+
+inline void
 hashAdd(std::int32_t& hashCode, const std::string& value)
 {
     for(std::string::const_iterator p = value.begin(); p != value.end(); ++p)

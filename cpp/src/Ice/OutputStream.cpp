@@ -239,6 +239,17 @@ Ice::OutputStream::writePendingValues()
 }
 
 void
+Ice::OutputStream::writeBlob(const vector<byte>& v)
+{
+    if(!v.empty())
+    {
+        Container::size_type pos = b.size();
+        resize(pos + v.size());
+        memcpy(&b[pos], &v[0], v.size());
+    }
+}
+
+void
 Ice::OutputStream::writeBlob(const vector<uint8_t>& v)
 {
     if(!v.empty())

@@ -42,7 +42,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(int16_t type, InputStream* s) : _t
 {
     _rawEncoding = s->getEncoding();
     int32_t sz = s->getEncapsulationSize();
-    s->readBlob(const_cast<vector<uint8_t>&>(_rawBytes), sz);
+    s->readBlob(const_cast<vector<byte>&>(_rawBytes), sz);
 }
 
 namespace
@@ -52,7 +52,7 @@ class OpaqueEndpointInfoI : public Ice::OpaqueEndpointInfo
 {
 public:
 
-    OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes);
+    OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncoding, vector<byte> rawBytes);
 
     virtual int16_t
     type() const noexcept
@@ -82,8 +82,8 @@ private:
 // COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
 //
 OpaqueEndpointInfoI::OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncodingP,
-                                         const Ice::ByteSeq& rawBytesP) :
-    Ice::OpaqueEndpointInfo(nullptr, -1, false, rawEncodingP, rawBytesP),
+                                         vector<byte> rawBytesP) :
+    Ice::OpaqueEndpointInfo(nullptr, -1, false, rawEncodingP, std::move(rawBytesP)),
     _type(type)
 {
 }
@@ -371,7 +371,7 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
                 throw EndpointParseException(__FILE__, __LINE__, os.str());
             }
         }
-        const_cast<vector<uint8_t>&>(_rawBytes) = Base64::decode(argument);
+        const_cast<vector<byte>&>(_rawBytes) = Base64::decode(argument);
         return true;
     }
 

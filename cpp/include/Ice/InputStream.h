@@ -594,7 +594,7 @@ public:
      * @param bytes The vector to hold a copy of the bytes from the marshaling buffer.
      * @param sz The number of bytes to read.
      */
-    void readBlob(std::vector<std::uint8_t>& bytes, std::int32_t sz);
+    void readBlob(std::vector<std::byte>& bytes, std::int32_t sz);
 
     /**
      * Reads a blob of bytes from the stream.
@@ -602,11 +602,11 @@ public:
      * @param v A pointer into the internal marshaling buffer representing the start of the blob.
      * @param sz The number of bytes to read.
      */
-    void readBlob(const std::uint8_t*& v, Container::size_type sz)
+    void readBlob(const std::byte*& v, Container::size_type sz)
     {
         if(sz > 0)
         {
-            v = i;
+            v = reinterpret_cast<std::byte*>(i);
             if(static_cast<Container::size_type>(b.end() - i) < sz)
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
@@ -615,7 +615,7 @@ public:
         }
         else
         {
-            v = i;
+            v = reinterpret_cast<std::byte*>(i);
         }
     }
 
@@ -747,6 +747,19 @@ public:
         {
             return readOptImpl(tag, expectedFormat);
         }
+    }
+
+    /**
+     * Reads a byte from the stream.
+     * @param v The extracted byte.
+     */
+    void read(std::byte& v)
+    {
+        if(i >= b.end())
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        v = static_cast<std::byte>(*i++);
     }
 
     /**

@@ -180,7 +180,8 @@ BatchRequestQueue::swap(OutputStream* os, bool& compress)
     _batchMarker = _batchStream.b.size();
     if(!lastRequest.empty())
     {
-        _batchStream.writeBlob(&lastRequest[0], lastRequest.size());
+
+        _batchStream.writeBlob(reinterpret_cast<byte*>(&lastRequest[0]), lastRequest.size());
     }
     return requestNum;
 }
