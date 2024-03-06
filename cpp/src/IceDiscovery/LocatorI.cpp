@@ -18,7 +18,11 @@ using namespace Ice;
 using namespace IceDiscovery;
 
 LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& communicator) :
-    _wellKnownProxy(ObjectPrx(communicator, "dummy")->ice_locator(nullopt)->ice_router(nullopt)->ice_collocationOptimized(true))
+    _wellKnownProxy(
+        ObjectPrx(communicator, "dummy")->
+            ice_locator(nullopt)->
+            ice_router(nullopt)->
+            ice_collocationOptimized(true))
 {
 }
 
@@ -33,7 +37,7 @@ LocatorRegistryI::setAdapterDirectProxyAsync(
     lock_guard lock(_mutex);
     if (proxy)
     {
-        _adapters[adapterId] = *proxy;
+        _adapters.insert({adapterId, std::move(*proxy)});
     }
     else
     {
@@ -54,7 +58,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(
     lock_guard lock(_mutex);
     if (proxy)
     {
-        _adapters[adapterId] = *proxy;
+        _adapters.insert({adapterId, std::move(*proxy)});
         map<string, set<string> >::iterator p = _replicaGroups.find(replicaGroupId);
         if(p == _replicaGroups.end())
         {
@@ -89,7 +93,7 @@ LocatorRegistryI::setServerProcessProxyAsync(
     response();
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 LocatorRegistryI::findObject(const Ice::Identity& id) const
 {
     lock_guard lock(_mutex);
@@ -101,12 +105,12 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
     Ice::ObjectPrx prx = _wellKnownProxy->ice_identity(id);
 
     vector<string> adapterIds;
-    for(map<string, set<string> >::const_iterator p = _replicaGroups.begin(); p != _replicaGroups.end(); ++p)
+    for (const auto& [adapterId, _] : _replicaGroups)
     {
         try
         {
-            prx->ice_adapterId(p->first)->ice_ping();
-            adapterIds.push_back(p->first);
+            prx->ice_adapterId(adapterId)->ice_ping();
+            adapterIds.push_back(adapterId);
         }
         catch(const Ice::Exception&)
         {
@@ -114,14 +118,14 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         }
     }
 
-    if(adapterIds.empty())
+    if (adapterIds.empty())
     {
-        for(map<string, Ice::ObjectPrx>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+        for (const auto& [adapterId, _] : _adapters)
         {
             try
             {
-                prx->ice_adapterId(p->first)->ice_ping();
-                adapterIds.push_back(p->first);
+                prx->ice_adapterId(adapterId)->ice_ping();
+                adapterIds.push_back(adapterId);
             }
             catch(const Ice::Exception&)
             {
@@ -130,7 +134,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         }
     }
 
-    if(adapterIds.empty())
+    if (adapterIds.empty())
     {
         return nullopt;
     }
@@ -139,7 +143,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
     return prx->ice_adapterId(adapterIds[0]);
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) const
 {
     lock_guard lock(_mutex);
@@ -155,7 +159,7 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
     if(q != _replicaGroups.end())
     {
         Ice::EndpointSeq endpoints;
-        Ice::ObjectPrxPtr prx;
+        optional<Ice::ObjectPrx> prx;
         for(set<string>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
         {
             map<string, Ice::ObjectPrx>::const_iterator s = _adapters.find(*r);
@@ -164,7 +168,7 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
                 continue; // TODO: Inconsistency
             }
 
-            if(!prx)
+            if (!prx)
             {
                 prx = s->second;
             }
@@ -173,7 +177,7 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
             copy(endpts.begin(), endpts.end(), back_inserter(endpoints));
         }
 
-        if(prx)
+        if (prx)
         {
             isReplicaGroup = true;
             return prx->ice_endpoints(endpoints);

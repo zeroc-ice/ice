@@ -20,19 +20,18 @@
 
 module IceDiscovery
 {
-    /// The LookupReply interface is used by IceDiscovery clients to answer requests
-    /// received on the Lookup interface.
+    /// The LookupReply interface is used by IceDiscovery clients to answer requests received on the Lookup interface.
     interface LookupReply
     {
         /// Reply to the findObjectById request.
         /// @param id The identity of the object.
-        /// @param prx The proxy of the object.
+        /// @param prx The proxy of the object. It is an error to pass a null proxy.
         void foundObjectById(Ice::Identity id, Object* prx);
 
         /// Reply to the findAdpaterById request.
         /// @param id The adapter ID.
         /// @param prx The adapter proxy (a dummy proxy created by the adapter). The proxy provides the adapter
-        /// endpoints.
+        /// endpoints. It is an error to pass a null proxy.
         /// @param isReplicaGroup True if the adapter is also a member of a replica group.
         void foundAdapterById(string id, Object* prx, bool isReplicaGroup);
     }
@@ -45,7 +44,7 @@ module IceDiscovery
         /// matching domain identifier.
         /// @param id The object identity.
         /// @param reply The proxy of the LookupReply interface that should be used to send the reply if a matching
-        /// object is found.
+        /// object is found. The reply proxy is never null.
         idempotent void findObjectById(string domainId, Ice::Identity id, LookupReply* reply);
 
         /// Request to find an object adapter
@@ -53,7 +52,7 @@ module IceDiscovery
         /// matching domain identifier.
         /// @param id The adapter ID.
         /// @param reply The proxy of the LookupReply interface that should be used to send the reply if a matching
-        /// adapter is found.
+        /// adapter is found. The reply proxy is never null.
         idempotent void findAdapterById(string domainId, string id, LookupReply* reply);
     }
 }
