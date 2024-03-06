@@ -9,6 +9,7 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include "Ice/OutgoingAsync.h"
+#include "Ice/Incoming.h"
 #include "Endian.h"
 
 #include <Ice/TraceUtil.h>
