@@ -199,7 +199,7 @@ InitialI::getMB(const Current& current)
 }
 
 void
-InitialI::getAMDMBAsync(function<void(const GetAMDMBMarshaledResult&)> response,
+InitialI::getAMDMBAsync(function<void(GetAMDMBMarshaledResult)> response,
                         function<void(exception_ptr)>,
                         const Current& current)
 {

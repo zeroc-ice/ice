@@ -36,7 +36,7 @@ public:
     void endWriteParams();
     void writeEmptyParams();
     void writeParamEncaps(const std::uint8_t*, std::int32_t, bool ok);
-    void setMarshaledResult(const Ice::MarshaledResult&);
+    void setMarshaledResult(Ice::MarshaledResult&&);
 
     void response(bool amd);
     void exception(std::exception_ptr, bool amd);
@@ -81,7 +81,7 @@ public:
     void response();
 
     // Async dispatch writes a marshaled result and completes successfully.
-    void response(const Ice::MarshaledResult& marshaledResult);
+    void response(Ice::MarshaledResult&& marshaledResult);
 
     // Async dispatch completes successfully. Call this function after writing the response.
     void completed();

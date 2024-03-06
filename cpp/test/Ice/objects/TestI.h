@@ -75,7 +75,7 @@ public:
     bool acceptsClassCycles(const Ice::Current&) final;
 
     GetMBMarshaledResult getMB(const Ice::Current&) final;
-    void getAMDMBAsync(std::function<void(const GetAMDMBMarshaledResult&)>,
+    void getAMDMBAsync(std::function<void(GetAMDMBMarshaledResult)>,
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&) final;
 
