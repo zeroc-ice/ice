@@ -126,9 +126,9 @@ Incoming::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 }
 
 void
-Incoming::setMarshaledResult(const Ice::MarshaledResult& result)
+Incoming::setMarshaledResult(Ice::MarshaledResult&& result)
 {
-    result.getOutputStream()->swap(_os);
+    result.swap(_os);
 }
 
 void
@@ -186,9 +186,9 @@ Incoming::response()
 }
 
 void
-Incoming::response(const MarshaledResult& result)
+Incoming::response(MarshaledResult&& result)
 {
-    setMarshaledResult(result);
+    setMarshaledResult(std::move(result));
     completed();
 }
 
@@ -617,35 +617,38 @@ Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
         }
     }
 
+    const bool amd = false;
     try
     {
         // Dispatch the request to the servant.
         if (_servant->_iceDispatch(*this))
         {
             // If the request was dispatched synchronously, send the response.
-            response(false); // amd: false
+            response(amd);
         }
     }
     catch (...)
     {
         // An async dispatch is not allowed to throw any exception because it moves "this" memory into a new Incoming
         // object.
-        exception(current_exception(), false); // amd: false
+        exception(current_exception(), amd);
     }
 }
 
 void
 Incoming::completed()
 {
+    const bool amd = true;
     setResponseSent();
-    response(true); // amd: true
+    response(amd);
 }
 
 void
 Incoming::completed(exception_ptr ex)
 {
+    const bool amd = true;
     setResponseSent();
-    exception(ex, true); // amd: true
+    exception(ex, amd);
 }
 
 void

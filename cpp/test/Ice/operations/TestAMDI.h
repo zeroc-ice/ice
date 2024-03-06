@@ -370,30 +370,30 @@ public:
                                         ::std::function<void(std::exception_ptr)>,
                                         const Ice::Current&) final;
 
-    void opMStruct1Async(::std::function<void(const OpMStruct1MarshaledResult&)>,
+    void opMStruct1Async(::std::function<void(OpMStruct1MarshaledResult)>,
                                  ::std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) final;
 
     void opMStruct2Async(Test::Structure,
-                                 ::std::function<void(const OpMStruct2MarshaledResult&)>,
+                                 ::std::function<void(OpMStruct2MarshaledResult)>,
                                  ::std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) final;
 
-    void opMSeq1Async(::std::function<void(const OpMSeq1MarshaledResult&)>,
+    void opMSeq1Async(::std::function<void(OpMSeq1MarshaledResult)>,
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&) final;
 
     void opMSeq2Async(Test::StringS,
-                              ::std::function<void(const OpMSeq2MarshaledResult&)>,
+                              ::std::function<void(OpMSeq2MarshaledResult)>,
                               ::std::function<void(std::exception_ptr)>,
                               const Ice::Current&) final;
 
-    void opMDict1Async(::std::function<void(const OpMDict1MarshaledResult&)>,
+    void opMDict1Async(::std::function<void(OpMDict1MarshaledResult)>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&) final;
 
     void opMDict2Async(Test::StringStringD,
-                               ::std::function<void(const OpMDict2MarshaledResult&)>,
+                               ::std::function<void(OpMDict2MarshaledResult)>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&) final;
 
