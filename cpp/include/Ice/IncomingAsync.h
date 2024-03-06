@@ -7,7 +7,6 @@
 
 #include "IncomingAsyncF.h"
 #include "Incoming.h"
-#include <atomic>
 
 namespace IceInternal
 {

@@ -39,7 +39,7 @@ Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
     ostr->write(replyOK);
 }
 
-IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandlerPtr responseHandler,
+IncomingBase::IncomingBase(Instance* instance, ResponseHandlerPtr responseHandler,
                                         Ice::Connection* connection, const ObjectAdapterPtr& adapter,
                                         bool response, uint8_t compress, int32_t requestId) :
     _response(response),
@@ -57,7 +57,22 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandlerPtr r
     _current.encoding.minor = 0;
 }
 
-IceInternal::IncomingBase::IncomingBase(IncomingBase& other) :
+IncomingBase::IncomingBase(IncomingBase&& other) :
+    _current(std::move(other._current)),
+    _servant(std::move(other._servant)),
+    _locator(std::move(other._locator)),
+    _cookie(std::move(other._cookie)),
+    _response(std::move(other._response)), // TODO: rename
+    _compress(std::move(other._compress)),
+    _format(std::move(other._format)),
+    _os(other._os.instance(), Ice::currentProtocolEncoding), // TODO: make movable
+    _responseHandler(std::move(other._responseHandler)),
+    _is(std::move(other._is)) // just copies the pointer
+{
+    _observer.adopt(other._observer); // TODO: make movable
+}
+
+IncomingBase::IncomingBase(IncomingBase& other) :
     _current(other._current),
     _servant(other._servant),
     _locator(other._locator),
@@ -66,7 +81,8 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& other) :
     _compress(other._compress),
     _format(other._format),
     _os(other._os.instance(), Ice::currentProtocolEncoding),
-    _responseHandler(other._responseHandler)
+    _responseHandler(other._responseHandler),
+    _is(other._is)
 {
     _observer.adopt(other._observer);
 }
@@ -136,13 +152,13 @@ IncomingBase::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 }
 
 void
-IceInternal::IncomingBase::setMarshaledResult(const Ice::MarshaledResult& result)
+IncomingBase::setMarshaledResult(const Ice::MarshaledResult& result)
 {
     result.getOutputStream()->swap(_os);
 }
 
 void
-IceInternal::IncomingBase::response(bool amd)
+IncomingBase::response(bool amd)
 {
     try
     {
@@ -172,7 +188,7 @@ IceInternal::IncomingBase::response(bool amd)
 }
 
 void
-IceInternal::IncomingBase::exception(std::exception_ptr exc, bool amd)
+IncomingBase::exception(std::exception_ptr exc, bool amd)
 {
     try
     {
@@ -189,7 +205,21 @@ IceInternal::IncomingBase::exception(std::exception_ptr exc, bool amd)
 }
 
 void
-IceInternal::IncomingBase::warning(const Exception& ex) const
+IncomingBase::response()
+{
+    writeEmptyParams();
+    completed();
+}
+
+void
+IncomingBase::response(const MarshaledResult& result)
+{
+    setMarshaledResult(result);
+    completed();
+}
+
+void
+IncomingBase::warning(const Exception& ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
 
@@ -223,7 +253,7 @@ IceInternal::IncomingBase::warning(const Exception& ex) const
 }
 
 void
-IceInternal::IncomingBase::warning(std::exception_ptr ex) const
+IncomingBase::warning(std::exception_ptr ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
     ToStringMode toStringMode = _os.instance()->toStringMode();
@@ -261,7 +291,7 @@ IceInternal::IncomingBase::warning(std::exception_ptr ex) const
 }
 
 bool
-IceInternal::IncomingBase::servantLocatorFinished(bool amd)
+IncomingBase::servantLocatorFinished(bool amd)
 {
     assert(_locator && _servant);
     try
@@ -277,7 +307,7 @@ IceInternal::IncomingBase::servantLocatorFinished(bool amd)
 }
 
 void
-IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
+IncomingBase::handleException(std::exception_ptr exc, bool amd)
 {
     assert(_responseHandler);
 
@@ -504,7 +534,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
 }
 
 void
-IceInternal::IncomingBase::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
+IncomingBase::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
 {
     _is = stream;
 
@@ -613,40 +643,21 @@ IceInternal::IncomingBase::invoke(const ServantManagerPtr& servantManager, Input
         }
     }
 
+    const bool amd = false;
     try
     {
-        //
-        // Dispatch in the incoming call
-        //
-        _servant->_iceDispatch(*this, _current);
-
-        //
-        // If the request was not dispatched asynchronously, send the response.
-        //
-        if(!_inAsync)
+        // Dispatch the request to the servant.
+        if (_servant->_iceDispatch(*this, _current))
         {
-            response(false);
+            // If the request was dispatched synchronously, send the response.
+            response(amd);
         }
     }
     catch (...)
     {
-        if(_inAsync)
-        {
-            try
-            {
-                _inAsync->kill(*this);
-            }
-            catch (const Ice::ResponseSentException&)
-            {
-                const Ice::PropertiesPtr properties = _os.instance()->initializationData().properties;
-                if(properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-                {
-                    warning(current_exception());
-                }
-                return;
-            }
-        }
-        exception(current_exception(), false);
+        // An async dispatch is not allowed to throw any exception because it moves "this" memory into a new Incoming
+        // object.
+        exception(current_exception(), amd);
     }
 }
 
@@ -657,31 +668,55 @@ IceInternal::IncomingRequest::getCurrent()
 }
 
 void
-IceInternal::IncomingBase::kill(IncomingBase& in)
+IncomingBase::completed()
 {
-    checkResponseSent();
-    in._observer.adopt(_observer); // Give back the observer to incoming.
-}
-
-void
-IceInternal::IncomingBase::completed()
-{
-    checkResponseSent();
-    response(true); // User thread
-}
-
-void
-IceInternal::IncomingBase::completed(exception_ptr ex)
-{
-    checkResponseSent();
-    exception(ex, true); // true = amd
-}
-
-void
-IceInternal::IncomingBase::checkResponseSent()
-{
-    if (_responseSent.test_and_set())
+    const bool amd = true;
+    setResponseSent();
+    if (!_completed.test_and_set()) // we're completing this dispatch
     {
+        response(amd);
+    }
+}
+
+void
+IncomingBase::completed(exception_ptr ex)
+{
+    const bool amd = true;
+    setResponseSent();
+    if (!_completed.test_and_set()) // we're completing this dispatch
+    {
+        exception(ex, amd);
+    }
+}
+
+void
+IncomingBase::failed(exception_ptr ex) noexcept
+{
+    const bool amd = true;
+    if (!_completed.test_and_set()) // we're completing this dispatch
+    {
+        try
+        {
+            exception(ex, amd);
+        }
+        catch (...)
+        {
+            // Ignore all exceptions. The caller in the dispatch thread can't handle any exception because its memory
+            // was moved to a new "async" incoming object.
+        }
+    }
+}
+
+void
+IncomingBase::setResponseSent()
+{
+    if (_responseSent)
+    {
+        // application must not call callbacks twice
         throw ResponseSentException(__FILE__, __LINE__);
+    }
+    else
+    {
+        _responseSent = true;
     }
 }

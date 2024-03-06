@@ -3013,15 +3013,15 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         {
             string resultName = marshaledResultStructName(name);
             params.push_back("::std::function<void(const " + resultName + "&)> " + responsecbParam);
-            args.push_back("inA->response<" + resultName + ">()");
+            args.push_back("[inA](const " + resultName + "& marshaledResult) { inA->response(marshaledResult); }");
         }
         else
         {
             params.push_back("::std::function<void(" + joinString(responseParams, ", ") + ")> " + responsecbParam);
-            args.push_back(ret || !outParams.empty() ? "responseCB" : "inA->response()");
+            args.push_back(ret || !outParams.empty() ? "responseCB" : "[inA] { inA->response(); }");
         }
         params.push_back("::std::function<void(::std::exception_ptr)> " + excbParam);
-        args.push_back("inA->exception()");
+        args.push_back("[inA](std::exception_ptr ex) { inA->completed(ex); }");
     }
     params.push_back(currentDecl);
     args.push_back("current");
@@ -3202,7 +3202,14 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             C << nl << "inA->completed();";
             C << eb << ';';
         }
+        C << nl << "try";
+        C << sb;
         C << nl << "this->" << opName << spar << args << epar << ';';
+        C << eb;
+        C << nl << "catch (...)";
+        C << sb;
+        C << nl << "inA->failed(::std::current_exception());";
+        C << eb;
         C << nl << "return false;";
     }
     C << eb;

@@ -16,7 +16,8 @@
 #include <Ice/ObserverHelper.h>
 #include <Ice/ResponseHandlerF.h>
 
-#include <deque>
+#include <atomic>
+#include <deque> // TODO: remove
 
 namespace Ice
 {
@@ -60,30 +61,28 @@ namespace Ice
 namespace IceInternal
 {
 
-class ICE_API IncomingBase : public std::enable_shared_from_this<IncomingBase>
+class ICE_API IncomingBase
 {
 public:
 
     IncomingBase(Instance*, ResponseHandlerPtr, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
+    IncomingBase(IncomingBase&&);
+
+    IncomingBase(const IncomingBase&) = delete;
+    IncomingBase& operator=(const IncomingBase&) = delete;
 
     Ice::OutputStream* startWriteParams();
     void endWriteParams();
     void writeEmptyParams();
-    void writeParamEncaps(const std::uint8_t*, std::int32_t, bool);
+    void writeParamEncaps(const std::uint8_t*, std::int32_t, bool ok);
     void setMarshaledResult(const Ice::MarshaledResult&);
 
-    void response(bool);
-    void exception(std::exception_ptr, bool);
+    void response(bool amd);
+    void exception(std::exception_ptr, bool amd);
 
     const Ice::Current& getCurrent()
     {
         return _current;
-    }
-
-    void setAsync(const IncomingAsyncPtr& in)
-    {
-        assert(!_inAsync);
-        _inAsync = in;
     }
 
     void setFormat(Ice::FormatType format)
@@ -120,46 +119,32 @@ public:
         _current.encoding = _is->readEncapsulation(v, sz);
     }
 
-    std::function<void()> response()
-    {
-        return [self = shared_from_this()]
-        {
-            self->writeEmptyParams();
-            self->completed();
-        };
-    }
+    // Callbacks used by AMD dispatches
 
-    template<class T>
-    std::function<void(const T&)> response()
-    {
-        return [self = shared_from_this()](const T& marshaledResult)
-        {
-            self->setMarshaledResult(marshaledResult);
-            self->completed();
-        };
-    }
+    // Async dispatch writes an empty response and completes successfully.
+    void response();
 
-    std::function<void(std::exception_ptr)> exception()
-    {
-        return [self = shared_from_this()](std::exception_ptr ex) { self->completed(ex); };
-    }
+    // Async dispatch writes a marshaled result and completes successfully.
+    void response(const Ice::MarshaledResult& marshaledResult);
 
-    void kill(IncomingBase&);
-
+    // Async dispatch completes successfully. Call this function after writing the response.
     void completed();
 
-    void completed(std::exception_ptr);
+    // Async dispatch completes with an exception. This can throw, for example, if the response has already been sent.
+    void completed(std::exception_ptr ex);
+
+    // Handle an exception that was thrown by an async dispatch. Use this function when in the dispatch thread.
+    void failed(std::exception_ptr) noexcept;
 
 protected:
 
     IncomingBase(IncomingBase&);
-    IncomingBase(const IncomingBase&) = delete;
 
     friend class IncomingAsync;
 
 private:
 
-    void checkResponseSent();
+    void setResponseSent();
 
     void warning(const Ice::Exception&) const;
     void warning(std::exception_ptr) const;
@@ -182,9 +167,16 @@ private:
 
     // _is points to an object allocated on the stack of the dispatch thread.
     Ice::InputStream* _is;
-    IncomingAsyncPtr _inAsync;
 
-    std::atomic_flag _responseSent = ATOMIC_FLAG_INIT;
+    // This flag is set when the user calls an async response or exception callback. A second call is incorrect and
+    // results in ResponseSentException.
+    // We don't need an atomic flag since it's purely for error detection - something that should never happen in
+    // correctly written code.
+    bool _responseSent = false;
+
+    // This flag is set when an async dispatch has completed, for example because the connection dropped. A subsequent
+    // call is no-op (succeeds silently).
+    std::atomic_flag _completed = ATOMIC_FLAG_INIT;
 };
 
 }

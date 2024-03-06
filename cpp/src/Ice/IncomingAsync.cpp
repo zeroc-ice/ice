@@ -27,6 +27,5 @@ shared_ptr<IncomingAsync>
 IceInternal::IncomingAsync::create(IncomingBase& in)
 {
     auto async = make_shared<IncomingAsync>(in);
-    in.setAsync(async);
     return async;
 }

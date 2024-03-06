@@ -248,20 +248,27 @@ Ice::BlobjectAsync::_iceDispatch(IncomingBase& in, const Current& current)
     int32_t sz;
     in.readParamEncaps(inEncaps, sz);
     auto async = IncomingAsync::create(in);
-    ice_invokeAsync(vector<uint8_t>(inEncaps, inEncaps + sz),
-                    [async](bool ok, const vector<uint8_t>& outEncaps)
-                    {
-                        if(outEncaps.empty())
+    try
+    {
+        ice_invokeAsync(vector<uint8_t>(inEncaps, inEncaps + sz),
+                        [async](bool ok, const vector<uint8_t>& outEncaps)
                         {
-                            async->writeParamEncaps(0, 0, ok);
-                        }
-                        else
-                        {
-                            async->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
-                        }
-                        async->completed();
-                    },
-                    async->exception(), current);
+                            if(outEncaps.empty())
+                            {
+                                async->writeParamEncaps(0, 0, ok);
+                            }
+                            else
+                            {
+                                async->writeParamEncaps(&outEncaps[0], static_cast<int32_t>(outEncaps.size()), ok);
+                            }
+                            async->completed();
+                        },
+                        [async](std::exception_ptr ex) { async->completed(ex); }, current);
+    }
+    catch (...)
+    {
+        async->failed(std::current_exception());
+    }
     return false;
 }
 
@@ -273,12 +280,19 @@ Ice::BlobjectArrayAsync::_iceDispatch(IncomingBase& in, const Current& current)
     in.readParamEncaps(inEncaps.first, sz);
     inEncaps.second = inEncaps.first + sz;
     auto async = IncomingAsync::create(in);
-    ice_invokeAsync(inEncaps,
-                    [async](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
-                    {
-                        async->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
-                        async->completed();
-                    },
-                    async->exception(), current);
+    try
+    {
+        ice_invokeAsync(inEncaps,
+                        [async](bool ok, const pair<const uint8_t*, const uint8_t*>& outE)
+                        {
+                            async->writeParamEncaps(outE.first, static_cast<int32_t>(outE.second - outE.first), ok);
+                            async->completed();
+                        },
+                        [async](std::exception_ptr ex) { async->completed(ex); }, current);
+    }
+    catch (...)
+    {
+        async->failed(std::current_exception());
+    }
     return false;
 }
