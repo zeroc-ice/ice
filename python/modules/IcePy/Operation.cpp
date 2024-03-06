@@ -12,7 +12,6 @@
 #include <Util.h>
 
 #include <Ice/Communicator.h>
-#include <Ice/IncomingAsync.h>
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
 #include <Ice/LocalException.h>

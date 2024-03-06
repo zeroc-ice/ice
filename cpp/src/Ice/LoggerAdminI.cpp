@@ -13,6 +13,7 @@
 #include <Ice/LoggerUtil.h>
 #include "Ice/ProxyFunctions.h"
 
+#include <deque>
 #include <set>
 
 using namespace Ice;

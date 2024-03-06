@@ -3,8 +3,6 @@
 //
 
 #include <Ice/Incoming.h>
-#include <Ice/IncomingAsync.h>
-#include <Ice/IncomingRequest.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/ServantManager.h>
@@ -31,50 +29,42 @@ extern bool printStackTraces;
 
 }
 
-Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
-    ostr(make_shared<Ice::OutputStream>(current.adapter->getCommunicator(), Ice::currentProtocolEncoding))
-{
-    ostr->writeBlob(replyHdr, sizeof(replyHdr));
-    ostr->write(current.requestId);
-    ostr->write(replyOK);
-}
-
-IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* responseHandler,
-                                        Ice::Connection* connection, const ObjectAdapterPtr& adapter,
-                                        bool response, uint8_t compress, int32_t requestId) :
-    _response(response),
+Incoming::Incoming(Instance* instance, ResponseHandlerPtr responseHandler,
+                                        Ice::ConnectionPtr connection, ObjectAdapterPtr adapter,
+                                        bool twoWay, uint8_t compress, int32_t requestId) :
+    _isTwoWay(twoWay),
     _compress(compress),
     _format(Ice::FormatType::DefaultFormat),
     _os(instance, Ice::currentProtocolEncoding),
-    _responseHandler(responseHandler)
+    _responseHandler(std::move(responseHandler)),
+    _is(nullptr)
 {
-    _current.adapter = adapter;
-    ::Ice::ConnectionI* conn = dynamic_cast<::Ice::ConnectionI*>(connection);
-    _current.con = conn ? conn->shared_from_this() : nullptr;
+    _current.adapter = std::move(adapter);
+    _current.con = std::move(connection);
     _current.requestId = requestId;
     _current.encoding.major = 0;
     _current.encoding.minor = 0;
 }
 
-IceInternal::IncomingBase::IncomingBase(IncomingBase& other) :
-    _current(other._current),
-    _servant(other._servant),
-    _locator(other._locator),
-    _cookie(other._cookie),
-    _response(other._response),
-    _compress(other._compress),
-    _format(other._format),
-    _os(other._os.instance(), Ice::currentProtocolEncoding),
-    _responseHandler(other._responseHandler),
-    _interceptorCBs(other._interceptorCBs)
+Incoming::Incoming(Incoming&& other) :
+    _current(std::move(other._current)),
+    _servant(std::move(other._servant)),
+    _locator(std::move(other._locator)),
+    _cookie(std::move(other._cookie)),
+    _isTwoWay(std::move(other._isTwoWay)),
+    _compress(std::move(other._compress)),
+    _format(std::move(other._format)),
+    _os(other._os.instance(), Ice::currentProtocolEncoding), // TODO: make movable
+    _responseHandler(std::move(other._responseHandler)),
+    _is(std::move(other._is)) // just copies the pointer
 {
-    _observer.adopt(other._observer);
+    _observer.adopt(other._observer); // TODO: make movable
 }
 
 OutputStream*
-IncomingBase::startWriteParams()
+Incoming::startWriteParams()
 {
-    if(!_response)
+    if(!_isTwoWay)
     {
         throw MarshalException(__FILE__, __LINE__, "can't marshal out parameters for oneway dispatch");
     }
@@ -89,18 +79,18 @@ IncomingBase::startWriteParams()
 }
 
 void
-IncomingBase::endWriteParams()
+Incoming::endWriteParams()
 {
-    if(_response)
+    if(_isTwoWay)
     {
         _os.endEncapsulation();
     }
 }
 
 void
-IncomingBase::writeEmptyParams()
+Incoming::writeEmptyParams()
 {
-    if(_response)
+    if(_isTwoWay)
     {
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.writeBlob(replyHdr, sizeof(replyHdr));
@@ -111,14 +101,14 @@ IncomingBase::writeEmptyParams()
 }
 
 void
-IncomingBase::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
+Incoming::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 {
     if(!ok)
     {
         _observer.userException();
     }
 
-    if(_response)
+    if(_isTwoWay)
     {
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.writeBlob(replyHdr, sizeof(replyHdr));
@@ -136,13 +126,13 @@ IncomingBase::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 }
 
 void
-IceInternal::IncomingBase::setMarshaledResult(const Ice::MarshaledResult& result)
+Incoming::setMarshaledResult(const Ice::MarshaledResult& result)
 {
     result.getOutputStream()->swap(_os);
 }
 
 void
-IceInternal::IncomingBase::response(bool amd)
+Incoming::response(bool amd)
 {
     try
     {
@@ -152,7 +142,7 @@ IceInternal::IncomingBase::response(bool amd)
         }
 
         assert(_responseHandler);
-        if(_response)
+        if(_isTwoWay)
         {
             _observer.reply(static_cast<int32_t>(_os.b.size() - headerSize - 4));
             _responseHandler->sendResponse(_current.requestId, &_os, _compress, amd);
@@ -168,11 +158,11 @@ IceInternal::IncomingBase::response(bool amd)
     }
 
     _observer.detach();
-    _responseHandler = 0;
+    _responseHandler = nullptr;
 }
 
 void
-IceInternal::IncomingBase::exception(std::exception_ptr exc, bool amd)
+Incoming::exception(std::exception_ptr exc, bool amd)
 {
     try
     {
@@ -189,7 +179,21 @@ IceInternal::IncomingBase::exception(std::exception_ptr exc, bool amd)
 }
 
 void
-IceInternal::IncomingBase::warning(const Exception& ex) const
+Incoming::response()
+{
+    writeEmptyParams();
+    completed();
+}
+
+void
+Incoming::response(const MarshaledResult& result)
+{
+    setMarshaledResult(result);
+    completed();
+}
+
+void
+Incoming::warning(const Exception& ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
 
@@ -223,7 +227,7 @@ IceInternal::IncomingBase::warning(const Exception& ex) const
 }
 
 void
-IceInternal::IncomingBase::warning(std::exception_ptr ex) const
+Incoming::warning(std::exception_ptr ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
     ToStringMode toStringMode = _os.instance()->toStringMode();
@@ -261,7 +265,7 @@ IceInternal::IncomingBase::warning(std::exception_ptr ex) const
 }
 
 bool
-IceInternal::IncomingBase::servantLocatorFinished(bool amd)
+Incoming::servantLocatorFinished(bool amd)
 {
     assert(_locator && _servant);
     try
@@ -277,7 +281,7 @@ IceInternal::IncomingBase::servantLocatorFinished(bool amd)
 }
 
 void
-IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
+Incoming::handleException(std::exception_ptr exc, bool amd)
 {
     assert(_responseHandler);
 
@@ -317,7 +321,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _observer.failed(rfe.ice_id());
         }
 
-        if(_response)
+        if(_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -369,7 +373,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
         //
         // The operation may have already marshaled a reply; we must overwrite that reply.
         //
-        if(_response)
+        if(_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -406,7 +410,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _observer.failed(ex.ice_id());
         }
 
-        if(_response)
+        if(_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -481,7 +485,7 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
             _observer.failed(exceptionId);
         }
 
-        if(_response)
+        if(_isTwoWay)
         {
             _os.writeBlob(replyHdr, sizeof(replyHdr));
             _os.write(_current.requestId);
@@ -500,55 +504,11 @@ IceInternal::IncomingBase::handleException(std::exception_ptr exc, bool amd)
     }
 
     _observer.detach();
-    _responseHandler = 0;
-}
-
-IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection,
-                                const ObjectAdapterPtr& adapter, bool response, uint8_t compress, int32_t requestId) :
-    IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
-    _inParamPos(0)
-{
+    _responseHandler = nullptr;
 }
 
 void
-IceInternal::Incoming::push(function<bool()> response, function<bool(exception_ptr)> exception)
-{
-    _interceptorCBs.push_front(make_pair(response, exception));
-}
-
-void
-IceInternal::Incoming::pop()
-{
-    _interceptorCBs.pop_front();
-}
-
-void
-IceInternal::Incoming::startOver()
-{
-    if(_inParamPos == 0)
-    {
-        //
-        // That's the first startOver, so almost nothing to do
-        //
-        _inParamPos = _is->i;
-    }
-    else
-    {
-        // Reset input stream's position and clear response
-        if(_inAsync)
-        {
-            _inAsync->kill(*this);
-            _inAsync = 0;
-        }
-        _os.clear();
-        _os.b.clear();
-
-        _is->i = _inParamPos;
-    }
-}
-
-void
-IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
+Incoming::invoke(const ServantManagerPtr& servantManager, InputStream* stream)
 {
     _is = stream;
 
@@ -659,43 +619,60 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
 
     try
     {
-        //
-        // Dispatch in the incoming call
-        //
-        _servant->_iceDispatch(*this, _current);
-
-        //
-        // If the request was not dispatched asynchronously, send the response.
-        //
-        if(!_inAsync)
+        // Dispatch the request to the servant.
+        if (_servant->_iceDispatch(*this))
         {
-            response(false);
+            // If the request was dispatched synchronously, send the response.
+            response(false); // amd: false
         }
     }
     catch (...)
     {
-        if(_inAsync)
-        {
-            try
-            {
-                _inAsync->kill(*this);
-            }
-            catch (const Ice::ResponseSentException&)
-            {
-                const Ice::PropertiesPtr properties = _os.instance()->initializationData().properties;
-                if(properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-                {
-                    warning(current_exception());
-                }
-                return;
-            }
-        }
-        exception(current_exception(), false);
+        // An async dispatch is not allowed to throw any exception because it moves "this" memory into a new Incoming
+        // object.
+        exception(current_exception(), false); // amd: false
     }
 }
 
-const Current&
-IceInternal::IncomingRequest::getCurrent()
+void
+Incoming::completed()
 {
-    return _in.getCurrent();
+    setResponseSent();
+    response(true); // amd: true
+}
+
+void
+Incoming::completed(exception_ptr ex)
+{
+    setResponseSent();
+    exception(ex, true); // amd: true
+}
+
+void
+Incoming::failed(exception_ptr ex) noexcept
+{
+    try
+    {
+        completed(ex);
+    }
+    catch (...)
+    {
+        // Ignore all exceptions. The caller in the dispatch thread can't handle any exception because its memory
+        // was moved to a new "async" incoming object.
+    }
+}
+
+void
+Incoming::setResponseSent()
+{
+    if (_responseSent)
+    {
+        // The application must not call the callbacks twice, or call a callback after throwing an exception from the
+        // dispatch thread.
+        throw ResponseSentException(__FILE__, __LINE__);
+    }
+    else
+    {
+        _responseSent = true;
+    }
 }
