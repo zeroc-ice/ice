@@ -86,7 +86,8 @@ public:
     // Async dispatch completes successfully. Call this function after writing the response.
     void completed();
 
-    // Async dispatch completes with an exception. This can throw, for example, if the response has already been sent.
+    // Async dispatch completes with an exception. This can throw, for example, if the application already called
+    // response(), completed() or failed().
     void completed(std::exception_ptr ex);
 
     // Handle an exception that was thrown by an async dispatch. Use this function from the dispatch thread.
@@ -99,9 +100,9 @@ private:
     void warning(const Ice::Exception&) const;
     void warning(std::exception_ptr) const;
 
-    bool servantLocatorFinished(bool);
+    bool servantLocatorFinished(bool amd);
 
-    void handleException(std::exception_ptr, bool);
+    void handleException(std::exception_ptr, bool amd);
 
     Ice::Current _current;
     std::shared_ptr<Ice::Object> _servant;

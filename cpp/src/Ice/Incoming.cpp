@@ -158,7 +158,7 @@ Incoming::response(bool amd)
     }
 
     _observer.detach();
-    _responseHandler = 0;
+    _responseHandler = nullptr;
 }
 
 void
