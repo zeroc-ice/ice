@@ -118,7 +118,7 @@ public:
     virtual bool ice_invoke(std::vector<std::uint8_t> inEncaps, std::vector<std::uint8_t>& outEncaps, const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -147,7 +147,7 @@ public:
                             const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -179,7 +179,7 @@ public:
                                  const Current& current) = 0;
 
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
@@ -210,7 +210,7 @@ public:
                                  std::function<void(std::exception_ptr)> error,
                                  const Current& current) = 0;
     /// \cond INTERNAL
-    virtual bool _iceDispatch(IceInternal::Incoming&);
+    bool _iceDispatch(IceInternal::Incoming&) final;
     /// \endcond
 };
 
