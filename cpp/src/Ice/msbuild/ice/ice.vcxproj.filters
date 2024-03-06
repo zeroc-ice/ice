@@ -591,6 +591,9 @@
     <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\MarshaledResult.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\..\EventLoggerMsg.mc">

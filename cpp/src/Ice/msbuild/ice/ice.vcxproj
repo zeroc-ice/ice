@@ -171,6 +171,7 @@
     <ClCompile Include="..\..\Instrumentation.cpp" />
     <ClCompile Include="..\..\LocalException.cpp" />
     <ClCompile Include="..\..\Logger.cpp" />
+    <ClCompile Include="..\..\MarshaledResult.cpp" />
     <ClCompile Include="..\..\ObjectAdapter.cpp" />
     <ClCompile Include="..\..\Plugin.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
