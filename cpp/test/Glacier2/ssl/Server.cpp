@@ -106,13 +106,13 @@ class SessionManagerI final : public Glacier2::SessionManager
 {
 public:
 
-    Glacier2::SessionPrxPtr
-    create(string userId, Glacier2::SessionControlPrxPtr, const Ice::Current& current) override
+    optional<Glacier2::SessionPrx>
+    create(string userId, optional<Glacier2::SessionControlPrx>, const Ice::Current& current) override
     {
         testContext(userId == "ssl", current.adapter->getCommunicator(), current.ctx);
 
         auto session = make_shared<SessionI>(false, userId == "ssl");
-        return Ice::uncheckedCast<Glacier2::SessionPrx>(current.adapter->addWithUUID(session));
+        return Glacier2::SessionPrx(current.adapter->addWithUUID(session));
     }
 };
 
@@ -120,8 +120,8 @@ class SSLSessionManagerI final : public Glacier2::SSLSessionManager
 {
 public:
 
-    Glacier2::SessionPrxPtr
-    create(Glacier2::SSLInfo info, Glacier2::SessionControlPrxPtr, const Ice::Current& current) override
+    optional<Glacier2::SessionPrx>
+    create(Glacier2::SSLInfo info, optional<Glacier2::SessionControlPrx>, const Ice::Current& current) override
     {
         testContext(true, current.adapter->getCommunicator(), current.ctx);
 
@@ -144,7 +144,7 @@ public:
         }
 
         auto session = make_shared<SessionI>(true, true);
-        return Ice::uncheckedCast<Glacier2::SessionPrx>(current.adapter->addWithUUID(session));
+        return Glacier2::SessionPrx(current.adapter->addWithUUID(session));
     }
 };
 

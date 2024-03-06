@@ -109,32 +109,6 @@ Ice::Object::_iceD_ice_id(Incoming& inS, const Current& current)
 }
 
 bool
-Ice::Object::ice_dispatch(Request& request, std::function<bool()> r, std::function<bool(std::exception_ptr)> e)
-{
-    IceInternal::Incoming& in = dynamic_cast<IceInternal::IncomingRequest&>(request)._in;
-    in.startOver();
-    if(r || e)
-    {
-        in.push(r, e);
-        try
-        {
-            bool sync = _iceDispatch(in, in.getCurrent());
-            in.pop();
-            return sync;
-        }
-        catch(...)
-        {
-            in.pop();
-            throw;
-        }
-    }
-    else
-    {
-        return _iceDispatch(in, in.getCurrent());
-    }
-}
-
-bool
 Ice::Object::_iceDispatch(Incoming& in, const Current& current)
 {
     static constexpr string_view allOperations[] =

@@ -46,14 +46,13 @@ namespace
 
 class ConnectStrategy
 {
-
 public:
 
-    virtual Glacier2::SessionPrxPtr connect(const Glacier2::RouterPrxPtr& router) = 0;
+    virtual optional<Glacier2::SessionPrx> connect(const Glacier2::RouterPrx& router) = 0;
 };
 using ConnectStrategyPtr = std::shared_ptr<ConnectStrategy>;
 
-class SessionHelperI : public Glacier2::SessionHelper, public std::enable_shared_from_this<SessionHelperI>
+class SessionHelperI final : public Glacier2::SessionHelper, public std::enable_shared_from_this<SessionHelperI>
 {
 
 public:
@@ -64,7 +63,7 @@ public:
     Ice::CommunicatorPtr communicator() const;
     std::string categoryForClient() const;
     Ice::ObjectPrx addWithUUID(const Ice::ObjectPtr&);
-    Glacier2::SessionPrxPtr session() const;
+    optional<Glacier2::SessionPrx> session() const;
     bool isConnected() const;
     Ice::ObjectAdapterPtr objectAdapter();
 
@@ -73,7 +72,7 @@ public:
 private:
 
     Ice::ObjectAdapterPtr internalObjectAdapter();
-    void connected(const Glacier2::RouterPrxPtr&, const Glacier2::SessionPrxPtr&);
+    void connected(const Glacier2::RouterPrx&, const optional<Glacier2::SessionPrx>&);
     void destroyInternal(function<void()>);
     void destroyCommunicator();
     void connectFailed();
@@ -88,8 +87,8 @@ private:
     mutable std::mutex _mutex;
     Ice::CommunicatorPtr _communicator;
     Ice::ObjectAdapterPtr _adapter;
-    Glacier2::RouterPrxPtr _router;
-    Glacier2::SessionPrxPtr _session;
+    std::optional<Glacier2::RouterPrx> _router;
+    std::optional<Glacier2::SessionPrx> _session;
     std::string _category;
     bool _connected;
     bool _destroy;
@@ -201,7 +200,7 @@ SessionHelperI::addWithUUID(const Ice::ObjectPtr& servant)
     return internalObjectAdapter()->add(servant, id);
 }
 
-Glacier2::SessionPrxPtr
+optional<Glacier2::SessionPrx>
 SessionHelperI::session() const
 {
     lock_guard lock(_mutex);
@@ -260,8 +259,7 @@ public:
     {
     }
 
-    virtual Glacier2::SessionPrxPtr
-    connect(const Glacier2::RouterPrxPtr& router)
+    optional<Glacier2::SessionPrx> connect(const Glacier2::RouterPrx& router)
     {
         return router->createSessionFromSecureConnection(_context);
     }
@@ -283,8 +281,7 @@ public:
     {
     }
 
-    virtual Glacier2::SessionPrxPtr
-    connect(const Glacier2::RouterPrxPtr& router)
+    optional<Glacier2::SessionPrx> connect(const Glacier2::RouterPrx& router) final
     {
         return router->createSession(_user, _password, _context);
     }
@@ -317,7 +314,7 @@ SessionHelperI::destroyInternal(function<void()> disconnected)
 {
     assert(_destroy);
     Ice::CommunicatorPtr communicator;
-    Glacier2::RouterPrxPtr router;
+    optional<Glacier2::RouterPrx> router;
     {
         lock_guard lock(_mutex);
         router = _router;
@@ -435,10 +432,9 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
             {
                 if(!communicator->getDefaultRouter())
                 {
-                    Ice::RouterFinderPrxPtr finder;
+                    Ice::RouterFinderPrx finder(communicator, session->_finder);
                     try
                     {
-                        finder = Ice::uncheckedCast<Ice::RouterFinderPrx>(communicator->stringToProxy(session->_finder));
                         communicator->setDefaultRouter(finder->getRouter());
                     }
                     catch(const Ice::CommunicatorDestroyedException&)
@@ -453,14 +449,11 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                     }
                     catch(const Ice::Exception&)
                     {
-                        //
-                        // In case of error getting router identity from RouterFinder use
-                        // default identity.
-                        //
+                        // In case of error getting router identity from RouterFinder use default identity.
                         Ice::Identity ident;
                         ident.category = "Glacier2";
                         ident.name = "router";
-                        communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(finder->ice_identity(ident)));
+                        communicator->setDefaultRouter(Ice::RouterPrx(finder->ice_identity(ident)));
                     }
                 }
 
@@ -470,9 +463,10 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
                         callback->createdCommunicator(session);
                     },
                     nullptr);
-                auto routerPrx = Ice::uncheckedCast<Glacier2::RouterPrx>(communicator->getDefaultRouter());
-                Glacier2::SessionPrxPtr sessionPrx = factory->connect(routerPrx);
-                session->connected(routerPrx, sessionPrx);
+
+                Glacier2::RouterPrx routerPrx(*communicator->getDefaultRouter());
+                optional<Glacier2::SessionPrx> sessionPrx = factory->connect(routerPrx);
+                session->connected(routerPrx, std::move(sessionPrx));
             }
             catch(const Ice::Exception&)
             {
@@ -497,12 +491,11 @@ SessionHelperI::connectImpl(const ConnectStrategyPtr& factory)
 }
 
 void
-SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::SessionPrxPtr& session)
+SessionHelperI::connected(const Glacier2::RouterPrx& router, const optional<Glacier2::SessionPrx>& session)
 {
     //
     // Remote invocation should be done without acquiring a mutex lock.
     //
-    assert(router);
     Ice::ConnectionPtr conn = router->ice_getCachedConnection();
     string category = router->getCategoryForClient();
     int32_t acmTimeout = 0;
@@ -527,7 +520,7 @@ SessionHelperI::connected(const Glacier2::RouterPrxPtr& router, const Glacier2::
     //
     if(_useCallbacks)
     {
-        _adapter = _communicator->createObjectAdapterWithRouter("", router.value());
+        _adapter = _communicator->createObjectAdapterWithRouter("", router);
         _adapter->activate();
     }
 
@@ -871,7 +864,7 @@ Glacier2::SessionFactoryHelper::connect()
 }
 
 Glacier2::SessionHelperPtr
-Glacier2::SessionFactoryHelper::connect(const string& user,  const string& password)
+Glacier2::SessionFactoryHelper::connect(const string& user, const string& password)
 {
     SessionHelperIPtr session;
     map<string, string> context;

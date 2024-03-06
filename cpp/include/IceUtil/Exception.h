@@ -104,6 +104,8 @@ ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
  * It implements ice_clone and ice_throw.
  * \headerfile Ice/Ice.h
  */
+// We generate a text graph, because the inheritance graph for this type has too many nodes.
+/// \inheritancegraph{TEXT}
 template<typename E, typename B = Exception>
 class ExceptionHelper : public B
 {

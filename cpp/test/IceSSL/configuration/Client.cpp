@@ -52,18 +52,15 @@ Client::run(int argc, char** argv)
     testdir = argv[1];
 #endif
 
-    Test::ServerFactoryPrxPtr allTests(Test::TestHelper*, const string&, bool);
+    Test::ServerFactoryPrx allTests(Test::TestHelper*, const string&, bool);
 
     cerr << "testing with PKCS12 certificates..." << endl;
-    Test::ServerFactoryPrxPtr factory = allTests(this, testdir, true);
+    Test::ServerFactoryPrx factory = allTests(this, testdir, true);
 #if TARGET_OS_IPHONE == 0
     cerr << "testing with PEM certificates..." << endl;
     factory = allTests(this, testdir, false);
 #endif
-    if(factory)
-    {
-        factory->shutdown();
-    }
+    factory->shutdown();
 }
 
 DEFINE_TEST(Client)

@@ -30,7 +30,7 @@ createTestIntfPrx(vector<optional<RemoteObjectAdapterPrx>>& adapters)
         Ice::EndpointSeq edpts = test->ice_getEndpoints();
         endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
     }
-    return TestIntfPrx(test->ice_endpoints(endpoints));
+    return test->ice_endpoints(endpoints);
 }
 
 void
@@ -364,7 +364,7 @@ allTests(Test::TestHelper* helper)
             test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
         }
 
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_endpointSelection(Ice::EndpointSelectionType::Random));
+        test = test->ice_endpointSelection(Ice::EndpointSelectionType::Random);
         test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Random);
 
         names.insert("Adapter21");
@@ -388,7 +388,7 @@ allTests(Test::TestHelper* helper)
         adapters.push_back(com->createObjectAdapter("Adapter33", "default"));
 
         TestIntfPrx test = createTestIntfPrx(adapters);
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+        test = test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
         test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
         const int nRetry = 5;
         int i;
@@ -498,7 +498,7 @@ allTests(Test::TestHelper* helper)
 
         com->deactivateObjectAdapter(adapter);
 
-        TestIntfPrx test3 = Ice::uncheckedCast<TestIntfPrx>(test1);
+        TestIntfPrx test3(test1);
         try
         {
             test(test3->ice_getConnection() == test1->ice_getConnection());
@@ -678,9 +678,9 @@ allTests(Test::TestHelper* helper)
         adapters.push_back(com->createObjectAdapter("AdapterAMI63", "default"));
 
         TestIntfPrx test = createTestIntfPrx(adapters);
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+        test = test->ice_endpointSelection(Ice::EndpointSelectionType::Ordered);
         test(test->ice_getEndpointSelection() == Ice::EndpointSelectionType::Ordered);
-        test = Ice::uncheckedCast<TestIntfPrx>(test->ice_connectionCached(false));
+        test = test->ice_connectionCached(false);
         test(!test->ice_isConnectionCached());
         const int nRetry = 5;
         int i;
@@ -757,7 +757,7 @@ allTests(Test::TestHelper* helper)
         TestIntfPrx test = createTestIntfPrx(adapters);
         test(test->getAdapterName() == "Adapter71");
 
-        TestIntfPrx testUDP = Ice::uncheckedCast<TestIntfPrx>(test->ice_datagram());
+        TestIntfPrx testUDP = test->ice_datagram();
         test(test->ice_getConnection() != testUDP->ice_getConnection());
         try
         {
@@ -786,11 +786,11 @@ allTests(Test::TestHelper* helper)
                 test->ice_getConnection()->close(Ice::ConnectionClose::GracefullyWithWait);
             }
 
-            TestIntfPrx testSecure = Ice::uncheckedCast<TestIntfPrx>(test->ice_secure(true));
+            TestIntfPrx testSecure = test->ice_secure(true);
             test(testSecure->ice_isSecure());
-            testSecure = Ice::uncheckedCast<TestIntfPrx>(test->ice_secure(false));
+            testSecure = test->ice_secure(false);
             test(!testSecure->ice_isSecure());
-            testSecure = Ice::uncheckedCast<TestIntfPrx>(test->ice_secure(true));
+            testSecure = test->ice_secure(true);
             test(testSecure->ice_isSecure());
             test(test->ice_getConnection() != testSecure->ice_getConnection());
 

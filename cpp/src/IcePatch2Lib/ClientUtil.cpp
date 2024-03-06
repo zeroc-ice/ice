@@ -56,21 +56,19 @@ private:
 };
 using DecompressorPtr = std::shared_ptr<Decompressor>;
 
-class PatcherI : public Patcher
+class PatcherI final : public Patcher
 {
 public:
 
-    PatcherI(const Ice::CommunicatorPtr&, const PatcherFeedbackPtr&);
-    PatcherI(const FileServerPrxPtr&, const PatcherFeedbackPtr&, const std::string&, bool, int32_t, int32_t);
-    virtual ~PatcherI();
+    PatcherI(const FileServerPrx&, const PatcherFeedbackPtr&, const std::string&, bool, int32_t, int32_t);
+    ~PatcherI();
 
-    virtual bool prepare();
-    virtual bool patch(const std::string&);
-    virtual void finish();
+    bool prepare() final;
+    bool patch(const std::string&) final;
+    void finish() final;
 
 private:
 
-    void init(const FileServerPrxPtr&);
     bool removeFiles(const LargeFileInfoSeq&);
     bool updateFiles(const LargeFileInfoSeq&);
     bool updateFilesInternal(const LargeFileInfoSeq&, const DecompressorPtr&);
@@ -81,8 +79,8 @@ private:
     const bool _thorough;
     const int32_t _chunkSize;
     const int32_t _remove;
-    const FileServerPrxPtr _serverCompress;
-    const FileServerPrxPtr _serverNoCompress;
+    const FileServerPrx _serverCompress;
+    const FileServerPrx _serverNoCompress;
 
     LargeFileInfoSeq _localFiles;
     LargeFileInfoSeq _updateFiles;
@@ -90,7 +88,6 @@ private:
     LargeFileInfoSeq _removeFiles;
 
     FILE* _log;
-    bool _useSmallFileAPI;
 };
 
 Decompressor::Decompressor(const string& dataDir) :
@@ -193,32 +190,7 @@ Decompressor::run()
     }
 }
 
-PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
-    _feedback(feedback),
-    _dataDir(communicator->getProperties()->getPropertyWithDefault("IcePatch2Client.Directory", ".")),
-    _thorough(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Thorough", 0) > 0),
-    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.ChunkSize", 100)),
-    _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2Client.Remove", 1)),
-    _log(0),
-    _useSmallFileAPI(false)
-{
-    const char* clientProxyProperty = "IcePatch2Client.Proxy";
-    string clientProxy = communicator->getProperties()->getProperty(clientProxyProperty);
-    if(clientProxy.empty())
-    {
-        throw runtime_error("property `IcePatch2Client.Proxy' is not set");
-    }
-
-    FileServerPrxPtr server = Ice::checkedCast<FileServerPrx>(communicator->stringToProxy(clientProxy));
-    if(!server)
-    {
-        throw runtime_error("proxy `" + clientProxy + "' is not a file server.");
-    }
-
-    init(server);
-}
-
-PatcherI::PatcherI(const FileServerPrxPtr& server,
+PatcherI::PatcherI(const FileServerPrx& server,
                    const PatcherFeedbackPtr& feedback,
                    const string& dataDir,
                    bool thorough,
@@ -229,9 +201,47 @@ PatcherI::PatcherI(const FileServerPrxPtr& server,
     _thorough(thorough),
     _chunkSize(chunkSize),
     _remove(remove),
-    _useSmallFileAPI(false)
+    _serverCompress(server->ice_compress(true)),
+    _serverNoCompress(server->ice_compress(false))
 {
-    init(server);
+    if(_dataDir.empty())
+    {
+        throw runtime_error("no data directory specified");
+    }
+
+    Ice::CommunicatorPtr communicator = server->ice_getCommunicator();
+
+    const_cast<string&>(_dataDir) = simplify(_dataDir);
+
+    // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise it won't work at all.
+    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
+    if(_chunkSize < 1)
+    {
+        const_cast<int32_t&>(_chunkSize) = 1;
+    }
+    else if(_chunkSize > sizeMax)
+    {
+        const_cast<int32_t&>(_chunkSize) = sizeMax;
+    }
+
+    if(_chunkSize == sizeMax)
+    {
+        const_cast<int32_t&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
+    }
+    else
+    {
+        const_cast<int32_t&>(_chunkSize) *= 1024;
+    }
+
+    if(!IceUtilInternal::isAbsolutePath(_dataDir))
+    {
+        string cwd;
+        if(IceUtilInternal::getcwd(cwd) != 0)
+        {
+            throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
+        }
+        const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
+    }
 }
 
 PatcherI::~PatcherI()
@@ -243,65 +253,38 @@ PatcherI::~PatcherI()
     }
 }
 
-class GetFileInfoSeqAsyncCB
+class GetFileInfoSeqAsyncCB final
 {
 public:
 
-    GetFileInfoSeqAsyncCB(bool useSmallFileAPI) :
-        _useSmallFileAPI(useSmallFileAPI)
-
+    GetFileInfoSeqAsyncCB()
     {
         _largeFileInfoSeqFuture = _largeFileInfoSeqPromise.get_future();
-        _fileInfoSeqFuture = _fileInfoSeqPromise.get_future();
-    }
-
-    void complete(FileInfoSeq fileInfoSeq)
-    {
-        assert(_useSmallFileAPI);
-        _fileInfoSeqPromise.set_value(fileInfoSeq);
     }
 
     void complete(LargeFileInfoSeq largeFileInfoSeq)
     {
-        assert(!_useSmallFileAPI);
         _largeFileInfoSeqPromise.set_value(largeFileInfoSeq);
     }
 
     void exception(std::exception_ptr exception)
     {
-        if (_useSmallFileAPI)
-        {
-            _fileInfoSeqPromise.set_exception(exception);
-        }
-        else
-        {
-            _largeFileInfoSeqPromise.set_exception(exception);
-        }
-    }
-
-    FileInfoSeq getFileInfoSeq()
-    {
-        assert(_useSmallFileAPI);
-        return _fileInfoSeqFuture.get();
+        _largeFileInfoSeqPromise.set_exception(exception);
     }
 
     LargeFileInfoSeq getLargeFileInfoSeq()
     {
-        assert(!_useSmallFileAPI);
         return _largeFileInfoSeqFuture.get();
     }
 
 private:
 
     std::promise<LargeFileInfoSeq> _largeFileInfoSeqPromise;
-    std::promise<FileInfoSeq> _fileInfoSeqPromise;
-
     std::future<LargeFileInfoSeq> _largeFileInfoSeqFuture;
-    std::future<FileInfoSeq> _fileInfoSeqFuture;
-    bool _useSmallFileAPI;
+
 };
 
-class PatcherGetFileInfoSeqCB : public GetFileInfoSeqCB
+class PatcherGetFileInfoSeqCB final : public GetFileInfoSeqCB
 {
 public:
 
@@ -310,17 +293,17 @@ public:
     {
     }
 
-    virtual bool remove(const string&)
+    bool remove(const string&) final
     {
         return true;
     }
 
-    virtual bool checksum(const string& path)
+    bool checksum(const string& path) final
     {
         return _feedback->checksumProgress(path);
     }
 
-    virtual bool compress(const string&)
+    bool compress(const string&) final
     {
         assert(false); // Nothing must get compressed when we are patching.
         return true;
@@ -391,145 +374,98 @@ PatcherI::prepare()
             throw runtime_error("server returned illegal value");
         }
 
-        while(true)
+        std::shared_ptr<GetFileInfoSeqAsyncCB> curCB;
+        std::shared_ptr<GetFileInfoSeqAsyncCB> nxtCB;
+        for(size_t node0 = 0; node0 < 256; ++node0)
         {
-            std::shared_ptr<GetFileInfoSeqAsyncCB> curCB;
-            std::shared_ptr<GetFileInfoSeqAsyncCB> nxtCB;
-            try
+            if(tree0.nodes[node0].checksum != checksumSeq[node0])
             {
-                for(size_t node0 = 0; node0 < 256; ++node0)
+                if (!curCB)
                 {
-                    if(tree0.nodes[node0].checksum != checksumSeq[node0])
-                    {
-                        if (!curCB)
-                        {
-                            curCB = std::make_shared<GetFileInfoSeqAsyncCB>(_useSmallFileAPI);
-                            if (_useSmallFileAPI)
-                            {
-                                _serverCompress->getFileInfoSeqAsync(
-                                    static_cast<int32_t>(node0),
-                                    [curCB](FileInfoSeq fileInfoSeq) { curCB->complete(fileInfoSeq); },
-                                    [curCB](exception_ptr exception) { curCB->exception(exception); });
-                            }
-                            else
-                            {
-                                _serverCompress->getLargeFileInfoSeqAsync(
-                                    static_cast<int32_t>(node0),
-                                    [curCB](LargeFileInfoSeq fileInfoSeq) { curCB->complete(fileInfoSeq); },
-                                    [curCB](exception_ptr exception) { curCB->exception(exception); });
-                            }
-                        }
-                        else
-                        {
-                            assert(nxtCB);
-                            swap(nxtCB, curCB);
-                        }
-
-                        size_t node0Nxt = node0;
-                        do
-                        {
-                            ++node0Nxt;
-                        }
-                        while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
-
-                        if(node0Nxt < 256)
-                        {
-                            nxtCB = std::make_shared<GetFileInfoSeqAsyncCB>(_useSmallFileAPI);
-                            if (_useSmallFileAPI)
-                            {
-                                _serverCompress->getFileInfoSeqAsync(
-                                    static_cast<int32_t>(node0Nxt),
-                                    [nxtCB](FileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
-                                    [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
-                            }
-                            else
-                            {
-                                _serverCompress->getLargeFileInfoSeqAsync(
-                                    static_cast<int32_t>(node0Nxt),
-                                    [nxtCB](LargeFileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
-                                    [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
-                            }
-                        }
-
-                        LargeFileInfoSeq files;
-                        if (_useSmallFileAPI)
-                        {
-                            FileInfoSeq smallFiles = curCB->getFileInfoSeq();
-                            files.resize(smallFiles.size());
-                            transform(smallFiles.begin(), smallFiles.end(), files.begin(), toLargeFileInfo);
-                        }
-                        else
-                        {
-                            files = curCB->getLargeFileInfoSeq();
-                        }
-
-                        sort(files.begin(), files.end(), FileInfoLess());
-                        files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
-
-                        //
-                        // Compute the set of files which were removed.
-                        //
-                        set_difference(tree0.nodes[node0].files.begin(),
-                                       tree0.nodes[node0].files.end(),
-                                       files.begin(),
-                                       files.end(),
-                                       back_inserter(_removeFiles),
-                                       FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
-
-                        //
-                        // Compute the set of files which were updated (either the file contents, flags or both).
-                        //
-                        LargeFileInfoSeq updatedFiles;
-                        updatedFiles.reserve(files.size());
-
-                        set_difference(files.begin(),
-                                       files.end(),
-                                       tree0.nodes[node0].files.begin(),
-                                       tree0.nodes[node0].files.end(),
-                                       back_inserter(updatedFiles),
-                                       FileInfoLess());
-
-                        //
-                        // Compute the set of files whose contents was updated.
-                        //
-                        LargeFileInfoSeq contentsUpdatedFiles;
-                        contentsUpdatedFiles.reserve(files.size());
-
-                        set_difference(files.begin(),
-                                       files.end(),
-                                       tree0.nodes[node0].files.begin(),
-                                       tree0.nodes[node0].files.end(),
-                                       back_inserter(contentsUpdatedFiles),
-                                       FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
-                        copy(contentsUpdatedFiles.begin(), contentsUpdatedFiles.end(), back_inserter(_updateFiles));
-
-                        //
-                        // Compute the set of files whose flags were updated.
-                        //
-                        set_difference(updatedFiles.begin(),
-                                       updatedFiles.end(),
-                                       contentsUpdatedFiles.begin(),
-                                       contentsUpdatedFiles.end(),
-                                       back_inserter(_updateFlags),
-                                       FileInfoLess());
-                    }
-
-                    if(!_feedback->fileListProgress(static_cast<int32_t>(node0 + 1) * 100 / 256))
-                    {
-                        return false;
-                    }
+                    curCB = std::make_shared<GetFileInfoSeqAsyncCB>();
+                    _serverCompress->getLargeFileInfoSeqAsync(
+                        static_cast<int32_t>(node0),
+                        [curCB](LargeFileInfoSeq fileInfoSeq) { curCB->complete(fileInfoSeq); },
+                        [curCB](exception_ptr exception) { curCB->exception(exception); });
                 }
+                else
+                {
+                    assert(nxtCB);
+                    swap(nxtCB, curCB);
+                }
+
+                size_t node0Nxt = node0;
+                do
+                {
+                    ++node0Nxt;
+                }
+                while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
+
+                if(node0Nxt < 256)
+                {
+                    nxtCB = std::make_shared<GetFileInfoSeqAsyncCB>();
+                    _serverCompress->getLargeFileInfoSeqAsync(
+                        static_cast<int32_t>(node0Nxt),
+                        [nxtCB](LargeFileInfoSeq fileInfoSeq) { nxtCB->complete(fileInfoSeq); },
+                        [nxtCB](exception_ptr exception) { nxtCB->exception(exception); });
+                }
+
+                LargeFileInfoSeq files = curCB->getLargeFileInfoSeq();
+                sort(files.begin(), files.end(), FileInfoLess());
+                files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
+
+                //
+                // Compute the set of files which were removed.
+                //
+                set_difference(tree0.nodes[node0].files.begin(),
+                                tree0.nodes[node0].files.end(),
+                                files.begin(),
+                                files.end(),
+                                back_inserter(_removeFiles),
+                                FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
+
+                //
+                // Compute the set of files which were updated (either the file contents, flags or both).
+                //
+                LargeFileInfoSeq updatedFiles;
+                updatedFiles.reserve(files.size());
+
+                set_difference(files.begin(),
+                                files.end(),
+                                tree0.nodes[node0].files.begin(),
+                                tree0.nodes[node0].files.end(),
+                                back_inserter(updatedFiles),
+                                FileInfoLess());
+
+                //
+                // Compute the set of files whose contents was updated.
+                //
+                LargeFileInfoSeq contentsUpdatedFiles;
+                contentsUpdatedFiles.reserve(files.size());
+
+                set_difference(files.begin(),
+                                files.end(),
+                                tree0.nodes[node0].files.begin(),
+                                tree0.nodes[node0].files.end(),
+                                back_inserter(contentsUpdatedFiles),
+                                FileInfoWithoutFlagsLess()); // NOTE: We ignore the flags here.
+                copy(contentsUpdatedFiles.begin(), contentsUpdatedFiles.end(), back_inserter(_updateFiles));
+
+                //
+                // Compute the set of files whose flags were updated.
+                //
+                set_difference(updatedFiles.begin(),
+                                updatedFiles.end(),
+                                contentsUpdatedFiles.begin(),
+                                contentsUpdatedFiles.end(),
+                                back_inserter(_updateFlags),
+                                FileInfoLess());
             }
-            catch(const Ice::OperationNotExistException&)
+
+            if(!_feedback->fileListProgress(static_cast<int32_t>(node0 + 1) * 100 / 256))
             {
-                if(!_useSmallFileAPI)
-                {
-                    _useSmallFileAPI = true;
-                    continue;
-                }
-                throw;
+                return false;
             }
-            break;
         }
 
         if(!_feedback->fileListEnd())
@@ -668,56 +604,6 @@ PatcherI::finish()
     saveFileInfoSeq(_dataDir, _localFiles);
 }
 
-void
-PatcherI::init(const FileServerPrxPtr& server)
-{
-    if(_dataDir.empty())
-    {
-        throw runtime_error("no data directory specified");
-    }
-
-    Ice::CommunicatorPtr communicator = server->ice_getCommunicator();
-
-    const_cast<string&>(_dataDir) = simplify(_dataDir);
-
-    //
-    // Make sure that _chunkSize doesn't exceed MessageSizeMax, otherwise
-    // it won't work at all.
-    //
-    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
-    if(_chunkSize < 1)
-    {
-        const_cast<int32_t&>(_chunkSize) = 1;
-    }
-    else if(_chunkSize > sizeMax)
-    {
-        const_cast<int32_t&>(_chunkSize) = sizeMax;
-    }
-    if(_chunkSize == sizeMax)
-    {
-        const_cast<int32_t&>(_chunkSize) = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
-    }
-    else
-    {
-        const_cast<int32_t&>(_chunkSize) *= 1024;
-    }
-
-    if(!IceUtilInternal::isAbsolutePath(_dataDir))
-    {
-        string cwd;
-        if(IceUtilInternal::getcwd(cwd) != 0)
-        {
-            throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
-        }
-        const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
-    }
-
-    const_cast<FileServerPrxPtr&>(_serverCompress) =
-        Ice::uncheckedCast<FileServerPrx>(server->ice_compress(true));
-    const_cast<FileServerPrxPtr&>(_serverNoCompress) =
-        Ice::uncheckedCast<FileServerPrx>(server->ice_compress(false));
-}
-
 bool
 PatcherI::removeFiles(const LargeFileInfoSeq& files)
 {
@@ -835,31 +721,18 @@ private:
 };
 
 void getFileCompressed(
-    FileServerPrxPtr serverNoCompress,
+    FileServerPrx serverNoCompress,
     std::string path,
     int64_t pos,
     int chunkSize,
-    std::shared_ptr<GetFileCompressedCB> cb,
-    bool useSmallFileAPI)
+    std::shared_ptr<GetFileCompressedCB> cb)
 {
-    if (useSmallFileAPI)
-    {
-        serverNoCompress->getFileCompressedAsync(
-            path,
-            static_cast<int32_t>(pos),
-            chunkSize,
-            [cb](std::pair<const uint8_t*, const uint8_t*> result) { cb->complete(ByteSeq(result.first, result.second)); },
-            [cb](exception_ptr exception) { cb->exception(exception); });
-    }
-    else
-    {
-        serverNoCompress->getLargeFileCompressedAsync(
-            path,
-            pos,
-            chunkSize,
-            [cb](std::pair<const uint8_t*, const uint8_t*> result) { cb->complete(ByteSeq(result.first, result.second)); },
-            [cb](exception_ptr exception) { cb->exception(exception); });
-    }
+    serverNoCompress->getLargeFileCompressedAsync(
+        path,
+        pos,
+        chunkSize,
+        [cb](std::pair<const uint8_t*, const uint8_t*> result) { cb->complete(ByteSeq(result.first, result.second)); },
+        [cb](exception_ptr exception) { cb->exception(exception); });
 }
 
 bool
@@ -940,13 +813,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                         {
                             assert(!nxtCB);
                             curCB = std::make_shared<GetFileCompressedCB>();
-                            getFileCompressed(
-                                _serverNoCompress,
-                                p->path,
-                                pos,
-                                _chunkSize,
-                                curCB,
-                                _useSmallFileAPI);
+                            getFileCompressed(_serverNoCompress, p->path, pos, _chunkSize, curCB);
                         }
                         else
                         {
@@ -957,13 +824,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                         if(pos + _chunkSize < p->size)
                         {
                             nxtCB = std::make_shared<GetFileCompressedCB>();
-                            getFileCompressed(
-                                _serverNoCompress,
-                                p->path,
-                                pos + _chunkSize,
-                                _chunkSize,
-                                nxtCB,
-                                _useSmallFileAPI);
+                            getFileCompressed(_serverNoCompress, p->path, pos + _chunkSize, _chunkSize, nxtCB);
                         }
                         else
                         {
@@ -977,13 +838,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                             if(q != files.end())
                             {
                                 nxtCB = std::make_shared<GetFileCompressedCB>();
-                                getFileCompressed(
-                                    _serverNoCompress,
-                                    q->path,
-                                    0,
-                                    _chunkSize,
-                                    nxtCB,
-                                    _useSmallFileAPI);
+                                getFileCompressed(_serverNoCompress, q->path, 0, _chunkSize, nxtCB);
                             }
                         }
 
@@ -1119,18 +974,12 @@ PatcherI::updateFlags(const LargeFileInfoSeq& files)
 
 }
 
-PatcherPtr
-PatcherFactory::create(const Ice::CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback)
-{
-    return make_shared<PatcherI>(communicator, feedback);
-}
-
 //
 // Create a patcher with the given parameters. These parameters
 // are equivalent to the configuration properties described above.
 //
 PatcherPtr
-PatcherFactory::create(const FileServerPrxPtr& server,
+PatcherFactory::create(const FileServerPrx& server,
                        const PatcherFeedbackPtr& feedback,
                        const string& dataDir,
                        bool thorough,

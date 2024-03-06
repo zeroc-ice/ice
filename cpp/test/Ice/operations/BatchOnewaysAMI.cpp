@@ -12,10 +12,10 @@
 using namespace std;
 
 void
-batchOnewaysAMI(const Test::MyClassPrxPtr& p)
+batchOnewaysAMI(const Test::MyClassPrx& p)
 {
     const Test::ByteS bs1(10 * 1024);
-    Test::MyClassPrxPtr batch = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
+    Test::MyClassPrx batch = p->ice_batchOneway();
     promise<void> prom;
     batch->ice_flushBatchRequestsAsync(nullptr,
         [&](bool sentSynchronously)
@@ -40,8 +40,8 @@ batchOnewaysAMI(const Test::MyClassPrxPtr& p)
     if(batch->ice_getConnection() &&
        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
     {
-        Test::MyClassPrxPtr batch1 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
-        Test::MyClassPrxPtr batch2 = Ice::uncheckedCast<Test::MyClassPrx>(p->ice_batchOneway());
+        Test::MyClassPrx batch1 = p->ice_batchOneway();
+        Test::MyClassPrx batch2 = p->ice_batchOneway();
 
         batch1->ice_pingAsync().get();
         batch2->ice_pingAsync().get();

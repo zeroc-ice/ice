@@ -113,7 +113,7 @@ Subscriber::run(int argc, char** argv)
 
     auto adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
 
-    TopicPrxPtr topic;
+    optional<TopicPrx> topic;
     while(true)
     {
         try

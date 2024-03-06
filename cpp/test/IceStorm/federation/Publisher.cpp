@@ -22,32 +22,24 @@ public:
 void
 Publisher::run(int argc, char** argv)
 {
-    Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    auto properties = communicator->getProperties();
-    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    Ice::CommunicatorPtr communicator = ich.communicator();
+    string managerProxy = communicator->getProperties()->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
         ostringstream os;
         os << argv[0] << ": `IceStormAdmin.TopicManager.Default' is not set";
         throw runtime_error(os.str());
     }
-
-    auto base = communicator->stringToProxy(managerProxy);
-    auto manager = checkedCast<IceStorm::TopicManagerPrx>(base);
-    if(!manager)
-    {
-        ostringstream os;
-        os << argv[0] << ": `" << managerProxy << "' is not running";
-        throw runtime_error(os.str());
-    }
+    IceStorm::TopicManagerPrx manager(communicator, managerProxy);
 
     auto fed1 = manager->retrieve("fed1");
     auto fed2 = manager->retrieve("fed2");
     auto fed3 = manager->retrieve("fed3");
 
-    auto eventFed1 = uncheckedCast<EventPrx>(fed1->getPublisher()->ice_oneway());
-    auto eventFed2 = uncheckedCast<EventPrx>(fed2->getPublisher()->ice_oneway());
-    auto eventFed3 = uncheckedCast<EventPrx>(fed3->getPublisher()->ice_oneway());
+    optional<EventPrx> eventFed1(fed1->getPublisher()->ice_oneway());
+    optional<EventPrx> eventFed2(fed2->getPublisher()->ice_oneway());
+    optional<EventPrx> eventFed3(fed3->getPublisher()->ice_oneway());
 
     Ice::Context context;
 

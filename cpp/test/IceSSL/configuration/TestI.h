@@ -31,8 +31,8 @@ public:
 
     ServerFactoryI(const std::string&);
 
-    virtual Test::ServerPrxPtr createServer(Test::Properties, const Ice::Current&);
-    virtual void destroyServer(Test::ServerPrxPtr, const Ice::Current&);
+    virtual std::optional<Test::ServerPrx> createServer(Test::Properties, const Ice::Current&);
+    virtual void destroyServer(std::optional<Test::ServerPrx>, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

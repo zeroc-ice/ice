@@ -12,11 +12,11 @@ using namespace std;
 namespace
 {
 
-class NullPermissionsVerifier : public Glacier2::PermissionsVerifier
+class NullPermissionsVerifier final : public Glacier2::PermissionsVerifier
 {
 public:
 
-    bool checkPermissions(string, string, string&, const Current&) const
+    bool checkPermissions(string, string, string&, const Current&) const final
     {
         return true;
     }
@@ -26,104 +26,11 @@ class NullSSLPermissionsVerifier : public Glacier2::SSLPermissionsVerifier
 {
 public:
 
-    virtual bool
-    authorize(Glacier2::SSLInfo, string&, const Ice::Current&) const
+    bool authorize(Glacier2::SSLInfo, string&, const Ice::Current&) const final
     {
         return true;
     }
 };
-
-class Init
-{
-public:
-
-    Init(const CommunicatorPtr&, const string&, const vector<string>&);
-
-private:
-
-    string checkPermissionVerifier(const string&);
-    void createObjects();
-
-    const CommunicatorPtr _communicator;
-    ObjectAdapterPtr _adapter;
-
-    Identity _nullPVId;
-    Identity _nullSSLPVId;
-};
-
-Init::Init(const CommunicatorPtr& communicator, const string& category, const vector<string>& props) :
-    _communicator(communicator)
-{
-    _nullPVId.name = "NullPermissionsVerifier";
-    _nullPVId.category = category;
-
-    _nullSSLPVId.name = "NullSSLPermissionsVerifier";
-    _nullSSLPVId.category = category;
-
-    Ice::PropertiesPtr properties = _communicator->getProperties();
-    for(vector<string>::const_iterator p = props.begin(); p != props.end(); ++p)
-    {
-        string val = properties->getProperty(*p);
-        if(!val.empty())
-        {
-            //
-            // Check permission verifier proxy. It returns a non-empty
-            // value with the new stringified proxy if the property
-            // needs to be rewritten.
-            //
-            val = checkPermissionVerifier(val);
-            if(!val.empty())
-            {
-                properties->setProperty(*p, val);
-            }
-        }
-    }
-}
-
-string
-Init::checkPermissionVerifier(const string& val)
-{
-    // Check if it's in proxy format
-    try
-    {
-        ObjectPrxPtr prx  = _communicator->stringToProxy(val);
-        if(prx->ice_getIdentity() == _nullPVId || prx->ice_getIdentity() == _nullSSLPVId)
-        {
-            createObjects();
-        }
-    }
-    catch(const ProxyParseException&)
-    {
-        // check if it's actually a stringified identity
-        // (with typically missing " " because the category contains a space)
-
-        if(val == _communicator->identityToString(_nullPVId))
-        {
-            createObjects();
-            return _adapter->createProxy(_nullPVId)->ice_toString(); // Return valid proxy to rewrite the property
-        }
-        else if(val == _communicator->identityToString(_nullSSLPVId))
-        {
-            createObjects();
-            return _adapter->createProxy(_nullSSLPVId)->ice_toString(); // Return valid proxy to rewrite the property
-        }
-
-        // Otherwise let the service report this incorrectly formatted proxy
-    }
-    return string();
-}
-
-void
-Init::createObjects()
-{
-    if(!_adapter)
-    {
-        _adapter = _communicator->createObjectAdapter(""); // colloc-only adapter
-        _adapter->add(std::make_shared<NullPermissionsVerifier>(), _nullPVId);
-        _adapter->add(std::make_shared<NullSSLPermissionsVerifier>(), _nullSSLPVId);
-        _adapter->activate();
-    }
-}
 
 }
 
@@ -131,9 +38,50 @@ namespace Glacier2Internal
 {
 
 void
-setupNullPermissionsVerifier(const CommunicatorPtr& communicator, const string& category, const vector<string>& props)
+setupNullPermissionsVerifier(
+    const CommunicatorPtr& communicator,
+    const string& category,
+    const vector<string>& permissionsVerifierPropertyNames)
 {
-    Init init(communicator, category, props);
+    const Ice::Identity nullPermissionsVerifierId {"NullPermissionsVerifier", category};
+    const Ice::Identity nullSSLPermissionsVerifierId {"NullSSLPermissionsVerifier",  category};
+
+    const Ice::PropertiesPtr properties = communicator->getProperties();
+
+    shared_ptr<Glacier2::PermissionsVerifier> nullPermissionsVerifier;
+    shared_ptr<Glacier2::SSLPermissionsVerifier> nullSSLPermissionsVerifier;
+
+    for (const auto& propertyName : permissionsVerifierPropertyNames)
+    {
+        string propertyValue = properties->getProperty(propertyName);
+        if (!propertyValue.empty())
+        {
+            ObjectPrx prx(communicator, propertyValue);
+            if (prx->ice_getIdentity() == nullPermissionsVerifierId && !nullPermissionsVerifier)
+            {
+                nullPermissionsVerifier = make_shared<NullPermissionsVerifier>();
+            }
+            else if (prx->ice_getIdentity() == nullSSLPermissionsVerifierId && !nullSSLPermissionsVerifier)
+            {
+                nullSSLPermissionsVerifier = make_shared<NullSSLPermissionsVerifier>();
+            }
+        }
+    }
+
+    if (nullPermissionsVerifier || nullSSLPermissionsVerifier)
+    {
+        // Create collocated object adapter for the null permissions verifier
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
+        if (nullPermissionsVerifier)
+        {
+            adapter->add(std::move(nullPermissionsVerifier), nullPermissionsVerifierId);
+        }
+
+        if (nullSSLPermissionsVerifier)
+        {
+            adapter->add(std::move(nullSSLPermissionsVerifier), nullSSLPermissionsVerifierId);
+        }
+    }
 }
 
 }

@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Communicator.cpp" />
+    <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp" />
     <ClCompile Include="..\..\Connection.cpp" />
     <ClCompile Include="..\..\Endpoint.cpp" />
     <ClCompile Include="..\..\ImplicitContext.cpp" />
@@ -508,14 +509,12 @@
     <ClCompile Include="..\..\BatchRequestQueue.cpp" />
     <ClCompile Include="..\..\Buffer.cpp" />
     <ClCompile Include="..\..\CollocatedRequestHandler.cpp" />
-    <ClCompile Include="..\..\CommunicatorI.cpp" />
     <ClCompile Include="..\..\ConnectionFactory.cpp" />
     <ClCompile Include="..\..\ConnectionI.cpp" />
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
     <ClCompile Include="..\..\Connector.cpp" />
     <ClCompile Include="..\..\ConnectRequestHandler.cpp" />
     <ClCompile Include="..\..\DefaultsAndOverrides.cpp" />
-    <ClCompile Include="..\..\DispatchInterceptor.cpp" />
     <ClCompile Include="..\..\DLLMain.cpp" />
     <ClCompile Include="..\..\DynamicLibrary.cpp" />
     <ClCompile Include="..\..\EndpointFactory.cpp" />

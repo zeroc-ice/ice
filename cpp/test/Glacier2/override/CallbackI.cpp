@@ -92,7 +92,7 @@ CallbackReceiverI::checkForHold(unique_lock<mutex>& lock)
 }
 
 void
-CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy, int token,
+CallbackI::initiateCallbackAsync(optional<CallbackReceiverPrx> proxy, int token,
                                  function<void()> response, function<void(exception_ptr)> error,
                                  const Current& current)
 {
@@ -115,7 +115,7 @@ CallbackI::initiateCallbackAsync(CallbackReceiverPrxPtr proxy, int token,
 }
 
 void
-CallbackI::initiateCallbackWithPayloadAsync(CallbackReceiverPrxPtr proxy,
+CallbackI::initiateCallbackWithPayloadAsync(optional<CallbackReceiverPrx> proxy,
                                             function<void()> response, function<void(exception_ptr)> error,
                                             const Current& current)
 {

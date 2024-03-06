@@ -37,7 +37,6 @@
 #   endif
 #   include <Ice/Connection.h>
 #   include <Ice/ImplicitContext.h>
-#   include <Ice/DispatchInterceptor.h>
 #   include <Ice/Plugin.h>
 #   include <Ice/NativePropertiesAdmin.h>
 #   include <Ice/Instrumentation.h>

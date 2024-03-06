@@ -10,7 +10,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::Request::Request(ObjectPrxPtr proxy, const std::pair<const uint8_t*, const uint8_t*>& inParams,
+Glacier2::Request::Request(ObjectPrx proxy, const std::pair<const uint8_t*, const uint8_t*>& inParams,
                  const Current& current, bool forwardContext, const Ice::Context& sslContext,
                  function<void(bool, pair<const uint8_t*, const uint8_t*>)> response,
                  function<void(exception_ptr)> exception) :

@@ -101,21 +101,6 @@ public:
      */
     static std::string_view ice_staticId();
 
-    /**
-     * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
-     * to a servant (or to another interceptor).
-     * @param request The details of the invocation.
-     * @param response A function that should return true if Ice should send the response to the client. A null
-     * value is equivalent to a function that returns true.
-     * @param error A function that should return true if Ice should send the exception to the client. A null
-     * value is equivalent to a function that returns true.
-     * @return True if the request completed synchronously, false if the request will be completed asynchronously.
-     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
-     */
-    virtual bool ice_dispatch(Ice::Request& request,
-                              std::function<bool()> response = nullptr,
-                              std::function<bool(std::exception_ptr)> error = nullptr);
-
     /// \cond INTERNAL
     virtual bool _iceDispatch(IceInternal::Incoming&, const Current&);
     /// \endcond
