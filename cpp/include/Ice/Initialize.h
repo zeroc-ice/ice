@@ -17,7 +17,6 @@
 #include <Ice/Version.h>
 #include <Ice/Plugin.h>
 #include <Ice/BatchRequestInterceptor.h>
-#include <Ice/ObjectAdapter.h>
 
 #   define ICE_CONFIG_FILE_STRING const std::string&
 
@@ -703,24 +702,6 @@ ICE_API Identity stringToIdentity(const std::string& str);
  * @return The stringified identity.
  */
 ICE_API std::string identityToString(const Identity& id, ToStringMode mode = ToStringMode::Unicode);
-
-/**
- * Verifies a proxy received from the client is not null.
- * @param prx The proxy to check.
- * @param current The Current object for the invocation.
- * */
-template<typename Prx>
-void checkNotNull(std::optional<Prx> prx, const Current& current)
-{
-    if (!prx)
-    {
-        // Will be reported back to the client as an UnknownLocalException with an error message.
-        std::ostringstream os;
-        os << "null proxy passed to " << current.operation << " on object "
-            << current.adapter->getCommunicator()->identityToString(current.id);
-        throw MarshalException {__FILE__, __LINE__, os.str()};
-    }
-}
 
 }
 
