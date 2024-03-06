@@ -141,8 +141,8 @@ public:
     void findObject(const ObjectCB&, const Ice::Identity&);
     void findAdapter(const AdapterCB&, const std::string&);
 
-    void foundObject(const Ice::Identity&, const std::string&, const std::optional<Ice::ObjectPrx>&);
-    void foundAdapter(const std::string&, const std::string&, const std::optional<Ice::ObjectPrx>&, bool);
+    void foundObject(const Ice::Identity&, const std::string&, const Ice::ObjectPrx&);
+    void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrx&, bool);
 
     void adapterRequestTimedOut(const AdapterRequestPtr&);
     void adapterRequestException(const AdapterRequestPtr&, std::exception_ptr);

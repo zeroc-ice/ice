@@ -25,13 +25,13 @@ module IceDiscovery
     {
         /// Reply to the findObjectById request.
         /// @param id The identity of the object.
-        /// @param prx The proxy of the object. It is an error to pass a null proxy.
+        /// @param prx The proxy of the object. This proxy is never null.
         void foundObjectById(Ice::Identity id, Object* prx);
 
         /// Reply to the findAdpaterById request.
         /// @param id The adapter ID.
         /// @param prx The adapter proxy (a dummy proxy created by the adapter). The proxy provides the adapter
-        /// endpoints. It is an error to pass a null proxy.
+        /// endpoints. This proxy is never null.
         /// @param isReplicaGroup True if the adapter is also a member of a replica group.
         void foundAdapterById(string id, Object* prx, bool isReplicaGroup);
     }

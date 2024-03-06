@@ -205,6 +205,8 @@ LookupI::destroy()
 void
 LookupI::setLookupReply(const LookupReplyPrx& lookupReply)
 {
+    // This method is only called once from PluginI::initialize.
+    assert(_lookups.empty());
     // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast datagram on each
     // endpoint.
     for (const auto& lookupEndpoint : _lookup->ice_getEndpoints())
@@ -334,23 +336,14 @@ LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
 }
 
 void
-LookupI::foundObject(const Ice::Identity& id, const string& requestId, const optional<ObjectPrx>& proxy)
+LookupI::foundObject(const Ice::Identity& id, const string& requestId, const ObjectPrx& proxy)
 {
     lock_guard lock(_mutex);
-    if (!proxy)
-    {
-        const Ice::CommunicatorPtr communicator = _lookup->ice_getCommunicator();
-        Warning warn(communicator->getLogger());
-        warn << "ignoring null proxy received by foundObjectById id `"
-            << communicator->identityToString(id) << "' requestId `" << requestId << "'";
-        return;
-    }
-
     map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
     // Ignore responses from old requests
     if (p != _objectRequests.end() && p->second->getRequestId() == requestId)
     {
-        p->second->response(*proxy);
+        p->second->response(proxy);
         _timer->cancel(p->second);
         _objectRequests.erase(p);
     }
@@ -360,22 +353,15 @@ void
 LookupI::foundAdapter(
     const string& adapterId,
     const string& requestId,
-    const optional<ObjectPrx>& proxy,
+    const ObjectPrx& proxy,
     bool isReplicaGroup)
 {
     lock_guard lock(_mutex);
-    if (!proxy)
-    {
-        Warning warn(_lookup->ice_getCommunicator()->getLogger());
-        warn << "ignoring null proxy received by foundAdapterById adapterId `" << adapterId << "' requestId `"
-            << requestId << "'";
-        return;
-    }
 
     map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);
     if(p != _adapterRequests.end() && p->second->getRequestId() == requestId) // Ignore responses from old requests
     {
-        if(p->second->response(*proxy, isReplicaGroup))
+        if(p->second->response(proxy, isReplicaGroup))
         {
             _timer->cancel(p->second);
             _adapterRequests.erase(p);
@@ -508,7 +494,8 @@ LookupReplyI::LookupReplyI(const LookupIPtr& lookup) : _lookup(lookup)
 void
 LookupReplyI::foundObjectById(Identity id, optional<ObjectPrx> proxy, const Current& current)
 {
-    _lookup->foundObject(id, current.id.name, proxy);
+    Ice::checkNotNull(proxy, current);
+    _lookup->foundObject(id, current.id.name, *proxy);
 }
 
 void
@@ -518,5 +505,6 @@ LookupReplyI::foundAdapterById(
     bool isReplicaGroup,
     const Current& current)
 {
-    _lookup->foundAdapter(adapterId, current.id.name, proxy, isReplicaGroup);
+    Ice::checkNotNull(proxy, current);
+    _lookup->foundAdapter(adapterId, current.id.name, *proxy, isReplicaGroup);
 }
