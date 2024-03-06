@@ -39,11 +39,11 @@ open class Value {
     open func _iceRead(from istr: InputStream) throws {
         istr.startValue()
         try _iceReadImpl(from: istr)
-        self.slicedData = try istr.endValue()
+        slicedData = try istr.endValue()
     }
 
     open func _iceWrite(to os: OutputStream) {
-        os.startValue(data: self.slicedData)
+        os.startValue(data: slicedData)
         _iceWriteImpl(to: os)
         os.endValue()
     }
