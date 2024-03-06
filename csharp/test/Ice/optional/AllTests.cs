@@ -2242,7 +2242,7 @@ namespace Ice
                     @in.startValue();
                     @in.startSlice();
                     @in.endSlice();
-                    @in.endValue(false);
+                    @in.endValue();
                 }
             }
 
@@ -2259,7 +2259,7 @@ namespace Ice
                     @in.startSlice();
                     @in.readInt();
                     @in.endSlice();
-                    @in.endValue(false);
+                    @in.endValue();
                 }
             }
 
@@ -2279,7 +2279,7 @@ namespace Ice
                     @in.startSlice();
                     @in.readInt();
                     @in.endSlice();
-                    @in.endValue(false);
+                    @in.endValue();
                 }
             }
 
@@ -2340,7 +2340,7 @@ namespace Ice
                     @in.startSlice();
                     @in.readInt();
                     @in.endSlice();
-                    @in.endValue(false);
+                    @in.endValue();
                 }
 
                 internal void check()
@@ -2365,7 +2365,7 @@ namespace Ice
                     ReadValueCallbackI rocb = new ReadValueCallbackI();
                     @in.readValue(rocb.invoke);
                     @in.endSlice();
-                    @in.endValue(false);
+                    @in.endValue();
                     _f.ae =(Test.A)rocb.obj;
                 }
 

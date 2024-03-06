@@ -50,15 +50,15 @@ namespace Ice
         /// un-marshaling of the value, null is returned otherwise.
         /// </summary>
         /// <returns>The sliced data or null.</returns>
-        public virtual SlicedData ice_getSlicedData()
+        public SlicedData ice_getSlicedData()
         {
-            return null;
+            return _slicedData;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public virtual void iceWrite(OutputStream ostr)
         {
-            ostr.startValue(null);
+            ostr.startValue(_slicedData);
             iceWriteImpl(ostr);
             ostr.endValue();
         }
@@ -68,7 +68,7 @@ namespace Ice
         {
             istr.startValue();
             iceReadImpl(istr);
-            istr.endValue(false);
+            _slicedData = istr.endValue();
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -90,6 +90,8 @@ namespace Ice
         {
             return MemberwiseClone();
         }
+
+        private SlicedData _slicedData;
     }
 
     public class InterfaceByValue : Value

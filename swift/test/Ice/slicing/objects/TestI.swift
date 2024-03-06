@@ -476,20 +476,6 @@ class TestI: TestIntf {
         throw ude
     }
 
-    func throwPreservedExceptionAsync(current: Current) -> Promise<Void> {
-        return Promise<Void> { seal in
-            try current.adapter!.getDispatchQueue().async(flags: .barrier) {
-                let ue = PSUnknownException()
-                ue.p = PSUnknown2()
-                ue.p!.pi = 5
-                ue.p!.ps = "preserved"
-                ue.p!.pb = ue.p
-                seal.reject(ue) // Ice marshals the error immediately
-                ue.p!.pb = nil // break the cycle
-            }
-        }
-    }
-
     func useForward(current _: Current) throws -> Forward? {
         let f = Forward()
         f.h = Hidden()

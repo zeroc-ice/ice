@@ -492,12 +492,11 @@ namespace Ice
         /// <summary>
         /// Marks the end of a class instance.
         /// </summary>
-        /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
         /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData endValue(bool preserve)
+        public SlicedData endValue()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.endInstance(preserve);
+            return _encapsStack.decoder.endInstance();
         }
 
         /// <summary>
@@ -512,12 +511,10 @@ namespace Ice
         /// <summary>
         /// Marks the end of a user exception.
         /// </summary>
-        /// <param name="preserve">True if unknown slices should be preserved, false otherwise.</param>
-        /// <returns>A SlicedData object containing the preserved slices for unknown types.</returns>
-        public SlicedData endException(bool preserve)
+        public void endException()
         {
             Debug.Assert(_encapsStack != null && _encapsStack.decoder != null);
-            return _encapsStack.decoder.endInstance(preserve);
+            _encapsStack.decoder.endInstance();
         }
 
         /// <summary>
@@ -2763,7 +2760,7 @@ namespace Ice
             internal abstract void throwException(UserExceptionFactory factory);
 
             internal abstract void startInstance(SliceType type);
-            internal abstract SlicedData endInstance(bool preserve);
+            internal abstract SlicedData endInstance();
             internal abstract string startSlice();
             internal abstract void endSlice();
             internal abstract void skipSlice();
@@ -3154,7 +3151,7 @@ namespace Ice
                 _skipFirstSlice = true;
             }
 
-            internal override SlicedData endInstance(bool preserve)
+            internal override SlicedData endInstance()
             {
                 //
                 // Read the Ice::Object slice.
@@ -3480,16 +3477,15 @@ namespace Ice
                 _current.skipFirstSlice = true;
             }
 
-            internal override SlicedData endInstance(bool preserve)
+            internal override SlicedData endInstance()
             {
-                SlicedData slicedData = null;
-                if(preserve)
-                {
-                    slicedData = readSlicedData();
-                }
+                SlicedData slicedData = readSlicedData();
                 if(_current.slices != null)
                 {
                     _current.slices.Clear();
+                }
+                if(_current.indirectionTables != null)
+                {
                     _current.indirectionTables.Clear();
                 }
                 _current = _current.previous;
@@ -3664,33 +3660,36 @@ namespace Ice
                 }
 
                 //
-                // Preserve this slice.
+                // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
                 //
-                SliceInfo info = new SliceInfo();
-                info.typeId = _current.typeId;
-                info.compactId = _current.compactId;
-                info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
-                info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
-                IceInternal.ByteBuffer b = _stream.getBuffer().b;
-                int end = b.position();
-                int dataEnd = end;
-                if(info.hasOptionalMembers)
+                if (_current.sliceType == SliceType.ValueSlice)
                 {
-                    //
-                    // Don't include the optional member end marker. It will be re-written by
-                    // endSlice when the sliced data is re-written.
-                    //
-                    --dataEnd;
-                }
-                info.bytes = new byte[dataEnd - start];
-                b.position(start);
-                b.get(info.bytes);
-                b.position(end);
+                    SliceInfo info = new SliceInfo();
+                    info.typeId = _current.typeId;
+                    info.compactId = _current.compactId;
+                    info.hasOptionalMembers = (_current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+                    info.isLastSlice = (_current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE) != 0;
+                    IceInternal.ByteBuffer b = _stream.getBuffer().b;
+                    int end = b.position();
+                    int dataEnd = end;
+                    if(info.hasOptionalMembers)
+                    {
+                        //
+                        // Don't include the optional member end marker. It will be re-written by
+                        // endSlice when the sliced data is re-written.
+                        //
+                        --dataEnd;
+                    }
+                    info.bytes = new byte[dataEnd - start];
+                    b.position(start);
+                    b.get(info.bytes);
+                    b.position(end);
 
-                if(_current.slices == null)
-                {
-                    _current.slices = new List<SliceInfo>();
-                    _current.indirectionTables = new List<int[]>();
+                    if (_current.slices == null)
+                    {
+                        _current.slices = new List<SliceInfo>();
+                    }
+                    _current.slices.Add(info);
                 }
 
                 //
@@ -3698,7 +3697,13 @@ namespace Ice
                 // IDs if the instance is a reference to an already unmarshaled
                 // instance.
                 //
-                if((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
+
+                if (_current.indirectionTables == null)
+                {
+                    _current.indirectionTables = new List<int[]>();
+                }
+
+                if ((_current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) != 0)
                 {
                     int[] indirectionTable = new int[_stream.readAndCheckSeqSize(1)];
                     for(int i = 0; i < indirectionTable.Length; ++i)
@@ -3711,8 +3716,6 @@ namespace Ice
                 {
                     _current.indirectionTables.Add(null);
                 }
-
-                _current.slices.Add(info);
             }
 
             internal override bool readOptional(int readTag, OptionalFormat expectedFormat)

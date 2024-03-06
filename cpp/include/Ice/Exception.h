@@ -10,7 +10,6 @@
 #include <Ice/Format.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ValueF.h>
-#include <Ice/SlicedDataF.h>
 
 namespace Ice
 {
@@ -63,8 +62,6 @@ public:
      * @return A shallow copy of this exception.
      */
     std::unique_ptr<UserException> ice_clone() const;
-
-    virtual Ice::SlicedDataPtr ice_getSlicedData() const;
 
     /**
      * Obtains the Slice type ID of this exception.

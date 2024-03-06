@@ -46,7 +46,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_InitializationException = IcePHP_defineException('::Ice::InitializationException', '\\Ice\\InitializationException', false, null, array(
+    $Ice__t_InitializationException = IcePHP_defineException('::Ice::InitializationException', '\\Ice\\InitializationException', null, array(
         array('reason', $IcePHP__t_string, false, 0)));
 }
 
@@ -75,7 +75,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_PluginInitializationException = IcePHP_defineException('::Ice::PluginInitializationException', '\\Ice\\PluginInitializationException', false, null, array(
+    $Ice__t_PluginInitializationException = IcePHP_defineException('::Ice::PluginInitializationException', '\\Ice\\PluginInitializationException', null, array(
         array('reason', $IcePHP__t_string, false, 0)));
 }
 
@@ -100,7 +100,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_CollocationOptimizationException = IcePHP_defineException('::Ice::CollocationOptimizationException', '\\Ice\\CollocationOptimizationException', false, null, null);
+    $Ice__t_CollocationOptimizationException = IcePHP_defineException('::Ice::CollocationOptimizationException', '\\Ice\\CollocationOptimizationException', null, null);
 }
 
 namespace Ice
@@ -130,7 +130,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_AlreadyRegisteredException = IcePHP_defineException('::Ice::AlreadyRegisteredException', '\\Ice\\AlreadyRegisteredException', false, null, array(
+    $Ice__t_AlreadyRegisteredException = IcePHP_defineException('::Ice::AlreadyRegisteredException', '\\Ice\\AlreadyRegisteredException', null, array(
         array('kindOfObject', $IcePHP__t_string, false, 0),
         array('id', $IcePHP__t_string, false, 0)));
 }
@@ -162,7 +162,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_NotRegisteredException = IcePHP_defineException('::Ice::NotRegisteredException', '\\Ice\\NotRegisteredException', false, null, array(
+    $Ice__t_NotRegisteredException = IcePHP_defineException('::Ice::NotRegisteredException', '\\Ice\\NotRegisteredException', null, array(
         array('kindOfObject', $IcePHP__t_string, false, 0),
         array('id', $IcePHP__t_string, false, 0)));
 }
@@ -192,7 +192,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_TwowayOnlyException = IcePHP_defineException('::Ice::TwowayOnlyException', '\\Ice\\TwowayOnlyException', false, null, array(
+    $Ice__t_TwowayOnlyException = IcePHP_defineException('::Ice::TwowayOnlyException', '\\Ice\\TwowayOnlyException', null, array(
         array('operation', $IcePHP__t_string, false, 0)));
 }
 
@@ -217,7 +217,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_CloneNotImplementedException = IcePHP_defineException('::Ice::CloneNotImplementedException', '\\Ice\\CloneNotImplementedException', false, null, null);
+    $Ice__t_CloneNotImplementedException = IcePHP_defineException('::Ice::CloneNotImplementedException', '\\Ice\\CloneNotImplementedException', null, null);
 }
 
 namespace Ice
@@ -245,7 +245,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_UnknownException = IcePHP_defineException('::Ice::UnknownException', '\\Ice\\UnknownException', false, null, array(
+    $Ice__t_UnknownException = IcePHP_defineException('::Ice::UnknownException', '\\Ice\\UnknownException', null, array(
         array('unknown', $IcePHP__t_string, false, 0)));
 }
 
@@ -271,7 +271,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_UnknownLocalException = IcePHP_defineException('::Ice::UnknownLocalException', '\\Ice\\UnknownLocalException', false, $Ice__t_UnknownException, null);
+    $Ice__t_UnknownLocalException = IcePHP_defineException('::Ice::UnknownLocalException', '\\Ice\\UnknownLocalException', $Ice__t_UnknownException, null);
 }
 
 namespace Ice
@@ -296,7 +296,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_UnknownUserException = IcePHP_defineException('::Ice::UnknownUserException', '\\Ice\\UnknownUserException', false, $Ice__t_UnknownException, null);
+    $Ice__t_UnknownUserException = IcePHP_defineException('::Ice::UnknownUserException', '\\Ice\\UnknownUserException', $Ice__t_UnknownException, null);
 }
 
 namespace Ice
@@ -320,7 +320,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_VersionMismatchException = IcePHP_defineException('::Ice::VersionMismatchException', '\\Ice\\VersionMismatchException', false, null, null);
+    $Ice__t_VersionMismatchException = IcePHP_defineException('::Ice::VersionMismatchException', '\\Ice\\VersionMismatchException', null, null);
 }
 
 namespace Ice
@@ -344,7 +344,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_CommunicatorDestroyedException = IcePHP_defineException('::Ice::CommunicatorDestroyedException', '\\Ice\\CommunicatorDestroyedException', false, null, null);
+    $Ice__t_CommunicatorDestroyedException = IcePHP_defineException('::Ice::CommunicatorDestroyedException', '\\Ice\\CommunicatorDestroyedException', null, null);
 }
 
 namespace Ice
@@ -372,7 +372,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_ObjectAdapterDeactivatedException = IcePHP_defineException('::Ice::ObjectAdapterDeactivatedException', '\\Ice\\ObjectAdapterDeactivatedException', false, null, array(
+    $Ice__t_ObjectAdapterDeactivatedException = IcePHP_defineException('::Ice::ObjectAdapterDeactivatedException', '\\Ice\\ObjectAdapterDeactivatedException', null, array(
         array('name', $IcePHP__t_string, false, 0)));
 }
 
@@ -401,7 +401,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_ObjectAdapterIdInUseException = IcePHP_defineException('::Ice::ObjectAdapterIdInUseException', '\\Ice\\ObjectAdapterIdInUseException', false, null, array(
+    $Ice__t_ObjectAdapterIdInUseException = IcePHP_defineException('::Ice::ObjectAdapterIdInUseException', '\\Ice\\ObjectAdapterIdInUseException', null, array(
         array('id', $IcePHP__t_string, false, 0)));
 }
 
@@ -430,7 +430,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_NoEndpointException = IcePHP_defineException('::Ice::NoEndpointException', '\\Ice\\NoEndpointException', false, null, array(
+    $Ice__t_NoEndpointException = IcePHP_defineException('::Ice::NoEndpointException', '\\Ice\\NoEndpointException', null, array(
         array('proxy', $IcePHP__t_string, false, 0)));
 }
 
@@ -459,7 +459,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_EndpointParseException = IcePHP_defineException('::Ice::EndpointParseException', '\\Ice\\EndpointParseException', false, null, array(
+    $Ice__t_EndpointParseException = IcePHP_defineException('::Ice::EndpointParseException', '\\Ice\\EndpointParseException', null, array(
         array('str', $IcePHP__t_string, false, 0)));
 }
 
@@ -488,7 +488,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_EndpointSelectionTypeParseException = IcePHP_defineException('::Ice::EndpointSelectionTypeParseException', '\\Ice\\EndpointSelectionTypeParseException', false, null, array(
+    $Ice__t_EndpointSelectionTypeParseException = IcePHP_defineException('::Ice::EndpointSelectionTypeParseException', '\\Ice\\EndpointSelectionTypeParseException', null, array(
         array('str', $IcePHP__t_string, false, 0)));
 }
 
@@ -517,7 +517,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_VersionParseException = IcePHP_defineException('::Ice::VersionParseException', '\\Ice\\VersionParseException', false, null, array(
+    $Ice__t_VersionParseException = IcePHP_defineException('::Ice::VersionParseException', '\\Ice\\VersionParseException', null, array(
         array('str', $IcePHP__t_string, false, 0)));
 }
 
@@ -546,7 +546,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_IdentityParseException = IcePHP_defineException('::Ice::IdentityParseException', '\\Ice\\IdentityParseException', false, null, array(
+    $Ice__t_IdentityParseException = IcePHP_defineException('::Ice::IdentityParseException', '\\Ice\\IdentityParseException', null, array(
         array('str', $IcePHP__t_string, false, 0)));
 }
 
@@ -575,7 +575,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_ProxyParseException = IcePHP_defineException('::Ice::ProxyParseException', '\\Ice\\ProxyParseException', false, null, array(
+    $Ice__t_ProxyParseException = IcePHP_defineException('::Ice::ProxyParseException', '\\Ice\\ProxyParseException', null, array(
         array('str', $IcePHP__t_string, false, 0)));
 }
 
@@ -600,7 +600,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_IllegalIdentityException = IcePHP_defineException('::Ice::IllegalIdentityException', '\\Ice\\IllegalIdentityException', false, null, null);
+    $Ice__t_IllegalIdentityException = IcePHP_defineException('::Ice::IllegalIdentityException', '\\Ice\\IllegalIdentityException', null, null);
 }
 
 namespace Ice
@@ -628,7 +628,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_IllegalServantException = IcePHP_defineException('::Ice::IllegalServantException', '\\Ice\\IllegalServantException', false, null, array(
+    $Ice__t_IllegalServantException = IcePHP_defineException('::Ice::IllegalServantException', '\\Ice\\IllegalServantException', null, array(
         array('reason', $IcePHP__t_string, false, 0)));
 }
 
@@ -662,7 +662,7 @@ namespace Ice
     global $Ice__t_Identity;
     global $IcePHP__t_string;
 
-    $Ice__t_RequestFailedException = IcePHP_defineException('::Ice::RequestFailedException', '\\Ice\\RequestFailedException', false, null, array(
+    $Ice__t_RequestFailedException = IcePHP_defineException('::Ice::RequestFailedException', '\\Ice\\RequestFailedException', null, array(
         array('id', $Ice__t_Identity, false, 0),
         array('facet', $IcePHP__t_string, false, 0),
         array('operation', $IcePHP__t_string, false, 0)));
@@ -690,7 +690,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_ObjectNotExistException = IcePHP_defineException('::Ice::ObjectNotExistException', '\\Ice\\ObjectNotExistException', false, $Ice__t_RequestFailedException, null);
+    $Ice__t_ObjectNotExistException = IcePHP_defineException('::Ice::ObjectNotExistException', '\\Ice\\ObjectNotExistException', $Ice__t_RequestFailedException, null);
 }
 
 namespace Ice
@@ -715,7 +715,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_FacetNotExistException = IcePHP_defineException('::Ice::FacetNotExistException', '\\Ice\\FacetNotExistException', false, $Ice__t_RequestFailedException, null);
+    $Ice__t_FacetNotExistException = IcePHP_defineException('::Ice::FacetNotExistException', '\\Ice\\FacetNotExistException', $Ice__t_RequestFailedException, null);
 }
 
 namespace Ice
@@ -740,7 +740,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_OperationNotExistException = IcePHP_defineException('::Ice::OperationNotExistException', '\\Ice\\OperationNotExistException', false, $Ice__t_RequestFailedException, null);
+    $Ice__t_OperationNotExistException = IcePHP_defineException('::Ice::OperationNotExistException', '\\Ice\\OperationNotExistException', $Ice__t_RequestFailedException, null);
 }
 
 namespace Ice
@@ -768,7 +768,7 @@ namespace Ice
     }
     global $IcePHP__t_int;
 
-    $Ice__t_SyscallException = IcePHP_defineException('::Ice::SyscallException', '\\Ice\\SyscallException', false, null, array(
+    $Ice__t_SyscallException = IcePHP_defineException('::Ice::SyscallException', '\\Ice\\SyscallException', null, array(
         array('error', $IcePHP__t_int, false, 0)));
 }
 
@@ -794,7 +794,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_SocketException = IcePHP_defineException('::Ice::SocketException', '\\Ice\\SocketException', false, $Ice__t_SyscallException, null);
+    $Ice__t_SocketException = IcePHP_defineException('::Ice::SocketException', '\\Ice\\SocketException', $Ice__t_SyscallException, null);
 }
 
 namespace Ice
@@ -823,7 +823,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_CFNetworkException = IcePHP_defineException('::Ice::CFNetworkException', '\\Ice\\CFNetworkException', false, $Ice__t_SocketException, array(
+    $Ice__t_CFNetworkException = IcePHP_defineException('::Ice::CFNetworkException', '\\Ice\\CFNetworkException', $Ice__t_SocketException, array(
         array('domain', $IcePHP__t_string, false, 0)));
 }
 
@@ -853,7 +853,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_FileException = IcePHP_defineException('::Ice::FileException', '\\Ice\\FileException', false, $Ice__t_SyscallException, array(
+    $Ice__t_FileException = IcePHP_defineException('::Ice::FileException', '\\Ice\\FileException', $Ice__t_SyscallException, array(
         array('path', $IcePHP__t_string, false, 0)));
 }
 
@@ -879,7 +879,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_ConnectFailedException = IcePHP_defineException('::Ice::ConnectFailedException', '\\Ice\\ConnectFailedException', false, $Ice__t_SocketException, null);
+    $Ice__t_ConnectFailedException = IcePHP_defineException('::Ice::ConnectFailedException', '\\Ice\\ConnectFailedException', $Ice__t_SocketException, null);
 }
 
 namespace Ice
@@ -904,7 +904,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_ConnectionRefusedException = IcePHP_defineException('::Ice::ConnectionRefusedException', '\\Ice\\ConnectionRefusedException', false, $Ice__t_ConnectFailedException, null);
+    $Ice__t_ConnectionRefusedException = IcePHP_defineException('::Ice::ConnectionRefusedException', '\\Ice\\ConnectionRefusedException', $Ice__t_ConnectFailedException, null);
 }
 
 namespace Ice
@@ -929,7 +929,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_ConnectionLostException = IcePHP_defineException('::Ice::ConnectionLostException', '\\Ice\\ConnectionLostException', false, $Ice__t_SocketException, null);
+    $Ice__t_ConnectionLostException = IcePHP_defineException('::Ice::ConnectionLostException', '\\Ice\\ConnectionLostException', $Ice__t_SocketException, null);
 }
 
 namespace Ice
@@ -960,7 +960,7 @@ namespace Ice
     global $IcePHP__t_int;
     global $IcePHP__t_string;
 
-    $Ice__t_DNSException = IcePHP_defineException('::Ice::DNSException', '\\Ice\\DNSException', false, null, array(
+    $Ice__t_DNSException = IcePHP_defineException('::Ice::DNSException', '\\Ice\\DNSException', null, array(
         array('error', $IcePHP__t_int, false, 0),
         array('host', $IcePHP__t_string, false, 0)));
 }
@@ -986,7 +986,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_OperationInterruptedException = IcePHP_defineException('::Ice::OperationInterruptedException', '\\Ice\\OperationInterruptedException', false, null, null);
+    $Ice__t_OperationInterruptedException = IcePHP_defineException('::Ice::OperationInterruptedException', '\\Ice\\OperationInterruptedException', null, null);
 }
 
 namespace Ice
@@ -1010,7 +1010,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_TimeoutException = IcePHP_defineException('::Ice::TimeoutException', '\\Ice\\TimeoutException', false, null, null);
+    $Ice__t_TimeoutException = IcePHP_defineException('::Ice::TimeoutException', '\\Ice\\TimeoutException', null, null);
 }
 
 namespace Ice
@@ -1035,7 +1035,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_ConnectTimeoutException = IcePHP_defineException('::Ice::ConnectTimeoutException', '\\Ice\\ConnectTimeoutException', false, $Ice__t_TimeoutException, null);
+    $Ice__t_ConnectTimeoutException = IcePHP_defineException('::Ice::ConnectTimeoutException', '\\Ice\\ConnectTimeoutException', $Ice__t_TimeoutException, null);
 }
 
 namespace Ice
@@ -1060,7 +1060,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_CloseTimeoutException = IcePHP_defineException('::Ice::CloseTimeoutException', '\\Ice\\CloseTimeoutException', false, $Ice__t_TimeoutException, null);
+    $Ice__t_CloseTimeoutException = IcePHP_defineException('::Ice::CloseTimeoutException', '\\Ice\\CloseTimeoutException', $Ice__t_TimeoutException, null);
 }
 
 namespace Ice
@@ -1085,7 +1085,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_ConnectionTimeoutException = IcePHP_defineException('::Ice::ConnectionTimeoutException', '\\Ice\\ConnectionTimeoutException', false, $Ice__t_TimeoutException, null);
+    $Ice__t_ConnectionTimeoutException = IcePHP_defineException('::Ice::ConnectionTimeoutException', '\\Ice\\ConnectionTimeoutException', $Ice__t_TimeoutException, null);
 }
 
 namespace Ice
@@ -1110,7 +1110,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_InvocationTimeoutException = IcePHP_defineException('::Ice::InvocationTimeoutException', '\\Ice\\InvocationTimeoutException', false, $Ice__t_TimeoutException, null);
+    $Ice__t_InvocationTimeoutException = IcePHP_defineException('::Ice::InvocationTimeoutException', '\\Ice\\InvocationTimeoutException', $Ice__t_TimeoutException, null);
 }
 
 namespace Ice
@@ -1134,7 +1134,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_InvocationCanceledException = IcePHP_defineException('::Ice::InvocationCanceledException', '\\Ice\\InvocationCanceledException', false, null, null);
+    $Ice__t_InvocationCanceledException = IcePHP_defineException('::Ice::InvocationCanceledException', '\\Ice\\InvocationCanceledException', null, null);
 }
 
 namespace Ice
@@ -1162,7 +1162,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_ProtocolException = IcePHP_defineException('::Ice::ProtocolException', '\\Ice\\ProtocolException', false, null, array(
+    $Ice__t_ProtocolException = IcePHP_defineException('::Ice::ProtocolException', '\\Ice\\ProtocolException', null, array(
         array('reason', $IcePHP__t_string, false, 0)));
 }
 
@@ -1192,7 +1192,7 @@ namespace Ice
     }
     global $Ice__t_ByteSeq;
 
-    $Ice__t_BadMagicException = IcePHP_defineException('::Ice::BadMagicException', '\\Ice\\BadMagicException', false, $Ice__t_ProtocolException, array(
+    $Ice__t_BadMagicException = IcePHP_defineException('::Ice::BadMagicException', '\\Ice\\BadMagicException', $Ice__t_ProtocolException, array(
         array('badMagic', $Ice__t_ByteSeq, false, 0)));
 }
 
@@ -1224,7 +1224,7 @@ namespace Ice
     }
     global $Ice__t_ProtocolVersion;
 
-    $Ice__t_UnsupportedProtocolException = IcePHP_defineException('::Ice::UnsupportedProtocolException', '\\Ice\\UnsupportedProtocolException', false, $Ice__t_ProtocolException, array(
+    $Ice__t_UnsupportedProtocolException = IcePHP_defineException('::Ice::UnsupportedProtocolException', '\\Ice\\UnsupportedProtocolException', $Ice__t_ProtocolException, array(
         array('bad', $Ice__t_ProtocolVersion, false, 0),
         array('supported', $Ice__t_ProtocolVersion, false, 0)));
 }
@@ -1257,7 +1257,7 @@ namespace Ice
     }
     global $Ice__t_EncodingVersion;
 
-    $Ice__t_UnsupportedEncodingException = IcePHP_defineException('::Ice::UnsupportedEncodingException', '\\Ice\\UnsupportedEncodingException', false, $Ice__t_ProtocolException, array(
+    $Ice__t_UnsupportedEncodingException = IcePHP_defineException('::Ice::UnsupportedEncodingException', '\\Ice\\UnsupportedEncodingException', $Ice__t_ProtocolException, array(
         array('bad', $Ice__t_EncodingVersion, false, 0),
         array('supported', $Ice__t_EncodingVersion, false, 0)));
 }
@@ -1284,7 +1284,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_UnknownMessageException = IcePHP_defineException('::Ice::UnknownMessageException', '\\Ice\\UnknownMessageException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_UnknownMessageException = IcePHP_defineException('::Ice::UnknownMessageException', '\\Ice\\UnknownMessageException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1309,7 +1309,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_ConnectionNotValidatedException = IcePHP_defineException('::Ice::ConnectionNotValidatedException', '\\Ice\\ConnectionNotValidatedException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_ConnectionNotValidatedException = IcePHP_defineException('::Ice::ConnectionNotValidatedException', '\\Ice\\ConnectionNotValidatedException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1334,7 +1334,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_UnknownRequestIdException = IcePHP_defineException('::Ice::UnknownRequestIdException', '\\Ice\\UnknownRequestIdException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_UnknownRequestIdException = IcePHP_defineException('::Ice::UnknownRequestIdException', '\\Ice\\UnknownRequestIdException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1359,7 +1359,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_UnknownReplyStatusException = IcePHP_defineException('::Ice::UnknownReplyStatusException', '\\Ice\\UnknownReplyStatusException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_UnknownReplyStatusException = IcePHP_defineException('::Ice::UnknownReplyStatusException', '\\Ice\\UnknownReplyStatusException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1384,7 +1384,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_CloseConnectionException = IcePHP_defineException('::Ice::CloseConnectionException', '\\Ice\\CloseConnectionException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_CloseConnectionException = IcePHP_defineException('::Ice::CloseConnectionException', '\\Ice\\CloseConnectionException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1412,7 +1412,7 @@ namespace Ice
     }
     global $IcePHP__t_bool;
 
-    $Ice__t_ConnectionManuallyClosedException = IcePHP_defineException('::Ice::ConnectionManuallyClosedException', '\\Ice\\ConnectionManuallyClosedException', false, null, array(
+    $Ice__t_ConnectionManuallyClosedException = IcePHP_defineException('::Ice::ConnectionManuallyClosedException', '\\Ice\\ConnectionManuallyClosedException', null, array(
         array('graceful', $IcePHP__t_bool, false, 0)));
 }
 
@@ -1438,7 +1438,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_IllegalMessageSizeException = IcePHP_defineException('::Ice::IllegalMessageSizeException', '\\Ice\\IllegalMessageSizeException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_IllegalMessageSizeException = IcePHP_defineException('::Ice::IllegalMessageSizeException', '\\Ice\\IllegalMessageSizeException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1463,7 +1463,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_CompressionException = IcePHP_defineException('::Ice::CompressionException', '\\Ice\\CompressionException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_CompressionException = IcePHP_defineException('::Ice::CompressionException', '\\Ice\\CompressionException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1488,7 +1488,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_DatagramLimitException = IcePHP_defineException('::Ice::DatagramLimitException', '\\Ice\\DatagramLimitException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_DatagramLimitException = IcePHP_defineException('::Ice::DatagramLimitException', '\\Ice\\DatagramLimitException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1513,7 +1513,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_MarshalException = IcePHP_defineException('::Ice::MarshalException', '\\Ice\\MarshalException', false, $Ice__t_ProtocolException, null);
+    $Ice__t_MarshalException = IcePHP_defineException('::Ice::MarshalException', '\\Ice\\MarshalException', $Ice__t_ProtocolException, null);
 }
 
 namespace Ice
@@ -1538,7 +1538,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_ProxyUnmarshalException = IcePHP_defineException('::Ice::ProxyUnmarshalException', '\\Ice\\ProxyUnmarshalException', false, $Ice__t_MarshalException, null);
+    $Ice__t_ProxyUnmarshalException = IcePHP_defineException('::Ice::ProxyUnmarshalException', '\\Ice\\ProxyUnmarshalException', $Ice__t_MarshalException, null);
 }
 
 namespace Ice
@@ -1563,7 +1563,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_UnmarshalOutOfBoundsException = IcePHP_defineException('::Ice::UnmarshalOutOfBoundsException', '\\Ice\\UnmarshalOutOfBoundsException', false, $Ice__t_MarshalException, null);
+    $Ice__t_UnmarshalOutOfBoundsException = IcePHP_defineException('::Ice::UnmarshalOutOfBoundsException', '\\Ice\\UnmarshalOutOfBoundsException', $Ice__t_MarshalException, null);
 }
 
 namespace Ice
@@ -1592,7 +1592,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_NoValueFactoryException = IcePHP_defineException('::Ice::NoValueFactoryException', '\\Ice\\NoValueFactoryException', false, $Ice__t_MarshalException, array(
+    $Ice__t_NoValueFactoryException = IcePHP_defineException('::Ice::NoValueFactoryException', '\\Ice\\NoValueFactoryException', $Ice__t_MarshalException, array(
         array('type', $IcePHP__t_string, false, 0)));
 }
 
@@ -1624,7 +1624,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_UnexpectedObjectException = IcePHP_defineException('::Ice::UnexpectedObjectException', '\\Ice\\UnexpectedObjectException', false, $Ice__t_MarshalException, array(
+    $Ice__t_UnexpectedObjectException = IcePHP_defineException('::Ice::UnexpectedObjectException', '\\Ice\\UnexpectedObjectException', $Ice__t_MarshalException, array(
         array('type', $IcePHP__t_string, false, 0),
         array('expectedType', $IcePHP__t_string, false, 0)));
 }
@@ -1651,7 +1651,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_MemoryLimitException = IcePHP_defineException('::Ice::MemoryLimitException', '\\Ice\\MemoryLimitException', false, $Ice__t_MarshalException, null);
+    $Ice__t_MemoryLimitException = IcePHP_defineException('::Ice::MemoryLimitException', '\\Ice\\MemoryLimitException', $Ice__t_MarshalException, null);
 }
 
 namespace Ice
@@ -1676,7 +1676,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_StringConversionException = IcePHP_defineException('::Ice::StringConversionException', '\\Ice\\StringConversionException', false, $Ice__t_MarshalException, null);
+    $Ice__t_StringConversionException = IcePHP_defineException('::Ice::StringConversionException', '\\Ice\\StringConversionException', $Ice__t_MarshalException, null);
 }
 
 namespace Ice
@@ -1701,7 +1701,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_EncapsulationException = IcePHP_defineException('::Ice::EncapsulationException', '\\Ice\\EncapsulationException', false, $Ice__t_MarshalException, null);
+    $Ice__t_EncapsulationException = IcePHP_defineException('::Ice::EncapsulationException', '\\Ice\\EncapsulationException', $Ice__t_MarshalException, null);
 }
 
 namespace Ice
@@ -1729,7 +1729,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_FeatureNotSupportedException = IcePHP_defineException('::Ice::FeatureNotSupportedException', '\\Ice\\FeatureNotSupportedException', false, null, array(
+    $Ice__t_FeatureNotSupportedException = IcePHP_defineException('::Ice::FeatureNotSupportedException', '\\Ice\\FeatureNotSupportedException', null, array(
         array('unsupportedFeature', $IcePHP__t_string, false, 0)));
 }
 
@@ -1758,7 +1758,7 @@ namespace Ice
     }
     global $IcePHP__t_string;
 
-    $Ice__t_SecurityException = IcePHP_defineException('::Ice::SecurityException', '\\Ice\\SecurityException', false, null, array(
+    $Ice__t_SecurityException = IcePHP_defineException('::Ice::SecurityException', '\\Ice\\SecurityException', null, array(
         array('reason', $IcePHP__t_string, false, 0)));
 }
 
@@ -1783,7 +1783,7 @@ namespace Ice
         }
     }
 
-    $Ice__t_FixedProxyException = IcePHP_defineException('::Ice::FixedProxyException', '\\Ice\\FixedProxyException', false, null, null);
+    $Ice__t_FixedProxyException = IcePHP_defineException('::Ice::FixedProxyException', '\\Ice\\FixedProxyException', null, null);
 }
 
 namespace Ice
@@ -1807,6 +1807,6 @@ namespace Ice
         }
     }
 
-    $Ice__t_ResponseSentException = IcePHP_defineException('::Ice::ResponseSentException', '\\Ice\\ResponseSentException', false, null, null);
+    $Ice__t_ResponseSentException = IcePHP_defineException('::Ice::ResponseSentException', '\\Ice\\ResponseSentException', null, null);
 }
 ?>

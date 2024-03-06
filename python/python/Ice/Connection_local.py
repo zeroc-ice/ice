@@ -98,7 +98,6 @@ if "ConnectionInfo" not in _M_Ice.__dict__:
         -1,
         (),
         False,
-        False,
         None,
         (
             ("underlying", (), _M_Ice._t_ConnectionInfo, False, 0),
@@ -142,7 +141,7 @@ if "CloseCallback" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_CloseCallback = IcePy.defineValue(
-        "::Ice::CloseCallback", CloseCallback, -1, (), False, True, None, ()
+        "::Ice::CloseCallback", CloseCallback, -1, (), True, None, ()
     )
     CloseCallback._ice_type = _M_Ice._t_CloseCallback
 
@@ -176,7 +175,7 @@ if "HeartbeatCallback" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_HeartbeatCallback = IcePy.defineValue(
-        "::Ice::HeartbeatCallback", HeartbeatCallback, -1, (), False, True, None, ()
+        "::Ice::HeartbeatCallback", HeartbeatCallback, -1, (), True, None, ()
     )
     HeartbeatCallback._ice_type = _M_Ice._t_HeartbeatCallback
 
@@ -591,7 +590,7 @@ if "Connection" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_Connection = IcePy.defineValue(
-        "::Ice::Connection", Connection, -1, (), False, True, None, ()
+        "::Ice::Connection", Connection, -1, (), True, None, ()
     )
     Connection._ice_type = _M_Ice._t_Connection
 
@@ -642,7 +641,6 @@ if "IPConnectionInfo" not in _M_Ice.__dict__:
         IPConnectionInfo,
         -1,
         (),
-        False,
         False,
         _M_Ice._t_ConnectionInfo,
         (
@@ -707,7 +705,6 @@ if "TCPConnectionInfo" not in _M_Ice.__dict__:
         TCPConnectionInfo,
         -1,
         (),
-        False,
         False,
         _M_Ice._t_IPConnectionInfo,
         (
@@ -777,7 +774,6 @@ if "UDPConnectionInfo" not in _M_Ice.__dict__:
         -1,
         (),
         False,
-        False,
         _M_Ice._t_IPConnectionInfo,
         (
             ("mcastAddress", (), IcePy._t_string, False, 0),
@@ -831,7 +827,6 @@ if "WSConnectionInfo" not in _M_Ice.__dict__:
         WSConnectionInfo,
         -1,
         (),
-        False,
         False,
         _M_Ice._t_ConnectionInfo,
         (("headers", (), _M_Ice._t_HeaderDict, False, 0),),

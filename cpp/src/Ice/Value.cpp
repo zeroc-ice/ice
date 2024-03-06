@@ -25,7 +25,7 @@ Ice::Value::ice_postUnmarshal()
 void
 Ice::Value::_iceWrite(Ice::OutputStream* os) const
 {
-    os->startValue(0);
+    os->startValue(_slicedData);
     _iceWriteImpl(os);
     os->endValue();
 }
@@ -35,7 +35,7 @@ Ice::Value::_iceRead(Ice::InputStream* is)
 {
    is->startValue();
    _iceReadImpl(is);
-   is->endValue(false);
+   _slicedData = is->endValue();
 }
 
 string
@@ -54,7 +54,7 @@ Ice::Value::ice_staticId()
 SlicedDataPtr
 Ice::Value::ice_getSlicedData() const
 {
-    return nullptr;
+    return _slicedData;
 }
 
 std::shared_ptr<Ice::Value>

@@ -34,7 +34,7 @@ module ::Ice
             attr_accessor :reason
         end
 
-        T_InitializationException = ::Ice::__defineException('::Ice::InitializationException', InitializationException, false, nil, [["reason", ::Ice::T_string, false, 0]])
+        T_InitializationException = ::Ice::__defineException('::Ice::InitializationException', InitializationException, nil, [["reason", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::PluginInitializationException)
@@ -50,7 +50,7 @@ module ::Ice
             attr_accessor :reason
         end
 
-        T_PluginInitializationException = ::Ice::__defineException('::Ice::PluginInitializationException', PluginInitializationException, false, nil, [["reason", ::Ice::T_string, false, 0]])
+        T_PluginInitializationException = ::Ice::__defineException('::Ice::PluginInitializationException', PluginInitializationException, nil, [["reason", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::CollocationOptimizationException)
@@ -63,7 +63,7 @@ module ::Ice
             end
         end
 
-        T_CollocationOptimizationException = ::Ice::__defineException('::Ice::CollocationOptimizationException', CollocationOptimizationException, false, nil, [])
+        T_CollocationOptimizationException = ::Ice::__defineException('::Ice::CollocationOptimizationException', CollocationOptimizationException, nil, [])
     end
 
     if not defined?(::Ice::AlreadyRegisteredException)
@@ -80,7 +80,7 @@ module ::Ice
             attr_accessor :kindOfObject, :id
         end
 
-        T_AlreadyRegisteredException = ::Ice::__defineException('::Ice::AlreadyRegisteredException', AlreadyRegisteredException, false, nil, [
+        T_AlreadyRegisteredException = ::Ice::__defineException('::Ice::AlreadyRegisteredException', AlreadyRegisteredException, nil, [
             ["kindOfObject", ::Ice::T_string, false, 0],
             ["id", ::Ice::T_string, false, 0]
         ])
@@ -100,7 +100,7 @@ module ::Ice
             attr_accessor :kindOfObject, :id
         end
 
-        T_NotRegisteredException = ::Ice::__defineException('::Ice::NotRegisteredException', NotRegisteredException, false, nil, [
+        T_NotRegisteredException = ::Ice::__defineException('::Ice::NotRegisteredException', NotRegisteredException, nil, [
             ["kindOfObject", ::Ice::T_string, false, 0],
             ["id", ::Ice::T_string, false, 0]
         ])
@@ -119,7 +119,7 @@ module ::Ice
             attr_accessor :operation
         end
 
-        T_TwowayOnlyException = ::Ice::__defineException('::Ice::TwowayOnlyException', TwowayOnlyException, false, nil, [["operation", ::Ice::T_string, false, 0]])
+        T_TwowayOnlyException = ::Ice::__defineException('::Ice::TwowayOnlyException', TwowayOnlyException, nil, [["operation", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::CloneNotImplementedException)
@@ -132,7 +132,7 @@ module ::Ice
             end
         end
 
-        T_CloneNotImplementedException = ::Ice::__defineException('::Ice::CloneNotImplementedException', CloneNotImplementedException, false, nil, [])
+        T_CloneNotImplementedException = ::Ice::__defineException('::Ice::CloneNotImplementedException', CloneNotImplementedException, nil, [])
     end
 
     if not defined?(::Ice::UnknownException)
@@ -148,7 +148,7 @@ module ::Ice
             attr_accessor :unknown
         end
 
-        T_UnknownException = ::Ice::__defineException('::Ice::UnknownException', UnknownException, false, nil, [["unknown", ::Ice::T_string, false, 0]])
+        T_UnknownException = ::Ice::__defineException('::Ice::UnknownException', UnknownException, nil, [["unknown", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::UnknownLocalException)
@@ -162,7 +162,7 @@ module ::Ice
             end
         end
 
-        T_UnknownLocalException = ::Ice::__defineException('::Ice::UnknownLocalException', UnknownLocalException, false, ::Ice::T_UnknownException, [])
+        T_UnknownLocalException = ::Ice::__defineException('::Ice::UnknownLocalException', UnknownLocalException, ::Ice::T_UnknownException, [])
     end
 
     if not defined?(::Ice::UnknownUserException)
@@ -176,7 +176,7 @@ module ::Ice
             end
         end
 
-        T_UnknownUserException = ::Ice::__defineException('::Ice::UnknownUserException', UnknownUserException, false, ::Ice::T_UnknownException, [])
+        T_UnknownUserException = ::Ice::__defineException('::Ice::UnknownUserException', UnknownUserException, ::Ice::T_UnknownException, [])
     end
 
     if not defined?(::Ice::VersionMismatchException)
@@ -189,7 +189,7 @@ module ::Ice
             end
         end
 
-        T_VersionMismatchException = ::Ice::__defineException('::Ice::VersionMismatchException', VersionMismatchException, false, nil, [])
+        T_VersionMismatchException = ::Ice::__defineException('::Ice::VersionMismatchException', VersionMismatchException, nil, [])
     end
 
     if not defined?(::Ice::CommunicatorDestroyedException)
@@ -202,7 +202,7 @@ module ::Ice
             end
         end
 
-        T_CommunicatorDestroyedException = ::Ice::__defineException('::Ice::CommunicatorDestroyedException', CommunicatorDestroyedException, false, nil, [])
+        T_CommunicatorDestroyedException = ::Ice::__defineException('::Ice::CommunicatorDestroyedException', CommunicatorDestroyedException, nil, [])
     end
 
     if not defined?(::Ice::ObjectAdapterDeactivatedException)
@@ -218,7 +218,7 @@ module ::Ice
             attr_accessor :name
         end
 
-        T_ObjectAdapterDeactivatedException = ::Ice::__defineException('::Ice::ObjectAdapterDeactivatedException', ObjectAdapterDeactivatedException, false, nil, [["name", ::Ice::T_string, false, 0]])
+        T_ObjectAdapterDeactivatedException = ::Ice::__defineException('::Ice::ObjectAdapterDeactivatedException', ObjectAdapterDeactivatedException, nil, [["name", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::ObjectAdapterIdInUseException)
@@ -234,7 +234,7 @@ module ::Ice
             attr_accessor :id
         end
 
-        T_ObjectAdapterIdInUseException = ::Ice::__defineException('::Ice::ObjectAdapterIdInUseException', ObjectAdapterIdInUseException, false, nil, [["id", ::Ice::T_string, false, 0]])
+        T_ObjectAdapterIdInUseException = ::Ice::__defineException('::Ice::ObjectAdapterIdInUseException', ObjectAdapterIdInUseException, nil, [["id", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::NoEndpointException)
@@ -250,7 +250,7 @@ module ::Ice
             attr_accessor :proxy
         end
 
-        T_NoEndpointException = ::Ice::__defineException('::Ice::NoEndpointException', NoEndpointException, false, nil, [["proxy", ::Ice::T_string, false, 0]])
+        T_NoEndpointException = ::Ice::__defineException('::Ice::NoEndpointException', NoEndpointException, nil, [["proxy", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::EndpointParseException)
@@ -266,7 +266,7 @@ module ::Ice
             attr_accessor :str
         end
 
-        T_EndpointParseException = ::Ice::__defineException('::Ice::EndpointParseException', EndpointParseException, false, nil, [["str", ::Ice::T_string, false, 0]])
+        T_EndpointParseException = ::Ice::__defineException('::Ice::EndpointParseException', EndpointParseException, nil, [["str", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::EndpointSelectionTypeParseException)
@@ -282,7 +282,7 @@ module ::Ice
             attr_accessor :str
         end
 
-        T_EndpointSelectionTypeParseException = ::Ice::__defineException('::Ice::EndpointSelectionTypeParseException', EndpointSelectionTypeParseException, false, nil, [["str", ::Ice::T_string, false, 0]])
+        T_EndpointSelectionTypeParseException = ::Ice::__defineException('::Ice::EndpointSelectionTypeParseException', EndpointSelectionTypeParseException, nil, [["str", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::VersionParseException)
@@ -298,7 +298,7 @@ module ::Ice
             attr_accessor :str
         end
 
-        T_VersionParseException = ::Ice::__defineException('::Ice::VersionParseException', VersionParseException, false, nil, [["str", ::Ice::T_string, false, 0]])
+        T_VersionParseException = ::Ice::__defineException('::Ice::VersionParseException', VersionParseException, nil, [["str", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::IdentityParseException)
@@ -314,7 +314,7 @@ module ::Ice
             attr_accessor :str
         end
 
-        T_IdentityParseException = ::Ice::__defineException('::Ice::IdentityParseException', IdentityParseException, false, nil, [["str", ::Ice::T_string, false, 0]])
+        T_IdentityParseException = ::Ice::__defineException('::Ice::IdentityParseException', IdentityParseException, nil, [["str", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::ProxyParseException)
@@ -330,7 +330,7 @@ module ::Ice
             attr_accessor :str
         end
 
-        T_ProxyParseException = ::Ice::__defineException('::Ice::ProxyParseException', ProxyParseException, false, nil, [["str", ::Ice::T_string, false, 0]])
+        T_ProxyParseException = ::Ice::__defineException('::Ice::ProxyParseException', ProxyParseException, nil, [["str", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::IllegalIdentityException)
@@ -343,7 +343,7 @@ module ::Ice
             end
         end
 
-        T_IllegalIdentityException = ::Ice::__defineException('::Ice::IllegalIdentityException', IllegalIdentityException, false, nil, [])
+        T_IllegalIdentityException = ::Ice::__defineException('::Ice::IllegalIdentityException', IllegalIdentityException, nil, [])
     end
 
     if not defined?(::Ice::IllegalServantException)
@@ -359,7 +359,7 @@ module ::Ice
             attr_accessor :reason
         end
 
-        T_IllegalServantException = ::Ice::__defineException('::Ice::IllegalServantException', IllegalServantException, false, nil, [["reason", ::Ice::T_string, false, 0]])
+        T_IllegalServantException = ::Ice::__defineException('::Ice::IllegalServantException', IllegalServantException, nil, [["reason", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::RequestFailedException)
@@ -377,7 +377,7 @@ module ::Ice
             attr_accessor :id, :facet, :operation
         end
 
-        T_RequestFailedException = ::Ice::__defineException('::Ice::RequestFailedException', RequestFailedException, false, nil, [
+        T_RequestFailedException = ::Ice::__defineException('::Ice::RequestFailedException', RequestFailedException, nil, [
             ["id", ::Ice::T_Identity, false, 0],
             ["facet", ::Ice::T_string, false, 0],
             ["operation", ::Ice::T_string, false, 0]
@@ -395,7 +395,7 @@ module ::Ice
             end
         end
 
-        T_ObjectNotExistException = ::Ice::__defineException('::Ice::ObjectNotExistException', ObjectNotExistException, false, ::Ice::T_RequestFailedException, [])
+        T_ObjectNotExistException = ::Ice::__defineException('::Ice::ObjectNotExistException', ObjectNotExistException, ::Ice::T_RequestFailedException, [])
     end
 
     if not defined?(::Ice::FacetNotExistException)
@@ -409,7 +409,7 @@ module ::Ice
             end
         end
 
-        T_FacetNotExistException = ::Ice::__defineException('::Ice::FacetNotExistException', FacetNotExistException, false, ::Ice::T_RequestFailedException, [])
+        T_FacetNotExistException = ::Ice::__defineException('::Ice::FacetNotExistException', FacetNotExistException, ::Ice::T_RequestFailedException, [])
     end
 
     if not defined?(::Ice::OperationNotExistException)
@@ -423,7 +423,7 @@ module ::Ice
             end
         end
 
-        T_OperationNotExistException = ::Ice::__defineException('::Ice::OperationNotExistException', OperationNotExistException, false, ::Ice::T_RequestFailedException, [])
+        T_OperationNotExistException = ::Ice::__defineException('::Ice::OperationNotExistException', OperationNotExistException, ::Ice::T_RequestFailedException, [])
     end
 
     if not defined?(::Ice::SyscallException)
@@ -439,7 +439,7 @@ module ::Ice
             attr_accessor :error
         end
 
-        T_SyscallException = ::Ice::__defineException('::Ice::SyscallException', SyscallException, false, nil, [["error", ::Ice::T_int, false, 0]])
+        T_SyscallException = ::Ice::__defineException('::Ice::SyscallException', SyscallException, nil, [["error", ::Ice::T_int, false, 0]])
     end
 
     if not defined?(::Ice::SocketException)
@@ -453,7 +453,7 @@ module ::Ice
             end
         end
 
-        T_SocketException = ::Ice::__defineException('::Ice::SocketException', SocketException, false, ::Ice::T_SyscallException, [])
+        T_SocketException = ::Ice::__defineException('::Ice::SocketException', SocketException, ::Ice::T_SyscallException, [])
     end
 
     if not defined?(::Ice::CFNetworkException)
@@ -470,7 +470,7 @@ module ::Ice
             attr_accessor :domain
         end
 
-        T_CFNetworkException = ::Ice::__defineException('::Ice::CFNetworkException', CFNetworkException, false, ::Ice::T_SocketException, [["domain", ::Ice::T_string, false, 0]])
+        T_CFNetworkException = ::Ice::__defineException('::Ice::CFNetworkException', CFNetworkException, ::Ice::T_SocketException, [["domain", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::FileException)
@@ -487,7 +487,7 @@ module ::Ice
             attr_accessor :path
         end
 
-        T_FileException = ::Ice::__defineException('::Ice::FileException', FileException, false, ::Ice::T_SyscallException, [["path", ::Ice::T_string, false, 0]])
+        T_FileException = ::Ice::__defineException('::Ice::FileException', FileException, ::Ice::T_SyscallException, [["path", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::ConnectFailedException)
@@ -501,7 +501,7 @@ module ::Ice
             end
         end
 
-        T_ConnectFailedException = ::Ice::__defineException('::Ice::ConnectFailedException', ConnectFailedException, false, ::Ice::T_SocketException, [])
+        T_ConnectFailedException = ::Ice::__defineException('::Ice::ConnectFailedException', ConnectFailedException, ::Ice::T_SocketException, [])
     end
 
     if not defined?(::Ice::ConnectionRefusedException)
@@ -515,7 +515,7 @@ module ::Ice
             end
         end
 
-        T_ConnectionRefusedException = ::Ice::__defineException('::Ice::ConnectionRefusedException', ConnectionRefusedException, false, ::Ice::T_ConnectFailedException, [])
+        T_ConnectionRefusedException = ::Ice::__defineException('::Ice::ConnectionRefusedException', ConnectionRefusedException, ::Ice::T_ConnectFailedException, [])
     end
 
     if not defined?(::Ice::ConnectionLostException)
@@ -529,7 +529,7 @@ module ::Ice
             end
         end
 
-        T_ConnectionLostException = ::Ice::__defineException('::Ice::ConnectionLostException', ConnectionLostException, false, ::Ice::T_SocketException, [])
+        T_ConnectionLostException = ::Ice::__defineException('::Ice::ConnectionLostException', ConnectionLostException, ::Ice::T_SocketException, [])
     end
 
     if not defined?(::Ice::DNSException)
@@ -546,7 +546,7 @@ module ::Ice
             attr_accessor :error, :host
         end
 
-        T_DNSException = ::Ice::__defineException('::Ice::DNSException', DNSException, false, nil, [
+        T_DNSException = ::Ice::__defineException('::Ice::DNSException', DNSException, nil, [
             ["error", ::Ice::T_int, false, 0],
             ["host", ::Ice::T_string, false, 0]
         ])
@@ -562,7 +562,7 @@ module ::Ice
             end
         end
 
-        T_OperationInterruptedException = ::Ice::__defineException('::Ice::OperationInterruptedException', OperationInterruptedException, false, nil, [])
+        T_OperationInterruptedException = ::Ice::__defineException('::Ice::OperationInterruptedException', OperationInterruptedException, nil, [])
     end
 
     if not defined?(::Ice::TimeoutException)
@@ -575,7 +575,7 @@ module ::Ice
             end
         end
 
-        T_TimeoutException = ::Ice::__defineException('::Ice::TimeoutException', TimeoutException, false, nil, [])
+        T_TimeoutException = ::Ice::__defineException('::Ice::TimeoutException', TimeoutException, nil, [])
     end
 
     if not defined?(::Ice::ConnectTimeoutException)
@@ -588,7 +588,7 @@ module ::Ice
             end
         end
 
-        T_ConnectTimeoutException = ::Ice::__defineException('::Ice::ConnectTimeoutException', ConnectTimeoutException, false, ::Ice::T_TimeoutException, [])
+        T_ConnectTimeoutException = ::Ice::__defineException('::Ice::ConnectTimeoutException', ConnectTimeoutException, ::Ice::T_TimeoutException, [])
     end
 
     if not defined?(::Ice::CloseTimeoutException)
@@ -601,7 +601,7 @@ module ::Ice
             end
         end
 
-        T_CloseTimeoutException = ::Ice::__defineException('::Ice::CloseTimeoutException', CloseTimeoutException, false, ::Ice::T_TimeoutException, [])
+        T_CloseTimeoutException = ::Ice::__defineException('::Ice::CloseTimeoutException', CloseTimeoutException, ::Ice::T_TimeoutException, [])
     end
 
     if not defined?(::Ice::ConnectionTimeoutException)
@@ -614,7 +614,7 @@ module ::Ice
             end
         end
 
-        T_ConnectionTimeoutException = ::Ice::__defineException('::Ice::ConnectionTimeoutException', ConnectionTimeoutException, false, ::Ice::T_TimeoutException, [])
+        T_ConnectionTimeoutException = ::Ice::__defineException('::Ice::ConnectionTimeoutException', ConnectionTimeoutException, ::Ice::T_TimeoutException, [])
     end
 
     if not defined?(::Ice::InvocationTimeoutException)
@@ -627,7 +627,7 @@ module ::Ice
             end
         end
 
-        T_InvocationTimeoutException = ::Ice::__defineException('::Ice::InvocationTimeoutException', InvocationTimeoutException, false, ::Ice::T_TimeoutException, [])
+        T_InvocationTimeoutException = ::Ice::__defineException('::Ice::InvocationTimeoutException', InvocationTimeoutException, ::Ice::T_TimeoutException, [])
     end
 
     if not defined?(::Ice::InvocationCanceledException)
@@ -640,7 +640,7 @@ module ::Ice
             end
         end
 
-        T_InvocationCanceledException = ::Ice::__defineException('::Ice::InvocationCanceledException', InvocationCanceledException, false, nil, [])
+        T_InvocationCanceledException = ::Ice::__defineException('::Ice::InvocationCanceledException', InvocationCanceledException, nil, [])
     end
 
     if not defined?(::Ice::ProtocolException)
@@ -656,7 +656,7 @@ module ::Ice
             attr_accessor :reason
         end
 
-        T_ProtocolException = ::Ice::__defineException('::Ice::ProtocolException', ProtocolException, false, nil, [["reason", ::Ice::T_string, false, 0]])
+        T_ProtocolException = ::Ice::__defineException('::Ice::ProtocolException', ProtocolException, nil, [["reason", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::BadMagicException)
@@ -673,7 +673,7 @@ module ::Ice
             attr_accessor :badMagic
         end
 
-        T_BadMagicException = ::Ice::__defineException('::Ice::BadMagicException', BadMagicException, false, ::Ice::T_ProtocolException, [["badMagic", ::Ice::T_ByteSeq, false, 0]])
+        T_BadMagicException = ::Ice::__defineException('::Ice::BadMagicException', BadMagicException, ::Ice::T_ProtocolException, [["badMagic", ::Ice::T_ByteSeq, false, 0]])
     end
 
     if not defined?(::Ice::UnsupportedProtocolException)
@@ -691,7 +691,7 @@ module ::Ice
             attr_accessor :bad, :supported
         end
 
-        T_UnsupportedProtocolException = ::Ice::__defineException('::Ice::UnsupportedProtocolException', UnsupportedProtocolException, false, ::Ice::T_ProtocolException, [
+        T_UnsupportedProtocolException = ::Ice::__defineException('::Ice::UnsupportedProtocolException', UnsupportedProtocolException, ::Ice::T_ProtocolException, [
             ["bad", ::Ice::T_ProtocolVersion, false, 0],
             ["supported", ::Ice::T_ProtocolVersion, false, 0]
         ])
@@ -712,7 +712,7 @@ module ::Ice
             attr_accessor :bad, :supported
         end
 
-        T_UnsupportedEncodingException = ::Ice::__defineException('::Ice::UnsupportedEncodingException', UnsupportedEncodingException, false, ::Ice::T_ProtocolException, [
+        T_UnsupportedEncodingException = ::Ice::__defineException('::Ice::UnsupportedEncodingException', UnsupportedEncodingException, ::Ice::T_ProtocolException, [
             ["bad", ::Ice::T_EncodingVersion, false, 0],
             ["supported", ::Ice::T_EncodingVersion, false, 0]
         ])
@@ -729,7 +729,7 @@ module ::Ice
             end
         end
 
-        T_UnknownMessageException = ::Ice::__defineException('::Ice::UnknownMessageException', UnknownMessageException, false, ::Ice::T_ProtocolException, [])
+        T_UnknownMessageException = ::Ice::__defineException('::Ice::UnknownMessageException', UnknownMessageException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::ConnectionNotValidatedException)
@@ -743,7 +743,7 @@ module ::Ice
             end
         end
 
-        T_ConnectionNotValidatedException = ::Ice::__defineException('::Ice::ConnectionNotValidatedException', ConnectionNotValidatedException, false, ::Ice::T_ProtocolException, [])
+        T_ConnectionNotValidatedException = ::Ice::__defineException('::Ice::ConnectionNotValidatedException', ConnectionNotValidatedException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::UnknownRequestIdException)
@@ -757,7 +757,7 @@ module ::Ice
             end
         end
 
-        T_UnknownRequestIdException = ::Ice::__defineException('::Ice::UnknownRequestIdException', UnknownRequestIdException, false, ::Ice::T_ProtocolException, [])
+        T_UnknownRequestIdException = ::Ice::__defineException('::Ice::UnknownRequestIdException', UnknownRequestIdException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::UnknownReplyStatusException)
@@ -771,7 +771,7 @@ module ::Ice
             end
         end
 
-        T_UnknownReplyStatusException = ::Ice::__defineException('::Ice::UnknownReplyStatusException', UnknownReplyStatusException, false, ::Ice::T_ProtocolException, [])
+        T_UnknownReplyStatusException = ::Ice::__defineException('::Ice::UnknownReplyStatusException', UnknownReplyStatusException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::CloseConnectionException)
@@ -785,7 +785,7 @@ module ::Ice
             end
         end
 
-        T_CloseConnectionException = ::Ice::__defineException('::Ice::CloseConnectionException', CloseConnectionException, false, ::Ice::T_ProtocolException, [])
+        T_CloseConnectionException = ::Ice::__defineException('::Ice::CloseConnectionException', CloseConnectionException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::ConnectionManuallyClosedException)
@@ -801,7 +801,7 @@ module ::Ice
             attr_accessor :graceful
         end
 
-        T_ConnectionManuallyClosedException = ::Ice::__defineException('::Ice::ConnectionManuallyClosedException', ConnectionManuallyClosedException, false, nil, [["graceful", ::Ice::T_bool, false, 0]])
+        T_ConnectionManuallyClosedException = ::Ice::__defineException('::Ice::ConnectionManuallyClosedException', ConnectionManuallyClosedException, nil, [["graceful", ::Ice::T_bool, false, 0]])
     end
 
     if not defined?(::Ice::IllegalMessageSizeException)
@@ -815,7 +815,7 @@ module ::Ice
             end
         end
 
-        T_IllegalMessageSizeException = ::Ice::__defineException('::Ice::IllegalMessageSizeException', IllegalMessageSizeException, false, ::Ice::T_ProtocolException, [])
+        T_IllegalMessageSizeException = ::Ice::__defineException('::Ice::IllegalMessageSizeException', IllegalMessageSizeException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::CompressionException)
@@ -829,7 +829,7 @@ module ::Ice
             end
         end
 
-        T_CompressionException = ::Ice::__defineException('::Ice::CompressionException', CompressionException, false, ::Ice::T_ProtocolException, [])
+        T_CompressionException = ::Ice::__defineException('::Ice::CompressionException', CompressionException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::DatagramLimitException)
@@ -843,7 +843,7 @@ module ::Ice
             end
         end
 
-        T_DatagramLimitException = ::Ice::__defineException('::Ice::DatagramLimitException', DatagramLimitException, false, ::Ice::T_ProtocolException, [])
+        T_DatagramLimitException = ::Ice::__defineException('::Ice::DatagramLimitException', DatagramLimitException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::MarshalException)
@@ -857,7 +857,7 @@ module ::Ice
             end
         end
 
-        T_MarshalException = ::Ice::__defineException('::Ice::MarshalException', MarshalException, false, ::Ice::T_ProtocolException, [])
+        T_MarshalException = ::Ice::__defineException('::Ice::MarshalException', MarshalException, ::Ice::T_ProtocolException, [])
     end
 
     if not defined?(::Ice::ProxyUnmarshalException)
@@ -871,7 +871,7 @@ module ::Ice
             end
         end
 
-        T_ProxyUnmarshalException = ::Ice::__defineException('::Ice::ProxyUnmarshalException', ProxyUnmarshalException, false, ::Ice::T_MarshalException, [])
+        T_ProxyUnmarshalException = ::Ice::__defineException('::Ice::ProxyUnmarshalException', ProxyUnmarshalException, ::Ice::T_MarshalException, [])
     end
 
     if not defined?(::Ice::UnmarshalOutOfBoundsException)
@@ -885,7 +885,7 @@ module ::Ice
             end
         end
 
-        T_UnmarshalOutOfBoundsException = ::Ice::__defineException('::Ice::UnmarshalOutOfBoundsException', UnmarshalOutOfBoundsException, false, ::Ice::T_MarshalException, [])
+        T_UnmarshalOutOfBoundsException = ::Ice::__defineException('::Ice::UnmarshalOutOfBoundsException', UnmarshalOutOfBoundsException, ::Ice::T_MarshalException, [])
     end
 
     if not defined?(::Ice::NoValueFactoryException)
@@ -902,7 +902,7 @@ module ::Ice
             attr_accessor :type
         end
 
-        T_NoValueFactoryException = ::Ice::__defineException('::Ice::NoValueFactoryException', NoValueFactoryException, false, ::Ice::T_MarshalException, [["type", ::Ice::T_string, false, 0]])
+        T_NoValueFactoryException = ::Ice::__defineException('::Ice::NoValueFactoryException', NoValueFactoryException, ::Ice::T_MarshalException, [["type", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::UnexpectedObjectException)
@@ -920,7 +920,7 @@ module ::Ice
             attr_accessor :type, :expectedType
         end
 
-        T_UnexpectedObjectException = ::Ice::__defineException('::Ice::UnexpectedObjectException', UnexpectedObjectException, false, ::Ice::T_MarshalException, [
+        T_UnexpectedObjectException = ::Ice::__defineException('::Ice::UnexpectedObjectException', UnexpectedObjectException, ::Ice::T_MarshalException, [
             ["type", ::Ice::T_string, false, 0],
             ["expectedType", ::Ice::T_string, false, 0]
         ])
@@ -937,7 +937,7 @@ module ::Ice
             end
         end
 
-        T_MemoryLimitException = ::Ice::__defineException('::Ice::MemoryLimitException', MemoryLimitException, false, ::Ice::T_MarshalException, [])
+        T_MemoryLimitException = ::Ice::__defineException('::Ice::MemoryLimitException', MemoryLimitException, ::Ice::T_MarshalException, [])
     end
 
     if not defined?(::Ice::StringConversionException)
@@ -951,7 +951,7 @@ module ::Ice
             end
         end
 
-        T_StringConversionException = ::Ice::__defineException('::Ice::StringConversionException', StringConversionException, false, ::Ice::T_MarshalException, [])
+        T_StringConversionException = ::Ice::__defineException('::Ice::StringConversionException', StringConversionException, ::Ice::T_MarshalException, [])
     end
 
     if not defined?(::Ice::EncapsulationException)
@@ -965,7 +965,7 @@ module ::Ice
             end
         end
 
-        T_EncapsulationException = ::Ice::__defineException('::Ice::EncapsulationException', EncapsulationException, false, ::Ice::T_MarshalException, [])
+        T_EncapsulationException = ::Ice::__defineException('::Ice::EncapsulationException', EncapsulationException, ::Ice::T_MarshalException, [])
     end
 
     if not defined?(::Ice::FeatureNotSupportedException)
@@ -981,7 +981,7 @@ module ::Ice
             attr_accessor :unsupportedFeature
         end
 
-        T_FeatureNotSupportedException = ::Ice::__defineException('::Ice::FeatureNotSupportedException', FeatureNotSupportedException, false, nil, [["unsupportedFeature", ::Ice::T_string, false, 0]])
+        T_FeatureNotSupportedException = ::Ice::__defineException('::Ice::FeatureNotSupportedException', FeatureNotSupportedException, nil, [["unsupportedFeature", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::SecurityException)
@@ -997,7 +997,7 @@ module ::Ice
             attr_accessor :reason
         end
 
-        T_SecurityException = ::Ice::__defineException('::Ice::SecurityException', SecurityException, false, nil, [["reason", ::Ice::T_string, false, 0]])
+        T_SecurityException = ::Ice::__defineException('::Ice::SecurityException', SecurityException, nil, [["reason", ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::FixedProxyException)
@@ -1010,7 +1010,7 @@ module ::Ice
             end
         end
 
-        T_FixedProxyException = ::Ice::__defineException('::Ice::FixedProxyException', FixedProxyException, false, nil, [])
+        T_FixedProxyException = ::Ice::__defineException('::Ice::FixedProxyException', FixedProxyException, nil, [])
     end
 
     if not defined?(::Ice::ResponseSentException)
@@ -1023,6 +1023,6 @@ module ::Ice
             end
         end
 
-        T_ResponseSentException = ::Ice::__defineException('::Ice::ResponseSentException', ResponseSentException, false, nil, [])
+        T_ResponseSentException = ::Ice::__defineException('::Ice::ResponseSentException', ResponseSentException, nil, [])
     end
 end

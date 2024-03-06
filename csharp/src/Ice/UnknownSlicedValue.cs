@@ -19,16 +19,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
-        /// un-marshaling of the value, null is returned otherwise.
-        /// </summary>
-        /// <returns>The sliced data or null.</returns>
-        public override SlicedData ice_getSlicedData()
-        {
-            return _slicedData;
-        }
-
-        /// <summary>
         /// Returns the Slice type ID associated with this object.
         /// </summary>
         /// <returns>The type ID.</returns>
@@ -37,19 +27,6 @@ namespace Ice
             return _unknownTypeId;
         }
 
-        public override void iceWrite(OutputStream ostr)
-        {
-            ostr.startValue(_slicedData);
-            ostr.endValue();
-        }
-
-        public override void iceRead(InputStream istr)
-        {
-            istr.startValue();
-            _slicedData = istr.endValue(true);
-        }
-
         private string _unknownTypeId;
-        private SlicedData _slicedData;
     }
 }

@@ -53,7 +53,7 @@ if "ValueFactory" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_ValueFactory = IcePy.defineValue(
-        "::Ice::ValueFactory", ValueFactory, -1, (), False, True, None, ()
+        "::Ice::ValueFactory", ValueFactory, -1, (), True, None, ()
     )
     ValueFactory._ice_type = _M_Ice._t_ValueFactory
 
@@ -112,7 +112,7 @@ if "ValueFactoryManager" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_ValueFactoryManager = IcePy.defineValue(
-        "::Ice::ValueFactoryManager", ValueFactoryManager, -1, (), False, True, None, ()
+        "::Ice::ValueFactoryManager", ValueFactoryManager, -1, (), True, None, ()
     )
     ValueFactoryManager._ice_type = _M_Ice._t_ValueFactoryManager
 

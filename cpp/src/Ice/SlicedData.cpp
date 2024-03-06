@@ -36,12 +36,6 @@ Ice::UnknownSlicedValue::UnknownSlicedValue(const string& unknownTypeId) : _unkn
 {
 }
 
-SlicedDataPtr
-Ice::UnknownSlicedValue::ice_getSlicedData() const
-{
-    return _slicedData;
-}
-
 string
 Ice::UnknownSlicedValue::ice_id() const
 {
@@ -52,18 +46,4 @@ shared_ptr<Ice::Value>
 Ice::UnknownSlicedValue::_iceCloneImpl() const
 {
     return make_shared<UnknownSlicedValue>(static_cast<const UnknownSlicedValue&>(*this));
-}
-
-void
-Ice::UnknownSlicedValue::_iceWrite(Ice::OutputStream* ostr) const
-{
-    ostr->startValue(_slicedData);
-    ostr->endValue();
-}
-
-void
-Ice::UnknownSlicedValue::_iceRead(Ice::InputStream* istr)
-{
-    istr->startValue();
-    _slicedData = istr->endValue(true);
 }

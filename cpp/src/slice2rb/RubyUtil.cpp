@@ -342,12 +342,10 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
-    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-
     _out << sp << nl << "T_" << name << ".defineClass("
          << name << ", "
          << p->compactId() << ", "
-         << (preserved ? "true" : "false") << ", false, ";
+         << "false, ";
     if(!base)
     {
         _out << "nil";
@@ -749,9 +747,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Emit the type information.
     //
-    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-    _out << sp << nl << "T_" << name << " = ::Ice::__defineException('" << scoped << "', " << name << ", "
-         << (preserved ? "true" : "false") << ", ";
+    _out << sp << nl << "T_" << name << " = ::Ice::__defineException('" << scoped << "', " << name << ", ";
     if(!base)
     {
         _out << "nil";

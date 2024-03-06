@@ -1368,10 +1368,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << eb << ";";
 
     _out << sp;
-    bool preserved = p->hasMetaData("preserve-slice") && !p->inheritsMetaData("preserve-slice");
 
-    _out << nl << "Slice.defineValue(" << localScope << "." << name << ", \""
-         << scoped << "\", " << (preserved ? "true" : "false");
+    _out << nl << "Slice.defineValue(" << localScope << "." << name << ", \"" << scoped << "\"";
     if(p->compactId() >= 0)
     {
         _out << ", " << p->compactId();
@@ -1843,15 +1841,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     _out << eb << ";";
-
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
-
-    if(preserved && !basePreserved)
-    {
-        _out << sp;
-        _out << nl << "Slice.PreservedUserException(" << localScope << '.' << name << ");";
-    }
 
     return false;
 }

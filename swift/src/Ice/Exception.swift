@@ -64,21 +64,13 @@ open class UserException: Exception {
     open func _iceRead(from istr: InputStream) throws {
         istr.startException()
         try _iceReadImpl(from: istr)
-        try istr.endException(preserve: false)
+        try istr.endException()
     }
 
     open func _iceWrite(to ostr: OutputStream) {
-        ostr.startException(data: nil)
+        ostr.startException()
         _iceWriteImpl(to: ostr)
         ostr.endException()
-    }
-
-    /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
-    /// un-marshaling, nil is returned otherwise.
-    ///
-    /// - returns: `SlicedData?` - The sliced data or nil.
-    open func ice_getSlicedData() -> SlicedData? {
-        return nil
     }
 }
 

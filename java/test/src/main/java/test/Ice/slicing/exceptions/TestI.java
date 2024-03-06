@@ -8,14 +8,6 @@ import test.Ice.slicing.exceptions.server.Test.*;
 
 public final class TestI implements TestIntf
 {
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
     @Override
     public void shutdown(com.zeroc.Ice.Current current)
     {
@@ -156,100 +148,5 @@ public final class TestI implements TestIntf
         umd2.ui = "UnknownMostDerived2.ui";
         umd2.umd2 = "UnknownMostDerived2.umd2";
         throw umd2;
-    }
-
-    @Override
-    public void unknownMostDerived2AsBaseCompact(com.zeroc.Ice.Current current)
-        throws Base
-    {
-        UnknownMostDerived2 umd2 = new UnknownMostDerived2();
-        umd2.b = "UnknownMostDerived2.b";
-        umd2.ui = "UnknownMostDerived2.ui";
-        umd2.umd2 = "UnknownMostDerived2.umd2";
-        throw umd2;
-    }
-
-    @Override
-    public void knownPreservedAsBase(com.zeroc.Ice.Current current)
-        throws Base
-    {
-        KnownPreservedDerived ex = new KnownPreservedDerived();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        throw ex;
-    }
-
-    @Override
-    public void knownPreservedAsKnownPreserved(com.zeroc.Ice.Current current)
-        throws KnownPreserved
-    {
-        KnownPreservedDerived ex = new KnownPreservedDerived();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        throw ex;
-    }
-
-    @Override
-    public void relayKnownPreservedAsBase(RelayPrx r, com.zeroc.Ice.Current current)
-        throws Base
-    {
-        RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.knownPreservedAsBase();
-        test(false);
-    }
-
-    @Override
-    public void relayKnownPreservedAsKnownPreserved(RelayPrx r, com.zeroc.Ice.Current current)
-        throws KnownPreserved
-    {
-        RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.knownPreservedAsKnownPreserved();
-        test(false);
-    }
-
-    @Override
-    public void unknownPreservedAsBase(com.zeroc.Ice.Current current)
-        throws Base
-    {
-        SPreserved2 ex = new SPreserved2();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        ex.p1 = new SPreservedClass("bc", "spc");
-        ex.p2 = ex.p1;
-        throw ex;
-    }
-
-    @Override
-    public void unknownPreservedAsKnownPreserved(com.zeroc.Ice.Current current)
-        throws KnownPreserved
-    {
-        SPreserved2 ex = new SPreserved2();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        ex.p1 = new SPreservedClass("bc", "spc");
-        ex.p2 = ex.p1;
-        throw ex;
-    }
-
-    @Override
-    public void relayUnknownPreservedAsBase(RelayPrx r, com.zeroc.Ice.Current current)
-        throws Base
-    {
-        RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.unknownPreservedAsBase();
-        test(false);
-    }
-
-    @Override
-    public void relayUnknownPreservedAsKnownPreserved(RelayPrx r, com.zeroc.Ice.Current current)
-        throws KnownPreserved
-    {
-        RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.unknownPreservedAsKnownPreserved();
-        test(false);
     }
 }
