@@ -40,7 +40,7 @@ public:
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) final;
-    
+
     std::optional<Ice::ObjectPrx> findObject(const Ice::Identity&) const;
     std::optional<Ice::ObjectPrx> findAdapter(const std::string&, bool&) const;
 
