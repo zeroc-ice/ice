@@ -18,8 +18,10 @@
 #include <Ice/EndpointI.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
-#include <Ice/CommunicatorI.h>
+#include <Ice/Communicator.h>
 #include <IceUtil/Random.h>
+
+#include "CommunicatorFlushBatchAsync.h"
 #include <iterator>
 
 #if TARGET_OS_IPHONE != 0

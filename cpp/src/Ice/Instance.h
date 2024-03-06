@@ -132,7 +132,7 @@ private:
     void initialize(const Ice::CommunicatorPtr&);
     void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
     void destroy();
-    friend class Ice::CommunicatorI;
+    friend class Ice::Communicator;
 
     void updateConnectionObservers();
     void updateThreadObservers();

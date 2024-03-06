@@ -264,9 +264,6 @@
     <ClCompile Include="..\..\CollocatedRequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\CommunicatorI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ConnectionFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -589,6 +586,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\TimeUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

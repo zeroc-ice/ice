@@ -2,99 +2,35 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#ifndef __Ice_Communicator_h__
-#define __Ice_Communicator_h__
+#ifndef ICE_COMMUNICATOR_H
+#define ICE_COMMUNICATOR_H
 
-#include <IceUtil/PushDisableWarnings.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/ValueF.h>
-#include <Ice/Exception.h>
-#include <Ice/StreamHelpers.h>
-#include <Ice/Comparable.h>
-#include <Ice/Proxy.h>
-#include <Ice/Object.h>
-#include <Ice/Value.h>
-#include <Ice/FactoryTableInit.h>
-#include <optional>
-#include <Ice/ExceptionHelpers.h>
-#include <Ice/LoggerF.h>
-#include <Ice/InstrumentationF.h>
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/ValueFactory.h>
-#include <Ice/PluginF.h>
-#include <Ice/ImplicitContextF.h>
-#include <Ice/Current.h>
-#include <Ice/Properties.h>
-#include <Ice/FacetMap.h>
-#include <Ice/Connection.h>
-#include <IceUtil/UndefSysMacros.h>
-
-#ifndef ICE_API
-#   if defined(ICE_STATIC_LIBS)
-#       define ICE_API /**/
-#   elif defined(ICE_API_EXPORTS)
-#       define ICE_API ICE_DECLSPEC_EXPORT
-#   else
-#       define ICE_API ICE_DECLSPEC_IMPORT
-#   endif
-#endif
-
-namespace Ice
-{
-
-class Communicator;
-
-}
+#include "Config.h"
+#include "Connection.h"
+#include "InstanceF.h"
+#include "FacetMap.h"
+#include "ImplicitContextF.h"
+#include "Initialize.h"
+#include "PluginF.h"
+#include "Properties.h"
+#include "ProxyF.h"
 
 namespace Ice
 {
 
 /**
- * The output mode for xxxToString method such as identityToString and proxyToString. The actual encoding format for
- * the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a
- * string.
- */
-enum class ToStringMode : unsigned char
-{
-    /**
-     * Characters with ordinal values greater than 127 are kept as-is in the resulting string. Non-printable ASCII
-     * characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
-     */
-    Unicode,
-    /**
-     * Characters with ordinal values greater than 127 are encoded as universal character names in the resulting
-     * string: \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters. Non-printable ASCII characters
-     * with ordinal values 127 and below are encoded as \\t, \\n (etc.) or \\unnnn.
-     */
-    ASCII,
-    /**
-     * Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using octal escapes.
-     * Characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or an octal escape. Use this mode
-     * to generate strings compatible with Ice 3.6 and earlier.
-     */
-    Compat
-};
-
-}
-
-namespace Ice
-{
-
-/**
- * The central object in Ice. One or more communicators can be instantiated for an Ice application. Communicator
- * instantiation is language-specific, and not specified in Slice code.
+ * The central object in Ice. One or more communicators can be instantiated for an Ice application.
  * @see Logger
  * @see ObjectAdapter
  * @see Properties
  * @see ValueFactory
  * \headerfile Ice/Ice.h
  */
-class ICE_CLASS(ICE_API) Communicator
+class ICE_API Communicator final : public std::enable_shared_from_this<Communicator>
 {
 public:
 
-    ICE_MEMBER(ICE_API) virtual ~Communicator();
+    ~Communicator();
 
     /**
      * Destroy the communicator. This operation calls {@link #shutdown} implicitly. Calling {@link #destroy} cleans up
@@ -103,7 +39,7 @@ public:
      * @see #shutdown
      * @see ObjectAdapter#destroy
      */
-    virtual void destroy() noexcept = 0;
+    void destroy() noexcept;
 
     /**
      * Shuts down this communicator's server functionality, which includes the deactivation of all object adapters.
@@ -116,7 +52,7 @@ public:
      * @see #waitForShutdown
      * @see ObjectAdapter#deactivate
      */
-    virtual void shutdown() noexcept = 0;
+    void shutdown() noexcept;
 
     /**
      * Wait until the application has called {@link #shutdown} (or {@link #destroy}). On the server side, this
@@ -129,14 +65,14 @@ public:
      * @see #destroy
      * @see ObjectAdapter#waitForDeactivate
      */
-    virtual void waitForShutdown() noexcept = 0;
+    void waitForShutdown() noexcept;
 
     /**
      * Check whether communicator has been shut down.
      * @return True if the communicator has been shut down; false otherwise.
      * @see #shutdown
      */
-    virtual bool isShutdown() const noexcept = 0;
+    bool isShutdown() const noexcept;
 
     /**
      * Convert a stringified proxy into a proxy.
@@ -149,7 +85,7 @@ public:
      * @return The proxy, or nullopt if <code>str</code> is an empty string.
      * @see #proxyToString
      */
-    virtual std::optional<ObjectPrx> stringToProxy(const ::std::string& str) const = 0;
+    std::optional<ObjectPrx> stringToProxy(const std::string& str) const;
 
     /**
      * Convert a proxy into a string.
@@ -158,7 +94,7 @@ public:
      * <code>obj</code> is nil.
      * @see #stringToProxy
      */
-    virtual ::std::string proxyToString(const std::optional<ObjectPrx>& obj) const = 0;
+    std::string proxyToString(const std::optional<ObjectPrx>& obj) const;
 
     /**
      * Convert a set of proxy properties into a proxy. The "base" name supplied in the <code>property</code> argument
@@ -168,7 +104,7 @@ public:
      * @param property The base property name.
      * @return The proxy.
      */
-    virtual std::optional<ObjectPrx> propertyToProxy(const ::std::string& property) const = 0;
+    std::optional<ObjectPrx> propertyToProxy(const std::string& property) const;
 
     /**
      * Convert a proxy to a set of proxy properties.
@@ -176,14 +112,14 @@ public:
      * @param property The base property name.
      * @return The property set.
      */
-    virtual ::Ice::PropertyDict proxyToProperty(const std::optional<ObjectPrx>& proxy, const ::std::string& property) const = 0;
+    PropertyDict proxyToProperty(const std::optional<ObjectPrx>& proxy, const std::string& property) const;
 
     /**
      * Convert an identity into a string.
      * @param ident The identity to convert into a string.
      * @return The "stringified" identity.
      */
-    virtual ::std::string identityToString(const Identity& ident) const = 0;
+    std::string identityToString(const Identity& ident) const;
 
     /**
      * Create a new object adapter. The endpoints for the object adapter are taken from the property
@@ -198,7 +134,7 @@ public:
      * @see ObjectAdapter
      * @see Properties
      */
-    virtual ::std::shared_ptr<::Ice::ObjectAdapter> createObjectAdapter(const ::std::string& name) = 0;
+    std::shared_ptr<ObjectAdapter> createObjectAdapter(const std::string& name);
 
     /**
      * Create a new object adapter with endpoints. This operation sets the property
@@ -212,7 +148,7 @@ public:
      * @see ObjectAdapter
      * @see Properties
      */
-    virtual ::std::shared_ptr<::Ice::ObjectAdapter> createObjectAdapterWithEndpoints(const ::std::string& name, const ::std::string& endpoints) = 0;
+    std::shared_ptr<ObjectAdapter> createObjectAdapterWithEndpoints(const std::string& name, const std::string& endpoints);
 
     /**
      * Create a new object adapter with a router. This operation creates a routed object adapter.
@@ -224,34 +160,34 @@ public:
      * @see ObjectAdapter
      * @see Properties
      */
-    virtual ::std::shared_ptr<::Ice::ObjectAdapter> createObjectAdapterWithRouter(const ::std::string& name, const RouterPrx& rtr) = 0;
+    std::shared_ptr<ObjectAdapter> createObjectAdapterWithRouter(const std::string& name, const RouterPrx& rtr);
 
     /**
      * Get the implicit context associated with this communicator.
      * @return The implicit context associated with this communicator; returns null when the property Ice.ImplicitContext
      * is not set or is set to None.
      */
-    virtual ::std::shared_ptr<::Ice::ImplicitContext> getImplicitContext() const noexcept = 0;
+    std::shared_ptr<ImplicitContext> getImplicitContext() const noexcept;
 
     /**
      * Get the properties for this communicator.
      * @return This communicator's properties.
      * @see Properties
      */
-    virtual ::std::shared_ptr<::Ice::Properties> getProperties() const noexcept = 0;
+    std::shared_ptr<Properties> getProperties() const noexcept;
 
     /**
      * Get the logger for this communicator.
      * @return This communicator's logger.
      * @see Logger
      */
-    virtual ::std::shared_ptr<::Ice::Logger> getLogger() const noexcept = 0;
+    std::shared_ptr<Logger> getLogger() const noexcept;
 
     /**
      * Get the observer resolver object for this communicator.
      * @return This communicator's observer resolver object.
      */
-    virtual ::std::shared_ptr<::Ice::Instrumentation::CommunicatorObserver> getObserver() const noexcept = 0;
+    std::shared_ptr<Instrumentation::CommunicatorObserver> getObserver() const noexcept;
 
     /**
      * Get the default router for this communicator.
@@ -259,7 +195,7 @@ public:
      * @see #setDefaultRouter
      * @see Router
      */
-    virtual std::optional<RouterPrx> getDefaultRouter() const = 0;
+    std::optional<RouterPrx> getDefaultRouter() const;
 
     /**
      * Set a default router for this communicator. All newly created proxies will use this default router. To disable
@@ -271,7 +207,7 @@ public:
      * @see #createObjectAdapterWithRouter
      * @see Router
      */
-    virtual void setDefaultRouter(const std::optional<RouterPrx>& rtr) = 0;
+    void setDefaultRouter(const std::optional<RouterPrx>& rtr);
 
     /**
      * Get the default locator for this communicator.
@@ -279,7 +215,7 @@ public:
      * @see #setDefaultLocator
      * @see Locator
      */
-    virtual std::optional<Ice::LocatorPrx> getDefaultLocator() const = 0;
+    std::optional<Ice::LocatorPrx> getDefaultLocator() const;
 
     /**
      * Set a default Ice locator for this communicator. All newly created proxy and object adapters will use this
@@ -292,21 +228,21 @@ public:
      * @see Locator
      * @see ObjectAdapter#setLocator
      */
-    virtual void setDefaultLocator(const std::optional<LocatorPrx>& loc) = 0;
+    void setDefaultLocator(const std::optional<LocatorPrx>& loc);
 
     /**
      * Get the plug-in manager for this communicator.
      * @return This communicator's plug-in manager.
      * @see PluginManager
      */
-    virtual ::std::shared_ptr<::Ice::PluginManager> getPluginManager() const = 0;
+    std::shared_ptr<PluginManager> getPluginManager() const;
 
     /**
      * Get the value factory manager for this communicator.
      * @return This communicator's value factory manager.
      * @see ValueFactoryManager
      */
-    virtual ::std::shared_ptr<::Ice::ValueFactoryManager> getValueFactoryManager() const noexcept = 0;
+    std::shared_ptr<ValueFactoryManager> getValueFactoryManager() const noexcept;
 
     /**
      * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
@@ -315,7 +251,7 @@ public:
      * @param compress Specifies whether or not the queued batch requests should be compressed before being sent over
      * the wire.
      */
-    ICE_MEMBER(ICE_API) void flushBatchRequests(CompressBatch compress);
+    void flushBatchRequests(CompressBatch compress);
 
     /**
      * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
@@ -327,10 +263,10 @@ public:
      * @param sent The sent callback.
      * @return A function that can be called to cancel the invocation locally.
      */
-    virtual ::std::function<void()>
+    std::function<void()>
     flushBatchRequestsAsync(CompressBatch compress,
-                            ::std::function<void(::std::exception_ptr)> exception,
-                            ::std::function<void(bool)> sent = nullptr) = 0;
+                            std::function<void(std::exception_ptr)> exception,
+                            std::function<void(bool)> sent = nullptr);
 
     /**
      * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed proxies
@@ -340,7 +276,7 @@ public:
      * the wire.
      * @return The future object for the invocation.
      */
-    ICE_MEMBER(ICE_API) std::future<void> flushBatchRequestsAsync(CompressBatch compress);
+    std::future<void> flushBatchRequestsAsync(CompressBatch compress);
 
     /**
      * Add the Admin object with all its facets to the provided object adapter. If <code>Ice.Admin.ServerId</code> is
@@ -353,7 +289,7 @@ public:
      * @return A proxy to the main ("") facet of the Admin object.
      * @see #getAdmin
      */
-    virtual ObjectPrx createAdmin(const ::std::shared_ptr<ObjectAdapter>& adminAdapter, const Identity& adminId) = 0;
+    ObjectPrx createAdmin(const std::shared_ptr<ObjectAdapter>& adminAdapter, const Identity& adminId);
 
     /**
      * Get a proxy to the main facet of the Admin object. getAdmin also creates the Admin object and creates and
@@ -364,7 +300,7 @@ public:
      * @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
      * @see #createAdmin
      */
-    virtual std::optional<ObjectPrx> getAdmin() const = 0;
+    std::optional<ObjectPrx> getAdmin() const;
 
     /**
      * Add a new facet to the Admin object. Adding a servant with a facet that is already registered throws
@@ -372,7 +308,7 @@ public:
      * @param servant The servant that implements the new Admin facet.
      * @param facet The name of the new Admin facet.
      */
-    virtual void addAdminFacet(const ::std::shared_ptr<Object>& servant, const ::std::string& facet) = 0;
+    void addAdminFacet(const std::shared_ptr<Object>& servant, const std::string& facet);
 
     /**
      * Remove the following facet to the Admin object. Removing a facet that was not previously registered throws
@@ -380,21 +316,21 @@ public:
      * @param facet The name of the Admin facet.
      * @return The servant associated with this Admin facet.
      */
-    virtual ::std::shared_ptr<::Ice::Object> removeAdminFacet(const ::std::string& facet) = 0;
+    std::shared_ptr<Object> removeAdminFacet(const std::string& facet);
 
     /**
      * Returns a facet of the Admin object.
      * @param facet The name of the Admin facet.
      * @return The servant associated with this Admin facet, or null if no facet is registered with the given name.
      */
-    virtual ::std::shared_ptr<::Ice::Object> findAdminFacet(const ::std::string& facet) = 0;
+    std::shared_ptr<Object> findAdminFacet(const std::string& facet);
 
     /**
      * Returns a map of all facets of the Admin object.
      * @return A collection containing all the facet names and servants of the Admin object.
      * @see #findAdminFacet
      */
-    virtual ::Ice::FacetMap findAllAdminFacets() = 0;
+    FacetMap findAllAdminFacets();
 
 #ifdef ICE_SWIFT
     /**
@@ -402,36 +338,39 @@ public:
      * @return The dispatch queue associated wih this Communicator's
      * client thread pool.
      */
-    virtual dispatch_queue_t getClientDispatchQueue() const = 0;
+    dispatch_queue_t getClientDispatchQueue() const;
 
     /**
      * Returns the server dispatch queue.
      * @return The dispatch queue associated wih the Communicator's
      * server thread pool.
      */
-    virtual dispatch_queue_t getServerDispatchQueue() const = 0;
+    dispatch_queue_t getServerDispatchQueue() const;
 #endif
 
-    virtual void postToClientThreadPool(::std::function<void()> call) = 0;
+    void postToClientThreadPool(std::function<void()> call);
+
+private:
+
+    static CommunicatorPtr create(const InitializationData&);
+
+    //
+    // Certain initialization tasks need to be completed after the
+    // constructor.
+    //
+    void finishSetup(int&, const char*[]);
+
+    friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
+    friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);
+    friend ICE_API CommunicatorPtr initialize(const InitializationData&, std::int32_t);
+    friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
+    friend ICE_API ::IceUtil::TimerPtr IceInternal::getInstanceTimer(const ::Ice::CommunicatorPtr&);
+
+    const ::IceInternal::InstancePtr _instance;
 };
 
-}
-
-/// \cond STREAM
-namespace Ice
-{
+using CommunicatorPtr = std::shared_ptr<Communicator>;
 
 }
-/// \endcond
 
-/// \cond INTERNAL
-namespace Ice
-{
-
-using CommunicatorPtr = ::std::shared_ptr<Communicator>;
-
-}
-/// \endcond
-
-#include <IceUtil/PopDisableWarnings.h>
 #endif
