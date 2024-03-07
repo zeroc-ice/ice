@@ -9,10 +9,8 @@
 
 namespace Ice
 {
-
     class ImplicitContext;
     using ImplicitContextPtr = std::shared_ptr<ImplicitContext>;
-
 }
 
 #endif

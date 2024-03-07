@@ -13,7 +13,6 @@ using namespace Test;
 
 namespace
 {
-
     class Condition
     {
     public:
@@ -36,7 +35,6 @@ namespace
         mutable mutex _mutex;
     };
     using ConditionPtr = shared_ptr<Condition>;
-
 }
 
 void

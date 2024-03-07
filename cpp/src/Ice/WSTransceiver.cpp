@@ -53,7 +53,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     const string _iceProtocol = "ice.zeroc.com";
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
@@ -128,7 +127,6 @@ namespace
 
         return v;
     }
-
 }
 
 NativeInfoPtr

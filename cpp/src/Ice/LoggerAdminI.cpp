@@ -21,7 +21,6 @@ using namespace std;
 
 namespace
 {
-
     const char* traceCategory = "Admin.Logger";
 
     class LoggerAdminI : public Ice::LoggerAdmin, public std::enable_shared_from_this<LoggerAdminI>
@@ -751,7 +750,6 @@ namespace
             trace << "send log thread completed";
         }
     }
-
 }
 
 //
@@ -760,10 +758,8 @@ namespace
 
 namespace IceInternal
 {
-
     LoggerAdminLoggerPtr createLoggerAdminLogger(const PropertiesPtr& props, const LoggerPtr& localLogger)
     {
         return make_shared<LoggerAdminLoggerI>(props, localLogger);
     }
-
 }

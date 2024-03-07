@@ -10,7 +10,6 @@
 
 namespace IceStorm
 {
-
     class SendQueueSizeMaxReached : public ::Ice::LocalExceptionHelper<SendQueueSizeMaxReached, ::Ice::LocalException>
     {
     public:
@@ -40,5 +39,4 @@ namespace IceStorm
          */
         static ::std::string_view ice_staticId();
     };
-
 }

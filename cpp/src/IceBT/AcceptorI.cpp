@@ -23,7 +23,6 @@ using namespace IceBT;
 
 namespace
 {
-
     class ProfileCallbackI : public ProfileCallback
     {
     public:
@@ -34,7 +33,6 @@ namespace
     private:
         AcceptorIPtr _acceptor;
     };
-
 }
 
 IceInternal::NativeInfoPtr

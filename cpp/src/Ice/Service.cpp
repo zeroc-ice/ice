@@ -75,7 +75,6 @@ Ice_Service_CtrlHandler(DWORD ctrl)
 
 namespace
 {
-
     class ServiceStatusManager
     {
     public:
@@ -401,7 +400,6 @@ namespace
     };
 
     HMODULE SMEventLoggerI::_module = 0;
-
 }
 
 #endif

@@ -9,7 +9,6 @@ using namespace std;
 
 namespace IceInternal
 {
-
     const byte magic[] = {byte{0x49}, byte{0x63}, byte{0x65}, byte{0x50}}; // 'I', 'c', 'e', 'P'
 
     const byte requestHdr[] = {
@@ -119,12 +118,10 @@ namespace IceInternal
     {
         throw Ice::UnsupportedEncodingException(f, l, "", v, s);
     }
-
 }
 
 namespace Ice
 {
-
     const EncodingVersion currentEncoding = {IceInternal::encodingMajor, IceInternal::encodingMinor};
     const ProtocolVersion currentProtocol = {IceInternal::protocolMajor, IceInternal::protocolMinor};
     //
@@ -139,5 +136,4 @@ namespace Ice
 
     const EncodingVersion Encoding_1_0 = {1, 0};
     const EncodingVersion Encoding_1_1 = {1, 1};
-
 }

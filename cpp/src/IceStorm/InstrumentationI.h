@@ -12,7 +12,6 @@
 
 namespace IceStorm
 {
-
     class TopicObserverI final : public IceStorm::Instrumentation::TopicObserver,
                                  public IceMX::ObserverT<IceMX::TopicMetrics>
     {
@@ -57,7 +56,6 @@ namespace IceStorm
         IceMX::ObserverFactoryT<TopicObserverI> _topics;
         IceMX::ObserverFactoryT<SubscriberObserverI> _subscribers;
     };
-
 }
 
 #endif

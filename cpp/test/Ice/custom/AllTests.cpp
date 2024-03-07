@@ -18,7 +18,6 @@ using namespace Test;
 
 namespace
 {
-
     template<typename T> bool arrayRangeEquals(pair<const T*, const T*> lhs, pair<const T*, const T*> rhs)
     {
         if (lhs.second - lhs.first != rhs.second - rhs.first)
@@ -37,7 +36,6 @@ namespace
         }
         return true;
     }
-
 }
 
 TestIntfPrx

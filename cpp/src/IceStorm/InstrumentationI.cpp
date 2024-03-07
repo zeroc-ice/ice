@@ -15,7 +15,6 @@ using namespace IceMX;
 
 namespace
 {
-
     class TopicHelper : public MetricsHelperT<TopicMetrics>
     {
     public:
@@ -191,7 +190,6 @@ namespace
     };
 
     SubscriberHelper::Attributes SubscriberHelper::attributes;
-
 }
 
 void
@@ -208,7 +206,6 @@ TopicObserverI::forwarded()
 
 namespace
 {
-
     struct QueuedUpdate
     {
         QueuedUpdate(int countP) : count(countP) {}
@@ -217,7 +214,6 @@ namespace
 
         int count;
     };
-
 }
 void
 SubscriberObserverI::queued(int count)
@@ -227,7 +223,6 @@ SubscriberObserverI::queued(int count)
 
 namespace
 {
-
     struct OutstandingUpdate
     {
         OutstandingUpdate(int countP) : count(countP) {}
@@ -243,7 +238,6 @@ namespace
 
         int count;
     };
-
 }
 
 void
@@ -254,7 +248,6 @@ SubscriberObserverI::outstanding(int count)
 
 namespace
 {
-
     struct DeliveredUpdate
     {
         DeliveredUpdate(int countP) : count(countP) {}
@@ -270,7 +263,6 @@ namespace
 
         int count;
     };
-
 }
 
 void

@@ -20,7 +20,6 @@ typedef IceBox::Service* (*ServiceFactory)(const shared_ptr<Communicator>&);
 
 namespace
 {
-
     struct StartServiceInfo
     {
         StartServiceInfo(const std::string& service, const std::string& value, const Ice::StringSeq& serverArgs)
@@ -62,7 +61,6 @@ namespace
         string entryPoint;
         Ice::StringSeq args;
     };
-
 }
 
 ServiceManagerIPtr

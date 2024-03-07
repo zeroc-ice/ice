@@ -33,7 +33,6 @@ using namespace Glacier2;
 
 namespace
 {
-
 #if defined(__APPLE__)
     template<typename T> struct CFTypeRefDeleter
     {
@@ -105,7 +104,6 @@ namespace
 
     namespace
     {
-
 #if defined(__APPLE__) || defined(_WIN32)
 
         const string padBytes0 = "";
@@ -440,7 +438,6 @@ namespace
     }
 
     void CryptPermissionsVerifierPlugin::destroy() {}
-
 }
 
 #ifndef CRYPT_PERMISSIONS_VERIFIER_API

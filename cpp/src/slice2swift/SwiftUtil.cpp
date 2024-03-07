@@ -18,7 +18,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     static string lookupKwd(const string& name)
     {
         //
@@ -148,7 +147,6 @@ namespace
         }
         return "???";
     }
-
 }
 
 //
@@ -962,7 +960,6 @@ SwiftGenerator::validateMetaData(const UnitPtr& u)
 //
 namespace
 {
-
     string getAbsoluteImpl(const ContainedPtr& cont, const string& prefix = "", const string& suffix = "")
     {
         string swiftPrefix;
@@ -986,7 +983,6 @@ namespace
         }
         return swiftModule + "." + swiftPrefix + replace(str, "::", "");
     }
-
 }
 
 string

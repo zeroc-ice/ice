@@ -17,7 +17,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     class AdapterRequest final : public LocatorI::Request
     {
     public:

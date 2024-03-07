@@ -13,7 +13,6 @@
 
 namespace IcePy
 {
-
     //
     // LoggerWrapper delegates to a Python implementation.
     //
@@ -43,7 +42,6 @@ namespace IcePy
     // Create a Python object that delegates to a C++ implementation.
     //
     PyObject* createLogger(const Ice::LoggerPtr&);
-
 }
 
 extern "C" PyObject* IcePy_getProcessLogger(PyObject*, PyObject*);

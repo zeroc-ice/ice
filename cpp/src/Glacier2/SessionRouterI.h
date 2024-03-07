@@ -15,7 +15,6 @@
 
 namespace Glacier2
 {
-
     class FilterManager;
     class Instance;
     class RouterI;
@@ -140,7 +139,6 @@ namespace Glacier2
 
         mutable std::mutex _mutex;
     };
-
 }
 
 #endif

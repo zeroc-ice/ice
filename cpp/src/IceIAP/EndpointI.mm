@@ -34,7 +34,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     class iAPEndpointFactoryPlugin : public Ice::Plugin
     {
     public:
@@ -54,7 +53,6 @@ namespace
         virtual void initialize() {}
         virtual void destroy() {}
     };
-
 }
 
 extern "C" ICEIAP_API Plugin*
@@ -65,12 +63,10 @@ createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
 
 namespace Ice
 {
-
     ICEIAP_API void registerIceIAP(bool loadOnInitialize)
     {
         Ice::registerPluginFactory("IceIAP", createIceIAP, loadOnInitialize);
     }
-
 }
 
 IceObjC::iAPEndpointI::iAPEndpointI(

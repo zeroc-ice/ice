@@ -29,7 +29,6 @@ using namespace std;
 
 namespace
 {
-
     CFMutableDataRef readCertFile(const string& file)
     {
         ifstream is(IceUtilInternal::streamFilename(file).c_str(), ios::in | ios::binary);
@@ -51,7 +50,6 @@ namespace
         }
         return data.release();
     }
-
 }
 
 string
@@ -104,7 +102,6 @@ IceSSL::SecureTransport::getCertificateProperty(SecCertificateRef cert, CFTypeRe
 
 namespace
 {
-
     //
     // Check the certificate basic constraints to check if the certificate is marked as a CA.
     //
@@ -459,7 +456,6 @@ namespace
 
 namespace
 {
-
     CFArrayRef loadCerts(const string& file)
     {
         UniqueRef<CFArrayRef> certs(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
@@ -522,7 +518,6 @@ namespace
         }
         return certs.release();
     }
-
 }
 
 #endif

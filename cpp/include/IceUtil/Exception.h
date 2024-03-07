@@ -12,7 +12,6 @@
 
 namespace IceUtil
 {
-
     /**
      * Abstract base class for all Ice exceptions. Use the Ice::Exception alias instead
      * of IceUtil::Exception.
@@ -194,12 +193,10 @@ namespace IceUtil
         const int _error;
         std::string _path;
     };
-
 }
 
 namespace IceUtilInternal
 {
-
     enum StackTraceImpl
     {
         STNone,
@@ -210,7 +207,6 @@ namespace IceUtilInternal
     };
 
     ICE_API StackTraceImpl stackTraceImpl();
-
 }
 
 #endif

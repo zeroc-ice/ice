@@ -24,7 +24,6 @@ extern "C"
 
 namespace IcePHP
 {
-
     bool communicatorInit(void);
     bool communicatorShutdown(void);
     bool communicatorRequestInit(void);

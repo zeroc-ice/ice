@@ -16,7 +16,6 @@ using namespace Ice;
 using namespace Test;
 namespace
 {
-
     class Callback
     {
     public:
@@ -79,7 +78,6 @@ namespace
         bool _sentSynchronously;
     };
     using CallbackPtr = shared_ptr<Callback>;
-
 }
 
 void

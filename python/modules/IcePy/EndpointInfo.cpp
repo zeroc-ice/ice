@@ -11,12 +11,10 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     struct EndpointInfoObject
     {
         PyObject_HEAD Ice::EndpointInfoPtr* endpointInfo;
     };
-
 }
 
 #ifdef WIN32
@@ -279,7 +277,6 @@ static PyGetSetDef OpaqueEndpointInfoGetters[] = {
 
 namespace IcePy
 {
-
     PyTypeObject EndpointInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -594,7 +591,6 @@ namespace IcePy
         0,                                                 /* tp_free */
         0,                                                 /* tp_is_gc */
     };
-
 }
 
 bool

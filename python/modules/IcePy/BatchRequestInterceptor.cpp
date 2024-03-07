@@ -11,7 +11,6 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     struct BatchRequestObject
     {
         PyObject_HEAD const Ice::BatchRequest* request;
@@ -19,7 +18,6 @@ namespace IcePy
         PyObject* operation;
         PyObject* proxy;
     };
-
 }
 
 #ifdef WIN32
@@ -159,7 +157,6 @@ static PyMethodDef BatchRequestMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject BatchRequestType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -204,7 +201,6 @@ namespace IcePy
         0,                                                 /* tp_free */
         0,                                                 /* tp_is_gc */
     };
-
 }
 
 bool

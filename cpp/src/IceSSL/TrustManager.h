@@ -13,7 +13,6 @@
 
 namespace IceSSL
 {
-
     class TrustManager
     {
     public:
@@ -38,7 +37,6 @@ namespace IceSSL
         std::list<DistinguishedName> _acceptAllServer;
         std::map<std::string, std::list<DistinguishedName>> _acceptServer;
     };
-
 }
 
 #endif

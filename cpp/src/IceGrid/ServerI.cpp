@@ -36,7 +36,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
 #ifndef _WIN32
     void chownRecursive(const string& path, uid_t uid, gid_t gid)
     {
@@ -389,7 +388,6 @@ namespace IceGrid
 #endif
         return value.substr(0, assignment) + "=" + v;
     }
-
 }
 
 ServerCommand::ServerCommand(const shared_ptr<ServerI>& server) : _server(server) {}

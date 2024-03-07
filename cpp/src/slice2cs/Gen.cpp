@@ -28,7 +28,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string sliceModeToIceMode(Operation::Mode opMode, string ns)
     {
         string mode;
@@ -145,7 +144,6 @@ namespace
         }
         return "returnValue";
     }
-
 }
 
 Slice::CsVisitor::CsVisitor(Output& out) : _out(out) {}
@@ -3081,7 +3079,6 @@ Slice::Gen::ResultVisitor::ResultVisitor(::IceUtilInternal::Output& out) : CsVis
 
 namespace
 {
-
     bool hasResultType(const ModulePtr& p)
     {
         InterfaceList interfaces = p->interfaces();
@@ -3112,7 +3109,6 @@ namespace
 
         return false;
     }
-
 }
 
 bool

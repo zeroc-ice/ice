@@ -28,14 +28,11 @@
 
 namespace IceIAP
 {
-
     class ConnectionInfo;
-
 }
 
 namespace IceIAP
 {
-
     /**
      * Provides access to the connection details of an IAP connection
      * \headerfile IceIAP/IceIAP.h
@@ -111,15 +108,12 @@ namespace IceIAP
          */
         ::std::string protocol;
     };
-
 }
 
 /// \cond INTERNAL
 namespace IceIAP
 {
-
     using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
-
 }
 /// \endcond
 

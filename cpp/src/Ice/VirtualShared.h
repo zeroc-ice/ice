@@ -7,7 +7,6 @@
 
 namespace IceInternal
 {
-
     class VirtualEnableSharedFromThisBase : public std::enable_shared_from_this<VirtualEnableSharedFromThisBase>
     {
     public:
@@ -27,6 +26,5 @@ namespace IceInternal
             return std::dynamic_pointer_cast<T const>(VirtualEnableSharedFromThisBase::shared_from_this());
         }
     };
-
 }
 #endif

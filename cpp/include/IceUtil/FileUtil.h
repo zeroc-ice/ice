@@ -13,7 +13,6 @@
 
 namespace IceUtilInternal
 {
-
     extern const ICE_API std::string pathsep;
     extern const ICE_API std::string separator;
 
@@ -123,6 +122,5 @@ namespace IceUtilInternal
 #else
     inline std::string streamFilename(const std::string& filename) { return filename; }
 #endif
-
 }
 #endif

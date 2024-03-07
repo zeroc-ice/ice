@@ -22,10 +22,8 @@ using namespace IceInternal;
 
 namespace
 {
-
     mutex globalMutex;
     Ice::LoggerPtr processLogger;
-
 }
 
 StringSeq
@@ -199,7 +197,6 @@ Ice::ThreadHookPlugin::destroy()
 
 namespace
 {
-
     inline void checkIceVersion(int version)
     {
 #ifndef ICE_IGNORE_VERSION
@@ -242,7 +239,6 @@ namespace
 #    endif
 #endif
     }
-
 }
 
 Ice::CommunicatorPtr

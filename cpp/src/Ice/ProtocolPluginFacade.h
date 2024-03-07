@@ -15,7 +15,6 @@
 
 namespace IceInternal
 {
-
     //
     // Global function to obtain a ProtocolPluginFacade given a Communicator
     // instance.
@@ -54,7 +53,6 @@ namespace IceInternal
         InstancePtr _instance;
         Ice::CommunicatorPtr _communicator;
     };
-
 }
 
 #endif

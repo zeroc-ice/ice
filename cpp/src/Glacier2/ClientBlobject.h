@@ -10,7 +10,6 @@
 
 namespace Glacier2
 {
-
     class FilterManager;
     class RoutingTable;
 
@@ -38,7 +37,6 @@ namespace Glacier2
         const std::shared_ptr<FilterManager> _filters;
         const int _rejectTraceLevel;
     };
-
 }
 
 #endif

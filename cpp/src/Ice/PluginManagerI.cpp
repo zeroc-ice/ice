@@ -19,7 +19,6 @@ const char* const Ice::PluginManagerI::_kindOfObject = "plugin";
 
 namespace
 {
-
     map<string, PluginFactory>* factories = 0;
     vector<string>* loadOnInitialization = 0;
 
@@ -36,7 +35,6 @@ namespace
         }
     };
     PluginFactoryDestroy destroy;
-
 }
 
 void

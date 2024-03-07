@@ -84,7 +84,6 @@ typedef int socklen_t;
 
 namespace IceInternal
 {
-
     union Address
     {
         Address()
@@ -264,7 +263,6 @@ namespace IceInternal
 #endif
 
     ICE_API bool isIpAddress(const std::string&);
-
 }
 
 #endif

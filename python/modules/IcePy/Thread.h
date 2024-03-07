@@ -11,7 +11,6 @@
 
 namespace IcePy
 {
-
     //
     // Release Python's Global Interpreter Lock during potentially time-consuming
     // (and non-Python related) work.
@@ -53,7 +52,6 @@ namespace IcePy
         PyObjectHandle _threadStart;
         PyObjectHandle _threadStop;
     };
-
 }
 
 #endif

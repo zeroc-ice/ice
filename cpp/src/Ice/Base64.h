@@ -11,7 +11,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API Base64
     {
     public:
@@ -23,7 +22,6 @@ namespace IceInternal
         static char encode(std::byte);
         static std::byte decode(char);
     };
-
 }
 
 #endif

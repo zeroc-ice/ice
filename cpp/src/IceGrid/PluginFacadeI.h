@@ -9,7 +9,6 @@
 
 namespace IceGrid
 {
-
     class Database;
 
     class RegistryPluginFacadeI : public RegistryPluginFacade
@@ -52,7 +51,6 @@ namespace IceGrid
 
         mutable std::mutex _mutex;
     };
-
 }
 
 #endif

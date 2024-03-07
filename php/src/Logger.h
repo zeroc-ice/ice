@@ -9,7 +9,6 @@
 
 namespace IcePHP
 {
-
     bool loggerInit(void);
     bool createLogger(zval*, const Ice::LoggerPtr&);
     bool fetchLogger(zval*, Ice::LoggerPtr&);

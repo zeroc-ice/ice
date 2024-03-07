@@ -21,7 +21,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     bool isConstexprType(const TypePtr& type)
     {
         BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
@@ -598,7 +597,6 @@ namespace
         out << "::std::function<void" << spar << createOutgoingAsyncParams(p, "", typeContext) << epar << ">";
         return os.str();
     }
-
 }
 
 Slice::Gen::Gen(

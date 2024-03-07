@@ -24,7 +24,6 @@ void notifyClient();
 
 namespace
 {
-
     Client* instance = nullptr;
 
     class Dispatcher final

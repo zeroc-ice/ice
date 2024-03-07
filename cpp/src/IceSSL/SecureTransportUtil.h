@@ -12,10 +12,8 @@
 
 namespace IceSSL
 {
-
     namespace SecureTransport
     {
-
         std::string sslErrorToString(CFErrorRef);
         std::string sslErrorToString(OSStatus);
 

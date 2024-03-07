@@ -12,14 +12,11 @@
 
 namespace Ice
 {
-
     class OutputStream;
-
 }
 
 namespace IceInternal
 {
-
     class ResponseHandler : public EnableSharedFromThis<ResponseHandler>
     {
     public:
@@ -28,7 +25,6 @@ namespace IceInternal
         virtual bool systemException(std::int32_t, std::exception_ptr, bool) = 0;
         virtual void invokeException(std::int32_t, std::exception_ptr, int, bool) = 0;
     };
-
 }
 
 #endif

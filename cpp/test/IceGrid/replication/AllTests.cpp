@@ -17,7 +17,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     const auto sleepTime = 100ms;
     const int maxRetry = static_cast<int>(120000 / sleepTime.count()); // 2 minutes
 
@@ -231,7 +230,6 @@ namespace
     {
         return (adpt1.id == adpt2.id) && (adpt1.replicaGroupId == adpt2.replicaGroupId) && (adpt1.proxy == adpt2.proxy);
     }
-
 }
 
 void

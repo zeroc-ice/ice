@@ -22,10 +22,8 @@
 
 namespace IceSSL
 {
-
     namespace SecureTransport
     {
-
         class TransceiverI final : public IceInternal::Transceiver
         {
         public:

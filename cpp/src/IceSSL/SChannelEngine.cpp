@@ -45,7 +45,6 @@ using namespace IceSSL;
 
 namespace
 {
-
     mutex globalMutex;
 
     void addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, const void* findParam)
@@ -538,7 +537,6 @@ namespace
         }
         return 0;
     }
-
 }
 
 SChannel::SSLEngine::SSLEngine(const CommunicatorPtr& communicator)

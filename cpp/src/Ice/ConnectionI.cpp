@@ -35,7 +35,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     class TimeoutCallback final : public IceUtil::TimerTask
     {
     public:
@@ -142,7 +141,6 @@ namespace
         ConnectionState::ConnectionStateClosed,     // StateClosed
         ConnectionState::ConnectionStateClosed,     // StateFinished
     };
-
 }
 
 ConnectionFlushBatchAsync::ConnectionFlushBatchAsync(const ConnectionIPtr& connection, const InstancePtr& instance)
@@ -789,7 +787,6 @@ Ice::ConnectionI::flushBatchRequestsAsync(
 
 namespace
 {
-
     class HeartbeatAsync : public OutgoingAsyncBase
     {
     public:
@@ -856,7 +853,6 @@ namespace
         ConnectionIPtr _connection;
         static constexpr string_view _operationName = "heartbeat";
     };
-
 }
 
 void

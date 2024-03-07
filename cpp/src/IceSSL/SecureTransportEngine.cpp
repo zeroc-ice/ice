@@ -36,7 +36,6 @@ using namespace IceSSL::SecureTransport;
 
 namespace
 {
-
     mutex staticMutex;
 
     class RegExp
@@ -768,7 +767,6 @@ namespace
             throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: unrecognized protocol `" + p + "'");
         }
     }
-
 }
 
 IceSSL::SecureTransport::SSLEngine::SSLEngine(const Ice::CommunicatorPtr& communicator)

@@ -34,7 +34,6 @@
 
 namespace IceLocatorDiscovery
 {
-
     class ICE_LOCATOR_DISCOVERY_API Plugin : public Ice::Plugin
     {
     public:

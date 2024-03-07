@@ -13,7 +13,6 @@ using namespace std;
 
 namespace Glacier2
 {
-
     class SessionThreadCallback : public std::enable_shared_from_this<SessionThreadCallback>
     {
     public:
@@ -32,7 +31,6 @@ namespace Glacier2
 
 namespace
 {
-
     class ConnectStrategy
     {
     public:
@@ -88,7 +86,6 @@ namespace
         const bool _useCallbacks;
     };
     using SessionHelperIPtr = std::shared_ptr<SessionHelperI>;
-
 }
 
 SessionHelperI::SessionHelperI(
@@ -234,7 +231,6 @@ Glacier2::SessionCallback::~SessionCallback()
 
 namespace
 {
-
     class ConnectStrategySecureConnection final : public ConnectStrategy
     {
     public:
@@ -269,7 +265,6 @@ namespace
         const string _password;
         const map<string, string> _context;
     };
-
 }
 
 void

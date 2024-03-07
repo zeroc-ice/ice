@@ -11,7 +11,6 @@ using namespace Test;
 
 namespace
 {
-
     void breakCycles(Ice::ValuePtr);
 
     template<typename T> void breakCycles(const vector<shared_ptr<T>>& s)
@@ -604,7 +603,6 @@ namespace
             test(false);
         }
     }
-
 }
 
 TestIntfPrx

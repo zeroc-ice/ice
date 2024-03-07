@@ -10,7 +10,6 @@
 
 namespace Ice
 {
-
     class LocalException;
 
     /**
@@ -55,7 +54,6 @@ namespace Ice
         }
         /// \endcond
     };
-
 }
 
 #endif

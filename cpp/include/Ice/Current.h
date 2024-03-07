@@ -33,7 +33,6 @@
 
 namespace Ice
 {
-
     /**
      * Information about the current method invocation for servers. Each operation on the server has a
      * <code>Current</code> as its implicit final parameter. <code>Current</code> is mostly used for Ice services. Most
@@ -106,7 +105,6 @@ namespace Ice
     using Ice::operator>=;
     using Ice::operator==;
     using Ice::operator!=;
-
 }
 
 #include <IceUtil/PopDisableWarnings.h>

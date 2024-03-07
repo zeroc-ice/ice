@@ -14,7 +14,6 @@
 
 namespace Ice::Instrumentation
 {
-
     class Observer;
     class ThreadObserver;
     class ConnectionObserver;
@@ -393,7 +392,6 @@ namespace Ice::Instrumentation
          */
         virtual void setObserverUpdater(const ObserverUpdaterPtr& updater) = 0;
     };
-
 }
 
 #endif

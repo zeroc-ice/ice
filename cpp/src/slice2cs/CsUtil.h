@@ -10,7 +10,6 @@
 
 namespace Slice
 {
-
     class CsGenerator : private ::IceUtil::noncopyable
     {
     public:
@@ -127,7 +126,6 @@ namespace Slice
             std::string _fileName;
         };
     };
-
 }
 
 #endif

@@ -13,9 +13,7 @@ using namespace Ice;
 
 namespace
 {
-
     const char* traceCategory = "Admin.Properties";
-
 }
 
 NativePropertiesAdmin::~NativePropertiesAdmin()
@@ -25,7 +23,6 @@ NativePropertiesAdmin::~NativePropertiesAdmin()
 
 namespace IceInternal
 {
-
     PropertiesAdminI::PropertiesAdminI(const InstancePtr& instance)
         : _properties(instance->initializationData().properties),
           _logger(instance->initializationData().logger)
@@ -208,5 +205,4 @@ namespace IceInternal
         lock_guard lock(_mutex);
         _updateCallbacks.erase(p);
     }
-
 }

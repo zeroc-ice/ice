@@ -19,7 +19,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     inline string socketErrorToString(int error)
     {
         if (error == 0)
@@ -33,10 +32,8 @@ namespace
 
 namespace IceInternal
 {
-
     namespace Ex
     {
-
         void throwUOE(const string& expectedType, const shared_ptr<Ice::Value>& v)
         {
             //
@@ -74,9 +71,7 @@ namespace IceInternal
 
 namespace
 {
-
     const string userException_ids[] = {"::Ice::UserException"};
-
 }
 
 std::string_view
@@ -128,9 +123,7 @@ Ice::LocalException::ice_clone() const
 
 namespace
 {
-
     const string localException_ids[] = {"::Ice::LocalException"};
-
 }
 
 std::string_view
@@ -151,9 +144,7 @@ Ice::SystemException::ice_clone() const
 
 namespace
 {
-
     const string systemException_ids[] = {"::Ice::SystemException"};
-
 }
 
 std::string_view

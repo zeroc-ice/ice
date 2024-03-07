@@ -20,7 +20,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string getClassResolverPrefix(const UnitPtr& p)
     {
         DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
@@ -34,7 +33,6 @@ namespace
         }
         return result;
     }
-
 }
 
 Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir)

@@ -9,10 +9,8 @@
 
 namespace IceSSL
 {
-
     class ConnectionInfo;
     using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
-
 }
 
 #endif

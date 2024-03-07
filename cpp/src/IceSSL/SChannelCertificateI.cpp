@@ -20,7 +20,6 @@ using namespace IceSSL;
 
 namespace
 {
-
     class CertInfoHolder
     {
     public:

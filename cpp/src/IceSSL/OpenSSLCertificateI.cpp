@@ -31,7 +31,6 @@ using namespace std;
 
 namespace
 {
-
     static string convertX509NameToString(X509_name_st* name)
     {
         BIO* out = BIO_new(BIO_s_mem());

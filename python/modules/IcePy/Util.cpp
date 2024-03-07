@@ -16,7 +16,6 @@ using namespace Slice::Python;
 
 namespace IcePy
 {
-
     template<typename T> bool setVersion(PyObject* p, const T& version)
     {
         PyObjectHandle major = PyLong_FromLong(version.major);
@@ -151,7 +150,6 @@ namespace IcePy
 
     char Ice_ProtocolVersion[] = "Ice.ProtocolVersion";
     char Ice_EncodingVersion[] = "Ice.EncodingVersion";
-
 }
 
 string

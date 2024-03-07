@@ -29,7 +29,6 @@ using namespace Test;
 
 namespace
 {
-
     class PerThreadContextInvokeThread final
     {
     public:
@@ -47,7 +46,6 @@ namespace
     private:
         Test::MyClassPrx _proxy;
     };
-
 }
 
 void

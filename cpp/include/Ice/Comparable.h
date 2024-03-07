@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-
     /**
      * Compares the contents of two smart pointers.
      * @param lhs The left-hand side.
@@ -189,7 +188,6 @@ namespace Ice
     {
         return lhs.ice_tuple() != rhs.ice_tuple();
     }
-
 }
 
 #endif

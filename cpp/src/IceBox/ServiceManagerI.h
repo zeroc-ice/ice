@@ -12,7 +12,6 @@
 
 namespace IceBox
 {
-
     class ServiceManagerI;
     using ServiceManagerIPtr = std::shared_ptr<ServiceManagerI>;
 
@@ -88,7 +87,6 @@ namespace IceBox
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
     };
-
 }
 
 #endif

@@ -11,7 +11,6 @@
 
 namespace IceStormElection
 {
-
     struct GroupNodeInfo
     {
         explicit GroupNodeInfo(int i);
@@ -34,7 +33,6 @@ namespace IceStormElection
         virtual std::optional<Ice::ObjectPrx> getObserver() const = 0;
         virtual std::optional<Ice::ObjectPrx> getSync() const = 0;
     };
-
 }
 
 #endif // RELICA_H

@@ -446,14 +446,12 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     typedef std::map<std::string, int> StringTokenMap;
     static StringTokenMap keywordMap;
 
     void initScanner();
     std::string parseDoubleQuotedString();
     std::string parseSingleQuotedString();
-
 }
 #define YY_USER_INIT initScanner();
 
@@ -1899,7 +1897,6 @@ yyfree(void* ptr)
 
 namespace IceGrid
 {
-
     //
     // initScanner() fills the keyword map with all keyword-token pairs.
     //
@@ -2013,5 +2010,4 @@ namespace IceGrid
         }
         return s;
     }
-
 }

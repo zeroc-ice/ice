@@ -15,7 +15,6 @@
 
 namespace IceInternal
 {
-
     class PropertiesAdminI final : public Ice::PropertiesAdmin,
                                    public Ice::NativePropertiesAdmin,
                                    public std::enable_shared_from_this<PropertiesAdminI>
@@ -39,7 +38,6 @@ namespace IceInternal
         std::list<std::function<void(const Ice::PropertyDict&)>> _updateCallbacks;
     };
     using PropertiesAdminIPtr = std::shared_ptr<PropertiesAdminI>;
-
 }
 
 #endif

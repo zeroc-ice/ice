@@ -23,7 +23,6 @@ using namespace IceSSL::SecureTransport;
 
 namespace
 {
-
     string protocolName(SSLProtocol protocol)
     {
         switch (protocol)

@@ -10,7 +10,6 @@
 
 namespace IcePy
 {
-
     extern PyTypeObject EndpointType;
 
     bool initEndpoint(PyObject*);
@@ -19,7 +18,6 @@ namespace IcePy
     Ice::EndpointPtr getEndpoint(PyObject*);
 
     bool toEndpointSeq(PyObject*, Ice::EndpointSeq&);
-
 }
 
 #endif

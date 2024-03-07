@@ -10,7 +10,6 @@
 
 namespace IceUtilInternal
 {
-
     //
     // Portable strtoll/_strtoi64
     //
@@ -36,7 +35,6 @@ namespace IceUtilInternal
     //      - result == "Int64 Min" or result == "Int64 Max" indicate underflow or overflow.
     //
     ICE_API bool stringToInt64(const std::string&, IceUtil::Int64&);
-
 }
 
 #endif

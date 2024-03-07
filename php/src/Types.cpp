@@ -2357,14 +2357,12 @@ IcePHP::ClassInfo::marshal(zval* zv, Ice::OutputStream* os, ObjectMap* objectMap
 
 namespace
 {
-
     void patchObject(void* addr, const shared_ptr<Ice::Value>& v)
     {
         ReadObjectCallback* cb = static_cast<ReadObjectCallback*>(addr);
         assert(cb);
         cb->invoke(v);
     }
-
 }
 
 void

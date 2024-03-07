@@ -21,7 +21,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     class ReplicaGroupSyncCallback final : public SynchronizationCallback
     {
     public:
@@ -124,7 +123,6 @@ namespace IceGrid
 
         mutex _mutex;
     };
-
 }
 
 void

@@ -10,7 +10,6 @@
 
 namespace IcePatch2
 {
-
     class FileServerI final : public FileServer
     {
     public:
@@ -46,7 +45,6 @@ namespace IcePatch2
         const std::string _dataDir;
         const IcePatch2Internal::FileTree0 _tree0;
     };
-
 }
 
 #endif

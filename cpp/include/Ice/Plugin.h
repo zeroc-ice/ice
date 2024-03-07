@@ -29,15 +29,12 @@
 
 namespace Ice
 {
-
     class Plugin;
     class PluginManager;
-
 }
 
 namespace Ice
 {
-
     /**
      * A communicator plug-in. A plug-in generally adds a feature to a communicator, such as support for a protocol.
      * The communicator loads its plug-ins in two stages: the first stage creates the plug-ins, and the second stage
@@ -107,17 +104,14 @@ namespace Ice
          */
         virtual void destroy() noexcept = 0;
     };
-
 }
 
 /// \cond INTERNAL
 namespace Ice
 {
-
     using PluginPtr = ::std::shared_ptr<Plugin>;
 
     using PluginManagerPtr = ::std::shared_ptr<PluginManager>;
-
 }
 /// \endcond
 

@@ -14,15 +14,12 @@
 
 namespace Ice
 {
-
     class OutputStream;
     class InputStream;
-
 }
 
 namespace IceInternal
 {
-
     class ICE_API EndpointI : public Ice::Endpoint
     {
     public:
@@ -165,7 +162,6 @@ namespace IceInternal
     private:
         const EndpointIPtr _endpoint;
     };
-
 }
 
 #endif

@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class TraceLevels
     {
     public:

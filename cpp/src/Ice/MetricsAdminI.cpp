@@ -22,7 +22,6 @@ using namespace IceMX;
 
 namespace
 {
-
     const string suffixes[] = {
         "Disabled", "GroupBy", "Accept.*", "Reject.*", "RetainDetached", "Map.*",
     };
@@ -78,7 +77,6 @@ namespace
         }
         return regexps;
     }
-
 }
 
 MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _attribute(attribute)

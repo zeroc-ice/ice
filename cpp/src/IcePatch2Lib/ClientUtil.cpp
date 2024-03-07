@@ -29,7 +29,6 @@ IcePatch2::PatcherFeedback::~PatcherFeedback()
 
 namespace
 {
-
     class Decompressor
     {
     public:
@@ -881,7 +880,6 @@ namespace
 
         return true;
     }
-
 }
 
 //

@@ -15,7 +15,6 @@
 
 namespace IcePy
 {
-
     bool initOperation(PyObject*);
 
     extern PyTypeObject AsyncInvocationContextType;
@@ -88,7 +87,6 @@ namespace IcePy
 
     PyObject* createAsyncInvocationContext(std::function<void()>, Ice::CommunicatorPtr);
     PyObject* createFuture(const std::string&, PyObject*);
-
 }
 
 #endif

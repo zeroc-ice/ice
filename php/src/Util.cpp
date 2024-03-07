@@ -16,7 +16,6 @@ using namespace Slice::PHP;
 
 namespace
 {
-
     bool getMember(zval* zv, const string& name, zval* member, int type, bool required)
     {
         zval* val = zend_hash_str_find(Z_OBJPROP_P(zv), name.c_str(), name.size());
@@ -171,7 +170,6 @@ namespace
 
     char Ice_ProtocolVersion[] = "::Ice::ProtocolVersion";
     char Ice_EncodingVersion[] = "::Ice::EncodingVersion";
-
 }
 
 void*

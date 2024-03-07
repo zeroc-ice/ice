@@ -23,25 +23,20 @@
 
 namespace IceStorm
 {
-
     namespace Instrumentation
     {
-
         class TopicObserver;
         class SubscriberObserver;
         class ObserverUpdater;
         class TopicManagerObserver;
 
     }
-
 }
 
 namespace IceStorm
 {
-
     namespace Instrumentation
     {
-
         enum class SubscriberState : unsigned char
         {
             /**
@@ -59,15 +54,12 @@ namespace IceStorm
         };
 
     }
-
 }
 
 namespace IceStorm
 {
-
     namespace Instrumentation
     {
-
         class TopicObserver : public virtual ::Ice::Instrumentation::Observer
         {
         public:
@@ -178,13 +170,11 @@ namespace IceStorm
         };
 
     }
-
 }
 
 /// \cond STREAM
 namespace Ice
 {
-
     template<> struct StreamableTraits<::IceStorm::Instrumentation::SubscriberState>
     {
         static const StreamHelperCategory helper = StreamHelperCategoryEnum;
@@ -193,18 +183,15 @@ namespace Ice
         static const int minWireSize = 1;
         static const bool fixedLength = false;
     };
-
 }
 /// \endcond
 
 /// \cond INTERNAL
 namespace IceStorm
 {
-
     /// \cond INTERNAL
     namespace Instrumentation
     {
-
         using TopicObserverPtr = ::std::shared_ptr<TopicObserver>;
 
         using SubscriberObserverPtr = ::std::shared_ptr<SubscriberObserver>;
@@ -215,7 +202,6 @@ namespace IceStorm
 
     }
     /// \endcond
-
 }
 /// \endcond
 

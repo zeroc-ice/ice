@@ -13,10 +13,8 @@
 
 namespace IceSSL
 {
-
     namespace OpenSSL
     {
-
         class SSLEngine final : public IceSSL::SSLEngine
         {
         public:

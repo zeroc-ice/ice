@@ -14,7 +14,6 @@ using namespace Ice;
 
 namespace
 {
-
     int nRetry = 0;
     int nFailure = 0;
     int nInvocation = 0;
@@ -127,7 +126,6 @@ namespace
         }
         value = 0;
     }
-
 }
 
 void

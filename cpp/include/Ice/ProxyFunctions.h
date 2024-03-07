@@ -12,7 +12,6 @@
 
 namespace Ice
 {
-
     /**
      * Verifies that a proxy received from the client is not null, and throws a MarshalException if it is.
      * @param prx The proxy to check.
@@ -263,7 +262,6 @@ namespace Ice
             return proxyIdentityAndFacetEqual(lhs, rhs);
         }
     };
-
 }
 
 #endif

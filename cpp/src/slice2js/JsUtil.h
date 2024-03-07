@@ -10,7 +10,6 @@
 
 namespace Slice
 {
-
     std::string relativePath(const std::string&, const std::string&);
 
     class JsGenerator : private ::IceUtil::noncopyable
@@ -66,7 +65,6 @@ namespace Slice
     private:
         std::vector<std::string> _seenProxy;
     };
-
 }
 
 #endif

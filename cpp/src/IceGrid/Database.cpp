@@ -32,7 +32,6 @@ using ObjectsMapROCursor = IceDB::ReadOnlyCursor<Ice::Identity, ObjectInfo, IceD
 
 namespace
 {
-
     const string applicationsDbName = "applications";
     const string adaptersDbName = "adapters";
     const string adaptersByReplicaGroupIdDbName = "adaptersByReplicaGroupId";
@@ -174,7 +173,6 @@ namespace
         }
         return result;
     }
-
 }
 
 shared_ptr<Database>

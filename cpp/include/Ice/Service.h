@@ -14,7 +14,6 @@
 
 namespace Ice
 {
-
     /**
      * A singleton class comparable to Ice::Application but also provides the low-level, platform-specific
      * initialization and shutdown procedures common to system services.

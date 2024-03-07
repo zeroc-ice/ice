@@ -161,7 +161,6 @@ namespace
     private:
         void usage(const std::string&);
     };
-
 }
 
 BridgeConnection::BridgeConnection(shared_ptr<ObjectAdapter> adapter, ObjectPrx target, shared_ptr<Connection> inc)

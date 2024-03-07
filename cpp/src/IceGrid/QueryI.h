@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class Database;
 
     class QueryI final : public Query
@@ -33,7 +32,6 @@ namespace IceGrid
         const std::shared_ptr<Ice::Communicator> _communicator;
         const std::shared_ptr<Database> _database;
     };
-
 }
 
 #endif

@@ -17,7 +17,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     int checkRetryAfterException(std::exception_ptr ex, const ReferencePtr& ref, int& cnt)
     {
         const InstancePtr& instance = ref->getInstance();
@@ -203,7 +202,6 @@ namespace
         }
         return interval;
     }
-
 }
 
 RequestHandlerCache::RequestHandlerCache(const ReferencePtr& reference)

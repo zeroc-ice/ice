@@ -23,7 +23,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     class ObjectRequest final : public LocatorInfo::Request, public std::enable_shared_from_this<ObjectRequest>
     {
     public:
@@ -75,7 +74,6 @@ namespace
             }
         }
     };
-
 }
 
 IceInternal::LocatorManager::LocatorManager(const Ice::PropertiesPtr& properties)

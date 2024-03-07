@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class Buffer;
 
     class ICE_API Transceiver
@@ -41,7 +40,6 @@ namespace IceInternal
         virtual void checkSendSize(const Buffer&) = 0;
         virtual void setBufferSize(int, int) = 0;
     };
-
 }
 
 #endif

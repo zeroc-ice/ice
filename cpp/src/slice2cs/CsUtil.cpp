@@ -25,7 +25,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string lookupKwd(const string& name, unsigned int baseTypes, bool mangleCasts = false)
     {
         //
@@ -54,7 +53,6 @@ namespace
         }
         return Slice::DotNet::mangleName(name, baseTypes);
     }
-
 }
 
 string

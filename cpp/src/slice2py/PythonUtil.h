@@ -12,7 +12,6 @@ namespace Slice
 {
     namespace Python
     {
-
         //
         // Get the package directory from metadata (if any).
         //

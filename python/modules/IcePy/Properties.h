@@ -10,7 +10,6 @@
 
 namespace IcePy
 {
-
     extern PyTypeObject PropertiesType;
 
     bool initProperties(PyObject*);
@@ -18,7 +17,6 @@ namespace IcePy
     PyObject* createProperties(const Ice::PropertiesPtr&);
 
     Ice::PropertiesPtr getProperties(PyObject*);
-
 }
 
 extern "C" PyObject* IcePy_createProperties(PyObject*, PyObject*);

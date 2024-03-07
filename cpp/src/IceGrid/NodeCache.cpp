@@ -17,7 +17,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     PropertyDescriptor removeProperty(PropertyDescriptorSeq& properties, const string& name)
     {
         string value;
@@ -36,7 +35,6 @@ namespace
         }
         return {name, value};
     }
-
 }
 
 NodeCache::NodeCache(

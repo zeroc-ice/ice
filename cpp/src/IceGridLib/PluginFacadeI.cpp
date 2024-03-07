@@ -12,13 +12,11 @@ using namespace IceGrid;
 
 namespace
 {
-
     std::shared_ptr<RegistryPluginFacade> pluginFacade;
 }
 
 namespace IceGrid
 {
-
     ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
 
 };

@@ -21,7 +21,6 @@ using namespace IceMX;
 
 namespace
 {
-
     int ThreadMetrics::*getThreadStateMetric(ThreadState s)
     {
         switch (s)
@@ -632,7 +631,6 @@ namespace
     };
 
     EndpointHelper::Attributes EndpointHelper::attributes;
-
 }
 
 void

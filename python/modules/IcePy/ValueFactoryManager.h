@@ -12,7 +12,6 @@
 
 namespace IcePy
 {
-
     extern PyTypeObject ValueFactoryManagerType;
 
     bool initValueFactoryManager(PyObject*);
@@ -84,7 +83,6 @@ namespace IcePy
     };
 
     using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
-
 }
 
 #endif

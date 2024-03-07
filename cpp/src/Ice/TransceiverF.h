@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     class Transceiver;
     using TransceiverPtr = std::shared_ptr<Transceiver>;
 
@@ -21,7 +20,6 @@ namespace IceInternal
 
     class WSTransceiver;
     using WSTransceiverPtr = std::shared_ptr<WSTransceiver>;
-
 }
 
 #endif

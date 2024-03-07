@@ -15,7 +15,6 @@
 
 namespace IceSSL
 {
-
     class EndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
     {
     public:
@@ -82,7 +81,6 @@ namespace IceSSL
     private:
         InstancePtr _sslInstance;
     };
-
 }
 
 #endif

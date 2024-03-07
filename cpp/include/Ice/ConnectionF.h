@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-
     class ConnectionInfo;
     class WSConnectionInfo;
     class Connection;
@@ -17,7 +16,6 @@ namespace Ice
     using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
     using WSConnectionInfoPtr = ::std::shared_ptr<WSConnectionInfo>;
     using ConnectionPtr = ::std::shared_ptr<Connection>;
-
 }
 
 #endif

@@ -13,9 +13,7 @@ using namespace std;
 
 namespace IceUtilInternal
 {
-
     extern bool printStackTraces;
-
 }
 
 string

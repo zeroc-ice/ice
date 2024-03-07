@@ -12,7 +12,6 @@
 
 namespace IceDiscovery
 {
-
     class LocatorRegistryI final : public Ice::LocatorRegistry
     {
     public:

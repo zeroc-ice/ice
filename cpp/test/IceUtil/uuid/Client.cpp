@@ -15,9 +15,7 @@ using namespace std;
 
 namespace
 {
-
     mutex staticMutex;
-
 }
 
 inline void

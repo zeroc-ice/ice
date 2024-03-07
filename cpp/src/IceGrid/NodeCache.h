@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class NodeCache;
     class NodeSessionI;
     class ReplicaCache;

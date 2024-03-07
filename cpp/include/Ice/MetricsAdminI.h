@@ -17,17 +17,14 @@
 
 namespace IceMX
 {
-
     /// \cond INTERNAL
     class Updater;
     template<typename T> class MetricsHelperT;
     /// \endcond
-
 }
 
 namespace IceInternal
 {
-
     class ICE_API MetricsMapI;
     using MetricsMapIPtr = std::shared_ptr<MetricsMapI>;
 

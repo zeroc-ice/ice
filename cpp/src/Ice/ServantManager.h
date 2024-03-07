@@ -14,15 +14,12 @@
 
 namespace Ice
 {
-
     class ObjectAdapterI;
     class ServantLocator;
-
 }
 
 namespace IceInternal
 {
-
     class ServantManager
     {
     public:
@@ -62,7 +59,6 @@ namespace IceInternal
         mutable std::map<std::string, std::shared_ptr<Ice::ServantLocator>>::iterator _locatorMapHint;
         mutable std::mutex _mutex;
     };
-
 }
 
 #endif

@@ -12,7 +12,6 @@ namespace Slice
 {
     namespace PHP
     {
-
         //
         // Convert a scoped name into a PHP name.
         //

@@ -13,7 +13,6 @@
 
 namespace IceUtilInternal
 {
-
     ICE_API std::string int64ToString(IceUtil::Int64);
 
     // ----------------------------------------------------------------------
@@ -335,7 +334,6 @@ namespace IceUtilInternal
     }
 
     ICE_API XMLOutput& operator<<(XMLOutput&, std::ios_base& (*)(std::ios_base&));
-
 }
 
 #endif

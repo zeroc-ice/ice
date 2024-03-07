@@ -49,7 +49,6 @@ IceRuby_Communicator_free(Ice::CommunicatorPtr* p)
 
 namespace
 {
-
     class CommunicatorDestroyer
     {
     public:
@@ -60,7 +59,6 @@ namespace
     private:
         Ice::CommunicatorPtr _communicator;
     };
-
 }
 
 extern "C" VALUE

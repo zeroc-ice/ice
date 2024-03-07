@@ -28,14 +28,11 @@
 
 namespace IceBT
 {
-
     class ConnectionInfo;
-
 }
 
 namespace IceBT
 {
-
     /**
      * Provides access to the details of a Bluetooth connection.
      * \headerfile IceBT/IceBT.h
@@ -127,15 +124,12 @@ namespace IceBT
          */
         int sndSize = 0;
     };
-
 }
 
 /// \cond INTERNAL
 namespace IceBT
 {
-
     using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
-
 }
 /// \endcond
 

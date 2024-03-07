@@ -30,19 +30,16 @@
 
 namespace Ice
 {
-
     class ConnectionInfo;
     class Connection;
     class IPConnectionInfo;
     class TCPConnectionInfo;
     class UDPConnectionInfo;
     class WSConnectionInfo;
-
 }
 
 namespace Ice
 {
-
     /**
      * The batch compression option when flushing queued batch requests.
      */
@@ -175,12 +172,10 @@ namespace Ice
     using Ice::operator>=;
     using Ice::operator==;
     using Ice::operator!=;
-
 }
 
 namespace Ice
 {
-
     /**
      * Base class providing access to the connection details.
      * \headerfile Ice/Ice.h
@@ -667,14 +662,12 @@ namespace Ice
          */
         ::Ice::HeaderDict headers;
     };
-
 }
 
 /// \cond INTERNAL
 namespace Ice
 {
-
-    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
+n    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
 
     using ConnectionPtr = ::std::shared_ptr<Connection>;
 
@@ -685,7 +678,6 @@ namespace Ice
     using UDPConnectionInfoPtr = ::std::shared_ptr<UDPConnectionInfo>;
 
     using WSConnectionInfoPtr = ::std::shared_ptr<WSConnectionInfo>;
-
 }
 /// \endcond
 

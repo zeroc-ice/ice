@@ -42,12 +42,10 @@ extern "C"
 #    if TARGET_IPHONE_SIMULATOR == 0
 namespace
 {
-
     inline CFStringRef toCFString(const string& s)
     {
         return CFStringCreateWithCString(nullptr, s.c_str(), kCFStringEncodingUTF8);
     }
-
 }
 #    endif
 

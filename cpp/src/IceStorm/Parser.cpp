@@ -25,18 +25,15 @@ using namespace IceStorm;
 
 namespace IceStorm
 {
-
     Parser* parser;
 
 #ifdef _WIN32
     shared_ptr<Ice::StringConverter> windowsConsoleConverter = nullptr;
 #endif
-
 }
 
 namespace
 {
-
     class UnknownManagerException : public std::exception
     {
     public:
@@ -47,7 +44,6 @@ namespace
     private:
         const string _name;
     };
-
 }
 
 Parser::Parser(

@@ -18,7 +18,6 @@
 
 namespace IceInternal
 {
-
     class ConnectRequestHandler final : public RequestHandler,
                                         public std::enable_shared_from_this<ConnectRequestHandler>
     {
@@ -53,7 +52,6 @@ namespace IceInternal
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
     };
-
 }
 
 #endif

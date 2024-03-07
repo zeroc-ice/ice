@@ -12,7 +12,6 @@
 
 namespace Ice
 {
-
     /**
      * The base class for a compact ID resolver. Subclasses must implement resolve.
      * The resolver can be installed via InitializationData.
@@ -29,12 +28,10 @@ namespace Ice
         virtual ::std::string resolve(std::int32_t id) const = 0;
     };
     using CompactIdResolverPtr = ::std::shared_ptr<CompactIdResolver>;
-
 }
 
 namespace IceInternal
 {
-
     class ICE_API FactoryTable : private IceUtil::noncopyable
     {
     public:
@@ -65,7 +62,6 @@ namespace IceInternal
         typedef ::std::map<int, TypeIdPair> TypeIdTable;
         TypeIdTable _typeIdTable;
     };
-
 }
 
 #endif

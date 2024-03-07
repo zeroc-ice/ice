@@ -31,7 +31,6 @@
 
 namespace Ice
 {
-
     /**
      * This exception is raised when a failure occurs during initialization.
      * \headerfile Ice/Ice.h
@@ -3609,13 +3608,11 @@ namespace Ice
          */
         ICE_MEMBER(ICE_API) virtual void ice_print(::std::ostream& stream) const override;
     };
-
 }
 
 /// \cond STREAM
 namespace Ice
 {
-
 }
 /// \endcond
 

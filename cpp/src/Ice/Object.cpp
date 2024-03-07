@@ -143,7 +143,6 @@ Ice::Object::_iceDispatch(Incoming& incoming)
 
 namespace
 {
-
     string operationModeToString(OperationMode mode)
     {
         switch (mode)
@@ -163,7 +162,6 @@ namespace
         assert(false);
         return "";
     }
-
 }
 
 void

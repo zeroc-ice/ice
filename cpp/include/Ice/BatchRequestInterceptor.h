@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-
     /**
      * Represents an invocation on a proxy configured for batch-oneway or batch-datagram.
      * \headerfile Ice/Ice.h
@@ -42,7 +41,6 @@ namespace Ice
          */
         virtual const Ice::ObjectPrx& getProxy() const = 0;
     };
-
 }
 
 #endif

@@ -11,7 +11,6 @@
 
 namespace IceGrid
 {
-
     //
     // The AdminCallbackRouter routes callbacks from the servers, nodes etc. to the
     // admin clients using the admin-client => registry connection.
@@ -33,7 +32,6 @@ namespace IceGrid
         std::mutex _mutex;
         std::map<std::string, std::shared_ptr<Ice::Connection>> _categoryToConnection;
     };
-
 }
 
 #endif

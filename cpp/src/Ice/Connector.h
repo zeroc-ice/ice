@@ -11,7 +11,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API Connector
     {
     public:
@@ -25,7 +24,6 @@ namespace IceInternal
         virtual bool operator==(const Connector&) const = 0;
         virtual bool operator<(const Connector&) const = 0;
     };
-
 }
 
 #endif

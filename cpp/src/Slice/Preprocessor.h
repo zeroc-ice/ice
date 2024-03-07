@@ -11,7 +11,6 @@
 
 namespace Slice
 {
-
     class Preprocessor;
     using PreprocessorPtr = std::shared_ptr<Preprocessor>;
 
@@ -74,7 +73,6 @@ namespace Slice
         std::string _cppFile;
         FILE* _cppHandle;
     };
-
 }
 
 #endif

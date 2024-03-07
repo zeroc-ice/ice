@@ -12,14 +12,11 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     ICEGRID_API void setRegistryPluginFacade(const shared_ptr<RegistryPluginFacade>&);
-
 }
 
 namespace
 {
-
     class Init
     {
     public:
@@ -41,7 +38,6 @@ namespace
         }
         return false;
     }
-
 }
 
 ApplicationInfo

@@ -9,7 +9,6 @@
 
 namespace IcePHP
 {
-
     bool endpointInit(void);
 
     bool createEndpoint(zval*, const Ice::EndpointPtr&);

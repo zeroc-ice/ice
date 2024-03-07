@@ -34,7 +34,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     mutex globalMutex;
     bool interrupted = false;
 
@@ -421,7 +420,6 @@ namespace
                       "--all                    Generate code for Slice definitions in included files.\n"
                       "--prefix PREFIX          Prepend filenames of Python modules with PREFIX.\n";
     }
-
 }
 
 int

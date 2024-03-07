@@ -31,7 +31,6 @@ using namespace IceGrid;
 
 namespace
 {
-
 #ifdef _WIN32
 
     string pdhErrorToString(PDH_STATUS err)
@@ -112,12 +111,10 @@ namespace
         return socketCount;
     }
 #endif
-
 }
 
 namespace IceGrid
 {
-
     RegistryInfo toRegistryInfo(const shared_ptr<InternalReplicaInfo>& replica)
     {
         RegistryInfo info;
@@ -139,7 +136,6 @@ namespace IceGrid
         info.dataDir = node->dataDir;
         return info;
     }
-
 }
 
 PlatformInfo::PlatformInfo(

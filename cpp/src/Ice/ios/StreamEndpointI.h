@@ -21,15 +21,12 @@
 
 namespace Ice
 {
-
     class OutputStream;
     class InputStream;
-
 }
 
 namespace IceObjC
 {
-
     class Instance;
     using InstancePtr = std::shared_ptr<Instance>;
 
@@ -138,7 +135,6 @@ namespace IceObjC
     private:
         InstancePtr _instance;
     };
-
 }
 
 #endif

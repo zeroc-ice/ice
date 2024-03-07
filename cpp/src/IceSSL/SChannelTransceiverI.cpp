@@ -26,7 +26,6 @@ using namespace IceSSL;
 
 namespace
 {
-
     string protocolName(DWORD protocol)
     {
         switch (protocol)
@@ -282,7 +281,6 @@ namespace
     }
 
     string secStatusToString(SECURITY_STATUS status) { return IceUtilInternal::errorToString(status); }
-
 }
 
 IceInternal::NativeInfoPtr

@@ -18,7 +18,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API ProtocolInstance
     {
     public:
@@ -72,7 +71,6 @@ namespace IceInternal
         const std::int16_t _type;
         const bool _secure;
     };
-
 }
 
 #endif

@@ -950,7 +950,6 @@ Selector::updateSelectorForEventHandler(
 
 namespace
 {
-
     void selectorInterrupt(void* info) { reinterpret_cast<Selector*>(info)->processInterrupt(); }
 
     void
@@ -988,7 +987,6 @@ namespace
         }
         return cbs;
     }
-
 }
 
 EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& selector)

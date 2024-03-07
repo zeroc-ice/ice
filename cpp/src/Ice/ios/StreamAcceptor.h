@@ -10,7 +10,6 @@
 
 namespace IceObjC
 {
-
     class StreamEndpointI;
     using StreamEndpointIPtr = std::shared_ptr<StreamEndpointI>;
 
@@ -40,7 +39,6 @@ namespace IceObjC
         int _backlog;
         IceInternal::Address _addr;
     };
-
 }
 
 #endif

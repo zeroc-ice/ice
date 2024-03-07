@@ -19,7 +19,6 @@ using namespace IceInternal;
 
 namespace IceInternal
 {
-
     inline std::pair<const uint8_t*, const uint8_t*> makePair(const Ice::ByteSeq& seq)
     {
         if (seq.empty())
@@ -212,7 +211,6 @@ namespace IceInternal
             return false;
         }
     };
-
 }
 
 ProxyFlushBatchAsync::ProxyFlushBatchAsync(ObjectPrx proxy) : ProxyOutgoingAsyncBase(std::move(proxy)) {}

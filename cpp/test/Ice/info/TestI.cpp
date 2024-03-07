@@ -13,7 +13,6 @@ using namespace Test;
 
 namespace
 {
-
     IPEndpointInfoPtr getIPEndpointInfo(const EndpointInfoPtr& info)
     {
         for (EndpointInfoPtr p = info; p; p = p->underlying)
@@ -39,7 +38,6 @@ namespace
         }
         return nullptr;
     }
-
 }
 
 void

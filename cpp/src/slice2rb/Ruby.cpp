@@ -23,7 +23,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     mutex globalMutex;
     bool interrupted = false;
 
@@ -51,7 +50,6 @@ namespace
                       "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
                       "--all                    Generate code for Slice definitions in included files.\n";
     }
-
 }
 
 int

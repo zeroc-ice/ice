@@ -11,7 +11,6 @@
 
 namespace Ice
 {
-
     class SysLoggerI : public Logger
     {
     public:
@@ -31,7 +30,6 @@ namespace Ice
         const std::string _prefix;
         std::mutex _mutex;
     };
-
 }
 
 #endif

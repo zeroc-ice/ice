@@ -19,13 +19,11 @@ using namespace IceUtil;
 
 namespace
 {
-
     CtrlCHandlerCallback _callback = nullptr;
 
     const CtrlCHandler* _handler = 0;
 
     mutex globalMutex;
-
 }
 
 CtrlCHandlerException::CtrlCHandlerException(const char* file, int line)
@@ -155,9 +153,7 @@ extern "C"
 
 namespace
 {
-
     pthread_t _tid;
-
 }
 
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)

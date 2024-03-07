@@ -7,7 +7,6 @@
 
 namespace IceInternal
 {
-
     inline void hashAdd(std::int32_t& hashCode, std::int32_t value)
     {
         hashCode = ((hashCode << 5) + hashCode) ^ static_cast<std::int32_t>(2654435761u) * value;
@@ -48,7 +47,6 @@ namespace IceInternal
             hashAdd(hashCode, p->second);
         }
     }
-
 }
 
 #endif

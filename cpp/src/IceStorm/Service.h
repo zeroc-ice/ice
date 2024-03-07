@@ -34,7 +34,6 @@
 // This API is internal to Ice, and should not be used by external applications.
 namespace IceStormInternal
 {
-
     class Service : public IceBox::Service
     {
     public:

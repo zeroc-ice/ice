@@ -22,7 +22,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     class LogPatcherFeedback : public IcePatch2::PatcherFeedback
     {
     public:
@@ -164,7 +163,6 @@ namespace
         string _path;
         string _dest;
     };
-
 }
 
 NodeI::Update::Update(UpdateFunction updateFunction, const shared_ptr<NodeI>& node, const NodeObserverPrxPtr& observer)

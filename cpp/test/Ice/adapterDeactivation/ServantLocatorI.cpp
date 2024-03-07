@@ -12,7 +12,6 @@ using namespace Test;
 
 namespace
 {
-
     class RouterI final : public Router
     {
     public:
@@ -32,7 +31,6 @@ namespace
     private:
         mutable int _nextPort;
     };
-
 }
 
 ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(make_shared<RouterI>()) {}

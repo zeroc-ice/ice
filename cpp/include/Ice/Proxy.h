@@ -20,28 +20,23 @@
 
 namespace Ice
 {
-
     /** Marker value used to indicate that no explicit context was passed to a proxy invocation. */
     ICE_API extern const Context noExplicitContext;
 
     class LocatorPrx;
     class RouterPrx;
-
 }
 
 namespace IceInternal
 {
-
     class ProxyGetConnection;
     class ProxyFlushBatchAsync;
 
     template<typename T> class OutgoingAsyncT;
-
 }
 
 namespace Ice
 {
-
     class LocalException;
     class OutputStream;
 
@@ -813,7 +808,6 @@ namespace Ice
         IceInternal::ReferencePtr _reference;
         IceInternal::RequestHandlerCachePtr _requestHandlerCache;
     };
-
 }
 
 #endif

@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-
     /**
      * Describes the possible formats for classes and exceptions.
      */
@@ -28,7 +27,6 @@ namespace Ice
          */
         SlicedFormat
     };
-
 }
 
 #endif

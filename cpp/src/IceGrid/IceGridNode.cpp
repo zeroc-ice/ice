@@ -34,7 +34,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     class ProcessI final : public Process
     {
     public:
@@ -102,7 +101,6 @@ namespace
         }
     }
 #endif
-
 }
 
 CollocatedRegistry::CollocatedRegistry(

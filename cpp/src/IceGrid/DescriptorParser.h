@@ -7,10 +7,8 @@
 
 namespace IceGrid
 {
-
     namespace DescriptorParser
     {
-
         ApplicationDescriptor parseDescriptor(
             const std::string&,
             const Ice::StringSeq&,
@@ -21,7 +19,6 @@ namespace IceGrid
         ApplicationDescriptor parseDescriptor(const std::string&, const std::shared_ptr<Ice::Communicator>&);
 
     }
-
 }
 
 #endif

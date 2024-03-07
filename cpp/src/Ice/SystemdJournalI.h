@@ -11,7 +11,6 @@
 
 namespace Ice
 {
-
     class SystemdJournalI : public Logger
     {
     public:
@@ -29,7 +28,6 @@ namespace Ice
 
         const std::string _prefix;
     };
-
 }
 
 #endif

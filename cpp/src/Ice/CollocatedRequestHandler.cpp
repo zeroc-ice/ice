@@ -20,7 +20,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     class InvokeAllAsync final : public DispatchWorkItem
     {
     public:

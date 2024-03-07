@@ -11,12 +11,10 @@
 
 namespace Ice
 {
-
     /**
      * A mapping from facet name to servant.
      */
     using FacetMap = ::std::map<::std::string, std::shared_ptr<Object>>;
-
 }
 
 #endif

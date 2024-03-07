@@ -230,7 +230,6 @@ IceXML::Handler::error(const string& msg, int line, int column)
 //
 namespace IceXML
 {
-
     class DocumentBuilder : public Handler
     {
     public:
@@ -246,7 +245,6 @@ namespace IceXML
         list<shared_ptr<Node>> _nodeStack;
         shared_ptr<Document> _document;
     };
-
 }
 
 IceXML::DocumentBuilder::DocumentBuilder()

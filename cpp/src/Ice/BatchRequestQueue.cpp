@@ -14,7 +14,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     const int udpOverhead = 20 + 8;
 
     class BatchRequestI final : public Ice::BatchRequest

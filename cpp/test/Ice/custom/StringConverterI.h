@@ -14,7 +14,6 @@
 
 namespace Test
 {
-
     class StringConverterI : public Ice::StringConverter
     {
     public:
@@ -30,7 +29,6 @@ namespace Test
         virtual void
         fromUTF8(const std::uint8_t* sourceStart, const std::uint8_t* sourceEnd, std::wstring& target) const;
     };
-
 }
 
 #endif

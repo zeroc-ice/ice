@@ -20,7 +20,6 @@ using namespace IceStormInternal;
 
 namespace
 {
-
     void logError(const shared_ptr<Ice::Communicator>& com, const IceDB::LMDBException& ex)
     {
         Ice::Error error(com->getLogger());
@@ -199,7 +198,6 @@ namespace
     private:
         const shared_ptr<TopicManagerImpl> _impl;
     };
-
 }
 
 shared_ptr<TopicManagerImpl>

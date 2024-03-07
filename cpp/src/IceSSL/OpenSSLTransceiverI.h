@@ -23,10 +23,8 @@ typedef struct bio_st BIO;
 
 namespace IceSSL
 {
-
     namespace OpenSSL
     {
-
         class TransceiverI final : public IceInternal::Transceiver
         {
         public:

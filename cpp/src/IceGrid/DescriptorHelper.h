@@ -13,7 +13,6 @@
 
 namespace IceGrid
 {
-
     class ApplicationHelper;
     class Resolver
     {
@@ -323,7 +322,6 @@ namespace IceGrid
     descriptorEqual(const std::shared_ptr<ServerDescriptor>&, const std::shared_ptr<ServerDescriptor>&, bool = false);
     std::shared_ptr<ServerHelper> createHelper(const std::shared_ptr<ServerDescriptor>&);
     bool isServerUpdated(const ServerInfo&, const ServerInfo&, bool = false);
-
 }
 
 #endif

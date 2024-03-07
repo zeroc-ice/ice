@@ -25,14 +25,11 @@
 
 namespace Ice
 {
-
     class OutputStream;
-
 }
 
 namespace IceInternal
 {
-
     class Reference : public std::enable_shared_from_this<Reference>
     {
     public:
@@ -358,7 +355,6 @@ namespace IceInternal
     };
 
     using RoutableReferencePtr = std::shared_ptr<RoutableReference>;
-
 }
 
 #endif

@@ -17,7 +17,6 @@
 
 namespace Ice
 {
-
     class LocatorPrx;
     class RouterPrx;
 
@@ -379,7 +378,6 @@ namespace Ice
     };
 
     using CommunicatorPtr = std::shared_ptr<Communicator>;
-
 }
 
 #endif

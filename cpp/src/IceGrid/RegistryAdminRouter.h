@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class RegistryServerAdminRouter final : public AdminRouter,
                                             public std::enable_shared_from_this<RegistryServerAdminRouter>
     {
@@ -58,6 +57,5 @@ namespace IceGrid
         const std::string _name;
         const std::shared_ptr<Database> _database;
     };
-
 }
 #endif

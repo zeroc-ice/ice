@@ -16,7 +16,6 @@
 
 namespace IceUtil
 {
-
     class Timer;
     using TimerPtr = std::shared_ptr<Timer>;
 
@@ -152,7 +151,6 @@ namespace IceUtil
         std::chrono::steady_clock::time_point _wakeUpTime;
         std::thread _worker;
     };
-
 }
 
 #endif

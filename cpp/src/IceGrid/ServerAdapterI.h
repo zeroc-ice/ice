@@ -9,7 +9,6 @@
 
 namespace IceGrid
 {
-
     class NodeI;
     class ServerI;
 
@@ -55,7 +54,6 @@ namespace IceGrid
 
         mutable std::mutex _mutex;
     };
-
 }
 
 #endif

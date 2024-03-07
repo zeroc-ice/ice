@@ -55,7 +55,6 @@ IceRuby::resolveCompactId(int id)
 
 namespace IceRuby
 {
-
     VALUE Unset;
 
     class InfoMapDestroyer
@@ -96,7 +95,6 @@ namespace IceRuby
 
         return out.str();
     }
-
 }
 
 //
@@ -2098,14 +2096,12 @@ IceRuby::ClassInfo::marshal(VALUE p, Ice::OutputStream* os, ValueMap* valueMap, 
 
 namespace
 {
-
     void patchObject(void* addr, const shared_ptr<Ice::Value>& v)
     {
         ReadValueCallback* cb = static_cast<ReadValueCallback*>(addr);
         assert(cb);
         cb->invoke(v);
     }
-
 }
 
 void

@@ -10,7 +10,6 @@
 
 namespace Ice
 {
-
     class EndpointInfo;
     using EndpointInfoPtr = std::shared_ptr<EndpointInfo>;
 
@@ -33,7 +32,6 @@ namespace Ice
      * A sequence of endpoints.
      */
     using EndpointSeq = std::vector<EndpointPtr>;
-
 }
 
 #endif

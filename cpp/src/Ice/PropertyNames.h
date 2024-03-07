@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     struct Property
     {
         const char* pattern;
@@ -55,7 +54,6 @@ namespace IceInternal
         static const PropertyArray validProps[];
         static const char* clPropNames[];
     };
-
 }
 
 #endif

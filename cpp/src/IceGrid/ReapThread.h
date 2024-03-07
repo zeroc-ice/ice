@@ -14,7 +14,6 @@
 
 namespace IceGrid
 {
-
     class Reapable
     {
     public:
@@ -121,7 +120,6 @@ namespace IceGrid
         std::condition_variable _condVar;
         std::thread _thread;
     };
-
 }
 
 #endif

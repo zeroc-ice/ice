@@ -34,10 +34,8 @@
 
 namespace IceSSL
 {
-
     namespace SChannel
     {
-
         class TransceiverI final : public IceInternal::Transceiver
         {
         public:

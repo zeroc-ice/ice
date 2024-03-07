@@ -19,7 +19,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     class WSEndpointFactoryPlugin : public Plugin
     {
     public:
@@ -40,7 +39,6 @@ namespace
         }
         return nullptr;
     }
-
 }
 
 extern "C"
@@ -53,9 +51,7 @@ extern "C"
 
 namespace Ice
 {
-
     ICE_API void registerIceWS(bool loadOnInitialize) { registerPluginFactory("IceWS", createIceWS, loadOnInitialize); }
-
 }
 
 WSEndpointFactoryPlugin::WSEndpointFactoryPlugin(const CommunicatorPtr& communicator)

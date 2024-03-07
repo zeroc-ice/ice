@@ -13,13 +13,11 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     struct NativePropertiesAdminObject
     {
         PyObject_HEAD Ice::NativePropertiesAdminPtr* admin;
         vector<pair<PyObject*, function<void()>>>* callbacks;
     };
-
 }
 
 #ifdef WIN32
@@ -130,7 +128,6 @@ static PyMethodDef NativePropertiesAdminMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject NativePropertiesAdminType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -175,7 +172,6 @@ namespace IcePy
         0,                                                          /* tp_free */
         0,                                                          /* tp_is_gc */
     };
-
 }
 
 bool

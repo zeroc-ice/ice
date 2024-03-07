@@ -26,7 +26,6 @@
 
 namespace Ice
 {
-
     /**
      * Determines the order in which the Ice run time uses the endpoints in a proxy when establishing a connection.
      */
@@ -41,7 +40,6 @@ namespace Ice
          */
         Ordered
     };
-
 }
 
 #endif

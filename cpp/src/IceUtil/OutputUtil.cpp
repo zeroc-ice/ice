@@ -12,7 +12,6 @@ using namespace IceUtilInternal;
 
 namespace IceUtilInternal
 {
-
     NextLine nl;
     StartBlock sb;
     EndBlock eb;
@@ -24,7 +23,6 @@ namespace IceUtilInternal
     EndElement ee;
     StartEscapes startEscapes;
     EndEscapes endEscapes;
-
 }
 
 string

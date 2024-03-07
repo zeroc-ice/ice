@@ -20,7 +20,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     bool skipReplicaGroupFilter = false;
 
     class ServerDescriptorI : public IceGrid::ServerDescriptor
@@ -46,7 +45,6 @@ namespace
     private:
         string _serverVersion;
     };
-
 }
 
 //
@@ -55,7 +53,6 @@ namespace
 //
 namespace Ice
 {
-
     template<> struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
     {
         static void read(Ice::InputStream* is, IceGrid::ReplicaGroupDescriptor& v)

@@ -15,7 +15,6 @@ using namespace IceUtil;
 
 namespace
 {
-
     char toHexDigit(uint8_t b)
     {
         assert(b < 16);
@@ -98,7 +97,6 @@ namespace
             }
         }
     }
-
 }
 
 //
@@ -267,7 +265,6 @@ IceUtilInternal::escapeString(const string& s, const string& special, ToStringMo
 
 namespace
 {
-
     char checkChar(const string& s, string::size_type pos)
     {
         unsigned char c = static_cast<unsigned char>(s[pos]);
@@ -551,7 +548,6 @@ namespace
         nextStart = start;
         return pureASCII;
     }
-
 }
 
 //

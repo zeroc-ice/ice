@@ -12,7 +12,6 @@ using namespace std;
 
 namespace
 {
-
     class PluginI : public IceSSL::PluginI, public IceSSL::OpenSSL::Plugin
     {
     public:
@@ -87,12 +86,10 @@ createIceSSLOpenSSL(const Ice::CommunicatorPtr& communicator, const string& /*na
 
 namespace Ice
 {
-
     ICESSL_OPENSSL_API void registerIceSSLOpenSSL(bool loadOnInitialize)
     {
         Ice::registerPluginFactory("IceSSL", createIceSSLOpenSSL, loadOnInitialize);
     }
-
 }
 
 #else

@@ -14,7 +14,6 @@ typedef struct mxArray_tag mxArray; // Forward declaration to avoid importing me
 
 namespace IceMatlab
 {
-
     mxArray* createStringFromUTF8(const std::string&);
     std::string getStringFromUTF16(mxArray*);
     mxArray* createEmpty();
@@ -75,5 +74,4 @@ namespace IceMatlab
             return std::nullopt;
         }
     }
-
 }

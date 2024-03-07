@@ -35,14 +35,11 @@
 #endif
 namespace IceBox
 {
-
     class Service;
-
 }
 
 namespace IceBox
 {
-
     /**
      * This exception is a general failure notification. It is thrown for errors such as a service encountering an error
      * during initialization, or the service manager being unable to load a service executable.
@@ -101,12 +98,10 @@ namespace IceBox
          */
         ::std::string reason;
     };
-
 }
 
 namespace IceBox
 {
-
     /**
      * An application service managed by a {@link ServiceManager}.
      * \headerfile IceBox/IceBox.h
@@ -135,15 +130,12 @@ namespace IceBox
          */
         virtual void stop() = 0;
     };
-
 }
 
 /// \cond INTERNAL
 namespace IceBox
 {
-
     using ServicePtr = ::std::shared_ptr<Service>;
-
 }
 /// \endcond
 

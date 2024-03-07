@@ -9,7 +9,6 @@
 
 namespace Slice
 {
-
     class CsVisitor : public CsGenerator, public ParserVisitor
     {
     public:
@@ -242,7 +241,6 @@ namespace Slice
             bool _tie;
         };
     };
-
 }
 
 #endif

@@ -17,7 +17,6 @@ using namespace IceLocatorDiscovery;
 
 namespace
 {
-
     class LocatorI; // Forward declaration
     class Request : public std::enable_shared_from_this<Request>
     {
@@ -163,7 +162,6 @@ namespace
         optional<Ice::LocatorPrx> _locatorPrx;
         optional<Ice::LocatorPrx> _defaultLocator;
     };
-
 }
 
 //
@@ -177,7 +175,6 @@ createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string
 
 namespace Ice
 {
-
     ICE_LOCATOR_DISCOVERY_API void registerIceLocatorDiscovery(bool loadOnInitialize)
     {
         Ice::registerPluginFactory("IceLocatorDiscovery", createIceLocatorDiscovery, loadOnInitialize);
@@ -189,7 +186,6 @@ namespace Ice
         registerIceUDP(true);
 #endif
     }
-
 }
 
 PluginI::PluginI(const string& name, const Ice::CommunicatorPtr& communicator)

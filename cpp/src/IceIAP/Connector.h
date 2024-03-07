@@ -16,7 +16,6 @@
 
 namespace IceObjC
 {
-
     class iAPEndpointI;
 
     class Instance;
@@ -47,7 +46,6 @@ namespace IceObjC
         NSString* _protocol;
         EAAccessory* _accessory;
     };
-
 }
 
 #endif

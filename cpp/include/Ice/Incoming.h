@@ -22,7 +22,6 @@ namespace Ice
 
 namespace IceInternal
 {
-
     class ICE_API Incoming final
     {
     public:
@@ -117,7 +116,6 @@ namespace IceInternal
         // We don't need an atomic flag since it's purely to detect logic errors in the application code.
         bool _responseSent = false;
     };
-
 }
 
 #endif

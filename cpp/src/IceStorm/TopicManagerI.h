@@ -14,7 +14,6 @@
 
 namespace IceStorm
 {
-
     class PersistentInstance;
     class TopicImpl;
 

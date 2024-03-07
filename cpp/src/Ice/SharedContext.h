@@ -16,7 +16,6 @@ namespace Ice
 
 namespace IceInternal
 {
-
     class SharedContext
     {
     public:
@@ -31,7 +30,6 @@ namespace IceInternal
     };
 
     using SharedContextPtr = std::shared_ptr<SharedContext>;
-
 }
 
 #endif

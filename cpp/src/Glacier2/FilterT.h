@@ -15,7 +15,6 @@
 
 namespace Glacier2
 {
-
     template<typename T, class P> class FilterT : public P
     {
     public:
@@ -147,7 +146,6 @@ namespace Glacier2
 
     using IdentitySetI = FilterT<Ice::Identity, Glacier2::IdentitySet>;
     using StringSetI = FilterT<std::string, Glacier2::StringSet>;
-
 }
 
 #endif

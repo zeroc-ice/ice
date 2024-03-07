@@ -46,7 +46,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     // Get the fully-qualified name of the given definition. If a suffix is provided, it is prepended to the
     // definition's unqualified name. If the nameSuffix is provided, it is appended to the container's name.
     string
@@ -54,7 +53,6 @@ namespace
     {
         return scopedToName(cont->scope() + pfx + cont->name() + suffix, true);
     }
-
 }
 
 // CodeVisitor generates the PHP mapping for a translation unit.
@@ -1327,10 +1325,8 @@ printHeader(IceUtilInternal::Output& out)
 
 namespace
 {
-
     mutex globalMutex;
     bool interrupted = false;
-
 }
 
 static void

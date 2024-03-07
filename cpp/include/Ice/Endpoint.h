@@ -30,7 +30,6 @@
 
 namespace Ice
 {
-
     class EndpointInfo;
     class Endpoint;
     class IPEndpointInfo;
@@ -38,12 +37,10 @@ namespace Ice
     class UDPEndpointInfo;
     class WSEndpointInfo;
     class OpaqueEndpointInfo;
-
 }
 
 namespace Ice
 {
-
     /**
      * Base class providing access to the endpoint details.
      * \headerfile Ice/Ice.h
@@ -359,20 +356,17 @@ namespace Ice
          */
         std::vector<std::byte> rawBytes;
     };
-
 }
 
 /// \cond STREAM
 namespace Ice
 {
-
 }
 /// \endcond
 
 /// \cond INTERNAL
 namespace Ice
 {
-
     using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
 
     using EndpointPtr = ::std::shared_ptr<Endpoint>;
@@ -386,7 +380,6 @@ namespace Ice
     using WSEndpointInfoPtr = ::std::shared_ptr<WSEndpointInfo>;
 
     using OpaqueEndpointInfoPtr = ::std::shared_ptr<OpaqueEndpointInfo>;
-
 }
 /// \endcond
 

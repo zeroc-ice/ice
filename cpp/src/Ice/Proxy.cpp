@@ -21,14 +21,11 @@ using namespace IceInternal;
 
 namespace Ice
 {
-
     const Context noExplicitContext;
-
 }
 
 namespace
 {
-
     inline ReferencePtr createReference(const shared_ptr<Communicator>& communicator, const string& proxyString)
     {
         if (!communicator)
@@ -43,7 +40,6 @@ namespace
         }
         return ref;
     }
-
 }
 
 Ice::ObjectPrx::ObjectPrx(const shared_ptr<Communicator>& communicator, const string& proxyString)
@@ -619,7 +615,6 @@ Ice::ObjectPrx::_twoway() const
 // TODO: move the code below to ProxyFunctions.cpp
 namespace Ice
 {
-
     bool operator<(const ObjectPrx& lhs, const ObjectPrx& rhs)
     {
         return targetLess(lhs._getReference(), rhs._getReference());
@@ -629,7 +624,6 @@ namespace Ice
     {
         return targetEqualTo(lhs._getReference(), rhs._getReference());
     }
-
 }
 
 bool

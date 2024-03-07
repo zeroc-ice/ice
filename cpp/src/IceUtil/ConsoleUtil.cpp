@@ -12,11 +12,9 @@ using namespace std;
 #if defined(_WIN32)
 namespace
 {
-
     mutex consoleMutex;
     // We leak consoleUtil object to ensure that is available during static destruction.
     ConsoleUtil* consoleUtil = 0;
-
 }
 
 const ConsoleUtil&

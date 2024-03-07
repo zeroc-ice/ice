@@ -21,7 +21,6 @@
 
 namespace Glacier2
 {
-
     /** The IANA-registered port number for Glacier2 via SSL. */
     const int GLACIER2_SSL_PORT = 4064;
     /** The IANA-registered port number for Glacier2 via TCP. */
@@ -292,7 +291,6 @@ namespace Glacier2
         std::map<const SessionHelper*, std::thread> _threads;
     };
     using SessionFactoryHelperPtr = std::shared_ptr<SessionFactoryHelper>;
-
 }
 
 #endif

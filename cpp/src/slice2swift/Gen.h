@@ -12,7 +12,6 @@ using namespace Slice;
 
 namespace Slice
 {
-
     class Gen
     {
     public:
@@ -129,7 +128,6 @@ namespace Slice
             IceUtilInternal::Output& out;
         };
     };
-
 }
 
 #endif

@@ -34,7 +34,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     const char* _commandsHelp[][3] = {
         {"application", "add",
          "application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
@@ -285,14 +284,11 @@ namespace
         _destroyed = true;
         _condVar.notify_all();
     }
-
 }
 
 namespace IceGrid
 {
-
     Parser* parser;
-
 }
 
 Parser::Parser(shared_ptr<Communicator> communicator, AdminSessionPrxPtr session, AdminPrxPtr admin, bool interactive)

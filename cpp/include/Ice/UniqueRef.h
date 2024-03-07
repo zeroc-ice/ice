@@ -11,7 +11,6 @@
 
 namespace IceInternal
 {
-
     //
     // UniqueRef helper class for CoreFoundation classes, comparable to std::unique_ptr
     //
@@ -71,7 +70,6 @@ namespace IceInternal
 
         R _ref;
     };
-
 }
 
 #endif

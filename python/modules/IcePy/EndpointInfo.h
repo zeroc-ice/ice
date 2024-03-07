@@ -10,14 +10,12 @@
 
 namespace IcePy
 {
-
     extern PyTypeObject EndpointInfoType;
 
     bool initEndpointInfo(PyObject*);
 
     PyObject* createEndpointInfo(const Ice::EndpointInfoPtr&);
     Ice::EndpointInfoPtr getEndpointInfo(PyObject*);
-
 }
 
 #endif

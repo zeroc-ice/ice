@@ -9,9 +9,7 @@
 
 namespace IceRuby
 {
-
     void initSlice(VALUE);
-
 }
 
 #endif

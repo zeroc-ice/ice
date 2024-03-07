@@ -14,7 +14,6 @@
 
 namespace IceGrid
 {
-
     class TraceLevels;
 
     NodeInfo toNodeInfo(const std::shared_ptr<InternalNodeInfo>&);

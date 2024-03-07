@@ -15,7 +15,6 @@ using namespace Test;
 
 namespace
 {
-
     class PingReplyI : public PingReply
     {
     public:

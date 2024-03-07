@@ -44,7 +44,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     inline void checkServant(const shared_ptr<Object>& servant)
     {
         if (!servant)
@@ -54,7 +53,6 @@ namespace
     }
 
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
-
 }
 
 string

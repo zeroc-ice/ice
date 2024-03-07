@@ -27,13 +27,11 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     struct ProxyObject
     {
         PyObject_HEAD Ice::ObjectPrx* proxy;
         Ice::CommunicatorPtr* communicator;
     };
-
 }
 
 //
@@ -2352,7 +2350,6 @@ static PyMethodDef ProxyMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject ProxyType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -2397,7 +2394,6 @@ namespace IcePy
         0,                                           /* tp_free */
         0,                                           /* tp_is_gc */
     };
-
 }
 
 bool

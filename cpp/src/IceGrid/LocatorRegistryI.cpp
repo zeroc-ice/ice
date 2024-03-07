@@ -15,7 +15,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     tuple<function<void()>, function<void(exception_ptr)>> newSetDirectProxyCB(
         function<void()> responseCb,
         function<void(exception_ptr)> exceptionCb,

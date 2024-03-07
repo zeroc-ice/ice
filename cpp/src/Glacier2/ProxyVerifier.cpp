@@ -24,7 +24,6 @@ using namespace IceInternal;
 //
 namespace Glacier2
 {
-
     //
     // A numeric range that can be encoded in a filter.
     //

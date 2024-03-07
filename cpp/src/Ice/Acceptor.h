@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API Acceptor
     {
     public:
@@ -30,7 +29,6 @@ namespace IceInternal
         virtual std::string toString() const = 0;
         virtual std::string toDetailedString() const = 0;
     };
-
 }
 
 #endif

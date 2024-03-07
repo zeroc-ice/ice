@@ -14,7 +14,6 @@
 
 namespace IceInternal
 {
-
     std::vector<unsigned char> calcSHA1(const std::vector<unsigned char>&);
 
     typedef std::map<std::string, std::pair<std::string, std::string>> HeaderFields;
@@ -112,7 +111,6 @@ namespace IceInternal
         State _state;
     };
     using HttpParserPtr = std::shared_ptr<HttpParser>;
-
 }
 
 #endif

@@ -11,7 +11,6 @@
 
 namespace Slice
 {
-
     extern std::string paramPrefix;
 
     struct ToIfdef
@@ -76,7 +75,6 @@ namespace Slice
     bool findMetaData(const std::string&, const StringList&, std::string&);
     std::string findMetaData(const StringList&, TypeContext = TypeContext::None);
     bool inWstringModule(const SequencePtr&);
-
 }
 
 #endif

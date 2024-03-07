@@ -36,7 +36,6 @@
 
 namespace IceDB
 {
-
     const size_t maxKeySize = 511;
 
     //
@@ -460,7 +459,6 @@ namespace IceDB
     //
 
     ICE_DB_API size_t getMapSize(int);
-
 }
 
 #endif

@@ -9,7 +9,6 @@
 
 namespace Slice
 {
-
     class JsVisitor : public JsGenerator, public ParserVisitor
     {
     public:
@@ -196,7 +195,6 @@ namespace Slice
             bool _wroteImports;
         };
     };
-
 }
 
 #endif

@@ -34,7 +34,6 @@
 
 namespace IceXML
 {
-
     class ICE_XML_API ParserException final : public IceUtil::ExceptionHelper<ParserException>
     {
     public:
@@ -147,7 +146,6 @@ namespace IceXML
         static void parse(const std::string&, Handler&);
         static void parse(std::istream&, Handler&);
     };
-
 }
 
 #endif

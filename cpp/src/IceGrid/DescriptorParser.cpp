@@ -19,7 +19,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     class DescriptorHandler final : public IceXML::Handler
     {
     public:
@@ -802,7 +801,6 @@ namespace
 
         return false;
     }
-
 }
 
 ApplicationDescriptor

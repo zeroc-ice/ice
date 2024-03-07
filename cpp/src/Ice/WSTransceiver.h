@@ -15,7 +15,6 @@
 
 namespace IceInternal
 {
-
     class ConnectorI;
     class AcceptorI;
 
@@ -133,7 +132,6 @@ namespace IceInternal
 
         std::vector<std::uint8_t> _pingPayload;
     };
-
 }
 
 #endif

@@ -31,7 +31,6 @@
 
 namespace Ice
 {
-
     /**
      * Indicates that Iconv does not support the code.
      * \headerfile Ice/Ice.h
@@ -68,12 +67,10 @@ namespace Ice
     private:
         std::string _reason;
     };
-
 }
 
 namespace IceInternal
 {
-
     //
     // Converts charT encoded with internalCode to and from UTF-8 byte sequences
     //
@@ -272,7 +269,6 @@ namespace IceInternal
 
 namespace Ice
 {
-
     /**
      * Creates a string converter for the given code.
      * @param internalCodeWithDefault The desired code. If empty or not provided, a default code is used.
@@ -292,7 +288,6 @@ namespace Ice
 
         return std::make_shared<IceInternal::IconvStringConverter<charT>>(internalCode);
     }
-
 }
 
 #endif

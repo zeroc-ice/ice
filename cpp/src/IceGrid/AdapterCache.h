@@ -14,7 +14,6 @@
 
 namespace IceGrid
 {
-
     class AdapterCache;
     class AdapterEntry;
     class ServerAdapterEntry;

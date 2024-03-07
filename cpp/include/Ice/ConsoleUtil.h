@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     using IceUtilInternal::consoleErr;
     using IceUtilInternal::consoleOut;
 
@@ -17,7 +16,6 @@ namespace IceInternal
     using IceUtilInternal::endl;
     using IceUtilInternal::flush;
 #endif
-
 }
 
 #endif

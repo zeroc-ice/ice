@@ -13,7 +13,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     class MasterDatabaseObserverI : public DatabaseObserver
     {
     public:

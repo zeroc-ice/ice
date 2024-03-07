@@ -57,7 +57,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     struct AddressCompare
     {
     public:
@@ -701,7 +700,6 @@ namespace
         }
         return result;
     }
-
 }
 
 ReadyCallback::~ReadyCallback()

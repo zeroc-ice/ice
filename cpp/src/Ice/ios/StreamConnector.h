@@ -14,7 +14,6 @@
 
 namespace IceObjC
 {
-
     class StreamEndpointI;
 
     class Instance;
@@ -42,7 +41,6 @@ namespace IceObjC
         const std::int32_t _timeout;
         const std::string _connectionId;
     };
-
 }
 
 #endif

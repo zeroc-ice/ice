@@ -13,10 +13,8 @@
 
 namespace IceSSL
 {
-
     namespace SChannel
     {
-
         class Certificate;
         using CertificatePtr = std::shared_ptr<Certificate>;
 

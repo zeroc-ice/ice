@@ -9,13 +9,11 @@
 
 namespace Ice
 {
-
     class Properties;
     using PropertiesPtr = std::shared_ptr<Properties>;
 
     class PropertiesAdmin;
     class PropertiesAdminPrx;
-
 }
 
 #endif

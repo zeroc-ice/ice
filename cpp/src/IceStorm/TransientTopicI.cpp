@@ -18,7 +18,6 @@ using namespace std;
 
 namespace
 {
-
     //
     // The servant has a 1-1 association with a topic. It is used to
     // receive events from Publishers.
@@ -62,7 +61,6 @@ namespace
     private:
         const shared_ptr<TransientTopicImpl> _impl;
     };
-
 }
 
 shared_ptr<TransientTopicImpl>

@@ -10,11 +10,9 @@
 
 namespace Test
 {
-
     template<typename K, typename V> class CustomMap : public std::map<K, V>
     {
     };
-
 }
 
 #endif

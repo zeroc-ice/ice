@@ -13,12 +13,10 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     struct ConnectionInfoObject
     {
         PyObject_HEAD Ice::ConnectionInfoPtr* connectionInfo;
     };
-
 }
 
 #ifdef WIN32
@@ -304,7 +302,6 @@ static PyGetSetDef SSLConnectionInfoGetters[] = {
 
 namespace IcePy
 {
-
     PyTypeObject ConnectionInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -574,7 +571,6 @@ namespace IcePy
         0,                                        /* tp_free */
         0,                                        /* tp_is_gc */
     };
-
 }
 
 bool

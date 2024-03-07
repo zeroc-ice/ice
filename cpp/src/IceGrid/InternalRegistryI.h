@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class Database;
     class FileCache;
     class ReapThread;

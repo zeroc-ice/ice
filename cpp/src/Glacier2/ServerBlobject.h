@@ -9,7 +9,6 @@
 
 namespace Glacier2
 {
-
     class ServerBlobject final : public Glacier2::Blobject
     {
     public:
@@ -21,7 +20,6 @@ namespace Glacier2
             std::function<void(std::exception_ptr)> error,
             const Ice::Current& current) override;
     };
-
 }
 
 #endif

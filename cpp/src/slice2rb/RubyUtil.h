@@ -12,7 +12,6 @@ namespace Slice
 {
     namespace Ruby
     {
-
         //
         // Generate Ruby code for a translation unit.
         //

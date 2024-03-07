@@ -10,7 +10,6 @@
 
 namespace Slice
 {
-
     //
     // Compute Java serialVersionUID for a Slice class
     //
@@ -262,7 +261,6 @@ namespace Slice
         std::string _dir;
         ::IceUtilInternal::Output* _out;
     };
-
 }
 
 #endif

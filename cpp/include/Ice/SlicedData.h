@@ -10,7 +10,6 @@
 
 namespace Ice
 {
-
     /**
      * Encapsulates the details of a slice for an unknown class or exception type.
      * \headerfile Ice/Ice.h
@@ -102,7 +101,6 @@ namespace Ice
     private:
         const std::string _unknownTypeId;
     };
-
 }
 
 #endif

@@ -9,7 +9,6 @@
 
 namespace Slice
 {
-
     class FileException : public ::IceUtil::Exception
     {
     public:
@@ -49,7 +48,6 @@ namespace Slice
         std::map<std::string, std::list<std::string>> _generated;
         std::map<std::string, std::list<std::string>>::iterator _curr;
     };
-
 }
 
 #endif

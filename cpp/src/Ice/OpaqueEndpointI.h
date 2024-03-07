@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     class OpaqueEndpointI : public EndpointI, public std::enable_shared_from_this<OpaqueEndpointI>
     {
     public:
@@ -60,7 +59,6 @@ namespace IceInternal
         Ice::EncodingVersion _rawEncoding; // The encoding used for _rawBytes
         const std::vector<std::byte> _rawBytes;
     };
-
 }
 
 #endif

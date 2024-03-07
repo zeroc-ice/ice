@@ -10,10 +10,8 @@ using namespace std;
 
 namespace Slice
 {
-
     namespace DotNet
     {
-
         struct Node
         {
             const char** names;
@@ -85,7 +83,6 @@ namespace Slice
         }
 
     }
-
 }
 
 string

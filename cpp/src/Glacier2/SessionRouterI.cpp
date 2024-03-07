@@ -18,7 +18,6 @@ using namespace Glacier2;
 
 namespace
 {
-
     shared_ptr<IPConnectionInfo> getIPConnectionInfo(const shared_ptr<ConnectionInfo>& info)
     {
         for (shared_ptr<ConnectionInfo> p = info; p; p = p->underlying)
@@ -32,12 +31,10 @@ namespace
 
         return nullptr;
     }
-
 }
 
 namespace Glacier2
 {
-
     class SessionControlI final : public SessionControl
     {
     public:
@@ -259,7 +256,6 @@ namespace Glacier2
         const function<void(exception_ptr)> _exception;
         const SSLInfo _sslInfo;
     };
-
 }
 
 CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, const string& user, const Ice::Current& current)

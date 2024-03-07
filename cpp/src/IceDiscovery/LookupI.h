@@ -17,7 +17,6 @@
 
 namespace IceDiscovery
 {
-
     class LookupI;
 
     class Request : public IceUtil::TimerTask
@@ -170,7 +169,6 @@ namespace IceDiscovery
     private:
         const LookupIPtr _lookup;
     };
-
 }
 
 #endif

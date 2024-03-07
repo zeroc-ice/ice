@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API DynamicLibrary final
     {
     public:
@@ -83,7 +82,6 @@ namespace IceInternal
 #endif
         std::string _err;
     };
-
 }
 
 #endif

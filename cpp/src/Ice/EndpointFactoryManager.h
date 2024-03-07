@@ -15,14 +15,11 @@
 
 namespace Ice
 {
-
     class InputStream;
-
 }
 
 namespace IceInternal
 {
-
     class EndpointFactoryManager
     {
     public:
@@ -41,7 +38,6 @@ namespace IceInternal
         std::vector<EndpointFactoryPtr> _factories;
         mutable std::mutex _mutex;
     };
-
 }
 
 #endif

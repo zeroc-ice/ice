@@ -13,7 +13,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     class PatcherFeedbackI : public PatcherFeedback, public std::enable_shared_from_this<PatcherFeedback>
     {
     public:
@@ -47,7 +46,6 @@ namespace IceGrid
         const Ice::Identity _id;
         const shared_ptr<PatcherFeedbackAggregator> _aggregator;
     };
-
 }
 
 PatcherFeedbackAggregator::PatcherFeedbackAggregator(

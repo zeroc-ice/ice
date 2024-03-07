@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     class TraceLevels
     {
     public:
@@ -37,7 +36,6 @@ namespace IceInternal
         const int threadPool;
         const char* threadPoolCat;
     };
-
 }
 
 #endif

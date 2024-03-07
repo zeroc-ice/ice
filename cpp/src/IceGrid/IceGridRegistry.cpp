@@ -17,7 +17,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     class RegistryService : public Service
     {
     public:

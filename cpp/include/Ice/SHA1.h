@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     ICE_API void sha1(const unsigned char*, std::size_t, std::vector<unsigned char>&);
 
     ICE_API void sha1(const std::byte*, std::size_t, std::vector<std::byte>&);
@@ -35,6 +34,5 @@ namespace IceInternal
         class Hasher;
         std::unique_ptr<Hasher> _hasher;
     };
-
 }
 #endif

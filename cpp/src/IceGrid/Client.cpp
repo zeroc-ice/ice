@@ -32,7 +32,6 @@ class Client;
 
 namespace
 {
-
     mutex staticMutex;
     shared_ptr<Ice::Communicator> communicator;
     shared_ptr<IceGrid::Parser> parser;

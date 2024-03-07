@@ -15,10 +15,8 @@
 
 namespace IceSSL
 {
-
     namespace SecureTransport
     {
-
         class SSLEngine final : public IceSSL::SSLEngine
         {
         public:

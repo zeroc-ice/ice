@@ -12,7 +12,6 @@ using namespace IceRuby;
 
 namespace
 {
-
     template<typename T> bool setVersion(VALUE p, const T& version)
     {
         volatile VALUE major = callRuby(rb_int2inum, version.major);
@@ -103,7 +102,6 @@ namespace
 
     char Ice_ProtocolVersion[] = "Ice::ProtocolVersion";
     char Ice_EncodingVersion[] = "Ice::EncodingVersion";
-
 }
 
 extern "C" VALUE
@@ -251,7 +249,6 @@ IceRuby::createString(string_view str)
 
 namespace
 {
-
     template<typename T> struct RubyCallArgs
     {
         volatile VALUE val;
@@ -279,7 +276,6 @@ namespace
         data->ret = rb_num2ll(data->val);
         return val;
     }
-
 }
 
 long
@@ -356,7 +352,6 @@ IceRuby::createNumSeq(const vector<uint8_t>& v)
 
 namespace
 {
-
     struct HashToContextIterator : public IceRuby::HashIterator
     {
         HashToContextIterator(Ice::Context& c) : ctx(c) {}
@@ -370,7 +365,6 @@ namespace
 
         Ice::Context& ctx;
     };
-
 }
 
 bool

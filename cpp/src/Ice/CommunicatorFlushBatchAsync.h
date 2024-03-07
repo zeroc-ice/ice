@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     //
     // Class for handling Ice::Communicator::flushBatchRequests
     // This class needs to be in a public header as it's used by several other classes.
@@ -37,7 +36,6 @@ namespace IceInternal
     };
 
     using CommunicatorFlushBatchAsyncPtr = std::shared_ptr<CommunicatorFlushBatchAsync>;
-
 }
 
 #endif

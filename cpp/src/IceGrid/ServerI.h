@@ -18,7 +18,6 @@
 
 namespace IceGrid
 {
-
     class NodeI;
     class ServerAdapterI;
     class ServerCommand;
@@ -332,7 +331,6 @@ namespace IceGrid
         bool _updating;
         std::shared_ptr<TraceLevels> _traceLevels;
     };
-
 }
 
 #endif

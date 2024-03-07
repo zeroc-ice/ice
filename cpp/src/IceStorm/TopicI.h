@@ -14,7 +14,6 @@
 
 namespace IceStorm
 {
-
     // Forward declarations
     class PersistentInstance;
     class Subscriber;

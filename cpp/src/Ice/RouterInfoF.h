@@ -9,13 +9,11 @@
 
 namespace IceInternal
 {
-
     class RouterManager;
     using RouterManagerPtr = std::shared_ptr<RouterManager>;
 
     class RouterInfo;
     using RouterInfoPtr = std::shared_ptr<RouterInfo>;
-
 }
 
 #endif

@@ -11,7 +11,6 @@
 
 namespace Ice
 {
-
     /**
      * A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.
      * @see ObjectAdapter
@@ -80,7 +79,6 @@ namespace Ice
     };
 
     using ServantLocatorPtr = ::std::shared_ptr<ServantLocator>;
-
 }
 
 #endif

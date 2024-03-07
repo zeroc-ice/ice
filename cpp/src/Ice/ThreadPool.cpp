@@ -24,7 +24,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     class ShutdownWorkItem final : public ThreadPoolWorkItem
     {
     public:

@@ -68,7 +68,6 @@ namespace
         }
         return result;
     }
-
 }
 
 class Client : public Test::TestHelper

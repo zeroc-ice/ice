@@ -15,7 +15,6 @@ using namespace std::chrono_literals;
 
 namespace
 {
-
     class CallbackI final : public Test::Callback
     {
     public:
@@ -35,7 +34,6 @@ namespace
         int _count = 0;
         int _datagramCount = 0;
     };
-
 }
 
 void

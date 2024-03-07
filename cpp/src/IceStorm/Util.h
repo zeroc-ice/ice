@@ -12,7 +12,6 @@
 
 namespace IceStorm
 {
-
     //
     // Forward declarations.
     //
@@ -23,12 +22,10 @@ namespace IceStorm
     using LLUMap = IceDB::Dbi<std::string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream>;
 
     const std::string lluDbKey = "_manager";
-
 }
 
 namespace IceStormInternal
 {
-
     std::string identityToTopicName(const Ice::Identity&);
 
     Ice::Identity nameToIdentity(const std::shared_ptr<IceStorm::Instance>&, const std::string&);
@@ -38,7 +35,6 @@ namespace IceStormInternal
     int compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v2);
 
     IceStormElection::LogUpdate getIncrementedLLU(const IceDB::ReadWriteTxn&, IceStorm::LLUMap&);
-
 }
 
 #endif

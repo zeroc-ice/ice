@@ -18,7 +18,6 @@
 
 namespace IceGrid
 {
-
     class Activator;
     class NodeSessionManager;
     class ServerCommand;
@@ -211,7 +210,6 @@ namespace IceGrid
         std::mutex _mutex;
         std::condition_variable _condVar;
     };
-
 }
 
 #endif

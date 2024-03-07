@@ -15,7 +15,6 @@ using namespace Test;
 
 namespace
 {
-
     //
     // Converts a vector to an "array range"
     //
@@ -25,7 +24,6 @@ namespace
     }
 
     template<typename T> pair<const T*, const T*> toArrayRange(const T* v, size_t sz) { return make_pair(v, v + sz); }
-
 }
 
 class TestObjectReader : public Ice::Value

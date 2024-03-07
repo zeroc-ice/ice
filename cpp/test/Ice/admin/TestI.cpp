@@ -11,7 +11,6 @@ using namespace std;
 
 namespace
 {
-
     //
     // A no-op Logger, used when testing the Logger Admin
     //
@@ -31,7 +30,6 @@ namespace
 
         LoggerPtr cloneWithPrefix(const string&) final { return shared_from_this(); }
     };
-
 }
 
 RemoteCommunicatorI::RemoteCommunicatorI(const CommunicatorPtr& communicator)

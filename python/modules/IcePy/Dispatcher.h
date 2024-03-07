@@ -11,7 +11,6 @@
 
 namespace IcePy
 {
-
     bool initDispatcher(PyObject*);
 
     class Dispatcher final
@@ -28,7 +27,6 @@ namespace IcePy
         Ice::CommunicatorPtr _communicator;
     };
     using DispatcherPtr = std::shared_ptr<Dispatcher>;
-
 }
 
 #endif

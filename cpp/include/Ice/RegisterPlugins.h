@@ -17,7 +17,6 @@
 
 namespace Ice
 {
-
 #if defined(ICE_STATIC_LIBS)
 #    define ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT /**/
 #else

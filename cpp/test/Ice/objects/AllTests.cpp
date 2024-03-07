@@ -11,7 +11,6 @@ using namespace Test;
 
 namespace
 {
-
     void testUOE(const Ice::CommunicatorPtr& communicator)
     {
         UnexpectedObjectExceptionTestPrx uoet(
@@ -73,7 +72,6 @@ namespace
         clear(d->theB);
         d->theB = nullptr;
     }
-
 }
 
 InitialPrx

@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class TcpConnector;
     class TcpAcceptor;
 
@@ -49,7 +48,6 @@ namespace IceInternal
         const ProtocolInstancePtr _instance;
         const StreamSocketPtr _stream;
     };
-
 }
 
 #endif

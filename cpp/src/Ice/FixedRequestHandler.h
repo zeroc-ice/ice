@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     // A request handler for a fixed reference.
     class FixedRequestHandler final : public RequestHandler
     {
@@ -28,7 +27,6 @@ namespace IceInternal
         Ice::ConnectionIPtr _connection;
         bool _compress;
     };
-
 }
 
 #endif

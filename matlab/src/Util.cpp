@@ -14,7 +14,6 @@ using namespace std;
 
 namespace
 {
-
     string replace(string s, string patt, string val)
     {
         auto r = s;
@@ -45,7 +44,6 @@ namespace
         }
         minor = static_cast<uint8_t>(mxGetScalar(min));
     }
-
 }
 
 mxArray*
@@ -618,7 +616,6 @@ IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& certs)
 
 namespace
 {
-
     string lookupKwd(const string& name)
     {
         //
@@ -666,7 +663,6 @@ namespace
 
         return ids;
     }
-
 }
 
 string

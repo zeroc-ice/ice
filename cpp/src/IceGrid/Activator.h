@@ -13,7 +13,6 @@
 
 namespace IceGrid
 {
-
     class TraceLevels;
     class ServerI;
 
@@ -96,7 +95,6 @@ namespace IceGrid
         std::condition_variable _condVar;
         std::thread _thread;
     };
-
 }
 
 #endif

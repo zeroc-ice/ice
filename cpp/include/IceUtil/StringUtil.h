@@ -10,7 +10,6 @@
 
 namespace IceUtilInternal
 {
-
     //
     // Must be kept in sync with Ice::ToStringMode
     //
@@ -92,7 +91,6 @@ namespace IceUtilInternal
     // Remove all whitespace from a string
     //
     ICE_API std::string removeWhitespace(const std::string&);
-
 }
 
 #endif

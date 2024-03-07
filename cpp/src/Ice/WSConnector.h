@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class WSEndpoint;
 
     class WSConnector final : public Connector
@@ -34,7 +33,6 @@ namespace IceInternal
         const std::string _host;
         const std::string _resource;
     };
-
 }
 
 #endif

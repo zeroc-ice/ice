@@ -18,7 +18,6 @@ namespace Ice
 
 namespace Ice
 {
-
     /**
      * The base class for instances of Slice classes.
      * \headerfile Ice/Ice.h
@@ -128,7 +127,6 @@ namespace Ice
         }
     };
     /// \endcond
-
 }
 
 #endif

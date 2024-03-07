@@ -12,7 +12,6 @@
 
 namespace IceGrid
 {
-
     class ObserverTopic
     {
     public:

@@ -9,7 +9,6 @@
 
 namespace IceBT
 {
-
     class Instance;
     using InstancePtr = std::shared_ptr<Instance>;
 
@@ -21,7 +20,6 @@ namespace IceBT
 
     class AcceptorI;
     using AcceptorIPtr = std::shared_ptr<AcceptorI>;
-
 }
 
 #endif

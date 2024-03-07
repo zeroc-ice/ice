@@ -16,7 +16,6 @@
 
 namespace Glacier2
 {
-
     class Instance
     {
     public:

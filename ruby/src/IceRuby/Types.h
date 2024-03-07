@@ -15,7 +15,6 @@
 
 namespace IceRuby
 {
-
     std::string resolveCompactId(int id);
 
     class ExceptionInfo;
@@ -535,7 +534,6 @@ namespace IceRuby
 
     VALUE createException(const ExceptionInfoPtr&);
     ExceptionInfoPtr getException(VALUE);
-
 }
 
 #endif

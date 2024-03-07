@@ -17,7 +17,6 @@ NetworkProxy::~NetworkProxy()
 
 namespace
 {
-
     class SOCKSNetworkProxy final : public NetworkProxy
     {
     public:
@@ -62,7 +61,6 @@ namespace
         Address _address;
         ProtocolSupport _protocol;
     };
-
 }
 
 SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) : _host(host), _port(port) { assert(!host.empty()); }

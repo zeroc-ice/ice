@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-
     /**
      * Base class for the Properties admin facet.
      * \headerfile Ice/Ice.h
@@ -26,7 +25,6 @@ namespace Ice
         virtual std::function<void()> addUpdateCallback(std::function<void(const PropertyDict&)> cb) = 0;
     };
     using NativePropertiesAdminPtr = std::shared_ptr<NativePropertiesAdmin>;
-
 }
 
 #endif

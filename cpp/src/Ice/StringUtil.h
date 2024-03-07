@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     //
     // Adapter for ToStringMode
     //
@@ -23,7 +22,6 @@ namespace IceInternal
     // Provided for consistency with escapeString
     //
     using IceUtilInternal::unescapeString;
-
 }
 
 #endif

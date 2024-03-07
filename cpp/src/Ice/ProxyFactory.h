@@ -12,15 +12,12 @@
 
 namespace Ice
 {
-
     class OutputStream;
     class InputStream;
-
 }
 
 namespace IceInternal
 {
-
     class ProxyFactory
     {
     public:
@@ -37,7 +34,6 @@ namespace IceInternal
     };
 
     using ProxyFactoryPtr = std::shared_ptr<ProxyFactory>;
-
 }
 
 #endif

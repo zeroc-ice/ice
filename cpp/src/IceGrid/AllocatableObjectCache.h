@@ -12,7 +12,6 @@
 
 namespace IceGrid
 {
-
     class AllocatableObjectCache;
     class ServerEntry;
 

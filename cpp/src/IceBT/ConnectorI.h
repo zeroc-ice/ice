@@ -14,7 +14,6 @@
 
 namespace IceBT
 {
-
     class ConnectorI final : public IceInternal::Connector
     {
     public:
@@ -34,7 +33,6 @@ namespace IceBT
         const std::int32_t _timeout;
         const std::string _connectionId;
     };
-
 }
 
 #endif

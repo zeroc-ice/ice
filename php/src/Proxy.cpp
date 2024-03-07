@@ -54,7 +54,6 @@ extern "C"
 
 namespace IcePHP
 {
-
     // Encapsulates proxy and type information.
     class Proxy
     {

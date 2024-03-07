@@ -11,7 +11,6 @@
 
 namespace IcePatch2Internal
 {
-
     ICEPATCH2_API extern const char* checksumFile;
     ICEPATCH2_API extern const char* logFile;
 
@@ -184,7 +183,6 @@ namespace IcePatch2Internal
     };
 
     ICEPATCH2_API void getFileTree0(const IcePatch2::LargeFileInfoSeq&, FileTree0&);
-
 }
 
 #endif

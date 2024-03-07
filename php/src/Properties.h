@@ -14,7 +14,6 @@ extern "C"
 
 namespace IcePHP
 {
-
     bool propertiesInit(void);
     bool createProperties(zval*, const Ice::PropertiesPtr&);
     bool fetchProperties(zval*, Ice::PropertiesPtr&);

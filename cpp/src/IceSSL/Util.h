@@ -22,7 +22,6 @@
 
 namespace IceSSL
 {
-
 #if defined(__APPLE__)
     //
     // Helper functions to use by Secure Transport.
@@ -87,7 +86,6 @@ namespace IceSSL
     ICESSL_API bool checkPath(const std::string&, const std::string&, bool, std::string&);
 
     ICESSL_API bool parseBytes(const std::string&, std::vector<unsigned char>&);
-
 }
 
 #endif

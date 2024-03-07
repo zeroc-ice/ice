@@ -16,7 +16,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     void writeLongLine(ostream& os)
     {
         os << 'a';
@@ -44,7 +43,6 @@ namespace
         test(line.size() < 1024);
         return line.size() > 1 && line[line.size() - 2] == 'b' && line[line.size() - 1] == 'c';
     }
-
 }
 
 function<bool(const optional<Ice::ObjectPrx>&)>

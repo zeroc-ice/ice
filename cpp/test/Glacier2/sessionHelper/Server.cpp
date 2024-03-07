@@ -11,7 +11,6 @@ using namespace Test;
 
 namespace
 {
-
     class CallbackI final : public Callback
     {
     public:
@@ -27,7 +26,6 @@ namespace
 
         void shutdown(const Ice::Current& current) override { current.adapter->getCommunicator()->shutdown(); }
     };
-
 }
 
 class Server final : public Test::TestHelper

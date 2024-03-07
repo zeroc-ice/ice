@@ -21,7 +21,6 @@ extern "C"
 
 namespace IcePHP
 {
-
     class ParamInfo
     {
     public:
@@ -122,7 +121,6 @@ namespace IcePHP
 
         void invoke(INTERNAL_FUNCTION_PARAMETERS) final;
     };
-
 }
 
 // ResultCallback implementation.

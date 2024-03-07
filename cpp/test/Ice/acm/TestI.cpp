@@ -12,14 +12,12 @@ using namespace Test;
 
 namespace
 {
-
     string toString(int value)
     {
         ostringstream os;
         os << value;
         return os.str();
     }
-
 }
 
 optional<RemoteObjectAdapterPrx>

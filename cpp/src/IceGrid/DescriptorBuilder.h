@@ -12,7 +12,6 @@
 
 namespace IceGrid
 {
-
     class XmlAttributesHelper
     {
     public:
@@ -281,7 +280,6 @@ namespace IceGrid
     private:
         std::shared_ptr<ServiceDescriptor> _descriptor;
     };
-
 }
 
 #endif

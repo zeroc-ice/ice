@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     // Represents a holder/cache for a request handler. It's tied to a single Reference, and can be shared by multiple
     // proxies (all with the same Reference).
     class RequestHandlerCache final
@@ -39,7 +38,6 @@ namespace IceInternal
         std::mutex _mutex;                       // protects _cachedRequestHandler
         RequestHandlerPtr _cachedRequestHandler; // set only when _cacheConnection is true.
     };
-
 }
 
 #endif

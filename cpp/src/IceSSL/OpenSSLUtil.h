@@ -14,10 +14,8 @@
 
 namespace IceSSL
 {
-
     namespace OpenSSL
     {
-
 #ifndef OPENSSL_NO_DH
 
         class DHParams

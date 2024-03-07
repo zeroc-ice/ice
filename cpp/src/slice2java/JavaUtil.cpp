@@ -27,7 +27,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     void hashAdd(long& hashCode, const std::string& value)
     {
         for (std::string::const_iterator p = value.begin(); p != value.end(); ++p)
@@ -519,7 +518,6 @@ namespace
             return newMetaData;
         }
     };
-
 }
 
 long

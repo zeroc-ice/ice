@@ -13,7 +13,6 @@
 
 namespace IceBT
 {
-
     //
     // Notifies the transport about a new incoming connection.
     //
@@ -82,7 +81,6 @@ namespace IceBT
         mutable std::mutex _mutex;
         BluetoothServicePtr _service;
     };
-
 }
 
 #endif

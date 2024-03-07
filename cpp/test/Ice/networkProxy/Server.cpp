@@ -10,13 +10,11 @@ using namespace std;
 
 namespace
 {
-
     class TestI : public Test::TestIntf
     {
     public:
         virtual void shutdown(const Ice::Current& current) { current.adapter->getCommunicator()->shutdown(); }
     };
-
 }
 
 class Server : public Test::TestHelper

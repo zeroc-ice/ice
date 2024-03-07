@@ -12,7 +12,6 @@
 
 namespace IceRuby
 {
-
     class Operation
     {
     public:
@@ -26,7 +25,6 @@ namespace IceRuby
     bool initOperation(VALUE);
 
     OperationPtr getOperation(VALUE);
-
 }
 
 #endif

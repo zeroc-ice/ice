@@ -372,9 +372,7 @@ printMessage(ostream& s, InputStream& stream)
 
 namespace
 {
-
     mutex slicingMutex;
-
 }
 
 void

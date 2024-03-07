@@ -11,14 +11,12 @@ using namespace IceGrid;
 
 namespace
 {
-
     //
     // Encodings supported by the observers. We create one topic per
     // encoding version and subscribe the observer to the appropriate
     // topic depending on its encoding.
     //
     Ice::EncodingVersion encodings[] = {{1, 0}, {1, 1}};
-
 }
 
 ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrxPtr& topicManager, const string& name, int64_t dbSerial)

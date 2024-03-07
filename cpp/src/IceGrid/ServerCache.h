@@ -13,7 +13,6 @@
 
 namespace IceGrid
 {
-
     class AdapterCache;
     class AllocatableObjectCache;
     class CheckServerResult;

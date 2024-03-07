@@ -26,14 +26,11 @@
 
 namespace Ice
 {
-
     class Logger;
-
 }
 
 namespace Ice
 {
-
     /**
      * The Ice message logger. Applications can provide their own logger by implementing this interface and installing
      * it in a communicator. \headerfile Ice/Ice.h
@@ -84,22 +81,18 @@ namespace Ice
          */
         virtual ::std::shared_ptr<::Ice::Logger> cloneWithPrefix(const ::std::string& prefix) = 0;
     };
-
 }
 
 /// \cond STREAM
 namespace Ice
 {
-
 }
 /// \endcond
 
 /// \cond INTERNAL
 namespace Ice
 {
-
     using LoggerPtr = ::std::shared_ptr<Logger>;
-
 }
 /// \endcond
 

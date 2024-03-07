@@ -9,7 +9,6 @@ using namespace std;
 
 namespace
 {
-
     struct SHA1Item
     {
         const char* data;
@@ -64,7 +63,6 @@ namespace
         }
         return os.str();
     }
-
 }
 
 class Client : public Test::TestHelper

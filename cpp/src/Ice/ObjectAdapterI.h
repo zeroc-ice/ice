@@ -27,15 +27,12 @@
 
 namespace IceInternal
 {
-
     class CommunicatorFlushBatchAsync;
     using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
-
 }
 
 namespace Ice
 {
-
     class ObjectAdapterI final : public ObjectAdapter, public std::enable_shared_from_this<ObjectAdapterI>
     {
     public:
@@ -155,7 +152,6 @@ namespace Ice
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
     };
-
 }
 
 #endif

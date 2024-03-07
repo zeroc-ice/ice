@@ -10,7 +10,6 @@
 
 namespace IceDiscovery
 {
-
     class PluginI : public Ice::Plugin
     {
     public:

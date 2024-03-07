@@ -22,7 +22,6 @@
 
 namespace IceGrid
 {
-
     class AdminSessionI;
     class ApplicationHelper;
     class NodeSessionI;
@@ -297,7 +296,6 @@ namespace IceGrid
         mutable std::mutex _mutex;
         std::condition_variable _condVar;
     };
-
 }
 
 #endif

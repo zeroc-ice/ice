@@ -12,7 +12,6 @@
 
 namespace IceStorm
 {
-
     class TraceLevels
     {
     public:

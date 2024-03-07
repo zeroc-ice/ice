@@ -149,7 +149,6 @@
 
 namespace IceUtil
 {
-
     //
     // By deriving from this class, other classes are made non-copyable.
     //
@@ -183,7 +182,6 @@ namespace IceUtil
 #    define ICE_INT64(n) n##LL
 #    define ICE_INT64_FORMAT "%lld"
 #endif
-
 }
 
 #endif

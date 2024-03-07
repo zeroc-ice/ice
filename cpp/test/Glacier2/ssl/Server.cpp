@@ -13,7 +13,6 @@ using namespace Test;
 
 namespace
 {
-
     void testContext(bool ssl, const shared_ptr<Ice::Communicator>& communicator, const Ice::Context& context)
     {
         Ice::Context ctx = context;
@@ -35,7 +34,6 @@ namespace
         test(ctx["_con.remotePort"] != "");
         test(ctx["_con.remoteAddress"] == "127.0.0.1");
     }
-
 }
 
 class PermissionsVerifierI final : public Glacier2::PermissionsVerifier

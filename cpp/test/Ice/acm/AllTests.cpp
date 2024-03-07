@@ -13,7 +13,6 @@ using namespace std;
 using namespace Test;
 namespace
 {
-
     string toString(int value)
     {
         ostringstream os;
@@ -546,7 +545,6 @@ namespace
             con->setHeartbeatCallback([](shared_ptr<Ice::Connection>) {});
         }
     };
-
 }
 
 void

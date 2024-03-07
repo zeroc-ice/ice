@@ -29,14 +29,11 @@
 
 namespace IceSSL
 {
-
     class ConnectionInfo;
-
 }
 
 namespace IceSSL
 {
-
     /**
      * Provides access to the connection details of an SSL connection
      * \headerfile IceSSL/IceSSL.h
@@ -91,15 +88,12 @@ namespace IceSSL
          */
         bool verified;
     };
-
 }
 
 /// \cond INTERNAL
 namespace IceSSL
 {
-
     using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
-
 }
 /// \endcond
 

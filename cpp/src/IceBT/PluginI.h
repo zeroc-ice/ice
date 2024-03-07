@@ -11,7 +11,6 @@
 
 namespace IceBT
 {
-
     class PluginI : public Plugin
     {
     public:
@@ -36,7 +35,6 @@ namespace IceBT
     private:
         EnginePtr _engine;
     };
-
 }
 
 #endif

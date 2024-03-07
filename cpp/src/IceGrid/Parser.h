@@ -37,7 +37,6 @@ YY_DECL;
 
 namespace IceGrid
 {
-
     class Parser
     {
     public:
@@ -158,7 +157,6 @@ namespace IceGrid
     };
 
     extern Parser* parser; // The current parser for bison/flex
-
 }
 
 #endif

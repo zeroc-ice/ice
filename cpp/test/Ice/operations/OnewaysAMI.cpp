@@ -10,7 +10,6 @@ using namespace std;
 
 namespace
 {
-
     class CallbackBase
     {
     public:
@@ -50,7 +49,6 @@ namespace
         void noException(const Ice::Exception&) { test(false); }
     };
     using CallbackPtr = std::shared_ptr<Callback>;
-
 }
 
 void

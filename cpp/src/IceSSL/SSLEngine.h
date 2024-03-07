@@ -17,7 +17,6 @@
 
 namespace IceSSL
 {
-
     class ICESSL_API SSLEngine
     {
     public:
@@ -90,7 +89,6 @@ namespace IceSSL
         const bool _revocationCheckCacheOnly;
         const int _revocationCheck;
     };
-
 }
 
 #endif

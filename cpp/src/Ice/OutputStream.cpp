@@ -25,7 +25,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     class StreamUTF8BufferI : public IceUtil::UTF8Buffer
     {
     public:
@@ -60,7 +59,6 @@ namespace
     private:
         OutputStream& _stream;
     };
-
 }
 
 Ice::OutputStream::OutputStream()
@@ -281,7 +279,6 @@ Ice::OutputStream::write(const vector<bool>& v)
 
 namespace
 {
-
     template<size_t boolSize> struct WriteBoolHelper
     {
         static void
@@ -302,7 +299,6 @@ namespace
             memcpy(&b[pos], begin, static_cast<size_t>(sz));
         }
     };
-
 }
 
 void

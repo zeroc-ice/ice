@@ -9,7 +9,6 @@
 
 namespace IceStorm
 {
-
     class Instance;
     class TransientTopicImpl;
 

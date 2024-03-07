@@ -11,7 +11,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API ArgVector
     {
     public:
@@ -28,7 +27,6 @@ namespace IceInternal
         ::std::vector<::std::string> _args;
         void setupArgcArgv();
     };
-
 }
 
 #endif

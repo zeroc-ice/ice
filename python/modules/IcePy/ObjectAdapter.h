@@ -10,7 +10,6 @@
 
 namespace IcePy
 {
-
     extern PyTypeObject ObjectAdapterType;
 
     bool initObjectAdapter(PyObject*);
@@ -20,7 +19,6 @@ namespace IcePy
 
     PyObject* wrapObjectAdapter(const Ice::ObjectAdapterPtr&);
     Ice::ObjectAdapterPtr unwrapObjectAdapter(PyObject*);
-
 }
 
 #endif

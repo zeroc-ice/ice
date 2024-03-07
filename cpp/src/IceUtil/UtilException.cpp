@@ -68,7 +68,6 @@ using namespace std;
 
 namespace IceUtilInternal
 {
-
 #ifdef NDEBUG
     bool ICE_API printStackTraces = false;
 #else
@@ -97,7 +96,6 @@ namespace IceUtilInternal
 
 namespace
 {
-
     mutex globalMutex;
 
 #ifdef ICE_DBGHELP

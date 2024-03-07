@@ -10,7 +10,6 @@
 
 namespace IceUtil
 {
-
     /**
      * Invoked when a signal occurs. The callback must not raise exceptions.
      * On Linux and macOS, the callback is NOT a signal handler and can call
@@ -76,7 +75,6 @@ namespace IceUtil
         CtrlCHandlerException(const char*, int);
         virtual std::string ice_id() const;
     };
-
 }
 
 #endif

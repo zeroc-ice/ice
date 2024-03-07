@@ -21,7 +21,6 @@ using namespace std;
 
 namespace
 {
-
 #ifndef OPENSSL_NO_DH
 
     //

@@ -12,7 +12,6 @@
 
 namespace IceSSL
 {
-
     //
     // Map a certificate OID to its alias
     //

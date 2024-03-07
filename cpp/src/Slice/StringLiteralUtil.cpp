@@ -17,7 +17,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     class StringLiteralGenerator
     {
     public:
@@ -295,7 +294,6 @@ namespace
     }
 
     void StringLiteralGenerator::format(Format f) { _format = f; }
-
 }
 
 string

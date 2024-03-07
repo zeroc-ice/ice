@@ -13,7 +13,6 @@
 
 namespace IceInternal
 {
-
     class WSEndpoint;
 
     class WSAcceptor final : public Acceptor, public NativeInfo
@@ -44,7 +43,6 @@ namespace IceInternal
         const ProtocolInstancePtr _instance;
         const AcceptorPtr _delegate;
     };
-
 }
 
 #endif

@@ -14,7 +14,6 @@ using namespace Test;
 
 namespace
 {
-
     class ClockI : public Clock
     {
     public:

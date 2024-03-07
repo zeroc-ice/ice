@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API Buffer : private IceUtil::noncopyable
     {
     public:
@@ -127,7 +126,6 @@ namespace IceInternal
         Container b;
         Container::iterator i;
     };
-
 }
 
 #endif

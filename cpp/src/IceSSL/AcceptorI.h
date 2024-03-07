@@ -14,7 +14,6 @@
 
 namespace IceSSL
 {
-
     class AcceptorI final : public IceInternal::Acceptor, public IceInternal::NativeInfo
     {
     public:
@@ -42,7 +41,6 @@ namespace IceSSL
         const IceInternal::AcceptorPtr _delegate;
         const std::string _adapterName;
     };
-
 }
 
 #endif // IceSSL namespace end

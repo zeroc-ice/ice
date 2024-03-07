@@ -11,20 +11,16 @@ using namespace std;
 
 namespace IceInternal
 {
-
     //
     // Single global instance of the factory table for non-local
     // exceptions and non-abstract classes.
     //
     ICE_API FactoryTable* factoryTable;
-
 }
 
 namespace
 {
-
     atomic<int> initCount = 0; // Initialization count
-
 }
 
 //

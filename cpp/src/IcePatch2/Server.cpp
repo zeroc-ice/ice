@@ -17,7 +17,6 @@ using namespace IcePatch2Internal;
 
 namespace IcePatch2
 {
-
     class PatcherService : public Service
     {
     public:

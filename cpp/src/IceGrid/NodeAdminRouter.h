@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     //
     // Routes requests to a server's admin object through the Node
     //
@@ -28,6 +27,5 @@ namespace IceGrid
     private:
         std::shared_ptr<NodeI> _node;
     };
-
 }
 #endif

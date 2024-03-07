@@ -20,7 +20,6 @@ using namespace IceSSL;
 
 namespace
 {
-
     Ice::IPEndpointInfoPtr getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
     {
         for (Ice::EndpointInfoPtr p = info; p; p = p->underlying)
@@ -33,7 +32,6 @@ namespace
         }
         return nullptr;
     }
-
 }
 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)

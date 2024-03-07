@@ -11,7 +11,6 @@
 
 namespace IceUtilInternal
 {
-
     class StopWatch
     {
     public:

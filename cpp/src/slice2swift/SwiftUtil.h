@@ -12,7 +12,6 @@ typedef std::list<std::pair<std::string, std::string>> StringPairList;
 
 namespace Slice
 {
-
     const int TypeContextInParam = 1;
     const int TypeContextProtocol = 2;
     const int TypeContextLocal = 32;
@@ -195,7 +194,6 @@ namespace Slice
             static const std::string _msg;
         };
     };
-
 }
 
 #endif

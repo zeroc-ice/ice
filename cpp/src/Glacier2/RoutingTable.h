@@ -16,7 +16,6 @@
 
 namespace Glacier2
 {
-
     class RoutingTable final
     {
     public:
@@ -57,7 +56,6 @@ namespace Glacier2
 
         std::mutex _mutex;
     };
-
 }
 
 #endif

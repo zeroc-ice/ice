@@ -11,7 +11,6 @@
 
 namespace IceInternal
 {
-
     class UdpEndpoint;
 
     class UdpTransceiver final : public Transceiver,
@@ -94,6 +93,5 @@ namespace IceInternal
         socklen_t _readAddrLen;
 #endif
     };
-
 }
 #endif

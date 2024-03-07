@@ -23,7 +23,6 @@ using namespace std;
 
 namespace
 {
-
     mutex processStringConverterMutex;
     IceUtil::StringConverterPtr processStringConverter;
     IceUtil::WstringConverterPtr processWstringConverter;
@@ -202,7 +201,6 @@ namespace
     private:
         string _buffer;
     };
-
 }
 
 IceUtil::UTF8Buffer::~UTF8Buffer()

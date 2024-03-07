@@ -15,22 +15,18 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     struct ValueFactoryManagerObject
     {
         PyObject_HEAD ValueFactoryManagerPtr* vfm;
     };
-
 }
 
 namespace
 {
-
     ValueInfoPtr getValueInfo(string_view id)
     {
         return id == Ice::Value::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(id);
     }
-
 }
 
 /* static */ ValueFactoryManagerPtr
@@ -425,7 +421,6 @@ static PyMethodDef ValueFactoryManagerMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject ValueFactoryManagerType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -470,7 +465,6 @@ namespace IcePy
         0,                                                        /* tp_free */
         0,                                                        /* tp_is_gc */
     };
-
 }
 
 bool

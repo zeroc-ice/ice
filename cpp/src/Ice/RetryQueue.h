@@ -14,7 +14,6 @@
 
 namespace IceInternal
 {
-
     class OutgoingAsyncBase;
     class ProxyOutgoingAsyncBase;
 
@@ -59,7 +58,6 @@ namespace IceInternal
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
     };
-
 }
 
 #endif

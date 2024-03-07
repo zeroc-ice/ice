@@ -9,7 +9,6 @@
 
 namespace Test1
 {
-
     class WstringClassI : public virtual WstringClass
     {
     public:
@@ -31,12 +30,10 @@ namespace Test1
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
     };
-
 }
 
 namespace Test2
 {
-
     class WstringClassI : public virtual WstringClass
     {
     public:
@@ -58,7 +55,6 @@ namespace Test2
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
     };
-
 }
 
 #endif

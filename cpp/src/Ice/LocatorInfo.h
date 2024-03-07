@@ -18,7 +18,6 @@
 
 namespace IceInternal
 {
-
     class LocatorManager final
     {
     public:
@@ -165,7 +164,6 @@ namespace IceInternal
         std::map<Ice::Identity, RequestPtr> _objectRequests;
         std::mutex _mutex;
     };
-
 }
 
 #endif

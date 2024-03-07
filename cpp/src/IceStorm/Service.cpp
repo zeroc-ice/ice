@@ -31,7 +31,6 @@ using namespace IceStormElection;
 
 namespace
 {
-
     class ServiceI final : public IceStormInternal::Service
     {
     public:
@@ -71,7 +70,6 @@ namespace
     private:
         const TopicManagerPrx _topicManager;
     };
-
 }
 
 extern "C"

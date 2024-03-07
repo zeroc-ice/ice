@@ -12,7 +12,6 @@
 
 namespace Slice
 {
-
     class Gen
     {
     public:
@@ -61,7 +60,6 @@ namespace Slice
             std::map<std::string, IceUtilInternal::Output*> _outputs;
         };
     };
-
 }
 
 #endif

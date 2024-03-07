@@ -10,7 +10,6 @@ using namespace std;
 
 namespace
 {
-
     //
     // A no-op Logger, used when testing the Logger Admin
     //
@@ -30,7 +29,6 @@ namespace
 
         virtual Ice::LoggerPtr cloneWithPrefix(const string&) { return shared_from_this(); }
     };
-
 }
 
 class Server : public Test::TestHelper

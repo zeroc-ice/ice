@@ -10,11 +10,9 @@
 
 namespace IceRuby
 {
-
     void initCommunicator(VALUE);
     Ice::CommunicatorPtr getCommunicator(VALUE);
     VALUE lookupCommunicator(const Ice::CommunicatorPtr&);
-
 }
 
 #endif

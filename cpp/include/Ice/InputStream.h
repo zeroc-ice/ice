@@ -22,7 +22,6 @@
 
 namespace Ice
 {
-
     class UserException;
 
     /// \cond INTERNAL

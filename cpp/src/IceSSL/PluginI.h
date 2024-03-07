@@ -12,7 +12,6 @@
 
 namespace IceSSL
 {
-
     class ExtendedConnectionInfo : public ConnectionInfo
     {
     public:
@@ -53,7 +52,6 @@ namespace IceSSL
     protected:
         SSLEnginePtr _engine;
     };
-
 }
 
 #endif

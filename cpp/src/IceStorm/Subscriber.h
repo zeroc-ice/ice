@@ -14,7 +14,6 @@
 
 namespace IceStorm
 {
-
     class Instance;
 
     class Subscriber : public std::enable_shared_from_this<Subscriber>
@@ -87,7 +86,6 @@ namespace IceStorm
     bool operator==(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
     bool operator!=(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
     bool operator<(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
-
 }
 
 #endif // SUBSCRIBER_H

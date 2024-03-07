@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
     class ProtocolInstance;
     using ProtocolInstancePtr = std::shared_ptr<ProtocolInstance>;
-
 }
 
 #endif

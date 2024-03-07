@@ -27,7 +27,6 @@ using namespace Ice;
 
 namespace
 {
-
     class CallbackBase
     {
     public:
@@ -987,7 +986,6 @@ namespace
         CommunicatorPtr _communicator;
     };
     using CallbackPtr = shared_ptr<Callback>;
-
 }
 
 function<void(exception_ptr)>

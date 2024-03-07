@@ -9,15 +9,12 @@
 
 namespace Ice
 {
-
     /** Creates and throws a user exception. */
     using UserExceptionFactory = std::function<void(std::string_view)>;
-
 }
 
 namespace IceInternal
 {
-
     template<class E>
     void
 #ifdef NDEBUG
@@ -29,7 +26,6 @@ namespace IceInternal
         assert(typeId == E::ice_staticId());
         throw E();
     }
-
 }
 
 #endif

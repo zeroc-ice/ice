@@ -19,7 +19,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string sliceModeToIceMode(Operation::Mode opMode)
     {
         switch (opMode)
@@ -347,7 +346,6 @@ namespace
 
         out << nl << " */";
     }
-
 }
 
 Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string>>& imports) : _out(out), _imports(imports) {}
@@ -953,12 +951,10 @@ Slice::Gen::RequireVisitor::visitEnum(const EnumPtr&)
 
 namespace
 {
-
     bool iceBuiltinModule(const string& name)
     {
         return name == "Glacier2" || name == "Ice" || name == "IceGrid" || name == "IceMX" || name == "IceStorm";
     }
-
 }
 
 vector<string>

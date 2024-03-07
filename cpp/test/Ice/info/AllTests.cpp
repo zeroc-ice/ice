@@ -12,7 +12,6 @@ using namespace Test;
 
 namespace
 {
-
     Ice::TCPEndpointInfoPtr getTCPEndpointInfo(const Ice::EndpointInfoPtr& info)
     {
         for (Ice::EndpointInfoPtr p = info; p; p = p->underlying)
@@ -38,7 +37,6 @@ namespace
         }
         return nullptr;
     }
-
 }
 
 void

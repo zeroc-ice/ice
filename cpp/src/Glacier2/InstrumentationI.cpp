@@ -16,7 +16,6 @@ using namespace IceMX;
 
 namespace
 {
-
     class SessionHelper : public MetricsHelperT<SessionMetrics>
     {
     public:
@@ -79,7 +78,6 @@ namespace
 
     namespace
     {
-
         struct ForwardedUpdate
         {
             ForwardedUpdate(bool clientP) : client(clientP) {}
@@ -108,7 +106,6 @@ namespace
         };
 
     }
-
 }
 
 void

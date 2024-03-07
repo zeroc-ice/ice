@@ -12,14 +12,11 @@
 
 namespace Ice
 {
-
     class LocalException;
-
 }
 
 namespace IceInternal
 {
-
     class OutgoingAsyncBase;
     class ProxyOutgoingAsyncBase;
 
@@ -62,7 +59,6 @@ namespace IceInternal
         const ReferencePtr _reference;
         const bool _response;
     };
-
 }
 
 #endif

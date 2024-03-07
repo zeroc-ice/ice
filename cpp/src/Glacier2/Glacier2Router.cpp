@@ -18,7 +18,6 @@ using namespace Glacier2;
 using namespace IceInternal;
 namespace
 {
-
     class ClientLocator final : public ServantLocator
     {
     public:

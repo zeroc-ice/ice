@@ -13,7 +13,6 @@ using namespace std;
 
 namespace
 {
-
     class SynchronizationCallbackI final : public SynchronizationCallback
     {
     public:
@@ -53,7 +52,6 @@ namespace
         const vector<uint8_t> _inParams;
         const Current _current;
     };
-
 }
 
 RegistryServerAdminRouter::RegistryServerAdminRouter(const shared_ptr<Database>& database)

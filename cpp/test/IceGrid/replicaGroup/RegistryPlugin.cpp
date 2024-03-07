@@ -12,7 +12,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     class RegistryPluginI final : public Ice::Plugin
     {
     public:
@@ -148,7 +147,6 @@ namespace
         const shared_ptr<RegistryPluginFacade> _facade;
         const string _exclude;
     };
-
 }
 
 //

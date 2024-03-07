@@ -11,7 +11,6 @@ using namespace Test;
 
 namespace
 {
-
     Ice::IPConnectionInfoPtr getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
     {
         for (Ice::ConnectionInfoPtr p = info; p; p = p->underlying)
@@ -24,7 +23,6 @@ namespace
         }
         return nullptr;
     }
-
 }
 
 void

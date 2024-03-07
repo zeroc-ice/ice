@@ -27,10 +27,8 @@
 #if TARGET_OS_IPHONE != 0
 namespace IceInternal
 {
-
     bool registerForBackgroundNotification(const IceInternal::IncomingConnectionFactoryPtr&);
     void unregisterForBackgroundNotification(const IceInternal::IncomingConnectionFactoryPtr&);
-
 }
 #endif
 
@@ -41,7 +39,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     template<typename Map> void remove(Map& m, const typename Map::key_type& k, const typename Map::mapped_type& v)
     {
         auto pr = m.equal_range(k);
@@ -111,7 +108,6 @@ namespace
         const IncomingConnectionFactoryPtr _factory;
     };
 #endif
-
 }
 
 bool

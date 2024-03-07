@@ -13,7 +13,6 @@
 
 namespace IceInternal
 {
-
     class ObjectAdapterFactory : public std::enable_shared_from_this<ObjectAdapterFactory>
     {
     public:
@@ -42,7 +41,6 @@ namespace IceInternal
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
     };
-
 }
 
 #endif

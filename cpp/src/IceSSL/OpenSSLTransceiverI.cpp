@@ -40,7 +40,6 @@ extern "C"
 
 namespace
 {
-
     TrustError trustStatusToTrustError(long status)
     {
         switch (status)
@@ -132,7 +131,6 @@ namespace
                 return IceSSL::TrustError::UnknownTrustFailure;
         }
     }
-
 }
 
 IceInternal::NativeInfoPtr

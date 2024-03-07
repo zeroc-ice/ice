@@ -25,7 +25,6 @@ typedef struct __CFReadStream* CFReadStreamRef;
 
 namespace IceObjC
 {
-
     class Instance;
     using InstancePtr = std::shared_ptr<Instance>;
 
@@ -85,7 +84,6 @@ namespace IceObjC
         State _state;
         std::string _desc;
     };
-
 }
 
 #endif

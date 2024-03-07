@@ -11,7 +11,6 @@
 
 namespace Ice
 {
-
     class LoggerI : public Logger
     {
     public:
@@ -44,7 +43,6 @@ namespace Ice
         std::chrono::steady_clock::time_point _nextRetry;
     };
     using LoggerIPtr = std::shared_ptr<LoggerI>;
-
 }
 
 #endif

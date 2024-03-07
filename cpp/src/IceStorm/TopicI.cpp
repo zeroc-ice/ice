@@ -19,7 +19,6 @@ using namespace IceStormInternal;
 
 namespace
 {
-
     void logError(const shared_ptr<Ice::Communicator>& com, const IceDB::LMDBException& ex)
     {
         Ice::Error error(com->getLogger());
@@ -329,7 +328,6 @@ namespace
         const shared_ptr<TopicImpl> _impl;
         const shared_ptr<PersistentInstance> _instance;
     };
-
 }
 
 shared_ptr<TopicImpl>
@@ -477,7 +475,6 @@ TopicImpl::getNonReplicatedPublisher() const
 
 namespace
 {
-
     void trace(Ice::Trace& out, const shared_ptr<PersistentInstance>& instance, const vector<shared_ptr<Subscriber>>& s)
     {
         out << '[';
@@ -491,7 +488,6 @@ namespace
         }
         out << "]";
     }
-
 }
 
 optional<Ice::ObjectPrx>

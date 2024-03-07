@@ -18,7 +18,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     class SubscriberForwarderI : public Ice::BlobjectArrayAsync
     {
     public:
@@ -43,7 +42,6 @@ namespace
     private:
         const Ice::ObjectPrxPtr _proxy;
     };
-
 }
 
 FileIteratorI::FileIteratorI(

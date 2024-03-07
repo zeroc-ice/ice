@@ -17,10 +17,8 @@ using namespace IceInternal;
 
 namespace
 {
-
     static string opaqueEndpointProtocol = "opaque";
     static string opaqueEndpointConnectionId;
-
 }
 
 IceInternal::OpaqueEndpointI::OpaqueEndpointI(vector<string>& args) : _type(-1), _rawEncoding(Encoding_1_0)
@@ -46,7 +44,6 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(int16_t type, InputStream* s) : _t
 
 namespace
 {
-
     class OpaqueEndpointInfoI : public Ice::OpaqueEndpointInfo
     {
     public:
@@ -61,7 +58,6 @@ namespace
     private:
         int16_t _type;
     };
-
 }
 //
 // COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.

@@ -15,7 +15,6 @@ using namespace Ice;
 
 namespace
 {
-
     //
     // Replace "/" by "\"
     //
@@ -31,7 +30,6 @@ namespace
 
         return result;
     }
-
 }
 
 IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFile, const CommunicatorPtr& communicator)

@@ -11,7 +11,6 @@
 
 namespace Slice
 {
-
     class StringTok;
     class StringListTok;
     class TypeStringTok;
@@ -227,7 +226,6 @@ namespace Slice
         int lastColumn;
         std::string filename;
     };
-
 }
 
 #endif

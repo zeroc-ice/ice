@@ -17,7 +17,6 @@ namespace IceStorm
 
 namespace IceStormElection
 {
-
     class Observers
     {
     public:
@@ -54,7 +53,6 @@ namespace IceStormElection
 
         std::mutex _mutex;
     };
-
 }
 
 #endif // OBSERVERS_H

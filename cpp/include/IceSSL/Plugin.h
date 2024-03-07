@@ -25,7 +25,6 @@
 
 namespace IceSSL
 {
-
     /**
      * The reason for an IceSSL certificate verification failure.
      */
@@ -556,7 +555,6 @@ namespace IceSSL
         virtual CertificatePtr decode(const std::string& str) const = 0;
     };
     using PluginPtr = std::shared_ptr<Plugin>;
-
 }
 
 #endif

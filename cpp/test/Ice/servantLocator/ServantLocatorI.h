@@ -9,7 +9,6 @@
 
 namespace Test
 {
-
     class ServantLocatorI : public Ice::ServantLocator
     {
     public:

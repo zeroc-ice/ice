@@ -30,7 +30,6 @@ using namespace IceUtilInternal;
 //
 namespace Slice
 {
-
     enum Outdest
     {
         Out = 0,
@@ -38,7 +37,6 @@ namespace Slice
         Dbg = 2,
         Num_Outdest = 3
     };
-
 }
 
 extern "C" int mcpp_lib_main(int argc, char** argv);
@@ -140,7 +138,6 @@ Slice::Preprocessor::normalizeIncludePath(const string& path)
 
 namespace
 {
-
     vector<string>
     baseArgs(vector<string> args, bool keepComments, const vector<string>& extraArgs, const string& fileName)
     {
@@ -167,7 +164,6 @@ namespace
         args.push_back(fileName);
         return args;
     }
-
 }
 
 FILE*

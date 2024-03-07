@@ -13,14 +13,12 @@ using namespace Glacier2::Instrumentation;
 
 namespace
 {
-
     const string serverForwardContext = "Glacier2.Server.ForwardContext";
     const string clientForwardContext = "Glacier2.Client.ForwardContext";
     const string serverTraceRequest = "Glacier2.Server.Trace.Request";
     const string clientTraceRequest = "Glacier2.Client.Trace.Request";
     const string serverTraceOverride = "Glacier2.Server.Trace.Override";
     const string clientTraceOverride = "Glacier2.Client.Trace.Override";
-
 }
 
 Glacier2::Blobject::Blobject(

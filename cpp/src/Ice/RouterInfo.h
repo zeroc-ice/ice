@@ -19,7 +19,6 @@
 
 namespace IceInternal
 {
-
     class RouterManager final
     {
     public:
@@ -90,7 +89,6 @@ namespace IceInternal
         std::multiset<Ice::Identity> _evictedIdentities;
         mutable std::mutex _mutex;
     };
-
 }
 
 #endif

@@ -7,7 +7,6 @@
 
 namespace IceInternal
 {
-
     template<typename R> struct ReferenceWrapper
     {
         static R* get(const R& v) { return const_cast<R*>(&v); }
@@ -42,7 +41,6 @@ namespace IceInternal
 
 namespace IceMX
 {
-
     /// \cond INTERNAL
     template<class T, typename Y, typename Func> struct ApplyOnMember
     {
@@ -93,7 +91,6 @@ namespace IceMX
         return applyOnMember(member, Decrement<Y>());
     }
     /// \endcond
-
 }
 
 #endif

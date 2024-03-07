@@ -31,7 +31,6 @@ extern "C"
 
 namespace IcePHP
 {
-
     // This class is raised as an exception when object marshaling needs to be aborted.
     class AbortMarshaling
     {

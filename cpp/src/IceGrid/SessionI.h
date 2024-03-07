@@ -13,7 +13,6 @@
 
 namespace IceGrid
 {
-
     class Allocatable;
     class AllocationRequest;
     class Database;

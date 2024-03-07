@@ -13,14 +13,12 @@ using namespace IceSSL;
 
 namespace
 {
-
     //
     // See RFC 2253 and RFC 1779.
     //
 
     string special = ",=+<>#;";
     string hexvalid = "0123456789abcdefABCDEF";
-
 }
 
 static char unescapeHex(const string&, size_t);

@@ -12,7 +12,6 @@ using namespace IceMatlab;
 
 namespace
 {
-
     enum Field
     {
         Type = 0,
@@ -111,7 +110,6 @@ namespace
 
         return r;
     }
-
 }
 
 extern "C"

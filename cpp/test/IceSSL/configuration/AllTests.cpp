@@ -2359,7 +2359,6 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     /*
         cout << "testing ciphers... " << flush;
         {
-
             //
             // With OpenSSL 1.1.1 the initialization will success because TLS 1.3
             // ciphersuites are still enabled. They are not affected by IceSSL.Ciphers

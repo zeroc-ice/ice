@@ -36,16 +36,13 @@
 
 namespace IceGrid
 {
-
     class ReplicaGroupFilter;
     class TypeFilter;
     class RegistryPluginFacade;
-
 }
 
 namespace IceGrid
 {
-
     /**
      * The ReplicaGroupFilter is used by IceGrid to filter adapters returned to the client when it resolves a filtered
      * replica group.
@@ -236,26 +233,22 @@ namespace IceGrid
         virtual bool
         removeTypeFilter(const ::std::string& type, const ::std::shared_ptr<TypeFilter>& filter) noexcept = 0;
     };
-
 }
 
 /// \cond STREAM
 namespace Ice
 {
-
 }
 /// \endcond
 
 /// \cond INTERNAL
 namespace IceGrid
 {
-
     using ReplicaGroupFilterPtr = ::std::shared_ptr<ReplicaGroupFilter>;
 
     using TypeFilterPtr = ::std::shared_ptr<TypeFilter>;
 
     using RegistryPluginFacadePtr = ::std::shared_ptr<RegistryPluginFacade>;
-
 }
 /// \endcond
 

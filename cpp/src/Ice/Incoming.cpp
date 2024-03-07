@@ -24,9 +24,7 @@ using namespace IceInternal;
 
 namespace IceUtilInternal
 {
-
     extern bool printStackTraces;
-
 }
 
 Incoming::Incoming(

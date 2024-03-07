@@ -14,12 +14,10 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     static bool operator==(const ObjectInfo& info, const Ice::Identity& id)
     {
         return info.proxy->ice_getIdentity() == id;
     }
-
 }
 
 shared_ptr<ReplicaSessionI>

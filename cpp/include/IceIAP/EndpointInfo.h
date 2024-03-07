@@ -28,14 +28,11 @@
 
 namespace IceIAP
 {
-
     class EndpointInfo;
-
 }
 
 namespace IceIAP
 {
-
     /**
      * Provides access to an IAP endpoint information.
      * \headerfile IceIAP/IceIAP.h
@@ -98,15 +95,12 @@ namespace IceIAP
          */
         ::std::string protocol;
     };
-
 }
 
 /// \cond INTERNAL
 namespace IceIAP
 {
-
     using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
-
 }
 /// \endcond
 

@@ -13,15 +13,12 @@
 
 namespace IceSSL
 {
-
     namespace SecureTransport
     {
-
         class SSLEngine;
         using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 
     }
-
 }
 
 #endif

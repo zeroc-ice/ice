@@ -19,7 +19,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     mutex outputMutex;
 
     //
@@ -27,7 +26,6 @@ namespace
     // in case of failures renaming files. That is set to 5 minutes.
     //
     const chrono::minutes retryTimeout = chrono::minutes(5);
-
 }
 
 Ice::LoggerI::LoggerI(const string& prefix, const string& file, bool convert, size_t sizeMax)

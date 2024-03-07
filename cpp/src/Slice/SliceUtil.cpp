@@ -22,7 +22,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string normalizePath(const string& path)
     {
         string result = path;
@@ -78,7 +77,6 @@ namespace
         }
         return result;
     }
-
 }
 
 string

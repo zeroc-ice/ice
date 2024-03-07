@@ -17,7 +17,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API IPEndpointInfoI : public Ice::IPEndpointInfo
     {
     public:
@@ -128,7 +127,6 @@ namespace IceInternal
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
     };
-
 }
 
 #endif

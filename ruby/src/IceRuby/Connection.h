@@ -10,7 +10,6 @@
 
 namespace IceRuby
 {
-
     void initConnection(VALUE);
 
     VALUE createConnection(const Ice::ConnectionPtr&);
@@ -18,7 +17,6 @@ namespace IceRuby
 
     Ice::ConnectionPtr getConnection(VALUE);
     bool checkConnection(VALUE);
-
 }
 
 #endif

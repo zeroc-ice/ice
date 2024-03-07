@@ -34,14 +34,11 @@
 
 namespace Ice
 {
-
     class CommunicatorI;
-
 }
 
 namespace IceInternal
 {
-
     class Timer;
     using TimerPtr = std::shared_ptr<Timer>;
 
@@ -212,7 +209,6 @@ namespace IceInternal
     private:
         const Ice::CommunicatorPtr _communicator;
     };
-
 }
 
 #endif

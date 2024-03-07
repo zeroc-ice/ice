@@ -13,7 +13,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API StreamSocket : public NativeInfo
     {
     public:
@@ -78,7 +77,6 @@ namespace IceInternal
 #endif
     };
     using StreamSocketPtr = std::shared_ptr<StreamSocket>;
-
 }
 
 #endif

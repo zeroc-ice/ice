@@ -13,7 +13,6 @@
 
 namespace Ice
 {
-
     class OSLogLoggerI : public Logger
     {
     public:
@@ -30,7 +29,6 @@ namespace Ice
         const std::string _prefix;
         IceInternal::UniqueRef<os_log_t> _log;
     };
-
 }
 
 #endif

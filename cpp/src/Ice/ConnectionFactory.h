@@ -29,14 +29,11 @@
 
 namespace Ice
 {
-
     class ObjectAdapterI;
-
 }
 
 namespace IceInternal
 {
-
     class CommunicatorFlushBatchAsync;
     using CommunicatorFlushBatchAsyncPtr = ::std::shared_ptr<CommunicatorFlushBatchAsync>;
 
@@ -257,7 +254,6 @@ namespace IceInternal
         // For locking the _mutex
         template<typename T> friend class IceInternal::ThreadPoolMessage;
     };
-
 }
 
 #endif

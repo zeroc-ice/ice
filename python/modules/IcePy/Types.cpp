@@ -45,7 +45,6 @@ static ExceptionInfoMap _exceptionInfoMap;
 
 namespace
 {
-
     const char* emptySeq = "";
 
     //
@@ -55,12 +54,10 @@ namespace
     class InvalidSequenceFactoryException
     {
     };
-
 }
 
 namespace IcePy
 {
-
     struct TypeInfoObject
     {
         PyObject_HEAD IcePy::TypeInfoPtr* info;
@@ -96,7 +93,6 @@ namespace IcePy
 
         return true;
     }
-
 }
 
 #ifdef WIN32
@@ -3233,14 +3229,12 @@ IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
 
 namespace
 {
-
     void patchObject(void* addr, const std::shared_ptr<Ice::Value>& v)
     {
         ReadValueCallback* cb = static_cast<ReadValueCallback*>(addr);
         assert(cb);
         cb->invoke(v);
     }
-
 }
 
 void
@@ -4169,7 +4163,6 @@ IcePy::lookupExceptionInfo(std::string_view id)
 
 namespace IcePy
 {
-
     PyTypeObject TypeInfoType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -4331,7 +4324,6 @@ namespace IcePy
         &UnsetType};
 
     PyObject* Unset = &UnsetValue;
-
 }
 
 bool

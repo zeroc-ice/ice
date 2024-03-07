@@ -14,7 +14,6 @@
 
 namespace IceGrid
 {
-
     class Allocatable;
     class SessionI;
 

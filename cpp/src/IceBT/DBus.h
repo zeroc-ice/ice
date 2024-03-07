@@ -18,7 +18,6 @@ namespace IceBT
 {
     namespace DBus
     {
-
         class Exception
         {
         public:
@@ -503,7 +502,6 @@ namespace IceBT
         void initThreads();
 
     }
-
 }
 
 #endif

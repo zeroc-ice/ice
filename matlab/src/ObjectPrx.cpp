@@ -12,7 +12,6 @@ using namespace IceMatlab;
 
 namespace
 {
-
     class InvocationFuture : public Future
     {
     public:
@@ -148,7 +147,6 @@ namespace
         mxSetFieldByNumber(r, 0, 1, params);
         return r;
     }
-
 }
 
 extern "C"

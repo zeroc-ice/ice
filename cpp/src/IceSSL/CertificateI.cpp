@@ -82,7 +82,6 @@ DistinguishedName::DistinguishedName(const list<pair<string, string>>& rdns) : _
 
 namespace IceSSL
 {
-
     bool operator==(const DistinguishedName& lhs, const DistinguishedName& rhs)
     {
         return lhs._unescaped == rhs._unescaped;
@@ -92,7 +91,6 @@ namespace IceSSL
     {
         return lhs._unescaped < rhs._unescaped;
     }
-
 }
 
 bool

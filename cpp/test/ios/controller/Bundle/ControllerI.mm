@@ -23,7 +23,6 @@ using namespace Test::Common;
 
 namespace
 {
-
     typedef Test::TestHelper* (*CREATE_HELPER_ENTRY_POINT)();
 
     class ControllerHelperI : public Test::ControllerHelper

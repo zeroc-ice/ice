@@ -73,7 +73,6 @@ using namespace IceInternal;
 
 namespace IceUtilInternal
 {
-
     extern bool nullHandleAbort;
     extern bool printStackTraces;
 
@@ -81,7 +80,6 @@ namespace IceUtilInternal
 
 namespace
 {
-
     mutex staticMutex;
     bool oneOfDone = false;
     std::list<IceInternal::Instance*>* instanceList = 0;
@@ -159,12 +157,10 @@ namespace
     // Static initializer to register plugins.
     //
     IceInternal::RegisterPluginsInit initPlugins;
-
 }
 
 namespace IceInternal // Required because ObserverUpdaterI is a friend of Instance
 {
-
     class ObserverUpdaterI : public Ice::Instrumentation::ObserverUpdater
     {
     public:
@@ -194,7 +190,6 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
         std::atomic<bool> _hasObserver;
         ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
     };
-
 }
 
 void
@@ -867,9 +862,7 @@ IceInternal::Instance::setThreadHook(function<void()> threadStart, function<void
 }
 namespace
 {
-
     bool logStdErrConvert = true;
-
 }
 
 InstancePtr

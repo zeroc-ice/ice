@@ -13,7 +13,6 @@
 
 namespace IceBT
 {
-
     class ConnectorI;
     class AcceptorI;
 
@@ -63,7 +62,6 @@ namespace IceBT
         };
         friend class ConnectCallbackI;
     };
-
 }
 
 #endif

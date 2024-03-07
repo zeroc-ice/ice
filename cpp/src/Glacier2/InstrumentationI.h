@@ -12,7 +12,6 @@
 
 namespace Glacier2
 {
-
     class SessionObserverI final : public Glacier2::Instrumentation::SessionObserver,
                                    public IceMX::ObserverT<IceMX::SessionMetrics>
     {
@@ -42,7 +41,6 @@ namespace Glacier2
 
         IceMX::ObserverFactoryT<SessionObserverI> _sessions;
     };
-
 }
 
 #endif

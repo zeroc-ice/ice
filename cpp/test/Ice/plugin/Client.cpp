@@ -9,7 +9,6 @@ using namespace std;
 
 namespace
 {
-
     class MyPlugin : public Ice::Plugin
     {
     public:
@@ -33,7 +32,6 @@ namespace
         bool _destroyed;
     };
     using MyPluginPtr = std::shared_ptr<MyPlugin>;
-
 }
 
 extern "C"

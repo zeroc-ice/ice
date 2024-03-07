@@ -12,7 +12,6 @@ using namespace Test;
 
 namespace
 {
-
 #if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
     Test::TestHelper* instance = 0;
 
@@ -25,7 +24,6 @@ namespace
     }
 
 #endif
-
 }
 
 #if TARGET_OS_IPHONE != 0

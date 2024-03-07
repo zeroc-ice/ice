@@ -9,10 +9,8 @@
 
 namespace IceSSL
 {
-
     namespace OpenSSL
     {
-
         class SSLEngine;
         using SSLEnginePtr = std::shared_ptr<SSLEngine>;
 

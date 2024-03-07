@@ -28,14 +28,11 @@
 
 namespace IceBT
 {
-
     class EndpointInfo;
-
 }
 
 namespace IceBT
 {
-
     /**
      * Provides access to Bluetooth endpoint information.
      * \headerfile IceBT/IceBT.h
@@ -81,15 +78,12 @@ namespace IceBT
          */
         ::std::string uuid;
     };
-
 }
 
 /// \cond INTERNAL
 namespace IceBT
 {
-
     using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
-
 }
 /// \endcond
 

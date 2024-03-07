@@ -972,14 +972,12 @@ using namespace Slice;
 
 namespace Slice
 {
-
     // Definitions for the case-insensitive keyword-token map.
     typedef map<string, int> StringTokenMap;
     StringTokenMap keywordMap;
 
     int checkKeyword(string&);
     int checkIsScoped(const string&);
-
 }
 
 // Stores the scanner's current column position. Flex also automatically
@@ -990,7 +988,6 @@ string yyfilename;
 
 namespace
 {
-
     void nextLine(int = 1);
     int scanPosition(const char*);
     void setLocation(TokenContext*);
@@ -999,7 +996,6 @@ namespace
 
     void initScanner();
     void preAction();
-
 }
 
 // Override some of the functions flex auto-generates with our own implementations.
@@ -3001,7 +2997,6 @@ yyfree(void* ptr)
 
 namespace Slice
 {
-
     // Check if an identifier looks like a keyword.
     // If the identifier is a keyword, return the
     // corresponding keyword token; otherwise, return
@@ -3028,12 +3023,10 @@ namespace Slice
     {
         return id.find("::") == string::npos ? ICE_IDENTIFIER : ICE_SCOPED_IDENTIFIER;
     }
-
 }
 
 namespace
 {
-
     void nextLine(int count)
     {
         yylineno += count;
@@ -3153,5 +3146,4 @@ namespace
             BEGIN(PRE_SLICE);
         }
     }
-
 }

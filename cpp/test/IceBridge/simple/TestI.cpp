@@ -11,9 +11,7 @@ using namespace Test;
 
 namespace
 {
-
     Ice::Identity callbackId = {"callback", ""};
-
 }
 
 void

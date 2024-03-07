@@ -17,9 +17,7 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 // Class entries represent the PHP class implementations we have registered.
 namespace IcePHP
 {
-
     zend_class_entry* connectionClassEntry = 0;
-
 }
 
 static zend_class_entry* connectionInfoClassEntry = 0;

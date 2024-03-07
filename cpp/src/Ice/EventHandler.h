@@ -13,7 +13,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API EventHandler : public EnableSharedFromThis<EventHandler>
     {
     public:
@@ -67,7 +66,6 @@ namespace IceInternal
         friend class EventHandlerWrapper;
 #endif
     };
-
 }
 
 #endif

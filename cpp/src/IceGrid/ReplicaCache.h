@@ -11,7 +11,6 @@
 
 namespace IceGrid
 {
-
     class ReplicaCache;
     class ReplicaSessionI;
 

@@ -13,11 +13,9 @@
 
 namespace IceBT
 {
-
     typedef bdaddr_t DeviceAddress;
 
     typedef sockaddr_rc SocketAddress;
-
 }
 
 #endif

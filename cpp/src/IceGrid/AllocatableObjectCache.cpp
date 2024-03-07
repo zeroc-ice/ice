@@ -15,7 +15,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     bool compareAllocatableObjectEntry(
         const shared_ptr<AllocatableObjectEntry>& lhs,
         const shared_ptr<AllocatableObjectEntry>& rhs)

@@ -48,18 +48,15 @@ using namespace IceGrid;
 
 namespace
 {
-
 #ifdef _WIN32
     int getSystemErrno() { return GetLastError(); }
 #else
     int getSystemErrno() { return errno; }
 #endif
-
 }
 
 namespace IceGrid
 {
-
 #ifndef _WIN32
     //
     // Helper function for async-signal safe error reporting
@@ -280,7 +277,6 @@ namespace IceGrid
         }
     };
 #endif
-
 }
 
 #ifdef _WIN32

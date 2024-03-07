@@ -17,7 +17,6 @@
 
 namespace IceStormElection
 {
-
     class Observers;
 
     class NodeI final : public Node, public std::enable_shared_from_this<NodeI>
@@ -172,7 +171,6 @@ namespace IceStormElection
     private:
         const std::shared_ptr<NodeI> _node;
     };
-
 }
 
 #endif // NODE_I_H

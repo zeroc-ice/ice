@@ -82,12 +82,10 @@ extern "C"
 
 namespace Ice
 {
-
     ICESSL_API void registerIceSSL(bool loadOnInitialize)
     {
         Ice::registerPluginFactory("IceSSL", createIceSSL, loadOnInitialize);
     }
-
 }
 
 IceSSL::TrustError

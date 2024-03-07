@@ -23,7 +23,6 @@ extern "C"
 
 namespace IcePHP
 {
-
     void* createWrapper(zend_class_entry*, size_t);
     void* extractWrapper(zval*);
 

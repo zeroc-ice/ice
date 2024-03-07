@@ -35,7 +35,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     //
     // Split an absolute name into its components and return the components as a list of identifiers.
     //
@@ -1570,7 +1569,6 @@ namespace
             out << nl << "% Deprecated";
         }
     }
-
 }
 
 //
@@ -4539,10 +4537,8 @@ CodeVisitor::writeBaseClassArrayParams(IceUtilInternal::Output& out, const Membe
 
 namespace
 {
-
     mutex globalMutex;
     bool interrupted = false;
-
 }
 
 static void

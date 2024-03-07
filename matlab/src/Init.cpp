@@ -12,7 +12,6 @@ using namespace IceMatlab;
 
 namespace
 {
-
     class Init
     {
     public:

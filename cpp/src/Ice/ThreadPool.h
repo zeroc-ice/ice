@@ -20,7 +20,6 @@
 
 namespace IceInternal
 {
-
     class ThreadPoolCurrent;
 
     class ThreadPoolWorkQueue;

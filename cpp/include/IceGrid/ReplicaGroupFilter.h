@@ -11,7 +11,6 @@
 
 namespace IceGrid
 {
-
     /**
      * Abstract base class for a replica group filter.
      * \headerfile IceGrid/IceGrid.h

@@ -13,14 +13,11 @@
 
 namespace Ice
 {
-
     class InputStream;
-
 }
 
 namespace IceInternal
 {
-
     class ICE_API EndpointFactory
     {
     public:
@@ -101,7 +98,6 @@ namespace IceInternal
         virtual void initialize();
         virtual void destroy();
     };
-
 }
 
 #endif

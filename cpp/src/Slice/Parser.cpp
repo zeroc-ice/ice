@@ -92,7 +92,6 @@ extern int slice__flex_debug;
 
 namespace
 {
-
     DataMemberList filterOrderedOptionalDataMembers(const DataMemberList& members)
     {
         DataMemberList result;
@@ -129,14 +128,11 @@ namespace
 
         return false;
     }
-
 }
 
 namespace Slice
 {
-
     Unit* currentUnit;
-
 }
 
 // ----------------------------------------------------------------------
@@ -619,7 +615,6 @@ Slice::Contained::comment() const
 
 namespace
 {
-
     void trimLines(StringList& l)
     {
         // Remove empty trailing lines.
@@ -757,7 +752,6 @@ namespace
 
         return false;
     }
-
 }
 
 CommentPtr

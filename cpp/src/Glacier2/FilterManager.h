@@ -15,7 +15,6 @@
 
 namespace Glacier2
 {
-
     class FilterManager
     {
     public:

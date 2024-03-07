@@ -12,7 +12,6 @@
 
 namespace IceRuby
 {
-
     bool initValueFactoryManager(VALUE);
 
     class FactoryWrapper : public Ice::ValueFactory
@@ -87,7 +86,6 @@ namespace IceRuby
         mutable std::mutex _mutex;
     };
     using ValueFactoryManagerPtr = std::shared_ptr<ValueFactoryManager>;
-
 }
 
 #endif

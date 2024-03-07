@@ -28,7 +28,6 @@ using namespace Slice::Python;
 
 namespace IcePy
 {
-
     //
     // Information about an operation's parameter.
     //
@@ -312,12 +311,10 @@ namespace IcePy
     extern PyTypeObject MarshaledResultType;
 
     extern PyTypeObject OperationType;
-
 }
 
 namespace
 {
-
     OperationPtr getOperation(PyObject* p)
     {
         assert(PyObject_IsInstance(p, reinterpret_cast<PyObject*>(&OperationType)) == 1);
@@ -341,7 +338,6 @@ namespace
 
         ex.raise();
     }
-
 }
 
 #ifdef WIN32
@@ -1099,7 +1095,6 @@ static PyMethodDef AsyncInvocationContextMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject OperationType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -1279,7 +1274,6 @@ namespace IcePy
         0,                                                    /* tp_free */
         0,                                                    /* tp_is_gc */
     };
-
 }
 
 bool

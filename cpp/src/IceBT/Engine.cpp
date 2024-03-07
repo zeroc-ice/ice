@@ -15,7 +15,6 @@ using namespace IceBT;
 
 namespace IceBT
 {
-
     class ConnectionI;
     using ConnectionIPtr = std::shared_ptr<ConnectionI>;
 
@@ -1214,7 +1213,6 @@ namespace IceBT
         bool _discovering;
         vector<function<void(const string&, const PropertyMap&)>> _discoveryCallbacks;
     };
-
 }
 
 IceBT::Engine::Engine(const Ice::CommunicatorPtr& communicator) : _communicator(communicator), _initialized(false) {}

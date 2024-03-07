@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class TcpEndpointI final : public IPEndpointI
     {
     public:
@@ -80,7 +79,6 @@ namespace IceInternal
     private:
         ProtocolInstancePtr _instance;
     };
-
 }
 
 #endif

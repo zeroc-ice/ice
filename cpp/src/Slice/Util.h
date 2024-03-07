@@ -10,7 +10,6 @@
 
 namespace Slice
 {
-
     std::string fullPath(const std::string&);
     std::string changeInclude(const std::string&, const std::vector<std::string>&);
     void emitError(const std::string&, int, const std::string&);
@@ -59,6 +58,5 @@ namespace Slice
     bool checkIdentifier(const std::string&);
 
     bool isProxyType(const TypePtr& type);
-
 }
 #endif

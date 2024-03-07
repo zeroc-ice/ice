@@ -28,7 +28,6 @@
 
 namespace IceBT
 {
-
     /**
      * Indicates a failure in the Bluetooth plug-in.
      * \headerfile IceBT/IceBT.h
@@ -86,7 +85,6 @@ namespace IceBT
          */
         ::std::string reason;
     };
-
 }
 
 #include <IceUtil/PopDisableWarnings.h>

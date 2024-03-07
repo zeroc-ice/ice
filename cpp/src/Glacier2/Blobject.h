@@ -11,7 +11,6 @@
 
 namespace Glacier2
 {
-
     class Blobject : public Ice::BlobjectArrayAsync, public std::enable_shared_from_this<Blobject>
     {
     public:
@@ -41,7 +40,6 @@ namespace Glacier2
         const std::shared_ptr<RequestQueue> _requestQueue;
         const Ice::Context _context;
     };
-
 }
 
 #endif

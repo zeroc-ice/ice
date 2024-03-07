@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     //
     // An Admin Router routes requests to an admin object
     //
@@ -28,6 +27,5 @@ namespace IceGrid
 
         const std::shared_ptr<TraceLevels> _traceLevels;
     };
-
 }
 #endif

@@ -11,7 +11,6 @@
 
 namespace IceUtilInternal
 {
-
 #if defined(_WIN32)
 
     class ConsoleUtil;
@@ -75,7 +74,6 @@ namespace IceUtilInternal
     extern ICE_API std::ostream& consoleErr;
 
 #endif
-
 }
 
 #endif

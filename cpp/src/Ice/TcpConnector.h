@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class TcpConnector final : public Connector
     {
     public:
@@ -40,7 +39,6 @@ namespace IceInternal
         const std::int32_t _timeout;
         const std::string _connectionId;
     };
-
 }
 
 #endif

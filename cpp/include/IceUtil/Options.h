@@ -13,7 +13,6 @@
 
 namespace IceUtilInternal
 {
-
     class ICE_API APIException : public IceUtil::ExceptionHelper<APIException>
     {
     public:
@@ -122,7 +121,6 @@ namespace IceUtilInternal
 
         static void checkArgs(const ::std::string&, const ::std::string&, bool, const ::std::string&);
     };
-
 }
 
 #endif

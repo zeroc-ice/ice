@@ -12,7 +12,6 @@
 
 namespace IceBT
 {
-
     bool isValidDeviceAddress(const std::string&);
     bool parseDeviceAddress(const std::string&, DeviceAddress&);
     std::string formatDeviceAddress(const DeviceAddress&);
@@ -24,7 +23,6 @@ namespace IceBT
     std::string fdToString(SOCKET);
     void fdToAddressAndChannel(SOCKET, std::string&, int&, std::string&, int&);
     int compareAddress(const SocketAddress&, const SocketAddress&);
-
 }
 
 #endif

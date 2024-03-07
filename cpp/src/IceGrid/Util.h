@@ -15,7 +15,6 @@
 
 namespace IceGrid
 {
-
     template<typename T> std::insert_iterator<T> inline set_inserter(T& container)
     {
         return std::insert_iterator<T>(container, container.begin());

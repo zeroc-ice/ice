@@ -13,7 +13,6 @@ using namespace IceBox;
 
 namespace IceBox
 {
-
     class IceBoxService : public Ice::Service
     {
     public:
@@ -27,7 +26,6 @@ namespace IceBox
         void usage(const std::string&);
         ServiceManagerIPtr _serviceManager;
     };
-
 }
 
 IceBox::IceBoxService::IceBoxService() {}

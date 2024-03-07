@@ -19,7 +19,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string stringTypeToString(const TypePtr&, const StringList& metaData, TypeContext typeCtx)
     {
         string strType = findMetaData(metaData, typeCtx);

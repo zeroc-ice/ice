@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
     class ReferenceFactory;
     using ReferenceFactoryPtr = std::shared_ptr<ReferenceFactory>;
-
 }
 
 #endif

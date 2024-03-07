@@ -13,7 +13,6 @@ using namespace std;
 
 namespace
 {
-
     class CheckTask : public IceUtil::TimerTask
     {
         const shared_ptr<NodeI> _node;
@@ -50,14 +49,11 @@ namespace
         TimeoutTask(shared_ptr<NodeI> node) : _node(std::move(node)) {}
         virtual void runTimerTask() { _node->timeout(); }
     };
-
 }
 
 namespace
 {
-
     LogUpdate emptyLU = {0, 0};
-
 }
 
 GroupNodeInfo::GroupNodeInfo(int i) : id(i), llu(emptyLU) {}
@@ -108,7 +104,6 @@ namespace
         os << ")";
         return os.str();
     }
-
 }
 
 NodeI::NodeI(

@@ -10,7 +10,6 @@
 
 namespace Ice
 {
-
     struct SliceInfo;
     using SliceInfoPtr = std::shared_ptr<SliceInfo>;
 
@@ -22,7 +21,6 @@ namespace Ice
 
     class UnknownSlicedValue;
     using UnknownSlicedValuePtr = std::shared_ptr<UnknownSlicedValue>;
-
 }
 
 #endif

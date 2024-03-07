@@ -16,7 +16,6 @@
 
 namespace Ice
 {
-
     class UserException;
 
     /**

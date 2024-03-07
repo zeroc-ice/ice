@@ -21,7 +21,6 @@
 
 namespace IceInternal
 {
-
     class OutgoingAsyncBase;
     class RetryException;
     class CollocatedRequestHandler;
@@ -491,7 +490,6 @@ namespace IceInternal
         (obj->*fn)(outAsync, std::forward<Args>(args)...);
         return [outAsync]() { outAsync->cancel(); };
     }
-
 }
 
 #endif

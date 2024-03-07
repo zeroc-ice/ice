@@ -13,7 +13,6 @@
 
 namespace Ice
 {
-
     /**
      * Base class for logger output utility classes.
      * \headerfile Ice/Ice.h
@@ -153,7 +152,6 @@ namespace Ice
         /** This method is a no-op. */
         virtual void destroy();
     };
-
 }
 
 #endif

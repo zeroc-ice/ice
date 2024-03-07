@@ -9,7 +9,6 @@
 
 namespace Test1
 {
-
     class WstringClassI : public virtual WstringClass
     {
     public:
@@ -19,12 +18,10 @@ namespace Test1
 
         virtual void throwExcept(::std::wstring, const Ice::Current&);
     };
-
 }
 
 namespace Test2
 {
-
     class WstringClassI : public virtual WstringClass
     {
     public:
@@ -34,7 +31,6 @@ namespace Test2
 
         virtual void throwExcept(::std::wstring, const Ice::Current&);
     };
-
 }
 
 #endif

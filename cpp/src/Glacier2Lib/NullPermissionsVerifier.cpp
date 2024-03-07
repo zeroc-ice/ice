@@ -11,7 +11,6 @@ using namespace std;
 
 namespace
 {
-
     class NullPermissionsVerifier final : public Glacier2::PermissionsVerifier
     {
     public:
@@ -23,12 +22,10 @@ namespace
     public:
         bool authorize(Glacier2::SSLInfo, string&, const Ice::Current&) const final { return true; }
     };
-
 }
 
 namespace Glacier2Internal
 {
-
     void setupNullPermissionsVerifier(
         const CommunicatorPtr& communicator,
         const string& category,
@@ -74,5 +71,4 @@ namespace Glacier2Internal
             }
         }
     }
-
 }

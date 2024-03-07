@@ -22,7 +22,6 @@ using namespace IceStormElection;
 //
 namespace
 {
-
     struct SendQueueSizeMaxReached : std::exception
     {
         const char* what() const noexcept override { return "maximum size of send queue reached"; }
@@ -73,13 +72,11 @@ namespace
                 return IceStorm::Instrumentation::SubscriberState::SubscriberStateError;
         }
     }
-
 }
 
 // Each of the various Subscriber types.
 namespace
 {
-
     class SubscriberOneway final : public Subscriber
     {
     public:
@@ -124,7 +121,6 @@ namespace
     private:
         const TopicLinkPrx _obj;
     };
-
 }
 
 SubscriberOneway::SubscriberOneway(
@@ -296,7 +292,6 @@ SubscriberTwoway::flush()
 
 namespace
 {
-
     SubscriberLink::SubscriberLink(const shared_ptr<Instance>& instance, const SubscriberRecord& rec)
         : Subscriber(instance, rec, nullopt, -1, 1),
           _obj(TopicLinkPrx(
@@ -364,7 +359,6 @@ namespace
             }
         }
     }
-
 }
 
 shared_ptr<Subscriber>
@@ -849,7 +843,6 @@ Subscriber::Subscriber(
 
 namespace
 {
-
     string stateToString(Subscriber::SubscriberState state)
     {
         switch (state)
@@ -866,7 +859,6 @@ namespace
                 return "???";
         }
     }
-
 }
 
 void

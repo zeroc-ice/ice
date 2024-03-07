@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class UdpConnector final : public Connector
     {
     public:
@@ -41,6 +40,5 @@ namespace IceInternal
         const int _mcastTtl;
         const std::string _connectionId;
     };
-
 }
 #endif

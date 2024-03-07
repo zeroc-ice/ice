@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     //
     // A logger that works in tandem with a "Logger" admin facet.
     //
@@ -33,7 +32,6 @@ namespace IceInternal
     using LoggerAdminLoggerPtr = std::shared_ptr<LoggerAdminLogger>;
 
     LoggerAdminLoggerPtr createLoggerAdminLogger(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
-
 }
 
 #endif

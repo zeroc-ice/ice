@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class FileCache
     {
     public:

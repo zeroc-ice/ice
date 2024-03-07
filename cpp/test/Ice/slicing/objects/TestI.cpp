@@ -11,7 +11,6 @@ using namespace std;
 
 namespace
 {
-
     void breakCycles(Ice::ValuePtr);
 
     template<typename T> void breakCycles(const vector<shared_ptr<T>>& s)
@@ -133,7 +132,6 @@ namespace
             u->cycle = nullptr;
         }
     }
-
 }
 
 TestI::TestI() {}

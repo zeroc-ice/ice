@@ -37,7 +37,6 @@
 
 namespace Test
 {
-
     class TEST_API ControllerHelper
     {
     public:
@@ -162,7 +161,6 @@ namespace Test
         return status;
     }
 #endif
-
 }
 
 #if TARGET_OS_IPHONE != 0

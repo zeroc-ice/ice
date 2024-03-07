@@ -11,7 +11,6 @@ using namespace std;
 
 namespace
 {
-
     class PluginI : public IceSSL::PluginI
     {
     public:

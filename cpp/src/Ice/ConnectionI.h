@@ -41,14 +41,11 @@
 
 namespace IceInternal
 {
-
     template<typename T> class ThreadPoolMessage;
-
 }
 
 namespace Ice
 {
-
     class LocalException;
     class ObjectAdapterI;
 
@@ -381,7 +378,6 @@ namespace Ice
         // For locking the _mutex
         template<typename T> friend class IceInternal::ThreadPoolMessage;
     };
-
 }
 
 #endif

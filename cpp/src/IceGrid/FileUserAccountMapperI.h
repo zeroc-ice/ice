@@ -9,7 +9,6 @@
 
 namespace IceGrid
 {
-
     class FileUserAccountMapperI : public UserAccountMapper
     {
     public:

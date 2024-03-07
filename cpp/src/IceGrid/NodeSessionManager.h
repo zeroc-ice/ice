@@ -12,7 +12,6 @@
 
 namespace IceGrid
 {
-
     class NodeI;
     class NodeSessionManager;
 
@@ -107,7 +106,6 @@ namespace IceGrid
         NodeSessionMap _sessions;
         std::set<Ice::Identity> _replicas;
     };
-
 }
 
 #endif

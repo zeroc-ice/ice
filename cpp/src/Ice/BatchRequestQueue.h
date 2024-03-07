@@ -15,7 +15,6 @@
 
 namespace IceInternal
 {
-
     class BatchRequestQueue
     {
     public:

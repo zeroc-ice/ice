@@ -10,7 +10,6 @@
 
 namespace Slice
 {
-
     class JavaVisitor : public JavaGenerator, public ParserVisitor
     {
     public:
@@ -198,7 +197,6 @@ namespace Slice
             virtual void visitOperation(const OperationPtr&);
         };
     };
-
 }
 
 #endif

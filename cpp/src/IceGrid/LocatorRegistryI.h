@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class Database;
     class ReplicaSessionManager;
     class TraceLevels;
@@ -57,7 +56,6 @@ namespace IceGrid
         const bool _master;
         ReplicaSessionManager& _session;
     };
-
 }
 
 #endif

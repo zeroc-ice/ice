@@ -10,13 +10,11 @@
 
 namespace IceRuby
 {
-
     void initEndpoint(VALUE);
 
     VALUE createEndpoint(const Ice::EndpointPtr&);
     VALUE createEndpointInfo(const Ice::EndpointInfoPtr&);
     bool checkEndpoint(VALUE);
-
 }
 
 #endif

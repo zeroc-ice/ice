@@ -12,7 +12,6 @@
 
 namespace IcePatch2
 {
-
     //
     // The IcePatch2::PatcherFeedback class is implemented by IcePatch2 clients to
     // allow the user to interact with the patching and report progress
@@ -127,7 +126,6 @@ namespace IcePatch2
             std::int32_t chunkSize,
             std::int32_t remove);
     };
-
 }
 
 #endif

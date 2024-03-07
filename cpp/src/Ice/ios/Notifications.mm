@@ -20,15 +20,12 @@ using namespace IceInternal;
 
 namespace IceInternal
 {
-
     bool registerForBackgroundNotification(const IncomingConnectionFactoryPtr&);
     void unregisterForBackgroundNotification(const IncomingConnectionFactoryPtr&);
-
 }
 
 namespace
 {
-
     class Observer
     {
     public:
@@ -115,7 +112,6 @@ namespace
         id _foregroundObserver;
         set<IncomingConnectionFactoryPtr> _factories;
     };
-
 }
 
 static Observer observer;

@@ -15,7 +15,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string getEscapedParamName(const OperationPtr& p, const string& name)
     {
         ParamDeclList params = p->parameters();
@@ -29,14 +28,12 @@ namespace
         }
         return name;
     }
-
 }
 
 namespace Slice
 {
     namespace Ruby
     {
-
         //
         // CodeVisitor generates the Ruby mapping for a translation unit.
         //

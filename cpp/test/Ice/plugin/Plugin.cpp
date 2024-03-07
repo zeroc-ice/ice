@@ -9,7 +9,6 @@ using namespace std;
 
 namespace
 {
-
     class Plugin : public Ice::Plugin
     {
     public:
@@ -246,7 +245,6 @@ namespace
             test(!_destroyed);
         }
     };
-
 }
 
 extern "C" ICE_DECLSPEC_EXPORT ::Ice::Plugin*

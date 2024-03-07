@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
     class TraceLevels;
     using TraceLevelsPtr = std::shared_ptr<TraceLevels>;
-
 }
 
 #endif

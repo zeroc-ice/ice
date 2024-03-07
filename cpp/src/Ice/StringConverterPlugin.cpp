@@ -16,7 +16,6 @@ using namespace std;
 
 namespace
 {
-
     class StringConverterPlugin : public Plugin
     {
     public:
@@ -45,7 +44,6 @@ namespace
     {
         // no op
     }
-
 }
 
 //
@@ -167,10 +165,8 @@ extern "C"
 
 namespace Ice
 {
-
     ICE_API void registerIceStringConverter(bool loadOnInitialize)
     {
         registerPluginFactory("IceStringConverter", createStringConverter, loadOnInitialize);
     }
-
 }

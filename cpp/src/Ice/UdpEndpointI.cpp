@@ -29,12 +29,10 @@ extern "C"
 
 namespace Ice
 {
-
     ICE_API void registerIceUDP(bool loadOnInitialize)
     {
         Ice::registerPluginFactory("IceUDP", createIceUDP, loadOnInitialize);
     }
-
 }
 
 IceInternal::UdpEndpointI::UdpEndpointI(

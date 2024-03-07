@@ -20,7 +20,6 @@
 
 namespace IceInternal
 {
-
     class ACMConfig
     {
     public:
@@ -104,7 +103,6 @@ namespace IceInternal
         Ice::ConnectionIPtr _connection;
         std::mutex _mutex;
     };
-
 }
 
 #endif

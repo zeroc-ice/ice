@@ -15,7 +15,6 @@
 
 namespace IceInternal
 {
-
     class DefaultsAndOverrides
     {
     public:
@@ -44,7 +43,6 @@ namespace IceInternal
         bool overrideSecure;
         bool overrideSecureValue;
     };
-
 }
 
 #endif

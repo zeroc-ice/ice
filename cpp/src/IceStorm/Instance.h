@@ -14,15 +14,12 @@
 
 namespace IceStormElection
 {
-
     class Observers;
     class NodeI;
-
 }
 
 namespace IceStorm
 {
-
     class TraceLevels;
 
     class TopicReaper

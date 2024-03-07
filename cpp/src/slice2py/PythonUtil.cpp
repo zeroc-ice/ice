@@ -16,7 +16,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string getEscapedParamName(const OperationPtr& p, const string& name)
     {
         ParamDeclList params = p->parameters();
@@ -30,14 +29,12 @@ namespace
         }
         return name;
     }
-
 }
 
 namespace Slice
 {
     namespace Python
     {
-
         class MetaDataVisitor : public ParserVisitor
         {
         public:

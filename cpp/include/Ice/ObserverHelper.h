@@ -11,7 +11,6 @@
 
 namespace IceInternal
 {
-
     std::string getExceptionId(std::exception_ptr);
 
     template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
@@ -147,7 +146,6 @@ namespace IceInternal
     private:
         using ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach;
     };
-
 }
 
 #endif

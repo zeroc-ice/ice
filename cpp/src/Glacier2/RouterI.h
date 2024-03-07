@@ -12,7 +12,6 @@
 
 namespace Glacier2
 {
-
     class RoutingTable;
     class RouterI;
     class FilterManager;
@@ -82,7 +81,6 @@ namespace Glacier2
 
         std::shared_ptr<Glacier2::Instrumentation::SessionObserver> _observer;
     };
-
 }
 
 #endif

@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API FactoryTableInit
     {
     public:
@@ -57,7 +56,6 @@ namespace IceInternal
 
         const ::std::string typeId;
     };
-
 }
 
 #endif

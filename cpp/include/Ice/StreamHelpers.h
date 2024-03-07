@@ -14,7 +14,6 @@
 
 namespace Ice
 {
-
     /// \cond STREAM
 
     /**
@@ -873,7 +872,6 @@ namespace Ice
     };
 
     /// \endcond
-
 }
 
 #endif

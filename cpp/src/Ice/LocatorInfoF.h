@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     class LocatorManager;
     using LocatorManagerPtr = std::shared_ptr<LocatorManager>;
 
@@ -18,7 +17,6 @@ namespace IceInternal
 
     class LocatorTable;
     using LocatorTablePtr = std::shared_ptr<LocatorTable>;
-
 }
 
 #endif

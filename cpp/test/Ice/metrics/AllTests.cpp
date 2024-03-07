@@ -14,7 +14,6 @@ using namespace Test;
 
 namespace
 {
-
     string getPort(const Ice::PropertiesAdminPrx& p)
     {
         ostringstream os;
@@ -351,7 +350,6 @@ namespace
         }
         return m;
     }
-
 }
 
 MetricsPrx

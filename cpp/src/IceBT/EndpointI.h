@@ -14,7 +14,6 @@
 
 namespace IceBT
 {
-
     class EndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
     {
     public:
@@ -110,7 +109,6 @@ namespace IceBT
     private:
         InstancePtr _instance;
     };
-
 }
 
 #endif

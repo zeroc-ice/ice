@@ -13,14 +13,12 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     extern PyTypeObject ImplicitContextType;
 
     struct ImplicitContextObject
     {
         PyObject_HEAD Ice::ImplicitContextPtr* implicitContext;
     };
-
 }
 
 #ifdef WIN32
@@ -297,7 +295,6 @@ static PyMethodDef ImplicitContextMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject ImplicitContextType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -342,7 +339,6 @@ namespace IcePy
         0,                                                     /* tp_free */
         0,                                                     /* tp_is_gc */
     };
-
 }
 
 bool

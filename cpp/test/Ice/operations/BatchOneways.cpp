@@ -15,7 +15,6 @@ using namespace Ice;
 
 namespace
 {
-
     class BatchRequestInterceptorI final
     {
     public:
@@ -58,7 +57,6 @@ namespace
         int _lastRequestSize;
     };
     using BatchRequestInterceptorIPtr = std::shared_ptr<BatchRequestInterceptorI>;
-
 }
 
 void

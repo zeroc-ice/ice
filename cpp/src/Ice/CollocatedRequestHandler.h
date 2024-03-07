@@ -17,14 +17,11 @@
 
 namespace Ice
 {
-
     class ObjectAdapterI;
-
 }
 
 namespace IceInternal
 {
-
     class OutgoingAsyncBase;
     class OutgoingAsync;
 
@@ -72,7 +69,6 @@ namespace IceInternal
         std::mutex _mutex;
     };
     using CollocatedRequestHandlerPtr = std::shared_ptr<CollocatedRequestHandler>;
-
 }
 
 #endif

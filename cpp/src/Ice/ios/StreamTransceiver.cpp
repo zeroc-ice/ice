@@ -24,7 +24,6 @@ using namespace IceInternal;
 
 namespace
 {
-
     void selectorReadCallback(CFReadStreamRef, CFStreamEventType event, void* info)
     {
         SelectorReadyCallback* callback = reinterpret_cast<SelectorReadyCallback*>(info);
@@ -58,7 +57,6 @@ namespace
                 break;
         }
     }
-
 }
 
 static inline string

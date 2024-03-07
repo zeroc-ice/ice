@@ -17,7 +17,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     const string& getReplicaGroupId(const ReplicaGroupDescriptor& desc) { return desc.id; }
 
     const string& getAdapterId(const AdapterDescriptor& desc) { return desc.id; }
@@ -334,7 +333,6 @@ namespace
             }
         }
     }
-
 }
 
 Resolver::Resolver(

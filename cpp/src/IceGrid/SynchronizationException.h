@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class SynchronizationException : public ::Ice::LocalExceptionHelper<SynchronizationException, ::Ice::LocalException>
     {
     public:
@@ -40,5 +39,4 @@ namespace IceGrid
          */
         static ::std::string_view ice_staticId();
     };
-
 }

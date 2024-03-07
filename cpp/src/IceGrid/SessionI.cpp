@@ -17,7 +17,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     class AllocateObject final : public ObjectAllocationRequest
     {
     public:
@@ -49,7 +48,6 @@ namespace IceGrid
         function<void(const Ice::ObjectPrxPtr& returnValue)> _response;
         function<void(exception_ptr)> _exception;
     };
-
 }
 
 BaseSessionI::BaseSessionI(const string& id, const string& prefix, const shared_ptr<Database>& database)

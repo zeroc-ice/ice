@@ -446,12 +446,10 @@ using namespace IceStorm;
 
 namespace IceStorm
 {
-
     typedef std::map<std::string, int> StringTokenMap;
     static StringTokenMap keywordMap;
 
     void initScanner();
-
 }
 #define YY_USER_INIT initScanner();
 
@@ -1923,7 +1921,6 @@ yyfree(void* ptr)
 
 namespace IceStorm
 {
-
     //
     // initScanner() fills the keyword map with all keyword-token pairs.
     //
@@ -1943,5 +1940,4 @@ namespace IceStorm
         keywordMap["replica"] = ICE_STORM_REPLICA;
         keywordMap["subscribers"] = ICE_STORM_SUBSCRIBERS;
     }
-
 }

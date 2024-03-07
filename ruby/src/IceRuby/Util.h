@@ -18,7 +18,6 @@
 
 namespace IceRuby
 {
-
     void initUtil(VALUE);
 
     class RubyException
@@ -471,7 +470,6 @@ namespace IceRuby
     // Create the Ruby equivalent of an Ice local exception.
     //
     VALUE convertLocalException(const Ice::LocalException&);
-
 }
 
 //

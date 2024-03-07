@@ -14,7 +14,6 @@
 
 namespace Glacier2
 {
-
     class Instance;
     class Request;
     class RequestQueueThread;
@@ -109,7 +108,6 @@ namespace Glacier2
         std::condition_variable _condVar;
         std::thread _thread;
     };
-
 }
 
 #endif

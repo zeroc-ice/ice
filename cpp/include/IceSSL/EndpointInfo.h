@@ -28,7 +28,6 @@
 
 namespace IceSSL
 {
-
     class EndpointInfo;
     /**
      * Provides access to an SSL endpoint information.
@@ -57,15 +56,12 @@ namespace IceSSL
         {
         }
     };
-
 }
 
 /// \cond INTERNAL
 namespace IceSSL
 {
-
     using EndpointInfoPtr = ::std::shared_ptr<EndpointInfo>;
-
 }
 /// \endcond
 

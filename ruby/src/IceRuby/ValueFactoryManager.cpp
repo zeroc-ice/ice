@@ -15,7 +15,6 @@ static VALUE _valueFactoryManagerClass;
 
 namespace
 {
-
     ClassInfoPtr getClassInfo(string_view id)
     {
         ClassInfoPtr info;
@@ -33,7 +32,6 @@ namespace
 
         return info;
     }
-
 }
 
 extern "C" void

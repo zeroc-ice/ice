@@ -17,24 +17,19 @@
 
 namespace Glacier2
 {
-
     namespace Instrumentation
     {
-
         class SessionObserver;
         class ObserverUpdater;
         class RouterObserver;
 
     }
-
 }
 
 namespace Glacier2
 {
-
     namespace Instrumentation
     {
-
         class SessionObserver : public virtual ::Ice::Instrumentation::Observer
         {
         public:
@@ -117,17 +112,14 @@ namespace Glacier2
         };
 
     }
-
 }
 
 /// \cond INTERNAL
 namespace Glacier2
 {
-
     /// \cond INTERNAL
     namespace Instrumentation
     {
-
         using SessionObserverPtr = ::std::shared_ptr<SessionObserver>;
 
         using ObserverUpdaterPtr = ::std::shared_ptr<ObserverUpdater>;
@@ -136,7 +128,6 @@ namespace Glacier2
 
     }
     /// \endcond
-
 }
 /// \endcond
 

@@ -16,7 +16,6 @@
 
 namespace Ice
 {
-
     /**
      * A property set used to configure Ice and Ice applications. Properties are key/value pairs, with both keys and
      * values being strings. By convention, property keys should have the form
@@ -187,7 +186,6 @@ namespace Ice
     };
 
     using PropertiesPtr = std::shared_ptr<Properties>;
-
 }
 
 #endif

@@ -11,7 +11,6 @@
 
 namespace Ice
 {
-
     class Value;
 
     /**
@@ -110,7 +109,6 @@ namespace Ice
     };
 
     using ValueFactoryManagerPtr = ::std::shared_ptr<ValueFactoryManager>;
-
 }
 
 #endif

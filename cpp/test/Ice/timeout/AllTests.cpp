@@ -15,7 +15,6 @@ using namespace Test;
 
 namespace
 {
-
     Ice::ConnectionPtr connect(const Ice::ObjectPrx& prx)
     {
         //
@@ -39,7 +38,6 @@ namespace
         }
         return prx->ice_getConnection();
     }
-
 }
 
 void

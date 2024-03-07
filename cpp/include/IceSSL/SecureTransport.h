@@ -12,10 +12,8 @@
 
 namespace IceSSL
 {
-
     namespace SecureTransport
     {
-
         class Certificate;
         using CertificatePtr = std::shared_ptr<Certificate>;
 

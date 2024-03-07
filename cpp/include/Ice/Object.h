@@ -13,15 +13,12 @@
 
 namespace IceInternal
 {
-
     class Incoming;
     class Direct;
-
 }
 
 namespace Ice
 {
-
     /** A default-initialized Current instance. */
     ICE_API extern const Current emptyCurrent;
 
@@ -214,7 +211,6 @@ namespace Ice
         bool _iceDispatch(IceInternal::Incoming&) final;
         /// \endcond
     };
-
 }
 
 #endif

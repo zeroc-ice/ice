@@ -11,7 +11,6 @@
 
 namespace Slice
 {
-
     class Gen
     {
     public:
@@ -236,7 +235,6 @@ namespace Slice
 
         static void validateMetaData(const UnitPtr&);
     };
-
 }
 
 #endif

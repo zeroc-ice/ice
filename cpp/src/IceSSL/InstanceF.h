@@ -9,7 +9,6 @@
 
 namespace IceSSL
 {
-
     class Instance;
     using InstancePtr = std::shared_ptr<Instance>;
 

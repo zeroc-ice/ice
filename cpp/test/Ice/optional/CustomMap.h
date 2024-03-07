@@ -10,11 +10,9 @@
 
 namespace Test
 {
-
     template<typename K, typename V> class CustomMap : public std::unordered_map<K, V>
     {
     };
-
 }
 
 #endif

@@ -13,7 +13,6 @@ using namespace std;
 
 namespace
 {
-
     // Helper char to hex functions
     inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
     {
@@ -35,7 +34,6 @@ namespace
             halfByteToHex((bytes[i] & 0x0F), hexBuffer);
         }
     }
-
 }
 
 string

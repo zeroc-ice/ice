@@ -39,11 +39,9 @@ using namespace IceSSL;
 
 namespace
 {
-
     mutex staticMutex;
     int instanceCount = 0;
     bool initOpenSSL = false;
-
 }
 extern "C"
 {
@@ -84,7 +82,6 @@ extern "C"
 
 namespace
 {
-
     bool passwordError()
     {
         int reason = ERR_GET_REASON(ERR_peek_error());
@@ -92,7 +89,6 @@ namespace
             reason == PEM_R_BAD_BASE64_DECODE || reason == PEM_R_BAD_DECRYPT || reason == PEM_R_BAD_PASSWORD_READ ||
             reason == PEM_R_PROBLEMS_GETTING_PASSWORD || reason == PKCS12_R_MAC_VERIFY_FAILURE);
     }
-
 }
 
 OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) : IceSSL::SSLEngine(communicator), _ctx(0)

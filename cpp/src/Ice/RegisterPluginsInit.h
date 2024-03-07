@@ -7,13 +7,11 @@
 
 namespace IceInternal
 {
-
     class RegisterPluginsInit
     {
     public:
         RegisterPluginsInit();
     };
-
 }
 
 #endif

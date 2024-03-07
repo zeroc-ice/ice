@@ -16,7 +16,6 @@
 
 namespace IceGrid
 {
-
     class AdminSessionFactory;
     class ClientSessionFactory;
     class Database;
@@ -121,7 +120,6 @@ namespace IceGrid
 
         std::shared_ptr<IceStormInternal::Service> _iceStorm;
     };
-
 }
 
 #endif

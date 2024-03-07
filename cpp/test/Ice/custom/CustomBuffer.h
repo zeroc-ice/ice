@@ -13,7 +13,6 @@
 
 namespace Test
 {
-
     template<typename T> class CustomBuffer
     {
     public:
@@ -120,12 +119,10 @@ namespace Test
         }
         return true;
     }
-
 }
 
 namespace Ice
 {
-
     template<typename T> struct StreamableTraits<::Test::CustomBuffer<T>>
     {
         static const StreamHelperCategory helper = StreamHelperCategorySequence;
@@ -160,7 +157,6 @@ namespace Ice
             }
         }
     };
-
 }
 
 #endif

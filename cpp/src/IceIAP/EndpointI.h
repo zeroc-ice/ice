@@ -11,7 +11,6 @@
 
 namespace IceObjC
 {
-
     class iAPEndpointI;
     typedef ::std::shared_ptr<iAPEndpointI> iAPEndpointIPtr;
 
@@ -95,7 +94,6 @@ namespace IceObjC
     private:
         IceInternal::ProtocolInstancePtr _instance;
     };
-
 }
 
 #endif

@@ -22,10 +22,8 @@
 
 namespace Glacier2Internal
 {
-
     GLACIER2_API void
     setupNullPermissionsVerifier(const Ice::CommunicatorPtr&, const std::string&, const std::vector<std::string>&);
-
 }
 
 #endif

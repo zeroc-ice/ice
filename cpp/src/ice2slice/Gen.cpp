@@ -346,7 +346,6 @@ namespace
             out << member->name() << ": " << typeToString(member->type(), scope, member->optional());
         }
     }
-
 }
 
 Gen::Gen(const std::string& fileBase) : _fileBase(fileBase) {}

@@ -9,10 +9,8 @@
 
 namespace Slice
 {
-
     namespace DotNet
     {
-
         enum BaseType
         {
             Object = 1,
@@ -26,7 +24,6 @@ namespace Slice
         std::string mangleName(const std::string&, unsigned int baseTypes = 0);
 
     }
-
 }
 
 #endif

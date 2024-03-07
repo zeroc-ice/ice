@@ -13,7 +13,6 @@
 
 namespace Ice
 {
-
     /**
      * An interface to associate implict contexts with communicators. When you make a remote invocation without an
      * explicit context parameter, Ice uses the per-proxy context (if any) combined with the
@@ -98,7 +97,6 @@ namespace Ice
     };
 
     using ImplicitContextPtr = std::shared_ptr<ImplicitContext>;
-
 }
 
 #endif

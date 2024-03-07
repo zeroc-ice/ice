@@ -10,7 +10,6 @@
 
 namespace IcePy
 {
-
     extern PyTypeObject CommunicatorType;
 
     bool initCommunicator(PyObject*);
@@ -19,7 +18,6 @@ namespace IcePy
 
     PyObject* createCommunicator(const Ice::CommunicatorPtr&);
     PyObject* getCommunicatorWrapper(const Ice::CommunicatorPtr&);
-
 }
 
 extern "C" PyObject* IcePy_initialize(PyObject*, PyObject*);

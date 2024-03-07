@@ -18,7 +18,6 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     string sliceModeToIceMode(Operation::Mode opMode)
     {
         string mode = "com.zeroc.Ice.OperationMode.";
@@ -128,7 +127,6 @@ namespace
 
         return "java.util.Optional.ofNullable";
     }
-
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) : JavaGenerator(dir) {}

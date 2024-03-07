@@ -22,7 +22,6 @@
 
 namespace Ice
 {
-
     /**
      * Converts an argument vector into a string sequence.
      * @param argc The number of arguments in argv.
@@ -713,12 +712,10 @@ namespace Ice
      * @return The stringified identity.
      */
     ICE_API std::string identityToString(const Identity& id, ToStringMode mode = ToStringMode::Unicode);
-
 }
 
 namespace IceInternal
 {
-
     //
     // Some Ice extensions need access to the Ice internal instance. Do
     // not use this operation for regular application code! It is intended
@@ -726,7 +723,6 @@ namespace IceInternal
     //
     ICE_API InstancePtr getInstance(const ::Ice::CommunicatorPtr&);
     ICE_API IceUtil::TimerPtr getInstanceTimer(const ::Ice::CommunicatorPtr&);
-
 }
 
 #endif

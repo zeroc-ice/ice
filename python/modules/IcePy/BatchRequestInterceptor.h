@@ -13,7 +13,6 @@
 
 namespace IcePy
 {
-
     extern PyTypeObject BatchRequestType;
 
     bool initBatchRequest(PyObject*);
@@ -28,7 +27,6 @@ namespace IcePy
     private:
         PyObjectHandle _interceptor;
     };
-
 }
 
 #endif

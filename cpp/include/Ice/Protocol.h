@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     //
     // Size of the Ice protocol header
     //
@@ -102,12 +101,10 @@ namespace IceInternal
     const ::std::uint8_t FLAG_HAS_INDIRECTION_TABLE = (1 << 3);
     const ::std::uint8_t FLAG_HAS_SLICE_SIZE = (1 << 4);
     const ::std::uint8_t FLAG_IS_LAST_SLICE = (1 << 5);
-
 }
 
 namespace Ice
 {
-
     /** Identifies protocol version 1.0. */
     ICE_API extern const ProtocolVersion Protocol_1_0;
 
@@ -177,12 +174,10 @@ namespace Ice
     {
         return out << static_cast<int>(version.major) << "." << static_cast<int>(version.minor);
     }
-
 }
 
 namespace IceInternal
 {
-
     inline void checkSupportedProtocol(const Ice::ProtocolVersion& v)
     {
         if (!isSupported(v, Ice::currentProtocol))
@@ -254,7 +249,6 @@ namespace IceInternal
             return Ice::currentEncoding;
         }
     }
-
 }
 
 #endif

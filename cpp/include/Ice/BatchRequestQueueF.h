@@ -9,10 +9,8 @@
 
 namespace IceInternal
 {
-
     class BatchRequestQueue;
     using BatchRequestQueuePtr = std::shared_ptr<BatchRequestQueue>;
-
 }
 
 #endif

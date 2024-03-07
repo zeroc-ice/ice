@@ -43,7 +43,6 @@ static CommunicatorMap _communicatorMap;
 
 namespace IcePy
 {
-
     struct CommunicatorObject
     {
         PyObject_HEAD Ice::CommunicatorPtr* communicator;
@@ -53,7 +52,6 @@ namespace IcePy
         bool shutdown;
         DispatcherPtr* dispatcher;
     };
-
 }
 
 #ifdef WIN32
@@ -1564,7 +1562,6 @@ static PyMethodDef CommunicatorMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject CommunicatorType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -1609,7 +1606,6 @@ namespace IcePy
         0,                                                 /* tp_free */
         0,                                                 /* tp_is_gc */
     };
-
 }
 
 bool

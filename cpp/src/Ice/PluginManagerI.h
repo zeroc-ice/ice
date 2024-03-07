@@ -15,7 +15,6 @@
 
 namespace Ice
 {
-
     typedef Ice::Plugin* (*PluginFactory)(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&);
 
     class PluginManagerI : public PluginManager
@@ -52,7 +51,6 @@ namespace Ice
         std::mutex _mutex;
         static const char* const _kindOfObject;
     };
-
 }
 
 #endif

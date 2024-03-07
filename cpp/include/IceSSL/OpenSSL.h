@@ -37,7 +37,6 @@
 
 namespace Ice
 {
-
     /**
      * When using static libraries, calling this function ensures the OpenSSL version of the IceSSL plug-in is
      * linked with the application.
@@ -46,16 +45,13 @@ namespace Ice
      * property is set to 1.
      */
     ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSLOpenSSL(bool loadOnInitialize = true);
-
 }
 #endif
 
 namespace IceSSL
 {
-
     namespace OpenSSL
     {
-
         class Certificate;
         using CertificatePtr = std::shared_ptr<Certificate>;
 

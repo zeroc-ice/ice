@@ -11,12 +11,10 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     struct EndpointObject
     {
         PyObject_HEAD Ice::EndpointPtr* endpoint;
     };
-
 }
 
 #ifdef WIN32
@@ -150,7 +148,6 @@ static PyMethodDef EndpointMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject EndpointType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */

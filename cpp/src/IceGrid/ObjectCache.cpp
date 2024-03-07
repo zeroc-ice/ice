@@ -16,7 +16,6 @@ using namespace IceGrid;
 
 namespace IceGrid
 {
-
     bool compareObjectEntryCI(const shared_ptr<ObjectEntry>& lhs, const shared_ptr<ObjectEntry>& rhs)
     {
         return Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());

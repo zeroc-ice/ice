@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class ReferenceFactory : public std::enable_shared_from_this<ReferenceFactory>
     {
     public:
@@ -68,7 +67,6 @@ namespace IceInternal
         std::optional<Ice::RouterPrx> _defaultRouter;
         std::optional<Ice::LocatorPrx> _defaultLocator;
     };
-
 }
 
 #endif

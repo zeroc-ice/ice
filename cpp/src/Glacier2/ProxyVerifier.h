@@ -10,7 +10,6 @@
 
 namespace Glacier2
 {
-
     //
     // Base class for proxy rule implementations.
     //
@@ -45,6 +44,5 @@ namespace Glacier2
         std::vector<ProxyRule*> _acceptRules;
         std::vector<ProxyRule*> _rejectRules;
     };
-
 }
 #endif

@@ -25,7 +25,6 @@ namespace IceSSL
 {
     namespace RFC2253
     {
-
         typedef std::list<std::pair<std::string, std::string>> RDNSeq;
 
         struct ICESSL_API RDNEntry

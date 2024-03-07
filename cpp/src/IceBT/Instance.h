@@ -11,7 +11,6 @@
 
 namespace IceBT
 {
-
     class Instance : public IceInternal::ProtocolInstance
     {
     public:
@@ -25,7 +24,6 @@ namespace IceBT
     private:
         const EnginePtr _engine;
     };
-
 }
 
 #endif

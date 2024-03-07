@@ -12,7 +12,6 @@
 
 namespace IceGrid
 {
-
     class Database;
     class LocatorI;
     class TraceLevels;
@@ -77,7 +76,6 @@ namespace IceGrid
 
         std::mutex _mutex;
     };
-
 }
 
 #endif

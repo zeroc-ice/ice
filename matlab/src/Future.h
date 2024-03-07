@@ -6,7 +6,6 @@
 
 namespace IceMatlab
 {
-
     class Future
     {
     public:
@@ -52,5 +51,4 @@ namespace IceMatlab
     private:
         State _state;
     };
-
 }

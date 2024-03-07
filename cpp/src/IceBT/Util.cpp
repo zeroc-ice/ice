@@ -92,7 +92,6 @@ IceBT::createAddr(const string& addr, int32_t channel)
 
 namespace
 {
-
     void fdToLocalAddress(SOCKET fd, SocketAddress& addr)
     {
         socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
@@ -142,7 +141,6 @@ namespace
         address = formatDeviceAddress(addr.rc_bdaddr);
         channel = addr.rc_channel;
     }
-
 }
 
 string

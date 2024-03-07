@@ -17,7 +17,6 @@
 
 namespace IceObjC
 {
-
     class iAPTransceiver final : public IceInternal::Transceiver,
                                  public IceInternal::StreamNativeInfo,
                                  public std::enable_shared_from_this<iAPTransceiver>
@@ -72,7 +71,6 @@ namespace IceObjC
         State _state;
         std::string _desc;
     };
-
 }
 
 #endif

@@ -22,7 +22,6 @@ using namespace IcePy;
 
 namespace
 {
-
     // P = sizeof(void*), L = sizeof(long)
     template<int P, int L> struct Hasher;
 
@@ -55,12 +54,10 @@ namespace
     };
 
     long hashPointer(void* ptr) { return Hasher<sizeof(void*), sizeof(long)>()(ptr); }
-
 }
 
 namespace IcePy
 {
-
     extern PyTypeObject ConnectionType;
 
     struct ConnectionObject
@@ -160,7 +157,6 @@ namespace IcePy
         PyObject* _con;
     };
     using HeartbeatCallbackWrapperPtr = shared_ptr<HeartbeatCallbackWrapper>;
-
 }
 
 #ifdef WIN32
@@ -948,7 +944,6 @@ static PyMethodDef ConnectionMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject ConnectionType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -993,7 +988,6 @@ namespace IcePy
         0,                                                /* tp_free */
         0,                                                /* tp_is_gc */
     };
-
 }
 
 bool

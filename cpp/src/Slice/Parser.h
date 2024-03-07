@@ -20,7 +20,6 @@
 
 namespace Slice
 {
-
     class CompilerException : public ::IceUtil::Exception
     {
     public:
@@ -1147,7 +1146,6 @@ namespace Slice
     };
 
     extern Unit* currentUnit; // The current parser for bison/flex
-
 }
 
 #endif

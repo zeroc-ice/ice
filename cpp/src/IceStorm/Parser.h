@@ -35,7 +35,6 @@ YY_DECL;
 
 namespace IceStorm
 {
-
     class Parser
     {
     public:

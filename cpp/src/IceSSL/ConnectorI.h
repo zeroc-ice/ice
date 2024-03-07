@@ -13,7 +13,6 @@
 
 namespace IceSSL
 {
-
     class EndpointI;
 
     class ConnectorI final : public IceInternal::Connector

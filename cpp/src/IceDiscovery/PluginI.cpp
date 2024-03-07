@@ -32,7 +32,6 @@ createIceDiscovery(const Ice::CommunicatorPtr& communicator, const string&, cons
 
 namespace Ice
 {
-
     ICE_DISCOVERY_API void registerIceDiscovery(bool loadOnInitialize)
     {
         Ice::registerPluginFactory("IceDiscovery", createIceDiscovery, loadOnInitialize);
@@ -44,7 +43,6 @@ namespace Ice
         registerIceUDP(true);
 #endif
     }
-
 }
 
 PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}

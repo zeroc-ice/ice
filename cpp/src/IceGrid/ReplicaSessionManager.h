@@ -10,7 +10,6 @@
 
 namespace IceGrid
 {
-
     class Database;
     class TraceLevels;
     class WellKnownObjectsManager;
@@ -87,7 +86,6 @@ namespace IceGrid
         std::shared_ptr<WellKnownObjectsManager> _wellKnownObjects;
         std::shared_ptr<TraceLevels> _traceLevels;
     };
-
 }
 
 #endif

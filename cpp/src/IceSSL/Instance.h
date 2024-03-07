@@ -11,7 +11,6 @@
 
 namespace IceSSL
 {
-
     class ICESSL_API Instance final : public IceInternal::ProtocolInstance
     {
     public:
@@ -24,7 +23,6 @@ namespace IceSSL
     private:
         const SSLEnginePtr _engine;
     };
-
 }
 
 #endif

@@ -43,7 +43,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     class LookupI final : public IceLocatorDiscovery::Lookup
     {
     public:
@@ -138,7 +137,6 @@ namespace
     {
         _origProcess->writeMessage(std::move(message), std::move(fd), current);
     }
-
 }
 
 RegistryI::RegistryI(

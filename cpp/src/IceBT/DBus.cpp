@@ -16,7 +16,6 @@ using namespace IceBT::DBus;
 
 namespace
 {
-
     class ErrorWrapper
     {
     public:
@@ -1141,7 +1140,6 @@ namespace
         assert(c);
         delete c;
     }
-
 }
 
 TypePtr

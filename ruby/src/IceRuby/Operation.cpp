@@ -25,7 +25,6 @@ static VALUE _operationClass;
 
 namespace IceRuby
 {
-
     class ParamInfo final : public UnmarshalCallback
     {
     public:
@@ -73,7 +72,6 @@ namespace IceRuby
         void checkTwowayOnly(const Ice::ObjectPrx&) const;
     };
     using OperationIPtr = shared_ptr<OperationI>;
-
 }
 
 extern "C" void

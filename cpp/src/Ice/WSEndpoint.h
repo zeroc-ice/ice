@@ -14,7 +14,6 @@
 
 namespace IceInternal
 {
-
     class WSEndpoint final : public EndpointI, public std::enable_shared_from_this<WSEndpoint>
     {
     public:
@@ -77,7 +76,6 @@ namespace IceInternal
         EndpointIPtr createWithUnderlying(const EndpointIPtr&, std::vector<std::string>&, bool) const final;
         EndpointIPtr readWithUnderlying(const EndpointIPtr&, Ice::InputStream*) const final;
     };
-
 }
 
 #endif

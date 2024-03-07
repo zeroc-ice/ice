@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     class ICE_API NetworkProxy
     {
     public:
@@ -65,7 +64,6 @@ namespace IceInternal
     };
 
     NetworkProxyPtr createNetworkProxy(const Ice::PropertiesPtr&, ProtocolSupport);
-
 }
 
 #endif

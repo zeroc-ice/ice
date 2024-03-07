@@ -10,7 +10,6 @@
 
 namespace IceInternal
 {
-
     template<class V>
     ::std::shared_ptr<::Ice::Value>
 #ifdef NDEBUG
@@ -22,6 +21,5 @@ namespace IceInternal
         assert(typeId == V::ice_staticId());
         return std::make_shared<V>();
     }
-
 }
 #endif

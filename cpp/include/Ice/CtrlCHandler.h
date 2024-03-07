@@ -9,10 +9,8 @@
 
 namespace Ice
 {
-
     using CtrlCHandlerCallback = IceUtil::CtrlCHandlerCallback;
     using CtrlCHandler = IceUtil::CtrlCHandler;
-
 }
 
 #endif

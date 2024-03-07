@@ -738,7 +738,6 @@ IcePatch2Internal::setFileFlags(const string&, const LargeFileInfo&)
 
 namespace
 {
-
     static bool getFileInfoSeqInternal(
         const string& basePath,
         const string& relPath,
@@ -1014,7 +1013,6 @@ namespace
 
         return true;
     }
-
 }
 
 IcePatch2Internal::GetFileInfoSeqCB::~GetFileInfoSeqCB()

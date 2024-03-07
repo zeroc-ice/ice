@@ -20,10 +20,8 @@ using namespace IceUtilInternal;
 
 namespace
 {
-
     mutex globalMutex;
     bool interrupted = false;
-
 }
 
 void

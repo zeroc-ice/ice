@@ -11,7 +11,6 @@
 
 namespace IcePy
 {
-
     extern PyTypeObject ProxyType;
 
     bool initProxy(PyObject*);
@@ -46,7 +45,6 @@ namespace IcePy
     // Gets the communicator associated with the proxy object.
     //
     Ice::CommunicatorPtr getProxyCommunicator(PyObject*);
-
 }
 
 #endif

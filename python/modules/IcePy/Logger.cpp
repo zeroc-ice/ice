@@ -11,14 +11,12 @@ using namespace IcePy;
 
 namespace IcePy
 {
-
     extern PyTypeObject LoggerType;
 
     struct LoggerObject
     {
         PyObject_HEAD Ice::LoggerPtr* logger;
     };
-
 }
 
 IcePy::LoggerWrapper::LoggerWrapper(PyObject* logger) : _logger(logger) { Py_INCREF(logger); }
@@ -360,7 +358,6 @@ static PyMethodDef LoggerMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject LoggerType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -405,7 +402,6 @@ namespace IcePy
         0,                                           /* tp_free */
         0,                                           /* tp_is_gc */
     };
-
 }
 
 bool

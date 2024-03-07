@@ -13,7 +13,6 @@
 
 namespace IceUtil
 {
-
     /**
      * Provides bytes to toUTF8. Can raise std::bad_alloc or Ice::MemoryLimitException
      * when too many bytes are requested.
@@ -146,12 +145,10 @@ namespace IceUtil
      * @return A native narrow string.
      */
     ICE_API std::string UTF8ToNative(const std::string& str, const StringConverterPtr& nc);
-
 }
 
 namespace IceUtilInternal
 {
-
     //
     // Convert from UTF-8 to UTF-16/32
     //
@@ -162,13 +159,11 @@ namespace IceUtilInternal
     // Convert from UTF-32 to UTF-8
     //
     ICE_API std::vector<std::uint8_t> fromUTF32(const std::vector<unsigned int>&);
-
 }
 
 #ifdef _WIN32
 namespace IceUtil
 {
-
     /**
      * Creates a StringConverter that converts to and from narrow chars
      * in the given code page, using MultiByteToWideChar and WideCharToMultiByte.
@@ -176,7 +171,6 @@ namespace IceUtil
      * @return The string converter.
      */
     ICE_API StringConverterPtr createWindowsStringConverter(unsigned int page);
-
 }
 #endif
 

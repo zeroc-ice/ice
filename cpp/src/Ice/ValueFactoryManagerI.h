@@ -12,7 +12,6 @@
 
 namespace IceInternal
 {
-
     class ValueFactoryManagerI final : public Ice::ValueFactoryManager
     {
     public:
@@ -31,7 +30,6 @@ namespace IceInternal
     };
 
     using ValueFactoryManagerIPtr = std::shared_ptr<ValueFactoryManagerI>;
-
 }
 
 #endif

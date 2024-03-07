@@ -10,7 +10,6 @@ using namespace IceUtil;
 
 namespace IceUtilInternal
 {
-
     Int64 strToInt64(const char* s, char** endptr, int base)
     {
 #if defined(_WIN32) && defined(_MSC_VER)
@@ -30,5 +29,4 @@ namespace IceUtilInternal
         result = strToInt64(start, &end, 0);
         return (errno == 0 && start != end);
     }
-
 }

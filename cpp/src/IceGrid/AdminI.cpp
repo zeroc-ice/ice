@@ -26,7 +26,6 @@ using namespace IceGrid;
 
 namespace
 {
-
     class ServerProxyWrapper
     {
     public:
@@ -166,7 +165,6 @@ namespace
     {
         return make_shared<AMDPatcherFeedbackAggregator>(response, exception, id, traceLevels, type, name, nodeCount);
     }
-
 }
 
 AdminI::AdminI(

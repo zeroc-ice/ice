@@ -37,12 +37,10 @@ extern "C"
 
 namespace Ice
 {
-
     ICEBT_API void registerIceBT(bool loadOnInitialize)
     {
         Ice::registerPluginFactory("IceBT", createIceBT, loadOnInitialize);
     }
-
 }
 
 //

@@ -9,7 +9,6 @@
 
 namespace IceGrid
 {
-
     class AdminSessionI;
     class Database;
     class RegistryI;
@@ -106,7 +105,6 @@ namespace IceGrid
 
         std::mutex _mutex;
     };
-
 }
 
 #endif

@@ -28,10 +28,8 @@
 
 namespace IceSSL
 {
-
     namespace SChannel
     {
-
         class SSLEngine final : public IceSSL::SSLEngine
         {
         public:
@@ -73,7 +71,6 @@ namespace IceSSL
         };
 
     }
-
 }
 
 #endif

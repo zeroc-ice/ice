@@ -14,7 +14,6 @@
 
 namespace IceGrid
 {
-
     class SessionServantManager final : public Ice::ServantLocator
     {
     public:

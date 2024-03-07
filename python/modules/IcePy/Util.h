@@ -26,7 +26,6 @@
 
 namespace IcePy
 {
-
     inline PyObject* incRef(PyObject* obj)
     {
         Py_XINCREF(obj);
@@ -249,7 +248,6 @@ namespace IcePy
     //
     PyObject* callMethod(PyObject*, const std::string&, PyObject* = 0, PyObject* = 0);
     PyObject* callMethod(PyObject*, PyObject* = 0, PyObject* = 0);
-
 }
 
 extern "C" PyObject* IcePy_stringVersion(PyObject*, PyObject*);

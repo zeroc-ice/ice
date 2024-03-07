@@ -15,7 +15,6 @@
 
 namespace IceBT
 {
-
     class AcceptorI final : public IceInternal::Acceptor,
                             public IceInternal::NativeInfo,
                             public std::enable_shared_from_this<AcceptorI>
@@ -56,7 +55,6 @@ namespace IceBT
         std::mutex _mutex;
         std::stack<IceInternal::TransceiverPtr> _transceivers;
     };
-
 }
 
 #endif

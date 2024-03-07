@@ -13,7 +13,6 @@
 
 namespace IceBT
 {
-
     class StreamSocket : public IceInternal::NativeInfo
     {
     public:
@@ -44,7 +43,6 @@ namespace IceBT
         std::string _desc;
     };
     using StreamSocketPtr = std::shared_ptr<StreamSocket>;
-
 }
 
 #endif

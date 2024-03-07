@@ -19,7 +19,6 @@ using namespace std;
 
 namespace IceInternal
 {
-
     class SHA1::Hasher
     {
     public:
@@ -46,7 +45,6 @@ namespace IceInternal
         SHA_CTX _ctx;
 #endif
     };
-
 }
 
 #if defined(_WIN32)

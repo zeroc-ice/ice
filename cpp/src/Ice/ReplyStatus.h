@@ -9,7 +9,6 @@
 
 namespace IceInternal
 {
-
     static const std::uint8_t replyOK = 0;
     static const std::uint8_t replyUserException = 1;
     static const std::uint8_t replyObjectNotExist = 2;
@@ -18,7 +17,6 @@ namespace IceInternal
     static const std::uint8_t replyUnknownLocalException = 5;
     static const std::uint8_t replyUnknownUserException = 6;
     static const std::uint8_t replyUnknownException = 7;
-
 }
 
 #endif

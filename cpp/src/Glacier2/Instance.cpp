@@ -12,12 +12,10 @@ using namespace Glacier2;
 
 namespace
 {
-
     const string serverSleepTime = "Glacier2.Server.SleepTime";
     const string clientSleepTime = "Glacier2.Client.SleepTime";
     const string serverBuffered = "Glacier2.Server.Buffered";
     const string clientBuffered = "Glacier2.Client.Buffered";
-
 }
 
 Glacier2::Instance::Instance(

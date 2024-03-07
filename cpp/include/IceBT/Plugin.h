@@ -19,7 +19,6 @@
 
 namespace IceBT
 {
-
     /** A name-value map. */
     typedef std::map<std::string, std::string> PropertyMap;
 
@@ -60,7 +59,6 @@ namespace IceBT
         virtual DeviceMap getDevices() const = 0;
     };
     using PluginPtr = std::shared_ptr<Plugin>;
-
 }
 
 #endif

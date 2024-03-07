@@ -30,7 +30,6 @@ static unsigned long _mainThreadId;
 
 namespace IcePy
 {
-
     struct ObjectAdapterObject
     {
         PyObject_HEAD Ice::ObjectAdapterPtr* adapter;
@@ -80,12 +79,10 @@ namespace IcePy
     };
 
     using ServantLocatorWrapperPtr = shared_ptr<ServantLocatorWrapper>;
-
 }
 
 namespace
 {
-
     bool getServantWrapper(PyObject* servant, ServantWrapperPtr& wrapper)
     {
         PyObject* objectType = lookupType("Ice.Object");
@@ -106,7 +103,6 @@ namespace
 
         return true;
     }
-
 }
 
 //
@@ -1755,7 +1751,6 @@ static PyMethodDef AdapterMethods[] = {
 
 namespace IcePy
 {
-
     PyTypeObject ObjectAdapterType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
@@ -1800,7 +1795,6 @@ namespace IcePy
         0,                                            /* tp_free */
         0,                                            /* tp_is_gc */
     };
-
 }
 
 bool

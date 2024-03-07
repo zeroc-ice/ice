@@ -11,7 +11,6 @@
 
 namespace Ice
 {
-
     /** Encapsulates bytes in the UTF-8 encoding. */
     typedef IceUtil::UTF8Buffer UTF8Buffer;
 
@@ -69,7 +68,6 @@ namespace Ice
      * No conversion is performed if the string converter is nil.
      */
     using IceUtil::UTF8ToNative;
-
 }
 
 #endif
