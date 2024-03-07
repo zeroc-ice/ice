@@ -28,6 +28,7 @@ public:
 
     void update(const unsigned char*, std::size_t);
     void finalize(std::vector<unsigned char>&);
+    void finalize(std::vector<std::byte>&);
 
 private:
 

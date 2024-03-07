@@ -172,6 +172,12 @@ IceInternal::SHA1::finalize(std::vector<unsigned char>& md)
 }
 
 void
+IceInternal::SHA1::finalize(std::vector<byte>& md)
+{
+    _hasher->finalize(md);
+}
+
+void
 IceInternal::sha1(const unsigned char* data, size_t length, vector<unsigned char>& md)
 {
 #if defined(_WIN32)
