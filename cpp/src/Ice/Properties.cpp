@@ -19,7 +19,7 @@ using namespace IceInternal;
 
 Ice::Properties::Properties(const Properties& p)
 {
-    lock_guard lock(const_cast<Properties&>(p)._mutex);
+    lock_guard lock(p._mutex);
     _properties = p._properties;
 }
 

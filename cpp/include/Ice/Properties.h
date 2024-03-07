@@ -188,7 +188,7 @@ private:
         bool used;
     };
     std::map<std::string, PropertyValue, std::less<>> _properties;
-    std::mutex _mutex;
+    mutable std::mutex _mutex;
 };
 
 using PropertiesPtr = std::shared_ptr<Properties>;
