@@ -188,12 +188,14 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
         Ice::PropertyDict props = properties->getPropertiesForPrefix(prefix);
         if(!props.empty())
         {
-            for(const auto& prop : props)
+            for (const auto& prop : props)
             {
                 try
                 {
                     int nodeid = stoi(prop.first.substr(prefix.size()));
-                    nodes.insert({nodeid, communicator->propertyToProxy<NodePrx>(prop.first)});
+                    auto nodePrx = communicator->propertyToProxy<NodePrx>(prop.first);
+                    assert(nodePrx);
+                    nodes.insert({nodeid, *nodePrx});
                 }
                 catch(const std::invalid_argument&)
                 {
