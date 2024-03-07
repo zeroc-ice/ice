@@ -667,7 +667,7 @@ namespace Ice
 /// \cond INTERNAL
 namespace Ice
 {
-n    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
+    using ConnectionInfoPtr = ::std::shared_ptr<ConnectionInfo>;
 
     using ConnectionPtr = ::std::shared_ptr<Connection>;
 
