@@ -49,8 +49,8 @@ IceInternal::Base64::encode(const vector<byte>& plainSeq)
         }
 
         by4 = by1 >> 2;
-        by5 = static_cast<byte>((by1 & byte{0x3}) << 4) | (by2 >> 4);
-        by6 = static_cast<byte>((by2 & byte{0xf}) << 2) | (by3 >> 6);
+        by5 = (by1 & byte{0x3}) << 4 | (by2 >> 4);
+        by6 = (by2 & byte{0xf}) << 2 | (by3 >> 6);
         by7 = by3 & byte{0x3f};
 
         retval += encode(by4);
@@ -123,10 +123,10 @@ IceInternal::Base64::decode(const string& str)
 
     retval.reserve(totalBytes);
 
-    byte by1 = byte{0};
-    byte by2 = byte{0};
-    byte by3 = byte{0};
-    byte by4 = byte{0};
+    byte by1{0};
+    byte by2{0};
+    byte by3{0};
+    byte by4{0};
 
     char c1, c2, c3, c4;
 
