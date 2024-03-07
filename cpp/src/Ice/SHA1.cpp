@@ -31,6 +31,7 @@ public:
 
     void update(const unsigned char*, std::size_t);
     void finalize(std::vector<unsigned char>&);
+    void finalize(vector<byte>&);
 
 private:
 
@@ -127,6 +128,25 @@ IceInternal::SHA1::Hasher::finalize(vector<unsigned char>& md)
 #else
     md.resize(SHA_DIGEST_LENGTH);
     SHA1_Final(&md[0], &_ctx);
+#endif
+}
+
+void
+IceInternal::SHA1::Hasher::finalize(vector<byte>& md)
+{
+#if defined(_WIN32)
+    md.resize(SHA_DIGEST_LENGTH);
+    DWORD length = SHA_DIGEST_LENGTH;
+    if(!CryptGetHashParam(_hash, HP_HASHVAL, reinterpret_cast<unsigned char*>(&md[0]), &length, 0))
+    {
+        throw Ice::SyscallException(__FILE__, __LINE__);
+    }
+#elif defined(__APPLE__)
+    md.resize(CC_SHA1_DIGEST_LENGTH);
+    CC_SHA1_Final(reinterpret_cast<unsigned char*>(&md[0]), &_ctx);
+#else
+    md.resize(SHA_DIGEST_LENGTH);
+    SHA1_Final(reinterpret_cast<unsigned char*>(&md[0]), &_ctx);
 #endif
 }
 
