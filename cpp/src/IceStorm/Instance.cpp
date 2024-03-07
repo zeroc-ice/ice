@@ -75,13 +75,13 @@ Instance::Instance(const string& instanceName,
             if(!p.empty())
             {
                 const_cast<optional<Ice::ObjectPrx>&>(_topicReplicaProxy) =
-                    Ice::ObjectPrx(_communicator, "dummy:" + p);
+                    Ice::ObjectPrx{_communicator, "dummy:" + p};
             }
             p = properties->getProperty(name + ".ReplicatedPublishEndpoints");
             if(!p.empty())
             {
                 const_cast<optional<Ice::ObjectPrx>&>(_publisherReplicaProxy) =
-                    Ice::ObjectPrx(_communicator, "dummy:" + p);
+                    Ice::ObjectPrx{_communicator, "dummy:" + p};
             }
         }
 

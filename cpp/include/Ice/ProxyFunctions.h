@@ -33,21 +33,6 @@ void checkNotNull(std::optional<Prx> prx, const Current& current)
 }
 
 /**
- * Verifies that a proxy is not null, and throws a MarshalException if it is.
- * @param prx The proxy to check.
- * @param message The message used to initialize the MarshalException.
- * @throw MarshalException If the proxy is null.
- * */
-template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-void checkNotNull(std::optional<Prx> prx, const std::string& message)
-{
-    if (!prx)
-    {
-        throw MarshalException {__FILE__, __LINE__, message};
-    }
-}
-
-/**
  * Downcasts a proxy without confirming the target object's type via a remote invocation.
  * @param proxy The source proxy.
  * @return A proxy with the requested type.

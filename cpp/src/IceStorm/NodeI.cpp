@@ -159,7 +159,7 @@ NodeI::NodeI(
 {
     for (const auto& node : _nodes)
     {
-        const_cast<map<int, NodePrx>& >(_nodesOneway).insert({node.first, node.second->ice_oneway()});
+        const_cast<map<int, NodePrx>&>(_nodesOneway).insert({node.first, node.second->ice_oneway()});
     }
 }
 
@@ -584,9 +584,12 @@ NodeI::mergeContinue()
             auto node = _nodes.find(maxid);
             assert(node != _nodes.end());
             optional<Ice::ObjectPrx> syncPrx = node->second->sync();
-            ostringstream os;
-            os << "node " << node->second->ice_toString() << " returned null sync proxy";
-            Ice::checkNotNull(syncPrx, os.str());
+            if (!syncPrx)
+            {
+                ostringstream os;
+                os << "node " << node->second->ice_toString() << " returned null sync proxy";
+                throw MarshallException{__FILE__, __LINE__, os.str()};
+            }
             _replica->sync(*syncPrx);
         }
         catch(const Ice::Exception& ex)
