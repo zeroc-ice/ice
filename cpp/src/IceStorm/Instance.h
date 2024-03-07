@@ -52,7 +52,7 @@ public:
     Instance(const std::string&, const std::string&, std::shared_ptr<Ice::Communicator>,
              std::shared_ptr<Ice::ObjectAdapter>, std::shared_ptr<Ice::ObjectAdapter>,
              std::shared_ptr<Ice::ObjectAdapter> = nullptr,
-             IceStormElection::NodePrxPtr = std::nullopt);
+             std::optional<IceStormElection::NodePrx> = std::nullopt);
 
     virtual ~Instance();
 
@@ -67,11 +67,11 @@ public:
     std::shared_ptr<Ice::ObjectAdapter> nodeAdapter() const;
     std::shared_ptr<IceStormElection::Observers> observers() const;
     std::shared_ptr<IceStormElection::NodeI> node() const;
-    IceStormElection::NodePrxPtr nodeProxy() const;
+    std::optional<IceStormElection::NodePrx> nodeProxy() const;
     std::shared_ptr<TraceLevels> traceLevels() const;
     IceUtil::TimerPtr timer() const;
-    Ice::ObjectPrxPtr topicReplicaProxy() const;
-    Ice::ObjectPrxPtr publisherReplicaProxy() const;
+    std::optional<Ice::ObjectPrx> topicReplicaProxy() const;
+    std::optional<Ice::ObjectPrx> publisherReplicaProxy() const;
     std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> observer() const;
     std::shared_ptr<TopicReaper> topicReaper() const;
 
@@ -92,15 +92,15 @@ private:
     const std::shared_ptr<Ice::ObjectAdapter> _publishAdapter;
     const std::shared_ptr<Ice::ObjectAdapter> _topicAdapter;
     const std::shared_ptr<Ice::ObjectAdapter> _nodeAdapter;
-    const IceStormElection::NodePrxPtr _nodeProxy;
+    const std::optional<IceStormElection::NodePrx> _nodeProxy;
     const std::shared_ptr<TraceLevels> _traceLevels;
     const std::chrono::seconds _discardInterval;
     const std::chrono::milliseconds _flushInterval;
     const std::chrono::milliseconds _sendTimeout;
     const int _sendQueueSizeMax;
     const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy;
-    const Ice::ObjectPrxPtr _topicReplicaProxy;
-    const Ice::ObjectPrxPtr _publisherReplicaProxy;
+    const std::optional<Ice::ObjectPrx> _topicReplicaProxy;
+    const std::optional<Ice::ObjectPrx> _publisherReplicaProxy;
     const std::shared_ptr<TopicReaper> _topicReaper;
     std::shared_ptr<IceStormElection::NodeI> _node;
     std::shared_ptr<IceStormElection::Observers> _observers;
@@ -120,7 +120,7 @@ public:
     PersistentInstance(const std::string&, const std::string&, std::shared_ptr<Ice::Communicator>,
                        std::shared_ptr<Ice::ObjectAdapter>, std::shared_ptr<Ice::ObjectAdapter>,
                        std::shared_ptr<Ice::ObjectAdapter> = nullptr,
-                       IceStormElection::NodePrxPtr = std::nullopt);
+                       std::optional<IceStormElection::NodePrx> = std::nullopt);
 
     const IceDB::Env& dbEnv() const { return _dbEnv; }
     LLUMap lluMap() const { return _lluMap; }

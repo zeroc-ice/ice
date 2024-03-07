@@ -34,7 +34,7 @@ interface Topic;
 ///  Information on the topic links.
 struct LinkInfo
 {
-    /// The linked topic.
+    /// The linked topic. It is never null.
     Topic* theTopic;
 
     /// The name of the linked topic.
@@ -94,20 +94,21 @@ interface Topic
     ["nonmutating", "cpp:const"] idempotent string getName();
 
     /// Get a proxy to a publisher object for this topic. To publish data to a topic, the publisher calls getPublisher
-    /// and then casts to the topic type. An unchecked cast must be used on this proxy. If a replicated IceStorm
-    /// deployment is used this call may return a replicated proxy.
+    /// and then creates a proxy with the publisher type from this proxy. If a replicated IceStorm
+    /// deployment is used this call may return a replicated proxy. The returned proxy is never null.
     /// @return A proxy to publish data on this topic.
     ["nonmutating", "cpp:const"] idempotent Object* getPublisher();
 
     /// Get a non-replicated proxy to a publisher object for this topic. To publish data to a topic, the publisher
-    /// calls getPublisher and then casts to the topic type. An unchecked cast must be used on this proxy.
+    /// calls getPublisher and then creates a proxy with the publisher type from this proxy. The returned proxy is
+    /// never null.
     /// @return A proxy to publish data on this topic.
     ["nonmutating", "cpp:const"] idempotent Object* getNonReplicatedPublisher();
 
     /// Subscribe with the given <code>qos</code> to this topic.  A per-subscriber publisher object is returned.
     /// @param theQoS The quality of service parameters for this subscription.
-    /// @param subscriber The subscriber's proxy.
-    /// @return The per-subscriber publisher object.
+    /// @param subscriber The subscriber's proxy. This proxy is never null.
+    /// @return The per-subscriber publisher object. The returned object is never null.
     /// @throws AlreadySubscribed Raised if the subscriber object is already subscribed.
     /// @throws InvalidSubscriber Raised if the subscriber object is null.
     /// @throws BadQoS Raised if the requested quality of service is unavailable or invalid.
@@ -116,19 +117,19 @@ interface Topic
         throws AlreadySubscribed, InvalidSubscriber, BadQoS;
 
     /// Unsubscribe the given <code>subscriber</code>.
-    /// @param subscriber The proxy of an existing subscriber.
+    /// @param subscriber The proxy of an existing subscriber. This proxy is never null.
     /// @see #subscribeAndGetPublisher
     idempotent void unsubscribe(Object* subscriber);
 
     /// Create a link to the given topic. All events originating on this topic will also be sent to
     /// <code>linkTo</code>.
-    /// @param linkTo The topic to link to.
+    /// @param linkTo The topic to link to. This proxy is never null.
     /// @param cost The cost to the linked topic.
     /// @throws LinkExists Raised if a link to the same topic already exists.
     void link(Topic* linkTo, int cost) throws LinkExists;
 
     /// Destroy the link from this topic to the given topic <code>linkTo</code>.
-    /// @param linkTo The topic to destroy the link to.
+    /// @param linkTo The topic to destroy the link to. This proxy is never null.
     /// @throws NoSuchLink Raised if a link to the topic does not exist.
     void unlink(Topic* linkTo) throws NoSuchLink;
 
@@ -167,13 +168,13 @@ interface TopicManager
 {
     /// Create a new topic. The topic name must be unique.
     /// @param name The name of the topic.
-    /// @return A proxy to the topic instance.
+    /// @return A proxy to the topic instance. The returned proxy is never null.
     /// @throws TopicExists Raised if a topic with the same name already exists.
     Topic* create(string name) throws TopicExists;
 
     /// Retrieve a topic by name.
     /// @param name The name of the topic.
-    /// @return A proxy to the topic instance.
+    /// @return A proxy to the topic instance. The returned proxy is never null.
     /// @throws NoSuchTopic Raised if the topic does not exist.
     idempotent Topic* retrieve(string name) throws NoSuchTopic;
 
@@ -187,7 +188,7 @@ interface TopicManager
 interface Finder
 {
     /// Get the topic manager proxy. The proxy might point to several replicas.
-    /// @return The topic manager proxy.
+    /// @return The topic manager proxy. The returned proxy is never null.
     TopicManager* getTopicManager();
 }
 

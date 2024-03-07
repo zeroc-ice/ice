@@ -45,11 +45,11 @@ public:
                      const std::shared_ptr<IceStorm::Instrumentation::TopicObserver>&) override;
 
     std::shared_ptr<IceStorm::Instrumentation::SubscriberObserver>
-    getSubscriberObserver(const std::string &,
-                          const std::string &,
-                          const Ice::ObjectPrxPtr &,
-                          const IceStorm::QoS &,
-                          const IceStorm::TopicPrxPtr &,
+    getSubscriberObserver(const std::string&,
+                          const std::string&,
+                          const Ice::ObjectPrx&,
+                          const IceStorm::QoS&,
+                          const std::optional<IceStorm::TopicPrx>&,
                           IceStorm::Instrumentation::SubscriberState,
                           const std::shared_ptr<IceStorm::Instrumentation::SubscriberObserver>&) override;
 

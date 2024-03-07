@@ -38,7 +38,7 @@ Ice::Identity
 nameToIdentity(const std::shared_ptr<IceStorm::Instance>&, const std::string&);
 
 std::string
-describeEndpoints(const Ice::ObjectPrxPtr&);
+describeEndpoints(const std::optional<Ice::ObjectPrx>&);
 
 int
 compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v2);

@@ -153,7 +153,10 @@ public:
      * @param name The topic name.
      * @param old The previous observer, only set when updating an existing observer.
      */
-    virtual ::std::shared_ptr<::IceStorm::Instrumentation::TopicObserver> getTopicObserver(const ::std::string& svc, const ::std::string& name, const ::std::shared_ptr<TopicObserver>& old) = 0;
+    virtual std::shared_ptr<IceStorm::Instrumentation::TopicObserver> getTopicObserver(
+        const std::string& svc,
+        const std::string& name,
+        const std::shared_ptr<TopicObserver>& old) = 0;
 
     /**
      * This method should return an observer for the given subscriber.
@@ -161,7 +164,14 @@ public:
      * @param link The proxy of the linked topic if this subscriber forwards events to a linked topic.
      * @param old The previous observer, only set when updating an existing observer.
      */
-    virtual ::std::shared_ptr<::IceStorm::Instrumentation::SubscriberObserver> getSubscriberObserver(const ::std::string& svc, const ::std::string& topic, const ::Ice::ObjectPrxPtr& prx, const ::IceStorm::QoS& q, const ::IceStorm::TopicPrxPtr& link, SubscriberState s, const ::std::shared_ptr<SubscriberObserver>& old) = 0;
+    virtual ::std::shared_ptr<::IceStorm::Instrumentation::SubscriberObserver> getSubscriberObserver(
+        const std::string& svc,
+        const std::string& topic,
+        const Ice::ObjectPrx& prx,
+        const IceStorm::QoS& q,
+        const std::optional<IceStorm::TopicPrx>& link,
+        SubscriberState s,
+        const std::shared_ptr<SubscriberObserver>& old) = 0;
 
     /**
      * IceStorm calls this method on initialization. The add-in implementing this interface can use this object to

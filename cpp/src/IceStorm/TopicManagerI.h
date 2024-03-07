@@ -30,8 +30,8 @@ public:
     static std::shared_ptr<TopicManagerImpl> create(const std::shared_ptr<PersistentInstance>&);
 
     // TopicManager methods.
-    TopicPrxPtr create(const std::string&);
-    TopicPrxPtr retrieve(const std::string&);
+    TopicPrx create(const std::string&);
+    TopicPrx retrieve(const std::string&);
     TopicDict retrieveAll();
 
     // Observer methods.
@@ -46,11 +46,11 @@ public:
     void getContent(IceStormElection::LogUpdate&, IceStormElection::TopicContentSeq&);
 
     // Replica methods.
-    IceStormElection::LogUpdate getLastLogUpdate() const override;
-    void sync(const Ice::ObjectPrxPtr&) override;
-    void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const IceStormElection::LogUpdate&) override;
-    Ice::ObjectPrxPtr getObserver() const override;
-    Ice::ObjectPrxPtr getSync() const override;
+    IceStormElection::LogUpdate getLastLogUpdate() const final;
+    void sync(const Ice::ObjectPrx&) final;
+    void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const IceStormElection::LogUpdate&) final;
+    std::optional<Ice::ObjectPrx> getObserver() const final;
+    std::optional<Ice::ObjectPrx> getSync() const final;
 
     void reap();
 
@@ -65,16 +65,18 @@ private:
     void updateTopicObservers() override;
     void updateSubscriberObservers() override;
 
-    TopicPrxPtr installTopic(const std::string&, const Ice::Identity&, bool,
-                                           const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
+    TopicPrx installTopic(
+        const std::string&,
+        const Ice::Identity&, bool,
+        const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
 
     const std::shared_ptr<PersistentInstance> _instance;
 
     std::map<std::string, std::shared_ptr<TopicImpl>> _topics;
 
     std::shared_ptr<Ice::Object> _managerImpl;
-    Ice::ObjectPrxPtr _observer;
-    Ice::ObjectPrxPtr _sync;
+    std::optional<Ice::ObjectPrx> _observer;
+    std::optional<Ice::ObjectPrx> _sync;
 
     LLUMap _lluMap;
     SubscriberMap _subscriberMap;
