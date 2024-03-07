@@ -955,7 +955,7 @@ MyDerivedClassI::opWStringLiteralsAsync(function<void(const WStringS&)> response
 }
 
 void
-MyDerivedClassI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)> response,
+MyDerivedClassI::opMStruct1Async(function<void(OpMStruct1MarshaledResult)> response,
                                  function<void(std::exception_ptr)>,
                                  const Current& current)
 {
@@ -966,7 +966,7 @@ MyDerivedClassI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)
 
 void
 MyDerivedClassI::opMStruct2Async(Structure p1,
-                                 function<void(const OpMStruct2MarshaledResult&)> response,
+                                 function<void(OpMStruct2MarshaledResult)> response,
                                  function<void(std::exception_ptr)>,
                                  const Current& current)
 {
@@ -974,7 +974,7 @@ MyDerivedClassI::opMStruct2Async(Structure p1,
 }
 
 void
-MyDerivedClassI::opMSeq1Async(function<void(const OpMSeq1MarshaledResult&)> response,
+MyDerivedClassI::opMSeq1Async(function<void(OpMSeq1MarshaledResult)> response,
                               function<void(std::exception_ptr)>,
                               const Current& current)
 {
@@ -983,7 +983,7 @@ MyDerivedClassI::opMSeq1Async(function<void(const OpMSeq1MarshaledResult&)> resp
 
 void
 MyDerivedClassI::opMSeq2Async(StringS p1,
-                              function<void(const OpMSeq2MarshaledResult&)> response,
+                              function<void(OpMSeq2MarshaledResult)> response,
                               function<void(std::exception_ptr)>,
                               const Current& current)
 {
@@ -991,7 +991,7 @@ MyDerivedClassI::opMSeq2Async(StringS p1,
 }
 
 void
-MyDerivedClassI::opMDict1Async(function<void(const OpMDict1MarshaledResult&)> response,
+MyDerivedClassI::opMDict1Async(function<void(OpMDict1MarshaledResult)> response,
                                function<void(std::exception_ptr)>,
                                const Current& current)
 {
@@ -1000,7 +1000,7 @@ MyDerivedClassI::opMDict1Async(function<void(const OpMDict1MarshaledResult&)> re
 
 void
 MyDerivedClassI::opMDict2Async(StringStringD p1,
-                               function<void(const OpMDict2MarshaledResult&)> response,
+                               function<void(OpMDict2MarshaledResult)> response,
                                function<void(std::exception_ptr)>,
                                const Current& current)
 {

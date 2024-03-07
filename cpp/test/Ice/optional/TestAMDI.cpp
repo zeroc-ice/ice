@@ -360,7 +360,7 @@ InitialI::opVoidAsync(function<void()> response,
 }
 
 void
-InitialI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)> response,
+InitialI::opMStruct1Async(function<void(OpMStruct1MarshaledResult)> response,
                           function<void(exception_ptr)>,
                           const Ice::Current& current)
 {
@@ -369,7 +369,7 @@ InitialI::opMStruct1Async(function<void(const OpMStruct1MarshaledResult&)> respo
 
 void
 InitialI::opMStruct2Async(optional<SmallStruct> p1,
-                         function<void(const OpMStruct2MarshaledResult&)> response,
+                         function<void(OpMStruct2MarshaledResult)> response,
                          function<void(exception_ptr)>,
                          const Ice::Current& current)
 {
@@ -377,7 +377,7 @@ InitialI::opMStruct2Async(optional<SmallStruct> p1,
 }
 
 void
-InitialI::opMSeq1Async(function<void(const OpMSeq1MarshaledResult&)> response,
+InitialI::opMSeq1Async(function<void(OpMSeq1MarshaledResult)> response,
                        function<void(exception_ptr)>,
                        const Ice::Current& current)
 {
@@ -386,7 +386,7 @@ InitialI::opMSeq1Async(function<void(const OpMSeq1MarshaledResult&)> response,
 
 void
 InitialI::opMSeq2Async(optional<Test::StringSeq> p1,
-                       function<void(const OpMSeq2MarshaledResult&)> response,
+                       function<void(OpMSeq2MarshaledResult)> response,
                        function<void(exception_ptr)>,
                        const Ice::Current& current)
 {
@@ -394,7 +394,7 @@ InitialI::opMSeq2Async(optional<Test::StringSeq> p1,
 }
 
 void
-InitialI::opMDict1Async(function<void(const OpMDict1MarshaledResult&)> response,
+InitialI::opMDict1Async(function<void(OpMDict1MarshaledResult)> response,
                         function<void(exception_ptr)>,
                         const Ice::Current& current)
 {
@@ -403,7 +403,7 @@ InitialI::opMDict1Async(function<void(const OpMDict1MarshaledResult&)> response,
 
 void
 InitialI::opMDict2Async(optional<StringIntDict> p1,
-                        function<void(const OpMDict2MarshaledResult&)> response,
+                        function<void(OpMDict2MarshaledResult)> response,
                         function<void(exception_ptr)>,
                         const Ice::Current& current)
 {
@@ -411,7 +411,7 @@ InitialI::opMDict2Async(optional<StringIntDict> p1,
 }
 
 void
-InitialI::opMG1Async(function<void(const OpMG1MarshaledResult&)> response,
+InitialI::opMG1Async(function<void(OpMG1MarshaledResult)> response,
                      function<void(exception_ptr)>,
                      const Ice::Current& current)
 {
@@ -420,7 +420,7 @@ InitialI::opMG1Async(function<void(const OpMG1MarshaledResult&)> response,
 
 void
 InitialI::opMG2Async(optional<GPtr> p1,
-                     function<void(const OpMG2MarshaledResult&)> response,
+                     function<void(OpMG2MarshaledResult)> response,
                      function<void(exception_ptr)>,
                      const Ice::Current& current)
 {
