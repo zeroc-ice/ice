@@ -176,14 +176,11 @@ private:
 
     struct PropertyValue
     {
-        PropertyValue() :
-            used(false)
+        PropertyValue() : used(false)
         {
         }
 
-        PropertyValue(std::string_view v, bool u) :
-            value(std::string{v}),
-            used(u)
+        PropertyValue(std::string v, bool u) : value(std::move(v)), used(u)
         {
         }
 

@@ -3,14 +3,13 @@
 //
 
 #include "Ice/Properties.h"
-#include <IceUtil/StringUtil.h>
-#include <IceUtil/FileUtil.h>
-#include <Ice/Initialize.h>
-#include <Ice/LocalException.h>
-#include <Ice/PropertyNames.h>
-#include <Ice/Logger.h>
-#include <Ice/LoggerUtil.h>
-#include <Ice/Communicator.h>
+#include "IceUtil/StringUtil.h"
+#include "IceUtil/FileUtil.h"
+#include "Ice/Initialize.h"
+#include "Ice/LocalException.h"
+#include "Ice/PropertyNames.h"
+#include "Ice/Logger.h"
+#include "Ice/LoggerUtil.h"
 
 #include <fstream>
 
@@ -47,7 +46,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
             string name = *q;
             replace(name.begin(), name.end(), '\\', '/');
 
-            PropertyValue pv(name, true);
+            PropertyValue pv{std::move(name), true};
             _properties["Ice.ProgramName"] = pv;
         }
     }
@@ -293,7 +292,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
     //
     if(!value.empty())
     {
-        PropertyValue pv(value, false);
+        PropertyValue pv{string{value}, false};
         map<string, PropertyValue>::const_iterator p = _properties.find(currentKey);
         if(p != _properties.end())
         {
@@ -375,11 +374,11 @@ Ice::Properties::load(string_view file)
     {
         HKEY key = file.find("HKCU\\") == 0 ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
         HKEY iceKey;
-        const wstring keyName = stringToWstring(file, stringConverter).substr(file.find("\\") + 1).c_str();
+        const wstring keyName = stringToWstring(string{file}, stringConverter).substr(file.find("\\") + 1).c_str();
         LONG err;
         if((err = RegOpenKeyExW(key, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
-            throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file + "':\n" +
+            throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + string{file} + "':\n" +
                                           IceUtilInternal::errorToString(err));
         }
 
@@ -392,7 +391,7 @@ Ice::Properties::load(string_view file)
                                   &numValues, &maxNameSize, &maxDataSize, nullptr, nullptr);
             if(err != ERROR_SUCCESS)
             {
-                throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file +
+                throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + string{file} +
                                               "':\n" + IceUtilInternal::errorToString(err));
             }
 
@@ -407,7 +406,7 @@ Ice::Properties::load(string_view file)
                 if(err != ERROR_SUCCESS || nameBufSize == 0)
                 {
                     ostringstream os;
-                    os << "could not read Windows registry property name, key: `" + file + "', index: " << i << ":\n";
+                    os << "could not read Windows registry property name, key: `" + string{file} + "', index: " << i << ":\n";
                     if(nameBufSize == 0)
                     {
                         os << "property name can't be the empty string";
@@ -424,7 +423,7 @@ Ice::Properties::load(string_view file)
                 if(keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;
-                    os << "unsupported type for Windows registry property `" + name + "' key: `" + file + "'";
+                    os << "unsupported type for Windows registry property `" + name + "' key: `" + string{file} + "'";
                     getProcessLogger()->warning(os.str());
                     continue;
                 }
@@ -725,7 +724,7 @@ Ice::Properties::loadConfig()
             load(IceUtilInternal::trim(string{*i}));
         }
 
-        PropertyValue pv(value, true);
+        PropertyValue pv{std::move(value), true};
         _properties["Ice.Config"] = pv;
     }
 }
