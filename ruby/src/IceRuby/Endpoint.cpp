@@ -151,7 +151,7 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
         info = Data_Wrap_Struct(_opaqueEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
 
         Ice::OpaqueEndpointInfoPtr opaque = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p);
-        Ice::ByteSeq b = opaque->rawBytes;
+        auto b = opaque->rawBytes;
         volatile VALUE v = callRuby(rb_str_new, reinterpret_cast<const char*>(&b[0]), static_cast<long>(b.size()));
         rb_ivar_set(info, rb_intern("@rawBytes"), v);
         rb_ivar_set(info, rb_intern("@rawEncoding"), createEncodingVersion(opaque->rawEncoding));

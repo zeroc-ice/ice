@@ -172,13 +172,13 @@ IceInternal::sha1(const byte* data, size_t length, vector<byte>& md)
 {
 #if defined(_WIN32)
     SHA1 hasher;
-    hasher.update(data, length);
+    hasher.update(reinterpret_cast<const unsigned char*>(data), length);
     hasher.finalize(md);
 #elif defined(__APPLE__)
     md.resize(CC_SHA1_DIGEST_LENGTH);
     CC_SHA1(reinterpret_cast<const unsigned char*>(&data[0]), static_cast<CC_LONG>(length), reinterpret_cast<unsigned char*>(&md[0]));
 #else
     md.resize(SHA_DIGEST_LENGTH);
-    ::SHA1(&data[0], length, &md[0]);
+    ::SHA1(reinterpret_cast<const  unsigned char*>(&data[0]), length, reinterpret_cast< unsigned char*>(&md[0]));
 #endif
 }
