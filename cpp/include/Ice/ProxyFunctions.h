@@ -13,7 +13,6 @@
 namespace Ice
 {
 
-
 /**
  * Verifies that a proxy received from the client is not null.
  * @param prx The proxy to check.
