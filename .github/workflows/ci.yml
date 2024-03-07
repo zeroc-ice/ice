@@ -79,6 +79,8 @@ jobs:
         uses: ./.github/actions/test
         timeout-minutes: 90
         with:
-          # See https://github.com/zeroc-ice/ice/issues/1653
-          flags: "--rfilter IceGrid/replication ${{ matrix.test_flags }}"
+          # See:
+          # - https://github.com/zeroc-ice/ice/issues/1653
+          # - https://github.com/zeroc-ice/ice/issues/1745
+          flags: "--rfilter IceGrid/replication --rfilter csharp/IceSSL/configuration ${{ matrix.test_flags }}"
         if: ${{ matrix.language != 'matlab' }}
