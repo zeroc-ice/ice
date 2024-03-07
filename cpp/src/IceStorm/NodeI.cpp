@@ -588,7 +588,7 @@ NodeI::mergeContinue()
             {
                 ostringstream os;
                 os << "node " << node->second->ice_toString() << " returned null sync proxy";
-                throw MarshallException{__FILE__, __LINE__, os.str()};
+                throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
             }
             _replica->sync(*syncPrx);
         }

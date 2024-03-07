@@ -138,12 +138,12 @@ public:
                     // Don't move the parameters as we may need to retry.
                     return master->subscribeAndGetPublisher(qos, *obj);
                 }
-                catch(const Ice::ConnectFailedException& ex)
+                catch(const Ice::ConnectFailedException&)
                 {
                     _instance->node()->recovery(generation);
                     continue;
                 }
-                catch(const Ice::TimeoutException& ex)
+                catch(const Ice::TimeoutException&)
                 {
                     _instance->node()->recovery(generation);
                     continue;
