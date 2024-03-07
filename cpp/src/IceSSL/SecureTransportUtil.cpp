@@ -491,7 +491,7 @@ loadCerts(const string& file)
             }
 
             vector<byte> data(IceInternal::Base64::decode(string(&buffer[startpos], size)));
-            UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0],
+            UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, reinterpret_cast<uint8_t*>(&data[0]),
                                                        static_cast<CFIndex>(data.size())));
             UniqueRef<SecCertificateRef> cert(SecCertificateCreateWithData(0, certdata.get()));
             if(!cert)
