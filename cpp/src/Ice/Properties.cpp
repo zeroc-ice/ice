@@ -4,6 +4,4 @@
 
 #include <Ice/Properties.h>
 
-Ice::Properties::~Properties()
-{
-}
+// empty for now

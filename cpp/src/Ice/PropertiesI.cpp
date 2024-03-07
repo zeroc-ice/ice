@@ -18,7 +18,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 string
-Ice::PropertiesI::getProperty(const string& key) noexcept
+Ice::PropertiesI::getProperty(string_view key) noexcept
 {
     lock_guard lock(_mutex);
 
@@ -30,12 +30,12 @@ Ice::PropertiesI::getProperty(const string& key) noexcept
     }
     else
     {
-        return string();
+        return string{};
     }
 }
 
 string
-Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value) noexcept
+Ice::PropertiesI::getPropertyWithDefault(string_view key, string_view value) noexcept
 {
     lock_guard lock(_mutex);
 
@@ -47,18 +47,18 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
     }
     else
     {
-        return value;
+        return string{value};
     }
 }
 
 int32_t
-Ice::PropertiesI::getPropertyAsInt(const string& key) noexcept
+Ice::PropertiesI::getPropertyAsInt(string_view key) noexcept
 {
     return getPropertyAsIntWithDefault(key, 0);
 }
 
 int32_t
-Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, int32_t value) noexcept
+Ice::PropertiesI::getPropertyAsIntWithDefault(string_view key, int32_t value) noexcept
 {
     lock_guard lock(_mutex);
 
@@ -80,13 +80,13 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, int32_t value) 
 }
 
 Ice::StringSeq
-Ice::PropertiesI::getPropertyAsList(const string& key) noexcept
+Ice::PropertiesI::getPropertyAsList(string_view key) noexcept
 {
     return getPropertyAsListWithDefault(key, StringSeq());
 }
 
 Ice::StringSeq
-Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value) noexcept
+Ice::PropertiesI::getPropertyAsListWithDefault(string_view key, const StringSeq& value) noexcept
 {
     lock_guard lock(_mutex);
 
@@ -114,7 +114,7 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
 }
 
 PropertyDict
-Ice::PropertiesI::getPropertiesForPrefix(const string& prefix) noexcept
+Ice::PropertiesI::getPropertiesForPrefix(string_view prefix) noexcept
 {
     lock_guard lock(_mutex);
 
@@ -132,12 +132,12 @@ Ice::PropertiesI::getPropertiesForPrefix(const string& prefix) noexcept
 }
 
 void
-Ice::PropertiesI::setProperty(const string& key, const string& value)
+Ice::PropertiesI::setProperty(string_view key, string_view value)
 {
     //
     // Trim whitespace
     //
-    string currentKey = IceUtilInternal::trim(key);
+    string currentKey = IceUtilInternal::trim(string{key});
     if(currentKey.empty())
     {
         throw InitializationException(__FILE__, __LINE__, "Attempt to set property with empty key");
@@ -244,9 +244,9 @@ Ice::PropertiesI::getCommandLineOptions() noexcept
 }
 
 StringSeq
-Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq& options)
+Ice::PropertiesI::parseCommandLineOptions(string_view prefix, const StringSeq& options)
 {
-    string pfx = prefix;
+    string pfx = string{prefix};
     if(!pfx.empty() && pfx[pfx.size() - 1] != '.')
     {
         pfx += '.';
@@ -288,7 +288,7 @@ Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
 }
 
 void
-Ice::PropertiesI::load(const std::string& file)
+Ice::PropertiesI::load(string_view file)
 {
     StringConverterPtr stringConverter = getProcessStringConverter();
 
@@ -369,7 +369,7 @@ Ice::PropertiesI::load(const std::string& file)
                                                      static_cast<DWORD>(expandedValue.size())) == 0)
                         {
                             ostringstream os;
-                            os << "could not expand variable in property `" << name << "', key: `" + file + "':\n";
+                            os << "could not expand variable in property `" << name << "', key: `" + string{file} + "':\n";
                             os << IceUtilInternal::lastErrorToString();
                             getProcessLogger()->warning(os.str());
                             continue;
@@ -390,10 +390,10 @@ Ice::PropertiesI::load(const std::string& file)
     else
 #endif
     {
-        ifstream in(IceUtilInternal::streamFilename(file).c_str());
+        ifstream in(IceUtilInternal::streamFilename(string{file}).c_str());
         if(!in)
         {
-            throw FileException(__FILE__, __LINE__, file);
+            throw FileException(__FILE__, __LINE__, string{file});
         }
 
         string line;
@@ -522,7 +522,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults)
 }
 
 void
-Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& converter)
+Ice::PropertiesI::parseLine(string_view line, const StringConverterPtr& converter)
 {
     string key;
     string value;
@@ -679,7 +679,7 @@ Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& conver
 
     if((state == Key && key.length() != 0) || (state == Value && key.length() == 0))
     {
-        getProcessLogger()->warning("invalid config file entry: \"" + line + "\"");
+        getProcessLogger()->warning("invalid config file entry: \"" + string{line} + "\"");
         return;
     }
     else if(key.length() == 0)
@@ -730,7 +730,7 @@ Ice::PropertiesI::loadConfig()
         IceUtilInternal::splitString(value, ",", files);
         for(vector<string>::const_iterator i = files.begin(); i != files.end(); ++i)
         {
-            load(IceUtilInternal::trim(*i));
+            load(IceUtilInternal::trim(string{*i}));
         }
 
         PropertyValue pv(value, true);

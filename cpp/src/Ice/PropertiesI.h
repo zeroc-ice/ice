@@ -5,8 +5,8 @@
 #ifndef ICE_PROPERTIES_I_H
 #define ICE_PROPERTIES_I_H
 
-#include <Ice/Properties.h>
-#include <Ice/StringConverter.h>
+#include "Ice/Properties.h"
+#include "Ice/StringConverter.h"
 
 #include <mutex>
 #include <set>
@@ -14,24 +14,24 @@
 namespace Ice
 {
 
-class PropertiesI : public Properties
+class PropertiesI final : public Properties
 {
 public:
 
-    virtual std::string getProperty(const std::string&) noexcept;
-    virtual std::string getPropertyWithDefault(const std::string&, const std::string&) noexcept;
-    virtual std::int32_t getPropertyAsInt(const std::string&) noexcept;
-    virtual std::int32_t getPropertyAsIntWithDefault(const std::string&, std::int32_t) noexcept;
-    virtual Ice::StringSeq getPropertyAsList(const std::string&) noexcept;
-    virtual Ice::StringSeq getPropertyAsListWithDefault(const std::string&, const Ice::StringSeq&) noexcept;
+    std::string getProperty(std::string_view) noexcept final;
+    std::string getPropertyWithDefault(std::string_view, std::string_view) noexcept final;
+    std::int32_t getPropertyAsInt(std::string_view) noexcept final;
+    std::int32_t getPropertyAsIntWithDefault(std::string_view, std::int32_t) noexcept final;
+    Ice::StringSeq getPropertyAsList(std::string_view) noexcept final;
+    Ice::StringSeq getPropertyAsListWithDefault(std::string_view, const Ice::StringSeq&) noexcept final;
 
-    virtual PropertyDict getPropertiesForPrefix(const std::string&) noexcept;
-    virtual void setProperty(const std::string&, const std::string&);
-    virtual StringSeq getCommandLineOptions() noexcept;
-    virtual StringSeq parseCommandLineOptions(const std::string&, const StringSeq&);
-    virtual StringSeq parseIceCommandLineOptions(const StringSeq&);
-    virtual void load(const std::string&);
-    virtual PropertiesPtr clone() noexcept;
+    PropertyDict getPropertiesForPrefix(std::string_view) noexcept final;
+    void setProperty(std::string_view, std::string_view) final;
+    StringSeq getCommandLineOptions() noexcept final;
+    StringSeq parseCommandLineOptions(std::string_view, const StringSeq&) final;
+    StringSeq parseIceCommandLineOptions(const StringSeq&) final;
+    void load(std::string_view) final;
+    PropertiesPtr clone() noexcept final;
 
     std::set<std::string> getUnusedProperties();
 
@@ -42,7 +42,7 @@ public:
 
 private:
 
-    void parseLine(const std::string&, const StringConverterPtr&);
+    void parseLine(std::string_view, const StringConverterPtr&);
 
     void loadConfig();
 
@@ -53,8 +53,8 @@ private:
         {
         }
 
-        PropertyValue(const std::string& v, bool u) :
-            value(v),
+        PropertyValue(std::string_view v, bool u) :
+            value(std::string{v}),
             used(u)
         {
         }
@@ -62,7 +62,7 @@ private:
         std::string value;
         bool used;
     };
-    std::map<std::string, PropertyValue> _properties;
+    std::map<std::string, PropertyValue, std::less<>> _properties;
     std::mutex _mutex;
 };
 
