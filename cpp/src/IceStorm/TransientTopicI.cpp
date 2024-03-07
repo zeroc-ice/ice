@@ -189,7 +189,7 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
         }
     }
 
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     SubscriberRecord record;
     record.id = id;
@@ -211,21 +211,12 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
 }
 
 void
-TransientTopicImpl::unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::Current&)
+TransientTopicImpl::unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::Current& current)
 {
-    auto traceLevels = _instance->traceLevels();
-    if(!subscriber)
-    {
-        if(traceLevels->topic > 0)
-        {
-            Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << _name << ": unsubscribe: null proxy";
-        }
-        throw InvalidSubscriber("subscriber is a null proxy");
-    }
-
+    Ice::checkNotNull(subscriber, current);
     Ice::Identity id = subscriber->ice_getIdentity();
 
+    auto traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
@@ -236,7 +227,7 @@ TransientTopicImpl::unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::
         }
     }
 
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     // First remove the subscriber from the subscribers list. Note
     // that its possible that the subscriber isn't in the list, but is
@@ -258,9 +249,10 @@ TransientTopicImpl::getLinkProxy(const Ice::Current&)
 }
 
 void
-TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&)
+TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current& current)
 {
-    optional<TopicInternalPrx> internal(topic);
+    Ice::checkNotNull(topic, current);
+    TopicInternalPrx internal(*topic);
     auto link = internal->getLinkProxy();
 
     auto traceLevels = _instance->traceLevels();
@@ -271,7 +263,7 @@ TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&
             << " cost " << cost;
     }
 
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     auto id = topic->ice_getIdentity();
 
@@ -295,7 +287,7 @@ TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current&
 void
 TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     if(_destroyed)
     {
@@ -337,7 +329,7 @@ TransientTopicImpl::unlink(optional<TopicPrx> topic, const Ice::Current&)
 LinkInfoSeq
 TransientTopicImpl::getLinkInfoSeq(const Ice::Current&) const
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     LinkInfoSeq seq;
     for(const auto& subscriber : _subscribers)
@@ -358,7 +350,7 @@ TransientTopicImpl::getLinkInfoSeq(const Ice::Current&) const
 Ice::IdentitySeq
 TransientTopicImpl::getSubscribers(const Ice::Current&) const
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     Ice::IdentitySeq subscribers;
     for(const auto& subscriber : _subscribers)
@@ -371,7 +363,7 @@ TransientTopicImpl::getSubscribers(const Ice::Current&) const
 void
 TransientTopicImpl::destroy(const Ice::Current&)
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     if(_destroyed)
     {
@@ -412,7 +404,7 @@ TransientTopicImpl::reap(Ice::IdentitySeq, const Ice::Current&)
 bool
 TransientTopicImpl::destroyed() const
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     return _destroyed;
 }
 
@@ -432,7 +424,7 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
     //
     vector<shared_ptr<Subscriber>> copy;
     {
-        lock_guard<mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         copy = _subscribers;
     }
 
@@ -455,7 +447,7 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
     //
     if(!ids.empty())
     {
-        lock_guard<mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         for(const auto& id : ids)
         {
             //
@@ -488,7 +480,7 @@ TransientTopicImpl::publish(bool forwarded, const EventDataSeq& events)
 void
 TransientTopicImpl::shutdown()
 {
-    lock_guard<mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     // Shutdown each subscriber. This waits for the event queues to drain.
     for(const auto& subscriber : _subscribers)

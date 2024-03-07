@@ -31,11 +31,11 @@ public:
     std::string getName() const;
     Ice::ObjectPrx getPublisher() const;
     Ice::ObjectPrx getNonReplicatedPublisher() const;
-    std::optional<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, std::optional<Ice::ObjectPrx>);
-    void unsubscribe(const std::optional<Ice::ObjectPrx>&);
+    Ice::ObjectPrx subscribeAndGetPublisher(QoS, Ice::ObjectPrx);
+    void unsubscribe(const Ice::ObjectPrx&);
     TopicLinkPrx getLinkProxy();
-    void link(const std::optional<TopicPrx>&, int);
-    void unlink(const std::optional<TopicPrx>&);
+    void link(const TopicPrx&, int);
+    void unlink(const TopicPrx&);
     LinkInfoSeq getLinkInfoSeq() const;
     Ice::IdentitySeq getSubscribers() const;
     void reap(const Ice::IdentitySeq&);

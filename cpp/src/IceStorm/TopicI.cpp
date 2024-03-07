@@ -126,6 +126,8 @@ public:
         optional<Ice::ObjectPrx> obj,
         const Ice::Current& current) override
     {
+        Ice::checkNotNull(obj, current);
+
         while(true)
         {
             int64_t generation = -1;
@@ -134,7 +136,7 @@ public:
             {
                 try
                 {
-                    return master->subscribeAndGetPublisher(std::move(qos), std::move(obj));
+                    return master->subscribeAndGetPublisher(std::move(qos), std::move(*obj));
                 }
                 catch(const Ice::ConnectFailedException&)
                 {
@@ -150,13 +152,14 @@ public:
             else
             {
                 FinishUpdateHelper unlock(_instance->node());
-                return _impl->subscribeAndGetPublisher(std::move(qos), std::move(obj));
+                return _impl->subscribeAndGetPublisher(std::move(qos), std::move(*obj));
             }
         }
     }
 
     void unsubscribe(optional<Ice::ObjectPrx> subscriber, const Ice::Current& current) override
     {
+        Ice::checkNotNull(subscriber, current);
         while(true)
         {
             int64_t generation = -1;
@@ -181,7 +184,7 @@ public:
             else
             {
                 FinishUpdateHelper unlock(_instance->node());
-                _impl->unsubscribe(std::move(subscriber));
+                _impl->unsubscribe(std::move(*subscriber));
             }
             break;
         }
@@ -493,19 +496,9 @@ trace(Ice::Trace& out, const shared_ptr<PersistentInstance>& instance, const vec
 
 }
 
-optional<Ice::ObjectPrx>
-TopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> obj)
+Ice::ObjectPrx
+TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
 {
-    if(!obj)
-    {
-        auto traceLevels = _instance->traceLevels();
-        if(traceLevels->topic > 0)
-        {
-            Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << _name << ": subscribeAndGetPublisher: null proxy";
-        }
-        throw InvalidSubscriber("subscriber is a null proxy");
-    }
     auto id = obj->ice_getIdentity();
 
     auto traceLevels = _instance->traceLevels();
@@ -572,23 +565,15 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> obj)
 
     _instance->observers()->addSubscriber(llu, _name, record);
 
-    return subscriber->proxy();
+    optional<Ice::ObjectPrx> publisher = subscriber->proxy();
+    assert(publisher); // The publisher is always non-null when the subscriber record link is false.
+    return *publisher;
 }
 
 void
-TopicImpl::unsubscribe(const optional<Ice::ObjectPrx>& subscriber)
+TopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber)
 {
     auto traceLevels = _instance->traceLevels();
-    if(!subscriber)
-    {
-        if(traceLevels->topic > 0)
-        {
-            Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << _name << ": unsubscribe: null proxy";
-        }
-        throw InvalidSubscriber("subscriber is a null proxy");
-    }
-
     Ice::Identity id = subscriber->ice_getIdentity();
 
     lock_guard lock(_subscribersMutex);
@@ -614,18 +599,20 @@ TopicImpl::getLinkProxy()
 {
     // immutable
     assert(_linkPrx);
-    if(_instance->publisherReplicaProxy())
+    optional<Ice::ObjectPrx> replica = _instance->publisherReplicaProxy();
+    if (replica)
     {
-        return TopicLinkPrx(_instance->publisherReplicaProxy()->ice_identity(_linkPrx->ice_getIdentity()));
+        return TopicLinkPrx(replica->ice_identity(_linkPrx->ice_getIdentity()));
     }
     return *_linkPrx;
 }
 
 void
-TopicImpl::link(const optional<TopicPrx>& topic, int cost)
+TopicImpl::link(const TopicPrx& topic, int cost)
 {
-    auto internal = Ice::uncheckedCast<TopicInternalPrx>(topic);
-    auto link = internal->getLinkProxy();
+    TopicInternalPrx internal(topic);
+    optional<TopicLinkPrx> link = internal->getLinkProxy();
+    assert(link);
 
     auto traceLevels = _instance->traceLevels();
     if (traceLevels->topic > 0)
@@ -683,7 +670,7 @@ TopicImpl::link(const optional<TopicPrx>& topic, int cost)
 }
 
 void
-TopicImpl::unlink(const optional<TopicPrx>& topic)
+TopicImpl::unlink(const TopicPrx& topic)
 {
     lock_guard lock(_subscribersMutex);
 
@@ -927,7 +914,7 @@ TopicImpl::proxy() const
 void
 TopicImpl::publish(bool forwarded, const EventDataSeq& events)
 {
-    TopicInternalPrxPtr masterInternal;
+    optional<TopicInternalPrx> masterInternal;
     int64_t generation = -1;
     Ice::IdentitySeq reap;
     {
@@ -940,7 +927,7 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
         //
         vector<shared_ptr<Subscriber>> copy;
         {
-            lock_guard<mutex> lock(_subscribersMutex);
+            lock_guard lock(_subscribersMutex);
 
             if(_observer)
             {
@@ -975,11 +962,11 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
         }
         if(!unlock.getMaster())
         {
-            lock_guard<mutex> lock(_subscribersMutex);
+            lock_guard lock(_subscribersMutex);
             removeSubscribers(reap);
             return;
         }
-        masterInternal = Ice::uncheckedCast<TopicInternalPrx>(unlock.getMaster()->ice_identity(_id));
+        masterInternal = TopicInternalPrx(unlock.getMaster()->ice_identity(_id));
         generation = unlock.generation();
     }
 
@@ -993,29 +980,32 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
     // call ice_exception) which calls recover() on the node which
     // would result in a deadlock since the node is locked.
 
-    masterInternal->reapAsync(reap, nullptr, [instance = _instance, generation](exception_ptr ex)
-    {
-        auto traceLevels = instance->traceLevels();
-        if(traceLevels->topic > 0)
+    masterInternal->reapAsync(
+        reap,
+        nullptr,
+        [instance = _instance, generation](exception_ptr ex)
         {
-            try
+            auto traceLevels = instance->traceLevels();
+            if(traceLevels->topic > 0)
             {
-                rethrow_exception(ex);
+                try
+                {
+                    rethrow_exception(ex);
+                }
+                catch(const std::exception& e)
+                {
+                    Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
+                    out << "exception when calling `reap' on the master replica: " << e;
+                }
             }
-            catch(const std::exception& e)
-            {
-                Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-                out << "exception when calling `reap' on the master replica: " << e;
-            }
-        }
-        instance->node()->recovery(generation);
-    });
+            instance->node()->recovery(generation);
+        });
 }
 
 void
 TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& record)
 {
-    lock_guard<mutex> lock(_subscribersMutex);
+    lock_guard lock(_subscribersMutex);
 
     auto traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
@@ -1095,7 +1085,7 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
         out << " llu: " << llu.generation << "/" << llu.iteration;
     }
 
-    lock_guard<mutex> lock(_subscribersMutex);
+    lock_guard lock(_subscribersMutex);
 
     // First remove from the database.
     try
@@ -1135,7 +1125,7 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
 void
 TopicImpl::observerDestroyTopic(const LogUpdate& llu)
 {
-    lock_guard<mutex> lock(_subscribersMutex);
+    lock_guard lock(_subscribersMutex);
 
     if(_destroyed)
     {
@@ -1162,7 +1152,7 @@ TopicImpl::getServant() const
 void
 TopicImpl::updateObserver()
 {
-    lock_guard<mutex> lock(_subscribersMutex);
+    lock_guard lock(_subscribersMutex);
 
     if(_instance->observer())
     {
@@ -1173,9 +1163,9 @@ TopicImpl::updateObserver()
 void
 TopicImpl::updateSubscriberObservers()
 {
-    lock_guard<mutex> lock(_subscribersMutex);
+    lock_guard lock(_subscribersMutex);
 
-    for(const auto& subscriber : _subscribers)
+    for (const auto& subscriber : _subscribers)
     {
         subscriber->updateObserver();
     }
@@ -1260,7 +1250,7 @@ TopicImpl::removeSubscribers(const Ice::IdentitySeq& ids)
     {
         IceDB::ReadWriteTxn txn(_instance->dbEnv());
 
-        for(const auto& id : ids)
+        for (const auto& id : ids)
         {
             SubscriberRecordKey key = { _id, id };
 
@@ -1294,9 +1284,9 @@ TopicImpl::removeSubscribers(const Ice::IdentitySeq& ids)
         // replicas on the same subscriber). To avoid sending unnecessary
         // observer updates keep track of the observers that are actually
         // removed.
-        for(Ice::IdentitySeq::const_iterator id = ids.begin(); id != ids.end(); ++id)
+        for (const auto& id : ids)
         {
-            auto p = find(_subscribers.begin(), _subscribers.end(), *id);
+            auto p = find(_subscribers.begin(), _subscribers.end(), id);
             if(p != _subscribers.end())
             {
                 (*p)->destroy();

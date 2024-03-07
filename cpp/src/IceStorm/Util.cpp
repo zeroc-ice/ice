@@ -39,7 +39,7 @@ IceStormInternal::nameToIdentity(const shared_ptr<Instance>& instance, const str
 }
 
 string
-IceStormInternal::describeEndpoints(const optional<ObjectPrx>& proxy)
+IceStormInternal::describeEndpoints(const optional<Ice::ObjectPrx>& proxy)
 {
     ostringstream os;
     if (proxy)

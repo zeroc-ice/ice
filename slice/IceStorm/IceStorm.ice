@@ -107,7 +107,7 @@ interface Topic
 
     /// Subscribe with the given <code>qos</code> to this topic.  A per-subscriber publisher object is returned.
     /// @param theQoS The quality of service parameters for this subscription.
-    /// @param subscriber The subscriber's proxy. Using a null proxy is an error.
+    /// @param subscriber The subscriber's proxy. This proxy is never null.
     /// @return The per-subscriber publisher object. The returned object is never null.
     /// @throws AlreadySubscribed Raised if the subscriber object is already subscribed.
     /// @throws InvalidSubscriber Raised if the subscriber object is null.
@@ -117,19 +117,19 @@ interface Topic
         throws AlreadySubscribed, InvalidSubscriber, BadQoS;
 
     /// Unsubscribe the given <code>subscriber</code>.
-    /// @param subscriber The proxy of an existing subscriber. Using a null proxy is an error.
+    /// @param subscriber The proxy of an existing subscriber. This proxy is never null.
     /// @see #subscribeAndGetPublisher
     idempotent void unsubscribe(Object* subscriber);
 
     /// Create a link to the given topic. All events originating on this topic will also be sent to
     /// <code>linkTo</code>.
-    /// @param linkTo The topic to link to. Using a null proxy is an error.
+    /// @param linkTo The topic to link to. This proxy is never null.
     /// @param cost The cost to the linked topic.
     /// @throws LinkExists Raised if a link to the same topic already exists.
     void link(Topic* linkTo, int cost) throws LinkExists;
 
     /// Destroy the link from this topic to the given topic <code>linkTo</code>.
-    /// @param linkTo The topic to destroy the link to. Using a null proxy is an error.
+    /// @param linkTo The topic to destroy the link to. This proxy is never null.
     /// @throws NoSuchLink Raised if a link to the topic does not exist.
     void unlink(Topic* linkTo) throws NoSuchLink;
 

@@ -583,7 +583,11 @@ NodeI::mergeContinue()
         {
             auto node = _nodes.find(maxid);
             assert(node != _nodes.end());
-            _replica->sync(node->second->sync());
+            optional<Ice::ObjectPrx> syncPrx = node->second->sync();
+            ostringstream os;
+            os << "node " << node->second->ice_toString() << " returned null sync proxy";
+            Ice::checkNotNull(syncPrx, os.str());
+            _replica->sync(*syncPrx);
         }
         catch(const Ice::Exception& ex)
         {

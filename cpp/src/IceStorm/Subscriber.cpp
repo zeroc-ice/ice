@@ -162,7 +162,7 @@ SubscriberOneway::SubscriberOneway(
 void
 SubscriberOneway::flush()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     //
     // If the subscriber isn't online we're done.
@@ -241,7 +241,7 @@ SubscriberOneway::flush()
 void
 SubscriberOneway::sentAsynchronously()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     // Decrement the _outstanding count.
     --_outstanding;
@@ -276,7 +276,7 @@ SubscriberTwoway::SubscriberTwoway(
 void
 SubscriberTwoway::flush()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     //
     // If the subscriber isn't online we're done.
@@ -339,7 +339,7 @@ SubscriberLink::SubscriberLink(const shared_ptr<Instance>& instance,
 void
 SubscriberLink::flush()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     if(_state != SubscriberStateOnline || _outstanding > 0)
     {
@@ -387,16 +387,11 @@ SubscriberLink::flush()
                 _observer->outstanding(_outstandingCount);
             }
 
-            auto self = static_pointer_cast<SubscriberLink>(shared_from_this());
-            _obj->forwardAsync(v,
-                [self]
-                {
-                    self->completed();
-                },
-                [self](exception_ptr ex)
-                {
-                    self->error(true, ex);
-                });
+            auto self = shared_from_this();
+            _obj->forwardAsync(
+                v,
+                [self]() { self->completed(); },
+                [self](exception_ptr ex) { self->error(true, ex); });
         }
         catch(const std::exception&)
         {
@@ -544,7 +539,7 @@ Subscriber::record() const
 bool
 Subscriber::queue(bool forwarded, const EventDataSeq& events)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     // If this is a link subscriber if the set of events were
     // forwarded from another IceStorm instance then do not queue the
@@ -609,7 +604,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
 bool
 Subscriber::reap()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     assert(_state >= SubscriberStateError);
     if(_state == SubscriberStateError)
     {
@@ -622,7 +617,7 @@ Subscriber::reap()
 void
 Subscriber::resetIfReaped()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     if(_state == SubscriberStateReaped)
     {
@@ -633,7 +628,7 @@ Subscriber::resetIfReaped()
 bool
 Subscriber::errored() const
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     return _state >= SubscriberStateError;
 }
@@ -660,14 +655,14 @@ Subscriber::destroy()
         }
     }
 
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     _observer.detach();
 }
 
 void
 Subscriber::completed()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     // Decrement the _outstanding count.
     --_outstanding;
@@ -696,7 +691,7 @@ Subscriber::completed()
 void
 Subscriber::error(bool dec, exception_ptr e)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     if(dec)
     {
@@ -831,7 +826,7 @@ Subscriber::error(bool dec, exception_ptr e)
 void
 Subscriber::shutdown()
 {
-    unique_lock<recursive_mutex> lock(_mutex);
+    unique_lock lock(_mutex);
 
     _shutdown = true;
     while(_outstanding > 0 && !_events.empty())
@@ -845,13 +840,14 @@ Subscriber::shutdown()
 void
 Subscriber::updateObserver()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     if(_instance->observer())
     {
+        assert(_rec.obj);
         _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(),
                                                                       _rec.topicName,
-                                                                      _rec.obj,
+                                                                      *_rec.obj,
                                                                       _rec.theQoS,
                                                                       _rec.theTopic,
                                                                       toSubscriberState(_state),
@@ -884,9 +880,10 @@ Subscriber::Subscriber(shared_ptr<Instance> instance,
 
     if(_instance->observer())
     {
+        assert(_rec.obj);
         _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(),
                                                                       _rec.topicName,
-                                                                      _rec.obj,
+                                                                      *_rec.obj,
                                                                       _rec.theQoS,
                                                                       _rec.theTopic,
                                                                       toSubscriberState(_state),
@@ -933,9 +930,10 @@ Subscriber::setState(Subscriber::SubscriberState state)
 
         if(_instance->observer())
         {
+            assert(_rec.obj);
             _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(),
                                                                           _rec.topicName,
-                                                                          _rec.obj,
+                                                                          *_rec.obj,
                                                                           _rec.theQoS,
                                                                           _rec.theTopic,
                                                                           toSubscriberState(_state),

@@ -273,7 +273,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
                 ident.category = instanceName;
                 ident.name = os.str();
 
-                nodes.insert({nodeid, NodePrx((*p)->ice_adapterId(adapterid)->ice_identity(ident))});
+                nodes.insert({nodeid, NodePrx(replica->ice_adapterId(adapterid)->ice_identity(ident))});
             }
         }
 
@@ -303,7 +303,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
 
             auto nodeAdapter = communicator->createObjectAdapter(name + ".Node");
             auto instance = make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter,
-                                                            topicAdapter, nodeAdapter, nodes[id]);
+                                                            topicAdapter, nodeAdapter, nodes.at(id));
             _instance = instance;
 
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
