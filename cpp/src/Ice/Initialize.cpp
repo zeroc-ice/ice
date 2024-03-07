@@ -4,7 +4,7 @@
 
 #include <Ice/ArgVector.h>
 #include "Ice/Communicator.h"
-#include <Ice/PropertiesI.h>
+#include <Ice/Properties.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerI.h>
@@ -144,13 +144,13 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const wchar_t* argv[])
 PropertiesPtr
 Ice::createProperties()
 {
-    return make_shared<PropertiesI>();
+    return make_shared<Properties>();
 }
 
 PropertiesPtr
 Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
 {
-    return make_shared<PropertiesI>(args, defaults);
+    return make_shared<Properties>(args, defaults);
 }
 
 PropertiesPtr

@@ -6,7 +6,7 @@
 #include <Ice/ProtocolInstance.h>
 #include <Ice/Instance.h>
 #include <Ice/LocalException.h>
-#include <Ice/PropertiesI.h>
+#include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/HashUtil.h>
 #include <Ice/NetworkProxy.h>

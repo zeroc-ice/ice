@@ -18,7 +18,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
-#include <Ice/PropertiesI.h>
+#include <Ice/Properties.h>
 #include <Ice/PropertiesAdminI.h>
 #include <Ice/LoggerI.h>
 #include <Ice/NetworkProxy.h>
@@ -29,7 +29,6 @@
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/PropertiesI.h>
 #include <Ice/Communicator.h>
 #include <Ice/InstrumentationI.h>
 #include <Ice/ProtocolInstance.h>
@@ -1691,7 +1690,7 @@ IceInternal::Instance::destroy()
 
     if(_initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
     {
-        set<string> unusedProperties = static_cast<PropertiesI*>(_initData.properties.get())->getUnusedProperties();
+        set<string> unusedProperties = _initData.properties.get()->getUnusedProperties();
         if(unusedProperties.size() != 0)
         {
             Warning out(_initData.logger);

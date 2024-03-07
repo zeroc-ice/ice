@@ -13,10 +13,13 @@
 #include "Initialize.h"
 #include "PluginF.h"
 #include "Properties.h"
-#include "ProxyF.h"
+#include "Proxy.h"
 
 namespace Ice
 {
+
+class LocatorPrx;
+class RouterPrx;
 
 /**
  * The central object in Ice. One or more communicators can be instantiated for an Ice application.

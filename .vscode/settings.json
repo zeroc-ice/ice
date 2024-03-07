@@ -72,7 +72,8 @@
         "typeinfo": "cpp",
         "unordered_map": "cpp",
         "variant": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "xtree": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++20"
 }
