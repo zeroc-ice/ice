@@ -127,7 +127,6 @@ public:
         const Ice::Current& current) override
     {
         Ice::checkNotNull(obj, current);
-
         while(true)
         {
             int64_t generation = -1;
@@ -136,14 +135,15 @@ public:
             {
                 try
                 {
-                    return master->subscribeAndGetPublisher(std::move(qos), std::move(*obj));
+                    // Don't move the parameters as we may need to retry.
+                    return master->subscribeAndGetPublisher(qos, *obj);
                 }
-                catch(const Ice::ConnectFailedException&)
+                catch(const Ice::ConnectFailedException& ex)
                 {
                     _instance->node()->recovery(generation);
                     continue;
                 }
-                catch(const Ice::TimeoutException&)
+                catch(const Ice::TimeoutException& ex)
                 {
                     _instance->node()->recovery(generation);
                     continue;
@@ -168,7 +168,8 @@ public:
             {
                 try
                 {
-                    master->unsubscribe(std::move(subscriber));
+                    // Don't move the parameters as we may need to retry.
+                    master->unsubscribe(*subscriber);
                 }
                 catch(const Ice::ConnectFailedException&)
                 {
@@ -318,15 +319,23 @@ public:
 
 private:
 
-    optional<TopicPrx> getMasterFor(const Ice::Current& cur, int64_t& generation, const char* file, int line) const
+    optional<TopicPrx> getMasterFor(const Ice::Current& current, int64_t& generation, const char* file, int line) const
     {
         auto node = _instance->node();
-        Ice::ObjectPrxPtr master;
-        if(node)
+        optional<Ice::ObjectPrx> master;
+        if (node)
         {
-            master = _instance->node()->startUpdate(generation, file, line);
+            master = node->startUpdate(generation, file, line);
         }
-        return master ? make_optional<TopicPrx>(master->ice_identity(cur.id)) : nullopt;
+
+        if (master)
+        {
+            return TopicPrx(master->ice_identity(current.id));
+        }
+        else
+        {
+            return nullopt;
+        }
     }
 
     const shared_ptr<TopicImpl> _impl;
@@ -496,11 +505,10 @@ trace(Ice::Trace& out, const shared_ptr<PersistentInstance>& instance, const vec
 
 }
 
-Ice::ObjectPrx
+optional<Ice::ObjectPrx>
 TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
 {
     auto id = obj->ice_getIdentity();
-
     auto traceLevels = _instance->traceLevels();
     lock_guard lock(_subscribersMutex);
     if(traceLevels->topic > 0)
@@ -565,7 +573,7 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
 
     _instance->observers()->addSubscriber(llu, _name, record);
 
-    optional<Ice::ObjectPrx> publisher = subscriber->proxy();
+    auto publisher = subscriber->proxy();
     assert(publisher); // The publisher is always non-null when the subscriber record link is false.
     return *publisher;
 }
@@ -588,10 +596,7 @@ TopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber)
             trace(out, _instance, _subscribers);
         }
     }
-
-    Ice::IdentitySeq ids;
-    ids.push_back(id);
-    removeSubscribers(ids);
+    removeSubscribers(Ice::IdentitySeq{id});
 }
 
 TopicLinkPrx
@@ -970,15 +975,12 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
         generation = unlock.generation();
     }
 
-    // Tell the master to reap this set of subscribers. This is an
-    // AMI invocation so it shouldn't block the caller (in the
-    // typical case) we do it outside of the mutex lock for
-    // performance reasons.
+    // Tell the master to reap this set of subscribers. This is an AMI invocation so it shouldn't block the caller (in
+    // the typical case) we do it outside of the mutex lock for performance reasons.
     //
-    // We must release the cached lock before calling this as the AMI
-    // call may raise an exception in the caller (that is directly
-    // call ice_exception) which calls recover() on the node which
-    // would result in a deadlock since the node is locked.
+    // We must release the cached lock before calling this as the AMI call may raise an exception in the caller (that
+    // is directly call ice_exception) which calls recover() on the node which would result in a deadlock since the
+    // node is locked.
 
     masterInternal->reapAsync(
         reap,

@@ -91,7 +91,7 @@ public:
     static Attributes attributes;
 
     SubscriberHelper(const string& svc, const string& topic, const Ice::ObjectPrx& proxy,
-                     const IceStorm::QoS& qos, IceStorm::TopicPrxPtr link, SubscriberState state) :
+                     const IceStorm::QoS& qos, optional<IceStorm::TopicPrx> link, SubscriberState state) :
         _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(std::move(link)), _state(state)
     {
     }

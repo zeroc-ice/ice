@@ -38,12 +38,12 @@ public:
     void merge(const std::set<int>&);
     void mergeContinue();
     void invitation(int, std::string, const Ice::Current&) final;
-    void ready(int, std::string, Ice::ObjectPrxPtr, int, std::int64_t, const Ice::Current&) final;
-    void accept(int, std::string, Ice::IntSeq, Ice::ObjectPrxPtr, LogUpdate, int,
+    void ready(int, std::string, std::optional<Ice::ObjectPrx>, int, std::int64_t, const Ice::Current&) final;
+    void accept(int, std::string, Ice::IntSeq, std::optional<Ice::ObjectPrx>, LogUpdate, int,
                 const Ice::Current&) final;
     bool areYouCoordinator(const Ice::Current&) const final;
     bool areYouThere(std::string, int, const Ice::Current&) const final;
-    Ice::ObjectPrxPtr sync(const Ice::Current&) const final;
+    std::optional<Ice::ObjectPrx> sync(const Ice::Current&) const final;
     NodeInfoSeq nodes(const Ice::Current&) const final;
     QueryInfo query(const Ice::Current&) const final;
     void recovery(std::int64_t = -1);
@@ -52,8 +52,8 @@ public:
 
     // Notify the node that we're about to start an update.
     void checkObserverInit(std::int64_t);
-    Ice::ObjectPrxPtr startUpdate(std::int64_t&, const char*, int);
-    Ice::ObjectPrxPtr startCachedRead(std::int64_t&, const char*, int);
+    std::optional<Ice::ObjectPrx> startUpdate(std::int64_t&, const char*, int);
+    std::optional<Ice::ObjectPrx> startCachedRead(std::int64_t&, const char*, int);
     void startObserverUpdate(std::int64_t, const char*, int);
     bool updateMaster(const char*, int);
 
@@ -72,7 +72,7 @@ private:
 
     const int _id; // My node id.
     const std::map<int, NodePrx> _nodes; // The nodes indexed by their id.
-    const std::map<int, NodePrxPtr> _nodesOneway; // The nodes indexed by their id (as oneway proxies).
+    const std::map<int, NodePrx> _nodesOneway; // The nodes indexed by their id (as oneway proxies).
 
     const std::chrono::seconds _masterTimeout;
     const std::chrono::seconds _electionTimeout;

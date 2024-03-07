@@ -285,7 +285,7 @@ TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance) :
     }
 }
 
-optional<TopicPrx>
+TopicPrx
 TopicManagerImpl::create(const string& name)
 {
     lock_guard lock(_mutex);
@@ -326,7 +326,7 @@ TopicManagerImpl::create(const string& name)
     return installTopic(name, id, true);
 }
 
-optional<TopicPrx>
+TopicPrx
 TopicManagerImpl::retrieve(const string& name)
 {
     lock_guard lock(_mutex);

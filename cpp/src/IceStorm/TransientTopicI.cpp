@@ -114,7 +114,7 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
     auto publisher = make_shared<TransientPublisherI>(topicImpl);
     topicImpl->_publisherPrx = instance->publishAdapter()->add(publisher, pubid);
     auto topicLink = make_shared<TransientTopicLinkI>(topicImpl);
-    topicImpl->_linkPrx = Ice::uncheckedCast<TopicLinkPrx>(instance->publishAdapter()->add(topicLink, linkid));
+    topicImpl->_linkPrx = TopicLinkPrx(instance->publishAdapter()->add(topicLink, linkid));
 
     return topicImpl;
 }
@@ -154,18 +154,9 @@ TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&) const
 }
 
 optional<Ice::ObjectPrx>
-TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> obj, const Ice::Current&)
+TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> obj, const Ice::Current& current)
 {
-    if (!obj)
-    {
-        auto traceLevels = _instance->traceLevels();
-        if(traceLevels->topic > 0)
-        {
-            Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << _name << ": subscribe: null proxy";
-        }
-        throw InvalidSubscriber("subscriber is a null proxy");
-    }
+    Ice::checkNotNull(obj, current);
     Ice::Identity id = obj->ice_getIdentity();
 
     auto traceLevels = _instance->traceLevels();
@@ -184,7 +175,6 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
                 {
                     out << ',';
                 }
-
             }
         }
     }

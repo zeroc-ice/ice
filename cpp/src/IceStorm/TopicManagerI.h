@@ -30,8 +30,8 @@ public:
     static std::shared_ptr<TopicManagerImpl> create(const std::shared_ptr<PersistentInstance>&);
 
     // TopicManager methods.
-    TopicPrxPtr create(const std::string&);
-    TopicPrxPtr retrieve(const std::string&);
+    TopicPrx create(const std::string&);
+    TopicPrx retrieve(const std::string&);
     TopicDict retrieveAll();
 
     // Observer methods.

@@ -159,7 +159,7 @@ NodeI::NodeI(
 {
     for (const auto& node : _nodes)
     {
-        const_cast<map<int, NodePrxPtr>& >(_nodesOneway)[node.first] = NodePrx(node.second->ice_oneway());
+        const_cast<map<int, NodePrx>& >(_nodesOneway).insert({node.first, node.second->ice_oneway()});
     }
 }
 
@@ -187,7 +187,7 @@ NodeI::start()
     // We use this lock to ensure that recovery is called before CheckTask
     // is scheduled, even if timeout is 0
     //
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     _checkTask = make_shared<CheckTask>(shared_from_this());
     _timer->schedule(_checkTask,
@@ -199,7 +199,7 @@ void
 NodeI::check()
 {
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             return;
@@ -282,7 +282,7 @@ NodeI::check()
         }
     }
 
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     // If the node state has changed while the mutex has been released
     // then bail. We don't schedule a re-check since we're either
@@ -336,7 +336,7 @@ NodeI::timeout()
     int myCoord;
     string myGroup;
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         // If we're destroyed or we are our own coordinator then we're
         // done.
         if(_destroy || _coord == _id)
@@ -459,7 +459,7 @@ NodeI::merge(const set<int>& coordinatorSet)
 
     // Now we wait for responses to our invitation.
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             return;
@@ -496,7 +496,7 @@ NodeI::mergeContinue()
     string gp;
     set<GroupNodeInfo> tmpSet;
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             return;
@@ -614,7 +614,7 @@ NodeI::mergeContinue()
     // state, as such we can set our _max flag.
     unsigned int max = static_cast<unsigned int>(tmpSet.size()) + 1;
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         if(max > _max)
         {
             _max = max;
@@ -665,7 +665,7 @@ NodeI::mergeContinue()
     }
 
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             return;
@@ -789,7 +789,7 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
     // everything is fine. Setting the state *after* calling accept
     // can cause a race.
     {
-        lock_guard<recursive_mutex> lg(_mutex);
+        lock_guard lock(_mutex);
         if(_destroy)
         {
             return;
@@ -818,10 +818,16 @@ NodeI::invitation(int j, string gn, const Ice::Current&)
 }
 
 void
-NodeI::ready(int j, string gn, Ice::ObjectPrxPtr coordinator, int max, int64_t generation,
-             const Ice::Current&)
+NodeI::ready(
+    int j,
+    string gn,
+    std::optional<Ice::ObjectPrx> coordinator,
+    int max,
+    int64_t generation,
+    const Ice::Current& current)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    Ice::checkNotNull(coordinator, current);
+    lock_guard lock(_mutex);
     if(!_destroy && _state == NodeState::NodeStateReorganization && _group == gn)
     {
         // The coordinator must be j (this was set in the invitation).
@@ -878,7 +884,7 @@ NodeI::accept(
         return;
     }
 
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     if(!_destroy && _state == NodeState::NodeStateElection && _group == gn && _coord == _id)
     {
         _up.insert(GroupNodeInfo(j, llu, observer));
@@ -934,14 +940,14 @@ NodeI::accept(
 bool
 NodeI::areYouCoordinator(const Ice::Current&) const
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     return _state != NodeState::NodeStateElection && _state != NodeState::NodeStateReorganization && _coord == _id;
 }
 
 bool
 NodeI::areYouThere(string gn, int j, const Ice::Current&) const
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     return _group == gn && _coord == _id && _up.find(GroupNodeInfo(j)) != _up.end();
 }
 
@@ -966,7 +972,7 @@ NodeI::nodes(const Ice::Current&) const
 QueryInfo
 NodeI::query(const Ice::Current&) const
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     QueryInfo info;
     info.id = _id;
     info.coord = _coord;
@@ -1075,7 +1081,7 @@ NodeI::destroy()
 void
 NodeI::checkObserverInit(int64_t)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     if(_state != NodeState::NodeStateReorganization)
     {
         throw ObserverInconsistencyException("init cannot block when state != NodeStateReorganization");
@@ -1119,7 +1125,7 @@ NodeI::updateMaster(const char*, int)
 {
     bool majority = _observers->check();
 
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     // If the node is destroyed, or is not a coordinator then we're
     // done.
@@ -1145,7 +1151,7 @@ NodeI::updateMaster(const char*, int)
     return true;
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 NodeI::startCachedRead(int64_t& generation, const char* file, int line)
 {
     unique_lock<recursive_mutex> lock(_mutex);
@@ -1164,7 +1170,7 @@ NodeI::startCachedRead(int64_t& generation, const char* file, int line)
 void
 NodeI::startObserverUpdate(int64_t generation, const char* file, int line)
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
 
     if(_destroy)
     {
@@ -1188,7 +1194,7 @@ NodeI::startObserverUpdate(int64_t generation, const char* file, int line)
 void
 NodeI::finishUpdate()
 {
-    lock_guard<recursive_mutex> lg(_mutex);
+    lock_guard lock(_mutex);
     assert(!_destroy);
     --_updateCounter;
     assert(_updateCounter >= 0);

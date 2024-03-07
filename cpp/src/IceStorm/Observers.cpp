@@ -93,7 +93,7 @@ Observers::init(const set<GroupNodeInfo>& slaves, const LogUpdate& llu, const To
 
             auto future = observer->initAsync(llu, content);
 
-            observers.push_back({ slave.id, observer, std::move(future) });
+            observers.push_back({slave.id, observer, std::move(future)});
         }
         catch(const Ice::Exception& ex)
         {

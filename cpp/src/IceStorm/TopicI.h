@@ -31,7 +31,7 @@ public:
     std::string getName() const;
     Ice::ObjectPrx getPublisher() const;
     Ice::ObjectPrx getNonReplicatedPublisher() const;
-    Ice::ObjectPrx subscribeAndGetPublisher(QoS, Ice::ObjectPrx);
+    std::optional<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, Ice::ObjectPrx);
     void unsubscribe(const Ice::ObjectPrx&);
     TopicLinkPrx getLinkProxy();
     void link(const TopicPrx&, int);
@@ -72,7 +72,6 @@ private:
     //
     // Immutable members.
     //
-    const Ice::ObjectPrxPtr _publisherReplicaProxy;
     const std::shared_ptr<PersistentInstance> _instance;
     const std::string _name; // The topic name
     const Ice::Identity _id; // The topic identity
