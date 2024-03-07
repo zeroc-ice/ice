@@ -183,7 +183,7 @@ if "Properties" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_Properties = IcePy.defineValue(
-        "::Ice::Properties", Properties, -1, (), False, True, None, ()
+        "::Ice::Properties", Properties, -1, (), True, None, ()
     )
     Properties._ice_type = _M_Ice._t_Properties
 

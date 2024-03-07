@@ -32,6 +32,6 @@ namespace Ice
         public function put($key, $value);
         public function remove($key);
     }
-    $Ice__t_ImplicitContext = IcePHP_defineClass('::Ice::ImplicitContext', '\\Ice\\ImplicitContext', -1, false, true, null, null);
+    $Ice__t_ImplicitContext = IcePHP_defineClass('::Ice::ImplicitContext', '\\Ice\\ImplicitContext', -1, true, null, null);
 }
 ?>

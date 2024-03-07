@@ -591,13 +591,6 @@ IcePHP::TypedInvocation::unmarshalException(zval* zex, const pair<const uint8_t*
 
         if(validateException(info))
         {
-            util.updateSlicedData();
-
-            Ice::SlicedDataPtr slicedData = r.getSlicedData();
-            if(slicedData)
-            {
-                StreamUtil::setSlicedDataMember(ex, slicedData);
-            }
             ZVAL_COPY(zex, ex);
             return;
         }

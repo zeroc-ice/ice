@@ -328,9 +328,19 @@ function allTests($helper)
         $b2 = $b1->pb;
         test($b2 != null);
         test($b2->sb == "D3.sb");
-        test(get_class($b2) == "Test\B"); // Sliced by server
         test($b2->pb === $b1); // Object identity comparison
-        test(!($b2 instanceof Test\D3));
+
+        $p3 = $b2;
+        if($test->ice_getEncodingVersion() == $Ice_Encoding_1_0)
+        {
+            test(!($p3 instanceof Test\D3));
+        }
+        else
+        {
+            test(($p3 instanceof Test\D3));
+            test($p3->pd3 === $p1);
+            test($p3->sd3 == "D3.sd3");
+        }
 
         test($b1 !== $d1);
         test($b1 !== $d3);
@@ -365,8 +375,6 @@ function allTests($helper)
 
         test($b1 != null);
         test($b1->sb == "D3.sb");
-        test(get_class($b1) == "Test\B"); // Sliced by server
-        test(!($b1 instanceof Test\D3));
 
         $b2 = $b1->pb;
         test($b2 != null);
@@ -377,6 +385,18 @@ function allTests($helper)
         test($p3 instanceof Test\D1);
         test($p3->sd1 == "D1.sd1");
         test($p3->pd1 === $b1); // Object identity comparison
+
+        $p1 = $b1;
+        if($test->ice_getEncodingVersion() == $Ice_Encoding_1_0)
+        {
+            test(!($p1 instanceof Test\D3));
+        }
+        else
+        {
+            test(($p1 instanceof Test\D3));
+            test($p1->pd3 === $b2);
+            test($p1->sd3 == "D3.sd3");
+        }
 
         test($b1 !== $d1);
         test($b1 !== $d3);
@@ -411,18 +431,29 @@ function allTests($helper)
 
         test($b1 != null);
         test($b1->sb == "D3.sb");
-        test(get_class($b1) == "Test\B"); // Sliced by server
-        test(!($b1 instanceof Test\D3));
 
         $b2 = $b1->pb;
         test($b2 != null);
         test($b2->sb == "D1.sb");
         test(get_class($b2) == "Test\D1");
         test($b2->pb === $b1); // Object identity comparison
+
         $p3 = $b2;
         test($p3 instanceof Test\D1);
         test($p3->sd1 == "D1.sd1");
         test($p3->pd1 === $b1); // Object identity comparison
+
+        $p1 = $b1;
+        if($test->ice_getEncodingVersion() == $Ice_Encoding_1_0)
+        {
+            test(!($p1 instanceof Test\D3));
+        }
+        else
+        {
+            test(($p1 instanceof Test\D3));
+            test($p1->pd3 === $b2);
+            test($p1->sd3 == "D3.sd3");
+        }
 
         test($b1 !== $d1);
         test($b1 !== $d3);
@@ -500,9 +531,26 @@ function allTests($helper)
         $r = $test->returnTest3($d3, $b2);
 
         test($r != null);
-        test(get_class($r) == "Test\B");
         test($r->sb == "D3.sb");
         test($r->pb === $r);
+
+        $p3 = $r;
+        if($test->ice_getEncodingVersion() == $Ice_Encoding_1_0)
+        {
+            test(!($p3 instanceof Test\D3));
+        }
+        else
+        {
+            test(($p3 instanceof Test\D3));
+
+            test($p3->sb == "D3.sb");
+            test($p3->pb === $r);
+            test($p3->sd3 == "D3.sd3");
+
+            test($p3->pd3->ice_id() == "::Test::B");
+            test($p3->pd3->sb == "B.sb(1)");
+            test($p3->pd3->pb === $p3->pd3);
+        }
 
         //
         // Break cyclic dependencies - helps in detecting leaks.
@@ -537,7 +585,6 @@ function allTests($helper)
 
         $r = $test->returnTest3($d3, $d12);
         test($r != null);
-        test(get_class($r) == "Test\B");
         test($r->sb == "D3.sb");
         test($r->pb === $r);
 
@@ -628,11 +675,20 @@ function allTests($helper)
 
         test(get_class($ss1b) == "Test\B");
         test(get_class($ss1d1) == "Test\D1");
-        test(get_class($ss1d3) == "Test\B");
 
         test(get_class($ss2b) == "Test\B");
         test(get_class($ss2d1) == "Test\D1");
-        test(get_class($ss2d3) == "Test\B");
+
+        if($test->ice_getEncodingVersion() == $Ice_Encoding_1_0)
+        {
+            test(get_class($ss1d3) == "Test\B");
+            test(get_class($ss2d3) == "Test\B");
+        }
+        else
+        {
+            test(get_class($ss1d3) == "Test\D3");
+            test(get_class($ss2d3) == "Test\D3");
+        }
 
         //
         // Break cyclic dependencies - helps in detecting leaks.
@@ -853,8 +909,18 @@ function allTests($helper)
         $pu->pu = "preserved";
 
         $r = $test->exchangePBase($pu);
-        test(get_class($r) != "Test\\PCUnknown");
         test($r->pi == 3);
+
+        $p2 = $r;
+        if($test->ice_getEncodingVersion() == $Ice_Encoding_1_0)
+        {
+            test(get_class($p2) != "Test\\PCUnknown");
+        }
+        else
+        {
+            test(get_class($p2) == "Test\\PCUnknown");
+            test($p2->pu == "preserved");
+        }
 
         //
         // Server only knows the intermediate type Preserved. The object will be sliced to

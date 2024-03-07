@@ -97,61 +97,6 @@ class TestI(Test.TestIntf):
         umd2.umd2 = "UnknownMostDerived2.umd2"
         raise umd2
 
-    def unknownMostDerived2AsBaseCompact(self, current=None):
-        umd2 = Test.UnknownMostDerived2()
-        umd2.b = "UnknownMostDerived2.b"
-        umd2.ui = "UnknownMostDerived2.ui"
-        umd2.umd2 = "UnknownMostDerived2.umd2"
-        raise umd2
-
-    def knownPreservedAsBase(self, current=None):
-        ex = Test.KnownPreservedDerived()
-        ex.b = "base"
-        ex.kp = "preserved"
-        ex.kpd = "derived"
-        raise ex
-
-    def knownPreservedAsKnownPreserved(self, current=None):
-        ex = Test.KnownPreservedDerived()
-        ex.b = "base"
-        ex.kp = "preserved"
-        ex.kpd = "derived"
-        raise ex
-
-    def relayKnownPreservedAsBase(self, r, current):
-        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
-        p.knownPreservedAsBase()
-
-    def relayKnownPreservedAsKnownPreserved(self, r, current):
-        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
-        p.knownPreservedAsKnownPreserved()
-
-    def unknownPreservedAsBase(self, current=None):
-        ex = Test.SPreserved2()
-        ex.b = "base"
-        ex.kp = "preserved"
-        ex.kpd = "derived"
-        ex.p1 = Test.SPreservedClass("bc", "spc")
-        ex.p2 = ex.p1
-        raise ex
-
-    def unknownPreservedAsKnownPreserved(self, current=None):
-        ex = Test.SPreserved2()
-        ex.b = "base"
-        ex.kp = "preserved"
-        ex.kpd = "derived"
-        ex.p1 = Test.SPreservedClass("bc", "spc")
-        ex.p2 = ex.p1
-        raise ex
-
-    def relayUnknownPreservedAsBase(self, r, current):
-        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
-        p.unknownPreservedAsBase()
-
-    def relayUnknownPreservedAsKnownPreserved(self, r, current):
-        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
-        p.unknownPreservedAsKnownPreserved()
-
 
 class Server(TestHelper):
     def run(self, args):

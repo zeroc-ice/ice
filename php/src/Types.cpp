@@ -339,7 +339,7 @@ IcePHP::StreamUtil::setSlicedDataMember(zval* obj, const Ice::SlicedDataPtr& sli
     addPropertyZval(obj, "_ice_slicedData", &sd);
 }
 
-// Instances of preserved class and exception types may have a data member named _ice_slicedData which is an instance
+// Instances of preserved class types may have a data member named _ice_slicedData which is an instance
 // of the PHP class \Ice\SlicedData.
 Ice::SlicedDataPtr
 IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
@@ -2265,16 +2265,15 @@ IcePHP::DictionaryInfo::destroy()
 
 // ClassInfo implementation.
 IcePHP::ClassInfo::ClassInfo(string ident) :
-    id(std::move(ident)), compactId(-1), preserve(false), interface(false), zce(0), defined(false)
+    id(std::move(ident)), compactId(-1), interface(false), zce(0), defined(false)
 {
 }
 
 void
-IcePHP::ClassInfo::define(const string& n, int32_t compact, bool pres, bool intf, zval* b, zval* m)
+IcePHP::ClassInfo::define(const string& n, int32_t compact, bool intf, zval* b, zval* m)
 {
     const_cast<string&>(name) = n;
     const_cast<int32_t&>(compactId) = static_cast<int32_t>(compact);
-    const_cast<bool&>(preserve) = pres;
     const_cast<bool&>(interface) = intf;
 
     if(b)
@@ -2820,13 +2819,9 @@ IcePHP::ValueWriter::ice_preMarshal()
 void
 IcePHP::ValueWriter::_iceWrite(Ice::OutputStream* os) const
 {
-    Ice::SlicedDataPtr slicedData;
-
-    if(_info && _info->preserve)
-    {
-        // Retrieve the SlicedData object that we stored as a hidden member of the PHP object.
-        slicedData = StreamUtil::getSlicedDataMember(const_cast<zval*>(&_object), const_cast<ObjectMap*>(_map));
-    }
+    // Retrieve the SlicedData object that we stored as a hidden member of the PHP object.
+    Ice::SlicedDataPtr slicedData =
+        StreamUtil::getSlicedDataMember(const_cast<zval*>(&_object), const_cast<ObjectMap*>(_map));
 
     os->startValue(slicedData);
 
@@ -3006,7 +3001,7 @@ IcePHP::ValueReader::_iceRead(Ice::InputStream* is)
         }
     }
 
-    _slicedData = is->endValue(_info->preserve);
+    _slicedData = is->endValue();
 
     if(_slicedData)
     {
@@ -3292,7 +3287,7 @@ IcePHP::ExceptionReader::_read(Ice::InputStream* is)
 
     _info->unmarshal(is, _communicatorInfo, const_cast<zval*>(&_ex));
 
-    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
+    is->endException();
 }
 
 bool
@@ -3311,12 +3306,6 @@ zval*
 IcePHP::ExceptionReader::getException() const
 {
     return const_cast<zval*>(&_ex);
-}
-
-Ice::SlicedDataPtr
-IcePHP::ExceptionReader::getSlicedData() const
-{
-    return _slicedData;
 }
 
 static zend_object*
@@ -3505,13 +3494,12 @@ ZEND_FUNCTION(IcePHP_defineClass)
     char* name;
     size_t nameLen;
     zend_long compactId;
-    zend_bool preserve;
     zend_bool interface;
     zval* base;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sslbbo!a!"), &id, &idLen, &name, &nameLen,
-                             &compactId, &preserve, &interface, &base, &members) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sslbo!a!"), &id, &idLen, &name, &nameLen,
+                             &compactId, &interface, &base, &members) == FAILURE)
     {
         return;
     }
@@ -3523,7 +3511,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
         addClassInfoById(type);
     }
 
-    type->define(name, static_cast<int32_t>(compactId), preserve ? true : false, interface ? true : false, base, members);
+    type->define(name, static_cast<int32_t>(compactId), interface ? true : false, base, members);
 
     if(!interface)
     {
@@ -3588,12 +3576,11 @@ ZEND_FUNCTION(IcePHP_defineException)
     size_t idLen;
     char* name;
     size_t nameLen;
-    zend_bool preserve;
     zval* base;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("ssbo!a!"), &id, &idLen, &name, &nameLen,
-                             &preserve, &base, &members) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sso!a!"), &id, &idLen, &name, &nameLen,
+                             &base, &members) == FAILURE)
     {
         return;
     }
@@ -3601,7 +3588,6 @@ ZEND_FUNCTION(IcePHP_defineException)
     auto ex = make_shared<ExceptionInfo>();
     ex->id = id;
     ex->name = name;
-    ex->preserve = preserve ? true : false;
     if(base)
     {
         ex->base = Wrapper<ExceptionInfoPtr>::value(base);

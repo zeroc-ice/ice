@@ -26,6 +26,6 @@ namespace Ice
         public function getPrefix();
         public function cloneWithPrefix($prefix);
     }
-    $Ice__t_Logger = IcePHP_defineClass('::Ice::Logger', '\\Ice\\Logger', -1, false, true, null, null);
+    $Ice__t_Logger = IcePHP_defineClass('::Ice::Logger', '\\Ice\\Logger', -1, true, null, null);
 }
 ?>

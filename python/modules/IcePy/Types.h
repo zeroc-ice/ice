@@ -501,7 +501,7 @@ public:
     ValueInfo(std::string);
     void init();
 
-    void define(PyObject*, int, bool, bool, PyObject*, PyObject*);
+    void define(PyObject*, int, bool, PyObject*, PyObject*);
 
     virtual std::string getId() const;
 
@@ -525,7 +525,6 @@ public:
 
     const std::string id;
     const std::int32_t compactId;
-    const bool preserve;
     const bool interface;
     const ValueInfoPtr base;
     const DataMemberList members;
@@ -581,7 +580,6 @@ public:
     void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
-    bool preserve;
     ExceptionInfoPtr base;
     DataMemberList members;
     DataMemberList optionalMembers;
@@ -702,8 +700,6 @@ public:
 
     PyObject* getException() const; // Borrowed reference.
 
-    Ice::SlicedDataPtr getSlicedData() const;
-
 protected:
 
     virtual void _writeImpl(Ice::OutputStream*) const {}
@@ -713,7 +709,6 @@ private:
 
     ExceptionInfoPtr _info;
     PyObjectHandle _ex;
-    Ice::SlicedDataPtr _slicedData;
 };
 
 std::string resolveCompactId(std::int32_t id);

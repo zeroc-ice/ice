@@ -6,14 +6,6 @@ using Test;
 
 public sealed class TestI : TestIntfDisp_
 {
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
-
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
@@ -126,82 +118,5 @@ public sealed class TestI : TestIntfDisp_
         umd2.ui = "UnknownMostDerived2.ui";
         umd2.umd2 = "UnknownMostDerived2.umd2";
         throw umd2;
-    }
-
-    public override void unknownMostDerived2AsBaseCompact(Ice.Current current)
-    {
-        UnknownMostDerived2 umd2 = new UnknownMostDerived2();
-        umd2.b = "UnknownMostDerived2.b";
-        umd2.ui = "UnknownMostDerived2.ui";
-        umd2.umd2 = "UnknownMostDerived2.umd2";
-        throw umd2;
-    }
-
-    public override void knownPreservedAsBase(Ice.Current current)
-    {
-        KnownPreservedDerived ex = new KnownPreservedDerived();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        throw ex;
-    }
-
-    public override void knownPreservedAsKnownPreserved(Ice.Current current)
-    {
-        KnownPreservedDerived ex = new KnownPreservedDerived();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        throw ex;
-    }
-
-    public override void relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
-    {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.knownPreservedAsBase();
-        test(false);
-    }
-
-    public override void relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
-    {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.knownPreservedAsKnownPreserved();
-        test(false);
-    }
-
-    public override void unknownPreservedAsBase(Ice.Current current)
-    {
-        SPreserved2 ex = new SPreserved2();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        ex.p1 = new SPreservedClass("bc", "spc");
-        ex.p2 = ex.p1;
-        throw ex;
-    }
-
-    public override void unknownPreservedAsKnownPreserved(Ice.Current current)
-    {
-        SPreserved2 ex = new SPreserved2();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        ex.p1 = new SPreservedClass("bc", "spc");
-        ex.p2 = ex.p1;
-        throw ex;
-    }
-
-    public override void relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
-    {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.unknownPreservedAsBase();
-        test(false);
-    }
-
-    public override void relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
-    {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.unknownPreservedAsKnownPreserved();
-        test(false);
     }
 }

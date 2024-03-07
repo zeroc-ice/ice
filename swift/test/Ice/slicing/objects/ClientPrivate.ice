@@ -17,7 +17,6 @@ class D3 extends B
     B pd3;
 }
 
-["preserve-slice"]
 class PCUnknown extends PBase
 {
     string pu;

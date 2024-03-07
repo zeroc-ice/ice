@@ -6,7 +6,6 @@
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceSSL/Plugin.h>
 #include <TestHelper.h>
-#include <Test.h>
 
 using namespace std;
 
@@ -19,7 +18,7 @@ public:
     {
         if(current.ctx.find("throw") != current.ctx.end())
         {
-            throw Test::ExtendedPermissionDeniedException("reason");
+            throw Glacier2::PermissionDeniedException("reason");
         }
         return (userId == "client1" && passwd == "test1") || (userId == "client2" && passwd == "test2");
     }
@@ -34,7 +33,7 @@ public:
     {
         if(current.ctx.find("throw") != current.ctx.end())
         {
-            throw Test::ExtendedPermissionDeniedException("reason");
+            throw Glacier2::PermissionDeniedException("reason");
         }
         test(info.certs.size() > 0);
         auto cert = IceSSL::Certificate::decode(info.certs[0]);

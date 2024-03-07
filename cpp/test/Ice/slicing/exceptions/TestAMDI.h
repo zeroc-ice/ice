@@ -78,55 +78,6 @@ public:
         std::function<void(std::exception_ptr)>,
         const ::Ice::Current&) final;
 
-    void unknownMostDerived2AsBaseCompactAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
-    void knownPreservedAsBaseAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
-    void knownPreservedAsKnownPreservedAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
-    void relayKnownPreservedAsBaseAsync(
-        std::optional<Test::RelayPrx>,
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
-    void relayKnownPreservedAsKnownPreservedAsync(
-        std::optional<Test::RelayPrx>,
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
-    void unknownPreservedAsBaseAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
-    void unknownPreservedAsKnownPreservedAsync(
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
-    void relayUnknownPreservedAsBaseAsync(
-        std::optional<Test::RelayPrx>,
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
-    void relayUnknownPreservedAsKnownPreservedAsync(
-        std::optional<Test::RelayPrx>,
-        std::function<void()>,
-        std::function<void(std::exception_ptr)>,
-        const ::Ice::Current&) final;
-
     void shutdownAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,

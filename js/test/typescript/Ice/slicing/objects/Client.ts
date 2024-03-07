@@ -266,10 +266,20 @@ export class Client extends TestHelper
             const b2 = b1.pb;
             test(b2 !== null);
             test(b2.sb == "D3.sb");
-            test(b2.ice_id() == "::Test::B"); // Sliced by server
             test(b2.pb == b1);
 
-            test(!(b2 instanceof Test.D3));
+            if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+            {
+                test(!(b2 instanceof Test.D3));
+            }
+            else
+            {
+                test(b2 instanceof Test.D3);
+                const p3 = b2 as Test.D3;
+                test(p3.pd3 === p1);
+                test(p3.sd3 == "D3.sd3");
+            }
+
             test(b1 !== d1);
             test(b1 !== d3);
             test(b2 !== d1);
@@ -294,8 +304,6 @@ export class Client extends TestHelper
 
             test(b1 !== null);
             test(b1.sb == "D3.sb");
-            test(b1.ice_id() == "::Test::B"); // Sliced by server
-            test(!(b1 instanceof Test.D3));
 
             const b2 = b1.pb;
             test(b2 !== null);
@@ -307,6 +315,18 @@ export class Client extends TestHelper
             test(p3 !== null);
             test(p3.sd1 == "D1.sd1");
             test(p3.pd1 === b1);
+
+            if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+            {
+                test(!(b1 instanceof Test.D3));
+            }
+            else
+            {
+                test(b1 instanceof Test.D3);
+                const p1 = b1 as Test.D3;
+                test(p1.pd3 === b2);
+                test(p1.sd3 == "D3.sd3");
+            }
 
             test(b1 !== d1);
             test(b1 !== d3);
@@ -367,10 +387,24 @@ export class Client extends TestHelper
             b2.pb = b1;
 
             const ret = await prx.returnTest3(d3, b2);
+
             test(ret !== null);
-            test(ret.ice_id() == "::Test::B");
             test(ret.sb == "D3.sb");
             test(ret.pb === ret);
+
+            if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+            {
+                test(!(ret instanceof Test.D3));
+            }
+            else
+            {
+                test(ret instanceof Test.D3);
+                const p3 = ret as Test.D3;
+                test(p3.sd3 == "D3.sd3");
+                test(p3.pd3.ice_id() == "::Test::B");
+                test(p3.pd3.sb == "B.sb(1)");
+                test(p3.pd3.pb === p3.pd3);
+            }
         }
         out.writeLine("ok");
 
@@ -394,8 +428,8 @@ export class Client extends TestHelper
             d12.pd1 = d11;
 
             const ret = await prx.returnTest3(d3, d12);
+
             test(ret !== null);
-            test(ret.ice_id() == "::Test::B");
             test(ret.sb == "D3.sb");
             test(ret.pb === ret);
         }
@@ -472,11 +506,20 @@ export class Client extends TestHelper
 
             test(ss1b2.ice_id() == "::Test::B");
             test(ss1d2.ice_id() == "::Test::D1");
-            test(ss1d4.ice_id() == "::Test::B");
 
             test(ss2b2.ice_id() == "::Test::B");
             test(ss2d2.ice_id() == "::Test::D1");
-            test(ss2d4.ice_id() == "::Test::B");
+
+            if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+            {
+                test(ss1d4 instanceof Test.B);
+                test(ss2d4 instanceof Test.B);
+            }
+            else
+            {
+                test(ss1d4 instanceof Test.D3);
+                test(ss2d4 instanceof Test.D3);
+            }
         }
         out.writeLine("ok");
 
@@ -646,8 +689,18 @@ export class Client extends TestHelper
 
             const r = await prx.exchangePBase(pu);
 
-            test(!(r instanceof Test.PCUnknown));
             test(r.pi == 3);
+
+            if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+            {
+                test(!(r instanceof Test.PCUnknown));
+            }
+            else
+            {
+                test(r instanceof Test.PCUnknown);
+                const p2 = r as Test.PCUnknown
+                test(p2.pu == "preserved");
+            }
         }
 
         {

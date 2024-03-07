@@ -64,6 +64,6 @@ namespace Ice
         public function getPublishedEndpoints();
         public function setPublishedEndpoints($newEndpoints);
     }
-    $Ice__t_ObjectAdapter = IcePHP_defineClass('::Ice::ObjectAdapter', '\\Ice\\ObjectAdapter', -1, false, true, null, null);
+    $Ice__t_ObjectAdapter = IcePHP_defineClass('::Ice::ObjectAdapter', '\\Ice\\ObjectAdapter', -1, true, null, null);
 }
 ?>

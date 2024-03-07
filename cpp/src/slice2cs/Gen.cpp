@@ -722,41 +722,8 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     DataMemberList classMembers = p->classDataMembers();
-    const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
 
     _out << sp << nl << "#region Marshaling support";
-
-    if(preserved && !basePreserved)
-    {
-        _out << sp;
-        emitGeneratedCodeAttribute();
-
-        _out << nl << "public override " << getUnqualified("Ice.SlicedData", ns) << " ice_getSlicedData()";
-        _out << sb;
-        _out << nl << "return iceSlicedData_;";
-        _out << eb;
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-
-        _out << nl << "public override void iceWrite(" << getUnqualified("Ice.OutputStream", ns) << " ostr_)";
-        _out << sb;
-        _out << nl << "ostr_.startValue(iceSlicedData_);";
-        _out << nl << "iceWriteImpl(ostr_);";
-        _out << nl << "ostr_.endValue();";
-        _out << eb;
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-
-        _out << nl << "public override void iceRead(" << getUnqualified("Ice.InputStream", ns) << " istr_)";
-        _out << sb;
-        _out << nl << "istr_.startValue();";
-        _out << nl << "iceReadImpl(istr_);";
-        _out << nl << "iceSlicedData_ = istr_.endValue(true);";
-        _out << eb;
-    }
 
     _out << sp;
     emitGeneratedCodeAttribute();
@@ -805,11 +772,6 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
         _out << nl << "base.iceReadImpl(istr_);";
     }
     _out << eb;
-
-    if(preserved && !basePreserved)
-    {
-        _out << sp << nl << "protected " << getUnqualified("Ice.SlicedData", ns) << " iceSlicedData_;";
-    }
 
     _out << sp << nl << "#endregion"; // Marshalling support
 }
@@ -2555,37 +2517,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
    string scoped = p->scoped();
    ExceptionPtr base = p->base();
 
-   const bool basePreserved = p->inheritsMetaData("preserve-slice");
-   const bool preserved = p->hasMetaData("preserve-slice");
-
-   if(preserved && !basePreserved)
-   {
-       _out << sp;
-       emitGeneratedCodeAttribute();
-       _out << nl << "public override " << getUnqualified("Ice.SlicedData", ns) << " ice_getSlicedData()";
-       _out << sb;
-       _out << nl << "return slicedData_;";
-       _out << eb;
-
-       _out << sp;
-       emitGeneratedCodeAttribute();
-       _out << nl << "public override void iceWrite(" << getUnqualified("Ice.OutputStream", ns) << " ostr_)";
-       _out << sb;
-       _out << nl << "ostr_.startException(slicedData_);";
-       _out << nl << "iceWriteImpl(ostr_);";
-       _out << nl << "ostr_.endException();";
-       _out << eb;
-
-       _out << sp;
-       emitGeneratedCodeAttribute();
-       _out << nl << "public override void iceRead(" << getUnqualified("Ice.InputStream", ns) << " istr_)";
-       _out << sb;
-       _out << nl << "istr_.startException();";
-       _out << nl << "iceReadImpl(istr_);";
-       _out << nl << "slicedData_ = istr_.endException(true);";
-       _out << eb;
-   }
-
    _out << sp;
    emitGeneratedCodeAttribute();
    _out << nl << "protected override void iceWriteImpl(" << getUnqualified("Ice.OutputStream", ns) << " ostr_)";
@@ -2644,11 +2575,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
        _out << sb;
        _out << nl << "return true;";
        _out << eb;
-   }
-
-   if(preserved && !basePreserved)
-   {
-       _out << sp << nl << "protected " << getUnqualified("Ice.SlicedData", ns) << " slicedData_;";
    }
 
    _out << sp << nl << "#endregion"; // Marshalling support

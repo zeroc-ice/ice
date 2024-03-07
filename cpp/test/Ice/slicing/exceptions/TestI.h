@@ -29,20 +29,6 @@ public:
     void unknownMostDerived1AsKnownIntermediate(const Ice::Current&) final;
     void unknownMostDerived2AsBase(const Ice::Current&) final;
 
-    void unknownMostDerived2AsBaseCompact(const Ice::Current&) final;
-
-    void knownPreservedAsBase(const Ice::Current&) final;
-    void knownPreservedAsKnownPreserved(const Ice::Current&) final;
-
-    void relayKnownPreservedAsBase(std::optional<Test::RelayPrx>, const Ice::Current&) final;
-    void relayKnownPreservedAsKnownPreserved(std::optional<Test::RelayPrx>, const Ice::Current&) final;
-
-    void unknownPreservedAsBase(const Ice::Current&) final;
-    void unknownPreservedAsKnownPreserved(const Ice::Current&) final;
-
-    void relayUnknownPreservedAsBase(std::optional<Test::RelayPrx>, const Ice::Current&) final;
-    void relayUnknownPreservedAsKnownPreserved(std::optional<Test::RelayPrx>, const Ice::Current&) final;
-
     void shutdown(const Ice::Current&) final;
 };
 

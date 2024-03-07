@@ -133,10 +133,10 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             {
                 try
                 {
-                    optional<Ice::ObjectPrx> prx = communicator->propertyToProxy(p.first);
-                    assert(prx);
-                    IceStorm::TopicManagerPrx manager(*prx);
-                    managers.insert({manager->ice_getIdentity(), manager});
+
+                    auto manager = communicator->propertyToProxy<IceStorm::TopicManagerPrx>(p.first);
+                    assert(manager);
+                    managers.insert({manager->ice_getIdentity(), *manager});
                 }
                 catch(const Ice::ProxyParseException&)
                 {
@@ -167,7 +167,8 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         os << "IceStorm/Finder";
         os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
         os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
-        IceStorm::FinderPrx finder(communicator, os.str());
+
+        IceStorm::FinderPrx finder{communicator, os.str()};
         try
         {
             defaultManager = finder->getTopicManager();

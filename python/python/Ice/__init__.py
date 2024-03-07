@@ -1933,7 +1933,7 @@ class Application(object):
 #
 IcePy._t_Object = IcePy.defineClass("::Ice::Object", Object, (), None, ())
 IcePy._t_Value = IcePy.defineValue(
-    "::Ice::Object", Value, -1, (), False, False, None, ()
+    "::Ice::Object", Value, -1, (), False, None, ()
 )
 IcePy._t_ObjectPrx = IcePy.defineProxy("::Ice::Object", ObjectPrx)
 Object._ice_type = IcePy._t_Object
@@ -1988,11 +1988,11 @@ Object._op_ice_id = IcePy.Operation(
 )
 
 IcePy._t_LocalObject = IcePy.defineValue(
-    "::Ice::LocalObject", object, -1, (), False, False, None, ()
+    "::Ice::LocalObject", object, -1, (), False, None, ()
 )
 
 IcePy._t_UnknownSlicedValue = IcePy.defineValue(
-    "::Ice::UnknownSlicedValue", UnknownSlicedValue, -1, (), True, False, None, ()
+    "::Ice::UnknownSlicedValue", UnknownSlicedValue, -1, (), False, None, ()
 )
 UnknownSlicedValue._ice_type = IcePy._t_UnknownSlicedValue
 

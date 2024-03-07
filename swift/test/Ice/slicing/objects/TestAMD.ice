@@ -72,7 +72,6 @@ class PBase
 
 sequence<PBase> PBaseSeq;
 
-["preserve-slice"]
 class Preserved extends PBase
 {
     string ps;
@@ -83,15 +82,9 @@ class PDerived extends Preserved
     PBase pb;
 }
 
-["preserve-slice"]
 class PNode
 {
     PNode next;
-}
-
-["preserve-slice"]
-exception PreservedException
-{
 }
 
 ["amd", "format:sliced"]
@@ -145,7 +138,6 @@ interface TestIntf
     void throwDerivedAsBase() throws BaseException;
     void throwDerivedAsDerived() throws DerivedException;
     void throwUnknownDerivedAsBase() throws BaseException;
-    void throwPreservedException() throws PreservedException;
 
     void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
 

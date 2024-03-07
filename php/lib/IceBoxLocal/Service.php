@@ -57,6 +57,6 @@ namespace IceBox
         public function start($name, $communicator, $args);
         public function stop();
     }
-    $IceBox__t_Service = IcePHP_defineClass('::IceBox::Service', '\\IceBox\\Service', -1, false, true, null, null);
+    $IceBox__t_Service = IcePHP_defineClass('::IceBox::Service', '\\IceBox\\Service', -1, true, null, null);
 }
 ?>

@@ -588,14 +588,6 @@ IceRuby::OperationI::unmarshalException(const vector<uint8_t>& bytes, const Ice:
 
         if(validateException(ex))
         {
-            util.updateSlicedData();
-
-            Ice::SlicedDataPtr slicedData = r.getSlicedData();
-            if(slicedData)
-            {
-                StreamUtil::setSlicedDataMember(ex, slicedData);
-            }
-
             return ex;
         }
         else

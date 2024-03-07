@@ -175,39 +175,39 @@ public:
     void opVoidAsync(std::function<void()>,
                              std::function<void(std::exception_ptr)>, const Ice::Current&) final;
 
-    void opMStruct1Async(std::function<void(const OpMStruct1MarshaledResult&)>,
+    void opMStruct1Async(std::function<void(OpMStruct1MarshaledResult)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) final;
 
     void opMStruct2Async(std::optional<Test::SmallStruct>,
-                                 std::function<void(const OpMStruct2MarshaledResult&)>,
+                                 std::function<void(OpMStruct2MarshaledResult)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) final;
 
-    void opMSeq1Async(std::function<void(const OpMSeq1MarshaledResult&)>,
+    void opMSeq1Async(std::function<void(OpMSeq1MarshaledResult)>,
                               std::function<void(std::exception_ptr)>,
                               const Ice::Current&) final;
 
     void opMSeq2Async(std::optional<Test::StringSeq>,
-                              std::function<void(const OpMSeq2MarshaledResult&)>,
+                              std::function<void(OpMSeq2MarshaledResult)>,
                               std::function<void(std::exception_ptr)>,
                               const Ice::Current&) final;
 
-    void opMDict1Async(std::function<void(const OpMDict1MarshaledResult&)>,
+    void opMDict1Async(std::function<void(OpMDict1MarshaledResult)>,
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&) final;
 
     void opMDict2Async(std::optional<Test::StringIntDict>,
-                               std::function<void(const OpMDict2MarshaledResult&)>,
+                               std::function<void(OpMDict2MarshaledResult)>,
                                std::function<void(std::exception_ptr)>,
                                const Ice::Current&) final;
 
-    void opMG1Async(std::function<void(const OpMG1MarshaledResult&)>,
+    void opMG1Async(std::function<void(OpMG1MarshaledResult)>,
                             std::function<void(std::exception_ptr)>,
                             const Ice::Current&) final;
 
     void opMG2Async(std::optional<Test::GPtr>,
-                            std::function<void(const OpMG2MarshaledResult&)>,
+                            std::function<void(OpMG2MarshaledResult)>,
                             std::function<void(std::exception_ptr)>,
                             const Ice::Current&) final;
 

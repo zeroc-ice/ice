@@ -76,7 +76,7 @@ public:
      * @return The sliced data if the value has a preserved-slice base class and has been sliced during
      * unmarshaling of the value, nil otherwise.
      */
-    virtual SlicedDataPtr ice_getSlicedData() const;
+    SlicedDataPtr ice_getSlicedData() const;
 
     /// \cond STREAM
     virtual void _iceWrite(Ice::OutputStream*) const;
@@ -93,6 +93,10 @@ protected:
     virtual void _iceWriteImpl(Ice::OutputStream*) const {}
     virtual void _iceReadImpl(Ice::InputStream*) {}
     /// \endcond
+
+private:
+
+    SlicedDataPtr _slicedData;
 };
 
 /// \cond INTERNAL

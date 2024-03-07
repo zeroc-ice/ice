@@ -78,7 +78,6 @@ if "EndpointInfo" not in _M_Ice.__dict__:
         -1,
         (),
         False,
-        False,
         None,
         (
             ("underlying", (), _M_Ice._t_EndpointInfo, False, 0),
@@ -123,7 +122,7 @@ if "Endpoint" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_Endpoint = IcePy.defineValue(
-        "::Ice::Endpoint", Endpoint, -1, (), False, True, None, ()
+        "::Ice::Endpoint", Endpoint, -1, (), True, None, ()
     )
     Endpoint._ice_type = _M_Ice._t_Endpoint
 
@@ -170,7 +169,6 @@ if "IPEndpointInfo" not in _M_Ice.__dict__:
         IPEndpointInfo,
         -1,
         (),
-        False,
         False,
         _M_Ice._t_EndpointInfo,
         (
@@ -219,7 +217,6 @@ if "TCPEndpointInfo" not in _M_Ice.__dict__:
         TCPEndpointInfo,
         -1,
         (),
-        False,
         False,
         _M_Ice._t_IPEndpointInfo,
         (),
@@ -272,7 +269,6 @@ if "UDPEndpointInfo" not in _M_Ice.__dict__:
         -1,
         (),
         False,
-        False,
         _M_Ice._t_IPEndpointInfo,
         (
             ("mcastInterface", (), IcePy._t_string, False, 0),
@@ -312,7 +308,6 @@ if "WSEndpointInfo" not in _M_Ice.__dict__:
         WSEndpointInfo,
         -1,
         (),
-        False,
         False,
         _M_Ice._t_EndpointInfo,
         (("resource", (), IcePy._t_string, False, 0),),
@@ -362,7 +357,6 @@ if "OpaqueEndpointInfo" not in _M_Ice.__dict__:
         OpaqueEndpointInfo,
         -1,
         (),
-        False,
         False,
         _M_Ice._t_EndpointInfo,
         (

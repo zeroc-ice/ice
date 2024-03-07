@@ -48,13 +48,6 @@ declare module "ice"
         abstract class UserException extends Exception
         {
             /**
-             * Obtains the sliced data associated with this instance.
-             * @return The sliced data if the exception has a preserved-slice base class and has been sliced during
-             * unmarshaling of the exception, nil otherwise.
-             */
-            ice_getSlicedData():SlicedData;
-
-            /**
              * Obtains the Slice type ID of this exception.
              * @return The fully-scoped type ID.
              */
