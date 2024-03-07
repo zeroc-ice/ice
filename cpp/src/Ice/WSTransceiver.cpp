@@ -15,6 +15,7 @@
 #include <IceUtil/Random.h>
 #include <Ice/SHA1.h>
 #include <IceUtil/StringUtil.h>
+#include "Endian.h"
 
 #include <stdint.h>
 #include <climits>
@@ -100,27 +101,29 @@ int64_t ice_nlltoh(const uint8_t* src)
     //
     // Extract a 64-bit integer in network (big-endian) order.
     //
-#ifdef ICE_BIG_ENDIAN
-    uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest++ = *src++;
-    *dest = *src;
-#else
-    uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest-- = *src++;
-    *dest = *src;
-#endif
+    if constexpr (endian::native == endian::big) {
+        uint8_t* dest = reinterpret_cast<uint8_t*>(&v);
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest++ = *src++;
+        *dest = *src;
+    }
+    else
+    {
+        uint8_t* dest = reinterpret_cast<uint8_t*>(&v) + sizeof(int64_t) - 1;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest-- = *src++;
+        *dest = *src;
+    }
 
     return v;
 }
