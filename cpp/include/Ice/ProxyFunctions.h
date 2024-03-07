@@ -6,9 +6,30 @@
 #define ICE_PROXY_FUNCTIONS_H
 
 #include "Ice/Proxy.h"
+#include "Ice/Current.h"
+#include "Ice/Communicator.h"
+#include "Ice/ObjectAdapter.h"
 
 namespace Ice
 {
+
+/**
+ * Verifies that a proxy received from the client is not null.
+ * @param prx The proxy to check.
+ * @param current The Current object for the invocation.
+ * */
+template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+void checkNotNull(std::optional<Prx> prx, const Current& current)
+{
+    if (!prx)
+    {
+        // Will be reported back to the client as an UnknownLocalException with an error message.
+        std::ostringstream os;
+        os << "null proxy passed to " << current.operation << " on object "
+            << current.adapter->getCommunicator()->identityToString(current.id);
+        throw MarshalException {__FILE__, __LINE__, os.str()};
+    }
+}
 
 /**
  * Downcasts a proxy without confirming the target object's type via a remote invocation.

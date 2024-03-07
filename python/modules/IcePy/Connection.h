@@ -6,8 +6,7 @@
 #define ICEPY_CONNECTION_H
 
 #include <Config.h>
-#include <Ice/ConnectionF.h>
-#include <Ice/CommunicatorF.h>
+#include <Ice/Ice.h>
 
 #include <string>
 

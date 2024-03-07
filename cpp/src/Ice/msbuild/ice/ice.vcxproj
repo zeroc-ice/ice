@@ -164,12 +164,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Communicator.cpp" />
+    <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp" />
     <ClCompile Include="..\..\Connection.cpp" />
     <ClCompile Include="..\..\Endpoint.cpp" />
     <ClCompile Include="..\..\ImplicitContext.cpp" />
     <ClCompile Include="..\..\Instrumentation.cpp" />
     <ClCompile Include="..\..\LocalException.cpp" />
     <ClCompile Include="..\..\Logger.cpp" />
+    <ClCompile Include="..\..\MarshaledResult.cpp" />
     <ClCompile Include="..\..\ObjectAdapter.cpp" />
     <ClCompile Include="..\..\Plugin.cpp" />
     <ClCompile Include="..\..\Properties.cpp" />
@@ -508,7 +510,6 @@
     <ClCompile Include="..\..\BatchRequestQueue.cpp" />
     <ClCompile Include="..\..\Buffer.cpp" />
     <ClCompile Include="..\..\CollocatedRequestHandler.cpp" />
-    <ClCompile Include="..\..\CommunicatorI.cpp" />
     <ClCompile Include="..\..\ConnectionFactory.cpp" />
     <ClCompile Include="..\..\ConnectionI.cpp" />
     <ClCompile Include="..\..\FixedRequestHandler.cpp" />
@@ -527,7 +528,6 @@
     <ClCompile Include="..\..\HttpParser.cpp" />
     <ClCompile Include="..\..\IconvStringConverter.cpp" />
     <ClCompile Include="..\..\Incoming.cpp" />
-    <ClCompile Include="..\..\IncomingAsync.cpp" />
     <ClCompile Include="..\..\Initialize.cpp" />
     <ClCompile Include="..\..\InputStream.cpp" />
     <ClCompile Include="..\..\Instance.cpp" />

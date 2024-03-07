@@ -132,8 +132,7 @@ allTests(TestHelper* helper)
         backgroundController->resumeCall("findAdapterById");
 
         locator = LocatorPrx(communicator, "locator:" + endp);
-        obj = obj->ice_locator(locator);
-        obj->ice_ping();
+        locator->ice_ping();
         auto bg = BackgroundPrx(communicator, "background@Test")->ice_locator(locator);
 
         backgroundController->pauseCall("findAdapterById");

@@ -788,8 +788,10 @@ Slice::Gen::generate(const UnitPtr& p)
 
     if(!dc->hasMetaDataDirective("cpp:no-default-include"))
     {
-        // We need OutgoingAsync.h only to implement proxies, but for simplicity, we include it all the time.
-        C << "\n#include <Ice/OutgoingAsync.h>";
+        // For simplicity, we include these extra headers all the time.
+
+        C << "\n#include <Ice/OutgoingAsync.h>"; // for proxies
+        C << "\n#include <Ice/Incoming.h>"; // for dispatches
     }
 
     //
@@ -2863,15 +2865,13 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
         H << sp;
         H << nl << "/// \\cond INTERNAL";
-        H << nl << "virtual bool _iceDispatch(::IceInternal::Incoming&, const "
-          << getUnqualified("::Ice::Current&", scope) << ") override;";
+        H << nl << "virtual bool _iceDispatch(::IceInternal::Incoming&) override;";
         H << nl << "/// \\endcond";
 
         C << sp;
         C << nl << "/// \\cond INTERNAL";
         C << nl << "bool";
-        C << nl << scoped.substr(2) << "::_iceDispatch(::IceInternal::Incoming& in, const "
-          << getUnqualified("::Ice::Current&", scope) << " current)";
+        C << nl << scoped.substr(2) << "::_iceDispatch(::IceInternal::Incoming& incoming)";
         C << sb;
 
         C << sp;
@@ -2885,6 +2885,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << ";";
 
         C << sp;
+        C << nl << "const ::Ice::Current& current = incoming.current();";
         C << nl << "::std::pair<const ::std::string_view*, const ::std::string_view*> r = "
           << "::std::equal_range(allOperations, allOperations" << " + " << allOpNames.size()
           << ", current.operation);";
@@ -2901,7 +2902,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         {
             C << nl << "case " << i++ << ':';
             C << sb;
-            C << nl << "return _iceD_" << *q << "(in, current);";
+            C << nl << "return _iceD_" << *q << "(incoming);";
             C << eb;
         }
         C << nl << "default:";
@@ -3013,18 +3014,23 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         {
             string resultName = marshaledResultStructName(name);
             params.push_back("::std::function<void(const " + resultName + "&)> " + responsecbParam);
-            args.push_back("inA->response<" + resultName + ">()");
+            args.push_back("[incomingPtr](const " + resultName + "& marshaledResult) { incomingPtr->response(marshaledResult); }");
         }
         else
         {
             params.push_back("::std::function<void(" + joinString(responseParams, ", ") + ")> " + responsecbParam);
-            args.push_back(ret || !outParams.empty() ? "responseCB" : "inA->response()");
+            args.push_back(ret || !outParams.empty() ? "responseCB" : "[incomingPtr] { incomingPtr->response(); }");
         }
         params.push_back("::std::function<void(::std::exception_ptr)> " + excbParam);
-        args.push_back("inA->exception()");
+        args.push_back("[incomingPtr](std::exception_ptr ex) { incomingPtr->completed(ex); }");
+        params.push_back(currentDecl);
+        args.push_back("incomingPtr->current()");
     }
-    params.push_back(currentDecl);
-    args.push_back("current");
+    else
+    {
+        params.push_back(currentDecl);
+        args.push_back("incoming.current()");
+    }
 
     if(p->hasMarshaledResult())
     {
@@ -3107,45 +3113,43 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl << deprecateSymbol << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "/// \\cond INTERNAL";
-    H << nl << "bool _iceD_" << name << "(::IceInternal::Incoming&, const "
-      << getUnqualified("::Ice::Current&", interfaceScope) << ")" << isConst << ';';
+    H << nl << "bool _iceD_" << name << "(::IceInternal::Incoming&)" << isConst << ';';
     H << nl << "/// \\endcond";
 
     C << sp;
     C << nl << "/// \\cond INTERNAL";
     C << nl << "bool";
     C << nl << scope.substr(2);
-    C << "_iceD_" << name << "(::IceInternal::Incoming& inS, const "
-      << getUnqualified("::Ice::Current&", interfaceScope) << " current)" << isConst;
+    C << "_iceD_" << name << "(::IceInternal::Incoming& incoming)" << isConst;
     C << sb;
     C << nl << "_iceCheckMode(" << getUnqualified(operationModeToString(p->mode()), interfaceScope)
-      << ", current.mode);";
+      << ", incoming.current().mode);";
 
     if(!inParams.empty())
     {
-        C << nl << "auto istr = inS.startReadParams();";
+        C << nl << "auto istr = incoming.startReadParams();";
         writeAllocateCode(C, inParams, nullptr, interfaceScope, _useWstring | TypeContext::UnmarshalParamZeroCopy);
         writeUnmarshalCode(C, inParams, nullptr);
         if(p->sendsClasses(false))
         {
             C << nl << "istr->readPendingValues();";
         }
-        C << nl << "inS.endReadParams();";
+        C << nl << "incoming.endReadParams();";
     }
     else
     {
-        C << nl << "inS.readEmptyParams();";
+        C << nl << "incoming.readEmptyParams();";
     }
     if(p->format() != DefaultFormat)
     {
-        C << nl << "inS.setFormat(" << opFormatTypeToString(p) << ");";
+        C << nl << "incoming.setFormat(" << opFormatTypeToString(p) << ");";
     }
 
     if(!amd)
     {
         if(p->hasMarshaledResult())
         {
-            C << nl << "inS.setMarshaledResult(";
+            C << nl << "incoming.setMarshaledResult(";
         }
         else
         {
@@ -3170,39 +3174,46 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             C << ";";
             if(ret || !outParams.empty())
             {
-                C << nl << "auto ostr = inS.startWriteParams();";
+                C << nl << "auto ostr = incoming.startWriteParams();";
                 writeMarshalCode(C, outParams, p);
                 if(p->returnsClasses(false))
                 {
                     C << nl << "ostr->writePendingValues();";
                 }
-                C << nl << "inS.endWriteParams();";
+                C << nl << "incoming.endWriteParams();";
             }
             else
             {
-                C << nl << "inS.writeEmptyParams();";
+                C << nl << "incoming.writeEmptyParams();";
             }
         }
         C << nl << "return true;";
     }
     else
     {
-        C << nl << "auto inA = ::IceInternal::IncomingAsync::create(inS);";
+        C << nl << "auto incomingPtr = ::std::make_shared<::IceInternal::Incoming>(::std::move(incoming));";
         if(!p->hasMarshaledResult() && (ret || !outParams.empty()))
         {
-            C << nl << "auto responseCB = [inA]" << spar << responseParamsDecl << epar;
+            C << nl << "auto responseCB = [incomingPtr]" << spar << responseParamsDecl << epar;
             C << sb;
-            C << nl << "auto ostr = inA->startWriteParams();";
+            C << nl << "auto ostr = incomingPtr->startWriteParams();";
             writeMarshalCode(C, outParams, p);
             if(p->returnsClasses(false))
             {
                 C << nl << "ostr->writePendingValues();";
             }
-            C << nl << "inA->endWriteParams();";
-            C << nl << "inA->completed();";
+            C << nl << "incomingPtr->endWriteParams();";
+            C << nl << "incomingPtr->completed();";
             C << eb << ';';
         }
+        C << nl << "try";
+        C << sb;
         C << nl << "this->" << opName << spar << args << epar << ';';
+        C << eb;
+        C << nl << "catch (...)";
+        C << sb;
+        C << nl << "incomingPtr->failed(::std::current_exception());";
+        C << eb;
         C << nl << "return false;";
     }
     C << eb;
