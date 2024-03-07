@@ -587,7 +587,7 @@ SecureTransportCertificateI::encode() const
 {
 #ifdef ICE_USE_SECURE_TRANSPORT_IOS
     UniqueRef<CFDataRef> cert(SecCertificateCopyData(_cert.get()));
-    vector<unsigned char> data(CFDataGetBytePtr(cert.get()), CFDataGetBytePtr(cert.get()) + CFDataGetLength(cert.get()));
+    vector<byte> data(reinterpret_cast<const byte*>(cert.get()), reinterpret_cast<const byte*>(CFDataGetBytePtr(cert.get())) + CFDataGetLength(cert.get()));
     ostringstream os;
     os << "-----BEGIN CERTIFICATE-----\n";
     os << IceInternal::Base64::encode(data);
@@ -917,8 +917,8 @@ IceSSL::SecureTransport::Certificate::decode(const std::string& encoding)
         size = encoding.size();
     }
 
-    vector<unsigned char> data(IceInternal::Base64::decode(string(&encoding[startpos], size)));
-    UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, &data[0], static_cast<CFIndex>(data.size())));
+    vector<byte> data(IceInternal::Base64::decode(string(&encoding[startpos], size)));
+    UniqueRef<CFDataRef> certdata(CFDataCreate(kCFAllocatorDefault, reinterpret_cast<uint8_t*>(&data[0]), static_cast<CFIndex>(data.size())));
     SecCertificateRef cert = SecCertificateCreateWithData(0, certdata.get());
     if(!cert)
     {

@@ -189,6 +189,19 @@ struct StreamableTraits<bool>
  * \headerfile Ice/Ice.h
  */
 template<>
+struct StreamableTraits<std::byte>
+{
+    static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;
+    static const int minWireSize = 1;
+    static const bool fixedLength = true;
+};
+
+/**
+ * Specialization for built-in type (this is needed for sequence
+ * marshaling to figure out the minWireSize of each type).
+ * \headerfile Ice/Ice.h
+ */
+template<>
 struct StreamableTraits<std::uint8_t>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryBuiltinValue;

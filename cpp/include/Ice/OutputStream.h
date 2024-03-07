@@ -367,6 +367,12 @@ public:
      * Copies the specified blob of bytes to the stream without modification.
      * @param v The bytes to be copied.
      */
+    void writeBlob(const std::vector<std::byte>& v);
+
+    /**
+     * Copies the specified blob of bytes to the stream without modification.
+     * @param v The bytes to be copied.
+     */
     void writeBlob(const std::vector<std::uint8_t>& v);
 
     /**
@@ -374,7 +380,7 @@ public:
      * @param v The start of the buffer to be copied.
      * @param sz The number of bytes to be copied.
      */
-    void writeBlob(const std::uint8_t* v, Container::size_type sz)
+    void writeBlob(const std::byte* v, Container::size_type sz)
     {
         if(sz > 0)
         {
@@ -543,6 +549,15 @@ public:
         {
             return writeOptImpl(tag, format);
         }
+    }
+
+    /**
+     * Writes a byte to the stream.
+     * @param v The byte to write.
+     */
+    void write(std::byte v)
+    {
+        b.push_back(static_cast<std::uint8_t>(v));
     }
 
     /**

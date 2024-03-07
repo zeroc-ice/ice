@@ -23,39 +23,39 @@ namespace IceInternal
 // Compression status (std::uint8_t)
 // Message size (Int)
 //
-const ::std::int32_t headerSize = 14;
+const std::int32_t headerSize = 14;
 
 //
 // The magic number at the front of each message
 //
-extern const ::std::uint8_t magic[4];
+extern const std::byte magic[4];
 
 //
 // The current Ice protocol, protocol encoding and encoding version
 //
-const ::std::uint8_t protocolMajor = 1;
-const ::std::uint8_t protocolMinor = 0;
-const ::std::uint8_t protocolEncodingMajor = 1;
-const ::std::uint8_t protocolEncodingMinor = 0;
+const std::uint8_t protocolMajor = 1;
+const std::uint8_t protocolMinor = 0;
+const std::uint8_t protocolEncodingMajor = 1;
+const std::uint8_t protocolEncodingMinor = 0;
 
-const ::std::uint8_t encodingMajor = 1;
-const ::std::uint8_t encodingMinor = 1;
+const std::uint8_t encodingMajor = 1;
+const std::uint8_t encodingMinor = 1;
 
 //
 // The Ice protocol message types
 //
-const ::std::uint8_t requestMsg = 0;
-const ::std::uint8_t requestBatchMsg = 1;
-const ::std::uint8_t replyMsg = 2;
-const ::std::uint8_t validateConnectionMsg = 3;
-const ::std::uint8_t closeConnectionMsg = 4;
+const std::uint8_t requestMsg = 0;
+const std::uint8_t requestBatchMsg = 1;
+const std::uint8_t replyMsg = 2;
+const std::uint8_t validateConnectionMsg = 3;
+const std::uint8_t closeConnectionMsg = 4;
 
 //
 // The request header, batch request header and reply header.
 //
-extern const ::std::uint8_t requestHdr[headerSize + sizeof(std::int32_t)];
-extern const ::std::uint8_t requestBatchHdr[headerSize + sizeof(std::int32_t)];
-extern const ::std::uint8_t replyHdr[headerSize];
+extern const std::byte requestHdr[headerSize + sizeof(std::int32_t)];
+extern const std::byte requestBatchHdr[headerSize + sizeof(std::int32_t)];
+extern const std::byte replyHdr[headerSize];
 
 //
 // IPv4/IPv6 support enumeration.

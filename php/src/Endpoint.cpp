@@ -390,7 +390,7 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p)
             array_init(&rawBytes);
             for (const auto& i : info->rawBytes)
             {
-                add_next_index_long(&rawBytes, i & 0xff);
+                add_next_index_long(&rawBytes, static_cast<zend_long>(i & byte{0xff}));
             }
             add_property_zval(zv, "rawBytes", &rawBytes);
             zval_ptr_dtor(&rawBytes); // add_property_zval increased the refcount of rawBytes

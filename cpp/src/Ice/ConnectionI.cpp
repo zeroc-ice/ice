@@ -1499,11 +1499,11 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     }
 
                     _readStream.i = _readStream.b.begin();
-                    const uint8_t* m;
+                    const byte* m;
                     _readStream.readBlob(m, static_cast<int32_t>(sizeof(magic)));
                     if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
                     {
-                        throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
+                        throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(reinterpret_cast<const uint8_t*>(&m[0]), reinterpret_cast<const uint8_t*>(&m[0]) + sizeof(magic)));
                     }
                     ProtocolVersion pv;
                     _readStream.read(pv);
@@ -2680,14 +2680,14 @@ Ice::ConnectionI::validate(SocketOperation operation)
 
             assert(_readStream.i == _readStream.b.end());
             _readStream.i = _readStream.b.begin();
-            uint8_t m[4];
+            byte m[4];
             _readStream.read(m[0]);
             _readStream.read(m[1]);
             _readStream.read(m[2]);
             _readStream.read(m[3]);
             if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
             {
-                throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
+                throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(reinterpret_cast<const uint8_t*>(&m[0]), reinterpret_cast<const uint8_t*>(&m[0]) + sizeof(magic)));
             }
             ProtocolVersion pv;
             _readStream.read(pv);
