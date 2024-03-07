@@ -29,6 +29,6 @@ namespace Ice
         public function finished($curr, $servant, $cookie);
         public function deactivate($category);
     }
-    $Ice__t_ServantLocator = IcePHP_defineClass('::Ice::ServantLocator', '\\Ice\\ServantLocator', -1, false, true, null, null);
+    $Ice__t_ServantLocator = IcePHP_defineClass('::Ice::ServantLocator', '\\Ice\\ServantLocator', -1, true, null, null);
 }
 ?>

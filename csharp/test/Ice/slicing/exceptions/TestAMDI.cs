@@ -8,14 +8,6 @@ using Test;
 
 public sealed class TestI : TestIntfDisp_
 {
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
-
     public override Task shutdownAsync(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
@@ -95,81 +87,5 @@ public sealed class TestI : TestIntfDisp_
     unknownMostDerived2AsBaseAsync(Ice.Current current)
     {
         throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
-    }
-
-    public override Task
-    unknownMostDerived2AsBaseCompactAsync(Ice.Current current)
-    {
-        throw new UnknownMostDerived2("UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2");
-    }
-
-    public override Task knownPreservedAsBaseAsync(Ice.Current current)
-    {
-        throw new KnownPreservedDerived("base", "preserved", "derived");
-    }
-
-    public override Task
-    knownPreservedAsKnownPreservedAsync(Ice.Current current)
-    {
-        throw new KnownPreservedDerived("base", "preserved", "derived");
-    }
-
-    public override Task
-    relayKnownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
-    {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.knownPreservedAsBase();
-        test(false);
-        return null;
-    }
-
-    public override Task
-    relayKnownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
-    {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.knownPreservedAsKnownPreserved();
-        test(false);
-        return null;
-    }
-
-    public override Task unknownPreservedAsBaseAsync(Ice.Current current)
-    {
-        SPreserved2 ex = new SPreserved2();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        ex.p1 = new SPreservedClass("bc", "spc");
-        ex.p2 = ex.p1;
-        throw ex;
-    }
-
-    public override Task
-    unknownPreservedAsKnownPreservedAsync(Ice.Current current)
-    {
-        SPreserved2 ex = new SPreserved2();
-        ex.b = "base";
-        ex.kp = "preserved";
-        ex.kpd = "derived";
-        ex.p1 = new SPreservedClass("bc", "spc");
-        ex.p2 = ex.p1;
-        throw ex;
-    }
-
-    public override Task
-    relayUnknownPreservedAsBaseAsync(RelayPrx r, Ice.Current current)
-    {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.unknownPreservedAsBase();
-        test(false);
-        return null;
-    }
-
-    public override Task
-    relayUnknownPreservedAsKnownPreservedAsync(RelayPrx r, Ice.Current current)
-    {
-        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
-        p.unknownPreservedAsKnownPreserved();
-        test(false);
-        return null;
     }
 }

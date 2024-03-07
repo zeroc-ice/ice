@@ -19,6 +19,13 @@ private func breakCycles(_ value: Value) {
     if let d2 = value as? D2 {
         d2.pd2 = nil
     }
+    if let d3 = value as? D3 {
+        let tmp = d3.pd3
+        d3.pd3 = nil
+        if tmp != nil, tmp! !== d3 {
+            breakCycles(tmp!)
+        }
+    }
     if let d4 = value as? D4 {
         d4.p1 = nil
         d4.p2 = nil
@@ -26,6 +33,14 @@ private func breakCycles(_ value: Value) {
     if let b = value as? B {
         b.pb?.pb = nil
         b.pb = nil
+        let tmp = b.pb
+        b.pb = nil
+        if tmp != nil, tmp! !== b {
+            breakCycles(tmp!)
+        }
+        if b.ice_getSlicedData() != nil {
+            b.ice_getSlicedData()?.clear()
+        }
     }
     if let p = value as? Preserved {
         p.ice_getSlicedData()?.clear()
@@ -641,9 +656,10 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
     output.write("return value identity with known first... ")
     do {
-        let (ret, p1, _) = try testPrx.returnTest1()
+        let (ret, p1, p2) = try testPrx.returnTest1()
         try test(ret === p1)
         breakCycles(ret!)
+        breakCycles(p2!)
     }
     output.writeLine("ok")
 
@@ -651,9 +667,10 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
     try Promise<Void> { seal in
         firstly {
             testPrx.returnTest1Async()
-        }.done { r, p1, _ in
+        }.done { r, p1, p2 in
             try test(r === p1)
             breakCycles(r!)
+            breakCycles(p2!)
             seal.fulfill(())
         }.catch { e in
             seal.reject(e)
@@ -700,19 +717,28 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         try test(b1.sb == "D1.sb")
         try test(b1.ice_id() == "::Test::D1")
 
-        if let p1 = b1 as? D1 {
-            try test(p1.sd1 == "D1.sd1")
-            try test(p1.pd1 === b1.pb)
+        let p1 = b1 as? D1
+        if p1 !== nil {
+            try test(p1!.sd1 == "D1.sd1")
+            try test(p1!.pd1 === b1.pb)
         } else {
             try test(false)
         }
 
         let b2 = b1.pb!
         try test(b2.sb == "D3.sb")
-        // Sliced by server
-        try test(b2.ice_id() == "::Test::B")
         try test(b2.pb === b1)
-        try test(!(b2 is D3))
+
+        if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+            try test(!(b2 is D3))
+        } else {
+            if let p3 = b2 as? D3 {
+                try test(p3.pd3 === p1!)
+                try test(p3.sd3 == "D3.sd3")
+            } else {
+                try test(false)
+            }
+        }
 
         try test(b1 !== d1)
         try test(b1 !== d3)
@@ -747,19 +773,29 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(b1.sb == "D1.sb")
                 try test(b1.ice_id() == "::Test::D1")
 
-                if let p1 = b1 as? D1 {
-                    try test(p1.sd1 == "D1.sd1")
-                    try test(p1.pd1 === b1.pb)
+                let p1 = b1 as? D1
+                if p1 !== nil {
+                    try test(p1!.sd1 == "D1.sd1")
+                    try test(p1!.pd1 === b1.pb)
                 } else {
                     try test(false)
                 }
 
                 let b2 = b1.pb!
                 try test(b2.sb == "D3.sb")
-                // Sliced by server
-                try test(b2.ice_id() == "::Test::B")
                 try test(b2.pb === b1)
-                try test(!(b2 is D3))
+
+                if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+                    try test(!(b2 is D3))
+                } else {
+                    if let p3 = b2 as? D3 {
+                        try test(p3.pd3 === p1!)
+                        try test(p3.sd3 == "D3.sd3")
+                    } else {
+                        try test(false)
+                    }
+                }
+
                 try test(b1 !== d1)
                 try test(b1 !== d3)
                 try test(b2 !== d1)
@@ -791,9 +827,6 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         let b1 = try testPrx.returnTest3(p1: d3, p2: d1)!
 
         try test(b1.sb == "D3.sb")
-        try test(b1.ice_id() == "::Test::B") // Sliced by server
-
-        try test(!(b1 is D3))
 
         let b2 = b1.pb!
         try test(b2.sb == "D1.sb")
@@ -804,6 +837,17 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             try test(p3.pd1 === b1)
         } else {
             try test(false)
+        }
+
+        if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+            try test(!(b1 is D3))
+        } else {
+            if let p1 = b1 as? D3 {
+                try test(p1.sd3 == "D3.sd3")
+                try test(p1.pd3 === b2)
+            } else {
+                try test(false)
+            }
         }
 
         try test(b1 !== d1)
@@ -838,9 +882,6 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             let b1 = b!
 
             try test(b1.sb == "D3.sb")
-            try test(b1.ice_id() == "::Test::B") // Sliced by server
-
-            try test(!(b1 is D3))
 
             let b2 = b1.pb!
             try test(b2.sb == "D1.sb")
@@ -851,6 +892,17 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
                 try test(p3.pd1 === b1)
             } else {
                 try test(false)
+            }
+
+            if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+                try test(!(b1 is D3))
+            } else {
+                if let p1 = b1 as? D3 {
+                    try test(p1.sd3 == "D3.sd3")
+                    try test(p1.pd3 === b2)
+                } else {
+                    try test(false)
+                }
             }
 
             try test(b1 !== d1)
@@ -988,9 +1040,22 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         let ret = try testPrx.returnTest3(p1: d3, p2: b2)!
 
-        try test(ret.ice_id() == "::Test::B")
         try test(ret.sb == "D3.sb")
         try test(ret.pb === ret)
+
+        if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+            try test(!(ret is D3))
+        } else {
+            if let p3 = ret as? D3 {
+                try test(p3.sd3 == "D3.sd3")
+                try test(p3.pd3!.ice_id() == "::Test::B")
+                try test(p3.pd3!.sb == "B.sb(1)")
+                try test(p3.pd3!.pb === p3.pd3)
+            } else {
+                try test(false)
+            }
+        }
+
         breakCycles(ret)
         breakCycles(b1)
         breakCycles(d3)
@@ -1018,9 +1083,22 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         }.done { r in
             try test(r != nil)
             let ret = r!
-            try test(ret.ice_id() == "::Test::B")
             try test(ret.sb == "D3.sb")
             try test(ret.pb === ret)
+
+            if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+                try test(!(ret is D3))
+            } else {
+                if let p3 = ret as? D3 {
+                    try test(p3.sd3 == "D3.sd3")
+                    try test(p3.pd3!.ice_id() == "::Test::B")
+                    try test(p3.pd3!.sb == "B.sb(1)")
+                    try test(p3.pd3!.pb === p3.pd3)
+                } else {
+                    try test(false)
+                }
+            }
+
             breakCycles(ret)
             breakCycles(b1)
             breakCycles(d3)
@@ -1051,7 +1129,6 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         d12.pd1 = d11
 
         let ret = try testPrx.returnTest3(p1: d3, p2: d12)!
-        try test(ret.ice_id() == "::Test::B")
         try test(ret.sb == "D3.sb")
         try test(ret.pb === ret)
         breakCycles(d3)
@@ -1085,7 +1162,6 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         }.done { r in
             try test(r != nil)
             let ret = r!
-            try test(ret.ice_id() == "::Test::B")
             try test(ret.sb == "D3.sb")
             try test(ret.pb === ret)
             breakCycles(d3)
@@ -1166,11 +1242,17 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
         try test(ss1b2!.ice_id() == "::Test::B")
         try test(ss1d2!.ice_id() == "::Test::D1")
-        try test(ss1d4!.ice_id() == "::Test::B")
 
         try test(ss2b2!.ice_id() == "::Test::B")
         try test(ss2d2!.ice_id() == "::Test::D1")
-        try test(ss2d4!.ice_id() == "::Test::B")
+
+        if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+            try test(ss1d4!.ice_id() == "::Test::B")
+            try test(ss2d4!.ice_id() == "::Test::B")
+        } else {
+            try test(ss1d4!.ice_id() == "::Test::D3")
+            try test(ss2d4!.ice_id() == "::Test::D3")
+        }
 
         breakCycles(ss.c1!)
         breakCycles(ss.c2!)
@@ -1246,11 +1328,17 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
 
             try test(ss1b2!.ice_id() == "::Test::B")
             try test(ss1d2!.ice_id() == "::Test::D1")
-            try test(ss1d4!.ice_id() == "::Test::B")
 
             try test(ss2b2!.ice_id() == "::Test::B")
             try test(ss2d2!.ice_id() == "::Test::D1")
-            try test(ss2d4!.ice_id() == "::Test::B")
+
+            if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+                try test(ss1d4!.ice_id() == "::Test::B")
+                try test(ss2d4!.ice_id() == "::Test::B")
+            } else {
+                try test(ss1d4!.ice_id() == "::Test::D3")
+                try test(ss2d4!.ice_id() == "::Test::D3")
+            }
 
             breakCycles(ss.c1!)
             breakCycles(ss.c2!)
@@ -1626,8 +1714,18 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
         pu.pu = "preserved"
 
         let r = try testPrx.exchangePBase(pu)!
-        try test(!(r is PCUnknown))
         try test(r.pi == 3)
+
+        if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+            try test(!(r is PCUnknown))
+        } else {
+            if let p2 = r as? PCUnknown {
+                try test(p2.pu == "preserved")
+            } else {
+                try test(false)
+            }
+        }
+
         breakCycles(r)
     } catch is Ice.OperationNotExistException {}
 
@@ -1800,8 +1898,17 @@ public func allTests(_ helper: TestHelper) throws -> TestIntfPrx {
             testPrx.exchangePBaseAsync(pu)
         }.done { ret in
             let r = ret!
-            try test(!(r is PCUnknown))
-            try test(r.pi == 3)
+
+            if testPrx.ice_getEncodingVersion() == Ice.Encoding_1_0 {
+                try test(!(r is PCUnknown))
+            } else {
+                if let p2 = r as? PCUnknown {
+                    try test(p2.pu == "preserved")
+                } else {
+                    try test(false)
+                }
+            }
+
             breakCycles(r)
             seal.fulfill(())
         }.catch { e in

@@ -11,7 +11,7 @@ class TestValueReader: Ice.Value {
         istr.startValue()
         _ = try istr.startSlice()
         try istr.endSlice()
-        _ = try istr.endValue(preserve: false)
+        _ = try istr.endValue()
     }
 }
 
@@ -26,7 +26,7 @@ class BValueReader: Ice.Value {
         _ = try istr.startSlice()
         _ = try istr.read() as Int32
         try istr.endSlice()
-        _ = try istr.endValue(preserve: false)
+        _ = try istr.endValue()
     }
 }
 
@@ -44,7 +44,7 @@ class CValueReader: Ice.Value {
         _ = try istr.startSlice()
         _ = try istr.read() as Int32
         try istr.endSlice()
-        _ = try istr.endValue(preserve: false)
+        _ = try istr.endValue()
     }
 }
 
@@ -114,7 +114,7 @@ class DValueReader: Ice.Value {
         _ = try istr.startSlice()
         _ = try istr.read() as Int32
         try istr.endSlice()
-        _ = try istr.endValue(preserve: false)
+        _ = try istr.endValue()
     }
 
     func check() throws {
@@ -138,7 +138,7 @@ class FValueReader: Ice.Value {
         _ = try istr.startSlice()
         try istr.read(A.self) { self._f.ae = $0 }
         try istr.endSlice()
-        _ = try istr.endValue(preserve: false)
+        _ = try istr.endValue()
     }
 
     public func getF() -> F? {

@@ -179,19 +179,9 @@ namespace Ice
         /// <param name="ex">The inner exception.</param>
         public UserException(System.Exception ex) : base(ex) {}
 
-        /// <summary>
-        /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
-        /// un-marshaling, null is returned otherwise.
-        /// </summary>
-        /// <returns>The sliced data or null.</returns>
-        public virtual Ice.SlicedData ice_getSlicedData()
-        {
-            return null;
-        }
-
         public virtual void iceWrite(OutputStream ostr)
         {
-            ostr.startException(null);
+            ostr.startException();
             iceWriteImpl(ostr);
             ostr.endException();
         }
@@ -200,7 +190,7 @@ namespace Ice
         {
             istr.startException();
             iceReadImpl(istr);
-            istr.endException(false);
+            istr.endException();
         }
 
         public virtual bool iceUsesClasses()

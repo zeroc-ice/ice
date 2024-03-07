@@ -344,7 +344,7 @@ if "Communicator" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_Communicator = IcePy.defineValue(
-        "::Ice::Communicator", Communicator, -1, (), False, True, None, ()
+        "::Ice::Communicator", Communicator, -1, (), True, None, ()
     )
     Communicator._ice_type = _M_Ice._t_Communicator
 

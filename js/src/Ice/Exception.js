@@ -161,14 +161,9 @@ class UserException extends Exception
         return "::Ice::UserException";
     }
 
-    ice_getSlicedData()
-    {
-        return null;
-    }
-
     _write(os)
     {
-        os.startException(null);
+        os.startException();
         writeImpl(this, os, this._mostDerivedType());
         os.endException();
     }
@@ -177,7 +172,7 @@ class UserException extends Exception
     {
         is.startException();
         readImpl(this, is, this._mostDerivedType());
-        is.endException(false);
+        is.endException();
     }
 
     _usesClasses()
@@ -238,40 +233,6 @@ const readImpl = function(obj, is, type)
     }
     is.endSlice();
     readImpl(obj, is, type._parent);
-};
-
-const writePreserved = function(os)
-{
-    //
-    // For Slice exceptions which are marked "preserved", the implementation of this method
-    // replaces the Ice.UserException.prototype._write method.
-    //
-    os.startException(this._slicedData);
-    writeImpl(this, os, this._mostDerivedType());
-    os.endException();
-};
-
-const readPreserved = function(is)
-{
-    //
-    // For Slice exceptions which are marked "preserved", the implementation of this method
-    // replaces the Ice.UserException.prototype._read method.
-    //
-    is.startException();
-    readImpl(this, is, this._mostDerivedType());
-    this._slicedData = is.endException(true);
-};
-
-const ice_getSlicedData = function()
-{
-    return this._slicedData;
-};
-
-Ice.Slice.PreservedUserException = function(ex)
-{
-    ex.prototype.ice_getSlicedData = ice_getSlicedData;
-    ex.prototype._write = writePreserved;
-    ex.prototype._read = readPreserved;
 };
 
 module.exports.Ice = Ice;

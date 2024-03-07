@@ -67,9 +67,6 @@ public:
     virtual void throwDerivedAsBase(const ::Ice::Current&);
     virtual void throwDerivedAsDerived(const ::Ice::Current&);
     virtual void throwUnknownDerivedAsBase(const ::Ice::Current&);
-    virtual void throwPreservedExceptionAsync(std::function<void()>,
-                                               std::function<void(std::exception_ptr)>,
-                                               const ::Ice::Current&);
 
     virtual void useForward(::Test::ForwardPtr&, const ::Ice::Current&);
 

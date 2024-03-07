@@ -20,18 +20,6 @@ public final class UnknownSlicedValue extends Value
     }
 
     /**
-     * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
-     * un-marshaling of the value, null is returned otherwise.
-     *
-     * @return The sliced data or null.
-     **/
-    @Override
-    public SlicedData ice_getSlicedData()
-    {
-        return _slicedData;
-    }
-
-    /**
      * Determine the Slice type ID associated with this object.
      *
      * @return The type ID.
@@ -42,24 +30,7 @@ public final class UnknownSlicedValue extends Value
         return _unknownTypeId;
     }
 
-    /** @hidden */
-    @Override
-    public void _iceWrite(OutputStream ostr)
-    {
-        ostr.startValue(_slicedData);
-        ostr.endValue();
-    }
-
-    /** @hidden */
-    @Override
-    public void _iceRead(InputStream istr)
-    {
-        istr.startValue();
-        _slicedData = istr.endValue(true);
-    }
-
     private final String _unknownTypeId;
-    private SlicedData _slicedData;
 
     /** @hidden */
     public static final long serialVersionUID = 0L;

@@ -4,6 +4,8 @@
 
 // The base class for all Ice values.
 open class Value {
+    private var slicedData: SlicedData?
+
     public required init() {}
 
     /// Returns the Slice type ID of the most-derived interface supported by this object.
@@ -31,17 +33,17 @@ open class Value {
     ///
     /// - returns: `SlicedData?` - The sliced data or nil.
     open func ice_getSlicedData() -> SlicedData? {
-        return nil
+        return slicedData
     }
 
     open func _iceRead(from istr: InputStream) throws {
         istr.startValue()
         try _iceReadImpl(from: istr)
-        try istr.endValue(preserve: false)
+        slicedData = try istr.endValue()
     }
 
     open func _iceWrite(to os: OutputStream) {
-        os.startValue(data: nil)
+        os.startValue(data: slicedData)
         _iceWriteImpl(to: os)
         os.endValue()
     }

@@ -21,8 +21,8 @@ Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     TestIntfPrx allTests(Test::TestHelper*);
-    TestIntfPrx Test = allTests(this);
-    Test->shutdown();
+    TestIntfPrx prx = allTests(this);
+    prx->shutdown();
 }
 
 DEFINE_TEST(Client)

@@ -1880,7 +1880,7 @@ Ice::InputStream::EncapsDecoder10::startInstance(SliceType)
 }
 
 SlicedDataPtr
-Ice::InputStream::EncapsDecoder10::endInstance(bool)
+Ice::InputStream::EncapsDecoder10::endInstance()
 {
     //
     // Read the Ice::Value slice.
@@ -2182,15 +2182,11 @@ Ice::InputStream::EncapsDecoder11::startInstance(SliceType)
 }
 
 SlicedDataPtr
-Ice::InputStream::EncapsDecoder11::endInstance(bool preserve)
+Ice::InputStream::EncapsDecoder11::endInstance()
 {
-    SlicedDataPtr slicedData;
-    if (preserve)
-    {
-        slicedData = readSlicedData();
-    }
-    _current->slices.clear();
+    SlicedDataPtr slicedData = readSlicedData();
     _current->indirectionTables.clear();
+    _current->slices.clear();
     _current = _current->previous;
     return slicedData;
 }
@@ -2337,35 +2333,36 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     }
 
     //
-    // Preserve this slice.
+    // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
     //
-    SliceInfoPtr info = make_shared<SliceInfo>();
-    info->typeId = _current->typeId;
-    info->compactId = _current->compactId;
-    info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
-    info->isLastSlice = _current->sliceFlags & FLAG_IS_LAST_SLICE;
-    if (info->hasOptionalMembers)
+    if (_current->sliceType == ValueSlice)
     {
-        //
-        // Don't include the optional member end marker. It will be re-written by
-        // endSlice when the sliced data is re-written.
-        //
-        vector<uint8_t>(start, _stream->i - 1).swap(info->bytes);
-    }
-    else
-    {
-        vector<uint8_t>(start, _stream->i).swap(info->bytes);
+        SliceInfoPtr info = make_shared<SliceInfo>();
+        info->typeId = _current->typeId;
+        info->compactId = _current->compactId;
+        info->hasOptionalMembers = _current->sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
+        info->isLastSlice = _current->sliceFlags & FLAG_IS_LAST_SLICE;
+        if (info->hasOptionalMembers)
+        {
+            //
+            // Don't include the optional member end marker. It will be re-written by
+            // endSlice when the sliced data is re-written.
+            //
+            vector<uint8_t>(start, _stream->i - 1).swap(info->bytes);
+        }
+        else
+        {
+            vector<uint8_t>(start, _stream->i).swap(info->bytes);
+        }
+        _current->slices.push_back(info);
     }
 
     _current->indirectionTables.push_back(IndexList());
 
     //
     // Read the indirect object table. We read the instances or their
-    // IDs if the instance is a reference to an already un-marhsaled
+    // IDs if the instance is a reference to an already un-marshaled
     // object.
-    //
-    // The SliceInfo object sequence is initialized only if
-    // readSlicedData is called.
     //
     if (_current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
@@ -2376,8 +2373,6 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
             *p = readInstance(_stream->readSize(), 0, 0);
         }
     }
-
-    _current->slices.push_back(info);
 }
 
 bool

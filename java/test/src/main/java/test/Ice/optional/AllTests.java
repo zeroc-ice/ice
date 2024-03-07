@@ -2226,7 +2226,7 @@ public class AllTests
             in.startValue();
             in.startSlice();
             in.endSlice();
-            in.endValue(false);
+            in.endValue();
         }
     }
 
@@ -2244,7 +2244,7 @@ public class AllTests
             in.startSlice();
             in.readInt();
             in.endSlice();
-            in.endValue(false);
+            in.endValue();
         }
     }
 
@@ -2265,7 +2265,7 @@ public class AllTests
             in.startSlice();
             in.readInt();
             in.endSlice();
-            in.endValue(false);
+            in.endValue();
         }
     }
 
@@ -2324,7 +2324,7 @@ public class AllTests
             in.startSlice();
             in.readInt();
             in.endSlice();
-            in.endValue(false);
+            in.endValue();
         }
 
         void check()
@@ -2349,7 +2349,7 @@ public class AllTests
             in.startSlice();
             in.readValue(v -> _f.ae = v, A.class);
             in.endSlice();
-            in.endValue(false);
+            in.endValue();
         }
 
         F getF()

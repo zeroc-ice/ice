@@ -262,10 +262,20 @@
                 const b2 = b1.pb;
                 test(b2 !== null);
                 test(b2.sb == "D3.sb");
-                test(b2.ice_id() == "::Test::B"); // Sliced by server
                 test(b2.pb == b1);
 
-                test(!(b2 instanceof Test.D3));
+                const p3 = b2;
+                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+                {
+                    test(!(p3 instanceof Test.D3));
+                }
+                else
+                {
+                    test(p3 instanceof Test.D3);
+                    test(p3.pd3 === p1);
+                    test(p3.sd3 == "D3.sd3");
+                }
+
                 test(b1 !== d1);
                 test(b1 !== d3);
                 test(b2 !== d1);
@@ -290,8 +300,6 @@
 
                 test(b1 !== null);
                 test(b1.sb == "D3.sb");
-                test(b1.ice_id() == "::Test::B"); // Sliced by server
-                test(!(b1 instanceof Test.D3));
 
                 const b2 = b1.pb;
                 test(b2 !== null);
@@ -303,6 +311,18 @@
                 test(p3 !== null);
                 test(p3.sd1 == "D1.sd1");
                 test(p3.pd1 === b1);
+
+                const p1 = b1;
+                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+                {
+                    test(!(p1 instanceof Test.D3));
+                }
+                else
+                {
+                    test(p1 instanceof Test.D3);
+                    test(p1.pd3 === b2);
+                    test(p1.sd3 == "D3.sd3");
+                }
 
                 test(b1 !== d1);
                 test(b1 !== d3);
@@ -363,10 +383,24 @@
                 b2.pb = b1;
 
                 const ret = await prx.returnTest3(d3, b2);
+
                 test(ret !== null);
-                test(ret.ice_id() == "::Test::B");
                 test(ret.sb == "D3.sb");
                 test(ret.pb === ret);
+
+                const p3 = ret;
+                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+                {
+                    test(!(p3 instanceof Test.D3));
+                }
+                else
+                {
+                    test(p3 instanceof Test.D3);
+                    test(p3.sd3 == "D3.sd3");
+                    test(p3.pd3.ice_id() == "::Test::B");
+                    test(p3.pd3.sb == "B.sb(1)");
+                    test(p3.pd3.pb === p3.pd3);
+                }
             }
             out.writeLine("ok");
 
@@ -390,8 +424,8 @@
                 d12.pd1 = d11;
 
                 const ret = await prx.returnTest3(d3, d12);
+
                 test(ret !== null);
-                test(ret.ice_id() == "::Test::B");
                 test(ret.sb == "D3.sb");
                 test(ret.pb === ret);
             }
@@ -468,11 +502,20 @@
 
                 test(ss1b.ice_id() == "::Test::B");
                 test(ss1d1.ice_id() == "::Test::D1");
-                test(ss1d3.ice_id() == "::Test::B");
 
                 test(ss2b.ice_id() == "::Test::B");
                 test(ss2d1.ice_id() == "::Test::D1");
-                test(ss2d3.ice_id() == "::Test::B");
+
+                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+                {
+                    test(ss1d3 instanceof Test.B);
+                    test(ss2d3 instanceof Test.B);
+                }
+                else
+                {
+                    test(ss1d3 instanceof Test.D3);
+                    test(ss2d3 instanceof Test.D3);
+                }
             }
             out.writeLine("ok");
 
@@ -640,8 +683,18 @@
 
                 const r = await prx.exchangePBase(pu);
 
-                test(!(r instanceof Test.PCUnknown));
                 test(r.pi == 3);
+
+                const p2 = r;
+                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+                {
+                    test(!(p2 instanceof Test.PCUnknown));
+                }
+                else
+                {
+                    test(p2 instanceof Test.PCUnknown);
+                    test(p2.pu == "preserved");
+                }
             }
 
             {

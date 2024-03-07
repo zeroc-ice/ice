@@ -50,7 +50,7 @@ namespace Ice
     {
         public function closed($con);
     }
-    $Ice__t_CloseCallback = IcePHP_defineClass('::Ice::CloseCallback', '\\Ice\\CloseCallback', -1, false, true, null, null);
+    $Ice__t_CloseCallback = IcePHP_defineClass('::Ice::CloseCallback', '\\Ice\\CloseCallback', -1, true, null, null);
 }
 
 namespace Ice
@@ -60,7 +60,7 @@ namespace Ice
     {
         public function heartbeat($con);
     }
-    $Ice__t_HeartbeatCallback = IcePHP_defineClass('::Ice::HeartbeatCallback', '\\Ice\\HeartbeatCallback', -1, false, true, null, null);
+    $Ice__t_HeartbeatCallback = IcePHP_defineClass('::Ice::HeartbeatCallback', '\\Ice\\HeartbeatCallback', -1, true, null, null);
 }
 
 namespace Ice

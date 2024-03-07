@@ -40,7 +40,7 @@ module ::Ice
             T_EndpointInfo = ::Ice::__declareLocalClass('::Ice::EndpointInfo')
         end
 
-        T_EndpointInfo.defineClass(EndpointInfo, -1, false, false, nil, [
+        T_EndpointInfo.defineClass(EndpointInfo, -1, false, nil, [
             ['underlying', ::Ice::T_EndpointInfo, false, 0],
             ['timeout', ::Ice::T_int, false, 0],
             ['compress', ::Ice::T_bool, false, 0]
@@ -71,7 +71,7 @@ module ::Ice
             T_IPEndpointInfo = ::Ice::__declareLocalClass('::Ice::IPEndpointInfo')
         end
 
-        T_IPEndpointInfo.defineClass(IPEndpointInfo, -1, false, false, ::Ice::T_EndpointInfo, [
+        T_IPEndpointInfo.defineClass(IPEndpointInfo, -1, false, ::Ice::T_EndpointInfo, [
             ['host', ::Ice::T_string, false, 0],
             ['port', ::Ice::T_int, false, 0],
             ['sourceAddress', ::Ice::T_string, false, 0]
@@ -93,7 +93,7 @@ module ::Ice
             T_TCPEndpointInfo = ::Ice::__declareLocalClass('::Ice::TCPEndpointInfo')
         end
 
-        T_TCPEndpointInfo.defineClass(TCPEndpointInfo, -1, false, false, ::Ice::T_IPEndpointInfo, [])
+        T_TCPEndpointInfo.defineClass(TCPEndpointInfo, -1, false, ::Ice::T_IPEndpointInfo, [])
     end
 
     if not defined?(::Ice::UDPEndpointInfo_Mixin)
@@ -115,7 +115,7 @@ module ::Ice
             T_UDPEndpointInfo = ::Ice::__declareLocalClass('::Ice::UDPEndpointInfo')
         end
 
-        T_UDPEndpointInfo.defineClass(UDPEndpointInfo, -1, false, false, ::Ice::T_IPEndpointInfo, [
+        T_UDPEndpointInfo.defineClass(UDPEndpointInfo, -1, false, ::Ice::T_IPEndpointInfo, [
             ['mcastInterface', ::Ice::T_string, false, 0],
             ['mcastTtl', ::Ice::T_int, false, 0]
         ])
@@ -139,7 +139,7 @@ module ::Ice
             T_WSEndpointInfo = ::Ice::__declareLocalClass('::Ice::WSEndpointInfo')
         end
 
-        T_WSEndpointInfo.defineClass(WSEndpointInfo, -1, false, false, ::Ice::T_EndpointInfo, [['resource', ::Ice::T_string, false, 0]])
+        T_WSEndpointInfo.defineClass(WSEndpointInfo, -1, false, ::Ice::T_EndpointInfo, [['resource', ::Ice::T_string, false, 0]])
     end
 
     if not defined?(::Ice::OpaqueEndpointInfo_Mixin)
@@ -161,7 +161,7 @@ module ::Ice
             T_OpaqueEndpointInfo = ::Ice::__declareLocalClass('::Ice::OpaqueEndpointInfo')
         end
 
-        T_OpaqueEndpointInfo.defineClass(OpaqueEndpointInfo, -1, false, false, ::Ice::T_EndpointInfo, [
+        T_OpaqueEndpointInfo.defineClass(OpaqueEndpointInfo, -1, false, ::Ice::T_EndpointInfo, [
             ['rawEncoding', ::Ice::T_EncodingVersion, false, 0],
             ['rawBytes', ::Ice::T_ByteSeq, false, 0]
         ])

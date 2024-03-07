@@ -613,27 +613,6 @@ TestI::throwUnknownDerivedAsBaseAsync(function<void()>,
 }
 
 void
-TestI::throwPreservedExceptionAsync(function<void()>,
-                                     function<void(exception_ptr)> exception,
-                                     const ::Ice::Current&)
-{
-    try
-    {
-        PSUnknownException ue;
-        ue.p = make_shared<PSUnknown2>();
-        ue.p->pi = 5;
-        ue.p->ps = "preserved";
-        ue.p->pb = ue.p;
-        ue.p->pb = nullptr; // Break the cycle.
-        throw ue;
-    }
-    catch(...)
-    {
-        exception(current_exception());
-    }
-}
-
-void
 TestI::useForwardAsync(function<void(const shared_ptr<::Test::Forward>&)> response,
                         function<void(exception_ptr)>,
                         const ::Ice::Current&)

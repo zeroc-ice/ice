@@ -488,8 +488,8 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
 }
 
 //
-// Instances of preserved class and exception types may have a data member
-// named _ice_slicedData which is an instance of the Python class Ice.SlicedData.
+// Instances of class types may have a data member named _ice_slicedData which is an instance of the Python class
+// Ice.SlicedData. This data member is only set for unmarshaled instances.
 //
 Ice::SlicedDataPtr
 IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
@@ -3091,7 +3091,7 @@ IcePy::ClassInfo::destroy()
 // ValueInfo implementation.
 //
 IcePy::ValueInfo::ValueInfo(string ident) :
-    id(std::move(ident)), compactId(-1), preserve(false), interface(false), defined(false)
+    id(std::move(ident)), compactId(-1), interface(false), defined(false)
 {
 }
 
@@ -3102,13 +3102,12 @@ IcePy::ValueInfo::init()
 }
 
 void
-IcePy::ValueInfo::define(PyObject* t, int compact, bool pres, bool intf, PyObject* b, PyObject* m)
+IcePy::ValueInfo::define(PyObject* t, int compact, bool intf, PyObject* b, PyObject* m)
 {
     assert(PyType_Check(t));
     assert(PyTuple_Check(m));
 
     const_cast<int&>(compactId) = compact;
-    const_cast<bool&>(preserve) = pres;
     const_cast<bool&>(interface) = intf;
 
     if(b != Py_None)
@@ -3518,15 +3517,10 @@ IcePy::ValueWriter::ice_preMarshal()
 void
 IcePy::ValueWriter::_iceWrite(Ice::OutputStream* os) const
 {
-    Ice::SlicedDataPtr slicedData;
-
-    if(_info && _info->preserve)
-    {
-        //
-        // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
-        //
-        slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ObjectMap*>(_map));
-    }
+    //
+    // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
+    //
+    Ice::SlicedDataPtr slicedData = StreamUtil::getSlicedDataMember(_object, const_cast<ObjectMap*>(_map));
 
     os->startValue(slicedData);
 
@@ -3693,7 +3687,7 @@ IcePy::ValueReader::_iceRead(Ice::InputStream* is)
         }
     }
 
-    _slicedData = is->endValue(_info->preserve);
+    _slicedData = is->endValue();
 
     if(_slicedData)
     {
@@ -3792,17 +3786,7 @@ IcePy::ExceptionInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* obj
         throw AbortMarshaling();
     }
 
-    Ice::SlicedDataPtr slicedData;
-
-    if(preserve)
-    {
-        //
-        // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
-        //
-        slicedData = StreamUtil::getSlicedDataMember(p, objectMap);
-    }
-
-    os->startException(slicedData);
+    os->startException();
 
     ExceptionInfoPtr info = shared_from_this();
     while(info)
@@ -4081,7 +4065,7 @@ IcePy::ExceptionReader::_read(Ice::InputStream* is)
 
     const_cast<PyObjectHandle&>(_ex) = _info->unmarshal(is);
 
-    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
+    is->endException();
 }
 
 bool
@@ -4094,12 +4078,6 @@ PyObject*
 IcePy::ExceptionReader::getException() const
 {
     return _ex.get();
-}
-
-Ice::SlicedDataPtr
-IcePy::ExceptionReader::getSlicedData() const
-{
-    return _slicedData;
 }
 
 //
@@ -4727,12 +4705,10 @@ IcePy_defineValue(PyObject*, PyObject* args)
     PyObject* type;
     int compactId;
     PyObject* meta; // Not currently used.
-    int preserve;
     int interface;
     PyObject* base;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, STRCAST("sOiOiiOO"), &id, &type, &compactId, &meta, &preserve, &interface, &base,
-                         &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOiOiOO"), &id, &type, &compactId, &meta, &interface, &base, &members))
     {
         return 0;
     }
@@ -4760,7 +4736,7 @@ IcePy_defineValue(PyObject*, PyObject* args)
         r = info->typeObj;
     }
 
-    info->define(type, compactId, preserve ? true : false, interface ? true : false, base, members);
+    info->define(type, compactId, interface ? true : false, base, members);
 
     if(info->compactId != -1)
     {
@@ -4782,10 +4758,9 @@ IcePy_defineException(PyObject*, PyObject* args)
     char* id;
     PyObject* type;
     PyObject* meta;
-    int preserve;
     PyObject* base;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, STRCAST("sOOiOO"), &id, &type, &meta, &preserve, &base, &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOOOO"), &id, &type, &meta, &base, &members))
     {
         return 0;
     }
@@ -4796,8 +4771,6 @@ IcePy_defineException(PyObject*, PyObject* args)
 
     ExceptionInfoPtr info = make_shared<ExceptionInfo>();
     info->id = id;
-
-    info->preserve = preserve ? true : false;
 
     if(base != Py_None)
     {
