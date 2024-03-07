@@ -30,7 +30,7 @@ namespace Ice\Instrumentation
         public function detach();
         public function failed($exceptionName);
     }
-    $Ice_Instrumentation__t_Observer = IcePHP_defineClass('::Ice::Instrumentation::Observer', '\\Ice\\Instrumentation\\Observer', -1, false, true, null, null);
+    $Ice_Instrumentation__t_Observer = IcePHP_defineClass('::Ice::Instrumentation::Observer', '\\Ice\\Instrumentation\\Observer', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -54,7 +54,7 @@ namespace Ice\Instrumentation
     {
         public function stateChanged($oldState, $newState);
     }
-    $Ice_Instrumentation__t_ThreadObserver = IcePHP_defineClass('::Ice::Instrumentation::ThreadObserver', '\\Ice\\Instrumentation\\ThreadObserver', -1, false, true, null, null);
+    $Ice_Instrumentation__t_ThreadObserver = IcePHP_defineClass('::Ice::Instrumentation::ThreadObserver', '\\Ice\\Instrumentation\\ThreadObserver', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -80,7 +80,7 @@ namespace Ice\Instrumentation
         public function sentBytes($num);
         public function receivedBytes($num);
     }
-    $Ice_Instrumentation__t_ConnectionObserver = IcePHP_defineClass('::Ice::Instrumentation::ConnectionObserver', '\\Ice\\Instrumentation\\ConnectionObserver', -1, false, true, null, null);
+    $Ice_Instrumentation__t_ConnectionObserver = IcePHP_defineClass('::Ice::Instrumentation::ConnectionObserver', '\\Ice\\Instrumentation\\ConnectionObserver', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -91,7 +91,7 @@ namespace Ice\Instrumentation
         public function userException();
         public function reply($size);
     }
-    $Ice_Instrumentation__t_DispatchObserver = IcePHP_defineClass('::Ice::Instrumentation::DispatchObserver', '\\Ice\\Instrumentation\\DispatchObserver', -1, false, true, null, null);
+    $Ice_Instrumentation__t_DispatchObserver = IcePHP_defineClass('::Ice::Instrumentation::DispatchObserver', '\\Ice\\Instrumentation\\DispatchObserver', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -101,7 +101,7 @@ namespace Ice\Instrumentation
     {
         public function reply($size);
     }
-    $Ice_Instrumentation__t_ChildInvocationObserver = IcePHP_defineClass('::Ice::Instrumentation::ChildInvocationObserver', '\\Ice\\Instrumentation\\ChildInvocationObserver', -1, false, true, null, null);
+    $Ice_Instrumentation__t_ChildInvocationObserver = IcePHP_defineClass('::Ice::Instrumentation::ChildInvocationObserver', '\\Ice\\Instrumentation\\ChildInvocationObserver', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -110,7 +110,7 @@ namespace Ice\Instrumentation
     interface RemoteObserver extends \Ice\Instrumentation\ChildInvocationObserver
     {
     }
-    $Ice_Instrumentation__t_RemoteObserver = IcePHP_defineClass('::Ice::Instrumentation::RemoteObserver', '\\Ice\\Instrumentation\\RemoteObserver', -1, false, true, null, null);
+    $Ice_Instrumentation__t_RemoteObserver = IcePHP_defineClass('::Ice::Instrumentation::RemoteObserver', '\\Ice\\Instrumentation\\RemoteObserver', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -119,7 +119,7 @@ namespace Ice\Instrumentation
     interface CollocatedObserver extends \Ice\Instrumentation\ChildInvocationObserver
     {
     }
-    $Ice_Instrumentation__t_CollocatedObserver = IcePHP_defineClass('::Ice::Instrumentation::CollocatedObserver', '\\Ice\\Instrumentation\\CollocatedObserver', -1, false, true, null, null);
+    $Ice_Instrumentation__t_CollocatedObserver = IcePHP_defineClass('::Ice::Instrumentation::CollocatedObserver', '\\Ice\\Instrumentation\\CollocatedObserver', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -132,7 +132,7 @@ namespace Ice\Instrumentation
         public function getRemoteObserver($con, $endpt, $requestId, $size);
         public function getCollocatedObserver($adapter, $requestId, $size);
     }
-    $Ice_Instrumentation__t_InvocationObserver = IcePHP_defineClass('::Ice::Instrumentation::InvocationObserver', '\\Ice\\Instrumentation\\InvocationObserver', -1, false, true, null, null);
+    $Ice_Instrumentation__t_InvocationObserver = IcePHP_defineClass('::Ice::Instrumentation::InvocationObserver', '\\Ice\\Instrumentation\\InvocationObserver', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -143,7 +143,7 @@ namespace Ice\Instrumentation
         public function updateConnectionObservers();
         public function updateThreadObservers();
     }
-    $Ice_Instrumentation__t_ObserverUpdater = IcePHP_defineClass('::Ice::Instrumentation::ObserverUpdater', '\\Ice\\Instrumentation\\ObserverUpdater', -1, false, true, null, null);
+    $Ice_Instrumentation__t_ObserverUpdater = IcePHP_defineClass('::Ice::Instrumentation::ObserverUpdater', '\\Ice\\Instrumentation\\ObserverUpdater', -1, true, null, null);
 }
 
 namespace Ice\Instrumentation
@@ -159,6 +159,6 @@ namespace Ice\Instrumentation
         public function getDispatchObserver($c, $size);
         public function setObserverUpdater($updater);
     }
-    $Ice_Instrumentation__t_CommunicatorObserver = IcePHP_defineClass('::Ice::Instrumentation::CommunicatorObserver', '\\Ice\\Instrumentation\\CommunicatorObserver', -1, false, true, null, null);
+    $Ice_Instrumentation__t_CommunicatorObserver = IcePHP_defineClass('::Ice::Instrumentation::CommunicatorObserver', '\\Ice\\Instrumentation\\CommunicatorObserver', -1, true, null, null);
 }
 ?>

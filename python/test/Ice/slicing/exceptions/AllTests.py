@@ -7,7 +7,7 @@ import Ice
 import threading
 import sys
 
-Ice.loadSlice("-I. --all ClientPrivate.ice")
+Ice.loadSlice("-I. --all Test.ice")
 import Test
 
 
@@ -188,40 +188,6 @@ class Callback(CallbackBase):
         except Exception:
             test(False)
         self.called()
-
-
-class RelayI(Test.Relay):
-    def knownPreservedAsBase(self, current=None):
-        ex = Test.KnownPreservedDerived()
-        ex.b = "base"
-        ex.kp = "preserved"
-        ex.kpd = "derived"
-        raise ex
-
-    def knownPreservedAsKnownPreserved(self, current=None):
-        ex = Test.KnownPreservedDerived()
-        ex.b = "base"
-        ex.kp = "preserved"
-        ex.kpd = "derived"
-        raise ex
-
-    def unknownPreservedAsBase(self, current=None):
-        ex = Test.Preserved2()
-        ex.b = "base"
-        ex.kp = "preserved"
-        ex.kpd = "derived"
-        ex.p1 = Test.PreservedClass("bc", "pc")
-        ex.p2 = ex.p1
-        raise ex
-
-    def unknownPreservedAsKnownPreserved(self, current=None):
-        ex = Test.Preserved2()
-        ex.b = "base"
-        ex.kp = "preserved"
-        ex.kpd = "derived"
-        ex.p1 = Test.PreservedClass("bc", "pc")
-        ex.p2 = ex.p1
-        raise ex
 
 
 def allTests(helper, communicator):
@@ -515,142 +481,6 @@ def allTests(helper, communicator):
         cb.exception_unknownMostDerived2AsBase
     )
     cb.check()
-    print("ok")
-
-    sys.stdout.write("unknown most derived in compact format... ")
-    sys.stdout.flush()
-    try:
-        t.unknownMostDerived2AsBaseCompact()
-        test(False)
-    except Test.Base:
-        #
-        # For the 1.0 encoding, the unknown exception is sliced to Base.
-        #
-        test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
-    except Ice.UnknownUserException:
-        #
-        # An UnkownUserException is raised for the compact format because the
-        # most-derived type is unknown and the exception cannot be sliced.
-        #
-        test(t.ice_getEncodingVersion() != Ice.Encoding_1_0)
-    except Ice.OperationNotExistException:
-        pass
-    except Exception:
-        test(False)
-    print("ok")
-
-    sys.stdout.write("preserved exceptions... ")
-    sys.stdout.flush()
-
-    try:
-        t.unknownPreservedAsBase()
-        test(False)
-    except Test.Base as ex:
-        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(ex.ice_getSlicedData() is None)
-        else:
-            slicedData = ex.ice_getSlicedData()
-            test(slicedData)
-            test(len(slicedData.slices) == 2)
-            test(slicedData.slices[1].typeId == "::Test::SPreserved1")
-            test(slicedData.slices[0].typeId == "::Test::SPreserved2")
-
-    try:
-        t.unknownPreservedAsKnownPreserved()
-        test(False)
-    except Test.KnownPreserved as ex:
-        test(ex.kp == "preserved")
-        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
-            test(ex.ice_getSlicedData() is None)
-        else:
-            slicedData = ex.ice_getSlicedData()
-            test(slicedData)
-            test(len(slicedData.slices) == 2)
-            test(slicedData.slices[1].typeId == "::Test::SPreserved1")
-            test(slicedData.slices[0].typeId == "::Test::SPreserved2")
-
-    adapter = communicator.createObjectAdapter("")
-    relay = Test.RelayPrx.uncheckedCast(adapter.addWithUUID(RelayI()))
-    adapter.activate()
-    t.ice_getConnection().setAdapter(adapter)
-
-    try:
-        t.relayKnownPreservedAsBase(relay)
-        test(False)
-    except Test.KnownPreservedDerived as ex:
-        test(ex.b == "base")
-        test(ex.kp == "preserved")
-        test(ex.kpd == "derived")
-    except Ice.OperationNotExistException:
-        pass
-    except Exception:
-        test(False)
-
-    try:
-        t.relayKnownPreservedAsKnownPreserved(relay)
-        test(False)
-    except Test.KnownPreservedDerived as ex:
-        test(ex.b == "base")
-        test(ex.kp == "preserved")
-        test(ex.kpd == "derived")
-    except Ice.OperationNotExistException:
-        pass
-    except Exception:
-        test(False)
-
-    try:
-        t.relayUnknownPreservedAsBase(relay)
-        test(False)
-    except Test.Preserved2 as ex:
-        test(ex.b == "base")
-        test(ex.kp == "preserved")
-        test(ex.kpd == "derived")
-        test(ex.p1.ice_id() == Test.PreservedClass.ice_staticId())
-        pc = ex.p1
-        test(isinstance(pc, Test.PreservedClass))
-        test(pc.bc == "bc")
-        test(pc.pc == "pc")
-        test(ex.p2 == ex.p1)
-    except Test.KnownPreservedDerived as ex:
-        #
-        # For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-        #
-        test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
-        test(ex.b == "base")
-        test(ex.kp == "preserved")
-        test(ex.kpd == "derived")
-    except Ice.OperationNotExistException:
-        pass
-    except Exception:
-        test(False)
-
-    try:
-        t.relayUnknownPreservedAsKnownPreserved(relay)
-        test(False)
-    except Test.Preserved2 as ex:
-        test(ex.b == "base")
-        test(ex.kp == "preserved")
-        test(ex.kpd == "derived")
-        test(ex.p1.ice_id() == Test.PreservedClass.ice_staticId())
-        pc = ex.p1
-        test(isinstance(pc, Test.PreservedClass))
-        test(pc.bc == "bc")
-        test(pc.pc == "pc")
-        test(ex.p2 == ex.p1)
-    except Test.KnownPreservedDerived as ex:
-        #
-        # For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-        #
-        test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
-        test(ex.b == "base")
-        test(ex.kp == "preserved")
-        test(ex.kpd == "derived")
-    except Ice.OperationNotExistException:
-        pass
-    except Exception:
-        test(False)
-
-    adapter.destroy()
     print("ok")
 
     return t

@@ -5,52 +5,15 @@
 #ifndef ICE_INCOMING_H
 #define ICE_INCOMING_H
 
-#include <Ice/InstanceF.h>
-#include <Ice/ConnectionIF.h>
-#include <Ice/ServantManagerF.h>
-#include <Ice/OutputStream.h>
-#include <Ice/InputStream.h>
-#include <Ice/Object.h>
-#include <Ice/Current.h>
-#include <Ice/IncomingAsyncF.h>
-#include <Ice/ObserverHelper.h>
-#include <Ice/ResponseHandlerF.h>
-
-#include <deque>
-
-namespace Ice
-{
-
-/**
- * Base class for marshaled result structures, which are generated for operations having the
- * marshaled-result metadata tag.
- * \headerfile Ice/Ice.h
- */
-class ICE_API MarshaledResult
-{
-public:
-
-    /**
-     * The constructor requires the Current object that was passed to the servant.
-     */
-    MarshaledResult(const Current& current);
-
-    /**
-     * Obtains the output stream that is used to marshal the results.
-     * @return The output stream.
-     */
-    std::shared_ptr<OutputStream> getOutputStream() const
-    {
-        return ostr;
-    }
-
-protected:
-
-    /** The output stream used to marshal the results. */
-    std::shared_ptr<OutputStream> ostr;
-};
-
-}
+#include "Current.h"
+#include "InputStream.h"
+#include "InstanceF.h"
+#include "MarshaledResult.h"
+#include "Object.h"
+#include "ObserverHelper.h"
+#include "OutputStream.h"
+#include "ResponseHandlerF.h"
+#include "ServantManagerF.h"
 
 namespace Ice
 {
@@ -60,73 +23,23 @@ namespace Ice
 namespace IceInternal
 {
 
-class ICE_API IncomingBase
+class ICE_API Incoming final
 {
 public:
+
+    Incoming(Instance*, ResponseHandlerPtr, Ice::ConnectionPtr, Ice::ObjectAdapterPtr, bool, std::uint8_t, std::int32_t);
+    Incoming(Incoming&&);
+    Incoming(const Incoming&) = delete;
+    Incoming& operator=(const Incoming&) = delete;
 
     Ice::OutputStream* startWriteParams();
     void endWriteParams();
     void writeEmptyParams();
-    void writeParamEncaps(const std::uint8_t*, std::int32_t, bool);
+    void writeParamEncaps(const std::uint8_t*, std::int32_t, bool ok);
     void setMarshaledResult(const Ice::MarshaledResult&);
 
-    void response(bool);
-    void exception(std::exception_ptr, bool);
-
-protected:
-
-    IncomingBase(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
-    IncomingBase(IncomingBase&);
-    IncomingBase(const IncomingBase&) = delete;
-
-    void warning(const Ice::Exception&) const;
-    void warning(std::exception_ptr) const;
-
-    bool servantLocatorFinished(bool);
-
-    void handleException(std::exception_ptr, bool);
-
-    Ice::Current _current;
-    std::shared_ptr<Ice::Object> _servant;
-    std::shared_ptr<Ice::ServantLocator> _locator;
-    ::std::shared_ptr<void> _cookie;
-    DispatchObserver _observer;
-    bool _response;
-    std::uint8_t _compress;
-    Ice::FormatType _format;
-    Ice::OutputStream _os;
-
-    //
-    // Optimization. The request handler may not be deleted while a
-    // stack-allocated Incoming still holds it.
-    //
-    ResponseHandler* _responseHandler;
-    using DispatchInterceptorCallbacks = std::deque<std::pair<std::function<bool()>,
-                                                              std::function<bool(std::exception_ptr)>>>;
-    DispatchInterceptorCallbacks _interceptorCBs;
-};
-
-class ICE_API Incoming final : public IncomingBase
-{
-public:
-
-    Incoming(Instance*, ResponseHandler*, Ice::Connection*, const Ice::ObjectAdapterPtr&, bool, std::uint8_t, std::int32_t);
-
-    const Ice::Current& getCurrent()
-    {
-        return _current;
-    }
-
-    void push(std::function<bool()>, std::function<bool(std::exception_ptr)>);
-    void pop();
-
-    void setAsync(const IncomingAsyncPtr& in)
-    {
-        assert(!_inAsync);
-        _inAsync = in;
-    }
-
-    void startOver();
+    void response(bool amd);
+    void exception(std::exception_ptr, bool amd);
 
     void setFormat(Ice::FormatType format)
     {
@@ -162,14 +75,54 @@ public:
         _current.encoding = _is->readEncapsulation(v, sz);
     }
 
+    const Ice::Current& current() const { return _current; }
+
+    // Async dispatch writes an empty response and completes successfully.
+    void response();
+
+    // Async dispatch writes a marshaled result and completes successfully.
+    void response(const Ice::MarshaledResult& marshaledResult);
+
+    // Async dispatch completes successfully. Call this function after writing the response.
+    void completed();
+
+    // Async dispatch completes with an exception. This can throw, for example, if the application already called
+    // response(), completed() or failed().
+    void completed(std::exception_ptr ex);
+
+    // Handle an exception that was thrown by an async dispatch. Use this function from the dispatch thread.
+    void failed(std::exception_ptr) noexcept;
+
 private:
 
-    friend class IncomingAsync;
+    void setResponseSent();
 
+    void warning(const Ice::Exception&) const;
+    void warning(std::exception_ptr) const;
+
+    bool servantLocatorFinished(bool amd);
+
+    void handleException(std::exception_ptr, bool amd);
+
+    Ice::Current _current;
+    std::shared_ptr<Ice::Object> _servant;
+    std::shared_ptr<Ice::ServantLocator> _locator;
+    std::shared_ptr<void> _cookie;
+    DispatchObserver _observer;
+    bool _isTwoWay;
+    std::uint8_t _compress;
+    Ice::FormatType _format;
+    Ice::OutputStream _os;
+
+    ResponseHandlerPtr _responseHandler;
+
+    // _is points to an object allocated on the stack of the dispatch thread.
     Ice::InputStream* _is;
-    std::uint8_t* _inParamPos;
 
-    IncomingAsyncPtr _inAsync;
+    // This flag is set when the user calls an async response or exception callback. A second call is incorrect and
+    // results in ResponseSentException.
+    // We don't need an atomic flag since it's purely to detect logic errors in the application code.
+    bool _responseSent = false;
 };
 
 }

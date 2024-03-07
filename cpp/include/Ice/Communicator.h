@@ -90,8 +90,7 @@ public:
     /**
      * Convert a proxy into a string.
      * @param obj The proxy to convert into a stringified proxy.
-     * @return The stringified proxy, or an empty string if
-     * <code>obj</code> is nil.
+     * @return The stringified proxy, or an empty string if <code>obj</code> is nullopt.
      * @see #stringToProxy
      */
     std::string proxyToString(const std::optional<ObjectPrx>& obj) const;
@@ -101,10 +100,15 @@ public:
      * refers to a property containing a stringified proxy, such as <code>MyProxy=id:tcp -h localhost -p 10000</code>.
      * Additional properties configure local settings for the proxy, such as <code>MyProxy.PreferSecure=1</code>. The
      * "Properties" appendix in the Ice manual describes each of the supported proxy properties.
+     * @tparam Prx The type of the proxy to return.
      * @param property The base property name.
-     * @return The proxy.
+     * @return The proxy, or nullopt if the property is not set.
      */
-    std::optional<ObjectPrx> propertyToProxy(const std::string& property) const;
+    template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+    std::optional<Prx> propertyToProxy(const std::string& property) const
+    {
+        return std::optional<Prx>{_propertyToProxy(property)};
+    }
 
     /**
      * Convert a proxy to a set of proxy properties.
@@ -359,6 +363,8 @@ private:
     // constructor.
     //
     void finishSetup(int&, const char*[]);
+
+    std::optional<ObjectPrx> _propertyToProxy(const std::string& property) const;
 
     friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&, std::int32_t);
     friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&, std::int32_t);

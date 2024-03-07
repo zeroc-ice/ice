@@ -452,17 +452,6 @@ class TestI: TestIntf {
         }
     }
 
-    func throwPreservedExceptionAsync(current _: Current) -> Promise<Void> {
-        return Promise<Void> { _ in
-            let ue = PSUnknownException()
-            ue.p = PSUnknown2()
-            ue.p!.pi = 5
-            ue.p!.ps = "preserved"
-            ue.p!.pb = ue.p
-            throw ue
-        }
-    }
-
     func useForwardAsync(current _: Current) -> Promise<Forward?> {
         return Promise<Forward?> { seal in
             let f = Forward()

@@ -3643,7 +3643,8 @@ public:
 };
 
 /**
- * Indicates that the response to a request has already been sent; re-dispatching such a request is not possible.
+ * Indicates the application attempted to call the callbacks for an async dispatch more than once, or called an async
+ * dispatch callback after throwing an exception from the dispatch thread.
  * \headerfile Ice/Ice.h
  */
 class ICE_CLASS(ICE_API) ResponseSentException : public LocalExceptionHelper<ResponseSentException, LocalException>

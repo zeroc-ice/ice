@@ -12,7 +12,6 @@
 #include <Util.h>
 
 #include <Ice/Communicator.h>
-#include <Ice/IncomingAsync.h>
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
 #include <Ice/LocalException.h>
@@ -1601,14 +1600,6 @@ IcePy::Invocation::unmarshalException(const OperationPtr& op, const pair<const u
 
         if(validateException(op, ex))
         {
-            util.updateSlicedData();
-
-            Ice::SlicedDataPtr slicedData = r.getSlicedData();
-            if(slicedData)
-            {
-                StreamUtil::setSlicedDataMember(ex, slicedData);
-            }
-
             return incRef(ex);
         }
         else

@@ -47,7 +47,12 @@ void breakCycles(Ice::ValuePtr o)
     if(dynamic_pointer_cast<D2>(o))
     {
         auto d2 = dynamic_pointer_cast<D2>(o);
+        auto tmp = d2->pd2;
         d2->pd2 = nullptr;
+        if(tmp != d2)
+        {
+            breakCycles(tmp);
+        }
     }
     if(dynamic_pointer_cast<D4>(o))
     {
@@ -58,11 +63,16 @@ void breakCycles(Ice::ValuePtr o)
     if(dynamic_pointer_cast<B>(o))
     {
         auto b = dynamic_pointer_cast<B>(o);
-        if(b->pb)
-        {
-            b->pb->pb = nullptr;
-        }
+        auto tmp = b->pb;
         b->pb = nullptr;
+        if (tmp != b)
+        {
+            breakCycles(tmp);
+        }
+        if(b->ice_getSlicedData())
+        {
+            b->ice_getSlicedData()->clear();
+        }
     }
     if(dynamic_pointer_cast<Preserved>(o))
     {
@@ -287,7 +297,8 @@ TestI::D2AsB(const ::Ice::Current&)
     d1->sd1 = "D1.sd1";
     d1->pd1 = d2;
     d2->pb = d1;
-    d2->pd2 = d1;
+    // d2->pd2 = d1;
+    d2->pd2 = d2;
     _values.push_back(d1);
     return d2;
 }
@@ -416,6 +427,7 @@ TestI::dictionaryTest(BDict bin, BDict& bout, const ::Ice::Current&)
         d2->pb = b->pb;
         d2->sd2 = "D2";
         d2->pd2 = d2;
+        _values.push_back(b);
         _values.push_back(d2);
         bout[i * 10] = d2;
     }
@@ -627,27 +639,6 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
     ude.sude = "sude";
     ude.pd2 = d2;
     throw ude;
-}
-
-void
-TestI::throwPreservedExceptionAsync(function<void()>,
-                                     function<void(exception_ptr)> exception,
-                                     const ::Ice::Current&)
-{
-    PSUnknownException ue;
-    ue.p = make_shared<PSUnknown2>();
-    ue.p->pi = 5;
-    ue.p->ps = "preserved";
-    ue.p->pb = ue.p;
-    try
-    {
-        throw ue;
-    }
-    catch(...)
-    {
-        exception(current_exception());
-    }
-    ue.p->pb = 0; // Break the cycle.
 }
 
 void

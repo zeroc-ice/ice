@@ -17,22 +17,27 @@ using namespace std;
 using namespace Ice;
 using namespace IceDiscovery;
 
-LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& com) :
-    _wellKnownProxy(com->stringToProxy("p")->ice_locator(nullopt)->ice_router(nullopt)->ice_collocationOptimized(true))
+LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& communicator) :
+    _wellKnownProxy(
+        ObjectPrx(communicator, "dummy")->
+            ice_locator(nullopt)->
+            ice_router(nullopt)->
+            ice_collocationOptimized(true))
 {
 }
 
 void
-LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,
-                                              ObjectPrxPtr proxy,
-                                              function<void()> response,
-                                              function<void(exception_ptr)>,
-                                              const Ice::Current&)
+LocatorRegistryI::setAdapterDirectProxyAsync(
+    string adapterId,
+    optional<ObjectPrx> proxy,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     lock_guard lock(_mutex);
-    if(proxy)
+    if (proxy)
     {
-        _adapters[adapterId] = proxy;
+        _adapters.insert({adapterId, std::move(*proxy)});
     }
     else
     {
@@ -42,17 +47,18 @@ LocatorRegistryI::setAdapterDirectProxyAsync(string adapterId,
 }
 
 void
-LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
-                                                        string replicaGroupId,
-                                                        ObjectPrxPtr proxy,
-                                                        function<void()> response,
-                                                        function<void(exception_ptr)>,
-                                                        const Ice::Current&)
+LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(
+    string adapterId,
+    string replicaGroupId,
+    optional<ObjectPrx> proxy,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     lock_guard lock(_mutex);
-    if(proxy)
+    if (proxy)
     {
-        _adapters[adapterId] = proxy;
+        _adapters.insert({adapterId, std::move(*proxy)});
         map<string, set<string> >::iterator p = _replicaGroups.find(replicaGroupId);
         if(p == _replicaGroups.end())
         {
@@ -77,33 +83,34 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(string adapterId,
 }
 
 void
-LocatorRegistryI::setServerProcessProxyAsync(string,
-                                              ProcessPrxPtr,
-                                              function<void()> response,
-                                              function<void(exception_ptr)>,
-                                              const Ice::Current&)
+LocatorRegistryI::setServerProcessProxyAsync(
+    string,
+    optional<ProcessPrx>,
+    function<void()> response,
+    function<void(exception_ptr)>,
+    const Ice::Current&)
 {
     response();
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 LocatorRegistryI::findObject(const Ice::Identity& id) const
 {
     lock_guard lock(_mutex);
-    if(id.name.empty())
+    if (id.name.empty())
     {
         return nullopt;
     }
 
-    Ice::ObjectPrxPtr prx = _wellKnownProxy->ice_identity(id);
+    Ice::ObjectPrx prx = _wellKnownProxy->ice_identity(id);
 
     vector<string> adapterIds;
-    for(map<string, set<string> >::const_iterator p = _replicaGroups.begin(); p != _replicaGroups.end(); ++p)
+    for (const auto& [adapterId, _] : _replicaGroups)
     {
         try
         {
-            prx->ice_adapterId(p->first)->ice_ping();
-            adapterIds.push_back(p->first);
+            prx->ice_adapterId(adapterId)->ice_ping();
+            adapterIds.push_back(adapterId);
         }
         catch(const Ice::Exception&)
         {
@@ -111,14 +118,14 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         }
     }
 
-    if(adapterIds.empty())
+    if (adapterIds.empty())
     {
-        for(map<string, Ice::ObjectPrxPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+        for (const auto& [adapterId, _] : _adapters)
         {
             try
             {
-                prx->ice_adapterId(p->first)->ice_ping();
-                adapterIds.push_back(p->first);
+                prx->ice_adapterId(adapterId)->ice_ping();
+                adapterIds.push_back(adapterId);
             }
             catch(const Ice::Exception&)
             {
@@ -127,7 +134,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         }
     }
 
-    if(adapterIds.empty())
+    if (adapterIds.empty())
     {
         return nullopt;
     }
@@ -136,12 +143,12 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
     return prx->ice_adapterId(adapterIds[0]);
 }
 
-Ice::ObjectPrxPtr
+optional<Ice::ObjectPrx>
 LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) const
 {
     lock_guard lock(_mutex);
 
-    map<string, Ice::ObjectPrxPtr>::const_iterator p = _adapters.find(adapterId);
+    map<string, Ice::ObjectPrx>::const_iterator p = _adapters.find(adapterId);
     if(p != _adapters.end())
     {
         isReplicaGroup = false;
@@ -152,16 +159,16 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
     if(q != _replicaGroups.end())
     {
         Ice::EndpointSeq endpoints;
-        Ice::ObjectPrxPtr prx;
+        optional<Ice::ObjectPrx> prx;
         for(set<string>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
         {
-            map<string, Ice::ObjectPrxPtr>::const_iterator s = _adapters.find(*r);
+            map<string, Ice::ObjectPrx>::const_iterator s = _adapters.find(*r);
             if(s == _adapters.end())
             {
                 continue; // TODO: Inconsistency
             }
 
-            if(!prx)
+            if (!prx)
             {
                 prx = s->second;
             }
@@ -170,7 +177,7 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
             copy(endpts.begin(), endpts.end(), back_inserter(endpoints));
         }
 
-        if(prx)
+        if (prx)
         {
             isReplicaGroup = true;
             return prx->ice_endpoints(endpoints);
@@ -181,29 +188,33 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
     return nullopt;
 }
 
-LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrxPtr& registry) : _lookup(lookup), _registry(registry)
+LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrx& registry) :
+    _lookup(lookup),
+    _registry(registry)
 {
 }
 
 void
-LocatorI::findObjectByIdAsync(Ice::Identity id,
-                              function<void(const ObjectPrxPtr&)> response,
-                              function<void(exception_ptr)> ex,
-                              const Ice::Current&) const
+LocatorI::findObjectByIdAsync(
+    Ice::Identity id,
+    function<void(const optional<ObjectPrx>&)> response,
+    function<void(exception_ptr)> ex,
+    const Ice::Current&) const
 {
     _lookup->findObject(make_pair(response, ex), id);
 }
 
 void
-LocatorI::findAdapterByIdAsync(string adapterId,
-                               function<void(const ObjectPrxPtr&)> response,
-                               function<void(exception_ptr)> ex,
-                               const Ice::Current&) const
+LocatorI::findAdapterByIdAsync(
+    string adapterId,
+    function<void(const optional<ObjectPrx>&)> response,
+    function<void(exception_ptr)> ex,
+    const Ice::Current&) const
 {
     _lookup->findAdapter(make_pair(response, ex), adapterId);
 }
 
-LocatorRegistryPrxPtr
+optional<LocatorRegistryPrx>
 LocatorI::getRegistry(const Current&) const
 {
     return _registry;

@@ -835,53 +835,48 @@ public class AllTests
         out.print("return value identity for input params known first... ");
         out.flush();
         {
-            //try
-            //{
-                D1 d1 = new D1();
-                d1.sb = "D1.sb";
-                d1.sd1 = "D1.sd1";
-                D3 d3 = new D3();
-                d3.pb = d1;
-                d3.sb = "D3.sb";
-                d3.sd3 = "D3.sd3";
-                d3.pd3 = d1;
-                d1.pb = d3;
-                d1.pd1 = d3;
+            D1 d1 = new D1();
+            d1.sb = "D1.sb";
+            d1.sd1 = "D1.sd1";
+            D3 d3 = new D3();
+            d3.pb = d1;
+            d3.sb = "D3.sb";
+            d3.sd3 = "D3.sd3";
+            d3.pd3 = d1;
+            d1.pb = d3;
+            d1.pd1 = d3;
 
-                B b1 = test.returnTest3(d1, d3);
+            B b1 = test.returnTest3(d1, d3);
 
-                test(b1 != null);
-                test(b1.sb.equals("D1.sb"));
-                test(b1.ice_id().equals("::Test::D1"));
-                D1 p1 = (D1)b1;
-                test(p1 != null);
-                test(p1.sd1.equals("D1.sd1"));
-                test(p1.pd1 == b1.pb);
+            test(b1 != null);
+            test(b1.sb.equals("D1.sb"));
+            test(b1.ice_id().equals("::Test::D1"));
+            D1 p1 = (D1)b1;
+            test(p1 != null);
+            test(p1.sd1.equals("D1.sd1"));
+            test(p1.pd1 == b1.pb);
 
-                B b2 = b1.pb;
-                test(b2 != null);
-                test(b2.sb.equals("D3.sb"));
-                test(b2.ice_id().equals("::Test::B"));  // Sliced by server
-                test(b2.pb == b1);
-                try
-                {
-                    D3 p3 = (D3)b2;
-                    test(p3 != null);
-                    test(false);
-                }
-                catch(ClassCastException ex)
-                {
-                }
+            B b2 = b1.pb;
+            test(b2 != null);
+            test(b2.sb.equals("D3.sb"));
+            test(b2.pb == b1);
 
-                test(b1 != d1);
-                test(b1 != d3);
-                test(b2 != d1);
-                test(b2 != d3);
-            //}
-            //catch(Exception ex)
-            //{
-                //test(false);
-            //}
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
+            {
+                test(!(b2 instanceof D3));
+            }
+            else
+            {
+                test(b2 instanceof D3);
+                D3 p3 = (D3)b2;
+                test(p3.pd3 == p1);
+                test(p3.sd3.equals("D3.sd3"));
+            }
+
+            test(b1 != d1);
+            test(b1 != d3);
+            test(b2 != d1);
+            test(b2 != d3);
         }
         out.println("ok");
 
@@ -921,16 +916,18 @@ public class AllTests
             B b2 = b1.pb;
             test(b2 != null);
             test(b2.sb.equals("D3.sb"));
-            test(b2.ice_id().equals("::Test::B"));      // Sliced by server
             test(b2.pb == b1);
-            try
+
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
-                D3 p3 = (D3)b2;
-                test(p3 != null);
-                test(false);
+                test(!(b2 instanceof D3));
             }
-            catch(ClassCastException ex)
+            else
             {
+                test(b2 instanceof D3);
+                D3 p3 = (D3)b2;
+                test(p3.pd3 == p1);
+                test(p3.sd3.equals("D3.sd3"));
             }
 
             test(b1 != d1);
@@ -960,17 +957,6 @@ public class AllTests
 
                 test(b1 != null);
                 test(b1.sb.equals("D3.sb"));
-                test(b1.ice_id().equals("::Test::B"));  // Sliced by server
-
-                try
-                {
-                    D3 p1 = (D3)b1;
-                    test(p1 != null);
-                    test(false);
-                }
-                catch(ClassCastException ex)
-                {
-                }
 
                 B b2 = b1.pb;
                 test(b2 != null);
@@ -981,6 +967,18 @@ public class AllTests
                 test(p3 != null);
                 test(p3.sd1.equals("D1.sd1"));
                 test(p3.pd1 == b1);
+
+                if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
+                {
+                    test(!(b1 instanceof D3));
+                }
+                else
+                {
+                    test(b1 instanceof D3);
+                    D3 p1 = (D3)b1;
+                    test(p1.sd3.equals("D3.sd3"));
+                    test(p1.pd3 == b2);
+                }
 
                 test(b1 != d1);
                 test(b1 != d3);
@@ -1021,17 +1019,6 @@ public class AllTests
             B b1 = w.v;
             test(b1 != null);
             test(b1.sb.equals("D3.sb"));
-            test(b1.ice_id().equals("::Test::B"));      // Sliced by server
-
-            try
-            {
-                D3 p1 = (D3)b1;
-                test(p1 != null);
-                test(false);
-            }
-            catch(ClassCastException ex)
-            {
-            }
 
             B b2 = b1.pb;
             test(b2 != null);
@@ -1042,6 +1029,18 @@ public class AllTests
             test(p3 != null);
             test(p3.sd1.equals("D1.sd1"));
             test(p3.pd1 == b1);
+
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
+            {
+                test(!(b1 instanceof D3));
+            }
+            else
+            {
+                test(b1 instanceof D3);
+                D3 p1 = (D3)b1;
+                test(p1.sd3.equals("D3.sd3"));
+                test(p1.pd3 == b2);
+            }
 
             test(b1 != d1);
             test(b1 != d3);
@@ -1155,33 +1154,25 @@ public class AllTests
         out.print("param ptr slicing, instance marshaled in unknown derived as base... ");
         out.flush();
         {
-            try
-            {
-                B b1 = new B();
-                b1.sb = "B.sb(1)";
-                b1.pb = b1;
+            B b1 = new B();
+            b1.sb = "B.sb(1)";
+            b1.pb = b1;
 
-                D3 d3 = new D3();
-                d3.sb = "D3.sb";
-                d3.pb = d3;
-                d3.sd3 = "D3.sd3";
-                d3.pd3 = b1;
+            D3 d3 = new D3();
+            d3.sb = "D3.sb";
+            d3.pb = d3;
+            d3.sd3 = "D3.sd3";
+            d3.pd3 = b1;
 
-                B b2 = new B();
-                b2.sb = "B.sb(2)";
-                b2.pb = b1;
+            B b2 = new B();
+            b2.sb = "B.sb(2)";
+            b2.pb = b1;
 
-                B r = test.returnTest3(d3, b2);
+            B r = test.returnTest3(d3, b2);
 
-                test(r != null);
-                test(r.ice_id().equals("::Test::B"));
-                test(r.sb.equals("D3.sb"));
-                test(r.pb == r);
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
+            test(r != null);
+            test(r.sb.equals("D3.sb"));
+            test(r.pb == r);
         }
         out.println("ok");
 
@@ -1214,44 +1205,49 @@ public class AllTests
 
             B r = w.v;
             test(r != null);
-            test(r.ice_id().equals("::Test::B"));
             test(r.sb.equals("D3.sb"));
             test(r.pb == r);
+
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
+            {
+                test(!(r instanceof D3));
+            }
+            else
+            {
+                test(r instanceof D3);
+                D3 p3 = (D3)r;
+                test(p3.sd3.equals("D3.sd3"));
+                test(p3.pd3.ice_id().equals("::Test::B"));
+                test(p3.pd3.sb.equals("B.sb(1)"));
+                test(p3.pd3.pb == p3.pd3);
+            }
         }
         out.println("ok");
 
         out.print("param ptr slicing, instance marshaled in unknown derived as derived... ");
         out.flush();
         {
-            try
-            {
-                D1 d11 = new D1();
-                d11.sb = "D1.sb(1)";
-                d11.pb = d11;
-                d11.sd1 = "D1.sd1(1)";
+            D1 d11 = new D1();
+            d11.sb = "D1.sb(1)";
+            d11.pb = d11;
+            d11.sd1 = "D1.sd1(1)";
 
-                D3 d3 = new D3();
-                d3.sb = "D3.sb";
-                d3.pb = d3;
-                d3.sd3 = "D3.sd3";
-                d3.pd3 = d11;
+            D3 d3 = new D3();
+            d3.sb = "D3.sb";
+            d3.pb = d3;
+            d3.sd3 = "D3.sd3";
+            d3.pd3 = d11;
 
-                D1 d12 = new D1();
-                d12.sb = "D1.sb(2)";
-                d12.pb = d12;
-                d12.sd1 = "D1.sd1(2)";
-                d12.pd1 = d11;
+            D1 d12 = new D1();
+            d12.sb = "D1.sb(2)";
+            d12.pb = d12;
+            d12.sd1 = "D1.sd1(2)";
+            d12.pd1 = d11;
 
-                B r = test.returnTest3(d3, d12);
-                test(r != null);
-                test(r.ice_id().equals("::Test::B"));
-                test(r.sb.equals("D3.sb"));
-                test(r.pb == r);
-            }
-            catch(Exception ex)
-            {
-                test(false);
-            }
+            B r = test.returnTest3(d3, d12);
+            test(r != null);
+            test(r.sb.equals("D3.sb"));
+            test(r.pb == r);
         }
         out.println("ok");
 
@@ -1287,7 +1283,6 @@ public class AllTests
 
             B r = w.v;
             test(r != null);
-            test(r.ice_id().equals("::Test::B"));
             test(r.sb.equals("D3.sb"));
             test(r.pb == r);
         }
@@ -1370,11 +1365,26 @@ public class AllTests
 
                 test(ss1b.ice_id().equals("::Test::B"));
                 test(ss1d1.ice_id().equals("::Test::D1"));
-                test(ss1d3.ice_id().equals("::Test::B"));
 
                 test(ss2b.ice_id().equals("::Test::B"));
                 test(ss2d1.ice_id().equals("::Test::D1"));
-                test(ss2d3.ice_id().equals("::Test::B"));
+
+                test(ss1b.ice_id().equals("::Test::B"));
+                test(ss1d1.ice_id().equals("::Test::D1"));
+
+                test(ss2b.ice_id().equals("::Test::B"));
+                test(ss2d1.ice_id().equals("::Test::D1"));
+
+                if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
+                {
+                    test(ss1d3.ice_id().equals("::Test::B"));
+                    test(ss2d3.ice_id().equals("::Test::B"));
+                }
+                else
+                {
+                    test(ss1d3.ice_id().equals("::Test::D3"));
+                    test(ss2d3.ice_id().equals("::Test::D3"));
+                }
             }
             catch(Exception ex)
             {
@@ -1465,11 +1475,20 @@ public class AllTests
 
             test(ss1b.ice_id().equals("::Test::B"));
             test(ss1d1.ice_id().equals("::Test::D1"));
-            test(ss1d3.ice_id().equals("::Test::B"));
 
             test(ss2b.ice_id().equals("::Test::B"));
             test(ss2d1.ice_id().equals("::Test::D1"));
-            test(ss2d3.ice_id().equals("::Test::B"));
+
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
+            {
+                test(ss1d3.ice_id().equals("::Test::B"));
+                test(ss2d3.ice_id().equals("::Test::B"));
+            }
+            else
+            {
+                test(ss1d3.ice_id().equals("::Test::D3"));
+                test(ss2d3.ice_id().equals("::Test::D3"));
+            }
         }
         out.println("ok");
 
@@ -1876,8 +1895,20 @@ public class AllTests
             pu.pu = "preserved";
 
             PBase r = test.exchangePBase(pu);
-            test(!(r instanceof PCUnknown));
+
             test(r.pi == 3);
+
+            if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
+            {
+                test(!(r instanceof PCUnknown));
+            }
+            else
+            {
+                test(r instanceof PCUnknown);
+                PCUnknown p2 = (PCUnknown)r;
+                test(p2 != null);
+                test(p2.pu.equals("preserved"));
+            }
         }
         catch(com.zeroc.Ice.OperationNotExistException ex)
         {
@@ -2067,8 +2098,17 @@ public class AllTests
                     }
                     else
                     {
-                        test(!(result instanceof PCUnknown));
-                        test(result.pi == 3);
+                        if(test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
+                        {
+                            test(!(result instanceof PCUnknown));
+                        }
+                        else
+                        {
+                            test(result instanceof PCUnknown);
+                            PCUnknown p2 = (PCUnknown)result;
+                            test(p2 != null);
+                            test(p2.pu.equals("preserved"));
+                        }
                     }
                     cb.called();
                 });

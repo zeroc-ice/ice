@@ -312,13 +312,11 @@ public class InputStream {
 
     /// Marks the end of a class instance.
     ///
-    /// - parameter preserve: `Bool` - True if unknown slices should be preserved, false otherwise.
-    ///
     /// - returns: `Ice.SlicedData` - A SlicedData object containing the preserved slices for unknown types.
     @discardableResult
-    public func endValue(preserve: Bool) throws -> SlicedData? {
+    public func endValue() throws -> SlicedData? {
         precondition(encaps.decoder != nil)
-        return try encaps.decoder.endInstance(preserve: preserve)
+        return try encaps.decoder.endInstance()
     }
 
     /// Marks the start of a user exception.
@@ -329,14 +327,11 @@ public class InputStream {
 
     /// Marks the end of a user exception.
     ///
-    /// - parameter preserve: `Bool` - True if unknown slices should be preserved, false otherwise.
-    ///
     /// - returns: `Ice.SlicedData?` - A `SlicedData` object containing the preserved slices for unknown
     ///   types.
-    @discardableResult
-    public func endException(preserve: Bool) throws -> SlicedData? {
+    public func endException() throws {
         precondition(encaps.decoder != nil)
-        return try encaps.decoder.endInstance(preserve: preserve)
+        _ = try encaps.decoder.endInstance()
     }
 
     func initEncaps() {
@@ -903,7 +898,7 @@ private protocol EncapsDecoder: AnyObject {
     func throwException() throws
 
     func startInstance(type: SliceType)
-    func endInstance(preserve: Bool) throws -> SlicedData?
+    func endInstance() throws -> SlicedData?
     func startSlice() throws -> String
     func endSlice() throws
     func skipSlice() throws
@@ -1199,7 +1194,7 @@ private class EncapsDecoder10: EncapsDecoder {
         skipFirstSlice = true
     }
 
-    func endInstance(preserve _: Bool) throws -> SlicedData? {
+    func endInstance() throws -> SlicedData? {
         //
         // Read the Ice::Value slice.
         //
@@ -1477,11 +1472,8 @@ private class EncapsDecoder11: EncapsDecoder {
         current.skipFirstSlice = true
     }
 
-    func endInstance(preserve: Bool) throws -> SlicedData? {
-        var slicedData: SlicedData?
-        if preserve {
-            slicedData = try readSlicedData()
-        }
+    func endInstance() throws -> SlicedData? {
+        let slicedData = try readSlicedData()
 
         current.slices.removeAll()
         current.indirectionTables.removeAll()
@@ -1611,36 +1603,37 @@ private class EncapsDecoder11: EncapsDecoder {
         }
 
         //
-        // Preserve this slice.
+        // Preserve this slice if unmarshalling a value in Slice format. Exception slices are not preserved.
         //
-        let hasOptionalMembers = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)
-        let isLastSlice = current.sliceFlags.contains(.FLAG_IS_LAST_SLICE)
-        var dataEnd = stream.pos
+        if current.sliceType == .ValueSlice {
+            let hasOptionalMembers = current.sliceFlags.contains(.FLAG_HAS_OPTIONAL_MEMBERS)
+            let isLastSlice = current.sliceFlags.contains(.FLAG_IS_LAST_SLICE)
+            var dataEnd = stream.pos
 
-        if hasOptionalMembers {
-            //
-            // Don't include the optional member end marker. It will be re-written by
-            // endSlice when the sliced data is re-written.
-            //
-            dataEnd -= 1
+            if hasOptionalMembers {
+                //
+                // Don't include the optional member end marker. It will be re-written by
+                // endSlice when the sliced data is re-written.
+                //
+                dataEnd -= 1
+            }
+
+            let bytes = stream.data.subdata(in: start ..< dataEnd) // copy
+
+            let info = SliceInfo(typeId: current.typeId,
+                                 compactId: current.compactId,
+                                 bytes: bytes,
+                                 instances: [],
+                                 hasOptionalMembers: hasOptionalMembers,
+                                 isLastSlice: isLastSlice)
+
+            current.slices.append(info)
         }
-
-        let bytes = stream.data.subdata(in: start ..< dataEnd) // copy
-
-        let info = SliceInfo(typeId: current.typeId,
-                             compactId: current.compactId,
-                             bytes: bytes,
-                             instances: [],
-                             hasOptionalMembers: hasOptionalMembers,
-                             isLastSlice: isLastSlice)
 
         //
         // Read the indirect instance table. We read the instances or their
-        // IDs if the instance is a reference to an already unmarhsaled
+        // IDs if the instance is a reference to an already unmarhshaled
         // instance.
-        //
-        // The SliceInfo object sequence is initialized only if
-        // readSlicedData is called.
         //
         if current.sliceFlags.contains(.FLAG_HAS_INDIRECTION_TABLE) {
             var indirectionTable = try [Int32](repeating: 0, count: Int(stream.readAndCheckSeqSize(minSize: 1)))
@@ -1652,8 +1645,6 @@ private class EncapsDecoder11: EncapsDecoder {
         } else {
             current.indirectionTables.append([])
         }
-
-        current.slices.append(info)
     }
 
     func readOptional(tag: Int32, format: OptionalFormat) throws -> Bool {

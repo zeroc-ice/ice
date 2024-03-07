@@ -394,7 +394,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     {
         try
         {
-            mapper = uncheckedCast<UserAccountMapperPrx>(communicator()->propertyToProxy(mapperProperty));
+            mapper = communicator()->propertyToProxy<UserAccountMapperPrx>(mapperProperty);
         }
         catch(const std::exception& ex)
         {
@@ -410,8 +410,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             try
             {
-                auto object = _adapter->addWithUUID(make_shared<FileUserAccountMapperI>(userAccountFileProperty));
-                mapper = uncheckedCast<UserAccountMapperPrx>(object);
+                mapper = UserAccountMapperPrx{
+                    _adapter->addWithUUID(make_shared<FileUserAccountMapperI>(userAccountFileProperty))};
             }
             catch(const exception& ex)
             {
@@ -451,7 +451,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     // evictors and object factories necessary to store these objects.
     //
     Identity id = stringToIdentity(instanceName + "/Node-" + name);
-    auto nodeProxy = uncheckedCast<NodePrx>(_adapter->createProxy(id));
+    NodePrx nodeProxy{_adapter->createProxy(id)};
     _node = make_shared<NodeI>(_adapter, *_sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper,
                                instanceName);
     _adapter->add(_node, nodeProxy->ice_getIdentity());

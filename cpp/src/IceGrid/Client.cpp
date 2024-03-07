@@ -321,7 +321,7 @@ run(const Ice::StringSeq& args)
                 os << "Ice/LocatorFinder" << (ssl ? " -s" : "");
                 os << ":tcp -h \"" << host << "\" -p " << (port == 0 ? 4061 : port) << " -t " << timeout;
                 os << ":ssl -h \"" << host << "\" -p " << (port == 0 ? 4062 : port) << " -t " << timeout;
-                auto finder = Ice::uncheckedCast<Ice::LocatorFinderPrx>(communicator->stringToProxy(os.str()));
+                Ice::LocatorFinderPrx finder{communicator, os.str()};
                 try
                 {
                     communicator->setDefaultLocator(finder->getLocator());
@@ -570,8 +570,8 @@ run(const Ice::StringSeq& args)
             if(registry->ice_getIdentity() == localRegistry->ice_getIdentity())
             {
                 auto colloc = communicator->createObjectAdapter(""); // colloc-only adapter
-                communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(
-                    colloc->addWithUUID(make_shared<ReuseConnectionRouter>(locator))));
+                communicator->setDefaultRouter(
+                    Ice::RouterPrx{colloc->addWithUUID(make_shared<ReuseConnectionRouter>(locator))});
                 registry = registry->ice_router(communicator->getDefaultRouter());
             }
 

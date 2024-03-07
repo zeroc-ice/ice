@@ -55,9 +55,4 @@ class PSUnknown2 extends Preserved
     PBase pb;
 }
 
-exception PSUnknownException extends PreservedException
-{
-    PSUnknown2 p;
-}
-
 }

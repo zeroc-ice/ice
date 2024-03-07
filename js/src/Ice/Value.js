@@ -13,6 +13,11 @@ require("../Ice/OptionalFormat");
 
 Ice.Value = class
 {
+    constructor()
+    {
+        this._iceSlicedData = null;
+    }
+
     ice_preMarshal()
     {
     }
@@ -23,12 +28,12 @@ Ice.Value = class
 
     ice_getSlicedData()
     {
-        return null;
+        return this._iceSlicedData;
     }
 
     _iceWrite(os)
     {
-        os.startValue(null);
+        os.startValue(this._iceSlicedData);
         writeImpl(this, os, this._iceMostDerivedType());
         os.endValue();
     }
@@ -37,7 +42,7 @@ Ice.Value = class
     {
         is.startValue();
         readImpl(this, is, this._iceMostDerivedType());
-        is.endValue(false);
+        this._iceSlicedData = is.endValue();
     }
 
     //
@@ -100,7 +105,7 @@ Ice.InterfaceByValue = class extends Ice.Value
         is.startValue();
         is.startSlice();
         is.endSlice();
-        is.endValue(false);
+        is.endValue();
     }
 };
 
@@ -153,36 +158,9 @@ const readImpl = function(obj, is, type)
     readImpl(obj, is, Object.getPrototypeOf(type));
 };
 
-function writePreserved(os)
-{
-    //
-    // For Slice classes which are marked "preserved", the implementation of this method
-    // replaces the Ice.Value.prototype._iceWrite method.
-    //
-    os.startValue(this._iceSlicedData);
-    writeImpl(this, os, this._iceMostDerivedType());
-    os.endValue();
-}
-
-function readPreserved(is)
-{
-    //
-    // For Slice classes which are marked "preserved", the implementation of this method
-    // replaces the Ice.Value.prototype._iceRead method.
-    //
-    is.startValue();
-    readImpl(this, is, this._iceMostDerivedType());
-    this._iceSlicedData = is.endValue(true);
-}
-
-function ice_getSlicedData()
-{
-    return this._iceSlicedData;
-}
-
 const Slice = Ice.Slice;
 
-Slice.defineValue = function(valueType, id, preserved, compactId = 0)
+Slice.defineValue = function(valueType, id, compactId = 0)
 {
     valueType.prototype.ice_id = function()
     {
@@ -198,13 +176,6 @@ Slice.defineValue = function(valueType, id, preserved, compactId = 0)
     {
         return id;
     };
-
-    if(preserved)
-    {
-        valueType.prototype.ice_getSlicedData = ice_getSlicedData;
-        valueType.prototype._iceWrite = writePreserved;
-        valueType.prototype._iceRead = readPreserved;
-    }
 
     if(compactId > 0)
     {

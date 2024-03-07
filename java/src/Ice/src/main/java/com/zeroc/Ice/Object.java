@@ -210,7 +210,7 @@ public interface Object
     {
          istr.startValue();
          _iceReadImpl(istr);
-         istr.endValue(false);
+         istr.endValue();
     }
 
     /**

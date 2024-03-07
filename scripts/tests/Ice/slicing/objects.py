@@ -14,5 +14,4 @@ TestSuite(
             props={"Ice.Default.EncodingVersion": "1.0"},
         ),
     ],
-    options={"valgrind": [False]},
 )

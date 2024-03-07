@@ -140,7 +140,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
         try
         {
             auto manager = make_shared<TransientTopicManagerImpl>(_instance);
-            _managerProxy = Ice::uncheckedCast<TopicManagerPrx>(topicAdapter->add(manager, topicManagerId));
+            _managerProxy = TopicManagerPrx{topicAdapter->add(manager, topicManagerId)};
         }
         catch(const Ice::Exception& ex)
         {
@@ -163,7 +163,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
             auto instance = make_shared<PersistentInstance>(instanceName, name, communicator, publishAdapter, topicAdapter);
             _manager = TopicManagerImpl::create(instance);
             _instance = std::move(instance);
-            _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->add(_manager->getServant(), topicManagerId));
+            _managerProxy = TopicManagerPrx{topicAdapter->add(_manager->getServant(), topicManagerId)};
         }
         catch(const IceUtil::Exception& ex)
         {
@@ -196,7 +196,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
                 try
                 {
                     int nodeid = stoi(prop.first.substr(prefix.size()));
-                    nodes[nodeid] = uncheckedCast<NodePrx>(communicator->propertyToProxy(prop.first));
+                    nodes[nodeid] = communicator->propertyToProxy<NodePrx>(prop.first);
                 }
                 catch(const std::invalid_argument&)
                 {
@@ -286,7 +286,7 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
                 ident.category = instanceName;
                 ident.name = os.str();
 
-                nodes[nodeid] = uncheckedCast<NodePrx>((*p)->ice_adapterId(adapterid)->ice_identity(ident));
+                nodes[nodeid] = NodePrx{(*p)->ice_adapterId(adapterid)->ice_identity(ident)};
             }
         }
 
@@ -338,13 +338,13 @@ ServiceI::start(const string& name, const shared_ptr<Communicator>& communicator
                 // We're not using an IceGrid deployment. Here we need
                 // a proxy which is used to create proxies to the
                 // replicas later.
-                _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->createProxy(topicManagerId));
+                _managerProxy = TopicManagerPrx{topicAdapter->createProxy(topicManagerId)};
             }
             else
             {
                 // If we're using IceGrid deployment we need to create
                 // indirect proxies.
-                _managerProxy = uncheckedCast<TopicManagerPrx>(topicAdapter->createIndirectProxy(topicManagerId));
+                _managerProxy = TopicManagerPrx{topicAdapter->createIndirectProxy(topicManagerId)};
             }
 
             _manager = TopicManagerImpl::create(instance);

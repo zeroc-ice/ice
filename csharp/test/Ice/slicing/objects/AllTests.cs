@@ -771,16 +771,18 @@ public class AllTests : Test.AllTests
                 B b2 = b1.pb;
                 test(b2 != null);
                 test(b2.sb == "D3.sb");
-                test(b2.ice_id() == "::Test::B"); // Sliced by server
                 test(b2.pb == b1);
-                try
+
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
                 {
-                    D3 p3 = (D3) b2;
-                    test(false);
-                    D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
+                    test(!(b2 is D3));
                 }
-                catch(InvalidCastException)
+                else
                 {
+                    test(b2 is D3);
+                    D3 p3 = (D3)b2;
+                    test(p3.pd3 == p1);
+                    test(p3.sd3 == "D3.sd3");
                 }
 
                 test(b1 != d1);
@@ -823,17 +825,18 @@ public class AllTests : Test.AllTests
             B b2 = b1.pb;
             test(b2 != null);
             test(b2.sb == "D3.sb");
-            test(b2.ice_id() == "::Test::B"); // Sliced by server
             test(b2.pb == b1);
-            try
+
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
             {
-                D3 p3 = (D3)b2;
-                test(false);
-                D3 tmp = p3;
-                p3 = tmp; // Stop compiler warning about unused variable.
+                test(!(b2 is D3));
             }
-            catch(InvalidCastException)
+            else
             {
+                test(b2 is D3);
+                D3 p3 = (D3)b2;
+                test(p3.pd3 == p1);
+                test(p3.sd3 == "D3.sd3");
             }
 
             test(b1 != d1);
@@ -863,17 +866,6 @@ public class AllTests : Test.AllTests
 
                 test(b1 != null);
                 test(b1.sb == "D3.sb");
-                test(b1.ice_id() == "::Test::B"); // Sliced by server
-
-                try
-                {
-                    D3 p1 = (D3) b1;
-                    test(false);
-                    D3 tmp = p1; p1 = tmp; // Stop compiler warning about unused variable.
-                }
-                catch(InvalidCastException)
-                {
-                }
 
                 B b2 = b1.pb;
                 test(b2 != null);
@@ -884,6 +876,18 @@ public class AllTests : Test.AllTests
                 test(p3 != null);
                 test(p3.sd1 == "D1.sd1");
                 test(p3.pd1 == b1);
+
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                {
+                    test(!(b1 is D3));
+                }
+                else
+                {
+                    test(b1 is D3);
+                    D3 p1 = (D3)b1;
+                    test(p1.sd3 == "D3.sd3");
+                    test(p1.pd3 == b2);
+                }
 
                 test(b1 != d1);
                 test(b1 != d3);
@@ -916,18 +920,6 @@ public class AllTests : Test.AllTests
 
             test(b1 != null);
             test(b1.sb == "D3.sb");
-            test(b1.ice_id() == "::Test::B"); // Sliced by server
-
-            try
-            {
-                D3 p1 = (D3)b1;
-                test(false);
-                D3 tmp = p1;
-                p1 = tmp; // Stop compiler warning about unused variable.
-            }
-            catch(InvalidCastException)
-            {
-            }
 
             B b2 = b1.pb;
             test(b2 != null);
@@ -938,6 +930,18 @@ public class AllTests : Test.AllTests
             test(p3 != null);
             test(p3.sd1 == "D1.sd1");
             test(p3.pd1 == b1);
+
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(b1 is D3));
+            }
+            else
+            {
+                test(b1 is D3);
+                D3 p1 = (D3)b1;
+                test(p1.sd3 == "D3.sd3");
+                test(p1.pd3 == b2);
+            }
 
             test(b1 != d1);
             test(b1 != d3);
@@ -1070,9 +1074,22 @@ public class AllTests : Test.AllTests
                 B ret = testPrx.returnTest3(d3, b2);
 
                 test(ret != null);
-                test(ret.ice_id() == "::Test::B");
                 test(ret.sb == "D3.sb");
                 test(ret.pb == ret);
+
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                {
+                    test(!(ret is D3));
+                }
+                else
+                {
+                    test(ret is D3);
+                    D3 p3 = (D3)ret;
+                    test(p3.sd3 == "D3.sd3");
+                    test(p3.pd3.ice_id() == "::Test::B");
+                    test(p3.pd3.sb == "B.sb(1)");
+                    test(p3.pd3.pb == p3.pd3);
+                }
             }
             catch(Exception ex)
             {
@@ -1102,9 +1119,22 @@ public class AllTests : Test.AllTests
             B rv = testPrx.returnTest3Async(d3, b2).Result;
 
             test(rv != null);
-            test(rv.ice_id() == "::Test::B");
             test(rv.sb == "D3.sb");
             test(rv.pb == rv);
+
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(rv is D3));
+            }
+            else
+            {
+                test(rv is D3);
+                D3 p3 = (D3)rv;
+                test(p3.sd3 == "D3.sd3");
+                test(p3.pd3.ice_id() == "::Test::B");
+                test(p3.pd3.sb == "B.sb(1)");
+                test(p3.pd3.pb == p3.pd3);
+            }
         }
         output.WriteLine("ok");
 
@@ -1132,7 +1162,6 @@ public class AllTests : Test.AllTests
 
                 B ret = testPrx.returnTest3(d3, d12);
                 test(ret != null);
-                test(ret.ice_id() == "::Test::B");
                 test(ret.sb == "D3.sb");
                 test(ret.pb == ret);
             }
@@ -1167,7 +1196,6 @@ public class AllTests : Test.AllTests
             B rv = testPrx.returnTest3Async(d3, d12).Result;
 
             test(rv != null);
-            test(rv.ice_id() == "::Test::B");
             test(rv.sb == "D3.sb");
             test(rv.pb == rv);
         }
@@ -1250,11 +1278,20 @@ public class AllTests : Test.AllTests
 
                 test(ss1b2.ice_id() == "::Test::B");
                 test(ss1d2.ice_id() == "::Test::D1");
-                test(ss1d4.ice_id() == "::Test::B");
 
                 test(ss2b2.ice_id() == "::Test::B");
                 test(ss2d2.ice_id() == "::Test::D1");
-                test(ss2d4.ice_id() == "::Test::B");
+
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                {
+                    test(ss1d4.ice_id() == "::Test::B");
+                    test(ss2d4.ice_id() == "::Test::B");
+                }
+                else
+                {
+                    test(ss1d4.ice_id() == "::Test::D3");
+                    test(ss2d4.ice_id() == "::Test::D3");
+                }
             }
             catch(Exception ex)
             {
@@ -1338,12 +1375,22 @@ public class AllTests : Test.AllTests
 
             test(ss1b3.ice_id() == "::Test::B");
             test(ss1d5.ice_id() == "::Test::D1");
-            test(ss1d6.ice_id() == "::Test::B");
 
             test(ss2b3.ice_id() == "::Test::B");
             test(ss2d5.ice_id() == "::Test::D1");
-            test(ss2d6.ice_id() == "::Test::B");
+
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                test(ss1d6.ice_id() == "::Test::B");
+                test(ss2d6.ice_id() == "::Test::B");
+            }
+            else
+            {
+                test(ss1d6.ice_id() == "::Test::D3");
+                test(ss2d6.ice_id() == "::Test::D3");
+            }
         }
+
         output.WriteLine("ok");
 
         output.Write("dictionary slicing... ");
@@ -1743,8 +1790,20 @@ public class AllTests : Test.AllTests
             pu.pu = "preserved";
 
             PBase r = testPrx.exchangePBase(pu);
-            test(!(r is PCUnknown));
+
             test(r.pi == 3);
+
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(r is PCUnknown));
+            }
+            else
+            {
+                test(r is PCUnknown);
+                PCUnknown p2 = (PCUnknown)r;
+                test(p2 != null);
+                test(p2.pu == "preserved");
+            }
         }
         catch(Ice.OperationNotExistException)
         {
@@ -1909,8 +1968,20 @@ public class AllTests : Test.AllTests
             pu.pu = "preserved";
 
             PBase r = testPrx.exchangePBaseAsync(pu).Result;
-            test(!(r is PCUnknown));
+
             test(r.pi == 3);
+
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(r is PCUnknown));
+            }
+            else
+            {
+                test(r is PCUnknown);
+                PCUnknown p2 = (PCUnknown)r;
+                test(p2 != null);
+                test(p2.pu == "preserved");
+            }
         }
 
         {

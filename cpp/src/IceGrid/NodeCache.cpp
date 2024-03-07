@@ -332,7 +332,7 @@ NodeEntry::loadServer(const shared_ptr<ServerEntry>& entry, const ServerInfo& se
             if(timeout > 0s)
             {
                 auto timeoutInMilliseconds = secondsToInt(timeout) * 1000;
-                node = Ice::uncheckedCast<NodePrx>(node->ice_invocationTimeout(std::move(timeoutInMilliseconds)));
+                node = node->ice_invocationTimeout(std::move(timeoutInMilliseconds));
             }
 
             ServerInfo info = server;
@@ -447,7 +447,7 @@ NodeEntry::destroyServer(const shared_ptr<ServerEntry>& entry, const ServerInfo&
             if(timeout > 0s)
             {
                 int timeoutInMilliseconds = secondsToInt(timeout) * 1000;
-                node = Ice::uncheckedCast<NodePrx>(node->ice_invocationTimeout(std::move(timeoutInMilliseconds)));
+                node = node->ice_invocationTimeout(std::move(timeoutInMilliseconds));
             }
         }
 

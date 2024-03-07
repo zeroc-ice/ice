@@ -13,40 +13,41 @@
 namespace IceDiscovery
 {
 
-class LocatorRegistryI : public Ice::LocatorRegistry
+class LocatorRegistryI final : public Ice::LocatorRegistry
 {
 public:
 
     LocatorRegistryI(const Ice::CommunicatorPtr&);
 
-    virtual void
-    setAdapterDirectProxyAsync(std::string,
-                               Ice::ObjectPrxPtr,
-                               std::function<void()>,
-                               std::function<void(std::exception_ptr)>,
-                               const Ice::Current&);
+    void setAdapterDirectProxyAsync(
+        std::string,
+        std::optional<Ice::ObjectPrx>,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
 
-    virtual void
-    setReplicatedAdapterDirectProxyAsync(std::string,
-                                         std::string,
-                                         Ice::ObjectPrxPtr,
-                                         std::function<void()>,
-                                         std::function<void(std::exception_ptr)>,
-                                         const Ice::Current&);
+    void setReplicatedAdapterDirectProxyAsync(
+        std::string,
+        std::string,
+        std::optional<Ice::ObjectPrx>,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&);
 
-    virtual void
-    setServerProcessProxyAsync(std::string,
-                               Ice::ProcessPrxPtr,
-                               std::function<void()>,
-                               std::function<void(std::exception_ptr)>,
-                               const Ice::Current&);
-    Ice::ObjectPrxPtr findObject(const Ice::Identity&) const;
-    Ice::ObjectPrxPtr findAdapter(const std::string&, bool&) const;
+    void setServerProcessProxyAsync(
+        std::string,
+        std::optional<Ice::ProcessPrx>,
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) final;
+
+    std::optional<Ice::ObjectPrx> findObject(const Ice::Identity&) const;
+    std::optional<Ice::ObjectPrx> findAdapter(const std::string&, bool&) const;
 
 private:
 
-    const Ice::ObjectPrxPtr _wellKnownProxy;
-    std::map<std::string, Ice::ObjectPrxPtr> _adapters;
+    const Ice::ObjectPrx _wellKnownProxy;
+    std::map<std::string, Ice::ObjectPrx> _adapters;
     std::map<std::string, std::set<std::string> > _replicaGroups;
     mutable std::mutex _mutex;
 };
@@ -55,30 +56,29 @@ using LocatorRegistryIPtr = std::shared_ptr<LocatorRegistryI>;
 class LookupI;
 using LookupIPtr = std::shared_ptr<LookupI>;
 
-class LocatorI : public Ice::Locator
+class LocatorI final : public Ice::Locator
 {
 public:
 
-    LocatorI(const LookupIPtr&, const Ice::LocatorRegistryPrxPtr&);
+    LocatorI(const LookupIPtr&, const Ice::LocatorRegistryPrx&);
 
-    virtual void
-    findObjectByIdAsync(Ice::Identity,
-                        std::function<void(const Ice::ObjectPrxPtr&)>,
-                        std::function<void(std::exception_ptr)>,
-                        const Ice::Current&) const;
+    void findObjectByIdAsync(
+        Ice::Identity,
+        std::function<void(const std::optional<Ice::ObjectPrx>&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) const final;
 
-    virtual void
-    findAdapterByIdAsync(std::string,
-                         std::function<void(const Ice::ObjectPrxPtr&)>,
-                         std::function<void(std::exception_ptr)>,
-                         const Ice::Current&) const;
+    void findAdapterByIdAsync(std::string,
+        std::function<void(const std::optional<Ice::ObjectPrx>&)>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) const;
 
-    virtual Ice::LocatorRegistryPrxPtr getRegistry(const Ice::Current&) const;
+    std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
 
 private:
 
     LookupIPtr _lookup;
-    Ice::LocatorRegistryPrxPtr _registry;
+    Ice::LocatorRegistryPrx _registry;
 };
 
 };

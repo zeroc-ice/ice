@@ -312,14 +312,12 @@ public:
     /**
      * Marks the end of a class instance.
      *
-     * @param preserve Pass true and the stream will preserve the unknown slices of the instance, or false
-     * to discard the unknown slices.
      * @return An object that encapsulates the unknown slice data.
      */
-    SlicedDataPtr endValue(bool preserve)
+    SlicedDataPtr endValue()
     {
         assert(_currentEncaps && _currentEncaps->decoder);
-        return _currentEncaps->decoder->endInstance(preserve);
+        return _currentEncaps->decoder->endInstance();
     }
 
     /**
@@ -333,15 +331,11 @@ public:
 
     /**
      * Marks the end of a user exception.
-     *
-     * @param preserve Pass true and the stream will preserve the unknown slices of the exception, or false
-     * to discard the unknown slices.
-     * @return An object that encapsulates the unknown slice data.
      */
-    SlicedDataPtr endException(bool preserve)
+    void endException()
     {
         assert(_currentEncaps && _currentEncaps->decoder);
-        return _currentEncaps->decoder->endInstance(preserve);
+        _currentEncaps->decoder->endInstance();
     }
 
     /**
@@ -1110,7 +1104,7 @@ private:
         virtual void throwException(UserExceptionFactory) = 0;
 
         virtual void startInstance(SliceType) = 0;
-        virtual SlicedDataPtr endInstance(bool) = 0;
+        virtual SlicedDataPtr endInstance() = 0;
         virtual std::string_view startSlice() = 0;
         virtual void endSlice() = 0;
         virtual void skipSlice() = 0;
@@ -1185,7 +1179,7 @@ private:
         virtual void throwException(UserExceptionFactory);
 
         virtual void startInstance(SliceType);
-        virtual SlicedDataPtr endInstance(bool);
+        virtual SlicedDataPtr endInstance();
         virtual std::string_view startSlice();
         virtual void endSlice();
         virtual void skipSlice();
@@ -1220,7 +1214,7 @@ private:
         virtual void throwException(UserExceptionFactory);
 
         virtual void startInstance(SliceType);
-        virtual SlicedDataPtr endInstance(bool);
+        virtual SlicedDataPtr endInstance();
         virtual std::string_view startSlice();
         virtual void endSlice();
         virtual void skipSlice();

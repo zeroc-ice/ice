@@ -212,7 +212,7 @@ RouterService::start(int argc, char* argv[], int& status)
     optional<PermissionsVerifierPrx> verifier;
     try
     {
-        verifier = optional<PermissionsVerifierPrx>(communicator()->propertyToProxy(verifierProperty));
+        verifier = communicator()->propertyToProxy<PermissionsVerifierPrx>(verifierProperty);
         if (verifier)
         {
             verifier->ice_ping();
@@ -241,7 +241,7 @@ RouterService::start(int argc, char* argv[], int& status)
     optional<SessionManagerPrx> sessionManager;
     try
     {
-        sessionManager = optional<SessionManagerPrx>(communicator()->propertyToProxy(sessionManagerProperty));
+        sessionManager = communicator()->propertyToProxy<SessionManagerPrx>(sessionManagerProperty);
         if (sessionManager)
         {
             sessionManager->ice_ping();
@@ -272,7 +272,7 @@ RouterService::start(int argc, char* argv[], int& status)
     optional<SSLPermissionsVerifierPrx> sslVerifier;
     try
     {
-        sslVerifier = optional<SSLPermissionsVerifierPrx>(communicator()->propertyToProxy(sslVerifierProperty));
+        sslVerifier = communicator()->propertyToProxy<SSLPermissionsVerifierPrx>(sslVerifierProperty);
         if (sslVerifier)
         {
             sslVerifier->ice_ping();
@@ -308,7 +308,7 @@ RouterService::start(int argc, char* argv[], int& status)
     optional<SSLSessionManagerPrx> sslSessionManager;
     try
     {
-        sslSessionManager = optional<SSLSessionManagerPrx>(communicator()->propertyToProxy(sslSessionManagerProperty));
+        sslSessionManager = communicator()->propertyToProxy<SSLSessionManagerPrx>(sslSessionManagerProperty);
         if (sslSessionManager)
         {
             sslSessionManager->ice_ping();

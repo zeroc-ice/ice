@@ -119,7 +119,6 @@ class A
     optional(500) int mc;
 }
 
-["preserve-slice"]
 class B extends A
 {
     int requiredB = 0;

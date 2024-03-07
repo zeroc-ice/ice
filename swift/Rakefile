@@ -78,10 +78,8 @@ $test_extra_sources = {
                                 "TwowaysAMI.swift"],
 
     "Ice/servantLocator" => ["ServantLocatorI.swift"],
-    "Ice/slicing/exceptions/Client" => ["ClientPrivate.ice"],
     "Ice/slicing/exceptions/Server" => ["ServerPrivate.ice"],
     "Ice/slicing/exceptions/ServerAMD" => ["ServerPrivateAMD.ice"],
-
     "Ice/slicing/objects/Client" => ["ClientPrivate.ice"],
     "Ice/slicing/objects/Server" => ["ServerPrivate.ice"],
     "Ice/slicing/objects/ServerAMD" => ["ServerPrivateAMD.ice"],

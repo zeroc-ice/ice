@@ -74,7 +74,7 @@ if "Observer" not in _M_Ice.Instrumentation.__dict__:
         __repr__ = __str__
 
     _M_Ice.Instrumentation._t_Observer = IcePy.defineValue(
-        "::Ice::Instrumentation::Observer", Observer, -1, (), False, True, None, ()
+        "::Ice::Instrumentation::Observer", Observer, -1, (), True, None, ()
     )
     Observer._ice_type = _M_Ice.Instrumentation._t_Observer
 
@@ -158,7 +158,6 @@ if "ThreadObserver" not in _M_Ice.Instrumentation.__dict__:
         ThreadObserver,
         -1,
         (),
-        False,
         True,
         None,
         (),
@@ -262,7 +261,6 @@ if "ConnectionObserver" not in _M_Ice.Instrumentation.__dict__:
         ConnectionObserver,
         -1,
         (),
-        False,
         True,
         None,
         (),
@@ -310,7 +308,6 @@ if "DispatchObserver" not in _M_Ice.Instrumentation.__dict__:
         DispatchObserver,
         -1,
         (),
-        False,
         True,
         None,
         (),
@@ -354,7 +351,6 @@ if "ChildInvocationObserver" not in _M_Ice.Instrumentation.__dict__:
         ChildInvocationObserver,
         -1,
         (),
-        False,
         True,
         None,
         (),
@@ -390,7 +386,6 @@ if "RemoteObserver" not in _M_Ice.Instrumentation.__dict__:
         RemoteObserver,
         -1,
         (),
-        False,
         True,
         None,
         (),
@@ -424,7 +419,6 @@ if "CollocatedObserver" not in _M_Ice.Instrumentation.__dict__:
         CollocatedObserver,
         -1,
         (),
-        False,
         True,
         None,
         (),
@@ -494,7 +488,6 @@ if "InvocationObserver" not in _M_Ice.Instrumentation.__dict__:
         InvocationObserver,
         -1,
         (),
-        False,
         True,
         None,
         (),
@@ -554,7 +547,6 @@ if "ObserverUpdater" not in _M_Ice.Instrumentation.__dict__:
         ObserverUpdater,
         -1,
         (),
-        False,
         True,
         None,
         (),
@@ -677,7 +669,6 @@ if "CommunicatorObserver" not in _M_Ice.Instrumentation.__dict__:
         CommunicatorObserver,
         -1,
         (),
-        False,
         True,
         None,
         (),

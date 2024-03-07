@@ -305,11 +305,19 @@ class Callback(CallbackBase):
         test(r.pb == r)
         self.called()
 
-    def response_preserved2(self, f):
+    def response_preserved2encoding10(self, f):
         r = f.result()
         test(r)
         test(not isinstance(r, Test.PCUnknown))
         test(r.pi == 3)
+        self.called()
+
+    def response_preserved2encoding11(self, f):
+        r = f.result()
+        test(r)
+        test(isinstance(r, Test.PCUnknown))
+        test(r.pi == 3)
+        test(r.pu == "preserved")
         self.called()
 
     def response_preserved3(self, f):
@@ -812,10 +820,14 @@ def allTests(helper, communicator):
         b2 = b1.pb
         test(b2)
         test(b2.sb == "D3.sb")
-        test(b2.ice_id() == "::Test::B")  # Sliced by server
         test(b2.pb == b1)
         p3 = b2
-        test(not isinstance(p3, Test.D3))
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p3, Test.D3))
+        else:
+            test(isinstance(b2, Test.D3))
+            test(p3.pd3 == p1)
+            test(p3.sd3 == "D3.sd3")
 
         test(b1 != d1)
         test(b1 != d3)
@@ -855,10 +867,14 @@ def allTests(helper, communicator):
         b2 = b1.pb
         test(b2)
         test(b2.sb == "D3.sb")
-        test(b2.ice_id() == "::Test::B")  # Sliced by server
         test(b2.pb == b1)
         p3 = b2
-        test(not isinstance(p3, Test.D3))
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p3, Test.D3))
+        else:
+            test(isinstance(b2, Test.D3))
+            test(p3.pd3 == p1)
+            test(p3.sd3 == "D3.sd3")
 
         test(b1 != d1)
         test(b1 != d3)
@@ -886,19 +902,25 @@ def allTests(helper, communicator):
 
         test(b1)
         test(b1.sb == "D3.sb")
-        test(b1.ice_id() == "::Test::B")  # Sliced by server
-        p1 = b1
-        test(not isinstance(p1, Test.D3))
 
         b2 = b1.pb
         test(b2)
         test(b2.sb == "D1.sb")
         test(b2.ice_id() == "::Test::D1")
         test(b2.pb == b1)
+
         p3 = b2
         test(isinstance(p3, Test.D1))
         test(p3.sd1 == "D1.sd1")
         test(p3.pd1 == b1)
+
+        p1 = b1
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p1, Test.D3))
+        else:
+            test(isinstance(p1, Test.D3))
+            test(p1.pd3 == b2)
+            test(p1.sd3 == "D3.sd3")
 
         test(b1 != d1)
         test(b1 != d3)
@@ -927,21 +949,24 @@ def allTests(helper, communicator):
         cb.check()
         b1 = cb.r
 
-        test(b1)
-        test(b1.sb == "D3.sb")
-        test(b1.ice_id() == "::Test::B")  # Sliced by server
-        p1 = b1
-        test(not isinstance(p1, Test.D3))
-
         b2 = b1.pb
         test(b2)
         test(b2.sb == "D1.sb")
         test(b2.ice_id() == "::Test::D1")
         test(b2.pb == b1)
+
         p3 = b2
         test(isinstance(p3, Test.D1))
         test(p3.sd1 == "D1.sd1")
         test(p3.pd1 == b1)
+
+        p1 = b1
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p1, Test.D3))
+        else:
+            test(isinstance(p1, Test.D3))
+            test(p1.pd3 == b2)
+            test(p1.sd3 == "D3.sd3")
 
         test(b1 != d1)
         test(b1 != d3)
@@ -1028,9 +1053,21 @@ def allTests(helper, communicator):
         r = t.returnTest3(d3, b2)
 
         test(r)
-        test(r.ice_id() == "::Test::B")
-        test(r.sb == "D3.sb")
-        test(r.pb == r)
+
+        p3 = r
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p3, Test.D3))
+        else:
+            test(isinstance(p3, Test.D3))
+
+            test(p3.sb == "D3.sb")
+            test(p3.pb == r)
+            test(p3.sd3 == "D3.sd3")
+
+            test(p3.pd3.ice_id() == "::Test::B")
+            test(p3.pd3.sb == "B.sb(1)")
+            test(p3.pd3.pb == p3.pd3)
+
     except Ice.Exception:
         test(False)
     print("ok")
@@ -1059,10 +1096,19 @@ def allTests(helper, communicator):
         cb.check()
         r = cb.r
 
-        test(r)
-        test(r.ice_id() == "::Test::B")
-        test(r.sb == "D3.sb")
-        test(r.pb == r)
+        p3 = r
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p3, Test.D3))
+        else:
+            test(isinstance(p3, Test.D3))
+
+            test(p3.sb == "D3.sb")
+            test(p3.pb == r)
+            test(p3.sd3 == "D3.sd3")
+
+            test(p3.pd3.ice_id() == "::Test::B")
+            test(p3.pd3.sb == "B.sb(1)")
+            test(p3.pd3.pb == p3.pd3)
     except Ice.Exception:
         test(False)
     print("ok")
@@ -1091,10 +1137,17 @@ def allTests(helper, communicator):
         d12.pd1 = d11
 
         r = t.returnTest3(d3, d12)
-        test(r)
-        test(r.ice_id() == "::Test::B")
+
         test(r.sb == "D3.sb")
         test(r.pb == r)
+        p3 = r
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p3, Test.D3))
+        else:
+            test(isinstance(p3, Test.D3))
+            test(p3.sd3 == "D3.sd3")
+            test(p3.pd3.ice_id() == "::Test::D1")
+
     except Ice.Exception:
         test(False)
     print("ok")
@@ -1127,10 +1180,16 @@ def allTests(helper, communicator):
         cb.check()
         r = cb.r
 
-        test(r)
-        test(r.ice_id() == "::Test::B")
         test(r.sb == "D3.sb")
         test(r.pb == r)
+        p3 = r
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p3, Test.D3))
+        else:
+            test(isinstance(p3, Test.D3))
+            test(p3.sd3 == "D3.sd3")
+            test(p3.pd3.ice_id() == "::Test::D1")
+
     except Ice.Exception:
         test(False)
     print("ok")
@@ -1202,11 +1261,17 @@ def allTests(helper, communicator):
 
         test(ss1b.ice_id() == "::Test::B")
         test(ss1d1.ice_id() == "::Test::D1")
-        test(ss1d3.ice_id() == "::Test::B")
 
         test(ss2b.ice_id() == "::Test::B")
         test(ss2d1.ice_id() == "::Test::D1")
-        test(ss2d3.ice_id() == "::Test::B")
+
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(ss1d3.ice_id() == "::Test::B")
+            test(ss2d3.ice_id() == "::Test::B")
+        else:
+            test(ss1d3.ice_id() == "::Test::D3")
+            test(ss2d3.ice_id() == "::Test::D3")
+
     except Ice.Exception:
         test(False)
     print("ok")
@@ -1281,11 +1346,17 @@ def allTests(helper, communicator):
 
         test(ss1b.ice_id() == "::Test::B")
         test(ss1d1.ice_id() == "::Test::D1")
-        test(ss1d3.ice_id() == "::Test::B")
 
         test(ss2b.ice_id() == "::Test::B")
         test(ss2d1.ice_id() == "::Test::D1")
-        test(ss2d3.ice_id() == "::Test::B")
+
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(ss1d3.ice_id() == "::Test::B")
+            test(ss2d3.ice_id() == "::Test::B")
+        else:
+            test(ss1d3.ice_id() == "::Test::D3")
+            test(ss2d3.ice_id() == "::Test::D3")
+
     except Ice.Exception:
         test(False)
     print("ok")
@@ -1526,8 +1597,14 @@ def allTests(helper, communicator):
         pu.pu = "preserved"
 
         r = t.exchangePBase(pu)
-        test(not isinstance(r, Test.PCUnknown))
         test(r.pi == 3)
+
+        p2 = r
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(not isinstance(p2, Test.PCUnknown))
+        else:
+            test(isinstance(p2, Test.PCUnknown))
+            test(p2.pu == "preserved")
 
         #
         # Server only knows the intermediate type Preserved. The object will be sliced to
@@ -1645,7 +1722,10 @@ def allTests(helper, communicator):
     pu.pu = "preserved"
 
     cb = Callback()
-    t.exchangePBaseAsync(pu).add_done_callback(cb.response_preserved2)
+    if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+        t.exchangePBaseAsync(pu).add_done_callback(cb.response_preserved2encoding10)
+    else:
+        t.exchangePBaseAsync(pu).add_done_callback(cb.response_preserved2encoding11)
     cb.check()
 
     #
@@ -1778,42 +1858,6 @@ def allTests(helper, communicator):
         p._ice_slicedData = None  # Break the cycle.
         p = None  # Release reference.
         test(PreservedI.counter == 0)
-
-        #
-        # Throw a preserved exception where the most-derived type is unknown.
-        # The preserved exception slice contains a class data member. This
-        # object is also preserved, and its most-derived type is also unknown.
-        # The preserved slice of the object contains a class data member that
-        # refers to itself.
-        #
-        # The chain of references looks like this:
-        #
-        # ex->slicedData->obj->slicedData->obj
-        #
-        try:
-            test(PreservedI.counter == 0)
-
-            try:
-                t.throwPreservedException()
-            except Test.PreservedException as ex:
-                #
-                # The class instance is only retained when the encoding is > 1.0.
-                #
-                if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
-                    test(PreservedI.counter == 1)
-                    gc.collect()  # No effect.
-                    test(PreservedI.counter == 1)
-                    ex._ice_slicedData = None  # Break the cycle.
-
-            #
-            # Exception has gone out of scope.
-            #
-            if t.ice_getEncodingVersion() != Ice.Encoding_1_0:
-                gc.collect()
-                test(len(gc.garbage) == 0)
-                test(PreservedI.counter == 0)
-        except Ice.Exception:
-            test(False)
     except Ice.OperationNotExistException:
         pass
 

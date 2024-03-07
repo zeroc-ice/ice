@@ -92,7 +92,7 @@ if "ServantLocator" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_ServantLocator = IcePy.defineValue(
-        "::Ice::ServantLocator", ServantLocator, -1, (), False, True, None, ()
+        "::Ice::ServantLocator", ServantLocator, -1, (), True, None, ()
     )
     ServantLocator._ice_type = _M_Ice._t_ServantLocator
 

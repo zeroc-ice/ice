@@ -91,7 +91,7 @@ module ::Ice
             T_ConnectionInfo = ::Ice::__declareLocalClass('::Ice::ConnectionInfo')
         end
 
-        T_ConnectionInfo.defineClass(ConnectionInfo, -1, false, false, nil, [
+        T_ConnectionInfo.defineClass(ConnectionInfo, -1, false, nil, [
             ['underlying', ::Ice::T_ConnectionInfo, false, 0],
             ['incoming', ::Ice::T_bool, false, 0],
             ['adapterName', ::Ice::T_string, false, 0],
@@ -324,7 +324,7 @@ module ::Ice
             T_IPConnectionInfo = ::Ice::__declareLocalClass('::Ice::IPConnectionInfo')
         end
 
-        T_IPConnectionInfo.defineClass(IPConnectionInfo, -1, false, false, ::Ice::T_ConnectionInfo, [
+        T_IPConnectionInfo.defineClass(IPConnectionInfo, -1, false, ::Ice::T_ConnectionInfo, [
             ['localAddress', ::Ice::T_string, false, 0],
             ['localPort', ::Ice::T_int, false, 0],
             ['remoteAddress', ::Ice::T_string, false, 0],
@@ -351,7 +351,7 @@ module ::Ice
             T_TCPConnectionInfo = ::Ice::__declareLocalClass('::Ice::TCPConnectionInfo')
         end
 
-        T_TCPConnectionInfo.defineClass(TCPConnectionInfo, -1, false, false, ::Ice::T_IPConnectionInfo, [
+        T_TCPConnectionInfo.defineClass(TCPConnectionInfo, -1, false, ::Ice::T_IPConnectionInfo, [
             ['rcvSize', ::Ice::T_int, false, 0],
             ['sndSize', ::Ice::T_int, false, 0]
         ])
@@ -378,7 +378,7 @@ module ::Ice
             T_UDPConnectionInfo = ::Ice::__declareLocalClass('::Ice::UDPConnectionInfo')
         end
 
-        T_UDPConnectionInfo.defineClass(UDPConnectionInfo, -1, false, false, ::Ice::T_IPConnectionInfo, [
+        T_UDPConnectionInfo.defineClass(UDPConnectionInfo, -1, false, ::Ice::T_IPConnectionInfo, [
             ['mcastAddress', ::Ice::T_string, false, 0],
             ['mcastPort', ::Ice::T_int, false, 0],
             ['rcvSize', ::Ice::T_int, false, 0],
@@ -408,6 +408,6 @@ module ::Ice
             T_WSConnectionInfo = ::Ice::__declareLocalClass('::Ice::WSConnectionInfo')
         end
 
-        T_WSConnectionInfo.defineClass(WSConnectionInfo, -1, false, false, ::Ice::T_ConnectionInfo, [['headers', ::Ice::T_HeaderDict, false, 0]])
+        T_WSConnectionInfo.defineClass(WSConnectionInfo, -1, false, ::Ice::T_ConnectionInfo, [['headers', ::Ice::T_HeaderDict, false, 0]])
     end
 end

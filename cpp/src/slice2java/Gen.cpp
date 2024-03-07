@@ -1460,39 +1460,6 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     int iter;
     DataMemberList members = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
-
-    if(preserved && !basePreserved)
-    {
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "@Override";
-        out << nl << "public " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " ice_getSlicedData()";
-        out << sb;
-        out << nl << "return _iceSlicedData;";
-        out << eb;
-
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "@Override";
-        out << nl << "public void _iceWrite(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
-        out << sb;
-        out << nl << "ostr.startValue(_iceSlicedData);";
-        out << nl << "_iceWriteImpl(ostr);";
-        out << nl << "ostr.endValue();";
-        out << eb;
-
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "@Override";
-        out << nl << "public void _iceRead(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
-        out << sb;
-        out << nl << "istr.startValue();";
-        out << nl << "_iceReadImpl(istr);";
-        out << nl << "_iceSlicedData = istr.endValue(true);";
-        out << eb;
-    }
 
     out << sp;
     writeHiddenDocComment(out);
@@ -1548,13 +1515,6 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
         out << nl << "super._iceReadImpl(istr_);";
     }
     out << eb;
-
-    if(preserved && !basePreserved)
-    {
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "protected " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " _iceSlicedData;";
-    }
 }
 
 void
@@ -2910,43 +2870,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     string scoped = p->scoped();
     string package = getPackage(p);
     ExceptionPtr base = p->base();
-    bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = p->hasMetaData("preserve-slice");
 
     DataMemberList members = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     int iter;
-
-    if(preserved && !basePreserved)
-    {
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "@Override";
-        out << nl << "public " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " ice_getSlicedData()";
-        out << sb;
-        out << nl << "return _slicedData;";
-        out << eb;
-
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "@Override";
-        out << nl << "public void _write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
-        out << sb;
-        out << nl << "ostr.startException(_slicedData);";
-        out << nl << "_writeImpl(ostr);";
-        out << nl << "ostr.endException();";
-        out << eb;
-
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "@Override";
-        out << nl << "public void _read(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
-        out << sb;
-        out << nl << "istr.startException();";
-        out << nl << "_readImpl(istr);";
-        out << nl << "_slicedData = istr.endException(true);";
-        out << eb;
-    }
 
     out << sp;
     writeHiddenDocComment(out);
@@ -3013,13 +2940,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << nl << "return true;";
             out << eb;
         }
-    }
-
-    if(preserved && !basePreserved)
-    {
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "protected " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " _slicedData;";
     }
 
     out << sp;

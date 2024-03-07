@@ -320,12 +320,11 @@ public class OutputStream
     /**
      * Marks the start of a user exception.
      *
-     * @param data Preserved slices for this exception, or null.
      **/
-    public void startException(SlicedData data)
+    public void startException()
     {
         assert(_encapsStack != null && _encapsStack.encoder != null);
-        _encapsStack.encoder.startInstance(SliceType.ExceptionSlice, data);
+        _encapsStack.encoder.startInstance(SliceType.ExceptionSlice, null);
     }
 
     /**
@@ -1721,6 +1720,8 @@ public class OutputStream
     public void writeException(UserException v)
     {
         initEncaps();
+        // Exceptions are always encoded with the sliced format.
+        _encapsStack.format = FormatType.SlicedFormat;
         _encapsStack.encoder.writeException(v);
     }
 

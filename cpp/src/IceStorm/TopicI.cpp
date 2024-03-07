@@ -368,7 +368,7 @@ TopicImpl::create(shared_ptr<PersistentInstance> instance,
     auto publisher = make_shared<PublisherI>(topicImpl, instance);
     topicImpl->_publisherPrxPtr = instance->publishAdapter()->add(publisher, pubid);
     auto topicLink = make_shared<TopicLinkI>(topicImpl, instance);
-    topicImpl->_linkPrxPtr = Ice::uncheckedCast<TopicLinkPrx>(instance->publishAdapter()->add(topicLink, linkid));
+    topicImpl->_linkPrxPtr = TopicLinkPrx{instance->publishAdapter()->add(topicLink, linkid)};
 
     return topicImpl;
 }

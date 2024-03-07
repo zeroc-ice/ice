@@ -57,7 +57,7 @@ if "Plugin" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_Plugin = IcePy.defineValue(
-        "::Ice::Plugin", Plugin, -1, (), False, True, None, ()
+        "::Ice::Plugin", Plugin, -1, (), True, None, ()
     )
     Plugin._ice_type = _M_Ice._t_Plugin
 
@@ -129,7 +129,7 @@ if "PluginManager" not in _M_Ice.__dict__:
         __repr__ = __str__
 
     _M_Ice._t_PluginManager = IcePy.defineValue(
-        "::Ice::PluginManager", PluginManager, -1, (), False, True, None, ()
+        "::Ice::PluginManager", PluginManager, -1, (), True, None, ()
     )
     PluginManager._ice_type = _M_Ice._t_PluginManager
 

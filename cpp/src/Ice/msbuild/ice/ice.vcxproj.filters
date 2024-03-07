@@ -318,9 +318,6 @@
     <ClCompile Include="..\..\Incoming.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\IncomingAsync.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Initialize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -592,6 +589,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\MarshaledResult.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
