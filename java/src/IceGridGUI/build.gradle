@@ -88,8 +88,7 @@ jar {
 
 project.ext.libJars = []
 
-project.ext.jarBuilder = icegridguiProguard.toBoolean() && JavaVersion.current() > JavaVersion.VERSION_1_8 ?
-    "proguard-jar.gradle" : "plain-jar.gradle"
+project.ext.jarBuilder = icegridguiProguard.toBoolean() ? "proguard-jar.gradle" : "plain-jar.gradle"
 
 apply from: jarBuilder
 
