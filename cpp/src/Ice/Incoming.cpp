@@ -126,9 +126,9 @@ Incoming::writeParamEncaps(const uint8_t* v, int32_t sz, bool ok)
 }
 
 void
-Incoming::setMarshaledResult(const Ice::MarshaledResult& result)
+Incoming::setMarshaledResult(Ice::MarshaledResult&& result)
 {
-    result.getOutputStream()->swap(_os);
+    result.swap(_os);
 }
 
 void
@@ -186,9 +186,9 @@ Incoming::response()
 }
 
 void
-Incoming::response(const MarshaledResult& result)
+Incoming::response(MarshaledResult&& result)
 {
-    setMarshaledResult(result);
+    setMarshaledResult(std::move(result));
     completed();
 }
 

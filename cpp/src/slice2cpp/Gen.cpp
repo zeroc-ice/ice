@@ -2903,8 +2903,8 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         if(p->hasMarshaledResult())
         {
             string resultName = marshaledResultStructName(name);
-            params.push_back("::std::function<void(const " + resultName + "&)> " + responsecbParam);
-            args.push_back("[incomingPtr](const " + resultName + "& marshaledResult) { incomingPtr->response(marshaledResult); }");
+            params.push_back("::std::function<void(" + resultName + ")> " + responsecbParam);
+            args.push_back("[incomingPtr](" + resultName + " marshaledResult) { incomingPtr->response(::std::move(marshaledResult)); }");
         }
         else
         {
@@ -2965,6 +2965,8 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "MarshaledResult(current)";
         C.dec();
         C << sb;
+        // Switch to ostr pointer expected by WriteMarshalCode.
+        C << nl << "::Ice::OutputStream* ostr = &_ostr;";
         C << nl << "ostr->startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, outParams, p);
         if(p->returnsClasses(false))
