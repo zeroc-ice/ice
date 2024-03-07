@@ -98,7 +98,7 @@ Ice::Communicator::proxyToString(const std::optional<ObjectPrx>& proxy) const
 }
 
 std::optional<ObjectPrx>
-Ice::Communicator::propertyToProxy(const string& p) const
+Ice::Communicator::_propertyToProxy(const string& p) const
 {
     return _instance->proxyFactory()->propertyToProxy(p);
 }

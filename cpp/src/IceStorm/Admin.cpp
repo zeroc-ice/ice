@@ -133,8 +133,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
             {
                 try
                 {
-                    auto manager = Ice::uncheckedCast<IceStorm::TopicManagerPrx>(
-                        communicator->propertyToProxy(p.first));
+                    auto manager = communicator->propertyToProxy<IceStorm::TopicManagerPrx>(p.first);
                     managers.insert({manager->ice_getIdentity(), manager});
                 }
                 catch(const Ice::ProxyParseException&)
@@ -166,7 +165,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
         os << "IceStorm/Finder";
         os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
         os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
-        auto finder = Ice::uncheckedCast<IceStorm::FinderPrx>(communicator->stringToProxy(os.str()));
+        IceStorm::FinderPrx finder{communicator, os.str()};
         try
         {
             defaultManager = finder->getTopicManager();
