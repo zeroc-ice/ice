@@ -117,7 +117,7 @@ ICE_API PropertiesPtr createProperties();
  * @return A new property set initialized with the property settings
  * that were removed from the argument vector.
  */
-ICE_API PropertiesPtr createProperties(StringSeq& seq, const PropertiesPtr& defaults = 0);
+ICE_API PropertiesPtr createProperties(StringSeq& seq, const PropertiesPtr& defaults = nullptr);
 
 /**
  * Creates a property set initialized from command-line arguments
@@ -138,7 +138,7 @@ ICE_API PropertiesPtr createProperties(StringSeq& seq, const PropertiesPtr& defa
  * @return A new property set initialized with the property settings
  * that were removed from the argument vector.
  */
-ICE_API PropertiesPtr createProperties(int& argc, const char* argv[], const PropertiesPtr& defaults = 0);
+ICE_API PropertiesPtr createProperties(int& argc, const char* argv[], const PropertiesPtr& defaults = nullptr);
 
 /**
  * Creates a property set initialized from command-line arguments
@@ -159,7 +159,7 @@ ICE_API PropertiesPtr createProperties(int& argc, const char* argv[], const Prop
  * @return A new property set initialized with the property settings
  * that were removed from the argument vector.
  */
-inline PropertiesPtr createProperties(int& argc, char* argv[], const PropertiesPtr& defaults = 0)
+inline PropertiesPtr createProperties(int& argc, char* argv[], const PropertiesPtr& defaults = nullptr)
 {
     return createProperties(argc, const_cast<const char**>(argv), defaults);
 }
@@ -184,7 +184,7 @@ inline PropertiesPtr createProperties(int& argc, char* argv[], const PropertiesP
  * @return A new property set initialized with the property settings
  * that were removed from the argument vector.
  */
-ICE_API PropertiesPtr createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults = 0);
+ICE_API PropertiesPtr createProperties(int& argc, const wchar_t* argv[], const PropertiesPtr& defaults = nullptr);
 
 /**
  * Creates a property set initialized from command-line arguments
@@ -205,7 +205,7 @@ ICE_API PropertiesPtr createProperties(int& argc, const wchar_t* argv[], const P
  * @return A new property set initialized with the property settings
  * that were removed from the argument vector.
  */
-inline PropertiesPtr createProperties(int& argc, wchar_t* argv[], const PropertiesPtr& defaults = 0)
+inline PropertiesPtr createProperties(int& argc, wchar_t* argv[], const PropertiesPtr& defaults = nullptr)
 {
     return createProperties(argc, const_cast<const wchar_t**>(argv), defaults);
 }
