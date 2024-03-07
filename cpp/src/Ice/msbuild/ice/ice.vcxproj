@@ -551,7 +551,6 @@
     <ClCompile Include="..\..\OutputStream.cpp" />
     <ClCompile Include="..\..\PluginManagerI.cpp" />
     <ClCompile Include="..\..\PropertiesAdminI.cpp" />
-    <ClCompile Include="..\..\PropertiesI.cpp" />
     <ClCompile Include="..\..\PropertyNames.cpp" />
     <ClCompile Include="..\..\Protocol.cpp" />
     <ClCompile Include="..\..\ProtocolInstance.cpp" />

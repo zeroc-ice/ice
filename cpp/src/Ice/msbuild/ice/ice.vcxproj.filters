@@ -387,9 +387,6 @@
     <ClCompile Include="..\..\PropertiesAdminI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\PropertiesI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\PropertyNames.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
