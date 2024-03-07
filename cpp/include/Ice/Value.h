@@ -96,7 +96,7 @@ protected:
 
 private:
 
-    ::std::shared_ptr<Ice::SlicedData> _slicedData;
+    SlicedDataPtr _slicedData;
 };
 
 /// \cond INTERNAL
